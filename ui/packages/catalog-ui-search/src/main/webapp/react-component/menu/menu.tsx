@@ -1,11 +1,11 @@
-const React = require('react')
+import * as React from 'react'
 
 const CustomElements = require('../../js/CustomElements.js')
 const Component = CustomElements.registerReact('menu')
 
-const mod = (n, m) => ((n % m) + m) % m
+const mod = (n: any, m: any) => ((n % m) + m) % m
 
-class DocumentListener extends React.Component {
+class DocumentListener extends React.Component<any, any> {
   componentDidMount() {
     document.addEventListener(this.props.event, this.props.listener)
   }
@@ -17,8 +17,8 @@ class DocumentListener extends React.Component {
   }
 }
 
-class Menu extends React.Component {
-  constructor(props) {
+export class Menu extends React.Component<any, any> {
+  constructor(props: any) {
     super(props)
     this.state = { active: this.chooseActive() }
     this.onKeyDown = this.onKeyDown.bind(this)
@@ -26,7 +26,7 @@ class Menu extends React.Component {
   chooseActive() {
     const selection = this.props.value
     const active = this.state ? this.state.active : undefined
-    const itemNames = this.getChildren().map(child => child.props.value)
+    const itemNames = this.getChildren().map((child: any) => child.props.value)
     if (itemNames.includes(active)) {
       return active
     } else if (itemNames.includes(selection)) {
@@ -37,25 +37,25 @@ class Menu extends React.Component {
       return undefined
     }
   }
-  onHover(active) {
+  onHover(active: any) {
     this.setState({ active })
   }
   getChildren() {
     return this.getChildrenFrom(this.props.children)
   }
   getChildrenFrom(children: any) {
-    return React.Children.toArray(children).filter(o => o)
+    return React.Children.toArray(children).filter((o: any) => o)
   }
-  onShift(offset) {
-    const values = this.getChildren().map(({ props }) => props.value)
-    const index = values.findIndex(value => value === this.state.active)
+  onShift(offset: any) {
+    const values = this.getChildren().map(({ props }: any) => props.value)
+    const index = values.findIndex((value: any) => value === this.state.active)
     const next = mod(index + offset, values.length)
     this.onHover(values[next])
   }
-  getValue(value) {
+  getValue(value: any) {
     if (this.props.multi) {
       if (this.props.value.indexOf(value) !== -1) {
-        return this.props.value.filter(v => v !== value)
+        return this.props.value.filter((v: any) => v !== value)
       } else {
         return this.props.value.concat(value)
       }
@@ -63,14 +63,14 @@ class Menu extends React.Component {
       return value
     }
   }
-  onChange(value) {
+  onChange(value: any) {
     this.props.onChange(this.getValue(value))
 
     if (!this.props.multi && typeof this.props.onClose === 'function') {
       this.props.onClose()
     }
   }
-  onKeyDown(e) {
+  onKeyDown(e: any) {
     switch (e.code) {
       case 'ArrowUp':
         e.preventDefault()
@@ -89,7 +89,7 @@ class Menu extends React.Component {
         break
     }
   }
-  componentDidUpdate(previousProps) {
+  componentDidUpdate(previousProps: any) {
     if (previousProps.children !== this.props.children) {
       this.setState({ active: this.chooseActive() })
     }
@@ -97,17 +97,19 @@ class Menu extends React.Component {
   render() {
     const { multi, value, children } = this.props
 
-    const childrenWithProps = this.getChildrenFrom(children).map((child, i) => {
-      return React.cloneElement(child, {
-        selected: multi
-          ? value.indexOf(child.props.value) !== -1
-          : value === child.props.value,
-        onClick: () => this.onChange(child.props.value),
-        active: this.state.active === child.props.value,
-        onHover: () => this.onHover(child.props.value),
-        ...child.props,
-      })
-    })
+    const childrenWithProps = this.getChildrenFrom(children).map(
+      (child: any) => {
+        return React.cloneElement(child, {
+          selected: multi
+            ? value.indexOf(child.props.value) !== -1
+            : value === child.props.value,
+          onClick: () => this.onChange(child.props.value),
+          active: this.state.active === child.props.value,
+          onHover: () => this.onHover(child.props.value),
+          ...child.props,
+        })
+      }
+    )
 
     return (
       <Component>
@@ -118,7 +120,7 @@ class Menu extends React.Component {
   }
 }
 
-class MenuItem extends React.Component {
+export class MenuItem extends React.Component<any, any> {
   render() {
     const {
       value,
@@ -134,7 +136,7 @@ class MenuItem extends React.Component {
         style={style}
         onMouseEnter={() => onHover(value)}
         onFocus={() => onHover(value)}
-        tabIndex="0"
+        tabIndex={0}
         className={
           'input-menu-item ' +
           (selected ? ' is-selected ' : '') +
