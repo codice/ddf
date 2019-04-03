@@ -28,6 +28,10 @@ const Root = styled.div`
   display: inline-block;
 `
 
+const ContextBar = styled.div`
+  background-color: rgba(0, 0, 0, 0.1);
+`
+
 const MultiSelectButton = styled(Button)`
   min-width: calc(2.5 * ${props => props.theme.minimumButtonSize});
   padding: 0px 5px 0px 5px;
@@ -82,11 +86,11 @@ const buttons = plugin([Export])
 
 const render = (props: Props) => {
   return (
-    <>
+    <ContextBar>
       {buttons.map((Component: any, i: number) => (
         <Component key={i} {...props} />
       ))}
-    </>
+    </ContextBar>
   )
 }
 
