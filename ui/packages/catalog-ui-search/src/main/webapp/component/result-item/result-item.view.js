@@ -39,7 +39,9 @@ require('../../behaviors/button.behavior.js')
 require('../../behaviors/dropdown.behavior.js')
 const HandleBarsHelpers = require('../../js/HandlebarsHelpers.js')
 const ResultLinkView = require('../result-link/result-link.view.js')
-const CheckboxView = require('../selection-checkbox/selection-checkbox.view.js')
+const {
+  SelectItemToggle,
+} = require('../selection-checkbox/selection-checkbox.view.js')
 const plugin = require('plugins/result-item')
 
 const LIST_DISPLAY_TYPE = 'List'
@@ -257,18 +259,12 @@ const ResultItemView = Marionette.LayoutView.extend({
     )
   },
   onRender() {
-    const isSelected = this.isSelected()
     this.checkbox.show(
-      new CheckboxView({
-        isSelected: isSelected,
-        onClick: this.selected.bind(this),
+      new SelectItemToggle({
+        model: this.model,
+        selectionInterface: this.options.selectionInterface,
       })
     )
-  },
-  selected: function(checked) {
-    checked
-      ? this.options.selectionInterface.addSelectedResult(this.model)
-      : this.options.selectionInterface.removeSelectedResult(this.model)
   },
   getExtensions: function() {
     return null
@@ -341,16 +337,10 @@ const ResultItemView = Marionette.LayoutView.extend({
     )
     this.handleSelectionChange()
   },
-  isSelected: function() {
-    const selectedResults = this.options.selectionInterface.getSelectedResults()
-    return Boolean(selectedResults.get(this.model.id))
-  },
   handleSelectionChange: function() {
-    const isSelected = this.isSelected()
-    this.$el.toggleClass('is-selected', isSelected)
-    if (this.checkbox.currentView) {
-      this.checkbox.currentView.setCheck(isSelected)
-    }
+    const selectedResults = this.options.selectionInterface.getSelectedResults()
+    const isSelected = selectedResults.get(this.model.id)
+    this.$el.toggleClass('is-selected', Boolean(isSelected))
   },
   handleMetacardUpdate: function() {
     this.$el.attr(this.attributes())

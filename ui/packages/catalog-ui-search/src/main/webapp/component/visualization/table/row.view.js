@@ -21,7 +21,9 @@ var user = require('../../singletons/user-instance.js')
 var properties = require('../../../js/properties.js')
 var HoverPreviewDropdown = require('../../dropdown/hover-preview/dropdown.hover-preview.view.js')
 var DropdownModel = require('../../dropdown/dropdown.js')
-const CheckboxView = require('../../selection-checkbox/selection-checkbox.view.js')
+const {
+  SelectItemToggle,
+} = require('../../selection-checkbox/selection-checkbox.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   className: 'is-tr',
@@ -65,35 +67,23 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.handleSelectionChange()
   },
-  selected: function(checked) {
-    checked
-      ? this.options.selectionInterface.addSelectedResult(this.model)
-      : this.options.selectionInterface.removeSelectedResult(this.model)
-  },
-  isSelected: function() {
-    const selectedResults = this.options.selectionInterface.getSelectedResults()
-    return Boolean(selectedResults.get(this.model.id))
-  },
   handleSelectionChange: function() {
-    const isSelected = this.isSelected()
-    this.$el.toggleClass('is-selected', isSelected)
-    if (this.checkboxContainer.currentView) {
-      this.checkboxContainer.currentView.setCheck(isSelected)
-    }
+    var selectedResults = this.options.selectionInterface.getSelectedResults()
+    var isSelected = selectedResults.get(this.model.id)
+    this.$el.toggleClass('is-selected', Boolean(isSelected))
   },
   onRender: function() {
     this.checkIfDownloadable()
     this.checkIfLinks()
     this.$el.attr(this.attributes())
     this.handleResultThumbnail()
-    this.ShowCheckboxSelector()
+    this.showCheckboxSelector()
   },
-  ShowCheckboxSelector() {
-    const isSelected = this.isSelected()
+  showCheckboxSelector() {
     this.checkboxContainer.show(
-      new CheckboxView({
-        isSelected: isSelected,
-        onClick: this.selected.bind(this),
+      new SelectItemToggle({
+        model: this.model,
+        selectionInterface: this.options.selectionInterface,
       })
     )
   },

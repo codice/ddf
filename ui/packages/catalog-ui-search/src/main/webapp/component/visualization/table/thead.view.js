@@ -23,7 +23,9 @@ var properties = require('../../../js/properties.js')
 var metacardDefinitions = require('../../singletons/metacard-definitions.js')
 require('jquery-ui/ui/widgets/resizable')
 var isResizing = false
-const CheckboxView = require('../../selection-checkbox/selection-checkbox.view.js')
+const {
+  SelectAllToggle,
+} = require('../../selection-checkbox/selection-checkbox.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -57,11 +59,6 @@ module.exports = Marionette.LayoutView.extend({
       'change:columnOrder',
       this.render
     )
-    this.listenTo(
-      this.options.selectionInterface.getSelectedResults(),
-      'update add remove reset',
-      this.updateCheckbox
-    )
     this.updateSorting = _.debounce(this.updateSorting, 500)
   },
   onRender: function() {
@@ -73,16 +70,10 @@ module.exports = Marionette.LayoutView.extend({
   },
   showCheckbox: function() {
     this.checkboxContainer.show(
-      new CheckboxView({
-        isSelected: this.allSelected(),
-        onClick: this.toggleCurrentResults.bind(this),
+      new SelectAllToggle({
+        selectionInterface: this.options.selectionInterface,
       })
     )
-  },
-  updateCheckbox: function() {
-    if (this.checkboxContainer.currentView) {
-      this.checkboxContainer.currentView.setCheck(this.allSelected())
-    }
   },
   updateSorting: function(e) {
     var attribute = e.currentTarget.getAttribute('data-propertyid')
@@ -186,23 +177,6 @@ module.exports = Marionette.LayoutView.extend({
   checkIfResizing: function(e) {
     if (!isResizing) {
       this.updateSorting(e)
-    }
-  },
-  allSelected: function() {
-    const currentResultsLength = this.options.selectionInterface.getActiveSearchResults()
-      .length
-    return (
-      currentResultsLength > 0 &&
-      currentResultsLength ===
-        this.options.selectionInterface.getSelectedResults().length
-    )
-  },
-  toggleCurrentResults: function() {
-    if (this.allSelected()) {
-      this.options.selectionInterface.clearSelectedResults()
-    } else {
-      const currentResults = this.options.selectionInterface.getActiveSearchResults()
-      this.options.selectionInterface.addSelectedResult(currentResults.models)
     }
   },
 })

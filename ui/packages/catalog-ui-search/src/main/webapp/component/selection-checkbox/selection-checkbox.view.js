@@ -23,31 +23,76 @@ const Root = styled.div`
   cursor: pointer;
 `
 
-module.exports = Marionette.ItemView.extend({
+const SelectItemToggle = Marionette.ItemView.extend({
   events: {
     'click span': 'handleClick',
   },
   handleClick(e) {
     e.stopPropagation()
-    this.setCheck(!this.isSelected)
-    this.options.onClick(this.isSelected)
+    if (this.isSelected()) {
+      this.options.selectionInterface.removeSelectedResult(this.model)
+    } else {
+      this.options.selectionInterface.addSelectedResult(this.model)
+    }
   },
   template() {
+    const className = `fa fa-${this.isSelected() ? 'check-' : ''}square-o`
     return (
       <Root>
-        {this.isSelected ? (
-          <span className="fa fa-check-square-o" />
-        ) : (
-          <span className="fa fa-square-o" />
-        )}
+        <span className={className} />
       </Root>
     )
   },
-  initialize() {
-    this.isSelected = this.options.isSelected
+  isSelected: function() {
+    const selectedResults = this.options.selectionInterface.getSelectedResults()
+    return Boolean(selectedResults.get(this.model.id))
   },
-  setCheck: function(isSelected) {
-    this.isSelected = isSelected
-    this.render()
+  initialize() {
+    this.listenTo(
+      this.options.selectionInterface.getSelectedResults(),
+      'update add remove reset',
+      this.render
+    )
   },
 })
+
+const SelectAllToggle = Marionette.ItemView.extend({
+  events: {
+    'click span': 'handleClick',
+  },
+  handleClick(e) {
+    e.stopPropagation()
+    if (this.isSelected()) {
+      this.options.selectionInterface.clearSelectedResults()
+    } else {
+      const currentResults = this.options.selectionInterface.getActiveSearchResults()
+      this.options.selectionInterface.addSelectedResult(currentResults.models)
+    }
+  },
+  template() {
+    const className = `fa fa-${this.isSelected() ? 'check-' : ''}square-o`
+    return (
+      <Root>
+        <span className={className} />
+      </Root>
+    )
+  },
+  isSelected: function() {
+    const currentResultsLength = this.options.selectionInterface.getActiveSearchResults()
+      .length
+    return (
+      currentResultsLength > 0 &&
+      currentResultsLength ===
+        this.options.selectionInterface.getSelectedResults().length
+    )
+  },
+  initialize() {
+    this.listenTo(
+      this.options.selectionInterface.getSelectedResults(),
+      'update add remove reset',
+      this.render
+    )
+  },
+})
+
+export { SelectItemToggle, SelectAllToggle }
