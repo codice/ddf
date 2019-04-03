@@ -171,12 +171,6 @@
             <version>3.1.2</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
-            <version>7.4.0</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
     <build>
         <resources>
