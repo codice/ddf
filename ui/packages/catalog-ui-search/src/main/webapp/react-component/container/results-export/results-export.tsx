@@ -142,6 +142,7 @@ class ResultsExport extends React.Component<Props, State> {
     }
 
     let response = null
+    const count = this.state.selectedResults.length
 
     if (this.props.transformer) {
       const cql = getResultSetCql(
@@ -152,6 +153,7 @@ class ResultsExport extends React.Component<Props, State> {
       response = await exportResultSet(this.props.transformer, {
         cql,
         srcs,
+        count,
         args: {
           transformerId,
         },
@@ -163,6 +165,7 @@ class ResultsExport extends React.Component<Props, State> {
       const srcs = Array.from(this.getResultSources())
 
       response = await exportResultSet(transformerId, {
+        count,
         cql,
         srcs,
       })
