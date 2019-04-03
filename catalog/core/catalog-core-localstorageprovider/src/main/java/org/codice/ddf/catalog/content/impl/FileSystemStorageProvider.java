@@ -41,6 +41,7 @@ import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
 import ddf.security.encryption.crypter.Crypter;
 import ddf.security.encryption.crypter.Crypter.CrypterException;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -624,13 +625,13 @@ public class FileSystemStorageProvider implements StorageProvider {
       Files.createDirectories(contentDirectory);
     }
 
+    long itemSize = item.getSize();
     long copySize;
     Path contentItemPath =
         Paths.get(contentDirectory.toAbsolutePath().toString(), item.getFilename());
     ByteSource byteSource;
 
     if (storeReference != null) {
-      copySize = item.getSize();
       String encryptedReference = crypter.encrypt(storeReference);
       Files.write(
           Paths.get(contentItemPath.toString() + "." + REF_EXT),
@@ -639,7 +640,8 @@ public class FileSystemStorageProvider implements StorageProvider {
           new ByteSource() {
             @Override
             public InputStream openStream() throws IOException {
-              return new URL(storeReference).openStream();
+              InputStream referenceInputStream = new URL(storeReference).openStream();
+              return crypter.decrypt(referenceInputStream);
             }
           };
     } else {
@@ -647,9 +649,16 @@ public class FileSystemStorageProvider implements StorageProvider {
           InputStream encryptedInputStream = crypter.encrypt(plainInputStream)) {
         copySize = Files.copy(encryptedInputStream, contentItemPath);
       }
-      byteSource = com.google.common.io.Files.asByteSource(contentItemPath.toFile());
+      byteSource =
+          new ByteSource() {
+            @Override
+            public InputStream openStream() throws IOException {
+              InputStream fileInputStream = new FileInputStream(contentItemPath.toFile());
+              return crypter.decrypt(fileInputStream);
+            }
+          };
 
-      if (copySize < item.getSize() && LOGGER.isWarnEnabled()) {
+      if (copySize < itemSize && LOGGER.isWarnEnabled()) {
         LOGGER.warn(
             "Created content item {} encrypted size {} is not greater than plain size {}.{}"
                 + "Verify filesystem and/or network integrity.",
@@ -667,7 +676,7 @@ public class FileSystemStorageProvider implements StorageProvider {
             byteSource,
             item.getMimeType().toString(),
             contentItemPath.getFileName().toString(),
-            copySize,
+            itemSize,
             item.getMetacard());
 
     LOGGER.trace("EXITING: generateContentFile");
