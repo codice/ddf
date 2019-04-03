@@ -13,7 +13,11 @@
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import Searches from '../../presentation/searches'
-import fetch from '../../utils/fetch'
+import { createStore } from 'redux'
+import searchApp from './reducers'
+import { addSearch } from './actions';
+
+var Provider = require('react-redux').Provider
 
 type Search = {
   id: string
@@ -27,26 +31,46 @@ type State = {
   searches: Search[]
 }
 
+const store = createStore(searchApp)
+
+const search = {
+  id: 'metacardId',
+  title: 'Search Title',
+  owner: 'christopher.clark.bell@protonmail.com',
+  created: 'April 03, 2019',
+  modified: 'April 03, 2019'
+}
+
 class SearchesContainer extends React.Component<{}, State> {
   constructor(props: {}) {
     super(props)
     this.state = {
       searches: [],
     }
+
+    store.dispatch(addSearch(search))
+
+    store.subscribe(() => {
+      this.setState({
+        searches: store.getState().searches
+      })
+    })
   }
 
   componentDidMount() {
-    fetch('./internal/queries')
-      .then(response => response.json())
-      .then((searches: Search[]) => {
-        this.setState({
-          searches: searches,
-        })
-      })
+    store.dispatch(addSearch(search))
+    store.dispatch(addSearch(search))
+    store.dispatch(addSearch(search))
+    store.dispatch(addSearch(search))
+    store.dispatch(addSearch(search))
   }
 
   render() {
-    return <Searches searches={this.state.searches} />
+    return (
+      <Provider store={store}>
+        <Searches searches={this.state.searches} />
+      </Provider>
+    )
   }
 }
 

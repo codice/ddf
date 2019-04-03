@@ -10,12 +10,22 @@
  *
  **/
 
-export type Search = {
-  id: string
-  title: string
-  owner: string
-  created: string
-  modified: string
-}
+import { Search } from '.'
+// import fetch from '../../utils/fetch'
 
-export { default } from './searches-container'
+export const ADD_SEARCH = 'ADD_SEARCH'
+
+/*
+export function fetchSearches() {
+    fetch('./internal/queries')
+    .then(response => response.json())
+    .then((searches: Search[]) => dispatch)
+}
+*/
+
+export function addSearch(search: Search) {
+  return {
+    type: ADD_SEARCH,
+    search,
+  }
+}

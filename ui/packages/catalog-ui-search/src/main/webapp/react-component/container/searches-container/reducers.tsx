@@ -10,12 +10,29 @@
  *
  **/
 
-export type Search = {
-  id: string
-  title: string
-  owner: string
-  created: string
-  modified: string
+import { ADD_SEARCH } from './actions'
+
+const initialState = {
+  searches: [],
 }
 
-export { default } from './searches-container'
+function manage(state = [], action: any) {
+  switch (action.type) {
+    case ADD_SEARCH:
+      return [...state, action.search]
+    default:
+      return state
+  }
+}
+
+function searchApp(state: any, action: any) {
+  if (state !== undefined) {
+    return {
+      searches: manage(state.searches, action),
+    }
+  }
+
+  return initialState
+}
+
+export default searchApp
