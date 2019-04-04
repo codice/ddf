@@ -15,6 +15,15 @@
  * because some of our styles have the same specificity as vendor
  * styles.
  */
+;(function verifyFirstImport() {
+  if (document.querySelector('[data-styled-components]')) {
+    const firstImportErrorMessage = `The entry import has to be the first (top) import for your application, otherwise styles won't be applied properly.
+    If you're seeing this, it probably means you need to move your import of the Entry file to the top of whatever file it's in.
+    `
+    alert(firstImportErrorMessage)
+    throw Error(firstImportErrorMessage)
+  }
+})()
 require('../js/ApplicationSetup')
 import ExtensionPoints, { ExtensionPointsType } from '../extension-points'
 
