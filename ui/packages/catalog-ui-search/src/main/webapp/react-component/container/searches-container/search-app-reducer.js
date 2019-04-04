@@ -10,29 +10,26 @@
  *
  **/
 
-import { ADD_SEARCH } from './actions'
+import { ADD_SEARCH, GET_SEARCHES, DELETE_SEARCH } from './actions'
 
 const initialState = {
   searches: [],
 }
 
-function manage(state = [], action: any) {
+const searchAppReducer = (state = initialState, action) => {
   switch (action.type) {
+    case DELETE_SEARCH:
+      return {
+        ...state,
+        searches: state.searches.filter(search => search.id !== action.payload),
+      }
+    case GET_SEARCHES:
+      return { ...state, searches: action.payload }
     case ADD_SEARCH:
-      return [...state, action.search]
+      return { ...state, searches: state.searches.concat(action.payload) }
     default:
       return state
   }
 }
 
-function searchApp(state: any, action: any) {
-  if (state !== undefined) {
-    return {
-      searches: manage(state.searches, action),
-    }
-  }
-
-  return initialState
-}
-
-export default searchApp
+export default searchAppReducer

@@ -87,8 +87,7 @@
   },
   searches: {
     patterns: ['searches(/)'],
-    component:
-      'react-component/container/searches-container/searches-container',
+    component: 'react-component/container/searches-container/search-root',
     menu: {
       text: 'Searches',
       classes: 'is-bold',

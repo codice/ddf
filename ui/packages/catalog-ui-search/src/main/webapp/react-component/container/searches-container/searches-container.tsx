@@ -12,12 +12,10 @@
 
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import Searches from '../../presentation/searches'
-import { createStore } from 'redux'
-import searchApp from './reducers'
-import { addSearch } from './actions';
+import { connect } from 'react-redux'
 
-var Provider = require('react-redux').Provider
+import Searches from '../../presentation/searches'
+import { addSearch, getSearchesRequest } from './actions'
 
 type Search = {
   id: string
@@ -27,51 +25,37 @@ type Search = {
   modified: string
 }
 
+type Props = {
+  searches: Search[]
+  getSearches: () => void
+  addSearch: (search: Search) => void
+}
+
 type State = {
   searches: Search[]
 }
 
-const store = createStore(searchApp)
-
-const search = {
-  id: 'metacardId',
-  title: 'Search Title',
-  owner: 'christopher.clark.bell@protonmail.com',
-  created: 'April 03, 2019',
-  modified: 'April 03, 2019'
-}
-
-class SearchesContainer extends React.Component<{}, State> {
-  constructor(props: {}) {
-    super(props)
-    this.state = {
-      searches: [],
-    }
-
-    store.dispatch(addSearch(search))
-
-    store.subscribe(() => {
-      this.setState({
-        searches: store.getState().searches
-      })
-    })
-  }
-
+class SearchesContainer extends React.Component<Props, State> {
   componentDidMount() {
-    store.dispatch(addSearch(search))
-    store.dispatch(addSearch(search))
-    store.dispatch(addSearch(search))
-    store.dispatch(addSearch(search))
-    store.dispatch(addSearch(search))
+    this.props.getSearches()
   }
 
   render() {
-    return (
-      <Provider store={store}>
-        <Searches searches={this.state.searches} />
-      </Provider>
-    )
+    return <Searches searches={this.props.searches} />
   }
 }
 
-export default hot(module)(SearchesContainer)
+const mapStateToProps = (state: any) => ({
+  searches: state.searchApp.searches,
+})
+
+const mapDispatchToProps = (dispatch: any) => ({
+  getSearches: () => dispatch(getSearchesRequest()),
+  addSearch: (search: Search) => dispatch(addSearch(search)),
+})
+
+const Connected = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SearchesContainer)
+export default hot(module)(Connected)

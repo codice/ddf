@@ -70,7 +70,11 @@ type Props = {
 
 const Search = (props: Props) => {
   return (
-    <Card onClick={() => {}}>
+    <Card
+      onClick={() => {
+        alert(props.id)
+      }}
+    >
       <Header
         onClick={e => {
           e.stopPropagation()

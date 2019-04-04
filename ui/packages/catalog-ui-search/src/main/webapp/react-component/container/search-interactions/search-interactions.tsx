@@ -11,10 +11,14 @@
  **/
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
+import { connect } from 'react-redux'
+
+import { deleteSearchRequest } from '../searches-container/actions'
 import SearchInteractionsPresentation from '../../presentation/search-interactions'
 
 type Props = {
   id: string
+  deleteSearch: (id: string) => void
 }
 
 class SearchInteractions extends React.Component<Props, {}> {
@@ -25,12 +29,23 @@ class SearchInteractions extends React.Component<Props, {}> {
   render() {
     return (
       <SearchInteractionsPresentation
+        id={this.props.id}
         editSearch={() => {}}
-        deleteSearch={() => {}}
+        deleteSearch={this.props.deleteSearch}
         runSearch={() => {}}
       />
     )
   }
 }
 
-export default hot(module)(SearchInteractions)
+const mapStateToProps = () => ({})
+
+const mapDispatchToProps = (dispatch: any) => ({
+  deleteSearch: (id: string) => dispatch(deleteSearchRequest(id)),
+})
+
+const Connected = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SearchInteractions)
+export default hot(module)(Connected)

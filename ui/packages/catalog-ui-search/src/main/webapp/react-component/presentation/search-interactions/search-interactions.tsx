@@ -16,8 +16,9 @@ import { readableColor } from 'polished'
 import { hot } from 'react-hot-loader'
 
 type Props = {
+  id: string
   editSearch: () => void
-  deleteSearch: () => void
+  deleteSearch: (id: string) => void
   runSearch: () => void
 }
 
@@ -27,7 +28,7 @@ const Root = styled<{}, 'div'>('div')`
 `
 
 const render = (props: Props) => {
-  const { editSearch, deleteSearch, runSearch } = props
+  const { id, editSearch, deleteSearch, runSearch } = props
   return (
     <Root className="composed-menu">
       <MenuAction
@@ -44,7 +45,7 @@ const render = (props: Props) => {
         help="Delete your search"
         icon="fa fa-trash-o"
         onClick={(_e, context) => {
-          deleteSearch()
+          deleteSearch(id)
           context.closeAndRefocus()
         }}
       >
