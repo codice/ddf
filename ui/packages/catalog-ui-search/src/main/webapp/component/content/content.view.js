@@ -13,11 +13,11 @@
  *
  **/
 /*global define, window*/
+import React from 'react'
 const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const contentTemplate = require('./content.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const properties = require('../../js/properties.js')
 const WorkspaceContentTabs = require('../tabs/workspace-content/tabs-workspace-content.js')
@@ -33,8 +33,62 @@ const QueryTitleView = require('../query-title/query-title.view.js')
 const GoldenLayoutView = require('../golden-layout/golden-layout.view.js')
 const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
 
+import { ChangeBackground } from '../../react-component/styles/mixins/change-background'
+import MultiSelectActions from '../../react-component/container/multi-select-actions'
+import styled from '../../react-component/styles/styled-components'
+
+const ContentLeft = styled.div`
+  ${props => {
+    return ChangeBackground(props.theme.backgroundAccentContent)
+  }};
+  border-right: 1px solid
+    fade(contrast(${props => props.theme.backgroundAccentContent}), 5%);
+  width: calc(9.55 * ${props => props.theme.minimumButtonSize});
+  left: 0%;
+  top: 0%;
+  transition: width ${props => props.theme.coreTransitionTime} ease-in-out;
+  position: absolute;
+  height: 100%;
+  vertical-align: top;
+  overflow: hidden;
+`
+
+const ContentRight = styled.div`
+  width: calc(100% - 9.55 * ${props => props.theme.minimumButtonSize});
+  transition: width ${props => props.theme.coreTransitionTime} ease-in-out;
+  right: 0%;
+  top: 0%;
+  position: absolute;
+  height: 100%;
+  vertical-align: top;
+  overflow: hidden;
+`
+const Visualizations = styled.div`
+  ${props => {
+    return ChangeBackground(props.theme.backgroundContent)
+  }};
+  height: calc(100% - ${props => props.theme.minimumButtonSize});
+`
+
+const Root = styled.div`
+  height: 100%;
+  width: 100%;
+  position: relative;
+  z-index: @zIndexContent;
+`
+
 var ContentView = Marionette.LayoutView.extend({
-  template: contentTemplate,
+  template() {
+    return (
+      <Root>
+        <ContentLeft className="content-left" />
+        <ContentRight>
+          <MultiSelectActions selectionInterface={store.get('content')} />
+          <Visualizations className="content-right" />
+        </ContentRight>
+      </Root>
+    )
+  },
   tagName: CustomElements.register('content'),
   regions: {
     contentLeft: '.content-left',

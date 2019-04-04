@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,10 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="content-left">
-
-</div>
-<div class="content-right">
-
-</div>
+export { default } from './multi-select-actions'

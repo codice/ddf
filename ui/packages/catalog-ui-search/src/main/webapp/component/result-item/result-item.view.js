@@ -447,6 +447,7 @@ const ResultItemView = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-remote', this.model.isRemote())
   },
   triggerDownload: function(e) {
+    e.stopPropagation()
     window.open(
       this.model
         .get('metacard')
