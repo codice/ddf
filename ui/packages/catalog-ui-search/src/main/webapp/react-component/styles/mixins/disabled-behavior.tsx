@@ -9,11 +9,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import { css } from '../styled-components'
+import { css, ThemeInterface } from '../styled-components'
 
-export const GrabCursor = css`
-  cursor: move;
-  cursor: grab;
-  cursor: -moz-grab;
-  cursor: -webkit-grab;
+export const DisabledBehavior = (theme: ThemeInterface) => css`
+  opacity: ${theme.minimumOpacity};
+  transition: opacity ${theme.coreTransitionTime} ease-in-out;
+  cursor: not-allowed !important;
 `

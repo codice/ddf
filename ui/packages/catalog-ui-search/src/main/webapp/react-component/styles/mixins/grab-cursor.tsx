@@ -11,12 +11,7 @@
  **/
 import { css } from '../styled-components'
 
-export const HighlightBehavior = ({ initialOpacity }) => css`
-  opacity: ${initialOpacity};
-
-  &:active,
-  &:focus,
-  &:hover {
-    opacity: 1;
-  }
+export const GrabCursor = css`
+  cursor: move;
+  cursor: grab;
 `

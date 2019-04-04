@@ -11,9 +11,16 @@
  **/
 import { css } from '../styled-components'
 
-export const IsButton = theme => css`
-  width: ${theme.minimumButtonSize};
-  height: ${theme.minimumButtonSize};
-  line-height: ${theme.minimumButtonSize};
-  display: inline-block;
+export const HighlightBehavior = ({
+  initialOpacity,
+}: {
+  initialOpacity: number
+}) => css`
+  opacity: ${initialOpacity};
+
+  &:active,
+  &:focus,
+  &:hover {
+    opacity: 1;
+  }
 `

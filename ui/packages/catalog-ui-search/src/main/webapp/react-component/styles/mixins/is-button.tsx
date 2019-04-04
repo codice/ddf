@@ -9,10 +9,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import { css } from '../styled-components'
+import { css, ThemeInterface } from '../styled-components'
 
-export const DisabledBehavior = theme => css`
-  opacity: ${theme.minimumOpacity};
-  transition: opacity ${theme.coreTransitionTime} ease-in-out;
-  cursor: not-allowed !important;
+export const IsButton = (theme: ThemeInterface) => css`
+  width: ${theme.minimumButtonSize};
+  height: ${theme.minimumButtonSize};
+  line-height: ${theme.minimumButtonSize};
+  display: inline-block;
 `
