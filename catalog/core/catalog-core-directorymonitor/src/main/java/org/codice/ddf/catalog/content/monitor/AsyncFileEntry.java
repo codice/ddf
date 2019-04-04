@@ -44,6 +44,7 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
   private boolean directory;
   private long length;
 
+  //  Due to how GSON deserializes this, this variable cannot be a Set.
   private final ConcurrentSkipListSet<AsyncFileEntry> children = new ConcurrentSkipListSet<>();
   //  Leaving transient to avoid loops
   @Nullable private transient AsyncFileEntry parent;
@@ -60,7 +61,7 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
     refresh();
   }
 
-  //  For GSON serialization
+  //  For GSON deserialization
   private AsyncFileEntry() {
     contentFile = null;
   }
