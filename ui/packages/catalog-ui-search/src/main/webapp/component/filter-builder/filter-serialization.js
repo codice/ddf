@@ -184,8 +184,8 @@ export const deserialize = (filter = defaultFilter) => {
   return new FilterBuilderModel({
     operator: type,
     filters: new FilterBuilderCollection(
-      filters.map(filter =>
-        filter.filters !== undefined ? deserialize(filter) : filter
+      filters.map(
+        filter => (filter.filters !== undefined ? deserialize(filter) : filter)
       )
     ),
   })

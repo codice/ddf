@@ -52,9 +52,7 @@ export const WorkspacesSave = styled<
   ${props.theme.multiple(10, props.theme.coreTransitionTime, 's')};
   opacity: 1;
   `
-      : ''}
-
-  > * {
+      : ''} > * {
     padding: ${props => props.theme.largeSpacing};
   }
 `
