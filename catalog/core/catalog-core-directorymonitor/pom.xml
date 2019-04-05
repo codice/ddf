@@ -125,13 +125,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient-osgi</artifactId>
-            <version>${httpclient.version}</version>
+            <artifactId>httpclient</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore-osgi</artifactId>
-            <version>${httpcore.version}</version>
+            <artifactId>httpcore</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -404,7 +402,11 @@
                             ddf-security-common,
                             platform-util,
                             platform-util-unavailableurls,
-                            sardine
+                            sardine,
+                            <!-- Embedding httpclient and httpcore instead of using the bundles -->
+                            <!-- due to a downstream performance issue in itests -->
+                            httpclient,
+                            httpcore
                         </Embed-Dependency>
                         <Import-Package>
                             !org.eclipse.jetty.server.bio,

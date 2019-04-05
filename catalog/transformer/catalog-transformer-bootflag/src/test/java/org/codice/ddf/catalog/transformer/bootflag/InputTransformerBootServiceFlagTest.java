@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.catalog.transformer.bootflag;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -37,9 +35,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 public class InputTransformerBootServiceFlagTest {
-
-  private static final String TRANSFORMER_WAIT_TIMEOUT_PROPERTY =
-      "org.codice.ddf.platform.bootflag.transformerWaitTimeoutSeconds";
 
   private Bundle bundle;
 
@@ -95,15 +90,6 @@ public class InputTransformerBootServiceFlagTest {
 
     verify(bundleContext, times(0))
         .registerService(isA(Class.class), isA(Object.class), isA(Dictionary.class));
-  }
-
-  @Test
-  public void testTimeoutSystemPropertyIsRespected() {
-    System.setProperty(TRANSFORMER_WAIT_TIMEOUT_PROPERTY, "1");
-    InputTransformerBootServiceFlag waiter =
-        new InputTransformerBootServiceFlag(
-            mock(InputTransformerIds.class), Collections.emptyList());
-    assertThat(waiter.getTransformerWaitTimeoutMillis(), is(1000L));
   }
 
   private List<ServiceReference<InputTransformer>> mockServiceReferences(String... propertyValues) {

@@ -345,8 +345,6 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.xalan"),
         new BundleInfo("com.google.code.gson", "gson"),
         new BundleInfo("com.hazelcast", "hazelcast"),
-        new BundleInfo("org.apache.httpcomponents", "httpcore-osgi"),
-        new BundleInfo("org.apache.httpcomponents", "httpclient-osgi"),
         new BundleInfo("net.jodah", "failsafe"),
         new BundleInfo("ddf.platform", "bootflag-api"),
         new BundleInfo("ddf.catalog.transformer", "catalog-transformer-bootflag"));
