@@ -29,7 +29,7 @@
     "react-dom": "16.4.2"
   },
   "devDependencies": {
-    "@connexta/ace": "git://github.com/connexta/ace.git#v0.0.4",
+    "@connexta/ace": "git://github.com/connexta/ace.git#v0.0.7",
     "bootstrap-sass": "3.3.6",
     "bootswatch": "3.3.7",
     "compass-mixins": "0.12.10",
