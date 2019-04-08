@@ -15,7 +15,6 @@ import MultiSelectActionsPresentation from '../../presentation/multi-select-acti
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 import ResultsExport from '../results-export'
 
-const store = require('../../../js/store.js')
 const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')
 
 type Props = {
@@ -44,7 +43,9 @@ class MultiSelectActions extends React.Component<Props, State> {
   handleExport = () => {
     lightboxInstance.model.updateTitle('Export Results')
     lightboxInstance.model.open()
-    lightboxInstance.showContent(<ResultsExport store={store} />)
+    lightboxInstance.showContent(
+      <ResultsExport store={this.props.selectionInterface} />
+    )
   }
 
   componentDidMount = () => {

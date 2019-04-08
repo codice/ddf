@@ -83,7 +83,7 @@ var ContentView = Marionette.LayoutView.extend({
       <Root>
         <ContentLeft className="content-left" />
         <ContentRight>
-          <MultiSelectActions selectionInterface={store.get('content')} />
+          <MultiSelectActions selectionInterface={this.selectionInterface} />
           <Visualizations className="content-right" />
         </ContentRight>
       </Root>
@@ -94,6 +94,7 @@ var ContentView = Marionette.LayoutView.extend({
     contentLeft: '.content-left',
     contentRight: '.content-right',
   },
+  selectionInterface: store,
   initialize: function() {
     this._mapView = new GoldenLayoutView({
       selectionInterface: store.get('content'),
