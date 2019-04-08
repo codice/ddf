@@ -34,6 +34,7 @@ const VisualizationView = require('../../golden-layout/golden-layout.view.js')
 
 module.exports = ContentView.extend({
   className: 'is-alert',
+  selectionInterface: alertInstance,
   initialize: function() {
     this._mapView = new VisualizationView({
       selectionInterface: alertInstance,
