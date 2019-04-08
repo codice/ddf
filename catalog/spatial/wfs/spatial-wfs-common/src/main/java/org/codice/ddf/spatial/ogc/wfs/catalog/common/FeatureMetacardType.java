@@ -255,9 +255,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
   private void processSimpleType(final XmlSchemaElement xmlSchemaElement) {
     final QName baseTypeName =
-        xmlSchemaElement.getSchemaType() != null
-            ? getBaseTypeQName((XmlSchemaSimpleType) xmlSchemaElement.getSchemaType())
-            : getBaseTypeQName(xmlSchemaElement.getSchemaTypeName());
+        getBaseTypeQName((XmlSchemaSimpleType) xmlSchemaElement.getSchemaType());
 
     if (baseTypeName != null) {
       mapSchemaElement(xmlSchemaElement, baseTypeName);
