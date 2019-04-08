@@ -68,6 +68,25 @@ const SectionHeader = styled.h1`
   padding-left: calc(5 * ${props => props.theme.minimumSpacing});
 `
 
+const CreateSearchCard = styled.div`
+  width: 300px;
+  margin-right: 25px;
+  margin-bottom: 25px;
+
+  border: 1px solid ${props => props.theme.backgroundAccentContent};
+
+  color: white;
+  font-size: ${props => props.theme.minimumFontSize};
+
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    cursor: pointer;
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+`
+
 type Search = {
   id: string
   title: string
@@ -129,6 +148,10 @@ const Searches = (props: Props) => {
       </ContextBar>
       <SectionHeader>My Searches</SectionHeader>
       <SearchContainer>
+        <CreateSearchCard>
+          <span className="fa fa-plus-circle fa-5x" />
+          <span>Create Search</span>
+        </CreateSearchCard>
         {props.searches.map(search => (
           <Search
             key={search.id}

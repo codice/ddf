@@ -15,7 +15,7 @@ import { hot } from 'react-hot-loader'
 import { connect } from 'react-redux'
 
 import Searches from '../../presentation/searches'
-import { addSearch, getSearchesRequest } from './actions'
+import { getSearchesRequest } from './actions'
 
 type Search = {
   id: string
@@ -28,7 +28,6 @@ type Search = {
 type Props = {
   searches: Search[]
   getSearches: () => void
-  addSearch: (search: Search) => void
 }
 
 type State = {
@@ -51,7 +50,6 @@ const mapStateToProps = (state: any) => ({
 
 const mapDispatchToProps = (dispatch: any) => ({
   getSearches: () => dispatch(getSearchesRequest()),
-  addSearch: (search: Search) => dispatch(addSearch(search)),
 })
 
 const Connected = connect(
