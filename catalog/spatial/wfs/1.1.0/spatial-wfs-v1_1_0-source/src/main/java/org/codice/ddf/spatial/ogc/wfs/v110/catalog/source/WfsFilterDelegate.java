@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -66,10 +67,11 @@ import net.opengis.gml.v_3_1_1.LinearRingType;
 import net.opengis.gml.v_3_1_1.PointType;
 import net.opengis.gml.v_3_1_1.PolygonType;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants.SPATIAL_OPERATORS;
 import org.joda.time.DateTime;
@@ -100,23 +102,29 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
       ThreadLocal.withInitial(WKTWriter::new);
 
-  private FeatureMetacardType featureMetacardType;
+  private final FeatureMetacardType featureMetacardType;
 
-  private ObjectFactory filterObjectFactory = new ObjectFactory();
+  private final ObjectFactory filterObjectFactory = new ObjectFactory();
 
-  private net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory =
+  private final net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory =
       new net.opengis.gml.v_3_1_1.ObjectFactory();
+
+  private final MetacardMapper metacardMapper;
 
   private List<String> supportedGeo;
 
   private List<QName> geometryOperands;
 
-  public WfsFilterDelegate(FeatureMetacardType featureMetacardType, List<String> supportedGeo) {
+  public WfsFilterDelegate(
+      FeatureMetacardType featureMetacardType,
+      MetacardMapper metacardMapper,
+      List<String> supportedGeo) {
 
     if (featureMetacardType == null) {
       throw new IllegalArgumentException("FeatureMetacardType can not be null");
     }
     this.featureMetacardType = featureMetacardType;
+    this.metacardMapper = metacardMapper;
     this.supportedGeo = supportedGeo;
     setSupportedGeometryOperands(Wfs11Constants.wktOperandsAsList());
   }
@@ -130,10 +138,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   public void setSupportedGeoFilters(List<String> supportedGeos) {
-    if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug(
-          "Updating supportedGeos to: {}", supportedGeos.stream().collect(Collectors.joining(",")));
-    }
+    LOGGER.debug("Updating supportedGeos to: {}", supportedGeos);
     this.supportedGeo = supportedGeos;
   }
 
@@ -255,7 +260,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private void removeEmptyFilters(List<FilterType> filters) {
     // Loop through the filters and remove any empty filters
     List<FilterType> filtersToBeRemoved = new ArrayList<>(filters.size());
-    Boolean foundInvalidFilter = false;
+    boolean foundInvalidFilter = false;
     for (FilterType filterType : filters) {
       if (filterType == null) {
         foundInvalidFilter = true;
@@ -447,6 +452,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     return buildPropertyIsBetweenFilterType(propertyName, lowerBoundary, upperBoundary);
   }
 
+  private boolean isWfsFeatureProperty(final String featurePropertyName) {
+    return featureMetacardType.getProperties().contains(featurePropertyName);
+  }
+
   private FilterType buildPropertyIsBetweenFilterType(
       String propertyName, Object lowerBoundary, Object upperBoundary) {
 
@@ -454,22 +463,30 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    FilterType filter = new FilterType();
+    final String featurePropertyName =
+        Optional.ofNullable(metacardMapper.getFeatureProperty(propertyName)).orElse(propertyName);
 
-    if (featureMetacardType.getProperties().contains(propertyName)) {
-      FeatureAttributeDescriptor featureAttributeDescriptor =
-          (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(propertyName);
+    if (isWfsFeatureProperty(featurePropertyName)) {
+      final FeatureAttributeDescriptor featureAttributeDescriptor =
+          (FeatureAttributeDescriptor)
+              featureMetacardType.getAttributeDescriptor(featurePropertyName);
       if (featureAttributeDescriptor.isIndexed()) {
+        final FilterType filter = new FilterType();
         filter.setComparisonOps(
             createPropertyIsBetween(
                 featureAttributeDescriptor.getPropertyName(), lowerBoundary, upperBoundary));
+        return filter;
       } else {
-        throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
+        throw new IllegalArgumentException(
+            String.format(PROPERTY_NOT_QUERYABLE, featurePropertyName));
       }
     } else {
+      LOGGER.debug(
+          "The property '{}' could not be mapped to a feature property of feature type '{}'.",
+          propertyName,
+          featureMetacardType.getFeatureType());
       return null;
     }
-    return filter;
   }
 
   private FilterType buildPropertyIsFilterType(
@@ -491,15 +508,13 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     }
 
     if ((Metacard.ANY_TEXT.equalsIgnoreCase(propertyName))) {
-      return buildPropertyIsFilterTypeForAnyGeo(literal, propertyIsType, isCaseSensitive);
-    } else if (featureMetacardType.getProperties().contains(propertyName)) {
-      return buildPropertyIsFilterTypeForProperty(
-          propertyName, literal, propertyIsType, isCaseSensitive);
+      return buildPropertyIsFilterTypeForAnyText(literal, propertyIsType, isCaseSensitive);
     } else if (Metacard.ID.equals(propertyName)) {
       return buildPropertyIsFilterTypeForId(literal);
+    } else {
+      return buildPropertyIsFilterTypeForProperty(
+          propertyName, literal, propertyIsType, isCaseSensitive);
     }
-
-    return null;
   }
 
   private FilterType buildPropertyIsFilterTypeForId(Object literal) {
@@ -529,20 +544,36 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       Object literal,
       PROPERTY_IS_OPS propertyIsType,
       boolean isCaseSensitive) {
-    FilterType returnFilter = new FilterType();
-    FeatureAttributeDescriptor attrDesc =
-        (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(propertyName);
-    if (attrDesc.isIndexed()) {
-      returnFilter.setComparisonOps(
-          createPropertyIsFilter(
-              attrDesc.getPropertyName(), literal, propertyIsType, isCaseSensitive));
-      return returnFilter;
+    final String featurePropertyName =
+        Optional.ofNullable(metacardMapper.getFeatureProperty(propertyName)).orElse(propertyName);
+
+    if (isWfsFeatureProperty(featurePropertyName)) {
+      final FeatureAttributeDescriptor featureAttributeDescriptor =
+          (FeatureAttributeDescriptor)
+              featureMetacardType.getAttributeDescriptor(featurePropertyName);
+      if (featureAttributeDescriptor.isIndexed()) {
+        final FilterType filter = new FilterType();
+        filter.setComparisonOps(
+            createPropertyIsFilter(
+                featureAttributeDescriptor.getPropertyName(),
+                literal,
+                propertyIsType,
+                isCaseSensitive));
+        return filter;
+      } else {
+        throw new IllegalArgumentException(
+            String.format(PROPERTY_NOT_QUERYABLE, featurePropertyName));
+      }
+    } else {
+      LOGGER.debug(
+          "The property '{}' could not be mapped to a feature property of feature type '{}'.",
+          propertyName,
+          featureMetacardType.getFeatureType());
+      return null;
     }
-    // blacklisted property encountered
-    throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
   }
 
-  private FilterType buildPropertyIsFilterTypeForAnyGeo(
+  private FilterType buildPropertyIsFilterTypeForAnyText(
       Object literal, PROPERTY_IS_OPS propertyIsType, boolean isCaseSensitive) {
 
     if (CollectionUtils.isEmpty(featureMetacardType.getTextualProperties())) {
@@ -585,7 +616,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       return or(binaryCompOpsToBeOred);
     }
 
-    LOGGER.debug("All textual properties have been blacklisted.  Removing from query.");
+    LOGGER.debug("All textual properties have been blacklisted. Removing from query.");
     return null;
   }
 
@@ -602,7 +633,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
               attrDescriptor.getPropertyName(), literal, propertyIsType, isCaseSensitive));
       return returnFilter;
     }
-    LOGGER.debug("All textual properties have been blacklisted.  Removing from query.");
+    LOGGER.debug("All textual properties have been blacklisted. Removing from query.");
     return null;
   }
 
@@ -801,7 +832,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     }
 
     if (supportedGeo.contains(SPATIAL_OPERATORS.DWITHIN.getValue())) {
-      return this.buildGeospatialFilterType(
+      return buildGeospatialFilterType(
           SPATIAL_OPERATORS.DWITHIN.toString(), propertyName, wkt, distance);
     } else if (supportedGeo.contains(SPATIAL_OPERATORS.BEYOND.getValue())) {
       return not(beyond(propertyName, wkt, distance));
@@ -903,24 +934,39 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       String spatialOpType, String propertyName, String wkt, Double distance) {
     if (Metacard.ANY_GEO.equals(propertyName)) {
       return buildGeospatialFilterForAnyGeo(spatialOpType, wkt, distance);
-    } else if (featureMetacardType.getGmlProperties().contains(propertyName)) {
+    } else {
       return buildGeospatialFilter(spatialOpType, propertyName, wkt, distance);
     }
+  }
 
-    return null;
+  private boolean isWfsGeospatialFeatureProperty(final String featurePropertyName) {
+    return featureMetacardType.getGmlProperties().contains(featurePropertyName);
   }
 
   private FilterType buildGeospatialFilter(
       String spatialOpType, String propertyName, String wkt, Double distance) {
-    FeatureAttributeDescriptor attrDesc =
-        (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(propertyName);
-    if (attrDesc != null && attrDesc.isIndexed()) {
-      FilterType filter = new FilterType();
-      filter.setSpatialOps(
-          createSpatialOpType(spatialOpType, attrDesc.getPropertyName(), wkt, distance));
-      return filter;
+    final String featurePropertyName =
+        Optional.ofNullable(metacardMapper.getFeatureProperty(propertyName)).orElse(propertyName);
+
+    if (isWfsGeospatialFeatureProperty(featurePropertyName)) {
+      final FeatureAttributeDescriptor attrDesc =
+          (FeatureAttributeDescriptor)
+              featureMetacardType.getAttributeDescriptor(featurePropertyName);
+      if (attrDesc != null && attrDesc.isIndexed()) {
+        final FilterType filter = new FilterType();
+        filter.setSpatialOps(
+            createSpatialOpType(spatialOpType, attrDesc.getPropertyName(), wkt, distance));
+        return filter;
+      } else {
+        throw new IllegalArgumentException(
+            String.format(PROPERTY_NOT_QUERYABLE, featurePropertyName));
+      }
     } else {
-      throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
+      LOGGER.debug(
+          "The property '{}' could not be mapped to a feature property of feature type '{}'.",
+          propertyName,
+          featureMetacardType.getFeatureType());
+      return null;
     }
   }
 

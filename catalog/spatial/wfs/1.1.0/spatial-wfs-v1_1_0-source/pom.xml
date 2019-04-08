@@ -81,6 +81,11 @@
             <artifactId>spatial-ogc-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-mapper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts-core</artifactId>
             <exclusions>
@@ -124,8 +129,8 @@
             <artifactId>spatial-ogc-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.security</groupId>
@@ -137,21 +142,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf</groupId>
@@ -232,17 +227,17 @@
                             catalog-core-api-impl,
                             ddf-security-common,
                             platform-util,
-                            platform-util-unavailableurls,
                             geospatial,
-                            spatial-wfs-v1_0_0-schema-bindings,
-                            security-core-impl
+                            spatial-wfs-v1_0_0-schema-bindings
                         </Embed-Dependency>
+                        <Private-Package>
+                            org.codice.ddf.spatial.ogc.wfs.catalog.mapper.impl
+                        </Private-Package>
                         <Import-Package>
                             !org.bouncycastle.crypto.*,
                             net.opengis.filter.v_1_1_0;version="[${org.jvnet.ogc.wfs.1.1.0.version},${org.jvnet.ogc.wfs.1.1.0.version}]",
                             *
                         </Import-Package>
-                        <Embed-Transitive>true</Embed-Transitive>
                         <Include-Resource>{maven-resources},target/classes/describable.properties</Include-Resource>
                     </instructions>
                 </configuration>
@@ -286,17 +281,17 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.73</minimum>
+                                            <minimum>0.78</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.64</minimum>
+                                            <minimum>0.67</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.61</minimum>
+                                            <minimum>0.65</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
