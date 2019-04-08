@@ -49,7 +49,7 @@ export type Item = {
 }
 
 export class Sharing extends React.Component<Props, State> {
-  usersToUnsubscribe: string[]
+  prevUsers: any
   constructor(props: Props) {
     super(props)
 
@@ -59,7 +59,6 @@ export class Sharing extends React.Component<Props, State> {
     }
   }
   componentDidMount = () => {
-    this.usersToUnsubscribe = []
     this.fetchWorkspace(this.props.id).then(data => {
       const metacard = data
       const res = Restrictions.from(metacard)
@@ -89,10 +88,22 @@ export class Sharing extends React.Component<Props, State> {
   }
 
   save = () => {
+    let usersToUnsubscribe: string[] = []
     const groups = this.state.items.filter(e => e.category === Category.Group)
     const users = this.state.items.filter(
       e => e.value !== '' && e.category === Category.User
     )
+    const usersWithReadOrHigher = users.filter(e => e.access !== 0)
+    if (this.prevUsers === undefined) {
+      this.prevUsers = usersWithReadOrHigher
+    } else if (this.prevUsers !== usersWithReadOrHigher) {
+      this.prevUsers.forEach((user: Item) => {
+        if (!usersWithReadOrHigher.includes(user)) {
+          usersToUnsubscribe.push(user.value)
+        }
+      })
+      this.prevUsers = usersWithReadOrHigher
+    }
 
     const attributes = [
       {
@@ -118,7 +129,7 @@ export class Sharing extends React.Component<Props, State> {
     ]
 
     const loadingView = new LoadingView()
-    this.attemptSave(attributes)
+    this.attemptSave(attributes, usersToUnsubscribe)
       .then(() => {
         this.showSaveSuccessful()
         this.props.lightbox.close()
@@ -138,13 +149,14 @@ export class Sharing extends React.Component<Props, State> {
   // NOTE: Fetching the latest workspace and checking the modified dates is a temporary solution
   // and should be removed when support for optimistic concurrency is added
   // https://github.com/codice/ddf/issues/4467
-  attemptSave = async (attributes: any) => {
+  attemptSave = async (attributes: any, usersToUnsubscribe: String[]) => {
     const currWorkspace = await this.fetchWorkspace(this.props.id)
     if (
       currWorkspace['metacard.modified'] ===
       this.state.previousWorkspace['metacard.modified']
     ) {
       await this.doSave(attributes)
+      await this.unSubscribeUsers(usersToUnsubscribe)
       const newWorkspace = await this.fetchWorkspace(this.props.id)
       this.setState({
         items: [...this.state.items],
@@ -170,9 +182,7 @@ export class Sharing extends React.Component<Props, State> {
     if (res.status !== 200) {
       throw new Error()
     }
-    if (this.usersToUnsubscribe.length > 0) {
-      this.unSubscribeUsers()
-    }
+
     if (this.props.onUpdate) {
       this.props.onUpdate(attributes)
     }
@@ -183,6 +193,24 @@ export class Sharing extends React.Component<Props, State> {
     const res = await fetch('/search/catalog/internal/metacard/' + id)
     const workspace = await res.json()
     return workspace.metacards[0]
+  }
+
+  unSubscribeUsers = async (usersToUnsubscribe: String[]) => {
+    if (usersToUnsubscribe.length === 0) {
+      return
+    }
+    const res = await fetch(
+      '/search/catalog/internal/unsubscribe/' + this.props.id,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          attribute: 'unsubscribedUsers',
+          values: usersToUnsubscribe,
+        }),
+      }
+    )
+    return await res.json()
   }
 
   showSaveFailed() {
@@ -233,7 +261,6 @@ export class Sharing extends React.Component<Props, State> {
   }
 
   remove = (i: number) => {
-    this.usersToUnsubscribe.push(this.state.items[i].value)
     this.state.items.splice(i, 1)
     this.setState({
       items: this.state.items,
@@ -258,18 +285,6 @@ export class Sharing extends React.Component<Props, State> {
     // resetting to a saved initial state is the preferred style, but
     // the react wrappers do not currently support updating state properly
     this.componentDidMount()
-  }
-
-  unSubscribeUsers = () => {
-    this.usersToUnsubscribe.forEach(async user => {
-      await fetch(
-        `/search/catalog/internal/unsubscribe/` + this.props.id + '/' + user,
-        {
-          method: 'POST',
-        }
-      )
-    })
-    this.usersToUnsubscribe = []
   }
 
   render() {
