@@ -42,18 +42,21 @@ class SolrPasswordUpdateSpec extends Specification {
         decryptValue(BOOTSTRAP_PASSWORD) >> BOOTSTRAP_PASSWORD
     }
 
+    def properties = null
+
     def setup() {
-        System.setProperty('solr.http.url', SOLR_URL);
-        System.setProperty('solr.username', SOLR_USERNAME);
-        System.setProperty('solr.password', BOOTSTRAP_PASSWORD);
-        System.setProperty('solr.attemptAutoPasswordChange', 'true')
-        System.setProperty('solr.useBasicAuth', 'true')
+        properties= new org.apache.felix.utils.properties.Properties()
+        properties.setProperty('solr.http.url', SOLR_URL);
+        properties.setProperty('solr.username', SOLR_USERNAME);
+        properties.setProperty('solr.password', BOOTSTRAP_PASSWORD);
+        properties.setProperty('solr.attemptAutoPasswordChange', 'true')
+        properties.setProperty('solr.useBasicAuth', 'true')
     }
 
     @Unroll
     def 'update solr password is #outcome'() {
         given:
-        System.setProperty('solr.attemptAutoPasswordChange', attemptAutoPasswordChange);
+        properties.setProperty('solr.attemptAutoPasswordChange', attemptAutoPasswordChange);
 
 
         def statusType = Mock(Response.StatusType) {
@@ -80,23 +83,23 @@ class SolrPasswordUpdateSpec extends Specification {
         }
 
         when:
-        spySolrPasswordUpdate.execute()
+        spySolrPasswordUpdate.execute(properties)
 
         then:
-        System.getProperty('solr.password').equals(passwordInMemory)
+        properties.getProperty('solr.password').equals(passwordInMemory)
         spySolrPasswordUpdate.isSolrPasswordChangeSuccessfull().equals(solrUpdateSuccess)
 
         where:
-        outcome     || attemptAutoPasswordChange | responseCode                        | solrUpdateSuccess | fileUpdateSuccess | passwordInMemory
-        'sucessful' || 'true'                    | Response.Status.Family.SUCCESSFUL   | true              | true              | WRAPPED_PASSWORD
-        'partial'   || 'true'                    | Response.Status.Family.SUCCESSFUL   | true              | false             | BOOTSTRAP_PASSWORD
-        'an error'  || 'true'                    | Response.Status.Family.SERVER_ERROR | false             | false             | BOOTSTRAP_PASSWORD
-        'disabled'  || 'false'                   | null                                | false             | false             | BOOTSTRAP_PASSWORD
+        outcome      || attemptAutoPasswordChange | responseCode                        | solrUpdateSuccess | fileUpdateSuccess | passwordInMemory
+        'successful' || 'true'                    | Response.Status.Family.SUCCESSFUL   | true              | true              | WRAPPED_PASSWORD
+        'partial'    || 'true'                    | Response.Status.Family.SUCCESSFUL   | true              | false             | BOOTSTRAP_PASSWORD
+        'an error'   || 'true'                    | Response.Status.Family.SERVER_ERROR | false             | false             | BOOTSTRAP_PASSWORD
+        'disabled'   || 'false'                   | null                                | false             | false             | BOOTSTRAP_PASSWORD
     }
 
     def 'password generation wrapping encrypted string'() {
         when:
-        def solrPasswordUpdate = new SolrPasswordUpdateImpl(uuidGenerator, null, encryptionService);
+        def solrPasswordUpdate = new SolrPasswordUpdateImpl(uuidGenerator, null, encryptionService)
         solrPasswordUpdate.generatePassword()
 
         then:
@@ -105,12 +108,10 @@ class SolrPasswordUpdateSpec extends Specification {
     }
 
     def 'password property not defined'() {
-        given:
-        System.clearProperty('solr.password')
 
         when:
-        def solrPasswordUpdate = new SolrPasswordUpdateImpl(uuidGenerator, null, encryptionService);
-        solrPasswordUpdate.generatePassword();
+        def solrPasswordUpdate = new SolrPasswordUpdateImpl(uuidGenerator, null, encryptionService)
+        solrPasswordUpdate.generatePassword()
 
         then:
         solrPasswordUpdate.getPlaintextPasswordFromProperties() == null

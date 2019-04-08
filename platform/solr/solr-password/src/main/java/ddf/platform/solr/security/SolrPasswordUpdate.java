@@ -13,7 +13,9 @@
  */
 package ddf.platform.solr.security;
 
-public interface SolrPasswordUpdate extends Runnable {
+import java.util.Map;
 
-  void run();
+public interface SolrPasswordUpdate {
+
+  void update(Map<String, String> properties);
 }

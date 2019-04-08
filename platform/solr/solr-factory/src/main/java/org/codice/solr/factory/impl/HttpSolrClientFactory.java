@@ -14,7 +14,6 @@
 package org.codice.solr.factory.impl;
 
 import com.google.common.annotations.VisibleForTesting;
-import ddf.platform.solr.security.SolrPasswordUpdate;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.AccessController;
@@ -59,17 +58,13 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpSolrClientFactory.class);
 
   private final org.codice.solr.factory.impl.HttpClientBuilder httpClientBuilder;
-  private final SolrPasswordUpdate solrPasswordUpdate;
 
   private String getDefaultHttpsAddress() {
     return SystemBaseUrl.INTERNAL.constructUrl("https", SOLR_CONTEXT);
   }
 
-  public HttpSolrClientFactory(
-      org.codice.solr.factory.impl.HttpClientBuilder httpClientBuilder,
-      SolrPasswordUpdate solrPasswordUpdate) {
+  public HttpSolrClientFactory(org.codice.solr.factory.impl.HttpClientBuilder httpClientBuilder) {
     this.httpClientBuilder = httpClientBuilder;
-    this.solrPasswordUpdate = solrPasswordUpdate;
   }
 
   private static void createSolrCore(
@@ -154,7 +149,6 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
   SolrClient createSolrHttpClient(String url, String coreName, String coreUrl)
       throws IOException, SolrServerException {
 
-    solrPasswordUpdate.run();
     final HttpClientBuilder builder = httpClientBuilder.get();
     createSolrCore(url, coreName, null, builder.build());
     try (final Closer closer = new Closer()) {
