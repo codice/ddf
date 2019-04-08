@@ -78,12 +78,22 @@ const CreateSearchCard = styled.div`
   color: white;
   font-size: ${props => props.theme.minimumFontSize};
 
-  display: flex;
-  flex-direction: column;
-
   &:hover {
     cursor: pointer;
     border-color: rgba(255, 255, 255, 0.2);
+  }
+`
+
+const CreateSearchContent = styled.div`
+  width: 100%;
+
+  display: inline-block;
+  text-align: center;
+
+  padding: 25px;
+
+  h1 {
+    padding-top: 15px;
   }
 `
 
@@ -148,9 +158,11 @@ const Searches = (props: Props) => {
       </ContextBar>
       <SectionHeader>My Searches</SectionHeader>
       <SearchContainer>
-        <CreateSearchCard>
-          <span className="fa fa-plus-circle fa-5x" />
-          <span>Create Search</span>
+        <CreateSearchCard onClick={() => alert('hello world')}>
+          <CreateSearchContent>
+            <span className="fa fa-plus-circle fa-5x" />
+            <h1>Create Search</h1>
+          </CreateSearchContent>
         </CreateSearchCard>
         {props.searches.map(search => (
           <Search
@@ -163,6 +175,7 @@ const Searches = (props: Props) => {
           />
         ))}
       </SearchContainer>
+      <span>Show more</span>
     </SearchesPage>
   )
 }
