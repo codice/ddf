@@ -20,6 +20,7 @@ const Router = require('../router/router.js')
 const user = require('../singletons/user-instance')
 const SearchForm = require('../search-form/search-form')
 import React from 'react'
+import { lighten, readableColor, transparentize } from 'polished'
 import styled from '../../react-component/styles/styled-components'
 
 const ListItem = styled.div`
@@ -29,15 +30,28 @@ const ListItem = styled.div`
   padding: 0px ${props => props.theme.largeSpacing};
 `
 
+const HoverableListItem = styled(ListItem)`
+  &:hover {
+    background: ${props => transparentize(0.9, readableColor(props.theme.backgroundDropdown))};
+    box-shadow: inset 0px 0px 0px 1px ${props => props.theme.primaryColor}
+  }
+`
+
+const WarningItem = styled(ListItem)`
+  text-align: center;
+  color: ${props => lighten(0.2, props.theme.warningColor)};
+`
+
+const NothingFound = () => <WarningItem>Nothing Found</WarningItem>
+
 const NoSearchForms = () => <ListItem>No search forms are available</ListItem>
 
 const SearchFormItem = ({ title, onClick }) => {
-  return <ListItem onClick={onClick}>{title}</ListItem>
+  return <HoverableListItem onClick={onClick}>{title}</HoverableListItem>
 }
 
 const FilterPadding = styled.div`
-  padding-left: ${props => props.theme.minimumSpacing};
-  padding-right: ${props => props.theme.minimumSpacing};
+  padding: 0px ${props => props.theme.minimumSpacing} ${props => props.theme.minimumSpacing} ${props => props.theme.minimumSpacing};
 `
 class SearchForms extends React.Component {
   constructor(props) {
@@ -50,6 +64,9 @@ class SearchForms extends React.Component {
     const { filter } = this.state
     const { forms, onClick } = this.props
 
+    const filteredForms = forms
+      .filter(form => form.title.toLowerCase().match(filter.toLowerCase()));
+
     return (
       <React.Fragment>
         <FilterPadding>
@@ -61,8 +78,7 @@ class SearchForms extends React.Component {
           />
         </FilterPadding>
         {forms.length === 0 ? <NoSearchForms /> : null}
-        {forms
-          .filter(form => form.title.toLowerCase().match(filter.toLowerCase()))
+        {filteredForms
           .map(form => (
             <SearchFormItem
               title={form.title}
@@ -70,6 +86,7 @@ class SearchForms extends React.Component {
               onClick={() => onClick(form)}
             />
           ))}
+          {forms.length !== 0 && filteredForms.length === 0 ? <NothingFound/> : null}
       </React.Fragment>
     )
   }
