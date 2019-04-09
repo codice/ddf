@@ -354,6 +354,7 @@ class Dropdown extends React.Component<Props, State> {
                   open={open}
                   tabIndex={0}
                   style={contentStyle as any}
+                  data-react-dropdown
                 >
                   {typeof this.props.content === 'function' ? (
                     <DropdownContext.Consumer>

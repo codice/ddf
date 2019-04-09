@@ -1,6 +1,6 @@
 import * as React from 'react'
-import * as PopoutView from '../../../component/dropdown/popout/dropdown.popout.view'
-import * as ExportActionsView from '../../../component/export-actions/export-actions.view'
+const PopoutView = require('../../../component/dropdown/popout/dropdown.popout.view')
+const ExportActionsView = require('../../../component/export-actions/export-actions.view')
 import MarionetteRegionContainer from '../marionette-region-container'
 import { Model, Props } from '.'
 import { hot } from 'react-hot-loader'

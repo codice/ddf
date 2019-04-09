@@ -23,6 +23,7 @@ var SaveView = require('../save/workspaces/workspaces-save.view.js')
 var UnsavedIndicatorView = require('../unsaved-indicator/workspaces/workspaces-unsaved-indicator.view.js')
 var sources = require('../singletons/sources-instance.js')
 const plugin = require('plugins/navigator')
+import ExtensionPoints from '../../extension-points'
 const $ = require('jquery')
 import * as React from 'react'
 import { FormattedMessage } from 'react-intl'
@@ -90,6 +91,7 @@ module.exports = plugin(
               <div className="forms-indicator" />
             </button>
             <div className="navigation-extensions" />
+            {ExtensionPoints.navigator}
           </div>
           {props.recent && (
             <React.Fragment>

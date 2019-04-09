@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
 import { Props, Result, Model } from '.'
-import * as user from '../../../component/singletons/user-instance'
+const user = require('../../../component/singletons/user-instance')
 import { hot } from 'react-hot-loader'
 
 const handleShow = (props: Props) => {

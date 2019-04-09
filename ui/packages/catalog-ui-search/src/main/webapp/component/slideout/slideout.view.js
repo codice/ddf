@@ -35,7 +35,7 @@ module.exports = Marionette.ItemView.extend({
       <React.Fragment>
         <div className="slideout-cover" />
         <div className="slideout-content">
-          <ContentView />
+          <ContentView closeSlideout={this.close.bind(this)} />
         </div>
       </React.Fragment>
     )

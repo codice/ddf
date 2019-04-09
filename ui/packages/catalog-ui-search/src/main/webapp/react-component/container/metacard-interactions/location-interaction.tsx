@@ -1,10 +1,10 @@
 import * as React from 'react'
 
-import * as QueryConfirmationView from '../../../component/confirmation/query/confirmation.query.view'
-import * as LoadingView from '../../../component/loading/loading.view'
+const QueryConfirmationView = require('../../../component/confirmation/query/confirmation.query.view')
+const LoadingView = require('../../../component/loading/loading.view')
 
 import { Geometry } from 'wkx'
-import * as store from '../../../js/store'
+const store = require('../../../js/store')
 
 import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
 import { Props, Model, Result } from './'

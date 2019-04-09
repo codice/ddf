@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "jsx": "react",
-    "allowJs": true,
+    "allowJs": false,
     "sourceMap": true,
     "noImplicitAny": true,
     "noImplicitThis": true,

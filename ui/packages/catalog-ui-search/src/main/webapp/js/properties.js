@@ -167,6 +167,9 @@ var properties = {
   isUploadEnabled: function() {
     return this.showIngest
   },
+  isDevelopment() {
+    return process.env.NODE_ENV !== 'production'
+  },
   isMetacardPreviewEnabled: function() {
     return !this.isMetacardPreviewDisabled
   },

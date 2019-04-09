@@ -17,17 +17,29 @@ const Marionette = require('marionette')
 const template = require('./notfound.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const router = require('../router/router.js')
-const NavigatorView = require('../navigator/navigator.view.js')
+import * as React from 'react'
+import ExtensionPoints from '../../extension-points'
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template() {
+    const Navigator = ExtensionPoints.navigator
+    return (
+      <React.Fragment>
+        <div className="content">
+          <div className="message is-large-font is-centered">
+            We can't find the page you requested.
+          </div>
+          <div className="message is-medium-font is-centered">
+            Please check the url or navigate to another page.
+          </div>
+          <div className="navigator">
+            <Navigator />
+          </div>
+        </div>
+      </React.Fragment>
+    )
+  },
   tagName: CustomElements.register('notfound'),
-  regions: {
-    content: '> .content > .navigator',
-  },
-  onBeforeShow: function() {
-    this.content.show(new NavigatorView({}))
-  },
   serializeData: function() {
     return {
       route: window.location.hash.substring(1),

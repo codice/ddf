@@ -183,5 +183,4 @@ Marionette.Region.prototype.reset = function() {
   return this
 }
 
-require('./ApplicationStart.js')
-require('codice-icons/icons/codice.font')
+require('@connexta/icons/icons/codice.font')
