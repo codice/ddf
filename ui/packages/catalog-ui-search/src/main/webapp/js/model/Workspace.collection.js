@@ -81,7 +81,7 @@ module.exports = Backbone.Collection.extend({
       cqlQuery = cql.write({
         type: 'ILIKE',
         property: 'anyText',
-        value: text
+        value: text,
       })
     }
     var queryForWorkspace = new Query.Model({
