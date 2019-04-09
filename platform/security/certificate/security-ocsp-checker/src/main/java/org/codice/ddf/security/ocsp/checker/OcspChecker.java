@@ -33,10 +33,13 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import javax.annotation.Nullable;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -50,6 +53,7 @@ import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.CertificateID;
+import org.bouncycastle.cert.ocsp.CertificateStatus;
 import org.bouncycastle.cert.ocsp.OCSPException;
 import org.bouncycastle.cert.ocsp.OCSPReq;
 import org.bouncycastle.cert.ocsp.OCSPReqBuilder;
@@ -74,12 +78,14 @@ import org.slf4j.LoggerFactory;
 
 public class OcspChecker implements OcspService {
   private static final Logger LOGGER = LoggerFactory.getLogger(OcspChecker.class);
+  private static final String NOT_VERIFIED_MSG = " The certificate status could not be verified.";
+  private static final String CONTINUING_MSG = " Continuing OCSP check.";
 
   private final ClientFactoryFactory factory;
   private final EventAdmin eventAdmin;
 
-  private boolean ocspEnabled;
-  private List<String> ocspServerUrls;
+  private boolean ocspEnabled; // metatype value
+  private List<String> ocspServerUrls; // metatype value
 
   public OcspChecker(ClientFactoryFactory factory, EventAdmin eventAdmin) {
     this.factory = factory;
@@ -105,14 +111,21 @@ public class OcspChecker implements OcspService {
       try {
         Certificate certificate = convertToBouncyCastleCert(cert);
         OCSPReq ocspRequest = generateOcspRequest(certificate);
-        List<OCSPResp> ocspResponses = sendOcspRequests(cert, ocspRequest);
-        if (anyOcspResponseStatusIsRevoked(ocspResponses)) {
+        Map<String, CertificateStatus> ocspStatuses = sendOcspRequests(cert, ocspRequest);
+        String revokedStatusUrl = getFirstRevokedStatusUrl(ocspStatuses);
+        if (revokedStatusUrl != null) {
           SecurityLogger.audit(
-              "Certificate {} has been revoked by the OCSP server {}.", cert, ocspServerUrls);
-          LOGGER.debug("Certificate has been revoked by the OCSP server.");
+              "Certificate {} has been revoked by the OCSP server at URL {}.",
+              cert,
+              revokedStatusUrl);
+          LOGGER.warn(
+              "Certificate {} has been revoked by the OCSP server at URL {}.",
+              cert,
+              revokedStatusUrl);
           return false;
         }
-      } catch (OcspCheckerException ignore) {
+      } catch (OcspCheckerException e) {
+        postErrorEvent(e.getMessage());
       }
     }
     // If an error occurred, the certificates will not be validated and will be permitted.
@@ -133,10 +146,9 @@ public class OcspChecker implements OcspService {
       byte[] data = cert.getEncoded();
       return Certificate.getInstance(data);
     } catch (CertificateEncodingException e) {
-      postErrorEvent(
-          "Unable to convert certificate to a Bouncy Castle certificate. The certificate status could not be verified. "
-              + e.getMessage());
-      throw new OcspCheckerException();
+      throw new OcspCheckerException(
+          "Unable to convert X509 certificate to a Bouncy Castle certificate." + NOT_VERIFIED_MSG,
+          e);
     }
   }
 
@@ -165,10 +177,7 @@ public class OcspChecker implements OcspService {
       return ocspReqGenerator.build();
 
     } catch (OCSPException | OperatorCreationException e) {
-      postErrorEvent(
-          "Unable to create an OCSP request. The certificate status could not be verified. "
-              + e.getMessage());
-      throw new OcspCheckerException();
+      throw new OcspCheckerException("Unable to create an OCSP request." + NOT_VERIFIED_MSG, e);
     }
   }
 
@@ -192,7 +201,8 @@ public class OcspChecker implements OcspService {
             (PrivilegedAction<String>) SecurityConstants::getTruststorePassword);
 
     if (isBlank(trustStorePath) || isBlank(trustStorePass)) {
-      throw new OcspCheckerException("Problem retrieving truststore properties.");
+      throw new OcspCheckerException(
+          "Problem retrieving truststore properties." + NOT_VERIFIED_MSG);
     }
 
     KeyStore truststore;
@@ -200,15 +210,18 @@ public class OcspChecker implements OcspService {
     try (InputStream truststoreInputStream = new FileInputStream(trustStorePath)) {
       truststore = SecurityConstants.newTruststore();
       truststore.load(truststoreInputStream, trustStorePass.toCharArray());
+      SecurityLogger.audit(
+          "Truststore on path {} was read by {}.", trustStorePath, this.getClass().getSimpleName());
     } catch (CertificateException | IOException | KeyStoreException | NoSuchAlgorithmException e) {
       throw new OcspCheckerException(
-          String.format("Problem loading truststore on path %s", trustStorePath));
+          String.format("Problem loading truststore on path %s", trustStorePath), e);
     }
 
     try {
       return getCertFromTruststoreWithX500Name(issuerName, truststore);
     } catch (OcspCheckerException e) {
-      throw new OcspCheckerException("Problem finding issuer in truststore.", e);
+      throw new OcspCheckerException(
+          "Problem finding the certificate issuer in truststore." + NOT_VERIFIED_MSG, e);
     }
   }
 
@@ -228,7 +241,8 @@ public class OcspChecker implements OcspService {
     try {
       aliases = truststore.aliases();
     } catch (KeyStoreException e) {
-      throw new OcspCheckerException("Problem getting aliases from truststore.", e);
+      throw new OcspCheckerException(
+          "Problem getting aliases from truststore." + NOT_VERIFIED_MSG, e);
     }
 
     while (aliases.hasMoreElements()) {
@@ -242,12 +256,13 @@ public class OcspChecker implements OcspService {
         if (name.equals(currentName)) {
           return currentCertHolder;
         }
-      } catch (CertificateEncodingException | IOException | KeyStoreException ignore) {
+      } catch (CertificateEncodingException | IOException | KeyStoreException e) {
+        LOGGER.debug("Problem loading truststore certificate." + CONTINUING_MSG, e);
       }
     }
 
     throw new OcspCheckerException(
-        String.format("Could not find cert matching X500Name of %s", name));
+        String.format("Could not find cert matching X500Name of %s.", name) + NOT_VERIFIED_MSG);
   }
 
   /**
@@ -261,7 +276,7 @@ public class OcspChecker implements OcspService {
    *     represented as null values.
    */
   @VisibleForTesting
-  List<OCSPResp> sendOcspRequests(X509Certificate cert, OCSPReq ocspRequest) {
+  Map<String, CertificateStatus> sendOcspRequests(X509Certificate cert, OCSPReq ocspRequest) {
     Set<String> urlsToCheck = new HashSet<>();
     if (ocspServerUrls != null) {
       urlsToCheck.addAll(ocspServerUrls);
@@ -270,7 +285,7 @@ public class OcspChecker implements OcspService {
     // try and pull an OCSP server url off of the cert
     urlsToCheck.addAll(getOcspUrlsFromCert(cert));
 
-    List<OCSPResp> ocspResponses = new ArrayList<>();
+    Map<String, CertificateStatus> ocspStatuses = new HashMap<>();
 
     for (String ocspServerUrl : urlsToCheck) {
       if (isNotBlank(ocspServerUrl)) {
@@ -284,15 +299,22 @@ public class OcspChecker implements OcspService {
                   .type("application/ocsp-request");
 
           Response response = client.post(ocspRequest.getEncoded());
-          ocspResponses.add(createOcspResponse(response));
+          OCSPResp ocspResponse = createOcspResponse(response);
+          ocspStatuses.put(ocspServerUrl, getStatusFromOcspResponse(ocspResponse));
           continue;
-        } catch (IOException | OcspCheckerException | ProcessingException ignore) {
+        } catch (IOException | OcspCheckerException | ProcessingException e) {
+          LOGGER.debug(
+              "Problem with the response from the OCSP Server at URL {}." + CONTINUING_MSG,
+              ocspServerUrl,
+              e);
         }
       }
-      ocspResponses.add(null); // if ocspServerUrl is null or if there was an exception
+      ocspStatuses.put(
+          ocspServerUrl,
+          new UnknownStatus()); // if ocspServerUrl is null or if there was an exception
     }
 
-    return ocspResponses;
+    return ocspStatuses;
   }
 
   /**
@@ -324,7 +346,9 @@ public class OcspChecker implements OcspService {
         if (accessLocation.getTagNo() == GeneralName.uniformResourceIdentifier)
           ocspUrls.add(((DERIA5String) accessLocation.getName()).getString());
       }
-    } catch (IOException ignore) {
+    } catch (IOException e) {
+      LOGGER.debug(
+          "Problem retrieving the OCSP server url(s) from the certificate." + CONTINUING_MSG, e);
     }
 
     return ocspUrls;
@@ -347,50 +371,57 @@ public class OcspChecker implements OcspService {
     try (InputStream inputStream = (InputStream) entity) {
       return new OCSPResp(inputStream);
     } catch (IOException e) {
-      throw new OcspCheckerException("Problem converting Response into OCSPResp.");
+      throw new OcspCheckerException("Problem converting the HTTP Response to an OCSPResp.", e);
     }
   }
 
   /**
-   * Verifies the status of the {@param ocspResponse}.
+   * Gets the {@link CertificateStatus} from the given {@param ocspResponse}.
    *
-   * @param ocspResponses - the {@link List} of responses with statuses to verify
-   * @return true if none of the statuses are revoked, false otherwise
+   * @param ocspResponse - the {@link OCSPResp} to get the {@link CertificateStatus} from.
+   * @return the {@link CertificateStatus} from the given {@param ocspResponse}. Returns an {@link
+   *     UnknownStatus} if the status could not be found.
    */
-  private boolean anyOcspResponseStatusIsRevoked(List<OCSPResp> ocspResponses) {
-    return ocspResponses
+  private CertificateStatus getStatusFromOcspResponse(OCSPResp ocspResponse) {
+    try {
+      BasicOCSPResp basicResponse = (BasicOCSPResp) ocspResponse.getResponseObject();
+
+      if (basicResponse == null) {
+        return new UnknownStatus();
+      }
+
+      SingleResp[] singleResps = basicResponse.getResponses();
+      if (singleResps == null) {
+        return new UnknownStatus();
+      }
+
+      SingleResp response = Arrays.stream(singleResps).findFirst().orElse(null);
+      if (response == null) {
+        return new UnknownStatus();
+      }
+
+      return response.getCertStatus();
+
+    } catch (OCSPException e) {
+      return new UnknownStatus();
+    }
+  }
+
+  /**
+   * Check if any {@link CertificateStatus} in the given {@param ocspStatuses} are revoked.
+   *
+   * @param ocspStatuses - a {@link Map} of OCSP URLs and their respective {@link
+   *     CertificateStatus}.
+   * @return the URL of the first revoked status, or null if no revoked status was found.
+   */
+  private @Nullable String getFirstRevokedStatusUrl(Map<String, CertificateStatus> ocspStatuses) {
+    return ocspStatuses
+        .entrySet()
         .stream()
-        .filter(Objects::nonNull)
-        .anyMatch(
-            ocspResponse -> {
-              try {
-                BasicOCSPResp basicResponse = (BasicOCSPResp) ocspResponse.getResponseObject();
-
-                if (basicResponse == null) {
-                  return false;
-                }
-
-                SingleResp[] singleResps = basicResponse.getResponses();
-                if (singleResps == null) {
-                  return false;
-                }
-
-                SingleResp response = Arrays.stream(singleResps).findFirst().orElse(null);
-                if (response == null) {
-                  return false;
-                }
-
-                Object status = response.getCertStatus();
-                if (status instanceof UnknownStatus) {
-                  return false;
-                }
-
-                return status instanceof RevokedStatus;
-
-              } catch (OCSPException ignore) {
-                return false;
-              }
-            });
+        .filter(entry -> entry.getValue() instanceof RevokedStatus)
+        .map(Entry::getKey)
+        .findFirst()
+        .orElse(null);
   }
 
   /**
@@ -399,10 +430,10 @@ public class OcspChecker implements OcspService {
    * @param errorMessage - The reason for the error.
    */
   private void postErrorEvent(String errorMessage) {
-    String title = "Failure checking the revocation status of a Certificate through OCSP.";
+    String title = "Problem checking the revocation status of the Certificate through OCSP.";
     Set<String> details = new HashSet<>();
     details.add(
-        "An error occurred while checking the revocation status of a Certificate using an Online Certificate Status Protocol (OCSP) server. "
+        "An error occurred while checking the revocation status of a Certificate against an Online Certificate Status Protocol (OCSP) server. "
             + "Please resolve the error to resume validating certificates against the OCSP server.");
     details.add(errorMessage);
     eventAdmin.postEvent(

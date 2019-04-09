@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.security.ocsp.checker;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -31,17 +32,15 @@ import java.net.URL;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import javax.security.auth.x500.X500Principal;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.Certificate;
-import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.CertificateStatus;
 import org.bouncycastle.cert.ocsp.OCSPReq;
-import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.bouncycastle.cert.ocsp.RevokedStatus;
 import org.bouncycastle.cert.ocsp.UnknownStatus;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
@@ -52,15 +51,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.osgi.service.event.EventAdmin;
 
 public class OcspCheckerTest {
-
-  private static final int GOOD_OCSP_STATUS_INT = 1;
-  private static final int REVOKED_OCSP_STATUS_INT = -1;
-  private static final int UNKNOWN_OCSP_STATUS_INT = 0;
 
   // all certs in test resources have this embedded ocsp server url
   private static final String EMBEDDED_OCSP_SERVER_URL = "http://127.0.0.1:8080";
@@ -80,18 +77,18 @@ public class OcspCheckerTest {
   private List<String> brokenEndpoints = new ArrayList<>();
 
   // mocks
-  private Response goodResponse = mock(Response.class);
-  private Response revokedResponse = mock(Response.class);
-  private Response unknownResponse = mock(Response.class);
-  private Response brokenResponse = mock(Response.class);
-  private WebClient goodWebClient = mock(WebClient.class);
-  private WebClient revokedWebClient = mock(WebClient.class);
-  private WebClient unknownWebClient = mock(WebClient.class);
-  private WebClient brokenWebClient = mock(WebClient.class);
-  private SecureCxfClientFactory goodSecureCxfClientFactory = mock(SecureCxfClientFactory.class);
-  private SecureCxfClientFactory revokedSecureCxfClientFactory = mock(SecureCxfClientFactory.class);
-  private SecureCxfClientFactory unknownSecureCxfClientFactory = mock(SecureCxfClientFactory.class);
-  private SecureCxfClientFactory brokenSecureCxfClientFactory = mock(SecureCxfClientFactory.class);
+  @Mock private Response goodResponse;
+  @Mock private Response revokedResponse;
+  @Mock private Response unknownResponse;
+  @Mock private Response brokenResponse;
+  @Mock private WebClient goodWebClient;
+  @Mock private WebClient revokedWebClient;
+  @Mock private WebClient unknownWebClient;
+  @Mock private WebClient brokenWebClient;
+  @Mock private SecureCxfClientFactory goodSecureCxfClientFactory;
+  @Mock private SecureCxfClientFactory revokedSecureCxfClientFactory;
+  @Mock private SecureCxfClientFactory unknownSecureCxfClientFactory;
+  @Mock private SecureCxfClientFactory brokenSecureCxfClientFactory;
 
   // mockito argument matchers for list matching
   private ArgumentMatcher<String> inGoodList =
@@ -126,30 +123,6 @@ public class OcspCheckerTest {
         }
       };
 
-  // list comparator to order ocspResponses before asserting
-  // sorting pattern: RevokedResponses first then UnknownResponses then GoodResponses then nulls
-  private Comparator<OCSPResp> ocspResponseComparator =
-      (resp1, resp2) -> {
-        if (resp2 == null) {
-          return -1;
-        }
-        if (resp1 == null) {
-          return 1;
-        }
-
-        int status1;
-        int status2;
-
-        try {
-          status1 = getOcspCertStatusIntFromOcspResponse(resp1);
-          status2 = getOcspCertStatusIntFromOcspResponse(resp2);
-        } catch (Exception ignore) {
-          return 0;
-        }
-
-        return Integer.compare(status1, status2);
-      };
-
   @BeforeClass
   public static void setupClass() throws Exception {
     // truststore.jks contains CA_CERT
@@ -166,6 +139,8 @@ public class OcspCheckerTest {
 
   @Before
   public void setup() throws Exception {
+    MockitoAnnotations.initMocks(this);
+
     when(goodWebClient.type(anyString())).thenReturn(goodWebClient);
     when(goodWebClient.accept(anyString())).thenReturn(goodWebClient);
     when(goodWebClient.post(any())).thenReturn(goodResponse);
@@ -250,13 +225,10 @@ public class OcspCheckerTest {
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    List<OCSPResp> ocspResponses = ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
-    ocspResponses.sort(ocspResponseComparator);
+    Map<String, CertificateStatus> ocspStatuses =
+        ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
-    assertThat(ocspResponses.size(), is(2));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(0)), is(GOOD_OCSP_STATUS_INT));
-    assertNull(ocspResponses.get(1)); // embedded ocsp url
+    assertStatuses(ocspStatuses);
   }
 
   @Test
@@ -271,13 +243,10 @@ public class OcspCheckerTest {
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    List<OCSPResp> ocspResponses = ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
-    ocspResponses.sort(ocspResponseComparator);
+    Map<String, CertificateStatus> ocspStatuses =
+        ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
-    assertThat(ocspResponses.size(), is(2));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(0)), is(REVOKED_OCSP_STATUS_INT));
-    assertNull(ocspResponses.get(1)); // embedded ocsp url
+    assertStatuses(ocspStatuses);
   }
 
   @Test
@@ -292,13 +261,10 @@ public class OcspCheckerTest {
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    List<OCSPResp> ocspResponses = ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
-    ocspResponses.sort(ocspResponseComparator);
+    Map<String, CertificateStatus> ocspStatuses =
+        ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
-    assertThat(ocspResponses.size(), is(2));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(0)), is(UNKNOWN_OCSP_STATUS_INT));
-    assertNull(ocspResponses.get(1)); // embedded ocsp url
+    assertStatuses(ocspStatuses);
   }
 
   @Test
@@ -322,23 +288,10 @@ public class OcspCheckerTest {
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    List<OCSPResp> ocspResponses = ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
-    ocspResponses.sort(ocspResponseComparator);
+    Map<String, CertificateStatus> ocspStatuses =
+        ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
-    assertThat(ocspResponses.size(), is(7));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(0)), is(REVOKED_OCSP_STATUS_INT));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(1)), is(REVOKED_OCSP_STATUS_INT));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(2)), is(UNKNOWN_OCSP_STATUS_INT));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(3)), is(UNKNOWN_OCSP_STATUS_INT));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(4)), is(GOOD_OCSP_STATUS_INT));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(5)), is(GOOD_OCSP_STATUS_INT));
-    assertNull(ocspResponses.get(6)); // embedded ocsp url
+    assertStatuses(ocspStatuses);
   }
 
   @Test
@@ -355,17 +308,10 @@ public class OcspCheckerTest {
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    List<OCSPResp> ocspResponses = ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
-    ocspResponses.sort(ocspResponseComparator);
+    Map<String, CertificateStatus> ocspStatuses =
+        ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
-    assertThat(ocspResponses.size(), is(3));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(0)), is(UNKNOWN_OCSP_STATUS_INT));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(1)), is(UNKNOWN_OCSP_STATUS_INT));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(2)),
-        is(GOOD_OCSP_STATUS_INT)); // embedded ocsp url
+    assertStatuses(ocspStatuses);
   }
 
   @Test
@@ -382,17 +328,10 @@ public class OcspCheckerTest {
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    List<OCSPResp> ocspResponses = ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
-    ocspResponses.sort(ocspResponseComparator);
+    Map<String, CertificateStatus> ocspStatuses =
+        ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
-    assertThat(ocspResponses.size(), is(3));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(0)), is(REVOKED_OCSP_STATUS_INT));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(1)), is(UNKNOWN_OCSP_STATUS_INT));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(2)),
-        is(UNKNOWN_OCSP_STATUS_INT)); // embedded ocsp url
+    assertStatuses(ocspStatuses);
   }
 
   @Test
@@ -410,17 +349,10 @@ public class OcspCheckerTest {
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    List<OCSPResp> ocspResponses = ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
-    ocspResponses.sort(ocspResponseComparator);
+    Map<String, CertificateStatus> ocspStatuses =
+        ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
-    assertThat(ocspResponses.size(), is(3));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(0)), is(UNKNOWN_OCSP_STATUS_INT));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(1)), is(UNKNOWN_OCSP_STATUS_INT));
-    assertThat(
-        getOcspCertStatusIntFromOcspResponse(ocspResponses.get(2)),
-        is(UNKNOWN_OCSP_STATUS_INT)); // embedded ocsp url
+    assertStatuses(ocspStatuses);
   }
 
   @Test
@@ -432,11 +364,10 @@ public class OcspCheckerTest {
     ocspChecker.setOcspEnabled(true);
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    List<OCSPResp> ocspResponses = ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
-    ocspResponses.sort(ocspResponseComparator);
+    Map<String, CertificateStatus> ocspStatuses =
+        ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
-    assertThat(ocspResponses.size(), is(1));
-    assertNull(ocspResponses.get(0)); // embedded ocsp url
+    assertStatuses(ocspStatuses);
   }
 
   @Test
@@ -455,14 +386,10 @@ public class OcspCheckerTest {
     ocspChecker.setOcspServerUrls(ocspServerUrls);
 
     OCSPReq ocspReq = ocspChecker.generateOcspRequest(trustedCertBc);
-    List<OCSPResp> ocspResponses = ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
-    ocspResponses.sort(ocspResponseComparator);
+    Map<String, CertificateStatus> ocspStatuses =
+        ocspChecker.sendOcspRequests(trustedCertX509, ocspReq);
 
-    assertThat(ocspResponses.size(), is(4));
-    assertNull(ocspResponses.get(0));
-    assertNull(ocspResponses.get(1));
-    assertNull(ocspResponses.get(2));
-    assertNull(ocspResponses.get(3)); // embedded ocsp url
+    assertStatuses(ocspStatuses);
   }
 
   @Test
@@ -721,16 +648,13 @@ public class OcspCheckerTest {
     };
   }
 
-  private int getOcspCertStatusIntFromOcspResponse(OCSPResp ocspResp) throws Exception {
-    CertificateStatus certStatus =
-        ((BasicOCSPResp) ocspResp.getResponseObject()).getResponses()[0].getCertStatus();
-
-    if (certStatus instanceof RevokedStatus) {
-      return REVOKED_OCSP_STATUS_INT;
-    }
-    if (certStatus instanceof UnknownStatus) {
-      return UNKNOWN_OCSP_STATUS_INT;
-    }
-    return GOOD_OCSP_STATUS_INT;
+  private void assertStatuses(Map<String, CertificateStatus> ocspStatuses) {
+    goodEndpoints.forEach(endpoint -> assertNull(ocspStatuses.get(endpoint)));
+    revokedEndpoints.forEach(
+        endpoint -> assertThat(ocspStatuses.get(endpoint), instanceOf(RevokedStatus.class)));
+    unknownEndpoints.forEach(
+        endpoint -> assertThat(ocspStatuses.get(endpoint), instanceOf(UnknownStatus.class)));
+    brokenEndpoints.forEach(
+        endpoint -> assertThat(ocspStatuses.get(endpoint), instanceOf(UnknownStatus.class)));
   }
 }
