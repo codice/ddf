@@ -45,7 +45,6 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   private String newPasswordPlainText;
   private StatusType solrResponse = null;
   private String newPasswordWrappedEncrypted;
-  private boolean passwordSavedSuccessfully = false;
   private Map<String, String> properties;
 
   public SolrPasswordUpdateImpl(
@@ -69,16 +68,18 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
           "Solr Password Updater invoked with null Properties object. Aborting password update attempt.");
       return;
     }
-    this.properties = properties;
     try {
-      execute();
+      execute(properties);
     } finally {
       cleanup();
     }
   }
 
   @VisibleForTesting
-  void execute() {
+  void execute(Map<String, String> properties) {
+
+    this.properties = properties;
+
     if (isConfiguredForBasicAuth()
         && configuredToAttemptAutoPasswordChange()
         && isUsingDefaultPassword()) {
@@ -87,14 +88,6 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
       setPasswordInSolr();
       if (isSolrPasswordChangeSuccessful()) {
         setPasswordInProperties();
-        // Do not update the password in memory if the password could not be saved to a file.
-        // If the password is not be saved to the properties file, but is updated in memory,
-        // then communication with Solr would continue to work until the system was rebooted. That
-        // might be very hard to diagnose. If the password cannot be saved to a file, let
-        // communication with Solr stop immediately so an operator can begin troubleshooting.
-        if (isPasswordSavedSuccessfully()) {
-          setPasswordInMemory();
-        }
       }
     }
   }
@@ -105,7 +98,6 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
     newPasswordPlainText = null;
     solrResponse = null;
     newPasswordWrappedEncrypted = null;
-    passwordSavedSuccessfully = false;
   }
 
   private void initialize() {
@@ -116,11 +108,6 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
             properties.get("solr.username"),
             getPlaintextPasswordFromProperties());
     solrAuthResource = factory.getClient();
-  }
-
-  private void setPasswordInMemory() {
-    properties.put(SOLR_PASSWORD_PROPERTY_NAME, newPasswordWrappedEncrypted);
-    LOGGER.info("Updated encrypted Solr password in memory.");
   }
 
   private boolean configuredToAttemptAutoPasswordChange() {
@@ -147,7 +134,7 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
 
   private void setPasswordInProperties() {
     properties.put(SOLR_PASSWORD_PROPERTY_NAME, newPasswordWrappedEncrypted);
-    String msg = String.format("Updated encrypted Solr password in properties");
+    String msg = "Updated encrypted Solr password in properties";
     SecurityLogger.audit(msg);
     LOGGER.info(msg);
   }
@@ -198,11 +185,6 @@ public class SolrPasswordUpdateImpl implements SolrPasswordUpdate {
   private String getSetUserJson() {
     return String.format(
         SET_USER_JSON_TEMPLATE, properties.get("solr.username"), newPasswordPlainText);
-  }
-
-  @VisibleForTesting
-  boolean isPasswordSavedSuccessfully() {
-    return passwordSavedSuccessfully;
   }
 
   private Boolean isConfiguredForBasicAuth() {

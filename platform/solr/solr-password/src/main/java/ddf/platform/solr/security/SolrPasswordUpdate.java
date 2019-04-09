@@ -17,5 +17,13 @@ import java.util.Map;
 
 public interface SolrPasswordUpdate {
 
+  /**
+   * This method will read and potentially mutate the input object. It does not persist the changes
+   * to a file or copy any changes to the System's Properties object. That is the responsibility of
+   * the caller.
+   *
+   * @param properties is typically an instance of org.apache.felix.utils.properties.Properties
+   *     which extends AbstractMap
+   */
   void update(Map<String, String> properties);
 }
