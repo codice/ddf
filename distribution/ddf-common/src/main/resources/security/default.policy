@@ -131,7 +131,7 @@ grant codeBase "file:/spatial-csw-source/spatial-csw-endpoint/org.apache.camel.c
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
 }
 
-grant codeBase "file:/org.apache.servicemix.bundles.commons-httpclient/org.apache.camel.camel-http/spatial-wfs-v1_0_0-source/spatial-wfs-v2_0_0-source/spatial-wfs-v1_1_0-source/org.apache.ws.xmlschema.core/security-rest-cxfwrapper" {
+grant codeBase "file:/org.apache.servicemix.bundles.commons-httpclient/org.apache.camel.camel-http/spatial-wfs-v1_0_0-source/spatial-wfs-v2_0_0-source/spatial-wfs-v1_1_0-source/org.apache.ws.xmlschema.core/security-rest-cxfwrapper/org.codice.thirdparty.commons-httpclient" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
 }
 
