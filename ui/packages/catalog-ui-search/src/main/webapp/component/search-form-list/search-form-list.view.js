@@ -24,12 +24,13 @@ import { lighten, readableColor, transparentize } from 'polished'
 import styled from '../../react-component/styles/styled-components'
 
 const ListContainer = styled.div`
-  max-height: 60vh;
+  max-height: 50vh;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 `
 
 const ScrollableContainer = styled.div`
-  max-height: calc(60vh - 67px);
   overflow-y: auto;
 `
 
@@ -38,6 +39,7 @@ const ListItem = styled.div`
   display: block;
   line-height: ${props => props.theme.minimumButtonSize};
   padding: 0px ${props => props.theme.largeSpacing};
+  box-sizing: border-box;
 `
 
 const HoverableListItem = styled(ListItem)`
@@ -61,6 +63,7 @@ const SearchFormItem = ({ title, onClick }) => {
 }
 
 const FilterPadding = styled.div`
+  box-sizing: border-box;
   padding: 0px ${props => props.theme.minimumSpacing} ${props => props.theme.minimumSpacing} ${props => props.theme.minimumSpacing};
 `
 class SearchForms extends React.Component {
