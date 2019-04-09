@@ -38,14 +38,12 @@ class SearchInteractions extends React.Component<Props, {}> {
   }
 }
 
-const mapStateToProps = () => ({})
-
 const mapDispatchToProps = (dispatch: any) => ({
   deleteSearch: (id: string) => dispatch(deleteSearchRequest(id)),
 })
 
 const Connected = connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps
 )(SearchInteractions)
 export default hot(module)(Connected)

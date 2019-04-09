@@ -13,24 +13,19 @@
 import { Search } from '.'
 import fetch from '../../utils/fetch'
 
-export const ADD_SEARCH = 'searchApp/ADD_SEARCH'
-export const addSearch = (search: Search) => {
-  return {
-    type: ADD_SEARCH,
-    payload: search,
-  }
-}
-
-export const GET_SEARCHES = 'searchApp/GET_SEARCHES'
+export const ADD_SEARCHES = 'searchApp/ADD_SEARCH'
+export const PAGE_SIZE = 5
 const getSearches = (searches: Search[]) => {
   return {
-    type: GET_SEARCHES,
+    type: ADD_SEARCHES,
     payload: searches,
   }
 }
-export const getSearchesRequest = () => async (dispatch: any) => {
+export const getSearchesRequest = (start: number) => async (dispatch: any) => {
   try {
-    const response = await fetch('./internal/queries')
+    const response = await fetch(
+      `./internal/queries?start=${start}&count=${PAGE_SIZE}`
+    )
     if (!response.ok) {
       throw new Error(response.statusText)
     }
@@ -60,5 +55,13 @@ export const deleteSearchRequest = (id: string) => async (dispatch: any) => {
     return dispatch(deleteSearch(id))
   } catch (err) {
     console.log(err)
+  }
+}
+
+export const SET_PAGINATION_COMPLETE = 'searchApp/SET_PAGINATION_COMPLETE'
+export const setPaginationComplete = (complete: boolean) => {
+  return {
+    type: SET_PAGINATION_COMPLETE,
+    payload: complete,
   }
 }

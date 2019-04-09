@@ -13,11 +13,15 @@
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import styled from '../../styles/styled-components'
+import { connect } from 'react-redux'
+
 import Search from '../search'
 import Text from '../../container/input-wrappers/text'
 import Dropdown from '../../presentation/dropdown'
 import NavigationBehavior from '../../presentation/navigation-behavior'
 import MenuSelection from '../../presentation/menu-selection'
+
+import { getSearchesRequest } from '../../container/searches-container/actions'
 
 const SearchesPage = styled.div`
   height: 100%;
@@ -56,11 +60,15 @@ const FilterOptions = styled.div`
 `
 
 const SearchContainer = styled.div`
+  padding-top: calc(5 * ${props => props.theme.minimumSpacing});
+  padding-left: calc(5 * ${props => props.theme.minimumSpacing});
+  padding-right: calc(5 * ${props => props.theme.minimumSpacing});
+`
+
+const SearchesContainer = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-
-  padding: calc(5 * ${props => props.theme.minimumSpacing});
 `
 
 const SectionHeader = styled.h1`
@@ -97,6 +105,12 @@ const CreateSearchContent = styled.div`
   }
 `
 
+const PaginationButton = styled.div`
+  font-style: italic;
+  float: right;
+  cursor: pointer;
+`
+
 type Search = {
   id: string
   title: string
@@ -107,77 +121,111 @@ type Search = {
 
 type Props = {
   searches: Search[]
+  complete: boolean
+  getPaginatedSearches: (start: number) => void
 }
 
-const Searches = (props: Props) => {
-  return (
-    <SearchesPage>
-      <ContextBar>
-        <Text
-          className="filter-searches"
-          value=""
-          showLabel={false}
-          placeholder="Filter searches"
-          onChange={() => {}}
-        />
-        <FilterOptions>
-          <Dropdown
-            content={context => (
-              <NavigationBehavior>
-                <MenuSelection
-                  onClick={() => {
-                    context.closeAndRefocus()
-                  }}
-                  isSelected={true}
-                >
-                  Alphabetical
-                </MenuSelection>
-                <MenuSelection
-                  onClick={() => {
-                    context.closeAndRefocus()
-                  }}
-                  isSelected={true}
-                >
-                  Date Created
-                </MenuSelection>
-                <MenuSelection
-                  onClick={() => {
-                    context.closeAndRefocus()
-                  }}
-                  isSelected={true}
-                >
-                  Date Modified
-                </MenuSelection>
-              </NavigationBehavior>
-            )}
-          >
-            Sort by: Alphabetical
-            <span className="fa-filter fa" />
-          </Dropdown>
-        </FilterOptions>
-      </ContextBar>
-      <SectionHeader>My Searches</SectionHeader>
-      <SearchContainer>
-        <CreateSearchCard onClick={() => alert('hello world')}>
-          <CreateSearchContent>
-            <span className="fa fa-plus-circle fa-5x" />
-            <h1>Create Search</h1>
-          </CreateSearchContent>
-        </CreateSearchCard>
-        {props.searches.map(search => (
-          <Search
-            key={search.id}
-            id={search.id}
-            title={search.title}
-            owner={search.owner}
-            created={search.created}
-            modified={search.modified}
+class Searches extends React.Component<Props, {}> {
+  constructor(props: Props) {
+    super(props)
+  }
+
+  render() {
+    return (
+      <SearchesPage>
+        <ContextBar>
+          <Text
+            className="filter-searches"
+            value=""
+            showLabel={false}
+            placeholder="Filter searches"
+            onChange={() => {}}
           />
-        ))}
-      </SearchContainer>
-      <span>Show more</span>
-    </SearchesPage>
-  )
+          <FilterOptions>
+            <Dropdown
+              content={context => (
+                <NavigationBehavior>
+                  <MenuSelection
+                    onClick={() => {
+                      context.closeAndRefocus()
+                    }}
+                    isSelected={true}
+                  >
+                    Alphabetical
+                  </MenuSelection>
+                  <MenuSelection
+                    onClick={() => {
+                      context.closeAndRefocus()
+                    }}
+                    isSelected={true}
+                  >
+                    Date Created
+                  </MenuSelection>
+                  <MenuSelection
+                    onClick={() => {
+                      context.closeAndRefocus()
+                    }}
+                    isSelected={true}
+                  >
+                    Date Modified
+                  </MenuSelection>
+                </NavigationBehavior>
+              )}
+            >
+              Sort by: Alphabetical
+              <span className="fa-filter fa" />
+            </Dropdown>
+          </FilterOptions>
+        </ContextBar>
+        <SectionHeader>My Searches</SectionHeader>
+        <SearchContainer>
+          <SearchesContainer>
+            <CreateSearchCard onClick={() => alert('hello world')}>
+              <CreateSearchContent>
+                <span className="fa fa-plus-circle fa-5x" />
+                <h1>Create Search</h1>
+              </CreateSearchContent>
+            </CreateSearchCard>
+            {this.props.searches.map(search => (
+              <Search
+                key={search.id}
+                id={search.id}
+                title={search.title}
+                owner={search.owner}
+                created={search.created}
+                modified={search.modified}
+              />
+            ))}
+          </SearchesContainer>
+          {this.props.searches.length > 0 &&
+            !this.props.complete && (
+              <PaginationButton
+                onClick={() =>
+                  this.props.getPaginatedSearches(
+                    this.props.searches.length + 1
+                  )
+                }
+              >
+                show more
+              </PaginationButton>
+            )}
+        </SearchContainer>
+      </SearchesPage>
+    )
+  }
 }
 
-export default hot(module)(Searches)
+const mapStateToProps = (state: any) => ({
+  complete: state.searchApp.complete,
+})
+
+const mapDispatchToProps = (dispatch: any) => ({
+  getPaginatedSearches: (start: number) => dispatch(getSearchesRequest(start)),
+})
+
+const Connected = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Searches)
+
+export default hot(module)(Connected)

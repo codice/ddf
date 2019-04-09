@@ -27,7 +27,7 @@ type Search = {
 
 type Props = {
   searches: Search[]
-  getSearches: () => void
+  getSearches: (start: number) => void
 }
 
 type State = {
@@ -36,7 +36,8 @@ type State = {
 
 class SearchesContainer extends React.Component<Props, State> {
   componentDidMount() {
-    this.props.getSearches()
+    const START_INDEX = 1
+    this.props.getSearches(START_INDEX)
   }
 
   render() {
@@ -49,7 +50,7 @@ const mapStateToProps = (state: any) => ({
 })
 
 const mapDispatchToProps = (dispatch: any) => ({
-  getSearches: () => dispatch(getSearchesRequest()),
+  getSearches: (start: number) => dispatch(getSearchesRequest(start)),
 })
 
 const Connected = connect(

@@ -10,10 +10,29 @@
  *
  **/
 
-import { ADD_SEARCH, GET_SEARCHES, DELETE_SEARCH } from './actions'
+import {
+  ADD_SEARCHES,
+  GET_SEARCHES,
+  DELETE_SEARCH,
+  SET_PAGINATION_COMPLETE,
+  PAGE_SIZE,
+} from './actions'
 
 const initialState = {
   searches: [],
+  complete: false,
+}
+
+const isPaginationComplete = (oldSearches, newSearches) => {
+  if (oldSearches === newSearches) {
+    return true
+  }
+
+  if (newSearches.length < PAGE_SIZE) {
+    return true
+  }
+
+  return false
 }
 
 const searchAppReducer = (state = initialState, action) => {
@@ -23,10 +42,14 @@ const searchAppReducer = (state = initialState, action) => {
         ...state,
         searches: state.searches.filter(search => search.id !== action.payload),
       }
-    case GET_SEARCHES:
-      return { ...state, searches: action.payload }
-    case ADD_SEARCH:
-      return { ...state, searches: state.searches.concat(action.payload) }
+    case ADD_SEARCHES:
+      return {
+        ...state,
+        searches: state.searches.concat(action.payload),
+        complete: isPaginationComplete(state.searches, action.payload),
+      }
+    case SET_PAGINATION_COMPLETE:
+      return { ...state, complete: action.payload }
     default:
       return state
   }

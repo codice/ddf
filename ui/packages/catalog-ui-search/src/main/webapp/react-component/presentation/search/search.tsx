@@ -75,25 +75,27 @@ const Search = (props: Props) => {
         alert(props.id)
       }}
     >
-      <Header
-        onClick={e => {
-          e.stopPropagation()
-        }}
-      >
+      <Header>
         <Title>{props.title}</Title>
-        <Dropdown
-          content={() => (
-            <NavigationBehavior>
-              <SearchInteractions id={props.id} />
-            </NavigationBehavior>
-          )}
+        <div
+          onClick={e => {
+            e.stopPropagation()
+          }}
         >
-          <Button
-            buttonType={buttonTypeEnum.neutral}
-            fadeUntilHover
-            icon="fa fa-ellipsis-v"
-          />
-        </Dropdown>
+          <Dropdown
+            content={() => (
+              <NavigationBehavior>
+                <SearchInteractions id={props.id} />
+              </NavigationBehavior>
+            )}
+          >
+            <Button
+              buttonType={buttonTypeEnum.neutral}
+              fadeUntilHover
+              icon="fa fa-ellipsis-v"
+            />
+          </Dropdown>
+        </div>
       </Header>
       <Body>
         <Item>Owner: {props.owner}</Item>
