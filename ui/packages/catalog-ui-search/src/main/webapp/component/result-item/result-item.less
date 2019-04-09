@@ -1,7 +1,6 @@
 @{customElementNamespace}result-item {
   display: block;
   width: 100%;
-  white-space: nowrap;
   cursor: pointer;
   position: relative;
   opacity: 1;
@@ -12,9 +11,19 @@
     height: @minimumLineSize;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding: 0px @minimumSpacing;
+    height: auto;
+    max-height: 2 * @minimumLineSize;
+    display: flex;
+    align-items: baseline;
 
     > .header-title {
-      display: inline;
+      display: block;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      white-space: normal;
+      word-break: break-all;
     }
   }
 
@@ -22,6 +31,7 @@
     white-space: nowrap;
     text-align: right;
     height: @minimumButtonSize;
+    padding: 0px @minimumSpacing;
 
     > .result-download {
       display: none;
@@ -57,7 +67,25 @@
     width: ~'calc(100% - 0.5*@{minimumSpacing})';
     position: relative;
     left: 0.5 * @minimumSpacing;
-    padding: 0px @minimumSpacing;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+
+  .container-thumbnail {
+    flex: 1 1 40%;
+    display: none;
+  }
+
+  .container-content-right {
+    flex: 2 2 60%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .container-property {
+    display: flex;
+    flex-direction: column;
   }
 
   .result-add {
@@ -74,10 +102,18 @@
     overflow: hidden;
     -ms-text-overflow: ellipsis;
     text-overflow: ellipsis;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .content-body {
+    padding: 0px @minimumSpacing;
   }
 
   .content-body .details-property {
     opacity: @minimumOpacity;
+    white-space: normal;
+    height: auto;
   }
 
   .result-validation .resultError {
@@ -121,11 +157,17 @@
 }
 
 @{customElementNamespace}result-item.is-grid {
+  .container-thumbnail {
+    display: block;
+  }
+
   .detail-thumbnail {
     opacity: 1;
     display: block;
     height: auto;
-    padding: 0.5 * @minimumSpacing 0px;
+    padding: 0.5 * @minimumSpacing;
+    padding-right: 0;
+    font-size: 0.8 * @minimumFontSize;
 
     img {
       max-width: 100%;

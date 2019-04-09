@@ -15,7 +15,8 @@
 /*global define*/
 import React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
-
+import styled from '../../react-component/styles/styled-components'
+import { readableColor } from 'polished'
 import MetacardInteractionsDropdown from '../../react-component/container/metacard-interactions/metacard-interactions-dropdown'
 const Backbone = require('backbone')
 const Marionette = require('marionette')
@@ -65,6 +66,17 @@ const getResultDisplayType = () =>
       .get('resultDisplay')) ||
   LIST_DISPLAY_TYPE
 
+const Divider = styled.div`
+  height: ${props => props.theme.borderRadius};
+  background: ${props => readableColor(props.theme.backgroundContent)};
+  opacity: 0.1;
+  margin-top: ${props => props.theme.minimumSpacing};
+`
+
+const Footer = styled.div`
+  background: rgba(0, 0, 0, 0.05);
+`
+
 const ResultItemView = Marionette.LayoutView.extend({
   template(data) {
     const model = this.model
@@ -88,49 +100,7 @@ const ResultItemView = Marionette.LayoutView.extend({
             viewOptions={{ model: model }}
           />
           <div className="container-content">
-            <div className="content-header">
-              <span
-                className="header-icon fa fa-history"
-                title="Type: Revision"
-                data-help="Indicates the type of result
-                        (workspace, resource, history, deleted)"
-              />
-              <span
-                className="header-icon fa fa-book"
-                title="Type: Workspace"
-                data-help="Indicates the type of result
-                        (workspace, resource, history, deleted)"
-              />
-              <span
-                className="header-icon fa fa-file"
-                title="Type: Resource"
-                data-help="Indicates the type of result
-                        (workspace, resource, history, deleted)"
-              />
-              <span
-                className="header-icon fa fa-trash"
-                title="Type: Deleted"
-                data-help="Indicates the type of result
-                        (workspace, resource, history, deleted)"
-              />
-
-              <span
-                className={`header-icon result-icon ${data.icon}`}
-                title="Type: Resource"
-                data-help="Indicates the type of result
-                        (workspace, resource, history, deleted)"
-              />
-              <span
-                className="header-title"
-                data-help={HandleBarsHelpers.getAlias('title')}
-                title={`${HandleBarsHelpers.getAlias('title')}: ${
-                  data.metacard.properties.title
-                }`}
-              >
-                {data.metacard.properties.title}
-              </span>
-            </div>
-            <div className="content-body">
+            <div className="container-thumbnail">
               {renderThumbnail && (
                 <MarionetteRegionContainer
                   className="detail-thumbnail details-property"
@@ -142,101 +112,152 @@ const ResultItemView = Marionette.LayoutView.extend({
                   }}
                 />
               )}
-              {data.customDetail.map(detail => {
-                return (
-                  <div
-                    key={detail.label}
-                    className="detail-custom details-property"
-                    data-help={HandleBarsHelpers.getAlias(detail.label)}
-                    title={`${HandleBarsHelpers.getAlias(detail.label)}: ${
-                      detail.value
-                    }`}
-                  >
-                    <span>{detail.value}</span>
-                  </div>
-                )
-              })}
-              {data.showRelevanceScore ? (
-                <div
-                  className="detail-custom details-property"
-                  data-help={`Relevance: ${data.relevance}`}
-                  title={`Relevance: ${data.relevance}`}
-                >
-                  <span>{data.roundedRelevance}</span>
-                </div>
-              ) : (
-                ''
-              )}
-              {data.showSource ? (
-                <div
-                  className="detail-source details-property"
-                  title={`${HandleBarsHelpers.getAlias('source-id')}: ${
-                    data.metacard.properties['source-id']
+            </div>
+            <div className="container-content-right">
+              <div className="content-header">
+                <span
+                  className="header-icon fa fa-history"
+                  title="Type: Revision"
+                  data-help="Indicates the type of result
+                        (workspace, resource, history, deleted)"
+                />
+                <span
+                  className="header-icon fa fa-book"
+                  title="Type: Workspace"
+                  data-help="Indicates the type of result
+                        (workspace, resource, history, deleted)"
+                />
+                <span
+                  className="header-icon fa fa-file"
+                  title="Type: Resource"
+                  data-help="Indicates the type of result
+                        (workspace, resource, history, deleted)"
+                />
+                <span
+                  className="header-icon fa fa-trash"
+                  title="Type: Deleted"
+                  data-help="Indicates the type of result
+                        (workspace, resource, history, deleted)"
+                />
+
+                <span
+                  className={`header-icon result-icon ${data.icon}`}
+                  title="Type: Resource"
+                  data-help="Indicates the type of result
+                        (workspace, resource, history, deleted)"
+                />
+                <span
+                  className="header-title"
+                  data-help={HandleBarsHelpers.getAlias('title')}
+                  title={`${HandleBarsHelpers.getAlias('title')}: ${
+                    data.metacard.properties.title
                   }`}
-                  data-help={HandleBarsHelpers.getAlias('source-id')}
                 >
-                  {data.local ? (
-                    <React.Fragment>
-                      <span className="fa source-icon fa-home" />
-                      <span>local</span>
-                    </React.Fragment>
+                  {data.metacard.properties.title}
+                </span>
+              </div>
+              <div className="container-property">
+                <div className="content-body">
+                  {data.customDetail.map(detail => {
+                    const label =
+                      metacardDefinitions.metacardTypes[detail.label].alias
+                    return (
+                      <div
+                        key={detail.label}
+                        className="detail-custom details-property"
+                        data-help={HandleBarsHelpers.getAlias(detail.label)}
+                        title={`${HandleBarsHelpers.getAlias(detail.label)}: ${
+                          detail.value
+                        }`}
+                      >
+                        <span>
+                          {label ? `${label}: ${detail.value}` : detail.value}
+                        </span>
+                      </div>
+                    )
+                  })}
+                  {data.showRelevanceScore ? (
+                    <div
+                      className="detail-custom details-property"
+                      data-help={`Relevance: ${data.relevance}`}
+                      title={`Relevance: ${data.relevance}`}
+                    >
+                      <span>{data.roundedRelevance}</span>
+                    </div>
                   ) : (
-                    <React.Fragment>
-                      <span className="fa source-icon fa-cloud" />
-                      <span>{data.metacard.properties['source-id']}</span>
-                    </React.Fragment>
+                    ''
+                  )}
+                  {data.showSource ? (
+                    <div
+                      className="detail-source details-property"
+                      title={`${HandleBarsHelpers.getAlias('source-id')}: ${
+                        data.metacard.properties['source-id']
+                      }`}
+                      data-help={HandleBarsHelpers.getAlias('source-id')}
+                    >
+                      {data.local ? (
+                        <React.Fragment>
+                          <span className="fa source-icon fa-home" />
+                          <span>local</span>
+                        </React.Fragment>
+                      ) : (
+                        <React.Fragment>
+                          <span className="fa source-icon fa-cloud" />
+                          <span>{data.metacard.properties['source-id']}</span>
+                        </React.Fragment>
+                      )}
+                    </div>
+                  ) : (
+                    ''
                   )}
                 </div>
+                {this.getExtensions()}
+              </div>
+            </div>
+          </div>
+          <Divider />
+          <Footer className="content-footer">
+            <div className="result-validation">
+              {data.hasError ? (
+                <span
+                  className="fa fa-exclamation-triangle resultError"
+                  title="Has validation errors."
+                  data-help="Indicates the given result has a validation error.
+                                See the 'Quality' tab of the result for more details."
+                />
+              ) : (
+                ''
+              )}
+              {!data.hasError && data.hasWarning ? (
+                <span
+                  className="fa fa-exclamation-triangle resultWarning"
+                  title="Has validation warnings."
+                  data-help="Indicates the given result has a validation warning.
+                                See the 'Quality' tab of the result for more details."
+                />
               ) : (
                 ''
               )}
             </div>
-            {this.getExtensions()}
-            <div className="content-footer">
-              <div className="result-validation">
-                {data.hasError ? (
-                  <span
-                    className="fa fa-exclamation-triangle resultError"
-                    title="Has validation errors."
-                    data-help="Indicates the given result has a validation error.
-                                See the 'Quality' tab of the result for more details."
-                  />
-                ) : (
-                  ''
-                )}
-                {!data.hasError && data.hasWarning ? (
-                  <span
-                    className="fa fa-exclamation-triangle resultWarning"
-                    title="Has validation warnings."
-                    data-help="Indicates the given result has a validation warning.
-                                See the 'Quality' tab of the result for more details."
-                  />
-                ) : (
-                  ''
-                )}
-              </div>
-              <div className="result-extension">
-                {this.getButtonExtensions()}
-              </div>
-              <button
-                className="result-download fa fa-download is-button is-neutral"
-                title="Downloads the associated resource directly to your machine."
-                data-help="Downloads
+            <div className="result-extension">{this.getButtonExtensions()}</div>
+            <button
+              className="result-download fa fa-download is-button is-neutral"
+              title="Downloads the associated resource directly to your machine."
+              data-help="Downloads
                         the results associated product directly to your machine."
-              />
-              {renderResultLink(renderResultLinkDropdown, model)}
-              <button
-                className="result-add is-button is-neutral composed-button"
-                title="Add or remove the result from a list, or make a new list with this result."
-                data-help="Add or remove the result from a list, or make a new list with this result."
-              >
-                <span className="fa fa-plus" />
-              </button>
-              <MetacardInteractionsDropdown
-                model={new Backbone.Collection([this.options.model])}
-              />
-            </div>
-          </div>
+            />
+            {renderResultLink(renderResultLinkDropdown, model)}
+            <button
+              className="result-add is-button is-neutral composed-button"
+              title="Add or remove the result from a list, or make a new list with this result."
+              data-help="Add or remove the result from a list, or make a new list with this result."
+            >
+              <span className="fa fa-plus" />
+            </button>
+            <MetacardInteractionsDropdown
+              model={new Backbone.Collection([this.options.model])}
+            />
+          </Footer>
         </div>
       </React.Fragment>
     )
