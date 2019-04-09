@@ -26,6 +26,11 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
     =============================================================
     -->
 
+    <!-- Needed by both metacard app and query metacard app for now -->
+    <service interface="ddf.catalog.data.MetacardType">
+        <bean class="org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardTypeImpl"/>
+    </service>
+
     <!-- Exposing endpoint util as a service to allow for system templates to be managed through
     the means of a Karaf command (reference injection) -->
     <service ref="endpointUtil" interface="org.codice.ddf.catalog.ui.util.EndpointUtil"/>
@@ -73,10 +78,6 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
         <service-properties>
             <entry key="name" value="workspace"/>
         </service-properties>
-    </service>
-
-    <service interface="ddf.catalog.data.MetacardType">
-        <bean class="org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl"/>
     </service>
 
     <bean id="noteMetacardType" class="org.codice.ddf.catalog.ui.metacard.notes.NoteMetacardType"/>
@@ -145,6 +146,12 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
 
     <service ref="featureService"
              interface="org.codice.ddf.catalog.ui.query.geofeature.FeatureService"/>
+
+    <!--
+    =============================================================
+    QUERY METACARD APPLICATION
+    =============================================================
+    -->
 
     <!--
     =============================================================

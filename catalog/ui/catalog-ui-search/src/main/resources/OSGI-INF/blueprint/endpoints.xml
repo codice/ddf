@@ -28,6 +28,7 @@ Services (HTTP/WS) that catalog-ui-search provides for the UI
     LIST APPLICATION
     METACARD APPLICATION
     QUERY APPLICATION
+    QUERY METACARD APPLICATION
     SEARCH FORMS APPLICATION
     =============================================================
     -->
@@ -48,10 +49,9 @@ Services (HTTP/WS) that catalog-ui-search provides for the UI
 
     <!--
     =============================================================
-    PROXYING
+    MAP LAYERS DYNAMIC PROXY
     =============================================================
     -->
-    <!-- TODO Proxy stuff that might be related to the proxy data in the config app, but not sure -->
 
     <service interface="javax.servlet.Servlet">
         <service-properties>

@@ -201,9 +201,6 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Integer relevancePrecision = 5;
 
-  /** List of injected historian configurations. */
-  private List<HistorianConfiguration> historianConfigurations;
-
   /** The current historian configuration. */
   private HistorianConfiguration historianConfiguration;
 
@@ -1125,22 +1122,13 @@ public class ConfigurationApplication implements SparkApplication {
     this.metacardPreviewEnabled = metacardPreviewEnabled;
   }
 
-  public void setHistorianConfigurations(List<HistorianConfiguration> historians) {
-    this.historianConfigurations = historians;
-  }
-
-  public void bind(HistorianConfiguration historianConfiguration) {
-    if (this.historianConfigurations != null && !this.historianConfigurations.isEmpty()) {
-      this.historianConfiguration = historianConfigurations.get(0);
+  public void setHistorianConfiguration(HistorianConfiguration historian) {
+    if (historian != null) {
+      LOGGER.trace("Historian provided, enabled = {}", historian.isHistoryEnabled());
+      this.historianConfiguration = historian;
+      return;
     }
-  }
-
-  public void unbind(HistorianConfiguration historianConfiguration) {
-    if (!this.historianConfigurations.isEmpty()) {
-      this.historianConfiguration = historianConfigurations.get(0);
-    } else {
-      this.historianConfiguration = null;
-    }
+    LOGGER.trace("Historian was null, enabled = false");
   }
 
   public String getTheme() {

@@ -110,7 +110,7 @@ Implementation details
         <property name="uiName" value="Intrigue"/>
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
-        <property name="historianConfigurations" ref="historianConfigurations"/>
+        <property name="historianConfiguration" ref="historianConfiguration"/>
         <property name="i18n" ref="resourceBundleLocator"/>
     </bean>
 
@@ -217,11 +217,7 @@ Implementation details
 
     <bean id="enumerationExtractor"
           class="org.codice.ddf.catalog.ui.enumeration.ExperimentalEnumerationExtractor">
-        <argument>
-            <!-- TODO Pull out into the APIs block -->
-            <reference interface="ddf.catalog.validation.AttributeValidatorRegistry"
-                       availability="optional"/>
-        </argument>
+        <argument ref="defaultAttributeValidatorRegistry"/>
         <argument ref="metacardTypes"/>
         <argument ref="attributeInjectors"/>
     </bean>
@@ -262,7 +258,6 @@ Implementation details
         <argument ref="noteUtil"/>
         <argument ref="subjectIdentity"/>
         <argument ref="accessControlSecurityConfiguration"/>
-        <!-- See "blueprint.xml" file for the source of the "queryWorkspaceService" dependency -->
         <argument ref="queryWorkspaceService"/>
         <argument ref="queryMetacardsHandler"/>
     </bean>
@@ -342,6 +337,18 @@ Implementation details
 
     <!--
     =============================================================
+    QUERY METACARD APPLICATION
+    =============================================================
+    -->
+
+    <bean id="queryMetacardApplication" class="org.codice.ddf.catalog.ui.metacard.QueryMetacardApplication">
+        <argument ref="catalogFramework"/>
+        <argument ref="endpointUtil"/>
+        <argument ref="filterBuilder"/>
+    </bean>
+
+    <!--
+    =============================================================
     SEARCH FORMS APPLICATION
     =============================================================
     -->
@@ -370,7 +377,6 @@ Implementation details
     SPARK
     =============================================================
     -->
-    <!-- TODO Remember that the attachment parser was removed on purpose since nobody was using it -->
 
     <bean id="rootReqSupplier" class="org.codice.ddf.catalog.ui.RootContextRequestSupplier"/>
     <bean id="sparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">
@@ -391,6 +397,7 @@ Implementation details
                 <ref component-id="buildApplication"/>
                 <ref component-id="geoCoderApplication"/>
                 <ref component-id="transformerDescriptorApplication"/>
+                <ref component-id="queryMetacardApplication"/>
             </list>
         </property>
         <property name="requestSupplier" ref="rootReqSupplier"/>
@@ -399,10 +406,9 @@ Implementation details
 
     <!--
     =============================================================
-    PROXYING
+    MAP LAYERS DYNAMIC PROXY
     =============================================================
     -->
-    <!-- TODO Proxy stuff that might be related to the proxy data in the config app, but not sure -->
 
     <bean id="servlet" class="org.codice.proxy.http.HttpProxyCamelHttpTransportServlet"
           init-method="init" destroy-method="destroy">

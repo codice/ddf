@@ -59,12 +59,8 @@ Services (OSGi) that catalog-ui-search CONSUMES from DDF
     <reference-list id="injectableAttributes" interface="ddf.catalog.data.InjectableAttribute"
                     availability="optional"/>
     <reference id="webBranding" interface="org.codice.ddf.branding.BrandingPlugin"/>
-    <reference-list id="historianConfigurations"
-                    interface="ddf.catalog.configuration.HistorianConfiguration"
-                    availability="optional">
-        <reference-listener bind-method="bind"
-                            unbind-method="unbind" ref="configurationApplication"/>
-    </reference-list>
+    <reference id="historianConfiguration" interface="ddf.catalog.configuration.HistorianConfiguration"
+               availability="optional"/>
     <reference id="resourceBundleLocator"
                interface="ddf.platform.resource.bundle.locator.ResourceBundleLocator"/>
 
@@ -123,7 +119,9 @@ Services (OSGi) that catalog-ui-search CONSUMES from DDF
                     interface="ddf.catalog.validation.ReportingMetacardValidator"
                     availability="optional"/>
 
-    <!-- TODO - Shouldn't there only be one registry? -->
+    <!-- Note that some impls call for the default registry and other impls call for the entire list -->
+    <reference id="defaultAttributeValidatorRegistry" interface="ddf.catalog.validation.AttributeValidatorRegistry"
+               availability="optional"/>
     <reference-list id="attributeValidatorRegistries"
                     interface="ddf.catalog.validation.AttributeValidatorRegistry"
                     availability="optional"/>
@@ -161,6 +159,12 @@ Services (OSGi) that catalog-ui-search CONSUMES from DDF
     <reference id="coordinateSystemTranslator"
                interface="org.codice.usng4j.CoordinateSystemTranslator"
                filter="(isNad83Datum=true)"/>
+
+    <!--
+    =============================================================
+    QUERY METACARD APPLICATION
+    =============================================================
+    -->
 
     <!--
     =============================================================
