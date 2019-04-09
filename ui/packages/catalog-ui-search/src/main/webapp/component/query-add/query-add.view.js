@@ -103,7 +103,7 @@ module.exports = Marionette.LayoutView.extend({
         (userDefaultTemplate['querySettings'] &&
           userDefaultTemplate['querySettings'].federation) ||
         'enterprise',
-      sorts: sorts,
+      sorts: sorts || [],
       'detail-level':
         (userDefaultTemplate['querySettings'] &&
           userDefaultTemplate['querySettings']['detail-level']) ||
