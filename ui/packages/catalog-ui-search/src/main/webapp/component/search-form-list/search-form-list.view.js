@@ -23,6 +23,16 @@ import React from 'react'
 import { lighten, readableColor, transparentize } from 'polished'
 import styled from '../../react-component/styles/styled-components'
 
+const ListContainer = styled.div`
+  max-height: 60vh;
+  overflow: hidden;
+`
+
+const ScrollableContainer = styled.div`
+  max-height: calc(60vh - 67px);
+  overflow-y: auto;
+`
+
 const ListItem = styled.div`
   cursor: pointer;
   display: block;
@@ -68,7 +78,7 @@ class SearchForms extends React.Component {
       .filter(form => form.title.toLowerCase().match(filter.toLowerCase()));
 
     return (
-      <React.Fragment>
+      <ListContainer>
         <FilterPadding>
           <input
             style={{ width: '100%' }}
@@ -77,17 +87,19 @@ class SearchForms extends React.Component {
             placeholder="Type to filter"
           />
         </FilterPadding>
-        {forms.length === 0 ? <NoSearchForms /> : null}
-        {filteredForms
-          .map(form => (
-            <SearchFormItem
-              title={form.title}
-              key={form.id}
-              onClick={() => onClick(form)}
-            />
-          ))}
-          {forms.length !== 0 && filteredForms.length === 0 ? <NothingFound/> : null}
-      </React.Fragment>
+        <ScrollableContainer>
+          {forms.length === 0 ? <NoSearchForms /> : null}
+          {filteredForms
+            .map(form => (
+              <SearchFormItem
+                title={form.title}
+                key={form.id}
+                onClick={() => onClick(form)}
+              />
+            ))}
+            {forms.length !== 0 && filteredForms.length === 0 ? <NothingFound/> : null}
+        </ScrollableContainer>
+      </ListContainer>
     )
   }
 }
