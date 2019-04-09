@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.lib</groupId>
         <artifactId>lib</artifactId>
-        <version>2.13.8-SNAPSHOT</version>
+        <version>2.13.8</version>
     </parent>
     <artifactId>pom-fix-run</artifactId>
     <packaging>pom</packaging>
