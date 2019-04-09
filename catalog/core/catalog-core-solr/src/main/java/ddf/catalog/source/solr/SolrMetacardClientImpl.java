@@ -76,6 +76,7 @@ import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.SpellCheckResponse.Collation;
 import org.apache.solr.client.solrj.response.SuggesterResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -162,7 +163,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     SolrFilterDelegate solrFilterDelegate = filterDelegateFactory.newInstance(resolver);
     SolrQuery query = getSolrQuery(request, solrFilterDelegate);
 
-    List<Result> results = new ArrayList<>();
     Map<String, Serializable> responseProps = new HashMap<>();
 
     boolean isFacetedQuery = false;
@@ -207,6 +207,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     }
 
     long totalHits = 0;
+    List<Result> results = new ArrayList<>();
 
     try {
       QueryResponse solrResponse;
@@ -244,6 +245,19 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         responseProps.put(SUGGESTION_RESULT_KEY, (Serializable) suggestionResults);
       }
 
+      if (solrResponse.getSpellCheckResponse() != null
+          && solrResponse.getResults().size() == 0
+          && solrResponse.getSpellCheckResponse().getCollatedResults().size() != 0) {
+        query.set("q", findQueryToResend(query, solrResponse));
+        solrResponse = client.query(query, METHOD.POST);
+        docs = solrResponse.getResults();
+        results = new ArrayList<>();
+        if (docs != null) {
+          totalHits = docs.getNumFound();
+          addDocsToResults(docs, results);
+        }
+      }
+
       if (isFacetedQuery) {
         List<FacetField> facetFields = solrResponse.getFacetFields();
         if (CollectionUtils.isNotEmpty(facetFields)) {
@@ -258,6 +272,18 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     }
 
     return new SourceResponseImpl(request, responseProps, results, totalHits);
+  }
+
+  private String findQueryToResend(SolrQuery query, QueryResponse solrResponse) {
+    long maxHits = Integer.MIN_VALUE;
+    String queryToResend = query.get("q");
+    for (Collation collation : solrResponse.getSpellCheckResponse().getCollatedResults()) {
+      if (maxHits < collation.getNumberOfHits()) {
+        maxHits = collation.getNumberOfHits();
+        queryToResend = collation.getCollationQueryString();
+      }
+    }
+    return queryToResend;
   }
 
   private void addDocsToResults(SolrDocumentList docs, List<Result> results)
