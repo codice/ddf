@@ -83,6 +83,7 @@ var ResultSelector = Marionette.LayoutView.extend({
     return (
       <React.Fragment>
         <div className="resultSelector-menu">
+          <div class="checkbox-container" />
           <div className="resultSelector-menu-action menu-resultFilter" />
           <div className="resultSelector-menu-action menu-resultSort" />
           <div className="resultSelector-menu-action menu-resultDisplay" />
