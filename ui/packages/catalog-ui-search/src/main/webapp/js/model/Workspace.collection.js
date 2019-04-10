@@ -78,7 +78,11 @@ module.exports = Backbone.Collection.extend({
       cqlQuery = "anyText ILIKE '%'"
       title = '*'
     } else {
-      cqlQuery = "anyText ILIKE '" + cql.translateUserqlToCql(text) + "'"
+      cqlQuery = cql.write({
+        type: 'ILIKE',
+        property: 'anyText',
+        value: text,
+      })
     }
     var queryForWorkspace = new Query.Model({
       title: title,
