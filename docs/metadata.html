@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.14.1. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.13.8. Copyright (c) Codice Foundation">
 <title>DDF Metadata Reference Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,33 +520,33 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>DDF Metadata Reference Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.14.1. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.13.8. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_metadata_reference">Metadata Reference</a>
+<li><a href="#_metadata_reference">1. Metadata Reference</a>
 <ul class="sectlevel2">
-<li><a href="#_common_metadata_attributes">Common Metadata Attributes</a></li>
-<li><a href="#_file_format_specific_attributes">File Format-specific Attributes</a>
+<li><a href="#_common_metadata_attributes">1.1. Common Metadata Attributes</a></li>
+<li><a href="#_file_format_specific_attributes">1.2. File Format-specific Attributes</a>
 <ul class="sectlevel3">
-<li><a href="#_mp4_additional_attribute">Mp4 Additional Attribute</a></li>
-<li><a href="#_all_file_formats_supported">All File Formats Supported</a></li>
+<li><a href="#_mp4_additional_attribute">1.2.1. Mp4 Additional Attribute</a></li>
+<li><a href="#_all_file_formats_supported">1.2.2. All File Formats Supported</a></li>
 </ul>
 </li>
-<li><a href="#_catalog_taxonomy_definitions">Catalog Taxonomy Definitions</a>
+<li><a href="#_catalog_taxonomy_definitions">1.3. Catalog Taxonomy Definitions</a>
 <ul class="sectlevel3">
-<li><a href="#_core_attributes">Core Attributes</a></li>
-<li><a href="#_associations_attributes">Associations Attributes</a></li>
-<li><a href="#_contact_attributes">Contact Attributes</a></li>
-<li><a href="#_datetime_attributes">DateTime Attributes</a></li>
-<li><a href="#_history_attributes">History Attributes</a></li>
-<li><a href="#_location_attributes">Location Attributes</a></li>
-<li><a href="#_media_attributes">Media Attributes</a></li>
-<li><a href="#_metacard_attributes">Metacard Attributes</a></li>
-<li><a href="#_security_attributes">Security Attributes</a></li>
-<li><a href="#_topic_attributes">Topic Attributes</a></li>
-<li><a href="#_validation_attributes">Validation Attributes</a></li>
+<li><a href="#_core_attributes">1.3.1. Core Attributes</a></li>
+<li><a href="#_associations_attributes">1.3.2. Associations Attributes</a></li>
+<li><a href="#_contact_attributes">1.3.3. Contact Attributes</a></li>
+<li><a href="#_datetime_attributes">1.3.4. DateTime Attributes</a></li>
+<li><a href="#_history_attributes">1.3.5. History Attributes</a></li>
+<li><a href="#_location_attributes">1.3.6. Location Attributes</a></li>
+<li><a href="#_media_attributes">1.3.7. Media Attributes</a></li>
+<li><a href="#_metacard_attributes">1.3.8. Metacard Attributes</a></li>
+<li><a href="#_security_attributes">1.3.9. Security Attributes</a></li>
+<li><a href="#_topic_attributes">1.3.10. Topic Attributes</a></li>
+<li><a href="#_validation_attributes">1.3.11. Validation Attributes</a></li>
 </ul>
 </li>
 </ul>
@@ -556,7 +556,7 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_metadata_reference"><a class="anchor" href="#_metadata_reference"></a><a class="link" href="#_metadata_reference">Metadata Reference</a></h2>
+<h2 id="_metadata_reference"><a class="anchor" href="#_metadata_reference"></a><a class="link" href="#_metadata_reference">1. Metadata Reference</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>DDF extracts basic metadata from the resources ingested.
@@ -565,7 +565,7 @@ A neutral <a href="#_catalog_taxonomy_definitions">Catalog Taxonomy</a> enables 
 See also a <a href="#_all_file_formats_supported">list of all formats supported</a> for ingest.</p>
 </div>
 <div class="sect2">
-<h3 id="_common_metadata_attributes"><a class="anchor" href="#_common_metadata_attributes"></a><a class="link" href="#_common_metadata_attributes">Common Metadata Attributes</a></h3>
+<h3 id="_common_metadata_attributes"><a class="anchor" href="#_common_metadata_attributes"></a><a class="link" href="#_common_metadata_attributes">1.1. Common Metadata Attributes</a></h3>
 <div class="paragraph">
 <p>DDF supports a wide variety of file types and data types for ingest.
 The DDF&#8217;s internal Input Transformers extract the necessary data into a <a href="#_catalog_taxonomy_definitions">generalized format</a>.
@@ -750,12 +750,12 @@ Many of these file types support additional <a href="#_file_format_specific_attr
 </div>
 </div>
 <div class="sect2">
-<h3 id="_file_format_specific_attributes"><a class="anchor" href="#_file_format_specific_attributes"></a><a class="link" href="#_file_format_specific_attributes">File Format-specific Attributes</a></h3>
+<h3 id="_file_format_specific_attributes"><a class="anchor" href="#_file_format_specific_attributes"></a><a class="link" href="#_file_format_specific_attributes">1.2. File Format-specific Attributes</a></h3>
 <div class="paragraph">
 <p>Many file formats support additional metadata attributes that DDF is able to extract and make discoverable.</p>
 </div>
 <div class="sect3">
-<h4 id="_mp4_additional_attribute"><a class="anchor" href="#_mp4_additional_attribute"></a><a class="link" href="#_mp4_additional_attribute">Mp4 Additional Attribute</a></h4>
+<h4 id="_mp4_additional_attribute"><a class="anchor" href="#_mp4_additional_attribute"></a><a class="link" href="#_mp4_additional_attribute">1.2.1. Mp4 Additional Attribute</a></h4>
 <div class="paragraph">
 <p>Mp4 files have an additional attribute:</p>
 </div>
@@ -768,7 +768,7 @@ Many of these file types support additional <a href="#_file_format_specific_attr
 </div>
 </div>
 <div class="sect3">
-<h4 id="_all_file_formats_supported"><a class="anchor" href="#_all_file_formats_supported"></a><a class="link" href="#_all_file_formats_supported">All File Formats Supported</a></h4>
+<h4 id="_all_file_formats_supported"><a class="anchor" href="#_all_file_formats_supported"></a><a class="link" href="#_all_file_formats_supported">1.2.2. All File Formats Supported</a></h4>
 <div class="paragraph">
 <div class="title">Supported File Types</div>
 <p>Using the various input transformers, DDF supports ingest of the following MIME types.
@@ -3417,7 +3417,7 @@ While ingest is possible for these files, metadata will be limited unless otherw
 </div>
 </div>
 <div class="sect2">
-<h3 id="_catalog_taxonomy_definitions"><a class="anchor" href="#_catalog_taxonomy_definitions"></a><a class="link" href="#_catalog_taxonomy_definitions">Catalog Taxonomy Definitions</a></h3>
+<h3 id="_catalog_taxonomy_definitions"><a class="anchor" href="#_catalog_taxonomy_definitions"></a><a class="link" href="#_catalog_taxonomy_definitions">1.3. Catalog Taxonomy Definitions</a></h3>
 <div class="paragraph">
 <p>To facilitate data sharing while maximizing the usefulness of metadata, the attributes on resources are normalized into a common taxonomy that maps to attributes in the desired output format.</p>
 </div>
@@ -3436,7 +3436,7 @@ While ingest is possible for these files, metadata will be limited unless otherw
 </table>
 </div>
 <div class="sect3">
-<h4 id="_core_attributes"><a class="anchor" href="#_core_attributes"></a><a class="link" href="#_core_attributes">Core Attributes</a></h4>
+<h4 id="_core_attributes"><a class="anchor" href="#_core_attributes"></a><a class="link" href="#_core_attributes">1.3.1. Core Attributes</a></h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 11. Core Attributes. <strong>Injected by default.</strong></caption>
 <colgroup>
@@ -3632,7 +3632,7 @@ While ingest is possible for these files, metadata will be limited unless otherw
 </table>
 </div>
 <div class="sect3">
-<h4 id="_associations_attributes"><a class="anchor" href="#_associations_attributes"></a><a class="link" href="#_associations_attributes">Associations Attributes</a></h4>
+<h4 id="_associations_attributes"><a class="anchor" href="#_associations_attributes"></a><a class="link" href="#_associations_attributes">1.3.2. Associations Attributes</a></h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 12. Associations: Attributes in this group represent associations between products. <strong>Injected by default.</strong></caption>
 <colgroup>
@@ -3678,7 +3678,7 @@ resources.</p></td>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_contact_attributes"><a class="anchor" href="#_contact_attributes"></a><a class="link" href="#_contact_attributes">Contact Attributes</a></h4>
+<h4 id="_contact_attributes"><a class="anchor" href="#_contact_attributes"></a><a class="link" href="#_contact_attributes">1.3.3. Contact Attributes</a></h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 13. Contact: Attributes in this group reflect metadata about different kinds of people/groups/units/organizations that can be associated with a metacard. <strong>Injected by default.</strong></caption>
 <colgroup>
@@ -3828,7 +3828,7 @@ metacard.</p></td>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_datetime_attributes"><a class="anchor" href="#_datetime_attributes"></a><a class="link" href="#_datetime_attributes">DateTime Attributes</a></h4>
+<h4 id="_datetime_attributes"><a class="anchor" href="#_datetime_attributes"></a><a class="link" href="#_datetime_attributes">1.3.4. DateTime Attributes</a></h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 14. DateTime: Attributes in this group reflect temporal aspects about the resource. <strong>Injected by default.</strong></caption>
 <colgroup>
@@ -3876,7 +3876,7 @@ attributes. See <a href="#_datetime.start">datetime.start</a> and <a href="#_dat
 </table>
 </div>
 <div class="sect3">
-<h4 id="_history_attributes"><a class="anchor" href="#_history_attributes"></a><a class="link" href="#_history_attributes">History Attributes</a></h4>
+<h4 id="_history_attributes"><a class="anchor" href="#_history_attributes"></a><a class="link" href="#_history_attributes">1.3.5. History Attributes</a></h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 15. History: Attributes in this group describe the history/versioning of the metacard. <strong>Injected by default.</strong></caption>
 <colgroup>
@@ -3963,7 +3963,7 @@ original metacard.</p></td>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_location_attributes"><a class="anchor" href="#_location_attributes"></a><a class="link" href="#_location_attributes">Location Attributes</a></h4>
+<h4 id="_location_attributes"><a class="anchor" href="#_location_attributes"></a><a class="link" href="#_location_attributes">1.3.6. Location Attributes</a></h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 16. Location: Attributes in this group reflect location aspects about the resource. <strong>Injected by default.</strong></caption>
 <colgroup>
@@ -4019,7 +4019,7 @@ codes</p></td>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_media_attributes"><a class="anchor" href="#_media_attributes"></a><a class="link" href="#_media_attributes">Media Attributes</a></h4>
+<h4 id="_media_attributes"><a class="anchor" href="#_media_attributes"></a><a class="link" href="#_media_attributes">1.3.7. Media Attributes</a></h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 17. Media: Attributes in this group reflect metadata about media in general. <strong>Injected by default.</strong></caption>
 <colgroup>
@@ -4138,7 +4138,7 @@ STANAG 4559 NC, NM, C1, M1, I1, C3, M3, C4, M4, C5, M5, C8, M8</p></td>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_metacard_attributes"><a class="anchor" href="#_metacard_attributes"></a><a class="link" href="#_metacard_attributes">Metacard Attributes</a></h4>
+<h4 id="_metacard_attributes"><a class="anchor" href="#_metacard_attributes"></a><a class="link" href="#_metacard_attributes">1.3.8. Metacard Attributes</a></h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 18. Metacard: Attributes in this group describe the metacard itself. <strong>Injected by default.</strong></caption>
 <colgroup>
@@ -4191,7 +4191,7 @@ query results. NOTE: these are system tags. For descriptive tags, <a href="#_top
 </table>
 </div>
 <div class="sect3">
-<h4 id="_security_attributes"><a class="anchor" href="#_security_attributes"></a><a class="link" href="#_security_attributes">Security Attributes</a></h4>
+<h4 id="_security_attributes"><a class="anchor" href="#_security_attributes"></a><a class="link" href="#_security_attributes">1.3.9. Security Attributes</a></h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 19. Security: Attributes in this group relate to security of the resource and metadata. <strong>Injected by default.</strong></caption>
 <colgroup>
@@ -4214,7 +4214,7 @@ query results. NOTE: these are system tags. For descriptive tags, <a href="#_top
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a id="security.access-groups"></a>security.access-groups</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Attribute name for storing groups to enforce access
-controls upon that will enable a user to read and write a metacard.</p></td>
+controls upon.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List of Strings</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">&lt; 1024 characters per entry</p></td>
 <td class="tableblock halign-left valign-top"></td>
@@ -4222,40 +4222,16 @@ controls upon that will enable a user to read and write a metacard.</p></td>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a id="security.access-individuals"></a>security.access-individuals</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Attribute name for storing the email addresses of users to
-enforce access controls upon that will enable the ability to read and write a metacard.</p></td>
+enforce access controls upon.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List of Strings</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">A valid email address per RFC 5322.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"> </p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a id="security.access-individuals-read"></a>security.access-individuals-read</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Attribute name for storing the email addresses of users to
-enforce access controls upon that can read, but not explicitly write to a metacard.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of Strings</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A valid email address per RFC 5322.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"> </p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a id="security.access-groups-read"></a>security.access-groups-read</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Attribute name for storing groups to enforce access
-controls upon that will enable a user to read, but not necessarily write to a metacard.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of Strings</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt; 1024 characters per entry</p></td>
-<td class="tableblock halign-left valign-top"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a id="security.access-administrators"></a>security.access-administrators</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Attribute name for explicitly stating who has the permissions to modify the access control values of a metacard. These
-values include changing the security.access-groups, security.access-individuals and the security.access-administrators values.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of Strings</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A valid email address per RFC 5322.</p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_topic_attributes"><a class="anchor" href="#_topic_attributes"></a><a class="link" href="#_topic_attributes">Topic Attributes</a></h4>
+<h4 id="_topic_attributes"><a class="anchor" href="#_topic_attributes"></a><a class="link" href="#_topic_attributes">1.3.10. Topic Attributes</a></h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 20. Topic: Attributes in this group describe the topic of the resource. <strong>Injected by default.</strong></caption>
 <colgroup>
@@ -4302,7 +4278,7 @@ topic category is derived.</p></td>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_validation_attributes"><a class="anchor" href="#_validation_attributes"></a><a class="link" href="#_validation_attributes">Validation Attributes</a></h4>
+<h4 id="_validation_attributes"><a class="anchor" href="#_validation_attributes"></a><a class="link" href="#_validation_attributes">1.3.11. Validation Attributes</a></h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 21. Validation: Attributes in this group identify validation issues with the metacard and/or resource. <strong>Injected by default.</strong></caption>
 <colgroup>
@@ -4429,7 +4405,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-03-28 21:26:45 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-04-09 18:39:48 UTC
 </div>
 </div>
 </body>
