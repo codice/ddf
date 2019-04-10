@@ -1,4 +1,3 @@
-/*global $, window */
 ;(function() {
   var searchString = (window.location.search + '').split('?')
 

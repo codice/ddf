@@ -1,4 +1,3 @@
-/*global CasperError, console, phantom, require, casper*/
 // NOTE: to enable debug uncomment the following 2 lines.
 //casper.options.verbose = true;
 //casper.options.logLevel = 'debug';

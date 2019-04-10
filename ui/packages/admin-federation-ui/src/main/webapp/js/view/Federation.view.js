@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define require*/
+
 define([
   'marionette',
   'backbone',

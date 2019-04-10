@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
   'use strict'
 

@@ -9,8 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, window */
-/*jslint nomen:false, -W064, browser:true */
 
 ;(function() {
   'use strict'

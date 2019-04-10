@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var Marionette = require('marionette')
 var store = require('../../../js/store.js')
 var _ = require('underscore')

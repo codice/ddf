@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setInterval, clearInterval*/
+
 const $ = require('jquery')
 const _ = require('underscore')
 const wreqr = require('./wreqr.js')

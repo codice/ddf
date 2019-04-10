@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global module,require*/
 
 module.exports = function(grunt) {
   require('load-grunt-tasks')(grunt, { requireResolution: true })

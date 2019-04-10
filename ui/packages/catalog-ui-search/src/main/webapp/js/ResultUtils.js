@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var store = require('./store.js')
 var alert = require('../component/alert/alert.js')
 var _ = require('underscore')

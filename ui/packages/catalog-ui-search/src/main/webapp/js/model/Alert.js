@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 const Backbone = require('backbone')
 const Common = require('../Common.js')
 require('backbone-associations')

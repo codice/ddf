@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var Marionette = require('marionette')
 var CustomElements = require('../../js/CustomElements.js')
 var userNotifications = require('../singletons/user-notifications.js')

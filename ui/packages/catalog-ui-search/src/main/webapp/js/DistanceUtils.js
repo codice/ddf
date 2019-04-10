@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 /*jshint bitwise: false*/
 
 var EARTH_MEAN_RADIUS_METERS = 6371008.7714

@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 /*jshint newcap: false, bitwise: false */
 
 const Cesium = require('cesium')

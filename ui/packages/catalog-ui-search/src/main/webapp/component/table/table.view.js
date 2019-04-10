@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, window*/
+
 var template = require('./table.hbs')
 var Marionette = require('marionette')
 var MarionetteRegion = require('../../js/Marionette.Region.js')

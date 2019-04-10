@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 const _ = require('underscore')
 const Backbone = require('backbone')
 const QueryResult = require('../../../js/model/QueryResult.js')

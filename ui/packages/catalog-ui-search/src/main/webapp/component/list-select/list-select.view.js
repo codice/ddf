@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, alert*/
+
 import ListCreate from '../list-create/list-create.js'
 var Marionette = require('marionette')
 var _ = require('underscore')

@@ -9,6 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 const Lightbox = require('./Lightbox')
 module.exports = new Lightbox()

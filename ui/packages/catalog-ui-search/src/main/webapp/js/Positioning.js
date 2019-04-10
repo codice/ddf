@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var zeroScale = 'matrix(0, 0, 0, 0, 0, 0)'
 var zeroOpacity = '0'
 var notDisplayed = 'none'

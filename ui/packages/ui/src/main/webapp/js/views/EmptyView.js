@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 define(['backbone.marionette', 'templates/emptyView.handlebars'], function(
   Marionette,
   emptyViewTemplate

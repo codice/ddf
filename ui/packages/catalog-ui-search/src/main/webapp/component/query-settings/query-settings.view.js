@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setTimeout*/
+
 const Marionette = require('marionette')
 const Backbone = require('backbone')
 const _ = require('underscore')

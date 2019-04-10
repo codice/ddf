@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var SlideoutView = require('../slideout/top/slideout.top.view.js')
 var slideoutView = new SlideoutView()
 slideoutView.render()

@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 define(['backbone', 'backbone-relational'], function(Backbone) {
   var Module = {}
   var module = Backbone.RelationalModel.extend({})

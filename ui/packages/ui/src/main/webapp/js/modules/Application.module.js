@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 define(['js/application', 'require'], function(Application, require) {
   Application.App.module('Applications', function(ApplicationModule, App) {
     this.startWithParent = false

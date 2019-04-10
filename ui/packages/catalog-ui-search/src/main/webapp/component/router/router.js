@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, document*/
+
 const $ = require('jquery')
 const _ = require('underscore')
 const Backbone = require('backbone')

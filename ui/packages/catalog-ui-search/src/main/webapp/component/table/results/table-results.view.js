@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var TableView = require('../table.view')
 var HeaderView = require('../../visualization/table/thead.view.js')
 var BodyView = require('../../visualization/table/tbody.view.js')

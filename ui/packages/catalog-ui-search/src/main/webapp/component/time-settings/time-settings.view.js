@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var Marionette = require('marionette')
 var template = require('./time-settings.hbs')
 var user = require('../singletons/user-instance.js')

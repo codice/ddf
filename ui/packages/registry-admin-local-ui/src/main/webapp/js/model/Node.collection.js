@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 define(['backbone', './Node'], function(Backbone, Node) {
   return Backbone.Collection.extend({
     model: Node.Summary,

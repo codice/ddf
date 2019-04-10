@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, location*/
+
 define(['backbone.marionette', 'underscore', 'backbone', 'jquery'], function(
   Marionette,
   _,

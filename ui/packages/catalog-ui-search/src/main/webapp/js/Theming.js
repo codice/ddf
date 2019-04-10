@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var $ = require('jquery')
 var wreqr = require('./wreqr.js')
 var _ = require('underscore')

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setTimeout*/
+
 define(['jquery', 'underscore', 'marionette'], function($, _, Marionette) {
   var RefreshController = Marionette.Controller.extend({
     expectedCalls: 2, //number of calls to done expected before stopping

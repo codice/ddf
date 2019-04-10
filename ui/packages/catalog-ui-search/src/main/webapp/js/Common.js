@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, window, performance, setTimeout*/
+
 /*jshint bitwise: false*/
 const $ = require('jquery')
 const moment = require('moment')

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, window, setTimeout*/
+
 var Marionette = require('marionette')
 var CustomElements = require('../../js/CustomElements.js')
 var template = require('./notification-group.hbs')

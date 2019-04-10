@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define , location , window*/
+
 define(['backbone', 'underscore', 'jquery', 'js/wreqr'], function(
   Backbone,
   _,

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, alert*/
+
 import * as React from 'react'
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')

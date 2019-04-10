@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
 
 var Marionette = require('marionette')
 var DropdownView = require('../dropdown.view')

@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 const _ = require('underscore')
 const moment = require('moment')
 const Handlebars = require('@connexta/ace/handlebars/runtime')

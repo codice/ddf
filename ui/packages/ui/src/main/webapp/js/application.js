@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, encodeURI*/
+
 /* jslint browser:true */
 // #Main Application
 import Theme from '../components/container/theme'

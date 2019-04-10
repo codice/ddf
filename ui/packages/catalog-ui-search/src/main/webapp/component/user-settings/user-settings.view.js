@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 const Marionette = require('marionette')
 import React from 'react'
 import UserSettings from 'plugins/user-settings'

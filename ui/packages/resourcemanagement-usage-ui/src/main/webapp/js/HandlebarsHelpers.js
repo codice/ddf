@@ -9,7 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
 
 define(['icanhaz', 'jquery'], function(ich, $) {
   'use strict'

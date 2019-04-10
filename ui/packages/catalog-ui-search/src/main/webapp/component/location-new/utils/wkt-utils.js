@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 const wkx = require('wkx')
 const errorMessages = require('./errors')
 const DistanceUtils = require('../../../js/DistanceUtils')
