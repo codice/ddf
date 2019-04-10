@@ -9,6 +9,10 @@
     opacity: @minimumOpacity;
   }
 
+  .resultSelector-status {
+    height: auto;
+  }
+
   .resultSelector-list {
     overflow: auto;
     height: ~'calc(100% - 2*@{minimumButtonSize} - @{minimumLineSize})';
@@ -120,6 +124,7 @@
 
 @{customElementNamespace}result-selector.has-unmerged.ignore-new {
   > .resultSelector-new {
+    transition-delay: 0s;
     transform: scale(0);
   }
 }

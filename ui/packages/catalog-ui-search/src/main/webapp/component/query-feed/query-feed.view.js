@@ -145,7 +145,7 @@ module.exports = Marionette.LayoutView.extend({
       )
       return {
         resultCount: getResultsFound(
-          this.model.get('result').get('results').fullCollection.length,
+          this.model.get('result').get('results').length,
           status
         ),
         pending: getPending(status),

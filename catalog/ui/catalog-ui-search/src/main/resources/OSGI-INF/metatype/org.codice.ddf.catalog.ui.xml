@@ -260,12 +260,6 @@
             type="Integer"
             default="1000"/>
 
-        <AD id="resultPageSize"
-            name="Result Page Size"
-            description="Specifies the number of results allowed per page on the client-side."
-            type="Integer"
-            default="25"/>
-
         <AD id="queryFeedbackEmailSubjectTemplate"
             name="Query Feedback Email Subject Template"
             description="See the documentation for more details about Query Feedback templates."
