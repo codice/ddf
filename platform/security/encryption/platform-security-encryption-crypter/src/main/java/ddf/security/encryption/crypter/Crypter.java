@@ -55,7 +55,7 @@ public class Crypter {
   private static final String STREAMING_KEYSET_FILE_SPECIFIER = "-streaming";
   private static final String KEYSET_FILE_EXTENSION = ".json";
   private static final int ASSOCIATED_DATA_BYTE_SIZE = 10;
-  @VisibleForTesting static final int CHUNK_SIZE = 128;
+  @VisibleForTesting static final int CHUNK_SIZE = 256;
 
   private final String keysetDir =
       AccessController.doPrivileged(
@@ -229,14 +229,18 @@ public class Crypter {
     try (FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
         OutputStream encryptedOutputStream =
             streamingAead.newEncryptingStream(fileOutputStream, associatedData)) {
+
       byte[] byteBuffer = new byte[CHUNK_SIZE];
-      while (plainInputStream.available() > 0) {
+      int availableBytes = getAvailableBytesLessThanChunkSize(plainInputStream);
+
+      while (availableBytes > 0) {
         int bytesRead = plainInputStream.read(byteBuffer);
         if (bytesRead < 1) {
           throw new IOException(
               String.format("Incorrect # of bytes read from plain InputStream: %d.", bytesRead));
         }
-        encryptedOutputStream.write(byteBuffer);
+        encryptedOutputStream.write(byteBuffer, 0, availableBytes);
+        availableBytes = getAvailableBytesLessThanChunkSize(plainInputStream);
       }
       encryptedOutputStream.close(); // need to close it here in order for it to flush
       return new FileInputStream(tmpFile);
@@ -269,6 +273,11 @@ public class Crypter {
     } catch (GeneralSecurityException | IOException e) {
       throw new CrypterException("Problem decrypting.", e);
     }
+  }
+
+  private int getAvailableBytesLessThanChunkSize(InputStream inputStream) throws IOException {
+    int available = inputStream.available();
+    return available > CHUNK_SIZE ? CHUNK_SIZE : available;
   }
 
   private KeysetHandle initKeysetHandle(File keysetFile, KeyTemplate keyType)
