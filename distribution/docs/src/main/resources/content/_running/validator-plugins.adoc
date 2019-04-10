@@ -1,0 +1,53 @@
+:title: Validator Plugins on Ingest
+:type: dataManagement
+:status: published
+:parent: Validating Data
+:order: 00
+:summary: Validator plugins run on Ingest
+
+== {title}
+
+On ingest, some validator plugins are run to ensure the data being ingested will be valid
+depending on whether *Enforce errors* is selected within the admin console. Below is a list
+of the validators run against the data ingested.
+
+[NOTE]
+====
+To navigate to turn on/off *Enforce errors*:
+
+. Navigate to the *${admin-console}*.
+. Select the *System* tab.
+. Select the *Configuration* tab.
+. Select *Metacard Validation Marker Plugin*.
+.. If *Enforce errors* is checked, these validators below will be run on ingest.
+.. If *Enforce errors* is not checked, these validators below will *not* be run on ingest.
+====
+
+=== List of Validators run on ingest
+
+* TDF Schema Validation Service
+** This service validates a TDO against a TDF schema.
+* Size Validator
+** Validates the size of an attribute's value(s).
+* Range Validator
+** Validates an attribute's value(s) against an *inclusive* numeric range.
+* Enumeration Validator
+** Validates an attribute's value(s) against a set of acceptable values.
+* Future Date Validator
+** Validates an attribute's value(s) against the current date and time, validating that they are in
+the future.
+* Past Date Validator
+** Validates an attribute's value(s) against the current date and time, validating that they are in
+the past.
+* ISO3 Country Code Validator
+** Validates an attribute's value(s) against the ISO_3166-1 Alpha3 country codes.
+* Pattern Evaluator
+** Validates an attribute's value(s) against a regular expression.
+* Required Attributes Metacard Validator
+** Validates that a metacard contains certain attributes.
+* Duplication Validator
+** Validates metacard against the local catalog for duplicates based on configurable attributes.
+* Relationship Validator
+** Validates values that an attribute *must have*, *can only have*, and/or *can't have*.
+* Metacard WKT Validator
+** Validates a location metacard attribute (WKT string) against valid geometric shapes.

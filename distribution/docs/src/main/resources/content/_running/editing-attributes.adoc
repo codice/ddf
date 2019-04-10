@@ -2,7 +2,7 @@
 :type: dataManagement
 :status: published
 :parent: Validating Data
-:order: 01
+:order: 02
 :summary: Manually editing attributes.
 
 == {title}

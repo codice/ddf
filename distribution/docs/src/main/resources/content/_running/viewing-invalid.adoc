@@ -2,7 +2,7 @@
 :type: dataManagement
 :status: published
 :parent: Validating Data
-:order: 00
+:order: 01
 :summary: Viewing metacards with errors and warnings.
 
 == {title}
