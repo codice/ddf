@@ -66,9 +66,9 @@ const SearchFormItem = ({ title, onClick }) => {
 
 const FilterPadding = styled.div`
   box-sizing: border-box;
-  padding: 0px ${props => props.theme.minimumSpacing}
-    ${props => props.theme.minimumSpacing}
-    ${props => props.theme.minimumSpacing};
+  padding-right: ${props => props.theme.minimumSpacing};
+  padding-bottom: ${props => props.theme.minimumSpacing};
+  padding-left: ${props => props.theme.minimumSpacing};
 `
 class SearchForms extends React.Component {
   constructor(props) {
