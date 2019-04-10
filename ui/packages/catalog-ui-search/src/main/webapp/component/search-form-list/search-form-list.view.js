@@ -19,6 +19,7 @@ const Marionette = require('marionette')
 const Router = require('../router/router.js')
 const user = require('../singletons/user-instance')
 const SearchForm = require('../search-form/search-form')
+import { matchesFilter } from '../select/filterHelper'
 import React from 'react'
 import { lighten, readableColor, transparentize } from 'polished'
 import styled from '../../react-component/styles/styled-components'
@@ -81,7 +82,7 @@ class SearchForms extends React.Component {
     const { forms, onClick } = this.props
 
     const filteredForms = forms.filter(form =>
-      form.title.toLowerCase().match(filter.toLowerCase())
+      matchesFilter(filter, form.title, false)
     )
 
     return (
