@@ -13,19 +13,17 @@
  *
  **/
 /*global require*/
-var wreqr = require('../../../js/wreqr.js')
-var _ = require('underscore')
 var template = require('./row.hbs')
 var Marionette = require('marionette')
 var CustomElements = require('../../../js/CustomElements.js')
-var store = require('../../../js/store.js')
-var $ = require('jquery')
 var metacardDefinitions = require('../../singletons/metacard-definitions.js')
-var Common = require('../../../js/Common.js')
 var user = require('../../singletons/user-instance.js')
 var properties = require('../../../js/properties.js')
 var HoverPreviewDropdown = require('../../dropdown/hover-preview/dropdown.hover-preview.view.js')
 var DropdownModel = require('../../dropdown/dropdown.js')
+const {
+  SelectItemToggle,
+} = require('../../selection-checkbox/selection-checkbox.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   className: 'is-tr',
@@ -35,6 +33,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   regions: {
     resultThumbnail: '.is-thumbnail',
+    checkboxContainer: '.checkbox-container',
   },
   attributes: function() {
     return {
@@ -78,6 +77,15 @@ module.exports = Marionette.LayoutView.extend({
     this.checkIfLinks()
     this.$el.attr(this.attributes())
     this.handleResultThumbnail()
+    this.showCheckboxSelector()
+  },
+  showCheckboxSelector() {
+    this.checkboxContainer.show(
+      new SelectItemToggle({
+        model: this.model,
+        selectionInterface: this.options.selectionInterface,
+      })
+    )
   },
   handleResultThumbnail: function() {
     var hiddenColumns = user

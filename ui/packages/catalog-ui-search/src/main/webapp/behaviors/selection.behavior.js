@@ -63,9 +63,9 @@ Behaviors.addBehavior(
         return
       }
       const resultid = event.currentTarget.getAttribute('data-resultid')
-      const alreadySelected =
-        this.options.selectionInterface.getSelectedResults().get(resultid) !==
-        undefined
+      const selectedResults = this.options.selectionInterface.getSelectedResults()
+      const alreadySelected = selectedResults.get(resultid) !== undefined
+      const onlySelected = selectedResults.length === 1
       //shift key wins over all else
       if (event.shiftKey) {
         this.handleShiftClick(resultid, alreadySelected)
@@ -73,7 +73,7 @@ Behaviors.addBehavior(
         this.handleControlClick(resultid, alreadySelected)
       } else {
         this.options.selectionInterface.clearSelectedResults()
-        this.handleControlClick(resultid, alreadySelected)
+        this.handleControlClick(resultid, alreadySelected && onlySelected)
       }
     },
     handleShiftClick: function(resultid, alreadySelected) {

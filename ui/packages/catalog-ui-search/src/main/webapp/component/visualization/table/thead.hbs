@@ -11,6 +11,7 @@
  *
  **/
  --}}
+  <th class="checkbox-th"><div class="checkbox-container"></div></th>
 {{#each this}}
     <th class="{{#if hidden}}is-hidden-column{{/if}} {{#if sortable}}is-sortable{{/if}}" data-propertyid="{{id}}" data-propertytext="{{label}}{{#unless label}}{{id}}{{/unless}}">
         <span class="column-text" title="{{label}}{{#unless label}}{{id}}{{/unless}}">
