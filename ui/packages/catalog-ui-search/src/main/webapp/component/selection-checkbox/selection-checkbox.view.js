@@ -17,7 +17,9 @@ import React from 'react'
 import styled from '../../react-component/styles/styled-components'
 
 const Root = styled.div`
-  display: block;
+  display: inline-block;
+  width: auto;
+  cursor: pointer
   width: ${props => props.theme.minimumSpacing};
   padding-right: ${props => props.theme.minimumButtonSize};
   cursor: pointer;
