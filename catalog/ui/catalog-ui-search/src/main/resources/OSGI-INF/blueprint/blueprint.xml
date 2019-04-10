@@ -12,82 +12,80 @@
  *
  **/
 -->
+<!--
+=============================================================
+Blueprint.xml
+Implementation details
+=============================================================
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0">
 
-<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
-           xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
-           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+    <!--
+    =============================================================
+    COMMON (used by two or more dependents)
+    =============================================================
+    -->
 
-    <bean id="queryTemplateMetacardType"
-          class="org.codice.ddf.catalog.ui.forms.data.QueryTemplateType"/>
-
-    <bean id="attributeGroupMetacardType"
-          class="org.codice.ddf.catalog.ui.forms.data.AttributeGroupType"/>
-
-    <service ref="queryTemplateMetacardType" interface="ddf.catalog.data.MetacardType">
-        <service-properties>
-            <entry key="name" value="query-template"/>
-        </service-properties>
-    </service>
-
-    <service ref="attributeGroupMetacardType" interface="ddf.catalog.data.MetacardType">
-        <service-properties>
-            <entry key="name" value="attribute-group"/>
-        </service-properties>
-    </service>
-
-    <bean id="workspaceMetacardType"
-          class="org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardType"/>
-
-    <service ref="workspaceMetacardType" interface="ddf.catalog.data.MetacardType">
-        <service-properties>
-            <entry key="name" value="workspace"/>
-        </service-properties>
-    </service>
-
-    <reference id="webBranding" interface="org.codice.ddf.branding.BrandingPlugin"/>
-
-    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="uiCamelContext"/>
-
-    <bean id="servlet" class="org.codice.proxy.http.HttpProxyCamelHttpTransportServlet"
-          init-method="init" destroy-method="destroy">
-        <argument ref="uiCamelContext"/>
+    <bean id="metacardActionRegistry" class="ddf.action.impl.ActionRegistryImpl">
+        <argument ref="metacardActionProviders"/>
+        <argument ref="metacardMultiActionProviders"/>
     </bean>
 
-    <service interface="javax.servlet.Servlet">
-        <service-properties>
-            <entry key="alias" value="/search/catalog/proxy"/>
-            <entry key="servlet-name" value="uiProxyServlet"/>
-            <entry key="async-supported" value="true"/>
-        </service-properties>
-        <ref component-id="servlet"/>
-    </service>
+    <bean id="transformerDescriptors"
+          class="org.codice.ddf.catalog.ui.transformer.TransformerDescriptors">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.ui.transformer.TransformerDescriptors"
+                update-strategy="container-managed"/>
+        <argument ref="metacardTransformers"/>
+        <argument ref="queryResponseTransformers"/>
+    </bean>
+
+    <bean id="endpointUtil" class="org.codice.ddf.catalog.ui.util.EndpointUtil">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.ui.whitelist"
+                update-strategy="container-managed"/>
+        <argument ref="metacardTypes"/>
+        <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
+        <argument ref="filterAdapter"/>
+        <argument ref="metacardActionRegistry"/>
+        <argument ref="injectableAttributes"/>
+        <argument ref="attributeRegistry"/>
+        <argument ref="configurationApplication"/>
+        <property name="whiteListedMetacardTypes">
+            <array/>
+        </property>
+        <property name="descriptors" ref="transformerDescriptors"/>
+    </bean>
+
+    <bean id="accessControlSecurityConfiguration"
+          class="org.codice.ddf.catalog.ui.security.AccessControlSecurityConfiguration">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.ui.security"
+                update-strategy="container-managed"/>
+    </bean>
+
+    <bean id="facetWhitelistConfiguration"
+          class="org.codice.ddf.catalog.ui.security.FacetWhitelistConfiguration">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.ui.facetwhitelist"
+                update-strategy="container-managed"/>
+    </bean>
+
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="uiCamelContext"/>
 
     <bean id="httpProxyService" class="org.codice.proxy.http.HttpProxyServiceImpl"
           destroy-method="destroy">
         <argument ref="uiCamelContext"/>
     </bean>
 
-    <reference-list id="historianConfigurations"
-                    interface="ddf.catalog.configuration.HistorianConfiguration"
-                    availability="optional">
-        <reference-listener bind-method="bind"
-                            unbind-method="unbind" ref="configurationApplication"/>
-    </reference-list>
-
-    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"/>
-
-    <reference id="resourceBundleLocator" interface="ddf.platform.resource.bundle.locator.ResourceBundleLocator"/>
-
-    <service interface="ddf.catalog.data.MetacardType">
-        <bean class="org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardTypeImpl"/>
-    </service>
-
     <bean id="configurationApplication"
           class="org.codice.ddf.catalog.ui.config.ConfigurationApplication"
           destroy-method="destroy">
         <argument ref="uuidGenerator"/>
-        <argument ref="facetWhitelistConfiguration" />
+        <argument ref="facetWhitelistConfiguration"/>
 
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui"
@@ -112,212 +110,102 @@
         <property name="uiName" value="Intrigue"/>
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
-        <property name="historianConfigurations" ref="historianConfigurations"/>
+        <property name="historianConfiguration" ref="historianConfiguration"/>
         <property name="i18n" ref="resourceBundleLocator"/>
     </bean>
 
-    <service interface="ddf.catalog.data.MetacardType">
-        <bean class="org.codice.ddf.catalog.ui.metacard.workspace.ListMetacardTypeImpl"/>
-    </service>
+    <!--
+    =============================================================
+    SIMPLE APPS
+    (AUTH/BUILD/CATALOG/PLATFORM/FEEDBACK/GEOCODER/LOGOUT/SESSION/USER)
+    =============================================================
+    -->
 
-    <bean id="accessControlPreIngestPlugin"
-          class="org.codice.ddf.catalog.ui.security.AccessControlPreIngestPlugin">
+    <bean id="authenticationApplication"
+          class="org.codice.ddf.catalog.ui.security.AuthenticationApplication">
+        <argument ref="securityAuthenticationService"/>
+    </bean>
+
+    <bean id="buildApplication" class="org.codice.ddf.catalog.ui.metacard.BuildApplication">
+        <argument ref="endpointUtil"/>
+        <argument ref="userCreatableMetacardType"/>
+    </bean>
+
+    <bean id="catalogApplication" class="org.codice.ddf.catalog.ui.catalog.CatalogApplication">
+        <argument ref="catalogService"/>
+    </bean>
+
+    <bean id="platformApplication"
+          class="org.codice.ddf.catalog.ui.configuration.PlatformUiConfigurationApplication">
+        <argument ref="platformConfigurationService"/>
+    </bean>
+
+    <bean id="feedbackApplication" class="org.codice.ddf.catalog.ui.query.FeedbackApplication">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.ui"
+                update-strategy="component-managed"
+                update-method="refresh"/>
+        <property name="configurationApplication" ref="configurationApplication"/>
+        <property name="smtpClient" ref="smtpClient"/>
+        <property name="endpointUtil" ref="endpointUtil"/>
+    </bean>
+
+    <bean id="geoCoderApplication" class="org.codice.ddf.catalog.ui.spatial.GeoCoderApplication">
+        <argument ref="geoCoderService"/>
+    </bean>
+
+    <bean id="logoutApplication" class="org.codice.ddf.catalog.ui.security.LogoutApplication">
+        <argument ref="logoutService"/>
+    </bean>
+
+    <bean id="sessionManagementApplication"
+          class="org.codice.ddf.catalog.ui.session.SessionManagementApplication">
+        <argument ref="sessionManagementService"/>
+    </bean>
+
+    <bean id="userApplication" class="org.codice.ddf.catalog.ui.security.UserApplication">
+        <argument ref="persistentStore"/>
+        <argument ref="endpointUtil"/>
         <argument ref="subjectIdentity"/>
     </bean>
 
-    <bean id="noteMetacardType" class="org.codice.ddf.catalog.ui.metacard.notes.NoteMetacardType"/>
+    <!--
+    =============================================================
+    DESCRIPTORS APPLICATION
+    =============================================================
+    -->
 
-    <service ref="noteMetacardType" interface="ddf.catalog.data.MetacardType">
-        <service-properties>
-            <entry key="name" value="ddf.metacard.NoteMetacardType"/>
-            <entry key="id" value="resource-note"/>
-        </service-properties>
-    </service>
-
-    <service interface="ddf.catalog.plugin.PreIngestPlugin">
-        <ref component-id="accessControlPreIngestPlugin"/>
-    </service>
-
-    <bean id="accessControlAccessPlugin"
-          class="org.codice.ddf.catalog.ui.security.AccessControlAccessPlugin">
-        <argument ref="subjectIdentity"/>
-    </bean>
-
-
-    <bean id="facetAttributeAccessPlugin"
-          class="org.codice.ddf.catalog.ui.security.FacetAttributeAccessPlugin">
-        <argument ref="facetWhitelistConfiguration" />
-    </bean>
-
-    <service interface="ddf.catalog.plugin.AccessPlugin">
-        <ref component-id="facetAttributeAccessPlugin"/>
-    </service>
-
-
-    <service interface="ddf.catalog.plugin.AccessPlugin">
-        <ref component-id="accessControlAccessPlugin"/>
-    </service>
-
-    <service interface="ddf.catalog.plugin.PolicyPlugin">
-        <bean class="org.codice.ddf.catalog.ui.security.AccessControlPolicyPlugin"/>
-    </service>
-
-    <service interface="ddf.catalog.plugin.AccessPlugin">
-        <bean class="org.codice.ddf.catalog.ui.forms.security.SystemTemplateAccessPlugin"/>
-    </service>
-
-    <service interface="ddf.catalog.plugin.PolicyPlugin">
-        <bean class="org.codice.ddf.catalog.ui.forms.security.SystemTemplatePolicyPlugin">
-            <argument ref="accessControlSecurityConfiguration"/>
-        </bean>
-    </service>
-
-    <bean id="accessControlSecurityConfiguration"
-          class="org.codice.ddf.catalog.ui.security.AccessControlSecurityConfiguration">
-        <cm:managed-properties
-                persistent-id="org.codice.ddf.catalog.ui.security"
-                update-strategy="container-managed"/>
-    </bean>
-
-    <bean id="facetWhitelistConfiguration"
-          class="org.codice.ddf.catalog.ui.security.FacetWhitelistConfiguration">
-        <cm:managed-properties
-                persistent-id="org.codice.ddf.catalog.ui.facetwhitelist"
-                update-strategy="container-managed"/>
-    </bean>
-
-    <reference id="subjectIdentity" interface="ddf.security.SubjectIdentity"/>
-
-    <bean id="accessControlPolicyExtension"
-          class="org.codice.ddf.catalog.ui.security.AccessControlPolicyExtension">
-        <argument ref="accessControlSecurityConfiguration"/>
-        <argument ref="subjectIdentity"/>
-    </bean>
-
-
-    <service interface="ddf.security.policy.extension.PolicyExtension">
-        <ref component-id="accessControlPolicyExtension"/>
-    </service>
-
-    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
-    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
-    <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
-    <reference id="inputTransformer" interface="ddf.catalog.transform.InputTransformer"
-               filter="(id=xml)"/>
-
-    <reference-list id="metacardActionProviders" interface="ddf.action.ActionProvider"
-                    filter="(id=catalog.data.metacard.*)"/>
-
-    <reference-list id="metacardMultiActionProviders" interface="ddf.action.MultiActionProvider"
-                    filter="(id=catalog.data.metacard.*)"/>
-
-    <reference-list id="injectableAttributes" interface="ddf.catalog.data.InjectableAttribute"
-                    availability="optional"/>
-
-    <bean id="metacardActionRegistry" class="ddf.action.impl.ActionRegistryImpl">
-        <argument ref="metacardActionProviders"/>
-        <argument ref="metacardMultiActionProviders"/>
-    </bean>
-
-    <bean id="metacardTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
-    <reference-list interface="ddf.catalog.transform.MetacardTransformer"
-      member-type="service-reference">
-        <reference-listener ref="metacardTransformers" bind-method="bindService" unbind-method="unbindService"/>
-    </reference-list>
-
-    <bean id="queryResponseTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
-    <reference-list interface="ddf.catalog.transform.QueryResponseTransformer"
-      member-type="service-reference">
-        <reference-listener ref="queryResponseTransformers" bind-method="bindService" unbind-method="unbindService"/>
-    </reference-list>
-
-    <bean id="transformerDescriptors" class="org.codice.ddf.catalog.ui.transformer.TransformerDescriptors">
-        <cm:managed-properties
-          persistent-id="org.codice.ddf.catalog.ui.transformer.TransformerDescriptors"
-          update-strategy="container-managed"/>
-        <argument ref="metacardTransformers"/>
-        <argument ref="queryResponseTransformers"/>
-    </bean>
-
-    <bean id="endpointUtil" class="org.codice.ddf.catalog.ui.util.EndpointUtil">
-        <cm:managed-properties
-                persistent-id="org.codice.ddf.catalog.ui.whitelist"
-                update-strategy="container-managed"/>
-        <argument>
-            <reference-list interface="ddf.catalog.data.MetacardType"/>
-        </argument>
-        <argument ref="catalogFramework"/>
-        <argument ref="filterBuilder"/>
-        <argument ref="filterAdapter"/>
-        <argument ref="metacardActionRegistry"/>
-        <argument ref="injectableAttributes"/>
-        <argument>
-            <reference interface="ddf.catalog.data.AttributeRegistry" availability="optional"/>
-        </argument>
-        <argument ref="configurationApplication"/>
-        <property name="whiteListedMetacardTypes">
-            <array/>
-        </property>
+    <bean id="transformerDescriptorApplication"
+          class="org.codice.ddf.catalog.ui.transformer.TransformerDescriptorApplication">
         <property name="descriptors" ref="transformerDescriptors"/>
     </bean>
 
-    <!--Exposing endpoint util as a service to allow for system templates to be managed through the means of a Karaf command (reference injection)-->
-    <service ref="endpointUtil" interface="org.codice.ddf.catalog.ui.util.EndpointUtil"/>
+    <!--
+    =============================================================
+    LIST APPLICATION
+    =============================================================
+    -->
 
-    <bean id="noteUtil" class="org.codice.ddf.catalog.ui.metacard.notes.NoteUtil">
-        <argument ref="filterBuilder"/>
+    <bean id="listApplication" class="org.codice.ddf.catalog.ui.metacard.ListApplication">
+        <argument ref="mimeTypeMapper"/>
         <argument ref="catalogFramework"/>
+        <argument ref="uuidGenerator"/>
+        <argument>
+            <bean class="org.codice.ddf.catalog.ui.metacard.impl.SplitterLocatorImpl"/>
+        </argument>
+        <argument ref="catalogService"/>
     </bean>
 
-    <bean id="queryIdsParser"
-          class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.QueryIdsParser"/>
+    <!--
+    =============================================================
+    METACARD APPLICATION
+    =============================================================
+    -->
 
-    <service ref="queryIdsParser"
-             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
-
-    <bean id="querySortsParser"
-          class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.QuerySortsParser"/>
-
-    <service ref="querySortsParser"
-             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
-
-    <bean id="workspaceMetacardsKeyTransformation"
-          class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.WorkspaceMetacardsKeyToAssociations"/>
-
-    <service ref="workspaceMetacardsKeyTransformation"
-             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
-
-    <bean id="srcKeyTransformation"
-          class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.SrcToQuerySources"/>
-
-    <service ref="srcKeyTransformation"
-             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
-
-    <bean id="removeMetacardTagsTransformation"
-          class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.RemoveMetacardTags"/>
-
-    <service ref="removeMetacardTagsTransformation"
-             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
-
-    <bean id="listMetacardsTransformation"
-          class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.EmbeddedListMetacardsHandler">
-        <argument ref="metacardActionRegistry"/>
+    <bean id="validator" class="org.codice.ddf.catalog.ui.metacard.validation.Validator">
+        <argument ref="reportingMetacardValidators"/>
+        <argument ref="attributeValidatorRegistries"/>
     </bean>
-
-    <service ref="listMetacardsTransformation"
-             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
-
-    <bean id="removeBlankAccessIndividualsTransformation"
-          class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.FilterBlankAccessIndividuals"/>
-
-    <service ref="removeBlankAccessIndividualsTransformation"
-             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"/>
-
-    <bean id="workspaceTransformations" class="org.codice.ddf.platform.util.SortedServiceList"/>
-    <reference-list interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformation"
-                    availability="optional">
-        <reference-listener ref="workspaceTransformations" bind-method="bindPlugin" unbind-method="unbindPlugin"/>
-    </reference-list>
 
     <bean id="workspaceTransformer"
           class="org.codice.ddf.catalog.ui.metacard.workspace.transformer.impl.WorkspaceTransformerImpl">
@@ -327,50 +215,16 @@
         <argument ref="workspaceTransformations"/>
     </bean>
 
-    <service ref="workspaceTransformer"
-             interface="org.codice.ddf.catalog.ui.metacard.workspace.transformer.WorkspaceTransformer"/>
-
-    <bean id="validator" class="org.codice.ddf.catalog.ui.metacard.validation.Validator">
-        <argument>
-            <reference-list interface="ddf.catalog.validation.ReportingMetacardValidator"
-                            availability="optional"/>
-        </argument>
-        <argument>
-            <reference-list interface="ddf.catalog.validation.AttributeValidatorRegistry"
-                            availability="optional"/>
-        </argument>
-    </bean>
-
-    <jaxrs:server id="workspaceService" address="/search/catalog">
-        <jaxrs:serviceBeans>
-            <bean class="org.codice.ddf.catalog.ui.searchui.standard.endpoints.MetacardEditEndpoint">
-                <argument ref="catalogFramework"/>
-                <argument>
-                    <reference interface="ddf.catalog.data.AttributeRegistry"
-                               availability="optional"/>
-                </argument>
-                <argument ref="endpointUtil"/>
-            </bean>
-        </jaxrs:serviceBeans>
-        <jaxrs:providers>
-            <bean class="org.codice.ddf.catalog.ui.searchui.standard.endpoints.WorkspaceBodyReader"/>
-            <bean class="org.codice.ddf.catalog.ui.searchui.standard.endpoints.WorkspaceBodyWriter"/>
-        </jaxrs:providers>
-    </jaxrs:server>
-
     <bean id="enumerationExtractor"
           class="org.codice.ddf.catalog.ui.enumeration.ExperimentalEnumerationExtractor">
-        <argument>
-            <reference interface="ddf.catalog.validation.AttributeValidatorRegistry"
-                       availability="optional"/>
-        </argument>
-        <argument>
-            <reference-list interface="ddf.catalog.data.MetacardType"/>
-        </argument>
-        <argument>
-            <reference-list interface="ddf.catalog.data.AttributeInjector"
-                            availability="optional"/>
-        </argument>
+        <argument ref="defaultAttributeValidatorRegistry"/>
+        <argument ref="metacardTypes"/>
+        <argument ref="attributeInjectors"/>
+    </bean>
+
+    <bean id="workspacePersistentStore"
+          class="org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl">
+        <argument ref="persistentStore"/>
     </bean>
 
     <bean id="associated" class="org.codice.ddf.catalog.ui.metacard.associations.Associated">
@@ -378,24 +232,9 @@
         <argument ref="catalogFramework"/>
     </bean>
 
-    <reference id="catalogService" interface="org.codice.ddf.rest.service.CatalogService"/>
-
-    <bean id="catalogApplication" class="org.codice.ddf.catalog.ui.catalog.CatalogApplication">
-        <argument ref="catalogService"/>
-    </bean>
-
-    <reference id="csvQueryResponseTransformer"
-               interface="ddf.catalog.transform.QueryResponseTransformer" filter="(id=csv)"/>
-
-    <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
-
-    <reference-list id="userCreatableMetacardType"
-                    interface="org.codice.ddf.catalog.ui.metacard.internal.UserCreatableMetacardType"
-                    availability="optional"/>
-
-    <bean id="buildApplication" class="org.codice.ddf.catalog.ui.metacard.BuildApplication">
-        <argument ref="endpointUtil"/>
-        <argument ref="userCreatableMetacardType"/>
+    <bean id="noteUtil" class="org.codice.ddf.catalog.ui.metacard.notes.NoteUtil">
+        <argument ref="filterBuilder"/>
+        <argument ref="catalogFramework"/>
     </bean>
 
     <bean id="queryMetacardsHandler"
@@ -411,9 +250,7 @@
         <argument ref="workspaceTransformer"/>
         <argument ref="enumerationExtractor"/>
         <argument ref="workspacePersistentStore"/>
-        <argument>
-            <reference-list interface="ddf.catalog.data.MetacardType"/>
-        </argument>
+        <argument ref="metacardTypes"/>
         <argument ref="associated"/>
         <argument ref="csvQueryResponseTransformer"/>
         <argument ref="attributeRegistry"/>
@@ -425,8 +262,24 @@
         <argument ref="queryMetacardsHandler"/>
     </bean>
 
-    <reference id="coordinateSystemTranslator" interface="org.codice.usng4j.CoordinateSystemTranslator"
-               filter="(isNad83Datum=true)"/>
+    <!--
+    =============================================================
+    QUERY APPLICATION
+    =============================================================
+    -->
+
+    <bean id="featureService"
+          class="org.codice.ddf.catalog.ui.query.geofeature.GazetteerFeatureService">
+        <property name="geoEntryQueryable" ref="geoEntryQueryable"/>
+        <property name="featureQueryable" ref="featureQueryable"/>
+    </bean>
+
+    <bean id="cqlTransformHandler"
+          class="org.codice.ddf.catalog.ui.query.handlers.CqlTransformHandler">
+        <argument ref="queryResponseTransformers"/>
+        <argument ref="blueprintBundleContext"/>
+        <argument ref="endpointUtil"/>
+    </bean>
 
     <bean id="latLonProcessor"
           class="org.codice.ddf.catalog.ui.query.suggestion.LatLonCoordinateProcessor"/>
@@ -452,28 +305,6 @@
         <argument ref="dmsProcessor"/>
         <argument ref="mgrsProcessor"/>
         <argument ref="utmUpsProcessor"/>
-    </bean>
-
-    <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
-
-    <reference id="attachmentParser" interface="org.codice.ddf.attachment.AttachmentParser"/>
-
-    <bean id="listApplication" class="org.codice.ddf.catalog.ui.metacard.ListApplication">
-        <argument ref="mimeTypeMapper"/>
-        <argument ref="catalogFramework"/>
-        <argument ref="uuidGenerator"/>
-        <argument>
-            <bean class="org.codice.ddf.catalog.ui.metacard.impl.SplitterLocatorImpl"/>
-        </argument>
-        <argument ref="catalogService"/>
-    </bean>
-
-    <reference id="securityAuthenticationService"
-               interface="org.codice.ddf.security.rest.authentication.service.AuthenticationService"/>
-
-    <bean id="authenticationApplication"
-          class="org.codice.ddf.catalog.ui.security.AuthenticationApplication">
-        <argument ref="securityAuthenticationService"/>
     </bean>
 
     <bean id="jsonRpc" class="org.codice.ddf.catalog.ui.ws.JsonRpc">
@@ -504,38 +335,23 @@
         <argument ref="jsonRpc"/>
     </bean>
 
-    <service ref="socketServlet" interface="javax.servlet.Servlet">
-        <service-properties>
-            <entry key="urlPatterns" value="/search/catalog/ws"/>
-            <entry key="async-supported" value="true"/>
-        </service-properties>
-    </service>
+    <!--
+    =============================================================
+    QUERY METACARD APPLICATION
+    =============================================================
+    -->
 
-    <bean id="feedbackApplication" class="org.codice.ddf.catalog.ui.query.FeedbackApplication">
-        <cm:managed-properties
-                persistent-id="org.codice.ddf.catalog.ui"
-                update-strategy="component-managed"
-                update-method="refresh"/>
-
-        <property name="configurationApplication" ref="configurationApplication"/>
-        <property name="smtpClient" ref="smtpClient"/>
-        <property name="endpointUtil" ref="endpointUtil"/>
-    </bean>
-
-    <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore"/>
-
-    <bean id="userApplication" class="org.codice.ddf.catalog.ui.security.UserApplication">
-        <argument ref="persistentStore"/>
+    <bean id="queryMetacardApplication" class="org.codice.ddf.catalog.ui.metacard.QueryMetacardApplication">
+        <argument ref="catalogFramework"/>
         <argument ref="endpointUtil"/>
-        <argument ref="subjectIdentity"/>
+        <argument ref="filterBuilder"/>
     </bean>
 
-    <reference id="geoCoderService" interface="org.codice.ddf.spatial.geocoding.GeoCoderService"/>
-
-    <bean id="geoCoderApplication"
-          class="org.codice.ddf.catalog.ui.spatial.GeoCoderApplication">
-        <argument ref="geoCoderService"/>
-    </bean>
+    <!--
+    =============================================================
+    SEARCH FORMS APPLICATION
+    =============================================================
+    -->
 
     <bean id="filterWriter"
           class="org.codice.ddf.catalog.ui.forms.filter.FilterWriter">
@@ -548,44 +364,19 @@
         <argument ref="attributeRegistry"/>
     </bean>
 
-    <bean id="searchFormsApplication" class="org.codice.ddf.catalog.ui.forms.SearchFormsApplication">
+    <bean id="searchFormsApplication"
+          class="org.codice.ddf.catalog.ui.forms.SearchFormsApplication">
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
         <argument ref="templateTransformer"/>
         <argument ref="endpointUtil"/>
     </bean>
 
-    <reference id="logoutService" interface="org.codice.ddf.security.logout.service.LogoutService"/>
-
-    <bean id="logoutApplication" class="org.codice.ddf.catalog.ui.security.LogoutApplication">
-        <argument ref="logoutService"/>
-    </bean>
-
-    <reference id="platformConfigurationService"
-               interface="org.codice.ddf.configuration.service.PlatformUiConfigurationService"/>
-
-    <bean id="platformApplication"
-          class="org.codice.ddf.catalog.ui.configuration.PlatformUiConfigurationApplication">
-        <argument ref="platformConfigurationService"/>
-    </bean>
-
-    <reference id="sessionManagementService"
-               interface="org.codice.ddf.security.session.management.service.SessionManagementService"/>
-
-    <bean id="sessionManagementApplication"
-          class="org.codice.ddf.catalog.ui.session.SessionManagementApplication">
-        <argument ref="sessionManagementService"/>
-    </bean>
-
-    <bean id="transformerDescriptorApplication" class="org.codice.ddf.catalog.ui.transformer.TransformerDescriptorApplication">
-        <property name="descriptors" ref="transformerDescriptors"/>
-    </bean>
-
-    <bean id="queryMetacardApplication" class="org.codice.ddf.catalog.ui.metacard.QueryMetacardApplication">
-        <argument ref="catalogFramework"/>
-        <argument ref="endpointUtil"/>
-        <argument ref="filterBuilder"/>
-    </bean>
+    <!--
+    =============================================================
+    SPARK
+    =============================================================
+    -->
 
     <bean id="rootReqSupplier" class="org.codice.ddf.catalog.ui.RootContextRequestSupplier"/>
     <bean id="sparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">
@@ -613,12 +404,22 @@
         <property name="filterMappingPattern" value="/search/catalog/internal/*"/>
     </bean>
 
-    <service ref="sparkServlet" interface="javax.servlet.Servlet">
-        <service-properties>
-            <entry key="urlPatterns" value="/search/catalog/internal/*"/>
-            <entry key="async-supported" value="true"/>
-        </service-properties>
-    </service>
+    <!--
+    =============================================================
+    MAP LAYERS DYNAMIC PROXY
+    =============================================================
+    -->
+
+    <bean id="servlet" class="org.codice.proxy.http.HttpProxyCamelHttpTransportServlet"
+          init-method="init" destroy-method="destroy">
+        <argument ref="uiCamelContext"/>
+    </bean>
+
+    <!--
+    =============================================================
+    ASYNC/LISTENERS/NOTIFICATIONS
+    =============================================================
+    -->
 
     <bean id="securityService"
           class="org.codice.ddf.catalog.ui.query.monitor.impl.SecurityServiceImpl"/>
@@ -645,21 +446,6 @@
         <argument ref="filterBuilder"/>
         <property name="maxSubscriptions" value="100"/>
     </bean>
-
-    <bean id="workspacePersistentStore"
-          class="org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl">
-        <argument ref="persistentStore"/>
-    </bean>
-
-    <service ref="workspacePersistentStore"
-             interface="org.codice.ddf.catalog.ui.subscription.SubscriptionsPersistentStore">
-        <service-properties>
-            <entry key="id" value="org.codice.ddf.catalog.ui.query.monitor.impl.SubscriptionsPersistentStoreImpl"/>
-        </service-properties>
-    </service>
-
-    <reference id="smtpClient" availability="mandatory"
-               interface="org.codice.ddf.platform.email.SmtpClient"/>
 
     <bean id="emailNotifierService"
           class="org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier">
@@ -719,37 +505,5 @@
             </bean>
         </argument>
     </bean>
-
-    <bean id="cqlTransformHandler" class="org.codice.ddf.catalog.ui.query.handlers.CqlTransformHandler">
-        <argument ref="queryResponseTransformers"/>
-        <argument ref="blueprintBundleContext"/>
-        <argument ref="endpointUtil"/>
-    </bean>
-
-    <service ref="workspaceQueryService"
-             interface="org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryService"/>
-
-    <reference id="geoEntryQueryable"
-               interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable"/>
-
-    <reference id="featureQueryable" interface="org.codice.ddf.spatial.geocoding.FeatureQueryable"
-               availability="optional"/>
-
-    <bean id="featureService"
-          class="org.codice.ddf.catalog.ui.query.geofeature.GazetteerFeatureService">
-        <property name="geoEntryQueryable" ref="geoEntryQueryable"/>
-        <property name="featureQueryable" ref="featureQueryable"/>
-    </bean>
-
-    <service ref="featureService"
-             interface="org.codice.ddf.catalog.ui.query.geofeature.FeatureService"/>
-
-    <!-- This should have a service ranking lower than all other splitters. -->
-    <service interface="org.codice.ddf.catalog.ui.splitter.Splitter" ranking="-100">
-        <service-properties>
-            <entry key="id" value="identity-splitter"/>
-        </service-properties>
-        <bean class="org.codice.ddf.catalog.ui.metacard.impl.IdentitySplitter"/>
-    </service>
 
 </blueprint>
