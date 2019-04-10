@@ -44,8 +44,9 @@ const ListItem = styled.div`
 
 const HoverableListItem = styled(ListItem)`
   &:hover {
-    background: ${props => transparentize(0.9, readableColor(props.theme.backgroundDropdown))};
-    box-shadow: inset 0px 0px 0px 1px ${props => props.theme.primaryColor}
+    background: ${props =>
+      transparentize(0.9, readableColor(props.theme.backgroundDropdown))};
+    box-shadow: inset 0px 0px 0px 1px ${props => props.theme.primaryColor};
   }
 `
 
@@ -64,7 +65,9 @@ const SearchFormItem = ({ title, onClick }) => {
 
 const FilterPadding = styled.div`
   box-sizing: border-box;
-  padding: 0px ${props => props.theme.minimumSpacing} ${props => props.theme.minimumSpacing} ${props => props.theme.minimumSpacing};
+  padding: 0px ${props => props.theme.minimumSpacing}
+    ${props => props.theme.minimumSpacing}
+    ${props => props.theme.minimumSpacing};
 `
 class SearchForms extends React.Component {
   constructor(props) {
@@ -77,8 +80,9 @@ class SearchForms extends React.Component {
     const { filter } = this.state
     const { forms, onClick } = this.props
 
-    const filteredForms = forms
-      .filter(form => form.title.toLowerCase().match(filter.toLowerCase()));
+    const filteredForms = forms.filter(form =>
+      form.title.toLowerCase().match(filter.toLowerCase())
+    )
 
     return (
       <ListContainer>
@@ -92,15 +96,16 @@ class SearchForms extends React.Component {
         </FilterPadding>
         <ScrollableContainer>
           {forms.length === 0 ? <NoSearchForms /> : null}
-          {filteredForms
-            .map(form => (
-              <SearchFormItem
-                title={form.title}
-                key={form.id}
-                onClick={() => onClick(form)}
-              />
-            ))}
-            {forms.length !== 0 && filteredForms.length === 0 ? <NothingFound/> : null}
+          {filteredForms.map(form => (
+            <SearchFormItem
+              title={form.title}
+              key={form.id}
+              onClick={() => onClick(form)}
+            />
+          ))}
+          {forms.length !== 0 && filteredForms.length === 0 ? (
+            <NothingFound />
+          ) : null}
         </ScrollableContainer>
       </ListContainer>
     )
