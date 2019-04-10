@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 import * as React from 'react'
 import { MapContextMenu } from '../../react-component/presentation/map-context-menu'
 

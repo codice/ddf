@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
 
 import ExportResults from '../../../react-component/container/table-export'
 import React from 'react'

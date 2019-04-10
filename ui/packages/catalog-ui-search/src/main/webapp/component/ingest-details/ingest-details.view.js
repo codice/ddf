@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, window, setTimeout*/
+
 var wreqr = require('../../js/wreqr.js')
 var Marionette = require('marionette')
 var _ = require('underscore')

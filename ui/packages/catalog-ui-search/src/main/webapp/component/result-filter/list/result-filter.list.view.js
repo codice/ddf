@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 var Marionette = require('marionette')
 var _ = require('underscore')
 var $ = require('jquery')

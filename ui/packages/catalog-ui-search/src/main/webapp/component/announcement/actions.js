@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, setTimeout*/
+
 var uuid = require('uuid')
 var _ = require('underscore')
 

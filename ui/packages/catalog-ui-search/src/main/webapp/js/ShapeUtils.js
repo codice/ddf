@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 module.exports = {
   isArray3D: function(values) {
     return values && values[0] && values[0][0] instanceof Array

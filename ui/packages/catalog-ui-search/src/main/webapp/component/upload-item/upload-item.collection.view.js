@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var Marionette = require('marionette')
 var UploadItemView = require('./upload-item.view')
 var CustomElements = require('../../js/CustomElements.js')

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, require, module*/
+
 import ListCreate from '../list-create/list-create.js'
 
 var Marionette = require('marionette')

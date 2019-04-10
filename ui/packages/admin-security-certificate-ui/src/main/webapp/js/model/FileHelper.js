@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define,FileReader*/
+
 define(['underscore', 'backbone'], function(_, Backbone) {
   var FileHelper = Backbone.Model.extend({
     isValid: function() {

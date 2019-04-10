@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
 
 const CustomElements = require('../../js/CustomElements.js')
 const Marionette = require('marionette')

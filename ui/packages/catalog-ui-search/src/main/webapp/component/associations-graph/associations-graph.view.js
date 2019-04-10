@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setTimeout*/
+
 var Backbone = require('backbone')
 var Marionette = require('marionette')
 var wreqr = require('../../js/wreqr.js')

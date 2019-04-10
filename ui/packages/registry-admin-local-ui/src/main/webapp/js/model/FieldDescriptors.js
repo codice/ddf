@@ -14,7 +14,7 @@
  **/
 
 //get descriptors for well known registry slot fields.
-/*global define*/
+
 define(['underscore'], function(_) {
   var FieldDescriptors = {
     configurations: {},

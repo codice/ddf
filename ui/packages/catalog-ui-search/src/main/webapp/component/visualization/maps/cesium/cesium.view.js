@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, setTimeout*/
+
 //You typically don't want to use this view directly.  Instead, use the combined-map component which will handle falling back to openlayers.
 
 var MapView = require('../map.view')

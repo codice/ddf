@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 /*jshint latedef: nofunc*/
 /*
     Chrome only lets us pull off this trick once per loaded iframe.  So we need to detach and reattach it after every submit.

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 /** Main view page for add. **/
 import * as React from 'react'
 define([

@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 const _ = require('underscore')
 const Backbone = require('backbone')
 var Lightbox = Backbone.Model.extend({

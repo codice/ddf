@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 var DEFAULT_AUTO_MERGE_TIME = 1000
 
 const $ = require('jquery')

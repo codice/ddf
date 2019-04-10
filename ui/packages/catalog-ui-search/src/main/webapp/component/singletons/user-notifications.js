@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var user = require('./user-instance.js')
 var Backbone = require('backbone')
 

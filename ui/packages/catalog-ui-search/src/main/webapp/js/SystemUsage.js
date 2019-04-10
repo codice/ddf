@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, window*/
+
 var properties = require('./properties.js')
 var BlockingLightbox = require('../component/lightbox/blocking/lightbox.blocking.view.js')
 var SystemUsageView = require('../component/system-usage/system-usage.view.js')

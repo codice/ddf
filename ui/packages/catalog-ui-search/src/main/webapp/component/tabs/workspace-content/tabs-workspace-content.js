@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 const _ = require('underscore')
 const Tabs = require('../tabs')
 const WorkspaceSearchView = require('../../workspace-search/workspace-search.view.js')

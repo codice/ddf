@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 define(['backbone', 'backboneassociations'], function(Backbone) {
   return Backbone.AssociatedModel.extend({
     sync: function(method, model, options) {

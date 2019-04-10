@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, setTimeout*/
+
 import wrapNum from '../../../react-component/utils/wrap-num/wrap-num.tsx'
 import * as React from 'react'
 import ZoomToHomeButton from '../../../react-component/button/split-button/zoomToHome.tsx'

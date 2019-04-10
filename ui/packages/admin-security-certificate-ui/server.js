@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require,__dirname*/
+
 var express = require('express'),
   server = require('./server-impl')
 

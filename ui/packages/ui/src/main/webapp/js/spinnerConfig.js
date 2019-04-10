@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 define({
   lines: 13, // The number of lines to draw
   length: 12, // The length of each line

@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, window, setTimeout, location*/
+
 /* eslint-disable no-undefined */
 const wreqr = require('./wreqr.js')
 const _ = require('underscore')

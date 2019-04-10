@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var UploadModel = require('./Upload')
 var Backbone = require('backbone')
 var Common = require('../Common.js')

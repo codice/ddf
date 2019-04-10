@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define,window*/
 
 const Backbone = require('backbone')
 const resultFormCollection = require('./result-form-collection-instance.js')

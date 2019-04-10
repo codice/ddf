@@ -13,7 +13,6 @@
  *
  **/
 
-/*global define*/
 define([
   'js/application',
   'js/view/Metrics.view.js',

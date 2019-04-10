@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 //meant to be used for just in time feature detection
 var Backbone = require('backbone')
 require('backbone-associations')

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setTimeout*/
+
 const Marionette = require('marionette')
 import React from 'react'
 import AlertSettings from '../../react-component/container/alert-settings'

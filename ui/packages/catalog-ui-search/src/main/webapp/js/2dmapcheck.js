@@ -9,8 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
-/*jslint browser: true*/
 
 const _ = require('underscore')
 

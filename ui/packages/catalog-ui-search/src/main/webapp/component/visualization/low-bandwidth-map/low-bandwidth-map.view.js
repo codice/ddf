@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, window*/
+
 var _ = require('underscore')
 var $ = require('jquery')
 var template = require('./low-bandwidth-map.hbs')

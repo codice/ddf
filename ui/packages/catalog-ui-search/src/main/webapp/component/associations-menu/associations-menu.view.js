@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var wreqr = require('../../js/wreqr.js')
 var template = require('./associations-menu.hbs')
 var Marionette = require('marionette')

@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var _ = require('underscore')
 var Backbone = require('backbone')
 var Metacard = require('../../js/model/Metacard.js')

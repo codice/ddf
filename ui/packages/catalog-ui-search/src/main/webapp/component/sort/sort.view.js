@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
 
 const Marionette = require('marionette')
 const _ = require('underscore')

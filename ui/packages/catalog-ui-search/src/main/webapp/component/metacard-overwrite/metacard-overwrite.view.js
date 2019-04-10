@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 const store = require('../../js/store.js')
 const ConfirmationView = require('../confirmation/confirmation.view.js')
 const Dropzone = require('dropzone')
