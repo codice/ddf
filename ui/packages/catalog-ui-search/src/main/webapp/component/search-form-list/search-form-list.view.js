@@ -15,7 +15,6 @@
 
 const CustomElements = require('../../js/CustomElements.js')
 const Marionette = require('marionette')
-const Router = require('../router/router.js')
 const user = require('../singletons/user-instance')
 const SearchForm = require('../search-form/search-form')
 import React from 'react'
