@@ -84,6 +84,7 @@ type SourceAction = {
   title: string
   description: string
   url: string
+  id: string
 }
 
 type Props = {
@@ -116,11 +117,16 @@ export default hot(module)(({ id, sourceActions, available }: Props) => {
                       sourceAction.description
                     }`}
                     onClick={() => {
-                      lightboxInstance.model.updateTitle(sourceAction.title)
-                      lightboxInstance.model.open()
-                      lightboxInstance.showContent(
-                        new SourceAppView({ url: sourceAction.url })
-                      )
+                      if (sourceAction.id.startsWith('catalog.data.source.window')) {
+                        const windowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes"
+                        window.open(sourceAction.url, "_blank", windowFeatures)
+                     } else {
+                        lightboxInstance.model.updateTitle(sourceAction.title)
+                        lightboxInstance.model.open()
+                        lightboxInstance.showContent(
+                          new SourceAppView({ url: sourceAction.url })
+                        )
+                      }
                     }}
                   />
                 </div>
