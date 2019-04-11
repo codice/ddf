@@ -345,6 +345,7 @@ Implementation details
         <argument ref="catalogFramework"/>
         <argument ref="endpointUtil"/>
         <argument ref="filterBuilder"/>
+        <argument ref="subjectIdentity"/>
     </bean>
 
     <!--
@@ -371,12 +372,6 @@ Implementation details
         <argument ref="templateTransformer"/>
         <argument ref="endpointUtil"/>
     </bean>
-
-    <!--
-    =============================================================
-    SPARK
-    =============================================================
-    -->
 
     <bean id="rootReqSupplier" class="org.codice.ddf.catalog.ui.RootContextRequestSupplier"/>
     <bean id="sparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">

@@ -39,7 +39,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.util.impl.ResultIterable;
-import ddf.security.SubjectUtils;
+import ddf.security.SubjectIdentity;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -70,11 +70,17 @@ public class QueryMetacardApplication implements SparkApplication {
 
   private final FilterBuilder filterBuilder;
 
+  private final SubjectIdentity subjectIdentity;
+
   public QueryMetacardApplication(
-      CatalogFramework catalogFramework, EndpointUtil endpointUtil, FilterBuilder filterBuilder) {
+      CatalogFramework catalogFramework,
+      EndpointUtil endpointUtil,
+      FilterBuilder filterBuilder,
+      SubjectIdentity subjectIdentity) {
     this.catalogFramework = catalogFramework;
     this.endpointUtil = endpointUtil;
     this.filterBuilder = filterBuilder;
+    this.subjectIdentity = subjectIdentity;
   }
 
   @Override
@@ -131,7 +137,7 @@ public class QueryMetacardApplication implements SparkApplication {
         (req, res) -> {
           String body = endpointUtil.safeGetBody(req);
           QueryBasic query = GSON.fromJson(body, QueryBasic.class);
-          query.setOwner(getSubjectEmail());
+          query.setOwner(getSubjectIdentifier());
 
           CreateRequest createRequest = new CreateRequestImpl(query.getMetacard());
           CreateResponse createResponse = catalogFramework.create(createRequest);
@@ -173,8 +179,8 @@ public class QueryMetacardApplication implements SparkApplication {
   }
 
   @VisibleForTesting
-  String getSubjectEmail() {
-    return SubjectUtils.getEmailAddress(SecurityUtils.getSubject());
+  String getSubjectIdentifier() {
+    return subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
   }
 
   private int getOrDefaultParam(Request request, String key, int defaultValue) {
