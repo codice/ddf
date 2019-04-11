@@ -117,10 +117,13 @@ export default hot(module)(({ id, sourceActions, available }: Props) => {
                       sourceAction.description
                     }`}
                     onClick={() => {
-                      if (sourceAction.id.startsWith('catalog.data.source.window')) {
-                        const windowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes"
-                        window.open(sourceAction.url, "_blank", windowFeatures)
-                     } else {
+                      if (
+                        sourceAction.id.startsWith('catalog.data.source.window')
+                      ) {
+                        const windowFeatures =
+                          'location=yes,height=570,width=520,scrollbars=yes,status=yes'
+                        window.open(sourceAction.url, '_blank', windowFeatures)
+                      } else {
                         lightboxInstance.model.updateTitle(sourceAction.title)
                         lightboxInstance.model.open()
                         lightboxInstance.showContent(
