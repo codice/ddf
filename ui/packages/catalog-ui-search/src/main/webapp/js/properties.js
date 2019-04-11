@@ -174,4 +174,4 @@ var properties = {
   },
 }
 
-module.exports = properties.init()
+module.exports = properties
