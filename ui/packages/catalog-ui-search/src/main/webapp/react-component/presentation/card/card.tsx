@@ -16,9 +16,11 @@ import { hot } from 'react-hot-loader'
 const Root = styled.div`
   width: 100%;
   height: auto;
-  display: inline-block;
+  display: flex;
   cursor: pointer;
   text-align: left;
+  flex-direction: column;
+  justify-content: flex-start;
 `
 
 const Header = styled.div`
@@ -40,6 +42,7 @@ const Details = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex-grow: 1;
 `
 
 const Footer = styled.div`
