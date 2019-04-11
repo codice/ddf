@@ -11,18 +11,25 @@
  **/
 import { expect } from 'chai'
 import sinon from 'sinon'
-import $ from 'jquery'
+import {
+  mock as mockJquery,
+  unmock as unmockJquery,
+} from '../test/mock-api/mock-jquery'
+import {
+  mock as mockProperties,
+  unmock as unmockProperties,
+} from '../test/mock-api/mock-properties'
 
 describe('Common', () => {
+  before(() => {
+    mockJquery()
+    mockProperties()
+  })
+  after(() => {
+    unmockJquery()
+    unmockProperties()
+  })
   describe('wrapCoordinatesFromGeometry', () => {
-    $.ajax = props => ({
-      done: f => {
-        f({ projection: 'EPSG:3857' })
-        return $.ajax()
-      },
-      fail: () => $.ajax(),
-      success: () => $.ajax(),
-    })
     const olUtils = require('./OpenLayersGeometryUtils')
     class MockGeometry {
       constructor(props) {
