@@ -49,3 +49,4 @@ const render = (props: Props) => {
 }
 
 export default hot(module)(render)
+export const testComponent = render
