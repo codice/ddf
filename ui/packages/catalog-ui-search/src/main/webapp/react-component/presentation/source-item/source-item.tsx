@@ -92,6 +92,9 @@ type Props = {
   id: string
 } & RootProps
 
+const windowWidth = '520'
+const windowHeight = '570'
+
 export default hot(module)(({ id, sourceActions, available }: Props) => {
   return (
     <Root available={available}>
@@ -120,10 +123,11 @@ export default hot(module)(({ id, sourceActions, available }: Props) => {
                       if (
                         sourceAction.id.startsWith('catalog.data.source.window')
                       ) {
-                        const windowFeatures =
-                          'location=yes,height=570,width=520,scrollbars=yes,status=yes'
+                        const windowFeatures = `location=yes,height=${windowHeight},width=${windowWidth},scrollbars=yes,status=yes`
                         window.open(sourceAction.url, '_blank', windowFeatures)
-                      } else {
+                      } else if (
+                        sourceAction.id.startsWith('catalog.data.source.iframe')
+                      ) {
                         lightboxInstance.model.updateTitle(sourceAction.title)
                         lightboxInstance.model.open()
                         lightboxInstance.showContent(
