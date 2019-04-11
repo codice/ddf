@@ -251,10 +251,10 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
 
   private void addXmlAttributesToContextMap(
       final StartElement startElement, final Map<String, String> contextMap) {
-    for (final Iterator attributeIterator = startElement.getAttributes();
-        attributeIterator.hasNext(); ) {
-      final javax.xml.stream.events.Attribute attribute =
-          (javax.xml.stream.events.Attribute) attributeIterator.next();
+    final Iterator<javax.xml.stream.events.Attribute> attributeIterator =
+        startElement.getAttributes();
+    while (attributeIterator.hasNext()) {
+      final javax.xml.stream.events.Attribute attribute = attributeIterator.next();
       final String attributeKey =
           startElement.getName().getLocalPart() + "@" + attribute.getName().getLocalPart();
       contextMap.put(attributeKey, attribute.getValue());
