@@ -94,7 +94,7 @@
         <module>catalog-core-camelcontext</module>
         <module>catalog-core-directorymonitor</module>
         <module>catalog-core-validator</module>
-        <module>catalog-core-validationparser</module>
+        <module>catalog-core-definitionparser</module>
         <module>catalog-core-attributeregistry</module>
         <module>catalog-core-defaultvalues</module>
         <module>catalog-core-injectattribute</module>

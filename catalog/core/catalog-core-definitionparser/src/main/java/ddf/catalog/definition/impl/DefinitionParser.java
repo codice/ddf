@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.validation.impl;
+package ddf.catalog.definition.impl;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -311,7 +311,7 @@ public class DefinitionParser implements ArtifactInstaller {
               .map(omt -> omt.extendsTypes)
               .orElse(Collections.emptyList())
               .stream()
-              .flatMap(getStringStreamFunction(stagedTypes))
+              .flatMap(getSpecifiedTypes(stagedTypes))
               .collect(Collectors.toSet());
 
       attributeDescriptors.addAll(extendedAttributes);
@@ -319,21 +319,13 @@ public class DefinitionParser implements ArtifactInstaller {
       Optional.ofNullable(metacardType.attributes)
           .orElse(Collections.emptyMap())
           .forEach(
-              (attributeName, attribute) -> {
-                AttributeDescriptor descriptor =
-                    attributeRegistry
-                        .lookup(attributeName)
-                        .orElseThrow(
-                            () ->
-                                new IllegalStateException(
-                                    String.format(
-                                        "Metacard type [%s] includes the attribute [%s], but that attribute is not in the attribute registry.",
-                                        metacardType.type, attributeName)));
-                attributeDescriptors.add(descriptor);
-                if (attribute.required) {
-                  requiredAttributes.add(attributeName);
-                }
-              });
+              (attributeName, attribute) ->
+                  processAttribute(
+                      metacardType,
+                      attributeDescriptors,
+                      requiredAttributes,
+                      attributeName,
+                      attribute));
 
       if (!requiredAttributes.isEmpty()) {
         final MetacardValidator validator =
@@ -362,7 +354,28 @@ public class DefinitionParser implements ArtifactInstaller {
     return staged;
   }
 
-  private Function<String, Stream<? extends AttributeDescriptor>> getStringStreamFunction(
+  private void processAttribute(
+      Outer.MetacardType metacardType,
+      /*Mutable*/ Set<AttributeDescriptor> attributeDescriptors,
+      /*Mutable*/ Set<String> requiredAttributes,
+      String attributeName,
+      ddf.catalog.definition.impl.DefinitionParser.Outer.MetacardAttribute attribute) {
+    AttributeDescriptor descriptor =
+        attributeRegistry
+            .lookup(attributeName)
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        String.format(
+                            "Metacard type [%s] includes the attribute [%s], but that attribute is not in the attribute registry.",
+                            metacardType.type, attributeName)));
+    attributeDescriptors.add(descriptor);
+    if (attribute.required) {
+      requiredAttributes.add(attributeName);
+    }
+  }
+
+  private Function<String, Stream<? extends AttributeDescriptor>> getSpecifiedTypes(
       List<MetacardType> stagedTypes) {
     return type ->
         new ImmutableList.Builder<MetacardType>()
@@ -596,7 +609,6 @@ public class DefinitionParser implements ArtifactInstaller {
 
   /** TODO DDF-3578 once MetacardValidator is eliminated, this pattern can be cleaned up */
   private class ValidatorWrapper {
-
     private List<MetacardValidator> metacardValidators = new ArrayList<>();
     private List<ReportingMetacardValidator> reportingMetacardValidators = new ArrayList<>();
     private List<AttributeValidator> attributeValidators = new ArrayList<>();
@@ -788,7 +800,6 @@ public class DefinitionParser implements ArtifactInstaller {
   }
 
   private static class Outer {
-
     List<Outer.MetacardType> metacardTypes;
 
     Map<String, Outer.AttributeType> attributeTypes;
@@ -803,19 +814,16 @@ public class DefinitionParser implements ArtifactInstaller {
     List<Map<String, List<MetacardValidatorDefinition>>> metacardvalidators;
 
     private static class MetacardType {
-
       String type;
       List<String> extendsTypes;
       Map<String, MetacardAttribute> attributes;
     }
 
     private static class MetacardAttribute {
-
       boolean required;
     }
 
     private static class AttributeType {
-
       String type;
       boolean tokenized;
       boolean stored;
@@ -824,20 +832,17 @@ public class DefinitionParser implements ArtifactInstaller {
     }
 
     private static class Default {
-
       String attribute;
       String value;
       List<String> metacardTypes;
     }
 
     private static class Injection {
-
       String attribute;
       List<String> metacardTypes;
     }
 
     private static class Validator {
-
       @SuppressWarnings("squid:S1700" /* Required to match expected JSON structure */)
       String validator;
 
@@ -854,7 +859,6 @@ public class DefinitionParser implements ArtifactInstaller {
     }
 
     private static class ValidatorCollection extends Validator {
-
       List<Outer.Validator> validators;
 
       ValidatorCollection(String validatorName, List<Validator> validators) {
@@ -865,13 +869,11 @@ public class DefinitionParser implements ArtifactInstaller {
   }
 
   private static class MetacardValidatorDefinition {
-
     String validator;
     List<String> requiredattributes;
   }
 
   private class Changeset {
-
     private final List<ServiceRegistration<MetacardType>> metacardTypeServices = new ArrayList<>();
 
     private final List<ServiceRegistration<MetacardValidator>> metacardValidatorServices =
@@ -891,7 +893,6 @@ public class DefinitionParser implements ArtifactInstaller {
   }
 
   private static class ValidatorHierarchyAdapter implements JsonDeserializer<Outer.Validator> {
-
     @Override
     public Outer.Validator deserialize(
         JsonElement jsonElement, Type type, JsonDeserializationContext context) {
