@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.catalog.plugin.metacard.backup.common;
 
-import ddf.camel.component.catalog.ingest.PostIngestConsumer;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
@@ -187,16 +186,12 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
 
   protected Predicate getCheckDeletePredicate() {
     return exchange -> {
-      boolean shouldContinueRoute = true;
-      String action = exchange.getIn().getHeader(PostIngestConsumer.ACTION, String.class);
-      if (action.equals(PostIngestConsumer.DELETE)) {
-        Boolean keepDeleted =
-            exchange.getIn().getHeader(METACARD_BACKUP_KEEP_DELETED_RTE_PROP, Boolean.class);
-        if (BooleanUtils.isTrue(keepDeleted)) {
-          shouldContinueRoute = false;
-        }
+      Boolean keepDeleted =
+          exchange.getIn().getHeader(METACARD_BACKUP_KEEP_DELETED_RTE_PROP, Boolean.class);
+      if (BooleanUtils.isTrue(keepDeleted)) {
+        return false;
       }
-      return shouldContinueRoute;
+      return true;
     };
   }
 

@@ -188,7 +188,7 @@ public class MetacardStorageRouteTest {
             MetacardStorageRoute.METACARD_BACKUP_KEEP_DELETED_RTE_PROP, Boolean.class))
         .thenReturn(true);
     Predicate predicate = storageRoute.getCheckDeletePredicate();
-    assertThat(predicate.matches(mockExchange), is(true));
+    assertThat(predicate.matches(mockExchange), is(false));
   }
 
   @Test
