@@ -359,7 +359,7 @@ public class DefinitionParser implements ArtifactInstaller {
       /*Mutable*/ Set<AttributeDescriptor> attributeDescriptors,
       /*Mutable*/ Set<String> requiredAttributes,
       String attributeName,
-      ddf.catalog.definition.impl.DefinitionParser.Outer.MetacardAttribute attribute) {
+      Outer.MetacardAttribute attribute) {
     AttributeDescriptor descriptor =
         attributeRegistry
             .lookup(attributeName)
@@ -367,7 +367,7 @@ public class DefinitionParser implements ArtifactInstaller {
                 () ->
                     new IllegalStateException(
                         String.format(
-                            "Metacard type [%s] includes the attribute [%s], but that attribute is not in the attribute registry.",
+                            "Metacard type '%s' includes the attribute '%s', but that attribute is not in the attribute registry.",
                             metacardType.type, attributeName)));
     attributeDescriptors.add(descriptor);
     if (attribute.required) {
@@ -674,7 +674,7 @@ public class DefinitionParser implements ArtifactInstaller {
                           () ->
                               new IllegalStateException(
                                   String.format(
-                                      "The default value for the attribute [%s] cannot be parsed because that attribute has not been registered in the attribute registry",
+                                      "The default value for the attribute '%s' cannot be parsed because that attribute has not been registered in the attribute registry",
                                       attribute)));
               Serializable defaultValue = parseDefaultValue(descriptor, defaultObj.value);
               List<String> metacardTypes = defaultObj.metacardTypes;
