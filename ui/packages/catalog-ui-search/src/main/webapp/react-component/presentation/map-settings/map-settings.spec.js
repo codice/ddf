@@ -23,18 +23,11 @@ import {
 let MapSettings
 
 const checkDropdown = wrapper => {
-  expect(
-      wrapper.childAt(0).props().children[0].props.options[0].value
-  ).to.be.equals('degrees')
-  expect(
-      wrapper.childAt(0).props().children[0].props.options[1].value
-  ).to.be.equals('decimal')
-  expect(
-      wrapper.childAt(0).props().children[0].props.options[2].value
-  ).to.be.equals('mgrs')
-  expect(
-      wrapper.childAt(0).props().children[0].props.options[3].value
-  ).to.be.equals('utm')
+  const options = wrapper.childAt(0).props().children[0].props.options
+  expect(options[0].value).to.be.equals('degrees')
+  expect(options[1].value).to.be.equals('decimal')
+  expect(options[2].value).to.be.equals('mgrs')
+  expect(options[3].value).to.be.equals('utm')
 }
 
 describe('Test <MapSettings> container component', () => {
@@ -50,15 +43,15 @@ describe('Test <MapSettings> container component', () => {
 
   it('Test <MapSettings> no choice is selected', () => {
     const wrapper = mount(<MapSettings />)
-    expect(wrapper.childAt(0).props().children[0].props.value).to.be.undefined
+    const selectedValue = wrapper.childAt(0).props().children[0].props.value
+    expect(selectedValue).to.be.undefined
     checkDropdown(wrapper)
     wrapper.unmount()
   })
   it('Test <MapSettings> MGRS is selected', () => {
     const wrapper = mount(<MapSettings selected="mgrs" />)
-    expect(wrapper.childAt(0).props().children[0].props.value).to.be.equal(
-      'mgrs'
-    )
+    const selectedValue = wrapper.childAt(0).props().children[0].props.value
+    expect(selectedValue).to.be.equal('mgrs')
     checkDropdown(wrapper)
     wrapper.unmount()
   })
