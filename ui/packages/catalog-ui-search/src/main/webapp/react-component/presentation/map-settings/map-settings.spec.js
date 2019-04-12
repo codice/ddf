@@ -22,6 +22,21 @@ import {
 } from '../../../test/mock-api/mock-properties'
 let MapSettings
 
+const checkDropdown = wrapper => {
+  expect(
+      wrapper.childAt(0).props().children[0].props.options[0].value
+  ).to.be.equals('degrees')
+  expect(
+      wrapper.childAt(0).props().children[0].props.options[1].value
+  ).to.be.equals('decimal')
+  expect(
+      wrapper.childAt(0).props().children[0].props.options[2].value
+  ).to.be.equals('mgrs')
+  expect(
+      wrapper.childAt(0).props().children[0].props.options[3].value
+  ).to.be.equals('utm')
+}
+
 describe('Test <MapSettings> container component', () => {
   before(() => {
     mockJquery()
@@ -32,21 +47,11 @@ describe('Test <MapSettings> container component', () => {
     unmockJquery()
     unmockProperties()
   })
+
   it('Test <MapSettings> no choice is selected', () => {
     const wrapper = mount(<MapSettings />)
     expect(wrapper.childAt(0).props().children[0].props.value).to.be.undefined
-    expect(
-      wrapper.childAt(0).props().children[0].props.options[0].value
-    ).to.be.equals('degrees')
-    expect(
-      wrapper.childAt(0).props().children[0].props.options[1].value
-    ).to.be.equals('decimal')
-    expect(
-      wrapper.childAt(0).props().children[0].props.options[2].value
-    ).to.be.equals('mgrs')
-    expect(
-      wrapper.childAt(0).props().children[0].props.options[3].value
-    ).to.be.equals('utm')
+    checkDropdown(wrapper)
     wrapper.unmount()
   })
   it('Test <MapSettings> MGRS is selected', () => {
@@ -54,6 +59,7 @@ describe('Test <MapSettings> container component', () => {
     expect(wrapper.childAt(0).props().children[0].props.value).to.be.equal(
       'mgrs'
     )
+    checkDropdown(wrapper)
     wrapper.unmount()
   })
 })
