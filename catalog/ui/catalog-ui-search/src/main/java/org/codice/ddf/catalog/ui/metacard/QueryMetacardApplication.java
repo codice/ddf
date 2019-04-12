@@ -64,6 +64,12 @@ public class QueryMetacardApplication implements SparkApplication {
 
   private static final String COUNT = "count";
 
+  private static final String SORT_BY = "sort_by";
+
+  private static final String ATTR = "attr";
+
+  private static final String ASCENDING = "asc";
+
   private final CatalogFramework catalogFramework;
 
   private final EndpointUtil endpointUtil;
@@ -98,6 +104,14 @@ public class QueryMetacardApplication implements SparkApplication {
           int start = getOrDefaultParam(req, START, MIN_START);
           int count = getOrDefaultParam(req, COUNT, MAX_PAGE_SIZE);
 
+          String attr = req.queryParams(ATTR);
+
+          if (attr == null) {
+            attr = Core.MODIFIED;
+          }
+
+          SortOrder sort = getSortOrder(req);
+
           Filter filter = filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(QUERY_TAG);
 
           QueryRequest queryRequest =
@@ -106,7 +120,7 @@ public class QueryMetacardApplication implements SparkApplication {
                       filter,
                       start,
                       count,
-                      new SortByImpl(Core.MODIFIED, SortOrder.DESCENDING),
+                      new SortByImpl(attr, sort),
                       false,
                       TimeUnit.SECONDS.toMillis(10)),
                   false);
@@ -183,7 +197,7 @@ public class QueryMetacardApplication implements SparkApplication {
     return subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
   }
 
-  private int getOrDefaultParam(Request request, String key, int defaultValue) {
+  private static int getOrDefaultParam(Request request, String key, int defaultValue) {
     String value = request.queryParams(key);
 
     if (value != null) {
@@ -191,5 +205,15 @@ public class QueryMetacardApplication implements SparkApplication {
     }
 
     return defaultValue;
+  }
+
+  private SortOrder getSortOrder(Request request) {
+    String value = request.queryParams(SORT_BY);
+
+    if (ASCENDING.equals(value)) {
+      return SortOrder.ASCENDING;
+    } else {
+      return SortOrder.DESCENDING;
+    }
   }
 }
