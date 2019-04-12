@@ -19,6 +19,7 @@ import static spark.Spark.get;
 import static spark.Spark.post;
 import static spark.Spark.put;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ddf.catalog.CatalogFramework;
@@ -38,9 +39,11 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.util.impl.ResultIterable;
+import ddf.security.SubjectIdentity;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.catalog.ui.metacard.query.data.model.QueryBasic;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.opengis.filter.Filter;
@@ -67,11 +70,17 @@ public class QueryMetacardApplication implements SparkApplication {
 
   private final FilterBuilder filterBuilder;
 
+  private final SubjectIdentity subjectIdentity;
+
   public QueryMetacardApplication(
-      CatalogFramework catalogFramework, EndpointUtil endpointUtil, FilterBuilder filterBuilder) {
+      CatalogFramework catalogFramework,
+      EndpointUtil endpointUtil,
+      FilterBuilder filterBuilder,
+      SubjectIdentity subjectIdentity) {
     this.catalogFramework = catalogFramework;
     this.endpointUtil = endpointUtil;
     this.filterBuilder = filterBuilder;
+    this.subjectIdentity = subjectIdentity;
   }
 
   @Override
@@ -128,6 +137,7 @@ public class QueryMetacardApplication implements SparkApplication {
         (req, res) -> {
           String body = endpointUtil.safeGetBody(req);
           QueryBasic query = GSON.fromJson(body, QueryBasic.class);
+          query.setOwner(getSubjectIdentifier());
 
           CreateRequest createRequest = new CreateRequestImpl(query.getMetacard());
           CreateResponse createResponse = catalogFramework.create(createRequest);
@@ -166,6 +176,11 @@ public class QueryMetacardApplication implements SparkApplication {
           return null;
         },
         GSON::toJson);
+  }
+
+  @VisibleForTesting
+  String getSubjectIdentifier() {
+    return subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
   }
 
   private int getOrDefaultParam(Request request, String key, int defaultValue) {

@@ -42,6 +42,7 @@ import ddf.catalog.operation.impl.CreateResponseImpl;
 import ddf.catalog.operation.impl.UpdateImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.operation.impl.UpdateResponseImpl;
+import ddf.security.SubjectIdentity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
@@ -70,8 +71,11 @@ public class QueryMetacardApplicationTest {
 
   private static final FilterBuilder FILTER_BUILDER = mock(FilterBuilder.class);
 
+  private static final SubjectIdentity SUBJECT_IDENTITY = mock(SubjectIdentity.class);
+
   private static final QueryMetacardApplication APPLICATION =
-      new QueryMetacardApplication(CATALOG_FRAMEWORK, ENDPOINT_UTIL, FILTER_BUILDER);
+      new QueryMetacardApplicationUnderTest(
+          CATALOG_FRAMEWORK, ENDPOINT_UTIL, FILTER_BUILDER, SUBJECT_IDENTITY);
 
   private static String localhostUrl;
 
@@ -202,6 +206,22 @@ public class QueryMetacardApplicationTest {
     } catch (IOException e) {
       throw new AssertionError(
           "Problem while enumerating ports (specifically, port " + socket.getLocalPort() + ")", e);
+    }
+  }
+
+  private static class QueryMetacardApplicationUnderTest extends QueryMetacardApplication {
+
+    private QueryMetacardApplicationUnderTest(
+        CatalogFramework catalogFramework,
+        EndpointUtil endpointUtil,
+        FilterBuilder filterBuilder,
+        SubjectIdentity subjectIdentity) {
+      super(catalogFramework, endpointUtil, filterBuilder, subjectIdentity);
+    }
+
+    @Override
+    String getSubjectIdentifier() {
+      return "example@domain.com";
     }
   }
 }
