@@ -182,7 +182,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
           .filter(attr -> attr.contains(String.valueOf(FIRST_CHAR_OF_SUFFIX)))
           .forEach(query::addFacetField);
 
-      query.setFacetSort(textFacetProp.getSortKey().name());
+      query.setFacetSort(textFacetProp.getSortKey().name().toLowerCase());
       query.setFacetLimit(textFacetProp.getFacetLimit());
       query.setFacetMinCount(textFacetProp.getMinFacetCount());
     }
