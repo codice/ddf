@@ -15,6 +15,7 @@ package ddf.catalog.source.solr;
 
 import ddf.catalog.data.AttributeType.AttributeFormat;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,7 +83,7 @@ public class SchemaFields {
     suffixToFormatMap.put(OBJECT_SUFFIX, AttributeFormat.OBJECT);
     SUFFIX_TO_FORMAT_MAP = Collections.unmodifiableMap(suffixToFormatMap);
 
-    HashMap<AttributeFormat, String> formatToSuffixMap = new HashMap<>();
+    Map<AttributeFormat, String> formatToSuffixMap = new EnumMap<>(AttributeFormat.class);
     formatToSuffixMap.put(AttributeFormat.GEOMETRY, GEO_SUFFIX);
     formatToSuffixMap.put(AttributeFormat.DATE, DATE_SUFFIX);
     formatToSuffixMap.put(AttributeFormat.BINARY, BINARY_SUFFIX);

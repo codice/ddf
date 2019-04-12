@@ -178,7 +178,7 @@ public class FeatureCollectionMessageBodyReaderWfs20
         throw e;
       } catch (JAXBException | XMLStreamException e1) {
         LOGGER.debug("Error in retrieving feature collection.", e1);
-      } catch (RuntimeException | Error e) {
+      } catch (RuntimeException e) {
         LOGGER.debug("Error processing collection", e);
         throw e;
       }

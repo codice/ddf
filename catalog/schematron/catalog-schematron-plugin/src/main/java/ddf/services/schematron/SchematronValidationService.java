@@ -325,7 +325,11 @@ public class SchematronValidationService
                               sanitize(warningMsg),
                               ValidationViolation.Severity.WARNING)));
         }
-      } catch (TimeoutException | ExecutionException | InterruptedException e) {
+      } catch (TimeoutException | ExecutionException e) {
+        throw new ValidationExceptionImpl(e);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+
         throw new ValidationExceptionImpl(e);
       }
     }

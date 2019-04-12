@@ -974,7 +974,7 @@ public class CatalogServiceImpl implements CatalogService {
       InputStream inputStream,
       AttributeType.AttributeFormat attributeFormat) {
     try (InputStream is = inputStream;
-        InputStream boundedStream = new BoundedInputStream(is, MAX_INPUT_SIZE + 1)) {
+        InputStream boundedStream = new BoundedInputStream(is, MAX_INPUT_SIZE + 1L)) {
       if (attributeFormat == OBJECT) {
         LOGGER.debug("Object type not supported for override");
         return;

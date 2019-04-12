@@ -782,9 +782,9 @@ public class WfsSource extends AbstractWfsSource {
       // Fetch total results available
       long totalResults = 0;
       if (featureCollection.getNumberMatched() == null) {
-        totalResults = Long.valueOf(numResults);
+        totalResults = numResults;
       } else if (featureCollection.getNumberMatched().equals(UNKNOWN)) {
-        totalResults = Long.valueOf(numResults);
+        totalResults = numResults;
       } else if (StringUtils.isNumeric(featureCollection.getNumberMatched())) {
         totalResults = Long.parseLong(featureCollection.getNumberMatched());
       }

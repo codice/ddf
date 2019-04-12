@@ -239,8 +239,12 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
       } finally {
         limitFFmpegProcessesSemaphore.release();
       }
-    } catch (IOException | InterruptedException e) {
+    } catch (IOException e) {
       LOGGER.warn("Error creating thumbnail for ContentItem (id={}).", contentItem.getId(), e);
+    } catch (InterruptedException e) {
+      LOGGER.warn("Error creating thumbnail for ContentItem (id={}).", contentItem.getId(), e);
+
+      Thread.currentThread().interrupt();
     } finally {
       deleteImageFiles();
     }
@@ -354,7 +358,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
   private DefaultExecuteResultHandler executeFFmpeg(
       final CommandLine command, final int timeoutSeconds, final PumpStreamHandler streamHandler)
       throws IOException {
-    final ExecuteWatchdog watchdog = new ExecuteWatchdog(timeoutSeconds * 1000);
+    final ExecuteWatchdog watchdog = new ExecuteWatchdog(timeoutSeconds * 1000L);
     final Executor executor = new DefaultExecutor();
     executor.setWatchdog(watchdog);
 

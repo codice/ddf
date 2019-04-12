@@ -1216,12 +1216,12 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private String convertDateToIso8601Format(DateTime inputDate) {
     DateTimeFormatter dtf = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC);
-    return dtf.print(inputDate).toString();
+    return dtf.print(inputDate);
   }
 
   private String convertDateToIso8601Format(Date inputDate) {
     DateTimeFormatter dtf = ISODateTimeFormat.dateTimeNoMillis().withZone(DateTimeZone.UTC);
-    return dtf.print(new DateTime(inputDate)).toString();
+    return dtf.print(new DateTime(inputDate));
   }
 
   // spatial operators

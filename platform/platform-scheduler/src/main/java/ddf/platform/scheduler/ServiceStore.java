@@ -60,8 +60,4 @@ public class ServiceStore {
   public Object getObject(String key) {
     return map.get(key);
   }
-
-  public Object clone() throws CloneNotSupportedException {
-    throw new CloneNotSupportedException();
-  }
 }

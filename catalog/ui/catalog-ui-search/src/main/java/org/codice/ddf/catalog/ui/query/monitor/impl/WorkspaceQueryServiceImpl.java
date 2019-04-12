@@ -269,6 +269,8 @@ public class WorkspaceQueryServiceImpl implements WorkspaceQueryService {
       LOGGER.warn("Timeout", e);
     } catch (ExecutionException | InterruptedException e) {
       LOGGER.warn("ForkJoinPool error", e);
+
+      Thread.currentThread().interrupt();
     }
     return null;
   }

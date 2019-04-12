@@ -1832,8 +1832,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     initSubscribeClientFactory();
     CswSubscribe cswSubscribe = subscribeClientFactory.getClientForSubject(getSystemSubject());
     GetRecordsType request = createSubscriptionGetRecordsRequest();
-    try {
-      Response response = cswSubscribe.createRecordsSubscription(request);
+    try (Response response = cswSubscribe.createRecordsSubscription(request)) {
       if (Response.Status.OK.getStatusCode() == response.getStatus()) {
         AcknowledgementType acknowledgementType = response.readEntity(AcknowledgementType.class);
         filterlessSubscriptionId = acknowledgementType.getRequestId();

@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import org.apache.commons.math3.util.Precision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,9 +132,11 @@ public class KmlStyleMapEntryImpl implements KmlStyleMapEntry {
       case LONG:
         return Long.valueOf(attributeValue).equals(attribute.getValue());
       case FLOAT:
-        return Float.valueOf(attributeValue).equals(attribute.getValue());
+        return Precision.equals(
+            Float.valueOf(attributeValue), (Float) attribute.getValue(), .0000001);
       case DOUBLE:
-        return Double.valueOf(attributeValue).equals(attribute.getValue());
+        return Precision.equals(
+            Double.valueOf(attributeValue), (Double) attribute.getValue(), .0000000001);
       case BINARY:
       case OBJECT:
       default:

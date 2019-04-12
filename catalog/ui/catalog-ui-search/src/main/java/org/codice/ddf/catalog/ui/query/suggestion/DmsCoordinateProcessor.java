@@ -200,7 +200,10 @@ public class DmsCoordinateProcessor {
 
     private static String normalizedDmsString(final String dmsString) {
       final DMSCoordinates dmsCoordinates = parseDms(dmsString);
-      final List<DMSComponent> dmsParts = Arrays.asList(dmsCoordinates.lat, dmsCoordinates.lon);
+      final List<DMSComponent> dmsParts =
+          dmsCoordinates == null
+              ? new ArrayList<>()
+              : Arrays.asList(dmsCoordinates.lat, dmsCoordinates.lon);
       final NumberFormat minutesSecondsFormat = new DecimalFormat("00.###");
 
       final StringBuilder dmsBuilder = new StringBuilder();
