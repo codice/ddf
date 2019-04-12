@@ -61,7 +61,6 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
 
   private String idClaimType;
 
- 
   @Override
   public List<URI> getSupportedClaimTypes() {
     List<URI> uriList = new ArrayList<>();
