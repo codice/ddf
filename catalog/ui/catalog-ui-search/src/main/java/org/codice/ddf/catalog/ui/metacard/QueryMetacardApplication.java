@@ -43,7 +43,9 @@ import ddf.security.SubjectIdentity;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardTypeImpl;
 import org.codice.ddf.catalog.ui.metacard.query.data.model.QueryBasic;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.opengis.filter.Filter;
@@ -106,7 +108,7 @@ public class QueryMetacardApplication implements SparkApplication {
 
           String attr = req.queryParams(ATTR);
 
-          if (attr == null) {
+          if (StringUtils.isBlank(attr) || !isValidAttribute(attr.toLowerCase())) {
             attr = Core.MODIFIED;
           }
 
@@ -197,6 +199,10 @@ public class QueryMetacardApplication implements SparkApplication {
     return subjectIdentity.getUniqueIdentifier(SecurityUtils.getSubject());
   }
 
+  private static boolean isValidAttribute(String name) {
+    return QueryMetacardTypeImpl.getQueryAttributeNames().contains(name);
+  }
+
   private static int getOrDefaultParam(Request request, String key, int defaultValue) {
     String value = request.queryParams(key);
 
@@ -207,7 +213,7 @@ public class QueryMetacardApplication implements SparkApplication {
     return defaultValue;
   }
 
-  private SortOrder getSortOrder(Request request) {
+  private static SortOrder getSortOrder(Request request) {
     String value = request.queryParams(SORT_BY);
 
     if (ASCENDING.equals(value)) {
