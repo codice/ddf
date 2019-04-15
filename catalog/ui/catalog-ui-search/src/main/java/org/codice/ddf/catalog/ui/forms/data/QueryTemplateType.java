@@ -38,6 +38,7 @@ import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardTypeI
  * @see TransformVisitor
  */
 public class QueryTemplateType extends MetacardTypeImpl {
+  // If the tag changes, update the 'access-controlled-tag' service property as well
   public static final String QUERY_TEMPLATE_TAG = "query-template";
 
   public static final String QUERY_TEMPLATE_FILTER = "ui.template-filter";

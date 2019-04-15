@@ -77,6 +77,8 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
     <service ref="workspaceMetacardType" interface="ddf.catalog.data.MetacardType">
         <service-properties>
             <entry key="name" value="workspace"/>
+            <!-- If the following entry changes, also change the metacard tag in WorkspaceMetacardType -->
+            <entry key="access-controlled-tag" value="workspace"/>
         </service-properties>
     </service>
 
@@ -168,12 +170,16 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
     <service ref="queryTemplateMetacardType" interface="ddf.catalog.data.MetacardType">
         <service-properties>
             <entry key="name" value="query-template"/>
+            <!-- If the following entry changes, also change the metacard tag in QueryTemplateType -->
+            <entry key="access-controlled-tag" value="query-template"/>
         </service-properties>
     </service>
 
     <service ref="attributeGroupMetacardType" interface="ddf.catalog.data.MetacardType">
         <service-properties>
             <entry key="name" value="attribute-group"/>
+            <!-- If the following entry changes, also change the metacard tag in AttributeGroupType -->
+            <entry key="access-controlled-tag" value="attribute-group"/>
         </service-properties>
     </service>
 
@@ -213,6 +219,15 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
     SHARING POLICY
     =============================================================
     -->
+
+    <service interface="ddf.catalog.plugin.PreQueryPlugin">
+        <bean class="org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlPreQueryPlugin">
+            <argument ref="filterBuilder"/>
+            <argument ref="subjectIdentity"/>
+            <argument ref="accessControlTags"/>
+            <argument ref="accessControlSecurityConfiguration"/>
+        </bean>
+    </service>
 
     <service interface="ddf.catalog.plugin.AccessPlugin">
         <bean class="org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlAccessPlugin">
