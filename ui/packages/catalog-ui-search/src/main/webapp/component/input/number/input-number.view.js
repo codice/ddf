@@ -28,9 +28,6 @@ module.exports = InputView.extend({
             }
         },
         isValid: function(){
-            if (!this.model.showValidationIssues()){
-                return true;
-            }
             return this.getCurrentValue() !== '';
         }
 });

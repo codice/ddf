@@ -108,6 +108,10 @@ define([
             }.bind(this));
 
         },
+        isValid: function(){
+            var currentValue = this.$el.find('input').val();
+            return currentValue != null && currentValue !== '';
+        },
         onDestroy: function(){
             var datetimepicker = this.$el.find('.input-group.date').data('DateTimePicker');
             if (datetimepicker) {
