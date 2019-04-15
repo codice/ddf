@@ -3,7 +3,7 @@
 :status: published
 :summary: Remove users.properties file second half.
 :parent: Configuring User Access
-:order: 08
+:order: 07
 
 [WARNING]
 ====

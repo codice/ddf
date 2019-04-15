@@ -174,36 +174,6 @@
         <bundle>mvn:ddf.security.expansion/security-expansion-commands/${project.version}</bundle>
     </feature>
 
-    <feature name="security-cas-client" version="${project.version}"
-             description="Security CAS Client.">
-        <feature>security-sts-realm</feature>
-        <feature>security-core-api</feature>
-        <feature>action-core-impl</feature>
-
-        <bundle>wrap:mvn:org.jasig.cas.client/cas-client-core/${cas.client.version}</bundle>
-        <bundle>mvn:ddf.security.cas/security-cas-impl/${project.version}</bundle>
-        <bundle>mvn:ddf.security.cas/security-cas-client/${project.version}</bundle>
-    </feature>
-
-    <feature name="security-cas-tokenvalidator" version="${project.version}"
-             description="Security CAS Validator for the STS.">
-        <feature>security-sts-server</feature>
-        <bundle>mvn:ddf.security.cas/security-cas-tokenvalidator/${project.version}</bundle>
-    </feature>
-
-    <feature name="security-sts-casclaimshandler" version="${project.version}"
-             description="Retrieves a user's claims from a CAS server.">
-        <feature>security-sts-server</feature>
-        <bundle>mvn:ddf.security.sts/security-sts-casclaimshandler/${project.version}</bundle>
-    </feature>
-
-    <feature name="security-cas" version="${project.version}"
-             description="CAS client, token validator, and claims handler">
-        <feature>security-cas-client</feature>
-        <feature>security-cas-tokenvalidator</feature>
-        <feature>security-sts-casclaimshandler</feature>
-    </feature>
-
     <feature name="security-pdp-authz" version="${project.version}"
              description="Security PDP.">
         <configfile finalname="${ddf.etc}/ddf.security.pdp.realm.AuthzRealm.config">

@@ -127,21 +127,6 @@
             <version>${cas.client.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.cas</groupId>
-            <artifactId>security-cas-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.cas</groupId>
-            <artifactId>security-cas-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.cas</groupId>
-            <artifactId>security-cas-tokenvalidator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.pdp</groupId>
             <artifactId>security-pdp-authzrealm</artifactId>
             <version>${project.version}</version>
