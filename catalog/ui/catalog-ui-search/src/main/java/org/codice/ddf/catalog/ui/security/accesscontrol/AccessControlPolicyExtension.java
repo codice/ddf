@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.security;
+package org.codice.ddf.catalog.ui.security.accesscontrol;
 
 import static ddf.security.permission.CollectionPermission.READ_ACTION;
 
@@ -36,6 +36,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.shiro.authz.Permission;
+import org.codice.ddf.catalog.ui.security.Constants;
 
 public class AccessControlPolicyExtension implements PolicyExtension {
 

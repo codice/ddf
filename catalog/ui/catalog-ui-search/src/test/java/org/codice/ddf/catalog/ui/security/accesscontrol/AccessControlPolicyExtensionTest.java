@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.security;
+package org.codice.ddf.catalog.ui.security.accesscontrol;
 
 import static ddf.security.permission.CollectionPermission.READ_ACTION;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.apache.shiro.authz.Permission;
+import org.codice.ddf.catalog.ui.security.Constants;
 import org.junit.Before;
 import org.junit.Test;
 

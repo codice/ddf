@@ -11,7 +11,9 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.security;
+package org.codice.ddf.catalog.ui.security.accesscontrol;
+
+import org.codice.ddf.catalog.ui.security.Constants;
 
 public class AccessControlSecurityConfiguration {
 

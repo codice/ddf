@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.codice.ddf.catalog.ui.security.AccessControlUtil;
+import org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil;
 
 public class WorkspaceMetacardImpl extends MetacardImpl {
 

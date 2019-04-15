@@ -27,7 +27,7 @@ import ddf.catalog.data.types.Core;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
-import org.codice.ddf.catalog.ui.security.AccessControlUtil;
+import org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil;
 import org.junit.Before;
 import org.junit.Test;
 
