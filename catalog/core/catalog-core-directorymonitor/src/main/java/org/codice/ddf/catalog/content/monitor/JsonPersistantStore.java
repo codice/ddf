@@ -14,8 +14,10 @@
 package org.codice.ddf.catalog.content.monitor;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,7 +39,10 @@ public class JsonPersistantStore implements ObjectPersistentStore {
 
   private static final String PERSISTED_FILE_SUFFIX = ".json";
 
-  private Gson gson = new Gson();
+  private Gson gson =
+      new GsonBuilder()
+          .registerTypeAdapter(new TypeToken<File>() {}.getType(), new FileTypeAdapter())
+          .create();
 
   private final String mapName;
 
