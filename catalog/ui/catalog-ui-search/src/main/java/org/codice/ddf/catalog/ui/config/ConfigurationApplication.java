@@ -47,7 +47,7 @@ import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.branding.BrandingPlugin;
-import org.codice.ddf.catalog.ui.security.FacetWhitelistConfiguration;
+import org.codice.ddf.catalog.ui.security.faceting.FacetWhitelistConfiguration;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.codice.proxy.http.HttpProxyService;

@@ -203,7 +203,7 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
     -->
 
     <service interface="ddf.catalog.plugin.AccessPlugin">
-        <bean class="org.codice.ddf.catalog.ui.security.FacetAttributeAccessPlugin">
+        <bean class="org.codice.ddf.catalog.ui.security.faceting.FacetAttributeAccessPlugin">
             <argument ref="facetWhitelistConfiguration"/>
         </bean>
     </service>
@@ -215,24 +215,24 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
     -->
 
     <service interface="ddf.catalog.plugin.AccessPlugin">
-        <bean class="org.codice.ddf.catalog.ui.security.AccessControlAccessPlugin">
+        <bean class="org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlAccessPlugin">
             <argument ref="subjectIdentity"/>
         </bean>
     </service>
 
     <service interface="ddf.security.policy.extension.PolicyExtension">
-        <bean class="org.codice.ddf.catalog.ui.security.AccessControlPolicyExtension">
+        <bean class="org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlPolicyExtension">
             <argument ref="accessControlSecurityConfiguration"/>
             <argument ref="subjectIdentity"/>
         </bean>
     </service>
 
     <service interface="ddf.catalog.plugin.PolicyPlugin">
-        <bean class="org.codice.ddf.catalog.ui.security.AccessControlPolicyPlugin"/>
+        <bean class="org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlPolicyPlugin"/>
     </service>
 
     <service interface="ddf.catalog.plugin.PreIngestPlugin">
-        <bean class="org.codice.ddf.catalog.ui.security.AccessControlPreIngestPlugin">
+        <bean class="org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlPreIngestPlugin">
             <argument ref="subjectIdentity"/>
         </bean>
     </service>

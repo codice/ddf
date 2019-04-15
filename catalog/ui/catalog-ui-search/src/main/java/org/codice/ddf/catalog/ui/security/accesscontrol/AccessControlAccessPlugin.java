@@ -11,19 +11,19 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.security;
+package org.codice.ddf.catalog.ui.security.accesscontrol;
 
 import static org.codice.ddf.catalog.ui.forms.data.AttributeGroupType.ATTRIBUTE_GROUP_TAG;
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
 import static org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants.WORKSPACE_TAG;
-import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ACCESS_ADMIN_HAS_CHANGED;
-import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ACCESS_GROUPS_HAS_CHANGED;
-import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ACCESS_GROUPS_READ_HAS_CHANGED;
-import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ACCESS_INDIVIDUALS_HAS_CHANGED;
-import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ACCESS_INDIVIDUALS_READ_HAS_CHANGED;
-import static org.codice.ddf.catalog.ui.security.AccessControlUtil.ATTRIBUTE_TO_SET;
-import static org.codice.ddf.catalog.ui.security.AccessControlUtil.OWNER_HAS_CHANGED;
-import static org.codice.ddf.catalog.ui.security.AccessControlUtil.isAnyObjectNull;
+import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.ACCESS_ADMIN_HAS_CHANGED;
+import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.ACCESS_GROUPS_HAS_CHANGED;
+import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.ACCESS_GROUPS_READ_HAS_CHANGED;
+import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.ACCESS_INDIVIDUALS_HAS_CHANGED;
+import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.ACCESS_INDIVIDUALS_READ_HAS_CHANGED;
+import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.ATTRIBUTE_TO_SET;
+import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.OWNER_HAS_CHANGED;
+import static org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlUtil.isAnyObjectNull;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
