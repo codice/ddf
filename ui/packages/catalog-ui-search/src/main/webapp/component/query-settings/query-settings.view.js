@@ -163,21 +163,29 @@ module.exports = plugin(
       this.settingsSrc.currentView.turnOffEditing()
     },
     setupSpellcheck: function() {
-      if(!properties.isSpellcheckEnabled()){
+      if (!properties.isSpellcheckEnabled) {
         return
       }
       const spellcheckView = Marionette.ItemView.extend({
-        template: () => <RadioComponent value={this.model.get('spellcheck')} label="Spellcheck" options={[{
-          label: 'Yes',
-          value: true
-        }, {
-          label: 'No',
-          value: false
-        }]}
-          onChange={(value) => {
-            this.model.set('spellcheck', value)
-          }}
-        />,
+        template: () => (
+          <RadioComponent
+            value={this.model.get('spellcheck')}
+            label="Spellcheck"
+            options={[
+              {
+                label: 'On',
+                value: true,
+              },
+              {
+                label: 'Off',
+                value: false,
+              },
+            ]}
+            onChange={value => {
+              this.model.set('spellcheck', value)
+            }}
+          />
+        ),
       })
       this.spellcheckForm.show(new spellcheckView())
     },
@@ -205,6 +213,7 @@ module.exports = plugin(
     },
     toJSON: function() {
       var federation = this._srcDropdownModel.get('federation')
+      var spellcheck = this.model.get('spellcheck')
       var src
       if (federation === 'selected') {
         src = this._srcDropdownModel.get('value')
@@ -224,6 +233,7 @@ module.exports = plugin(
         federation: federation,
         sorts: sorts,
         'detail-level': detailLevel,
+        spellcheck: spellcheck,
       }
     },
     saveToModel: function() {

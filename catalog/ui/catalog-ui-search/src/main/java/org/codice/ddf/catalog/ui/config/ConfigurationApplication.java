@@ -1118,7 +1118,7 @@ public class ConfigurationApplication implements SparkApplication {
     return spellcheckEnabled;
   }
 
-   public void setSpellcheckEnabled(Boolean spellcheckEnabled) {
+  public void setSpellcheckEnabled(Boolean spellcheckEnabled) {
     this.spellcheckEnabled = spellcheckEnabled;
   }
 

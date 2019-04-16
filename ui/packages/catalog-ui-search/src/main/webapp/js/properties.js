@@ -167,7 +167,7 @@ var properties = {
     return process.env.NODE_ENV !== 'production'
   },
   isSpellcheckEnabled: function() {
-    return this.spellcheck
+    return this.isSpellcheckEnabled
   },
   isMetacardPreviewEnabled: function() {
     return !this.isMetacardPreviewDisabled

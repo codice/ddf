@@ -29,7 +29,6 @@ jmeter.log
 *.jmx.log
 *.jtl
 
-
 # Maven Ignores (https://raw.githubusercontent.com/github/gitignore/master/Maven.gitignore)
 target/
 pom.xml.tag

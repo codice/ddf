@@ -23,8 +23,10 @@ var InputView = require('../input.view')
 module.exports = InputView.extend({
   template(props) {
     const { placeholder, id } = props.property
-    const {value, cid} = props
-    return <InputBoolean placeholder={placeholder} id={id} cid={cid} value={value} />
+    const { value, cid } = props
+    return (
+      <InputBoolean placeholder={placeholder} id={id} cid={cid} value={value} />
+    )
   },
   getCurrentValue: function() {
     return this.$el.find('input').is(':checked')
