@@ -270,7 +270,6 @@
 * org.hisrc.w3c:xlink-v_1_0:jar:1.4.0
 * org.hisrc.w3c:xmlschema-v_1_0:jar:1.4.0
 * org.imgscalr:imgscalr-lib:jar:4.2
-* org.jasig.cas.client:cas-client-core:jar:3.4.1
 * org.jasypt:jasypt:jar:1.9.0
 * org.jasypt:jasypt:jar:1.9.2
 * org.javassist:javassist:jar:3.22.0-GA

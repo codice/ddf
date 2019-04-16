@@ -27,7 +27,6 @@
         <module>artemis-sandbox</module>
         <module>sample-plugins</module>
         <module>sample-transformers</module>
-        <module>ddf-sso-widget</module>
         <module>sample-metrics</module>
         <module>sample-soap-endpoint</module>
         <module>sample-rest-endpoint</module>
