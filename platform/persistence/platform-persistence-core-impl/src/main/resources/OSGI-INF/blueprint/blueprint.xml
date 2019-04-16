@@ -16,7 +16,6 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
-<!--    <reference id="solrPasswordUpdate" interface="ddf.platform.solr.security.SolrPasswordUpdate"/>-->
 
     <bean id="httpClientBuilder" class="org.codice.solr.factory.impl.HttpClientBuilder">
         <argument ref="encryptionService"/>
@@ -24,7 +23,6 @@
 
     <bean id="httpSolrClientFactory" class="org.codice.solr.factory.impl.HttpSolrClientFactory">
         <argument ref="httpClientBuilder"/>
-<!--        <argument ref="solrPasswordUpdate"/>-->
     </bean>
 
     <bean id="solrFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl">
