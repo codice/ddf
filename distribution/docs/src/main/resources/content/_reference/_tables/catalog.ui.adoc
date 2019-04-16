@@ -246,6 +246,13 @@ Example:
 |true
 |true
 
+|Enable Spellcheck
+|spellcheckEnabled
+|Boolean
+|Enable spellcheck for seraches.
+|true
+|true
+
 |Basic Search Temporal Selections
 |basicSearchTemporalSelectionDefault
 |String

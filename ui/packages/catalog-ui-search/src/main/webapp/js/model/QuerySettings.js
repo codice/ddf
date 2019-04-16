@@ -25,6 +25,7 @@ module.exports = Backbone.Model.extend({
         },
       ],
       template: undefined,
+      spellcheck: true,
     }
   },
   isTemplate: function(template) {

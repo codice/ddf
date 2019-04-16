@@ -134,6 +134,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean metacardPreviewEnabled = true;
 
+  private Boolean spellcheckEnabled = true;
+
   private BrandingPlugin branding;
 
   private Integer timeout = 300000;
@@ -541,6 +543,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("isHistoricalSearchDisabled", !historicalSearchEnabled);
     config.put("isArchiveSearchDisabled", !archiveSearchEnabled);
     config.put("isMetacardPreviewDisabled", !metacardPreviewEnabled);
+    config.put("isSpellcheckEnabled", spellcheckEnabled);
     config.put(
         "isVersioningEnabled",
         historianConfiguration != null && historianConfiguration.isHistoryEnabled());
@@ -1109,6 +1112,14 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setMetacardPreviewEnabled(Boolean metacardPreviewEnabled) {
     this.metacardPreviewEnabled = metacardPreviewEnabled;
+  }
+
+  public Boolean getSpellcheckEnabled() {
+    return spellcheckEnabled;
+  }
+
+   public void setSpellcheckEnabled(Boolean spellcheckEnabled) {
+    this.spellcheckEnabled = spellcheckEnabled;
   }
 
   public void setHistorianConfiguration(HistorianConfiguration historian) {

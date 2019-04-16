@@ -62,6 +62,7 @@ type MyProps = {
   value?: any[]
   values?: object
   enumeration?: any[]
+  radio?: any[]
   description?: string
   readOnly?: boolean
   id?: string
@@ -134,6 +135,7 @@ class BasePropertyWrapper extends React.Component<Props, State> {
       value = [],
       values = {},
       enumeration,
+      radio,
       label,
       description = '',
       readOnly = false,
@@ -166,6 +168,7 @@ class BasePropertyWrapper extends React.Component<Props, State> {
       value: this.state.value,
       values,
       enum: enumeration,
+      radio,
       label,
       description,
       readOnly,

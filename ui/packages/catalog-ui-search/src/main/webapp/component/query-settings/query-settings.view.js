@@ -29,8 +29,10 @@ const Common = require('../../js/Common.js')
 const properties = require('../../js/properties.js')
 const plugin = require('plugins/query-settings')
 const announcement = require('../announcement/index.jsx')
-import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
 const ResultForm = require('../result-form/result-form.js')
+import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
+import * as React from 'react'
+import RadioComponent from '../../react-component/container/input-wrappers/radio'
 
 module.exports = plugin(
   Marionette.LayoutView.extend({
@@ -45,6 +47,7 @@ module.exports = plugin(
     },
     regions: {
       settingsSortField: '.settings-sorting-field',
+      spellcheckForm: '.spellcheck-form',
       settingsSrc: '.settings-src',
       resultForm: '.result-form',
       extensions: '.query-extensions',
@@ -71,6 +74,7 @@ module.exports = plugin(
       this.renderResultForms(this.resultFormCollection.filteredList)
     },
     onBeforeShow: function() {
+      this.setupSpellcheck()
       this.setupSortFieldDropdown()
       this.setupSrcDropdown()
       this.turnOnEditing()
@@ -157,6 +161,25 @@ module.exports = plugin(
         })
       )
       this.settingsSrc.currentView.turnOffEditing()
+    },
+    setupSpellcheck: function() {
+      if(!properties.isSpellcheckEnabled()){
+        return
+      }
+      const spellcheckView = Marionette.ItemView.extend({
+        template: () => <RadioComponent value={this.model.get('spellcheck')} label="Spellcheck" options={[{
+          label: 'Yes',
+          value: true
+        }, {
+          label: 'No',
+          value: false
+        }]}
+          onChange={(value) => {
+            this.model.set('spellcheck', value)
+          }}
+        />,
+      })
+      this.spellcheckForm.show(new spellcheckView())
     },
     turnOffEditing: function() {
       this.$el.removeClass('is-editing')

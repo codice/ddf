@@ -13,12 +13,19 @@
  *
  **/
 
+import InputBoolean from './input-boolean.presentation'
+import * as React from 'react'
+
 var Marionette = require('marionette')
 var template = require('./input-boolean.hbs')
 var InputView = require('../input.view')
 
 module.exports = InputView.extend({
-  template: template,
+  template(props) {
+    const { placeholder, id } = props.property
+    const {value, cid} = props
+    return <InputBoolean placeholder={placeholder} id={id} cid={cid} value={value} />
+  },
   getCurrentValue: function() {
     return this.$el.find('input').is(':checked')
   },

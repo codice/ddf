@@ -21,10 +21,14 @@ atlassian-ide-plugin.xml
 platform/solr/**/overlays
 distribution/docs/src/main/resources/content/**/.asciidoctor
 distribution/docs/src/main/resources/content/**/*.png
+*.class
+**/bin
+*.factorypath
 # JMeter Related files to ignore
 jmeter.log
 *.jmx.log
 *.jtl
+
 
 # Maven Ignores (https://raw.githubusercontent.com/github/gitignore/master/Maven.gitignore)
 target/

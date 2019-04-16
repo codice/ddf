@@ -50,7 +50,6 @@ module.exports = Marionette.LayoutView.extend({
       this.triggerCloseDropdown
     )
     this.generateSearchFormSelector()
-    this.generateSearchSettings()
   },
   generateSearchFormSelector() {
     this.searchType.show(
