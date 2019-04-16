@@ -93,10 +93,10 @@
     <cm:managed-service-factory id="ddf.catalog.impl.action.SourceActionProviderImpl"
                                 factory-pid="ddf.catalog.impl.action.SourceActionProviderImpl" interface="ddf.action.ActionProvider">
         <service-properties>
-            <entry key="id" value="catalog.data.source.simple"/>
+            <entry key="id" value="catalog.data.source.iframe.simple"/>
         </service-properties>
         <cm:managed-component class="ddf.catalog.impl.action.SourceActionProviderImpl">
-            <argument value="catalog.data.source.simple"/>
+            <argument value="catalog.data.source.iframe.simple"/>
             <cm:managed-properties persistent-id=""
                                    update-strategy="container-managed" />
         </cm:managed-component>
