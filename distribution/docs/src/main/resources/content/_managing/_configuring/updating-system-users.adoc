@@ -3,7 +3,7 @@
 :status: published
 :summary: Updating system users.
 :parent: Configuring User Access
-:order: 05
+:order: 04
 
 == {title}
 

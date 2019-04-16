@@ -12,7 +12,6 @@ These services comprise both a framework that developers and integrators can ext
 This section documents the installation, maintenance, and support of this application.
 
 .Applications Included in ${ddf-security}
-* Security CAS
 * Security Core
 * Security Encryption
 * Security IdP

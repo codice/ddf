@@ -25,5 +25,5 @@ The token issuer creates a SAML 2.0 assertion and associates it with the subject
 The STS server sends an assertion back to the requestor, which is used to authenticate and authorize subsequent SOAP and REST requests.
 
 The STS can be used to generate SAML v2.0 assertions via a SOAP web service request.
-Out of the box, the STS supports authentication from existing SAML tokens, CAS proxy tickets, username/password, and x509 certificates.
+Out of the box, the STS supports authentication from existing SAML tokens, username/password, and x509 certificates.
 It also supports retrieving claims using LDAP and properties files.
