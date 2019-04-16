@@ -249,7 +249,7 @@ Example:
 |Enable Spellcheck
 |spellcheckEnabled
 |Boolean
-|Enable spellcheck for seraches.
+|Enable spellcheck for searches.
 |true
 |true
 
