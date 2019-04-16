@@ -131,7 +131,6 @@ class SolrPasswordUpdateSpec extends Specification {
         then:
         solrPasswordUpdate.newPasswordPlainText == null
         solrPasswordUpdate.newPasswordWrappedEncrypted == null
-        solrPasswordUpdate.passwordSavedSuccessfully == false
         solrPasswordUpdate.solrAuthResource == null
         solrPasswordUpdate.solrResponse == null
     }
