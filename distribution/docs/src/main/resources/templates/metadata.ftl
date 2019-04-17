@@ -1,5 +1,5 @@
 = ${branding} Metadata Reference Guide
-include::${project.build.directory}/doc-contents/content/config.adoc[]
+include::config.adoc[]
 :title: Metadata Reference Guide
 :toc: left
 :architecture-prefix: architecture.adoc#_
@@ -14,4 +14,4 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 
 <#include "build/metadata-reference.ftl">
 
-include::${project.build.directory}/doc-contents/content/scripts.html[]
+include::${project.build.directory}/asciidoctor-ready-${project.version}/scripts.html[]
