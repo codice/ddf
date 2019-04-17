@@ -20,6 +20,8 @@
     "mvn:ddf.security.sts/security-sts-guestvalidator/${project.version}",
     "mvn:ddf.security.sts/security-sts-pkivalidator/${project.version}",
     "mvn:ddf.security.sts/security-sts-propertyclaimshandler/${project.version}",
+    "mvn:ddf.security.sts/security-sts-ldaplogin/${project.version}",
+    "mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}",
     "mvn:ddf.security.sts/security-sts-realm/${project.version}",
     "mvn:ddf.security.sts/security-sts-server/${project.version}"
   ]
