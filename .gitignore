@@ -21,7 +21,6 @@ atlassian-ide-plugin.xml
 platform/solr/**/overlays
 distribution/docs/src/main/resources/content/**/.asciidoctor
 distribution/docs/src/main/resources/content/**/*.png
-*.class
 **/bin
 *.factorypath
 # JMeter Related files to ignore
