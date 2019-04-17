@@ -30,7 +30,6 @@ import ddf.catalog.data.impl.types.DateTimeAttributes;
 import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.ValidationAttributes;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -565,7 +564,8 @@ public class FeatureMetacardTypeTest {
 
   private void loadSchema(final String schemaFile) throws IOException {
     final XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
-    try (final InputStream schemaStream = new FileInputStream("src/test/resources/" + schemaFile)) {
+    try (final InputStream schemaStream =
+        getClass().getClassLoader().getResourceAsStream(schemaFile)) {
       schema = schemaCollection.read(new StreamSource(schemaStream));
     }
   }
