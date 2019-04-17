@@ -1,5 +1,5 @@
 = ${branding-expanded} Overview
-include::${project.build.directory}/doc-contents/content/config.adoc[]
+include::config.adoc[]
 :title: ${branding-expanded} Executive Summary: Core Concepts and Introduction
 :architecture-prefix: architecture.adoc#_
 :developing-prefix: developing.adoc#_
@@ -13,4 +13,4 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 
 <#include "build/introduction.ftl">
 
-include::${project.build.directory}/doc-contents/content/scripts.html[]
+include::${project.build.directory}/asciidoctor-ready-${project.version}/scripts.html[]

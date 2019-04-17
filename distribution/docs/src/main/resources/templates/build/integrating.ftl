@@ -11,6 +11,4 @@ include::${ii.file}[]
 
 <#include "eventing.ftl">
 
-include::${project.build.directory}/doc-contents/content/scripts.html[]
-
 <#include "security-services.ftl">
