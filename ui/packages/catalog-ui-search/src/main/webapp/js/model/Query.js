@@ -198,7 +198,7 @@ Query.Model = PartialAssociatedModel.extend({
       'cql',
       'sorts',
       'id',
-      'spellcheck',
+      'spellcheck'
     )
   },
   isOutdated() {
