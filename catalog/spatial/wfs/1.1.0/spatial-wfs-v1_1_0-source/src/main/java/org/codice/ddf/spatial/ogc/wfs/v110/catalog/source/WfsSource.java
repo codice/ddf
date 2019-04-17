@@ -696,7 +696,7 @@ public class WfsSource extends AbstractWfsSource {
 
       int stopIndex =
           Math.min(
-              (origPageSize * pageNumber) + query.getStartIndex(),
+              origPageSize + query.getStartIndex(),
               featureCollection.getFeatureMembers().size() + 1);
 
       LOGGER.debug(
