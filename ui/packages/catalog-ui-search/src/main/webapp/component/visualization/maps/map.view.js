@@ -418,6 +418,7 @@ module.exports = Marionette.LayoutView.extend({
       function(Map) {
         this.createMap(Map)
         this.hasLoadedMap = true
+        this.trigger('mapLoaded')
       }.bind(this)
     )
   },
