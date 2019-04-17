@@ -1103,7 +1103,7 @@ public class WfsFilterDelegateTest {
     final WfsFilterDelegate delegate = createDelegate();
     final FilterType filter = delegate.relative(MOCK_PROPERTY, 100_000L);
     final String xml = marshal(filter);
-    System.out.println(xml);
+
     final XmlPathConfig config =
         new XmlPathConfig().declaredNamespace("ogc", "http://www.opengis.net/ogc");
 
