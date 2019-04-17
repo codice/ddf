@@ -144,7 +144,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/doc-contents
+                            <outputDirectory>${project.build.directory}/doc-contents-${project.version}
                             </outputDirectory>
                             <resources>
                                 <resource>
@@ -173,7 +173,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/doc-contents/content</outputDirectory>
+                            <outputDirectory>${project.build.directory}/doc-contents-${project.version}/content</outputDirectory>
                             <resources>                                
                                 <resource>
                                     <directory>${project.build.directory}/upstream-adoc</directory>
@@ -218,8 +218,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <inputDirectory>${project.build.directory}/doc-contents</inputDirectory>
-                    <outputDirectory>${project.build.directory}/asciidoctor-ready</outputDirectory>
+                    <inputDirectory>${project.build.directory}/doc-contents-${project.version}</inputDirectory>
+                    <outputDirectory>${project.build.directory}/asciidoctor-ready-${project.version}</outputDirectory>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -286,7 +286,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <sourceDirectory>${project.build.directory}/asciidoctor-ready
+                    <sourceDirectory>${project.build.directory}/asciidoctor-ready-${project.version}
                     </sourceDirectory>
                     <gemPath>${project.build.directory}/gems-provided</gemPath>
                     <headerFooter>true</headerFooter>

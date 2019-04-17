@@ -6,5 +6,3 @@ include::${ii.file}[]
 </#list>
 
 <#include "endpoints.ftl">
-
-include::${project.build.directory}/doc-contents/content/scripts.html[]
