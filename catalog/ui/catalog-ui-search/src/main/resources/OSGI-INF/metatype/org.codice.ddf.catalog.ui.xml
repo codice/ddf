@@ -208,7 +208,7 @@
             name="Enable Spellcheck"
             description="Enable Spellcheck for searches."
             type="Boolean"
-            default="true"/>
+            default="false"/>
 
         <AD id="basicSearchTemporalSelectionDefault"
             name="Basic Search Temporal Selections"

@@ -250,8 +250,8 @@ Example:
 |spellcheckEnabled
 |Boolean
 |Enable spellcheck for searches.
-|true
-|true
+|false
+|false
 
 |Basic Search Temporal Selections
 |basicSearchTemporalSelectionDefault

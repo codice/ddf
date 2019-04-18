@@ -134,7 +134,7 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean metacardPreviewEnabled = true;
 
-  private Boolean spellcheckEnabled = true;
+  private Boolean spellcheckEnabled = false;
 
   private BrandingPlugin branding;
 
