@@ -138,6 +138,14 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
     }
   }
 
+  /** @see org.eclipse.jetty.server.SessionIdManager#expireAll(String) */
+  @Override
+  public void expireAll(String id) {
+    latestSessionAttributes.remove(id);
+
+    super.expireAll(id);
+  }
+
   /**
    * Called by the {@link SharingSessionInvalidator} to invalidate a session, given its id.
    *
