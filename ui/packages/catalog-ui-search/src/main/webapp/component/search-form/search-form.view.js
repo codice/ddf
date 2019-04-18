@@ -143,7 +143,7 @@ export default Marionette.LayoutView.extend({
         <RelativeWrapper>
           <FormTitle data-help={props.title}>{props.title}</FormTitle>
           <FormContents>{props.createdOn}</FormContents>
-          <Author title={createdBy}>
+          <Author title={props.createdBy}>
             <span className="fa fa-cloud" />
             {' ' + props.createdBy}
           </Author>
