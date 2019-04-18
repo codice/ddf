@@ -12,7 +12,7 @@
  *
  **/
 -->
-<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
 
     <OCD name="WFS v1.1.0 Federated Source" id="Wfs_v110_Federated_Source"
          description="Used to query a Web Feature Service (WFS) version 1.1.0 compliant service">
@@ -36,6 +36,12 @@
             required="false" type="String"/>
         <AD description="Password for WFS Service (optional)" name="Password" id="password"
             required="false" type="Password" default=""/>
+        <AD description="Certificate Alias for WFS Service (optional)" name="Cert Alias" id="certAlias"
+          required="false" type="String"/>
+        <AD description="Keystore for WFS Service (optional)" name="Keystore Path" id="keystorePath"
+          required="false" type="String"/>
+        <AD description="SSL Protocol for WFS Service (optional)" name="SSL Protocol" id="sslProtocol"
+          required="false" type="String" default="TLSv1.2"/>
         <AD description="Force only a specific FeatureType to be queried instead of all featureTypes"
             name="Forced Feature Type" id="forcedFeatureType" type="String" required="false"/>
         <AD name="Non Queryable Properties" id="nonQueryableProperties" required="false"

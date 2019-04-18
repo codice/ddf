@@ -28,7 +28,6 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableMap;
@@ -1220,9 +1219,6 @@ public class WfsSourceTest {
     final String keystorePath = "/path/to/keystore";
     final String sslProtocol = "TLSv1.2";
 
-    source.setCertAlias(certAlias);
-    source.setKeystorePath(keystorePath);
-    source.setSslProtocol(sslProtocol);
     source.setPollInterval(1);
 
     final Map<String, Object> configuration =
@@ -1230,6 +1226,9 @@ public class WfsSourceTest {
             .put("wfsUrl", wfsUrl)
             .put("disableCnCheck", disableCnCheck)
             .put("allowRedirects", allowRedirects)
+            .put("certAlias", certAlias)
+            .put("keystorePath", keystorePath)
+            .put("sslProtocol", sslProtocol)
             .put("connectionTimeout", connectionTimeout)
             .put("receiveTimeout", receiveTimeout)
             .put("pollInterval", 1)
@@ -1285,55 +1284,6 @@ public class WfsSourceTest {
             eq(allowRedirects),
             eq(connectionTimeout),
             eq(receiveTimeout));
-  }
-
-  @Test
-  public void testNoWfsClientRefreshWhenConfigurationDoesNotChange()
-      throws SecurityServiceException, WfsException {
-    setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, ONE_FEATURE, null);
-
-    verify(mockClientFactoryFactory)
-        .getSecureCxfClientFactory(
-            anyString(),
-            eq(Wfs.class),
-            any(List.class),
-            isA(MarkableStreamInterceptor.class),
-            anyBoolean(),
-            anyBoolean(),
-            anyInt(),
-            anyInt());
-
-    verify(mockWfs).getCapabilities(any(GetCapabilitiesRequest.class));
-    verify(mockWfs).describeFeatureType(any(DescribeFeatureTypeRequest.class));
-
-    final String wfsUrl = "http://localhost/wfs";
-    final Boolean disableCnCheck = false;
-    final Boolean allowRedirects = true;
-    final Integer initialConnectionTimeout = 10000;
-    final Integer initialReceiveTimeout = 20000;
-
-    source.setWfsUrl(wfsUrl);
-    source.setDisableCnCheck(disableCnCheck);
-    source.setAllowRedirects(allowRedirects);
-    source.setConnectionTimeout(initialConnectionTimeout);
-    source.setReceiveTimeout(initialReceiveTimeout);
-    source.setPollInterval(1);
-
-    final Map<String, Object> configuration =
-        ImmutableMap.<String, Object>builder()
-            .put("wfsUrl", wfsUrl)
-            .put("disableCnCheck", disableCnCheck)
-            .put("allowRedirects", allowRedirects)
-            .put("connectionTimeout", initialConnectionTimeout)
-            .put("receiveTimeout", initialReceiveTimeout)
-            .put("pollInterval", 1)
-            .build();
-    source.refresh(configuration);
-
-    verifyNoMoreInteractions(mockClientFactoryFactory);
-
-    verify(mockWfs).getCapabilities(any(GetCapabilitiesRequest.class));
-    verify(mockWfs).describeFeatureType(any(DescribeFeatureTypeRequest.class));
   }
 
   private SourceResponse executeQuery(int startIndex, int pageSize)
