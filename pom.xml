@@ -59,7 +59,7 @@
         <!-- Must MANUALLY update this if the codice-maven project's version changes -->
         <codice-maven.version>0.2</codice-maven.version>
         <!-- Must MANUALLY update this if the codice-test project's version changes -->
-        <codice-test.version>0.8</codice-test.version>
+        <codice-test.version>0.9</codice-test.version>
         <!-- Must MANUALLY update this if the AC Debugger project's version changes -->
         <acdebugger.version>1.7</acdebugger.version>
         <!--temporary codice version of pax web-->
