@@ -45,20 +45,6 @@ Before searching in ${branding}, at least one workspace must be created.
 .Start new workspace
 image::start-new-workspace.png[start new workspace icon]
 
-.Using a template
-. From the *Workspaces* view, click on an existing template.
-. Change the workspace title by clicking on the temporary workspace title in the upper left corner and entering a new title.
-. Click the save (image:save-icon.png[save icon]) icon next to the workspace title in the upper left corner.
-
-.Default Workspace Templates
-image::workspace-templates.png[workspace templates]
-
-Blank:: A blank workspace with no default search.
-Local:: An example of a local search.
-Federated:: An example of a search across all federated sources and the local ${ddf-catalog}.
-Location:: An example of a geographically constrained search.
-Temporal:: An example of a time-range search.
-
 ==== Configuring a Workspace in ${catalog-ui}
 
 Configure each workspace with searches and share options.
