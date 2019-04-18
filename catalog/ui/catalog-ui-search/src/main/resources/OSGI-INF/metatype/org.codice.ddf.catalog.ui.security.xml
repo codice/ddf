@@ -27,6 +27,13 @@
             description="The value of the attribute to determine the system user."
             type="String"
             default="system-user"/>
+
+        <AD id="policyToFilterEnabled"
+            name="Attempt to optimize queries by enhancing them with policy information"
+            description="Allows the system to introspect user queries and defer processing to Solr if appropriate"
+            type="Boolean"
+            default="true"
+            required="false"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.security">

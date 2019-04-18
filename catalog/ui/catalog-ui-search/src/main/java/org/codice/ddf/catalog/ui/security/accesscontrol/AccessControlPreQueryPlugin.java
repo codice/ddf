@@ -96,6 +96,13 @@ public class AccessControlPreQueryPlugin implements PreQueryPlugin {
   @Override
   public QueryRequest process(QueryRequest input)
       throws PluginExecutionException, StopProcessingException {
+    if (!configuration.isPolicyToFilterEnabled()) {
+      LOGGER.debug(
+          "Will not modify filter because policy to filter mapping is disabled; "
+              + "refer to Catalog UI Search Workspace Security config to enable this behavior");
+      return input;
+    }
+
     final String subjectIdentifier = getSubjectIdentifier();
     final Set<String> groups = new HashSet<>(getSubjectGroups());
     final String groupThatCanSeeEverything = configuration.getSystemUserAttributeValue();
