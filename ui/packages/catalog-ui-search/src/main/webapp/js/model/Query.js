@@ -132,7 +132,7 @@ Query.Model = PartialAssociatedModel.extend({
         isLocal: false,
         isOutdated: false,
         'detail-level': undefined,
-        spellcheck: true,
+        spellcheck: false,
       },
       user.getQuerySettings().toJSON()
     )

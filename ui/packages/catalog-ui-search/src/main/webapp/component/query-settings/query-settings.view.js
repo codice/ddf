@@ -213,7 +213,7 @@ module.exports = plugin(
     },
     toJSON: function() {
       var federation = this._srcDropdownModel.get('federation')
-      var spellcheck = this.model.get('spellcheck')
+      const spellcheck = this.model.get('spellcheck')
       var src
       if (federation === 'selected') {
         src = this._srcDropdownModel.get('value')
@@ -233,7 +233,7 @@ module.exports = plugin(
         federation: federation,
         sorts: sorts,
         'detail-level': detailLevel,
-        spellcheck: spellcheck,
+        spellcheck,
       }
     },
     saveToModel: function() {
