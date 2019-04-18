@@ -79,11 +79,25 @@ public class AccessControlPreQueryPluginTest {
   }
 
   @Test
-  public void testUserWithRoleThatCanSeeEverythingHasFilterLeftAlone()
+  public void testConfigDisabledMeansFilterLeftAlone()
       throws PluginExecutionException, StopProcessingException {
+    AccessControlSecurityConfiguration config = new AccessControlSecurityConfiguration();
+    config.setPolicyToFilterEnabled(false);
     plugin =
         new AccessControlPreQueryPluginUnderTest(
-            new GeotoolsFilterBuilder(), ImmutableList.of(ROLE_A, ROLE_B), ROLE_A);
+            new GeotoolsFilterBuilder(), ImmutableList.of(ROLE_A, ROLE_B), config);
+    Filter filter = FILTER_BUILDER.attribute(Core.METACARD_TAGS).is().like().text(WORKSPACE_TAG);
+    verifyPluginDoesNotAlterTheFilter(filter);
+  }
+
+  @Test
+  public void testUserWithRoleThatCanSeeEverythingHasFilterLeftAlone()
+      throws PluginExecutionException, StopProcessingException {
+    AccessControlSecurityConfiguration config = new AccessControlSecurityConfiguration();
+    config.setSystemUserAttributeValue(ROLE_A);
+    plugin =
+        new AccessControlPreQueryPluginUnderTest(
+            new GeotoolsFilterBuilder(), ImmutableList.of(ROLE_A, ROLE_B), config);
     Filter filter = FILTER_BUILDER.attribute(Core.METACARD_TAGS).is().like().text(WORKSPACE_TAG);
     verifyPluginDoesNotAlterTheFilter(filter);
   }
@@ -276,13 +290,15 @@ public class AccessControlPreQueryPluginTest {
           filterBuilder,
           null /* Only method interacting with this ref gets overridden */,
           tags(),
-          config(""));
+          new AccessControlSecurityConfiguration());
       this.subjectRoles = Arrays.asList(subjectRoles);
     }
 
     private AccessControlPreQueryPluginUnderTest(
-        FilterBuilder filterBuilder, List<String> subjectRoles, String groupThatCanSeeEverything) {
-      super(filterBuilder, null, tags(), config(groupThatCanSeeEverything));
+        FilterBuilder filterBuilder,
+        List<String> subjectRoles,
+        AccessControlSecurityConfiguration config) {
+      super(filterBuilder, null, tags(), config);
       this.subjectRoles = subjectRoles;
     }
 
@@ -294,12 +310,6 @@ public class AccessControlPreQueryPluginTest {
     @Override
     List<String> getSubjectGroups() {
       return subjectRoles;
-    }
-
-    private static AccessControlSecurityConfiguration config(String groupThatCanSeeEverything) {
-      AccessControlSecurityConfiguration config = new AccessControlSecurityConfiguration();
-      config.setSystemUserAttributeValue(groupThatCanSeeEverything);
-      return config;
     }
 
     private static AccessControlTags tags() {

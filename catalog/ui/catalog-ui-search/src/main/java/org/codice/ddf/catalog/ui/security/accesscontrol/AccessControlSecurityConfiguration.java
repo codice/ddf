@@ -21,6 +21,8 @@ public class AccessControlSecurityConfiguration {
 
   private String systemUserAttributeValue = "system-user";
 
+  private boolean policyToFilterEnabled = true;
+
   public String getSystemUserAttribute() {
     return systemUserAttribute;
   }
@@ -29,11 +31,19 @@ public class AccessControlSecurityConfiguration {
     this.systemUserAttribute = systemUserAttribute.trim();
   }
 
+  public boolean isPolicyToFilterEnabled() {
+    return policyToFilterEnabled;
+  }
+
   public String getSystemUserAttributeValue() {
     return systemUserAttributeValue;
   }
 
   public void setSystemUserAttributeValue(String systemUserAttributeValue) {
     this.systemUserAttributeValue = systemUserAttributeValue.trim();
+  }
+
+  public void setPolicyToFilterEnabled(boolean policyToFilterEnabled) {
+    this.policyToFilterEnabled = policyToFilterEnabled;
   }
 }
