@@ -18,13 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BaseAuthenticationToken implements AuthenticationToken {
-  public static final String DEFAULT_REALM = "karaf";
-
-  public static final String ALL_REALM = "*";
-
-  private boolean useWssSts = false;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseAuthenticationToken.class);
+
+  private boolean useWssSts = false;
 
   /**
    * Represents the account identity submitted during the authentication process.
@@ -58,16 +55,8 @@ public class BaseAuthenticationToken implements AuthenticationToken {
    */
   protected Object credentials;
 
-  /**
-   * Represents the realm within which the principal and the credentials have meaning. This
-   * information is encoded into the BST and is available for use on the processing side of the STS
-   * services.
-   */
-  protected String realm;
-
-  public BaseAuthenticationToken(Object principal, String realm, Object credentials) {
+  public BaseAuthenticationToken(Object principal, Object credentials) {
     this.principal = principal;
-    this.realm = realm;
     this.credentials = credentials;
   }
 
@@ -91,10 +80,6 @@ public class BaseAuthenticationToken implements AuthenticationToken {
 
   public void setUseWssSts(boolean useWssSts) {
     this.useWssSts = useWssSts;
-  }
-
-  public String getRealm() {
-    return realm;
   }
 
   /**

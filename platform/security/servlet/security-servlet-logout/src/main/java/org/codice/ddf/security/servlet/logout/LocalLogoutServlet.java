@@ -113,7 +113,7 @@ public class LocalLogoutServlet extends HttpServlet {
             SecurityLogger.audit("Subject with admin privileges has logged out", subject);
           }
         }
-        savedToken.removeAll();
+        savedToken.remove();
       }
       session.invalidate();
       deleteJSessionId(response);

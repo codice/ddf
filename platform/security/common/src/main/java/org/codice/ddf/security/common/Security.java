@@ -51,7 +51,6 @@ import javax.security.auth.AuthPermission;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.ExecutionException;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.PKIAuthenticationToken;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
@@ -237,8 +236,7 @@ public class Security {
 
     PKIAuthenticationTokenFactory pkiTokenFactory = createPKITokenFactory();
     PKIAuthenticationToken pkiToken =
-        pkiTokenFactory.getTokenFromCerts(
-            new X509Certificate[] {(X509Certificate) cert}, PKIAuthenticationToken.DEFAULT_REALM);
+        pkiTokenFactory.getTokenFromCerts(new X509Certificate[] {(X509Certificate) cert});
     if (pkiToken != null) {
       SecurityManager securityManager = getSecurityManager();
       if (securityManager != null) {
@@ -260,8 +258,7 @@ public class Security {
    */
   public Subject getGuestSubject(String ipAddress) {
     Subject subject = null;
-    GuestAuthenticationToken token =
-        new GuestAuthenticationToken(BaseAuthenticationToken.DEFAULT_REALM, ipAddress);
+    GuestAuthenticationToken token = new GuestAuthenticationToken(ipAddress);
     LOGGER.debug("Getting new Guest user token for {}", ipAddress);
     try {
       SecurityManager securityManager = getSecurityManager();

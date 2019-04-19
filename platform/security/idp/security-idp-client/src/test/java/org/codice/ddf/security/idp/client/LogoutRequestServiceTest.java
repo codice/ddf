@@ -140,7 +140,7 @@ public class LogoutRequestServiceTest {
     Element issuedAssertion = readSamlAssertion().getDocumentElement();
     String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();
     SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
-    when(securityTokenHolder.getSecurityToken("idp")).thenReturn(token);
+    when(securityTokenHolder.getSecurityToken()).thenReturn(token);
     initializeLogutRequestService();
     when(sessionFactory.getOrCreateSession(request)).thenReturn(session);
     when(session.getAttribute(eq(SecurityConstants.SAML_ASSERTION)))

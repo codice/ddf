@@ -16,8 +16,6 @@ package org.codice.ddf.security.handler.api;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PKIAuthenticationToken extends BSTAuthenticationToken {
   public static final String BST_X509_LN = "X509";
@@ -25,19 +23,13 @@ public class PKIAuthenticationToken extends BSTAuthenticationToken {
   public static final String PKI_TOKEN_VALUE_TYPE =
       BSTAuthenticationToken.BST_NS + BSTAuthenticationToken.TOKEN_VALUE_SEPARATOR + BST_X509_LN;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PKIAuthenticationToken.class);
-
-  public PKIAuthenticationToken(Principal principal, byte[] certificates) {
-    this(principal, certificates, BaseAuthenticationToken.DEFAULT_REALM);
-  }
-
-  public PKIAuthenticationToken(Object principal, String encodedCerts, String realm) {
-    this(principal, encodedCerts.getBytes(StandardCharsets.UTF_8), realm);
+  public PKIAuthenticationToken(Object principal, String encodedCerts) {
+    this(principal, encodedCerts.getBytes(StandardCharsets.UTF_8));
     credentials = Base64.getDecoder().decode(encodedCerts);
   }
 
-  public PKIAuthenticationToken(Object principal, byte[] certificates, String realm) {
-    super(principal, certificates, realm);
+  public PKIAuthenticationToken(Object principal, byte[] certificates) {
+    super(principal, certificates);
     setTokenValueType(BSTAuthenticationToken.BST_NS, BST_X509_LN);
     setTokenId(BST_X509_LN);
   }
@@ -73,8 +65,6 @@ public class PKIAuthenticationToken extends BSTAuthenticationToken {
     StringBuilder sb = new StringBuilder();
     sb.append("dn: ");
     sb.append(getDn());
-    sb.append("; realm: ");
-    sb.append(realm);
     return sb.toString();
   }
 }

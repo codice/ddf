@@ -135,28 +135,23 @@ public class SecurityPolicyConfigurator {
     final PolicyManager targetPolicies = new PolicyManager();
     targetPolicies.setPolicies(policyProperties);
 
-    return new Callable<Boolean>() {
-      @Override
-      public Boolean call() throws Exception {
-        for (ContextPolicy policy : ctxPolicyMgr.getAllContextPolicies()) {
-          ContextPolicy targetPolicy = targetPolicies.getContextPolicy(policy.getContextPath());
+    return () -> {
+      for (ContextPolicy policy : ctxPolicyMgr.getAllContextPolicies()) {
+        ContextPolicy targetPolicy = targetPolicies.getContextPolicy(policy.getContextPath());
 
-          if (targetPolicy == null
-              || !targetPolicy.getContextPath().equals(policy.getContextPath())
-              || (targetPolicy.getRealm() != null
-                  && !targetPolicy.getRealm().equals(policy.getRealm()))
-              || !targetPolicy
-                  .getAuthenticationMethods()
-                  .containsAll(policy.getAuthenticationMethods())
-              || !targetPolicy
-                  .getAllowedAttributeNames()
-                  .containsAll(policy.getAllowedAttributeNames())) {
-            return false;
-          }
+        if (targetPolicy == null
+            || !targetPolicy.getContextPath().equals(policy.getContextPath())
+            || !targetPolicy
+                .getAuthenticationMethods()
+                .containsAll(policy.getAuthenticationMethods())
+            || !targetPolicy
+                .getAllowedAttributeNames()
+                .containsAll(policy.getAllowedAttributeNames())) {
+          return false;
         }
-
-        return true;
       }
+
+      return true;
     };
   }
 }

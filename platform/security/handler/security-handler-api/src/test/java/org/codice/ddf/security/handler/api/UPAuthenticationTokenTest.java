@@ -19,62 +19,49 @@ import static org.junit.Assert.assertNull;
 
 import java.util.Base64;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UPAuthenticationTokenTest {
   public static final String TEST_NAME = "name";
 
   public static final String TEST_PW = "pw";
 
-  public static final String TEST_REALM = "realm";
-
   public static final String TEST_CREDS =
       BSTAuthenticationToken.BST_PRINCIPAL
           + TEST_NAME
           + BSTAuthenticationToken.NEWLINE
           + BSTAuthenticationToken.BST_CREDENTIALS
-          + TEST_PW
-          + BSTAuthenticationToken.NEWLINE
-          + BSTAuthenticationToken.BST_REALM
-          + TEST_REALM;
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(UPAuthenticationToken.class);
+          + TEST_PW;
 
   @Test
   public void testGetters() throws Exception {
-    UPAuthenticationToken token = new UPAuthenticationToken(TEST_NAME, TEST_PW, TEST_REALM);
+    UPAuthenticationToken token = new UPAuthenticationToken(TEST_NAME, TEST_PW);
     assertEquals(TEST_NAME, token.getUsername());
     assertEquals(TEST_PW, token.getPassword());
-    assertEquals(TEST_REALM, token.getRealm());
     assertEquals(UPAuthenticationToken.UP_TOKEN_VALUE_TYPE, token.tokenValueType);
     assertEquals(UPAuthenticationToken.BST_USERNAME_LN, token.tokenId);
 
     token = new UPAuthenticationToken(TEST_NAME, TEST_PW);
     assertEquals(TEST_NAME, token.getUsername());
     assertEquals(TEST_PW, token.getPassword());
-    assertEquals(BaseAuthenticationToken.DEFAULT_REALM, token.getRealm());
     assertEquals(UPAuthenticationToken.UP_TOKEN_VALUE_TYPE, token.tokenValueType);
     assertEquals(UPAuthenticationToken.BST_USERNAME_LN, token.tokenId);
 
-    token = new UPAuthenticationToken(null, null, null);
+    token = new UPAuthenticationToken(null, null);
     assertNull(token.getUsername());
     assertNull(token.getPassword());
-    assertNull(token.getRealm());
     assertEquals(UPAuthenticationToken.UP_TOKEN_VALUE_TYPE, token.tokenValueType);
     assertEquals(UPAuthenticationToken.BST_USERNAME_LN, token.tokenId);
 
-    token = new UPAuthenticationToken("", "", "");
+    token = new UPAuthenticationToken("", "");
     assertEquals("", token.getUsername());
     assertEquals("", token.getPassword());
-    assertEquals("", token.getRealm());
     assertEquals(UPAuthenticationToken.UP_TOKEN_VALUE_TYPE, token.tokenValueType);
     assertEquals(UPAuthenticationToken.BST_USERNAME_LN, token.tokenId);
   }
 
   @Test
   public void testGetBinarySecurityToken() throws Exception {
-    UPAuthenticationToken token = new UPAuthenticationToken(TEST_NAME, TEST_PW, TEST_REALM);
+    UPAuthenticationToken token = new UPAuthenticationToken(TEST_NAME, TEST_PW);
     String expectedBST = Base64.getEncoder().encodeToString(TEST_CREDS.getBytes());
     assertEquals(expectedBST, token.getEncodedCredentials());
   }
@@ -84,12 +71,10 @@ public class UPAuthenticationTokenTest {
     // test normal case
     BaseAuthenticationToken bat = UPAuthenticationToken.parse(TEST_CREDS, false);
     UPAuthenticationToken upt =
-        new UPAuthenticationToken(
-            bat.getPrincipal().toString(), bat.getCredentials().toString(), bat.getRealm());
+        new UPAuthenticationToken(bat.getPrincipal().toString(), bat.getCredentials().toString());
     assertNotNull(upt);
     assertEquals(TEST_NAME, upt.getUsername());
     assertEquals(TEST_PW, upt.getPassword());
-    assertEquals(TEST_REALM, upt.getRealm());
     assertEquals(UPAuthenticationToken.UP_TOKEN_VALUE_TYPE, upt.tokenValueType);
     assertEquals(UPAuthenticationToken.BST_USERNAME_LN, upt.tokenId);
   }

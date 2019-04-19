@@ -36,7 +36,6 @@ import org.apache.wss4j.common.saml.SamlAssertionWrapper;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -171,11 +170,10 @@ public class SAMLAssertionHandlerTest {
     when(request.getCookies()).thenReturn(null);
     HttpSession session = mock(HttpSession.class);
     when(request.getSession(false)).thenReturn(session);
-    when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("foo");
     SecurityTokenHolder tokenHolder = mock(SecurityTokenHolder.class);
     when(session.getAttribute(SecurityConstants.SAML_ASSERTION)).thenReturn(tokenHolder);
     SecurityToken securityToken = mock(SecurityToken.class);
-    when(tokenHolder.getSecurityToken("foo")).thenReturn(securityToken);
+    when(tokenHolder.getSecurityToken()).thenReturn(securityToken);
     when(securityToken.getToken()).thenReturn(readDocument("/saml.xml").getDocumentElement());
 
     HandlerResult result = handler.getNormalizedToken(request, response, chain, true);

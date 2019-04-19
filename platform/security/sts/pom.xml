@@ -35,7 +35,6 @@
         <module>security-sts-ldaplogin</module>
         <module>security-sts-bstdelegationhandler</module>
         <module>security-sts-x509delegationhandler</module>
-        <module>security-sts-upbstvalidator</module>
         <module>security-sts-guestvalidator</module>
         <module>security-sts-guestclaimshandler</module>
         <module>security-sts-attributequeryclaimshandler</module>

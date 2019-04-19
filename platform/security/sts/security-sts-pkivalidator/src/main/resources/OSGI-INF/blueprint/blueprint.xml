@@ -41,13 +41,6 @@
         <cm:managed-properties persistent-id="org.codice.ddf.security.validator.pki" update-strategy="container-managed"/>
         <property name="signaturePropertiesPath"
                   value="${ddf.etc}/ws-security/server/signature.properties"/>
-        <property name="realms">
-            <list value-type="java.lang.String">
-                <value>karaf</value>
-                <value>ldap</value>
-            </list>
-        </property>
-
     </bean>
 
     <service ref="pkiTokenValidator"

@@ -22,7 +22,7 @@ import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
  */
 public class PKIHandler extends AbstractPKIHandler {
   /** PKI type to use when configuring context policy. */
-  public static final String AUTH_TYPE = "PKI";
+  private static final String AUTH_TYPE = "PKI";
 
   public PKIHandler() {
     super();
@@ -30,9 +30,8 @@ public class PKIHandler extends AbstractPKIHandler {
   }
 
   @Override
-  protected BaseAuthenticationToken extractAuthenticationInfo(
-      String realm, X509Certificate[] certs) {
-    return tokenFactory.getTokenFromCerts(certs, realm);
+  protected BaseAuthenticationToken extractAuthenticationInfo(X509Certificate[] certs) {
+    return tokenFactory.getTokenFromCerts(certs);
   }
 
   @Override

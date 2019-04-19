@@ -220,7 +220,7 @@ public class LoginFilterTest {
     SecurityToken securityToken = new SecurityToken();
     Element thisToken = readDocument("/good_saml.xml").getDocumentElement();
     securityToken.setToken(thisToken);
-    SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken, "karaf");
+    SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken);
     HandlerResult result = new HandlerResult(HandlerResult.Status.COMPLETED, samlToken);
     servletRequest.setAttribute("ddf.security.token", result);
 
@@ -242,7 +242,7 @@ public class LoginFilterTest {
     SecurityToken securityToken = new SecurityToken();
     Element thisToken = readDocument("/bad_saml.xml").getDocumentElement();
     securityToken.setToken(thisToken);
-    SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken, "karaf");
+    SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken);
     HandlerResult result = new HandlerResult(HandlerResult.Status.COMPLETED, samlToken);
     servletRequest.setAttribute("ddf.security.token", result);
 

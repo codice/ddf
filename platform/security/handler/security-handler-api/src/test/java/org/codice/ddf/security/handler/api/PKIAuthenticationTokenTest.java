@@ -48,22 +48,18 @@ public class PKIAuthenticationTokenTest {
 
   private static final String TEST_PRINCIPAL = "DN:someDomainName";
 
-  private static final String TEST_REALM = "someRealm";
-
   @Test
   public void testEncodeAndParse() throws Exception {
     PKIAuthenticationToken pkiToken =
-        new PKIAuthenticationToken(TEST_PRINCIPAL, ENCODED_CERT.getBytes(), TEST_REALM);
+        new PKIAuthenticationToken(TEST_PRINCIPAL, ENCODED_CERT.getBytes());
     assertNotNull(pkiToken);
     String encodedCreds = pkiToken.getEncodedCredentials();
     BaseAuthenticationToken bat = PKIAuthenticationToken.parse(encodedCreds, true);
     PKIAuthenticationToken pki =
-        new PKIAuthenticationToken(
-            bat.getPrincipal(), bat.getCredentials().toString(), bat.getRealm());
+        new PKIAuthenticationToken(bat.getPrincipal(), bat.getCredentials().toString());
     assertNotNull(pki);
     assertEquals(TEST_PRINCIPAL, pki.getDn());
     assertArrayEquals(ENCODED_CERT.getBytes(), pki.getCertificate());
-    assertEquals(TEST_REALM, pki.getRealm());
     assertEquals(PKIAuthenticationToken.PKI_TOKEN_VALUE_TYPE, pki.tokenValueType);
     assertEquals(PKIAuthenticationToken.BST_X509_LN, pki.tokenId);
   }

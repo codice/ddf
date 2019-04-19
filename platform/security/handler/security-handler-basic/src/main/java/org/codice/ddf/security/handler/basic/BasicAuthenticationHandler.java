@@ -28,9 +28,8 @@ public class BasicAuthenticationHandler extends AbstractBasicAuthenticationHandl
     LOGGER.debug("Creating basic username/token bst handler.");
   }
 
-  protected BaseAuthenticationToken getBaseAuthenticationToken(
-      String realm, String username, String password) {
-    return new UPAuthenticationToken(username, password, realm);
+  protected BaseAuthenticationToken getBaseAuthenticationToken(String username, String password) {
+    return new UPAuthenticationToken(username, password);
   }
 
   @Override

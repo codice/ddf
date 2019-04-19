@@ -39,7 +39,7 @@ class WhoAmIServletSpec extends SubjectSpec {
 
         sessionFactory.getOrCreateSession(_ as HttpServletRequest) >> httpSession
         httpSession.getAttribute(SecurityConstants.SAML_ASSERTION) >> securityTokenHolder
-        securityTokenHolder.getRealmTokenMap() >> ["test": mock(SecurityToken)]
+        securityTokenHolder.getSecurityToken() >> mock(SecurityToken)
 
         whoAmIServlet.setHttpSessionFactory(sessionFactory)
 
@@ -66,9 +66,9 @@ class WhoAmIServletSpec extends SubjectSpec {
         def jsonSlurper = new JsonSlurper()
         def json = jsonSlurper.parseText(body)
 
-        assert json.test.email == 'guest@localhost'
-        assert json.test.claims.size() == 1
-        assert json.test.isGuest
+        assert json.email == 'guest@localhost'
+        assert json.claims.size() == 1
+        assert json.isGuest
 
         true
     }

@@ -24,7 +24,6 @@ import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
-import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,9 +62,8 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
   @Override
   public HandlerResult getNormalizedToken(
       ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
-    String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
     HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
-    handlerResult.setSource(realm + "-" + SOURCE);
+    handlerResult.setSource(SOURCE);
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     String path = httpRequest.getServletPath();
@@ -74,7 +72,6 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
     // doesn't matter what the resolve flag is set to, we do the same action
     BaseAuthenticationToken token =
         extractAuthenticationInfo(
-            realm,
             (X509Certificate[]) httpRequest.getAttribute("javax.servlet.request.X509Certificate"));
 
     X509Certificate[] certs =
@@ -123,15 +120,13 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
   @Override
   public HandlerResult handleError(
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
-    String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
     HandlerResult result = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
-    result.setSource(realm + "-" + SOURCE);
+    result.setSource(SOURCE);
     LOGGER.debug("In error handler for pki - no action taken.");
     return result;
   }
 
-  protected abstract BaseAuthenticationToken extractAuthenticationInfo(
-      String realm, X509Certificate[] certs);
+  protected abstract BaseAuthenticationToken extractAuthenticationInfo(X509Certificate[] certs);
 
   public void setTokenFactory(PKIAuthenticationTokenFactory factory) {
     tokenFactory = factory;

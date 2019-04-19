@@ -39,8 +39,7 @@ public class WssBasicAuthenticationHandler extends AbstractBasicAuthenticationHa
     this.parser = parser;
   }
 
-  protected BaseAuthenticationToken getBaseAuthenticationToken(
-      String realm, String username, String password) {
+  protected BaseAuthenticationToken getBaseAuthenticationToken(String username, String password) {
     if (null == parser) {
       throw new IllegalStateException("XMLParser must be configured.");
     }
@@ -83,7 +82,7 @@ public class WssBasicAuthenticationHandler extends AbstractBasicAuthenticationHa
     }
 
     BaseAuthenticationToken baseAuthenticationToken =
-        new BaseAuthenticationToken(null, "", usernameToken);
+        new BaseAuthenticationToken(null, usernameToken);
     baseAuthenticationToken.setUseWssSts(true);
     return baseAuthenticationToken;
   }

@@ -142,7 +142,6 @@ import org.codice.ddf.security.idp.binding.soap.SoapBinding;
 import org.codice.ddf.security.idp.binding.soap.SoapRequestDecoder;
 import org.codice.ddf.security.idp.cache.CookieCache;
 import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
-import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.joda.time.DateTime;
 import org.opensaml.core.config.ConfigurationService;
@@ -925,7 +924,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
       throws SecurityServiceException, WSSecurityException {
     LOGGER.debug("Performing login for user. passive: {}, cookie: {}", passive, hasCookie);
     BaseAuthenticationToken token = null;
-    request.setAttribute(ContextPolicy.ACTIVE_REALM, BaseAuthenticationToken.ALL_REALM);
     if (PKI.equals(authMethod)) {
       LOGGER.debug("Logging user in via PKI.");
       PKIHandler pkiHandler = new PKIHandler();
@@ -938,9 +936,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     } else if (USER_PASS.equals(authMethod)) {
       LOGGER.debug("Logging user in via BASIC auth.");
       if (authObj != null && authObj.username != null && authObj.password != null) {
-        token =
-            new UPAuthenticationToken(
-                authObj.username, authObj.password, BaseAuthenticationToken.ALL_REALM);
+        token = new UPAuthenticationToken(authObj.username, authObj.password);
       } else {
         BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
         HandlerResult handlerResult =
@@ -951,12 +947,10 @@ public class IdpEndpoint implements Idp, SessionHandler {
       }
     } else if (SAML.equals(authMethod)) {
       LOGGER.debug("Logging user in via SAML assertion.");
-      token =
-          new SAMLAuthenticationToken(null, authObj.assertion, BaseAuthenticationToken.ALL_REALM);
+      token = new SAMLAuthenticationToken(null, authObj.assertion);
     } else if (GUEST.equals(authMethod) && guestAccess) {
       LOGGER.debug("Logging user in as Guest.");
-      token =
-          new GuestAuthenticationToken(BaseAuthenticationToken.ALL_REALM, request.getRemoteAddr());
+      token = new GuestAuthenticationToken(request.getRemoteAddr());
     } else {
       throw new IllegalArgumentException("Auth method is not supported.");
     }
@@ -1036,7 +1030,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
           return false;
         } else if (!assertion.isPresentlyValid()) {
           SAMLAuthenticationToken samlAuthenticationToken =
-              new SAMLAuthenticationToken(null, securityToken, "idp");
+              new SAMLAuthenticationToken(null, securityToken);
           try {
             Subject subject = securityManager.getSubject(samlAuthenticationToken);
             for (Object principal : subject.getPrincipals().asList()) {

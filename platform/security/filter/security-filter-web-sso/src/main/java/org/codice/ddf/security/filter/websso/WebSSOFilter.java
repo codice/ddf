@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +27,6 @@ import org.codice.ddf.platform.filter.AuthenticationFailureException;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.InvalidSAMLReceivedException;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -50,9 +48,9 @@ public class WebSSOFilter implements SecurityFilter {
   private static final Logger LOGGER = LoggerFactory.getLogger(WebSSOFilter.class);
 
   /** Dynamic list of handlers that are registered to provide authentication services. */
-  List<AuthenticationHandler> handlerList = new ArrayList<>();
+  private List<AuthenticationHandler> handlerList = new ArrayList<>();
 
-  ContextPolicyManager contextPolicyManager;
+  private ContextPolicyManager contextPolicyManager;
 
   @Override
   public void init() {
@@ -80,7 +78,7 @@ public class WebSSOFilter implements SecurityFilter {
    * @param servletResponse response stream for returning the response
    * @param filterChain chain of filters to be invoked following this filter
    * @throws IOException
-   * @throws ServletException
+   * @throws AuthenticationException
    */
   @Override
   public void doFilter(
@@ -94,20 +92,11 @@ public class WebSSOFilter implements SecurityFilter {
 
     LOGGER.debug("Handling request for path {}", path);
 
-    String realm = BaseAuthenticationToken.DEFAULT_REALM;
     boolean isWhiteListed = false;
 
     if (contextPolicyManager != null) {
-      ContextPolicy policy = contextPolicyManager.getContextPolicy(path);
-      if (policy != null) {
-        realm = policy.getRealm();
-      }
-
       isWhiteListed = contextPolicyManager.isWhiteListed(path);
     }
-
-    // set this so the login filter can easily determine the realm
-    servletRequest.setAttribute(ContextPolicy.ACTIVE_REALM, realm);
 
     if (isWhiteListed) {
       LOGGER.debug(
@@ -120,7 +109,7 @@ public class WebSSOFilter implements SecurityFilter {
       servletRequest.setAttribute(ContextPolicy.NO_AUTH_POLICY, null);
 
       // now handle the request and set the authentication token
-      LOGGER.debug("Handling request for {} in security realm {}.", path, realm);
+      LOGGER.debug("Handling request for {}.", path);
       handleRequest(httpRequest, httpResponse, filterChain, getHandlerList(path));
     }
   }
@@ -132,7 +121,7 @@ public class WebSSOFilter implements SecurityFilter {
       List<AuthenticationHandler> handlers)
       throws AuthenticationException, IOException {
 
-    if (handlers.size() == 0) {
+    if (handlers.isEmpty()) {
       LOGGER.warn(
           "Handlers not ready. Returning status code 503, Service Unavailable. Check system configuration and bundle state.");
       returnSimpleResponse(HttpServletResponse.SC_SERVICE_UNAVAILABLE, httpResponse);

@@ -56,13 +56,11 @@ public class BasicAuthenticationHandlerTest {
     HttpServletResponse response = mock(HttpServletResponse.class);
     FilterChain chain = mock(FilterChain.class);
 
-    when(request.getAttribute(anyString())).thenReturn("karaf");
     HandlerResult result = handler.getNormalizedToken(request, response, chain, true);
 
     assertNotNull(result);
     assertEquals(HandlerResult.Status.REDIRECTED, result.getStatus());
     // confirm that the proper responses were sent through the HttpResponse
-    Mockito.verify(response).setHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"karaf\"");
     Mockito.verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     Mockito.verify(response).setContentLength(0);
     Mockito.verify(response).flushBuffer();
@@ -80,7 +78,6 @@ public class BasicAuthenticationHandlerTest {
     HttpServletResponse response = mock(HttpServletResponse.class);
     FilterChain chain = mock(FilterChain.class);
 
-    when(request.getAttribute(anyString())).thenReturn("TestRealm");
     when(request.getHeader(HttpHeaders.AUTHORIZATION))
         .thenReturn("Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()));
 
@@ -90,7 +87,6 @@ public class BasicAuthenticationHandlerTest {
     assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
     assertEquals("admin", result.getToken().getPrincipal());
     assertEquals("password", result.getToken().getCredentials());
-    assertEquals("TestRealm", result.getToken().getRealm());
 
     // confirm that no responses were sent through the HttpResponse
     Mockito.verify(response, never()).setHeader(anyString(), anyString());
@@ -169,48 +165,42 @@ public class BasicAuthenticationHandlerTest {
     UPAuthenticationToken result =
         (UPAuthenticationToken)
             handler.extractAuthInfo(
-                "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()), "TestRealm");
+                "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()));
     assertNotNull(result);
     assertEquals("admin", result.getUsername());
     assertEquals("password", result.getPassword());
-    assertEquals("TestRealm", result.getRealm());
 
     WssBasicAuthenticationHandler wssHandler = new WssBasicAuthenticationHandler(parser);
     BaseAuthenticationToken wssResult =
         wssHandler.extractAuthInfo(
-            "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()), "TestRealm");
+            "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()));
     assertNotNull(wssResult);
-    assertEquals("", wssResult.getRealm());
 
     result =
         (UPAuthenticationToken)
             handler.extractAuthInfo(
-                "Basic " + Base64.getEncoder().encodeToString(":password".getBytes()), "TestRealm");
+                "Basic " + Base64.getEncoder().encodeToString(":password".getBytes()));
     assertNotNull(result);
     assertEquals("", result.getUsername());
     assertEquals("password", result.getPassword());
-    assertEquals("TestRealm", result.getRealm());
 
     result =
         (UPAuthenticationToken)
             handler.extractAuthInfo(
-                "Basic " + Base64.getEncoder().encodeToString("user:".getBytes()), "TestRealm");
+                "Basic " + Base64.getEncoder().encodeToString("user:".getBytes()));
     assertNotNull(result);
     assertEquals("user", result.getUsername());
     assertEquals("", result.getPassword());
-    assertEquals("TestRealm", result.getRealm());
 
     result =
         (UPAuthenticationToken)
             handler.extractAuthInfo(
-                "Basic " + Base64.getEncoder().encodeToString("user/password".getBytes()),
-                "TestRealm");
+                "Basic " + Base64.getEncoder().encodeToString("user/password".getBytes()));
     assertNull(result);
 
     result =
         (UPAuthenticationToken)
-            handler.extractAuthInfo(
-                "Basic " + Base64.getEncoder().encodeToString("".getBytes()), "TestRealm");
+            handler.extractAuthInfo("Basic " + Base64.getEncoder().encodeToString("".getBytes()));
     assertNull(result);
   }
 
@@ -223,20 +213,17 @@ public class BasicAuthenticationHandlerTest {
 
     when(request.getHeader(HttpHeaders.AUTHORIZATION))
         .thenReturn("Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()));
-    when(request.getAttribute(anyString())).thenReturn("karaf");
 
     UPAuthenticationToken result =
         (UPAuthenticationToken) handler.extractAuthenticationInfo(request);
     assertNotNull(result);
     assertEquals("admin", result.getUsername());
     assertEquals("password", result.getPassword());
-    assertEquals(BaseAuthenticationToken.DEFAULT_REALM, result.getRealm());
 
     result = (UPAuthenticationToken) handler.extractAuthenticationInfo(request);
     assertNotNull(result);
     assertEquals("admin", result.getUsername());
     assertEquals("password", result.getPassword());
-    assertEquals("karaf", result.getRealm());
 
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
     result = (UPAuthenticationToken) handler.extractAuthenticationInfo(request);
@@ -249,15 +236,13 @@ public class BasicAuthenticationHandlerTest {
     UPAuthenticationToken result =
         (UPAuthenticationToken)
             handler.extractAuthInfo(
-                "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()), "TestRealm");
+                "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()));
     assertNotNull(result);
     assertEquals("admin", result.getUsername());
     assertEquals("password", result.getPassword());
-    assertEquals("TestRealm", result.getRealm());
 
     WssBasicAuthenticationHandler wssHandler = new WssBasicAuthenticationHandler(null);
-    BaseAuthenticationToken wssResult =
-        wssHandler.extractAuthInfo(
-            "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()), "TestRealm");
+    wssHandler.extractAuthInfo(
+        "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()));
   }
 }

@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import ddf.security.principal.GuestPrincipal;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.UUID;
 import javax.xml.bind.JAXBElement;
@@ -38,35 +37,33 @@ import org.junit.Test;
 
 public class GuestValidatorTest {
 
-  ReceivedToken receivedToken;
+  private ReceivedToken receivedToken;
 
-  ReceivedToken receivedBadToken;
+  private ReceivedToken receivedBadToken;
 
-  ReceivedToken receivedTokenIpv6;
+  private ReceivedToken receivedTokenIpv6;
 
-  GuestValidator validator;
+  private GuestValidator validator;
 
-  TokenValidatorParameters parameters;
+  private TokenValidatorParameters parameters;
 
-  ReceivedToken receivedAnyRealmToken;
+  private ReceivedToken receivedAnyRealmToken;
 
-  ReceivedToken receivedTokenIpv6Reachability;
+  private ReceivedToken receivedTokenIpv6Reachability;
 
   @Before
   public void setup() {
     validator = new GuestValidator();
-    validator.setSupportedRealm(Arrays.asList("DDF"));
-    GuestAuthenticationToken guestAuthenticationToken =
-        new GuestAuthenticationToken("DDF", "127.0.0.1");
+    GuestAuthenticationToken guestAuthenticationToken = new GuestAuthenticationToken("127.0.0.1");
 
     GuestAuthenticationToken guestAuthenticationTokenAnyRealm =
-        new GuestAuthenticationToken("*", "127.0.0.1");
+        new GuestAuthenticationToken("127.0.0.1");
 
     GuestAuthenticationToken guestAuthenticationTokenIpv6 =
-        new GuestAuthenticationToken("*", "0:0:0:0:0:0:0:1");
+        new GuestAuthenticationToken("0:0:0:0:0:0:0:1");
 
     GuestAuthenticationToken guestAuthenticationTokenIpv6Reachability =
-        new GuestAuthenticationToken("*", "0:0:0:0:0:0:0:1%4");
+        new GuestAuthenticationToken("0:0:0:0:0:0:0:1%4");
 
     BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
     binarySecurityTokenType.setValueType(GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE);

@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.security.handler.api;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class UPAuthenticationToken extends BSTAuthenticationToken {
 
   public static final String BST_USERNAME_LN = "Username";
@@ -25,14 +22,8 @@ public class UPAuthenticationToken extends BSTAuthenticationToken {
           + BSTAuthenticationToken.TOKEN_VALUE_SEPARATOR
           + BST_USERNAME_LN;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(UPAuthenticationToken.class);
-
   public UPAuthenticationToken(String username, String password) {
-    this(username, password, BaseAuthenticationToken.DEFAULT_REALM);
-  }
-
-  public UPAuthenticationToken(String username, String password, String realm) {
-    super(username, password, realm);
+    super(username, password);
     setTokenValueType(BSTAuthenticationToken.BST_NS, BST_USERNAME_LN);
     setTokenId(BST_USERNAME_LN);
   }
@@ -58,8 +49,7 @@ public class UPAuthenticationToken extends BSTAuthenticationToken {
     StringBuilder sb = new StringBuilder();
     sb.append("username: ");
     sb.append(getUsername());
-    sb.append("; password: *****; realm: ");
-    sb.append(realm);
+    sb.append("; password: *****");
     return sb.toString();
   }
 }

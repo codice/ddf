@@ -45,32 +45,31 @@ public class PKIAuthenticationTokenFactory {
     Init.init();
   }
 
-  public PKIAuthenticationToken getTokenFromString(
-      String certString, boolean isEncoded, String realm) {
+  public PKIAuthenticationToken getTokenFromString(String certString, boolean isEncoded) {
     PKIAuthenticationToken token;
     byte[] certBytes =
         isEncoded
             ? Base64.getDecoder().decode(certString)
             : certString.getBytes(StandardCharsets.UTF_8);
-    token = getTokenFromBytes(certBytes, realm);
+    token = getTokenFromBytes(certBytes);
     return token;
   }
 
-  public PKIAuthenticationToken getTokenFromBytes(byte[] certBytes, String realm) {
+  public PKIAuthenticationToken getTokenFromBytes(byte[] certBytes) {
     PKIAuthenticationToken token = null;
     try {
       if (certBytes == null || certBytes.length == 0) {
         throw new WSSecurityException(WSSecurityException.ErrorCode.INVALID_SECURITY_TOKEN);
       }
       X509Certificate[] certs = merlin.getCertificatesFromBytes(certBytes);
-      token = new PKIAuthenticationToken(certs[0].getSubjectDN(), certBytes, realm);
+      token = new PKIAuthenticationToken(certs[0].getSubjectDN(), certBytes);
     } catch (WSSecurityException e) {
       LOGGER.debug("Unable to extract certificates from bytes: {}", e.getMessage(), e);
     }
     return token;
   }
 
-  public PKIAuthenticationToken getTokenFromCerts(X509Certificate[] certs, String realm) {
+  public PKIAuthenticationToken getTokenFromCerts(X509Certificate[] certs) {
     PKIAuthenticationToken token = null;
     if (certs != null && certs.length > 0) {
       byte[] certBytes = null;
@@ -80,7 +79,7 @@ public class PKIAuthenticationTokenFactory {
         LOGGER.debug("Unable to convert PKI certs to byte array.", e);
       }
       if (certBytes != null) {
-        token = new PKIAuthenticationToken(certs[0].getSubjectDN(), certBytes, realm);
+        token = new PKIAuthenticationToken(certs[0].getSubjectDN(), certBytes);
       }
     }
     return token;

@@ -18,11 +18,6 @@
 	<OCD description="STS PKI Token Validator Configuration."
          name="Security STS PKI Token Validator" id="org.codice.ddf.security.validator.pki">
 
-	    <AD name="Realms" id="realms" required="true" type="String" cardinality="100"
-            default="karaf"
-            description="The realms to be validated by this validator.">
-	    </AD>
-
 		<AD name="Do Full Path Validation" id="pathValidation" required="true" type="Boolean"
 			default="true"
 			description="Validate the full certificate path. Uncheck to only validate the subject cert. (RFC5280 6.1)">

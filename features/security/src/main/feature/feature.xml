@@ -256,7 +256,6 @@
         <bundle>mvn:ddf.security.sts/security-sts-pkivalidator/${project.version}</bundle>
         <feature>parser-xml</feature>
         <bundle>mvn:ddf.security.sts/security-sts-usernametokenvalidator/${project.version}</bundle>
-        <bundle>mvn:ddf.security.sts/security-sts-upbstvalidator/${project.version}</bundle>
     </feature>
 
     <feature name="security-sts-realm" version="${project.version}"

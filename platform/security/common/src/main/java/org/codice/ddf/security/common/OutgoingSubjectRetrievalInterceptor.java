@@ -117,7 +117,7 @@ public class OutgoingSubjectRetrievalInterceptor extends AbstractPhaseIntercepto
 
       X509Certificate[] certs = ((X509Certificate[]) info.getServerCertificates());
       try {
-        PKIAuthenticationToken token = tokenFactory.getTokenFromCerts(certs, "*");
+        PKIAuthenticationToken token = tokenFactory.getTokenFromCerts(certs);
 
         Subject receiverSubject = securityManager.getSubject(token);
         message.put(Subject.class, receiverSubject);

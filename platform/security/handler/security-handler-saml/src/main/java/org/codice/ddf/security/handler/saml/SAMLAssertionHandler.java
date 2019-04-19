@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.regex.Pattern;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
@@ -34,13 +33,11 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.codice.ddf.platform.filter.FilterChain;
-import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
-import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.util.SAMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,16 +49,9 @@ import org.w3c.dom.Element;
  */
 public class SAMLAssertionHandler implements AuthenticationHandler {
   /** SAML type to use when configuring context policy. */
-  public static final String AUTH_TYPE = "SAML";
+  private static final String AUTH_TYPE = "SAML";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SAMLAssertionHandler.class);
-
-  private static final String EVIDENCE =
-      "<%1$s:Evidence xmlns:%1$s=\"urn:oasis:names:tc:SAML:2.0:assertion\">%2$s</%1$s:Evidence>";
-
-  private static final Pattern SAML_PREFIX = Pattern.compile("<(?<prefix>\\w+?):Assertion\\s.*");
-
-  private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
   private SessionFactory sessionFactory;
 
@@ -78,7 +68,6 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
   public HandlerResult getNormalizedToken(
       ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
     HandlerResult handlerResult = new HandlerResult();
-    String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
 
     SecurityToken securityToken;
     HttpServletRequest httpRequest = (HttpServletRequest) request;
@@ -95,8 +84,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
           String tokenString = RestSecurity.inflateBase64(encodedSamlAssertion);
           LOGGER.trace("Header value: {}", tokenString);
           securityToken = SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(tokenString);
-          SAMLAuthenticationToken samlToken =
-              new SAMLAuthenticationToken(null, securityToken, realm);
+          SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken);
           handlerResult.setToken(samlToken);
           handlerResult.setStatus(HandlerResult.Status.COMPLETED);
         } catch (IOException e) {
@@ -118,7 +106,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
         securityToken = new SecurityToken();
         Element thisToken = StaxUtils.read(new StringReader(tokenString)).getDocumentElement();
         securityToken.setToken(thisToken);
-        SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken, realm);
+        SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, securityToken);
         handlerResult.setToken(samlToken);
         handlerResult.setStatus(HandlerResult.Status.COMPLETED);
       } catch (IOException e) {
@@ -149,20 +137,18 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
       // If so, create a SAMLAuthenticationToken using the sessionId
       SecurityTokenHolder savedToken =
           (SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION);
-      if (savedToken != null && savedToken.getSecurityToken(realm) != null) {
-        SecurityAssertionImpl assertion =
-            new SecurityAssertionImpl(savedToken.getSecurityToken(realm));
+      if (savedToken != null && savedToken.getSecurityToken() != null) {
+        SecurityAssertionImpl assertion = new SecurityAssertionImpl(savedToken.getSecurityToken());
         if (assertion.isPresentlyValid()) {
           LOGGER.trace("Creating SAML authentication token with session.");
-          SAMLAuthenticationToken samlToken =
-              new SAMLAuthenticationToken(null, session.getId(), realm);
+          SAMLAuthenticationToken samlToken = new SAMLAuthenticationToken(null, session.getId());
           handlerResult.setToken(samlToken);
           handlerResult.setStatus(HandlerResult.Status.COMPLETED);
           return handlerResult;
         } else {
           LOGGER.trace(
               "SAML token in session has expired - removing from session and returning with no results");
-          savedToken.remove(realm);
+          savedToken.remove();
         }
       } else {
         LOGGER.trace("No SAML token located in session - returning with no results");

@@ -307,6 +307,36 @@ public final class SubjectUtils {
                 }));
   }
 
+  /**
+   * Retrieves the type of the Security Assertion inside the given Subject.
+   *
+   * @param subject Subject to get the user name from.
+   * @return String representation of the user name if available or defaultName if no user name
+   *     could be found or incoming subject was null.
+   */
+  public static String getType(Subject subject) {
+    if (subject == null) {
+      LOGGER.debug("Incoming subject was null, cannot look up security assertion type.");
+      return null;
+    }
+
+    PrincipalCollection principals = subject.getPrincipals();
+    if (principals == null) {
+      LOGGER.debug(
+          "No principals located in the incoming subject, cannot look up security assertion type.");
+      return null;
+    }
+
+    SecurityAssertion assertion = principals.oneByType(SecurityAssertion.class);
+    if (assertion == null) {
+      LOGGER.debug(
+          "No principals located in the incoming subject, cannot look up security assertion type.");
+      return null;
+    }
+
+    return assertion.getTokenType();
+  }
+
   private static SortedSet<String> getAttributeValues(
       org.opensaml.saml.saml2.core.Attribute attribute) {
     return attribute

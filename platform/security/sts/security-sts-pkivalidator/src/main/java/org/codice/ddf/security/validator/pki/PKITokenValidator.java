@@ -76,8 +76,6 @@ public class PKITokenValidator implements TokenValidator {
 
   private String signaturePropertiesPath;
 
-  private List<String> realms = new ArrayList<>();
-
   private boolean doPathValidation = true;
 
   /** Initialize Merlin crypto object. */
@@ -102,10 +100,6 @@ public class PKITokenValidator implements TokenValidator {
     this.validator = validator;
   }
 
-  public void setRealms(List<String> realms) {
-    this.realms = realms;
-  }
-
   /**
    * Return true if this TokenValidator implementation is capable of validating the ReceivedToken
    * argument.
@@ -127,13 +121,7 @@ public class PKITokenValidator implements TokenValidator {
    */
   public boolean canHandleToken(ReceivedToken validateTarget, String realm) {
     PKIAuthenticationToken pkiToken = getPKITokenFromTarget(validateTarget);
-    if (pkiToken != null) {
-      if (realms != null && realms.contains(pkiToken.getRealm())
-          || "*".equals(pkiToken.getRealm())) {
-        return true;
-      }
-    }
-    return false;
+    return pkiToken != null;
   }
 
   /**
@@ -303,8 +291,7 @@ public class PKITokenValidator implements TokenValidator {
       BaseAuthenticationToken base = null;
       try {
         base = PKIAuthenticationToken.parse(encodedCredential, true);
-        return new PKIAuthenticationToken(
-            base.getPrincipal(), base.getCredentials().toString(), base.getRealm());
+        return new PKIAuthenticationToken(base.getPrincipal(), base.getCredentials().toString());
       } catch (WSSecurityException e) {
         LOGGER.info(
             "Unable to parse {} from encodedToken.",

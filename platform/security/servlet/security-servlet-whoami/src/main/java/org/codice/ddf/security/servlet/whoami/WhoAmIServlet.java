@@ -21,9 +21,6 @@ import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,29 +48,26 @@ public class WhoAmIServlet extends HttpServlet {
           .create();
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
     resp.setHeader("Cache-Control", "no-cache, no-store");
     resp.setHeader("Pragma", "no-cache");
 
     HttpSession session = httpSessionFactory.getOrCreateSession(req);
-    Map<String, SecurityToken> tokenMap =
+    SecurityToken token =
         ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION))
-            .getRealmTokenMap();
+            .getSecurityToken();
 
-    Map<String, WhoAmI> realmToWhoMap = new HashMap<>();
-    for (Map.Entry<String, SecurityToken> entry : tokenMap.entrySet()) {
-      try {
-        WhoAmI whoAmI = new WhoAmI(securityManager.getSubject(entry.getValue()));
-        realmToWhoMap.put(entry.getKey(), whoAmI);
-      } catch (SecurityServiceException e) {
-        LOGGER.debug("Unable to get subject from realm ({}) token.", entry.getKey(), e);
-      }
+    String whoAmIJson = "";
+    try {
+      WhoAmI whoAmI = new WhoAmI(securityManager.getSubject(token));
+      whoAmIJson = gson.toJson(whoAmI);
+    } catch (SecurityServiceException e) {
+      LOGGER.debug("Unable to get subject from token.", e);
     }
 
     resp.setContentType("application/json");
     try {
-      resp.getWriter().print(gson.toJson(realmToWhoMap));
+      resp.getWriter().print(whoAmIJson);
     } catch (IOException ex) {
       LOGGER.debug("Unable to write to response for /whoami", ex);
     }

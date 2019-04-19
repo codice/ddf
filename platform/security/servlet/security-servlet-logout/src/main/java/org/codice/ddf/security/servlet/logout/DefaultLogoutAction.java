@@ -22,13 +22,13 @@ import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LdapLogoutAction implements ActionProvider {
+public class DefaultLogoutAction implements ActionProvider {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(KarafLogoutAction.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLogoutAction.class);
 
-  private static final String ID = "security.logout.ldap";
+  private static final String ID = "security.logout.default";
 
-  private static final String TITLE = "Ldap Logout";
+  private static final String TITLE = "Local Logout";
 
   private static final String DESCRIPTION =
       "Logging out of local system. Accounts signed into external identity providers will remain logged in.";

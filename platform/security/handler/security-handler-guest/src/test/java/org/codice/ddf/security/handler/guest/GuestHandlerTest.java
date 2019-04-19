@@ -56,8 +56,7 @@ public class GuestHandlerTest {
     assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
     assertTrue(result.getToken() instanceof GuestAuthenticationToken);
     assertEquals("Guest", result.getToken().getCredentials());
-    assertEquals(null, result.getToken().getRealm());
-    assertEquals("null-GuestHandler", result.getSource());
+    assertEquals("GuestHandler", result.getSource());
   }
 
   @Test
@@ -80,7 +79,7 @@ public class GuestHandlerTest {
     assertNotNull(result);
     assertEquals(HandlerResult.Status.REDIRECTED, result.getStatus());
     assertNull(result.getToken());
-    assertEquals("DDF-GuestHandler", result.getSource());
+    assertEquals("GuestHandler", result.getSource());
     assertEquals(GuestHandler.INVALID_MESSAGE, writer.toString());
   }
 }

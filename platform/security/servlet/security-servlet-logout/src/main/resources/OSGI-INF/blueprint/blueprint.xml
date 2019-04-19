@@ -19,18 +19,9 @@
 
     <service interface="ddf.action.ActionProvider">
         <service-properties>
-            <entry key="id" value="security.logout.karaf"/>
+            <entry key="id" value="security.logout.default"/>
         </service-properties>
-        <bean class="org.codice.ddf.security.servlet.logout.KarafLogoutAction">
-        </bean>
-    </service>
-
-    <service interface="ddf.action.ActionProvider">
-        <service-properties>
-            <entry key="id" value="security.logout.ldap"/>
-        </service-properties>
-        <bean class="org.codice.ddf.security.servlet.logout.LdapLogoutAction">
-        </bean>
+        <bean class="org.codice.ddf.security.servlet.logout.DefaultLogoutAction"/>
     </service>
 
     <reference-list id="logoutActionProvidersList" interface="ddf.action.ActionProvider"

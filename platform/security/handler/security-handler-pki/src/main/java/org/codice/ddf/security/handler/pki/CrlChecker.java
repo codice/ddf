@@ -44,7 +44,7 @@ public class CrlChecker {
 
   public static final String CRL_PROPERTY_KEY = Merlin.OLD_PREFIX + Merlin.X509_CRL_FILE;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPKIHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CrlChecker.class);
 
   private static String encryptionPropertiesLocation =
       new AbsolutePathResolver("etc/ws-security/server/encryption.properties").getPath();
