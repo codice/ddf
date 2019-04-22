@@ -9,6 +9,8 @@
 
 The queries endpoint enables an application to create, retrieve, update, and delete query metacards.
 
+Query metacards represent queries within the UI. A query metacard is what is persisted in the data store.
+
 The queries endpoint can be used for one or more of these operations on an instance of ${branding}:
 
 * Create query metacards and store them in the ${branding} catalog.
@@ -18,7 +20,7 @@ The queries endpoint can be used for one or more of these operations on an insta
 * Delete query metacards that are stored in the ${branding} catalog.
 
 .Queries Endpoint URL
-[source,http]
+[source,https]
 ----
 https://<HOSTNAME>:<PORT>/search/catalog/internal/queries
 ----
@@ -28,7 +30,7 @@ https://<HOSTNAME>:<PORT>/search/catalog/internal/queries
 To create a query metacard through the queries endpoint, send a `POST` request to the queries endpoint.
 
 .Queries Endpoint Create Request Body
-[source,json]
+[source,json,linenums]
 ----
 {
 	"cql":"(\"anyText\" ILIKE 'foo bar')",
@@ -48,7 +50,7 @@ To create a query metacard through the queries endpoint, send a `POST` request t
 A successful create request will return a status of `201 CREATED`.
 
 .Queries Endpoint Create Success Response Body
-[source,json]
+[source,json,linenums]
 ----
 {
     "id": "12bfc601cda449d58733eacaf613b93d",
@@ -78,7 +80,7 @@ A successful create request will return a status of `201 CREATED`.
 An unsuccessful create request will return a status of `500 SERVER ERROR`.
 
 .Queries Endpoint Create Failure Response Body
-[source,json]
+[source,json,linenums]
 ----
 {
     "message": "Something went wrong."
@@ -130,9 +132,9 @@ A successful retrieval request will return a status of `200 OK`.
 === Queries Endpoint Retrieve Examples
 
 .Retrieve Specific Query Endpoint URL
-[source,http]
+[source,https]
 ----
-https://<HOSTNAME>:<PORT>/search/catalog/internal/queries/:id
+https://<HOSTNAME>:<PORT>/search/catalog/internal/queries/<ID>
 ----
 
 To retrieve a specific query metacard through the queries endpoint, send a `GET` request to the queries endpoint with an id.
@@ -140,7 +142,7 @@ To retrieve a specific query metacard through the queries endpoint, send a `GET`
 A successful retrieval request will return a status of `200 OK`.
 
 .Query Endpoint Not Found Response Body
-[source,json]
+[source,json,linenums]
 ----
 {
     "message": "Could not find metacard for id: <metacardId>"
@@ -152,15 +154,15 @@ An unsuccessful retrieval request will return a status of `404 NOT FOUND`.
 === Queries Endpoint Update Examples
 
 .Update Query Endpoint URL
-[source,http]
+[source,https]
 ----
-https://<HOSTNAME>:<PORT>/search/catalog/internal/queries/:id
+https://<HOSTNAME>:<PORT>/search/catalog/internal/queries/<ID>
 ----
 
 To update a specific query metacard through the queries endpoint, send a `PUT` request to the queries endpoint with an id.
 
 .Update Query Request Request Body
-[source,json]
+[source,json,linenums]
 ----
 {
 	"cql":"(\"anyText\" ILIKE 'foo bar')",
@@ -180,7 +182,7 @@ To update a specific query metacard through the queries endpoint, send a `PUT` r
 A successful update request will return a status of `200 OK`.
 
 .Update Query Request Response Body
-[source,json]
+[source,json,linenums]
 ----
 {
     "id": "cd6b83db301544e4bb7ece39564261ca",
@@ -210,7 +212,7 @@ A successful update request will return a status of `200 OK`.
 An unsuccessful update request will return a status of `404 NOT FOUND`.
 
 .Update Query Unsuccessful Response Body
-[source,json]
+[source,json,linenums]
 ----
 {
     "message": "Form is either restricted or not found."
@@ -221,9 +223,9 @@ An unsuccessful update request will return a status of `404 NOT FOUND`.
 === Queries Endpoint Delete Examples
 
 .Delete Query Endpoint URL
-[source,http]
+[source,https]
 ----
-https://<HOSTNAME>:<PORT>/search/catalog/internal/queries/:id
+https://<HOSTNAME>:<PORT>/search/catalog/internal/queries/<ID>
 ----
 
 To delete a specific query metacard through the queries endpoint, send a `GET` request to the queries endpoint with an id.
@@ -233,7 +235,7 @@ A successful deletion request will return a status of `204 NO CONTENT`.
 An unsuccessful deletion request will return a status of `404 NOT FOUND`.
 
 .Delete Query Not Found Response Body
-[source,json]
+[source,json,linenums]
 ----
 {
     "message": "Form is either restricted or not found."
