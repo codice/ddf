@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.admin.core.impl;
 
+import ddf.platform.solr.security.SolrPasswordUpdate;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -106,6 +107,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
   private ObjectName objectName;
   private String oldHostName = SystemBaseUrl.INTERNAL.getHost();
   private GuestClaimsHandlerExt guestClaimsHandlerExt;
+  private SolrPasswordUpdate solrPasswordUpdate;
 
   public SystemPropertiesAdmin(GuestClaimsHandlerExt guestClaimsHandlerExt)
       throws NotCompliantMBeanException {
@@ -218,6 +220,8 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
             systemDotProperties.put(key, value);
           });
 
+      solrPasswordUpdate(systemDotProperties);
+
       systemDotProperties.save();
     } catch (IOException e) {
       LOGGER.warn("Exception while reading or writing to system.properties file.", e);
@@ -225,6 +229,12 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
 
     writeOutUsersDotPropertiesFile(userPropertiesFile);
     writeOutUsersDotAttributesFile(userAttributesFile);
+  }
+
+  private void solrPasswordUpdate(Properties systemDotProperties) {
+    if (getSolrPasswordUpdate() != null) {
+      getSolrPasswordUpdate().update(systemDotProperties);
+    }
   }
 
   /*
@@ -379,5 +389,13 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     } catch (InstanceNotFoundException | MBeanRegistrationException e) {
       throw new MBeanRegistrationException(e, "Exception unregistering mbean");
     }
+  }
+
+  public SolrPasswordUpdate getSolrPasswordUpdate() {
+    return solrPasswordUpdate;
+  }
+
+  public void setSolrPasswordUpdate(SolrPasswordUpdate solrPasswordUpdate) {
+    this.solrPasswordUpdate = solrPasswordUpdate;
   }
 }

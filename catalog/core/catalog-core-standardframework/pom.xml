@@ -354,11 +354,6 @@
             <artifactId>security-rest-cxfwrapper</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-password</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.awaitility</groupId>
