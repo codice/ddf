@@ -72,7 +72,7 @@ public class InstallDistributionExtension extends AbstractInstallExtension<Insta
     return Stream.of(
             Stream.of(solrOption(annotation.solr())),
             InstallDistributionExtension.installProfileOptions(
-                annotation.profile(), 3L, TimeUnit.MINUTES),
+                annotation.profile(), 15L, TimeUnit.MINUTES),
             InstallDistributionExtension.securityProfileOptions(
                 interpolator, annotation.security()))
         .flatMap(Function.identity())
@@ -91,8 +91,8 @@ public class InstallDistributionExtension extends AbstractInstallExtension<Insta
    */
   public static Stream<Option> installProfileOptions(String profile, long duration, TimeUnit unit) {
     return Stream.of(
-        new KarafSshCommandOption("wfr", TimeUnit.SECONDS.toMillis(60)),
-        new KarafSshCommandOption("profile:install " + profile, unit.toMillis(duration)) {
+        new KarafSshCommandOption(
+            "wfr && profile:install " + profile + " && wfr", unit.toMillis(duration)) {
           @Override
           public String getCommand() {
             if (StringUtils.isNoneEmpty(profile)) {
