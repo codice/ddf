@@ -164,6 +164,7 @@ module.exports = plugin(
     },
     setupSpellcheck: function() {
       if (!properties.isSpellcheckEnabled) {
+        this.model.set('spellcheck', false)
         return
       }
       const spellcheckView = Marionette.ItemView.extend({
