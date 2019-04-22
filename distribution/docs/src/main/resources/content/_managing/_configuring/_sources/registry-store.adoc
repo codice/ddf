@@ -11,11 +11,6 @@
 
 == {title}
 
-[NOTE]
-====
-The Registry Store is currently marked *Experimental*. While functional and tested, it is subject to change or removal during the incubation period.
-====
-
 The Registry Store is the interface that allows CSW messages to be turned into usable Registry metacards and for those metacards to be turned back into CSW messages.
 
 .Installing Registry Store
