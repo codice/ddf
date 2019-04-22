@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.security.OcspService;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
@@ -41,6 +42,8 @@ public class GuestHandlerTest {
     GuestHandler handler = new GuestHandler();
     PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
     handler.setTokenFactory(tokenFactory);
+    OcspService ocspService = mock(OcspService.class);
+    handler.setOcspService(ocspService);
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);

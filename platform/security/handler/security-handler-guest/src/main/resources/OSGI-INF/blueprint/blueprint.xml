@@ -26,8 +26,11 @@
                   value="${ddf.etc}/ws-security/server/signature.properties"/>
     </bean>
 
+    <reference id="ocspService" interface="org.codice.ddf.security.OcspService"/>
+
     <bean id="handler" class="org.codice.ddf.security.handler.guest.GuestHandler">
         <property name="tokenFactory" ref="tokenFactory"/>
+        <property name="ocspService" ref="ocspService"/>
     </bean>
 
     <service ref="handler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"

@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.security.OcspService;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
@@ -44,6 +45,8 @@ public class GuestHandler implements AuthenticationHandler {
   public static final String INVALID_MESSAGE = "Username/Password is invalid.";
 
   private PKIAuthenticationTokenFactory tokenFactory;
+
+  private OcspService ocspService;
 
   @Override
   public String getAuthenticationType() {
@@ -100,6 +103,7 @@ public class GuestHandler implements AuthenticationHandler {
     // if basic fails, check for PKI
     PKIHandler pkiHandler = new PKIHandler();
     pkiHandler.setTokenFactory(tokenFactory);
+    pkiHandler.setOcspService(ocspService);
     handlerResult = pkiHandler.getNormalizedToken(request, response, chain, false);
     if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
       return handlerResult.getToken();
@@ -135,5 +139,9 @@ public class GuestHandler implements AuthenticationHandler {
 
   public void setTokenFactory(PKIAuthenticationTokenFactory tokenFactory) {
     this.tokenFactory = tokenFactory;
+  }
+
+  public void setOcspService(OcspService ocspService) {
+    this.ocspService = ocspService;
   }
 }

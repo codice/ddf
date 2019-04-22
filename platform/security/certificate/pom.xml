@@ -26,5 +26,6 @@
         <module>security-certificate-keystoreeditor</module>
         <module>security-certificate-generator</module>
         <module>security-crl-generator</module>
+        <module>security-ocsp-checker</module>
     </modules>
 </project>
