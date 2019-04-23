@@ -19,9 +19,11 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.concurrent.TimeUnit;
 import org.codice.ddf.dominion.commons.options.DDFCommonOptions;
 import org.codice.dominion.interpolate.Interpolate;
 import org.codice.dominion.options.Option;
+import org.codice.dominion.options.Options;
 import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.dominion.options.karaf.KarafOptions.DistributionConfiguration;
 
@@ -63,6 +65,8 @@ public class DDFOptions {
    * org.codice.dominion.Dominion#DISTRIBUTION_PROPERTY} system property will be retained; thus
    * allowing a particular test written for DDF a chance to run with any downstream distributions.
    */
+  // increase system timeout for CI environments
+  @Options.SetSystemTimeout(unit = TimeUnit.MINUTES, value = 20)
   @DDFCommonOptions.Install
   @KarafOptions.InstallFeature
   @Option.Annotation
