@@ -112,7 +112,7 @@ src="data:image/jpeg;charset=utf-8;base64, CA=="&gt;&lt;/a&gt;&lt;/div&gt;
         &lt;td&gt;Wed Oct 30 09:46:29 MDT 2013&lt;/td&gt;
       &lt;/tr&gt;
       &lt;tr&gt;
-￼￼￼        &lt;td class="label"&gt;Effective:&lt;/td&gt;
+        &lt;td class="label"&gt;Effective:&lt;/td&gt;
         &lt;td&gt;2014-01-07T14:48:47-0700&lt;/td&gt;
       &lt;/tr&gt;
     &lt;/table&gt;
