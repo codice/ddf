@@ -113,9 +113,6 @@ function getGoldenLayoutSettings() {
   }
 }
 
-function registerComponent(marionetteView, name, ComponentView) {
-  registerComponent(marionetteView, name, ComponentView, {})
-}
 // see https://github.com/deepstreamIO/golden-layout/issues/239 for details on why the setTimeout is necessary
 // The short answer is it mostly has to do with making sure these ComponentViews are able to function normally (set up events, etc.)
 function registerComponent(
