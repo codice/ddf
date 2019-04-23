@@ -17,7 +17,7 @@ define(['backbone', 'js/model/Jolokia', 'backboneassociations'], function(
   Backbone,
   Jolokia
 ) {
-  var Certificate = {}
+  const Certificate = {}
 
   Certificate.Model = Jolokia.extend({
     relations: [
@@ -42,7 +42,7 @@ define(['backbone', 'js/model/Jolokia', 'backboneassociations'], function(
       '../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore',
     postOperation: 'addTrustedCertificate',
     validate: function() {
-      var alias = this.get('alias')
+      const alias = this.get('alias')
       if (alias === undefined || alias === '') {
         return 'A certificate must have an alias.'
       }

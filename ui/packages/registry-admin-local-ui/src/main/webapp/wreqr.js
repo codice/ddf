@@ -12,7 +12,7 @@
 
 define(['backbone', 'marionette'], function(Backbone) {
   'use strict'
-  var wreqr = {}
+  const wreqr = {}
 
   wreqr.vent = new Backbone.Wreqr.EventAggregator()
   wreqr.commands = new Backbone.Wreqr.Commands()

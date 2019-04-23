@@ -77,14 +77,14 @@ define([
       })
     },
     onFeatureAction: function(model) {
-      var self = this
-      var status = model.get('status')
-      var featureModel = new FeatureModel.Model({
+      const self = this
+      const status = model.get('status')
+      const featureModel = new FeatureModel.Model({
         name: model.get('name'),
       })
       //TODO: add loading div...
       if (status === 'Uninstalled') {
-        var install = featureModel.install()
+        const install = featureModel.install()
         if (install) {
           install
             .done(function() {
@@ -102,7 +102,7 @@ define([
             })
         }
       } else {
-        var uninstall = featureModel.uninstall()
+        const uninstall = featureModel.uninstall()
         if (uninstall) {
           uninstall
             .done(function() {

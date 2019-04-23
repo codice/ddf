@@ -20,7 +20,7 @@ define([
   'templates/installer/profile.handlebars',
   'jquery',
 ], function(Marionette, Backbone, profileTemplate, $) {
-  var ProfileView = Marionette.ItemView.extend({
+  const ProfileView = Marionette.ItemView.extend({
     template: profileTemplate,
     tagName: 'div',
     className: 'full-height',
@@ -64,7 +64,7 @@ define([
     },
     next: function() {
       //this is your hook to perform any validation you need to do before going to the next step
-      var selectedProfile = this.model.get('selectedProfile')
+      const selectedProfile = this.model.get('selectedProfile')
       this.navigationModel.trigger('block')
       this.showLoading()
       this.installProfile(selectedProfile, this)
@@ -99,7 +99,7 @@ define([
     },
 
     doOptionSelected: function(evt) {
-      var input = this.$(evt.currentTarget).find('input')
+      const input = this.$(evt.currentTarget).find('input')
       this.model.set('selectedProfile', input.val())
     },
 

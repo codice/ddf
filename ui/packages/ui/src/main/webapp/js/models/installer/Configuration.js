@@ -15,15 +15,15 @@
 
 /** Main view page for add. */
 define(['backbone', 'jquery', 'backboneassociations'], function(Backbone, $) {
-  var Configuration = {}
+  const Configuration = {}
 
   /*
 * MODEL
 */
   Configuration.SystemProperty = Backbone.Model.extend({
     validate: function(attrs) {
-      var validation = []
-      var errorMessage = ''
+      const validation = []
+      let errorMessage = ''
       if (attrs.title.indexOf('Port') > -1) {
         var value = attrs.value
         if (value && !$.isNumeric(value)) {
@@ -60,16 +60,17 @@ define(['backbone', 'jquery', 'backboneassociations'], function(Backbone, $) {
     },
 
     save: function() {
-      var mbean = 'org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean'
-      var operation = 'writeSystemProperties'
+      const mbean =
+        'org.codice.ddf.ui.admin.api:type=SystemPropertiesAdminMBean'
+      const operation = 'writeSystemProperties'
 
-      var data = {
+      let data = {
         type: 'EXEC',
         mbean: mbean,
         operation: operation,
       }
 
-      var propertiesMap = {}
+      const propertiesMap = {}
       this.models.forEach(function(model) {
         propertiesMap[model.get('key')] = model.get('value')
       })

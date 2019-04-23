@@ -24,7 +24,7 @@ define([
   'js/model/Status.js',
   'backboneassociation',
 ], function(wreqr, Service, Backbone, _, $, Q, poller, Status) {
-  var Source = {}
+  const Source = {}
 
   Source.ConfigurationList = Backbone.Collection.extend({
     model: Service.Configuration,
@@ -53,7 +53,7 @@ define([
       this.stopPolling()
     },
     stopPolling: function() {
-      var statusModel = this.get('statusModel')
+      const statusModel = this.get('statusModel')
       if (statusModel) {
         statusModel.stopListening()
         poller.get(statusModel).destroy()
@@ -80,13 +80,13 @@ define([
       }
     },
     setCurrentConfiguration: function(configuration) {
-      var sync = 'sync'
-      var statusUpdate = 'status:update-'
+      const sync = 'sync'
+      const statusUpdate = 'status:update-'
       this.set({ currentConfiguration: configuration })
 
-      var pid = configuration.id
+      const pid = configuration.id
 
-      var statusModel = this.get('statusModel')
+      let statusModel = this.get('statusModel')
       if (statusModel) {
         statusModel.set({ id: pid })
       } else {
@@ -100,11 +100,11 @@ define([
       poller.get(statusModel, { delay: 30000 }).start()
     },
     hasConfiguration: function(configuration) {
-      var id = configuration.get('id')
-      var curConfig = this.get('currentConfiguration')
-      var hasConfig = false
+      const id = configuration.get('id')
+      const curConfig = this.get('currentConfiguration')
+      let hasConfig = false
 
-      var found = this.get('disabledConfigurations').find(function(config) {
+      const found = this.get('disabledConfigurations').find(function(config) {
         return config.get('fpid') === id + '_disabled'
       })
       if (_.isUndefined(found)) {
@@ -129,22 +129,22 @@ define([
       })
     },
     initializeConfigurationFromMetatype: function(metatype) {
-      var src = this
+      const src = this
       src.configuration = new Source.Configuration()
       metatype.forEach(function(obj) {
-        var id = obj.id
-        var val = obj.defaultValue
+        const id = obj.id
+        const val = obj.defaultValue
         src.configuration.set(id, val ? val.toString() : null)
       })
     },
     size: function() {
-      var ct = _.isUndefined(this.get('currentConfiguration')) ? 0 : 1
+      const ct = _.isUndefined(this.get('currentConfiguration')) ? 0 : 1
       return ct + this.get('disabledConfigurations').length
     },
     getActions: function(action) {
-      var src = this
-      var currentConfig = src.get('currentConfiguration')
-      var actions = []
+      const src = this
+      const currentConfig = src.get('currentConfiguration')
+      let actions = []
 
       if (!_.isUndefined(currentConfig)) {
         actions = currentConfig.get(action)
@@ -160,16 +160,16 @@ define([
       return actions
     },
     getCurrentUrl: function() {
-      var src = this
-      var currentConfig = src.get('currentConfiguration')
+      const src = this
+      const currentConfig = src.get('currentConfiguration')
       if (currentConfig !== undefined) {
-        var configProps = currentConfig.attributes.properties.attributes
-        var configPropKeys = Object.keys(configProps)
+        const configProps = currentConfig.attributes.properties.attributes
+        const configPropKeys = Object.keys(configProps)
 
-        var urls = configPropKeys.filter(function(item) {
+        const urls = configPropKeys.filter(function(item) {
           return /.*Address|.*Url/.test(item)
         })
-        var filteredKeys = urls.filter(function(item) {
+        const filteredKeys = urls.filter(function(item) {
           return /^(?!event|site).*$/.test(item)
         })
 
@@ -194,7 +194,7 @@ define([
         return
       }
 
-      var unique = true
+      let unique = true
       uniqueArray.forEach(function(arrayItem) {
         if (_.isEqual(arrayItem, addThis)) {
           unique = false
@@ -209,14 +209,14 @@ define([
      *  Method to get a list of all configs, each with its corresponding service and properties
      */
     getAllConfigsWithServices: function() {
-      var theConfigs = this.getAllConfigServices()
-      var listOfConfigStrings = []
+      const theConfigs = this.getAllConfigServices()
+      const listOfConfigStrings = []
       theConfigs.models.forEach(
         function(con) {
           listOfConfigStrings.push(con.id)
         }.bind(this)
       )
-      var configsWithServices = []
+      const configsWithServices = []
       listOfConfigStrings.forEach(
         function(conString) {
           configsWithServices.push(this.findConfigFromId(conString))
@@ -228,11 +228,11 @@ define([
      * Uses the current context's model to return a Backbone collection of all configurations service's
      */
     getAllConfigServices: function() {
-      var configs = new Backbone.Collection()
-      var disabledConfigs = this.get('disabledConfigurations')
-      var currentConfig = this.get('currentConfiguration')
+      const configs = new Backbone.Collection()
+      const disabledConfigs = this.get('disabledConfigurations')
+      const currentConfig = this.get('currentConfiguration')
       if (!_.isUndefined(currentConfig)) {
-        var currentService = currentConfig.get('service')
+        const currentService = currentConfig.get('service')
         configs.add(currentService)
       }
       if (!_.isUndefined(disabledConfigs)) {
@@ -246,15 +246,15 @@ define([
      *  Retrieve a configuration with its service by its string id.
      */
     findConfigFromId: function(id) {
-      var currentConfig = this.get('currentConfiguration')
-      var disabledConfigs = this.get('disabledConfigurations')
-      var config
+      const currentConfig = this.get('currentConfiguration')
+      const disabledConfigs = this.get('disabledConfigurations')
+      let config
       if (!_.isUndefined(currentConfig) && currentConfig.get('fpid') === id) {
         config = currentConfig
       } else {
         if (!_.isUndefined(disabledConfigs)) {
           config = disabledConfigs.find(function(item) {
-            var service = item.get('service')
+            const service = item.get('service')
             if (!_.isUndefined(service) && !_.isNull(service)) {
               return service.get('id') === id
             }
@@ -280,7 +280,7 @@ define([
      * @returns the HTTP method parsed from the id, GET is the default return if one isn't found
      */
     getHttpMethod: function(id) {
-      var httpIndex = id.indexOf('HTTP_')
+      const httpIndex = id.indexOf('HTTP_')
       if (httpIndex > 0) {
         return id.substring(httpIndex + 5)
       }
@@ -291,8 +291,8 @@ define([
   Source.Collection = Backbone.Collection.extend({
     model: Source.Model,
     addSource: function(configuration, enabled) {
-      var source
-      var sourceId = configuration.get('properties').get('shortname')
+      let source
+      let sourceId = configuration.get('properties').get('shortname')
       if (!sourceId) {
         sourceId = configuration.get('properties').get('id')
       }
@@ -315,13 +315,13 @@ define([
       this.remove(source)
     },
     removeAllSources: function() {
-      var source
+      let source
       while ((source = this.first())) {
         this.removeSource(source)
       }
     },
     comparator: function(model) {
-      var str = model.get('name') || ''
+      const str = model.get('name') || ''
       return str.toLowerCase()
     },
   })
@@ -330,7 +330,7 @@ define([
     initialize: function(options) {
       if (options.model) {
         this.model = options.model
-        var collection = new Source.Collection()
+        const collection = new Source.Collection()
         this.set({
           collection: collection,
         })
@@ -338,14 +338,14 @@ define([
       }
     },
     parseServiceModel: function() {
-      var resModel = this
-      var collection = resModel.get('collection')
+      const resModel = this
+      const collection = resModel.get('collection')
       collection.removeAllSources()
       if (this.model.get('value')) {
         this.model.get('value').each(function(service) {
           if (!_.isEmpty(service.get('configurations'))) {
             service.get('configurations').each(function(configuration) {
-              var cfgService = configuration.get('service')
+              const cfgService = configuration.get('service')
               if (
                 configuration.get('id') &&
                 (resModel.isSourceName(configuration.get('fpid')) ||
@@ -365,12 +365,12 @@ define([
       collection.trigger('reset')
     },
     getSourceMetatypes: function() {
-      var resModel = this
-      var metatypes = []
+      const resModel = this
+      const metatypes = []
       if (resModel.model.get('value')) {
         resModel.model.get('value').each(function(service) {
-          var id = service.get('id')
-          var name = service.get('name')
+          const id = service.get('id')
+          const name = service.get('name')
           if (this.isSourceName(id) || this.isSourceName(name)) {
             metatypes.push(service)
           }
@@ -387,14 +387,14 @@ define([
      * missing configurations as part of its disabledConfigurations.
      */
     getSourceModelWithServices: function(initialModel) {
-      var resModel = this
-      var serviceCollection = resModel.model.get('value')
+      const resModel = this
+      const serviceCollection = resModel.model.get('value')
       if (!initialModel) {
         initialModel = new Source.Model()
       }
       if (serviceCollection) {
         serviceCollection.each(function(service) {
-          var config = new Service.Configuration({
+          const config = new Service.Configuration({
             service: service,
           })
           config.set('fpid', config.get('fpid') + '_disabled')
@@ -411,8 +411,8 @@ define([
       )
     },
     createDeletePromise: function(source, config) {
-      var deferred = Q.defer()
-      var serviceModels = this.get('model').get('value')
+      const deferred = Q.defer()
+      const serviceModels = this.get('model').get('value')
       config
         .destroy()
         .done(function() {

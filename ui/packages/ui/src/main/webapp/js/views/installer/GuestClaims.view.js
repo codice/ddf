@@ -43,7 +43,7 @@ define([
   guestWarningModal,
   guestClaimsTable
 ) {
-  var GuestClaimProfiles = Marionette.ItemView.extend({
+  const GuestClaimProfiles = Marionette.ItemView.extend({
     template: guestClaimProfiles,
     events: {
       'change .profile': 'updateValues',
@@ -56,15 +56,15 @@ define([
       )
     },
     updateValues: function(e) {
-      var profileName = e.currentTarget[e.currentTarget.selectedIndex].label
-      var profile = this.model.get('availableProfiles')[profileName]
+      const profileName = e.currentTarget[e.currentTarget.selectedIndex].label
+      const profile = this.model.get('availableProfiles')[profileName]
       this.configuration.get('properties').set('attributes', profile)
       this.configuration.get('properties').set('profile', profileName)
       wreqr.vent.trigger('profileChanged')
     },
   })
 
-  var GuestClaimsMultiValuedEntry = Marionette.ItemView.extend({
+  const GuestClaimsMultiValuedEntry = Marionette.ItemView.extend({
     template: guestClaimsList,
     tagName: 'tr',
     initialize: function() {
@@ -83,7 +83,10 @@ define([
       this.checkValues()
     },
     onRender: function() {
-      var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name')
+      const bindings = Backbone.ModelBinder.createDefaultBindings(
+        this.el,
+        'name'
+      )
       this.modelBinder.bind(this.model, this.$el, bindings)
       this.model.set(
         'showInfo',
@@ -100,7 +103,7 @@ define([
       this.unbind()
     },
     selectClaim: function(e) {
-      var newValue = this.$(e.target).text()
+      let newValue = this.$(e.target).text()
       if (newValue === 'Add Custom Attribute...') {
         newValue = ''
       }
@@ -112,9 +115,9 @@ define([
       wreqr.vent.trigger('entriesChanged')
     },
     setupPopOvers: function() {
-      var view = this
+      const view = this
 
-      var options,
+      let options,
         selector = '.claims-info'
       options = {
         title: 'Claims Info',
@@ -126,7 +129,7 @@ define([
     },
   })
 
-  var GuestClaimsMultiValueCollection = Marionette.CompositeView.extend({
+  const GuestClaimsMultiValueCollection = Marionette.CompositeView.extend({
     itemView: GuestClaimsMultiValuedEntry,
     template: guestClaimsTable,
     tagName: 'table',
@@ -136,7 +139,7 @@ define([
     },
   })
 
-  var GuestClaimsMultiValuedLayout = Marionette.Layout.extend({
+  const GuestClaimsMultiValuedLayout = Marionette.Layout.extend({
     template: guestClaimsListHeader,
     tagName: 'div',
     regions: {
@@ -159,7 +162,7 @@ define([
       this.updateValues()
     },
     updateValues: function() {
-      var csvVal,
+      let csvVal,
         view = this
       csvVal = this.configuration.get('properties').get('attributes')
       this.collectionArray.reset()
@@ -177,11 +180,11 @@ define([
       this.checkWarnings()
     },
     saveValues: function() {
-      var values = []
+      const values = []
       _.each(this.collectionArray.models, function(model) {
         values.push(model.get('claimName') + '=' + model.get('claimValue'))
       })
-      var errors = this.validate()
+      const errors = this.validate()
       if (!errors) {
         this.configuration.get('properties').set('attributes', values)
       }
@@ -194,16 +197,16 @@ define([
       )
     },
     addItem: function(value) {
-      var claimName = value,
+      let claimName = value,
         claimValue = ''
-      var parts = value.split(/=/)
+      const parts = value.split(/=/)
 
       if (parts.length > 1) {
         claimName = parts[0]
         claimValue = parts[1]
       }
 
-      var claims = this.model.get('availableClaims')
+      const claims = this.model.get('availableClaims')
       this.collectionArray.add(
         new Backbone.Model({
           claimValue: claimValue,
@@ -217,10 +220,10 @@ define([
       this.claimIdCounter++
     },
     checkWarnings: function() {
-      var warnings = [],
+      const warnings = [],
         nameMap = {}
-      var claimName, claimValue
-      var immutableClaims = this.model.get('immutableClaims')
+      let claimName, claimValue
+      let immutableClaims = this.model.get('immutableClaims')
 
       _.each(this.collectionArray.models, function(model) {
         claimName = model.get('claimName')
@@ -255,9 +258,9 @@ define([
       }
     },
     validate: function() {
-      var validation = [],
+      const validation = [],
         idArray = []
-      var claimName, claimValue
+      let claimName, claimValue
 
       _.each(this.collectionArray.models, function(model) {
         claimName = model.get('claimName')
@@ -297,7 +300,7 @@ define([
     },
   })
 
-  var GuestWarningModal = Modal.extend({
+  const GuestWarningModal = Modal.extend({
     template: guestWarningModal,
     onRender: function() {
       this.show()
@@ -307,7 +310,7 @@ define([
     },
   })
 
-  var GuestClaimsView = Marionette.Layout.extend({
+  const GuestClaimsView = Marionette.Layout.extend({
     template: guestClaimsTemplate,
     className: 'full-height',
     regions: {
@@ -365,7 +368,7 @@ define([
           .at(0)
           .get('configurations').length === 0
       ) {
-        var configuration = new Service.Configuration()
+        const configuration = new Service.Configuration()
         configuration.initializeFromService(this.model.get('value').at(0))
         configuration
           .get('properties')
@@ -378,7 +381,7 @@ define([
       }
     },
     onRender: function() {
-      var view = this
+      const view = this
       this.guestClaimProfiles.show(
         new GuestClaimProfiles({
           model: new Backbone.Model(this.valObj.get('profiles')),
@@ -396,7 +399,7 @@ define([
       this.stopListening(this.navigationModel)
     },
     next: function() {
-      var view = this
+      const view = this
       this.configObj.set('ignoreWarnings', false)
       this.listenTo(this.configObj, 'invalid', function(model, errors) {
         this.configObj.get('validatedFields').forEach(function(fieldId) {
@@ -416,7 +419,7 @@ define([
       this.submitData()
 
       //save the config
-      var claims = this.configObj.attributes.properties.attributes
+      const claims = this.configObj.attributes.properties.attributes
       if (
         typeof claims.profile !== 'undefined' &&
         claims.profile !== 'Default'
@@ -434,8 +437,8 @@ define([
     },
     saveData: function() {
       //save the config
-      var view = this
-      var saved = this.configObj.save()
+      const view = this
+      const saved = this.configObj.save()
       if (saved) {
         saved
           .done(function() {
@@ -450,7 +453,7 @@ define([
       }
     },
     writeClaims: function(attributes) {
-      var data = {
+      const data = {
         type: 'EXEC',
         mbean:
           'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
@@ -466,10 +469,10 @@ define([
       })
     },
     validate: function() {
-      var errors = this.get('validationErrors')
-      var warnings = this.get('validationWarnings')
-      var ignoreWarnings = this.get('ignoreWarnings')
-      var results = errors
+      const errors = this.get('validationErrors')
+      const warnings = this.get('validationWarnings')
+      const ignoreWarnings = this.get('ignoreWarnings')
+      let results = errors
       if (!errors && warnings && !ignoreWarnings) {
         wreqr.vent.trigger('showWarnings')
         results = warnings
@@ -477,7 +480,7 @@ define([
       return results
     },
     verifyContinue: function() {
-      var modal = new GuestWarningModal({
+      const modal = new GuestWarningModal({
         model: new Backbone.Model(this.configObj.get('validationWarnings')),
       })
       this.guestClaimsModal.show(modal)

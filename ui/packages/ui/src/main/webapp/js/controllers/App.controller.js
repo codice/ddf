@@ -19,7 +19,7 @@ define([
   'components/applications/applications.view',
   'js/models/ApplicationsLayout',
 ], function(Marionette, wreqr, ApplicationGrid, ApplicationsLayout) {
-  var AppController = Marionette.Controller.extend({
+  const AppController = Marionette.Controller.extend({
     initialize: function(options) {
       this.regions = options.regions
       this.listenTo(wreqr.vent, 'navigateTo:applicationHome', this.show)

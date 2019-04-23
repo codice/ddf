@@ -11,7 +11,7 @@
  **/
 
 define([], function() {
-  var Util = {
+  const Util = {
     /**
      * Solution taken from stackoverflow. Link included.
      * http://stackoverflow.com/questions/15900485/correct-way-to-convert-size-in-bytes-to-kb-mb-gb-in-javascript

@@ -13,8 +13,8 @@
  *
  **/
 
-var store = require('../../../js/store.js')
-var SaveView = require('../unsaved-indicator.view')
+const store = require('../../../js/store.js')
+const SaveView = require('../unsaved-indicator.view')
 
 module.exports = SaveView.extend({
   attributes: {

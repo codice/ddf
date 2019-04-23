@@ -13,11 +13,11 @@
  *
  **/
 
-var Marionette = require('marionette')
-var _ = require('underscore')
-var $ = require('jquery')
-var template = require('./dropdown.visualization-selector.hbs')
-var DropdownView = require('../dropdown.view')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./dropdown.visualization-selector.hbs')
+const DropdownView = require('../dropdown.view')
 import VisualizationSelector from '../../../react-component/presentation/visualization-selector/visualization-selector'
 import React from 'react'
 const CustomElements = require('../../../js/CustomElements.js')

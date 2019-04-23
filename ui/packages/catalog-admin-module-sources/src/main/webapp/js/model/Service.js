@@ -14,13 +14,13 @@
  **/
 
 define(function(require) {
-  var Backbone = require('backbone'),
+  const Backbone = require('backbone'),
     $ = require('jquery'),
     _ = require('underscore')
 
   require('backboneassociation')
 
-  var Service = {}
+  const Service = {}
 
   Service.Metatype = Backbone.AssociatedModel.extend({})
 
@@ -61,8 +61,8 @@ define(function(require) {
      * @returns {{type: string, mbean: string, operation: string}}
      */
     collectedData: function(pid) {
-      var model = this
-      var data = {
+      const model = this
+      const data = {
         type: 'EXEC',
         mbean:
           'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
@@ -82,7 +82,7 @@ define(function(require) {
       if (!model) {
         return
       }
-      var configUrl = [
+      const configUrl = [
         model.configUrl,
         'createFactoryConfiguration',
         model.get('fpid'),
@@ -94,9 +94,9 @@ define(function(require) {
     },
 
     makeEnableCall: function() {
-      var model = this
-      var pid = model.get('id')
-      var url = [model.configUrl, 'enableConfiguration', pid].join('/')
+      const model = this
+      const pid = model.get('id')
+      const url = [model.configUrl, 'enableConfiguration', pid].join('/')
       if (pid) {
         return $.ajax({
           url: url,
@@ -115,9 +115,9 @@ define(function(require) {
     },
 
     makeDisableCall: function() {
-      var model = this
-      var pid = model.get('id')
-      var url = [model.configUrl, 'disableConfiguration', pid].join('/')
+      const model = this
+      const pid = model.get('id')
+      const url = [model.configUrl, 'disableConfiguration', pid].join('/')
       if (pid) {
         return $.ajax({
           url: url,
@@ -138,7 +138,7 @@ define(function(require) {
     // Note: this does NOT affect the service the function is called on.
     // Treat this as a static function
     makeDisableCallByPid: function(pid) {
-      var url = [this.configUrl, 'disableConfiguration', pid].join('/')
+      const url = [this.configUrl, 'disableConfiguration', pid].join('/')
       return $.ajax({
         url: url,
         dataType: 'json',
@@ -150,12 +150,12 @@ define(function(require) {
      * @return Return a deferred which is a handler with the success and failure callback.
      */
     sync: function() {
-      var deferred = $.Deferred(),
+      const deferred = $.Deferred(),
         model = this
       //if it has a pid we are editing an existing record
       if (model.id) {
-        var collect = model.collectedData(model.id)
-        var jData = JSON.stringify(collect)
+        const collect = model.collectedData(model.id)
+        const jData = JSON.stringify(collect)
 
         return $.ajax({
           type: 'POST',
@@ -174,8 +174,8 @@ define(function(require) {
         model
           .makeConfigCall(model)
           .done(function(data) {
-            var collect = model.collectedData(JSON.parse(data).value)
-            var jData = JSON.stringify(collect)
+            const collect = model.collectedData(JSON.parse(data).value)
+            const jData = JSON.stringify(collect)
 
             return $.ajax({
               type: 'POST',
@@ -197,14 +197,14 @@ define(function(require) {
       return deferred
     },
     createNewFromServer: function(deferred) {
-      var model = this,
+      const model = this,
         addUrl = [model.configUrl, 'add'].join('/')
 
       model
         .makeConfigCall(model)
         .done(function(data) {
-          var collect = model.collectedData(JSON.parse(data).value)
-          var jData = JSON.stringify(collect)
+          const collect = model.collectedData(JSON.parse(data).value)
+          const jData = JSON.stringify(collect)
 
           return $.ajax({
             type: 'POST',
@@ -224,7 +224,7 @@ define(function(require) {
         })
     },
     destroy: function() {
-      var deferred = $.Deferred(),
+      const deferred = $.Deferred(),
         model = this,
         deleteUrl = [model.configUrl, 'delete', model.id].join('/')
 
@@ -255,8 +255,8 @@ define(function(require) {
       this.initializeFromService(msf)
     },
     initializeFromService: function(service) {
-      var fpid = service.get('id')
-      var name = service.get('name')
+      const fpid = service.get('id')
+      const name = service.get('name')
       this.initializeFromMetatype(service.get('metatype'))
       this.set('service', service)
       this.set('fpid', fpid)
@@ -264,9 +264,9 @@ define(function(require) {
       this.get('properties').set('service.factoryPid', fpid)
     },
     initializeFromMetatype: function(metatype) {
-      var model = this
+      const model = this
 
-      var idModel = _.find(metatype.models, function(item) {
+      const idModel = _.find(metatype.models, function(item) {
         return item.get('id') === 'id' || item.get('id') === 'shortname'
       })
       if (!_.isUndefined(idModel)) {
@@ -276,8 +276,8 @@ define(function(require) {
         )
       }
       metatype.forEach(function(obj) {
-        var id = obj.get('id')
-        var val = obj.get('defaultValue')
+        const id = obj.get('id')
+        const val = obj.get('defaultValue')
         if (id !== 'id') {
           model.get('properties').set(id, val ? val.toString() : null)
         }
@@ -343,11 +343,11 @@ define(function(require) {
       })
     },
     initializeConfigurationFromMetatype: function(metatype) {
-      var src = this
+      const src = this
       src.configuration = new Service.Configuration()
       metatype.forEach(function(obj) {
-        var id = obj.id
-        var val = obj.defaultValue
+        const id = obj.id
+        const val = obj.defaultValue
         src.configuration.set(id, val ? val.toString() : null)
       })
     },

@@ -9,13 +9,13 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-var URL = require('url'),
+const URL = require('url'),
   request = require('request'),
   fs = require('node-fs'),
   path = require('path'),
   _ = require('lodash')
 
-var server = {}
+const server = {}
 
 server.requestProxy = function(req, res) {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -23,16 +23,16 @@ server.requestProxy = function(req, res) {
 }
 
 function getTestResource(name) {
-  var resourceDir = path.resolve('.', 'src/test/resources')
+  const resourceDir = path.resolve('.', 'src/test/resources')
   if (fs.existsSync(resourceDir)) {
-    var resourcePath = path.resolve(resourceDir, name)
+    const resourcePath = path.resolve(resourceDir, name)
     return fs.readFileSync(resourcePath, { encoding: 'utf8' })
   }
   return undefined
 }
 
 function mockTestResource(name, res) {
-  var resource = getTestResource(name)
+  const resource = getTestResource(name)
   if (resource) {
     sendJson(resource, res)
   } else {
@@ -47,11 +47,11 @@ function sendJson(data, res) {
 }
 
 server.mockRequest = function(req, res) {
-  var filename = _.last(URL.parse(req.url).pathname.split('/')) + '.json'
+  const filename = _.last(URL.parse(req.url).pathname.split('/')) + '.json'
   if (process.env.SAUCE_ACCESS_KEY && filename === 'config.json') {
     // Disable the large single image map tile due to limited bandwidth over
     // Sauce Connect tunnel
-    var resource = JSON.parse(getTestResource(filename))
+    const resource = JSON.parse(getTestResource(filename))
     resource.imageryProviders[0].url =
       'http://localhost:8888/images/noimage.png'
     sendJson(resource, res)

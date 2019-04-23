@@ -22,7 +22,7 @@ define(['icanhaz', 'marionette', 'templates/sourceOrganization.hbs'], function(
     ich.addTemplate('sourceOrganization', sourceOrganization)
   }
 
-  var OrganizationView = {}
+  let OrganizationView = {}
 
   OrganizationView = Marionette.ItemView.extend({
     template: 'sourceOrganization',

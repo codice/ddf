@@ -16,7 +16,7 @@
 // jshint ignore: start
 const moment = require('moment')
 
-var comparisonClass = 'Comparison',
+const comparisonClass = 'Comparison',
   logicalClass = 'Logical',
   spatialClass = 'Spatial',
   temporalClass = 'Temporal',
@@ -44,14 +44,14 @@ var comparisonClass = 'Comparison',
     TIME: new RegExp('^' + timePatter.source),
     TIME_PERIOD: new RegExp('^' + timePatter.source + '/' + timePatter.source),
     GEOMETRY: function(text) {
-      var type = /^(POINT|LINESTRING|POLYGON|MULTIPOINT|MULTILINESTRING|MULTIPOLYGON|GEOMETRYCOLLECTION)/.exec(
+      const type = /^(POINT|LINESTRING|POLYGON|MULTIPOINT|MULTILINESTRING|MULTIPOLYGON|GEOMETRYCOLLECTION)/.exec(
         text
       )
       if (type) {
-        var len = text.length
-        var idx = text.indexOf('(', type[0].length)
+        const len = text.length
+        let idx = text.indexOf('(', type[0].length)
         if (idx > -1) {
-          var depth = 1
+          let depth = 1
           while (idx < len && depth > 0) {
             idx++
             switch (text.charAt(idx)) {
@@ -171,16 +171,16 @@ function tryToken(text, pattern) {
 }
 
 function nextToken(text, tokens) {
-  var i,
+  let i,
     token,
     len = tokens.length
   for (i = 0; i < len; i++) {
     token = tokens[i]
-    var pat = patterns[token]
-    var matches = tryToken(text, pat)
+    const pat = patterns[token]
+    const matches = tryToken(text, pat)
     if (matches) {
-      var match = matches[0]
-      var remainder = text.substr(match.length).replace(/^\s*/, '')
+      const match = matches[0]
+      const remainder = text.substr(match.length).replace(/^\s*/, '')
       return {
         type: token,
         text: match,
@@ -189,7 +189,7 @@ function nextToken(text, tokens) {
     }
   }
 
-  var msg = 'ERROR: In parsing: [' + text + '], expected one of: '
+  let msg = 'ERROR: In parsing: [' + text + '], expected one of: '
   for (i = 0; i < len; i++) {
     token = tokens[i]
     msg += '\n    ' + token + ': ' + patterns[token]
@@ -199,8 +199,8 @@ function nextToken(text, tokens) {
 }
 
 function tokenize(text) {
-  var results = []
-  var token,
+  const results = []
+  let token,
     expect = follows['ROOT_NODE']
 
   do {
@@ -243,11 +243,11 @@ const translateCqlToUserql = str =>
   )
 
 function buildAst(tokens) {
-  var operatorStack = [],
+  const operatorStack = [],
     postfix = []
 
   while (tokens.length) {
-    var tok = tokens.shift()
+    const tok = tokens.shift()
     switch (tok.type) {
       case 'PROPERTY':
         // Remove single and double quotes if they exist in property name
@@ -268,7 +268,7 @@ function buildAst(tokens) {
       case 'BEFORE':
       case 'AFTER':
       case 'DURING':
-        var p = precedence[tok.type]
+        const p = precedence[tok.type]
 
         while (
           operatorStack.length > 0 &&
@@ -300,7 +300,7 @@ function buildAst(tokens) {
 
         // if this right parenthesis ends a function argument list (it's not for a logical grouping),
         // it's now time to add that function to the postfix-ordered list
-        var lastOperatorType =
+        const lastOperatorType =
           operatorStack.length > 0 &&
           operatorStack[operatorStack.length - 1].type
         if (
@@ -324,25 +324,25 @@ function buildAst(tokens) {
   }
 
   function buildTree() {
-    var value,
+    let value,
       property,
       tok = postfix.pop()
     switch (tok.type) {
       case 'LOGICAL':
-        var rhs = buildTree(),
+        const rhs = buildTree(),
           lhs = buildTree()
         return {
           filters: [lhs, rhs],
           type: tok.text.toUpperCase(),
         }
       case 'NOT':
-        var operand = buildTree()
+        const operand = buildTree()
         return {
           filters: [operand],
           type: tok.type,
         }
       case 'BETWEEN':
-        var min, max
+        let min, max
         postfix.pop() // unneeded AND token here
         max = buildTree()
         min = buildTree()
@@ -363,7 +363,7 @@ function buildAst(tokens) {
           type: tok.text.toUpperCase(),
         }
       case 'DURING':
-        var dates = buildTree().split('/')
+        const dates = buildTree().split('/')
         property = buildTree()
         return {
           property: property,
@@ -386,7 +386,7 @@ function buildAst(tokens) {
           type: tok.text.toUpperCase(),
         }
       case 'VALUE':
-        var match = tok.text.match(/^'(.*)'$/)
+        const match = tok.text.match(/^'(.*)'$/)
         if (match) {
           return translateCqlToUserql(match[1].replace(/''/g, "'"))
         } else {
@@ -402,7 +402,7 @@ function buildAst(tokens) {
       case 'SPATIAL':
         switch (tok.text.toUpperCase()) {
           case 'BBOX':
-            var maxy = buildTree(),
+            const maxy = buildTree(),
               maxx = buildTree(),
               miny = buildTree(),
               minx = buildTree(),
@@ -438,7 +438,7 @@ function buildAst(tokens) {
               value: value,
             }
           case 'DWITHIN':
-            var distance = buildTree()
+            const distance = buildTree()
             value = buildTree()
             property = buildTree()
             return {
@@ -457,13 +457,13 @@ function buildAst(tokens) {
       case 'RELATIVE':
         return tok.text.substring(1, tok.text.length - 1)
       case 'FILTER_FUNCTION':
-        var filterFunctionName = tok.text.slice(0, -1) // remove trailing '('
-        var paramCount = filterFunctionParamCount[filterFunctionName]
+        const filterFunctionName = tok.text.slice(0, -1) // remove trailing '('
+        const paramCount = filterFunctionParamCount[filterFunctionName]
         if (paramCount === undefined) {
           throw new Error('Unsupported filter function: ' + filterFunctionName)
         }
 
-        var params = Array.apply(null, Array(paramCount))
+        const params = Array.apply(null, Array(paramCount))
           .map(function() {
             return buildTree()
           })
@@ -480,10 +480,10 @@ function buildAst(tokens) {
     }
   }
 
-  var result = buildTree()
+  const result = buildTree()
   if (postfix.length > 0) {
-    var msg = 'Remaining tokens after building AST: \n'
-    for (var i = postfix.length - 1; i >= 0; i--) {
+    let msg = 'Remaining tokens after building AST: \n'
+    for (let i = postfix.length - 1; i >= 0; i--) {
       msg += postfix[i].type + ': ' + postfix[i].text + '\n'
     }
     throw new Error(msg)
@@ -493,7 +493,7 @@ function buildAst(tokens) {
 }
 
 function wrap(property) {
-  var wrapped = property
+  let wrapped = property
   if (!wrapped.startsWith('"')) {
     wrapped = '"' + wrapped
   }
@@ -508,7 +508,7 @@ function write(filter) {
     case spatialClass:
       switch (filter.type) {
         case 'BBOX':
-          var xmin = filter.value[0],
+          const xmin = filter.value[0],
             ymin = filter.value[1],
             xmax = filter.value[2],
             ymax = filter.value[3]
@@ -567,9 +567,9 @@ function write(filter) {
         // avoid extra parentheses (not urgent)
         return 'NOT (' + write(filter.filters[0]) + ')'
       } else {
-        var res = '('
-        var first = true
-        for (var i = 0; i < filter.filters.length; i++) {
+        let res = '('
+        let first = true
+        for (let i = 0; i < filter.filters.length; i++) {
           if (first) {
             first = false
           } else {
@@ -651,9 +651,9 @@ function write(filter) {
 }
 
 function simplifyFilters(cqlAst) {
-  for (var i = 0; i < cqlAst.filters.length; i++) {
+  for (let i = 0; i < cqlAst.filters.length; i++) {
     if (simplifyAst(cqlAst.filters[i], cqlAst)) {
-      var filtersToMerge = cqlAst.filters.splice(i, 1)[0]
+      const filtersToMerge = cqlAst.filters.splice(i, 1)[0]
       filtersToMerge.filters.forEach(function(filter) {
         cqlAst.filters.push(filter)
       })
@@ -720,7 +720,7 @@ function uncollapseNOTs(cqlAst, parentNode) {
 }
 
 function iterativelySimplify(cqlAst) {
-  var prevAst = JSON.parse(JSON.stringify(cqlAst))
+  let prevAst = JSON.parse(JSON.stringify(cqlAst))
   simplifyAst(cqlAst)
   while (JSON.stringify(prevAst) !== JSON.stringify(cqlAst)) {
     prevAst = JSON.parse(JSON.stringify(cqlAst))

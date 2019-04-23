@@ -18,7 +18,7 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
   $,
   _
 ) {
-  var Service = {}
+  const Service = {}
 
   Service.Metatype = Backbone.AssociatedModel.extend({})
 
@@ -59,8 +59,8 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
      * @returns {{type: string, mbean: string, operation: string}}
      */
     collectedData: function(pid) {
-      var model = this
-      var data = {
+      const model = this
+      const data = {
         type: 'EXEC',
         mbean:
           'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
@@ -80,7 +80,7 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
       if (!model) {
         return
       }
-      var configUrl = [
+      const configUrl = [
         model.configUrl,
         'createFactoryConfiguration',
         model.get('fpid'),
@@ -97,12 +97,12 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
      * @return Return a deferred which is a handler with the success and failure callback.
      */
     sync: function() {
-      var deferred = $.Deferred(),
+      const deferred = $.Deferred(),
         model = this
       //if it has a pid we are editing an existing record
       if (model.id) {
-        var collect = model.collectedData(model.id)
-        var jData = JSON.stringify(collect)
+        const collect = model.collectedData(model.id)
+        const jData = JSON.stringify(collect)
 
         return $.ajax({
           type: 'POST',
@@ -121,8 +121,8 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
         model
           .makeConfigCall(model)
           .done(function(data) {
-            var collect = model.collectedData(JSON.parse(data).value)
-            var jData = JSON.stringify(collect)
+            const collect = model.collectedData(JSON.parse(data).value)
+            const jData = JSON.stringify(collect)
 
             return $.ajax({
               type: 'POST',
@@ -144,7 +144,7 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
       return deferred
     },
     destroy: function() {
-      var deferred = $.Deferred(),
+      const deferred = $.Deferred(),
         model = this,
         deleteUrl = [model.configUrl, 'delete', model.id].join('/')
 
@@ -163,8 +163,8 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
         })
     },
     initializeFromService: function(service) {
-      var fpid = service.get('id')
-      var name = service.get('name')
+      const fpid = service.get('id')
+      const name = service.get('name')
       this.initializeFromMetatype(service.get('metatype'))
       this.set('service', service)
       this.set('fpid', fpid)
@@ -172,9 +172,9 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
       this.get('properties').set('service.factoryPid', fpid)
     },
     initializeFromMetatype: function(metatype) {
-      var model = this
+      const model = this
 
-      var idModel = _.find(metatype.models, function(item) {
+      const idModel = _.find(metatype.models, function(item) {
         return item.get('id') === 'id' || item.get('id') === 'shortname'
       })
       if (!_.isUndefined(idModel)) {
@@ -184,8 +184,8 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
         )
       }
       metatype.forEach(function(obj) {
-        var id = obj.get('id')
-        var val = obj.get('defaultValue')
+        const id = obj.get('id')
+        const val = obj.get('defaultValue')
         if (id !== 'id') {
           model.get('properties').set(id, val ? val.toString() : null)
         }
@@ -239,11 +239,11 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
       return false
     },
     initializeConfigurationFromMetatype: function(metatype) {
-      var src = this
+      const src = this
       src.configuration = new Service.Configuration()
       metatype.forEach(function(obj) {
-        var id = obj.id
-        var val = obj.defaultValue
+        const id = obj.id
+        const val = obj.defaultValue
         src.configuration.set(id, val ? val.toString() : null)
       })
     },

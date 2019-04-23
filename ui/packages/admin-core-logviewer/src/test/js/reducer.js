@@ -23,7 +23,7 @@ const hashTwo = '3d98044ff54aa08c6e57cec51a21966a'
 test('initial state', t => {
   t.plan(2)
 
-  var state = reducer()
+  const state = reducer()
   t.equal(state.logs.length, 0)
   t.deepEqual(state.filter, { level: 'ALL' })
 })
@@ -31,28 +31,28 @@ test('initial state', t => {
 test('filter logs', t => {
   t.plan(1)
 
-  var state = reducer(reducer(), actions.filter({ level: 'DEBUG' }))
+  const state = reducer(reducer(), actions.filter({ level: 'DEBUG' }))
   t.equal(state.filter.level, 'DEBUG')
 })
 
 test('append logs', t => {
   t.plan(1)
 
-  var action = actions.append([random()])
-  var state = reducer(reducer(), action)
+  const action = actions.append([random()])
+  const state = reducer(reducer(), action)
   t.deepEqual(state.logs, action.entries)
 })
 
 test('truncate at maximum', t => {
   t.plan(2)
 
-  var oldLogs = []
-  for (var i = 0; i < 5000; i++) {
+  const oldLogs = []
+  for (let i = 0; i < 5000; i++) {
     oldLogs.push({ hash: i, ...random() })
   }
 
-  var action = actions.append(oldLogs)
-  var state = reducer(reducer(), action)
+  let action = actions.append(oldLogs)
+  let state = reducer(reducer(), action)
 
   t.equal(state.logs.length, 5000, 'initial log list is not 5000 entries')
 
@@ -71,7 +71,7 @@ test('truncate at maximum', t => {
 test('set expandEntry, undefined + hashOne = hashOne', t => {
   t.plan(2)
 
-  var state = reducer()
+  let state = reducer()
   t.equal(state.expandedHash, null, 'state has an undefined hash')
   state = reducer(state, actions.expandEntry(hashOne))
   t.equal(state.expandedHash, hashOne, 'state hash is changed to the new hash')
@@ -80,7 +80,7 @@ test('set expandEntry, undefined + hashOne = hashOne', t => {
 test('toggle expandEntry, hashOne + hashOne = undefined', t => {
   t.plan(2)
 
-  var state = reducer(reducer(), actions.expandEntry(hashOne))
+  let state = reducer(reducer(), actions.expandEntry(hashOne))
   t.equal(state.expandedHash, hashOne, 'state hash is set to hashOne')
   state = reducer(state, actions.expandEntry(hashOne))
   t.equal(
@@ -93,7 +93,7 @@ test('toggle expandEntry, hashOne + hashOne = undefined', t => {
 test('change expandEntry, hashOne + hashTwo = hashTwo', t => {
   t.plan(2)
 
-  var state = reducer(reducer(), actions.expandEntry(hashOne))
+  let state = reducer(reducer(), actions.expandEntry(hashOne))
   t.equal(state.expandedHash, hashOne, 'state hash is set to hashOne')
   state = reducer(state, actions.expandEntry(hashTwo))
   t.equal(state.expandedHash, hashTwo, 'state hash is changed to hashTwo')

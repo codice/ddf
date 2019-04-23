@@ -12,7 +12,7 @@ module.exports = function(grunt) {
   })
 
   grunt.registerTask('port:check', function() {
-    var config = grunt.config('ports')
+    const config = grunt.config('ports')
 
     if (config.express === 0) {
       grunt.fail.fatal('grunt-port-allocator failed to allocate ports.')

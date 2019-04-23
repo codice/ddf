@@ -37,8 +37,8 @@ define([
     tagName: CustomElements.register('configuration-field-collection'),
     itemView: ConfigurationFieldView,
     buildItemView: function(item, ItemViewType, itemViewOptions) {
-      var view
-      var configuration = this.options.configuration
+      let view
+      const configuration = this.options.configuration
       this.collection.forEach(function(property) {
         if (item.get('id') === property.id) {
           if (property.description) {
@@ -47,7 +47,7 @@ define([
           if (property.note) {
             item.set({ note: property.note })
           }
-          var options = _.extend(
+          const options = _.extend(
             { model: item, configuration: configuration },
             itemViewOptions
           )

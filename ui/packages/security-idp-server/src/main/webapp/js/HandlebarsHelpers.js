@@ -14,22 +14,22 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
   'use strict'
 
   // The module to be exported
-  var helper,
+  let helper,
     helpers = {
       fileSize: function(item) {
         if (_.isUndefined(item)) {
           return 'Unknown Size'
         }
         item += ''
-        var givenProductSize = item.replace(/[,]+/g, '').trim() //remove any commas and trailing whitespace
-        var bytes = parseInt(givenProductSize, 10)
-        var noUnitsGiven = /[0-9]$/ //number without a word following
-        var reformattedProductSize = givenProductSize.replace(/\s\s+/g, ' ') //remove extra whitespaces
-        var finalFormatProductSize = reformattedProductSize.replace(
+        const givenProductSize = item.replace(/[,]+/g, '').trim() //remove any commas and trailing whitespace
+        const bytes = parseInt(givenProductSize, 10)
+        const noUnitsGiven = /[0-9]$/ //number without a word following
+        const reformattedProductSize = givenProductSize.replace(/\s\s+/g, ' ') //remove extra whitespaces
+        const finalFormatProductSize = reformattedProductSize.replace(
           /([0-9])([a-zA-Z])/g,
           '$1 $2'
         ) //make sure there is exactly one space between number and unit
-        var sizeArray = finalFormatProductSize.split(' ') //splits size into number and unit
+        const sizeArray = finalFormatProductSize.split(' ') //splits size into number and unit
 
         if (isNaN(bytes)) {
           return 'Unknown Size'
@@ -37,7 +37,7 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
 
         if (noUnitsGiven.test(givenProductSize)) {
           //need to parse number given and add units, number is assumed to be bytes
-          var size,
+          let size,
             index,
             type = ['bytes', 'KB', 'MB', 'GB', 'TB']
           if (bytes === 0) {
@@ -92,11 +92,11 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
         if (_.isUndefined(item)) {
           return 'Unknown Size'
         }
-        var bytes = parseInt(item, 10)
+        const bytes = parseInt(item, 10)
         if (isNaN(bytes)) {
           return item
         }
-        var size,
+        let size,
           index,
           type = ['bytes', 'KB', 'MB', 'GB', 'TB']
         if (bytes === 0) {
@@ -134,7 +134,7 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
       },
       isUrl: function(value, options) {
         if (value && value !== '' && _.isString(value)) {
-          var protocol = value.toLowerCase().split('/')[0]
+          const protocol = value.toLowerCase().split('/')[0]
           if (protocol && (protocol === 'http:' || protocol === 'https:')) {
             return options.fn(this)
           }
@@ -172,10 +172,10 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
         }
       },
       ifAnd: function() {
-        var args = _.flattenDeep(arguments)
-        var items = _.initial(args)
-        var result = true
-        var block = _.last(args)
+        const args = _.flattenDeep(arguments)
+        const items = _.initial(args)
+        let result = true
+        const block = _.last(args)
         _.each(items, function(item) {
           if (!item) {
             result = false
@@ -188,10 +188,10 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
         }
       },
       ifOr: function() {
-        var args = _.flattenDeep(arguments)
-        var items = _.initial(args)
-        var result = false
-        var block = _.last(args)
+        const args = _.flattenDeep(arguments)
+        const items = _.initial(args)
+        let result = false
+        const block = _.last(args)
         _.each(items, function(item) {
           if (item) {
             result = true
@@ -204,10 +204,10 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
         }
       },
       ifNotAnd: function() {
-        var args = _.flattenDeep(arguments)
-        var items = _.initial(args)
-        var result = true
-        var block = _.last(args)
+        const args = _.flattenDeep(arguments)
+        const items = _.initial(args)
+        let result = true
+        const block = _.last(args)
         _.each(items, function(item) {
           if (!item) {
             result = false
@@ -220,10 +220,10 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
         }
       },
       ifNotOr: function() {
-        var args = _.flattenDeep(arguments)
-        var items = _.initial(args)
-        var result = false
-        var block = _.last(args)
+        const args = _.flattenDeep(arguments)
+        const items = _.initial(args)
+        let result = false
+        const block = _.last(args)
         _.each(items, function(item) {
           if (item) {
             result = true

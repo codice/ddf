@@ -50,10 +50,10 @@
 //     .object.syntax ("{", "}")
 //     .array.syntax  ("[", "]")
 
-var module
+let module
 ;(module || {}).exports = renderjson = (function() {
-  var themetext = function(/* [class, text]+ */) {
-    var spans = []
+  const themetext = function(/* [class, text]+ */) {
+    const spans = []
     while (arguments.length)
       spans.push(
         append(
@@ -63,35 +63,35 @@ var module
       )
     return spans
   }
-  var append = function(/* el, ... */) {
-    var el = Array.prototype.shift.call(arguments)
-    for (var a = 0; a < arguments.length; a++)
+  const append = function(/* el, ... */) {
+    const el = Array.prototype.shift.call(arguments)
+    for (let a = 0; a < arguments.length; a++)
       if (arguments[a].constructor == Array)
         append.apply(this, [el].concat(arguments[a]))
       else el.appendChild(arguments[a])
     return el
   }
-  var prepend = function(el, child) {
+  const prepend = function(el, child) {
     el.insertBefore(child, el.firstChild)
     return el
   }
-  var isempty = function(obj) {
-    for (var k in obj) if (Object.hasOwnProperty.call(obj, k)) return false
+  const isempty = function(obj) {
+    for (const k in obj) if (Object.hasOwnProperty.call(obj, k)) return false
     return true
   }
-  var text = function(txt) {
+  const text = function(txt) {
     return document.createTextNode(txt)
   }
-  var div = function() {
+  const div = function() {
     return document.createElement('div')
   }
-  var span = function(classname) {
-    var s = document.createElement('span')
+  const span = function(classname) {
+    const s = document.createElement('span')
     if (classname) s.className = classname
     return s
   }
-  var A = function A(txt, classname, callback) {
-    var a = document.createElement('a')
+  const A = function A(txt, classname, callback) {
+    const a = document.createElement('a')
     if (classname) a.className = classname
     a.appendChild(text(txt))
     a.href = '#'
@@ -111,12 +111,12 @@ var module
     max_string,
     sort_objects
   ) {
-    var my_indent = dont_indent ? '' : indent
+    const my_indent = dont_indent ? '' : indent
 
-    var disclosure = function(open, placeholder, close, type, builder) {
-      var content
-      var empty = span(type)
-      var show = function() {
+    const disclosure = function(open, placeholder, close, type, builder) {
+      let content
+      const empty = span(type)
+      const show = function() {
         if (!content)
           append(
             empty.parentNode,
@@ -139,7 +139,7 @@ var module
         themetext(type + ' syntax', close)
       )
 
-      var el = append(span(), text(my_indent.slice(0, -1)), empty)
+      const el = append(span(), text(my_indent.slice(0, -1)), empty)
       if (show_level > 0) show()
       return el
     }
@@ -171,11 +171,11 @@ var module
         return themetext(null, my_indent, 'array syntax', '[]')
 
       return disclosure('[', ' ... ', ']', 'array', function() {
-        var as = append(
+        const as = append(
           span('array'),
           themetext('array syntax', '[', null, '\n')
         )
-        for (var i = 0; i < json.length; i++)
+        for (let i = 0; i < json.length; i++)
           append(
             as,
             _renderjson(
@@ -198,14 +198,14 @@ var module
     if (isempty(json)) return themetext(null, my_indent, 'object syntax', '{}')
 
     return disclosure('{', '...', '}', 'object', function() {
-      var os = append(
+      const os = append(
         span('object'),
         themetext('object syntax', '{', null, '\n')
       )
       for (var k in json) var last = k
-      var keys = Object.keys(json)
+      let keys = Object.keys(json)
       if (sort_objects) keys = keys.sort()
-      for (var i in keys) {
+      for (const i in keys) {
         var k = keys[i]
         append(
           os,
@@ -235,7 +235,7 @@ var module
   }
 
   var renderjson = function renderjson(json) {
-    var pre = append(
+    const pre = append(
       document.createElement('pre'),
       _renderjson(
         json,

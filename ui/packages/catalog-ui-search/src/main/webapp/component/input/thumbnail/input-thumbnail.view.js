@@ -43,9 +43,9 @@ module.exports = InputView.extend({
     return _.extend(this.model.toJSON(), { cid: this.cid })
   },
   handleUpload: function(e) {
-    var self = this
-    var img = this.$el.find('img')[0]
-    var reader = new FileReader()
+    const self = this
+    const img = this.$el.find('img')[0]
+    const reader = new FileReader()
     reader.onload = function(event) {
       img.onload = function() {
         self.model.set('value', self.getCurrentValue())
@@ -59,9 +59,9 @@ module.exports = InputView.extend({
     reader.readAsDataURL(e.target.files[0])
   },
   handleValue: function() {
-    var self = this
-    var img = this.$el.find('img')[0]
-    var lnk = this.$el.find('a')
+    const self = this
+    const img = this.$el.find('img')[0]
+    const lnk = this.$el.find('a')
     img.onload = function() {
       self.resizeButton()
     }
@@ -93,7 +93,7 @@ module.exports = InputView.extend({
     this.$el.find('input').click()
   },
   getCurrentValue: function() {
-    var img = this.el.querySelector('img')
+    const img = this.el.querySelector('img')
     return img.src.split(',')[1]
   },
   listenForResize: function() {

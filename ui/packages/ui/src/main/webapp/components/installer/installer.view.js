@@ -41,16 +41,16 @@ define([
   Service,
   ConfigurationModel
 ) {
-  var serviceModelResponse = new Service.Response()
+  const serviceModelResponse = new Service.Response()
   serviceModelResponse.fetch({
     url:
       './jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getClaimsConfiguration/(service.pid%3Dddf.security.sts.guestclaims)',
   })
 
-  var systemPropertiesWrapped = new ConfigurationModel.SystemPropertiesWrapped()
+  const systemPropertiesWrapped = new ConfigurationModel.SystemPropertiesWrapped()
   systemPropertiesWrapped.fetch()
 
-  var InstallerMainView = Marionette.Layout.extend({
+  const InstallerMainView = Marionette.Layout.extend({
     template: mainTemplate,
     tagName: CustomElements.register('installer'),
     className: 'container well well-main',
@@ -70,7 +70,7 @@ define([
     changePage: function() {
       //close whatever view is open
       this.$el.toggleClass('is-loading', false)
-      var welcomeStep = 0,
+      const welcomeStep = 0,
         guestClaimsStep = 2,
         profileStep = 1,
         configStep = 3,
@@ -199,7 +199,7 @@ define([
       this.$(this.finish.el).show()
     },
     showProfiles: function() {
-      var self = this
+      const self = this
       if (this.profiles.currentView) {
         this.profiles.show()
       } else {
@@ -207,7 +207,7 @@ define([
           .fetchInstallProfiles()
           .then(function(profiles) {
             // set initial selected profile if null.
-            var profileKey = self.model.get('selectedProfile')
+            let profileKey = self.model.get('selectedProfile')
             if (!profileKey && !profiles.isEmpty()) {
               profileKey = profiles.first().get('name')
               self.model.set('selectedProfile', profileKey)

@@ -13,27 +13,27 @@
  *
  **/
 
-var _ = require('underscore')
-var _merge = require('lodash/merge')
-var _debounce = require('lodash/debounce')
-var $ = require('jquery')
-var wreqr = require('../../js/wreqr.js')
-var template = require('./golden-layout.hbs')
-var Marionette = require('marionette')
-var CustomElements = require('../../js/CustomElements.js')
-var GoldenLayout = require('golden-layout')
-var properties = require('../../js/properties.js')
-var TableView = require('../visualization/table/table-viz.view.js')
-var InspectorView = require('../visualization/inspector/inspector.view.js')
-var OpenlayersView = require('../visualization/maps/openlayers/openlayers.view.js')
-var HistogramView = require('../visualization/histogram/histogram.view.js')
-var CombinedMapView = require('../visualization/combined-map/combined-map.view.js')
-var LowBandwidthMapView = require('../visualization/low-bandwidth-map/low-bandwidth-map.view.js')
-var Common = require('../../js/Common.js')
-var store = require('../../js/store.js')
-var user = require('../singletons/user-instance.js')
-var VisualizationDropdown = require('../dropdown/visualization-selector/dropdown.visualization-selector.view.js')
-var DropdownModel = require('../dropdown/dropdown.js')
+const _ = require('underscore')
+const _merge = require('lodash/merge')
+const _debounce = require('lodash/debounce')
+const $ = require('jquery')
+const wreqr = require('../../js/wreqr.js')
+const template = require('./golden-layout.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const GoldenLayout = require('golden-layout')
+const properties = require('../../js/properties.js')
+const TableView = require('../visualization/table/table-viz.view.js')
+const InspectorView = require('../visualization/inspector/inspector.view.js')
+const OpenlayersView = require('../visualization/maps/openlayers/openlayers.view.js')
+const HistogramView = require('../visualization/histogram/histogram.view.js')
+const CombinedMapView = require('../visualization/combined-map/combined-map.view.js')
+const LowBandwidthMapView = require('../visualization/low-bandwidth-map/low-bandwidth-map.view.js')
+const Common = require('../../js/Common.js')
+const store = require('../../js/store.js')
+const user = require('../singletons/user-instance.js')
+const VisualizationDropdown = require('../dropdown/visualization-selector/dropdown.visualization-selector.view.js')
+const DropdownModel = require('../dropdown/dropdown.js')
 const sanitize = require('sanitize-html')
 
 const treeMap = (obj, fn, path = []) => {
@@ -64,7 +64,7 @@ const sanitizeTree = tree =>
     return obj
   })
 
-var defaultGoldenLayoutContent = {
+const defaultGoldenLayoutContent = {
   content: properties.defaultLayout || [
     {
       type: 'stack',
@@ -85,14 +85,14 @@ var defaultGoldenLayoutContent = {
 }
 
 function getGoldenLayoutSettings() {
-  var minimumScreenSize = 20 //20 rem or 320px at base font size
-  var fontSize = parseInt(
+  const minimumScreenSize = 20 //20 rem or 320px at base font size
+  const fontSize = parseInt(
     user
       .get('user')
       .get('preferences')
       .get('fontSize')
   )
-  var theme = user
+  const theme = user
     .get('user')
     .get('preferences')
     .get('theme')
@@ -121,14 +121,14 @@ function registerComponent(
   ComponentView,
   componentOptions
 ) {
-  var options = _.extend({}, marionetteView.options, componentOptions)
+  const options = _.extend({}, marionetteView.options, componentOptions)
   marionetteView.goldenLayout.registerComponent(name, function(
     container,
     componentState
   ) {
     container.on('open', () => {
       setTimeout(function() {
-        var componentView = new ComponentView(
+        const componentView = new ComponentView(
           _.extend({}, options, componentState, {
             container: container,
           })
@@ -210,7 +210,7 @@ module.exports = Marionette.LayoutView.extend({
     this.options.selectionInterface = options.selectionInterface || store
   },
   updateFontSize: function() {
-    var goldenLayoutSettings = getGoldenLayoutSettings()
+    const goldenLayoutSettings = getGoldenLayoutSettings()
     this.goldenLayout.config.dimensions.borderWidth =
       goldenLayoutSettings.dimensions.borderWidth
     this.goldenLayout.config.dimensions.minItemHeight =
@@ -252,7 +252,7 @@ module.exports = Marionette.LayoutView.extend({
     this.goldenLayout.init()
   },
   getGoldenLayoutConfig: function() {
-    var currentConfig = user
+    let currentConfig = user
       .get('user')
       .get('preferences')
       .get(this.options.configName)
@@ -302,7 +302,7 @@ module.exports = Marionette.LayoutView.extend({
     this.detectIfGoldenLayoutEmpty()
     //https://github.com/deepstreamIO/golden-layout/issues/253
     if (this.goldenLayout.isInitialised) {
-      var currentConfig = this.goldenLayout.toConfig()
+      const currentConfig = this.goldenLayout.toConfig()
       removeEphemeralState(currentConfig)
       user
         .get('user')

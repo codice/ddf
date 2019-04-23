@@ -12,10 +12,10 @@
 
 define(['icanhaz', 'jquery'], function(ich, $) {
   'use strict'
-  var helper,
+  let helper,
     helpers = {
       select: function(value, options) {
-        var $el = $('<select />').html(options.fn(this))
+        const $el = $('<select />').html(options.fn(this))
         $el.find('[value="' + value + '"]').attr({ selected: 'selected' })
         return $el.html()
       },

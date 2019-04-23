@@ -30,17 +30,17 @@ define([
     _
   ) {
     this.startWithParent = false
-    var installerModel = new InstallerModel.Model()
+    const installerModel = new InstallerModel.Model()
 
     // Define a view to show
     // ---------------------
 
-    var installerPage = new InstallerView({ model: installerModel })
+    const installerPage = new InstallerView({ model: installerModel })
 
     // Define a controller to run this module
     // --------------------------------------
 
-    var Controller = Marionette.Controller.extend({
+    const Controller = Marionette.Controller.extend({
       initialize: function(options) {
         this.region = options.region
       },

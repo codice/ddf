@@ -37,14 +37,14 @@ define([
   /*
    * Item View
    */
-  var SystemPropertyView = Marionette.ItemView.extend({
+  const SystemPropertyView = Marionette.ItemView.extend({
     template: configurationItemTemplate,
     className: 'property-item col-md-6',
     initialize: function() {
       this.modelBinder = new Backbone.ModelBinder()
     },
     setupPopOvers: function() {
-      var tooltipOptions = {
+      const tooltipOptions = {
         content: this.model.get('description'),
         placement: 'bottom',
         trigger: 'hover',
@@ -52,12 +52,15 @@ define([
         delay: 250,
       }
 
-      var tooltipSelector =
+      const tooltipSelector =
         '[data-toggle="' + this.model.get('key') + '-popover"]'
       this.$el.find(tooltipSelector).popover(tooltipOptions)
     },
     onRender: function() {
-      var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name')
+      const bindings = Backbone.ModelBinder.createDefaultBindings(
+        this.el,
+        'name'
+      )
       this.modelBinder.bind(this.model, this.el, bindings, {
         modelSetOptions: { validate: true },
       })
@@ -71,7 +74,7 @@ define([
   /*
    * Collection View
    */
-  var SystemPropertiesView = Marionette.CollectionView.extend({
+  const SystemPropertiesView = Marionette.CollectionView.extend({
     className: 'row',
     itemView: SystemPropertyView,
   })
@@ -79,7 +82,7 @@ define([
   /*
    * Layout
    */
-  var ConfigurationView = Marionette.Layout.extend({
+  const ConfigurationView = Marionette.Layout.extend({
     template: configurationTemplate,
     className: 'full-height',
     regions: {
@@ -103,13 +106,13 @@ define([
     },
 
     next: function() {
-      var layout = this
+      const layout = this
 
       // loop through models and check for hostname change, validation errors and set redirect url
-      var hostChange = true
-      var hostName
-      var port
-      var hasErrors = false
+      let hostChange = true
+      let hostName
+      let port
+      let hasErrors = false
 
       this.model.each(function(model) {
         hasErrors = hasErrors || model.validationError
@@ -128,7 +131,7 @@ define([
 
       if (!hasErrors) {
         if (hostChange) {
-          var certSave = layout.certificateModel.save()
+          const certSave = layout.certificateModel.save()
           if (certSave) {
             certSave.done(function() {
               if (!_.isEmpty(layout.certificateModel.get('certErrors'))) {
@@ -168,10 +171,10 @@ define([
       this.navigationModel.previousStep()
     },
     onRender: function() {
-      var view = this
+      const view = this
 
-      var sysPropsView = new SystemPropertiesView({ collection: this.model })
-      var certificateView = new CertificateView({
+      const sysPropsView = new SystemPropertiesView({ collection: this.model })
+      const certificateView = new CertificateView({
         model: this.certificateModel,
       })
 
@@ -179,8 +182,8 @@ define([
       this.certificates.show(certificateView)
     },
     saveProperties: function() {
-      var layout = this
-      var propertySave = this.model.save()
+      const layout = this
+      const propertySave = this.model.save()
       if (propertySave) {
         propertySave.done(function() {
           layout.navigationModel.nextStep('', 100)

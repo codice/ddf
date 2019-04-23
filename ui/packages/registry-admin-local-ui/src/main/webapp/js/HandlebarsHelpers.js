@@ -14,7 +14,7 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
   'use strict'
 
   // The module to be exported
-  var helper,
+  let helper,
     helpers = {
       isNotBlank: function(context, block) {
         if (context && context !== '') {
@@ -39,7 +39,7 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
       },
       isUrl: function(value, options) {
         if (value && value !== '' && _.isString(value)) {
-          var protocol = value.toLowerCase().split('/')[0]
+          const protocol = value.toLowerCase().split('/')[0]
           if (protocol && (protocol === 'http:' || protocol === 'https:')) {
             return options.fn(this)
           }
@@ -77,10 +77,10 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
         }
       },
       ifAnd: function() {
-        var args = _.flatten(arguments)
-        var items = _.initial(args)
-        var result = true
-        var block = _.last(args)
+        const args = _.flatten(arguments)
+        const items = _.initial(args)
+        let result = true
+        const block = _.last(args)
         _.each(items, function(item) {
           if (!item) {
             result = false
@@ -93,10 +93,10 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
         }
       },
       ifOr: function() {
-        var args = _.flatten(arguments)
-        var items = _.initial(args)
-        var result = false
-        var block = _.last(args)
+        const args = _.flatten(arguments)
+        const items = _.initial(args)
+        let result = false
+        const block = _.last(args)
         _.each(items, function(item) {
           if (item) {
             result = true
@@ -109,10 +109,10 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
         }
       },
       ifNotAnd: function() {
-        var args = _.flatten(arguments)
-        var items = _.initial(args)
-        var result = true
-        var block = _.last(args)
+        const args = _.flatten(arguments)
+        const items = _.initial(args)
+        let result = true
+        const block = _.last(args)
         _.each(items, function(item) {
           if (!item) {
             result = false
@@ -125,10 +125,10 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
         }
       },
       ifNotOr: function() {
-        var args = _.flatten(arguments)
-        var items = _.initial(args)
-        var result = false
-        var block = _.last(args)
+        const args = _.flatten(arguments)
+        const items = _.initial(args)
+        let result = false
+        const block = _.last(args)
         _.each(items, function(item) {
           if (item) {
             result = true

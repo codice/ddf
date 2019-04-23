@@ -25,7 +25,7 @@ define([
   }
 
   // The module to be exported
-  var helper,
+  let helper,
     helpers = {
       contains: function(value, test, block) {
         if (_.contains(value, test)) {
@@ -35,11 +35,11 @@ define([
         }
       },
       fileSize: function(item) {
-        var bytes = parseInt(item, 10)
+        const bytes = parseInt(item, 10)
         if (isNaN(bytes)) {
           return item
         }
-        var size,
+        let size,
           index,
           type = ['bytes', 'KB', 'MB', 'GB', 'TB']
         if (bytes === 0) {
@@ -77,7 +77,7 @@ define([
       },
       isUrl: function(value, options) {
         if (value && value !== '') {
-          var protocol = value.toLowerCase().split('/')[0]
+          const protocol = value.toLowerCase().split('/')[0]
           if (protocol && (protocol === 'http:' || protocol === 'https:')) {
             return options.fn(this)
           }
@@ -85,10 +85,10 @@ define([
         return options.inverse(this)
       },
       ifAnd: function() {
-        var args = _.flatten(arguments)
-        var items = _.initial(args)
-        var result = true
-        var block = _.last(args)
+        const args = _.flatten(arguments)
+        const items = _.initial(args)
+        let result = true
+        const block = _.last(args)
         _.each(items, function(item) {
           if (!item) {
             result = false
@@ -101,10 +101,10 @@ define([
         }
       },
       ifOr: function() {
-        var args = _.flatten(arguments)
-        var items = _.initial(args)
-        var result = false
-        var block = _.last(args)
+        const args = _.flatten(arguments)
+        const items = _.initial(args)
+        let result = false
+        const block = _.last(args)
         _.each(items, function(item) {
           if (item) {
             result = true
@@ -117,10 +117,10 @@ define([
         }
       },
       ifNotAnd: function() {
-        var args = _.flatten(arguments)
-        var items = _.initial(args)
-        var result = true
-        var block = _.last(args)
+        const args = _.flatten(arguments)
+        const items = _.initial(args)
+        let result = true
+        const block = _.last(args)
         _.each(items, function(item) {
           if (!item) {
             result = false
@@ -133,10 +133,10 @@ define([
         }
       },
       ifNotOr: function() {
-        var args = _.flatten(arguments)
-        var items = _.initial(args)
-        var result = false
-        var block = _.last(args)
+        const args = _.flatten(arguments)
+        const items = _.initial(args)
+        let result = false
+        const block = _.last(args)
         _.each(items, function(item) {
           if (item) {
             result = true

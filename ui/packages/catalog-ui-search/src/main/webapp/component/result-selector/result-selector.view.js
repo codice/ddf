@@ -33,7 +33,7 @@ const {
 } = require('../selection-checkbox/selection-checkbox.view.js')
 
 function mixinBlackListCQL(originalCQL) {
-  var blackListCQL = {
+  const blackListCQL = {
     filters: [
       {
         filters: user
@@ -58,9 +58,9 @@ function mixinBlackListCQL(originalCQL) {
   return blackListCQL
 }
 
-var ResultSelector = Marionette.LayoutView.extend({
+const ResultSelector = Marionette.LayoutView.extend({
   template() {
-    var resultFilter = user
+    let resultFilter = user
       .get('user')
       .get('preferences')
       .get('resultFilter')
@@ -68,11 +68,11 @@ var ResultSelector = Marionette.LayoutView.extend({
       resultFilter = cql.simplify(cql.read(resultFilter))
     }
     resultFilter = mixinBlackListCQL(resultFilter)
-    var filteredResults = this.model
+    const filteredResults = this.model
       .get('result')
       .get('results')
       .generateFilteredVersion(resultFilter)
-    var collapsedResults = filteredResults.collapseDuplicates()
+    const collapsedResults = filteredResults.collapseDuplicates()
     collapsedResults.updateSorting(
       user
         .get('user')
@@ -214,7 +214,7 @@ var ResultSelector = Marionette.LayoutView.extend({
     )
   },
   scrollIntoView: function(metacard) {
-    var result = this.$el.find(
+    const result = this.$el.find(
       '.resultSelector-list ' +
         resultItemSelector +
         '[data-resultid="' +
@@ -289,8 +289,8 @@ var ResultSelector = Marionette.LayoutView.extend({
       this.resultDisplay.currentView.model,
       'change:value',
       function() {
-        var prefs = user.get('user').get('preferences')
-        var value = this.resultDisplay.currentView.model.get('value')[0]
+        const prefs = user.get('user').get('preferences')
+        const value = this.resultDisplay.currentView.model.get('value')[0]
         prefs.set('resultDisplay', value)
         prefs.savePreferences()
       }

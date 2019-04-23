@@ -22,7 +22,7 @@ define(['templates/emptyView.handlebars', 'marionette', 'icanhaz'], function(
     ich.addTemplate('emptyViewTemplate', emptyViewTemplate)
   }
 
-  var EmptyView = {}
+  const EmptyView = {}
 
   EmptyView.sources = Marionette.ItemView.extend({
     template: 'emptyViewTemplate',

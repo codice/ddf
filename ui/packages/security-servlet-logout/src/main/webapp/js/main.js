@@ -1,5 +1,5 @@
 ;(function() {
-  var prevUrl = $.url().param('prevurl')
+  const prevUrl = $.url().param('prevurl')
 
   $.get('../services/platform/config/ui', function(data) {
     $('.nav img').attr('src', 'data:image/png;base64,' + data.productImage)
@@ -15,9 +15,9 @@
   })
 
   $.get('../services/logout/actions', function(data) {
-    var actions = JSON.parse(data)
+    const actions = JSON.parse(data)
 
-    var doLogout = function(action) {
+    const doLogout = function(action) {
       window.location.href = action.url
       $('#modal').removeClass('is-hidden')
     }
@@ -29,10 +29,10 @@
         if ($.url().param('noPrompt')) {
           doLogout(action)
         } else {
-          var $row = $('<tr></tr>')
-          var $realm = $('<td></td>')
+          const $row = $('<tr></tr>')
+          const $realm = $('<td></td>')
           $realm.html(action.realm)
-          var $realmDescription = $(
+          const $realmDescription = $(
             '<a href="#" class="description" tabindex="-1"></a>'
           )
           $realmDescription.data('title', action.description)
@@ -41,10 +41,10 @@
             $('<i class="glyphicon glyphicon-question-sign"></i>')
           )
           $realm.append($realmDescription)
-          var $user = $('<td></td>')
+          const $user = $('<td></td>')
           $user.html(action.auth)
-          var $logout = $('<td></td>')
-          var $button = $('<button>')
+          const $logout = $('<td></td>')
+          const $button = $('<button>')
             .attr('id', 'logoutButton')
             .text('Logout')
             .addClass('btn btn-primary float-right')

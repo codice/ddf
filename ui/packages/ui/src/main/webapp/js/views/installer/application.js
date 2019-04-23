@@ -18,7 +18,7 @@ define(['underscore', 'backbone', 'backbone.marionette'], function(
 ) {
   'use strict'
 
-  var Application = {}
+  const Application = {}
 
   Application.App = new Marionette.Application()
 

@@ -19,7 +19,7 @@ module.exports = Backbone.Collection.extend({
   model: QueryResultModel,
   amountFiltered: 0,
   generateFilteredVersion: function(filter) {
-    var filteredCollection = new this.constructor()
+    const filteredCollection = new this.constructor()
     filteredCollection.set(this.updateFilteredVersion(filter))
     filteredCollection.amountFiltered = this.amountFiltered
     return filteredCollection
@@ -29,7 +29,7 @@ module.exports = Backbone.Collection.extend({
     if (filter) {
       return this.filter(
         function(result) {
-          var passFilter = filterUtility.matchesFilters(
+          const passFilter = filterUtility.matchesFilters(
             result.get('metacard').toJSON(),
             filter
           )
@@ -49,11 +49,11 @@ module.exports = Backbone.Collection.extend({
     }
   },
   collapseDuplicates: function() {
-    var collapsedCollection = new this.constructor()
+    const collapsedCollection = new this.constructor()
     collapsedCollection.set(this.models)
     collapsedCollection.amountFiltered = this.amountFiltered
-    var endIndex = collapsedCollection.length
-    for (var i = 0; i < endIndex; i++) {
+    let endIndex = collapsedCollection.length
+    for (let i = 0; i < endIndex; i++) {
       var currentResult = collapsedCollection.models[i]
       var currentChecksum = currentResult
         .get('metacard')
@@ -63,12 +63,12 @@ module.exports = Backbone.Collection.extend({
         .get('metacard')
         .get('properties')
         .get('id')
-      var duplicates = collapsedCollection.filter(function(result) {
-        var comparedChecksum = result
+      const duplicates = collapsedCollection.filter(function(result) {
+        const comparedChecksum = result
           .get('metacard')
           .get('properties')
           .get('checksum')
-        var comparedId = result
+        const comparedId = result
           .get('metacard')
           .get('properties')
           .get('id')
@@ -90,7 +90,7 @@ module.exports = Backbone.Collection.extend({
     return collapsedCollection
   },
   selectBetween: function(startIndex, endIndex) {
-    var allModels = []
+    const allModels = []
     this.forEach(function(model) {
       allModels.push(model)
       if (model.duplicates) {

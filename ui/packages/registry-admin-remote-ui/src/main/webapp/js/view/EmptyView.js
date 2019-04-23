@@ -20,7 +20,7 @@ define([
 ], function(emptyViewTemplate, Marionette, ich) {
   ich.addTemplate('emptyViewTemplate', emptyViewTemplate)
 
-  var EmptyView = {}
+  const EmptyView = {}
 
   EmptyView.registries = Marionette.ItemView.extend({
     template: 'emptyViewTemplate',

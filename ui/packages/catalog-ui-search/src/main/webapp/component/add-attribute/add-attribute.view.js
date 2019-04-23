@@ -13,17 +13,17 @@
  *
  **/
 
-var template = require('./add-attribute.hbs')
-var _ = require('underscore')
-var Marionette = require('marionette')
-var CustomElements = require('../../js/CustomElements.js')
-var PropertyView = require('../property/property.view.js')
-var Property = require('../property/property.js')
-var properties = require('../../js/properties.js')
-var metacardDefinitions = require('../singletons/metacard-definitions.js')
+const template = require('./add-attribute.hbs')
+const _ = require('underscore')
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const PropertyView = require('../property/property.view.js')
+const Property = require('../property/property.js')
+const properties = require('../../js/properties.js')
+const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
 function determineMissingAttributes(selectionInterface) {
-  var attributes = _.union.apply(
+  const attributes = _.union.apply(
     this,
     selectionInterface.getSelectedResults().map(result => {
       return Object.keys(
@@ -34,19 +34,19 @@ function determineMissingAttributes(selectionInterface) {
       )
     })
   )
-  var types = _.union.apply(
+  const types = _.union.apply(
     this,
     selectionInterface.getSelectedResults().map(result => {
       return [result.get('metacardType')]
     })
   )
-  var possibleAttributes = _.intersection.apply(
+  const possibleAttributes = _.intersection.apply(
     this,
     types.map(type => {
       return Object.keys(metacardDefinitions.metacardDefinitions[type])
     })
   )
-  var missingAttributes = _.difference(possibleAttributes, attributes)
+  const missingAttributes = _.difference(possibleAttributes, attributes)
   return metacardDefinitions
     .sortMetacardTypes(
       missingAttributes
@@ -72,7 +72,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   onBeforeShow: function() {
-    var missingAttributes = determineMissingAttributes(
+    const missingAttributes = determineMissingAttributes(
       this.options.selectionInterface
     )
     this.attributeSelector.show(

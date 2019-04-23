@@ -14,7 +14,7 @@
  **/
 
 define(['backbone'], function(Backbone) {
-  var OperatingSystem = {}
+  const OperatingSystem = {}
 
   OperatingSystem.Model = Backbone.Model.extend({
     defaults: {

@@ -33,7 +33,7 @@ define([
   FileHelper,
   certificateTemplate
 ) {
-  var CertificateView = Marionette.Layout.extend({
+  const CertificateView = Marionette.Layout.extend({
     template: certificateTemplate,
     model: new CertsModel(),
     initialize: function() {
@@ -42,7 +42,7 @@ define([
 
     modelEvents: {
       invalid: function(model, errors) {
-        var view = this
+        const view = this
         view.$('[name=keystorePass]').removeClass('error-border')
         view.$('[name=keyPass]').removeClass('error-border')
         view.$('[name=truststorePass]').removeClass('error-border')
@@ -65,8 +65,8 @@ define([
     },
 
     addFileListener: function(name) {
-      var view = this
-      var el = this.$('.' + name + '-fileupload')
+      const view = this
+      const el = this.$('.' + name + '-fileupload')
       el.fileupload({
         url: '../services/content',
         paramName: 'file',
@@ -76,7 +76,7 @@ define([
         dropZone: el,
         add: function(e, data) {
           view.model.set(name + 'FileName', data.files[0].name)
-          var fileHelper = new FileHelper()
+          const fileHelper = new FileHelper()
           fileHelper.setData(data)
           fileHelper.load(function() {
             view.model.set(name + 'File', fileHelper.get('data'))
@@ -87,9 +87,9 @@ define([
     },
 
     setupPopOvers: function() {
-      var view = this
+      const view = this
 
-      var keystoreOptions, truststoreOptions
+      let keystoreOptions, truststoreOptions
       keystoreOptions = {
         title: 'Keystore Info',
         content:

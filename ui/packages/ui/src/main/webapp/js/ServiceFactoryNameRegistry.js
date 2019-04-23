@@ -15,7 +15,7 @@ define(['js/MetatypeRegistry'], function(MetatypeRegistry) {
     getName: function(properties) {
       switch (properties.get('service.factoryPid')) {
         case 'org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor':
-          var processingMechanism = MetatypeRegistry.getRelevantOptionLabel({
+          const processingMechanism = MetatypeRegistry.getRelevantOptionLabel({
             metatypeId: properties.get('service.factoryPid'),
             property: 'processingMechanism',
             value: properties.get('processingMechanism'),

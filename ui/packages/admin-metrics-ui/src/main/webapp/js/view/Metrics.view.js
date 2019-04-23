@@ -31,7 +31,7 @@ define([
   detailsTemplate,
   summaryTemplate
 ) {
-  var MetricsView = {}
+  const MetricsView = {}
   ich.addTemplate('metricsTemplate', metricsTemplate)
   ich.addTemplate('detailsTemplate', detailsTemplate)
   ich.addTemplate('summaryTemplate', summaryTemplate)
@@ -69,7 +69,7 @@ define([
       }
     },
     onRender: function() {
-      var bindings = Backbone.ModelBinder.createDefaultBindings(
+      const bindings = Backbone.ModelBinder.createDefaultBindings(
         this.el,
         'name',
         this.converter

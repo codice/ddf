@@ -39,7 +39,7 @@
 
 define(['@connexta/ace/handlebars/runtime', 'jquery'], function(Handlebars, $) {
   'use strict'
-  var ich = {}
+  const ich = {}
 
   ich.templates = {}
 
@@ -53,7 +53,7 @@ define(['@connexta/ace/handlebars/runtime', 'jquery'], function(Handlebars, $) {
     ich.templates[name] = compiledTemplate
     ich[name] = function(data, raw) {
       data = data || {}
-      var result = ich.templates[name](data)
+      const result = ich.templates[name](data)
       return raw ? result : $(result)
     }
   }

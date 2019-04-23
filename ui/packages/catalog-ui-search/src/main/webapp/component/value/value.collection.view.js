@@ -51,7 +51,7 @@ module.exports = Marionette.CollectionView.extend(
   },
   {
     generateValueCollectionView: function(propertyModel) {
-      var valueCollection = new ValueCollection()
+      const valueCollection = new ValueCollection()
       if (propertyModel.get('value').length > 0) {
         valueCollection.add(
           propertyModel.get('value').map(function(value) {

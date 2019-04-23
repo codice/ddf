@@ -57,7 +57,7 @@ module.exports = DropdownView.extend({
   },
   onRender: function() {
     DropdownView.prototype.onRender.call(this)
-    var queryId = this.model.get('value')
+    const queryId = this.model.get('value')
     if (queryId) {
       this.queryItem.show(
         new QueryItemView({

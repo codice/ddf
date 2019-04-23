@@ -14,7 +14,7 @@ define(['icanhaz'], function(ich) {
   'use strict'
 
   // The module to be exported
-  var helper,
+  let helper,
     helpers = {
       is: function(value, test, options) {
         if (value === test) {

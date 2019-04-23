@@ -40,7 +40,7 @@ define([
 ) {
   'use strict'
 
-  var FeaturesView = Marionette.ItemView.extend({
+  const FeaturesView = Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('system-information'),
     initialize: function() {
@@ -52,27 +52,27 @@ define([
       this.listenTo(this.operatingSystem, 'change:fetched', this.render)
     },
     serializeData: function() {
-      var returnValue = {
+      let returnValue = {
         fetched: false,
       }
       if (
         this.systemInformation.get('fetched') &&
         this.operatingSystem.get('fetched')
       ) {
-        var systemData = this.systemInformation.toJSON()
-        var operatingSystemData = this.operatingSystem.toJSON()
-        var uptime = TimeUtil.convertUptimeToString(systemData.Uptime)
-        var usedMemory = UnitsUtil.convertBytesToDisplay(
+        const systemData = this.systemInformation.toJSON()
+        const operatingSystemData = this.operatingSystem.toJSON()
+        const uptime = TimeUtil.convertUptimeToString(systemData.Uptime)
+        const usedMemory = UnitsUtil.convertBytesToDisplay(
           operatingSystemData.TotalPhysicalMemorySize -
             operatingSystemData.FreePhysicalMemorySize
         )
-        var totalMemory = UnitsUtil.convertBytesToDisplay(
+        const totalMemory = UnitsUtil.convertBytesToDisplay(
           operatingSystemData.TotalPhysicalMemorySize
         )
-        var freeMemory = UnitsUtil.convertBytesToDisplay(
+        const freeMemory = UnitsUtil.convertBytesToDisplay(
           operatingSystemData.FreePhysicalMemorySize
         )
-        var startTime = moment(systemData.StartTime).toDate()
+        const startTime = moment(systemData.StartTime).toDate()
 
         returnValue = {
           systemInformation: systemData,

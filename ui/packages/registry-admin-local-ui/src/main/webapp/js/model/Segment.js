@@ -22,8 +22,8 @@ define([
   'jquery',
   'backboneassociation',
 ], function(Backbone, _, FieldDescriptors, Field, moment) {
-  var counter = 0
-  var typeCounters = {
+  let counter = 0
+  const typeCounters = {
     Service: 1,
     Organization: 1,
     Content: 1,
@@ -46,8 +46,8 @@ define([
       } else if (type === 'point') {
         return { coords: slot.value.Point.pos.split(/[ ]+/) }
       } else if (type === 'bounds') {
-        var lowerCorner = slot.value.Envelope.lowerCorner.split(/[ ]+/)
-        var upperCorner = slot.value.Envelope.upperCorner.split(/[ ]+/)
+        const lowerCorner = slot.value.Envelope.lowerCorner.split(/[ ]+/)
+        const upperCorner = slot.value.Envelope.upperCorner.split(/[ ]+/)
         return { coords: upperCorner.concat(lowerCorner) }
       } else {
         return slot.value
@@ -56,14 +56,14 @@ define([
   }
 
   function addValueFields(field, values) {
-    var properties = {}
+    const properties = {}
     properties.value = values
     if (_.isArray(values)) {
-      for (var i = 0; i < values.length; i++) {
+      for (let i = 0; i < values.length; i++) {
         properties['value' + i] = values[i]
       }
     } else if (values && field.get('type') === 'date') {
-      var dateTime = moment.parseZone(values).utc()
+      let dateTime = moment.parseZone(values).utc()
 
       if (!dateTime.isValid()) {
         dateTime = moment().utc()
@@ -84,11 +84,11 @@ define([
   }
 
   function addSlotFields(array, backingData, descriptors, seg) {
-    var addedSlots = []
+    const addedSlots = []
     _.each(_.keys(descriptors), function(name) {
-      var entry = descriptors[name]
+      const entry = descriptors[name]
       if (entry.isSlot) {
-        var field = new Field.FormField({
+        const field = new Field.FormField({
           key: name,
           name: entry.displayName,
           desc: entry.description,
@@ -106,11 +106,11 @@ define([
           editable: entry.editable,
           parentId: seg.get('segmentId'),
         })
-        var slotFound = false
+        let slotFound = false
         _.each(backingData.Slot, function(slot) {
           if (slot.name === name) {
             slotFound = true
-            var values = getSlotValue(slot, entry.type, entry.multiValued)
+            let values = getSlotValue(slot, entry.type, entry.multiValued)
             if (!values || (_.isArray(values) && values.length === 0)) {
               if (entry.value) {
                 if (_.isArray(entry.value)) {
@@ -125,7 +125,7 @@ define([
           }
         })
         if (!slotFound && entry.value) {
-          var values = []
+          let values = []
           if (_.isArray(entry.value)) {
             values = entry.value.slice(0)
           } else {
@@ -141,11 +141,11 @@ define([
     //add custom slots
     _.each(backingData.Slot, function(slot) {
       if (!_.contains(addedSlots, slot.name)) {
-        var type = FieldDescriptors.getFieldType(slot.slotType)
+        let type = FieldDescriptors.getFieldType(slot.slotType)
         if (!type) {
           type = slot.slotType
         }
-        var field = new Field.FormField({
+        const field = new Field.FormField({
           key: slot.name,
           name: slot.name,
           type: type,
@@ -170,18 +170,18 @@ define([
   }
 
   function getSegment(data, key) {
-    var backingData = data
+    let backingData = data
     if (!_.isArray(data)) {
       backingData = [data]
     }
-    for (var index = 0; index < backingData.length; index++) {
-      var foundModel
+    for (let index = 0; index < backingData.length; index++) {
+      let foundModel
 
       if (backingData[index].id === key) {
         return backingData[index]
       }
 
-      for (var prop in backingData[index]) {
+      for (const prop in backingData[index]) {
         if (
           backingData[index].hasOwnProperty(prop) &&
           typeof backingData[index][prop] === 'object'
@@ -195,7 +195,7 @@ define([
     }
   }
 
-  var Segment = {}
+  const Segment = {}
 
   Segment.Segment = Backbone.AssociatedModel.extend({
     relations: [
@@ -237,11 +237,11 @@ define([
       }
     },
     populateFromModel: function(backingData, descriptors) {
-      var model = this
-      var segs = []
-      var seg
-      var segType = model.get('segmentType')
-      var properties = {
+      const model = this
+      const segs = []
+      let seg
+      const segType = model.get('segmentType')
+      const properties = {
         backingData: backingData,
         descriptors: descriptors,
       }
@@ -250,7 +250,7 @@ define([
         properties.segmentId = generateId()
         properties.simpleId = properties.segmentId.split(':').join('-')
 
-        for (var index = 0; index < backingData.length; index++) {
+        for (let index = 0; index < backingData.length; index++) {
           seg = new Segment.Segment({
             segmentName: segType,
             multiValued: false,
@@ -277,12 +277,12 @@ define([
         properties.segmentId = model.get('segmentId')
         properties.simpleId = properties.segmentId.split(':').join('-')
 
-        var fieldList = []
-        var prop
+        const fieldList = []
+        let prop
 
         for (prop in descriptors[segType]) {
           if (descriptors[segType].hasOwnProperty(prop)) {
-            var obj = descriptors[segType][prop]
+            const obj = descriptors[segType][prop]
             if (obj.isGroup) {
               seg = new Segment.Segment({
                 segmentName: obj.displayName,
@@ -297,7 +297,7 @@ define([
                 autoPopulateName: obj.autoPopulateName,
               })
               seg.constructTitle = obj.constructTitle
-              var passedModel = backingData[prop]
+              let passedModel = backingData[prop]
               if (!passedModel) {
                 passedModel =
                   seg.get('containerOnly') || obj.multiValued ? [] : {}
@@ -306,7 +306,7 @@ define([
               seg.populateFromModel(passedModel, descriptors)
               segs.push(seg)
             } else if (!obj.isSlot) {
-              var field = new Field.FormField({
+              const field = new Field.FormField({
                 key: prop,
                 name: obj.displayName,
                 desc: obj.description,
@@ -340,12 +340,12 @@ define([
       model.set(properties)
     },
     addField: function(key, type, value) {
-      var model = this
+      const model = this
       if (this.getField(key)) {
         //field with that name already exists return
         return
       }
-      var newField = new Field.FormField({
+      const newField = new Field.FormField({
         key: key,
         name: key,
         type: type,
@@ -363,14 +363,14 @@ define([
       return newField
     },
     removeField: function(key) {
-      var removedField = _.find(this.get('fields').models, function(field) {
+      const removedField = _.find(this.get('fields').models, function(field) {
         return field.get('key') === key
       })
       this.get('fields').remove(removedField)
       return removedField
     },
     addSegment: function(prePopulateId) {
-      var seg = new Segment.Segment({
+      const seg = new Segment.Segment({
         segmentName: this.get('segmentName'),
         multiValued: false,
         segmentType: this.get('segmentType'),
@@ -387,13 +387,13 @@ define([
         )
       }
       this.get('segments').add(seg)
-      var segType = seg.get('segmentType')
-      var nameField = seg.getField('Name')
+      const segType = seg.get('segmentType')
+      const nameField = seg.getField('Name')
       if (nameField && nameField.isEmpty() && typeCounters[segType]) {
         nameField.set('value', segType + ' ' + typeCounters[segType])
         typeCounters[segType]++
       }
-      var segTitle = seg.constructTitle
+      const segTitle = seg.constructTitle
         ? seg.constructTitle()
         : seg.getField('Name').get('value')
       this.get('associationModel').addAssociationSegment(
@@ -405,7 +405,7 @@ define([
       return seg
     },
     removeSegment: function(id) {
-      var seg = _.find(this.get('segments').models, function(seg) {
+      const seg = _.find(this.get('segments').models, function(seg) {
         return seg.get('segmentId') === id
       })
       this.get('segments').remove(seg)
@@ -416,8 +416,8 @@ define([
       addValueFields(field, value)
     },
     getField: function(key) {
-      var fields = this.get('fields').models
-      var foundField
+      const fields = this.get('fields').models
+      let foundField
       _.each(fields, function(field) {
         if (field.get('key') === key) {
           foundField = field
@@ -426,27 +426,27 @@ define([
       return foundField
     },
     getAutoPopulationValues: function(prePopulateId) {
-      var autoPopId = this.get('autoPopulateId')
-      var autoPopObj =
+      const autoPopId = this.get('autoPopulateId')
+      const autoPopObj =
         FieldDescriptors.autoPopulateValues[this.get('segmentType')]
       return _.find(autoPopObj, function(obj) {
         return obj[autoPopId] === prePopulateId
       })
     },
     validate: function() {
-      var errors = []
-      var fields = this.get('fields').models
-      var segments = this.get('segments').models
+      let errors = []
+      const fields = this.get('fields').models
+      const segments = this.get('segments').models
       this.validationError = undefined
       _.each(fields, function(field) {
-        var error = field.validate()
+        const error = field.validate()
         if (error) {
           errors = errors.concat(error)
         }
       })
 
       _.each(segments, function(segment) {
-        var error = segment.validate()
+        const error = segment.validate()
         if (error) {
           errors = errors.concat(error)
         }
@@ -457,18 +457,18 @@ define([
       }
     },
     saveData: function() {
-      var model = this
-      var fields = this.get('fields').models
-      var segments = this.get('segments').models
-      var ebrimTypes = FieldDescriptors.getSlotTypes()
-      var backingData = model.get('backingData')
+      const model = this
+      const fields = this.get('fields').models
+      const segments = this.get('segments').models
+      const ebrimTypes = FieldDescriptors.getSlotTypes()
+      const backingData = model.get('backingData')
       if (!backingData.Slot) {
         backingData.Slot = []
       }
       //update and add values
       _.each(fields, function(field) {
         if (field.get('type') === 'date') {
-          var date = moment(
+          const date = moment(
             field.get('valueDate') + 'T' + field.get('valueTime')
           )
           if (date.isValid()) {
@@ -481,8 +481,8 @@ define([
 
       //remove slots
       if (backingData.Slot) {
-        var slots = []
-        for (var index = 0; index < backingData.Slot.length; index++) {
+        const slots = []
+        for (let index = 0; index < backingData.Slot.length; index++) {
           if (model.getField(backingData.Slot[index].name)) {
             slots.push(backingData.Slot[index])
           }
@@ -493,7 +493,7 @@ define([
       //now handle the segments
       _.each(segments, function(segment) {
         if (!segment.get('containerOnly') && !segment.get('multiValued')) {
-          var segObj = getSegment(backingData, segment.get('segmentId'))
+          const segObj = getSegment(backingData, segment.get('segmentId'))
           if (!segObj) {
             if (!_.isArray(backingData)) {
               backingData[segment.get('segmentType')] = segment.get(

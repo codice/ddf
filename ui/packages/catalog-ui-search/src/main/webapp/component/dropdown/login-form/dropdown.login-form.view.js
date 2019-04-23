@@ -21,7 +21,7 @@ const template = require('./dropdown.login-form.hbs')
 const CustomElements = require('../../../js/CustomElements.js')
 const ComponentView = require('component/login-form/login-form.view')
 
-var getName = function(user) {
+const getName = function(user) {
   if (user.isGuestUser()) {
     return 'Sign In'
   }

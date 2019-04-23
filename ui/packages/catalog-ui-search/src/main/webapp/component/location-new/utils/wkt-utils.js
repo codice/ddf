@@ -27,8 +27,8 @@ function convertUserValueToWKT(val) {
     .split('MULTIPOINT')
     .map(function(value, index) {
       if (value.indexOf('((') === 0) {
-        var endOfMultiPoint = value.indexOf('))') + 2
-        var multipointStr = value.substring(0, endOfMultiPoint)
+        const endOfMultiPoint = value.indexOf('))') + 2
+        let multipointStr = value.substring(0, endOfMultiPoint)
         multipointStr = multipointStr
           .split('((')
           .join('(')
@@ -91,7 +91,7 @@ function checkGeometryCoordinateOrdering(geometry) {
 
 function checkForm(wkt) {
   try {
-    var test = wkx.Geometry.parse(wkt)
+    const test = wkx.Geometry.parse(wkt)
     return test.toWkt() === removeTrailingZeros(convertUserValueToWKT(wkt))
   } catch (err) {
     return false
@@ -100,7 +100,7 @@ function checkForm(wkt) {
 
 function checkLonLatOrdering(wkt) {
   try {
-    var test = wkx.Geometry.parse(wkt)
+    const test = wkx.Geometry.parse(wkt)
     return checkGeometryCoordinateOrdering(test.toGeoJSON())
   } catch (err) {
     return false

@@ -63,7 +63,7 @@ const retrieveData = (data, url) =>
     })
 
 const operateOnData = (data, method) => {
-  var ids =
+  const ids =
     method === 'resendMessages'
       ? getSelectedIds(
           getSelectedMessages(data).filter(

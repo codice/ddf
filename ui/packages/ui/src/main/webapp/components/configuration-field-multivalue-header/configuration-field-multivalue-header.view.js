@@ -58,7 +58,7 @@ define([
       this.listenTo(wreqr.vent, 'beforesave', this.saveValues)
     },
     updateValues: function() {
-      var csvVal,
+      let csvVal,
         view = this
       if (
         this.configuration.get('properties') &&
@@ -92,7 +92,7 @@ define([
       }
     },
     saveValues: function() {
-      var values = []
+      const values = []
       _.each(this.collectionArray.models, function(model) {
         values.push(model.get('value'))
       })

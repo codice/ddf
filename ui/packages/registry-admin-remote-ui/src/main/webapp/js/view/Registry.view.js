@@ -52,7 +52,7 @@ define([
   RemoteStatus,
   Status
 ) {
-  var RegistryView = {}
+  const RegistryView = {}
 
   ich.addTemplate('deleteRegistryModal', deleteRegistryModal)
   ich.addTemplate('deleteRegistry', deleteRegistry)
@@ -79,7 +79,7 @@ define([
     },
     editRegistry: function(evt) {
       evt.stopPropagation()
-      var service = this.model
+      const service = this.model
       wreqr.vent.trigger('editRegistry', service)
     },
     updateStatus: function() {
@@ -94,14 +94,14 @@ define([
       }
     },
     setupPollers: function(config) {
-      var pid = config.id
-      var view = this
+      const pid = config.id
+      const view = this
       this.statusModel = new Status.Model(pid)
       this.remoteStatusModel = new RemoteStatus.Model(pid)
       this.listenTo(this.statusModel, 'sync', this.updateStatus)
       this.listenTo(this.remoteStatusModel, 'sync', this.updateRemoteStatus)
 
-      var options = {
+      const options = {
         delay: 30000,
       }
 
@@ -131,13 +131,13 @@ define([
       'click .submit-button': 'deleteRegistries',
     },
     deleteRegistries: function() {
-      var view = this
-      var toDelete = []
+      const view = this
+      const toDelete = []
       view.collection.each(function(item) {
-        var currentConfig = item.get('registryConfiguration').at(0)
+        const currentConfig = item.get('registryConfiguration').at(0)
         view.$('.selectRegistryDelete').each(function(index, content) {
           if (content.checked) {
-            var id = item ? item.id : null
+            const id = item ? item.id : null
             if (id === content.value) {
               toDelete.push(view.model.createDeletePromise(item, currentConfig))
             }
@@ -151,7 +151,7 @@ define([
         Q.all(toDelete)
           .then(function(results) {
             _.each(results, function(result) {
-              var item = result.registry
+              const item = result.registry
               if (item.size() <= 0) {
                 //if no type configurations, delete the entire source.
                 view.model.get('collection').removeRegistry(item)
@@ -204,7 +204,7 @@ define([
       this.refreshButton.close()
     },
     onRender: function() {
-      var collection = this.model.get('collection')
+      const collection = this.model.get('collection')
       this.collectionRegion.show(
         new RegistryView.RegistryTable({
           model: this.model,
@@ -213,7 +213,7 @@ define([
       )
     },
     refreshRegistries: function() {
-      var view = this
+      const view = this
       view.model.get('model').clear()
 
       view.model.get('model').fetch({
@@ -225,9 +225,9 @@ define([
       })
     },
     addRegistry: function() {
-      var self = this.model
+      const self = this.model
       if (self) {
-        var regConfigs = self.getRegistryModel().get('registryConfiguration')
+        const regConfigs = self.getRegistryModel().get('registryConfiguration')
         //If there are more than 1 type of registry configuration available (i.e. CSW, DNA, etc)
         if (regConfigs.size() > 1) {
           wreqr.vent.trigger(
@@ -265,10 +265,10 @@ define([
       }
     },
     editRegistry: function(service) {
-      var self = this.model
-      var startOfType = service.id.lastIndexOf('(')
-      var strLength = service.id.length
-      var registryType = service.id.substring(startOfType + 1, strLength - 1)
+      const self = this.model
+      const startOfType = service.id.lastIndexOf('(')
+      const strLength = service.id.length
+      const registryType = service.id.substring(startOfType + 1, strLength - 1)
       wreqr.vent.trigger(
         'showModal',
         new ModalRegistry.View({
@@ -288,14 +288,14 @@ define([
     },
     showModal: function(modalView) {
       // Global div for workaround with iframe resize and modals
-      var region = this.application.getRegion('registryModal')
-      var collectionRegion = this.application.getRegion('collectionRegion')
-      var iFrameModalDOM = $('#IframeModalDOM')
+      const region = this.application.getRegion('registryModal')
+      const collectionRegion = this.application.getRegion('collectionRegion')
+      const iFrameModalDOM = $('#IframeModalDOM')
       modalView.$el.on('hidden.bs.modal', function() {
         iFrameModalDOM.hide()
       })
       modalView.$el.on('shown.bs.modal', function() {
-        var extraHeight =
+        const extraHeight =
           modalView.el.firstChild.clientHeight - collectionRegion.$el.height()
         if (extraHeight > 0) {
           iFrameModalDOM.height(extraHeight)

@@ -17,7 +17,7 @@ require(['jquery', 'backbone', 'js/application'], function(
   Backbone,
   Application
 ) {
-  var app = Application.App
+  const app = Application.App
   // Once the application has been initialized (i.e. all initializers have completed), start up
   // Backbone.history.
   app.on('initialize:after', function() {

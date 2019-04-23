@@ -52,10 +52,10 @@ export default (filters, logs) => {
   }
 
   const getMarks = entry => {
-    var marks = validFields
+    const marks = validFields
       .map(field => {
         if (entry[field]) {
-          var match = entry[field].match(regexps[field])
+          const match = entry[field].match(regexps[field])
           if (match !== null) {
             return {
               field: field,

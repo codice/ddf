@@ -44,7 +44,7 @@ module.exports = Marionette.LayoutView.extend({
       .get('resultFilter')
   },
   onRender: function() {
-    var resultFilter = this.getResultFilter()
+    const resultFilter = this.getResultFilter()
     let filter
     if (resultFilter) {
       filter = cql.simplify(cql.read(resultFilter))
@@ -91,7 +91,7 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   handleFilter: function() {
-    var resultFilter = this.getResultFilter()
+    const resultFilter = this.getResultFilter()
     this.$el.toggleClass('has-filter', Boolean(resultFilter))
   },
 })

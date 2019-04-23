@@ -20,7 +20,7 @@ define([
   'js-cookie',
 ], function($, _, Marionette, wreqr, properties, SystemUsageModal, Cookies) {
   'use strict'
-  var SystemUsageController
+  let SystemUsageController
 
   SystemUsageController = Marionette.Controller.extend({
     initialize: function() {
@@ -30,7 +30,7 @@ define([
           !properties.admin.systemUsageOncePerSession)
       ) {
         Cookies.set('admin.systemUsage', true)
-        var modal = new SystemUsageModal()
+        const modal = new SystemUsageModal()
         wreqr.vent.trigger('showModal', modal)
       }
     },

@@ -14,11 +14,11 @@
  **/
 
 define(['backbone', 'underscore'], function(Backbone, _) {
-  var InstallProfile = {}
+  const InstallProfile = {}
 
   InstallProfile.Model = Backbone.Model.extend({
     toJSON: function() {
-      var modelJSON = _.clone(this.attributes)
+      const modelJSON = _.clone(this.attributes)
       return _.extend(modelJSON, {
         displayName: modelJSON.name.replace('profile-', ''),
       })
@@ -34,7 +34,7 @@ define(['backbone', 'underscore'], function(Backbone, _) {
       return resp.value
     },
     comparator: function(model1, model2) {
-      var returnValue = 0
+      let returnValue = 0
       _.every(this.sortNames, function(sortName) {
         if (model1.get('name') === sortName) {
           returnValue = -1

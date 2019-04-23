@@ -13,13 +13,13 @@
  *
  **/
 
-var wreqr = require('../../../js/wreqr.js')
-var $ = require('jquery')
-var _ = require('underscore')
-var Marionette = require('marionette')
-var CustomElements = require('../../../js/CustomElements.js')
-var Common = require('../../../js/Common.js')
-var RowView = require('./row.view')
+const wreqr = require('../../../js/wreqr.js')
+const $ = require('jquery')
+const _ = require('underscore')
+const Marionette = require('marionette')
+const CustomElements = require('../../../js/CustomElements.js')
+const Common = require('../../../js/Common.js')
+const RowView = require('./row.view')
 require('../../../behaviors/selection.behavior.js')
 
 module.exports = Marionette.CollectionView.extend({

@@ -20,7 +20,7 @@ define([
 ], function(Marionette, ich, _, loginTemplate, $) {
   ich.addTemplate('loginTemplate', loginTemplate)
 
-  var Login = {}
+  const Login = {}
 
   Login.LoginForm = Marionette.ItemView.extend({
     template: 'loginTemplate',
@@ -36,9 +36,9 @@ define([
       }
     },
     logInUser: function() {
-      var view = this
+      const view = this
 
-      var prevUrl = decodeURI($.url().param('prevurl'))
+      const prevUrl = decodeURI($.url().param('prevurl'))
 
       $.ajax({
         type: 'POST',

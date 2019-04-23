@@ -16,7 +16,7 @@
 //get descriptors for well known registry slot fields.
 
 define(['underscore'], function(_) {
-  var FieldDescriptors = {
+  const FieldDescriptors = {
     configurations: {},
     isCustomizableSegment: function(name) {
       return _.contains(
@@ -46,8 +46,8 @@ define(['underscore'], function(_) {
       }
     },
     getFieldType: function(name) {
-      var types = this.getSlotTypes()
-      var fieldType
+      const types = this.getSlotTypes()
+      let fieldType
       _.each(_.keys(types), function(key) {
         if (types[key] === name) {
           fieldType = key
@@ -56,9 +56,9 @@ define(['underscore'], function(_) {
       return fieldType
     },
     retrieveFieldDescriptors: function() {
-      var descriptors = {}
+      const descriptors = {}
       if (this.customFields) {
-        for (var prop in this.customFields) {
+        for (const prop in this.customFields) {
           if (this.customFields.hasOwnProperty(prop)) {
             if (prop === 'Configuration') {
               this.configurations = this.customFields[prop]
@@ -72,7 +72,7 @@ define(['underscore'], function(_) {
       return descriptors
     },
     addSegment: function(base, custom) {
-      var that = this
+      const that = this
       _.each(custom, function(field) {
         base[field.key] = field
         base[field.key].isSlot = _.isUndefined(field.isSlot)
@@ -94,10 +94,10 @@ define(['underscore'], function(_) {
       })
     },
     constructEmailTitle: function() {
-      var title = []
+      const title = []
       title.push(this.getField('type').get('value'))
       title.push(this.getField('address').get('value'))
-      var stringTitle = title
+      let stringTitle = title
         .filter(function(val) {
           return val !== undefined
         })
@@ -109,7 +109,7 @@ define(['underscore'], function(_) {
       return stringTitle
     },
     constructPhoneTitle: function() {
-      var title = []
+      const title = []
       title.push(this.getField('phoneType').get('value'))
       if (this.getField('areaCode').get('value')) {
         title.push('(' + this.getField('areaCode').get('value') + ')')
@@ -118,7 +118,7 @@ define(['underscore'], function(_) {
       if (this.getField('extension').get('value')) {
         title.push(' x' + this.getField('extension').get('value'))
       }
-      var stringTitle = title
+      let stringTitle = title
         .filter(function(val) {
           return val !== undefined
         })
@@ -130,11 +130,11 @@ define(['underscore'], function(_) {
       return stringTitle
     },
     constructAddressTitle: function() {
-      var title = []
+      const title = []
       title.push(this.getField('street').get('value'))
       title.push(this.getField('city').get('value'))
       title.push(this.getField('stateOrProvince').get('value'))
-      var stringTitle = title
+      let stringTitle = title
         .filter(function(val) {
           return val !== undefined
         })
@@ -146,16 +146,16 @@ define(['underscore'], function(_) {
       return stringTitle
     },
     constructNameTitle: function() {
-      var title = this.getField('Name').get('value')
+      let title = this.getField('Name').get('value')
       if (!title || (_.isArray(title) && title.length === 0)) {
         title = this.get('segmentType')
       }
       return title
     },
     constructNameVersionTitle: function() {
-      var name = this.getField('Name').get('value')
-      var version = this.getField('VersionInfo').get('value')
-      var title
+      const name = this.getField('Name').get('value')
+      const version = this.getField('VersionInfo').get('value')
+      let title
       if (!name || (_.isArray(name) && name.length === 0)) {
         title = this.get('segmentType')
       } else {
@@ -164,8 +164,8 @@ define(['underscore'], function(_) {
       return title
     },
     constructPersonNameTitle: function() {
-      var personName
-      for (var index = 0; index < this.get('segments').models.length; index++) {
+      let personName
+      for (let index = 0; index < this.get('segments').models.length; index++) {
         if (
           this.get('segments').models[index].get('segmentType') === 'PersonName'
         ) {
@@ -173,7 +173,7 @@ define(['underscore'], function(_) {
           break
         }
       }
-      var title = []
+      const title = []
       if (personName) {
         title.push(personName.getField('firstName').get('value'))
         title.push(personName.getField('lastName').get('value'))
@@ -182,7 +182,7 @@ define(['underscore'], function(_) {
         }
       }
 
-      var stringTitle = title
+      let stringTitle = title
         .filter(function(val) {
           return val !== undefined
         })
@@ -199,7 +199,7 @@ define(['underscore'], function(_) {
       segment.getField('VersionInfo').set('value', prePopObj.version)
       segment.getField('accessUri').set('value', prePopObj.url)
 
-      for (var prop in prePopObj) {
+      for (const prop in prePopObj) {
         if (
           prePopObj.hasOwnProperty(prop) &&
           prop !== 'name' &&
@@ -208,7 +208,7 @@ define(['underscore'], function(_) {
           prop !== 'accessURI' &&
           prop !== 'id'
         ) {
-          var field = segment.getField(prop)
+          const field = segment.getField(prop)
           if (!field) {
             segment.addField(prop, 'string', [prePopObj[prop]])
           } else {

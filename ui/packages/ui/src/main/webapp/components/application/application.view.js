@@ -22,7 +22,7 @@ define([
 ], function(Backbone, Marionette, wreqr, template, CustomElements) {
   'use strict'
 
-  var DetailedApplicationLayout = Marionette.Layout.extend({
+  const DetailedApplicationLayout = Marionette.Layout.extend({
     template: template,
     tagName: CustomElements.register('application'),
     className: 'well',

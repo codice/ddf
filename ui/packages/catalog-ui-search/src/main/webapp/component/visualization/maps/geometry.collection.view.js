@@ -10,14 +10,14 @@
  *
  **/
 
-var Backbone = require('backbone')
-var Marionette = require('marionette')
-var $ = require('jquery')
-var _ = require('underscore')
-var store = require('../../../js/store.js')
-var GeometryView = require('./geometry.view')
+const Backbone = require('backbone')
+const Marionette = require('marionette')
+const $ = require('jquery')
+const _ = require('underscore')
+const store = require('../../../js/store.js')
+const GeometryView = require('./geometry.view')
 
-var GeometryCollectionView = Marionette.CollectionView.extend({
+const GeometryCollectionView = Marionette.CollectionView.extend({
   childView: GeometryView,
   childViewOptions: function() {
     return {

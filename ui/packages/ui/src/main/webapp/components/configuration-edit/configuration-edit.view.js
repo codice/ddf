@@ -41,10 +41,10 @@ define([
   ConfigurationFieldCollectionView,
   CustomElements
 ) {
-  var ConfigurationEditView = {}
+  const ConfigurationEditView = {}
   ConfigurationEditView.spinnerConfig = _.clone(spinnerConfig)
   ConfigurationEditView.spinnerConfig.color = '#000000'
-  var passwordType = 12
+  const passwordType = 12
 
   ConfigurationEditView.View = Marionette.Layout.extend({
     template: template,
@@ -77,16 +77,16 @@ define([
     },
 
     serializeData: function() {
-      var data = this.model.toJSON()
+      const data = this.model.toJSON()
       data.service = this.service.toJSON()
       return data
     },
 
     onRender: function() {
-      var view = this
+      const view = this
       this.service.get('metatype').each(function(value) {
         if (value.get('type') === passwordType) {
-          var password = view.model.get('properties').get(value.get('id'))
+          const password = view.model.get('properties').get(value.get('id'))
           if (password === null) {
             view.model.get('properties').set(value.get('id'), '')
           }
@@ -103,11 +103,14 @@ define([
     },
 
     bind: function() {
-      var view = this
-      var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name')
+      const view = this
+      const bindings = Backbone.ModelBinder.createDefaultBindings(
+        this.el,
+        'name'
+      )
       //this is done so that model binder wont watch these values. We need to handle this ourselves.
       delete bindings.value
-      var bindObjs = _.values(bindings)
+      const bindObjs = _.values(bindings)
       _.each(bindObjs, function(value) {
         if (view.$(value.selector).attr('type') === 'checkbox') {
           value.converter = function(direction, bindValue) {
@@ -127,9 +130,9 @@ define([
      * Submit to the backend.
      */
     submitData: function() {
-      var spinner = new Spinner(ConfigurationEditView.spinnerConfig)
+      const spinner = new Spinner(ConfigurationEditView.spinnerConfig)
       wreqr.vent.trigger('beforesave')
-      var view = this
+      const view = this
       spinner.spin(view.el)
 
       if (this.service && !this.model.get('properties').has('service.pid')) {
@@ -161,7 +164,7 @@ define([
     },
     cancel: function() {
       wreqr.vent.trigger('poller:start')
-      var view = this
+      const view = this
       _.defer(function() {
         view.options.stopEditing()
       })
@@ -170,10 +173,10 @@ define([
      * Set up the popovers based on if the selector has a description.
      */
     setupPopOvers: function() {
-      var view = this
+      const view = this
       this.service.get('metatype').forEach(function(each) {
         if (!_.isUndefined(each.get('description'))) {
-          var options,
+          let options,
             selector = ".description[data-title='" + each.id + "']"
           options = {
             title: each.get('name'),

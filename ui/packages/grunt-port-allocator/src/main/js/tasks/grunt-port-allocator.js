@@ -1,16 +1,16 @@
-var allocator = require('../lib/port-allocator.js')
+const allocator = require('../lib/port-allocator.js')
 
 module.exports = function(grunt) {
   grunt.registerTask('port:allocator', function() {
     grunt.config.requires('ports')
 
-    var done = this.async()
+    const done = this.async()
 
     allocator(function(err, ports) {
       if (err) {
         grunt.fail.fatal(err)
       } else {
-        var mapToPorts = function(obj) {
+        const mapToPorts = function(obj) {
           return Object.keys(obj).reduce(function(o, key, i) {
             o[key] = ports[i]
             return o

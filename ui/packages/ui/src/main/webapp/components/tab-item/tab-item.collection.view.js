@@ -25,7 +25,7 @@ define([
       'shown.bs.tab': 'tabShown',
     },
     tabShown: function(event) {
-      var id = event.target.getAttribute('data-id')
+      const id = event.target.getAttribute('data-id')
       this.children.each(function(childView) {
         if (childView.model.id === id) {
           childView.triggerShown()

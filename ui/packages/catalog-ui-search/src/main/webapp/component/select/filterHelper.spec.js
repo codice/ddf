@@ -14,12 +14,12 @@
  **/
 import { expect } from 'chai'
 
-var filterHelper = require('./filterHelper.js')
+const filterHelper = require('./filterHelper.js')
 
 function testAllSubstrings(testString, str, matchcase, expectation) {
-  var i
+  let i
   for (i = 0; i < testString.length; i++) {
-    var filterValue = testString.substring(0, i)
+    const filterValue = testString.substring(0, i)
     expect(filterHelper.matchesFilter(filterValue, str, matchcase)).to.equal(
       expectation
     )
@@ -34,11 +34,11 @@ function testWholeStrings(testString, str, matchcase, expectation) {
 
 describe('filter attrs', () => {
   it('filter anyText', () => {
-    var str = 'anyText'
-    var matchcase = false
+    const str = 'anyText'
+    const matchcase = false
 
-    var positiveTestStrings = ['text', 'any', 'anytext', 'ANYTEXT', 'aNyTeXt']
-    var negativeTestStrings = ['test', 'anyG', 'any text', 'anyText ', 'az']
+    const positiveTestStrings = ['text', 'any', 'anytext', 'ANYTEXT', 'aNyTeXt']
+    const negativeTestStrings = ['test', 'anyG', 'any text', 'anyText ', 'az']
 
     positiveTestStrings.forEach(function(string) {
       testAllSubstrings(string, str, matchcase, true)
@@ -50,10 +50,10 @@ describe('filter attrs', () => {
   })
 
   it('filter aString.WithDots-andDashes', () => {
-    var str = 'aString.WithDots-andDashes'
-    var matchcase = false
+    const str = 'aString.WithDots-andDashes'
+    const matchcase = false
 
-    var positiveTestStrings = [
+    const positiveTestStrings = [
       'aString.WithDots-andDashes',
       'a',
       'string',
@@ -64,7 +64,7 @@ describe('filter attrs', () => {
       'withdots-',
       '-andDashes',
     ]
-    var negativeTestStrings = ['az', 'thdo', 'ndDash', 'aString-']
+    const negativeTestStrings = ['az', 'thdo', 'ndDash', 'aString-']
 
     positiveTestStrings.forEach(function(string) {
       testAllSubstrings(string, str, matchcase, true)
@@ -75,11 +75,11 @@ describe('filter attrs', () => {
   })
 
   it('filter ALLCAPSSTRING', () => {
-    var str = 'ALLCAPSSTRING'
-    var matchcase = false
+    const str = 'ALLCAPSSTRING'
+    const matchcase = false
 
-    var positiveTestStrings = ['ALLCAPSSTRING', 'allcapsstring']
-    var negativeTestStrings = ['z', 'CA', 'STR', 'ING']
+    const positiveTestStrings = ['ALLCAPSSTRING', 'allcapsstring']
+    const negativeTestStrings = ['z', 'CA', 'STR', 'ING']
 
     positiveTestStrings.forEach(function(string) {
       testAllSubstrings(string, str, matchcase, true)
@@ -90,17 +90,17 @@ describe('filter attrs', () => {
   })
 
   it('filter matches case', () => {
-    var str = 'aCamelCasedString'
-    var matchcase = true
+    const str = 'aCamelCasedString'
+    const matchcase = true
 
-    var positiveTestStrings = [
+    const positiveTestStrings = [
       'aCamelCasedString',
       'a',
       'Camel',
       'Cased',
       'String',
     ]
-    var negativeTestStrings = [
+    const negativeTestStrings = [
       'A',
       'camel',
       'cased',
@@ -117,10 +117,10 @@ describe('filter attrs', () => {
   })
 
   it('filter spaces', () => {
-    var str = 'A few strings divided by spaces'
-    var matchcase = false
+    const str = 'A few strings divided by spaces'
+    const matchcase = false
 
-    var positiveTestStrings = [
+    const positiveTestStrings = [
       'A few strings divided by spaces',
       'A',
       'few',
@@ -129,7 +129,7 @@ describe('filter attrs', () => {
       'by',
       'spaces',
     ]
-    var negativeTestStrings = [
+    const negativeTestStrings = [
       'A few strings divided by spaces ',
       'vid',
       'rings',

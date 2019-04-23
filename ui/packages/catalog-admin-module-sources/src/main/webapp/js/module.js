@@ -28,21 +28,21 @@ define([
     Backbone,
     Marionette
   ) {
-    var serviceModel = new Service.Response()
+    const serviceModel = new Service.Response()
     serviceModel.fetch()
 
-    var sourceResponse = new Source.Response({
+    const sourceResponse = new Source.Response({
       model: serviceModel,
     })
 
-    var sourcePage = new SourceView.SourcePage({
+    const sourcePage = new SourceView.SourcePage({
       model: sourceResponse,
     })
 
     // Define a controller to run this module
     // --------------------------------------
 
-    var Controller = Marionette.Controller.extend({
+    const Controller = Marionette.Controller.extend({
       initialize: function(options) {
         this.region = options.region
       },

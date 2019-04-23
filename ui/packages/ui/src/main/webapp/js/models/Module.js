@@ -11,9 +11,9 @@
  **/
 
 define(['backbone', 'backbone-relational'], function(Backbone) {
-  var Module = {}
-  var module = Backbone.RelationalModel.extend({})
-  var moduleCollection = Backbone.Collection.extend({ model: module })
+  const Module = {}
+  const module = Backbone.RelationalModel.extend({})
+  const moduleCollection = Backbone.Collection.extend({ model: module })
   Module.Model = Backbone.RelationalModel.extend({
     url:
       './jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listModules',

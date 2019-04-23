@@ -13,18 +13,18 @@
  *
  **/
 
-var $ = require('jquery')
-var _ = require('underscore')
-var Marionette = require('marionette')
-var template = require('./input-with-param.hbs')
-var InputView = require('../input.view')
+const $ = require('jquery')
+const _ = require('underscore')
+const Marionette = require('marionette')
+const template = require('./input-with-param.hbs')
+const InputView = require('../input.view')
 
 module.exports = InputView.extend({
   template: template,
   className: 'is-with-param',
   getCurrentValue: function() {
-    var text = this.$el.find('[type=text]').val()
-    var param = parseInt(this.$el.find('[type=number]').val())
+    const text = this.$el.find('[type=text]').val()
+    const param = parseInt(this.$el.find('[type=number]').val())
     return {
       value: text,
       distance: Math.max(1, param || 0),
@@ -39,7 +39,7 @@ module.exports = InputView.extend({
     InputView.prototype.onAttach.call(this)
   },
   handleValue: function() {
-    var value = this.model.getValue() || {
+    const value = this.model.getValue() || {
       value: undefined,
       distance: 2,
     }
@@ -47,7 +47,7 @@ module.exports = InputView.extend({
     this.$el.find('[type=number]').val(value.distance)
   },
   serializeData: function() {
-    var value = this.model.getValue() || {
+    const value = this.model.getValue() || {
       value: undefined,
       distance: 2,
     }

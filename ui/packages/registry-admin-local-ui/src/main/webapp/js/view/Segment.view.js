@@ -43,7 +43,7 @@ define([
   ich.addTemplate('segmentRow', segmentRow)
   ich.addTemplate('segmentList', segmentList)
 
-  var Segment = {}
+  const Segment = {}
 
   Segment.SegmentView = Marionette.Layout.extend({
     template: 'segmentRow',
@@ -89,8 +89,8 @@ define([
       ] = this.toggleAdvanced
       this.delegateEvents()
 
-      var standardFields = []
-      var advancedFields = []
+      const standardFields = []
+      const advancedFields = []
       this.model.get('fields').forEach(
         function(field) {
           field.set('identityNode', this.model.get('identityNode'))
@@ -126,7 +126,7 @@ define([
           readOnly: this.readOnly,
         })
         if (this.model.get('fields').models.length > 0) {
-          var associationModel = this.model.get('associationModel')
+          const associationModel = this.model.get('associationModel')
           this.associationsView = new Association.AssociationCollectionView({
             parentId: this.model.get('segmentId'),
             model: associationModel,
@@ -152,7 +152,7 @@ define([
         }
       }
 
-      var errors = this.model.get('fields').find(function(field) {
+      const errors = this.model.get('fields').find(function(field) {
         return field.get('error')
       })
       if (errors) {
@@ -174,12 +174,12 @@ define([
     },
     updateTitle: function() {
       if (!this.model.get('multiValued') && this.model.constructTitle) {
-        var title = this.$('.segment-title-' + this.model.get('simpleId'))
+        const title = this.$('.segment-title-' + this.model.get('simpleId'))
         title.html(this.model.constructTitle())
       }
     },
     updateTitleError: function() {
-      var title = this.$('.segment-title-error-' + this.model.get('simpleId'))
+      const title = this.$('.segment-title-error-' + this.model.get('simpleId'))
       if (this.model.validate()) {
         title.show()
       } else {
@@ -190,10 +190,10 @@ define([
     },
     toggleAdvanced: function(evt) {
       evt.stopPropagation()
-      var advancedSections = this.$(
+      const advancedSections = this.$(
         '.advanced-section-' + this.model.get('simpleId')
       )
-      var advancedButton = this.$(
+      const advancedButton = this.$(
         '.advanced-button-' + this.model.get('simpleId')
       )
       if (this.advancedVisible) {
@@ -207,7 +207,7 @@ define([
       }
     },
     serializeData: function() {
-      var data = this.model.toJSON()
+      const data = this.model.toJSON()
       if (!this.model.get('multiValued') && this.model.constructTitle) {
         data.title = this.model.constructTitle()
       } else {
@@ -243,10 +243,10 @@ define([
      * Set up the popovers based on if the selector has a description.
      */
     setupPopOvers: function() {
-      var view = this
+      const view = this
       this.model.get('fields').each(function(each) {
         if (!_.isUndefined(each.get('desc'))) {
-          var options,
+          let options,
             selector = ".description[data-title='" + each.get('key') + "']"
           options = {
             title: each.get('name'),
@@ -278,7 +278,7 @@ define([
     },
     buildItemView: function(item, ItemViewType, itemViewOptions) {
       item.set('editableSegment', this.model.get('multiValued'))
-      var options = _.extend(
+      const options = _.extend(
         {
           model: item,
           readOnly: this.readOnly,
@@ -289,10 +289,10 @@ define([
     },
     addSegment: function(event) {
       event.stopPropagation()
-      var selector = this.$('.auto-populate-selector')
-      var prePopulateId
+      const selector = this.$('.auto-populate-selector')
+      let prePopulateId
       if (selector) {
-        var selected = selector.find(':selected')
+        const selected = selector.find(':selected')
         if (selected.attr('id') !== 'empty') {
           prePopulateId = selected.attr('id')
         }
@@ -304,12 +304,12 @@ define([
       this.model.removeSegment(id)
     },
     serializeData: function() {
-      var data = {}
+      let data = {}
 
       if (this.model) {
         data = this.model.toJSON()
       }
-      var autoValues =
+      const autoValues =
         FieldDescriptors.autoPopulateValues[this.model.get('segmentType')]
       data.autoValues = autoValues
       data.showHeader = this.options.showHeader

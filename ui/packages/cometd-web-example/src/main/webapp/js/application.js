@@ -15,11 +15,11 @@
 
 'use strict'
 ;(function($) {
-  var cometd = $.cometd
+  const cometd = $.cometd
   cometd.websocketEnabled = false
 
   // CometD endpoint is assumed to be at localhost, change if otherwise
-  var cometURL = 'https://localhost:8993/search/cometd'
+  const cometURL = 'https://localhost:8993/search/cometd'
 
   $(document).ready(function() {
     function _connectionEstablished() {
@@ -35,7 +35,7 @@
     }
 
     // Function that manages the connection status with the Bayeux server
-    var _connected = false
+    let _connected = false
     function _metaConnect(message) {
       if (cometd.isDisconnected()) {
         _connected = false
@@ -43,7 +43,7 @@
         return
       }
 
-      var wasConnected = _connected
+      const wasConnected = _connected
       _connected = message.successful === true
       if (!wasConnected && _connected) {
         _connectionEstablished()
@@ -67,11 +67,11 @@
             // Add Notification
             getNotification(message)
           })
-          var cid = cometd.getClientId()
+          const cid = cometd.getClientId()
           $('#notifications').append('<div>Cid: ' + cid + '</div>')
           // Publish an empty message to the notifications channel to retrieve any existing notifications.
           cometd.publish('/ddf/notifications', {})
-          var a = $('a').attr('href')
+          const a = $('a').attr('href')
           $('a').attr('href', a + cid)
         })
       }
@@ -85,7 +85,7 @@
       document.getElementById('json-responses').appendChild(renderjson(message))
 
       // Grab notification elements
-      var notifyId = message.data.id,
+      const notifyId = message.data.id,
         notifyTitle = message.data.title,
         notifyUser = message.data.user,
         notifyTime = message.data.timestamp,
@@ -116,7 +116,7 @@
       console.log(JSON.stringify(message, null, 4))
       document.getElementById('json-responses').appendChild(renderjson(message))
 
-      var notifyId = message.data.id,
+      const notifyId = message.data.id,
         notifyTitle = message.data.title,
         notifyUser = message.data.user,
         notifyTime = message.data.timestamp,
@@ -166,7 +166,7 @@
 
     // Determines whether a notification is new or needs to be updated.
     function getNotification(message) {
-      var notifyId = message.data.id
+      const notifyId = message.data.id
 
       // If notification already exists, update it. Else display a new notification.
       if ($('#' + notifyId).length > 0) {
@@ -182,11 +182,11 @@
       console.log(JSON.stringify(message, null, 4))
       document.getElementById('json-responses').appendChild(renderjson(message))
 
-      var results = message.data.results.length
+      const results = message.data.results.length
       console.log('Result Length: ' + results)
-      for (var i = 0; i < results; i++) {
+      for (let i = 0; i < results; i++) {
         // get result elements
-        var result = message.data.results[i],
+        const result = message.data.results[i],
           metacard = result.metacard,
           metaProps = metacard.properties,
           catalogId = metaProps.id,
@@ -209,7 +209,7 @@
       console.log('Executing Query')
       $('#results').empty()
 
-      var keyword = $('#keyword').val(),
+      const keyword = $('#keyword').val(),
         uuid = guid(),
         guidChannel = '/' + uuid,
         request = {
@@ -246,7 +246,7 @@
     cometd.handshake()
 
     //Add search event handler
-    var searchBtn = document.getElementById('search-btn')
+    const searchBtn = document.getElementById('search-btn')
     searchBtn.addEventListener('click', executeQuery)
   })
 })(jQuery)

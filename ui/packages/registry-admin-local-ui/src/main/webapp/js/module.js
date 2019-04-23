@@ -25,12 +25,12 @@ define([
     Backbone,
     Marionette
   ) {
-    var nodeModels = new Node.Models()
+    const nodeModels = new Node.Models()
     nodeModels.fetch()
 
-    var registryPage = new RegistryView.RegistryPage({ model: nodeModels })
+    const registryPage = new RegistryView.RegistryPage({ model: nodeModels })
 
-    var Controller = Marionette.Controller.extend({
+    const Controller = Marionette.Controller.extend({
       initialize: function(options) {
         this.region = options.region
       },

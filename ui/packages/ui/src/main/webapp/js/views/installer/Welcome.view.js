@@ -18,7 +18,7 @@ define([
   'backbone.marionette',
   'templates/installer/welcome.handlebars',
 ], function(Marionette, welcomeTemplate) {
-  var WelcomeView = Marionette.ItemView.extend({
+  const WelcomeView = Marionette.ItemView.extend({
     template: welcomeTemplate,
     tagName: 'div',
     className: 'full-height',

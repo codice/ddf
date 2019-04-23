@@ -14,10 +14,10 @@
  **/
 
 define(['jquery', 'underscore', 'marionette'], function($, _, Marionette) {
-  var RefreshController = Marionette.Controller.extend({
+  const RefreshController = Marionette.Controller.extend({
     expectedCalls: 2, //number of calls to done expected before stopping
     initialize: function(options) {
-      var self = this
+      const self = this
       this.callback = options.callback
       this.spinner = $(options.spinnerSelector)
       this.$button = $(options.buttonSelector)
@@ -27,7 +27,7 @@ define(['jquery', 'underscore', 'marionette'], function($, _, Marionette) {
       })
     },
     startSpinner: function() {
-      var self = this
+      const self = this
       if (!this.spinner.hasClass('fa-spin')) {
         this.counter = this.expectedCalls
         this.spinner.addClass('fa-spin')
@@ -51,7 +51,7 @@ define(['jquery', 'underscore', 'marionette'], function($, _, Marionette) {
     },
   })
 
-  var ModalExplicitDismissalBehavior = Marionette.Behavior.extend({
+  const ModalExplicitDismissalBehavior = Marionette.Behavior.extend({
     onRender: function() {
       this.$el.modal({
         backdrop: 'static',
@@ -60,12 +60,12 @@ define(['jquery', 'underscore', 'marionette'], function($, _, Marionette) {
     },
   })
 
-  var Utils = {
+  const Utils = {
     /**
      * Set up the popovers based on if the selector has a description.
      */
     setupPopOvers: function($popoverAnchor, id, title, description) {
-      var selector = '.description',
+      const selector = '.description',
         options = {
           title: title,
           content: description,

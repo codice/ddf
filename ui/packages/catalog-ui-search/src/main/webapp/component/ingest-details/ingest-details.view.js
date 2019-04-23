@@ -13,26 +13,26 @@
  *
  **/
 
-var wreqr = require('../../js/wreqr.js')
-var Marionette = require('marionette')
-var _ = require('underscore')
-var $ = require('jquery')
-var template = require('./ingest-details.hbs')
-var CustomElements = require('../../js/CustomElements.js')
-var Dropzone = require('dropzone')
-var UploadItemCollectionView = require('../upload-item/upload-item.collection.view.js')
-var UploadBatchModel = require('../../js/model/UploadBatch.js')
-var userInstance = require('../singletons/user-instance.js')
-var Common = require('../../js/Common.js')
-var UploadSummary = require('../upload-summary/upload-summary.view.js')
+const wreqr = require('../../js/wreqr.js')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./ingest-details.hbs')
+const CustomElements = require('../../js/CustomElements.js')
+const Dropzone = require('dropzone')
+const UploadItemCollectionView = require('../upload-item/upload-item.collection.view.js')
+const UploadBatchModel = require('../../js/model/UploadBatch.js')
+const userInstance = require('../singletons/user-instance.js')
+const Common = require('../../js/Common.js')
+const UploadSummary = require('../upload-summary/upload-summary.view.js')
 
 function namespacedEvent(event, view) {
   return event + '.' + view.cid
 }
 
 function updateDropzoneHeight(view) {
-  var filesHeight = view.$el.find('.details-files').height()
-  var elementHeight = view.$el.height()
+  const filesHeight = view.$el.find('.details-files').height()
+  const elementHeight = view.$el.height()
   view.$el
     .find('.details-dropzone')
     .css(
@@ -123,7 +123,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   setupDropzone() {
-    var _this = this
+    const _this = this
     this.dropzone = new Dropzone(this.el.querySelector('.details-dropzone'), {
       paramName: 'parse.resource',
       url: this.options.url,

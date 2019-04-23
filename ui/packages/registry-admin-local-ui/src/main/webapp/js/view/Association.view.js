@@ -35,7 +35,7 @@ define([
   ich.addTemplate('associationList', associationList)
   ich.addTemplate('associationRow', associationRow)
 
-  var Association = {}
+  const Association = {}
 
   Association.AssociationView = Marionette.ItemView.extend({
     template: 'associationRow',
@@ -53,7 +53,7 @@ define([
       )
     },
     serializeData: function() {
-      var data = {}
+      let data = {}
 
       if (this.model) {
         data = this.model.toJSON()
@@ -97,7 +97,7 @@ define([
       this.setupPopOvers()
     },
     serializeData: function() {
-      var data = {}
+      const data = {}
       data.availableAssociation = this.model.getAvailableAssociationSegments(
         this.parentId
       )
@@ -109,9 +109,9 @@ define([
       this.collection.remove(this.model.removeAssociation(associationId))
     },
     addAssociation: function() {
-      var selectedOption = this.$('.association-selector').find(':selected')
+      const selectedOption = this.$('.association-selector').find(':selected')
       if (selectedOption.length === 1) {
-        var addedItem = this.model.addAssociation(
+        const addedItem = this.model.addAssociation(
           this.parentId,
           selectedOption.attr('name'),
           'AssociatedWith'
@@ -120,7 +120,7 @@ define([
       }
     },
     updateAssociations: function(association) {
-      var seg = _.find(this.collection.models, function(model) {
+      const seg = _.find(this.collection.models, function(model) {
         return (
           model.get('sourceId') === association.get('segmentId') ||
           model.get('targetId') === association.get('segmentId')
@@ -135,8 +135,8 @@ define([
      * Set up the popovers based on if the selector has a description.
      */
     setupPopOvers: function() {
-      var view = this
-      var options,
+      const view = this
+      let options,
         selector = '.description'
       options = {
         trigger: 'hover',
@@ -144,7 +144,7 @@ define([
       view.$(selector).popover(options)
     },
     buildItemView: function(item, ItemViewType, itemViewOptions) {
-      var options = _.extend(
+      const options = _.extend(
         {
           model: item,
           readOnly: this.readOnly,

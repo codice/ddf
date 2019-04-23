@@ -13,8 +13,8 @@
  *
  **/
 
-var Behaviors = require('./Behaviors')
-var Marionette = require('marionette')
+const Behaviors = require('./Behaviors')
+const Marionette = require('marionette')
 
 Behaviors.addBehavior(
   'button',

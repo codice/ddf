@@ -24,7 +24,7 @@ const MetacardArchiveView = Marionette.LayoutView.extend({
   },
 })
 
-var MetacardsTabs = Tabs.extend({
+const MetacardsTabs = Tabs.extend({
   defaults: {
     tabs: {
       Details: MetacardsBasicView,

@@ -13,15 +13,15 @@
  *
  **/
 
-var Marionette = require('marionette')
-var DropdownView = require('../dropdown.view')
-var template = require('./dropdown.associations-display.hbs')
+const Marionette = require('marionette')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.associations-display.hbs')
 
 module.exports = DropdownView.extend({
   template: template,
   className: 'is-associationsDisplay',
   serializeData: function() {
-    var modelJSON = DropdownView.prototype.serializeData.call(this)
+    const modelJSON = DropdownView.prototype.serializeData.call(this)
     modelJSON.icon =
       modelJSON.concatenatedLabel === 'Graph' ? 'fa-sitemap' : 'fa-th-list'
     return modelJSON

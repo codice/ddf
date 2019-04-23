@@ -19,7 +19,7 @@ define(['underscore', 'backbone', 'marionette', 'icanhaz'], function(
 ) {
   'use strict'
 
-  var Application = {}
+  const Application = {}
 
   // This was moved from the main.js file into here.
   // Since this modules has ui components, and it gets loaded before main.js, we need to init the renderer here for now until we sort this out.

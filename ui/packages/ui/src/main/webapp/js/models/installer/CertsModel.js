@@ -19,7 +19,7 @@ define(['backbone.marionette', 'underscore', 'backbone', 'jquery'], function(
   Backbone,
   $
 ) {
-  var CertsModel = Backbone.Model.extend({
+  const CertsModel = Backbone.Model.extend({
     defaults: {
       hostName: undefined,
       keystoreFile: undefined,
@@ -33,7 +33,7 @@ define(['backbone.marionette', 'underscore', 'backbone', 'jquery'], function(
       devMode: location.search.indexOf('dev=true') > -1 ? true : false,
     },
     validate: function(attrs) {
-      var validation = []
+      const validation = []
 
       if (this.get('devMode')) {
         return undefined
@@ -75,9 +75,9 @@ define(['backbone.marionette', 'underscore', 'backbone', 'jquery'], function(
       }
     },
     sync: function() {
-      var model = this
+      const model = this
 
-      var data, jdata
+      let data, jdata
 
       if (this.get('devMode')) {
         data = {

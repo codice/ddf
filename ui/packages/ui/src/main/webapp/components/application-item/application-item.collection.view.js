@@ -35,7 +35,7 @@ define([
   'use strict'
 
   // Collection of all the applications
-  var AppCardCollectionView = Marionette.CollectionView.extend({
+  const AppCardCollectionView = Marionette.CollectionView.extend({
     itemView: AppCardItemView,
     tagName: CustomElements.register('application-item-collection'),
     emptyView: Marionette.ItemView.extend({

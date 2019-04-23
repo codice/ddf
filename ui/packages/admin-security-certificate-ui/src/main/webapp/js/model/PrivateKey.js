@@ -19,7 +19,7 @@ define([
   'js/model/Jolokia',
   'backboneassociations',
 ], function(_, Backbone, Jolokia) {
-  var PrivateKey = {}
+  const PrivateKey = {}
 
   PrivateKey.Model = Jolokia.extend({
     idAttribute: 'alias',
@@ -32,7 +32,7 @@ define([
       '../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore',
     postOperation: 'addPrivateKey',
     validate: function() {
-      var alias = this.get('alias')
+      const alias = this.get('alias')
       if (alias === undefined || alias === '') {
         return 'A private key must have an alias.'
       }

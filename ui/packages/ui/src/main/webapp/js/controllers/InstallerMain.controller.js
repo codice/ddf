@@ -18,11 +18,11 @@ define(['backbone.marionette', 'js/models/InstallProfile', 'q'], function(
   InstallProfile,
   Q
 ) {
-  var InstallMainController = Marionette.Controller.extend({
+  const InstallMainController = Marionette.Controller.extend({
     installProfiles: null,
 
     fetchInstallProfiles: function() {
-      var defer = Q.defer()
+      const defer = Q.defer()
 
       if (this.installProfiles) {
         defer.resolve(this.installProfiles)
