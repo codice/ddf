@@ -88,7 +88,8 @@ public class QueryMetacardApplication implements SparkApplication {
   private final SubjectIdentity subjectIdentity;
 
   private static final Set<String> SEARCHABLE_ATTRIBUTES =
-      ImmutableSet.of(Core.TITLE, Core.METACARD_OWNER, QueryAttributes.QUERY_SOURCES);
+      ImmutableSet.of(
+          Core.TITLE, Core.METACARD_OWNER, Core.DESCRIPTION, QueryAttributes.QUERY_SOURCES);
 
   public QueryMetacardApplication(
       CatalogFramework catalogFramework,
