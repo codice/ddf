@@ -1,0 +1,243 @@
+:title: Queries Endpoint
+:type: endpoint
+:status: published
+:operations: crud
+:link: _queries_endpoint
+:summary: To perform CRUD (Create, Read, Update, Delete) operations on query metacards in the catalog, work with one of these endpoints.
+
+== {title}
+
+The queries endpoint enables an application to create, retrieve, update, and delete query metacards.
+
+Query metacards represent queries within the UI. A query metacard is what is persisted in the data store.
+
+The queries endpoint can be used for one or more of these operations on an instance of ${branding}:
+
+* Create query metacards and store them in the ${branding} catalog.
+* Retrieve all query metacards stored in the ${branding} catalog and sort them based on attribute and sort order.
+* Retrieve a specific query metacard stored in the ${branding} catalog.
+* Update query metacards that are stored in the ${branding} catalog.
+* Delete query metacards that are stored in the ${branding} catalog.
+
+.Queries Endpoint URL
+[source,https]
+----
+https://<HOSTNAME>:<PORT>/search/catalog/internal/queries
+----
+
+=== Queries Endpoint Create Examples
+
+To create a query metacard through the queries endpoint, send a `POST` request to the queries endpoint.
+
+.Queries Endpoint Create Request Body
+[source,json,linenums]
+----
+{
+	"cql":"(\"anyText\" ILIKE 'foo bar')",
+	"filterTree":"{\"type\":\"AND\",\"filters\":[{\"type\":\"ILIKE\",\"property\":\"anyText\",\"value\":\"foo bar\"}]}",
+	"federation":"enterprise",
+	"sorts":[
+		{
+			"attribute":"modified",
+			"direction":"descending"
+		}
+	],
+	"type":"advanced",
+	"title":"Search Title"
+}
+----
+
+A successful create request will return a status of `201 CREATED`.
+
+.Queries Endpoint Create Success Response Body
+[source,json,linenums]
+----
+{
+    "id": "12bfc601cda449d58733eacaf613b93d",
+    "title": "Search Title",
+    "created": "Apr 18, 2019 10:20:55 AM",
+    "modified": "Apr 18, 2019 10:20:55 AM",
+    "owner": "admin@localhost.local",
+    "cql": "(\"anyText\" ILIKE 'foo bar')",
+    "filterTree": "{\"type\":\"AND\",\"filters\":[{\"type\":\"ILIKE\",\"property\":\"anyText\",\"value\":\"foo bar\"}]}",
+    "enterprise": null,
+    "sources": [],
+    "sorts": [
+        {
+            "attribute": "modified",
+            "direction": "descending"
+        }
+    ],
+    "polling": null,
+    "federation": "enterprise",
+    "type": "advanced",
+    "detailLevel": null,
+    "schedules": [],
+    "facets": []
+}
+----
+
+An unsuccessful create request will return a status of `500 SERVER ERROR`.
+
+.Queries Endpoint Create Failure Response Body
+[source,json,linenums]
+----
+{
+    "message": "Something went wrong."
+}
+----
+
+=== Queries Endpoint Retrieve All Examples
+
+To retrieve a query metacard through the queries endpoint, send a `GET` request to the queries endpoint.
+
+.Path Parameters
+[cols="2m,2m,2m,2m,2m" options="header"]
+|===
+
+|Query Param
+|Description
+|Default Value
+|Valid Values
+|Type
+
+|start
+|The starting index of the query to receive.
+|1
+|Integer
+|[1, 2^31)
+
+|count
+|The number of queries to return.
+|100
+|Integer
+|All integers
+
+|attr
+|The attribute to sort the queries by.
+|modified
+|All strings
+|String
+
+|sort_by
+|The sort order to return the queries in.
+|desc
+|asc, desc
+|String
+
+|===
+
+A successful retrieval request will return a status of `200 OK`.
+
+=== Queries Endpoint Retrieve Examples
+
+.Retrieve Specific Query Endpoint URL
+[source,https]
+----
+https://<HOSTNAME>:<PORT>/search/catalog/internal/queries/<ID>
+----
+
+To retrieve a specific query metacard through the queries endpoint, send a `GET` request to the queries endpoint with an id.
+
+A successful retrieval request will return a status of `200 OK`.
+
+.Query Endpoint Not Found Response Body
+[source,json,linenums]
+----
+{
+    "message": "Could not find metacard for id: <metacardId>"
+}
+----
+
+An unsuccessful retrieval request will return a status of `404 NOT FOUND`.
+
+=== Queries Endpoint Update Examples
+
+.Update Query Endpoint URL
+[source,https]
+----
+https://<HOSTNAME>:<PORT>/search/catalog/internal/queries/<ID>
+----
+
+To update a specific query metacard through the queries endpoint, send a `PUT` request to the queries endpoint with an id.
+
+.Update Query Request Request Body
+[source,json,linenums]
+----
+{
+	"cql":"(\"anyText\" ILIKE 'foo bar')",
+	"filterTree":"{\"type\":\"AND\",\"filters\":[{\"type\":\"ILIKE\",\"property\":\"anyText\",\"value\":\"foo bar\"}]}",
+	"federation":"enterprise",
+	"sorts":[
+		{
+			"attribute":"modified",
+			"direction":"descending"
+		}
+	],
+	"type":"advanced",
+	"title":"New Search Title"
+}
+----
+
+A successful update request will return a status of `200 OK`.
+
+.Update Query Request Response Body
+[source,json,linenums]
+----
+{
+    "id": "cd6b83db301544e4bb7ece39564261ca",
+    "title": "New Search Title",
+    "created": "Apr 18, 2019 11:09:35 AM",
+    "modified": "Apr 18, 2019 11:09:35 AM",
+    "owner": null,
+    "cql": "(\"anyText\" ILIKE 'foo barararra')",
+    "filterTree": "{\"type\":\"AND\",\"filters\":[{\"type\":\"ILIKE\",\"property\":\"anyText\",\"value\":\"foo bar\"}]}",
+    "enterprise": null,
+    "sources": [],
+    "sorts": [
+        {
+            "attribute": "modified",
+            "direction": "descending"
+        }
+    ],
+    "polling": null,
+    "federation": "enterprise",
+    "type": "advanced",
+    "detailLevel": null,
+    "schedules": [],
+    "facets": []
+}
+----
+
+An unsuccessful update request will return a status of `404 NOT FOUND`.
+
+.Update Query Unsuccessful Response Body
+[source,json,linenums]
+----
+{
+    "message": "Form is either restricted or not found."
+}
+----
+
+
+=== Queries Endpoint Delete Examples
+
+.Delete Query Endpoint URL
+[source,https]
+----
+https://<HOSTNAME>:<PORT>/search/catalog/internal/queries/<ID>
+----
+
+To delete a specific query metacard through the queries endpoint, send a `GET` request to the queries endpoint with an id.
+
+A successful deletion request will return a status of `204 NO CONTENT`.
+
+An unsuccessful deletion request will return a status of `404 NOT FOUND`.
+
+.Delete Query Not Found Response Body
+[source,json,linenums]
+----
+{
+    "message": "Form is either restricted or not found."
+}
+----
