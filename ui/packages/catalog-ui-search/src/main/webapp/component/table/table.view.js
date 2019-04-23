@@ -15,7 +15,6 @@
 
 const template = require('./table.hbs');
 const Marionette = require('marionette');
-const MarionetteRegion = require('../../js/Marionette.Region.js');
 const CustomElements = require('../../js/CustomElements.js');
 
 function moveHeaders(elementToUpdate, elementToMatch) {

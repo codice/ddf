@@ -15,11 +15,9 @@
 
 const Backbone = require('backbone')
 const Marionette = require('marionette')
-const _ = require('underscore')
 const $ = require('jquery')
 const childView = require('./select.view')
 const CustomElements = require('../../js/CustomElements.js')
-const Common = require('../../js/Common.js')
 import { matchesFilter, getAppropriateString } from './filterHelper'
 
 module.exports = Marionette.CollectionView.extend({

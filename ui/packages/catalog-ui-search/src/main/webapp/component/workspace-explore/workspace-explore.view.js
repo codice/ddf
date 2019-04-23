@@ -14,13 +14,10 @@
  **/
 
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const workspaceExploreTemplate = require('./workspace-explore.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const QuerySelectorView = require('../query-selector/query-selector.view.js')
 const store = require('../../js/store.js')
-const lightboxViewInstance = require('../lightbox/lightbox.view.instance.js')
 
 const WorkspaceExplore = Marionette.LayoutView.extend({
   setDefaultModel: function() {

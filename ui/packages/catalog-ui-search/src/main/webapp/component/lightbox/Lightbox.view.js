@@ -14,9 +14,7 @@
  **/
 
 const Marionette = require('marionette')
-const _ = require('underscore')
 const $ = require('jquery')
-const LightboxTemplate = require('./Lightbox.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
 const Lightbox = require('./Lightbox.js')

@@ -14,7 +14,6 @@
  **/
 
 const MapView = require('../map.view');
-const wreqr = require('../../../../js/wreqr.js');
 const $ = require('jquery');
 
 module.exports = MapView.extend({

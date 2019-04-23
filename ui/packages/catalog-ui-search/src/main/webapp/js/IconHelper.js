@@ -1,4 +1,3 @@
-const _ = require('lodash')
 const _get = require('lodash/get')
 const _map = {
   default: {

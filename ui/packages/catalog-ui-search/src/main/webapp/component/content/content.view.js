@@ -14,22 +14,11 @@
  **/
 
 import React from 'react'
-const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const CustomElements = require('../../js/CustomElements.js')
-const properties = require('../../js/properties.js')
 const WorkspaceContentTabs = require('../tabs/workspace-content/tabs-workspace-content.js')
 const WorkspaceContentTabsView = require('../tabs/workspace-content/tabs-workspace-content.view.js')
-const QueryTabsView = require('../tabs/query/tabs-query.view.js')
 const store = require('../../js/store.js')
-const MetacardTabsView = require('../tabs/metacard/tabs-metacard.view.js')
-const MetacardsTabsView = require('../tabs/metacards/tabs-metacards.view.js')
-const Common = require('../../js/Common.js')
-const MetacardTitleView = require('../metacard-title/metacard-title.view.js')
-const VisualizationView = require('../visualization/visualization.view.js')
-const QueryTitleView = require('../query-title/query-title.view.js')
 const GoldenLayoutView = require('../golden-layout/golden-layout.view.js')
 const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
 

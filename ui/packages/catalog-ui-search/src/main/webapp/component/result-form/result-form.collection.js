@@ -15,8 +15,6 @@
 /* global require */
 const Backbone = require('backbone')
 const ResultForm = require('../search-form/search-form.js')
-const Common = require('../../js/Common.js')
-const user = require('../singletons/user-instance.js')
 const $ = require('jquery')
 const _ = require('underscore')
 

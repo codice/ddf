@@ -16,7 +16,6 @@
 const Marionette = require('marionette');
 const _ = require('underscore');
 const _merge = require('lodash/merge');
-const $ = require('jquery');
 const template = require('./list-item.hbs');
 const CustomElements = require('../../js/CustomElements.js');
 require('../../behaviors/button.behavior.js')

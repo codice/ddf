@@ -1,5 +1,3 @@
-const React = require('react')
-
 const Group = require('../../../react-component/group/index.js')
 const { Radio, RadioItem } = require('../../../react-component/radio/index.js')
 const TextField = require('../../../react-component/text-field/index.js')
@@ -8,7 +6,6 @@ const ListEditor = require('../inputs/list-editor')
 const { DdLatitude, DdLongitude } = require('./coordinates')
 const { validateDdPoint } = require('../utils')
 const { ddPoint } = require('../models')
-const errorMessages = require('../utils/errors')
 const DistanceUtils = require('../../../js/DistanceUtils')
 
 const minimumDifference = 0.0001

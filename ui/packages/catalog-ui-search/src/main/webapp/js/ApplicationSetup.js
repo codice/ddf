@@ -36,7 +36,6 @@ if (process.env.NODE_ENV !== 'production') {
 
 window.CESIUM_BASE_URL = './cesium/assets'
 
-const _ = require('underscore')
 const Backbone = require('backbone')
 const Marionette = require('marionette')
 const properties = require('./properties.js')

@@ -18,7 +18,6 @@
 const MapView = require('../map.view');
 const template = require('./cesium.hbs');
 const $ = require('jquery');
-const user = require('../../../singletons/user-instance.js');
 const _ = require('underscore');
 const featureDetection = require('../../../singletons/feature-detection.js');
 

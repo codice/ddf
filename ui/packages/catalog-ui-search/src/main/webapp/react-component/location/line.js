@@ -1,4 +1,3 @@
-const React = require('react')
 const BaseLine = require('./base.line')
 
 const options = {

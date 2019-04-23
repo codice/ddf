@@ -18,8 +18,6 @@ const template = require('./relative-time.hbs');
 const CustomElements = require('../../js/CustomElements.js');
 const PropertyView = require('../property/property.view.js');
 const Property = require('../property/property.js');
-const CQLUtils = require('../../js/CQLUtils.js');
-const Common = require('../../js/Common.js');
 import { serialize, deserialize } from './serial'
 
 /*

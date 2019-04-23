@@ -1,5 +1,3 @@
-const React = require('react')
-
 const { Menu, MenuItem } = require('../menu')
 const Dropdown = require('../dropdown')
 const Group = require('../group')

@@ -11,7 +11,6 @@
  **/
 
 const Marionette = require('marionette');
-const $ = require('jquery');
 const _ = require('underscore');
 const store = require('../../../js/store.js');
 const ClusterView = require('./cluster.view');

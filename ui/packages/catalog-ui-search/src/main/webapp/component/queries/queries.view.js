@@ -14,8 +14,6 @@
  **/
 
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const queriesTemplate = require('./queries.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const QueryTabsView = require('../tabs/query/tabs-query.view.js')

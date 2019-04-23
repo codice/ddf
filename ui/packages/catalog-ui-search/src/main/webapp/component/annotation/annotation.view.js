@@ -15,10 +15,8 @@
 
 const template = require('./annotation.hbs');
 const $ = require('jquery');
-const _ = require('underscore');
 const Marionette = require('marionette');
 const CustomElements = require('../../js/CustomElements.js');
-const Common = require('../../js/Common.js');
 const PropertyView = require('../property/property.view.js');
 const Property = require('../property/property.js');
 const LoadingCompanionView = require('../loading-companion/loading-companion.view.js');

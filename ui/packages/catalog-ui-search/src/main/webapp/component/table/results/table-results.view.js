@@ -16,7 +16,6 @@
 const TableView = require('../table.view');
 const HeaderView = require('../../visualization/table/thead.view.js');
 const BodyView = require('../../visualization/table/tbody.view.js');
-const $ = require('jquery');
 
 function getOriginalEvent(e) {
   if (e.constructor === MouseEvent) {

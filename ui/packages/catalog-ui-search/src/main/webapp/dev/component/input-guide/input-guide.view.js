@@ -1,5 +1,4 @@
 const BaseGuideView = require('../base-guide/base-guide.view.js')
-const Marionette = require('marionette')
 const template = require('./input-guide.hbs')
 const CustomElements = require('../../../js/CustomElements.js')
 const PropertyView = require('../../../component/property/property.view.js');

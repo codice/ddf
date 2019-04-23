@@ -10,7 +10,6 @@
  *
  **/
 const httpProxy = require('http-proxy');
-const path = require('path');
 
 const proxy = httpProxy.createProxyServer({
   secure: false,

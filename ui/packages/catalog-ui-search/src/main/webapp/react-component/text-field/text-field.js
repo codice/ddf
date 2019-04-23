@@ -1,5 +1,3 @@
-const React = require('react')
-
 const Group = require('../group')
 
 const CustomElements = require('../../js/CustomElements.js')

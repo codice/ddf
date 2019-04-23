@@ -22,12 +22,9 @@ const SelectionInterface = require('../selection-interface/selection-interface.m
 const QueryAdvanced = require('../query-advanced/query-advanced.view.js')
 const QueryModel = require('../../js/model/Query.js')
 const QueryTitle = require('../query-title/query-title.view.js')
-const LoadingView = require('../loading/loading.view.js')
 const wreqr = require('../../js/wreqr.js')
-const user = require('../singletons/user-instance.js')
 const cql = require('../../js/cql.js')
 const announcement = require('../announcement/index.jsx')
-const $ = require('jquery')
 
 const Root = styled.div`
   display: flex;

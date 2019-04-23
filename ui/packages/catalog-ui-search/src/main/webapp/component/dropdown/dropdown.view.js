@@ -14,8 +14,6 @@
  **/
 
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const CustomElements = require('../../js/CustomElements.js')
 const DropdownCompanionView = require('./dropdown.companion.view')
 const DropdownModel = require('./dropdown')

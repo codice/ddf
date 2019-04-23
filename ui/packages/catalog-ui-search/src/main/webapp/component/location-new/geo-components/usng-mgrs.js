@@ -1,5 +1,3 @@
-const React = require('react')
-
 const { Radio, RadioItem } = require('../../../react-component/radio/index.js')
 const TextField = require('../../../react-component/text-field/index.js')
 const { Units } = require('../../../react-component/location/common.js')

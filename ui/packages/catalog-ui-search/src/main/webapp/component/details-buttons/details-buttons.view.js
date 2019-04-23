@@ -14,8 +14,6 @@
  **/
 
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./details-buttons.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 

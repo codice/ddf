@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const URL = require('url'), httpProxy = require('http-proxy'), proxy = new httpProxy.RoutingProxy(), fs = require('node-fs'), path = require('path'), _ = require('lodash');
+const URL = require('url'), httpProxy = require('http-proxy'), proxy = new httpProxy.RoutingProxy();
 
 function stringFormat(format /* arg1, arg2... */) {
   if (arguments.length === 0) {

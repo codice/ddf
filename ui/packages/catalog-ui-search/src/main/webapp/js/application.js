@@ -12,11 +12,9 @@
 
 // #Main Application
 const $ = require('jquery')
-const _ = require('underscore')
 const Marionette = require('marionette')
 const Backbone = require('backbone')
 const properties = require('./properties.js')
-const maptype = require('./maptype.js')
 const banner = require('../templates/banner.layout.handlebars')
 require('bootstrap/dist/js/bootstrap.min')
 require('backbone-associations')

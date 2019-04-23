@@ -20,8 +20,6 @@ const template = require('./query-basic.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
 const IconHelper = require('../../js/IconHelper.js')
-const DropdownModel = require('../dropdown/dropdown.js')
-const QuerySrcView = require('../dropdown/query-src/dropdown.query-src.view.js')
 const PropertyView = require('../property/property.view.js')
 const Property = require('../property/property.js')
 const properties = require('../../js/properties.js')
@@ -31,7 +29,6 @@ const sources = require('../singletons/sources-instance.js')
 const CQLUtils = require('../../js/CQLUtils.js')
 const QuerySettingsView = require('../query-settings/query-settings.view.js')
 const QueryTimeView = require('../query-time/query-time.view.js')
-const Common = require('../../js/Common.js')
 
 function isNested(filter) {
   let nested = false;

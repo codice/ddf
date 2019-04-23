@@ -19,7 +19,6 @@ const $ = require('jquery')
 const template = require('./property.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const BulkInputView = require('../input/bulk/input-bulk.view.js')
-const Common = require('../../js/Common.js')
 const Property = require('./property')
 
 module.exports = Marionette.LayoutView.extend(

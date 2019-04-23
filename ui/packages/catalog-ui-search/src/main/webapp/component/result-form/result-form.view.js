@@ -14,7 +14,6 @@
  **/
 /* global setTimeout */
 const Marionette = require('marionette')
-const $ = require('jquery')
 const template = require('./result-form.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
@@ -25,9 +24,7 @@ const Loading = require('../loading-companion/loading-companion.view.js')
 const _ = require('underscore')
 const announcement = require('../announcement/index.jsx')
 const ResultFormsCollection = require('../result-form/result-form-collection-instance.js')
-const Common = require('../../js/Common.js')
 const properties = require('../../js/properties.js')
-const ResultForm = require('../search-form/search-form.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

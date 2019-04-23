@@ -1,27 +1,8 @@
-/**
- * Copyright (c) Codice Foundation
- *
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
- * <http://www.gnu.org/licenses/lgpl.html>.
- *
- **/
-
-const Backbone = require('backbone');
 const Marionette = require('marionette');
 const wreqr = require('../../js/wreqr.js');
 const _ = require('underscore');
-const $ = require('jquery');
 const template = require('./associations-graph.hbs');
 const CustomElements = require('../../js/CustomElements.js');
-const store = require('../../js/store.js');
-const LoadingCompanionView = require('../loading-companion/loading-companion.view.js');
 const AssociationView = require('../association/association.view.js');
 const Association = require('../association/association.js');
 const Vis = require('vis');

@@ -14,7 +14,6 @@
  **/
 
 const Marionette = require('marionette')
-const _ = require('underscore')
 const template = require('./alert.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const AlertContentView = require('../content/alert/content.alert.view.js')

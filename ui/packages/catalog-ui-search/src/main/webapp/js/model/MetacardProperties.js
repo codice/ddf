@@ -12,7 +12,6 @@
 const Backbone = require('backbone');
 const _ = require('underscore');
 const metacardDefinitions = require('../../component/singletons/metacard-definitions.js');
-const Turf = require('@turf/turf');
 const TurfMeta = require('@turf/meta');
 const wkx = require('wkx');
 const properties = require('../properties.js');

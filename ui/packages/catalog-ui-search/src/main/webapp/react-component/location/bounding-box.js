@@ -1,5 +1,3 @@
-const React = require('react')
-
 const Group = require('../group')
 const Label = require('./label')
 const TextField = require('../text-field')

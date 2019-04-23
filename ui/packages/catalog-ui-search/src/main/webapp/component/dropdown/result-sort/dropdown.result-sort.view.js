@@ -16,8 +16,6 @@
 import React from 'react'
 
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.result-sort.hbs')
 const user = require('../../singletons/user-instance.js')

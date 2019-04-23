@@ -14,12 +14,9 @@
  **/
 
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const ValueView = require('./value.view')
 const ValueCollection = require('./value.collection')
 const CustomElements = require('../../js/CustomElements.js')
-const moment = require('moment')
 
 module.exports = Marionette.CollectionView.extend(
   {

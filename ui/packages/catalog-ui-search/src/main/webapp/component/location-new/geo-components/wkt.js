@@ -1,4 +1,3 @@
-const React = require('react')
 const TextField = require('../../../react-component/text-field/index.js')
 const { Units } = require('../../../react-component/location/common.js')
 

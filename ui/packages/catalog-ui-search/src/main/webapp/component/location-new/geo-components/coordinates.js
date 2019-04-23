@@ -1,5 +1,3 @@
-const React = require('react')
-
 const TextField = require('../../../react-component/text-field/index.js')
 const MaskedTextField = require('../inputs/masked-text-field')
 const { latitudeDMSMask, longitudeDMSMask } = require('./masks')

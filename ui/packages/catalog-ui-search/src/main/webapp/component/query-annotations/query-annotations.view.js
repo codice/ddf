@@ -14,21 +14,14 @@
  **/
 
 const $ = require('jquery')
-const Backbone = require('backbone')
 const Marionette = require('marionette')
-const _ = require('underscore')
-const properties = require('../../js/properties.js')
-const MetaCard = require('../../js/model/Metacard.js')
-const wreqr = require('../../js/wreqr.js')
 const template = require('./query-annotations.hbs')
-const maptype = require('../../js/maptype.js')
 const store = require('../../js/store.js')
 const CustomElements = require('../../js/CustomElements.js')
 const PropertyView = require('../property/property.view.js')
 const Property = require('../property/property.js')
 const AnnotationCollection = require('../annotation/annotation.collection.js')
 const AnnotationCollectionView = require('../annotation/annotation.collection.view.js')
-const TextAreaView = require('../input/textarea/input-textarea.view.js')
 const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
 const announcement = require('../announcement/index.jsx')
 

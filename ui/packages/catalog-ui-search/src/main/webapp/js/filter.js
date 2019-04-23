@@ -15,7 +15,6 @@ const Terraformer = require('terraformer');
 const TerraformerWKTParser = require('terraformer-wkt-parser');
 const CQLUtils = require('./CQLUtils.js');
 const Turf = require('@turf/turf');
-const TurfMeta = require('@turf/meta');
 const wkx = require('wkx');
 const moment = require('moment');
 const cql = require('./cql.js');

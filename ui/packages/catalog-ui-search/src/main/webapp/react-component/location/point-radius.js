@@ -1,5 +1,3 @@
-const React = require('react')
-
 const { Radio, RadioItem } = require('../radio')
 const TextField = require('../text-field')
 

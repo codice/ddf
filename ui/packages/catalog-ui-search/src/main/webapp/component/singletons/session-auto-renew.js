@@ -14,7 +14,6 @@
 
 const Backbone = require('backbone');
 const $ = require('jquery');
-const _ = require('underscore');
 
 const sessionRenewUrl = './internal/session/renew';
 const sessionExpiryUrl = './internal/session/expiry';
