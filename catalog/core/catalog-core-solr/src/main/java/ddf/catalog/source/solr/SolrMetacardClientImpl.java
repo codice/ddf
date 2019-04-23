@@ -114,7 +114,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   public static final String POINT_KEY = "pt";
 
-  public static final int GET_BY_ID_LIMIT = 200;
+  public static final int GET_BY_ID_LIMIT = 100;
 
   public static final String EXCLUDE_ATTRIBUTES = "excludeAttributes";
 
