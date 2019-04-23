@@ -8,7 +8,7 @@
 == {title}
 
 Unauthenticated access to a secured ${branding} system is provided by the *Guest* user.
-By default, ${branding} allows guest access as part of the karaf security realm.
+By default, ${branding} allows guest access.
 
 Because ${branding} does not know the identity of a Guest user, it cannot assign security attributes to the Guest.
 The administrator must configure the attributes and values (i.e. the "claims") to be assigned to Guests.

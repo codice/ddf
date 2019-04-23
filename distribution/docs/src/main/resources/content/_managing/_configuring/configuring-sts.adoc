@@ -36,8 +36,6 @@ Configure the ${branding} to use this authentication scheme.
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-catalog}* application.
 . Open the *Web Context Policy Manager* configuration.
-.. Under *Context Realms* add the contexts that should be protected under the ldap realm.
-... The default setting is `/=karaf`, the `karaf` realm refers to the `users.properties` user store file located in the `${home_directory}/etc` directory. This can be changed to `/=ldap`, if it is desired that the entire container be protected under ldap. If the `/admin` context is changed to something other than the default (`karaf`), it will be required that you refresh the page in order to log in again, or your changes may not be saved. This includes changing the root context to something other than `karaf`, without specifically setting `/admin` to a realm. The policies for all contexts will roll up, for example: the `/admin` context policy will roll up to the karaf realm with the default configuration because `/` is higher in the context heirarchy than `/admin` and no realm is specifically set for `/admin`.
 .. Under *Authentication Types*, make any desired authentication changes to contexts.
 ... In order to use the SAML 2.0 Web SSO profile against a context, you must specify only the IdP authentication type.
 

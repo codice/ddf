@@ -16,14 +16,6 @@ It defines:
 
 See <<{reference-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager, Web Context Policy Manager Configurations>> for detailed descriptions of all fields.
 
-=== Context Realms
-
-The karaf realm is the only realm available by default and it authenticates against the `users.properties` file.
-As JAAS authentication realms are added to the STS, more realms become available to authenticate against.
-
-For example, installing the `security-sts-ldaplogin` feature adds an ldap realm.
-Contexts can then be pointed to the ldap realm for authentication and STS will be instructed to authenticate them against ldap.
-
 === Authentication Types
 
 As you add REST endpoints, you may need to add different types of authentication through the Web Context Policy Manager.
