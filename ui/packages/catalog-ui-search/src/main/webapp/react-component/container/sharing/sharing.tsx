@@ -33,6 +33,7 @@ type Props = {
 type State = {
   items: Item[]
   previousWorkspace: any
+  isWorkspace: boolean
 }
 
 export enum Category {
@@ -52,10 +53,10 @@ export class Sharing extends React.Component<Props, State> {
   prevUsers: any
   constructor(props: Props) {
     super(props)
-
     this.state = {
       items: [],
       previousWorkspace: undefined,
+      isWorkspace: false,
     }
   }
   componentDidMount = () => {
@@ -82,6 +83,7 @@ export class Sharing extends React.Component<Props, State> {
       this.setState({
         items: groups.concat(individuals),
         previousWorkspace: metacard,
+        isWorkspace: data['metacard-tags'].includes('workspace'),
       })
       this.add()
     })
@@ -90,21 +92,16 @@ export class Sharing extends React.Component<Props, State> {
   save = () => {
     let usersToUnsubscribe: string[] = []
     const groups = this.state.items.filter(e => e.category === Category.Group)
+    const guest = this.state.items.filter(
+      e => e.category === Category.Group && e.value === 'guest'
+    )
     const users = this.state.items.filter(
       e => e.value !== '' && e.category === Category.User
     )
-    const usersWithReadOrHigher = users.filter(e => e.access !== 0)
-    if (this.prevUsers === undefined) {
-      this.prevUsers = usersWithReadOrHigher
-    } else if (this.prevUsers !== usersWithReadOrHigher) {
-      this.prevUsers.forEach((user: Item) => {
-        if (!usersWithReadOrHigher.includes(user)) {
-          usersToUnsubscribe.push(user.value)
-        }
-      })
-      this.prevUsers = usersWithReadOrHigher
-    }
 
+    if (this.state.isWorkspace && guest[0].access === 0) {
+      usersToUnsubscribe = this.getUsersToUnsubscribe(users)
+    }
     const attributes = [
       {
         attribute: Restrictions.IndividualsWrite,
@@ -156,7 +153,7 @@ export class Sharing extends React.Component<Props, State> {
       this.state.previousWorkspace['metacard.modified']
     ) {
       await this.doSave(attributes)
-      await this.unSubscribeUsers(usersToUnsubscribe)
+      await this.unsubscribeUsers(usersToUnsubscribe)
       const newWorkspace = await this.fetchWorkspace(this.props.id)
       this.setState({
         items: [...this.state.items],
@@ -195,7 +192,7 @@ export class Sharing extends React.Component<Props, State> {
     return workspace.metacards[0]
   }
 
-  unSubscribeUsers = async (usersToUnsubscribe: String[]) => {
+  unsubscribeUsers = async (usersToUnsubscribe: String[]) => {
     if (usersToUnsubscribe.length === 0) {
       return
     }
@@ -245,6 +242,22 @@ export class Sharing extends React.Component<Props, State> {
       },
       1500
     )
+  }
+
+  getUsersToUnsubscribe(users: Item[]) {
+    let usersToUnsubscribe: string[] = []
+    const usersWithReadOrHigher = users.filter(e => e.access !== 0)
+    if (this.prevUsers === undefined) {
+      this.prevUsers = usersWithReadOrHigher
+    } else if (this.prevUsers !== usersWithReadOrHigher) {
+      this.prevUsers.forEach((user: Item) => {
+        if (!usersWithReadOrHigher.includes(user)) {
+          usersToUnsubscribe.push(user.value)
+        }
+      })
+      this.prevUsers = usersWithReadOrHigher
+    }
+    return usersToUnsubscribe
   }
 
   add = () => {
