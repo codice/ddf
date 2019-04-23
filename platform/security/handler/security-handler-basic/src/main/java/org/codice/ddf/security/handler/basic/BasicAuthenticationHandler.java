@@ -13,27 +13,206 @@
  */
 package org.codice.ddf.security.handler.basic;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
+import javax.xml.bind.JAXBElement;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.sts.QNameConstants;
+import org.apache.cxf.ws.security.sts.provider.model.ObjectFactory;
+import org.apache.cxf.ws.security.sts.provider.model.secext.AttributedString;
+import org.apache.cxf.ws.security.sts.provider.model.secext.PasswordString;
+import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
+import org.apache.wss4j.dom.WSConstants;
+import org.codice.ddf.parser.Parser;
+import org.codice.ddf.parser.ParserConfigurator;
+import org.codice.ddf.parser.ParserException;
+import org.codice.ddf.parser.xml.XmlParser;
+import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.UPAuthenticationToken;
+import org.codice.ddf.security.handler.api.HandlerResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Checks for basic authentication credentials in the http request header. If they exist, they are
- * retrieved and returned in the HandlerResult.
- */
-public class BasicAuthenticationHandler extends AbstractBasicAuthenticationHandler {
-  /** Basic type to use when configuring context policy. */
+public class BasicAuthenticationHandler implements AuthenticationHandler {
+
+  private static final String AUTHENTICATION_SCHEME_BASIC = "Basic";
+
   private static final String AUTH_TYPE = "BASIC";
 
-  public BasicAuthenticationHandler() {
-    LOGGER.debug("Creating basic username/token bst handler.");
-  }
+  private static final String SOURCE = "BasicHandler";
 
-  protected BaseAuthenticationToken getBaseAuthenticationToken(String username, String password) {
-    return new UPAuthenticationToken(username, password);
-  }
+  protected static final Logger LOGGER = LoggerFactory.getLogger(BasicAuthenticationHandler.class);
+
+  private final Parser parser = new XmlParser();
 
   @Override
   public String getAuthenticationType() {
     return AUTH_TYPE;
+  }
+
+  /**
+   * Processes the incoming request to retrieve the username/password tokens. Handles responding to
+   * the client that authentication is needed if they are not present in the request. Returns the
+   * {@link org.codice.ddf.security.handler.api.HandlerResult} for the HTTP Request.
+   *
+   * @param request http request to obtain attributes from and to pass into any local filter chains
+   *     required
+   * @param response http response to return http responses or redirects
+   * @param chain original filter chain (should not be called from your handler)
+   * @param resolve flag with true implying that credentials should be obtained, false implying
+   *     return if no credentials are found.
+   * @return
+   */
+  @Override
+  public HandlerResult getNormalizedToken(
+      ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
+
+    HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
+    handlerResult.setSource(SOURCE);
+
+    HttpServletRequest httpRequest = (HttpServletRequest) request;
+    String path = httpRequest.getServletPath();
+    LOGGER.debug("Handling request for path {}", path);
+
+    LOGGER.debug("Doing authentication and authorization for path {}", path);
+
+    BaseAuthenticationToken token = extractAuthenticationInfo(httpRequest);
+
+    // we found credentials, attach to result and return with completed status
+    if (token != null) {
+      handlerResult.setToken(token);
+      handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+      return handlerResult;
+    }
+
+    // we didn't find the credentials, see if we are to do anything or not
+    if (resolve) {
+      doAuthPrompt((HttpServletResponse) response);
+      handlerResult.setStatus(HandlerResult.Status.REDIRECTED);
+    }
+
+    return handlerResult;
+  }
+
+  @Override
+  public HandlerResult handleError(
+      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
+    doAuthPrompt((HttpServletResponse) servletResponse);
+    HandlerResult result = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
+    result.setSource(SOURCE);
+    LOGGER.debug("In error handler for basic auth - prompted for auth credentials.");
+    return result;
+  }
+
+  /**
+   * Return a 401 response back to the web browser to prompt for basic auth.
+   *
+   * @param response
+   */
+  private void doAuthPrompt(HttpServletResponse response) {
+    try {
+      response.setHeader(HttpHeaders.WWW_AUTHENTICATE, AUTHENTICATION_SCHEME_BASIC);
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      response.setContentLength(0);
+      response.flushBuffer();
+    } catch (IOException ioe) {
+      LOGGER.debug("Failed to send auth response: {}", ioe);
+    }
+  }
+
+  protected BaseAuthenticationToken extractAuthenticationInfo(HttpServletRequest request) {
+    String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+    if (StringUtils.isEmpty(authHeader)) {
+      return null;
+    }
+
+    return extractAuthInfo(authHeader);
+  }
+
+  /**
+   * Extract the Authorization header and parse into a username/password token.
+   *
+   * @param authHeader the authHeader string from the HTTP request
+   * @return the initialized UPAuthenticationToken for this username, password, realm combination
+   *     (or null)
+   */
+  protected BaseAuthenticationToken extractAuthInfo(String authHeader) {
+    BaseAuthenticationToken token = null;
+    authHeader = authHeader.trim();
+    String[] parts = authHeader.split(" ");
+    if (parts.length == 2) {
+      String authType = parts[0];
+      String authInfo = parts[1];
+
+      if (authType.equalsIgnoreCase(AUTHENTICATION_SCHEME_BASIC)) {
+        byte[] decode = Base64.getDecoder().decode(authInfo);
+        if (decode != null) {
+          String userPass = new String(decode, StandardCharsets.UTF_8);
+          String[] authComponents = userPass.split(":");
+          if (authComponents.length == 2) {
+            token = getBaseAuthenticationToken(authComponents[0], authComponents[1]);
+          } else if ((authComponents.length == 1) && (userPass.endsWith(":"))) {
+            token = getBaseAuthenticationToken(authComponents[0], "");
+          }
+        }
+      }
+    }
+    return token;
+  }
+
+  protected BaseAuthenticationToken getBaseAuthenticationToken(String username, String password) {
+    if (parser == null) {
+      throw new IllegalStateException("XMLParser must be configured.");
+    }
+
+    UsernameTokenType usernameTokenType = new UsernameTokenType();
+    AttributedString user = new AttributedString();
+    user.setValue(username);
+    usernameTokenType.setUsername(user);
+    String usernameToken = null;
+
+    // Add a password
+    PasswordString pass = new PasswordString();
+    pass.setValue(password);
+    pass.setType(WSConstants.PASSWORD_TEXT);
+    JAXBElement<PasswordString> passwordType =
+        new JAXBElement<>(QNameConstants.PASSWORD, PasswordString.class, pass);
+    usernameTokenType.getAny().add(passwordType);
+
+    // Marshall the received JAXB object into a DOM Element
+    List<String> ctxPath = new ArrayList<>(2);
+    ctxPath.add(ObjectFactory.class.getPackage().getName());
+    ctxPath.add(
+        org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class
+            .getPackage()
+            .getName());
+
+    ParserConfigurator configurator =
+        parser.configureParser(ctxPath, BasicAuthenticationHandler.class.getClassLoader());
+    ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+    JAXBElement<UsernameTokenType> tokenType =
+        new JAXBElement<>(
+            QNameConstants.USERNAME_TOKEN, UsernameTokenType.class, usernameTokenType);
+
+    try {
+      parser.marshal(configurator, tokenType, os);
+      usernameToken = os.toString("UTF-8");
+    } catch (ParserException | UnsupportedEncodingException ex) {
+      LOGGER.info("Unable to parse username token.", ex);
+    }
+
+    return new BaseAuthenticationToken(null, usernameToken);
   }
 }
