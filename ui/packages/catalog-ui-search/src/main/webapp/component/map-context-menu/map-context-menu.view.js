@@ -28,7 +28,7 @@ module.exports = Marionette.LayoutView.extend({
   template({ mouseLat, mouseLon, target, coordinateValues, selectionCount }) {
     return (
       <MapContextMenu
-        onChange={(value: string) => this.selectMenu(value)}
+        onChange={(value) => this.selectMenu(value)}
         mouseLat={mouseLat}
         mouseLon={mouseLon}
         target={target}
