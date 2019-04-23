@@ -19,7 +19,6 @@ const $ = require('jquery')
 const template = require('./search-interactions.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
-const SearchSettingsDropdownView = require('../dropdown/search-settings/dropdown.search-settings.view.js')
 const DropdownModel = require('../dropdown/dropdown.js')
 const SearchFormSelectorDropdownView = require('../dropdown/search-form-selector/dropdown.search-form-selector.view.js')
 const _merge = require('lodash/merge')
@@ -50,7 +49,6 @@ module.exports = Marionette.LayoutView.extend({
       this.triggerCloseDropdown
     )
     this.generateSearchFormSelector()
-    this.generateSearchSettings()
   },
   generateSearchFormSelector() {
     this.searchType.show(
@@ -58,19 +56,6 @@ module.exports = Marionette.LayoutView.extend({
         model: new DropdownModel(),
         modelForComponent: this.model,
         selectionInterface: this.options.selectionInterface,
-      }),
-      {
-        replaceElement: true,
-      }
-    )
-  },
-  generateSearchSettings() {
-    this.searchSettings.show(
-      new SearchSettingsDropdownView({
-        model: new DropdownModel(),
-        modelForComponent: this.model,
-        selectionInterface: this.options.selectionInterface,
-        showFooter: true,
       }),
       {
         replaceElement: true,

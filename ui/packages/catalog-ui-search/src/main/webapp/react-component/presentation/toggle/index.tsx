@@ -9,30 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
-var Backbone = require('backbone')
-
-module.exports = Backbone.Model.extend({
-  defaults: function() {
-    return {
-      type: 'text',
-      src: undefined,
-      federation: 'enterprise',
-      sorts: [
-        {
-          attribute: 'modified',
-          direction: 'descending',
-        },
-      ],
-      template: undefined,
-      spellcheck: false,
-    }
-  },
-  isTemplate: function(template) {
-    if (this.get('template') !== undefined) {
-      return this.get('template').id === template.id
-    } else {
-      return false
-    }
-  },
-})
+export { default } from './toggle'

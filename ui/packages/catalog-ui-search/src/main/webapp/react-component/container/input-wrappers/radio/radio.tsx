@@ -9,30 +9,28 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+import * as React from 'react'
+import { hot } from 'react-hot-loader'
+import Base, { BaseProps, destructureBaseProps } from '../base'
 
-var Backbone = require('backbone')
+type Option = {
+  label: string
+  value: any
+}
+export type Props = BaseProps & {
+  options: Option[]
+  value: any
+  onChange?: (value: any) => void
+}
 
-module.exports = Backbone.Model.extend({
-  defaults: function() {
-    return {
-      type: 'text',
-      src: undefined,
-      federation: 'enterprise',
-      sorts: [
-        {
-          attribute: 'modified',
-          direction: 'descending',
-        },
-      ],
-      template: undefined,
-      spellcheck: false,
-    }
-  },
-  isTemplate: function(template) {
-    if (this.get('template') !== undefined) {
-      return this.get('template').id === template.id
-    } else {
-      return false
-    }
-  },
+export default hot(module)((props: Props) => {
+  const { options, value, onChange, ...otherProps } = props
+  return (
+    <Base
+      value={[value]}
+      radio={options}
+      onChange={onChange}
+      {...destructureBaseProps(otherProps) as any}
+    />
+  )
 })

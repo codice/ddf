@@ -246,6 +246,13 @@ Example:
 |true
 |true
 
+|Enable Spellcheck
+|spellcheckEnabled
+|Boolean
+|Enable spellcheck for searches.
+|false
+|false
+
 |Basic Search Temporal Selections
 |basicSearchTemporalSelectionDefault
 |String
