@@ -56,6 +56,9 @@ public class QueryBasic {
   @SerializedName("owner")
   private String owner;
 
+  @SerializedName("description")
+  private String description;
+
   @SerializedName("cql")
   private String cql;
 
@@ -93,6 +96,7 @@ public class QueryBasic {
     this.metacardId = getAttributeValue(metacard, Core.ID, String.class);
     this.title = getAttributeValue(metacard, Core.TITLE, String.class);
     this.owner = getAttributeValue(metacard, Core.METACARD_OWNER, String.class);
+    this.description = getAttributeValue(metacard, Core.DESCRIPTION, String.class);
     this.created = getAttributeValue(metacard, Core.CREATED, Date.class);
     this.modified = getAttributeValue(metacard, Core.MODIFIED, Date.class);
     this.cql = getAttributeValue(metacard, QUERY_CQL, String.class);
@@ -117,6 +121,7 @@ public class QueryBasic {
     metacard.setAttribute(new AttributeImpl(Core.ID, this.metacardId));
     metacard.setAttribute(new AttributeImpl(Core.TITLE, this.title));
     metacard.setAttribute(new AttributeImpl(Core.METACARD_OWNER, this.owner));
+    metacard.setAttribute(new AttributeImpl(Core.DESCRIPTION, this.description));
     metacard.setAttribute(new AttributeImpl(Core.CREATED, this.created));
     metacard.setAttribute(new AttributeImpl(Core.MODIFIED, this.modified));
     metacard.setAttribute(new AttributeImpl(QUERY_CQL, this.cql));

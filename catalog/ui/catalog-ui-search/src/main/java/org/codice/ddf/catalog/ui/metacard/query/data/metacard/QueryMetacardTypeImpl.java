@@ -54,6 +54,8 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
 
     QUERY_DESCRIPTORS.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Core.METACARD_OWNER));
 
+    QUERY_DESCRIPTORS.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Core.DESCRIPTION));
+
     QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
             QUERY_CQL,
