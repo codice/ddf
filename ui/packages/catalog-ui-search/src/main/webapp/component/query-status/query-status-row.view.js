@@ -17,6 +17,7 @@ var template = require('./query-status-row.hbs');
 var Marionette = require('marionette');
 var CustomElements = require('js/CustomElements');
 var user = require('component/singletons/user-instance');
+const cql = require('../../js/cql')
 
 module.exports = Marionette.ItemView.extend({
     className: 'is-tr',
@@ -29,7 +30,8 @@ module.exports = Marionette.ItemView.extend({
         'change': 'render'
     },
     triggerFilter: function() {
-        user.get('user').get('preferences').set('resultFilter', "(\"source-id\" = '"+this.model.id+"')");
+        const term = cql.translateUserqlToCql(this.model.id)
+        user.get('user').get('preferences').set('resultFilter', "(\"source-id\" = '"+term+"')");
         user.get('user').get('preferences').savePreferences();
         this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
     },
