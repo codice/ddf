@@ -67,8 +67,11 @@ if { %(jlineReader != null) } {
 
 // DDF additions
 lna = { bundle:list -t 0 | grep -v Active };
-waitForReady = { system:wait-for-ready $args } ;
-wfr = { system:wait-for-ready $args } ;
+waitForReady = {
+  while { (bundle:list | grep "DDF :: Platform :: Sync Installer :: Impl" | grep "Active") isEmpty } { echo -n ". "; sleep 1 }
+  system:wait-for-ready $args
+}
+wfr = { waitForReady $args } ;
 
 // Fixes hitting `tab` on an empty console to list available commands.
 // See https://issues.apache.org/jira/browse/KARAF-5224.
