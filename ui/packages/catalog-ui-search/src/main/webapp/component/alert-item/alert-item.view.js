@@ -30,12 +30,12 @@ module.exports = Marionette.ItemView.extend({
     'click .alert-delete': 'removeModel',
   },
   initialize: function() {
-    const modelJSON = this.model.toJSON();
+    const modelJSON = this.model.toJSON()
     this.listenTo(store.get('workspaces'), 'remove', this.render)
     const workspace = store.get('workspaces').filter(function(workspace) {
       return workspace.get('queries').get(modelJSON.queryId)
-    })[0];
-    let query;
+    })[0]
+    let query
     if (workspace) {
       query = workspace.get('queries').get(modelJSON.queryId)
       this.listenTo(workspace, 'change', this.render)
@@ -69,11 +69,11 @@ module.exports = Marionette.ItemView.extend({
     })
   },
   serializeData: function() {
-    const modelJSON = this.model.toJSON();
+    const modelJSON = this.model.toJSON()
     const workspace = store.get('workspaces').filter(function(workspace) {
       return workspace.get('queries').get(modelJSON.queryId)
-    })[0];
-    let query;
+    })[0]
+    let query
     if (workspace) {
       query = workspace.get('queries').get(modelJSON.queryId)
     }

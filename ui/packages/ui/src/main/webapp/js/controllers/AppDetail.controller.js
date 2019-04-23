@@ -32,7 +32,7 @@ define([
   PluginTabView,
   Q
 ) {
-  const appConfigPluginsCache = {};
+  const appConfigPluginsCache = {}
 
   const AppDetailController = Marionette.Controller.extend({
     initialize: function(options) {
@@ -40,7 +40,9 @@ define([
       this.listenTo(wreqr.vent, 'application:selected', this.showDetailsPage)
     },
     showDetailsPage: function(applicationModel) {
-      const layoutView = new ApplicationDetailLayout({ model: applicationModel });
+      const layoutView = new ApplicationDetailLayout({
+        model: applicationModel,
+      })
       this.regions.applications.show(layoutView)
 
       if (appConfigPluginsCache[applicationModel.get('name')] === undefined) {
@@ -59,23 +61,23 @@ define([
               javascriptLocation:
                 'components/application-services/application-services.view',
             }),
-          ];
+          ]
 
-          const staticList = new Backbone.Collection();
+          const staticList = new Backbone.Collection()
           staticList.comparator = function(model) {
             return model.get('displayName')
           }
           staticList.add(staticApplicationPlugins)
           staticList.sort()
 
-          const dynamicList = new Backbone.Collection();
+          const dynamicList = new Backbone.Collection()
           dynamicList.comparator = function(model) {
             return model.get('displayName')
           }
           dynamicList.add(appConfigPlugins.models)
           dynamicList.sort()
 
-          const completeList = new Backbone.Collection();
+          const completeList = new Backbone.Collection()
           completeList.add(dynamicList.models)
           completeList.add(staticList.models)
 
@@ -98,8 +100,8 @@ define([
         })
     },
     fetchAppConfigPlugins: function(appName) {
-      const collection = new AppConfigPlugin.Collection();
-      const defer = Q.defer();
+      const collection = new AppConfigPlugin.Collection()
+      const defer = Q.defer()
       collection.fetchByAppName(appName, {
         success: function() {
           defer.resolve(collection)
@@ -114,7 +116,7 @@ define([
       })
       return defer.promise
     },
-  });
+  })
 
   return AppDetailController
 })

@@ -1,11 +1,11 @@
-const $ = require('jquery');
-const _ = require('underscore');
-const template = require('./table-visibility.hbs');
-const Marionette = require('marionette');
-const CustomElements = require('../../../js/CustomElements.js');
-const user = require('../../singletons/user-instance.js');
-const properties = require('../../../js/properties.js');
-const metacardDefinitions = require('../../singletons/metacard-definitions.js');
+const $ = require('jquery')
+const _ = require('underscore')
+const template = require('./table-visibility.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('../../../js/CustomElements.js')
+const user = require('../../singletons/user-instance.js')
+const properties = require('../../../js/properties.js')
+const metacardDefinitions = require('../../singletons/metacard-definitions.js')
 
 module.exports = Marionette.ItemView.extend({
   template: template,
@@ -26,19 +26,19 @@ module.exports = Marionette.ItemView.extend({
     )
   },
   serializeData: function() {
-    const prefs = user.get('user').get('preferences');
+    const prefs = user.get('user').get('preferences')
     const results = this.options.selectionInterface
       .getActiveSearchResults()
-      .toJSON();
+      .toJSON()
     const preferredHeader = user
       .get('user')
       .get('preferences')
-      .get('columnOrder');
+      .get('columnOrder')
     const hiddenColumns = user
       .get('user')
       .get('preferences')
-      .get('columnHide');
-    const availableAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes();
+      .get('columnHide')
+    const availableAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes()
 
     return preferredHeader.map(function(property) {
       return {
@@ -57,7 +57,7 @@ module.exports = Marionette.ItemView.extend({
   },
   onRender: function() {},
   handleSave: function() {
-    const prefs = user.get('user').get('preferences');
+    const prefs = user.get('user').get('preferences')
     prefs.set(
       'columnHide',
       _.map(this.$el.find('.is-hidden-column'), function(element) {

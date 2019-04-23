@@ -1,6 +1,6 @@
-const DropdownView = require('../dropdown.view');
-const template = require('./dropdown.details-interactions.hbs');
-const ComponentView = require('../../details-interactions/details-interactions.view.js');
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.details-interactions.hbs')
+const ComponentView = require('../../details-interactions/details-interactions.view.js')
 
 module.exports = DropdownView.extend({
   template: template,

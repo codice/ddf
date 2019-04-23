@@ -31,7 +31,7 @@ define([
   detailsTemplate,
   summaryTemplate
 ) {
-  const MetricsView = {};
+  const MetricsView = {}
   ich.addTemplate('metricsTemplate', metricsTemplate)
   ich.addTemplate('detailsTemplate', detailsTemplate)
   ich.addTemplate('summaryTemplate', summaryTemplate)
@@ -73,7 +73,7 @@ define([
         this.el,
         'name',
         this.converter
-      );
+      )
       this.modelBinder.bind(this.model, this.$el, bindings)
     },
     onClose: function() {

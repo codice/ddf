@@ -39,7 +39,7 @@
 
 define(['handlebars', 'jquery'], function(Handlebars, $) {
   'use strict'
-  const ich = {};
+  const ich = {}
 
   ich.templates = {}
 
@@ -53,7 +53,7 @@ define(['handlebars', 'jquery'], function(Handlebars, $) {
     ich.templates[name] = Handlebars.compile(templateString)
     ich[name] = function(data, raw) {
       data = data || {}
-      const result = ich.templates[name](data);
+      const result = ich.templates[name](data)
       return raw ? result : $(result)
     }
   }

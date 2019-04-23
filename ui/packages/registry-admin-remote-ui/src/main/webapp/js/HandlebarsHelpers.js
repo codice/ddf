@@ -15,34 +15,34 @@ define(['icanhaz'], function(ich) {
 
   // The module to be exported
   let helper,
-      helpers = {
-        is: function(value, test, options) {
-          if (value === test) {
-            return options.fn(this)
-          } else {
-            return options.inverse(this)
-          }
-        },
-        containsCsw: function(value, options) {
-          if (value.indexOf('CSW') >= 0) {
-            return options.fn(this)
-          } else {
-            return options.inverse(this)
-          }
-        },
-        isnt: function(value, test, options) {
-          if (value !== test) {
-            return options.fn(this)
-          } else {
-            return options.inverse(this)
-          }
-        },
-        debug: function() {
-          console.log('Current Context')
-          console.log('====================')
-          console.log(this)
-        },
-      };
+    helpers = {
+      is: function(value, test, options) {
+        if (value === test) {
+          return options.fn(this)
+        } else {
+          return options.inverse(this)
+        }
+      },
+      containsCsw: function(value, options) {
+        if (value.indexOf('CSW') >= 0) {
+          return options.fn(this)
+        } else {
+          return options.inverse(this)
+        }
+      },
+      isnt: function(value, test, options) {
+        if (value !== test) {
+          return options.fn(this)
+        } else {
+          return options.inverse(this)
+        }
+      },
+      debug: function() {
+        console.log('Current Context')
+        console.log('====================')
+        console.log(this)
+      },
+    }
 
   // Export helpers
   for (helper in helpers) {

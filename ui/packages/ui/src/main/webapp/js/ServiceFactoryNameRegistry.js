@@ -19,7 +19,7 @@ define(['js/MetatypeRegistry'], function(MetatypeRegistry) {
             metatypeId: properties.get('service.factoryPid'),
             property: 'processingMechanism',
             value: properties.get('processingMechanism'),
-          });
+          })
           return (
             processingMechanism +
             ' | ' +
@@ -29,5 +29,5 @@ define(['js/MetatypeRegistry'], function(MetatypeRegistry) {
           return null
       }
     },
-  };
+  }
 })

@@ -11,16 +11,16 @@
  **/
 
 define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
-  const GB_SIZE = 1000 * 1000 * 1000;
+  const GB_SIZE = 1000 * 1000 * 1000
 
-  const MB_SIZE = 1000 * 1000;
+  const MB_SIZE = 1000 * 1000
 
-  const KB_SIZE = 1000;
+  const KB_SIZE = 1000
 
   const CONFIGURATION_ADMIN_URL =
-    '../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/';
+    '../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/'
 
-  const DataUsage = {};
+  const DataUsage = {}
 
   DataUsage.UsageModel = Backbone.Model.extend({
     initialize: function() {
@@ -31,8 +31,8 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
     },
     getUsageData: function() {
       const url =
-        '../jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/userMap/';
-      const that = this;
+        '../jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/userMap/'
+      const that = this
       $.ajax({
         url: url,
         dataType: 'json',
@@ -52,8 +52,8 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
     },
     getCronTime: function() {
       const url =
-        '../jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/cronTime/';
-      const that = this;
+        '../jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/cronTime/'
+      const that = this
       $.ajax({
         url: url,
         dataType: 'json',
@@ -65,8 +65,8 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
     updateCronTime: function(time) {
       const url =
         '../jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/updateCronTime/' +
-        time;
-      const that = this;
+        time
+      const that = this
       $.ajax({
         url: url,
         dataType: 'json',
@@ -76,15 +76,15 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
       })
     },
     parseDataModel: function(data) {
-      const dataModel = [];
-      const that = this;
+      const dataModel = []
+      const that = this
 
       _.object(
         _.map(data, function(value, key) {
-          const dataUsage = value[0];
-          const dataLimit = value[1];
+          const dataUsage = value[0]
+          const dataLimit = value[1]
 
-          let usagePercent = 0;
+          let usagePercent = 0
           if (dataLimit >= 0) {
             usagePercent = Math.round((dataUsage / dataLimit) * 100)
             if (usagePercent > 100) {
@@ -95,11 +95,11 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
           const usageRemaining = that.constructUsageRemainingString(
             dataLimit,
             dataUsage
-          );
-          const displayUsage = that.constructUsageRemainingString(dataUsage, 0);
+          )
+          const displayUsage = that.constructUsageRemainingString(dataUsage, 0)
 
-          let displayLimit;
-          let displaySize;
+          let displayLimit
+          let displaySize
 
           if (dataLimit >= GB_SIZE) {
             displayLimit = (dataLimit / GB_SIZE).toFixed(1)
@@ -118,17 +118,17 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
             displaySize: displaySize,
             notify: usagePercent >= 100,
             usage: displayUsage,
-          };
+          }
           dataModel.push(object)
         })
       )
       return dataModel
     },
     submitUsageData: function(data) {
-      const that = this;
+      const that = this
       const url =
         '../jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/updateUserDataLimit/' +
-        encodeURIComponent(JSON.stringify(data));
+        encodeURIComponent(JSON.stringify(data))
       $.ajax({
         url: url,
         dataType: 'json',
@@ -138,11 +138,11 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
       })
     },
     pollUntilUpdated: function() {
-      const that = this;
-      let updatedModel = false;
+      const that = this
+      let updatedModel = false
       this.set({ saving: true })
       ;(function poll() {
-        const currentModel = that.get('users');
+        const currentModel = that.get('users')
 
         if (!updatedModel) {
           setTimeout(function() {
@@ -150,9 +150,9 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
               url:
                 '../jolokia/exec/org.codice.ddf.resourcemanagement.usage.service.DataUsage:service=datausage/userMap/',
               success: function(data) {
-                const receivedData = that.parseDataModel(data.value);
-                const current = JSON.stringify(currentModel);
-                const newData = JSON.stringify(receivedData);
+                const receivedData = that.parseDataModel(data.value)
+                const current = JSON.stringify(currentModel)
+                const newData = JSON.stringify(receivedData)
 
                 if (newData !== current) {
                   that.set({ users: receivedData })
@@ -168,9 +168,9 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
       })()
     },
     isLimitChanged: function(user, value, dataSize) {
-      const model = this.get('users');
-      let dataInBytes = value;
-      let isLimitChanged = false;
+      const model = this.get('users')
+      let dataInBytes = value
+      let isLimitChanged = false
 
       if (dataInBytes !== -1) {
         if (dataSize === 'GB') {
@@ -188,10 +188,10 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
       return isLimitChanged
     },
     constructUsageRemainingString: function(dataLimit, dataUsage) {
-      let usageRemaining = 'Unlimited';
+      let usageRemaining = 'Unlimited'
 
       if (dataLimit >= 0) {
-        const bytesRemaining = dataLimit - dataUsage;
+        const bytesRemaining = dataLimit - dataUsage
 
         if (bytesRemaining >= GB_SIZE) {
           usageRemaining = (bytesRemaining / GB_SIZE).toFixed(1) + ' GB'
@@ -207,8 +207,8 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
       return usageRemaining
     },
     updateMonitorLocalSources: function(updateMonitorLocalSources) {
-      const properties = { monitorLocalSources: updateMonitorLocalSources };
-      const that = this;
+      const properties = { monitorLocalSources: updateMonitorLocalSources }
+      const that = this
       $.ajax({
         url:
           CONFIGURATION_ADMIN_URL +

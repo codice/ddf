@@ -6,8 +6,8 @@ const user = require('../../singletons/user-instance.js')
 const DropdownModel = require('../../dropdown/dropdown.js')
 
 function getValue(model) {
-  const multivalued = model.get('property').get('enumMulti');
-  let value = model.get('value');
+  const multivalued = model.get('property').get('enumMulti')
+  let value = model.get('value')
   if (value !== undefined && model.get('property').get('type') === 'DATE') {
     if (multivalued && value.map) {
       value = value.map(function(subvalue) {
@@ -42,7 +42,7 @@ module.exports = InputView.extend({
     )
   },
   serializeData: function() {
-    const value = getValue(this.model);
+    const value = getValue(this.model)
     const choice = this.model
       .get('property')
       .get('enum')
@@ -55,7 +55,7 @@ module.exports = InputView.extend({
             )
           }).length > 0
         )
-      });
+      })
     return {
       label: choice.length > 0 ? choice : value,
     }
@@ -65,10 +65,10 @@ module.exports = InputView.extend({
     InputView.prototype.onRender.call(this)
   },
   initializeEnum: function() {
-    const value = getValue(this.model);
+    const value = getValue(this.model)
     const dropdownModel = new DropdownModel({
       value: value,
-    });
+    })
     const list = this.model
       .get('property')
       .get('enum')
@@ -115,7 +115,7 @@ module.exports = InputView.extend({
   getCurrentValue: function() {
     const currentValue = this.model.get('property').get('enumMulti')
       ? this.enumRegion.currentView.model.get('value')
-      : this.enumRegion.currentView.model.get('value')[0];
+      : this.enumRegion.currentView.model.get('value')[0]
     switch (this.model.getCalculatedType()) {
       case 'date':
         if (currentValue) {
@@ -128,7 +128,7 @@ module.exports = InputView.extend({
     }
   },
   isValid: function() {
-    const value = getValue(this.model);
+    const value = getValue(this.model)
     const choice = this.model
       .get('property')
       .get('enum')
@@ -141,7 +141,7 @@ module.exports = InputView.extend({
             )
           }).length > 0
         )
-      });
+      })
     return choice.length > 0
   },
 })

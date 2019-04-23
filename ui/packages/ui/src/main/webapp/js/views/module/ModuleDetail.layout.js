@@ -36,7 +36,7 @@ define([
     selectFirstTab: function() {
       this.$('.tab-container a:first').tab('show')
     },
-  });
+  })
 
   return ModuleDetailLayout
 })

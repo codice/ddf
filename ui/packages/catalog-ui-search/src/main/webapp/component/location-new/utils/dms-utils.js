@@ -109,8 +109,8 @@ function dmsToWkt(dms) {
     return null
   }
 
-  let wkt = null;
-  const points = [];
+  let wkt = null
+  const points = []
   switch (dms.shape) {
     case 'point':
       wkt = dmsPointToWkt(dms.point).toWkt()
@@ -274,7 +274,7 @@ function validateDms(dms) {
       }
       break
     case 'circle':
-      const radius = parseFloat(dms.circle.radius);
+      const radius = parseFloat(dms.circle.radius)
       if (
         isNaN(radius) ||
         radius <= 0 ||

@@ -52,7 +52,7 @@ define([
   subscriptionFilterModal,
   clientServerModal
 ) {
-  const RegistryView = {};
+  const RegistryView = {}
 
   ich.addTemplate('registryPage', registryPage)
   ich.addTemplate('nodeList', nodeList)
@@ -139,13 +139,13 @@ define([
     },
     showNode: function(node, mode, readOnly) {
       if (this.model) {
-        const nodeModel = new Node.Model({ summary: node });
+        const nodeModel = new Node.Model({ summary: node })
         const modal = new NodeModal.View({
           model: nodeModel,
           mode: mode,
           readOnly: readOnly,
           modelEmpty: mode === 'add',
-        });
+        })
         if (mode !== 'add') {
           nodeModel.fetch({
             success: function() {
@@ -158,7 +158,7 @@ define([
       }
     },
     addDeleteNode: function() {
-      const view = this;
+      const view = this
       this.model.hasData = false
       this.render()
       $('.refresh-button').prop('disabled', true)
@@ -175,7 +175,7 @@ define([
       view.render()
     },
     deleteAllNodes: function(table) {
-      let remote, nodes, modal;
+      let remote, nodes, modal
       if (table.currentTarget.id === 'additional') {
         nodes = this.model.getSecondaryNodes()
       } else if (table.currentTarget.id === 'remote') {
@@ -223,7 +223,7 @@ define([
       )
     },
     serializeData: function() {
-      let data = {};
+      let data = {}
 
       if (this.model) {
         data = this.model.toJSON()
@@ -241,14 +241,14 @@ define([
       this.listenTo(wreqr.vent, 'modalSizeChanged', this.adjustHeightForModal)
     },
     showModal: function(modalView) {
-      const region = this.application.getRegion('modalRegion');
-      const iFrameModalDOM = $('#IframeModalDOM');
+      const region = this.application.getRegion('modalRegion')
+      const iFrameModalDOM = $('#IframeModalDOM')
       modalView.$el.on('hidden.bs.modal', function() {
         iFrameModalDOM.hide()
       })
       modalView.$el.on('shown.bs.modal', function() {
         const extraHeight =
-          modalView.el.firstChild.clientHeight - $('#nodeTables').height();
+          modalView.el.firstChild.clientHeight - $('#nodeTables').height()
         if (extraHeight > 0) {
           iFrameModalDOM.height(extraHeight)
           iFrameModalDOM.show()
@@ -261,8 +261,8 @@ define([
       })
     },
     adjustHeightForModal: function(modalHeight) {
-      const iFrameModalDOM = $('#IframeModalDOM');
-      const extraHeight = modalHeight - $('#nodeTables').height();
+      const iFrameModalDOM = $('#IframeModalDOM')
+      const extraHeight = modalHeight - $('#nodeTables').height()
       if (extraHeight > 0) {
         iFrameModalDOM.height(extraHeight)
       }
@@ -280,7 +280,7 @@ define([
     },
     editNode: function(evt) {
       evt.stopPropagation()
-      const node = this.model;
+      const node = this.model
       if (this.options.readOnly) {
         wreqr.vent.trigger('readOnlyNode', node)
       } else {
@@ -295,7 +295,7 @@ define([
       wreqr.vent.trigger('deleteNodes', this.model)
     },
     serializeData: function() {
-      let data = {};
+      let data = {}
 
       if (this.model) {
         data = this.model.toJSON()
@@ -323,7 +323,7 @@ define([
     itemView: RegistryView.NodeRow,
     itemViewContainer: 'tbody',
     serializeData: function() {
-      let data = {};
+      let data = {}
 
       if (this.model) {
         data = this.model.toJSON()
@@ -341,7 +341,7 @@ define([
           filterInverted: this.options.filterInverted,
         },
         itemViewOptions
-      );
+      )
       return new ItemViewType(options)
     },
   })
@@ -367,7 +367,7 @@ define([
       this.$el.modal('hide')
     },
     serializeData: function() {
-      let data = {};
+      let data = {}
       if (this.model) {
         data = this.model.toJSON()
       }
@@ -384,12 +384,12 @@ define([
     deleteNode: function() {
       const registryIds = this.options.nodes.map(function(n) {
         return n.get('registryId')
-      });
+      })
       this.model.deleteNodes(registryIds)
       this.close()
     },
     serializeData: function() {
-      let data = {};
+      let data = {}
       if (this.model) {
         data = this.model.toJSON()
       }
@@ -424,16 +424,16 @@ define([
     doOperation: function() {
       $('.submit-button').prop('disabled', true)
       $('.cancel-button').prop('disabled', true)
-      const mbean = 'org.codice.ddf.registry:type=FederationAdminMBean';
-      const modal = this;
+      const mbean = 'org.codice.ddf.registry:type=FederationAdminMBean'
+      const modal = this
       const data = {
         type: 'EXEC',
         mbean: mbean,
         operation: this.operation,
-      };
+      }
 
       data.arguments = [this.getArguments()]
-      const json = JSON.stringify(data);
+      const json = JSON.stringify(data)
 
       $.ajax({
         type: 'POST',
@@ -462,8 +462,8 @@ define([
         '../../jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/nodeFilterProperties(java.util.Map)',
       operation: 'nodeFilterProperties(java.util.Map)',
       getArguments: function() {
-        const checkboxes = $('.filtered-node-check');
-        const regIds = [];
+        const checkboxes = $('.filtered-node-check')
+        const regIds = []
         _.each(checkboxes, function(input) {
           if (input.checked) {
             regIds.push($(input).attr('id'))
@@ -475,8 +475,8 @@ define([
         }
       },
       serializeData: function() {
-        const data = {};
-        let nodes = [];
+        const data = {}
+        let nodes = []
         data.filterInverted = this.options.nodes.filterInverted
         _.each(this.options.nodes.models, function(node) {
           if (node.get('identityNode')) {
@@ -507,7 +507,7 @@ define([
       }
     },
     serializeData: function() {
-      const data = {};
+      const data = {}
       data.clientMode = this.options.clientMode
       return data
     },
@@ -525,8 +525,8 @@ define([
       },
       selectAllSources: function() {
         // Select All box will set all source checkboxes to the same state as Select All
-        const checkboxes = $('.regenerate-source-check');
-        const selectAll = $('.regenerate-source-check-all')[0].checked;
+        const checkboxes = $('.regenerate-source-check')
+        const selectAll = $('.regenerate-source-check-all')[0].checked
         _.each(checkboxes, function(input) {
           input.checked = selectAll
         })
@@ -535,8 +535,8 @@ define([
         '../../jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/regenerateRegistrySources',
       operation: 'regenerateRegistrySources',
       getArguments: function() {
-        const checkboxes = $('.regenerate-source-check');
-        const regIds = [];
+        const checkboxes = $('.regenerate-source-check')
+        const regIds = []
         _.each(checkboxes, function(input) {
           if (input.checked) {
             regIds.push($(input).attr('id'))
@@ -545,11 +545,11 @@ define([
         return regIds
       },
       serializeData: function() {
-        let data = {};
+        let data = {}
         if (this.model) {
           data = this.model.toJSON()
         }
-        let nodes = [];
+        let nodes = []
         _.each(this.options.nodes, function(node) {
           if (node.get('identityNode')) {
             return

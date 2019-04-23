@@ -17,7 +17,7 @@ define(['jquery', 'underscore', 'marionette'], function($, _, Marionette) {
   const RefreshController = Marionette.Controller.extend({
     expectedCalls: 2, //number of calls to done expected before stopping
     initialize: function(options) {
-      const self = this;
+      const self = this
       this.callback = options.callback
       this.$button = $(options.anchorSelector)
       this.counter--
@@ -26,7 +26,7 @@ define(['jquery', 'underscore', 'marionette'], function($, _, Marionette) {
       })
     },
     startSpinner: function() {
-      const self = this;
+      const self = this
       if (!this.$button.hasClass('fa-spin')) {
         this.counter = this.expectedCalls
         this.$button.addClass('fa-spin')
@@ -48,7 +48,7 @@ define(['jquery', 'underscore', 'marionette'], function($, _, Marionette) {
     onClose: function() {
       this.$button.off('click')
     },
-  });
+  })
 
   const Utils = {
     /**
@@ -56,11 +56,11 @@ define(['jquery', 'underscore', 'marionette'], function($, _, Marionette) {
      */
     setupPopOvers: function($popoverAnchor, id, title, description) {
       const selector = ".description[data-title='" + id + "']",
-            options = {
-              title: title,
-              content: description,
-              trigger: 'hover',
-            };
+        options = {
+          title: title,
+          content: description,
+          trigger: 'hover',
+        }
       $popoverAnchor.find(selector).popover(options)
     },
     /**
@@ -78,7 +78,7 @@ define(['jquery', 'underscore', 'marionette'], function($, _, Marionette) {
         callback: toExec,
       })
     },
-  };
+  }
 
   return Utils
 })

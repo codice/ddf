@@ -10,13 +10,13 @@
  *
  **/
 
-const Backbone = require('backbone');
+const Backbone = require('backbone')
 
 /*
     Adds some shorthand functions to Backbone that help other code become more succinct.
 */
 Backbone.Collection.prototype.indexOfId = function(id) {
-  const model = this.get(id);
+  const model = this.get(id)
   if (!model) {
     return -1
   }

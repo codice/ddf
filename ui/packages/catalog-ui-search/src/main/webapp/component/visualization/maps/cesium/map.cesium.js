@@ -10,31 +10,32 @@
  *
  **/
 
-const $ = require('jquery');
-const _ = require('underscore');
-const Map = require('../map');
-const utility = require('./utility');
-const DrawingUtility = require('../DrawingUtility');
-const store = require('../../../../js/store.js');
+const $ = require('jquery')
+const _ = require('underscore')
+const Map = require('../map')
+const utility = require('./utility')
+const DrawingUtility = require('../DrawingUtility')
+const store = require('../../../../js/store.js')
 
-const DrawBBox = require('../../../../js/widgets/cesium.bbox.js');
-const DrawCircle = require('../../../../js/widgets/cesium.circle.js');
-const DrawPolygon = require('../../../../js/widgets/cesium.polygon.js');
-const DrawLine = require('../../../../js/widgets/cesium.line.js');
+const DrawBBox = require('../../../../js/widgets/cesium.bbox.js')
+const DrawCircle = require('../../../../js/widgets/cesium.circle.js')
+const DrawPolygon = require('../../../../js/widgets/cesium.polygon.js')
+const DrawLine = require('../../../../js/widgets/cesium.line.js')
 
-const properties = require('../../../../js/properties.js');
-const Cesium = require('cesium');
-const DrawHelper = require('cesium-drawhelper/DrawHelper');
+const properties = require('../../../../js/properties.js')
+const Cesium = require('cesium')
+const DrawHelper = require('cesium-drawhelper/DrawHelper')
 import CesiumLayerCollectionController from '../../../../js/controllers/cesium.layerCollection.controller'
-const user = require('../../../singletons/user-instance.js');
-const User = require('../../../../js/model/User.js');
+const user = require('../../../singletons/user-instance.js')
+const User = require('../../../../js/model/User.js')
 
-const defaultColor = '#3c6dd5';
-const eyeOffset = new Cesium.Cartesian3(0, 0, 0);
-const pixelOffset = new Cesium.Cartesian2(0.0, 0);
+const defaultColor = '#3c6dd5'
+const eyeOffset = new Cesium.Cartesian3(0, 0, 0)
+const pixelOffset = new Cesium.Cartesian2(0.0, 0)
 
 Cesium.BingMapsApi.defaultKey = properties.bingKey || 0
-const imageryProviderTypes = CesiumLayerCollectionController.imageryProviderTypes;
+const imageryProviderTypes =
+  CesiumLayerCollectionController.imageryProviderTypes
 
 function setupTerrainProvider(viewer, terrainProvider) {
   if (terrainProvider == null || terrainProvider === undefined) {
@@ -67,11 +68,11 @@ function setupTerrainProvider(viewer, terrainProvider) {
 }
 
 function createMap(insertionElement) {
-  const layerPrefs = user.get('user>preferences>mapLayers');
+  const layerPrefs = user.get('user>preferences>mapLayers')
   User.updateMapLayers(layerPrefs)
   const layerCollectionController = new CesiumLayerCollectionController({
     collection: layerPrefs,
-  });
+  })
 
   const viewer = layerCollectionController.makeMap({
     element: insertionElement,
@@ -92,7 +93,7 @@ function createMap(insertionElement) {
       imageryProvider: false, // prevent default imagery provider
       mapMode2D: 0,
     },
-  });
+  })
 
   // disable right click drag to zoom (context menu instead);
   viewer.scene.screenSpaceCameraController.zoomEventTypes = [
@@ -118,8 +119,8 @@ function createMap(insertionElement) {
 }
 
 function determineIdFromPosition(position, map) {
-  let id;
-  const pickedObject = map.scene.pick(position);
+  let id
+  const pickedObject = map.scene.pick(position)
   if (pickedObject) {
     id = pickedObject.id
     if (id && id.constructor === Cesium.Entity) {
@@ -132,8 +133,8 @@ function determineIdFromPosition(position, map) {
 function expandRectangle(rectangle) {
   const scalingFactor = 0.05
 
-  let widthGap = Math.abs(rectangle.east) - Math.abs(rectangle.west);
-  let heightGap = Math.abs(rectangle.north) - Math.abs(rectangle.south);
+  let widthGap = Math.abs(rectangle.east) - Math.abs(rectangle.west)
+  let heightGap = Math.abs(rectangle.north) - Math.abs(rectangle.south)
 
   //ensure rectangle has some size
   if (widthGap === 0) {
@@ -152,7 +153,7 @@ function expandRectangle(rectangle) {
 }
 
 function getDestinationForVisiblePan(rectangle, map) {
-  let destinationForZoom = expandRectangle(rectangle);
+  let destinationForZoom = expandRectangle(rectangle)
   if (map.scene.mode === Cesium.SceneMode.SCENE3D) {
     destinationForZoom = map.camera.getRectangleCameraCoordinates(
       destinationForZoom
@@ -186,19 +187,19 @@ module.exports = function CesiumMap(
   componentElement,
   mapModel
 ) {
-  let overlays = {};
-  let shapes = [];
-  const map = createMap(insertionElement);
-  const drawHelper = new DrawHelper(map);
-  const billboardCollection = setupBillboard();
-  const drawingTools = setupDrawingTools(map);
+  let overlays = {}
+  let shapes = []
+  const map = createMap(insertionElement)
+  const drawHelper = new DrawHelper(map)
+  const billboardCollection = setupBillboard()
+  const drawingTools = setupDrawingTools(map)
   setupTooltip(map, selectionInterface)
 
   function updateCoordinatesTooltip(position) {
     const cartesian = map.camera.pickEllipsoid(
       position,
       map.scene.globe.ellipsoid
-    );
+    )
     if (Cesium.defined(cartesian)) {
       let cartographic = Cesium.Cartographic.fromCartesian(cartesian)
       mapModel.updateMouseCoordinates({
@@ -211,7 +212,7 @@ module.exports = function CesiumMap(
   }
 
   function setupTooltip(map, selectionInterface) {
-    const handler = new Cesium.ScreenSpaceEventHandler(map.scene.canvas);
+    const handler = new Cesium.ScreenSpaceEventHandler(map.scene.canvas)
     handler.setInputAction(function(movement) {
       $(componentElement).removeClass('has-feature')
       if (map.scene.mode === Cesium.SceneMode.MORPHING) {
@@ -245,7 +246,7 @@ module.exports = function CesiumMap(
   }
 
   function setupBillboard() {
-    const billboardCollection = new Cesium.BillboardCollection();
+    const billboardCollection = new Cesium.BillboardCollection()
     map.scene.primitives.add(billboardCollection)
     return billboardCollection
   }
@@ -271,7 +272,7 @@ module.exports = function CesiumMap(
     },
     onLeftClick: function(callback) {
       $(map.scene.canvas).on('click', function(e) {
-        const boundingRect = map.scene.canvas.getBoundingClientRect();
+        const boundingRect = map.scene.canvas.getBoundingClientRect()
         callback(e, {
           mapTarget: determineIdFromPosition(
             {
@@ -285,13 +286,13 @@ module.exports = function CesiumMap(
     },
     onRightClick: function(callback) {
       $(map.scene.canvas).on('contextmenu', function(e) {
-        const boundingRect = map.scene.canvas.getBoundingClientRect();
+        const boundingRect = map.scene.canvas.getBoundingClientRect()
         callback(e)
       })
     },
     onMouseMove: function(callback) {
       $(map.scene.canvas).on('mousemove', function(e) {
-        const boundingRect = map.scene.canvas.getBoundingClientRect();
+        const boundingRect = map.scene.canvas.getBoundingClientRect()
         callback(e, {
           mapTarget: determineIdFromPosition(
             {
@@ -336,7 +337,7 @@ module.exports = function CesiumMap(
       }
     },
     panToResults: function(results) {
-      let rectangle, cartArray, point;
+      let rectangle, cartArray, point
 
       cartArray = _.flatten(
         results
@@ -403,10 +404,10 @@ module.exports = function CesiumMap(
       )
     },
     overlayImage: function(model) {
-      const metacardId = model.get('properties').get('id');
+      const metacardId = model.get('properties').get('id')
       this.removeOverlay(metacardId)
 
-      const coords = model.getPoints('location');
+      const coords = model.getPoints('location')
       const cartographics = _.map(coords, function(coord) {
         coord = convertPointCoordinate(coord)
         return Cesium.Cartographic.fromDegrees(
@@ -414,16 +415,16 @@ module.exports = function CesiumMap(
           coord.latitude,
           coord.altitude
         )
-      });
+      })
 
-      const rectangle = Cesium.Rectangle.fromCartographicArray(cartographics);
+      const rectangle = Cesium.Rectangle.fromCartographicArray(cartographics)
 
       const overlayLayer = map.scene.imageryLayers.addImageryProvider(
         new Cesium.SingleTileImageryProvider({
           url: model.get('currentOverlayUrl'),
           rectangle: rectangle,
         })
-      );
+      )
 
       overlays[metacardId] = overlayLayer
     },
@@ -449,7 +450,7 @@ module.exports = function CesiumMap(
       )
     },
     getWindowLocationsOfResults: function(results) {
-      let occluder;
+      let occluder
       if (map.scene.mode === Cesium.SceneMode.SCENE3D) {
         occluder = new Cesium.EllipsoidalOccluder(
           Cesium.Ellipsoid.WGS84,
@@ -459,35 +460,35 @@ module.exports = function CesiumMap(
       return results.map(function(result) {
         const cartesian3CenterOfGeometry = utility.calculateCartesian3CenterOfGeometry(
           result
-        );
+        )
         if (occluder && isNotVisible(cartesian3CenterOfGeometry, occluder)) {
           return undefined
         }
         const center = utility.calculateWindowCenterOfGeometry(
           cartesian3CenterOfGeometry,
           map
-        );
+        )
         if (center) {
           return [center.x, center.y]
         } else {
           return undefined
         }
-      });
+      })
     },
     /*
             Adds a billboard point utilizing the passed in point and options.
             Options are a view to relate to, and an id, and a color.
           */
     addPointWithText: function(point, options) {
-      const pointObject = convertPointCoordinate(point);
+      const pointObject = convertPointCoordinate(point)
       const cartographicPosition = Cesium.Cartographic.fromDegrees(
         pointObject.longitude,
         pointObject.latitude,
         pointObject.altitude
-      );
+      )
       let cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
         cartographicPosition
-      );
+      )
       const billboardRef = billboardCollection.add({
         image: DrawingUtility.getCircleWithText({
           fillColor: options.color,
@@ -496,12 +497,12 @@ module.exports = function CesiumMap(
         position: cartesianPosition,
         id: options.id,
         eyeOffset: eyeOffset,
-      });
+      })
       //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
       if (!pointObject.altitude && map.scene.terrainProvider) {
         const promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [
           cartographicPosition,
-        ]);
+        ])
         Cesium.when(promise, function(updatedCartographic) {
           if (updatedCartographic[0].height && !options.view.isDestroyed) {
             cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
@@ -519,12 +520,12 @@ module.exports = function CesiumMap(
           Options are a view to relate to, and an id, and a color.
           */
     addPoint: function(point, options) {
-      const pointObject = convertPointCoordinate(point);
+      const pointObject = convertPointCoordinate(point)
       const cartographicPosition = Cesium.Cartographic.fromDegrees(
         pointObject.longitude,
         pointObject.latitude,
         pointObject.altitude
-      );
+      )
       const billboardRef = billboardCollection.add({
         image: DrawingUtility.getPin({
           fillColor: options.color,
@@ -538,12 +539,12 @@ module.exports = function CesiumMap(
         pixelOffset: pixelOffset,
         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
         horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-      });
+      })
       //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
       if (!pointObject.altitude && map.scene.terrainProvider) {
         const promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [
           cartographicPosition,
-        ]);
+        ])
         Cesium.when(promise, function(updatedCartographic) {
           if (updatedCartographic[0].height && !options.view.isDestroyed) {
             billboardRef.position = map.scene.globe.ellipsoid.cartographicToCartesian(
@@ -562,19 +563,19 @@ module.exports = function CesiumMap(
     addLine: function(line, options) {
       const lineObject = line.map(function(coordinate) {
         return convertPointCoordinate(coordinate)
-      });
+      })
       const cartPoints = _.map(lineObject, function(point) {
         return Cesium.Cartographic.fromDegrees(
           point.longitude,
           point.latitude,
           point.altitude
         )
-      });
+      })
       const cartesian = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(
         cartPoints
-      );
+      )
 
-      const polylineCollection = new Cesium.PolylineCollection();
+      const polylineCollection = new Cesium.PolylineCollection()
       const polyline = polylineCollection.add({
         width: 8,
         material: Cesium.Material.fromType('PolylineOutline', {
@@ -584,18 +585,18 @@ module.exports = function CesiumMap(
         }),
         id: options.id,
         positions: cartesian,
-      });
+      })
 
       if (map.scene.terrainProvider) {
         const promise = Cesium.sampleTerrain(
           map.scene.terrainProvider,
           5,
           cartPoints
-        );
+        )
         Cesium.when(promise, function(updatedCartographic) {
           const positions = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(
             updatedCartographic
-          );
+          )
           if (updatedCartographic[0].height && !options.view.isDestroyed) {
             polyline.positions = positions
           }
@@ -612,17 +613,17 @@ module.exports = function CesiumMap(
     addPolygon: function(polygon, options) {
       const polygonObject = polygon.map(function(coordinate) {
         return convertPointCoordinate(coordinate)
-      });
+      })
       const cartPoints = _.map(polygonObject, function(point) {
         return Cesium.Cartographic.fromDegrees(
           point.longitude,
           point.latitude,
           point.altitude
         )
-      });
+      })
       let cartesian = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(
         cartPoints
-      );
+      )
 
       const unselectedPolygonRef = map.entities.add({
         polygon: {
@@ -639,7 +640,7 @@ module.exports = function CesiumMap(
         show: true,
         resultId: options.id,
         showWhenSelected: false,
-      });
+      })
 
       const selectedPolygonRef = map.entities.add({
         polygon: {
@@ -656,14 +657,14 @@ module.exports = function CesiumMap(
         show: false,
         resultId: options.id,
         showWhenSelected: true,
-      });
+      })
 
       if (map.scene.terrainProvider) {
         const promise = Cesium.sampleTerrain(
           map.scene.terrainProvider,
           5,
           cartPoints
-        );
+        )
         Cesium.when(promise, function(updatedCartographic) {
           cartesian = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(
             updatedCartographic
@@ -790,21 +791,21 @@ module.exports = function CesiumMap(
       const polygon = new DrawPolygon.PolygonRenderView({
         model: locationModel,
         map: map,
-      });
+      })
       shapes.push(polygon)
     },
     showCircleShape: function(locationModel) {
       const circle = new DrawCircle.CircleView({
         model: locationModel,
         map: map,
-      });
+      })
       shapes.push(circle)
     },
     showLineShape: function(locationModel) {
       const line = new DrawLine.LineRenderView({
         model: locationModel,
         map: map,
-      });
+      })
       shapes.push(line)
     },
     destroyShapes: function() {
@@ -817,7 +818,7 @@ module.exports = function CesiumMap(
       this.destroyDrawingTools()
       map.destroy()
     },
-  });
+  })
 
   return exposedMethods
 }

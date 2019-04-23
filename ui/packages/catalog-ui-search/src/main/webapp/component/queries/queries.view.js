@@ -46,7 +46,7 @@ const Queries = Marionette.LayoutView.extend({
     this.changeQuery()
   },
   changeQuery: function() {
-    const queryRef = store.getQuery();
+    const queryRef = store.getQuery()
     if (queryRef === undefined) {
       this.queriesDetails.empty()
     } else {
@@ -62,6 +62,6 @@ const Queries = Marionette.LayoutView.extend({
     this.$el.addClass('shifted-right')
     this.$el.removeClass('shifted-left')
   },
-});
+})
 
 module.exports = Queries

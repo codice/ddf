@@ -18,7 +18,7 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
   $,
   _
 ) {
-  const Service = {};
+  const Service = {}
 
   Service.Metatype = Backbone.AssociatedModel.extend({})
 
@@ -59,13 +59,13 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
      * @returns {{type: string, mbean: string, operation: string}}
      */
     collectedData: function(pid) {
-      const model = this;
+      const model = this
       const data = {
         type: 'EXEC',
         mbean:
           'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
         operation: 'update',
-      };
+      }
       data.arguments = [pid]
       data.arguments.push(model.get('properties').toJSON())
       return data
@@ -84,7 +84,7 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
         model.configUrl,
         'createFactoryConfiguration',
         model.get('fpid'),
-      ].join('/');
+      ].join('/')
       return $.ajax({
         type: 'GET',
         url: configUrl,
@@ -97,11 +97,12 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
      * @return Return a deferred which is a handler with the success and failure callback.
      */
     sync: function() {
-      const deferred = $.Deferred(), model = this;
+      const deferred = $.Deferred(),
+        model = this
       //if it has a pid we are editing an existing record
       if (model.id) {
-        const collect = model.collectedData(model.id);
-        const jData = JSON.stringify(collect);
+        const collect = model.collectedData(model.id)
+        const jData = JSON.stringify(collect)
 
         return $.ajax({
           type: 'POST',
@@ -120,8 +121,8 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
         model
           .makeConfigCall(model)
           .done(function(data) {
-            const collect = model.collectedData(JSON.parse(data).value);
-            const jData = JSON.stringify(collect);
+            const collect = model.collectedData(JSON.parse(data).value)
+            const jData = JSON.stringify(collect)
 
             return $.ajax({
               type: 'POST',
@@ -143,7 +144,9 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
       return deferred
     },
     destroy: function() {
-      const deferred = $.Deferred(), model = this, deleteUrl = [model.configUrl, 'delete', model.id].join('/');
+      const deferred = $.Deferred(),
+        model = this,
+        deleteUrl = [model.configUrl, 'delete', model.id].join('/')
 
       if (!model.id) {
         throw "No ID defined for model '" + model.get('name') + "'."
@@ -160,8 +163,8 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
         })
     },
     initializeFromService: function(service) {
-      const fpid = service.get('id');
-      const name = service.get('name');
+      const fpid = service.get('id')
+      const name = service.get('name')
       this.initializeFromMetatype(service.get('metatype'))
       this.set('service', service)
       this.set('fpid', fpid)
@@ -169,11 +172,11 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
       this.get('properties').set('service.factoryPid', fpid)
     },
     initializeFromMetatype: function(metatype) {
-      const model = this;
+      const model = this
 
       const idModel = _.find(metatype.models, function(item) {
         return item.get('id') === 'id' || item.get('id') === 'shortname'
-      });
+      })
       if (!_.isUndefined(idModel)) {
         model.set(
           'properties',
@@ -181,8 +184,8 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
         )
       }
       metatype.forEach(function(obj) {
-        const id = obj.get('id');
-        const val = obj.get('defaultValue');
+        const id = obj.get('id')
+        const val = obj.get('defaultValue')
         if (id !== 'id') {
           model.get('properties').set(id, val ? val.toString() : null)
         }
@@ -236,11 +239,11 @@ define(['backbone', 'jquery', 'underscore', 'backboneassociation'], function(
       return false
     },
     initializeConfigurationFromMetatype: function(metatype) {
-      const src = this;
+      const src = this
       src.configuration = new Service.Configuration()
       metatype.forEach(function(obj) {
-        const id = obj.id;
-        const val = obj.defaultValue;
+        const id = obj.id
+        const val = obj.defaultValue
         src.configuration.set(id, val ? val.toString() : null)
       })
     },

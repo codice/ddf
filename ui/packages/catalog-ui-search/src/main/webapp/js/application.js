@@ -22,7 +22,7 @@ require('backbone.modelbinder')
 require('backbone.modelbinder/Backbone.CollectionBinder')
 require('jquery-ui-multiselect-widget/src/jquery.multiselect')
 
-const Application = {};
+const Application = {}
 Application.App = new Marionette.Application()
 Application.App.addRegions({
   router: '#router',
@@ -43,7 +43,7 @@ const BannerView = Marionette.ItemView.extend({
     'click .fa-times': 'triggerHide',
   },
   initialize() {
-    const message = this.model.get('ui')[this.tagName];
+    const message = this.model.get('ui')[this.tagName]
     if (message && message !== '') {
       this.$el.addClass('is-not-blank')
     }
@@ -52,7 +52,7 @@ const BannerView = Marionette.ItemView.extend({
     return this.model.get('ui')[this.tagName]
   },
   serializeData() {
-    const modelJSON = this.model.toJSON();
+    const modelJSON = this.model.toJSON()
     modelJSON.message = this.getMessage()
     return modelJSON
   },

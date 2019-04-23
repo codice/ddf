@@ -13,8 +13,8 @@
  *
  **/
 
-const uuid = require('uuid');
-const _ = require('underscore');
+const uuid = require('uuid')
+const _ = require('underscore')
 
 const remove = (exports.remove = function(id, timeout) {
   return function(dispatch) {
@@ -30,10 +30,10 @@ const remove = (exports.remove = function(id, timeout) {
       })
     }, timeout || 250)
   }
-});
+})
 
 exports.announce = function(announcement, timeout) {
-  const id = uuid.v4();
+  const id = uuid.v4()
 
   return function(dispatch, getState) {
     getState()

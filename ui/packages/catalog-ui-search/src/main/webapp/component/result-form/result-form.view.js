@@ -172,7 +172,7 @@ module.exports = Marionette.LayoutView.extend({
     $validationElement.attr('title', message)
   },
   updateResults: function() {
-    const collection = ResultFormsCollection.getCollection();
+    const collection = ResultFormsCollection.getCollection()
     const options = {
       success: () => {
         this.successMessage()

@@ -13,8 +13,8 @@
  *
  **/
 
-const clustering = require('density-clustering');
-const dbscan = new clustering.DBSCAN();
+const clustering = require('density-clustering')
+const dbscan = new clustering.DBSCAN()
 
 function removeInvalidCenters(results, centers) {
   for (let i = centers.length - 1; i >= 0; i--) {
@@ -36,7 +36,7 @@ module.exports = {
       Takes in a list of geometries and a view height and returns a list of clusters
     */
   calculateClusters: function(results, map) {
-    const centers = map.getWindowLocationsOfResults(results);
+    const centers = map.getWindowLocationsOfResults(results)
     removeInvalidCenters(results, centers)
     return dbscan.run(centers, 44, 2).map(function(cluster) {
       return convertIndicesToResults(results, cluster)

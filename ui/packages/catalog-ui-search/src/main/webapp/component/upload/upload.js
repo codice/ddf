@@ -76,12 +76,12 @@ module.exports = new (Backbone.AssociatedModel.extend({
   handleRoute() {
     const routerJSON = router.toJSON()
     if (routerJSON.name === 'openUpload') {
-      const uploadId = routerJSON.args[0];
+      const uploadId = routerJSON.args[0]
       const upload = user
         .get('user')
         .get('preferences')
         .get('uploads')
-        .get(uploadId);
+        .get(uploadId)
       if (!upload) {
         router.notFound()
       } else {
@@ -145,7 +145,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
         )
         return currentAvailable
       }, [])
-      .sort();
+      .sort()
     this.set('activeSearchResultsAttributes', availableAttributes)
   },
   getActiveSearchResultsAttributes: function() {

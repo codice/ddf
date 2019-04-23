@@ -13,11 +13,11 @@
  *
  **/
 
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
-const template = require('./workspace-search.hbs');
-const ResultsView = require('../results/results.view.js');
-const store = require('../../js/store.js');
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const template = require('./workspace-search.hbs')
+const ResultsView = require('../results/results.view.js')
+const store = require('../../js/store.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

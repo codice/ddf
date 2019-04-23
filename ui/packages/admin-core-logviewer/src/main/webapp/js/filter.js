@@ -55,7 +55,7 @@ export default (filters, logs) => {
     const marks = validFields
       .map(field => {
         if (entry[field]) {
-          const match = entry[field].match(regexps[field]);
+          const match = entry[field].match(regexps[field])
           if (match !== null) {
             return {
               field: field,
@@ -67,7 +67,7 @@ export default (filters, logs) => {
       })
       .filter(m => {
         return m !== undefined
-      });
+      })
 
     return {
       entry: entry,

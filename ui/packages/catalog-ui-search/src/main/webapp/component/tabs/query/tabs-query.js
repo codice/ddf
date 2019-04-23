@@ -19,6 +19,6 @@ const WorkspaceContentTabs = Tabs.extend({
   getAssociatedQuery: function() {
     return store.getQuery()
   },
-});
+})
 
 module.exports = WorkspaceContentTabs

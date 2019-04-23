@@ -1,7 +1,7 @@
-const net = require('net');
+const net = require('net')
 
-const tap = require('tap');
-const allocator = require('../../main/js/lib/port-allocator.js');
+const tap = require('tap')
+const allocator = require('../../main/js/lib/port-allocator.js')
 
 tap.test('single port allocation', function(t) {
   t.plan(2)
@@ -18,7 +18,7 @@ tap.test('try binding to alocated port', function(t) {
   allocator(function(err, ports) {
     t.notOk(err)
 
-    const s = net.createServer();
+    const s = net.createServer()
 
     s.on('error', function() {
       t.fail('could not bind to allocated port')

@@ -10,10 +10,10 @@
  *
  **/
 
-const Marionette = require('marionette');
-const _ = require('underscore');
-const _debounce = require('lodash/debounce');
-const calculateConvexHull = require('geo-convex-hull');
+const Marionette = require('marionette')
+const _ = require('underscore')
+const _debounce = require('lodash/debounce')
+const calculateConvexHull = require('geo-convex-hull')
 
 const ClusterView = Marionette.ItemView.extend({
   template: false,
@@ -39,7 +39,7 @@ const ClusterView = Marionette.ItemView.extend({
   handleCluster: function() {
     const center = this.options.map.getCartographicCenterOfClusterInDegrees(
       this.model
-    );
+    )
     this.geometry.push(
       this.options.map.addPointWithText(center, {
         id: this.model.get('results').map(function(result) {
@@ -60,16 +60,16 @@ const ClusterView = Marionette.ItemView.extend({
         .get('metacard')
         .get('properties')
         .getPoints()
-    });
+    })
     const data = _.flatten(points, true).map(function(coord) {
       return {
         longitude: coord[0],
         latitude: coord[1],
       }
-    });
+    })
     const convexHull = calculateConvexHull(data).map(function(coord) {
       return [coord.longitude, coord.latitude]
-    });
+    })
     convexHull.push(convexHull[0])
     const geometry = this.options.map.addLine(convexHull, {
       id: this.model.get('results').map(function(result) {
@@ -81,7 +81,7 @@ const ClusterView = Marionette.ItemView.extend({
         .get('metacard')
         .get('color'),
       view: this,
-    });
+    })
     this.options.map.hideGeometry(geometry)
     this.geometry.push(geometry)
   },
@@ -101,9 +101,9 @@ const ClusterView = Marionette.ItemView.extend({
     }
   },
   updateSelected: function() {
-    let selected = 0;
-    const selectedResults = this.options.selectionInterface.getSelectedResults();
-    const results = this.model.get('results');
+    let selected = 0
+    const selectedResults = this.options.selectionInterface.getSelectedResults()
+    const results = this.model.get('results')
     // if there are less selected results, loop over those instead of this model's results
     if (selectedResults.length < results.length) {
       selectedResults.some(
@@ -195,6 +195,6 @@ const ClusterView = Marionette.ItemView.extend({
       )
     }
   },
-});
+})
 
 module.exports = ClusterView

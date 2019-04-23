@@ -9,8 +9,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Backbone = require('backbone');
-const properties = require('../properties.js');
+const Backbone = require('backbone')
+const properties = require('../properties.js')
 require('backbone-associations')
 
 module.exports = Backbone.AssociatedModel.extend({
@@ -56,8 +56,8 @@ module.exports = Backbone.AssociatedModel.extend({
     }
   },
   updateStatus: function(results) {
-    let top = 0;
-    let fromcache = 0;
+    let top = 0
+    let fromcache = 0
     results.forEach(
       function(result) {
         if (

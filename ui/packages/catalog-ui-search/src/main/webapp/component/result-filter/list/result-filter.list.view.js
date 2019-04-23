@@ -1,5 +1,5 @@
-const ResultFilter = require('../result-filter.view');
-const CustomElements = require('../../../js/CustomElements.js');
+const ResultFilter = require('../result-filter.view')
+const CustomElements = require('../../../js/CustomElements.js')
 
 module.exports = ResultFilter.extend({
   className: 'is-list',

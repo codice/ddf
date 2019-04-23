@@ -24,11 +24,11 @@ define([
     Backbone,
     Marionette
   ) {
-    const queryMonitor = new QueryMonitor.MonitorModel();
+    const queryMonitor = new QueryMonitor.MonitorModel()
 
     const queryMonitorPage = new QueryMonitorView.QueryMonitorPage({
       model: queryMonitor,
-    });
+    })
 
     // Define a controller to run this module
     // --------------------------------------
@@ -41,7 +41,7 @@ define([
       show: function() {
         this.region.show(queryMonitorPage)
       },
-    });
+    })
 
     // Initialize this module when the app starts
     // ------------------------------------------

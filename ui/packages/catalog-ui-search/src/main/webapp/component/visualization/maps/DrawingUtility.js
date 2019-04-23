@@ -12,9 +12,9 @@
 
 //allows us to get around svg security restrictions in IE11 (see using svg in opengl)
 //make our own image and manually set dimensions because of IE: https://github.com/openlayers/openlayers/issues/3939
-const _ = require('underscore');
+const _ = require('underscore')
 
-const defaultColor = '#3c6dd5';
+const defaultColor = '#3c6dd5'
 
 module.exports = {
   getCircle: function(options) {
@@ -24,11 +24,11 @@ module.exports = {
       strokeWidth: 2,
       strokeColor: 'white',
     })
-    const radius = options.diameter / 2;
-    const canvas = document.createElement('canvas');
+    const radius = options.diameter / 2
+    const canvas = document.createElement('canvas')
     canvas.width = options.diameter
     canvas.height = options.diameter
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d')
     ctx.beginPath()
     ctx.strokeStyle = options.strokeColor
     ctx.lineWidth = options.strokeWidth
@@ -54,8 +54,8 @@ module.exports = {
       text: '',
       textColor: 'white',
     })
-    const canvas = this.getCircle(options);
-    const ctx = canvas.getContext('2d');
+    const canvas = this.getCircle(options)
+    const ctx = canvas.getContext('2d')
     ctx.font = '16pt Helvetica'
     ctx.fillStyle = options.textColor
     ctx.textAlign = 'center'
@@ -72,9 +72,9 @@ module.exports = {
       text: '',
       textColor: 'white',
     })
-    const canvas = this.getCircle(options);
-    const ctx = canvas.getContext('2d');
-    const style = options.icon.style;
+    const canvas = this.getCircle(options)
+    const ctx = canvas.getContext('2d')
+    const style = options.icon.style
 
     ctx.font = style.size + ' ' + style.font
     ctx.fillStyle = options.textColor
@@ -96,16 +96,16 @@ module.exports = {
       strokeColor: 'white',
       textColor: 'white',
     })
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement('canvas')
     canvas.width = options.width
     canvas.height = options.height
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d')
 
     ctx.strokeStyle = options.strokeColor
     ctx.lineWidth = options.strokeWidth
     ctx.fillStyle = options.fillColor
 
-    const s = options.scale;
+    const s = options.scale
     ctx.beginPath()
     ctx.moveTo(19.36, 2)
     ctx.bezierCurveTo(11.52, 2, 4.96, 6.64, 4.96, 14.64)
@@ -118,7 +118,7 @@ module.exports = {
     ctx.fill()
     ctx.stroke()
 
-    const style = options.icon.style;
+    const style = options.icon.style
     if (style.code) {
       ctx.font = style.size + ' ' + style.font
       ctx.fillStyle = options.textColor

@@ -50,7 +50,7 @@ define([
       this.AppShowState = options.AppShowState
       this.listenTo(wreqr.vent, 'toggle:layout', this.toggleLayout)
     },
-  });
+  })
 
   return AppCardCollectionView
 })

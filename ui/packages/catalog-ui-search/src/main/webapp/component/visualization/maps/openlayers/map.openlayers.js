@@ -13,58 +13,58 @@
 
 import wrapNum from '../../../../react-component/utils/wrap-num/wrap-num.tsx'
 
-const $ = require('jquery');
-const _ = require('underscore');
-const Map = require('../map');
-const utility = require('./utility');
-const DrawingUtility = require('../DrawingUtility');
+const $ = require('jquery')
+const _ = require('underscore')
+const Map = require('../map')
+const utility = require('./utility')
+const DrawingUtility = require('../DrawingUtility')
 
-const DrawBBox = require('../../../../js/widgets/openlayers.bbox.js');
-const DrawCircle = require('../../../../js/widgets/openlayers.circle.js');
-const DrawPolygon = require('../../../../js/widgets/openlayers.polygon.js');
-const DrawLine = require('../../../../js/widgets/openlayers.line.js');
+const DrawBBox = require('../../../../js/widgets/openlayers.bbox.js')
+const DrawCircle = require('../../../../js/widgets/openlayers.circle.js')
+const DrawPolygon = require('../../../../js/widgets/openlayers.polygon.js')
+const DrawLine = require('../../../../js/widgets/openlayers.line.js')
 
-const properties = require('../../../../js/properties.js');
-const Openlayers = require('openlayers');
-const Geocoder = require('../../../../js/view/openlayers.geocoder.js');
-const LayerCollectionController = require('../../../../js/controllers/ol.layerCollection.controller.js');
-const user = require('../../../singletons/user-instance.js');
-const User = require('../../../../js/model/User.js');
-const wreqr = require('../../../../js/wreqr.js');
+const properties = require('../../../../js/properties.js')
+const Openlayers = require('openlayers')
+const Geocoder = require('../../../../js/view/openlayers.geocoder.js')
+const LayerCollectionController = require('../../../../js/controllers/ol.layerCollection.controller.js')
+const user = require('../../../singletons/user-instance.js')
+const User = require('../../../../js/model/User.js')
+const wreqr = require('../../../../js/wreqr.js')
 
-const defaultColor = '#3c6dd5';
+const defaultColor = '#3c6dd5'
 
 const OpenLayerCollectionController = LayerCollectionController.extend({
   initialize: function() {
     // there is no automatic chaining of initialize.
     LayerCollectionController.prototype.initialize.apply(this, arguments)
   },
-});
+})
 
 function createMap(insertionElement) {
-  const layerPrefs = user.get('user>preferences>mapLayers');
+  const layerPrefs = user.get('user>preferences>mapLayers')
   User.updateMapLayers(layerPrefs)
   const layerCollectionController = new OpenLayerCollectionController({
     collection: layerPrefs,
-  });
+  })
   const map = layerCollectionController.makeMap({
     zoom: 3,
     minZoom: 1.9,
     element: insertionElement,
-  });
+  })
 
   // TODO DDF-4200 Revisit map loading forever when this is removed
   if (properties.gazetteer) {
     const geocoder = new Geocoder.View({
       el: $(insertionElement).siblings('#mapTools'),
-    });
+    })
     geocoder.render()
   }
   return map
 }
 
 function determineIdFromPosition(position, map) {
-  const features = [];
+  const features = []
   map.forEachFeatureAtPixel(position, function(feature) {
     features.push(feature)
   })
@@ -74,7 +74,7 @@ function determineIdFromPosition(position, map) {
 }
 
 function convertPointCoordinate(point) {
-  const coords = [point[0], point[1]];
+  const coords = [point[0], point[1]]
   return Openlayers.proj.transform(coords, 'EPSG:4326', properties.projection)
 }
 
@@ -97,16 +97,16 @@ module.exports = function OpenlayersMap(
   componentElement,
   mapModel
 ) {
-  let overlays = {};
-  let shapes = [];
-  const map = createMap(insertionElement);
+  let overlays = {}
+  let shapes = []
+  const map = createMap(insertionElement)
   listenToResize()
   setupTooltip(map)
-  const drawingTools = setupDrawingTools(map);
+  const drawingTools = setupDrawingTools(map)
 
   function setupTooltip(map) {
     map.on('pointermove', function(e) {
-      const point = unconvertPointCoordinate(e.coordinate);
+      const point = unconvertPointCoordinate(e.coordinate)
       if (!offMap(point)) {
         mapModel.updateMouseCoordinates({
           lat: point[1],
@@ -172,7 +172,7 @@ module.exports = function OpenlayersMap(
     },
     onLeftClick: function(callback) {
       $(map.getTargetElement()).on('click', function(e) {
-        const boundingRect = map.getTargetElement().getBoundingClientRect();
+        const boundingRect = map.getTargetElement().getBoundingClientRect()
         callback(e, {
           mapTarget: determineIdFromPosition(
             [e.clientX - boundingRect.left, e.clientY - boundingRect.top],
@@ -183,13 +183,13 @@ module.exports = function OpenlayersMap(
     },
     onRightClick: function(callback) {
       $(map.getTargetElement()).on('contextmenu', function(e) {
-        const boundingRect = map.getTargetElement().getBoundingClientRect();
+        const boundingRect = map.getTargetElement().getBoundingClientRect()
         callback(e)
       })
     },
     onMouseMove: function(callback) {
       $(map.getTargetElement()).on('mousemove', function(e) {
-        const boundingRect = map.getTargetElement().getBoundingClientRect();
+        const boundingRect = map.getTargetElement().getBoundingClientRect()
         callback(e, {
           mapTarget: determineIdFromPosition(
             [e.clientX - boundingRect.left, e.clientY - boundingRect.top],
@@ -226,16 +226,16 @@ module.exports = function OpenlayersMap(
           return result.getPoints()
         }),
         true
-      );
+      )
       this.panToExtent(coordinates)
     },
     panToExtent: function(coords) {
       if (coords.constructor === Array && coords.length > 0) {
         const lineObject = coords.map(function(coordinate) {
           return convertPointCoordinate(coordinate)
-        });
+        })
 
-        const extent = Openlayers.extent.boundingExtent(lineObject);
+        const extent = Openlayers.extent.boundingExtent(lineObject)
 
         map.getView().fit(extent, {
           size: map.getSize(),
@@ -247,9 +247,9 @@ module.exports = function OpenlayersMap(
     zoomToExtent: function(coords, opts = {}) {
       const lineObject = coords.map(function(coordinate) {
         return convertPointCoordinate(coordinate)
-      });
+      })
 
-      const extent = Openlayers.extent.boundingExtent(lineObject);
+      const extent = Openlayers.extent.boundingExtent(lineObject)
 
       map.getView().fit(extent, {
         size: map.getSize(),
@@ -279,17 +279,17 @@ module.exports = function OpenlayersMap(
       }
     },
     overlayImage: function(model) {
-      const metacardId = model.get('properties').get('id');
+      const metacardId = model.get('properties').get('id')
       this.removeOverlay(metacardId)
 
-      const coords = model.getPoints('location');
+      const coords = model.getPoints('location')
       const array = _.map(coords, function(coord) {
         return convertPointCoordinate(coord)
-      });
+      })
 
-      const polygon = new Openlayers.geom.Polygon([array]);
-      const extent = polygon.getExtent();
-      const projection = Openlayers.proj.get(properties.projection);
+      const polygon = new Openlayers.geom.Polygon([array])
+      const extent = polygon.getExtent()
+      const projection = Openlayers.proj.get(properties.projection)
 
       const overlayLayer = new Openlayers.layer.Image({
         source: new Openlayers.source.ImageStatic({
@@ -297,7 +297,7 @@ module.exports = function OpenlayersMap(
           projection: projection,
           imageExtent: extent,
         }),
-      });
+      })
 
       map.addLayer(overlayLayer)
       overlays[metacardId] = overlayLayer
@@ -327,24 +327,24 @@ module.exports = function OpenlayersMap(
       return results.map(function(result) {
         const openlayersCenterOfGeometry = utility.calculateOpenlayersCenterOfGeometry(
           result
-        );
-        const center = map.getPixelFromCoordinate(openlayersCenterOfGeometry);
+        )
+        const center = map.getPixelFromCoordinate(openlayersCenterOfGeometry)
         if (center) {
           return center
         } else {
           return undefined
         }
-      });
+      })
     },
     /*
             Adds a billboard point utilizing the passed in point and options.
             Options are a view to relate to, and an id, and a color.
         */
     addPointWithText: function(point, options) {
-      const pointObject = convertPointCoordinate(point);
+      const pointObject = convertPointCoordinate(point)
       const feature = new Openlayers.Feature({
         geometry: new Openlayers.geom.Point(pointObject),
-      });
+      })
       feature.setId(options.id)
 
       feature.setStyle(
@@ -361,12 +361,12 @@ module.exports = function OpenlayersMap(
 
       const vectorSource = new Openlayers.source.Vector({
         features: [feature],
-      });
+      })
 
       const vectorLayer = new Openlayers.layer.Vector({
         source: vectorSource,
         zIndex: 1,
-      });
+      })
 
       map.addLayer(vectorLayer)
 
@@ -377,14 +377,15 @@ module.exports = function OpenlayersMap(
           Options are a view to relate to, and an id, and a color.
         */
     addPoint: function(point, options) {
-      const pointObject = convertPointCoordinate(point);
+      const pointObject = convertPointCoordinate(point)
       const feature = new Openlayers.Feature({
         geometry: new Openlayers.geom.Point(pointObject),
         name: options.title,
-      });
+      })
       feature.setId(options.id)
 
-      let x = 39, y = 40;
+      let x = 39,
+        y = 40
       if (options.size) {
         x = options.size.x
         y = options.size.y
@@ -407,12 +408,12 @@ module.exports = function OpenlayersMap(
 
       const vectorSource = new Openlayers.source.Vector({
         features: [feature],
-      });
+      })
 
       const vectorLayer = new Openlayers.layer.Vector({
         source: vectorSource,
         zIndex: 1,
-      });
+      })
 
       map.addLayer(vectorLayer)
 
@@ -425,12 +426,12 @@ module.exports = function OpenlayersMap(
     addLine: function(line, options) {
       const lineObject = line.map(function(coordinate) {
         return convertPointCoordinate(coordinate)
-      });
+      })
 
       const feature = new Openlayers.Feature({
         geometry: new Openlayers.geom.LineString(lineObject),
         name: options.title,
-      });
+      })
       feature.setId(options.id)
 
       const styles = [
@@ -446,17 +447,17 @@ module.exports = function OpenlayersMap(
             width: 4,
           }),
         }),
-      ];
+      ]
 
       feature.setStyle(styles)
 
       const vectorSource = new Openlayers.source.Vector({
         features: [feature],
-      });
+      })
 
       const vectorLayer = new Openlayers.layer.Vector({
         source: vectorSource,
-      });
+      })
 
       map.addLayer(vectorLayer)
 
@@ -479,8 +480,8 @@ module.exports = function OpenlayersMap(
           }.bind(this)
         )
       } else {
-        const feature = geometry.getSource().getFeatures()[0];
-        const geometryInstance = feature.getGeometry();
+        const feature = geometry.getSource().getFeatures()[0]
+        const geometryInstance = feature.getGeometry()
         if (geometryInstance.constructor === Openlayers.geom.Point) {
           geometry.setZIndex(options.isSelected ? 2 : 1)
           feature.setStyle(
@@ -512,7 +513,7 @@ module.exports = function OpenlayersMap(
                 width: 4,
               }),
             }),
-          ];
+          ]
           feature.setStyle(styles)
         }
       }
@@ -529,10 +530,11 @@ module.exports = function OpenlayersMap(
           }.bind(this)
         )
       } else {
-        const feature = geometry.getSource().getFeatures()[0];
-        const geometryInstance = feature.getGeometry();
+        const feature = geometry.getSource().getFeatures()[0]
+        const geometryInstance = feature.getGeometry()
         if (geometryInstance.constructor === Openlayers.geom.Point) {
-          let x = 39, y = 40;
+          let x = 39,
+            y = 40
           if (options.size) {
             x = options.size.x
             y = options.size.y
@@ -570,7 +572,7 @@ module.exports = function OpenlayersMap(
                 width: 4,
               }),
             }),
-          ];
+          ]
           feature.setStyle(styles)
         }
       }
@@ -594,21 +596,21 @@ module.exports = function OpenlayersMap(
       const polygon = new DrawPolygon.PolygonView({
         model: locationModel,
         map: map,
-      });
+      })
       shapes.push(polygon)
     },
     showCircleShape: function(locationModel) {
       const circle = new DrawCircle.CircleView({
         model: locationModel,
         map: map,
-      });
+      })
       shapes.push(circle)
     },
     showLineShape: function(locationModel) {
       const line = new DrawLine.LineView({
         model: locationModel,
         map: map,
-      });
+      })
       shapes.push(line)
     },
     showMultiLineShape: function(locationModel) {
@@ -669,7 +671,7 @@ module.exports = function OpenlayersMap(
       this.destroyDrawingTools()
       unlistenToResize()
     },
-  });
+  })
 
   return exposedMethods
 }

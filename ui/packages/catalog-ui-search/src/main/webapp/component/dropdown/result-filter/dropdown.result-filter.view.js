@@ -24,7 +24,7 @@ module.exports = DropdownView.extend({
     const resultFilter = user
       .get('user')
       .get('preferences')
-      .get('resultFilter');
+      .get('resultFilter')
     this.$el.toggleClass('has-filter', Boolean(resultFilter))
   },
 })

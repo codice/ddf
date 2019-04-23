@@ -59,7 +59,7 @@ module.exports = function(grunt) {
     },
   })
 
-  const buildTasks = ['clean', 'cssmin'];
+  const buildTasks = ['clean', 'cssmin']
 
   grunt.registerTask('build', buildTasks)
   grunt.registerTask('default', ['build', 'express:server', 'watch'])

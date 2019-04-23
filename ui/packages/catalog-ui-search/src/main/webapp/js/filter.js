@@ -9,15 +9,15 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const _ = require('underscore');
-const metacardDefinitions = require('../component/singletons/metacard-definitions.js');
-const Terraformer = require('terraformer');
-const TerraformerWKTParser = require('terraformer-wkt-parser');
-const CQLUtils = require('./CQLUtils.js');
-const Turf = require('@turf/turf');
-const wkx = require('wkx');
-const moment = require('moment');
-const cql = require('./cql.js');
+const _ = require('underscore')
+const metacardDefinitions = require('../component/singletons/metacard-definitions.js')
+const Terraformer = require('terraformer')
+const TerraformerWKTParser = require('terraformer-wkt-parser')
+const CQLUtils = require('./CQLUtils.js')
+const Turf = require('@turf/turf')
+const wkx = require('wkx')
+const moment = require('moment')
+const cql = require('./cql.js')
 
 // strip extra quotes
 const stripQuotes = value => {
@@ -47,7 +47,7 @@ const createBufferedPolygon = (coordinates, distance) =>
   Turf.buffer(Turf.lineString(coordinates), Math.max(distance, 1), 'meters')
 
 function checkTokenWithWildcard(token, filter) {
-  const filterRegex = new RegExp(filter.split('*').join('.*'));
+  const filterRegex = new RegExp(filter.split('*').join('.*'))
   return filterRegex.test(token)
 }
 
@@ -61,9 +61,9 @@ function checkToken(token, filter) {
 }
 
 function matchesILIKE(value, filter) {
-  const valueToCheckFor = filter.value.toLowerCase();
+  const valueToCheckFor = filter.value.toLowerCase()
   value = value.toString().toLowerCase()
-  const tokens = value.split(' ');
+  const tokens = value.split(' ')
   for (let i = 0; i <= tokens.length - 1; i++) {
     if (checkToken(tokens[i], valueToCheckFor)) {
       return true
@@ -73,8 +73,8 @@ function matchesILIKE(value, filter) {
 }
 
 function matchesLIKE(value, filter) {
-  const valueToCheckFor = filter.value;
-  const tokens = value.toString().split(' ');
+  const valueToCheckFor = filter.value
+  const tokens = value.toString().split(' ')
   for (let i = 0; i <= tokens.length - 1; i++) {
     if (checkToken(tokens[i], valueToCheckFor)) {
       return true
@@ -84,7 +84,7 @@ function matchesLIKE(value, filter) {
 }
 
 function matchesEQUALS(value, filter) {
-  const valueToCheckFor = filter.value;
+  const valueToCheckFor = filter.value
   if (value.toString() === valueToCheckFor.toString()) {
     return true
   }
@@ -92,7 +92,7 @@ function matchesEQUALS(value, filter) {
 }
 
 function matchesNOTEQUALS(value, filter) {
-  const valueToCheckFor = filter.value;
+  const valueToCheckFor = filter.value
   if (value.toString() !== valueToCheckFor.toString()) {
     return true
   }
@@ -100,7 +100,7 @@ function matchesNOTEQUALS(value, filter) {
 }
 
 function matchesGreaterThan(value, filter) {
-  const valueToCheckFor = filter.value;
+  const valueToCheckFor = filter.value
   if (value > valueToCheckFor) {
     return true
   }
@@ -108,7 +108,7 @@ function matchesGreaterThan(value, filter) {
 }
 
 function matchesGreaterThanOrEqualTo(value, filter) {
-  const valueToCheckFor = filter.value;
+  const valueToCheckFor = filter.value
   if (value >= valueToCheckFor) {
     return true
   }
@@ -116,7 +116,7 @@ function matchesGreaterThanOrEqualTo(value, filter) {
 }
 
 function matchesLessThan(value, filter) {
-  const valueToCheckFor = filter.value;
+  const valueToCheckFor = filter.value
   if (value < valueToCheckFor) {
     return true
   }
@@ -124,7 +124,7 @@ function matchesLessThan(value, filter) {
 }
 
 function matchesLessThanOrEqualTo(value, filter) {
-  const valueToCheckFor = filter.value;
+  const valueToCheckFor = filter.value
   if (value <= valueToCheckFor) {
     return true
   }
@@ -134,7 +134,7 @@ function matchesLessThanOrEqualTo(value, filter) {
 // terraformer doesn't offically support Point, MultiPoint, FeatureCollection, or GeometryCollection
 // terraformer incorrectly supports MultiPolygon, so turn it into a Polygon first
 function intersects(terraformerObject, value) {
-  let intersected = false;
+  let intersected = false
   switch (value.type) {
     case 'Point':
       return terraformerObject.contains(value)
@@ -180,7 +180,7 @@ function intersects(terraformerObject, value) {
 }
 
 function matchesPOLYGON(value, filter) {
-  const polygonToCheck = TerraformerWKTParser.parse(filter.value.value);
+  const polygonToCheck = TerraformerWKTParser.parse(filter.value.value)
   if (intersects(polygonToCheck, value)) {
     return true
   }
@@ -205,9 +205,9 @@ function matchesCIRCLE(value, filter) {
   }
   const points = filter.value.value
     .substring(6, filter.value.value.length - 1)
-    .split(' ');
-  const circleToCheck = new Terraformer.Circle(points, filter.distance, 64);
-  const polygonCircleToCheck = new Terraformer.Polygon(circleToCheck.geometry);
+    .split(' ')
+  const circleToCheck = new Terraformer.Circle(points, filter.distance, 64)
+  const polygonCircleToCheck = new Terraformer.Polygon(circleToCheck.geometry)
   if (intersects(polygonCircleToCheck, value)) {
     return true
   }
@@ -215,9 +215,9 @@ function matchesCIRCLE(value, filter) {
 }
 
 function matchesLINESTRING(value, filter) {
-  let pointText = filter.value.value.substring(11);
+  let pointText = filter.value.value.substring(11)
   pointText = pointText.substring(0, pointText.length - 1)
-  const lineWidth = filter.distance || 0;
+  const lineWidth = filter.distance || 0
   if (lineWidth <= 0) {
     return false
   }
@@ -225,13 +225,13 @@ function matchesLINESTRING(value, filter) {
     return coordinate.split(' ').map(function(value) {
       return Number(value)
     })
-  });
-  const turfLine = Turf.lineString(line);
-  const bufferedLine = Turf.buffer(turfLine, lineWidth, 'meters');
+  })
+  const turfLine = Turf.lineString(line)
+  const bufferedLine = Turf.buffer(turfLine, lineWidth, 'meters')
   const polygonToCheck = new Terraformer.Polygon({
     type: 'Polygon',
     coordinates: bufferedLine.geometry.coordinates,
-  });
+  })
   if (intersects(polygonToCheck, value)) {
     return true
   }
@@ -239,8 +239,8 @@ function matchesLINESTRING(value, filter) {
 }
 
 function matchesBEFORE(value, filter) {
-  const date1 = moment(value);
-  const date2 = moment(filter.value);
+  const date1 = moment(value)
+  const date2 = moment(filter.value)
   if (date1 <= date2) {
     return true
   }
@@ -248,8 +248,8 @@ function matchesBEFORE(value, filter) {
 }
 
 function matchesAFTER(value, filter) {
-  const date1 = moment(value);
-  const date2 = moment(filter.value);
+  const date1 = moment(value)
+  const date2 = moment(filter.value)
   if (date1 >= date2) {
     return true
   }
@@ -293,7 +293,7 @@ function flattenMultivalueProperties(valuesToCheck) {
 
 function matchesFilter(metacard, filter) {
   if (!filter.filters) {
-    let valuesToCheck = [];
+    let valuesToCheck = []
     if (
       metacardDefinitions.metacardTypes[filter.property] &&
       metacardDefinitions.metacardTypes[filter.property].type === 'GEOMETRY'
@@ -329,7 +329,7 @@ function matchesFilter(metacard, filter) {
         break
       default:
         const valueToCheck =
-          metacard.properties[filter.property.replace(/['"]+/g, '')];
+          metacard.properties[filter.property.replace(/['"]+/g, '')]
         if (valueToCheck !== undefined) {
           valuesToCheck.push(valueToCheck)
         }
@@ -426,7 +426,7 @@ function matchesFilter(metacard, filter) {
 }
 
 function matchesFilters(metacard, resultFilter) {
-  let i;
+  let i
   switch (resultFilter.type) {
     case 'AND':
       for (i = 0; i <= resultFilter.filters.length - 1; i++) {

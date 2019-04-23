@@ -18,15 +18,15 @@ const Common = require('../../js/Common.js')
 const dmsUtils = require('../location-new/utils/dms-utils.js')
 const DistanceUtils = require('../../js/DistanceUtils.js')
 
-const converter = new usngs.Converter();
-const minimumDifference = 0.0001;
-const minimumBuffer = 0.000001;
-const utmUpsLocationType = 'utmUps';
+const converter = new usngs.Converter()
+const minimumDifference = 0.0001
+const minimumBuffer = 0.000001
+const utmUpsLocationType = 'utmUps'
 // offset used by utmUps for southern hemisphere
 const utmUpsBoundaryNorth = 84
 const utmUpsBoundarySouth = -80
-const northingOffset = 10000000;
-const usngPrecision = 6;
+const northingOffset = 10000000
+const usngPrecision = 6
 const Direction = dmsUtils.Direction
 
 function convertToValid(key, model) {
@@ -140,7 +140,7 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   set: function(key, value, options) {
     if (!_.isObject(key)) {
-      const keyObject = {};
+      const keyObject = {}
       keyObject[key] = value
       key = keyObject
       value = options
@@ -241,12 +241,12 @@ module.exports = Backbone.AssociatedModel.extend({
 
   repositionLatLonUtmUps: function(isDefined, parse, assign, clear) {
     if (isDefined(this)) {
-      const utmUpsParts = parse(this);
+      const utmUpsParts = parse(this)
       if (utmUpsParts !== undefined) {
-        const result = this.utmUpstoLL(utmUpsParts);
+        const result = this.utmUpstoLL(utmUpsParts)
 
         if (result !== undefined) {
-          const newResult = {};
+          const newResult = {}
           assign(newResult, result.lat, result.lon)
 
           this.set(newResult)
@@ -260,8 +260,8 @@ module.exports = Backbone.AssociatedModel.extend({
   repositionLatLon: function() {
     if (this.get('usngbb') !== undefined) {
       try {
-        const result = converter.USNGtoLL(this.get('usngbb'));
-        const newResult = {};
+        const result = converter.USNGtoLL(this.get('usngbb'))
+        const newResult = {}
         newResult.mapNorth = result.north
         newResult.mapSouth = result.south
         newResult.mapEast = result.east
@@ -314,9 +314,9 @@ module.exports = Backbone.AssociatedModel.extend({
       ) &&
       isDefined(this)
     ) {
-      const utmUpsParts = parse(_this);
+      const utmUpsParts = parse(_this)
       if (utmUpsParts !== undefined) {
-        const utmUpsResult = this.utmUpstoLL(utmUpsParts);
+        const utmUpsResult = this.utmUpstoLL(utmUpsParts)
 
         if (utmUpsResult !== undefined) {
           assign(result, utmUpsResult.lat, utmUpsResult.lon)
@@ -329,7 +329,7 @@ module.exports = Backbone.AssociatedModel.extend({
 
   setLatLon: function() {
     if (this.get('locationType') === 'latlon') {
-      let result = {};
+      let result = {}
       result.north = this.get('mapNorth')
       result.south = this.get('mapSouth')
       result.west = this.get('mapWest')
@@ -393,10 +393,10 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setFilterBBox: function(model) {
-    const north = parseFloat(model.get('north'));
-    const south = parseFloat(model.get('south'));
-    const west = parseFloat(model.get('west'));
-    const east = parseFloat(model.get('east'));
+    const north = parseFloat(model.get('north'))
+    const south = parseFloat(model.get('south'))
+    const west = parseFloat(model.get('west'))
+    const east = parseFloat(model.get('east'))
 
     model.set({
       mapNorth: north,
@@ -438,7 +438,7 @@ module.exports = Backbone.AssociatedModel.extend({
       return
     }
 
-    const usngsStr = converter.LLBboxtoUSNG(north, south, east, west);
+    const usngsStr = converter.LLBboxtoUSNG(north, south, east, west)
 
     this.set('usngbb', usngsStr, {
       silent: this.get('locationType') !== 'usng',
@@ -449,7 +449,8 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setRadiusLatLon: function() {
-    const lat = this.get('lat'), lon = this.get('lon');
+    const lat = this.get('lat'),
+      lon = this.get('lon')
 
     if (
       (!store.get('content').get('drawing') &&
@@ -463,7 +464,7 @@ module.exports = Backbone.AssociatedModel.extend({
 
     const utmUps = this.LLtoUtmUps(lat, lon)
     if (utmUps !== undefined) {
-      const utmUpsParts = this.formatUtmUps(utmUps);
+      const utmUpsParts = this.formatUtmUps(utmUps)
       this.setUtmUpsPointRadius(utmUpsParts, true)
     } else {
       this.clearUtmUpsPointRadius(false)
@@ -474,7 +475,7 @@ module.exports = Backbone.AssociatedModel.extend({
       return
     }
 
-    const usngsStr = converter.LLtoUSNG(lat, lon, usngPrecision);
+    const usngsStr = converter.LLtoUSNG(lat, lon, usngPrecision)
     this.set('usng', usngsStr, { silent: true })
   },
 
@@ -500,7 +501,7 @@ module.exports = Backbone.AssociatedModel.extend({
       return
     }
 
-    const newResult = {};
+    const newResult = {}
     newResult.mapNorth = result.north
     newResult.mapSouth = result.south
     newResult.mapEast = result.east
@@ -524,10 +525,10 @@ module.exports = Backbone.AssociatedModel.extend({
   setBBox: function() {
     //we need these to always be inferred
     //as numeric values and never as strings
-    const north = parseFloat(this.get('north'));
-    const south = parseFloat(this.get('south'));
-    const west = parseFloat(this.get('west'));
-    const east = parseFloat(this.get('east'));
+    const north = parseFloat(this.get('north'))
+    const south = parseFloat(this.get('south'))
+    const west = parseFloat(this.get('west'))
+    const east = parseFloat(this.get('east'))
 
     if (
       north !== undefined &&
@@ -553,7 +554,7 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setRadiusUsng: function() {
-    const usng = this.get('usng');
+    const usng = this.get('usng')
     if (usng === undefined) {
       return
     }
@@ -566,9 +567,9 @@ module.exports = Backbone.AssociatedModel.extend({
     if (!isNaN(result.lat) && !isNaN(result.lon)) {
       this.set(result)
 
-      const utmUps = this.LLtoUtmUps(result.lat, result.lon);
+      const utmUps = this.LLtoUtmUps(result.lat, result.lon)
       if (utmUps !== undefined) {
-        const utmUpsParts = this.formatUtmUps(utmUps);
+        const utmUpsParts = this.formatUtmUps(utmUps)
         this.setUtmUpsPointRadius(utmUpsParts, true)
       }
     } else {
@@ -639,11 +640,11 @@ module.exports = Backbone.AssociatedModel.extend({
     if (!this.isLocationTypeUtmUps()) {
       return
     }
-    let upperLeft = undefined;
-    let lowerRight = undefined;
+    let upperLeft = undefined
+    let lowerRight = undefined
 
     if (this.isUtmUpsUpperLeftDefined()) {
-      const upperLeftParts = this.parseUtmUpsUpperLeft();
+      const upperLeftParts = this.parseUtmUpsUpperLeft()
       if (upperLeftParts !== undefined) {
         upperLeft = this.utmUpstoLL(upperLeftParts)
 
@@ -670,7 +671,7 @@ module.exports = Backbone.AssociatedModel.extend({
     }
 
     if (this.isUtmUpsLowerRightDefined()) {
-      const lowerRightParts = this.parseUtmUpsLowerRight();
+      const lowerRightParts = this.parseUtmUpsLowerRight()
       if (lowerRightParts !== undefined) {
         lowerRight = this.utmUpstoLL(lowerRightParts)
 
@@ -713,7 +714,7 @@ module.exports = Backbone.AssociatedModel.extend({
       lowerRight.lat,
       lowerRight.lon,
       upperLeft.lon
-    );
+    )
     this.set('usngbb', usngsStr, {
       silent: this.get('locationType') === 'usng',
     })
@@ -976,15 +977,15 @@ module.exports = Backbone.AssociatedModel.extend({
   // representation of an integer in the range [0,60]. The hemisphereRaw parameters is a string
   // that should be 'Northern' or 'Southern'.
   parseUtmUps: function(eastingRaw, northingRaw, zoneRaw, hemisphereRaw) {
-    const easting = parseFloat(eastingRaw);
-    const northing = parseFloat(northingRaw);
-    const zone = parseInt(zoneRaw);
+    const easting = parseFloat(eastingRaw)
+    const northing = parseFloat(northingRaw)
+    const zone = parseInt(zoneRaw)
     const hemisphere =
       hemisphereRaw === 'Northern'
         ? 'NORTHERN'
         : hemisphereRaw === 'Southern'
           ? 'SOUTHERN'
-          : undefined;
+          : undefined
 
     if (
       !isNaN(easting) &&

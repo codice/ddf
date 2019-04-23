@@ -50,9 +50,10 @@
 //     .object.syntax ("{", "}")
 //     .array.syntax  ("[", "]")
 
-let module;(module || {}).exports = renderjson = (function() {
+let module
+;(module || {}).exports = renderjson = (function() {
   const themetext = function(/* [class, text]+ */) {
-    const spans = [];
+    const spans = []
     while (arguments.length)
       spans.push(
         append(
@@ -61,36 +62,36 @@ let module;(module || {}).exports = renderjson = (function() {
         )
       )
     return spans
-  };
+  }
   const append = function(/* el, ... */) {
-    const el = Array.prototype.shift.call(arguments);
+    const el = Array.prototype.shift.call(arguments)
     for (let a = 0; a < arguments.length; a++)
       if (arguments[a].constructor == Array)
         append.apply(this, [el].concat(arguments[a]))
       else el.appendChild(arguments[a])
     return el
-  };
+  }
   const prepend = function(el, child) {
     el.insertBefore(child, el.firstChild)
     return el
-  };
+  }
   const isempty = function(obj) {
     for (const k in obj) if (Object.hasOwnProperty.call(obj, k)) return false
     return true
-  };
+  }
   const text = function(txt) {
     return document.createTextNode(txt)
-  };
+  }
   const div = function() {
     return document.createElement('div')
-  };
+  }
   const span = function(classname) {
-    const s = document.createElement('span');
+    const s = document.createElement('span')
     if (classname) s.className = classname
     return s
-  };
+  }
   const A = function A(txt, classname, callback) {
-    const a = document.createElement('a');
+    const a = document.createElement('a')
     if (classname) a.className = classname
     a.appendChild(text(txt))
     a.href = '#'
@@ -100,7 +101,7 @@ let module;(module || {}).exports = renderjson = (function() {
       return false
     }
     return a
-  };
+  }
 
   function _renderjson(
     json,
@@ -110,11 +111,11 @@ let module;(module || {}).exports = renderjson = (function() {
     max_string,
     sort_objects
   ) {
-    const my_indent = dont_indent ? '' : indent;
+    const my_indent = dont_indent ? '' : indent
 
     const disclosure = function(open, placeholder, close, type, builder) {
-      let content;
-      const empty = span(type);
+      let content
+      const empty = span(type)
       const show = function() {
         if (!content)
           append(
@@ -129,7 +130,7 @@ let module;(module || {}).exports = renderjson = (function() {
           )
         content.style.display = 'inline'
         empty.style.display = 'none'
-      };
+      }
       append(
         empty,
         A(renderjson.show, 'disclosure', show),
@@ -138,10 +139,10 @@ let module;(module || {}).exports = renderjson = (function() {
         themetext(type + ' syntax', close)
       )
 
-      const el = append(span(), text(my_indent.slice(0, -1)), empty);
+      const el = append(span(), text(my_indent.slice(0, -1)), empty)
       if (show_level > 0) show()
       return el
-    };
+    }
 
     if (json === null) return themetext(null, my_indent, 'keyword', 'null')
     if (json === void 0)
@@ -173,7 +174,7 @@ let module;(module || {}).exports = renderjson = (function() {
         const as = append(
           span('array'),
           themetext('array syntax', '[', null, '\n')
-        );
+        )
         for (let i = 0; i < json.length; i++)
           append(
             as,
@@ -190,7 +191,7 @@ let module;(module || {}).exports = renderjson = (function() {
           )
         append(as, themetext(null, indent, 'array syntax', ']'))
         return as
-      });
+      })
     }
 
     // object
@@ -200,9 +201,9 @@ let module;(module || {}).exports = renderjson = (function() {
       const os = append(
         span('object'),
         themetext('object syntax', '{', null, '\n')
-      );
+      )
       for (var k in json) var last = k
-      let keys = Object.keys(json);
+      let keys = Object.keys(json)
       if (sort_objects) keys = keys.sort()
       for (const i in keys) {
         var k = keys[i]
@@ -230,7 +231,7 @@ let module;(module || {}).exports = renderjson = (function() {
       }
       append(os, themetext(null, indent, 'object syntax', '}'))
       return os
-    });
+    })
   }
 
   var renderjson = function renderjson(json) {
@@ -244,7 +245,7 @@ let module;(module || {}).exports = renderjson = (function() {
         renderjson.max_string_length,
         renderjson.sort_objects
       )
-    );
+    )
     pre.className = 'renderjson'
     return pre
   }

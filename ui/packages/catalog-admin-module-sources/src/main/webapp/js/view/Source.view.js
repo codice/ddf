@@ -48,7 +48,7 @@ define([
   sourceList,
   sourceRow
 ) {
-  const SourceView = {};
+  const SourceView = {}
 
   ich.addTemplate('deleteModal', deleteModal)
   ich.addTemplate('deleteSource', deleteSource)
@@ -81,7 +81,7 @@ define([
       }
     },
     serializeData: function() {
-      const data = {};
+      const data = {}
 
       if (this.model && this.model.has('currentConfiguration')) {
         data.currentConfiguration = this.model
@@ -113,18 +113,18 @@ define([
     },
     editSource: function(evt) {
       evt.stopPropagation()
-      const service = this.model;
+      const service = this.model
       wreqr.vent.trigger('editSource', service)
     },
     changeConfiguration: function(evt) {
-      const model = this.model;
-      const currentConfig = model.get('currentConfiguration');
-      const disabledConfigs = model.get('disabledConfigurations');
-      const $select = $(evt.currentTarget);
-      const optionSelected = $select.find('option:selected');
-      const valueSelected = optionSelected.val();
-      let cfgToDisable;
-      let deferred = $.Deferred().resolve();
+      const model = this.model
+      const currentConfig = model.get('currentConfiguration')
+      const disabledConfigs = model.get('disabledConfigurations')
+      const $select = $(evt.currentTarget)
+      const optionSelected = $select.find('option:selected')
+      const valueSelected = optionSelected.val()
+      let cfgToDisable
+      let deferred = $.Deferred().resolve()
 
       if (valueSelected === 'Disabled') {
         cfgToDisable = currentConfig
@@ -136,7 +136,7 @@ define([
       } else {
         const cfgToEnable = disabledConfigs.find(function(cfg) {
           return valueSelected + '_disabled' === cfg.get('fpid')
-        });
+        })
 
         if (cfgToEnable) {
           cfgToDisable = currentConfig
@@ -216,16 +216,16 @@ define([
       this.refreshButton.close()
     },
     onRender: function() {
-      const collection = this.model.get('collection');
+      const collection = this.model.get('collection')
       const table = new SourceView.SourceTable({
         model: this.model,
         collection: collection,
-      });
+      })
       this.collectionRegion.show(table)
       this.refreshSources()
     },
     refreshSources: function() {
-      const view = this;
+      const view = this
       view.model.get('collection').trigger('request')
       view.model.get('model').clear()
       view.model.get('model').fetch({
@@ -279,15 +279,15 @@ define([
     },
     showModal: function(modalView) {
       // Global div for workaround with iframe resize and modals
-      const region = this.application.getRegion('sourcesModal');
-      const collectionRegion = this.application.getRegion('collectionRegion');
-      const iFrameModalDOM = $('#IframeModalDOM');
+      const region = this.application.getRegion('sourcesModal')
+      const collectionRegion = this.application.getRegion('collectionRegion')
+      const iFrameModalDOM = $('#IframeModalDOM')
       modalView.$el.on('hidden.bs.modal', function() {
         iFrameModalDOM.hide()
       })
       modalView.$el.on('shown.bs.modal', function() {
         const extraHeight =
-          modalView.el.firstChild.clientHeight - collectionRegion.$el.height();
+          modalView.el.firstChild.clientHeight - collectionRegion.$el.height()
         if (extraHeight > 0) {
           iFrameModalDOM.height(extraHeight)
           iFrameModalDOM.show()
@@ -319,13 +319,13 @@ define([
     ],
 
     toggleChecks: function(e) {
-      const view = this;
-      const checked = e.target.checked;
+      const view = this
+      const checked = e.target.checked
       // Loop through all the source views available to get the one relevant to the click.
       // We don't want to go deleting/checking the wrong source/service.
       const sourceView = view.children.find(function(childView) {
         return childView.model.get('name') === e.target.value
-      });
+      })
 
       // Check to see if user clicked the source (top-level) checkbox or a service checkbox.
       if (e.target.className === 'deleteSource') {
@@ -341,7 +341,7 @@ define([
           // Check to see if a user has manually selected all the services in a source, if they have,
           // also select the source checkbox.
         } else if (checked) {
-          let allChecked = true;
+          let allChecked = true
           sourceView.$('.selectSourceDelete').each(function() {
             allChecked = allChecked && this.checked
           })
@@ -350,14 +350,14 @@ define([
       }
     },
     deleteSources: function() {
-      const view = this;
-      const toDelete = [];
+      const view = this
+      const toDelete = []
       view.collection.each(function(item) {
-        const currentConfig = item.get('currentConfiguration');
-        const disableConfigs = item.get('disabledConfigurations');
+        const currentConfig = item.get('currentConfiguration')
+        const disableConfigs = item.get('disabledConfigurations')
         view.$('.selectSourceDelete').each(function(index, content) {
           if (content.checked) {
-            const id = currentConfig ? currentConfig.get('id') : null;
+            const id = currentConfig ? currentConfig.get('id') : null
             if (id === content.id) {
               toDelete.push(view.model.createDeletePromise(item, currentConfig))
             } else if (disableConfigs) {
@@ -379,7 +379,7 @@ define([
         Q.all(toDelete)
           .then(function(results) {
             _.each(results, function(result) {
-              const item = result.source;
+              const item = result.source
               if (item.size() <= 0) {
                 //if no type configurations, delete the entire source.
                 view.model.get('collection').removeSource(item)

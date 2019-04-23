@@ -21,7 +21,7 @@ require('./SystemUsage.js')
 require('../component/singletons/session-auto-renew.js')
 require('./SessionTimeout.js')
 
-const workspaces = store.get('workspaces');
+const workspaces = store.get('workspaces')
 
 function getWorkspacesOwnedByUser() {
   return workspaces.filter(

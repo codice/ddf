@@ -25,15 +25,15 @@ define([
     Backbone,
     Marionette
   ) {
-    const certificateResponse = new Certificate.Response();
-    const keyResponse = new PrivateKey.Response();
+    const certificateResponse = new Certificate.Response()
+    const keyResponse = new PrivateKey.Response()
     certificateResponse.fetch()
     keyResponse.fetch()
 
     const certPage = new StoreView.CertificatePage({
       certificate: certificateResponse,
       privateKey: keyResponse,
-    });
+    })
 
     // Define a controller to run this module
     // --------------------------------------
@@ -46,7 +46,7 @@ define([
       show: function() {
         this.region.show(certPage)
       },
-    });
+    })
 
     // Initialize this module when the app starts
     // ------------------------------------------

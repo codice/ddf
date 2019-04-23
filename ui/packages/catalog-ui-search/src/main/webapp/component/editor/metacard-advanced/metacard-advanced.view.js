@@ -44,7 +44,7 @@ module.exports = EditorView.extend({
   },
   getValidation: function() {
     if (!this.model.first().isRemote()) {
-      const self = this;
+      const self = this
       self.editorProperties.currentView.clearValidation()
       $.get({
         url:
@@ -72,9 +72,9 @@ module.exports = EditorView.extend({
           ],
           attributes: editorJSON,
         },
-      ];
+      ]
       LoadingCompanionView.beginLoading(this)
-      const self = this;
+      const self = this
       setTimeout(function() {
         $.ajax({
           url: './internal/metacards',

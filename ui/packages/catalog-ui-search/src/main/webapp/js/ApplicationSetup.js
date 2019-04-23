@@ -18,7 +18,7 @@
   }
 })()
 
-const $ = require('jquery');
+const $ = require('jquery')
 $.ajaxSetup({
   cache: false,
   headers: {
@@ -54,7 +54,7 @@ require('./extensions/marionette.View.isMarionetteComponent.js')
 require('./extensions/marionette.View.remove.js')
 
 let getShortErrorMessage = function(error) {
-  let extraMessage = error instanceof Error ? error.name : String(error);
+  let extraMessage = error instanceof Error ? error.name : String(error)
 
   if (extraMessage.length === 0) {
     return extraMessage
@@ -119,7 +119,7 @@ $(window.document).ajaxError(function(event, jqxhr, settings, throwError) {
   }
 
   console.error(event, jqxhr, settings, throwError)
-  const response = getErrorResponse(event, jqxhr, settings, throwError);
+  const response = getErrorResponse(event, jqxhr, settings, throwError)
 
   if (
     properties.disableUnknownErrorBox &&
@@ -136,30 +136,30 @@ $(window.document).ajaxError(function(event, jqxhr, settings, throwError) {
 })
 
 //in here we drop in any top level patches, etc.
-const toJSON = Backbone.Model.prototype.toJSON;
+const toJSON = Backbone.Model.prototype.toJSON
 Backbone.Model.prototype.toJSON = function(options) {
-  const originalJSON = toJSON.call(this, options);
+  const originalJSON = toJSON.call(this, options)
   if (options && options.additionalProperties !== undefined) {
-    const backboneModel = this;
+    const backboneModel = this
     options.additionalProperties.forEach(function(property) {
       originalJSON[property] = backboneModel[property]
     })
   }
   return originalJSON
 }
-const clone = Backbone.Model.prototype.clone;
+const clone = Backbone.Model.prototype.clone
 Backbone.Model.prototype.clone = function() {
-  const cloneRef = clone.call(this);
+  const cloneRef = clone.call(this)
   cloneRef._cloneOf = this.id || this.cid
   return cloneRef
 }
-const associationsClone = Backbone.AssociatedModel.prototype.clone;
+const associationsClone = Backbone.AssociatedModel.prototype.clone
 Backbone.AssociatedModel.prototype.clone = function() {
-  const cloneRef = associationsClone.call(this);
+  const cloneRef = associationsClone.call(this)
   cloneRef._cloneOf = this.id || this.cid
   return cloneRef
 }
-const associationsSet = Backbone.AssociatedModel.prototype.set;
+const associationsSet = Backbone.AssociatedModel.prototype.set
 Backbone.AssociatedModel.prototype.set = function(key, value, options) {
   if (typeof key === 'object') {
     options = value

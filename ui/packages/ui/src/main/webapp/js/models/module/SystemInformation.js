@@ -14,7 +14,7 @@
  **/
 
 define(['backbone'], function(Backbone) {
-  const SystemInformation = {};
+  const SystemInformation = {}
 
   SystemInformation.Model = Backbone.Model.extend({
     defaults: {

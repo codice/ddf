@@ -1,7 +1,7 @@
-const Marionette = require('marionette');
-const _ = require('underscore');
-const store = require('../../../js/store.js');
-const GeometryView = require('./geometry.view');
+const Marionette = require('marionette')
+const _ = require('underscore')
+const store = require('../../../js/store.js')
+const GeometryView = require('./geometry.view')
 
 const GeometryCollectionView = Marionette.CollectionView.extend({
   childView: GeometryView,
@@ -48,6 +48,6 @@ const GeometryCollectionView = Marionette.CollectionView.extend({
       this.options.selectionInterface.addSelectedResult(this.collection.get(id))
     }
   },
-});
+})
 
 module.exports = GeometryCollectionView

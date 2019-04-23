@@ -27,14 +27,14 @@ define([
       Modal.prototype.initialize.apply(this, arguments)
     },
     onRender: function() {
-      const usage = properties.admin.systemUsageMessage;
-      const $iframe = this.$el.find('iframe');
+      const usage = properties.admin.systemUsageMessage
+      const $iframe = this.$el.find('iframe')
       $iframe.ready(function() {
         $iframe.contents()[0].open()
         $iframe.contents()[0].write('<html>' + usage + '</html>')
         $iframe.contents()[0].close()
       })
     },
-  });
+  })
   return SystemUsageModal
 })

@@ -47,7 +47,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   goToWorkspace: function(e) {
-    const workspaceId = $(e.currentTarget).attr('data-workspaceid');
+    const workspaceId = $(e.currentTarget).attr('data-workspaceid')
     wreqr.vent.trigger('router:navigate', {
       fragment: 'workspaces/' + workspaceId,
       options: {
@@ -56,8 +56,8 @@ module.exports = Marionette.LayoutView.extend({
     })
   },
   serializeData: function() {
-    const currentWorkspace = store.getCurrentWorkspace();
-    let resultJSON, workspaceJSON;
+    const currentWorkspace = store.getCurrentWorkspace()
+    let resultJSON, workspaceJSON
     if (metacardInstance.get('currentMetacard')) {
       resultJSON = metacardInstance.get('currentMetacard').toJSON()
     }

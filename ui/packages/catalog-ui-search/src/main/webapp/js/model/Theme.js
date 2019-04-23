@@ -10,21 +10,21 @@
  *
  **/
 
-const Backbone = require('backbone');
-const _ = require('underscore');
-let lessStyles = require('../../js/uncompiled-less.unless');
-const lessToJs = require('less-vars-to-js');
-const _get = require('lodash.get');
-const properties = require('../properties.js');
-const $ = require('jquery');
+const Backbone = require('backbone')
+const _ = require('underscore')
+let lessStyles = require('../../js/uncompiled-less.unless')
+const lessToJs = require('less-vars-to-js')
+const _get = require('lodash.get')
+const properties = require('../properties.js')
+const $ = require('jquery')
 require('spectrum-colorpicker')
-const $spectrumInput = $(document.createElement('input')).spectrum();
+const $spectrumInput = $(document.createElement('input')).spectrum()
 
 const spacingVariables = [
   'minimumButtonSize',
   'minimumLineSize',
   'minimumSpacing',
-];
+]
 const colorVariables = [
   'customPrimaryColor',
   'customPositiveColor',
@@ -37,13 +37,13 @@ const colorVariables = [
   'customBackgroundContent',
   'customBackgroundModal',
   'customBackgroundSlideout',
-];
-const themeableVariables = spacingVariables.concat(colorVariables);
+]
+const themeableVariables = spacingVariables.concat(colorVariables)
 
 function trimVariables(variables) {
-  const newVariableMap = {};
+  const newVariableMap = {}
   _.forEach(variables, (value, key) => {
-    const trimmedKey = key.substring(1);
+    const trimmedKey = key.substring(1)
     if (themeableVariables.indexOf(trimmedKey) !== -1) {
       newVariableMap[trimmedKey] = value
     }
@@ -55,7 +55,7 @@ function removeAlpha(color) {
   const hexString = $spectrumInput
     .spectrum('set', color)
     .spectrum('get')
-    .toHexString();
+    .toHexString()
   return hexString
 }
 
@@ -66,7 +66,7 @@ function validTextColour(stringToTest) {
     return false
   }
 
-  const image = document.createElement('img');
+  const image = document.createElement('img')
   image.style.color = 'rgb(0, 0, 0)'
   image.style.color = stringToTest
   if (image.style.color !== 'rgb(0, 0, 0)') {
@@ -77,13 +77,13 @@ function validTextColour(stringToTest) {
   return image.style.color !== 'rgb(255, 255, 255)'
 }
 
-const baseVariables = trimVariables(lessToJs(lessStyles));
-const comfortableVariables = _.pick(baseVariables, spacingVariables);
+const baseVariables = trimVariables(lessToJs(lessStyles))
+const comfortableVariables = _.pick(baseVariables, spacingVariables)
 const compactVariables = {
   minimumButtonSize: '1.8rem',
   minimumLineSize: '1.5rem',
   minimumSpacing: '0.3rem',
-};
+}
 
 // spacing is set in stone as three choices
 // coloring provides some themes, and allows infinite customization
@@ -100,7 +100,7 @@ const spacingModes = {
     {}
   ),
   comfortable: comfortableVariables,
-};
+}
 
 const colorModes = {
   dark: _.pick(baseVariables, colorVariables),
@@ -113,7 +113,7 @@ const colorModes = {
     'favorite-color': 'orange',
   },
   custom: {},
-};
+}
 
 function sanitizeColors(theme) {
   colorVariables.forEach(color => {
@@ -130,7 +130,7 @@ module.exports = Backbone.Model.extend({
     const blob = {
       spacingMode: _get(properties, 'spacingMode', 'comfortable'),
       theme: _get(properties, 'theme', 'dark'),
-    };
+    }
     colorVariables.forEach(color => {
       blob[color] = _get(properties, color, 'white')
     })
@@ -141,7 +141,7 @@ module.exports = Backbone.Model.extend({
     return colorVariables
   },
   getTheme: function() {
-    const theme = this.toJSON();
+    const theme = this.toJSON()
     sanitizeColors(theme)
 
     return _.defaults(

@@ -19,7 +19,7 @@ module.exports = Backbone.Collection.extend({
   model: QueryResultModel,
   amountFiltered: 0,
   generateFilteredVersion: function(filter) {
-    const filteredCollection = new this.constructor();
+    const filteredCollection = new this.constructor()
     filteredCollection.set(this.updateFilteredVersion(filter))
     filteredCollection.amountFiltered = this.amountFiltered
     return filteredCollection
@@ -32,13 +32,13 @@ module.exports = Backbone.Collection.extend({
           const passFilter = filterUtility.matchesFilters(
             result.get('metacard').toJSON(),
             filter
-          );
+          )
           if (!passFilter) {
             this.amountFiltered++
           }
           return passFilter
         }.bind(this)
-      );
+      )
     } else {
       return this.models
     }
@@ -49,10 +49,10 @@ module.exports = Backbone.Collection.extend({
     }
   },
   collapseDuplicates: function() {
-    const collapsedCollection = new this.constructor();
+    const collapsedCollection = new this.constructor()
     collapsedCollection.set(this.models)
     collapsedCollection.amountFiltered = this.amountFiltered
-    let endIndex = collapsedCollection.length;
+    let endIndex = collapsedCollection.length
     for (let i = 0; i < endIndex; i++) {
       var currentResult = collapsedCollection.models[i]
       var currentChecksum = currentResult
@@ -67,11 +67,11 @@ module.exports = Backbone.Collection.extend({
         const comparedChecksum = result
           .get('metacard')
           .get('properties')
-          .get('checksum');
+          .get('checksum')
         const comparedId = result
           .get('metacard')
           .get('properties')
-          .get('id');
+          .get('id')
         return (
           result.id !== currentResult.id &&
           (comparedId === currentId ||
@@ -79,7 +79,7 @@ module.exports = Backbone.Collection.extend({
               Boolean(currentChecksum) &&
               comparedChecksum === currentChecksum))
         )
-      });
+      })
       currentResult.duplicates = undefined
       if (duplicates.length > 0) {
         currentResult.duplicates = duplicates
@@ -90,7 +90,7 @@ module.exports = Backbone.Collection.extend({
     return collapsedCollection
   },
   selectBetween: function(startIndex, endIndex) {
-    const allModels = [];
+    const allModels = []
     this.forEach(function(model) {
       allModels.push(model)
       if (model.duplicates) {

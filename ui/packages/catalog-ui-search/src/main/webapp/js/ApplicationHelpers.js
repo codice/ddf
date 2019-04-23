@@ -38,7 +38,8 @@ Backbone.Associations.setSeparator('>')
  * @returns {Q Promise}
  */
 const fetchPromise = function(options) {
-  const deferred = Q.defer(), modelOrCollection = this;
+  const deferred = Q.defer(),
+    modelOrCollection = this
   options = options ? _.clone(options) : {}
 
   options.success = function() {
@@ -49,7 +50,7 @@ const fetchPromise = function(options) {
   }
   modelOrCollection.fetch(options)
   return deferred.promise
-};
+}
 
 if (typeof Backbone.Collection.prototype.fetchPromise !== 'function') {
   Backbone.Collection.prototype.fetchPromise = fetchPromise

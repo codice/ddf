@@ -13,10 +13,10 @@
  *
  **/
 
-const wreqr = require('../../js/wreqr.js');
-const Marionette = require('marionette');
-const template = require('./upload-summary.hbs');
-const CustomElements = require('../../js/CustomElements.js');
+const wreqr = require('../../js/wreqr.js')
+const Marionette = require('marionette')
+const template = require('./upload-summary.hbs')
+const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.ItemView.extend({
   template: template,
@@ -43,33 +43,33 @@ module.exports = Marionette.ItemView.extend({
     this.handleInterrupted()
   },
   handleFileInfo: function() {
-    const amount = this.model.get('amount');
-    const complete = this.model.get('complete');
+    const amount = this.model.get('amount')
+    const complete = this.model.get('complete')
     this.$el
       .find('.info-files .files-text')
       .html(complete + ' / ' + amount + ' Completed')
   },
   handleSending: function() {
-    const sending = this.model.get('sending');
+    const sending = this.model.get('sending')
     this.$el.toggleClass('show-progress', sending)
   },
   handlePercentage: function() {
-    const percentage = this.model.get('percentage');
+    const percentage = this.model.get('percentage')
     this.$el.find('.summary-progress').css('width', percentage + '%')
     this.$el.find('.info-percentage').html(Math.floor(percentage) + '%')
   },
   handleError: function() {
-    const error = this.model.get('error');
+    const error = this.model.get('error')
     this.$el.toggleClass('has-error', error)
     this.$el.find('.error-message').html(this.model.escape('message'))
   },
   handleSuccess: function(file, response) {
-    const success = this.model.get('success');
+    const success = this.model.get('success')
     this.$el.toggleClass('has-success', success)
     this.$el.find('.success-message').html(this.model.escape('message'))
   },
   handleIssues: function() {
-    const issues = this.model.get('issues');
+    const issues = this.model.get('issues')
     this.$el.toggleClass('has-issues', issues > 0)
   },
   handleInterrupted: function() {
@@ -84,7 +84,7 @@ module.exports = Marionette.ItemView.extend({
     })
   },
   serializeData: function() {
-    const modelJSON = this.model.toJSON();
+    const modelJSON = this.model.toJSON()
     return modelJSON
   },
 })

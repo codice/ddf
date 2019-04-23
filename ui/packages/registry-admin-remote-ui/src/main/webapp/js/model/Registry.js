@@ -20,7 +20,7 @@ define([
   'underscore',
   'backboneassociation',
 ], function(Q, Service, Backbone, _) {
-  const Registry = {};
+  const Registry = {}
 
   Registry.ConfigurationList = Backbone.Collection.extend({
     model: Service.Configuration,
@@ -46,7 +46,7 @@ define([
   Registry.Collection = Backbone.Collection.extend({
     model: Registry.Model,
     addRegistry: function(configuration) {
-      const registry = new Registry.Model(configuration.get('properties'));
+      const registry = new Registry.Model(configuration.get('properties'))
       registry.addRegistryConfiguration(configuration)
 
       this.add(registry)
@@ -56,7 +56,7 @@ define([
       this.remove(registry)
     },
     comparator: function(model) {
-      const str = model.get('id') || '';
+      const str = model.get('id') || ''
       return str.toLowerCase()
     },
   })
@@ -65,14 +65,14 @@ define([
     initialize: function(options) {
       if (options.model) {
         this.model = options.model
-        const collection = new Registry.Collection();
+        const collection = new Registry.Collection()
         this.set({ collection: collection })
         this.listenTo(this.model, 'change', this.parseServiceModel)
       }
     },
     parseServiceModel: function() {
-      const resModel = this;
-      const collection = resModel.get('collection');
+      const resModel = this
+      const collection = resModel.get('collection')
       collection.reset()
       if (this.model.get('value')) {
         this.model.get('value').each(function(service) {
@@ -87,12 +87,12 @@ define([
       collection.trigger('reset')
     },
     getRegistryMetatypes: function() {
-      const resModel = this;
-      const metatypes = [];
+      const resModel = this
+      const metatypes = []
       if (resModel.model.get('value')) {
         resModel.model.get('value').each(function(service) {
-          const id = service.get('id');
-          const name = service.get('name');
+          const id = service.get('id')
+          const name = service.get('name')
           if (this.isRegistryName(id) || this.isRegistryName(name)) {
             metatypes.push(service)
           }
@@ -104,15 +104,15 @@ define([
       return val && val.indexOf('Registry') !== -1
     },
     getRegistryModel: function(initialModel) {
-      const resModel = this;
-      const serviceCollection = resModel.model.get('value');
+      const resModel = this
+      const serviceCollection = resModel.model.get('value')
       if (!initialModel) {
         initialModel = new Registry.Model()
       }
 
       if (serviceCollection) {
         serviceCollection.each(function(service) {
-          const config = new Service.Configuration({ service: service });
+          const config = new Service.Configuration({ service: service })
           config.set('fpid', config.get('fpid'))
           initialModel.addRegistryConfiguration(config)
         })
@@ -120,8 +120,8 @@ define([
       return initialModel
     },
     createDeletePromise: function(registry, config) {
-      const deferred = Q.defer();
-      const serviceModels = this.model.get('value');
+      const deferred = Q.defer()
+      const serviceModels = this.model.get('value')
       config
         .destroy()
         .done(function() {

@@ -61,8 +61,8 @@ function ddToWkt(dd) {
     return null
   }
 
-  let wkt = null;
-  const points = [];
+  let wkt = null
+  const points = []
   switch (dd.shape) {
     case 'point':
       wkt = ddPointToWkt(dd.point).toWkt()
@@ -188,7 +188,7 @@ function validateDd(dd) {
       }
       break
     case 'circle':
-      const radius = parseFloat(dd.circle.radius);
+      const radius = parseFloat(dd.circle.radius)
       if (
         isNaN(radius) ||
         radius <= 0 ||

@@ -21,7 +21,7 @@ define(['jquery'], function($) {
     init: function() {
       // use this function to initialize variables that rely on others
 
-      const props = this;
+      const props = this
 
       $.ajax({
         async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
@@ -69,7 +69,7 @@ define(['jquery'], function($) {
 
       return props
     },
-  };
+  }
 
   return properties.init()
 })

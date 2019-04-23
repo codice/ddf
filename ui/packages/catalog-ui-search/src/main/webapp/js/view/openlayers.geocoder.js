@@ -4,9 +4,9 @@ const wreqr = require('../wreqr.js')
 const geocoderTemplate = require('templates/geocoder.handlebars')
 const $ = require('jquery')
 
-const geocoder = {};
-const url = './internal/REST/v1/Locations';
-const geocoderModel = new Backbone.Model();
+const geocoder = {}
+const url = './internal/REST/v1/Locations'
+const geocoderModel = new Backbone.Model()
 geocoder.View = Marionette.ItemView.extend({
   template: geocoderTemplate,
   events: {
@@ -22,7 +22,7 @@ geocoder.View = Marionette.ItemView.extend({
     const searchBinding = Backbone.ModelBinder.createDefaultBindings(
       this.el,
       'name'
-    );
+    )
     this.modelBinder.bind(this.model, this.$el, searchBinding)
   },
   searchOnEnter: function(e) {
@@ -43,7 +43,7 @@ geocoder.View = Marionette.ItemView.extend({
     }
   },
   search: function() {
-    const view = this;
+    const view = this
     if (this.model.get('searchText')) {
       $.ajax({
         url: url,
@@ -59,7 +59,7 @@ geocoder.View = Marionette.ItemView.extend({
             )
             return
           }
-          const resourceSet = result.resourceSets[0];
+          const resourceSet = result.resourceSets[0]
           if (resourceSet.resources.length === 0) {
             view.model.set(
               'searchText',
@@ -67,13 +67,13 @@ geocoder.View = Marionette.ItemView.extend({
             )
             return
           }
-          const resource = resourceSet.resources[0];
+          const resource = resourceSet.resources[0]
           view.model.set('searchText', resource.name)
-          const bbox = resource.bbox;
-          const south = bbox[2];
-          const west = bbox[1];
-          const north = bbox[0];
-          const east = bbox[3];
+          const bbox = resource.bbox
+          const south = bbox[2]
+          const west = bbox[1]
+          const north = bbox[0]
+          const east = bbox[3]
           wreqr.vent.trigger('search:maprectanglefly', [
             [west, north],
             [east, south],

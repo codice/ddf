@@ -9,6 +9,6 @@ const WorkspaceContentTabs = Tabs.extend({
       Lists: WorkspaceListsView,
     },
   },
-});
+})
 
 module.exports = WorkspaceContentTabs

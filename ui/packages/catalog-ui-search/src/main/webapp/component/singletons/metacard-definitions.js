@@ -156,7 +156,7 @@ module.exports = new (Backbone.Model.extend({
     return false
   },
   addMetacardDefinitions: function(metacardDefinitions) {
-    let updated = false;
+    let updated = false
     for (const metacardDefinition in metacardDefinitions) {
       if (metacardDefinitions.hasOwnProperty(metacardDefinition)) {
         updated =
@@ -178,8 +178,8 @@ module.exports = new (Backbone.Model.extend({
     )
   },
   attributeComparator: function(a, b) {
-    const attrToCompareA = this.getLabel(a).toLowerCase();
-    const attrToCompareB = this.getLabel(b).toLowerCase();
+    const attrToCompareA = this.getLabel(a).toLowerCase()
+    const attrToCompareB = this.getLabel(b).toLowerCase()
     if (attrToCompareA < attrToCompareB) {
       return -1
     }
@@ -190,8 +190,8 @@ module.exports = new (Backbone.Model.extend({
   },
   sortMetacardTypes: function(metacardTypes) {
     return metacardTypes.sort(function(a, b) {
-      const attrToCompareA = (a.alias || a.id).toLowerCase();
-      const attrToCompareB = (b.alias || b.id).toLowerCase();
+      const attrToCompareA = (a.alias || a.id).toLowerCase()
+      const attrToCompareB = (b.alias || b.id).toLowerCase()
       if (attrToCompareA < attrToCompareB) {
         return -1
       }
@@ -199,7 +199,7 @@ module.exports = new (Backbone.Model.extend({
         return 1
       }
       return 0
-    });
+    })
   },
   updateSortedMetacardTypes: function() {
     this.sortedMetacardTypes = []
@@ -211,7 +211,7 @@ module.exports = new (Backbone.Model.extend({
     this.sortMetacardTypes(this.sortedMetacardTypes)
   },
   getLabel: function(id) {
-    const definition = this.metacardTypes[id];
+    const definition = this.metacardTypes[id]
     return definition ? definition.alias || id : id
   },
   getMetacardStartingTypes: function() {

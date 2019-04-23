@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Backbone = require('backbone');
+const Backbone = require('backbone')
 require('backbone-associations')
 const URITemplate = require('urijs/src/URITemplate')
 const DECODED_QUERY_ID_TEMPLATE = '{&queryId}'

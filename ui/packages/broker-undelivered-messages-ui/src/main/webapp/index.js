@@ -70,7 +70,7 @@ const operateOnData = (data, method) => {
             message => message.message.origin.length !== 0
           )
         )
-      : getSelectedIds(data);
+      : getSelectedIds(data)
   window
     .fetch('../jolokia/', {
       method: 'POST',

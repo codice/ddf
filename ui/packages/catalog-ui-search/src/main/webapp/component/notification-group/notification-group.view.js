@@ -13,13 +13,13 @@
  *
  **/
 
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
-const template = require('./notification-group.hbs');
-const NotificationListView = require('../notification-list/notification-list.view.js');
-const userNotifications = require('../singletons/user-notifications.js');
-const $ = require('jquery');
-const Common = require('../../js/Common.js');
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const template = require('./notification-group.hbs')
+const NotificationListView = require('../notification-list/notification-list.view.js')
+const userNotifications = require('../singletons/user-notifications.js')
+const $ = require('jquery')
+const Common = require('../../js/Common.js')
 
 function isEmpty(filter) {
   return userNotifications.filter(filter).length === 0
@@ -51,7 +51,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   handleEmpty: function() {
-    const empty = isEmpty(this.options.filter);
+    const empty = isEmpty(this.options.filter)
     if (empty) {
       this.$el.css('height', this.$el.height())
     } else {

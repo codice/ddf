@@ -37,7 +37,7 @@ define([
   textTypeList,
   checkboxTypeTemplate
 ) {
-  const ConfigurationEditView = {};
+  const ConfigurationEditView = {}
 
   if (!ich['configuration.configurationItem']) {
     ich.addTemplate('configuration.configurationItem', configurationItem)
@@ -72,7 +72,7 @@ define([
         const bindings = Backbone.ModelBinder.createDefaultBindings(
           this.el,
           'name'
-        );
+        )
         this.modelBinder.bind(this.model, this.$el, bindings)
       },
       onClose: function() {
@@ -114,7 +114,8 @@ define([
         this.listenTo(wreqr.vent, 'beforesave', this.saveValues)
       },
       updateValues: function() {
-        let csvVal, view = this;
+        let csvVal,
+          view = this
         if (
           this.configuration.get('properties') &&
           this.configuration.get('properties').get(this.model.get('id'))
@@ -139,7 +140,7 @@ define([
         }
       },
       saveValues: function() {
-        const values = [];
+        const values = []
         this.collectionArray.models.forEach(function(model) {
           values.push(model.get('value'))
         })
@@ -187,10 +188,10 @@ define([
      * Save all values properties into the sourceModal
      */
     serializeData: function() {
-      const modelJSON = this.model.toJSON();
+      const modelJSON = this.model.toJSON()
       let value = this.options.configuration
         .get('properties')
-        .get(this.model.get('id'));
+        .get(this.model.get('id'))
 
       if (modelJSON.type === 11) {
         if (value !== undefined) {
@@ -218,7 +219,7 @@ define([
       })
     },
     updateModel: function(e) {
-      const config = this.options.configuration;
+      const config = this.options.configuration
       config.get('properties').set(this.model.get('id'), e.target.value)
     },
   })
@@ -234,8 +235,8 @@ define([
         this.setupPopOvers()
       },
       buildItemView: function(item, ItemViewType, itemViewOptions) {
-        let view;
-        const configuration = this.options.configuration;
+        let view
+        const configuration = this.options.configuration
         this.collection.forEach(function(property) {
           if (item.get('id') === property.id) {
             if (property.description) {
@@ -254,7 +255,7 @@ define([
                 configuration: configuration,
               },
               itemViewOptions
-            );
+            )
 
             view = new ItemViewType(options)
           }
@@ -268,10 +269,11 @@ define([
        * Set up the popovers based on if the selector has a description.
        */
       setupPopOvers: function() {
-        const view = this;
+        const view = this
         this.service.get('metatype').forEach(function(each) {
           if (!_.isUndefined(each.get('description'))) {
-            let options, selector = ".description[data-title='" + each.id + "']";
+            let options,
+              selector = ".description[data-title='" + each.id + "']"
             options = {
               title: each.get('name'),
               content: each.get('description'),

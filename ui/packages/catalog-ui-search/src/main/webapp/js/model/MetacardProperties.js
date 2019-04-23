@@ -9,12 +9,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Backbone = require('backbone');
-const _ = require('underscore');
-const metacardDefinitions = require('../../component/singletons/metacard-definitions.js');
-const TurfMeta = require('@turf/meta');
-const wkx = require('wkx');
-const properties = require('../properties.js');
+const Backbone = require('backbone')
+const _ = require('underscore')
+const metacardDefinitions = require('../../component/singletons/metacard-definitions.js')
+const TurfMeta = require('@turf/meta')
+const wkx = require('wkx')
+const properties = require('../properties.js')
 require('backbone-associations')
 
 module.exports = Backbone.AssociatedModel.extend({

@@ -28,16 +28,16 @@ define([
     Backbone,
     Marionette
   ) {
-    const serviceModel = new Service.Response();
+    const serviceModel = new Service.Response()
     serviceModel.fetch()
 
     const sourceResponse = new Source.Response({
       model: serviceModel,
-    });
+    })
 
     const sourcePage = new SourceView.SourcePage({
       model: sourceResponse,
-    });
+    })
 
     // Define a controller to run this module
     // --------------------------------------
@@ -50,7 +50,7 @@ define([
       show: function() {
         this.region.show(sourcePage)
       },
-    });
+    })
 
     // Initialize this module when the app starts
     // ------------------------------------------

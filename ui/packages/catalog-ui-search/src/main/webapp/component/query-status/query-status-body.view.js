@@ -13,9 +13,9 @@
  *
  **/
 
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
-const RowView = require('./query-status-row.view');
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const RowView = require('./query-status-row.view')
 
 module.exports = Marionette.CollectionView.extend({
   tagName: CustomElements.register('query-status-tbody'),

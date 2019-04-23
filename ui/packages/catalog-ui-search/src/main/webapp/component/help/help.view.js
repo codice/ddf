@@ -22,8 +22,8 @@ const Dropdown = require('../dropdown/dropdown.js')
 const DropdownHintView = require('../dropdown/hint/dropdown.hint.view.js')
 const Hint = require('../hint/hint.js')
 
-const zeroScale = 'matrix(0, 0, 0, 0, 0, 0)';
-const zeroOpacity = '0';
+const zeroScale = 'matrix(0, 0, 0, 0, 0, 0)'
+const zeroOpacity = '0'
 
 // zeroScale to specifically to account for IE Edge Bug, see http://codepen.io/andrewkfiedler/pen/apBbxq
 // zeroOpacity to account for how browsers work
@@ -31,7 +31,7 @@ function isEffectivelyHidden(element) {
   if (element === document) {
     return false
   } else {
-    const computedStyle = window.getComputedStyle(element);
+    const computedStyle = window.getComputedStyle(element)
     if (
       computedStyle.transform === zeroScale ||
       computedStyle.opacity === zeroOpacity
@@ -49,7 +49,7 @@ function isOffsetParent(element) {
 }
 
 function traverseAncestors(element, compareValue, extractValue) {
-  let value = extractValue(element);
+  let value = extractValue(element)
   element = element.parentNode
   while (element !== null && element !== document) {
     if (isOffsetParent(element)) {
@@ -113,7 +113,7 @@ function findBlockers() {
     CustomElements.getNamespace() + 'dropdown-companion.is-open'
   )
     .add(CustomElements.getNamespace() + 'menu-vertical.is-open')
-    .add('.is-blocker');
+    .add('.is-blocker')
   return _.map(blockingElements, function(blockingElement) {
     return {
       boundingRect: blockingElement.getBoundingClientRect(),
@@ -153,17 +153,17 @@ function isBlocked(element, boundingRect) {
       blocker.element !== element &&
       $(blocker.element).find(element).length === 0
     ) {
-      const top = Math.max(blocker.boundingRect.top, boundingRect.top);
-      const bottom = Math.min(blocker.boundingRect.bottom, boundingRect.bottom);
-      const left = Math.max(blocker.boundingRect.left, boundingRect.left);
-      const right = Math.min(blocker.boundingRect.right, boundingRect.right);
-      const height = bottom - top;
-      const width = right - left;
+      const top = Math.max(blocker.boundingRect.top, boundingRect.top)
+      const bottom = Math.min(blocker.boundingRect.bottom, boundingRect.bottom)
+      const left = Math.max(blocker.boundingRect.left, boundingRect.left)
+      const right = Math.min(blocker.boundingRect.right, boundingRect.right)
+      const height = bottom - top
+      const width = right - left
       if (height > 0 && width > 0) {
         return true
       }
     }
-  });
+  })
 }
 
 module.exports = new (Marionette.LayoutView.extend({
@@ -206,16 +206,16 @@ module.exports = new (Marionette.LayoutView.extend({
     if (isEffectivelyHidden(element)) {
       return
     }
-    const boundingRect = element.getBoundingClientRect();
-    const top = Math.max(findHighestAncestorTop(element), boundingRect.top);
+    const boundingRect = element.getBoundingClientRect()
+    const top = Math.max(findHighestAncestorTop(element), boundingRect.top)
     const bottom = Math.min(
       findLowestAncestorBottom(element),
       boundingRect.bottom
-    );
-    const left = Math.max(findHighestAncestorLeft(element), boundingRect.left);
-    const right = Math.min(findLowestAncestorRight(element), boundingRect.right);
-    const height = bottom - top;
-    const width = right - left;
+    )
+    const left = Math.max(findHighestAncestorLeft(element), boundingRect.left)
+    const right = Math.min(findLowestAncestorRight(element), boundingRect.right)
+    const height = bottom - top
+    const width = right - left
     if (
       boundingRect.width > 0 &&
       height > 0 &&
@@ -232,7 +232,7 @@ module.exports = new (Marionette.LayoutView.extend({
         modelForComponent: new Hint({
           hint: element.getAttribute('data-help'),
         }),
-      });
+      })
       dropdownHintView.render()
       this.$el.append(dropdownHintView.$el)
       dropdownHintView.$el
@@ -245,7 +245,7 @@ module.exports = new (Marionette.LayoutView.extend({
   paintHints: function($elementsWithHints) {
     this.animationFrameId = window.requestAnimationFrame(
       function() {
-        const elements = $elementsWithHints.splice(0, 4);
+        const elements = $elementsWithHints.splice(0, 4)
         if (elements.length > 0) {
           elements.forEach(
             function(element) {
@@ -261,7 +261,7 @@ module.exports = new (Marionette.LayoutView.extend({
     this.removeOldHints()
     this.hintOn = true
     this.$el.addClass('is-shown')
-    let $elementsWithHints = $('[data-help]').not('.is-hidden [data-help]');
+    let $elementsWithHints = $('[data-help]').not('.is-hidden [data-help]')
     $elementsWithHints = _.shuffle($elementsWithHints)
     this.addUntoggleElement()
     this.paintHints($elementsWithHints)
@@ -273,13 +273,13 @@ module.exports = new (Marionette.LayoutView.extend({
     this.$el.removeClass('is-shown')
   },
   addUntoggleElement: function() {
-    const $untoggleElement = $('.navigation-item.item-help');
+    const $untoggleElement = $('.navigation-item.item-help')
     _.forEach(
       $untoggleElement,
       function(element) {
-        const $untoggleElementClone = $(element).clone(true);
+        const $untoggleElementClone = $(element).clone(true)
         this.$el.append($untoggleElementClone)
-        const boundingRect = element.getBoundingClientRect();
+        const boundingRect = element.getBoundingClientRect()
         $untoggleElementClone
           .css('height', boundingRect.height)
           .css('width', boundingRect.width)
@@ -314,7 +314,7 @@ module.exports = new (Marionette.LayoutView.extend({
     $(window).on(
       'keydown.' + this.cid,
       function(event) {
-        let code = event.keyCode;
+        let code = event.keyCode
         if (event.charCode && code == 0) code = event.charCode
         switch (code) {
           case 27:

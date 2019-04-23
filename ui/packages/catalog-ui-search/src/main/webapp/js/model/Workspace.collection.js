@@ -1,11 +1,11 @@
-const _ = require('underscore');
-const Backbone = require('backbone');
-const Query = require('./Query.js');
-const cql = require('../cql.js');
-const user = require('../../component/singletons/user-instance.js');
-const moment = require('moment');
+const _ = require('underscore')
+const Backbone = require('backbone')
+const Query = require('./Query.js')
+const cql = require('../cql.js')
+const user = require('../../component/singletons/user-instance.js')
+const moment = require('moment')
 require('backbone-associations')
-const WorkspaceModel = require('./Workspace.js');
+const WorkspaceModel = require('./Workspace.js')
 
 module.exports = Backbone.Collection.extend({
   model: WorkspaceModel,
@@ -19,7 +19,7 @@ module.exports = Backbone.Collection.extend({
     this.listenTo(this, 'sync', this.handleSync)
     this.handleUserChange()
     this.listenTo(user, 'change', this.handleUserChange)
-    const collection = this;
+    const collection = this
     collection.on('add', function(workspace) {
       workspace.on('change:lastModifiedDate', function() {
         collection.sort()
@@ -60,8 +60,8 @@ module.exports = Backbone.Collection.extend({
       .startSearch()
   },
   createAdhocWorkspace: function(text) {
-    let cqlQuery;
-    let title = text;
+    let cqlQuery
+    let title = text
     if (text.length === 0) {
       cqlQuery = "anyText ILIKE '%'"
       title = '*'
@@ -76,7 +76,7 @@ module.exports = Backbone.Collection.extend({
       title: title,
       cql: cqlQuery,
       type: 'text',
-    });
+    })
     this.create({
       title: 'New Workspace',
       queries: [queryForWorkspace.toJSON()],
@@ -92,7 +92,7 @@ module.exports = Backbone.Collection.extend({
       excludeUnnecessaryAttributes: false,
       cql: "anyText ILIKE '%'",
       type: 'basic',
-    });
+    })
     this.create({
       title: 'Template Local',
       queries: [queryForWorkspace.toJSON()],
@@ -108,7 +108,7 @@ module.exports = Backbone.Collection.extend({
       excludeUnnecessaryAttributes: false,
       cql: "anyText ILIKE '%'",
       type: 'basic',
-    });
+    })
     this.create({
       title: 'Template Federated',
       queries: [queryForWorkspace.toJSON()],
@@ -124,7 +124,7 @@ module.exports = Backbone.Collection.extend({
       cql:
         "anyText ILIKE '%' AND INTERSECTS(anyGeo, POLYGON((-130.7514 20.6825, -130.7514 44.5780, -65.1230 44.5780, -65.1230 20.6825, -130.7514 20.6825)))",
       type: 'basic',
-    });
+    })
     this.create({
       title: 'Template Location',
       queries: [queryForWorkspace.toJSON()],
@@ -144,7 +144,7 @@ module.exports = Backbone.Collection.extend({
           .toISOString() +
         ')',
       type: 'basic',
-    });
+    })
     this.create({
       title: 'Template Temporal',
       queries: [queryForWorkspace.toJSON()],
@@ -176,7 +176,7 @@ module.exports = Backbone.Collection.extend({
         blob[workspace.get('id')] = workspace.toJSON()
         return blob
       }, {})
-      .value();
+      .value()
 
     window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces))
   },
@@ -191,7 +191,7 @@ module.exports = Backbone.Collection.extend({
     }
   },
   getLocalWorkspaces: function() {
-    const localWorkspaces = window.localStorage.getItem('workspaces') || '{}';
+    const localWorkspaces = window.localStorage.getItem('workspaces') || '{}'
     try {
       return this.convert2_10Format(JSON.parse(localWorkspaces))
     } catch (e) {
@@ -201,7 +201,7 @@ module.exports = Backbone.Collection.extend({
   },
   // override parse to merge server response with local storage
   parse: function(resp) {
-    const localWorkspaces = _.map(this.getLocalWorkspaces());
+    const localWorkspaces = _.map(this.getLocalWorkspaces())
     return resp.concat(localWorkspaces)
   },
 })

@@ -25,7 +25,7 @@ const WorkspaceContentTabsView = TabsView.extend({
     }
   },
   determineContent: function() {
-    const activeTab = this.model.getActiveView();
+    const activeTab = this.model.getActiveView()
     this.tabsContent.show(
       new activeTab({
         selectionInterface: store,
@@ -43,6 +43,6 @@ const WorkspaceContentTabsView = TabsView.extend({
       this.model.set('activeTab', 'Search')
     }
   },
-});
+})
 
 module.exports = WorkspaceContentTabsView

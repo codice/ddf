@@ -1,19 +1,19 @@
-const net = require('net');
-const async = require('async');
+const net = require('net')
+const async = require('async')
 
 // compute range from start to end non-inclusive
 // => [start, start + 1, ... , end - 1]
 const range = function(start, end) {
   if (start === end) return []
   return [start].concat(range(start + 1, end))
-};
+}
 
-const startPort = 21000;
-const portRange = 10;
+const startPort = 21000
+const portRange = 10
 
 // bind a tcp socket to a given port
 const bind = function(port, done) {
-  const s = net.createServer();
+  const s = net.createServer()
 
   s.on('error', done)
   s.on('listening', done)
@@ -21,7 +21,7 @@ const bind = function(port, done) {
   s.listen(port)
 
   return s
-};
+}
 
 // check if a given port is avaiable by trying to binding and
 // unbinding
@@ -34,8 +34,8 @@ const available = function(port, done) {
         done(true)
       }).close()
     }
-  });
-};
+  })
+}
 
 // try 'allocating' a range of ports by using convention.
 // NOTE: don't unbind from the port until process exits; this
@@ -47,7 +47,7 @@ const allocatePorts = function(port, done) {
       return done(err)
     }
 
-    const ports = range(port + 1, port + portRange);
+    const ports = range(port + 1, port + portRange)
 
     // sweep ports for a quick check that they are all
     // actually free
@@ -60,10 +60,10 @@ const allocatePorts = function(port, done) {
         done(null, ports)
       }
     })
-  });
-};
+  })
+}
 
-const maxPortStart = 65535 - portRange;
+const maxPortStart = 65535 - portRange
 
 // retry port allocation going up by increments of portRange
 const retryAllocate = function(port, done) {
@@ -78,7 +78,7 @@ const retryAllocate = function(port, done) {
       }
     })
   }
-};
+}
 
 // returns an array of available ports
 module.exports = function(done) {

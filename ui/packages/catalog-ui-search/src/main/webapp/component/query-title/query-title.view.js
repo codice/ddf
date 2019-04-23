@@ -13,11 +13,11 @@
  *
  **/
 
-const Marionette = require('marionette');
-const _ = require('underscore');
-const CustomElements = require('../../js/CustomElements.js');
-const SearchInteractionsDropdownView = require('../dropdown/search-interactions/dropdown.search-interactions.view.js');
-const DropdownModel = require('../dropdown/dropdown.js');
+const Marionette = require('marionette')
+const _ = require('underscore')
+const CustomElements = require('../../js/CustomElements.js')
+const SearchInteractionsDropdownView = require('../dropdown/search-interactions/dropdown.search-interactions.view.js')
+const DropdownModel = require('../dropdown/dropdown.js')
 const React = require('react')
 
 const zeroWidthSpace = '\u200B'
@@ -79,7 +79,7 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.find('input').focus()
   },
   getSearchTitle: function() {
-    const title = this.$el.find('input').val();
+    const title = this.$el.find('input').val()
     return title !== '' ? title : 'Search Name'
   },
   handleTitleUpdate: function() {

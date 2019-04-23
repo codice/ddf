@@ -12,7 +12,7 @@ const latitudeDMSMask = function(rawValue) {
     const intDecimalPair = seconds.split('.')
     if (intDecimalPair.length > 1) {
       const decimalPlaces = intDecimalPair[1].length
-      const array = new Array(decimalPlaces + 2);
+      const array = new Array(decimalPlaces + 2)
       array[0] = /\./
       array.fill(/\d/, 1, decimalPlaces + 1)
       array[decimalPlaces + 1] = '"'
@@ -34,7 +34,7 @@ const longitudeDMSMask = function(rawValue) {
     const intDecimalPair = seconds.split('.')
     if (intDecimalPair.length > 1) {
       const decimalPlaces = intDecimalPair[1].length
-      const array = new Array(decimalPlaces + 2);
+      const array = new Array(decimalPlaces + 2)
       array[0] = /\./
       array.fill(/\d/, 1, decimalPlaces + 1)
       array[decimalPlaces + 1] = '"'

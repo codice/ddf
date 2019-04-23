@@ -1,9 +1,9 @@
-const template = require('./combined-map.hbs');
-const Marionette = require('marionette');
-const CustomElements = require('../../../js/CustomElements.js');
-const CesiumView = require('../maps/cesium/cesium.view.js');
-const OpenlayersView = require('../maps/openlayers/openlayers.view.js');
-const featureDetection = require('../../singletons/feature-detection.js');
+const template = require('./combined-map.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('../../../js/CustomElements.js')
+const CesiumView = require('../maps/cesium/cesium.view.js')
+const OpenlayersView = require('../maps/openlayers/openlayers.view.js')
+const featureDetection = require('../../singletons/feature-detection.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('combined-map'),

@@ -13,9 +13,9 @@
  *
  **/
 
-const template = require('./table.hbs');
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
+const template = require('./table.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
 
 function moveHeaders(elementToUpdate, elementToMatch) {
   this.$el

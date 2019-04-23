@@ -13,25 +13,25 @@
  *
  **/
 
-const _ = require('underscore');
-const _merge = require('lodash/merge');
-const _debounce = require('lodash/debounce');
-const $ = require('jquery');
-const wreqr = require('../../js/wreqr.js');
-const template = require('./golden-layout.hbs');
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
-const GoldenLayout = require('golden-layout');
-const properties = require('../../js/properties.js');
-const TableView = require('../visualization/table/table-viz.view.js');
-const InspectorView = require('../visualization/inspector/inspector.view.js');
-const HistogramView = require('../visualization/histogram/histogram.view.js');
-const LowBandwidthMapView = require('../visualization/low-bandwidth-map/low-bandwidth-map.view.js');
-const Common = require('../../js/Common.js');
-const store = require('../../js/store.js');
-const user = require('../singletons/user-instance.js');
-const VisualizationDropdown = require('../dropdown/visualization-selector/dropdown.visualization-selector.view.js');
-const DropdownModel = require('../dropdown/dropdown.js');
+const _ = require('underscore')
+const _merge = require('lodash/merge')
+const _debounce = require('lodash/debounce')
+const $ = require('jquery')
+const wreqr = require('../../js/wreqr.js')
+const template = require('./golden-layout.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const GoldenLayout = require('golden-layout')
+const properties = require('../../js/properties.js')
+const TableView = require('../visualization/table/table-viz.view.js')
+const InspectorView = require('../visualization/inspector/inspector.view.js')
+const HistogramView = require('../visualization/histogram/histogram.view.js')
+const LowBandwidthMapView = require('../visualization/low-bandwidth-map/low-bandwidth-map.view.js')
+const Common = require('../../js/Common.js')
+const store = require('../../js/store.js')
+const user = require('../singletons/user-instance.js')
+const VisualizationDropdown = require('../dropdown/visualization-selector/dropdown.visualization-selector.view.js')
+const DropdownModel = require('../dropdown/dropdown.js')
 const sanitize = require('sanitize-html')
 
 const treeMap = (obj, fn, path = []) => {
@@ -80,21 +80,21 @@ const defaultGoldenLayoutContent = {
       ],
     },
   ],
-};
+}
 
 function getGoldenLayoutSettings() {
-  const minimumScreenSize = 20; //20 rem or 320px at base font size
+  const minimumScreenSize = 20 //20 rem or 320px at base font size
   const fontSize = parseInt(
     user
       .get('user')
       .get('preferences')
       .get('fontSize')
-  );
+  )
   const theme = user
     .get('user')
     .get('preferences')
     .get('theme')
-    .getTheme();
+    .getTheme()
   return {
     settings: {
       showPopoutIcon: false,
@@ -119,7 +119,7 @@ function registerComponent(
   ComponentView,
   componentOptions
 ) {
-  const options = _.extend({}, marionetteView.options, componentOptions);
+  const options = _.extend({}, marionetteView.options, componentOptions)
   marionetteView.goldenLayout.registerComponent(name, function(
     container,
     componentState
@@ -130,7 +130,7 @@ function registerComponent(
           _.extend({}, options, componentState, {
             container: container,
           })
-        );
+        )
         container.getElement().append(componentView.el)
         componentView.render()
         container.on('destroy', () => {
@@ -208,7 +208,7 @@ module.exports = Marionette.LayoutView.extend({
     this.options.selectionInterface = options.selectionInterface || store
   },
   updateFontSize: function() {
-    const goldenLayoutSettings = getGoldenLayoutSettings();
+    const goldenLayoutSettings = getGoldenLayoutSettings()
     this.goldenLayout.config.dimensions.borderWidth =
       goldenLayoutSettings.dimensions.borderWidth
     this.goldenLayout.config.dimensions.minItemHeight =
@@ -253,7 +253,7 @@ module.exports = Marionette.LayoutView.extend({
     let currentConfig = user
       .get('user')
       .get('preferences')
-      .get(this.options.configName);
+      .get(this.options.configName)
     if (currentConfig === undefined) {
       currentConfig = defaultGoldenLayoutContent
     }
@@ -300,7 +300,7 @@ module.exports = Marionette.LayoutView.extend({
     this.detectIfGoldenLayoutEmpty()
     //https://github.com/deepstreamIO/golden-layout/issues/253
     if (this.goldenLayout.isInitialised) {
-      const currentConfig = this.goldenLayout.toConfig();
+      const currentConfig = this.goldenLayout.toConfig()
       removeEphemeralState(currentConfig)
       user
         .get('user')

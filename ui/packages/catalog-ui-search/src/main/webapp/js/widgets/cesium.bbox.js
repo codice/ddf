@@ -19,7 +19,7 @@ const NotificationView = require('./notification.view')
 const DistanceUtils = require('../DistanceUtils.js')
 const DrawingController = require('./drawing.controller')
 
-const Draw = {};
+const Draw = {}
 
 Draw.BboxModel = Backbone.Model.extend({
   defaults: {
@@ -29,7 +29,7 @@ Draw.BboxModel = Backbone.Model.extend({
     south: undefined,
   },
 })
-const defaultAttrs = ['north', 'east', 'west', 'south'];
+const defaultAttrs = ['north', 'east', 'west', 'south']
 Draw.BboxView = Marionette.View.extend({
   initialize: function() {
     this.mouseHandler = new Cesium.ScreenSpaceEventHandler(
@@ -42,7 +42,7 @@ Draw.BboxView = Marionette.View.extend({
     )
   },
   enableInput: function() {
-    const controller = this.options.map.scene.screenSpaceCameraController;
+    const controller = this.options.map.scene.screenSpaceCameraController
     controller.enableTranslate = true
     controller.enableZoom = true
     controller.enableRotate = true
@@ -50,7 +50,7 @@ Draw.BboxView = Marionette.View.extend({
     controller.enableLook = true
   },
   disableInput: function() {
-    const controller = this.options.map.scene.screenSpaceCameraController;
+    const controller = this.options.map.scene.screenSpaceCameraController
     controller.enableTranslate = false
     controller.enableZoom = false
     controller.enableRotate = false
@@ -58,7 +58,9 @@ Draw.BboxView = Marionette.View.extend({
     controller.enableLook = false
   },
   setModelFromClicks: function(mn, mx) {
-    let e = new Cesium.Rectangle(), epsilon = Cesium.Math.EPSILON14, modelProps;
+    let e = new Cesium.Rectangle(),
+      epsilon = Cesium.Math.EPSILON14,
+      modelProps
 
     if (!this.lastLongitude) {
       this.crossDateLine = false
@@ -174,8 +176,8 @@ Draw.BboxView = Marionette.View.extend({
   },
 
   modelToRectangle: function(model) {
-    const toRad = Cesium.Math.toRadians;
-    const obj = model.toJSON();
+    const toRad = Cesium.Math.toRadians
+    const obj = model.toJSON()
     if (
       _.every(defaultAttrs, function(val) {
         return _.isUndefined(obj[val])
@@ -191,7 +193,7 @@ Draw.BboxView = Marionette.View.extend({
     _.each(obj, function(val, key) {
       obj[key] = toRad(val)
     })
-    const rectangle = new Cesium.Rectangle();
+    const rectangle = new Cesium.Rectangle()
     if (
       obj.north === undefined ||
       isNaN(obj.north) ||
@@ -213,7 +215,7 @@ Draw.BboxView = Marionette.View.extend({
   },
 
   updatePrimitive: function(model) {
-    const rectangle = this.modelToRectangle(model);
+    const rectangle = this.modelToRectangle(model)
     // make sure the current model has width and height before drawing
     if (
       rectangle &&
@@ -230,7 +232,7 @@ Draw.BboxView = Marionette.View.extend({
   },
 
   updateGeometry: function(model) {
-    const rectangle = this.modelToRectangle(model);
+    const rectangle = this.modelToRectangle(model)
     if (
       rectangle &&
       !_.isUndefined(rectangle) &&
@@ -274,9 +276,9 @@ Draw.BboxView = Marionette.View.extend({
       [rectangle.west, rectangle.south],
       [rectangle.east, rectangle.south],
       [rectangle.east, rectangle.north],
-    ];
+    ]
 
-    const color = this.model.get('color');
+    const color = this.model.get('color')
 
     this.primitive = new Cesium.PolylineCollection()
     this.primitive.add({
@@ -320,10 +322,10 @@ Draw.BboxView = Marionette.View.extend({
   },
   handleRegionInter: function(movement) {
     let cartesian = this.options.map.scene.camera.pickEllipsoid(
-            movement.endPosition,
-            this.options.map.scene.globe.ellipsoid
-          ),
-        cartographic;
+        movement.endPosition,
+        this.options.map.scene.globe.ellipsoid
+      ),
+      cartographic
     if (cartesian) {
       cartographic = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(
         cartesian
@@ -333,10 +335,10 @@ Draw.BboxView = Marionette.View.extend({
   },
   handleRegionStart: function(movement) {
     const cartesian = this.options.map.scene.camera.pickEllipsoid(
-              movement.position,
-              this.options.map.scene.globe.ellipsoid
-            ),
-          that = this;
+        movement.position,
+        this.options.map.scene.globe.ellipsoid
+      ),
+      that = this
     if (cartesian) {
       // var that = this;
       this.click1 = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(
@@ -355,7 +357,7 @@ Draw.BboxView = Marionette.View.extend({
   start: function() {
     this.disableInput()
 
-    const that = this;
+    const that = this
 
     // Now wait for start
     this.mouseHandler.setInputAction(function(movement) {
@@ -387,9 +389,9 @@ Draw.Controller = DrawingController.extend({
   drawingType: 'bbox',
   show: function(model) {
     if (this.enabled) {
-      const bboxModel = model || new Draw.BboxModel();
+      const bboxModel = model || new Draw.BboxModel()
 
-      const existingView = this.getViewForModel(model);
+      const existingView = this.getViewForModel(model)
       if (existingView) {
         existingView.drawStop()
         existingView.destroyPrimitive()
@@ -398,7 +400,7 @@ Draw.Controller = DrawingController.extend({
         const view = new Draw.BboxView({
           map: this.options.map,
           model: bboxModel,
-        });
+        })
         view.updatePrimitive(model)
         this.addView(view)
       }
@@ -408,13 +410,13 @@ Draw.Controller = DrawingController.extend({
   },
   draw: function(model) {
     if (this.enabled) {
-      const bboxModel = model || new Draw.BboxModel();
+      const bboxModel = model || new Draw.BboxModel()
       const view = new Draw.BboxView({
         map: this.options.map,
         model: bboxModel,
-      });
+      })
 
-      const existingView = this.getViewForModel(model);
+      const existingView = this.getViewForModel(model)
       if (existingView) {
         existingView.stop()
         existingView.destroyPrimitive()

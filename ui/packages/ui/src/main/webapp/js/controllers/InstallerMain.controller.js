@@ -22,7 +22,7 @@ define(['backbone.marionette', 'js/models/InstallProfile', 'q'], function(
     installProfiles: null,
 
     fetchInstallProfiles: function() {
-      const defer = Q.defer();
+      const defer = Q.defer()
 
       if (this.installProfiles) {
         defer.resolve(this.installProfiles)
@@ -43,7 +43,7 @@ define(['backbone.marionette', 'js/models/InstallProfile', 'q'], function(
 
       return defer.promise
     },
-  });
+  })
 
   return InstallMainController
 })

@@ -23,7 +23,7 @@ define([
   'wreqr',
   'backboneassociation',
 ], function(Backbone, _, FieldDescriptors, Segment, Association, $, wreqr) {
-  const Node = {};
+  const Node = {}
 
   Node.Model = Backbone.Model.extend({
     url:
@@ -45,7 +45,7 @@ define([
       this.initializeData()
     },
     initializeData: function() {
-      const model = this;
+      const model = this
       if (!model.get('id')) {
         model.set('id', 'temp-id') //this id will be replaced on the server with a real uuid
       }
@@ -62,7 +62,7 @@ define([
         model.get('RegistryObjectList').ExtrinsicObject = []
       }
 
-      const nodeDef = this.getObjectOfType('urn:registry:federation:node');
+      const nodeDef = this.getObjectOfType('urn:registry:federation:node')
       if (!nodeDef || nodeDef.length === 0) {
         model.get('RegistryObjectList').ExtrinsicObject.push({
           id: 'urn:registry:node',
@@ -151,11 +151,11 @@ define([
         associationModel: this.associationModel,
       })
       this.contentInfo.constructTitle = FieldDescriptors.constructNameTitle
-      const extrinsics = this.get('RegistryObjectList').ExtrinsicObject;
+      const extrinsics = this.get('RegistryObjectList').ExtrinsicObject
       const contentOnly = _.without(
         extrinsics,
         _.findWhere(extrinsics, { objectType: 'urn:registry:federation:node' })
-      );
+      )
       this.contentInfo.populateFromModel(contentOnly, this.descriptors)
 
       this.associationModel
@@ -180,7 +180,7 @@ define([
       this.organizationInfo.saveData()
       this.contactInfo.saveData()
       this.contentInfo.saveData()
-      const model = this;
+      const model = this
       model.get('RegistryObjectList').ExtrinsicObject = [
         this.generalInfo.get('backingData')[0],
       ]
@@ -196,7 +196,7 @@ define([
       }
     },
     validate: function() {
-      const errors = [];
+      const errors = []
       this.appendErrors(errors, this.generalInfo.validate())
       this.appendErrors(errors, this.serviceInfo.validate())
       this.appendErrors(errors, this.organizationInfo.validate())
@@ -241,7 +241,7 @@ define([
         this,
         'createLocalEntry(java.util.Map)',
         options
-      );
+      )
       response.addOperation = true
       return response
     },
@@ -258,7 +258,7 @@ define([
         type: 'EXEC',
         mbean: 'org.codice.ddf.registry:type=FederationAdminMBean',
         operation: operation,
-      };
+      }
       data.arguments = [args]
       data = JSON.stringify(data)
       const response = $.ajax({
@@ -279,16 +279,16 @@ define([
           if (options.error) {
             options.error(error)
           }
-        });
+        })
       return response
     },
     getObjectOfType: function(type) {
-      const foundObjects = [];
-      let prop;
-      const registryList = this.get('RegistryObjectList');
+      const foundObjects = []
+      let prop
+      const registryList = this.get('RegistryObjectList')
       for (prop in registryList) {
         if (registryList.hasOwnProperty(prop)) {
-          const objArray = registryList[prop];
+          const objArray = registryList[prop]
           for (let i = 0; i < objArray.length; i++) {
             if (objArray[i].objectType === type) {
               foundObjects.push(objArray[i])
@@ -339,7 +339,7 @@ define([
     getIdentityNode: function() {
       const array = this.models.filter(function(model) {
         return model.get('identityNode')
-      });
+      })
       if (array.length === 1) {
         return array[0]
       }
@@ -351,14 +351,14 @@ define([
       })
     },
     deleteNodes: function(nodes) {
-      const mbean = 'org.codice.ddf.registry:type=FederationAdminMBean';
-      const operation = 'deleteLocalEntry';
+      const mbean = 'org.codice.ddf.registry:type=FederationAdminMBean'
+      const operation = 'deleteLocalEntry'
 
       let data = {
         type: 'EXEC',
         mbean: mbean,
         operation: operation,
-      };
+      }
 
       data.arguments = [nodes]
       data = JSON.stringify(data)

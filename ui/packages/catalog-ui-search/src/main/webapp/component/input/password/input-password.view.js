@@ -1,4 +1,4 @@
-const InputView = require('../input.view');
+const InputView = require('../input.view')
 import * as React from 'react'
 import InputPassword from './input-password'
 

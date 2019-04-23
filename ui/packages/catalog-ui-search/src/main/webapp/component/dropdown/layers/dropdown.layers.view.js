@@ -1,7 +1,7 @@
-const DropdownView = require('../dropdown.view');
-const template = require('./dropdown.layers.hbs');
-const LayersView = require('../../layers/layers.view.js');
-const user = require('../../singletons/user-instance.js');
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.layers.hbs')
+const LayersView = require('../../layers/layers.view.js')
+const user = require('../../singletons/user-instance.js')
 
 module.exports = DropdownView.extend({
   template: template,

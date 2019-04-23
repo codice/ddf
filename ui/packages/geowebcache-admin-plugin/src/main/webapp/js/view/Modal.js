@@ -26,7 +26,7 @@ define(['backbone.marionette'], function(Marionette) {
     initialize: function() {
       // destroy view after animation completes.
       // extending views must call: Modal.prototype.initialize.apply(this, arguments);
-      const view = this;
+      const view = this
       this.$el.one('hidden.bs.modal', function() {
         view.destroy()
       })
@@ -40,6 +40,6 @@ define(['backbone.marionette'], function(Marionette) {
     hide: function() {
       this.$el.modal('hide')
     },
-  });
+  })
   return BaseModal
 })

@@ -13,14 +13,14 @@
  *
  **/
 
-const Marionette = require('marionette');
-const template = require('./filter-builder.hbs');
-const CustomElements = require('../../js/CustomElements.js');
-const FilterCollectionView = require('../filter/filter.collection.view.js');
-const FilterView = require('../filter/filter.view.js');
-const cql = require('../../js/cql.js');
-const DropdownView = require('../dropdown/dropdown.view.js');
-const CQLUtils = require('../../js/CQLUtils.js');
+const Marionette = require('marionette')
+const template = require('./filter-builder.hbs')
+const CustomElements = require('../../js/CustomElements.js')
+const FilterCollectionView = require('../filter/filter.collection.view.js')
+const FilterView = require('../filter/filter.view.js')
+const cql = require('../../js/cql.js')
+const DropdownView = require('../dropdown/dropdown.view.js')
+const CQLUtils = require('../../js/CQLUtils.js')
 
 import { serialize, deserialize } from './filter-serialization'
 
@@ -133,7 +133,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   transformToCql: function() {
     this.deleteInvalidFilters()
-    const filter = this.getFilters();
+    const filter = this.getFilters()
     if (filter.filters.length === 0) {
       return '("anyText" ILIKE \'%\')'
     } else {
@@ -163,7 +163,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   handleEditing: function() {
-    const isEditing = this.$el.hasClass('is-editing');
+    const isEditing = this.$el.hasClass('is-editing')
     if (isEditing) {
       this.turnOnEditing()
     } else {

@@ -119,7 +119,7 @@ module.exports = Marionette.LayoutView.extend({
       function(element) {
         return element.offsetParent !== null
       }
-    );
+    )
     if (tabbable.length > 0) {
       $(tabbable[0]).focus()
     }

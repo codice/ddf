@@ -35,7 +35,7 @@ define([
   ich.addTemplate('associationList', associationList)
   ich.addTemplate('associationRow', associationRow)
 
-  const Association = {};
+  const Association = {}
 
   Association.AssociationView = Marionette.ItemView.extend({
     template: 'associationRow',
@@ -53,7 +53,7 @@ define([
       )
     },
     serializeData: function() {
-      let data = {};
+      let data = {}
 
       if (this.model) {
         data = this.model.toJSON()
@@ -97,7 +97,7 @@ define([
       this.setupPopOvers()
     },
     serializeData: function() {
-      const data = {};
+      const data = {}
       data.availableAssociation = this.model.getAvailableAssociationSegments(
         this.parentId
       )
@@ -109,13 +109,13 @@ define([
       this.collection.remove(this.model.removeAssociation(associationId))
     },
     addAssociation: function() {
-      const selectedOption = this.$('.association-selector').find(':selected');
+      const selectedOption = this.$('.association-selector').find(':selected')
       if (selectedOption.length === 1) {
         const addedItem = this.model.addAssociation(
           this.parentId,
           selectedOption.attr('name'),
           'AssociatedWith'
-        );
+        )
         this.collection.add(addedItem)
       }
     },
@@ -125,7 +125,7 @@ define([
           model.get('sourceId') === association.get('segmentId') ||
           model.get('targetId') === association.get('segmentId')
         )
-      });
+      })
       if (seg) {
         this.collection.remove(seg)
       }
@@ -135,8 +135,9 @@ define([
      * Set up the popovers based on if the selector has a description.
      */
     setupPopOvers: function() {
-      const view = this;
-      let options, selector = '.description';
+      const view = this
+      let options,
+        selector = '.description'
       options = {
         trigger: 'hover',
       }
@@ -149,7 +150,7 @@ define([
           readOnly: this.readOnly,
         },
         itemViewOptions
-      );
+      )
       return new ItemViewType(options)
     },
   })

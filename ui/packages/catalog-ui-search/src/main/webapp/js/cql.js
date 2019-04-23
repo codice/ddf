@@ -17,150 +17,150 @@
 const moment = require('moment')
 
 const comparisonClass = 'Comparison',
-      logicalClass = 'Logical',
-      spatialClass = 'Spatial',
-      temporalClass = 'Temporal',
-      timePatter = /([0-9]{4})(-([0-9]{2})(-([0-9]{2})(T([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?/i,
-      patterns = {
-        //Allows for non-standard single-quoted property names
-        PROPERTY: /^([_a-zA-Z]\w*|"[^"]+"|'[^']+')/,
-        COMPARISON: /^(=|<>|<=|<|>=|>|LIKE|ILIKE)/i,
-        IS_NULL: /^IS NULL/i,
-        COMMA: /^,/,
-        LOGICAL: /^(AND|OR)/i,
-        VALUE: /^('([^']|'')*'|-?\d+(\.\d*)?|\.\d+)/,
-        FILTER_FUNCTION: /^[a-z]\w+\(/,
-        BOOLEAN: /^(false|true)/i,
-        LPAREN: /^\(/,
-        RPAREN: /^\)/,
-        SPATIAL: /^(BBOX|INTERSECTS|DWITHIN|WITHIN|CONTAINS)/i,
-        UNITS: /^(meters)/i,
-        NOT: /^NOT/i,
-        BETWEEN: /^BETWEEN/i,
-        BEFORE: /^BEFORE/i,
-        AFTER: /^AFTER/i,
-        DURING: /^DURING/i,
-        RELATIVE: /^'RELATIVE\([A-Za-z0-9.]*\)'/i,
-        TIME: new RegExp('^' + timePatter.source),
-        TIME_PERIOD: new RegExp('^' + timePatter.source + '/' + timePatter.source),
-        GEOMETRY: function(text) {
-          const type = /^(POINT|LINESTRING|POLYGON|MULTIPOINT|MULTILINESTRING|MULTIPOLYGON|GEOMETRYCOLLECTION)/.exec(
-            text
-          );
-          if (type) {
-            const len = text.length;
-            let idx = text.indexOf('(', type[0].length);
-            if (idx > -1) {
-              let depth = 1;
-              while (idx < len && depth > 0) {
-                idx++
-                switch (text.charAt(idx)) {
-                  case '(':
-                    depth++
-                    break
-                  case ')':
-                    depth--
-                    break
-                  default:
-                  // in default case, do nothing
-                }
-              }
+  logicalClass = 'Logical',
+  spatialClass = 'Spatial',
+  temporalClass = 'Temporal',
+  timePatter = /([0-9]{4})(-([0-9]{2})(-([0-9]{2})(T([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?/i,
+  patterns = {
+    //Allows for non-standard single-quoted property names
+    PROPERTY: /^([_a-zA-Z]\w*|"[^"]+"|'[^']+')/,
+    COMPARISON: /^(=|<>|<=|<|>=|>|LIKE|ILIKE)/i,
+    IS_NULL: /^IS NULL/i,
+    COMMA: /^,/,
+    LOGICAL: /^(AND|OR)/i,
+    VALUE: /^('([^']|'')*'|-?\d+(\.\d*)?|\.\d+)/,
+    FILTER_FUNCTION: /^[a-z]\w+\(/,
+    BOOLEAN: /^(false|true)/i,
+    LPAREN: /^\(/,
+    RPAREN: /^\)/,
+    SPATIAL: /^(BBOX|INTERSECTS|DWITHIN|WITHIN|CONTAINS)/i,
+    UNITS: /^(meters)/i,
+    NOT: /^NOT/i,
+    BETWEEN: /^BETWEEN/i,
+    BEFORE: /^BEFORE/i,
+    AFTER: /^AFTER/i,
+    DURING: /^DURING/i,
+    RELATIVE: /^'RELATIVE\([A-Za-z0-9.]*\)'/i,
+    TIME: new RegExp('^' + timePatter.source),
+    TIME_PERIOD: new RegExp('^' + timePatter.source + '/' + timePatter.source),
+    GEOMETRY: function(text) {
+      const type = /^(POINT|LINESTRING|POLYGON|MULTIPOINT|MULTILINESTRING|MULTIPOLYGON|GEOMETRYCOLLECTION)/.exec(
+        text
+      )
+      if (type) {
+        const len = text.length
+        let idx = text.indexOf('(', type[0].length)
+        if (idx > -1) {
+          let depth = 1
+          while (idx < len && depth > 0) {
+            idx++
+            switch (text.charAt(idx)) {
+              case '(':
+                depth++
+                break
+              case ')':
+                depth--
+                break
+              default:
+              // in default case, do nothing
             }
-            return [text.substr(0, idx + 1)]
           }
-        },
-        END: /^$/,
-      },
-      follows = {
-        ROOT_NODE: [
-          'NOT',
-          'GEOMETRY',
-          'SPATIAL',
-          'FILTER_FUNCTION',
-          'PROPERTY',
-          'LPAREN',
-        ],
-        LPAREN: [
-          'NOT',
-          'GEOMETRY',
-          'SPATIAL',
-          'FILTER_FUNCTION',
-          'PROPERTY',
-          'VALUE',
-          'LPAREN',
-        ],
-        RPAREN: ['NOT', 'LOGICAL', 'END', 'RPAREN', 'COMPARISON', 'COMMA'],
-        PROPERTY: [
-          'COMPARISON',
-          'BETWEEN',
-          'COMMA',
-          'IS_NULL',
-          'BEFORE',
-          'AFTER',
-          'DURING',
-          'RPAREN',
-        ],
-        BETWEEN: ['VALUE'],
-        IS_NULL: ['RPAREN', 'LOGICAL', '[', ']'],
-        COMPARISON: ['RELATIVE', 'VALUE', 'BOOLEAN'],
-        COMMA: ['FILTER_FUNCTION', 'GEOMETRY', 'VALUE', 'UNITS', 'PROPERTY'],
-        VALUE: ['LOGICAL', 'COMMA', 'RPAREN', 'END'],
-        BOOLEAN: ['RPAREN'],
-        SPATIAL: ['LPAREN'],
-        UNITS: ['RPAREN'],
-        LOGICAL: [
-          'FILTER_FUNCTION',
-          'NOT',
-          'VALUE',
-          'SPATIAL',
-          'PROPERTY',
-          'LPAREN',
-        ],
-        NOT: ['PROPERTY', 'LPAREN'],
-        GEOMETRY: ['COMMA', 'RPAREN'],
-        BEFORE: ['TIME'],
-        AFTER: ['TIME'],
-        DURING: ['TIME_PERIOD'],
-        TIME: ['LOGICAL', 'RPAREN', 'END'],
-        TIME_PERIOD: ['LOGICAL', 'RPAREN', 'END'],
-        RELATIVE: ['RPAREN'],
-        FILTER_FUNCTION: ['LPAREN', 'PROPERTY', 'VALUE', 'RPAREN'],
-      },
-      precedence = {
-        RPAREN: 3,
-        LOGICAL: 2,
-        COMPARISON: 1,
-      },
-      classes = {
-        '=': comparisonClass,
-        '<>': comparisonClass,
-        '<': comparisonClass,
-        '<=': comparisonClass,
-        '>': comparisonClass,
-        '>=': comparisonClass,
-        LIKE: comparisonClass,
-        ILIKE: comparisonClass,
-        BETWEEN: comparisonClass,
-        'IS NULL': comparisonClass,
-        AND: logicalClass,
-        OR: logicalClass,
-        NOT: logicalClass,
-        BBOX: spatialClass,
-        INTERSECTS: spatialClass,
-        DWITHIN: spatialClass,
-        WITHIN: spatialClass,
-        CONTAINS: spatialClass,
-        GEOMETRY: spatialClass,
-        BEFORE: temporalClass,
-        AFTER: temporalClass,
-        DURING: temporalClass,
-      },
-      // as an improvement, these could be figured out while building the syntax tree
-      filterFunctionParamCount = {
-        proximity: 3,
-        pi: 0,
-      },
-      dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        }
+        return [text.substr(0, idx + 1)]
+      }
+    },
+    END: /^$/,
+  },
+  follows = {
+    ROOT_NODE: [
+      'NOT',
+      'GEOMETRY',
+      'SPATIAL',
+      'FILTER_FUNCTION',
+      'PROPERTY',
+      'LPAREN',
+    ],
+    LPAREN: [
+      'NOT',
+      'GEOMETRY',
+      'SPATIAL',
+      'FILTER_FUNCTION',
+      'PROPERTY',
+      'VALUE',
+      'LPAREN',
+    ],
+    RPAREN: ['NOT', 'LOGICAL', 'END', 'RPAREN', 'COMPARISON', 'COMMA'],
+    PROPERTY: [
+      'COMPARISON',
+      'BETWEEN',
+      'COMMA',
+      'IS_NULL',
+      'BEFORE',
+      'AFTER',
+      'DURING',
+      'RPAREN',
+    ],
+    BETWEEN: ['VALUE'],
+    IS_NULL: ['RPAREN', 'LOGICAL', '[', ']'],
+    COMPARISON: ['RELATIVE', 'VALUE', 'BOOLEAN'],
+    COMMA: ['FILTER_FUNCTION', 'GEOMETRY', 'VALUE', 'UNITS', 'PROPERTY'],
+    VALUE: ['LOGICAL', 'COMMA', 'RPAREN', 'END'],
+    BOOLEAN: ['RPAREN'],
+    SPATIAL: ['LPAREN'],
+    UNITS: ['RPAREN'],
+    LOGICAL: [
+      'FILTER_FUNCTION',
+      'NOT',
+      'VALUE',
+      'SPATIAL',
+      'PROPERTY',
+      'LPAREN',
+    ],
+    NOT: ['PROPERTY', 'LPAREN'],
+    GEOMETRY: ['COMMA', 'RPAREN'],
+    BEFORE: ['TIME'],
+    AFTER: ['TIME'],
+    DURING: ['TIME_PERIOD'],
+    TIME: ['LOGICAL', 'RPAREN', 'END'],
+    TIME_PERIOD: ['LOGICAL', 'RPAREN', 'END'],
+    RELATIVE: ['RPAREN'],
+    FILTER_FUNCTION: ['LPAREN', 'PROPERTY', 'VALUE', 'RPAREN'],
+  },
+  precedence = {
+    RPAREN: 3,
+    LOGICAL: 2,
+    COMPARISON: 1,
+  },
+  classes = {
+    '=': comparisonClass,
+    '<>': comparisonClass,
+    '<': comparisonClass,
+    '<=': comparisonClass,
+    '>': comparisonClass,
+    '>=': comparisonClass,
+    LIKE: comparisonClass,
+    ILIKE: comparisonClass,
+    BETWEEN: comparisonClass,
+    'IS NULL': comparisonClass,
+    AND: logicalClass,
+    OR: logicalClass,
+    NOT: logicalClass,
+    BBOX: spatialClass,
+    INTERSECTS: spatialClass,
+    DWITHIN: spatialClass,
+    WITHIN: spatialClass,
+    CONTAINS: spatialClass,
+    GEOMETRY: spatialClass,
+    BEFORE: temporalClass,
+    AFTER: temporalClass,
+    DURING: temporalClass,
+  },
+  // as an improvement, these could be figured out while building the syntax tree
+  filterFunctionParamCount = {
+    proximity: 3,
+    pi: 0,
+  },
+  dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
 
 function tryToken(text, pattern) {
   if (pattern instanceof RegExp) {
@@ -171,14 +171,16 @@ function tryToken(text, pattern) {
 }
 
 function nextToken(text, tokens) {
-  let i, token, len = tokens.length;
+  let i,
+    token,
+    len = tokens.length
   for (i = 0; i < len; i++) {
     token = tokens[i]
-    const pat = patterns[token];
-    const matches = tryToken(text, pat);
+    const pat = patterns[token]
+    const matches = tryToken(text, pat)
     if (matches) {
-      const match = matches[0];
-      const remainder = text.substr(match.length).replace(/^\s*/, '');
+      const match = matches[0]
+      const remainder = text.substr(match.length).replace(/^\s*/, '')
       return {
         type: token,
         text: match,
@@ -187,7 +189,7 @@ function nextToken(text, tokens) {
     }
   }
 
-  let msg = 'ERROR: In parsing: [' + text + '], expected one of: ';
+  let msg = 'ERROR: In parsing: [' + text + '], expected one of: '
   for (i = 0; i < len; i++) {
     token = tokens[i]
     msg += '\n    ' + token + ': ' + patterns[token]
@@ -197,8 +199,9 @@ function nextToken(text, tokens) {
 }
 
 function tokenize(text) {
-  const results = [];
-  let token, expect = follows['ROOT_NODE'];
+  const results = []
+  let token,
+    expect = follows['ROOT_NODE']
 
   do {
     token = nextToken(text, expect)
@@ -240,10 +243,11 @@ const translateCqlToUserql = str =>
   )
 
 function buildAst(tokens) {
-  const operatorStack = [], postfix = [];
+  const operatorStack = [],
+    postfix = []
 
   while (tokens.length) {
-    const tok = tokens.shift();
+    const tok = tokens.shift()
     switch (tok.type) {
       case 'PROPERTY':
         // Remove single and double quotes if they exist in property name
@@ -264,7 +268,7 @@ function buildAst(tokens) {
       case 'BEFORE':
       case 'AFTER':
       case 'DURING':
-        const p = precedence[tok.type];
+        const p = precedence[tok.type]
 
         while (
           operatorStack.length > 0 &&
@@ -298,7 +302,7 @@ function buildAst(tokens) {
         // it's now time to add that function to the postfix-ordered list
         const lastOperatorType =
           operatorStack.length > 0 &&
-          operatorStack[operatorStack.length - 1].type;
+          operatorStack[operatorStack.length - 1].type
         if (
           lastOperatorType === 'SPATIAL' ||
           lastOperatorType === 'FILTER_FUNCTION'
@@ -320,22 +324,25 @@ function buildAst(tokens) {
   }
 
   function buildTree() {
-    let value, property, tok = postfix.pop();
+    let value,
+      property,
+      tok = postfix.pop()
     switch (tok.type) {
       case 'LOGICAL':
-        const rhs = buildTree(), lhs = buildTree();
+        const rhs = buildTree(),
+          lhs = buildTree()
         return {
           filters: [lhs, rhs],
           type: tok.text.toUpperCase(),
         }
       case 'NOT':
-        const operand = buildTree();
+        const operand = buildTree()
         return {
           filters: [operand],
           type: tok.type,
         }
       case 'BETWEEN':
-        let min, max;
+        let min, max
         postfix.pop() // unneeded AND token here
         max = buildTree()
         min = buildTree()
@@ -356,7 +363,7 @@ function buildAst(tokens) {
           type: tok.text.toUpperCase(),
         }
       case 'DURING':
-        const dates = buildTree().split('/');
+        const dates = buildTree().split('/')
         property = buildTree()
         return {
           property: property,
@@ -379,7 +386,7 @@ function buildAst(tokens) {
           type: tok.text.toUpperCase(),
         }
       case 'VALUE':
-        const match = tok.text.match(/^'(.*)'$/);
+        const match = tok.text.match(/^'(.*)'$/)
         if (match) {
           return translateCqlToUserql(match[1].replace(/''/g, "'"))
         } else {
@@ -395,7 +402,11 @@ function buildAst(tokens) {
       case 'SPATIAL':
         switch (tok.text.toUpperCase()) {
           case 'BBOX':
-            const maxy = buildTree(), maxx = buildTree(), miny = buildTree(), minx = buildTree(), prop = buildTree();
+            const maxy = buildTree(),
+              maxx = buildTree(),
+              miny = buildTree(),
+              minx = buildTree(),
+              prop = buildTree()
 
             return {
               type: tok.text.toUpperCase(),
@@ -427,7 +438,7 @@ function buildAst(tokens) {
               value: value,
             }
           case 'DWITHIN':
-            const distance = buildTree();
+            const distance = buildTree()
             value = buildTree()
             property = buildTree()
             return {
@@ -446,8 +457,8 @@ function buildAst(tokens) {
       case 'RELATIVE':
         return tok.text.substring(1, tok.text.length - 1)
       case 'FILTER_FUNCTION':
-        const filterFunctionName = tok.text.slice(0, -1); // remove trailing '('
-        const paramCount = filterFunctionParamCount[filterFunctionName];
+        const filterFunctionName = tok.text.slice(0, -1) // remove trailing '('
+        const paramCount = filterFunctionParamCount[filterFunctionName]
         if (paramCount === undefined) {
           throw new Error('Unsupported filter function: ' + filterFunctionName)
         }
@@ -456,7 +467,7 @@ function buildAst(tokens) {
           .map(function() {
             return buildTree()
           })
-          .reverse();
+          .reverse()
 
         return {
           type: tok.type,
@@ -469,9 +480,9 @@ function buildAst(tokens) {
     }
   }
 
-  const result = buildTree();
+  const result = buildTree()
   if (postfix.length > 0) {
-    let msg = 'Remaining tokens after building AST: \n';
+    let msg = 'Remaining tokens after building AST: \n'
     for (let i = postfix.length - 1; i >= 0; i--) {
       msg += postfix[i].type + ': ' + postfix[i].text + '\n'
     }
@@ -482,7 +493,7 @@ function buildAst(tokens) {
 }
 
 function wrap(property) {
-  let wrapped = property;
+  let wrapped = property
   if (!wrapped.startsWith('"')) {
     wrapped = '"' + wrapped
   }
@@ -497,7 +508,10 @@ function write(filter) {
     case spatialClass:
       switch (filter.type) {
         case 'BBOX':
-          const xmin = filter.value[0], ymin = filter.value[1], xmax = filter.value[2], ymax = filter.value[3];
+          const xmin = filter.value[0],
+            ymin = filter.value[1],
+            xmax = filter.value[2],
+            ymax = filter.value[3]
           return (
             'BBOX(' +
             wrap(filter.property) +
@@ -553,8 +567,8 @@ function write(filter) {
         // avoid extra parentheses (not urgent)
         return 'NOT (' + write(filter.filters[0]) + ')'
       } else {
-        let res = '(';
-        let first = true;
+        let res = '('
+        let first = true
         for (let i = 0; i < filter.filters.length; i++) {
           if (first) {
             first = false
@@ -639,7 +653,7 @@ function write(filter) {
 function simplifyFilters(cqlAst) {
   for (let i = 0; i < cqlAst.filters.length; i++) {
     if (simplifyAst(cqlAst.filters[i], cqlAst)) {
-      const filtersToMerge = cqlAst.filters.splice(i, 1)[0];
+      const filtersToMerge = cqlAst.filters.splice(i, 1)[0]
       filtersToMerge.filters.forEach(function(filter) {
         cqlAst.filters.push(filter)
       })
@@ -706,7 +720,7 @@ function uncollapseNOTs(cqlAst, parentNode) {
 }
 
 function iterativelySimplify(cqlAst) {
-  let prevAst = JSON.parse(JSON.stringify(cqlAst));
+  let prevAst = JSON.parse(JSON.stringify(cqlAst))
   simplifyAst(cqlAst)
   while (JSON.stringify(prevAst) !== JSON.stringify(cqlAst)) {
     prevAst = JSON.parse(JSON.stringify(cqlAst))

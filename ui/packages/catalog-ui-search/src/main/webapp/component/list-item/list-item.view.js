@@ -13,18 +13,18 @@
  *
  **/
 
-const Marionette = require('marionette');
-const _ = require('underscore');
-const _merge = require('lodash/merge');
-const template = require('./list-item.hbs');
-const CustomElements = require('../../js/CustomElements.js');
+const Marionette = require('marionette')
+const _ = require('underscore')
+const _merge = require('lodash/merge')
+const template = require('./list-item.hbs')
+const CustomElements = require('../../js/CustomElements.js')
 require('../../behaviors/button.behavior.js')
 require('../../behaviors/dropdown.behavior.js')
-const ListEditorView = require('../list-editor/list-editor.view.js');
-const QueryFeedView = require('../query-feed/query-feed.view.js');
-const ListInteractionsView = require('../list-interactions/list-interactions.view.js');
-const lightboxInstance = require('../lightbox/lightbox.view.instance.js');
-const ListAddTabsView = require('../tabs/list-add/tabs-list-add.view.js');
+const ListEditorView = require('../list-editor/list-editor.view.js')
+const QueryFeedView = require('../query-feed/query-feed.view.js')
+const ListInteractionsView = require('../list-interactions/list-interactions.view.js')
+const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
+const ListAddTabsView = require('../tabs/list-add/tabs-list-add.view.js')
 const user = require('../../component/singletons/user-instance')
 
 module.exports = Marionette.LayoutView.extend({
@@ -172,7 +172,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   handleUploadSuccess(file) {
-    const addedIds = file.xhr.getResponseHeader('Added-IDs');
+    const addedIds = file.xhr.getResponseHeader('Added-IDs')
     if (addedIds) {
       this.model.addBookmarks(addedIds.split(','))
       this.model

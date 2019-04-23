@@ -79,7 +79,7 @@
     'js/application',
     'bootstrap',
   ], function(Backbone, Marionette, ich, Application) {
-    const app = Application.App;
+    const app = Application.App
 
     Marionette.Renderer.render = function(template, data) {
       if (!template) {

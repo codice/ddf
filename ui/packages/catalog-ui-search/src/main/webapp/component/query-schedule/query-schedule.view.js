@@ -24,12 +24,12 @@ const Moment = require('moment')
 const Common = require('../../js/Common.js')
 
 function getHumanReadableDuration(milliseconds) {
-  const duration = Moment.duration(milliseconds);
-  const days = duration.days();
-  const hours = duration.hours();
-  const minutes = duration.minutes();
-  const seconds = duration.seconds();
-  let result = days ? days + ' day(s) ' : '';
+  const duration = Moment.duration(milliseconds)
+  const days = duration.days()
+  const hours = duration.hours()
+  const minutes = duration.minutes()
+  const seconds = duration.seconds()
+  let result = days ? days + ' day(s) ' : ''
   result += hours ? hours + ' hour(s) ' : ''
   result += minutes ? minutes + ' minute(s) ' : ''
   result += seconds ? seconds + ' second(s)' : ''
@@ -42,7 +42,7 @@ const pollingFrequencyEnum = properties.scheduleFrequencyList
   })
   .reduce(
     function(options, option) {
-      const durationInMilliseconds = option * 1000;
+      const durationInMilliseconds = option * 1000
       options.push({
         label: getHumanReadableDuration(durationInMilliseconds),
         value: durationInMilliseconds,
@@ -55,7 +55,7 @@ const pollingFrequencyEnum = properties.scheduleFrequencyList
         value: false,
       },
     ]
-  );
+  )
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -117,7 +117,7 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   save: function() {
-    const value = this.propertyInterval.currentView.model.getValue()[0];
+    const value = this.propertyInterval.currentView.model.getValue()[0]
     if (value === false) {
       this.model.unset('polling')
     } else {

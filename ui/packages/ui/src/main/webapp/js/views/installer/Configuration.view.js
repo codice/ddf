@@ -50,14 +50,17 @@ define([
         trigger: 'hover',
         container: 'body',
         delay: 250,
-      };
+      }
 
       const tooltipSelector =
-        '[data-toggle="' + this.model.get('key') + '-popover"]';
+        '[data-toggle="' + this.model.get('key') + '-popover"]'
       this.$el.find(tooltipSelector).popover(tooltipOptions)
     },
     onRender: function() {
-      const bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
+      const bindings = Backbone.ModelBinder.createDefaultBindings(
+        this.el,
+        'name'
+      )
       this.modelBinder.bind(this.model, this.el, bindings, {
         modelSetOptions: { validate: true },
       })
@@ -66,7 +69,7 @@ define([
     modelEvents: {
       change: 'render',
     },
-  });
+  })
 
   /*
    * Collection View
@@ -74,7 +77,7 @@ define([
   const SystemPropertiesView = Marionette.CollectionView.extend({
     className: 'row',
     itemView: SystemPropertyView,
-  });
+  })
 
   /*
    * Layout
@@ -103,13 +106,13 @@ define([
     },
 
     next: function() {
-      const layout = this;
+      const layout = this
 
       // loop through models and check for hostname change, validation errors and set redirect url
-      let hostChange = true;
-      let hostName;
-      let port;
-      let hasErrors = false;
+      let hostChange = true
+      let hostName
+      let port
+      let hasErrors = false
 
       this.model.each(function(model) {
         hasErrors = hasErrors || model.validationError
@@ -128,7 +131,7 @@ define([
 
       if (!hasErrors) {
         if (hostChange) {
-          const certSave = layout.certificateModel.save();
+          const certSave = layout.certificateModel.save()
           if (certSave) {
             certSave.done(function() {
               if (!_.isEmpty(layout.certificateModel.get('certErrors'))) {
@@ -168,19 +171,19 @@ define([
       this.navigationModel.previousStep()
     },
     onRender: function() {
-      const view = this;
+      const view = this
 
-      const sysPropsView = new SystemPropertiesView({ collection: this.model });
+      const sysPropsView = new SystemPropertiesView({ collection: this.model })
       const certificateView = new CertificateView({
         model: this.certificateModel,
-      });
+      })
 
       this.configurationItems.show(sysPropsView)
       this.certificates.show(certificateView)
     },
     saveProperties: function() {
-      const layout = this;
-      const propertySave = this.model.save();
+      const layout = this
+      const propertySave = this.model.save()
       if (propertySave) {
         propertySave.done(function() {
           layout.navigationModel.nextStep('', 100)
@@ -199,7 +202,7 @@ define([
         )
       }
     },
-  });
+  })
 
   return ConfigurationView
 })

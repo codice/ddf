@@ -14,13 +14,13 @@
  **/
 
 import React from 'react'
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
-const $ = require('jquery');
-const router = require('../router/router.js');
-const Common = require('../../js/Common.js');
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const $ = require('jquery')
+const router = require('../router/router.js')
+const Common = require('../../js/Common.js')
 
-const componentName = 'slideout';
+const componentName = 'slideout'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 
 module.exports = Marionette.ItemView.extend({
@@ -91,7 +91,7 @@ module.exports = Marionette.ItemView.extend({
     this.render()
   },
   handleSpecialKeys: function(event) {
-    let code = event.keyCode;
+    let code = event.keyCode
     if (event.charCode && code == 0) code = event.charCode
     switch (code) {
       case 27:

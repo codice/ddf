@@ -1,13 +1,13 @@
-const _ = require('underscore');
-const template = require('./input-with-param.hbs');
-const InputView = require('../input.view');
+const _ = require('underscore')
+const template = require('./input-with-param.hbs')
+const InputView = require('../input.view')
 
 module.exports = InputView.extend({
   template: template,
   className: 'is-with-param',
   getCurrentValue: function() {
-    const text = this.$el.find('[type=text]').val();
-    const param = parseInt(this.$el.find('[type=number]').val());
+    const text = this.$el.find('[type=text]').val()
+    const param = parseInt(this.$el.find('[type=number]').val())
     return {
       value: text,
       distance: Math.max(1, param || 0),
@@ -25,7 +25,7 @@ module.exports = InputView.extend({
     const value = this.model.getValue() || {
       value: undefined,
       distance: 2,
-    };
+    }
     this.$el.find('[type=text]').val(value.value)
     this.$el.find('[type=number]').val(value.distance)
   },
@@ -33,7 +33,7 @@ module.exports = InputView.extend({
     const value = this.model.getValue() || {
       value: undefined,
       distance: 2,
-    };
+    }
     return _.extend(this.model.toJSON(), {
       text: value.value,
       param: value.distance,

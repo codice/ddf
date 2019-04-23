@@ -10,8 +10,8 @@
  *
  **/
 
-const Backbone = require('backbone');
-const $ = require('jquery');
+const Backbone = require('backbone')
+const $ = require('jquery')
 require('../jquery.whenAll.js')
 
 function fileMatches(file, model) {
@@ -103,7 +103,7 @@ module.exports = Backbone.Model.extend({
   },
   handleError: function(file) {
     if (fileMatches(file, this)) {
-      const message = file.name + ' could not be uploaded successfully.';
+      const message = file.name + ' could not be uploaded successfully.'
       this.set({
         error: true,
         message: message,

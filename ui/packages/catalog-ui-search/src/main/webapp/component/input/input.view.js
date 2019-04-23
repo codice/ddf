@@ -91,7 +91,7 @@ const InputView = Marionette.LayoutView.extend({
     this.$el.find('input').val(this.model.getValue())
   },
   toJSON: function() {
-    const attributeToVal = {};
+    const attributeToVal = {}
     attributeToVal[this.model.getId()] = this.model.getValue()
     return attributeToVal
   },
@@ -99,12 +99,12 @@ const InputView = Marionette.LayoutView.extend({
     this.$el.find('input').select()
   },
   hasChanged: function() {
-    const value = this.$el.find('input').val();
+    const value = this.$el.find('input').val()
     return value !== this.model.getInitialValue()
   },
   getCurrentValue: function() {
     return this.$el.find('input').val()
   },
-});
+})
 
 module.exports = InputView

@@ -24,9 +24,9 @@ define([
     Backbone,
     Marionette
   ) {
-    const federationModel = new FederationModel();
+    const federationModel = new FederationModel()
 
-    const federationPage = new FederationView({ model: federationModel });
+    const federationPage = new FederationView({ model: federationModel })
 
     // Define a controller to run this module
     // --------------------------------------
@@ -39,7 +39,7 @@ define([
       show: function() {
         this.region.show(federationPage)
       },
-    });
+    })
 
     // Initialize this module when the app starts
     // ------------------------------------------

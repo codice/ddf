@@ -9,7 +9,9 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const URL = require('url'), httpProxy = require('http-proxy'), proxy = new httpProxy.RoutingProxy();
+const URL = require('url'),
+  httpProxy = require('http-proxy'),
+  proxy = new httpProxy.RoutingProxy()
 
 function stringFormat(format /* arg1, arg2... */) {
   if (arguments.length === 0) {
@@ -18,7 +20,7 @@ function stringFormat(format /* arg1, arg2... */) {
   if (arguments.length === 1) {
     return format
   }
-  const args = Array.prototype.slice.call(arguments, 1);
+  const args = Array.prototype.slice.call(arguments, 1)
   return format.replace(/\{\{|\}\}|\{(\d+)\}/g, function(m, n) {
     if (m === '{{') {
       return '{'
@@ -30,17 +32,17 @@ function stringFormat(format /* arg1, arg2... */) {
   })
 }
 
-const server = {};
+const server = {}
 
 server.requestProxy = function(req, res) {
   'use strict'
 
   req.url = 'http://localhost:8181' + req.url
-  const urlObj = URL.parse(req.url);
+  const urlObj = URL.parse(req.url)
   req.url = urlObj.path
   // Buffer requests so that eventing and async methods still work
   // https://github.com/nodejitsu/node-http-proxy#post-requests-and-buffering
-  const buffer = httpProxy.buffer(req);
+  const buffer = httpProxy.buffer(req)
   console.log('Proxying Request "' + req.url + '"')
 
   proxy.proxyRequest(req, res, {
@@ -52,7 +54,7 @@ server.requestProxy = function(req, res) {
 }
 
 server.mockLoginServer = function(req, res) {
-  const usernamePasswordJson = req.get('usernamePasswordJson');
+  const usernamePasswordJson = req.get('usernamePasswordJson')
 
   if (
     usernamePasswordJson.username === 'srogers' &&
@@ -60,7 +62,7 @@ server.mockLoginServer = function(req, res) {
   ) {
     res.status(200).end()
   } else {
-    const message = stringFormat('Username/Password is invalid.');
+    const message = stringFormat('Username/Password is invalid.')
     res.status(500).send(message)
     res.end()
   }

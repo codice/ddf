@@ -13,16 +13,16 @@
  *
  **/
 
-const Marionette = require('marionette');
-const template = require('./time-settings.hbs');
-const user = require('../singletons/user-instance.js');
-const CustomElements = require('../../js/CustomElements.js');
-const PropertyView = require('../property/property.view.js');
-const Property = require('../property/property.js');
-const Common = require('../../js/Common.js');
-const moment = require('moment');
+const Marionette = require('marionette')
+const template = require('./time-settings.hbs')
+const user = require('../singletons/user-instance.js')
+const CustomElements = require('../../js/CustomElements.js')
+const PropertyView = require('../property/property.view.js')
+const Property = require('../property/property.js')
+const Common = require('../../js/Common.js')
+const moment = require('moment')
 
-let counter = 0;
+let counter = 0
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -63,7 +63,7 @@ module.exports = Marionette.LayoutView.extend({
     const timeZone = user
       .get('user')
       .get('preferences')
-      .get('timeZone');
+      .get('timeZone')
 
     this.propertyTimeZone.show(
       new PropertyView({
@@ -187,7 +187,7 @@ module.exports = Marionette.LayoutView.extend({
     const timeFormat = user
       .get('user')
       .get('preferences')
-      .get('dateTimeFormat');
+      .get('dateTimeFormat')
 
     this.propertyTimeFormat.show(
       new PropertyView({
@@ -220,7 +220,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   save: function() {
-    const preferences = user.get('user').get('preferences');
+    const preferences = user.get('user').get('preferences')
     preferences.set({
       dateTimeFormat: this.propertyTimeFormat.currentView.model.getValue()[0],
       timeZone: this.propertyTimeZone.currentView.model.getValue()[0],

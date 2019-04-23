@@ -10,7 +10,7 @@ const getName = function(user) {
   }
 
   return user.get('username')
-};
+}
 
 module.exports = DropdownView.extend({
   template: template,

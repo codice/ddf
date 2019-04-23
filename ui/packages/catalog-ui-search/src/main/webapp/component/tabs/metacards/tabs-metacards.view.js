@@ -5,12 +5,12 @@ const store = require('../../../js/store.js')
 const properties = require('../../../js/properties.js')
 
 function getTypes(results) {
-  const types = {};
+  const types = {}
   results.forEach(function(result) {
     const tags = result
       .get('metacard')
       .get('properties')
-      .get('metacard-tags');
+      .get('metacard-tags')
     if (result.isWorkspace()) {
       types.workspace = true
     } else if (result.isResource()) {
@@ -40,7 +40,7 @@ const MetacardsTabsView = TabsView.extend({
     }
     this.determineAvailableContent()
     TabsView.prototype.initialize.call(this)
-    const debounceDetermineContent = _.debounce(this.handleMetacardChange, 200);
+    const debounceDetermineContent = _.debounce(this.handleMetacardChange, 200)
     this.listenTo(
       this.selectionInterface.getSelectedResults(),
       'update',
@@ -72,8 +72,8 @@ const MetacardsTabsView = TabsView.extend({
     this.determineContent()
   },
   determineContentFromType: function() {
-    const activeTabName = this.model.get('activeTab');
-    const types = getTypes(this.selectionInterface.getSelectedResults());
+    const activeTabName = this.model.get('activeTab')
+    const types = getTypes(this.selectionInterface.getSelectedResults())
     if (
       types.indexOf('revision') >= 0 &&
       ['Archive'].indexOf(activeTabName) >= 0
@@ -98,7 +98,7 @@ const MetacardsTabsView = TabsView.extend({
     ) {
       this.model.set('activeTab', 'Details')
     }
-    const activeTab = this.model.getActiveView();
+    const activeTab = this.model.getActiveView()
     this.tabsContent.show(
       new activeTab({
         selectionInterface: this.selectionInterface,
@@ -112,7 +112,7 @@ const MetacardsTabsView = TabsView.extend({
   },
   determineAvailableContent: function() {
     if (this.selectionInterface.getSelectedResults().length > 1) {
-      const types = getTypes(this.selectionInterface.getSelectedResults());
+      const types = getTypes(this.selectionInterface.getSelectedResults())
       this.$el.toggleClass('is-mixed', types.length > 1)
       this.$el.toggleClass('is-workspace', types.indexOf('workspace') >= 0)
       this.$el.toggleClass('is-resource', types.indexOf('resource') >= 0)
@@ -121,6 +121,6 @@ const MetacardsTabsView = TabsView.extend({
       this.$el.toggleClass('is-remote', types.indexOf('remote') >= 0)
     }
   },
-});
+})
 
 module.exports = MetacardsTabsView

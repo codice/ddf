@@ -19,8 +19,8 @@ module.exports = {
       this.is2dAvailable = false
 
       try {
-        const canvas = document.createElement('canvas');
-        const twoD = canvas.getContext('2d');
+        const canvas = document.createElement('canvas')
+        const twoD = canvas.getContext('2d')
         if (twoD) {
           this.is2dAvailable = true
         }

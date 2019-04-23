@@ -11,7 +11,7 @@
  **/
 
 //meant to be used for just in time feature detection
-const Backbone = require('backbone');
+const Backbone = require('backbone')
 require('backbone-associations')
 
 const LogoutAction = Backbone.AssociatedModel.extend({
@@ -22,12 +22,12 @@ const LogoutAction = Backbone.AssociatedModel.extend({
     title: '',
     url: '',
   },
-});
+})
 
 const LogoutActions = Backbone.Collection.extend({
   model: LogoutAction,
   url: './internal/logout/actions',
-});
+})
 
 const logoutModel = new (Backbone.AssociatedModel.extend({
   defaults: {
@@ -52,6 +52,6 @@ const logoutModel = new (Backbone.AssociatedModel.extend({
   isIdp: function() {
     return this.get('actions').where({ realm: 'idp' }).length > 0
   },
-}))();
+}))()
 
 module.exports = logoutModel

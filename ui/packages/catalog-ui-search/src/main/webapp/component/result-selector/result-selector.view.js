@@ -51,7 +51,7 @@ function mixinBlackListCQL(originalCQL) {
       },
     ],
     type: 'AND',
-  };
+  }
   if (originalCQL) {
     blackListCQL.filters.push(originalCQL)
   }
@@ -63,7 +63,7 @@ const ResultSelector = Marionette.LayoutView.extend({
     let resultFilter = user
       .get('user')
       .get('preferences')
-      .get('resultFilter');
+      .get('resultFilter')
     if (resultFilter) {
       resultFilter = cql.simplify(cql.read(resultFilter))
     }
@@ -71,8 +71,8 @@ const ResultSelector = Marionette.LayoutView.extend({
     const filteredResults = this.model
       .get('result')
       .get('results')
-      .generateFilteredVersion(resultFilter);
-    const collapsedResults = filteredResults.collapseDuplicates();
+      .generateFilteredVersion(resultFilter)
+    const collapsedResults = filteredResults.collapseDuplicates()
     collapsedResults.updateSorting(
       user
         .get('user')
@@ -221,7 +221,7 @@ const ResultSelector = Marionette.LayoutView.extend({
         metacard.id +
         metacard.get('properties>source-id') +
         '"]'
-    );
+    )
     if (result && result.length > 0) {
       //result[0].scrollIntoView();
     }
@@ -289,8 +289,8 @@ const ResultSelector = Marionette.LayoutView.extend({
       this.resultDisplay.currentView.model,
       'change:value',
       function() {
-        const prefs = user.get('user').get('preferences');
-        const value = this.resultDisplay.currentView.model.get('value')[0];
+        const prefs = user.get('user').get('preferences')
+        const value = this.resultDisplay.currentView.model.get('value')[0]
         prefs.set('resultDisplay', value)
         prefs.savePreferences()
       }
@@ -305,6 +305,6 @@ const ResultSelector = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-});
+})
 
 module.exports = ResultSelector

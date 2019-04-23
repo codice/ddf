@@ -29,7 +29,7 @@ define(['underscore', 'backbone'], function(_, Backbone) {
       return type
     },
     setData: function(data) {
-      const file = (this.file = data.files[0]);
+      const file = (this.file = data.files[0])
       this.set({
         name: file.name,
         size: file.size,
@@ -37,7 +37,7 @@ define(['underscore', 'backbone'], function(_, Backbone) {
       })
     },
     load: function(done) {
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onloadend = _.bind(function() {
         this.set('data', reader.result.split(',')[1])
         done()
@@ -52,7 +52,7 @@ define(['underscore', 'backbone'], function(_, Backbone) {
         data: this.get('data'),
       }
     },
-  });
+  })
 
   return FileHelper
 })

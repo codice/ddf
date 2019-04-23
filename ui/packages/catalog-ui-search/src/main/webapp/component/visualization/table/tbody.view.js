@@ -1,6 +1,6 @@
-const Marionette = require('marionette');
-const CustomElements = require('../../../js/CustomElements.js');
-const RowView = require('./row.view');
+const Marionette = require('marionette')
+const CustomElements = require('../../../js/CustomElements.js')
+const RowView = require('./row.view')
 require('../../../behaviors/selection.behavior.js')
 
 module.exports = Marionette.CollectionView.extend({

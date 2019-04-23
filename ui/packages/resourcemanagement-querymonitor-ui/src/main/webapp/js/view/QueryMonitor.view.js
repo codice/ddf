@@ -29,7 +29,7 @@ define([
   queryMonitorPage,
   queryMonitorTable
 ) {
-  const QueryMonitorView = {};
+  const QueryMonitorView = {}
 
   ich.addTemplate('queryMonitorPage', queryMonitorPage)
   ich.addTemplate('queryMonitorTable', queryMonitorTable)
@@ -67,8 +67,8 @@ define([
       )
     },
     stopSearch: function(data) {
-      const user = $(data.target);
-      const uuid = user[0].name;
+      const user = $(data.target)
+      const uuid = user[0].name
       this.model.stopSearch(uuid)
     },
     setupPopOver: function(selector, content) {
@@ -76,7 +76,7 @@ define([
         trigger: 'hover',
         content: content,
         placement: 'left',
-      };
+      }
       this.$el.find(selector).popover(options)
     },
   })

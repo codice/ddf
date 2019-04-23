@@ -257,7 +257,7 @@ the provided value."
   setDefaultComparator: function(propertyJSON) {
     this.toggleLocationClass(false)
     this.toggleDateClass(false)
-    const currentComparator = this.model.get('comparator');
+    const currentComparator = this.model.get('comparator')
     switch (propertyJSON.type) {
       case 'LOCATION':
         if (geometryComparators.indexOf(currentComparator) === -1) {
@@ -334,7 +334,7 @@ the provided value."
       })
     )
 
-    const isEditing = this.$el.hasClass('is-editing');
+    const isEditing = this.$el.hasClass('is-editing')
     if (isEditing || this.options.editing) {
       this.turnOnEditing()
     } else {
@@ -347,7 +347,7 @@ the provided value."
     this.setDefaultComparator(propertyJSON)
   },
   getValue: function() {
-    let text = '(';
+    let text = '('
     text += this.model.get('type') + ' '
     text += comparatorToCQL()[this.model.get('comparator')] + ' '
     text += this.filterInput.currentView.model.getValue()
@@ -365,7 +365,7 @@ the provided value."
     const property =
       this.filterInput.currentView.model instanceof ValueModel
         ? this.filterInput.currentView.model.get('property')
-        : this.filterInput.currentView.model;
+        : this.filterInput.currentView.model
     property.set('isEditing', true)
   },
   turnOffEditing: function() {
@@ -376,7 +376,7 @@ the provided value."
     const property =
       this.filterInput.currentView.model instanceof ValueModel
         ? this.filterInput.currentView.model.get('property')
-        : this.filterInput.currentView.model;
+        : this.filterInput.currentView.model
     property.set(
       'isEditing',
       this.options.isForm === true || this.options.isFormBuilder === true

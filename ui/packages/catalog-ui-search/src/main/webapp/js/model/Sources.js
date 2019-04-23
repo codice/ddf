@@ -14,7 +14,7 @@ function removeLocalCatalogIfNeeded(response, localCatalog) {
   return response
 }
 
-const Types = Backbone.Collection.extend({});
+const Types = Backbone.Collection.extend({})
 
 const computeTypes = function(sources) {
   if (_.size(properties.typeNameMapping) > 0) {
@@ -47,7 +47,7 @@ const computeTypes = function(sources) {
       })
       .value()
   }
-};
+}
 
 module.exports = Backbone.Collection.extend({
   url: './internal/catalog/sources',

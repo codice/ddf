@@ -13,15 +13,15 @@
  *
  **/
 
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
-const wreqr = require('../../js/wreqr.js');
-const properties = require('../../js/properties.js');
-const store = require('../../js/store.js');
-const metacard = require('../metacard/metacard.js');
-const SaveView = require('../save/workspaces/workspaces-save.view.js');
-const UnsavedIndicatorView = require('../unsaved-indicator/workspaces/workspaces-unsaved-indicator.view.js');
-const sources = require('../singletons/sources-instance.js');
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const wreqr = require('../../js/wreqr.js')
+const properties = require('../../js/properties.js')
+const store = require('../../js/store.js')
+const metacard = require('../metacard/metacard.js')
+const SaveView = require('../save/workspaces/workspaces-save.view.js')
+const UnsavedIndicatorView = require('../unsaved-indicator/workspaces/workspaces-unsaved-indicator.view.js')
+const sources = require('../singletons/sources-instance.js')
 const plugin = require('plugins/navigator')
 import ExtensionPoints from '../../extension-points'
 const $ = require('jquery')
@@ -187,13 +187,13 @@ module.exports = plugin(
     handleSaved: function() {
       const hasUnsaved = store.get('workspaces').find(function(workspace) {
         return !workspace.isSaved()
-      });
+      })
       this.$el.toggleClass('is-saved', !hasUnsaved)
     },
     handleSourcesChange: function() {
       const hasDown = sources.some(function(source) {
         return !source.get('available')
-      });
+      })
       this.$el.toggleClass('has-unavailable', hasDown)
     },
     handleChoice(e) {
@@ -209,13 +209,13 @@ module.exports = plugin(
       this.$el.trigger('closeSlideout.' + CustomElements.getNamespace())
     },
     serializeData: function() {
-      const currentWorkspace = store.getCurrentWorkspace();
-      let workspaceJSON;
+      const currentWorkspace = store.getCurrentWorkspace()
+      let workspaceJSON
       if (currentWorkspace) {
         workspaceJSON = currentWorkspace.toJSON()
       }
-      const currentMetacard = metacard.get('currentMetacard');
-      let metacardJSON;
+      const currentMetacard = metacard.get('currentMetacard')
+      let metacardJSON
       if (currentMetacard) {
         metacardJSON = currentMetacard.toJSON()
       }

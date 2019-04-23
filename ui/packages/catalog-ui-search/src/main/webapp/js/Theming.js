@@ -10,15 +10,15 @@
  *
  **/
 
-const $ = require('jquery');
-const wreqr = require('./wreqr.js');
-const user = require('../component/singletons/user-instance.js');
-const preferences = user.get('user').get('preferences');
-let lessStyles = require('./uncompiled-less.unless');
-const variableRegex = '/@(.*:[^;]*)/g';
-const variableRegexPrefix = '@';
-const variableRegexPostfix = '(.*:[^;]*)';
-const Common = require('./Common.js');
+const $ = require('jquery')
+const wreqr = require('./wreqr.js')
+const user = require('../component/singletons/user-instance.js')
+const preferences = user.get('user').get('preferences')
+let lessStyles = require('./uncompiled-less.unless')
+const variableRegex = '/@(.*:[^;]*)/g'
+const variableRegexPrefix = '@'
+const variableRegexPostfix = '(.*:[^;]*)'
+const Common = require('./Common.js')
 import { lessWorkerModel } from './../component/singletons/less.worker-instance'
 lessWorkerModel.subscribe(data => {
   if (data.method === 'render') {
@@ -29,8 +29,8 @@ lessWorkerModel.subscribe(data => {
 })
 
 function updateTheme(css) {
-  const existingUserStyles = $('[data-theme=user]');
-  const userStyles = document.createElement('style');
+  const existingUserStyles = $('[data-theme=user]')
+  const userStyles = document.createElement('style')
   userStyles.setAttribute('data-theme', 'user')
   userStyles.innerHTML = css
   document.body.appendChild(userStyles)
@@ -46,7 +46,7 @@ function handleThemeChange() {
 }
 
 function handleFontSizeChange() {
-  const fontSize = preferences.get('fontSize');
+  const fontSize = preferences.get('fontSize')
   $('html').css('fontSize', fontSize + 'px')
   Common.repaintForTimeframe(500, () => {
     wreqr.vent.trigger('resize')
@@ -55,7 +55,7 @@ function handleFontSizeChange() {
 }
 
 function handleAnimationChange() {
-  const animationMode = preferences.get('animation');
+  const animationMode = preferences.get('animation')
   $('html').toggleClass('no-animation', !animationMode)
 }
 

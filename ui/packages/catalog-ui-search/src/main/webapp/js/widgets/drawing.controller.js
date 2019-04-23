@@ -13,8 +13,8 @@
  *
  **/
 
-const Marionette = require('marionette');
-const wreqr = require('../wreqr.js');
+const Marionette = require('marionette')
+const wreqr = require('../wreqr.js')
 
 module.exports = Marionette.Controller.extend({
   enabled: true,
@@ -57,7 +57,7 @@ module.exports = Marionette.Controller.extend({
     )[0]
   },
   removeViewForModel: function(model) {
-    const view = this.getViewForModel(model);
+    const view = this.getViewForModel(model)
     if (view) {
       this.views.splice(this.views.indexOf(view), 1)
     }
@@ -75,7 +75,7 @@ module.exports = Marionette.Controller.extend({
     throw 'draw needs to be overwritten'
   },
   stop: function(model) {
-    const view = this.getViewForModel(model);
+    const view = this.getViewForModel(model)
     if (view && view.stop) {
       view.stop()
     }
@@ -100,7 +100,7 @@ module.exports = Marionette.Controller.extend({
   },
   destroyByModel: function(model) {
     this.stop(model)
-    const view = this.getViewForModel(model);
+    const view = this.getViewForModel(model)
     if (view) {
       this.destroyView(view)
       if (this.notificationView) {

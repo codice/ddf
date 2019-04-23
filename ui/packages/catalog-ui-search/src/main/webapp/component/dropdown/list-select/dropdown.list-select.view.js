@@ -1,7 +1,7 @@
-const DropdownView = require('../dropdown.view');
-const template = require('./dropdown.list-select.hbs');
-const ListItemView = require('../../list-item/list-item.view.js');
-const ListSelectView = require('../../list-select/list-select.view.js');
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.list-select.hbs')
+const ListItemView = require('../../list-item/list-item.view.js')
+const ListSelectView = require('../../list-select/list-select.view.js')
 
 module.exports = DropdownView.extend({
   template: template,
@@ -24,7 +24,7 @@ module.exports = DropdownView.extend({
   },
   onRender: function() {
     DropdownView.prototype.onRender.call(this)
-    const listId = this.model.get('value');
+    const listId = this.model.get('value')
     if (listId) {
       this.listItem.show(
         new ListItemView({

@@ -24,7 +24,7 @@ define([
   'js/model/Status.js',
   'backboneassociation',
 ], function(wreqr, Service, Backbone, _, $, Q, poller, Status) {
-  const Source = {};
+  const Source = {}
 
   Source.ConfigurationList = Backbone.Collection.extend({
     model: Service.Configuration,
@@ -53,7 +53,7 @@ define([
       this.stopPolling()
     },
     stopPolling: function() {
-      const statusModel = this.get('statusModel');
+      const statusModel = this.get('statusModel')
       if (statusModel) {
         statusModel.stopListening()
         poller.get(statusModel).destroy()
@@ -80,13 +80,13 @@ define([
       }
     },
     setCurrentConfiguration: function(configuration) {
-      const sync = 'sync';
-      const statusUpdate = 'status:update-';
+      const sync = 'sync'
+      const statusUpdate = 'status:update-'
       this.set({ currentConfiguration: configuration })
 
-      const pid = configuration.id;
+      const pid = configuration.id
 
-      let statusModel = this.get('statusModel');
+      let statusModel = this.get('statusModel')
       if (statusModel) {
         statusModel.set({ id: pid })
       } else {
@@ -100,13 +100,13 @@ define([
       poller.get(statusModel, { delay: 30000 }).start()
     },
     hasConfiguration: function(configuration) {
-      const id = configuration.get('id');
-      const curConfig = this.get('currentConfiguration');
-      let hasConfig = false;
+      const id = configuration.get('id')
+      const curConfig = this.get('currentConfiguration')
+      let hasConfig = false
 
       const found = this.get('disabledConfigurations').find(function(config) {
         return config.get('fpid') === id + '_disabled'
-      });
+      })
       if (_.isUndefined(found)) {
         if (!_.isUndefined(curConfig)) {
           hasConfig = curConfig.get('fpid') === id
@@ -129,22 +129,22 @@ define([
       })
     },
     initializeConfigurationFromMetatype: function(metatype) {
-      const src = this;
+      const src = this
       src.configuration = new Source.Configuration()
       metatype.forEach(function(obj) {
-        const id = obj.id;
-        const val = obj.defaultValue;
+        const id = obj.id
+        const val = obj.defaultValue
         src.configuration.set(id, val ? val.toString() : null)
       })
     },
     size: function() {
-      const ct = _.isUndefined(this.get('currentConfiguration')) ? 0 : 1;
+      const ct = _.isUndefined(this.get('currentConfiguration')) ? 0 : 1
       return ct + this.get('disabledConfigurations').length
     },
     getActions: function(action) {
-      const src = this;
-      const currentConfig = src.get('currentConfiguration');
-      let actions = [];
+      const src = this
+      const currentConfig = src.get('currentConfiguration')
+      let actions = []
 
       if (!_.isUndefined(currentConfig)) {
         actions = currentConfig.get(action)
@@ -160,18 +160,18 @@ define([
       return actions
     },
     getCurrentUrl: function() {
-      const src = this;
-      const currentConfig = src.get('currentConfiguration');
+      const src = this
+      const currentConfig = src.get('currentConfiguration')
       if (currentConfig !== undefined) {
-        const configProps = currentConfig.attributes.properties.attributes;
-        const configPropKeys = Object.keys(configProps);
+        const configProps = currentConfig.attributes.properties.attributes
+        const configPropKeys = Object.keys(configProps)
 
         const urls = configPropKeys.filter(function(item) {
           return /.*Address|.*Url/.test(item)
-        });
+        })
         const filteredKeys = urls.filter(function(item) {
           return /^(?!event|site).*$/.test(item)
-        });
+        })
 
         return configProps[filteredKeys]
       }
@@ -194,7 +194,7 @@ define([
         return
       }
 
-      let unique = true;
+      let unique = true
       uniqueArray.forEach(function(arrayItem) {
         if (_.isEqual(arrayItem, addThis)) {
           unique = false
@@ -209,14 +209,14 @@ define([
      *  Method to get a list of all configs, each with its corresponding service and properties
      */
     getAllConfigsWithServices: function() {
-      const theConfigs = this.getAllConfigServices();
-      const listOfConfigStrings = [];
+      const theConfigs = this.getAllConfigServices()
+      const listOfConfigStrings = []
       theConfigs.models.forEach(
         function(con) {
           listOfConfigStrings.push(con.id)
         }.bind(this)
       )
-      const configsWithServices = [];
+      const configsWithServices = []
       listOfConfigStrings.forEach(
         function(conString) {
           configsWithServices.push(this.findConfigFromId(conString))
@@ -228,11 +228,11 @@ define([
      * Uses the current context's model to return a Backbone collection of all configurations service's
      */
     getAllConfigServices: function() {
-      const configs = new Backbone.Collection();
-      const disabledConfigs = this.get('disabledConfigurations');
-      const currentConfig = this.get('currentConfiguration');
+      const configs = new Backbone.Collection()
+      const disabledConfigs = this.get('disabledConfigurations')
+      const currentConfig = this.get('currentConfiguration')
       if (!_.isUndefined(currentConfig)) {
-        const currentService = currentConfig.get('service');
+        const currentService = currentConfig.get('service')
         configs.add(currentService)
       }
       if (!_.isUndefined(disabledConfigs)) {
@@ -246,15 +246,15 @@ define([
      *  Retrieve a configuration with its service by its string id.
      */
     findConfigFromId: function(id) {
-      const currentConfig = this.get('currentConfiguration');
-      const disabledConfigs = this.get('disabledConfigurations');
-      let config;
+      const currentConfig = this.get('currentConfiguration')
+      const disabledConfigs = this.get('disabledConfigurations')
+      let config
       if (!_.isUndefined(currentConfig) && currentConfig.get('fpid') === id) {
         config = currentConfig
       } else {
         if (!_.isUndefined(disabledConfigs)) {
           config = disabledConfigs.find(function(item) {
-            const service = item.get('service');
+            const service = item.get('service')
             if (!_.isUndefined(service) && !_.isNull(service)) {
               return service.get('id') === id
             }
@@ -280,7 +280,7 @@ define([
      * @returns the HTTP method parsed from the id, GET is the default return if one isn't found
      */
     getHttpMethod: function(id) {
-      const httpIndex = id.indexOf('HTTP_');
+      const httpIndex = id.indexOf('HTTP_')
       if (httpIndex > 0) {
         return id.substring(httpIndex + 5)
       }
@@ -291,8 +291,8 @@ define([
   Source.Collection = Backbone.Collection.extend({
     model: Source.Model,
     addSource: function(configuration, enabled) {
-      let source;
-      let sourceId = configuration.get('properties').get('shortname');
+      let source
+      let sourceId = configuration.get('properties').get('shortname')
       if (!sourceId) {
         sourceId = configuration.get('properties').get('id')
       }
@@ -315,13 +315,13 @@ define([
       this.remove(source)
     },
     removeAllSources: function() {
-      let source;
+      let source
       while ((source = this.first())) {
         this.removeSource(source)
       }
     },
     comparator: function(model) {
-      const str = model.get('name') || '';
+      const str = model.get('name') || ''
       return str.toLowerCase()
     },
   })
@@ -330,7 +330,7 @@ define([
     initialize: function(options) {
       if (options.model) {
         this.model = options.model
-        const collection = new Source.Collection();
+        const collection = new Source.Collection()
         this.set({
           collection: collection,
         })
@@ -338,14 +338,14 @@ define([
       }
     },
     parseServiceModel: function() {
-      const resModel = this;
-      const collection = resModel.get('collection');
+      const resModel = this
+      const collection = resModel.get('collection')
       collection.removeAllSources()
       if (this.model.get('value')) {
         this.model.get('value').each(function(service) {
           if (!_.isEmpty(service.get('configurations'))) {
             service.get('configurations').each(function(configuration) {
-              const cfgService = configuration.get('service');
+              const cfgService = configuration.get('service')
               if (
                 configuration.get('id') &&
                 (resModel.isSourceName(configuration.get('fpid')) ||
@@ -365,12 +365,12 @@ define([
       collection.trigger('reset')
     },
     getSourceMetatypes: function() {
-      const resModel = this;
-      const metatypes = [];
+      const resModel = this
+      const metatypes = []
       if (resModel.model.get('value')) {
         resModel.model.get('value').each(function(service) {
-          const id = service.get('id');
-          const name = service.get('name');
+          const id = service.get('id')
+          const name = service.get('name')
           if (this.isSourceName(id) || this.isSourceName(name)) {
             metatypes.push(service)
           }
@@ -387,8 +387,8 @@ define([
      * missing configurations as part of its disabledConfigurations.
      */
     getSourceModelWithServices: function(initialModel) {
-      const resModel = this;
-      const serviceCollection = resModel.model.get('value');
+      const resModel = this
+      const serviceCollection = resModel.model.get('value')
       if (!initialModel) {
         initialModel = new Source.Model()
       }
@@ -396,7 +396,7 @@ define([
         serviceCollection.each(function(service) {
           const config = new Service.Configuration({
             service: service,
-          });
+          })
           config.set('fpid', config.get('fpid') + '_disabled')
           initialModel.addDisabledConfiguration(config)
         })
@@ -411,8 +411,8 @@ define([
       )
     },
     createDeletePromise: function(source, config) {
-      const deferred = Q.defer();
-      const serviceModels = this.get('model').get('value');
+      const deferred = Q.defer()
+      const serviceModels = this.get('model').get('value')
       config
         .destroy()
         .done(function() {

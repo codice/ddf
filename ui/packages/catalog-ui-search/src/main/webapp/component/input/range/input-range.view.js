@@ -1,5 +1,5 @@
-const template = require('./input-range.hbs');
-const InputView = require('../input.view');
+const template = require('./input-range.hbs')
+const InputView = require('../input.view')
 
 module.exports = InputView.extend({
   template: template,
@@ -15,9 +15,9 @@ module.exports = InputView.extend({
     InputView.prototype.onRender.call(this)
   },
   adjustValue: function(e) {
-    let value = this.$el.find('input[type=number]').val();
-    const max = this.model.get('property').get('max');
-    const min = this.model.get('property').get('min');
+    let value = this.$el.find('input[type=number]').val()
+    const max = this.model.get('property').get('max')
+    const min = this.model.get('property').get('min')
     if (value > max) {
       value = max
       this.$el.find('input[type=number]').val(value)
@@ -41,7 +41,7 @@ module.exports = InputView.extend({
       .on(
         'change.range input.range',
         function(e) {
-          const value = this.$el.find('input[type=range]').val();
+          const value = this.$el.find('input[type=range]').val()
           this.$el.find('input[type=number]').val(value)
           this.$el.find('.units-value').html(value)
         }.bind(this)
@@ -67,7 +67,7 @@ module.exports = InputView.extend({
     )
   },
   saveChanges: function() {
-    let currentValue = this.$el.find('input[type=range]').val();
+    let currentValue = this.$el.find('input[type=range]').val()
     currentValue = Math.min(
       Math.max(currentValue, this.model.get('property').get('min')),
       this.model.get('property').get('max')

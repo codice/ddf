@@ -15,86 +15,31 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
 
   // The module to be exported
   let helper,
-      helpers = {
-        fileSize: function(item) {
-          if (_.isUndefined(item)) {
-            return 'Unknown Size'
-          }
-          item += ''
-          const givenProductSize = item.replace(/[,]+/g, '').trim(); //remove any commas and trailing whitespace
-          const bytes = parseInt(givenProductSize, 10);
-          const noUnitsGiven = /[0-9]$/; //number without a word following
-          const reformattedProductSize = givenProductSize.replace(/\s\s+/g, ' '); //remove extra whitespaces
-          const finalFormatProductSize = reformattedProductSize.replace(
-            /([0-9])([a-zA-Z])/g,
-            '$1 $2'
-          ); //make sure there is exactly one space between number and unit
-          const sizeArray = finalFormatProductSize.split(' '); //splits size into number and unit
+    helpers = {
+      fileSize: function(item) {
+        if (_.isUndefined(item)) {
+          return 'Unknown Size'
+        }
+        item += ''
+        const givenProductSize = item.replace(/[,]+/g, '').trim() //remove any commas and trailing whitespace
+        const bytes = parseInt(givenProductSize, 10)
+        const noUnitsGiven = /[0-9]$/ //number without a word following
+        const reformattedProductSize = givenProductSize.replace(/\s\s+/g, ' ') //remove extra whitespaces
+        const finalFormatProductSize = reformattedProductSize.replace(
+          /([0-9])([a-zA-Z])/g,
+          '$1 $2'
+        ) //make sure there is exactly one space between number and unit
+        const sizeArray = finalFormatProductSize.split(' ') //splits size into number and unit
 
-          if (isNaN(bytes)) {
-            return 'Unknown Size'
-          }
+        if (isNaN(bytes)) {
+          return 'Unknown Size'
+        }
 
-          if (noUnitsGiven.test(givenProductSize)) {
-            //need to parse number given and add units, number is assumed to be bytes
-            let size, index, type = ['bytes', 'KB', 'MB', 'GB', 'TB'];
-            if (bytes === 0) {
-              return '0 bytes'
-            } else {
-              index = Math.floor(Math.log(bytes) / Math.log(1024))
-              if (index > 4) {
-                index = 4
-              }
-
-              size = (bytes / Math.pow(1024, index)).toFixed(index < 2 ? 0 : 1)
-            }
-            return size + ' ' + type[index]
-          } else {
-            //units were included with size
-
-            switch (sizeArray[1].toLowerCase()) {
-              case 'bytes':
-                return sizeArray[0] + ' bytes'
-              case 'b':
-                return sizeArray[0] + ' bytes'
-              case 'kb':
-                return sizeArray[0] + ' KB'
-              case 'kilobytes':
-                return sizeArray[0] + ' KB'
-              case 'kbytes':
-                return sizeArray[0] + ' KB'
-              case 'mb':
-                return sizeArray[0] + ' MB'
-              case 'megabytes':
-                return sizeArray[0] + ' MB'
-              case 'mbytes':
-                return sizeArray[0] + ' MB'
-              case 'gb':
-                return sizeArray[0] + ' GB'
-              case 'gigabytes':
-                return sizeArray[0] + ' GB'
-              case 'gbytes':
-                return sizeArray[0] + ' GB'
-              case 'tb':
-                return sizeArray[0] + ' TB'
-              case 'terabytes':
-                return sizeArray[0] + ' TB'
-              case 'tbytes':
-                return sizeArray[0] + ' TB'
-              default:
-                return 'Unknown Size'
-            }
-          }
-        },
-        fileSizeGuaranteedInt: function(item) {
-          if (_.isUndefined(item)) {
-            return 'Unknown Size'
-          }
-          const bytes = parseInt(item, 10);
-          if (isNaN(bytes)) {
-            return item
-          }
-          let size, index, type = ['bytes', 'KB', 'MB', 'GB', 'TB'];
+        if (noUnitsGiven.test(givenProductSize)) {
+          //need to parse number given and add units, number is assumed to be bytes
+          let size,
+            index,
+            type = ['bytes', 'KB', 'MB', 'GB', 'TB']
           if (bytes === 0) {
             return '0 bytes'
           } else {
@@ -106,158 +51,217 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
             size = (bytes / Math.pow(1024, index)).toFixed(index < 2 ? 0 : 1)
           }
           return size + ' ' + type[index]
-        },
-        isNotBlank: function(context, block) {
-          if (context && context !== '') {
-            return block.fn(this)
-          } else {
-            return block.inverse(this)
+        } else {
+          //units were included with size
+
+          switch (sizeArray[1].toLowerCase()) {
+            case 'bytes':
+              return sizeArray[0] + ' bytes'
+            case 'b':
+              return sizeArray[0] + ' bytes'
+            case 'kb':
+              return sizeArray[0] + ' KB'
+            case 'kilobytes':
+              return sizeArray[0] + ' KB'
+            case 'kbytes':
+              return sizeArray[0] + ' KB'
+            case 'mb':
+              return sizeArray[0] + ' MB'
+            case 'megabytes':
+              return sizeArray[0] + ' MB'
+            case 'mbytes':
+              return sizeArray[0] + ' MB'
+            case 'gb':
+              return sizeArray[0] + ' GB'
+            case 'gigabytes':
+              return sizeArray[0] + ' GB'
+            case 'gbytes':
+              return sizeArray[0] + ' GB'
+            case 'tb':
+              return sizeArray[0] + ' TB'
+            case 'terabytes':
+              return sizeArray[0] + ' TB'
+            case 'tbytes':
+              return sizeArray[0] + ' TB'
+            default:
+              return 'Unknown Size'
           }
-        },
-        is: function(value, test, options) {
-          if (value === test) {
-            return options.fn(this)
-          } else {
-            return options.inverse(this)
+        }
+      },
+      fileSizeGuaranteedInt: function(item) {
+        if (_.isUndefined(item)) {
+          return 'Unknown Size'
+        }
+        const bytes = parseInt(item, 10)
+        if (isNaN(bytes)) {
+          return item
+        }
+        let size,
+          index,
+          type = ['bytes', 'KB', 'MB', 'GB', 'TB']
+        if (bytes === 0) {
+          return '0 bytes'
+        } else {
+          index = Math.floor(Math.log(bytes) / Math.log(1024))
+          if (index > 4) {
+            index = 4
           }
-        },
-        isnt: function(value, test, options) {
-          if (value !== test) {
-            return options.fn(this)
-          } else {
-            return options.inverse(this)
-          }
-        },
-        isUrl: function(value, options) {
-          if (value && value !== '' && _.isString(value)) {
-            const protocol = value.toLowerCase().split('/')[0];
-            if (protocol && (protocol === 'http:' || protocol === 'https:')) {
-              return options.fn(this)
-            }
-          }
+
+          size = (bytes / Math.pow(1024, index)).toFixed(index < 2 ? 0 : 1)
+        }
+        return size + ' ' + type[index]
+      },
+      isNotBlank: function(context, block) {
+        if (context && context !== '') {
+          return block.fn(this)
+        } else {
+          return block.inverse(this)
+        }
+      },
+      is: function(value, test, options) {
+        if (value === test) {
+          return options.fn(this)
+        } else {
           return options.inverse(this)
-        },
-        gt: function(value, test, options) {
-          if (value > test) {
+        }
+      },
+      isnt: function(value, test, options) {
+        if (value !== test) {
+          return options.fn(this)
+        } else {
+          return options.inverse(this)
+        }
+      },
+      isUrl: function(value, options) {
+        if (value && value !== '' && _.isString(value)) {
+          const protocol = value.toLowerCase().split('/')[0]
+          if (protocol && (protocol === 'http:' || protocol === 'https:')) {
             return options.fn(this)
-          } else {
-            return options.inverse(this)
           }
-        },
+        }
+        return options.inverse(this)
+      },
+      gt: function(value, test, options) {
+        if (value > test) {
+          return options.fn(this)
+        } else {
+          return options.inverse(this)
+        }
+      },
 
-        gte: function(value, test, options) {
-          if (value >= test) {
-            return options.fn(this)
-          } else {
-            return options.inverse(this)
-          }
-        },
-        lt: function(value, test, options) {
-          if (value < test) {
-            return options.fn(this)
-          } else {
-            return options.inverse(this)
-          }
-        },
+      gte: function(value, test, options) {
+        if (value >= test) {
+          return options.fn(this)
+        } else {
+          return options.inverse(this)
+        }
+      },
+      lt: function(value, test, options) {
+        if (value < test) {
+          return options.fn(this)
+        } else {
+          return options.inverse(this)
+        }
+      },
 
-        lte: function(value, test, options) {
-          if (value <= test) {
-            return options.fn(this)
-          } else {
-            return options.inverse(this)
+      lte: function(value, test, options) {
+        if (value <= test) {
+          return options.fn(this)
+        } else {
+          return options.inverse(this)
+        }
+      },
+      ifAnd: function() {
+        const args = _.flattenDeep(arguments)
+        const items = _.initial(args)
+        let result = true
+        const block = _.last(args)
+        _.each(items, function(item) {
+          if (!item) {
+            result = false
           }
-        },
-        ifAnd: function() {
-          const args = _.flattenDeep(arguments);
-          const items = _.initial(args);
-          let result = true;
-          const block = _.last(args);
-          _.each(items, function(item) {
-            if (!item) {
-              result = false
-            }
-          })
-          if (result) {
-            return block.fn(this)
-          } else {
-            return block.inverse(this)
+        })
+        if (result) {
+          return block.fn(this)
+        } else {
+          return block.inverse(this)
+        }
+      },
+      ifOr: function() {
+        const args = _.flattenDeep(arguments)
+        const items = _.initial(args)
+        let result = false
+        const block = _.last(args)
+        _.each(items, function(item) {
+          if (item) {
+            result = true
           }
-        },
-        ifOr: function() {
-          const args = _.flattenDeep(arguments);
-          const items = _.initial(args);
-          let result = false;
-          const block = _.last(args);
-          _.each(items, function(item) {
-            if (item) {
-              result = true
-            }
-          })
-          if (result) {
-            return block.fn(this)
-          } else {
-            return block.inverse(this)
+        })
+        if (result) {
+          return block.fn(this)
+        } else {
+          return block.inverse(this)
+        }
+      },
+      ifNotAnd: function() {
+        const args = _.flattenDeep(arguments)
+        const items = _.initial(args)
+        let result = true
+        const block = _.last(args)
+        _.each(items, function(item) {
+          if (!item) {
+            result = false
           }
-        },
-        ifNotAnd: function() {
-          const args = _.flattenDeep(arguments);
-          const items = _.initial(args);
-          let result = true;
-          const block = _.last(args);
-          _.each(items, function(item) {
-            if (!item) {
-              result = false
-            }
-          })
-          if (result) {
-            return block.inverse(this)
-          } else {
-            return block.fn(this)
+        })
+        if (result) {
+          return block.inverse(this)
+        } else {
+          return block.fn(this)
+        }
+      },
+      ifNotOr: function() {
+        const args = _.flattenDeep(arguments)
+        const items = _.initial(args)
+        let result = false
+        const block = _.last(args)
+        _.each(items, function(item) {
+          if (item) {
+            result = true
           }
-        },
-        ifNotOr: function() {
-          const args = _.flattenDeep(arguments);
-          const items = _.initial(args);
-          let result = false;
-          const block = _.last(args);
-          _.each(items, function(item) {
-            if (item) {
-              result = true
-            }
-          })
-          if (result) {
-            return block.inverse(this)
-          } else {
-            return block.fn(this)
-          }
-        },
-        propertyTitle: function(str) {
-          if (_.isString(str)) {
-            return _.chain(str)
-              .words()
-              .map(function(word) {
-                return _.capitalize(word)
-              })
-              .join(' ')
-          }
-          return str
-        },
-        safeString: function(str) {
-          if (_.isString(str)) {
-            return new Handlebars.SafeString(str)
-          }
-          return str
-        },
-        splitDashes: function(str) {
-          return str.split('-').join(' ')
-        },
-        encodeString: function(str) {
-          if (_.isString(str)) {
-            return encodeURIComponent(str)
-          }
-          return str
-        },
-      };
+        })
+        if (result) {
+          return block.inverse(this)
+        } else {
+          return block.fn(this)
+        }
+      },
+      propertyTitle: function(str) {
+        if (_.isString(str)) {
+          return _.chain(str)
+            .words()
+            .map(function(word) {
+              return _.capitalize(word)
+            })
+            .join(' ')
+        }
+        return str
+      },
+      safeString: function(str) {
+        if (_.isString(str)) {
+          return new Handlebars.SafeString(str)
+        }
+        return str
+      },
+      splitDashes: function(str) {
+        return str.split('-').join(' ')
+      },
+      encodeString: function(str) {
+        if (_.isString(str)) {
+          return encodeURIComponent(str)
+        }
+        return str
+      },
+    }
 
   // Export helpers
   for (helper in helpers) {

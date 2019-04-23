@@ -87,7 +87,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   showContent: function() {
-    const selectedResults = this.options.selectionInterface.getSelectedResults();
+    const selectedResults = this.options.selectionInterface.getSelectedResults()
     if (selectedResults.length === 1) {
       this.showMetacard()
     } else if (selectedResults.length > 1) {

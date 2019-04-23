@@ -18,8 +18,8 @@ module.exports = TabsView.extend({
     this.determineDisabledContent()
     this.determineAvailableContent()
     TabsView.prototype.initialize.call(this)
-    const debounceDetermineContent = _.debounce(this.handleMetacardChange, 200);
-    const throttleDetermineContent = _.throttle(this.handleMetacardChange, 200);
+    const debounceDetermineContent = _.debounce(this.handleMetacardChange, 200)
+    const throttleDetermineContent = _.throttle(this.handleMetacardChange, 200)
     this.listenTo(
       this.selectionInterface.getSelectedResults(),
       'update',
@@ -51,8 +51,8 @@ module.exports = TabsView.extend({
     this.determineContent()
   },
   determineContentFromType: function() {
-    const activeTabName = this.model.get('activeTab');
-    const result = this.selectionInterface.getSelectedResults().first();
+    const activeTabName = this.model.get('activeTab')
+    const result = this.selectionInterface.getSelectedResults().first()
     if (
       result.isRevision() &&
       ['History', 'Actions', 'Overwrite', 'Archive'].indexOf(activeTabName) >= 0
@@ -86,7 +86,7 @@ module.exports = TabsView.extend({
     if (!result.hasPreview() && ['Preview'].indexOf(activeTabName) >= 0) {
       this.model.set('activeTab', 'Summary')
     }
-    const activeTab = this.model.getActiveView();
+    const activeTab = this.model.getActiveView()
     if (activeTab) {
       this.tabsContent.show(
         new activeTab({
@@ -102,7 +102,7 @@ module.exports = TabsView.extend({
   },
   determineAvailableContent: function() {
     if (this.selectionInterface.getSelectedResults().length === 1) {
-      const result = this.selectionInterface.getSelectedResults().first();
+      const result = this.selectionInterface.getSelectedResults().first()
       this.$el.toggleClass('is-workspace', result.isWorkspace())
       this.$el.toggleClass('is-resource', result.isResource())
       this.$el.toggleClass('is-revision', result.isRevision())

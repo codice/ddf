@@ -36,12 +36,12 @@ module.exports = Marionette.ItemView.extend(
       this.handleEditing()
     },
     handleClick: function(event) {
-      const value = $(event.currentTarget).attr('data-value');
+      const value = $(event.currentTarget).attr('data-value')
       this.model.set('value', JSON.parse(value))
       this.handleValue()
     },
     handleEditing: function() {
-      const isEditing = this.model.get('isEditing');
+      const isEditing = this.model.get('isEditing')
       this.$el.toggleClass('is-editing', isEditing)
       if (isEditing) {
         this.$el.find('button').removeAttr('disabled')
@@ -50,8 +50,8 @@ module.exports = Marionette.ItemView.extend(
       }
     },
     handleValue: function() {
-      const value = this.model.get('value');
-      const choices = this.$el.children('[data-value]');
+      const value = this.model.get('value')
+      const choices = this.$el.children('[data-value]')
       choices.removeClass('is-selected')
       _.forEach(
         choices,
@@ -69,7 +69,7 @@ module.exports = Marionette.ItemView.extend(
       this.model.set('isEditing', false)
     },
     serializeData: function() {
-      const modelJSON = this.model.toJSON();
+      const modelJSON = this.model.toJSON()
       modelJSON.options.forEach(function(option) {
         option.value = JSON.stringify(option.value)
       })

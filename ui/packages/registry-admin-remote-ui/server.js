@@ -10,9 +10,10 @@
  *
  **/
 
-const express = require('express'), server = require('./server-impl');
+const express = require('express'),
+  server = require('./server-impl')
 
-const app = express();
+const app = express()
 // uncomment to get some debugging
 //app.use(express.logger());
 //enable the live reload

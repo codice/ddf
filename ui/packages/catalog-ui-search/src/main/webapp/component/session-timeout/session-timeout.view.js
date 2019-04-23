@@ -1,7 +1,7 @@
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
-const template = require('./session-timeout.hbs');
-const sessionTimeoutModel = require('../singletons/session-timeout.js');
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const template = require('./session-timeout.hbs')
+const sessionTimeoutModel = require('../singletons/session-timeout.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

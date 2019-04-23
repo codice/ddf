@@ -19,13 +19,13 @@ const sources = require('../component/singletons/sources-instance.js')
 const moment = require('moment')
 require('./jquery.whenAll')
 
-let checkForFailures, startSearch, addFailure, handleReattempts;
-const pollingQueries = {};
-const failedQueries = {};
+let checkForFailures, startSearch, addFailure, handleReattempts
+const pollingQueries = {}
+const failedQueries = {}
 
 function getTimeRange(polling) {
-  const before = Date.now();
-  const after = Date.now() - polling;
+  const before = Date.now()
+  const after = Date.now() - polling
   return {
     before: moment(before).toISOString(),
     after: moment(after).toISOString(),
@@ -143,7 +143,7 @@ function removeImpertinentFailures(queryId) {
 }
 
 function removeExistingPolling(queryId) {
-  const pollingDetails = pollingQueries[queryId];
+  const pollingDetails = pollingQueries[queryId]
   if (pollingDetails) {
     clearInterval(pollingDetails.intervalId)
     delete pollingQueries[queryId]
@@ -164,7 +164,7 @@ addFailure = function(srcId, originalQuery, timeRange) {
 checkForFailures = function(responses, originalQuery, timeRange) {
   _.forEach(responses, function(response) {
     if (response[1] === 'error' || !response[0].status.successful) {
-      const srcId = JSON.parse(response[0].options.data).src;
+      const srcId = JSON.parse(response[0].options.data).src
       addFailure(srcId, originalQuery, timeRange)
     }
   })
@@ -188,8 +188,8 @@ startSearch = function(originalQuery, timeRange, queryToRun) {
               .get('metacard')
               .get('properties')
               .get('id')
-          });
-        const when = Date.now();
+          })
+        const when = Date.now()
         if (metacardIds.length > 0) {
           wreqr.vent.trigger('alerts:add', {
             queryId: originalQuery.id,
@@ -210,8 +210,8 @@ handleReattempts = function() {
         const timeRange = {
           after: timeRanges[0].after,
           before: timeRanges[timeRanges.length - 1].before,
-        };
-        const queryToRun = subset.originalQuery.clone();
+        }
+        const queryToRun = subset.originalQuery.clone()
         queryToRun.set('federation', 'selected')
         queryToRun.set('src', [srcId])
         queryToRun.set(
@@ -235,12 +235,12 @@ module.exports = {
     query.listenTo(query, 'change:polling', this.handlePollingUpdate.bind(this))
     query.listenTo(query, 'change:src', this.handleSrcUpdate.bind(this))
     query.listenTo(query, 'change:federation', this.handleSrcUpdate.bind(this))
-    const polling = query.get('polling');
+    const polling = query.get('polling')
     if (polling) {
       const intervalId = setInterval(function() {
-        const timeRange = getTimeRange(polling);
+        const timeRange = getTimeRange(polling)
         startSearch(query, timeRange)
-      }, polling);
+      }, polling)
       pollingQueries[query.id] = {
         intervalId: intervalId,
       }

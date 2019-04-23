@@ -53,13 +53,13 @@ function computeDestination(point, bearing, distance) {
   let lat2 = Math.asin(
     Math.sin(lat1) * Math.cos(radDistance) +
       Math.cos(lat1) * Math.sin(radDistance) * Math.cos(radBearing)
-  );
+  )
   let lon2 =
     lon1 +
     Math.atan2(
       Math.sin(radBearing) * Math.sin(radDistance) * Math.cos(lat1),
       Math.cos(radDistance) - Math.sin(lat1) * Math.sin(lat2)
-    );
+    )
   if (isNaN(lat2) || isNaN(lon2)) {
     return null
   }
@@ -85,7 +85,7 @@ function computeCircle(point, distance, n) {
     return null
   }
 
-  const points = [];
+  const points = []
   for (let i = 0; i < n; i++) {
     points.push(computeDestination(point, (360 * i) / n, distance))
   }

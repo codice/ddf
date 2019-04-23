@@ -13,18 +13,18 @@
  *
  **/
 
-const Marionette = require('marionette');
-const _ = require('underscore');
-const $ = require('jquery');
-const template = require('./list-editor.hbs');
-const CustomElements = require('../../js/CustomElements.js');
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./list-editor.hbs')
+const CustomElements = require('../../js/CustomElements.js')
 require('../../behaviors/button.behavior.js')
 var DropdownView = require('../dropdown/dropdown.view.js')
-const PropertyView = require('../property/property.view.js');
-const Property = require('../property/property.js');
-const List = require('../../js/model/List.js');
+const PropertyView = require('../property/property.view.js')
+const Property = require('../property/property.js')
+const List = require('../../js/model/List.js')
 var DropdownView = require('../dropdown/popout/dropdown.popout.view.js')
-const ListFilterView = require('../result-filter/list/result-filter.list.view.js');
+const ListFilterView = require('../result-filter/list/result-filter.list.view.js')
 const properties = require('../../js/properties.js')
 
 module.exports = Marionette.LayoutView.extend({
@@ -121,7 +121,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleCQLSwitch()
   },
   handleCQLSwitch: function() {
-    const shouldLimit = this.listCQLSwitch.currentView.model.getValue()[0];
+    const shouldLimit = this.listCQLSwitch.currentView.model.getValue()[0]
     this.$el.toggleClass('is-limited', shouldLimit)
   },
   showCQL: function() {
@@ -155,7 +155,7 @@ module.exports = Marionette.LayoutView.extend({
       function(element) {
         return element.offsetParent !== null
       }
-    );
+    )
     if (tabbable.length > 0) {
       $(tabbable[0]).focus()
     }

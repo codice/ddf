@@ -56,7 +56,7 @@ module.exports = Backbone.Model.extend({
   },
   //transform incoming value so later comparisons are easier
   transformValue: function() {
-    const currentValue = this.getValue();
+    const currentValue = this.getValue()
     switch (this.getCalculatedType()) {
       case 'thumbnail':
       case 'location':
@@ -101,7 +101,7 @@ module.exports = Backbone.Model.extend({
     }
   },
   hasChanged: function() {
-    const currentValue = this.getValue();
+    const currentValue = this.getValue()
     currentValue.sort()
     switch (this.getCalculatedType()) {
       case 'location':
@@ -210,7 +210,7 @@ module.exports = Backbone.Model.extend({
     this.set('_initialValue', this.getValue())
   },
   _setCalculatedType: function() {
-    let calculatedType;
+    let calculatedType
 
     switch (this.get('type')) {
       case 'DATE':

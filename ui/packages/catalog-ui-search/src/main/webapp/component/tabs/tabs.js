@@ -9,7 +9,7 @@ const Tabs = Backbone.Model.extend({
     this.setDefaultActiveTab()
   },
   setDefaultActiveTab: function() {
-    const tabs = this.get('tabs');
+    const tabs = this.get('tabs')
     if (Object.keys(tabs).length > 0 && !this.getActiveTab()) {
       this.set('activeTab', Object.keys(tabs)[0])
     }
@@ -28,6 +28,6 @@ const Tabs = Backbone.Model.extend({
       return this.get('tabsOptions')[this.getActiveTab()]
     }
   },
-});
+})
 
 module.exports = Tabs

@@ -19,7 +19,7 @@ define([], function() {
      * @returns {string}
      */
     convertUptimeToString: function(uptime) {
-      const oDiff = {};
+      const oDiff = {}
 
       oDiff.days = Math.floor(uptime / 1000 / 60 / 60 / 24)
       uptime -= oDiff.days * 1000 * 60 * 60 * 24
@@ -36,9 +36,9 @@ define([], function() {
       //  Format Duration
       //  -------------------------------------------------------------------  //
       //  Format Hours
-      const daystext = String(oDiff.days);
+      const daystext = String(oDiff.days)
 
-      let hourtext = '00';
+      let hourtext = '00'
       if (oDiff.hours > 0) {
         hourtext = String(oDiff.hours)
       }
@@ -47,7 +47,7 @@ define([], function() {
       }
 
       //  Format Minutes
-      let mintext = '00';
+      let mintext = '00'
       if (oDiff.minutes > 0) {
         mintext = String(oDiff.minutes)
       }
@@ -56,7 +56,7 @@ define([], function() {
       }
 
       //  Format Seconds
-      let sectext = '00';
+      let sectext = '00'
       if (oDiff.seconds > 0) {
         sectext = String(oDiff.seconds)
       }
@@ -65,12 +65,13 @@ define([], function() {
       }
 
       //  Set Duration
-      const sDuration = daystext + 'd ' + hourtext + ':' + mintext + ':' + sectext;
+      const sDuration =
+        daystext + 'd ' + hourtext + ':' + mintext + ':' + sectext
       //  -------------------------------------------------------------------  //
 
       return sDuration
     },
-  };
+  }
 
   return Util
 })

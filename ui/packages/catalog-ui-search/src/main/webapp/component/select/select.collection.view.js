@@ -49,7 +49,7 @@ module.exports = Marionette.CollectionView.extend({
     this.listenTo(this.model, 'change:filterValue', this.handleFilterUpdate)
   },
   updateFilterChoice: function() {
-    const filterValue = this.model.get('filterValue');
+    const filterValue = this.model.get('filterValue')
     this.collection.first().set({
       label: filterValue !== '' ? filterValue : this.model.get('value')[0],
       value: filterValue !== '' ? filterValue : this.model.get('value')[0],
@@ -72,7 +72,7 @@ module.exports = Marionette.CollectionView.extend({
     this.handleActive()
   },
   handleValueForChildView: function(childView) {
-    const values = this.model.get('value');
+    const values = this.model.get('value')
     values.forEach(function(value) {
       if (childView.$el.attr('data-value') === JSON.stringify(value)) {
         childView.$el.addClass('is-selected')
@@ -101,13 +101,13 @@ module.exports = Marionette.CollectionView.extend({
   },
   filterValue: '',
   handleToggleAll: function() {
-    const availableChoices = this.$el.children();
-    const selectAll = availableChoices.filter(':not(.is-selected)').length > 0;
+    const availableChoices = this.$el.children()
+    const selectAll = availableChoices.filter(':not(.is-selected)').length > 0
     const values = availableChoices
       .map(function(index, element) {
         return JSON.parse(element.getAttribute('data-value'))
       })
-      .get();
+      .get()
     if (selectAll) {
       availableChoices.addClass('is-selected')
       this.addValues(values)
@@ -123,9 +123,9 @@ module.exports = Marionette.CollectionView.extend({
     if (!this.options.isMultiSelect) {
       this.$el.children('.is-selected').removeClass('is-selected')
     }
-    const activeChoice = this.$el.children('.choice.is-active');
+    const activeChoice = this.$el.children('.choice.is-active')
     if (activeChoice.length > 0) {
-      const el = activeChoice.toggleClass('is-selected')[0];
+      const el = activeChoice.toggleClass('is-selected')[0]
       this.updateValue(el)
       if (!this.options.isMultiSelect) {
         this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
@@ -133,8 +133,8 @@ module.exports = Marionette.CollectionView.extend({
     }
   },
   handleDownArrow: function() {
-    const $currentActive = this.$el.children('.choice.is-active');
-    const $nextActive = $currentActive.next();
+    const $currentActive = this.$el.children('.choice.is-active')
+    const $nextActive = $currentActive.next()
     if ($nextActive.length !== 0) {
       $currentActive.removeClass('is-active')
       $nextActive.addClass('is-active')
@@ -143,7 +143,7 @@ module.exports = Marionette.CollectionView.extend({
         $nextActive[0].getBoundingClientRect().height -
         ($nextActive[0].parentNode.parentNode.parentNode.clientHeight +
           $nextActive[0].parentNode.parentNode.parentNode.getBoundingClientRect()
-            .top);
+            .top)
       if (diff >= 0) {
         $nextActive[0].parentNode.parentNode.parentNode.scrollTop =
           $nextActive[0].parentNode.parentNode.parentNode.scrollTop + diff
@@ -151,14 +151,14 @@ module.exports = Marionette.CollectionView.extend({
     }
   },
   handleUpArrow: function() {
-    const $currentActive = this.$el.children('.choice.is-active');
-    const $nextActive = $currentActive.prev();
+    const $currentActive = this.$el.children('.choice.is-active')
+    const $nextActive = $currentActive.prev()
     if ($nextActive.length !== 0) {
       $currentActive.removeClass('is-active')
       $nextActive.addClass('is-active')
       const diff =
         $nextActive[0].parentNode.parentNode.parentNode.getBoundingClientRect()
-          .top - $nextActive[0].getBoundingClientRect().top;
+          .top - $nextActive[0].getBoundingClientRect().top
       if (diff >= 0) {
         $nextActive[0].parentNode.parentNode.parentNode.scrollTop =
           $nextActive[0].parentNode.parentNode.parentNode.scrollTop - diff
@@ -166,7 +166,7 @@ module.exports = Marionette.CollectionView.extend({
     }
   },
   filter: function(child) {
-    let filterValue = this.model.get('filterValue');
+    let filterValue = this.model.get('filterValue')
     filterValue = filterValue !== undefined ? filterValue : ''
     if (
       child.get('filterChoice') === true &&
@@ -196,9 +196,9 @@ module.exports = Marionette.CollectionView.extend({
     return true
   },
   addValues: function(values) {
-    const currentValues = this.model.get('value').slice();
+    const currentValues = this.model.get('value').slice()
     values.forEach(function(value) {
-      const index = currentValues.indexOf(value);
+      const index = currentValues.indexOf(value)
       if (index === -1) {
         currentValues.push(value)
       }
@@ -208,9 +208,9 @@ module.exports = Marionette.CollectionView.extend({
     })
   },
   removeValues: function(values) {
-    const currentValues = this.model.get('value').slice();
+    const currentValues = this.model.get('value').slice()
     values.forEach(function(value) {
-      const index = currentValues.indexOf(value);
+      const index = currentValues.indexOf(value)
       if (index >= 0) {
         currentValues.splice(index, 1)
       }
@@ -220,10 +220,10 @@ module.exports = Marionette.CollectionView.extend({
     })
   },
   updateValue: function(target) {
-    const value = JSON.parse($(target).attr('data-value'));
-    let values = this.model.get('value').slice();
+    const value = JSON.parse($(target).attr('data-value'))
+    let values = this.model.get('value').slice()
     if (this.options.isMultiSelect) {
-      const index = values.indexOf(value);
+      const index = values.indexOf(value)
       if (index >= 0) {
         values.splice(index, 1)
       } else {

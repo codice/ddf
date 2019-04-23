@@ -31,6 +31,6 @@ const MetacardsTabs = Tabs.extend({
       Archive: MetacardArchiveView,
     },
   },
-});
+})
 
 module.exports = MetacardsTabs

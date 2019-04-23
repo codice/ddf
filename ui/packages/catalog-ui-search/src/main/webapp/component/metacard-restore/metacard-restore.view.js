@@ -28,7 +28,7 @@ const getDeletedMetacards = function() {
       { type: '=', property: '"metacard-tags"', value: 'revision' },
       { type: '=', property: '"metacard.version.action"', value: 'Deleted' },
     ],
-  };
+  }
 
   return new Query.Model({
     federation: 'local',
@@ -36,7 +36,7 @@ const getDeletedMetacards = function() {
     sortField: 'metacard.version.versioned',
     sortOrder: 'desc',
   })
-};
+}
 
 const RestoreItemView = Marionette.ItemView.extend({
   className: 'row',
@@ -51,7 +51,7 @@ const RestoreItemView = Marionette.ItemView.extend({
     const properties = this.model
       .get('metacard')
       .get('properties')
-      .toJSON();
+      .toJSON()
     return {
       message: this.model.get('message'),
       messageClass: this.model.get('messageClass'),
@@ -61,14 +61,14 @@ const RestoreItemView = Marionette.ItemView.extend({
     }
   },
   restore: function() {
-    const model = this.model;
+    const model = this.model
 
     const historyId = model
       .get('metacard')
       .get('properties')
-      .get('metacard.version.id');
-    const metacardId = model.get('metacard').get('id');
-    const revert = './internal/history/revert/' + historyId + '/' + metacardId;
+      .get('metacard.version.id')
+    const metacardId = model.get('metacard').get('id')
+    const revert = './internal/history/revert/' + historyId + '/' + metacardId
 
     $.get(revert).then(
       function() {
@@ -85,16 +85,16 @@ const RestoreItemView = Marionette.ItemView.extend({
       }
     )
   },
-});
+})
 
 const EmptyRestoreItemView = Marionette.ItemView.extend({
   template: 'No items to restore.',
-});
+})
 
 const RestoreCollectionView = Marionette.CollectionView.extend({
   emptyView: EmptyRestoreItemView,
   childView: RestoreItemView,
-});
+})
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

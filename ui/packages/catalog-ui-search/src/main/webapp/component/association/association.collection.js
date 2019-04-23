@@ -10,8 +10,8 @@
  *
  **/
 
-const Backbone = require('backbone');
-const AssociationModel = require('./association');
+const Backbone = require('backbone')
+const AssociationModel = require('./association')
 
 module.exports = Backbone.Collection.extend({
   model: AssociationModel,

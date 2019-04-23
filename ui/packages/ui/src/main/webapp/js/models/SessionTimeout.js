@@ -10,19 +10,19 @@
  *
  **/
 
-const invalidateUrl = '../services/internal/session/invalidate?prevurl=';
+const invalidateUrl = '../services/internal/session/invalidate?prevurl='
 
-const idleNoticeDuration = 60000;
+const idleNoticeDuration = 60000
 // Length of inactivity that will trigger user timeout (15 minutes in ms by default)
 // See STIG V-69243
-let idleTimeoutThreshold = 900000;
+let idleTimeoutThreshold = 900000
 
 function getIdleTimeoutDate() {
   return idleTimeoutThreshold + Date.now()
 }
 
 function localStorageAvailable() {
-  const test = 'test';
+  const test = 'test'
   try {
     localStorage.setItem(test, test)
     localStorage.removeItem(test)
@@ -104,7 +104,7 @@ define(['backbone', 'jquery', 'underscore', 'properties'], function(
       clearTimeout(this.logoutTimer)
     },
     resetIdleTimeoutDate: function() {
-      const idleTimeoutDate = getIdleTimeoutDate();
+      const idleTimeoutDate = getIdleTimeoutDate()
       if (this.get('localStorageAvailable')) {
         localStorage.setItem('idleTimeoutDate', idleTimeoutDate)
       }
@@ -129,7 +129,7 @@ define(['backbone', 'jquery', 'underscore', 'properties'], function(
     getIdleSeconds: function() {
       return parseInt((this.get('idleTimeoutDate') - Date.now()) / 1000)
     },
-  }))();
+  }))()
 
   return sessionTimeoutModel
 })

@@ -25,14 +25,14 @@ define([
     Backbone,
     Marionette
   ) {
-    const serviceModel = new Service.Response();
+    const serviceModel = new Service.Response()
     serviceModel.fetch()
 
-    const registryResponse = new Registry.Response({ model: serviceModel });
+    const registryResponse = new Registry.Response({ model: serviceModel })
 
     const registryPage = new RegistryView.RegistryPage({
       model: registryResponse,
-    });
+    })
 
     const Controller = Marionette.Controller.extend({
       initialize: function(options) {
@@ -42,7 +42,7 @@ define([
       show: function() {
         this.region.show(registryPage)
       },
-    });
+    })
 
     RegistryModule.addInitializer(function() {
       RegistryModule.contentController = new Controller({

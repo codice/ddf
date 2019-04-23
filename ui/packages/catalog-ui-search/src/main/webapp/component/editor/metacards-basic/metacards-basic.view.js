@@ -17,10 +17,10 @@ module.exports = EditorView.extend({
     EditorView.prototype.initialize.call(this, options)
   },
   onBeforeShow: function() {
-    const results = this.selectionInterface.getSelectedResults();
+    const results = this.selectionInterface.getSelectedResults()
     const metacards = results.map(function(result) {
       return result.get('metacard>properties').toJSON()
-    });
+    })
     this.editorProperties.show(
       PropertyCollectionView.generatePropertyCollectionView(metacards)
     )
@@ -34,8 +34,8 @@ module.exports = EditorView.extend({
     }
   },
   getValidation: function() {
-    const results = this.selectionInterface.getSelectedResults();
-    const self = this;
+    const results = this.selectionInterface.getSelectedResults()
+    const self = this
     self.editorProperties.currentView.clearValidation()
     results
       .filter(function(result) {
@@ -74,9 +74,9 @@ module.exports = EditorView.extend({
           }),
           attributes: editorJSON,
         },
-      ];
+      ]
       LoadingCompanionView.beginLoading(this)
-      const self = this;
+      const self = this
       setTimeout(function() {
         $.ajax({
           url: './internal/metacards',

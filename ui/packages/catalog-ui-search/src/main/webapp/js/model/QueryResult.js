@@ -9,20 +9,20 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Backbone = require('backbone');
-const _ = require('underscore');
-const $ = require('jquery');
-const Sources = require('../../component/singletons/sources-instance.js');
-const CQLUtils = require('../CQLUtils.js');
-const Common = require('../Common.js');
-const filter = require('../filter.js');
+const Backbone = require('backbone')
+const _ = require('underscore')
+const $ = require('jquery')
+const Sources = require('../../component/singletons/sources-instance.js')
+const CQLUtils = require('../CQLUtils.js')
+const Common = require('../Common.js')
+const filter = require('../filter.js')
 require('backbone-associations')
 
-const Metacard = require('./Metacard.js');
-const MetacardActionModel = require('./MetacardAction.js');
+const Metacard = require('./Metacard.js')
+const MetacardActionModel = require('./MetacardAction.js')
 
 function generateThumbnailUrl(url) {
-  let newUrl = url;
+  let newUrl = url
   if (url.indexOf('?') >= 0) {
     newUrl += '&'
   } else {
@@ -158,7 +158,7 @@ module.exports = Backbone.AssociatedModel.extend({
     //let solr flush
     setTimeout(
       function() {
-        const metacard = this.get('metacard');
+        const metacard = this.get('metacard')
         const req = {
           count: 1,
           cql: CQLUtils.transformFilterToCQL({
@@ -192,7 +192,7 @@ module.exports = Backbone.AssociatedModel.extend({
           sort: 'modified:desc',
           src: metacard.get('properties').get('source-id'),
           start: 1,
-        };
+        }
         $.ajax({
           type: 'POST',
           url: './internal/cql',
@@ -210,8 +210,8 @@ module.exports = Backbone.AssociatedModel.extend({
     //do nothing for now, should we announce this?
   },
   parseRefresh: function(response) {
-    const queryId = this.get('metacard').get('queryId');
-    const color = this.get('metacard').get('color');
+    const queryId = this.get('metacard').get('queryId')
+    const color = this.get('metacard').get('color')
     _.forEach(response.results, function(result) {
       delete result.relevance
       result.propertyTypes =
@@ -225,7 +225,7 @@ module.exports = Backbone.AssociatedModel.extend({
       result.actions.forEach(action => (action.queryId = queryId))
       const thumbnailAction = _.findWhere(result.actions, {
         id: 'catalog.data.metacard.thumbnail',
-      });
+      })
       if (result.hasThumbnail && thumbnailAction) {
         result.metacard.properties.thumbnail = generateThumbnailUrl(
           thumbnailAction.url

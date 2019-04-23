@@ -28,7 +28,7 @@ define([
     }
   }
 
-  const Field = {};
+  const Field = {}
 
   Field.FormField = Backbone.AssociatedModel.extend({
     defaults: {
@@ -44,7 +44,7 @@ define([
       required: false,
     },
     setupChangeListener: function() {
-      const model = this;
+      const model = this
       this.listenTo(this, 'change', function(event) {
         if (
           Object.keys(event.changed).some(function(prop) {
@@ -56,7 +56,7 @@ define([
       })
     },
     isBlankDate: function() {
-      let timeLength = 0;
+      let timeLength = 0
       if (this.get('valueDate') !== undefined) {
         timeLength = this.get('valueDate').length
       }
@@ -85,7 +85,7 @@ define([
       this.set('value' + (this.get('value').length - 1), val)
     },
     removeValue: function(index) {
-      const values = this.get('value');
+      const values = this.get('value')
       for (var count = 0; count < values.length; count++) {
         values[count] = this.get('value' + count)
       }
@@ -97,9 +97,9 @@ define([
       this.unset('value' + values.length)
     },
     validate: function() {
-      let error;
-      const indices = [];
-      const type = this.get('type');
+      let error
+      const indices = []
+      const type = this.get('type')
       if (!this.get('value') && (type === 'point' || type === 'bounds')) {
         this.set('value', [])
       }
@@ -116,13 +116,13 @@ define([
         }
       }
 
-      let regex;
+      let regex
       if (this.get('regex')) {
-        const flags = this.get('regex').replace(/.*\/([gimy]*)$/, '$1');
+        const flags = this.get('regex').replace(/.*\/([gimy]*)$/, '$1')
         const pattern = this.get('regex').replace(
           new RegExp('^/(.*?)/' + flags + '$'),
           '$1'
-        );
+        )
         regex = new RegExp(pattern, flags)
       }
 
@@ -230,8 +230,8 @@ define([
           delete backingData[this.get('key')]
         }
       } else {
-        let slot = getSlot(backingData.Slot, this.get('key'));
-        let newSlot = false;
+        let slot = getSlot(backingData.Slot, this.get('key'))
+        let newSlot = false
         if (!slot) {
           slot = {
             slotType: ebrimTypes[this.get('type')],
@@ -243,7 +243,7 @@ define([
 
         if (this.get('type') === 'date') {
           if (!this.isBlankDate()) {
-            let time = '00:00';
+            let time = '00:00'
             if (this.get('valueTime')) {
               time = this.get('valueTime')
             }
@@ -279,7 +279,7 @@ define([
         } else if (this.get('type') === 'boolean') {
           slot.value = this.get('value') ? 'true' : 'false'
         } else if (this.get('multiValued') && this.get('value')) {
-          const values = [];
+          const values = []
           for (let index = 0; index < this.get('value').length; index++) {
             if (this.get('value' + index)) {
               values.push(this.get('value' + index))
@@ -299,7 +299,7 @@ define([
         if (!newSlot && !slot.value) {
           const slotIndex = backingData.Slot.map(function(e) {
             return e.name
-          }).indexOf(slot.name);
+          }).indexOf(slot.name)
           backingData.Slot.splice(slotIndex, 1)
         }
       }

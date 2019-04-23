@@ -80,7 +80,7 @@ module.exports = Marionette.LayoutView.extend({
     LoadingCompanionView.beginLoading(this)
     $.get('./internal/notes/' + this._metacardId).then(
       function(response) {
-        const resp = response.response;
+        const resp = response.response
         if (response.responseType === 'success') {
           if (this.isValidResponse(resp)) {
             this._notes = JSON.parse(resp)
@@ -141,8 +141,8 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-editing', false)
   },
   handleCreate: function() {
-    const note = this.addNoteField.currentView.model.get('value')[0];
-    const noteObj = {};
+    const note = this.addNoteField.currentView.model.get('value')[0]
+    const noteObj = {}
     noteObj.parent = this._metacardId
     noteObj.note = note
 
@@ -155,7 +155,7 @@ module.exports = Marionette.LayoutView.extend({
         contentType: 'application/json',
       }).always(
         function(response) {
-          const resp = response.response;
+          const resp = response.response
           setTimeout(
             function() {
               if (response.responseType === 'success') {
@@ -196,7 +196,7 @@ module.exports = Marionette.LayoutView.extend({
     return response !== ''
   },
   handlePostResponse: function(response) {
-    const note = JSON.parse(response);
+    const note = JSON.parse(response)
 
     this._notesCollection.add({
       id: note.id,

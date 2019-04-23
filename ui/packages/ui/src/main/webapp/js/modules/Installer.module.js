@@ -30,12 +30,12 @@ define([
     _
   ) {
     this.startWithParent = false
-    const installerModel = new InstallerModel.Model();
+    const installerModel = new InstallerModel.Model()
 
     // Define a view to show
     // ---------------------
 
-    const installerPage = new InstallerView({ model: installerModel });
+    const installerPage = new InstallerView({ model: installerModel })
 
     // Define a controller to run this module
     // --------------------------------------
@@ -48,7 +48,7 @@ define([
       show: function() {
         this.region.show(installerPage)
       },
-    });
+    })
 
     //            contentRegion: '#content-region'
     // Initialize this module when the app starts
@@ -81,5 +81,5 @@ define([
           AppModule.contentController.show()
         })
     })
-  });
+  })
 })

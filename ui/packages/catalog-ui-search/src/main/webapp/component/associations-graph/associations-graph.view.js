@@ -1,14 +1,14 @@
-const Marionette = require('marionette');
-const wreqr = require('../../js/wreqr.js');
-const _ = require('underscore');
-const template = require('./associations-graph.hbs');
-const CustomElements = require('../../js/CustomElements.js');
-const AssociationView = require('../association/association.view.js');
-const Association = require('../association/association.js');
-const Vis = require('vis');
+const Marionette = require('marionette')
+const wreqr = require('../../js/wreqr.js')
+const _ = require('underscore')
+const template = require('./associations-graph.hbs')
+const CustomElements = require('../../js/CustomElements.js')
+const AssociationView = require('../association/association.view.js')
+const Association = require('../association/association.js')
+const Vis = require('vis')
 
 function determineNodes(view) {
-  const currentMetacard = view.options.currentMetacard;
+  const currentMetacard = view.options.currentMetacard
   let nodes = view.options.knownMetacards
     .map(function(metacard) {
       return {
@@ -28,7 +28,7 @@ function determineNodes(view) {
               .get('title'),
           }
         })
-    );
+    )
   nodes = _.uniq(nodes, false, function(node) {
     return node.id
   })
@@ -154,15 +154,15 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   handleSelection: function() {
-    const graphInspector = this.graphInspector.currentView;
+    const graphInspector = this.graphInspector.currentView
     if (graphInspector) {
       handleSelection(this._parentNetwork, [graphInspector.model.cid])
       handleSelection(this._childNetwork, [graphInspector.model.cid])
     }
   },
   showParentGraph: function() {
-    const currentMetacard = this.options.currentMetacard;
-    let nodes = determineNodes(this);
+    const currentMetacard = this.options.currentMetacard
+    let nodes = determineNodes(this)
 
     // create an array with edges
     const edges = this.collection
@@ -189,7 +189,7 @@ module.exports = Marionette.LayoutView.extend({
       })
       .filter(function(edge) {
         return edge.to === currentMetacard.get('metacard').id
-      });
+      })
 
     nodes = nodes.filter(function(node) {
       return edges.some(function(edge) {
@@ -204,7 +204,7 @@ module.exports = Marionette.LayoutView.extend({
     const data = {
       nodes: new Vis.DataSet(nodes),
       edges: new Vis.DataSet(edges),
-    };
+    }
     var options = {
       layout: {
         hierarchical: {
@@ -228,8 +228,8 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   showChildGraph: function() {
-    const currentMetacard = this.options.currentMetacard;
-    let nodes = determineNodes(this);
+    const currentMetacard = this.options.currentMetacard
+    let nodes = determineNodes(this)
 
     // create an array with edges
     const edges = this.collection
@@ -256,7 +256,7 @@ module.exports = Marionette.LayoutView.extend({
       })
       .filter(function(edge) {
         return edge.from === currentMetacard.get('metacard').id
-      });
+      })
 
     nodes = nodes.filter(function(node) {
       return edges.some(function(edge) {
@@ -271,7 +271,7 @@ module.exports = Marionette.LayoutView.extend({
     const data = {
       nodes: new Vis.DataSet(nodes),
       edges: new Vis.DataSet(edges),
-    };
+    }
     var options = {
       layout: {
         hierarchical: {

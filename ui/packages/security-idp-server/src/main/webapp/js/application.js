@@ -37,7 +37,7 @@ define([
   ich.addTemplate('headerTemplate', headerTemplate)
   ich.addTemplate('footerTemplate', footerTemplate)
 
-  const Application = {};
+  const Application = {}
 
   Application.App = new Marionette.Application()
 

@@ -41,7 +41,7 @@ define([
   FileHelper,
   UrlCertificate
 ) {
-  const UploadModalView = {};
+  const UploadModalView = {}
 
   ich.addTemplate('uploadModal', uploadModal)
   ich.addTemplate('fileInfo', fileInfo)
@@ -56,7 +56,7 @@ define([
     },
     // by default, "destroy" just destroys the modal
     destroy: function() {
-      const view = this;
+      const view = this
       // we add this listener because we do not want to remove the dom before the animation completes.
       this.$el.one('hidden.bs.modal', function() {
         view.destroy()
@@ -72,14 +72,14 @@ define([
     hide: function() {
       this.$el.modal('hide')
     },
-  });
+  })
 
   const UrlCertView = Marionette.ItemView.extend({
     template: 'certificateDetail',
     modelEvents: {
       change: 'render',
     },
-  });
+  })
 
   UploadModalView.UploadModal = BaseModal.extend({
     template: 'uploadModal',
@@ -104,10 +104,10 @@ define([
       urlcertregion: '.url-cert-region',
     },
     showUrlCerts: function(e) {
-      const view = this;
-      const url = this.$('.urlField').val();
-      const encodedUrl = btoa(url);
-      const model = new UrlCertificate.Response();
+      const view = this
+      const url = this.$('.urlField').val()
+      const encodedUrl = btoa(url)
+      const model = new UrlCertificate.Response()
       model
         .fetch({ url: model.url + '/' + encodedUrl })
         .done(function() {
@@ -141,8 +141,8 @@ define([
       this.urlModel = model
     },
     isValid: function(e) {
-      const activeTab = this.$('.nav-tabs li.active a').attr('href');
-      const target = (e.currentTarget || {}).hash || activeTab;
+      const activeTab = this.$('.nav-tabs li.active a').attr('href')
+      const target = (e.currentTarget || {}).hash || activeTab
       if (target === '#upload') {
         return this.ui.alias.val() !== '' && this.file.isValid()
       } else if (target === '#url') {
@@ -163,7 +163,7 @@ define([
       }
     },
     validateTextInput: function(e) {
-      const input = $(e.target);
+      const input = $(e.target)
       if (input.val() !== '') {
         input
           .parent()
@@ -206,7 +206,7 @@ define([
             change: 'render',
           },
           serializeModel: function() {
-            const value = this.model.get('value');
+            const value = this.model.get('value')
             if (_.isString(value)) {
               return [value]
             }
@@ -228,12 +228,12 @@ define([
       this.disable()
     },
     save: function() {
-      const activeTab = this.$('.nav-tabs li.active a').attr('href');
-      const that = this;
+      const activeTab = this.$('.nav-tabs li.active a').attr('href')
+      const that = this
       if (activeTab === '#upload') {
-        const alias = this.ui.alias.val();
-        const keypass = this.ui.keypass.val();
-        const storepass = this.ui.storepass.val();
+        const alias = this.ui.alias.val()
+        const keypass = this.ui.keypass.val()
+        const storepass = this.ui.storepass.val()
 
         this.file.load(function() {
           const model = that.options.collection.create(
@@ -250,21 +250,21 @@ define([
                 that.destroy()
               }, this),
             }
-          );
+          )
           if (!model.isValid()) {
             that.error.set('value', model.validate())
           }
         })
       } else if (activeTab === '#url') {
-        const url = this.$('.urlField').val();
-        const encodedUrl = btoa(url);
+        const url = this.$('.urlField').val()
+        const encodedUrl = btoa(url)
         this.urlModel
           .fetch({ url: this.urlModel.saveUrl + '/' + encodedUrl })
           .done(function(result) {
             that.options.collection.parents[0].fetch({ reset: true })
             const obj = _.reduce(result.value, function(memo, val) {
               return !(!memo || !val)
-            });
+            })
             if (obj.success) {
               that.destroy()
             }

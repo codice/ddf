@@ -99,7 +99,7 @@ module.exports = Backbone.AssociatedModel.extend({
         )
         return currentAvailable
       }, [])
-      .sort();
+      .sort()
     this.set('activeSearchResultsAttributes', availableAttributes)
   },
   getActiveSearchResultsAttributes: function() {
@@ -151,8 +151,8 @@ module.exports = Backbone.AssociatedModel.extend({
     this.getSelectedResults().remove(metacard)
   },
   filterQuery: function(queryRef) {
-    const filteredQueries = this.get('filteredQueries');
-    const filtered = Boolean(filteredQueries.get(queryRef));
+    const filteredQueries = this.get('filteredQueries')
+    const filtered = Boolean(filteredQueries.get(queryRef))
     if (filtered) {
       filteredQueries.remove(queryRef)
     } else {

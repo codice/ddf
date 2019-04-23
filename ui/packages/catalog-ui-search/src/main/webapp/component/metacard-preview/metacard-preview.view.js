@@ -13,15 +13,15 @@
  *
  **/
 
-const Marionette = require('marionette');
-const $ = require('jquery');
-const template = require('./metacard-preview.hbs');
-const CustomElements = require('../../js/CustomElements.js');
-const LoadingCompanionView = require('../loading-companion/loading-companion.view.js');
-const store = require('../../js/store.js');
-const user = require('../singletons/user-instance.js');
-const preferences = user.get('user').get('preferences');
-const wreqr = require('../../js/wreqr.js');
+const Marionette = require('marionette')
+const $ = require('jquery')
+const template = require('./metacard-preview.hbs')
+const CustomElements = require('../../js/CustomElements.js')
+const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
+const store = require('../../js/store.js')
+const user = require('../singletons/user-instance.js')
+const preferences = user.get('user').get('preferences')
+const wreqr = require('../../js/wreqr.js')
 
 function getSrc(previewHtml, textColor) {
   return (
@@ -99,7 +99,7 @@ module.exports = Marionette.ItemView.extend({
     }
   },
   populateIframe: function() {
-    const $iframe = this.$el.find('iframe');
+    const $iframe = this.$el.find('iframe')
     $iframe.ready(
       function() {
         $iframe.contents()[0].open()

@@ -51,7 +51,7 @@ module.exports = Marionette.ItemView.extend({
       .addClass('is-selected')
   },
   handleChoice: function(e) {
-    const value = $(e.currentTarget).attr('data-value');
+    const value = $(e.currentTarget).attr('data-value')
     this.model.set('comparator', value)
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },

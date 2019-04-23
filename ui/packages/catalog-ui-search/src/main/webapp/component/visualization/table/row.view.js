@@ -13,14 +13,14 @@
  *
  **/
 
-const template = require('./row.hbs');
-const Marionette = require('marionette');
-const CustomElements = require('../../../js/CustomElements.js');
-const metacardDefinitions = require('../../singletons/metacard-definitions.js');
-const user = require('../../singletons/user-instance.js');
-const properties = require('../../../js/properties.js');
-const HoverPreviewDropdown = require('../../dropdown/hover-preview/dropdown.hover-preview.view.js');
-const DropdownModel = require('../../dropdown/dropdown.js');
+const template = require('./row.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('../../../js/CustomElements.js')
+const metacardDefinitions = require('../../singletons/metacard-definitions.js')
+const user = require('../../singletons/user-instance.js')
+const properties = require('../../../js/properties.js')
+const HoverPreviewDropdown = require('../../dropdown/hover-preview/dropdown.hover-preview.view.js')
+const DropdownModel = require('../../dropdown/dropdown.js')
 const {
   SelectItemToggle,
 } = require('../../selection-checkbox/selection-checkbox.view.js')
@@ -68,8 +68,8 @@ module.exports = Marionette.LayoutView.extend({
     this.handleSelectionChange()
   },
   handleSelectionChange: function() {
-    const selectedResults = this.options.selectionInterface.getSelectedResults();
-    const isSelected = selectedResults.get(this.model.id);
+    const selectedResults = this.options.selectionInterface.getSelectedResults()
+    const isSelected = selectedResults.get(this.model.id)
     this.$el.toggleClass('is-selected', Boolean(isSelected))
   },
   onRender: function() {
@@ -91,7 +91,7 @@ module.exports = Marionette.LayoutView.extend({
     const hiddenColumns = user
       .get('user')
       .get('preferences')
-      .get('columnHide');
+      .get('columnHide')
     if (
       this.model
         .get('metacard')
@@ -134,13 +134,13 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   serializeData: function() {
-    const prefs = user.get('user').get('preferences');
+    const prefs = user.get('user').get('preferences')
     const preferredHeader = user
       .get('user')
       .get('preferences')
-      .get('columnOrder');
-    const availableAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes();
-    const result = this.model.toJSON();
+      .get('columnOrder')
+    const availableAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes()
+    const result = this.model.toJSON()
     return {
       id: result.id,
       properties: preferredHeader
@@ -148,14 +148,14 @@ module.exports = Marionette.LayoutView.extend({
           return availableAttributes.indexOf(property) !== -1
         })
         .map(property => {
-          let value = result.metacard.properties[property];
+          let value = result.metacard.properties[property]
           if (value === undefined) {
             value = ''
           }
           if (value.constructor !== Array) {
             value = [value]
           }
-          let className = 'is-text';
+          let className = 'is-text'
           if (value && metacardDefinitions.metacardTypes[property]) {
             switch (metacardDefinitions.metacardTypes[property].type) {
               case 'DATE':
@@ -179,7 +179,7 @@ module.exports = Marionette.LayoutView.extend({
             hidden: this.isHidden(property),
           }
         }),
-    };
+    }
   },
   isHidden: function(property) {
     const hiddenColumns = user

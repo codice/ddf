@@ -16,6 +16,6 @@ const Lightbox = Backbone.Model.extend({
   updateTitle: function(title) {
     this.set('title', title)
   },
-});
+})
 
 module.exports = Lightbox

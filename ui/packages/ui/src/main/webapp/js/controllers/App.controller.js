@@ -33,7 +33,7 @@ define([
         })
       )
     },
-  });
+  })
 
   return AppController
 })

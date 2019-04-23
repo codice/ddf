@@ -36,6 +36,6 @@ const NotificationView = Marionette.View.extend({
       425
     )
   },
-});
+})
 
 module.exports = NotificationView

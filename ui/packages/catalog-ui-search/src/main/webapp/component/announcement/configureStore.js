@@ -13,10 +13,10 @@
  *
  **/
 
-const redux = require('redux');
-const thunk = require('redux-thunk').default;
+const redux = require('redux')
+const thunk = require('redux-thunk').default
 
-const reducer = require('./reducer');
+const reducer = require('./reducer')
 
 module.exports = function(prevState) {
   return redux.createStore(reducer, prevState, redux.applyMiddleware(thunk))

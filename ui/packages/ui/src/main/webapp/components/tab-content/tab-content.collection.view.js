@@ -29,7 +29,7 @@ define([
         applicationModel: this.model,
       }
     },
-  });
+  })
 
   return PluginTabContentsView
 })

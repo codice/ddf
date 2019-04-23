@@ -11,8 +11,8 @@
  **/
 
 function getRandomColor() {
-  const letters = '789ABCD';
-  let color = '#';
+  const letters = '789ABCD'
+  let color = '#'
   for (let i = 0; i < 6; i++) {
     color += letters[Math.floor(Math.random() * 6)]
   }
@@ -37,8 +37,8 @@ module.exports = {
       // '#dbd100',  //orange
       '#24ff24', //green
       // '#ffff6d'  //yellow
-    ];
-    const idToColor = {};
+    ]
+    const idToColor = {}
 
     return {
       getColor: function(id) {
@@ -52,12 +52,12 @@ module.exports = {
         return idToColor[id]
       },
       removeColor: function(id) {
-        const color = idToColor[id];
+        const color = idToColor[id]
         if (color !== undefined) {
           colors.push(color)
           delete idToColor[id]
         }
       },
-    };
+    }
   },
 }

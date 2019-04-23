@@ -20,7 +20,7 @@ define([
   'js/model/Segment.js',
   'backboneassociation',
 ], function(Backbone, _, FieldDescriptors, Segment) {
-  let counter = 0;
+  let counter = 0
 
   function generateId() {
     counter++
@@ -36,14 +36,14 @@ define([
       index < segment.get('segments').models.length;
       index++
     ) {
-      const seg = getSegmentModel(segment.get('segments').models[index], id);
+      const seg = getSegmentModel(segment.get('segments').models[index], id)
       if (seg) {
         return seg
       }
     }
   }
 
-  const Association = {};
+  const Association = {}
 
   Association.Association = Backbone.AssociatedModel.extend({
     defaults: {
@@ -62,8 +62,8 @@ define([
         this.set('sourceId', association.sourceObject)
         this.set('targetId', association.targetObject)
       }
-      const sourceSeg = getSegmentModel(topLevelSegment, this.get('sourceId'));
-      const targetSeg = getSegmentModel(topLevelSegment, this.get('targetId'));
+      const sourceSeg = getSegmentModel(topLevelSegment, this.get('sourceId'))
+      const targetSeg = getSegmentModel(topLevelSegment, this.get('targetId'))
       this.set('targetType', targetSeg.get('segmentType'))
       this.set(
         'sourceName',
@@ -121,11 +121,11 @@ define([
       }
     },
     populateFromModel: function(associations) {
-      const model = this;
-      const collectionModel = this.get('associations');
+      const model = this
+      const collectionModel = this.get('associations')
       this.dataModel = associations
       _.each(associations, function(association) {
-        const newAssociation = new Association.Association();
+        const newAssociation = new Association.Association()
         newAssociation.populateFromModel(association, model.get('topSegment'))
         collectionModel.add(newAssociation)
       })
@@ -137,23 +137,24 @@ define([
         sourceId: source,
         targetId: target,
         type: type,
-      });
+      })
       association.populateFromModel(undefined, this.get('topSegment'))
       this.get('associations').add(association)
       return association
     },
     removeAssociation: function(id) {
-      const removedAssociation = _.find(this.get('associations').models, function(
-        association
-      ) {
-        return association.get('id') === id
-      });
+      const removedAssociation = _.find(
+        this.get('associations').models,
+        function(association) {
+          return association.get('id') === id
+        }
+      )
       this.get('associations').remove(removedAssociation)
       return removedAssociation
     },
     removeSegment: function(segment) {
-      const model = this;
-      const segId = segment.get('segmentId');
+      const model = this
+      const segId = segment.get('segmentId')
       this.get('associations').remove(
         this.get('associations').filter(function(association) {
           return (
@@ -165,7 +166,7 @@ define([
 
       const seg = this.get('associationSegments').find(function(seg) {
         return seg.get('segmentId') === segId
-      });
+      })
       this.get('associationSegments').remove(seg)
       segment.get('segments').forEach(function(curSeg) {
         if (FieldDescriptors.isCustomizableSegment(curSeg.get('segmentType'))) {
@@ -174,8 +175,8 @@ define([
       })
     },
     getAssociationsForId: function(id) {
-      const associations = this.get('associations').models;
-      const results = [];
+      const associations = this.get('associations').models
+      const results = []
       _.each(associations, function(association) {
         if (association.get('sourceId') === id) {
           results.push(association)
@@ -184,9 +185,9 @@ define([
       return results
     },
     getAvailableAssociationSegments: function(id) {
-      const segs = [];
-      const curAssociations = this.getAssociationsForId(id);
-      const model = this;
+      const segs = []
+      const curAssociations = this.getAssociationsForId(id)
+      const model = this
       this.get('associationSegments').forEach(function(seg) {
         if (
           seg.get('segmentId') !== id &&
@@ -221,7 +222,7 @@ define([
           })
         )
       }
-      const model = this;
+      const model = this
       if (segment.get('segments') && segment.get('segments').models) {
         segment.get('segments').models.forEach(function(seg) {
           model.populateAssociationSegmentIds(seg)
@@ -240,9 +241,9 @@ define([
       }
     },
     saveData: function() {
-      const data = this.dataModel;
+      const data = this.dataModel
       this.dataModel.length = 0
-      const associations = this.get('associations').models;
+      const associations = this.get('associations').models
       _.each(associations, function(association) {
         data.push({
           targetObject: association.get('targetId'),

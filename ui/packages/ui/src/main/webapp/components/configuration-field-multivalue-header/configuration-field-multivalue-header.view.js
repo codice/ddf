@@ -58,7 +58,8 @@ define([
       this.listenTo(wreqr.vent, 'beforesave', this.saveValues)
     },
     updateValues: function() {
-      let csvVal, view = this;
+      let csvVal,
+        view = this
       if (
         this.configuration.get('properties') &&
         this.configuration.get('properties').get(this.model.get('id'))
@@ -91,7 +92,7 @@ define([
       }
     },
     saveValues: function() {
-      const values = [];
+      const values = []
       _.each(this.collectionArray.models, function(model) {
         values.push(model.get('value'))
       })
@@ -120,5 +121,5 @@ define([
         type: this.model.get('type'),
       })
     },
-  });
+  })
 })

@@ -13,14 +13,14 @@
  *
  **/
 
-const TableView = require('../table.view');
-const HeaderView = require('../../query-status/query-status-header.view.js');
-const BodyView = require('../../query-status/query-status-body.view.js');
+const TableView = require('../table.view')
+const HeaderView = require('../../query-status/query-status-header.view.js')
+const BodyView = require('../../query-status/query-status-body.view.js')
 
 module.exports = TableView.extend({
   className: 'is-query-status',
   initialize: function() {
-    const result = this.model.get('result');
+    const result = this.model.get('result')
     if (!result) {
       this.startListeningToSearch()
     }
@@ -34,8 +34,8 @@ module.exports = TableView.extend({
     })
   },
   getBodyView: function() {
-    const result = this.model.get('result');
-    const bodyView = new BodyView();
+    const result = this.model.get('result')
+    const bodyView = new BodyView()
     if (result) {
       bodyView.collection = result.get('status')
     }

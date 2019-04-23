@@ -10,12 +10,12 @@
  *
  **/
 
-const Marionette = require('marionette');
-const _ = require('underscore');
-const store = require('../../../js/store.js');
-const ClusterView = require('./cluster.view');
-const Clustering = require('./Clustering');
-const metacardDefinitions = require('../../singletons/metacard-definitions.js');
+const Marionette = require('marionette')
+const _ = require('underscore')
+const store = require('../../../js/store.js')
+const ClusterView = require('./cluster.view')
+const Clustering = require('./Clustering')
+const metacardDefinitions = require('../../singletons/metacard-definitions.js')
 
 const ClusterCollectionView = Marionette.CollectionView.extend({
   childView: ClusterView,
@@ -111,7 +111,7 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
       const clusters = Clustering.calculateClusters(
         this.getResultsWithGeometry(),
         this.options.map
-      );
+      )
       this.collection.set(
         clusters.map(function(cluster) {
           return {
@@ -174,6 +174,6 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
     this.isActive = !this.isActive
     this.calculateClusters()
   },
-});
+})
 
 module.exports = ClusterCollectionView

@@ -13,17 +13,17 @@
  *
  **/
 
-const Backbone = require('backbone');
-const Marionette = require('marionette');
-const $ = require('jquery');
-const template = require('./metacard-associations.hbs');
-const CustomElements = require('../../js/CustomElements.js');
-const store = require('../../js/store.js');
-const LoadingCompanionView = require('../loading-companion/loading-companion.view.js');
-const AssociationsMenuView = require('../associations-menu/associations-menu.view.js');
-const AssociationCollectionView = require('../association/association.collection.view.js');
-const AssociationCollection = require('../association/association.collection.js');
-const AssociationGraphView = require('../associations-graph/associations-graph.view.js');
+const Backbone = require('backbone')
+const Marionette = require('marionette')
+const $ = require('jquery')
+const template = require('./metacard-associations.hbs')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
+const AssociationsMenuView = require('../associations-menu/associations-menu.view.js')
+const AssociationCollectionView = require('../association/association.collection.view.js')
+const AssociationCollection = require('../association/association.collection.js')
+const AssociationGraphView = require('../associations-graph/associations-graph.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   setDefaultModel: function() {
@@ -155,7 +155,7 @@ module.exports = Marionette.LayoutView.extend({
   handleFilter: function() {
     const filter = this.associationsMenu.currentView
       .getFilterMenuModel()
-      .get('value')[0];
+      .get('value')[0]
     this.$el.toggleClass('filter-by-parent', filter === 'parent')
     this.$el.toggleClass('filter-by-child', filter === 'child')
     this.associationsGraph.currentView.handleFilter(filter)
@@ -163,7 +163,7 @@ module.exports = Marionette.LayoutView.extend({
   handleDisplay: function() {
     const filter = this.associationsMenu.currentView
       .getDisplayMenuModel()
-      .get('value')[0];
+      .get('value')[0]
     this.$el.toggleClass('show-list', filter === 'list')
     this.$el.toggleClass('show-graph', filter === 'graph')
     this.associationsGraph.currentView.fitGraph()
@@ -189,7 +189,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   handleSave: function() {
     LoadingCompanionView.beginLoading(this)
-    const data = this._associationCollection.toJSON();
+    const data = this._associationCollection.toJSON()
     data.forEach(function(association) {
       association.parent = {
         id: association.parent,

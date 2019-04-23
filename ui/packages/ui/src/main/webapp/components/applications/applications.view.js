@@ -38,7 +38,7 @@ define([
 ) {
   'use strict'
 
-  const Model = {};
+  const Model = {}
 
   const NewApplicationView = Marionette.Layout.extend({
     template() {
@@ -72,11 +72,11 @@ define([
         this.model.get('isEditMode')
       )
     },
-  });
+  })
 
-  const BOX_LAYOUT = 0;
-  const ROW_LAYOUT = 1;
-  const ACTIVE_STATE = 'ACTIVE';
+  const BOX_LAYOUT = 0
+  const ROW_LAYOUT = 1
+  const ACTIVE_STATE = 'ACTIVE'
 
   // Main layout view for all the applications
   const ApplicationView = Marionette.Layout.extend({
@@ -118,7 +118,7 @@ define([
       )
     },
     onRender: function() {
-      const view = this;
+      const view = this
 
       _.defer(function() {
         view.appsgridInstalled.show(
@@ -156,7 +156,7 @@ define([
     toggleEditMode: function(isEditMode) {
       this.$el.toggleClass('edit-mode', isEditMode)
     },
-  });
+  })
 
   return ApplicationView
 })

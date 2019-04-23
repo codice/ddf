@@ -19,7 +19,7 @@ module.exports = InputView.extend({
     )
   },
   serializeData: function() {
-    const value = this.model.get('value');
+    const value = this.model.get('value')
     const choice = this.model
       .get('property')
       .get('radio')
@@ -28,7 +28,7 @@ module.exports = InputView.extend({
           JSON.stringify(choice.value) === JSON.stringify(value) ||
           JSON.stringify(choice) === JSON.stringify(value)
         )
-      })[0];
+      })[0]
     return {
       label: choice ? choice.label : value,
     }
@@ -69,7 +69,7 @@ module.exports = InputView.extend({
     this.radioRegion.currentView.model.set('value', this.model.get('value'))
   },
   getCurrentValue: function() {
-    const currentValue = this.radioRegion.currentView.model.get('value');
+    const currentValue = this.radioRegion.currentView.model.get('value')
     return currentValue
   },
 })

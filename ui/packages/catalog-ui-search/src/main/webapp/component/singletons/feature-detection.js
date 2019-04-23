@@ -12,7 +12,7 @@
 
 //meant to be used for just in time feature detection
 
-const Backbone = require('backbone');
+const Backbone = require('backbone')
 
 module.exports = new (Backbone.Model.extend({
   defaults: {

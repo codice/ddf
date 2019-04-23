@@ -147,7 +147,7 @@ module.exports = plugin(
       )
     },
     setupSrcDropdown: function() {
-      const sources = this.model.get('src');
+      const sources = this.model.get('src')
       this._srcDropdownModel = new DropdownModel({
         value: sources ? sources : [],
         federation: this.model.get('federation'),
@@ -213,16 +213,16 @@ module.exports = plugin(
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     },
     toJSON: function() {
-      let federation = this._srcDropdownModel.get('federation');
+      let federation = this._srcDropdownModel.get('federation')
       const spellcheck = this.model.get('spellcheck')
-      let src;
+      let src
       if (federation === 'selected') {
         src = this._srcDropdownModel.get('value')
         if (src === undefined || src.length === 0) {
           federation = 'local'
         }
       }
-      const sorts = this.settingsSortField.currentView.collection.toJSON();
+      const sorts = this.settingsSortField.currentView.collection.toJSON()
       let detailLevel =
         this.resultForm.currentView &&
         this.resultForm.currentView.model.get('value')[0]

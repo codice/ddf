@@ -215,9 +215,9 @@ module.exports = Marionette.ItemView.extend({
         QueryConfirmationView.generateConfirmation({}),
         'change:choice',
         function(confirmation) {
-          const choice = confirmation.get('choice');
+          const choice = confirmation.get('choice')
           if (choice === true) {
-            const loadingview = new LoadingView();
+            const loadingview = new LoadingView()
             store
               .get('workspaces')
               .once('sync', function(workspace, resp, options) {

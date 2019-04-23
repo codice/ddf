@@ -31,7 +31,7 @@ const ThemeUtils = require('../ThemeUtils.js')
 const QuerySettings = require('./QuerySettings.js')
 require('backbone-associations')
 
-const User = {};
+const User = {}
 
 User.updateMapLayers = function(layers) {
   const providers = properties.imageryProviders
@@ -72,7 +72,7 @@ User.MapLayer = Backbone.AssociatedModel.extend({
     return this.get('show') && this.get('alpha') > 0
   },
   parse: function(resp) {
-    const layer = _.clone(resp);
+    const layer = _.clone(resp)
     layer.label = 'Type: ' + layer.type
     if (layer.layer) {
       layer.label += ' Layer: ' + layer.layer
@@ -249,23 +249,23 @@ User.Preferences = Backbone.AssociatedModel.extend({
       this.get('alerts').reset()
       this.get('uploads').reset()
     } else {
-      const expiration = this.get('alertExpiration');
+      const expiration = this.get('alertExpiration')
       this.removeExpiredAlerts(expiration)
       this.removeExpiredUploads(expiration)
     }
   },
   removeExpiredAlerts: function(expiration) {
     const expiredAlerts = this.get('alerts').filter(function(alert) {
-      const recievedAt = alert.getTimeComparator();
+      const recievedAt = alert.getTimeComparator()
       return Date.now() - recievedAt > expiration
-    });
+    })
     this.get('alerts').remove(expiredAlerts)
   },
   removeExpiredUploads: function(expiration) {
     const expiredUploads = this.get('uploads').filter(function(upload) {
-      const recievedAt = upload.getTimeComparator();
+      const recievedAt = upload.getTimeComparator()
       return Date.now() - recievedAt > expiration
-    });
+    })
     this.get('uploads').remove(expiredUploads)
   },
   getSummaryShown: function() {

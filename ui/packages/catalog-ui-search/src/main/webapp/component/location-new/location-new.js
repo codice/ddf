@@ -62,7 +62,7 @@ module.exports = Backbone.AssociatedModel.extend({
   /* Run the appropriate validator for the active mode. Blank input is considered valid */
   validate() {
     const mode = this.get('mode')
-    let validationReport;
+    let validationReport
     switch (mode) {
       case 'wkt':
         validationReport = validateWkt(this.get(mode))

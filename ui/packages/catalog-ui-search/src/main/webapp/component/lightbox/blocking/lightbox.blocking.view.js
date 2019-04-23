@@ -13,8 +13,8 @@
  *
  **/
 
-const LightboxView = require('./../Lightbox.view');
-const $ = require('jquery');
+const LightboxView = require('./../Lightbox.view')
+const $ = require('jquery')
 
 module.exports = LightboxView.extend({
   className: 'is-blocking',

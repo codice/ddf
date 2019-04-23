@@ -53,9 +53,9 @@ define([
       this.$el.attr('id', this.model.get('id'))
     },
     onRender: function() {
-      const view = this;
-      const iframeLocation = view.model.get('iframeLocation');
-      const jsLocation = view.model.get('javascriptLocation');
+      const view = this
+      const iframeLocation = view.model.get('iframeLocation')
+      const jsLocation = view.model.get('javascriptLocation')
       if (jsLocation) {
         let newView
         switch (jsLocation) {
@@ -98,5 +98,5 @@ define([
         }
       }
     },
-  });
+  })
 })

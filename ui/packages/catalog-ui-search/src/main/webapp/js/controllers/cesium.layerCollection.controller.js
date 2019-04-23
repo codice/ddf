@@ -33,7 +33,7 @@ const imageryProviderTypes = {
   AGS: Cesium.ArcGisImageServerTerrainProvider,
   VRW: Cesium.VRTheWorldTerrainProvider,
   SI: Cesium.SingleTileImageryProvider,
-};
+}
 
 const Controller = CommonLayerController.extend({
   initialize: function() {
@@ -158,7 +158,7 @@ const Controller = CommonLayerController.extend({
     )
     this.layerOrder = newLayerOrder
   },
-});
+})
 
 Controller.imageryProviderTypes = imageryProviderTypes
 

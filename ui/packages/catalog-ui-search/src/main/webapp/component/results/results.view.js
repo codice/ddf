@@ -22,7 +22,7 @@ const store = require('../../js/store.js')
 const ResultSelectorView = require('../result-selector/result-selector.view.js')
 const WorkspaceExploreView = require('../workspace-explore/workspace-explore.view.js')
 
-let selectedQueryId;
+let selectedQueryId
 
 const ResultsView = Marionette.LayoutView.extend({
   setDefaultModel: function() {
@@ -84,7 +84,7 @@ const ResultsView = Marionette.LayoutView.extend({
     this._resultsSelectDropdownModel.set('value', store.getCurrentQuery().id)
   },
   updateResultsList: function() {
-    const queryId = this._resultsSelectDropdownModel.get('value');
+    const queryId = this._resultsSelectDropdownModel.get('value')
     if (queryId) {
       selectedQueryId = queryId
       this.resultsList.show(
@@ -103,6 +103,6 @@ const ResultsView = Marionette.LayoutView.extend({
       this._resultsSelectDropdownModel.set('value', this.model.first().id)
     }
   },
-});
+})
 
 module.exports = ResultsView

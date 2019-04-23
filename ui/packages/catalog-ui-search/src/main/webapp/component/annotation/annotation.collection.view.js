@@ -13,9 +13,9 @@
  *
  **/
 
-const childView = require('./annotation.view');
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
+const childView = require('./annotation.view')
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.CollectionView.extend({
   childView: childView,

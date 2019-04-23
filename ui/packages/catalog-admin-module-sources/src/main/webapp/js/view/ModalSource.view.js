@@ -60,7 +60,7 @@ define([
     ich.addTemplate('textType', textType)
   }
 
-  const ModalSource = {};
+  const ModalSource = {}
 
   ModalSource.View = Marionette.Layout.extend({
     template: 'sourceModal',
@@ -83,7 +83,7 @@ define([
       },
     ],
     serializeData: function() {
-      let data = {};
+      let data = {}
 
       if (this.model) {
         data = this.model.toJSON()
@@ -106,8 +106,8 @@ define([
     onRender: function() {
       const config =
         this.model.get('currentConfiguration') ||
-        this.model.get('disabledConfigurations').at(0);
-      const properties = config.get('properties');
+        this.model.get('disabledConfigurations').at(0)
+      const properties = config.get('properties')
 
       this.$el.attr('role', 'dialog')
       this.$el.attr('aria-hidden', 'true')
@@ -121,16 +121,16 @@ define([
      * Renders editable name field.
      */
     renderNameField: function() {
-      const model = this.model;
-      const $sourceName = this.$('.sourceName');
-      const initialName = model.get('name');
+      const model = this.model
+      const $sourceName = this.$('.sourceName')
+      const initialName = model.get('name')
       const data = {
         id: model.id,
         name: 'Source Name',
         defaultValue: [initialName],
         description:
           'Unique identifier for all source configurations of this type.',
-      };
+      }
       $sourceName.append(ich.textType(data))
       $sourceName.val(data.defaultValue)
       Utils.setupPopOvers($sourceName, data.id, data.name, data.description)
@@ -139,8 +139,8 @@ define([
      * Renders the type dropdown box
      */
     renderTypeDropdown: function() {
-      const $sourceTypeSelect = this.$('.activeBindingSelect');
-      const configs = this.model.getAllConfigServices();
+      const $sourceTypeSelect = this.$('.activeBindingSelect')
+      const configs = this.model.getAllConfigServices()
       $sourceTypeSelect.append(
         ich.optionListType({
           list: configs.toJSON(),
@@ -149,14 +149,14 @@ define([
       $sourceTypeSelect.val(configs.at(0).get('id')).change()
     },
     handleAction: function(event) {
-      const link = this.$(event.currentTarget);
+      const link = this.$(event.currentTarget)
       const id = link
         .attr('id')
         .split('.')
-        .join('\\.');
-      const failed = $(this.$('#' + id + '-failed')[0]);
-      const success = $(this.$('#' + id + '-success')[0]);
-      const spinner = $(this.$('#' + id + '-spinner')[0]);
+        .join('\\.')
+      const failed = $(this.$('#' + id + '-failed')[0])
+      const success = $(this.$('#' + id + '-success')[0])
+      const spinner = $(this.$('#' + id + '-spinner')[0])
       link.addClass('inactive-link')
       spinner.css('display', 'inline-block')
       failed.hide()
@@ -178,7 +178,7 @@ define([
     getCurrentConfiguration: function() {
       const selectedSource = this.$('.selected-source option:selected')
         .text()
-        .trim();
+        .trim()
       return this.model.getAllConfigsWithServices().filter(function(config) {
         return config.get('service').get('name') === selectedSource
       })[0]
@@ -188,14 +188,14 @@ define([
      */
     submitData: function() {
       wreqr.vent.trigger('beforesave')
-      const view = this;
-      const service = view.getCurrentConfiguration();
+      const view = this
+      const service = view.getCurrentConfiguration()
       if (_.isUndefined(service.get('properties').id)) {
         const name = view
           .$('.sourceName')
           .find('input')
           .val()
-          .trim();
+          .trim()
         view.setConfigName(service, name)
       }
 
@@ -222,14 +222,14 @@ define([
       const newName = this.$(evt.currentTarget)
         .find('input')
         .val()
-        .trim();
+        .trim()
       this.checkName(newName)
     },
     checkName: function(newName) {
-      const view = this;
-      const model = view.model;
-      const config = model.get('currentConfiguration');
-      const disConfigs = model.get('disabledConfigurations');
+      const view = this
+      const model = view.model
+      const config = model.get('currentConfiguration')
+      const disConfigs = model.get('disabledConfigurations')
 
       if (newName === '') {
         view.showError('A source must have a name.')
@@ -255,8 +255,8 @@ define([
       }
     },
     showError: function(msg) {
-      const view = this;
-      const $group = view.$el.find('.sourceName>.control-group');
+      const view = this
+      const $group = view.$el.find('.sourceName>.control-group')
 
       $group
         .find('.error-text')
@@ -266,9 +266,9 @@ define([
       $group.addClass('has-error')
     },
     clearError: function() {
-      const view = this;
-      const $group = view.$el.find('.sourceName>.control-group');
-      const $error = $group.find('.error-text');
+      const view = this
+      const $group = view.$el.find('.sourceName>.control-group')
+      const $error = $group.find('.error-text')
 
       view.$el.find('.submit-button').removeAttr('disabled')
       $group.removeClass('has-error')
@@ -276,7 +276,7 @@ define([
     },
     setConfigName: function(config, name) {
       if (!_.isUndefined(config)) {
-        const properties = config.get('properties');
+        const properties = config.get('properties')
         properties.set({
           shortname: name,
           id: name,
@@ -287,18 +287,18 @@ define([
      * Returns true if any of the existing source configurations have a name matching the name parameter and false otherwise.
      */
     nameExists: function(name) {
-      const configs = this.parentModel.get('collection');
+      const configs = this.parentModel.get('collection')
       const match = configs.find(function(sourceConfig) {
         return sourceConfig.get('name') === name
-      });
+      })
       return !_.isUndefined(match)
     },
     nameIsValid: function(name, fpid) {
-      let valid = false;
-      const configs = this.source.get('collection');
+      let valid = false
+      const configs = this.source.get('collection')
       const match = configs.find(function(sourceConfig) {
         return sourceConfig.get('name') === name
-      });
+      })
       if (_.isUndefined(match)) {
         valid = true
       } else {
@@ -307,9 +307,9 @@ define([
       return valid
     },
     fpidExists: function(model, fpid) {
-      const modelConfig = model.get('currentConfiguration');
-      const disabledConfigs = model.get('disabledConfigurations');
-      let matchFound = false;
+      const modelConfig = model.get('currentConfiguration')
+      const disabledConfigs = model.get('disabledConfigurations')
+      let matchFound = false
 
       if (
         !_.isUndefined(modelConfig) &&
@@ -337,7 +337,7 @@ define([
     },
     // should be able to remove this method when the 'shortname' is removed from existing source metatypes
     getId: function(config) {
-      const properties = config.get('properties');
+      const properties = config.get('properties')
       return properties.get('shortname') || properties.get('id')
     },
     closeAndUnbind: function() {
@@ -362,14 +362,14 @@ define([
      *  modal is first created.
      */
     handleTypeChange: function(evt) {
-      const view = this;
-      const $select = this.$(evt.currentTarget);
+      const view = this
+      const $select = this.$(evt.currentTarget)
       if ($select.hasClass('activeBindingSelect')) {
         this.modelBinder.unbind()
-        const config = view.model.findConfigFromId($select.val());
+        const config = view.model.findConfigFromId($select.val())
         view.model.set('editConfig', config)
 
-        const properties = config.get('properties');
+        const properties = config.get('properties')
         view.checkName(
           view
             .$('.sourceName')
@@ -386,21 +386,21 @@ define([
       view.$el.trigger('shown.bs.modal')
     },
     rebind: function(properties) {
-      const $boundData = this.$el.find('.bound-controls');
+      const $boundData = this.$el.find('.bound-controls')
       const bindings = Backbone.ModelBinder.createDefaultBindings(
         $boundData,
         'name'
-      );
+      )
       //this is done so that model binder wont watch these values. We need to handle this ourselves.
       delete bindings.value
       this.modelBinder.bind(properties, $boundData, bindings)
     },
     renderDetails: function(configuration) {
-      const service = configuration.get('service');
+      const service = configuration.get('service')
       if (!_.isUndefined(service)) {
         const toDisplay = service.get('metatype').filter(function(mt) {
           return !_.contains(['shortname', 'id'], mt.get('id'))
-        });
+        })
         this.details.show(
           new ConfigurationEdit.ConfigurationCollection({
             collection: new Service.MetatypeList(toDisplay),

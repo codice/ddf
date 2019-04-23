@@ -11,7 +11,7 @@
  **/
 
 define([], function() {
-  const Metatypes = {};
+  const Metatypes = {}
 
   return {
     add: function(id, metatypeModel) {

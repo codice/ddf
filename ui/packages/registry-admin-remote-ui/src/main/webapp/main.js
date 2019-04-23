@@ -93,7 +93,7 @@
     'modelbinder',
     'bootstrap',
   ], function($, Backbone, Marionette, ich, Application) {
-    const app = Application.App;
+    const app = Application.App
     // Once the application has been initialized (i.e. all initializers have completed), start up
     // Backbone.history.
     app.on('initialize:after', function() {

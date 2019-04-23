@@ -19,7 +19,7 @@ const template = require('./loading-companion.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const Positioning = require('../../js/Positioning.js')
 
-const loadingCompanions = [];
+const loadingCompanions = []
 
 function getLoadingCompanion(linkedView) {
   return loadingCompanions.filter(function(loadingCompanion) {
@@ -82,7 +82,7 @@ const LoadingCompanionView = Marionette.ItemView.extend({
         if (this.options.linkedView && this.options.linkedView.isDestroyed) {
           return
         }
-        const boundingBox = this.options.element.getBoundingClientRect();
+        const boundingBox = this.options.element.getBoundingClientRect()
         this.$el
           .css('left', boundingBox.left)
           .css('top', boundingBox.top)
@@ -96,7 +96,7 @@ const LoadingCompanionView = Marionette.ItemView.extend({
       }.bind(this)
     )
   },
-});
+})
 
 module.exports = {
   loadElement(el) {
@@ -140,7 +140,7 @@ module.exports = {
     if (!linkedView) {
       throw "Must pass the view you're called the loader from."
     }
-    const loadingCompanion = getLoadingCompanion(linkedView);
+    const loadingCompanion = getLoadingCompanion(linkedView)
     if (loadingCompanion) {
       loadingCompanion.stop()
       loadingCompanions.splice(loadingCompanions.indexOf(loadingCompanion), 1)

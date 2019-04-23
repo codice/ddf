@@ -40,8 +40,8 @@ function bind(options, callback) {
 
 // The module to be exported
 let helper,
-    helpers = {
-      /*
+  helpers = {
+    /*
        * Handlebars Helper: Moment.js
        * @author: https://github.com/Arkkimaagi
        * Built for Assemble: the static site generator and
@@ -51,285 +51,285 @@ let helper,
        * Copyright (c) 2013, Upstage
        * Licensed under the MIT license.
        */
-      momentHelp: function(context, block) {
-        let momentObj, date, i;
-        if (context && context.hash) {
-          block = _.cloneDeep(context)
-          context = undefined
-        }
-        momentObj = moment(context)
-        for (i in block.hash) {
-          if (momentObj[i]) {
-            if (typeof momentObj[i] === 'function') {
-              const func = momentObj[i];
-              date = func.call(momentObj, block.hash[i])
-            }
-          } else {
-            if (typeof console !== 'undefined') {
-              console.log('moment.js does not support "' + i + '"')
-            }
+    momentHelp: function(context, block) {
+      let momentObj, date, i
+      if (context && context.hash) {
+        block = _.cloneDeep(context)
+        context = undefined
+      }
+      momentObj = moment(context)
+      for (i in block.hash) {
+        if (momentObj[i]) {
+          if (typeof momentObj[i] === 'function') {
+            const func = momentObj[i]
+            date = func.call(momentObj, block.hash[i])
+          }
+        } else {
+          if (typeof console !== 'undefined') {
+            console.log('moment.js does not support "' + i + '"')
           }
         }
-        return date
-      },
-      duration: function(context, block) {
-        if (context && context.hash) {
-          block = _.cloneDeep(context)
-          context = 0
-        }
-        let duration = moment.duration(context);
-        // Reset the language back to default before doing anything else
-        duration = duration.lang('en')
-        for (const i in block.hash) {
-          if (duration[i]) {
-            duration = duration[i](block.hash[i])
-          } else {
-            console.log('moment.js duration does not support "' + i + '"')
-          }
-        }
-        return duration
-      },
-      fileSize: function(item) {
-        return Common.getFileSize(item)
-      },
-      fileSizeGuaranteedInt: function(item) {
-        return Common.getFileSizeGuaranteedInt(item)
-      },
-      isNotBlank: function(context, block) {
-        if (context && context !== '') {
-          return block.fn(this)
+      }
+      return date
+    },
+    duration: function(context, block) {
+      if (context && context.hash) {
+        block = _.cloneDeep(context)
+        context = 0
+      }
+      let duration = moment.duration(context)
+      // Reset the language back to default before doing anything else
+      duration = duration.lang('en')
+      for (const i in block.hash) {
+        if (duration[i]) {
+          duration = duration[i](block.hash[i])
         } else {
-          return block.inverse(this)
+          console.log('moment.js duration does not support "' + i + '"')
         }
-      },
-      is: function(value, test, options) {
-        if (value === test) {
-          return options.fn(this)
-        } else {
-          return options.inverse(this)
-        }
-      },
-      isnt: function(value, test, options) {
-        if (value !== test) {
-          return options.fn(this)
-        } else {
-          return options.inverse(this)
-        }
-      },
-      isAnd: function() {
-        const args = _.flatten(arguments);
-        const items = _.initial(args);
-        let result = true;
-        const block = _.last(args);
-        _.each(items, function(item, i) {
-          if (i % 2 === 0) {
-            if (item !== items[i + 1]) {
-              result = false
-            }
-          }
-        })
-        if (result) {
-          return block.fn(this)
-        } else {
-          return block.inverse(this)
-        }
-      },
-      isUrl: function(value, options) {
-        if (value !== null && value !== '' && _.isString(value)) {
-          const protocol = value.toLowerCase().split('/')[0];
-          if (protocol && (protocol === 'http:' || protocol === 'https:')) {
-            return options.fn(this)
-          }
-        }
+      }
+      return duration
+    },
+    fileSize: function(item) {
+      return Common.getFileSize(item)
+    },
+    fileSizeGuaranteedInt: function(item) {
+      return Common.getFileSizeGuaranteedInt(item)
+    },
+    isNotBlank: function(context, block) {
+      if (context && context !== '') {
+        return block.fn(this)
+      } else {
+        return block.inverse(this)
+      }
+    },
+    is: function(value, test, options) {
+      if (value === test) {
+        return options.fn(this)
+      } else {
         return options.inverse(this)
-      },
-      gt: function(value, test, options) {
-        if (value > test) {
-          return options.fn(this)
-        } else {
-          return options.inverse(this)
-        }
-      },
-      gte: function(value, test, options) {
-        if (value >= test) {
-          return options.fn(this)
-        } else {
-          return options.inverse(this)
-        }
-      },
-      lt: function(value, test, options) {
-        if (value < test) {
-          return options.fn(this)
-        } else {
-          return options.inverse(this)
-        }
-      },
-      lte: function(value, test, options) {
-        if (value <= test) {
-          return options.fn(this)
-        } else {
-          return options.inverse(this)
-        }
-      },
-      ifAnd: function() {
-        const args = _.flatten(arguments);
-        const items = _.initial(args);
-        let result = true;
-        const block = _.last(args);
-        _.each(items, function(item) {
-          if (!item) {
+      }
+    },
+    isnt: function(value, test, options) {
+      if (value !== test) {
+        return options.fn(this)
+      } else {
+        return options.inverse(this)
+      }
+    },
+    isAnd: function() {
+      const args = _.flatten(arguments)
+      const items = _.initial(args)
+      let result = true
+      const block = _.last(args)
+      _.each(items, function(item, i) {
+        if (i % 2 === 0) {
+          if (item !== items[i + 1]) {
             result = false
           }
-        })
-        if (result) {
-          return block.fn(this)
-        } else {
-          return block.inverse(this)
         }
-      },
-      ifOr: function() {
-        const args = _.flatten(arguments);
-        const items = _.initial(args);
-        let result = false;
-        const block = _.last(args);
-        _.each(items, function(item) {
-          if (item) {
-            result = true
-          }
-        })
-        if (result) {
-          return block.fn(this)
-        } else {
-          return block.inverse(this)
-        }
-      },
-      ifNotAnd: function() {
-        const args = _.flatten(arguments);
-        const items = _.initial(args);
-        let result = true;
-        const block = _.last(args);
-        _.each(items, function(item) {
-          if (!item) {
-            result = false
-          }
-        })
-        if (result) {
-          return block.inverse(this)
-        } else {
-          return block.fn(this)
-        }
-      },
-      ifNotOr: function() {
-        const args = _.flatten(arguments);
-        const items = _.initial(args);
-        let result = false;
-        const block = _.last(args);
-        _.each(items, function(item) {
-          if (item) {
-            result = true
-          }
-        })
-        if (result) {
-          return block.inverse(this)
-        } else {
-          return block.fn(this)
-        }
-      },
-      propertyTitle: function(str) {
-        if (_.isString(str)) {
-          return _.chain(str)
-            .words()
-            .map(function(word) {
-              return _.capitalize(word)
-            })
-            .join(' ')
-        }
-        return str
-      },
-      safeString: function(str) {
-        if (_.isString(str)) {
-          return new Handlebars.SafeString(str)
-        }
-        return str
-      },
-      splitDashes: function(str) {
-        return str.split('-').join(' ')
-      },
-      encodeString: function(str) {
-        if (_.isString(str)) {
-          return encodeURIComponent(str)
-        }
-        return str
-      },
-      getImageSrc: function(img) {
-        return Common.getImageSrc(img)
-      },
-      getResourceUrlFromThumbUrl: function(img) {
-        return Common.getResourceUrlFromThumbUrl(img)
-      },
-      getAlias: function(field) {
-        const definition = metacardDefinitions.metacardTypes[field];
-        if (definition) {
-          return definition.alias || definition.id
-        } else {
-          return field
-        }
-      },
-      json: function(obj) {
-        return JSON.stringify(obj)
-      },
-      ifUrl: function(value, options) {
-        if (value && value.toString().substring(0, 4) === 'http') {
+      })
+      if (result) {
+        return block.fn(this)
+      } else {
+        return block.inverse(this)
+      }
+    },
+    isUrl: function(value, options) {
+      if (value !== null && value !== '' && _.isString(value)) {
+        const protocol = value.toLowerCase().split('/')[0]
+        if (protocol && (protocol === 'http:' || protocol === 'https:')) {
           return options.fn(this)
-        } else {
-          return options.inverse(this)
         }
-      },
-      bindInput: function(options) {
-        const callback = function() {
-          const $target = this.$el.find(options.hash.selector);
-          const value = _get(this.serializeData(), options.hash.key);
-          $target.each(function() {
-            if ($(this).val() !== value) {
-              $(this).val(value)
-            }
+      }
+      return options.inverse(this)
+    },
+    gt: function(value, test, options) {
+      if (value > test) {
+        return options.fn(this)
+      } else {
+        return options.inverse(this)
+      }
+    },
+    gte: function(value, test, options) {
+      if (value >= test) {
+        return options.fn(this)
+      } else {
+        return options.inverse(this)
+      }
+    },
+    lt: function(value, test, options) {
+      if (value < test) {
+        return options.fn(this)
+      } else {
+        return options.inverse(this)
+      }
+    },
+    lte: function(value, test, options) {
+      if (value <= test) {
+        return options.fn(this)
+      } else {
+        return options.inverse(this)
+      }
+    },
+    ifAnd: function() {
+      const args = _.flatten(arguments)
+      const items = _.initial(args)
+      let result = true
+      const block = _.last(args)
+      _.each(items, function(item) {
+        if (!item) {
+          result = false
+        }
+      })
+      if (result) {
+        return block.fn(this)
+      } else {
+        return block.inverse(this)
+      }
+    },
+    ifOr: function() {
+      const args = _.flatten(arguments)
+      const items = _.initial(args)
+      let result = false
+      const block = _.last(args)
+      _.each(items, function(item) {
+        if (item) {
+          result = true
+        }
+      })
+      if (result) {
+        return block.fn(this)
+      } else {
+        return block.inverse(this)
+      }
+    },
+    ifNotAnd: function() {
+      const args = _.flatten(arguments)
+      const items = _.initial(args)
+      let result = true
+      const block = _.last(args)
+      _.each(items, function(item) {
+        if (!item) {
+          result = false
+        }
+      })
+      if (result) {
+        return block.inverse(this)
+      } else {
+        return block.fn(this)
+      }
+    },
+    ifNotOr: function() {
+      const args = _.flatten(arguments)
+      const items = _.initial(args)
+      let result = false
+      const block = _.last(args)
+      _.each(items, function(item) {
+        if (item) {
+          result = true
+        }
+      })
+      if (result) {
+        return block.inverse(this)
+      } else {
+        return block.fn(this)
+      }
+    },
+    propertyTitle: function(str) {
+      if (_.isString(str)) {
+        return _.chain(str)
+          .words()
+          .map(function(word) {
+            return _.capitalize(word)
           })
-        };
-        return bind(options, callback)
-      },
-      bindAttr: function(options) {
-        const callback = function() {
-          const $target = this.$el.find(options.hash.selector);
-          const value = _get(this.serializeData(), options.hash.key);
-          $target.attr(options.hash.attr, value)
-        };
-        return bind(options, callback)
-      },
-      bind: function(options) {
-        const callback = function() {
-          const $target = this.$el.find(options.hash.selector);
-          const value = _get(this.serializeData(), options.hash.key);
-          $target.html(Common.escapeHTML(value))
-        };
-        return bind(options, callback)
-      },
-      path: function() {
-        const outArray = [];
-        for (let arg = 0; arg < arguments.length; arg++) {
-          if (typeof arguments[arg] === 'object') {
-            break
+          .join(' ')
+      }
+      return str
+    },
+    safeString: function(str) {
+      if (_.isString(str)) {
+        return new Handlebars.SafeString(str)
+      }
+      return str
+    },
+    splitDashes: function(str) {
+      return str.split('-').join(' ')
+    },
+    encodeString: function(str) {
+      if (_.isString(str)) {
+        return encodeURIComponent(str)
+      }
+      return str
+    },
+    getImageSrc: function(img) {
+      return Common.getImageSrc(img)
+    },
+    getResourceUrlFromThumbUrl: function(img) {
+      return Common.getResourceUrlFromThumbUrl(img)
+    },
+    getAlias: function(field) {
+      const definition = metacardDefinitions.metacardTypes[field]
+      if (definition) {
+        return definition.alias || definition.id
+      } else {
+        return field
+      }
+    },
+    json: function(obj) {
+      return JSON.stringify(obj)
+    },
+    ifUrl: function(value, options) {
+      if (value && value.toString().substring(0, 4) === 'http') {
+        return options.fn(this)
+      } else {
+        return options.inverse(this)
+      }
+    },
+    bindInput: function(options) {
+      const callback = function() {
+        const $target = this.$el.find(options.hash.selector)
+        const value = _get(this.serializeData(), options.hash.key)
+        $target.each(function() {
+          if ($(this).val() !== value) {
+            $(this).val(value)
           }
-          if (typeof arguments[arg] === 'number') {
-            outArray[outArray.length - 1] =
-              outArray[outArray.length - 1] + arguments[arg] + arguments[arg + 1]
-            arg++
-          } else {
-            outArray.push(arguments[arg])
-          }
+        })
+      }
+      return bind(options, callback)
+    },
+    bindAttr: function(options) {
+      const callback = function() {
+        const $target = this.$el.find(options.hash.selector)
+        const value = _get(this.serializeData(), options.hash.key)
+        $target.attr(options.hash.attr, value)
+      }
+      return bind(options, callback)
+    },
+    bind: function(options) {
+      const callback = function() {
+        const $target = this.$el.find(options.hash.selector)
+        const value = _get(this.serializeData(), options.hash.key)
+        $target.html(Common.escapeHTML(value))
+      }
+      return bind(options, callback)
+    },
+    path: function() {
+      const outArray = []
+      for (let arg = 0; arg < arguments.length; arg++) {
+        if (typeof arguments[arg] === 'object') {
+          break
         }
-        return outArray
-      },
-    };
+        if (typeof arguments[arg] === 'number') {
+          outArray[outArray.length - 1] =
+            outArray[outArray.length - 1] + arguments[arg] + arguments[arg + 1]
+          arg++
+        } else {
+          outArray.push(arguments[arg])
+        }
+      }
+      return outArray
+    },
+  }
 // Export helpers
 for (helper in helpers) {
   if (helpers.hasOwnProperty(helper)) {

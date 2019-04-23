@@ -37,13 +37,13 @@ module.exports = Marionette.ItemView.extend({
     }
   },
   calculateColors: function() {
-    const self = this;
+    const self = this
     self.colors = []
-    const currentWorkspace = store.getCurrentWorkspace();
+    const currentWorkspace = store.getCurrentWorkspace()
     if (currentWorkspace) {
       currentWorkspace.get('queries').forEach(function(query) {
         if (!self.isDestroyed && query.get('result')) {
-          const results = query.get('result').get('results');
+          const results = query.get('result').get('results')
           for (let i = 0; i <= results.length - 1; i++) {
             if (
               results.models[i]

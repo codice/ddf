@@ -91,8 +91,8 @@ module.exports = Marionette.LayoutView.extend({
     this.onBeforeShow()
   },
   saveToModel: function() {
-    const text = this.textField.currentView.model.getValue()[0];
-    let cql;
+    const text = this.textField.currentView.model.getValue()[0]
+    let cql
     if (text.length === 0) {
       cql = CQLUtils.generateFilter('ILIKE', 'anyText', '*')
     } else {
@@ -108,7 +108,7 @@ module.exports = Marionette.LayoutView.extend({
     return this.textField.currentView.isValid()
   },
   setDefaultTitle: function() {
-    let title = this.textField.currentView.model.getValue()[0];
+    let title = this.textField.currentView.model.getValue()[0]
     if (title.length === 0) {
       title = '*'
     }

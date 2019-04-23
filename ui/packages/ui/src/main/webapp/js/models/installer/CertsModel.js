@@ -33,7 +33,7 @@ define(['backbone.marionette', 'underscore', 'backbone', 'jquery'], function(
       devMode: location.search.indexOf('dev=true') > -1 ? true : false,
     },
     validate: function(attrs) {
-      const validation = [];
+      const validation = []
 
       if (this.get('devMode')) {
         return undefined
@@ -75,9 +75,9 @@ define(['backbone.marionette', 'underscore', 'backbone', 'jquery'], function(
       }
     },
     sync: function() {
-      const model = this;
+      const model = this
 
-      let data, jdata;
+      let data, jdata
 
       if (this.get('devMode')) {
         data = {
@@ -122,7 +122,7 @@ define(['backbone.marionette', 'underscore', 'backbone', 'jquery'], function(
         }
       })
     },
-  });
+  })
 
   return CertsModel
 })

@@ -2,7 +2,7 @@
 //casper.options.verbose = true;
 //casper.options.logLevel = 'debug';
 casper.test.begin('Login test', 1, function(test) {
-  const url = casper.cli.get('url');
+  const url = casper.cli.get('url')
   casper.start(url)
 
   casper.waitFor(

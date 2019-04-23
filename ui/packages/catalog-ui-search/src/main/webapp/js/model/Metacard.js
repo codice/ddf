@@ -9,10 +9,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Backbone = require('backbone');
+const Backbone = require('backbone')
 require('backbone-associations')
 
-const MetacardPropertiesModel = require('./MetacardProperties.js');
+const MetacardPropertiesModel = require('./MetacardProperties.js')
 
 module.exports = Backbone.AssociatedModel.extend({
   hasGeometry: function(attribute) {

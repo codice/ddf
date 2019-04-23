@@ -19,8 +19,8 @@ define([
   'js/models/SessionTimeout',
 ], function($, _, Marionette, wreqr, SessionTimeoutView, SessionTimeout) {
   'use strict'
-  let ModalController;
-  let sessionTimeoutView = null;
+  let ModalController
+  let sessionTimeoutView = null
 
   ModalController = Marionette.Controller.extend({
     initialize: function(options) {

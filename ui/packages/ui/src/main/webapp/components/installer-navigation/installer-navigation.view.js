@@ -43,7 +43,10 @@ define([
       this.modelBinder = new Backbone.ModelBinder()
     },
     onRender: function() {
-      const bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
+      const bindings = Backbone.ModelBinder.createDefaultBindings(
+        this.el,
+        'name'
+      )
       this.modelBinder.bind(this.model, this.$el, bindings)
       this.updateProgress()
     },
@@ -54,7 +57,7 @@ define([
     updateProgress: function() {
       const percentComplete =
         100 * (this.model.get('stepNumber') / this.model.get('totalSteps')) +
-        '%';
+        '%'
       this.$('.progress-bar').animate({ width: percentComplete }, 0, 'swing')
       this.$('.pager').html(navButtons(this.model.toJSON()))
       this.$('.progress-text').show()
@@ -97,7 +100,7 @@ define([
         )
       })
     },
-  });
+  })
 
   return WelcomeView
 })

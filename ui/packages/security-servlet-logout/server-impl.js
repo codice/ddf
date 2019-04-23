@@ -9,17 +9,17 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const httpProxy = require('http-proxy');
+const httpProxy = require('http-proxy')
 
 const proxy = httpProxy.createProxyServer({
   secure: false,
   changeOrigin: true,
   autoRewrite: true,
   protocolRewrite: 'http',
-});
+})
 
 proxy.on('proxyRes', function(proxyRes, req, res, options) {
-  let cookies = proxyRes.headers['set-cookie'];
+  let cookies = proxyRes.headers['set-cookie']
   if (cookies !== undefined) {
     cookies = cookies.map(function(cookie) {
       return cookie.replace(';Secure', '')

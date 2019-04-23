@@ -15,14 +15,14 @@
 
 import ListCreate from '../list-create/list-create.js'
 
-const Marionette = require('marionette');
-const $ = require('jquery');
-const template = require('./result-add.hbs');
-const CustomElements = require('../../js/CustomElements.js');
-const store = require('../../js/store.js');
-const List = require('../../js/model/List.js');
-const PopoutView = require('../dropdown/popout/dropdown.popout.view.js');
-const _ = require('lodash');
+const Marionette = require('marionette')
+const $ = require('jquery')
+const template = require('./result-add.hbs')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const List = require('../../js/model/List.js')
+const PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
+const _ = require('lodash')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('result-add'),
@@ -36,7 +36,7 @@ module.exports = Marionette.LayoutView.extend({
     newList: '.create-new-list',
   },
   removeFromList: function(e) {
-    const listId = $(e.currentTarget).data('id');
+    const listId = $(e.currentTarget).data('id')
     store
       .getCurrentWorkspace()
       .get('lists')
@@ -48,7 +48,7 @@ module.exports = Marionette.LayoutView.extend({
       )
   },
   addToList: function(e) {
-    const listId = $(e.currentTarget).data('id');
+    const listId = $(e.currentTarget).data('id')
     store
       .getCurrentWorkspace()
       .get('lists')
@@ -91,7 +91,7 @@ module.exports = Marionette.LayoutView.extend({
     let listJSON = store
       .getCurrentWorkspace()
       .get('lists')
-      .toJSON();
+      .toJSON()
     listJSON = listJSON.map(list => {
       list.matchesFilter = true
       if (list['list.cql'] !== '') {

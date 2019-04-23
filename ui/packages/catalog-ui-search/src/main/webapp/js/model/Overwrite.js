@@ -10,8 +10,8 @@
  *
  **/
 
-const Backbone = require('backbone');
-const ResultUtils = require('../ResultUtils.js');
+const Backbone = require('backbone')
+const ResultUtils = require('../ResultUtils.js')
 
 module.exports = Backbone.Model.extend({
   defaults: function() {
@@ -56,7 +56,7 @@ module.exports = Backbone.Model.extend({
         .get('title') +
       ' could not be overwritten by ' +
       file.name +
-      response;
+      response
     this.set({
       error: true,
       message: message,
@@ -69,7 +69,7 @@ module.exports = Backbone.Model.extend({
         .get('properties')
         .get('title') +
       ' has been overwritten by ' +
-      file.name;
+      file.name
     this.set({
       success: true,
       message: message,

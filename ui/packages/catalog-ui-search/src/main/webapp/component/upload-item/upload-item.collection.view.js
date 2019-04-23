@@ -13,9 +13,9 @@
  *
  **/
 
-const Marionette = require('marionette');
-const UploadItemView = require('./upload-item.view');
-const CustomElements = require('../../js/CustomElements.js');
+const Marionette = require('marionette')
+const UploadItemView = require('./upload-item.view')
+const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.CollectionView.extend({
   tagName: CustomElements.register('upload-item-collection'),

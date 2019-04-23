@@ -37,7 +37,7 @@ define([
       this.regions = options.regions
     },
     show: function() {
-      const layoutView = new ModuleDetailLayout();
+      const layoutView = new ModuleDetailLayout()
       this.regions.applications.show(layoutView)
 
       this.fetchSystemConfigPlugins()
@@ -60,22 +60,22 @@ define([
               javascriptLocation:
                 'components/application-services/application-services.view',
             }),
-          ];
+          ]
 
-          const staticList = new ModulePlugin.Collection();
+          const staticList = new ModulePlugin.Collection()
           staticList.comparator = function(model) {
             return model.get('displayName')
           }
           staticList.add(staticModulePlugins)
 
-          const dynamicList = new Backbone.Collection();
+          const dynamicList = new Backbone.Collection()
           dynamicList.comparator = function(model) {
             return model.get('displayName')
           }
           dynamicList.add(systemConfigPlugins.models)
           dynamicList.sort()
 
-          const completeList = new Backbone.Collection();
+          const completeList = new Backbone.Collection()
           completeList.add(staticList.models)
           completeList.add(dynamicList.models)
 
@@ -90,9 +90,9 @@ define([
         })
     },
     fetchSystemConfigPlugins: function() {
-      const pageName = 'system-module';
-      const collection = new AppConfigPlugin.Collection();
-      const defer = Q.defer();
+      const pageName = 'system-module'
+      const collection = new AppConfigPlugin.Collection()
+      const defer = Q.defer()
       collection.fetchByAppName(pageName, {
         success: function() {
           defer.resolve(collection)
@@ -103,7 +103,7 @@ define([
       })
       return defer.promise
     },
-  });
+  })
 
   return ModuleDetailController
 })

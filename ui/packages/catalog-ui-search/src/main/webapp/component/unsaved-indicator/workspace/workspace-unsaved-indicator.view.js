@@ -13,7 +13,7 @@
  *
  **/
 
-const SaveView = require('../unsaved-indicator.view');
+const SaveView = require('../unsaved-indicator.view')
 
 module.exports = SaveView.extend({
   attributes: {

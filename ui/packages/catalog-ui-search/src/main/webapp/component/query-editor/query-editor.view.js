@@ -27,7 +27,7 @@ const announcement = require('../announcement/index.jsx')
 import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
 
 function isNested(filter) {
-  let nested = false;
+  let nested = false
   filter.filters.forEach(function(subfilter) {
     nested = nested || subfilter.filters
   })
@@ -35,7 +35,7 @@ function isNested(filter) {
 }
 
 function isTypeLimiter(filter) {
-  let typesFound = {};
+  let typesFound = {}
   filter.filters.forEach(function(subfilter) {
     typesFound[CQLUtils.getProperty(subfilter)] = true
   })
@@ -54,16 +54,16 @@ function isAnyDate(filter) {
     'effective',
     'metacard.created',
     'metacard.modified',
-  ];
-  const typesFound = {};
-  const valuesFound = {};
+  ]
+  const typesFound = {}
+  const valuesFound = {}
   if (filter.filters.length === propertiesToCheck.length) {
     filter.filters.forEach(function(subfilter) {
       typesFound[subfilter.type] = true
       valuesFound[subfilter.value] = true
       const indexOfType = propertiesToCheck.indexOf(
         CQLUtils.getProperty(subfilter)
-      );
+      )
       if (indexOfType >= 0) {
         propertiesToCheck.splice(indexOfType, 1)
       }
@@ -78,8 +78,8 @@ function isAnyDate(filter) {
 }
 
 function translateFilterToBasicMap(filter) {
-  const propertyValueMap = {};
-  let downConversion = false;
+  const propertyValueMap = {}
+  let downConversion = false
   if (filter.filters) {
     filter.filters.forEach(function(filter) {
       if (!filter.filters) {
@@ -186,7 +186,7 @@ module.exports = Marionette.LayoutView.extend({
   showText: function() {
     const translationToBasicMap = translateFilterToBasicMap(
       cql.simplify(cql.read(this.model.get('cql')))
-    );
+    )
     this.queryContent.show(
       new QueryAdhoc({
         model: this.model,

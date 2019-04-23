@@ -10,8 +10,8 @@
  *
  **/
 
-const _ = require('underscore');
-const Cesium = require('cesium');
+const _ = require('underscore')
+const Cesium = require('cesium')
 
 /*
   A variety of helpful functions for dealing with Cesium
@@ -39,14 +39,14 @@ module.exports = {
   calculateCartographicCenterOfGeometryInDegrees: function(propertyModel) {
     const cartographicCenterInRadians = this.calculateCartographicCenterOfGeometryInRadians(
       propertyModel
-    );
+    )
     return [
       Cesium.Math.toDegrees(cartographicCenterInRadians.longitude),
       Cesium.Math.toDegrees(cartographicCenterInRadians.latitude),
     ]
   },
   calculateWindowCenterOfGeometry: function(geometry, map) {
-    let cartesian3position = geometry;
+    let cartesian3position = geometry
     if (cartesian3position.constructor !== Cesium.Cartesian3) {
       cartesian3position = this.calculateCartesian3CenterOfGeometry(
         cartesian3position
@@ -63,7 +63,7 @@ module.exports = {
   calculateCartesian3CenterOfGeometries: function(propertyModels) {
     const allPoints = propertyModels.map(function(propertyModel) {
       return propertyModel.getPoints()
-    });
+    })
     return Cesium.BoundingSphere.fromPoints(
       Cesium.Cartesian3.fromDegreesArray(_.flatten(allPoints))
     ).center
@@ -82,7 +82,7 @@ module.exports = {
   calculateCartographicCenterOfGeometriesInDegrees: function(propertyModels) {
     const cartographicCenterInRadians = this.calculateCartographicCenterOfGeometriesInRadians(
       propertyModels
-    );
+    )
     return [
       Cesium.Math.toDegrees(cartographicCenterInRadians.longitude),
       Cesium.Math.toDegrees(cartographicCenterInRadians.latitude),

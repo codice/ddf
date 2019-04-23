@@ -10,7 +10,7 @@
  *
  **/
 
-const metacardDefinitions = require('../../component/singletons/metacard-definitions.js');
+const metacardDefinitions = require('../../component/singletons/metacard-definitions.js')
 
 require('backbone-associations')
 
@@ -26,7 +26,7 @@ function isEmpty(value) {
 }
 
 function parseValue(value, attribute) {
-  const attributeDefinition = metacardDefinitions.metacardTypes[attribute];
+  const attributeDefinition = metacardDefinitions.metacardTypes[attribute]
   if (!attributeDefinition) {
     return value.toString().toLowerCase()
   }
@@ -42,7 +42,7 @@ function parseValue(value, attribute) {
 }
 
 function compareValues(aVal, bVal, sorting) {
-  const sortOrder = sorting.direction === 'descending' ? -1 : 1;
+  const sortOrder = sorting.direction === 'descending' ? -1 : 1
   aVal = parseValue(aVal, sorting.attribute)
   bVal = parseValue(bVal, sorting.attribute)
   if (aVal < bVal) {
@@ -55,8 +55,12 @@ function compareValues(aVal, bVal, sorting) {
 }
 
 function checkSortValue(a, b, sorting) {
-  const aVal = parseMultiValue(a.get('metacard>properties>' + sorting.attribute));
-  const bVal = parseMultiValue(b.get('metacard>properties>' + sorting.attribute));
+  const aVal = parseMultiValue(
+    a.get('metacard>properties>' + sorting.attribute)
+  )
+  const bVal = parseMultiValue(
+    b.get('metacard>properties>' + sorting.attribute)
+  )
   if (isEmpty(aVal) && isEmpty(bVal)) {
     return 0
   }
@@ -71,10 +75,10 @@ function checkSortValue(a, b, sorting) {
 
 function doSort(sorting, collection) {
   collection.comparator = function(a, b) {
-    let sortValue = 0;
+    let sortValue = 0
     for (let i = 0; i <= sorting.length - 1; i++) {
-      const sortField = sorting[i].attribute;
-      const sortOrder = sorting[i].direction === 'descending' ? -1 : 1;
+      const sortField = sorting[i].attribute
+      const sortOrder = sorting[i].direction === 'descending' ? -1 : 1
       switch (sortField) {
         case 'RELEVANCE':
           sortValue = sortOrder * (a.get('relevance') - b.get('relevance'))

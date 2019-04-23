@@ -30,14 +30,14 @@ function sanitizeForCql(text) {
 function lineToCQLLine(model) {
   const cqlLINE = model.map(function(point) {
     return point[0] + ' ' + point[1]
-  });
+  })
   return cqlLINE
 }
 
 function polygonToCQLPolygon(model) {
   const cqlPolygon = model.map(function(point) {
     return point[0] + ' ' + point[1]
-  });
+  })
   if (cqlPolygon[0] !== cqlPolygon[cqlPolygon.length - 1]) {
     cqlPolygon.push(cqlPolygon[0])
   }
@@ -109,7 +109,7 @@ function generateAnyGeoFilter(property, model) {
     case 'MULTIPOLYGON':
       const poly =
         'MULTIPOLYGON' +
-        sanitizeForCql(JSON.stringify(polygonToCQLMultiPolygon(model.polygon)));
+        sanitizeForCql(JSON.stringify(polygonToCQLMultiPolygon(model.polygon)))
       return {
         type: model.polygonBufferWidth > 0 ? 'DWITHIN' : 'INTERSECTS',
         property: property,
@@ -150,7 +150,7 @@ function generateAnyGeoFilter(property, model) {
 }
 
 function buildIntersectOrCQL(shapes) {
-  let locationFilter = '';
+  let locationFilter = ''
   $.each(
     shapes,
     function(i, shape) {
@@ -167,7 +167,7 @@ function buildIntersectOrCQL(shapes) {
 
 function arrayFromPartialWkt(partialWkt) {
   // remove the leading and trailing parentheses
-  let result = partialWkt.replace(/^\(/, '').replace(/\)$/, '');
+  let result = partialWkt.replace(/^\(/, '').replace(/\)$/, '')
   // change parentheses to array brackets
   result = result.replace(/\(/g, '[').replace(/\)/g, ']')
   // change each space-separated coordinate pair to a two-element array
@@ -296,16 +296,16 @@ const isPolygonFilter = filter => {
 
 function isPointRadiusFilter(filter) {
   const filterValue =
-    typeof filter.value === 'object' ? filter.value.value : filter.value;
+    typeof filter.value === 'object' ? filter.value.value : filter.value
   return filterValue && filterValue.indexOf('POINT') >= 0
 }
 
 function buildIntersectCQL(locationGeometry) {
-  let locationFilter = '';
-  let locationWkt = locationGeometry.toWkt();
-  const locationType = locationGeometry.toGeoJSON().type.toUpperCase();
+  let locationFilter = ''
+  let locationWkt = locationGeometry.toWkt()
+  const locationType = locationGeometry.toGeoJSON().type.toUpperCase()
 
-  let shapes;
+  let shapes
   switch (locationType) {
     case 'POINT':
     case 'LINESTRING':

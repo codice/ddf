@@ -10,9 +10,9 @@
  *
  **/
 
-const zeroScale = 'matrix(0, 0, 0, 0, 0, 0)';
-const zeroOpacity = '0';
-const notDisplayed = 'none';
+const zeroScale = 'matrix(0, 0, 0, 0, 0, 0)'
+const zeroOpacity = '0'
+const notDisplayed = 'none'
 
 module.exports = {
   isEffectivelyHidden: function(element) {
@@ -21,7 +21,7 @@ module.exports = {
     } else if (element === null) {
       return true
     } else {
-      const computedStyle = window.getComputedStyle(element);
+      const computedStyle = window.getComputedStyle(element)
       if (
         computedStyle.transform === zeroScale ||
         computedStyle.opacity === zeroOpacity ||

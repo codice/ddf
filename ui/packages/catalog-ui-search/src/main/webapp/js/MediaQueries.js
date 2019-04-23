@@ -16,31 +16,31 @@
     rem to px upon page load (using the browser's font size setting).  This means that media queries will
     not function completely as intended.
 */
-const _ = require('underscore');
-const $ = require('jquery');
-const user = require('../component/singletons/user-instance.js');
+const _ = require('underscore')
+const $ = require('jquery')
+const user = require('../component/singletons/user-instance.js')
 
 //in rem based on 16px base font size => 420 / 16
-const mobileScreenSize = 26.25; //420 px
-const smallScreenSize = 58.75; //940 px
-const mediumScreenSize = 90; //1440 px
+const mobileScreenSize = 26.25 //420 px
+const smallScreenSize = 58.75 //940 px
+const mediumScreenSize = 90 //1440 px
 
 const updateMediaQueries = _.throttle(function() {
-  const $html = $('html');
+  const $html = $('html')
   const fontSize = parseInt(
     user
       .get('user')
       .get('preferences')
       .get('fontSize')
-  );
-  const screenSize = window.innerWidth / fontSize;
-  const mobile = screenSize < mobileScreenSize;
-  const small = screenSize < smallScreenSize && !mobile;
-  const medium = screenSize < mediumScreenSize && !small && !mobile;
+  )
+  const screenSize = window.innerWidth / fontSize
+  const mobile = screenSize < mobileScreenSize
+  const small = screenSize < smallScreenSize && !mobile
+  const medium = screenSize < mediumScreenSize && !small && !mobile
   $html.toggleClass('is-mobile-screen', mobile)
   $html.toggleClass('is-small-screen', small)
   $html.toggleClass('is-medium-screen', medium)
-}, 30);
+}, 30)
 
 $(window).resize(updateMediaQueries)
 user

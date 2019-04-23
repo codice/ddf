@@ -128,7 +128,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
         )
         return currentAvailable
       }, [])
-      .sort();
+      .sort()
     this.set('activeSearchResultsAttributes', availableAttributes)
   },
   getActiveSearchResultsAttributes: function() {

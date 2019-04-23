@@ -54,25 +54,25 @@ define([
     serializeData: function() {
       let returnValue = {
         fetched: false,
-      };
+      }
       if (
         this.systemInformation.get('fetched') &&
         this.operatingSystem.get('fetched')
       ) {
-        const systemData = this.systemInformation.toJSON();
-        const operatingSystemData = this.operatingSystem.toJSON();
-        const uptime = TimeUtil.convertUptimeToString(systemData.Uptime);
+        const systemData = this.systemInformation.toJSON()
+        const operatingSystemData = this.operatingSystem.toJSON()
+        const uptime = TimeUtil.convertUptimeToString(systemData.Uptime)
         const usedMemory = UnitsUtil.convertBytesToDisplay(
           operatingSystemData.TotalPhysicalMemorySize -
             operatingSystemData.FreePhysicalMemorySize
-        );
+        )
         const totalMemory = UnitsUtil.convertBytesToDisplay(
           operatingSystemData.TotalPhysicalMemorySize
-        );
+        )
         const freeMemory = UnitsUtil.convertBytesToDisplay(
           operatingSystemData.FreePhysicalMemorySize
-        );
-        const startTime = moment(systemData.StartTime).toDate();
+        )
+        const startTime = moment(systemData.StartTime).toDate()
 
         returnValue = {
           systemInformation: systemData,
@@ -90,7 +90,7 @@ define([
 
       return returnValue
     },
-  });
+  })
 
   return FeaturesView
 })

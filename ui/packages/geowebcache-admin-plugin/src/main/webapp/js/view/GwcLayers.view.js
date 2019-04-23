@@ -34,9 +34,9 @@ define([
   addLayerModal
 ) {
   const EMPTY_INPUT_DIV =
-    "<div><input type='text' class='form-control input-list'></input><a href='#' class='fa fa-minus-square fa-lg minus-button'></a></div>";
+    "<div><input type='text' class='form-control input-list'></input><a href='#' class='fa fa-minus-square fa-lg minus-button'></a></div>"
 
-  const GwcLayersView = {};
+  const GwcLayersView = {}
 
   ich.addTemplate('gwcLayerTable', gwcLayerTable)
   ich.addTemplate('gwcLayerPage', gwcLayerPage)
@@ -83,7 +83,7 @@ define([
       $('.layer-mime').append(EMPTY_INPUT_DIV)
     },
     removeInput: function(e) {
-      const element = $(e.target).parent();
+      const element = $(e.target).parent()
       element.remove()
     },
     addWmsName: function() {
@@ -93,10 +93,10 @@ define([
       this.layers.addLayer(this.generateLayerDataFromFields())
     },
     renderFields: function() {
-      let layer;
-      const that = this;
-      const name = this.options.name;
-      const layers = this.options.layers.get('layers');
+      let layer
+      const that = this
+      const name = this.options.name
+      const layers = this.options.layers.get('layers')
 
       $.each(layers, function(index, value) {
         if (value.name === name) {
@@ -142,27 +142,27 @@ define([
       this.options.layers.updateLayer(this.generateLayerDataFromFields())
     },
     generateLayerDataFromFields: function() {
-      const name = $('.layer-name').val();
-      const url = $('.layer-url').val();
-      const mimeElements = $('.layer-mime').children();
-      const mimes = [];
+      const name = $('.layer-name').val()
+      const url = $('.layer-url').val()
+      const mimeElements = $('.layer-mime').children()
+      const mimes = []
 
       $.each(mimeElements, function(index, value) {
         const text = $(value)
           .find('input')
-          .val();
+          .val()
         if (text !== '') {
           mimes.push(text)
         }
       })
 
-      const wmsLayerNameElements = $('.layer-wms-name').children();
-      const wmsLayerNames = [];
+      const wmsLayerNameElements = $('.layer-wms-name').children()
+      const wmsLayerNames = []
 
       $.each(wmsLayerNameElements, function(index, value) {
         const text = $(value)
           .find('input')
-          .val();
+          .val()
         if (text !== '') {
           wmsLayerNames.push(text)
         }
@@ -179,7 +179,7 @@ define([
       const options = {
         trigger: 'hover',
         content: content,
-      };
+      }
       this.$el.find(selector).popover(options)
     },
   })
@@ -199,7 +199,7 @@ define([
       this.listenTo(this.model, 'change:layers', this.render)
     },
     removeLayer: function(el) {
-      const name = $(el.target).attr('name');
+      const name = $(el.target).attr('name')
       this.model.deleteLayer(name)
     },
     showUpdateModal: function(e) {

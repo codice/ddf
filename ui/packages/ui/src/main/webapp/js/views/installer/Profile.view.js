@@ -64,7 +64,7 @@ define([
     },
     next: function() {
       //this is your hook to perform any validation you need to do before going to the next step
-      const selectedProfile = this.model.get('selectedProfile');
+      const selectedProfile = this.model.get('selectedProfile')
       this.navigationModel.trigger('block')
       this.showLoading()
       this.installProfile(selectedProfile, this)
@@ -99,7 +99,7 @@ define([
     },
 
     doOptionSelected: function(evt) {
-      const input = this.$(evt.currentTarget).find('input');
+      const input = this.$(evt.currentTarget).find('input')
       this.model.set('selectedProfile', input.val())
     },
 
@@ -118,7 +118,7 @@ define([
       this.model.set('isCustomProfile', true)
       this.navigationModel.trigger('next')
     },
-  });
+  })
 
   return ProfileView
 })

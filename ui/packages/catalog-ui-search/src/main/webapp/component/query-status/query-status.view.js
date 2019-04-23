@@ -13,10 +13,10 @@
  *
  **/
 
-const Marionette = require('marionette');
-const template = require('./query-status.hbs');
-const CustomElements = require('../../js/CustomElements.js');
-const TableView = require('../table/query-status/table-query-status.view.js');
+const Marionette = require('marionette')
+const template = require('./query-status.hbs')
+const CustomElements = require('../../js/CustomElements.js')
+const TableView = require('../table/query-status/table-query-status.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

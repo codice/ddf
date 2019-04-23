@@ -99,7 +99,7 @@ require([
   'modelbinder',
 ], function($, Backbone, Marionette, Application, ich) {
   'use strict'
-  const app = Application.App;
+  const app = Application.App
   // Start up backbone.history.
   app.on('initialize:after', function() {
     Backbone.history.start()

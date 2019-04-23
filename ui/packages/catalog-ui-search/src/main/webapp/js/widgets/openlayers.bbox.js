@@ -21,7 +21,7 @@ const DrawingController = require('./drawing.controller')
 const olUtils = require('../OpenLayersGeometryUtils')
 const DistanceUtils = require('../DistanceUtils.js')
 
-const Draw = {};
+const Draw = {}
 
 Draw.BboxModel = Backbone.Model.extend({
   defaults: {
@@ -41,18 +41,18 @@ Draw.BboxView = Marionette.View.extend({
     )
   },
   setModelFromGeometry: function(geometry) {
-    const extent = geometry.getExtent();
+    const extent = geometry.getExtent()
 
     const northWest = ol.proj.transform(
       [extent[0], extent[3]],
       properties.projection,
       'EPSG:4326'
-    );
+    )
     const southEast = ol.proj.transform(
       [extent[2], extent[1]],
       properties.projection,
       'EPSG:4326'
-    );
+    )
     this.model.set({
       north: DistanceUtils.coordinateRound(northWest[1]),
       south: DistanceUtils.coordinateRound(southEast[1]),
@@ -65,10 +65,10 @@ Draw.BboxView = Marionette.View.extend({
     //ensure that the values are numeric
     //so that the openlayer projections
     //do not fail
-    const north = parseFloat(model.get('mapNorth'));
-    const south = parseFloat(model.get('mapSouth'));
-    let east = parseFloat(model.get('mapEast'));
-    let west = parseFloat(model.get('mapWest'));
+    const north = parseFloat(model.get('mapNorth'))
+    const south = parseFloat(model.get('mapSouth'))
+    let east = parseFloat(model.get('mapEast'))
+    let west = parseFloat(model.get('mapWest'))
 
     // If we are crossing the date line, we must go outside [-180, 180]
     // for openlayers to draw correctly. This means we can't draw boxes
@@ -84,35 +84,35 @@ Draw.BboxView = Marionette.View.extend({
       [west, north],
       'EPSG:4326',
       properties.projection
-    );
+    )
     const northEast = ol.proj.transform(
       [east, north],
       'EPSG:4326',
       properties.projection
-    );
+    )
     const southWest = ol.proj.transform(
       [west, south],
       'EPSG:4326',
       properties.projection
-    );
+    )
     const southEast = ol.proj.transform(
       [east, south],
       'EPSG:4326',
       properties.projection
-    );
+    )
 
-    const coords = [];
+    const coords = []
     coords.push(northWest)
     coords.push(northEast)
     coords.push(southEast)
     coords.push(southWest)
     coords.push(northWest)
-    const rectangle = new ol.geom.LineString(coords);
+    const rectangle = new ol.geom.LineString(coords)
     return rectangle
   },
 
   updatePrimitive: function(model) {
-    const rectangle = this.modelToRectangle(model);
+    const rectangle = this.modelToRectangle(model)
     // make sure the current model has width and height before drawing
     if (
       rectangle &&
@@ -130,7 +130,7 @@ Draw.BboxView = Marionette.View.extend({
   },
 
   updateGeometry: function(model) {
-    const rectangle = this.modelToRectangle(model);
+    const rectangle = this.modelToRectangle(model)
     if (rectangle) {
       this.drawBorderedRectangle(rectangle)
     }
@@ -152,19 +152,19 @@ Draw.BboxView = Marionette.View.extend({
 
     this.billboard.setId(this.model.cid)
 
-    const color = this.model.get('color');
+    const color = this.model.get('color')
 
     const iconStyle = new ol.style.Style({
       stroke: new ol.style.Stroke({
         color: color ? color : '#914500',
         width: 3,
       }),
-    });
+    })
     this.billboard.setStyle(iconStyle)
 
     const vectorSource = new ol.source.Vector({
       features: [this.billboard],
-    });
+    })
 
     var vectorLayer = new ol.layer.Vector({
       source: vectorSource,
@@ -190,7 +190,7 @@ Draw.BboxView = Marionette.View.extend({
     wreqr.vent.trigger('search:bboxdisplay', this.model)
   },
   start: function() {
-    const that = this;
+    const that = this
     this.primitive = new ol.interaction.DragBox({
       condition: ol.events.condition.always,
       style: new ol.style.Style({
@@ -215,7 +215,7 @@ Draw.BboxView = Marionette.View.extend({
         sketchFeature.coordinate,
         [sketchFeature.coordinate[0], that.startCoordinate[1]],
         that.startCoordinate,
-      ]);
+      ])
       that.drawBorderedRectangle(geometryRepresentation)
       that.setModelFromGeometry(that.primitive.getGeometry())
     })
@@ -239,9 +239,9 @@ Draw.Controller = DrawingController.extend({
   drawingType: 'bbox',
   show: function(model) {
     if (this.enabled) {
-      const bboxModel = model || new Draw.BboxModel();
+      const bboxModel = model || new Draw.BboxModel()
 
-      const existingView = this.getViewForModel(model);
+      const existingView = this.getViewForModel(model)
       if (existingView) {
         existingView.destroyPrimitive()
         existingView.updatePrimitive(model)
@@ -249,7 +249,7 @@ Draw.Controller = DrawingController.extend({
         const view = new Draw.BboxView({
           map: this.options.map,
           model: bboxModel,
-        });
+        })
         view.updatePrimitive(model)
         this.addView(view)
       }
@@ -259,13 +259,13 @@ Draw.Controller = DrawingController.extend({
   },
   draw: function(model) {
     if (this.enabled) {
-      const bboxModel = model || new Draw.BboxModel();
+      const bboxModel = model || new Draw.BboxModel()
       const view = new Draw.BboxView({
         map: this.options.map,
         model: bboxModel,
-      });
+      })
 
-      const existingView = this.getViewForModel(model);
+      const existingView = this.getViewForModel(model)
       if (existingView) {
         existingView.stop()
         existingView.destroyPrimitive()

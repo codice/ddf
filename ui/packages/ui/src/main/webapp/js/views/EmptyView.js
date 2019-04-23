@@ -17,7 +17,7 @@ define(['backbone.marionette', 'templates/emptyView.handlebars'], function(
   Marionette,
   emptyViewTemplate
 ) {
-  const EmptyView = {};
+  const EmptyView = {}
 
   EmptyView.view = Marionette.ItemView.extend({
     template: emptyViewTemplate,

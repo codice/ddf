@@ -42,6 +42,6 @@ const WorkspaceExplore = Marionette.LayoutView.extend({
       this.workspaceExploreQueries.show(new QuerySelectorView())
     }
   },
-});
+})
 
 module.exports = WorkspaceExplore

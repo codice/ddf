@@ -39,7 +39,7 @@ define([
 ) {
   ich.addTemplate('modalConfig', modalConfig)
 
-  const ModalConfig = {};
+  const ModalConfig = {}
 
   ModalConfig.View = Marionette.Layout.extend({
     template: 'modalConfig',
@@ -56,15 +56,15 @@ define([
       this.modelBinder = new Backbone.ModelBinder()
     },
     serializeData: function() {
-      let data = {};
+      let data = {}
 
       if (this.model) {
         data = this.model.toJSON()
       }
-      const configNames = [];
-      const regConfigs = this.model.get('registryConfiguration');
+      const configNames = []
+      const regConfigs = this.model.get('registryConfiguration')
       regConfigs.forEach(function(config) {
-        const service = config.get('service').get('name');
+        const service = config.get('service').get('name')
         if (configNames.indexOf(service) === -1) {
           configNames.push(service)
         }
@@ -83,7 +83,7 @@ define([
     },
     submitData: function(event) {
       this.closeAndUnbind()
-      const configSelected = event.currentTarget.id;
+      const configSelected = event.currentTarget.id
       wreqr.vent.trigger(
         'showModal',
         new ModalRegistry.View({

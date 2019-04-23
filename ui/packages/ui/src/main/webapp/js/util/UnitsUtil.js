@@ -34,7 +34,7 @@ define([], function() {
       }
       return bytes
     },
-  };
+  }
 
   return Util
 })

@@ -71,12 +71,12 @@ module.exports = new (Backbone.AssociatedModel.extend({
   handleRoute() {
     const routerJSON = router.toJSON()
     if (routerJSON.name === 'openAlert') {
-      const alertId = routerJSON.args[0];
+      const alertId = routerJSON.args[0]
       const alert = user
         .get('user')
         .get('preferences')
         .get('alerts')
-        .get(alertId);
+        .get(alertId)
       if (!alert) {
         router.notFound()
       } else {
@@ -127,7 +127,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
         )
         return currentAvailable
       }, [])
-      .sort();
+      .sort()
     this.set('activeSearchResultsAttributes', availableAttributes)
   },
   getActiveSearchResultsAttributes: function() {

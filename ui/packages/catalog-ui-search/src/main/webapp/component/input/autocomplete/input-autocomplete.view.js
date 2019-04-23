@@ -1,6 +1,6 @@
-const InputView = require('../input.view');
-const template = require('./input-autocomplete.hbs');
-const _ = require('underscore');
+const InputView = require('../input.view')
+const template = require('./input-autocomplete.hbs')
+const _ = require('underscore')
 require('select2')
 
 module.exports = InputView.extend({
@@ -21,7 +21,7 @@ module.exports = InputView.extend({
         return item.name || item
       },
       processResults(data) {
-        let items = data.items;
+        let items = data.items
         if (!Array.isArray(items)) {
           items = data
         }
@@ -32,7 +32,7 @@ module.exports = InputView.extend({
           return { name: item.name, id: item.id }
         })
       },
-    };
+    }
     _.extend(options, this.model.get('property').attributes)
 
     this.$el.find('select').select2({
@@ -46,7 +46,7 @@ module.exports = InputView.extend({
           return options.getUrlParams(params.term)
         },
         processResults(data, params) {
-          const results = options.processResults(data);
+          const results = options.processResults(data)
           return {
             results,
             pagination: {

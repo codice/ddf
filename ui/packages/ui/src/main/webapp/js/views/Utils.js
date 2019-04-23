@@ -26,7 +26,7 @@ define(['jquery', 'underscore'], function($, _) {
      * @returns A utility for managing the spinning of the refresh button.
      */
     refreshButton: function(anchorSelector, toExec, view) {
-      const self = this;
+      const self = this
       self.initialized = false
       _.extend(self, {
         view: view,
@@ -64,7 +64,7 @@ define(['jquery', 'underscore'], function($, _) {
       })
       return self
     },
-  };
+  }
 
   return Utils
 })

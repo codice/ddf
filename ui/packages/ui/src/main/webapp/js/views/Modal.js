@@ -28,7 +28,7 @@ define(['backbone.marionette'], function(Marionette) {
 
     // be default, "close" just closes the modal
     destroy: function() {
-      const view = this;
+      const view = this
       // we add this listener because we do not want to remove the dom before the animation completes.
       this.$el.one('hidden.bs.modal', function() {
         view.close()
@@ -46,6 +46,6 @@ define(['backbone.marionette'], function(Marionette) {
     hide: function() {
       this.$el.modal('hide')
     },
-  });
+  })
   return BaseModal
 })

@@ -24,9 +24,9 @@ define([
     Backbone,
     Marionette
   ) {
-    const dataUsage = new DataUsage.UsageModel();
+    const dataUsage = new DataUsage.UsageModel()
 
-    const dataUsagePage = new DataUsageView.UsagePage({ model: dataUsage });
+    const dataUsagePage = new DataUsageView.UsagePage({ model: dataUsage })
 
     // Define a controller to run this module
     // --------------------------------------
@@ -39,7 +39,7 @@ define([
       show: function() {
         this.region.show(dataUsagePage)
       },
-    });
+    })
 
     // Initialize this module when the app starts
     // ------------------------------------------

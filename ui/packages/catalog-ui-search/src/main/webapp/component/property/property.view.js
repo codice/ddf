@@ -144,11 +144,11 @@ module.exports = Marionette.LayoutView.extend(
       this.model.hideRequiredWarning()
     },
     save: function() {
-      const value = this.$el.find('input').val();
+      const value = this.$el.find('input').val()
       this.model.save(value)
     },
     toJSON: function() {
-      const value = this.model.getValue();
+      const value = this.model.getValue()
       return {
         attribute: this.model.getId(),
         values: value,
@@ -185,7 +185,7 @@ module.exports = Marionette.LayoutView.extend(
     },
     updateValidation: function(validationReport) {
       this._validationReport = validationReport
-      const $validationElement = this.$el.find('.property-validation');
+      const $validationElement = this.$el.find('.property-validation')
       if (validationReport.errors.length > 0) {
         this.$el.removeClass('has-warning').addClass('has-error')
         $validationElement
@@ -212,7 +212,9 @@ module.exports = Marionette.LayoutView.extend(
       this.handleBulkValidation(validationReport)
     },
     handleBulkValidation: function(validationReport) {
-      const elementsToCheck = this.$el.find('.is-bulk > .if-viewing .list-value');
+      const elementsToCheck = this.$el.find(
+        '.is-bulk > .if-viewing .list-value'
+      )
       _.forEach(elementsToCheck, function(element) {
         if (
           $(element)
@@ -220,7 +222,7 @@ module.exports = Marionette.LayoutView.extend(
             .split(',')
             .indexOf(validationReport.id) !== -1
         ) {
-          const $validationElement = $(element).find('.cell-validation');
+          const $validationElement = $(element).find('.cell-validation')
           if (validationReport.errors.length > 0) {
             $validationElement
               .removeClass('is-hidden')
@@ -247,9 +249,9 @@ module.exports = Marionette.LayoutView.extend(
     },
     setMessage: function(elements, message) {
       _.forEach(elements, function(el) {
-        const element = $(el);
+        const element = $(el)
         if (element.is('div')) {
-          let body = '';
+          let body = ''
           message.forEach(element => {
             body +=
               "<div><span class='fa fa-exclamation-triangle'></span> <span class='validation-message'>" +
@@ -263,11 +265,13 @@ module.exports = Marionette.LayoutView.extend(
       })
     },
     clearValidation: function() {
-      let $validationElement = this.$el.find('.property-validation');
+      let $validationElement = this.$el.find('.property-validation')
       this.$el.removeClass('has-warning').removeClass('has-error')
       $validationElement.addClass('is-hidden')
 
-      const elementsToCheck = this.$el.find('.is-bulk > .if-viewing .list-value');
+      const elementsToCheck = this.$el.find(
+        '.is-bulk > .if-viewing .list-value'
+      )
       _.forEach(elementsToCheck, function(element) {
         $validationElement = $(element).find('.cell-validation')
         $validationElement.removeClass('has-warning').removeClass('has-error')

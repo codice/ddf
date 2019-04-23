@@ -1,11 +1,11 @@
-const _ = require('underscore');
-const template = require('./attributes-rearrange.hbs');
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
-const user = require('../singletons/user-instance.js');
-const properties = require('../../js/properties.js');
-const Sortable = require('sortablejs');
-const metacardDefinitions = require('../singletons/metacard-definitions.js');
+const _ = require('underscore')
+const template = require('./attributes-rearrange.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const user = require('../singletons/user-instance.js')
+const properties = require('../../js/properties.js')
+const Sortable = require('sortablejs')
+const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
 function calculateAvailableAttributesFromSelection(selectionInterface) {
   const types = _.union.apply(
@@ -13,13 +13,13 @@ function calculateAvailableAttributesFromSelection(selectionInterface) {
     selectionInterface.getSelectedResults().map(result => {
       return [result.get('metacardType')]
     })
-  );
+  )
   const possibleAttributes = _.intersection.apply(
     this,
     types.map(type => {
       return Object.keys(metacardDefinitions.metacardDefinitions[type])
     })
-  );
+  )
   return selectionInterface
     .getSelectedResults()
     .reduce(function(currentAvailable, result) {
@@ -81,7 +81,7 @@ module.exports = Marionette.ItemView.extend({
       const usersChoice = user
         .get('user')
         .get('preferences')
-        .get('inspector-summaryShown');
+        .get('inspector-summaryShown')
       if (usersChoice.length > 0) {
         return usersChoice
       } else {
@@ -98,7 +98,7 @@ module.exports = Marionette.ItemView.extend({
       const usersChoice = user
         .get('user')
         .get('preferences')
-        .get('inspector-summaryShown');
+        .get('inspector-summaryShown')
       if (usersChoice.length > 0) {
         return calculateAvailableAttributesFromSelection(
           this.options.selectionInterface
@@ -120,11 +120,11 @@ module.exports = Marionette.ItemView.extend({
       const usersShown = user
         .get('user')
         .get('preferences')
-        .get('inspector-summaryShown');
+        .get('inspector-summaryShown')
       const usersOrder = user
         .get('user')
         .get('preferences')
-        .get('inspector-summaryOrder');
+        .get('inspector-summaryOrder')
       if (usersOrder.length > 0) {
         return usersOrder
       } else {
@@ -142,11 +142,11 @@ module.exports = Marionette.ItemView.extend({
       const usersShown = user
         .get('user')
         .get('preferences')
-        .get('inspector-summaryShown');
+        .get('inspector-summaryShown')
       const usersOrder = user
         .get('user')
         .get('preferences')
-        .get('inspector-summaryOrder');
+        .get('inspector-summaryOrder')
       if (usersShown.length > 0 || usersOrder.length > 0) {
         return usersShown.filter(function(attr) {
           return usersOrder.indexOf(attr) === -1
@@ -158,7 +158,7 @@ module.exports = Marionette.ItemView.extend({
       const detailsOrder = user
         .get('user')
         .get('preferences')
-        .get('inspector-detailsOrder');
+        .get('inspector-detailsOrder')
       return calculateAvailableAttributesFromSelection(
         this.options.selectionInterface
       ).filter(function(attr) {
@@ -167,15 +167,15 @@ module.exports = Marionette.ItemView.extend({
     }
   },
   serializeData: function() {
-    const preferredHeader = this.getPreferredOrder();
-    const newAttributes = this.getNewAttributes();
+    const preferredHeader = this.getPreferredOrder()
+    const newAttributes = this.getNewAttributes()
     newAttributes.sort(function(a, b) {
       return metacardDefinitions.attributeComparator(a, b)
     })
-    const hidden = this.getHidden();
+    const hidden = this.getHidden()
     const availableAttributes = calculateAvailableAttributesFromSelection(
       this.options.selectionInterface
-    );
+    )
 
     return _.union(preferredHeader, newAttributes).map(function(property) {
       return {
@@ -197,10 +197,10 @@ module.exports = Marionette.ItemView.extend({
     })
   },
   handleSave: function() {
-    const prefs = user.get('user').get('preferences');
+    const prefs = user.get('user').get('preferences')
     const key = this.options.summary
       ? 'inspector-summaryOrder'
-      : 'inspector-detailsOrder';
+      : 'inspector-detailsOrder'
     prefs.set(
       key,
       _.map(this.$el.find('.column'), function(element) {

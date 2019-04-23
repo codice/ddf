@@ -44,7 +44,7 @@ define([
       this.$('.main-content').hide()
       this.$('.loading-overlay').toggleClass('active', true)
     },
-  });
+  })
 
   return ConfigurationView
 })

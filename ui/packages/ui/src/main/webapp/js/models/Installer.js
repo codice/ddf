@@ -19,10 +19,10 @@ define(['backbone', 'underscore', 'jquery', 'js/wreqr'], function(
   $,
   wreqr
 ) {
-  const Installer = {};
+  const Installer = {}
 
   const _step = function(direction) {
-    const changeObj = {};
+    const changeObj = {}
     changeObj.stepNumber = this.get('stepNumber') + direction
     if (changeObj.stepNumber < this.get('totalSteps')) {
       changeObj.hasNext = true
@@ -43,7 +43,7 @@ define(['backbone', 'underscore', 'jquery', 'js/wreqr'], function(
     }
 
     return changeObj
-  };
+  }
 
   Installer.Model = Backbone.Model.extend({
     installUrl:
@@ -73,7 +73,7 @@ define(['backbone', 'underscore', 'jquery', 'js/wreqr'], function(
       this.on('unblock', this.unblock)
     },
     setTotalSteps: function(numOfSteps) {
-      const changeObj = {};
+      const changeObj = {}
       changeObj.steps = []
       for (let i = 0; i < numOfSteps; i++) {
         changeObj.steps.push({ percentComplete: 0 })
@@ -82,7 +82,9 @@ define(['backbone', 'underscore', 'jquery', 'js/wreqr'], function(
       this.set(changeObj)
     },
     nextStep: function(message, percentComplete) {
-      const stepNumber = this.get('stepNumber'), totalSteps = this.get('totalSteps'), changeObj = {};
+      const stepNumber = this.get('stepNumber'),
+        totalSteps = this.get('totalSteps'),
+        changeObj = {}
 
       if (stepNumber < totalSteps) {
         if (!_.isUndefined(message)) {
@@ -124,7 +126,7 @@ define(['backbone', 'underscore', 'jquery', 'js/wreqr'], function(
       this.set(_step.call(this, -1))
     },
     save: function(restart) {
-      const that = this;
+      const that = this
       wreqr.vent.trigger('modulePoller:stop')
       return $.ajax({
         type: 'GET',

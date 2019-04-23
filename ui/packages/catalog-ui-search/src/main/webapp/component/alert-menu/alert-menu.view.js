@@ -32,7 +32,7 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(alertInstance, 'change:currentAlert', this.render)
   },
   goToWorkspace: function(e) {
-    const workspaceId = $(e.currentTarget).attr('data-workspaceid');
+    const workspaceId = $(e.currentTarget).attr('data-workspaceid')
     wreqr.vent.trigger('router:navigate', {
       fragment: 'workspaces/' + workspaceId,
       options: {
@@ -44,11 +44,11 @@ module.exports = Marionette.LayoutView.extend({
     if (alertInstance.get('currentAlert') === undefined) {
       return {}
     }
-    const alertJSON = alertInstance.get('currentAlert').toJSON();
+    const alertJSON = alertInstance.get('currentAlert').toJSON()
     const workspace = store.get('workspaces').filter(function(workspace) {
       return workspace.get('queries').get(alertJSON.queryId)
-    })[0];
-    let query;
+    })[0]
+    let query
     if (workspace) {
       query = workspace.get('queries').get(alertJSON.queryId)
     }

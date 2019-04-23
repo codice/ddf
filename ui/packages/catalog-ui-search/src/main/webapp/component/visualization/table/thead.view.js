@@ -13,16 +13,16 @@
  *
  **/
 
-const _ = require('underscore');
-const $ = require('jquery');
-const template = require('./thead.hbs');
-const Marionette = require('marionette');
-const CustomElements = require('../../../js/CustomElements.js');
-const user = require('../../singletons/user-instance.js');
-const properties = require('../../../js/properties.js');
-const metacardDefinitions = require('../../singletons/metacard-definitions.js');
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./thead.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('../../../js/CustomElements.js')
+const user = require('../../singletons/user-instance.js')
+const properties = require('../../../js/properties.js')
+const metacardDefinitions = require('../../singletons/metacard-definitions.js')
 require('jquery-ui/ui/widgets/resizable')
-let isResizing = false;
+let isResizing = false
 const {
   SelectAllToggle,
 } = require('../../selection-checkbox/selection-checkbox.view.js')
@@ -76,18 +76,18 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   updateSorting: function(e) {
-    const attribute = e.currentTarget.getAttribute('data-propertyid');
-    const $currentTarget = $(e.currentTarget);
+    const attribute = e.currentTarget.getAttribute('data-propertyid')
+    const $currentTarget = $(e.currentTarget)
     const direction = $currentTarget.hasClass('is-sorted-asc')
       ? 'descending'
-      : 'ascending';
+      : 'ascending'
     const sort = [
       {
         attribute: attribute,
         direction: direction,
       },
-    ];
-    const prefs = user.get('user').get('preferences');
+    ]
+    const prefs = user.get('user').get('preferences')
     prefs.set('resultSort', sort)
     prefs.savePreferences()
   },
@@ -95,7 +95,7 @@ module.exports = Marionette.LayoutView.extend({
     const resultSort = user
       .get('user')
       .get('preferences')
-      .get('resultSort');
+      .get('resultSort')
     this.$el.children('.is-sorted-asc').removeClass('is-sorted-asc')
     this.$el.children('.is-sorted-desc').removeClass('is-sorted-desc')
     if (resultSort) {
@@ -127,20 +127,20 @@ module.exports = Marionette.LayoutView.extend({
       }
     ).map(function(type) {
       return type.id
-    });
-    const prefs = user.get('user').get('preferences');
+    })
+    const prefs = user.get('user').get('preferences')
     const results = this.options.selectionInterface
       .getActiveSearchResults()
-      .toJSON();
+      .toJSON()
     let preferredHeader = user
       .get('user')
       .get('preferences')
-      .get('columnOrder');
+      .get('columnOrder')
     const hiddenColumns = user
       .get('user')
       .get('preferences')
-      .get('columnHide');
-    const availableAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes();
+      .get('columnHide')
+    const availableAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes()
 
     // tack on unknown attributes to end (sorted), then save
     preferredHeader = _.union(preferredHeader, availableAttributes)

@@ -13,9 +13,9 @@
  *
  **/
 
-const Marionette = require('marionette');
-const template = require('./save.hbs');
-const CustomElements = require('../../js/CustomElements.js');
+const Marionette = require('marionette')
+const template = require('./save.hbs')
+const CustomElements = require('../../js/CustomElements.js')
 require('../../behaviors/button.behavior.js')
 
 // Base View, meant to be extended for whatever needs a save button

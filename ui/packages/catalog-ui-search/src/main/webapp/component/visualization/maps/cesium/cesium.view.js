@@ -15,11 +15,11 @@
 
 //You typically don't want to use this view directly.  Instead, use the combined-map component which will handle falling back to openlayers.
 
-const MapView = require('../map.view');
-const template = require('./cesium.hbs');
-const $ = require('jquery');
-const _ = require('underscore');
-const featureDetection = require('../../../singletons/feature-detection.js');
+const MapView = require('../map.view')
+const template = require('./cesium.hbs')
+const $ = require('jquery')
+const _ = require('underscore')
+const featureDetection = require('../../../singletons/feature-detection.js')
 
 module.exports = MapView.extend({
   template: template,
@@ -33,7 +33,7 @@ module.exports = MapView.extend({
     )
   },
   loadMap: function() {
-    const deferred = new $.Deferred();
+    const deferred = new $.Deferred()
     require(['./map.cesium'], function(CesiumMap) {
       deferred.resolve(CesiumMap)
     })

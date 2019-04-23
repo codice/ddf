@@ -11,7 +11,7 @@
  **/
 
 define(['backbone', 'jquery'], function(Backbone, $) {
-  const QueryMonitor = {};
+  const QueryMonitor = {}
 
   QueryMonitor.MonitorModel = Backbone.Model.extend({
     initialize: function() {
@@ -20,8 +20,8 @@ define(['backbone', 'jquery'], function(Backbone, $) {
     },
     getActiveSearches: function() {
       const url =
-        '../jolokia/exec/org.codice.ddf.resourcemanagement.query.service.QueryMonitor:service=querymonitor/activeSearches/';
-      const that = this;
+        '../jolokia/exec/org.codice.ddf.resourcemanagement.query.service.QueryMonitor:service=querymonitor/activeSearches/'
+      const that = this
       $.ajax({
         url: url,
         dataType: 'json',
@@ -33,14 +33,15 @@ define(['backbone', 'jquery'], function(Backbone, $) {
     stopSearch: function(uuid) {
       const url =
         '../jolokia/exec/org.codice.ddf.resourcemanagement.query.service.QueryMonitor:service=querymonitor/cancelActiveSearch/' +
-        uuid;
+        uuid
       $.ajax({
         url: url,
         dataType: 'json',
       })
     },
     pollActiveSearches: function() {
-      const that = this;(function poll() {
+      const that = this
+      ;(function poll() {
         setTimeout(function() {
           that.getActiveSearches()
           poll()

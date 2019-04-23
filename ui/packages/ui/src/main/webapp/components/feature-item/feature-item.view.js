@@ -23,7 +23,7 @@ define([
   'use strict'
 
   function testFilter(blob, filter) {
-    let filtered = false;
+    let filtered = false
     if (filter.name !== undefined && filter.name !== '') {
       if (blob.name.toLowerCase().indexOf(filter.name.toLowerCase()) === -1) {
         filtered = true
@@ -85,7 +85,7 @@ define([
         this.model.get('status') === 'Installed'
       )
     },
-  });
+  })
 
   return FeatureRow
 })

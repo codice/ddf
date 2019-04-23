@@ -55,15 +55,17 @@ module.exports = {
   undefined: '2686dcb5-7578-4957-974d-aaa9289cd2f0',
   coreTransitionTime: 250,
   generateUUID(properties = require('properties')) {
-    let d = new Date().getTime();
+    let d = new Date().getTime()
     if (window.performance && typeof window.performance.now === 'function') {
       d += performance.now() //use high-precision timer if available
     }
-    const uuid = 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = (d + Math.random() * 16) % 16 | 0;
+    const uuid = 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function(
+      c
+    ) {
+      const r = (d + Math.random() * 16) % 16 | 0
       d = Math.floor(d / 16)
       return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
-    });
+    })
     if (!properties.useHyphensInUuid) return uuid
 
     const chunks = uuid.match(/.{1,4}/g)
@@ -86,7 +88,7 @@ module.exports = {
   },
   setupPopOver: function($component) {
     $component.find('[title]').each(function() {
-      const $element = $(this);
+      const $element = $(this)
       $element.popover({
         delay: {
           show: 1000,
@@ -100,26 +102,28 @@ module.exports = {
     if (_.isUndefined(item)) {
       return 'Unknown Size'
     }
-    const givenProductSize = item.replace(/[,]+/g, '').trim();
+    const givenProductSize = item.replace(/[,]+/g, '').trim()
     //remove any commas and trailing whitespace
-    const bytes = parseInt(givenProductSize, 10);
-    const noUnitsGiven = /[0-9]$/;
+    const bytes = parseInt(givenProductSize, 10)
+    const noUnitsGiven = /[0-9]$/
     //number without a word following
-    const reformattedProductSize = givenProductSize.replace(/\s\s+/g, ' ');
+    const reformattedProductSize = givenProductSize.replace(/\s\s+/g, ' ')
     //remove extra whitespaces
     const finalFormatProductSize = reformattedProductSize.replace(
       /([0-9])([a-zA-Z])/g,
       '$1 $2'
-    );
+    )
     //make sure there is exactly one space between number and unit
-    const sizeArray = finalFormatProductSize.split(' ');
+    const sizeArray = finalFormatProductSize.split(' ')
     //splits size into number and unit
     if (isNaN(bytes)) {
       return 'Unknown Size'
     }
     if (noUnitsGiven.test(givenProductSize)) {
       //need to parse number given and add units, number is assumed to be bytes
-      let size, index, type = ['bytes', 'KB', 'MB', 'GB', 'TB'];
+      let size,
+        index,
+        type = ['bytes', 'KB', 'MB', 'GB', 'TB']
       if (bytes === 0) {
         return '0 bytes'
       } else {
@@ -170,11 +174,13 @@ module.exports = {
     if (_.isUndefined(item)) {
       return 'Unknown Size'
     }
-    const bytes = parseInt(item, 10);
+    const bytes = parseInt(item, 10)
     if (isNaN(bytes)) {
       return item
     }
-    let size, index, type = ['bytes', 'KB', 'MB', 'GB', 'TB'];
+    let size,
+      index,
+      type = ['bytes', 'KB', 'MB', 'GB', 'TB']
     if (bytes === 0) {
       return '0 bytes'
     } else {
@@ -219,8 +225,8 @@ module.exports = {
   repaintForTimeframe: function(time, callback) {
     const requestDetails = {
       requestId: undefined,
-    };
-    const timeEnd = Date.now() + time;
+    }
+    const timeEnd = Date.now() + time
     const repaint = function() {
       callback()
       if (Date.now() < timeEnd) {
@@ -228,7 +234,7 @@ module.exports = {
           repaint()
         })
       }
-    };
+    }
     requestDetails.requestId = window.requestAnimationFrame(function() {
       repaint()
     })

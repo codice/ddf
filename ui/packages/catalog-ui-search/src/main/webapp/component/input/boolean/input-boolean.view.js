@@ -1,5 +1,5 @@
-const template = require('./input-boolean.hbs');
-const InputView = require('../input.view');
+const template = require('./input-boolean.hbs')
+const InputView = require('../input.view')
 
 module.exports = InputView.extend({
   template: template,

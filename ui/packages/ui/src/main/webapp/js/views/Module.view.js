@@ -45,7 +45,7 @@ define([
       if (this.$el.find('#tabs').find(event.target).length === 0) {
         return
       }
-      const id = event.target.getAttribute('data-id');
+      const id = event.target.getAttribute('data-id')
       this.tabs.currentView.children.each(function(childView) {
         childView.$el.toggleClass('active', childView.model.id === id)
       })
@@ -109,7 +109,7 @@ define([
                 return
               }
               this.model.set('loaded', true)
-              const view = this;
+              const view = this
               //this dynamically requires in our modules based on wherever the model says they could be found
               //check if we already have the module
               if (
@@ -189,7 +189,7 @@ define([
         })
       )
     },
-  });
+  })
 
   return ModuleView
 })

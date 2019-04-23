@@ -21,7 +21,7 @@ define([
 ], function(Backbone, Marionette, ich, _, loginTemplate, $) {
   ich.addTemplate('loginTemplate', loginTemplate)
 
-  const Login = {};
+  const Login = {}
 
   Login.LoginForm = Marionette.ItemView.extend({
     template: 'loginTemplate',
@@ -59,8 +59,8 @@ define([
       this.logIn()
     },
     logIn: function() {
-      const view = this;
-      let sentData;
+      const view = this
+      let sentData
       $.ajax({
         type: 'GET',
         url: './login/sso',
@@ -70,7 +70,7 @@ define([
           if (view.model.get('AuthMethod') === 'up') {
             const base64 = window.btoa(
               view.$('#username').val() + ':' + view.$('#password').val()
-            );
+            )
             xhr.setRequestHeader('Authorization', 'Basic ' + base64)
           }
         },

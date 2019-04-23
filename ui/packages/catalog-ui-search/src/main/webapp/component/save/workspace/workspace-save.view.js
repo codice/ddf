@@ -13,7 +13,7 @@
  *
  **/
 
-const SaveView = require('../save.view');
+const SaveView = require('../save.view')
 
 module.exports = SaveView.extend({
   attributes: {

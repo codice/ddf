@@ -81,7 +81,7 @@ module.exports = Marionette.LayoutView.extend({
     LoadingCompanionView.beginLoading(this)
     $.get('./internal/annotations/' + this.model.get('id')).then(
       function(response) {
-        const resp = response.response;
+        const resp = response.response
         if (response.responseType === 'success') {
           if (this.isValidResponse(resp)) {
             this._annotations = JSON.parse(resp)
@@ -155,8 +155,8 @@ module.exports = Marionette.LayoutView.extend({
     this._annotationsCollection.reset()
   },
   handleCreate: function() {
-    const annotation = this.addAnnotationField.currentView.model.get('value')[0];
-    const annotationObj = {};
+    const annotation = this.addAnnotationField.currentView.model.get('value')[0]
+    const annotationObj = {}
     annotationObj.parent = this.model.get('id')
     annotationObj.note = annotation
     annotationObj.workspace = store.getCurrentWorkspace().id
@@ -170,7 +170,7 @@ module.exports = Marionette.LayoutView.extend({
         contentType: 'application/json',
       }).always(
         function(response) {
-          const resp = response.response;
+          const resp = response.response
           setTimeout(
             function() {
               if (response.responseType === 'success') {
@@ -206,7 +206,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   handlePostResponse: function(response) {
-    const annotation = JSON.parse(response);
+    const annotation = JSON.parse(response)
 
     this._annotationsCollection.add({
       id: annotation.id,

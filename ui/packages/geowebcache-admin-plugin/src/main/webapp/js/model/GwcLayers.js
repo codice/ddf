@@ -11,7 +11,7 @@
  **/
 
 define(['backbone', 'jquery'], function(Backbone, $) {
-  const GwcLayers = {};
+  const GwcLayers = {}
 
   GwcLayers.LayerModel = Backbone.Model.extend({
     initialize: function() {
@@ -19,8 +19,8 @@ define(['backbone', 'jquery'], function(Backbone, $) {
       this.getLayers()
     },
     getLayers: function() {
-      const url = '../../geowebcache/rest/layers';
-      const that = this;
+      const url = '../../geowebcache/rest/layers'
+      const that = this
       $.ajax({
         url: url,
         dataType: 'xml',
@@ -33,20 +33,20 @@ define(['backbone', 'jquery'], function(Backbone, $) {
       const xmlUrl = $(data)
         .find('wmsUrl')
         .find('string')
-        .text();
-      const layerUrl = '../../geowebcache/rest/layers/' + name + '.xml';
+        .text()
+      const layerUrl = '../../geowebcache/rest/layers/' + name + '.xml'
       const mimes = $(data)
         .find('mimeFormats')
-        .find('string');
-      const mimeTypes = [];
+        .find('string')
+      const mimeTypes = []
       $.each(mimes, function(index, value) {
         mimeTypes.push($(value).text())
       })
 
       const xmlLayers = $(data)
         .find('wmsLayers')
-        .text();
-      const xmlLayersArray = xmlLayers.trim().split(',');
+        .text()
+      const xmlLayersArray = xmlLayers.trim().split(',')
 
       if (!this.nameExistsInArray(name)) {
         const layer = {
@@ -55,10 +55,10 @@ define(['backbone', 'jquery'], function(Backbone, $) {
           layerUrl: layerUrl,
           mimeTypes: mimeTypes,
           xmlLayers: xmlLayersArray,
-        };
+        }
         this.get('layers').push(layer)
       } else {
-        const updateLayer = this.getLayer(name);
+        const updateLayer = this.getLayer(name)
         updateLayer.xmlUrl = xmlUrl
         updateLayer.layerUrl = layerUrl
         updateLayer.mimeTypes = mimeTypes
@@ -67,14 +67,14 @@ define(['backbone', 'jquery'], function(Backbone, $) {
       this.trigger('change:layers', this)
     },
     parseLayersXml: function(data) {
-      const that = this;
+      const that = this
       $(data)
         .find('layer')
         .each(function() {
           const name = $(this)
             .find('name')
-            .text();
-          const url = '../../geowebcache/rest/layers/' + name + '.xml';
+            .text()
+          const url = '../../geowebcache/rest/layers/' + name + '.xml'
           $.ajax({
             url: url,
             dataType: 'xml',
@@ -85,13 +85,13 @@ define(['backbone', 'jquery'], function(Backbone, $) {
         })
     },
     deleteLayer: function(name) {
-      const url = '../../geowebcache/rest/layers/' + name + '.xml';
-      const that = this;
+      const url = '../../geowebcache/rest/layers/' + name + '.xml'
+      const that = this
       $.ajax({
         url: url,
         type: 'DELETE',
         success: function() {
-          const layers = that.get('layers');
+          const layers = that.get('layers')
           $.each(layers, function() {
             if (name === this.name) {
               layers.splice($.inArray(this, layers), 1)
@@ -103,9 +103,9 @@ define(['backbone', 'jquery'], function(Backbone, $) {
       })
     },
     postLayerData: function(layerData, type) {
-      const restUrl = '../../geowebcache/rest/layers/' + layerData.name + '.xml';
-      const that = this;
-      const data = this.generateXmlForLayer(layerData);
+      const restUrl = '../../geowebcache/rest/layers/' + layerData.name + '.xml'
+      const that = this
+      const data = this.generateXmlForLayer(layerData)
       $.ajax({
         url: restUrl,
         type: type,
@@ -128,7 +128,7 @@ define(['backbone', 'jquery'], function(Backbone, $) {
       }
     },
     nameExistsInArray: function(name) {
-      let exists;
+      let exists
       $.each(this.get('layers'), function(index, value) {
         if (name === value.name) {
           exists = true
@@ -137,7 +137,7 @@ define(['backbone', 'jquery'], function(Backbone, $) {
       return exists
     },
     getLayer: function(name) {
-      let layer;
+      let layer
       $.each(this.get('layers'), function(index, value) {
         if (name === value.name) {
           layer = value
@@ -146,7 +146,7 @@ define(['backbone', 'jquery'], function(Backbone, $) {
       return layer
     },
     generateXmlForLayer: function(layerData) {
-      let data;
+      let data
       data = '<wmsLayer>'
       data += '\t<name>' + layerData.name + '</name>'
       data += '\t<mimeFormats>'

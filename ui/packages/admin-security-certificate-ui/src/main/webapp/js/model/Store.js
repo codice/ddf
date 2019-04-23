@@ -14,11 +14,11 @@
  **/
 
 define(['jquery', 'backbone', 'backboneassociations'], function($, Backbone) {
-  const Store = {};
+  const Store = {}
 
   Store.Response = Backbone.AssociatedModel.extend({
     removeStoreItem: function(url, alias) {
-      const that = this;
+      const that = this
       $.ajax({
         url: url + alias,
         type: 'GET',
@@ -27,8 +27,8 @@ define(['jquery', 'backbone', 'backboneassociations'], function($, Backbone) {
       })
     },
     addStoreItem: function(url, alias, data) {
-      const that = this;
-      const jData = JSON.stringify(data);
+      const that = this
+      const jData = JSON.stringify(data)
       $.ajax({
         url: url + alias,
         dataType: 'json',

@@ -19,7 +19,7 @@ module.exports = new (Backbone.Model.extend({
         .filter(function(title) {
           return title !== undefined
         })
-        .value();
+        .value()
 
       if (unsaved.length > 0) {
         return (
@@ -30,7 +30,7 @@ module.exports = new (Backbone.Model.extend({
     }.bind(this)
 
     this.listenTo(this.get('workspaces'), 'remove', function() {
-      const currentWorkspace = this.getCurrentWorkspace();
+      const currentWorkspace = this.getCurrentWorkspace()
       if (currentWorkspace && !this.get('workspaces').get(currentWorkspace)) {
         this.get('content').set('currentWorkspace', undefined)
       }
@@ -63,7 +63,7 @@ module.exports = new (Backbone.Model.extend({
   handleWorkspaceChange: function() {
     if (this.get('content').changedAttributes().currentWorkspace) {
       const previousWorkspace = this.get('content').previousAttributes()
-        .currentWorkspace;
+        .currentWorkspace
       if (
         previousWorkspace &&
         previousWorkspace.id !== this.get('content').get('currentWorkspace').id
@@ -88,7 +88,7 @@ module.exports = new (Backbone.Model.extend({
     return this.getCurrentWorkspace().get('queries')
   },
   setQueryById: function(queryId) {
-    const queryRef = this.getCurrentQueries().get(queryId);
+    const queryRef = this.getCurrentQueries().get(queryId)
     this.setQueryByReference(queryRef.clone())
   },
   setQueryByReference: function(queryRef) {

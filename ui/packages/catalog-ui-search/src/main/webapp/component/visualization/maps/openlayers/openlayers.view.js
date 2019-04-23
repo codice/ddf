@@ -13,13 +13,13 @@
  *
  **/
 
-const MapView = require('../map.view');
-const $ = require('jquery');
+const MapView = require('../map.view')
+const $ = require('jquery')
 
 module.exports = MapView.extend({
   className: 'is-openlayers',
   loadMap: function() {
-    const deferred = new $.Deferred();
+    const deferred = new $.Deferred()
     require(['./map.openlayers'], function(OpenlayersMap) {
       deferred.resolve(OpenlayersMap)
     })

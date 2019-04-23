@@ -53,7 +53,7 @@ module.exports = Marionette.ItemView.extend({
     this.checkTags()
   },
   serializeData: function() {
-    let title, icon;
+    let title, icon
     if (this.model.length === 1) {
       icon = IconHelper.getClass(this.model.first())
       title = this.model
@@ -70,7 +70,7 @@ module.exports = Marionette.ItemView.extend({
     }
   },
   checkTags: function() {
-    const types = {};
+    const types = {}
     this.model.forEach(function(result) {
       if (result.isWorkspace()) {
         types.workspace = true

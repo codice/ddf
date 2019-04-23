@@ -10,8 +10,8 @@
  *
  **/
 
-const ClusterModel = require('./cluster');
-const Backbone = require('backbone');
+const ClusterModel = require('./cluster')
+const Backbone = require('backbone')
 
 const ClusterCollection = Backbone.Collection.extend({
   model: ClusterModel,
@@ -22,6 +22,6 @@ const ClusterCollection = Backbone.Collection.extend({
       })
     )
   },
-});
+})
 
 module.exports = ClusterCollection

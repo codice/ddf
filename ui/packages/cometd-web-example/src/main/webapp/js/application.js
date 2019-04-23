@@ -15,11 +15,11 @@
 
 'use strict'
 ;(function($) {
-  const cometd = $.cometd;
+  const cometd = $.cometd
   cometd.websocketEnabled = false
 
   // CometD endpoint is assumed to be at localhost, change if otherwise
-  const cometURL = 'https://localhost:8993/search/cometd';
+  const cometURL = 'https://localhost:8993/search/cometd'
 
   $(document).ready(function() {
     function _connectionEstablished() {
@@ -35,7 +35,7 @@
     }
 
     // Function that manages the connection status with the Bayeux server
-    let _connected = false;
+    let _connected = false
     function _metaConnect(message) {
       if (cometd.isDisconnected()) {
         _connected = false
@@ -43,7 +43,7 @@
         return
       }
 
-      const wasConnected = _connected;
+      const wasConnected = _connected
       _connected = message.successful === true
       if (!wasConnected && _connected) {
         _connectionEstablished()
@@ -67,11 +67,11 @@
             // Add Notification
             getNotification(message)
           })
-          const cid = cometd.getClientId();
+          const cid = cometd.getClientId()
           $('#notifications').append('<div>Cid: ' + cid + '</div>')
           // Publish an empty message to the notifications channel to retrieve any existing notifications.
           cometd.publish('/ddf/notifications', {})
-          const a = $('a').attr('href');
+          const a = $('a').attr('href')
           $('a').attr('href', a + cid)
         })
       }
@@ -85,7 +85,11 @@
       document.getElementById('json-responses').appendChild(renderjson(message))
 
       // Grab notification elements
-      const notifyId = message.data.id, notifyTitle = message.data.title, notifyUser = message.data.user, notifyTime = message.data.timestamp, notifyMessage = message.data.message;
+      const notifyId = message.data.id,
+        notifyTitle = message.data.title,
+        notifyUser = message.data.user,
+        notifyTime = message.data.timestamp,
+        notifyMessage = message.data.message
 
       // Add New Notification
       $('#notifications').append(
@@ -112,7 +116,11 @@
       console.log(JSON.stringify(message, null, 4))
       document.getElementById('json-responses').appendChild(renderjson(message))
 
-      const notifyId = message.data.id, notifyTitle = message.data.title, notifyUser = message.data.user, notifyTime = message.data.timestamp, notifyMessage = message.data.message;
+      const notifyId = message.data.id,
+        notifyTitle = message.data.title,
+        notifyUser = message.data.user,
+        notifyTime = message.data.timestamp,
+        notifyMessage = message.data.message
 
       // Update existing notification
       $('#' + notifyId).replaceWith(
@@ -158,7 +166,7 @@
 
     // Determines whether a notification is new or needs to be updated.
     function getNotification(message) {
-      const notifyId = message.data.id;
+      const notifyId = message.data.id
 
       // If notification already exists, update it. Else display a new notification.
       if ($('#' + notifyId).length > 0) {
@@ -174,11 +182,17 @@
       console.log(JSON.stringify(message, null, 4))
       document.getElementById('json-responses').appendChild(renderjson(message))
 
-      const results = message.data.results.length;
+      const results = message.data.results.length
       console.log('Result Length: ' + results)
       for (let i = 0; i < results; i++) {
         // get result elements
-        const result = message.data.results[i], metacard = result.metacard, metaProps = metacard.properties, catalogId = metaProps.id, metaTitle = metaProps.title, cid = cometd.getClientId(), downloadUrl = metaProps['resource-download-url'] + '&session=' + cid;
+        const result = message.data.results[i],
+          metacard = result.metacard,
+          metaProps = metacard.properties,
+          catalogId = metaProps.id,
+          metaTitle = metaProps.title,
+          cid = cometd.getClientId(),
+          downloadUrl = metaProps['resource-download-url'] + '&session=' + cid
 
         $('#results').append('<div class="result" id=' + catalogId + '></div>')
         $('#' + catalogId).append('<h3>' + metaTitle + '</h3>')
@@ -196,12 +210,12 @@
       $('#results').empty()
 
       const keyword = $('#keyword').val(),
-            uuid = guid(),
-            guidChannel = '/' + uuid,
-            request = {
-              id: uuid,
-              cql: "anyText LIKE '" + keyword + "'",
-            };
+        uuid = guid(),
+        guidChannel = '/' + uuid,
+        request = {
+          id: uuid,
+          cql: "anyText LIKE '" + keyword + "'",
+        }
 
       // Add query response subscription
       console.log('Query Request: ')
@@ -232,7 +246,7 @@
     cometd.handshake()
 
     //Add search event handler
-    const searchBtn = document.getElementById('search-btn');
+    const searchBtn = document.getElementById('search-btn')
     searchBtn.addEventListener('click', executeQuery)
   })
 })(jQuery)

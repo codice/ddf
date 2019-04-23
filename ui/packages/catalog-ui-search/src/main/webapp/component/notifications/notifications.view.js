@@ -19,7 +19,7 @@ const CustomElements = require('../../js/CustomElements.js')
 const NotificationEmpty = Marionette.ItemView.extend({
   className: 'notification-empty',
   template: 'No recent notifications.',
-});
+})
 
 const NotificationItem = Marionette.ItemView.extend({
   template: template,
@@ -39,7 +39,7 @@ const NotificationItem = Marionette.ItemView.extend({
   removeNotification: function() {
     this.model.destroy()
   },
-});
+})
 
 module.exports = Marionette.CollectionView.extend({
   tagName: CustomElements.register('notifications-list'),

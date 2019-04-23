@@ -13,14 +13,14 @@
  *
  **/
 
-const template = require('./hide-attribute.hbs');
-const _ = require('underscore');
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
-const PropertyView = require('../property/property.view.js');
-const Property = require('../property/property.js');
-const metacardDefinitions = require('../singletons/metacard-definitions.js');
-const user = require('../singletons/user-instance.js');
+const template = require('./hide-attribute.hbs')
+const _ = require('underscore')
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const PropertyView = require('../property/property.view.js')
+const Property = require('../property/property.js')
+const metacardDefinitions = require('../singletons/metacard-definitions.js')
+const user = require('../singletons/user-instance.js')
 
 function filterAndSort(attributes) {
   return attributes
@@ -48,13 +48,13 @@ function calculateAvailableAttributesFromSelection(selectionInterface) {
     selectionInterface.getSelectedResults().map(result => {
       return [result.get('metacardType')]
     })
-  );
+  )
   const possibleAttributes = _.intersection.apply(
     this,
     types.map(type => {
       return Object.keys(metacardDefinitions.metacardDefinitions[type])
     })
-  );
+  )
   return selectionInterface
     .getSelectedResults()
     .reduce(function(currentAvailable, result) {
@@ -76,7 +76,7 @@ function calculateDetailsAttributes() {
   const userPropertyArray = user
     .get('user')
     .get('preferences')
-    .get('inspector-detailsHidden');
+    .get('inspector-detailsHidden')
   return userPropertyArray
 }
 
@@ -89,13 +89,15 @@ module.exports = Marionette.LayoutView.extend({
   onBeforeShow: function() {
     const attributes = calculateAvailableAttributesFromSelection(
       this.options.selectionInterface
-    );
-    const detailsAttributes = calculateDetailsAttributes();
-    const totalAttributes = filterAndSort(_.union(attributes, detailsAttributes));
+    )
+    const detailsAttributes = calculateDetailsAttributes()
+    const totalAttributes = filterAndSort(
+      _.union(attributes, detailsAttributes)
+    )
     const detailsHidden = user
       .get('user')
       .get('preferences')
-      .get('inspector-detailsHidden');
+      .get('inspector-detailsHidden')
     this.attributeSelector.show(
       new PropertyView({
         model: new Property({
@@ -121,7 +123,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   handleSave: function() {
-    const prefs = user.get('user').get('preferences');
+    const prefs = user.get('user').get('preferences')
     prefs.set(
       'inspector-detailsHidden',
       this.attributeSelector.currentView.model.get('value')[0]

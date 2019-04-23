@@ -13,9 +13,9 @@
  *
  **/
 
-const Marionette = require('marionette');
-const template = require('./dropdown.visualization-selector.hbs');
-const DropdownView = require('../dropdown.view');
+const Marionette = require('marionette')
+const template = require('./dropdown.visualization-selector.hbs')
+const DropdownView = require('../dropdown.view')
 import VisualizationSelector from '../../../react-component/presentation/visualization-selector/visualization-selector'
 import React from 'react'
 const CustomElements = require('../../../js/CustomElements.js')

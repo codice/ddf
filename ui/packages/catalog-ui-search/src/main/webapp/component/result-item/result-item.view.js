@@ -360,7 +360,7 @@ const ResultItemView = Marionette.LayoutView.extend({
           result.showSource = true
           return
         }
-        let value = result.metacard.properties[additionProperty];
+        let value = result.metacard.properties[additionProperty]
         if (value && metacardDefinitions.metacardTypes[additionProperty]) {
           switch (metacardDefinitions.metacardTypes[additionProperty].type) {
             case 'DATE':
@@ -387,15 +387,15 @@ const ResultItemView = Marionette.LayoutView.extend({
     result.local = Boolean(
       result.metacard.properties['source-id'] === sources.localCatalog
     )
-    const dateModified = moment(result.metacard.properties.modified);
+    const dateModified = moment(result.metacard.properties.modified)
     result.niceDiff = Common.getMomentDate(dateModified)
 
     //icon
     result.icon = IconHelper.getClass(this.model)
 
     //check validation errors
-    const validationErrors = result.metacard.properties['validation-errors'];
-    const validationWarnings = result.metacard.properties['validation-warnings'];
+    const validationErrors = result.metacard.properties['validation-errors']
+    const validationWarnings = result.metacard.properties['validation-warnings']
     if (validationErrors) {
       result.hasError = true
       result.error = validationErrors
@@ -422,17 +422,17 @@ const ResultItemView = Marionette.LayoutView.extend({
     )
   },
   checkIfBlacklisted: function() {
-    const pref = user.get('user').get('preferences');
-    const blacklist = pref.get('resultBlacklist');
+    const pref = user.get('user').get('preferences')
+    const blacklist = pref.get('resultBlacklist')
     const id = this.model
       .get('metacard')
       .get('properties')
-      .get('id');
-    const isBlacklisted = blacklist.get(id) !== undefined;
+      .get('id')
+    const isBlacklisted = blacklist.get(id) !== undefined
     this.$el.toggleClass('is-blacklisted', isBlacklisted)
   },
   checkIsInWorkspace: function() {
-    const currentWorkspace = store.getCurrentWorkspace();
+    const currentWorkspace = store.getCurrentWorkspace()
     this.$el.toggleClass('in-workspace', Boolean(currentWorkspace))
   },
   checkIfDownloadable: function() {

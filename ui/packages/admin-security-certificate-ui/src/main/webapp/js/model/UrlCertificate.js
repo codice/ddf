@@ -17,7 +17,7 @@ define(['backbone', 'js/model/Jolokia', 'backboneassociations'], function(
   Backbone,
   Jolokia
 ) {
-  const UrlCertificate = {};
+  const UrlCertificate = {}
 
   UrlCertificate.Model = Jolokia.extend({
     idAttribute: 'subjectDn',

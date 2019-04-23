@@ -10,12 +10,12 @@
  *
  **/
 
-const _ = require('underscore');
-const Openlayers = require('openlayers');
-const properties = require('../../../../js/properties.js');
+const _ = require('underscore')
+const Openlayers = require('openlayers')
+const properties = require('../../../../js/properties.js')
 
 function convertPointCoordinate(point) {
-  const coords = [point[0], point[1]];
+  const coords = [point[0], point[1]]
   return Openlayers.proj.transform(coords, 'EPSG:4326', properties.projection)
 }
 
@@ -33,8 +33,8 @@ module.exports = {
   calculateOpenlayersCenterOfGeometry: function(propertyModel) {
     const lineObject = propertyModel.getPoints().map(function(coordinate) {
       return convertPointCoordinate(coordinate)
-    });
-    const extent = Openlayers.extent.boundingExtent(lineObject);
+    })
+    const extent = Openlayers.extent.boundingExtent(lineObject)
     return Openlayers.extent.getCenter(extent)
   },
   /*
@@ -43,7 +43,7 @@ module.exports = {
   calculateCartographicCenterOfGeometryInDegrees: function(propertyModel) {
     const openlayersCenter = this.calculateOpenlayersCenterOfGeometry(
       propertyModel
-    );
+    )
     return unconvertPointCoordinate(openlayersCenter)
   },
   /*
@@ -57,8 +57,8 @@ module.exports = {
       true
     ).map(function(coordinate) {
       return convertPointCoordinate(coordinate)
-    });
-    const extent = Openlayers.extent.boundingExtent(allPoints);
+    })
+    const extent = Openlayers.extent.boundingExtent(allPoints)
     return Openlayers.extent.getCenter(extent)
   },
   /*
@@ -67,7 +67,7 @@ module.exports = {
   calculateCartographicCenterOfGeometriesInDegrees: function(propertyModels) {
     const openlayersCenter = this.calculateOpenlayersCenterOfGeometries(
       propertyModels
-    );
+    )
     return unconvertPointCoordinate(openlayersCenter)
   },
 }

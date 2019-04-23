@@ -13,13 +13,13 @@
  *
  **/
 
-const template = require('./remove-attribute.hbs');
-const _ = require('underscore');
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
-const PropertyView = require('../property/property.view.js');
-const Property = require('../property/property.js');
-const metacardDefinitions = require('../singletons/metacard-definitions.js');
+const template = require('./remove-attribute.hbs')
+const _ = require('underscore')
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const PropertyView = require('../property/property.view.js')
+const Property = require('../property/property.js')
+const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
 function determineAttributes(selectionInterface) {
   const types = _.union.apply(
@@ -27,13 +27,13 @@ function determineAttributes(selectionInterface) {
     selectionInterface.getSelectedResults().map(result => {
       return [result.get('metacardType')]
     })
-  );
+  )
   const possibleAttributes = _.intersection.apply(
     this,
     types.map(type => {
       return Object.keys(metacardDefinitions.metacardDefinitions[type])
     })
-  );
+  )
   const attributes = _.union
     .apply(
       this,
@@ -46,7 +46,7 @@ function determineAttributes(selectionInterface) {
         )
       })
     )
-    .filter(attribute => possibleAttributes.indexOf(attribute) >= 0);
+    .filter(attribute => possibleAttributes.indexOf(attribute) >= 0)
   return metacardDefinitions
     .sortMetacardTypes(
       attributes
@@ -72,7 +72,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   onBeforeShow: function() {
-    const attributes = determineAttributes(this.options.selectionInterface);
+    const attributes = determineAttributes(this.options.selectionInterface)
     this.attributeSelector.show(
       new PropertyView({
         model: new Property({

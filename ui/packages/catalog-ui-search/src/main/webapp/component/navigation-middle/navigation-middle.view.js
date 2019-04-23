@@ -13,8 +13,8 @@
  *
  **/
 
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
 import * as React from 'react'
 import { FormattedMessage } from 'react-intl'
 

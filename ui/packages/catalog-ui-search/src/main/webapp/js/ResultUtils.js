@@ -10,14 +10,14 @@
  *
  **/
 
-const store = require('./store.js');
-const alert = require('../component/alert/alert.js');
-const _ = require('underscore');
-const metacardDefinitions = require('../component/singletons/metacard-definitions.js');
+const store = require('./store.js')
+const alert = require('../component/alert/alert.js')
+const _ = require('underscore')
+const metacardDefinitions = require('../component/singletons/metacard-definitions.js')
 
 module.exports = {
   refreshResult: function(result) {
-    const id = result.get('metacard').id;
+    const id = result.get('metacard').id
     result.refreshData()
     store.get('workspaces').forEach(function(workspace) {
       workspace.get('queries').forEach(function(query) {
@@ -69,8 +69,8 @@ module.exports = {
         }
         return attrMap
       }, attributeMap)
-    }, {});
-    const unsetAttributes = [];
+    }, {})
+    const unsetAttributes = []
     _.forEach(attributeMap, function(value, key) {
       if (
         value === undefined ||
@@ -85,7 +85,7 @@ module.exports = {
     }
     const ids = results.map(function(result) {
       return result.get('metacard').id
-    });
+    })
     results.forEach(function(metacard) {
       metacard
         .get('metacard')

@@ -20,11 +20,11 @@ module.exports = {
     if (_.isUndefined(this.isWebglAvailable)) {
       this.isWebglAvailable = false
 
-      const context = window.WebGLRenderingContext;
+      const context = window.WebGLRenderingContext
 
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement('canvas')
 
-      const webglOptions = {};
+      const webglOptions = {}
 
       // Override select WebGL defaults
       webglOptions.alpha = false // WebGL default is true
@@ -34,7 +34,7 @@ module.exports = {
         const gl =
           canvas.getContext('webgl', webglOptions) ||
           canvas.getContext('experimental-webgl', webglOptions) ||
-          undefined;
+          undefined
         if (gl && context) {
           this.isWebglAvailable = true
         }

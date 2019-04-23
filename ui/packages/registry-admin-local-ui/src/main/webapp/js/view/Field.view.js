@@ -24,7 +24,7 @@ define([
 ], function(ich, Marionette, Backbone, wreqr, _, $, field) {
   ich.addTemplate('field', field)
 
-  const Field = {};
+  const Field = {}
 
   Field.FieldView = Marionette.ItemView.extend({
     template: 'field',
@@ -49,9 +49,12 @@ define([
       }
     },
     onRender: function() {
-      const bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
+      const bindings = Backbone.ModelBinder.createDefaultBindings(
+        this.el,
+        'name'
+      )
       this.modelBinder.bind(this.model, this.$el, bindings)
-      const possibleValues = this.model.get('possibleValues');
+      const possibleValues = this.model.get('possibleValues')
       if (possibleValues) {
         this.$('.' + this.model.get('key')).autocomplete({
           source: possibleValues,
@@ -85,7 +88,7 @@ define([
       wreqr.vent.trigger('fieldChange:' + this.model.get('parentId'))
     },
     serializeData: function() {
-      let data = {};
+      let data = {}
 
       if (this.model) {
         data = this.model.toJSON()
@@ -132,7 +135,7 @@ define([
           readOnly: this.readOnly,
         },
         itemViewOptions
-      );
+      )
       return new ItemViewType(options)
     },
     addedField: function(field) {

@@ -21,7 +21,7 @@ const TurfCircle = require('@turf/circle')
 const DrawingController = require('./drawing.controller')
 const DistanceUtils = require('../DistanceUtils.js')
 
-const DrawCircle = {};
+const DrawCircle = {}
 
 DrawCircle.CircleModel = Backbone.Model.extend({
   defaults: {
@@ -30,7 +30,7 @@ DrawCircle.CircleModel = Backbone.Model.extend({
     radius: undefined,
   },
 })
-const defaultAttrs = ['lat', 'lon', 'radius'];
+const defaultAttrs = ['lat', 'lon', 'radius']
 DrawCircle.CircleView = Marionette.View.extend({
   initialize: function() {
     this.mouseHandler = new Cesium.ScreenSpaceEventHandler(
@@ -45,7 +45,7 @@ DrawCircle.CircleView = Marionette.View.extend({
     this.updatePrimitive(this.model)
   },
   enableInput: function() {
-    const controller = this.options.map.scene.screenSpaceCameraController;
+    const controller = this.options.map.scene.screenSpaceCameraController
     controller.enableTranslate = true
     controller.enableZoom = true
     controller.enableRotate = true
@@ -53,7 +53,7 @@ DrawCircle.CircleView = Marionette.View.extend({
     controller.enableLook = true
   },
   disableInput: function() {
-    const controller = this.options.map.scene.screenSpaceCameraController;
+    const controller = this.options.map.scene.screenSpaceCameraController
     controller.enableTranslate = false
     controller.enableZoom = false
     controller.enableRotate = false
@@ -63,12 +63,12 @@ DrawCircle.CircleView = Marionette.View.extend({
 
   setCircleRadius: function(mn, mx) {
     const startCartographic = this.options.map.scene.globe.ellipsoid.cartographicToCartesian(
-              mn
-            ),
-          stopCart = this.options.map.scene.globe.ellipsoid.cartographicToCartesian(
-            mx
-          ),
-          radius = Math.abs(Cesium.Cartesian3.distance(startCartographic, stopCart));
+        mn
+      ),
+      stopCart = this.options.map.scene.globe.ellipsoid.cartographicToCartesian(
+        mx
+      ),
+      radius = Math.abs(Cesium.Cartesian3.distance(startCartographic, stopCart))
 
     const modelProp = {
       lat: DistanceUtils.coordinateRound((mn.latitude * 180) / Math.PI),
@@ -79,7 +79,7 @@ DrawCircle.CircleView = Marionette.View.extend({
           this.model.get('radiusUnits')
         )
       ),
-    };
+    }
 
     this.model.set(modelProp)
   },
@@ -97,7 +97,7 @@ DrawCircle.CircleView = Marionette.View.extend({
   },
 
   updatePrimitive: function(model) {
-    const modelProp = model.toJSON();
+    const modelProp = model.toJSON()
     if (this.isModelReset(modelProp)) {
       this.options.map.scene.primitives.remove(this.primitive)
       this.stopListening()
@@ -113,7 +113,7 @@ DrawCircle.CircleView = Marionette.View.extend({
   drawBorderedCircle: function(model) {
     // if model has been reset
 
-    const modelProp = model.toJSON();
+    const modelProp = model.toJSON()
 
     // first destroy old one
     if (this.primitive && !this.primitive.isDestroyed()) {
@@ -128,9 +128,9 @@ DrawCircle.CircleView = Marionette.View.extend({
       return
     }
 
-    const color = this.model.get('color');
+    const color = this.model.get('color')
 
-    const centerPt = Turf.point([modelProp.lon, modelProp.lat]);
+    const centerPt = Turf.point([modelProp.lon, modelProp.lat])
     const circleToCheck = new TurfCircle(
       centerPt,
       DistanceUtils.getDistanceInMeters(
@@ -139,7 +139,7 @@ DrawCircle.CircleView = Marionette.View.extend({
       ),
       64,
       'meters'
-    );
+    )
 
     this.primitive = new Cesium.PolylineCollection()
     this.primitive.add({
@@ -180,10 +180,10 @@ DrawCircle.CircleView = Marionette.View.extend({
   },
   handleRegionInter: function(movement) {
     let cartesian = this.options.map.scene.camera.pickEllipsoid(
-            movement.endPosition,
-            this.options.map.scene.globe.ellipsoid
-          ),
-        cartographic;
+        movement.endPosition,
+        this.options.map.scene.globe.ellipsoid
+      ),
+      cartographic
     if (cartesian) {
       cartographic = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(
         cartesian
@@ -193,10 +193,10 @@ DrawCircle.CircleView = Marionette.View.extend({
   },
   handleRegionStart: function(movement) {
     const cartesian = this.options.map.scene.camera.pickEllipsoid(
-              movement.position,
-              this.options.map.scene.globe.ellipsoid
-            ),
-          that = this;
+        movement.position,
+        this.options.map.scene.globe.ellipsoid
+      ),
+      that = this
     if (cartesian) {
       this.click1 = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(
         cartesian
@@ -212,7 +212,7 @@ DrawCircle.CircleView = Marionette.View.extend({
   start: function() {
     this.disableInput()
 
-    const that = this;
+    const that = this
 
     // Now wait for start
     this.mouseHandler.setInputAction(function(movement) {
@@ -247,9 +247,9 @@ DrawCircle.Controller = DrawingController.extend({
   drawingType: 'circle',
   show: function(model) {
     if (this.enabled) {
-      const circleModel = model || new DrawCircle.CircleModel();
+      const circleModel = model || new DrawCircle.CircleModel()
 
-      const existingView = this.getViewForModel(model);
+      const existingView = this.getViewForModel(model)
       if (existingView) {
         existingView.drawStop()
         existingView.destroyPrimitive()
@@ -258,7 +258,7 @@ DrawCircle.Controller = DrawingController.extend({
         const view = new DrawCircle.CircleView({
           map: this.options.map,
           model: circleModel,
-        });
+        })
         view.updatePrimitive(model)
         this.addView(view)
       }
@@ -268,13 +268,13 @@ DrawCircle.Controller = DrawingController.extend({
   },
   draw: function(model) {
     if (this.enabled) {
-      const circleModel = model || new DrawCircle.CircleModel();
+      const circleModel = model || new DrawCircle.CircleModel()
       const view = new DrawCircle.CircleView({
         map: this.options.map,
         model: circleModel,
-      });
+      })
 
-      const existingView = this.getViewForModel(model);
+      const existingView = this.getViewForModel(model)
       if (existingView) {
         existingView.stop()
         existingView.destroyPrimitive()

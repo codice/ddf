@@ -10,7 +10,7 @@
  *
  **/
 
-const DEFAULT_AUTO_MERGE_TIME = 1000;
+const DEFAULT_AUTO_MERGE_TIME = 1000
 
 const $ = require('jquery')
 const _ = require('underscore')
@@ -59,7 +59,7 @@ const properties = {
 
   init: function() {
     // use this function to initialize variables that rely on others
-    let props = this;
+    let props = this
     $.ajax({
       async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
       cache: false,
@@ -172,6 +172,6 @@ const properties = {
   isMetacardPreviewEnabled: function() {
     return !this.isMetacardPreviewDisabled
   },
-};
+}
 
 module.exports = properties.init()

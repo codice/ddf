@@ -17,7 +17,7 @@ import React from 'react'
 
 export default ({ field, value, onChange }) => {
   const change = e => {
-    const o = {};
+    const o = {}
     o[field] = e.target.value
     onChange(o)
   }

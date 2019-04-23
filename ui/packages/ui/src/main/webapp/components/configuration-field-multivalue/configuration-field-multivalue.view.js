@@ -33,11 +33,14 @@ define([
       this.model.collection.remove(this.model)
     },
     onRender: function() {
-      const bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
+      const bindings = Backbone.ModelBinder.createDefaultBindings(
+        this.el,
+        'name'
+      )
       this.modelBinder.bind(this.model, this.$el, bindings)
     },
     onClose: function() {
       this.modelBinder.unbind()
     },
-  });
+  })
 })

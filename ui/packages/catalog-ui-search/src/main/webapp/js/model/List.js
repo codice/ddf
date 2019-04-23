@@ -9,11 +9,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Backbone = require('backbone');
-const Query = require('./Query');
-const cql = require('../cql.js');
-const Common = require('../Common.js');
-const _ = require('lodash');
+const Backbone = require('backbone')
+const Query = require('./Query')
+const cql = require('../cql.js')
+const Common = require('../Common.js')
+const _ = require('lodash')
 require('backbone-associations')
 
 const iconMap = {
@@ -30,7 +30,7 @@ const iconMap = {
   code: 'fa fa-file-code-o',
   archive: 'fa fa-file-archive-o',
   tasks: 'fa fa-tasks',
-};
+}
 
 function getRelevantIcon(iconName) {
   return iconMap[iconName]

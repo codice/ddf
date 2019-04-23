@@ -14,7 +14,7 @@
 define(['marionette'], function(Marionette) {
   'use strict'
 
-  const Application = {};
+  const Application = {}
 
   Application.App = new Marionette.Application()
 

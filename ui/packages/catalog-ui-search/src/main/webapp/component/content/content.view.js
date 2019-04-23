@@ -149,6 +149,6 @@ const ContentView = Marionette.LayoutView.extend({
     }
   },
   _mapView: undefined,
-});
+})
 
 module.exports = ContentView

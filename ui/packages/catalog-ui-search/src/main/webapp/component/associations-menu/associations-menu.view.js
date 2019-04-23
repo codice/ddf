@@ -1,13 +1,13 @@
-const template = require('./associations-menu.hbs');
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
-const FilterDropdownView = require('../dropdown/associations-filter/dropdown.associations-filter.view.js');
-const DisplayDropdownView = require('../dropdown/associations-display/dropdown.associations-display.view.js');
+const template = require('./associations-menu.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const FilterDropdownView = require('../dropdown/associations-filter/dropdown.associations-filter.view.js')
+const DisplayDropdownView = require('../dropdown/associations-display/dropdown.associations-display.view.js')
 
 //keep around the previously used displayType (not a preference, so only per session)
-let displayType = ['list'];
+let displayType = ['list']
 //keep around the previously used displayType (not a preference, so only per session)
-let filterType = ['all'];
+let filterType = ['all']
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('associations-menu'),

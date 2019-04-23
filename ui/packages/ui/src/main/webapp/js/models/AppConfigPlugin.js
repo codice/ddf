@@ -14,7 +14,7 @@
  **/
 
 define(['backbone', 'underscore'], function(Backbone, _) {
-  const AppConfigPlugin = {};
+  const AppConfigPlugin = {}
 
   AppConfigPlugin.Model = Backbone.Model.extend({})
 
@@ -23,14 +23,14 @@ define(['backbone', 'underscore'], function(Backbone, _) {
     url:
       './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/getPluginsForApplication(java.lang.String)/',
     fetchByAppName: function(appName, options) {
-      const collection = this;
+      const collection = this
 
       const newOptions = _.extend(
         {
           url: collection.url + appName,
         },
         options
-      );
+      )
       return this.fetch(newOptions)
     },
     parse: function(resp) {

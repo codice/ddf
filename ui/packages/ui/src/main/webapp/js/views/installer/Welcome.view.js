@@ -38,7 +38,7 @@ define([
       //this is your hook to perform any teardown that must be done before going to the previous step
       this.navigationModel.previousStep()
     },
-  });
+  })
 
   return WelcomeView
 })

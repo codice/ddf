@@ -27,6 +27,6 @@ const Controller = Marionette.Object.extend({
     this.listenTo(this.collection, 'add', this.addLayer)
     this.listenTo(this.collection, 'remove', this.removeLayer)
   },
-});
+})
 
 module.exports = Controller

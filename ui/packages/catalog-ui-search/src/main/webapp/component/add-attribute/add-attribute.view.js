@@ -13,13 +13,13 @@
  *
  **/
 
-const template = require('./add-attribute.hbs');
-const _ = require('underscore');
-const Marionette = require('marionette');
-const CustomElements = require('../../js/CustomElements.js');
-const PropertyView = require('../property/property.view.js');
-const Property = require('../property/property.js');
-const metacardDefinitions = require('../singletons/metacard-definitions.js');
+const template = require('./add-attribute.hbs')
+const _ = require('underscore')
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const PropertyView = require('../property/property.view.js')
+const Property = require('../property/property.js')
+const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
 function determineMissingAttributes(selectionInterface) {
   const attributes = _.union.apply(
@@ -32,20 +32,20 @@ function determineMissingAttributes(selectionInterface) {
           .toJSON()
       )
     })
-  );
+  )
   const types = _.union.apply(
     this,
     selectionInterface.getSelectedResults().map(result => {
       return [result.get('metacardType')]
     })
-  );
+  )
   const possibleAttributes = _.intersection.apply(
     this,
     types.map(type => {
       return Object.keys(metacardDefinitions.metacardDefinitions[type])
     })
-  );
-  const missingAttributes = _.difference(possibleAttributes, attributes);
+  )
+  const missingAttributes = _.difference(possibleAttributes, attributes)
   return metacardDefinitions
     .sortMetacardTypes(
       missingAttributes
@@ -73,7 +73,7 @@ module.exports = Marionette.LayoutView.extend({
   onBeforeShow: function() {
     const missingAttributes = determineMissingAttributes(
       this.options.selectionInterface
-    );
+    )
     this.attributeSelector.show(
       new PropertyView({
         model: new Property({

@@ -45,7 +45,7 @@ module.exports = DropdownView.extend({
     const resultSort = user
       .get('user')
       .get('preferences')
-      .get('resultSort');
+      .get('resultSort')
     this.$el.toggleClass('has-sort', Boolean(resultSort))
   },
 })

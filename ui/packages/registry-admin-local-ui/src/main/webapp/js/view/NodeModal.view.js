@@ -38,7 +38,7 @@ define([
 ) {
   ich.addTemplate('modalNode', nodeModal)
 
-  const NodeModal = {};
+  const NodeModal = {}
 
   NodeModal.View = Marionette.Layout.extend({
     template: 'modalNode',
@@ -144,7 +144,7 @@ define([
       this.hasData = true
     },
     serializeData: function() {
-      let data = {};
+      let data = {}
 
       if (this.model) {
         data = this.model.toJSON()
@@ -169,7 +169,7 @@ define([
       return data
     },
     getNodeName: function() {
-      let extName;
+      let extName
       this.model
         .get('RegistryObjectList')
         .ExtrinsicObject.forEach(function(extObj) {
@@ -210,7 +210,7 @@ define([
       this.updateTabError('#collectionTabLink', this.model.contentInfo)
     },
     updateTabError: function(id, model) {
-      const title = this.$(id);
+      const title = this.$(id)
       if (model.validate()) {
         title.addClass('validation-error-text')
       } else {
@@ -222,8 +222,8 @@ define([
      */
     submitData: function() {
       wreqr.vent.trigger('beforesave')
-      const view = this;
-      const response = view.model.save();
+      const view = this
+      const response = view.model.save()
       if (response) {
         response.done(function() {
           view.closeAndUnbind()

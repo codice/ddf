@@ -22,7 +22,7 @@ module.exports = Marionette.ItemView.extend({
   template: template,
   tagName: CustomElements.register('select'),
   className: function() {
-    let className = '';
+    let className = ''
     if (this.model.get('hasNoValue')) {
       className += ' hasNoValue'
     }
@@ -46,7 +46,7 @@ module.exports = Marionette.ItemView.extend({
     }
   },
   serializeData: function() {
-    const modelJSON = this.model.toJSON();
+    const modelJSON = this.model.toJSON()
     if (modelJSON.label.constructor === Array) {
       modelJSON.label = modelJSON.label.join(' | ')
     }
