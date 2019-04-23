@@ -23,7 +23,8 @@ import ddf.security.service.SecurityServiceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.codice.ddf.security.handler.api.UPAuthenticationToken;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.codice.ddf.security.rest.authentication.service.AuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +37,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   private SessionFactory sessionFactory;
 
+  private BaseAuthenticationTokenFactory tokenFactory;
+
   public AuthenticationServiceImpl(SecurityManager securityManager, SessionFactory sessionFactory) {
     this.securityManager = securityManager;
     this.sessionFactory = sessionFactory;
+    tokenFactory = new BaseAuthenticationTokenFactory();
   }
 
   @Override
@@ -56,7 +60,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     // Create an authentication token
-    UPAuthenticationToken authenticationToken = new UPAuthenticationToken(username, password);
+    BaseAuthenticationToken authenticationToken =
+        tokenFactory.fromUsernamePassword(username, password);
 
     // Authenticate
     Subject subject = securityManager.getSubject(authenticationToken);

@@ -60,9 +60,10 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
 import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
-import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -182,7 +183,8 @@ public class LoginFilterTest {
     HttpServletResponse servletResponse = mock(HttpServletResponse.class);
     FilterChain filterChain = mock(FilterChain.class);
 
-    UPAuthenticationToken token = new UPAuthenticationToken("foo", "bar");
+    BaseAuthenticationToken token =
+        new BaseAuthenticationTokenFactory().fromUsernamePassword("foo", "bar");
     HandlerResult result = new HandlerResult(HandlerResult.Status.COMPLETED, token);
     when(servletRequest.getAttribute("ddf.security.token")).thenReturn(result);
 

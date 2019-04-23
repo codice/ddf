@@ -29,7 +29,6 @@
         <module>security-sts-server</module>
         <module>security-sts-samlvalidator</module>
         <module>security-sts-x509validator</module>
-        <module>security-sts-pkivalidator</module>
         <module>security-sts-usernametokenvalidator</module>
         <module>security-sts-ldapclaimshandler</module>
         <module>security-sts-ldaplogin</module>

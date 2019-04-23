@@ -33,8 +33,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.OcspService;
+import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.junit.Test;
 
 public class PKIHandlerTest {
@@ -173,7 +173,7 @@ public class PKIHandlerTest {
    */
   private PKIHandler getPKIHandlerWithMockedCrl(boolean returnedValue) {
     PKIHandler handler = new PKIHandler();
-    PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
+    BaseAuthenticationTokenFactory tokenFactory = new BaseAuthenticationTokenFactory();
     tokenFactory.setSignaturePropertiesPath("signature.properties");
     tokenFactory.init();
     handler.setTokenFactory(tokenFactory);

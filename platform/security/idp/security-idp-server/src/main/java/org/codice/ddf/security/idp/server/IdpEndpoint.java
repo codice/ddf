@@ -126,12 +126,11 @@ import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.Security;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.handler.api.SessionHandler;
-import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
 import org.codice.ddf.security.handler.pki.PKIHandler;
 import org.codice.ddf.security.idp.binding.api.Binding;
@@ -199,7 +198,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
 
   private final ExecutorService asyncLogoutService;
   protected CookieCache cookieCache = new CookieCache();
-  private PKIAuthenticationTokenFactory tokenFactory;
+  private BaseAuthenticationTokenFactory tokenFactory;
   private OcspService ocspService;
   private SecurityManager securityManager;
   private AtomicReference<Map<String, EntityInformation>> serviceProviders =
@@ -936,7 +935,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     } else if (USER_PASS.equals(authMethod)) {
       LOGGER.debug("Logging user in via BASIC auth.");
       if (authObj != null && authObj.username != null && authObj.password != null) {
-        token = new UPAuthenticationToken(authObj.username, authObj.password);
+        token = tokenFactory.fromUsernamePassword(authObj.username, authObj.password);
       } else {
         BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
         HandlerResult handlerResult =
@@ -1569,7 +1568,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     this.securityManager = securityManager;
   }
 
-  public void setTokenFactory(PKIAuthenticationTokenFactory tokenFactory) {
+  public void setTokenFactory(BaseAuthenticationTokenFactory tokenFactory) {
     this.tokenFactory = tokenFactory;
   }
 

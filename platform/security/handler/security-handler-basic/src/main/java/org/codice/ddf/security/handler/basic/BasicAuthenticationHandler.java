@@ -13,33 +13,19 @@
  */
 package org.codice.ddf.security.handler.basic;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
-import javax.xml.bind.JAXBElement;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.sts.QNameConstants;
-import org.apache.cxf.ws.security.sts.provider.model.ObjectFactory;
-import org.apache.cxf.ws.security.sts.provider.model.secext.AttributedString;
-import org.apache.cxf.ws.security.sts.provider.model.secext.PasswordString;
-import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
-import org.apache.wss4j.dom.WSConstants;
-import org.codice.ddf.parser.Parser;
-import org.codice.ddf.parser.ParserConfigurator;
-import org.codice.ddf.parser.ParserException;
-import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +40,12 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(BasicAuthenticationHandler.class);
 
-  private final Parser parser = new XmlParser();
+  private final BaseAuthenticationTokenFactory tokenFactory;
+
+  public BasicAuthenticationHandler() {
+    tokenFactory = new BaseAuthenticationTokenFactory();
+    LOGGER.debug("Creating basic username/token bst handler.");
+  }
 
   @Override
   public String getAuthenticationType() {
@@ -144,8 +135,8 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
    * Extract the Authorization header and parse into a username/password token.
    *
    * @param authHeader the authHeader string from the HTTP request
-   * @return the initialized UPAuthenticationToken for this username, password, realm combination
-   *     (or null)
+   * @return the initialized BaseAuthenticationToken for this username and password combination (or
+   *     null)
    */
   protected BaseAuthenticationToken extractAuthInfo(String authHeader) {
     BaseAuthenticationToken token = null;
@@ -161,58 +152,13 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
           String userPass = new String(decode, StandardCharsets.UTF_8);
           String[] authComponents = userPass.split(":");
           if (authComponents.length == 2) {
-            token = getBaseAuthenticationToken(authComponents[0], authComponents[1]);
+            token = tokenFactory.fromUsernamePassword(authComponents[0], authComponents[1]);
           } else if ((authComponents.length == 1) && (userPass.endsWith(":"))) {
-            token = getBaseAuthenticationToken(authComponents[0], "");
+            token = tokenFactory.fromUsernamePassword(authComponents[0], "");
           }
         }
       }
     }
     return token;
-  }
-
-  protected BaseAuthenticationToken getBaseAuthenticationToken(String username, String password) {
-    if (parser == null) {
-      throw new IllegalStateException("XMLParser must be configured.");
-    }
-
-    UsernameTokenType usernameTokenType = new UsernameTokenType();
-    AttributedString user = new AttributedString();
-    user.setValue(username);
-    usernameTokenType.setUsername(user);
-    String usernameToken = null;
-
-    // Add a password
-    PasswordString pass = new PasswordString();
-    pass.setValue(password);
-    pass.setType(WSConstants.PASSWORD_TEXT);
-    JAXBElement<PasswordString> passwordType =
-        new JAXBElement<>(QNameConstants.PASSWORD, PasswordString.class, pass);
-    usernameTokenType.getAny().add(passwordType);
-
-    // Marshall the received JAXB object into a DOM Element
-    List<String> ctxPath = new ArrayList<>(2);
-    ctxPath.add(ObjectFactory.class.getPackage().getName());
-    ctxPath.add(
-        org.apache.cxf.ws.security.sts.provider.model.wstrust14.ObjectFactory.class
-            .getPackage()
-            .getName());
-
-    ParserConfigurator configurator =
-        parser.configureParser(ctxPath, BasicAuthenticationHandler.class.getClassLoader());
-    ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-    JAXBElement<UsernameTokenType> tokenType =
-        new JAXBElement<>(
-            QNameConstants.USERNAME_TOKEN, UsernameTokenType.class, usernameTokenType);
-
-    try {
-      parser.marshal(configurator, tokenType, os);
-      usernameToken = os.toString("UTF-8");
-    } catch (ParserException | UnsupportedEncodingException ex) {
-      LOGGER.info("Unable to parse username token.", ex);
-    }
-
-    return new BaseAuthenticationToken(null, usernameToken);
   }
 }

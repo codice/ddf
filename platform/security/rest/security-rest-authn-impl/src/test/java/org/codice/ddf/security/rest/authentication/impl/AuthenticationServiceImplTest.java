@@ -35,7 +35,8 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.codice.ddf.security.handler.api.UPAuthenticationToken;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -111,25 +112,25 @@ public class AuthenticationServiceImplTest {
 
     when(subject.getPrincipals()).thenReturn(collection);
 
-    UPAuthenticationToken token = new UPAuthenticationToken(username, password);
+    BaseAuthenticationToken token =
+        new BaseAuthenticationTokenFactory().fromUsernamePassword(username, password);
     when(securityManager.getSubject(argThat(new UsernamePasswordTokenMatcher(token))))
         .thenReturn(subject);
   }
 
-  private class UsernamePasswordTokenMatcher extends ArgumentMatcher<UPAuthenticationToken> {
+  private class UsernamePasswordTokenMatcher extends ArgumentMatcher<BaseAuthenticationToken> {
 
-    private UPAuthenticationToken left;
+    private BaseAuthenticationToken left;
 
-    UsernamePasswordTokenMatcher(UPAuthenticationToken token) {
+    UsernamePasswordTokenMatcher(BaseAuthenticationToken token) {
       this.left = token;
     }
 
     @Override
     public boolean matches(Object object) {
-      if (object instanceof UPAuthenticationToken) {
-        UPAuthenticationToken right = (UPAuthenticationToken) object;
-        return left.getUsername().equals(right.getUsername())
-            && left.getPassword().equals(right.getPassword());
+      if (object instanceof BaseAuthenticationToken) {
+        BaseAuthenticationToken right = (BaseAuthenticationToken) object;
+        return left.getCredentialsAsXMLString().equals(right.getCredentialsAsXMLString());
       }
 
       return false;

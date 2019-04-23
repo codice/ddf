@@ -23,9 +23,9 @@ import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.OcspService;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
 import org.codice.ddf.security.handler.pki.PKIHandler;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class GuestHandler implements AuthenticationHandler {
 
   public static final String INVALID_MESSAGE = "Username/Password is invalid.";
 
-  private PKIAuthenticationTokenFactory tokenFactory;
+  private BaseAuthenticationTokenFactory tokenFactory;
 
   private OcspService ocspService;
 
@@ -129,11 +129,11 @@ public class GuestHandler implements AuthenticationHandler {
     return result;
   }
 
-  public PKIAuthenticationTokenFactory getTokenFactory() {
+  public BaseAuthenticationTokenFactory getTokenFactory() {
     return tokenFactory;
   }
 
-  public void setTokenFactory(PKIAuthenticationTokenFactory tokenFactory) {
+  public void setTokenFactory(BaseAuthenticationTokenFactory tokenFactory) {
     this.tokenFactory = tokenFactory;
   }
 

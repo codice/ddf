@@ -18,21 +18,14 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
-import org.apache.wss4j.common.token.BinarySecurity;
-import org.apache.wss4j.common.token.X509Security;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.OcspService;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.PKIAuthenticationToken;
-import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 public class PKIHandler implements AuthenticationHandler {
 
@@ -42,7 +35,7 @@ public class PKIHandler implements AuthenticationHandler {
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(PKIHandler.class);
 
-  protected PKIAuthenticationTokenFactory tokenFactory;
+  protected BaseAuthenticationTokenFactory tokenFactory;
 
   protected CrlChecker crlChecker;
 
@@ -84,7 +77,7 @@ public class PKIHandler implements AuthenticationHandler {
     // doesn't matter what the resolve flag is set to, we do the same action
     X509Certificate[] certs =
         (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
-    BaseAuthenticationToken token = extractAuthenticationInfo(certs);
+    BaseAuthenticationToken token = tokenFactory.fromCertificates(certs);
 
     HttpServletResponse httpResponse =
         response instanceof HttpServletResponse ? (HttpServletResponse) response : null;
@@ -135,29 +128,7 @@ public class PKIHandler implements AuthenticationHandler {
     return result;
   }
 
-  protected BaseAuthenticationToken extractAuthenticationInfo(X509Certificate[] certs) {
-    PKIAuthenticationToken pkiToken = tokenFactory.getTokenFromCerts(certs);
-
-    if (pkiToken == null) {
-      return null;
-    }
-
-    BinarySecurityTokenType binarySecurityType =
-        pkiToken.createBinarySecurityTokenType(pkiToken.getCredentials());
-
-    // Turn the received JAXB object into a DOM element
-    Document doc = DOMUtils.createDocument();
-    BinarySecurity binarySecurity = new X509Security(doc);
-    binarySecurity.setEncodingType(binarySecurityType.getEncodingType());
-    binarySecurity.setValueType(X509Security.X509_V3_TYPE);
-    String data = binarySecurityType.getValue();
-    Node textNode = doc.createTextNode(data);
-    binarySecurity.getElement().appendChild(textNode);
-
-    return new BaseAuthenticationToken(null, binarySecurity.toString());
-  }
-
-  public void setTokenFactory(PKIAuthenticationTokenFactory factory) {
+  public void setTokenFactory(BaseAuthenticationTokenFactory factory) {
     tokenFactory = factory;
   }
 

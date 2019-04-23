@@ -29,9 +29,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.OcspService;
+import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.junit.Test;
 
 public class GuestHandlerTest {
@@ -40,7 +40,7 @@ public class GuestHandlerTest {
   @Test
   public void testGetNormalizedToken() throws AuthenticationException {
     GuestHandler handler = new GuestHandler();
-    PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
+    BaseAuthenticationTokenFactory tokenFactory = new BaseAuthenticationTokenFactory();
     handler.setTokenFactory(tokenFactory);
     OcspService ocspService = mock(OcspService.class);
     handler.setOcspService(ocspService);
@@ -62,7 +62,7 @@ public class GuestHandlerTest {
   @Test
   public void testHandleError() throws IOException {
     GuestHandler handler = new GuestHandler();
-    PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
+    BaseAuthenticationTokenFactory tokenFactory = new BaseAuthenticationTokenFactory();
     handler.setTokenFactory(tokenFactory);
     StringWriter writer = new StringWriter(1024);
     PrintWriter printWriter = new PrintWriter(writer);

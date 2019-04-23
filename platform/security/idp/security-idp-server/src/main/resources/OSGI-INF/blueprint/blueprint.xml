@@ -42,7 +42,7 @@
           class="org.codice.ddf.security.idp.server.IdpExceptionMapper"/>
 
     <bean id="tokenFactory"
-          class="org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory"
+          class="org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory"
           init-method="init">
         <property name="signaturePropertiesPath"
                   value="${ddf.etc}/ws-security/issuer/signature.properties"/>

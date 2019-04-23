@@ -212,22 +212,6 @@ public class BasicAuthenticationHandlerTest {
     assertNull(result);
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void testIllegalStateException()
-      throws ParserConfigurationException, IOException, SAXException {
-    BasicAuthenticationHandler handler = new BasicAuthenticationHandler();
-    BaseAuthenticationToken result =
-        handler.extractAuthInfo(
-            "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()));
-    assertNotNull(result);
-    assertEquals("admin", getXmlAttributeValue(result, USERNAME_ATTR));
-    assertEquals("password", getXmlAttributeValue(result, PASSWORD_ATTR));
-
-    BasicAuthenticationHandler basicHandler = new BasicAuthenticationHandler();
-    basicHandler.extractAuthInfo(
-        "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()));
-  }
-
   private String getXmlAttributeValue(BaseAuthenticationToken token, String attribute)
       throws ParserConfigurationException, IOException, SAXException {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
