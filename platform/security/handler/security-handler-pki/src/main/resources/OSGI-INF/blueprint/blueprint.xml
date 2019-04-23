@@ -35,16 +35,6 @@
     </bean>
 
     <service ref="handler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"
-             ranking="75">
-    </service>
-
-    <bean id="wsshandler" class="org.codice.ddf.security.handler.pki.WssPKIHandler">
-        <property name="tokenFactory" ref="tokenFactory"/>
-        <property name="ocspService" ref="ocspService"/>
-    </bean>
-
-    <service ref="wsshandler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"
-             ranking="75">
-    </service>
+             ranking="75"/>
 
 </blueprint>
