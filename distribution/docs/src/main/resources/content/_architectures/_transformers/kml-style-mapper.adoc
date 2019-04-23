@@ -29,7 +29,7 @@ See <<{reference-prefix}org.codice.ddf.spatial.kml.style,KML Style Mapper config
 .KML Style Mapper Example Values
 [source,xml,linenums]
 ----
-xmlns="http://www.opengis.net/kml/2.2"
+<xmlns="http://www.opengis.net/kml/2.2"
   xmlns:ns4="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0"
 xmlns:ns3="http://www.w3.org/2005/Atom">
   <Placemark id="Placemark-0103c77e66d9428d8f48fab939da528e">

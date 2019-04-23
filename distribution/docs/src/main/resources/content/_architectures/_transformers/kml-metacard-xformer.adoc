@@ -43,7 +43,7 @@ width: 100% }
           }
           img {
             max-width: 100px;
-￼￼￼         max-height: 100px;
+            max-height: 100px;
             border-style:none
           }
     &lt;/style&gt;
@@ -60,7 +60,7 @@ width: 100% }
         &lt;td&gt;Wed Oct 30 09:46:29 MDT 2013&lt;/td&gt;
       &lt;/tr&gt;
       &lt;tr&gt;
-        &lt;td class="label"&gt;Effective:&lt;/td&gt;
+      &lt;td class="label"&gt;Effective:&lt;/td&gt;
         &lt;td&gt;2014-01-07T14:58:16-0700&lt;/td&gt;
       &lt;/tr&gt;
     &lt;/table&gt;
