@@ -14,7 +14,9 @@
 package ddf.security.realm.sts;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +45,7 @@ import org.xml.sax.SAXException;
 
 public class StsRealmTest {
 
-  public static Document readXml(InputStream is)
+  private static Document readXml(InputStream is)
       throws SAXException, IOException, ParserConfigurationException {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
@@ -51,15 +53,9 @@ public class StsRealmTest {
     dbf.setIgnoringComments(false);
     dbf.setIgnoringElementContentWhitespace(true);
     dbf.setNamespaceAware(true);
-    // dbf.setCoalescing(true);
-    // dbf.setExpandEntityReferences(true);
 
-    DocumentBuilder db = null;
-    db = dbf.newDocumentBuilder();
+    DocumentBuilder db = dbf.newDocumentBuilder();
     db.setEntityResolver(new DOMUtils.NullResolver());
-
-    // db.setErrorHandler( new MyErrorHandler());
-
     return db.parse(is);
   }
 
@@ -69,35 +65,25 @@ public class StsRealmTest {
     AuthenticationToken authenticationToken = mock(SAMLAuthenticationToken.class);
     when(authenticationToken.getCredentials()).thenReturn("creds");
     boolean supports = realm.supports(authenticationToken);
-    assertEquals(true, supports);
+    assertTrue(supports);
 
     authenticationToken = mock(BSTAuthenticationToken.class);
     when(authenticationToken.getCredentials()).thenReturn("creds");
     supports = realm.supports(authenticationToken);
-    assertEquals(true, supports);
+    assertTrue(supports);
 
     authenticationToken = mock(BaseAuthenticationToken.class);
     when(authenticationToken.getCredentials()).thenReturn("creds");
     supports = realm.supports(authenticationToken);
-    assertEquals(true, supports);
+    assertTrue(supports);
 
     authenticationToken = mock(BaseAuthenticationToken.class);
     when(authenticationToken.getCredentials()).thenReturn(null);
     supports = realm.supports(authenticationToken);
-    assertEquals(false, supports);
+    assertFalse(supports);
 
     supports = realm.supports(null);
-    assertEquals(false, supports);
-
-    WssStsRealm wssStsRealm = new WssStsRealm();
-    BaseAuthenticationToken baseAuthTok = mock(BaseAuthenticationToken.class);
-    when(baseAuthTok.isUseWssSts()).thenReturn(false);
-    when(baseAuthTok.getCredentials()).thenReturn("creds");
-    assertEquals(true, realm.supports(baseAuthTok));
-    assertEquals(false, wssStsRealm.supports(baseAuthTok));
-    when(baseAuthTok.isUseWssSts()).thenReturn(true);
-    assertEquals(false, realm.supports(baseAuthTok));
-    assertEquals(true, wssStsRealm.supports(baseAuthTok));
+    assertFalse(supports);
   }
 
   @Ignore
@@ -184,7 +170,7 @@ public class StsRealmTest {
     assertEquals(3, stsRealm.getClaims().size());
   }
 
-  protected Document readDocument(String name)
+  private Document readDocument(String name)
       throws SAXException, IOException, ParserConfigurationException {
     InputStream inStream = getClass().getResourceAsStream(name);
     return readXml(inStream);

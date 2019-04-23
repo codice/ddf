@@ -81,10 +81,7 @@ public class WssBasicAuthenticationHandler extends AbstractBasicAuthenticationHa
       LOGGER.info("Unable to parse username token.", ex);
     }
 
-    BaseAuthenticationToken baseAuthenticationToken =
-        new BaseAuthenticationToken(null, usernameToken);
-    baseAuthenticationToken.setUseWssSts(true);
-    return baseAuthenticationToken;
+    return new BaseAuthenticationToken(null, usernameToken);
   }
 
   @Override

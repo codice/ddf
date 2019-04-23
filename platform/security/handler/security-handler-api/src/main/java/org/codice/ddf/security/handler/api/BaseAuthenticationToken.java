@@ -21,8 +21,6 @@ public class BaseAuthenticationToken implements AuthenticationToken {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseAuthenticationToken.class);
 
-  private boolean useWssSts = false;
-
   /**
    * Represents the account identity submitted during the authentication process.
    *
@@ -72,14 +70,6 @@ public class BaseAuthenticationToken implements AuthenticationToken {
 
   protected void setCredentials(Object o) {
     this.credentials = o;
-  }
-
-  public boolean isUseWssSts() {
-    return useWssSts;
-  }
-
-  public void setUseWssSts(boolean useWssSts) {
-    this.useWssSts = useWssSts;
   }
 
   /**

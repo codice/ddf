@@ -47,9 +47,6 @@ public class WssPKIHandler extends AbstractPKIHandler {
     Node textNode = doc.createTextNode(data);
     binarySecurity.getElement().appendChild(textNode);
 
-    BaseAuthenticationToken baseAuthenticationToken =
-        new BaseAuthenticationToken(null, binarySecurity.toString());
-    baseAuthenticationToken.setUseWssSts(true);
-    return baseAuthenticationToken;
+    return new BaseAuthenticationToken(null, binarySecurity.toString());
   }
 }
