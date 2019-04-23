@@ -18,7 +18,7 @@ define([
   'backbone.marionette',
   'templates/installer/finish.handlebars',
 ], function(Marionette, finishTemplate) {
-  var ConfigurationView = Marionette.ItemView.extend({
+  const ConfigurationView = Marionette.ItemView.extend({
     template: finishTemplate,
     tagName: 'div',
     className: 'full-height',
@@ -44,7 +44,7 @@ define([
       this.$('.main-content').hide()
       this.$('.loading-overlay').toggleClass('active', true)
     },
-  })
+  });
 
   return ConfigurationView
 })

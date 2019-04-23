@@ -13,8 +13,8 @@
  *
  **/
 
-var SlideoutView = require('./../slideout.view')
-var $ = require('jquery')
+const SlideoutView = require('./../slideout.view');
+const $ = require('jquery');
 
 module.exports = SlideoutView.extend({
   className: 'is-right',

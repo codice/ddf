@@ -30,15 +30,15 @@ const properties = require('../../../js/properties.js')
 const moment = require('moment')
 const user = require('../../singletons/user-instance.js')
 
-var zeroWidthSpace = '\u200B'
-var plotlyDateFormat = 'YYYY-MM-DD HH:mm:ss.SS'
+const zeroWidthSpace = '\u200B';
+const plotlyDateFormat = 'YYYY-MM-DD HH:mm:ss.SS';
 
 function getPlotlyDate(date) {
   return moment(date).format(plotlyDateFormat)
 }
 
 function calculateAvailableAttributes(results) {
-  var availableAttributes = []
+  let availableAttributes = [];
   results.forEach(function(result) {
     availableAttributes = _.union(
       availableAttributes,
@@ -69,13 +69,13 @@ function calculateAvailableAttributes(results) {
 }
 
 function calculateAttributeArray(results, attribute) {
-  var attributes = []
+  const attributes = [];
   results.forEach(function(result) {
     if (metacardDefinitions.metacardTypes[attribute].multivalued) {
-      var resultValues = result
+      const resultValues = result
         .get('metacard')
         .get('properties')
-        .get(attribute)
+        .get(attribute);
       if (resultValues && resultValues.forEach) {
         resultValues.forEach(function(value) {
           addValueForAttributeToArray(attributes, attribute, value)
@@ -100,12 +100,12 @@ function calculateAttributeArray(results, attribute) {
 function findMatchesForAttributeValues(results, attribute, values) {
   return results.filter(function(result) {
     if (metacardDefinitions.metacardTypes[attribute].multivalued) {
-      var resultValues = result
+      const resultValues = result
         .get('metacard')
         .get('properties')
-        .get(attribute)
+        .get(attribute);
       if (resultValues && resultValues.forEach) {
-        for (var i = 0; i < resultValues.length; i++) {
+        for (let i = 0; i < resultValues.length; i++) {
           if (checkIfValueIsValid(values, attribute, resultValues[i])) {
             return true
           }
@@ -124,14 +124,14 @@ function findMatchesForAttributeValues(results, attribute, values) {
           .get(attribute)
       )
     }
-  })
+  });
 }
 
 function checkIfValueIsValid(values, attribute, value) {
   if (value !== undefined) {
     switch (metacardDefinitions.metacardTypes[attribute].type) {
       case 'DATE':
-        var plotlyDate = getPlotlyDate(value)
+        const plotlyDate = getPlotlyDate(value);
         return plotlyDate >= values[0] && plotlyDate <= values[1]
       case 'BOOLEAN':
       case 'STRING':
@@ -175,7 +175,7 @@ function getValueFromClick(data, categories) {
     case 'category':
       return [data.points[0].x]
     case 'date':
-      var currentDate = moment(data.points[0].x).format(plotlyDateFormat)
+      const currentDate = moment(data.points[0].x).format(plotlyDateFormat);
       return _.find(categories, category => {
         return currentDate >= category[0] && currentDate <= category[1]
       })
@@ -189,7 +189,7 @@ function getValueFromClick(data, categories) {
 }
 
 function getTheme(theme) {
-  var config = {
+  const config = {
     margin: {
       t: 10,
       l: 50,
@@ -198,7 +198,7 @@ function getTheme(theme) {
       pad: 0,
       autoexpand: true,
     },
-  }
+  };
   switch (theme) {
     case 'comfortable':
       config.margin.b = 140
@@ -215,10 +215,10 @@ function getTheme(theme) {
 }
 
 function getLayout(plot) {
-  var prefs = user.get('user').get('preferences')
-  var theme = getTheme(prefs.get('theme').get('spacingMode'))
+  const prefs = user.get('user').get('preferences');
+  const theme = getTheme(prefs.get('theme').get('spacingMode'));
 
-  var baseLayout = {
+  const baseLayout = {
     autosize: true,
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
@@ -236,7 +236,7 @@ function getLayout(plot) {
       fixedrange: true,
     },
     showlegend: true,
-  }
+  };
   if (plot) {
     baseLayout.xaxis.autorange = false
     baseLayout.xaxis.range = plot._fullLayout.xaxis.range
@@ -267,8 +267,8 @@ module.exports = Marionette.LayoutView.extend({
       this.options.selectionInterface.getActiveSearchResults().length !== 0
     ) {
       this.defaultValue = this.histogramAttribute.currentView.model.getValue()
-      var histogramElement = this.el.querySelector('.histogram-container')
-      var initialData = this.determineInitialData()
+      const histogramElement = this.el.querySelector('.histogram-container');
+      const initialData = this.determineInitialData();
       if (initialData[0].x.length === 0) {
         this.$el.addClass('no-matching-data')
         this.el.querySelector('.histogram-container').innerHTML = ''
@@ -296,7 +296,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   updateHistogram: function() {
-    var histogramElement = this.el.querySelector('.histogram-container')
+    const histogramElement = this.el.querySelector('.histogram-container');
     if (
       histogramElement !== null &&
       histogramElement.children.length !== 0 &&
@@ -317,18 +317,18 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   updateTheme: function(e) {
-    var histogramElement = this.el.querySelector('.histogram-container')
+    const histogramElement = this.el.querySelector('.histogram-container');
     if (
       histogramElement.children.length !== 0 &&
       this.histogramAttribute.currentView.model.getValue()[0] &&
       this.options.selectionInterface.getActiveSearchResults().length !== 0
     ) {
-      var theme = getTheme(e.get('spacingMode'))
+      const theme = getTheme(e.get('spacingMode'));
       histogramElement.layout.margin = theme.margin
     }
   },
   updateFontSize: function(e) {
-    var histogramElement = this.el.querySelector('.histogram-container')
+    const histogramElement = this.el.querySelector('.histogram-container');
     if (
       histogramElement.children.length !== 0 &&
       this.histogramAttribute.currentView.model.getValue()[0] &&
@@ -338,7 +338,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   showHistogramAttributeSelector: function() {
-    var defaultValue = []
+    let defaultValue = [];
     defaultValue = this.defaultValue || defaultValue
     this.histogramAttribute.show(
       new PropertyView({
@@ -366,7 +366,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleEmpty()
   },
   determineInitialData: function() {
-    var activeResults = this.options.selectionInterface.getActiveSearchResults()
+    const activeResults = this.options.selectionInterface.getActiveSearchResults();
     return [
       {
         x: calculateAttributeArray(
@@ -387,9 +387,9 @@ module.exports = Marionette.LayoutView.extend({
     ]
   },
   determineData: function(plot) {
-    var activeResults = this.options.selectionInterface.getActiveSearchResults()
-    var selectedResults = this.options.selectionInterface.getSelectedResults()
-    var xbins = Common.duplicate(plot._fullData[0].xbins)
+    const activeResults = this.options.selectionInterface.getActiveSearchResults();
+    const selectedResults = this.options.selectionInterface.getSelectedResults();
+    const xbins = Common.duplicate(plot._fullData[0].xbins);
     if (xbins.size.constructor !== String) {
       xbins.end = xbins.end + xbins.size //https://github.com/plotly/plotly.js/issues/1229
     } else {
@@ -441,7 +441,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   handleResize: function() {
-    var histogramElement = this.el.querySelector('.histogram-container')
+    const histogramElement = this.el.querySelector('.histogram-container');
     this.$el.find('rect.drag').off('mousedown')
     if (histogramElement._context) {
       Plotly.Plots.resize(histogramElement)
@@ -511,8 +511,8 @@ module.exports = Marionette.LayoutView.extend({
       .on('plotly_click', this.plotlyClickHandler.bind(this))
   },
   plotlyClickHandler: function(data) {
-    var indexClicked = getIndexClicked(data)
-    var alreadySelected = this.pointsSelected.indexOf(indexClicked) >= 0
+    const indexClicked = getIndexClicked(data);
+    const alreadySelected = this.pointsSelected.indexOf(indexClicked) >= 0;
     if (this.shiftKey) {
       this.handleShiftClick(data)
     } else if (this.ctrlKey || this.metaKey) {
@@ -525,8 +525,8 @@ module.exports = Marionette.LayoutView.extend({
     this.resetKeyTracking()
   },
   handleControlClick: function(data, alreadySelected) {
-    var attributeToCheck = this.histogramAttribute.currentView.model.getValue()[0]
-    var categories = this.retrieveCategoriesFromPlotly()
+    const attributeToCheck = this.histogramAttribute.currentView.model.getValue()[0];
+    const categories = this.retrieveCategoriesFromPlotly();
     if (alreadySelected) {
       this.options.selectionInterface.removeSelectedResult(
         findMatchesForAttributeValues(
@@ -551,19 +551,19 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   handleShiftClick: function(data, alreadySelected) {
-    var indexClicked = getIndexClicked(data)
-    var firstIndex =
+    const indexClicked = getIndexClicked(data);
+    const firstIndex =
       this.pointsSelected.length === 0
         ? -1
         : this.pointsSelected.reduce(function(currentMin, point) {
             return Math.min(currentMin, point)
-          }, this.pointsSelected[0])
-    var lastIndex =
+          }, this.pointsSelected[0]);
+    const lastIndex =
       this.pointsSelected.length === 0
         ? -1
         : this.pointsSelected.reduce(function(currentMin, point) {
             return Math.max(currentMin, point)
-          }, this.pointsSelected[0])
+          }, this.pointsSelected[0]);
     if (firstIndex === -1 && lastIndex === -1) {
       this.options.selectionInterface.clearSelectedResults()
       this.handleControlClick(data, alreadySelected)
@@ -576,15 +576,15 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   selectBetween: function(firstIndex, lastIndex) {
-    for (var i = firstIndex; i <= lastIndex; i++) {
+    for (let i = firstIndex; i <= lastIndex; i++) {
       if (this.pointsSelected.indexOf(i) === -1) {
         this.pointsSelected.push(i)
       }
     }
-    var attributeToCheck = this.histogramAttribute.currentView.model.getValue()[0]
-    var categories = this.retrieveCategoriesFromPlotly()
-    var validCategories = categories.slice(firstIndex, lastIndex)
-    var activeSearchResults = this.options.selectionInterface.getActiveSearchResults()
+    const attributeToCheck = this.histogramAttribute.currentView.model.getValue()[0];
+    const categories = this.retrieveCategoriesFromPlotly();
+    const validCategories = categories.slice(firstIndex, lastIndex);
+    const activeSearchResults = this.options.selectionInterface.getActiveSearchResults();
     this.options.selectionInterface.addSelectedResult(
       validCategories.reduce(function(results, category) {
         results = results.concat(
@@ -601,19 +601,19 @@ module.exports = Marionette.LayoutView.extend({
   // This is an internal variable for Plotly, so it might break if we update Plotly in the future.
   // Regardless, there was no other way to reliably get the categories.
   retrieveCategoriesFromPlotly: function() {
-    var histogramElement = this.el.querySelector('.histogram-container')
-    var xaxis = histogramElement._fullLayout.xaxis
+    const histogramElement = this.el.querySelector('.histogram-container');
+    const xaxis = histogramElement._fullLayout.xaxis;
     switch (xaxis.type) {
       case 'category':
         return xaxis._categories
       case 'date':
         return this.retrieveCategoriesFromPlotlyForDates()
       default:
-        var xbins = histogramElement._fullData[0].xbins
-        var min = xbins.start
-        var max = xbins.end
-        var binSize = xbins.size
-        var categories = []
+        const xbins = histogramElement._fullData[0].xbins;
+        const min = xbins.start;
+        const max = xbins.end;
+        const binSize = xbins.size;
+        const categories = [];
         var start = min
         while (start < max) {
           categories.push([start, start + binSize])
@@ -623,23 +623,23 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   retrieveCategoriesFromPlotlyForDates: function() {
-    var histogramElement = this.el.querySelector('.histogram-container')
-    var categories = []
-    var xbins = histogramElement._fullData[0].xbins
-    var min = xbins.start
-    var max = xbins.end
+    const histogramElement = this.el.querySelector('.histogram-container');
+    const categories = [];
+    const xbins = histogramElement._fullData[0].xbins;
+    const min = xbins.start;
+    const max = xbins.end;
     var start = min
-    var inMonths = xbins.size.constructor === String
-    var binSize = inMonths ? parseInt(xbins.size.substring(1)) : xbins.size
+    const inMonths = xbins.size.constructor === String;
+    const binSize = inMonths ? parseInt(xbins.size.substring(1)) : xbins.size;
     while (start < max) {
-      var startDate = moment(start).format(plotlyDateFormat)
-      var endDate = inMonths
+      const startDate = moment(start).format(plotlyDateFormat);
+      const endDate = inMonths
         ? moment(start)
             .add(binSize, 'months')
             .format(plotlyDateFormat)
         : moment(start)
             .add(binSize, 'ms')
-            .format(plotlyDateFormat)
+            .format(plotlyDateFormat);
       categories.push([startDate, endDate])
       start = parseInt(
         inMonths

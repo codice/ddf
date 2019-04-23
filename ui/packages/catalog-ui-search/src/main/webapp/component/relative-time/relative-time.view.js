@@ -13,13 +13,13 @@
  *
  **/
 
-var Marionette = require('marionette')
-var template = require('./relative-time.hbs')
-var CustomElements = require('../../js/CustomElements.js')
-var PropertyView = require('../property/property.view.js')
-var Property = require('../property/property.js')
-var CQLUtils = require('../../js/CQLUtils.js')
-var Common = require('../../js/Common.js')
+const Marionette = require('marionette');
+const template = require('./relative-time.hbs');
+const CustomElements = require('../../js/CustomElements.js');
+const PropertyView = require('../property/property.view.js');
+const Property = require('../property/property.js');
+const CQLUtils = require('../../js/CQLUtils.js');
+const Common = require('../../js/Common.js');
 import { serialize, deserialize } from './serial'
 
 /*

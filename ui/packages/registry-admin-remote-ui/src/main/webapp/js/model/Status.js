@@ -14,7 +14,7 @@
  **/
 
 define(['backbone'], function(Backbone) {
-  var Status = {}
+  const Status = {};
   Status.Model = Backbone.Model.extend({
     url:
       '../../jolokia/exec/org.codice.ddf.registry:type=FederationAdminMBean/registryStatus/',

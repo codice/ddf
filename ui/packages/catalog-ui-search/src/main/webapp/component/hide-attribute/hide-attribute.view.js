@@ -13,15 +13,15 @@
  *
  **/
 
-var template = require('./hide-attribute.hbs')
-var _ = require('underscore')
-var Marionette = require('marionette')
-var CustomElements = require('../../js/CustomElements.js')
-var PropertyView = require('../property/property.view.js')
-var Property = require('../property/property.js')
-var properties = require('../../js/properties.js')
-var metacardDefinitions = require('../singletons/metacard-definitions.js')
-var user = require('../singletons/user-instance.js')
+const template = require('./hide-attribute.hbs');
+const _ = require('underscore');
+const Marionette = require('marionette');
+const CustomElements = require('../../js/CustomElements.js');
+const PropertyView = require('../property/property.view.js');
+const Property = require('../property/property.js');
+const properties = require('../../js/properties.js');
+const metacardDefinitions = require('../singletons/metacard-definitions.js');
+const user = require('../singletons/user-instance.js');
 
 function filterAndSort(attributes) {
   return attributes
@@ -44,18 +44,18 @@ function filterAndSort(attributes) {
 }
 
 function calculateAvailableAttributesFromSelection(selectionInterface) {
-  var types = _.union.apply(
+  const types = _.union.apply(
     this,
     selectionInterface.getSelectedResults().map(result => {
       return [result.get('metacardType')]
     })
-  )
-  var possibleAttributes = _.intersection.apply(
+  );
+  const possibleAttributes = _.intersection.apply(
     this,
     types.map(type => {
       return Object.keys(metacardDefinitions.metacardDefinitions[type])
     })
-  )
+  );
   return selectionInterface
     .getSelectedResults()
     .reduce(function(currentAvailable, result) {
@@ -74,10 +74,10 @@ function calculateAvailableAttributesFromSelection(selectionInterface) {
 }
 
 function calculateDetailsAttributes() {
-  var userPropertyArray = user
+  const userPropertyArray = user
     .get('user')
     .get('preferences')
-    .get('inspector-detailsHidden')
+    .get('inspector-detailsHidden');
   return userPropertyArray
 }
 
@@ -88,15 +88,15 @@ module.exports = Marionette.LayoutView.extend({
     attributeSelector: '> .attribute-selector',
   },
   onBeforeShow: function() {
-    var attributes = calculateAvailableAttributesFromSelection(
+    const attributes = calculateAvailableAttributesFromSelection(
       this.options.selectionInterface
-    )
-    var detailsAttributes = calculateDetailsAttributes()
-    var totalAttributes = filterAndSort(_.union(attributes, detailsAttributes))
-    var detailsHidden = user
+    );
+    const detailsAttributes = calculateDetailsAttributes();
+    const totalAttributes = filterAndSort(_.union(attributes, detailsAttributes));
+    const detailsHidden = user
       .get('user')
       .get('preferences')
-      .get('inspector-detailsHidden')
+      .get('inspector-detailsHidden');
     this.attributeSelector.show(
       new PropertyView({
         model: new Property({
@@ -122,7 +122,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   handleSave: function() {
-    var prefs = user.get('user').get('preferences')
+    const prefs = user.get('user').get('preferences');
     prefs.set(
       'inspector-detailsHidden',
       this.attributeSelector.currentView.model.get('value')[0]

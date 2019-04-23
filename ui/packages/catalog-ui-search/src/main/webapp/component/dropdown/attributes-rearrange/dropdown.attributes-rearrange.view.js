@@ -13,11 +13,11 @@
  *
  **/
 
-var Marionette = require('marionette')
-var _ = require('underscore')
-var DropdownView = require('../dropdown.view')
-var template = require('./dropdown.attributes-rearrange.hbs')
-var ComponentView = require('../../attributes-rearrange/attributes-rearrange.view.js')
+const Marionette = require('marionette');
+const _ = require('underscore');
+const DropdownView = require('../dropdown.view');
+const template = require('./dropdown.attributes-rearrange.hbs');
+const ComponentView = require('../../attributes-rearrange/attributes-rearrange.view.js');
 
 module.exports = DropdownView.extend({
   template: template,

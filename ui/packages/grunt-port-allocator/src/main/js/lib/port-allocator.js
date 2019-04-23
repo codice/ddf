@@ -1,19 +1,19 @@
-var net = require('net')
-var async = require('async')
+const net = require('net');
+const async = require('async');
 
 // compute range from start to end non-inclusive
 // => [start, start + 1, ... , end - 1]
-var range = function(start, end) {
+const range = function(start, end) {
   if (start === end) return []
   return [start].concat(range(start + 1, end))
-}
+};
 
-var startPort = 21000
-var portRange = 10
+const startPort = 21000;
+const portRange = 10;
 
 // bind a tcp socket to a given port
-var bind = function(port, done) {
-  var s = net.createServer()
+const bind = function(port, done) {
+  const s = net.createServer();
 
   s.on('error', done)
   s.on('listening', done)
@@ -21,12 +21,12 @@ var bind = function(port, done) {
   s.listen(port)
 
   return s
-}
+};
 
 // check if a given port is avaiable by trying to binding and
 // unbinding
-var available = function(port, done) {
-  var s = bind(port, function(err) {
+const available = function(port, done) {
+  const s = bind(port, function(err) {
     if (err) {
       done(false)
     } else {
@@ -34,20 +34,20 @@ var available = function(port, done) {
         done(true)
       }).close()
     }
-  })
-}
+  });
+};
 
 // try 'allocating' a range of ports by using convention.
 // NOTE: don't unbind from the port until process exits; this
 // convention is what prevents others call to allocatePorts
 // from clobbering each other.
-var allocatePorts = function(port, done) {
-  var s = bind(port, function(err) {
+const allocatePorts = function(port, done) {
+  const s = bind(port, function(err) {
     if (err) {
       return done(err)
     }
 
-    var ports = range(port + 1, port + portRange)
+    const ports = range(port + 1, port + portRange);
 
     // sweep ports for a quick check that they are all
     // actually free
@@ -60,13 +60,13 @@ var allocatePorts = function(port, done) {
         done(null, ports)
       }
     })
-  })
-}
+  });
+};
 
-var maxPortStart = 65535 - portRange
+const maxPortStart = 65535 - portRange;
 
 // retry port allocation going up by increments of portRange
-var retryAllocate = function(port, done) {
+const retryAllocate = function(port, done) {
   if (port > maxPortStart) {
     done(new Error('why you have no ports!?!'))
   } else {
@@ -78,7 +78,7 @@ var retryAllocate = function(port, done) {
       }
     })
   }
-}
+};
 
 // returns an array of available ports
 module.exports = function(done) {

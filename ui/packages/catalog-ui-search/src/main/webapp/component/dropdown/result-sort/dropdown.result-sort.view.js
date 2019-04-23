@@ -44,10 +44,10 @@ module.exports = DropdownView.extend({
     this.handleSort()
   },
   handleSort: function() {
-    var resultSort = user
+    const resultSort = user
       .get('user')
       .get('preferences')
-      .get('resultSort')
+      .get('resultSort');
     this.$el.toggleClass('has-sort', Boolean(resultSort))
   },
 })

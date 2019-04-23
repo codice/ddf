@@ -20,7 +20,7 @@ define([
   'js/CustomElements',
   'iframe-resizer',
 ], function(Marionette, TabContentView, wreqr, CustomElements) {
-  var PluginTabContentsView = Marionette.CollectionView.extend({
+  const PluginTabContentsView = Marionette.CollectionView.extend({
     className: 'tab-content',
     tagName: CustomElements.register('tab-content-collection'),
     itemView: TabContentView,
@@ -29,7 +29,7 @@ define([
         applicationModel: this.model,
       }
     },
-  })
+  });
 
   return PluginTabContentsView
 })

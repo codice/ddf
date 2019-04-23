@@ -12,21 +12,21 @@
 
 /*jshint bitwise: false*/
 
-var EARTH_MEAN_RADIUS_METERS = 6371008.7714
+const EARTH_MEAN_RADIUS_METERS = 6371008.7714;
 
-var DEGREES_TO_RADIANS = Math.PI / 180
-var RADIANS_TO_DEGREES = 1 / DEGREES_TO_RADIANS
+const DEGREES_TO_RADIANS = Math.PI / 180;
+const RADIANS_TO_DEGREES = 1 / DEGREES_TO_RADIANS;
 
-var METERS_KILOMETERS = 1000
-var METERS_FEET = 0.3048
-var METERS_YARDS = 0.9144
-var METERS_MILES = 1609.344
-var METERS_NAUTICAL_MILES = 1852
+const METERS_KILOMETERS = 1000;
+const METERS_FEET = 0.3048;
+const METERS_YARDS = 0.9144;
+const METERS_MILES = 1609.344;
+const METERS_NAUTICAL_MILES = 1852;
 
 /* 6 Digits of precision used because it gives precision up to 
 0.11 meters, which was deemed precise enough for any use case 
 of application */
-var DECIMAL_PRECISION = 6
+const DECIMAL_PRECISION = 6;
 
 module.exports = {
   distToDegrees: function(distanceInMeters) {

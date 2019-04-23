@@ -44,11 +44,11 @@ define([
     ich.addTemplate('optionListType', optionListType)
   }
 
-  var ModalRegistry = {}
+  const ModalRegistry = {};
 
   if (!String.prototype.endsWith) {
     String.prototype.endsWith = function(searchString, position) {
-      var subjectString = this.toString()
+      const subjectString = this.toString();
       if (
         typeof position !== 'number' ||
         !isFinite(position) ||
@@ -58,7 +58,7 @@ define([
         position = subjectString.length
       }
       position -= searchString.length
-      var lastIndex = subjectString.lastIndexOf(searchString, position)
+      const lastIndex = subjectString.lastIndexOf(searchString, position);
       return lastIndex !== -1 && lastIndex === position
     }
   }
@@ -78,7 +78,7 @@ define([
     },
 
     serializeData: function() {
-      var data = {}
+      let data = {};
 
       if (this.model) {
         data = this.model.toJSON()
@@ -95,8 +95,8 @@ define([
       this.type = options.registryType
     },
     onRender: function() {
-      var config = this.getConfig()
-      var properties = config.get('properties')
+      const config = this.getConfig();
+      const properties = config.get('properties');
 
       this.$el.attr('role', 'dialog')
       this.$el.attr('aria-hidden', 'true')
@@ -112,8 +112,8 @@ define([
     },
     submitData: function() {
       wreqr.vent.trigger('beforesave')
-      var view = this
-      var service = this.getConfig()
+      const view = this;
+      const service = this.getConfig();
       if (service) {
         service
           .save()
@@ -132,18 +132,18 @@ define([
       }
     },
     urlChanged: function(evt) {
-      var url = evt.target.value
-      var hostnamePort
+      const url = evt.target.value;
+      let hostnamePort;
       if (url) {
         hostnamePort = this.extractHostnameFromUrl(url)
       }
       if (hostnamePort && this.urlIsValid(url)) {
-        var oldName
-        var newNameToSet = hostnamePort + ' (' + this.type + ')'
+        let oldName;
+        const newNameToSet = hostnamePort + ' (' + this.type + ')';
         //When a registry remotely connects, it's hostname and port are in parentheses. In that case, newNameInParens is used to check for duplication
-        var newNameInParens = '(' + hostnamePort + ')' + ' (' + this.type + ')'
+        const newNameInParens = '(' + hostnamePort + ')' + ' (' + this.type + ')';
         //find any registries that contain the name we are trying to set
-        var registryWithDupId
+        let registryWithDupId;
         this.registry.get('collection').models.forEach(function(registry) {
           if (registry.id) {
             if (
@@ -179,10 +179,10 @@ define([
       }
     },
     extractHostnameFromUrl: function(url) {
-      var myRe = new RegExp(
+      const myRe = new RegExp(
         '^(?:([^:/?#.]+):)?(?://)?(([^:/?#]*)(?::(\\d*))?)((/(?:[^?#](?![^?#/]*\\.[^?#/.]+(?:[\\?#]|$)))*/?)?([^?#/]*))?(?:\\?([^#]*))?(?:#(.*))?'
-      )
-      var regExUrl = myRe.exec(url)
+      );
+      const regExUrl = myRe.exec(url);
       return regExUrl[2]
     },
     onClose: function() {
@@ -195,21 +195,21 @@ define([
       this.$el.modal('hide')
     },
     rebind: function(properties) {
-      var $boundData = this.$el.find('.bound-controls')
-      var bindings = Backbone.ModelBinder.createDefaultBindings(
+      const $boundData = this.$el.find('.bound-controls');
+      const bindings = Backbone.ModelBinder.createDefaultBindings(
         $boundData,
         'name'
-      )
+      );
       delete bindings.value
       this.modelBinder.bind(properties, $boundData, bindings)
     },
     initRadioButtonsUI: function(boundModel) {
-      var $radios = this.$el.find('input[type=radio]')
-      var view = this
+      const $radios = this.$el.find('input[type=radio]');
+      const view = this;
 
       _.each($radios, function(radio) {
-        var $radio = view.$(radio)
-        var $label = $radio.closest('label.btn')
+        const $radio = view.$(radio);
+        const $label = $radio.closest('label.btn');
 
         if (
           boundModel.get($radio.attr('name')).toString() ===
@@ -222,16 +222,16 @@ define([
       })
     },
     registryNameChanged: function(evt) {
-      var newName = this.$(evt.currentTarget)
+      const newName = this.$(evt.currentTarget)
         .find('input')
         .val()
-        .trim()
+        .trim();
       this.checkName(newName)
     },
     checkName: function(newName) {
-      var view = this
-      var model = view.model
-      var config = this.getConfig()
+      const view = this;
+      const model = view.model;
+      const config = this.getConfig();
 
       if (newName === '') {
         view.showError('A registry must have a unique URL.')
@@ -258,17 +258,17 @@ define([
       }
     },
     urlIsValid: function(url) {
-      var valid = false
-      var configs = this.registry.get('collection')
-      var match
-      var mode = this.mode
-      var threshold
+      let valid = false;
+      const configs = this.registry.get('collection');
+      let match;
+      const mode = this.mode;
+      let threshold;
       if (mode === 'edit') {
         threshold = 1
       } else {
         threshold = 0
       }
-      var count = 0
+      let count = 0;
       configs.forEach(function(registryConfig) {
         if (registryConfig.get('attributes').registryUrl === url) {
           count++
@@ -284,9 +284,9 @@ define([
       return valid
     },
     nameIsValid: function(name, registryId) {
-      var valid = false
-      var configs = this.registry.get('collection')
-      var match
+      let valid = false;
+      const configs = this.registry.get('collection');
+      let match;
       configs.forEach(function(registryConfig) {
         if (
           registryConfig.get('id') === name &&
@@ -302,11 +302,11 @@ define([
       return valid
     },
     renderDetails: function(configuration) {
-      var service = configuration.get('service')
+      const service = configuration.get('service');
       if (!_.isUndefined(service)) {
-        var toDisplay = service.get('metatype').filter(function(mt) {
+        const toDisplay = service.get('metatype').filter(function(mt) {
           return !_.contains(['shortname', 'id'], mt.get('id'))
-        })
+        });
         this.details.show(
           new ConfigurationEdit.ConfigurationCollection({
             collection: new Service.MetatypeList(toDisplay),
@@ -320,8 +320,8 @@ define([
       }
     },
     showError: function(msg) {
-      var view = this
-      var $group = view.$el.find('.registryUrl')
+      const view = this;
+      const $group = view.$el.find('.registryUrl');
       $group
         .find('.error-text')
         .text(msg)
@@ -331,9 +331,9 @@ define([
     },
 
     clearError: function() {
-      var view = this
-      var $group = view.$el.find('.registryUrl')
-      var $error = $group.find('.error-text')
+      const view = this;
+      const $group = view.$el.find('.registryUrl');
+      const $error = $group.find('.error-text');
 
       view.$el.find('.submit-button').removeAttr('disabled')
       $group.removeClass('has-error')
@@ -341,7 +341,7 @@ define([
     },
     setConfigName: function(config, name) {
       if (!_.isUndefined(config)) {
-        var properties = config.get('properties')
+        const properties = config.get('properties');
         properties.set({
           shortname: name,
           id: name,
@@ -350,8 +350,8 @@ define([
       }
     },
     getConfig: function() {
-      var config
-      var type = this.type
+      let config;
+      const type = this.type;
       if (type && this.mode === 'add') {
         this.model.get('registryConfiguration').forEach(function(regConfig) {
           if (regConfig.get('name') === type) {

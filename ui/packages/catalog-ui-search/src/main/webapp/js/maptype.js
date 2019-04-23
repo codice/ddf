@@ -24,21 +24,21 @@ function getActiveVisualization() {
     .get('visualization')
 }
 
-var MapTypeEnum = {
+const MapTypeEnum = {
   THREED: '3d',
   TWOD: '2d',
   NONE: 'none',
-}
+};
 
-var url = function() {
+const url = function() {
   // replace removes leading ? in query string
-  var query = window.location.search.replace(/^\?/, '')
+  const query = window.location.search.replace(/^\?/, '');
   return qs.parse(query)
-}
+};
 
 module.exports = {
   type: (function() {
-    var param = url().map
+    const param = url().map;
     if (!_.isUndefined(param)) {
       if (_.contains(_.values(MapTypeEnum), param)) {
         return param

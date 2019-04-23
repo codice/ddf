@@ -11,7 +11,7 @@
  **/
 
 define([], function() {
-  var Util = {
+  const Util = {
     /**
      * Solution taken from stackoverflow. Link included.
      * http://stackoverflow.com/questions/1787939/check-time-difference-in-javascript
@@ -19,7 +19,7 @@ define([], function() {
      * @returns {string}
      */
     convertUptimeToString: function(uptime) {
-      var oDiff = {}
+      const oDiff = {};
 
       oDiff.days = Math.floor(uptime / 1000 / 60 / 60 / 24)
       uptime -= oDiff.days * 1000 * 60 * 60 * 24
@@ -36,9 +36,9 @@ define([], function() {
       //  Format Duration
       //  -------------------------------------------------------------------  //
       //  Format Hours
-      var daystext = String(oDiff.days)
+      const daystext = String(oDiff.days);
 
-      var hourtext = '00'
+      let hourtext = '00';
       if (oDiff.hours > 0) {
         hourtext = String(oDiff.hours)
       }
@@ -47,7 +47,7 @@ define([], function() {
       }
 
       //  Format Minutes
-      var mintext = '00'
+      let mintext = '00';
       if (oDiff.minutes > 0) {
         mintext = String(oDiff.minutes)
       }
@@ -56,7 +56,7 @@ define([], function() {
       }
 
       //  Format Seconds
-      var sectext = '00'
+      let sectext = '00';
       if (oDiff.seconds > 0) {
         sectext = String(oDiff.seconds)
       }
@@ -65,12 +65,12 @@ define([], function() {
       }
 
       //  Set Duration
-      var sDuration = daystext + 'd ' + hourtext + ':' + mintext + ':' + sectext
+      const sDuration = daystext + 'd ' + hourtext + ':' + mintext + ':' + sectext;
       //  -------------------------------------------------------------------  //
 
       return sDuration
     },
-  }
+  };
 
   return Util
 })

@@ -13,13 +13,13 @@
  *
  **/
 
-var Marionette = require('marionette')
-var template = require('./system-usage.hbs')
-var CustomElements = require('../../js/CustomElements.js')
-var properties = require('../../js/properties.js')
-var user = require('../singletons/user-instance.js')
-var preferences = user.get('user').get('preferences')
-var $ = require('jquery')
+const Marionette = require('marionette');
+const template = require('./system-usage.hbs');
+const CustomElements = require('../../js/CustomElements.js');
+const properties = require('../../js/properties.js');
+const user = require('../singletons/user-instance.js');
+const preferences = user.get('user').get('preferences');
+const $ = require('jquery');
 
 function getSrc() {
   return (
@@ -35,7 +35,7 @@ function getSrc() {
 }
 
 function populateIframe(view) {
-  var $iframe = view.$el.find('iframe')
+  const $iframe = view.$el.find('iframe');
   $iframe.ready(function() {
     $iframe.contents()[0].open()
     $iframe.contents()[0].write(getSrc())
@@ -61,7 +61,7 @@ module.exports = Marionette.LayoutView.extend({
       !user.get('user').isGuestUser() &&
       properties.ui.systemUsageOncePerSession
     ) {
-      var systemUsage = JSON.parse(window.sessionStorage.getItem('systemUsage'))
+      const systemUsage = JSON.parse(window.sessionStorage.getItem('systemUsage'));
       systemUsage[user.get('user').get('username')] = 'true'
       window.sessionStorage.setItem('systemUsage', JSON.stringify(systemUsage))
     }

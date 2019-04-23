@@ -32,15 +32,15 @@ define([
   PluginTabView,
   Q
 ) {
-  var appConfigPluginsCache = {}
+  const appConfigPluginsCache = {};
 
-  var AppDetailController = Marionette.Controller.extend({
+  const AppDetailController = Marionette.Controller.extend({
     initialize: function(options) {
       this.regions = options.regions
       this.listenTo(wreqr.vent, 'application:selected', this.showDetailsPage)
     },
     showDetailsPage: function(applicationModel) {
-      var layoutView = new ApplicationDetailLayout({ model: applicationModel })
+      const layoutView = new ApplicationDetailLayout({ model: applicationModel });
       this.regions.applications.show(layoutView)
 
       if (appConfigPluginsCache[applicationModel.get('name')] === undefined) {
@@ -52,30 +52,30 @@ define([
       appConfigPluginsCache[applicationModel.get('name')]
         .then(function(appConfigPlugins) {
           //load the static ones
-          var staticApplicationPlugins = [
+          const staticApplicationPlugins = [
             new Backbone.Model({
               id: 'configurationApplicationTabID',
               displayName: 'Configuration',
               javascriptLocation:
                 'components/application-services/application-services.view',
             }),
-          ]
+          ];
 
-          var staticList = new Backbone.Collection()
+          const staticList = new Backbone.Collection();
           staticList.comparator = function(model) {
             return model.get('displayName')
           }
           staticList.add(staticApplicationPlugins)
           staticList.sort()
 
-          var dynamicList = new Backbone.Collection()
+          const dynamicList = new Backbone.Collection();
           dynamicList.comparator = function(model) {
             return model.get('displayName')
           }
           dynamicList.add(appConfigPlugins.models)
           dynamicList.sort()
 
-          var completeList = new Backbone.Collection()
+          const completeList = new Backbone.Collection();
           completeList.add(dynamicList.models)
           completeList.add(staticList.models)
 
@@ -98,8 +98,8 @@ define([
         })
     },
     fetchAppConfigPlugins: function(appName) {
-      var collection = new AppConfigPlugin.Collection()
-      var defer = Q.defer()
+      const collection = new AppConfigPlugin.Collection();
+      const defer = Q.defer();
       collection.fetchByAppName(appName, {
         success: function() {
           defer.resolve(collection)
@@ -114,7 +114,7 @@ define([
       })
       return defer.promise
     },
-  })
+  });
 
   return AppDetailController
 })

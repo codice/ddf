@@ -9,14 +9,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-var Backbone = require('backbone')
-var Query = require('./Query')
-var cql = require('../cql.js')
-var Common = require('../Common.js')
-var _ = require('lodash')
+const Backbone = require('backbone');
+const Query = require('./Query');
+const cql = require('../cql.js');
+const Common = require('../Common.js');
+const _ = require('lodash');
 require('backbone-associations')
 
-var iconMap = {
+const iconMap = {
   folder: 'fa fa-folder',
   target: 'fa fa-bullseye',
   video: 'fa fa-file-video-o',
@@ -30,7 +30,7 @@ var iconMap = {
   code: 'fa fa-file-code-o',
   archive: 'fa fa-file-archive-o',
   tasks: 'fa fa-tasks',
-}
+};
 
 function getRelevantIcon(iconName) {
   return iconMap[iconName]

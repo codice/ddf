@@ -13,10 +13,10 @@
  *
  **/
 
-var Marionette = require('marionette')
-var InputView = require('../input.view')
-var template = require('./input-autocomplete.hbs')
-var _ = require('underscore')
+const Marionette = require('marionette');
+const InputView = require('../input.view');
+const template = require('./input-autocomplete.hbs');
+const _ = require('underscore');
 require('select2')
 
 module.exports = InputView.extend({
@@ -26,7 +26,7 @@ module.exports = InputView.extend({
     InputView.prototype.onRender.call(this)
   },
   initializeSelect() {
-    var options = {
+    const options = {
       delay: 250,
       cache: false,
       minimumInputLength: 3,
@@ -37,7 +37,7 @@ module.exports = InputView.extend({
         return item.name || item
       },
       processResults(data) {
-        var items = data.items
+        let items = data.items;
         if (!Array.isArray(items)) {
           items = data
         }
@@ -48,7 +48,7 @@ module.exports = InputView.extend({
           return { name: item.name, id: item.id }
         })
       },
-    }
+    };
     _.extend(options, this.model.get('property').attributes)
 
     this.$el.find('select').select2({
@@ -62,7 +62,7 @@ module.exports = InputView.extend({
           return options.getUrlParams(params.term)
         },
         processResults(data, params) {
-          var results = options.processResults(data)
+          const results = options.processResults(data);
           return {
             results,
             pagination: {

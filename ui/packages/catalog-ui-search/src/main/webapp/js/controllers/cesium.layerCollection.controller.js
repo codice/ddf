@@ -21,7 +21,7 @@ import _ from 'underscore'
 const DEFAULT_HTTPS_PORT = 443
 const DEFAULT_HTTP_PORT = 80
 
-var imageryProviderTypes = {
+const imageryProviderTypes = {
   OSM: Cesium.createOpenStreetMapImageryProvider,
   AGM: Cesium.ArcGisMapServerImageryProvider,
   BM: Cesium.BingMapsImageryProvider,
@@ -33,9 +33,9 @@ var imageryProviderTypes = {
   AGS: Cesium.ArcGisImageServerTerrainProvider,
   VRW: Cesium.VRTheWorldTerrainProvider,
   SI: Cesium.SingleTileImageryProvider,
-}
+};
 
-var Controller = CommonLayerController.extend({
+const Controller = CommonLayerController.extend({
   initialize: function() {
     // there is no automatic chaining of initialize.
     CommonLayerController.prototype.initialize.apply(this, arguments)
@@ -158,7 +158,7 @@ var Controller = CommonLayerController.extend({
     )
     this.layerOrder = newLayerOrder
   },
-})
+});
 
 Controller.imageryProviderTypes = imageryProviderTypes
 

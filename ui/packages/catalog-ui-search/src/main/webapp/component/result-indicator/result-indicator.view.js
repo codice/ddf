@@ -37,14 +37,14 @@ module.exports = Marionette.ItemView.extend({
     }
   },
   calculateColors: function() {
-    var self = this
+    const self = this;
     self.colors = []
-    var currentWorkspace = store.getCurrentWorkspace()
+    const currentWorkspace = store.getCurrentWorkspace();
     if (currentWorkspace) {
       currentWorkspace.get('queries').forEach(function(query) {
         if (!self.isDestroyed && query.get('result')) {
-          var results = query.get('result').get('results')
-          for (var i = 0; i <= results.length - 1; i++) {
+          const results = query.get('result').get('results');
+          for (let i = 0; i <= results.length - 1; i++) {
             if (
               results.models[i]
                 .get('metacard')

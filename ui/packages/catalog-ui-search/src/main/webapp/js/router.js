@@ -79,7 +79,7 @@ const Router = Backbone.Router.extend({
             */
     setTimeout(
       function() {
-        var currentFragment = location.hash
+        const currentFragment = location.hash;
         Backbone.history.fragment = undefined
         this.navigate(currentFragment, { trigger: true })
       }.bind(this),

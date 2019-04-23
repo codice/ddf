@@ -14,7 +14,7 @@
  **/
 
 define(['backbone'], function(Backbone) {
-  var Status = {}
+  const Status = {};
 
   Status.Model = Backbone.Model.extend({
     urlRoot:

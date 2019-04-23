@@ -10,8 +10,8 @@
  *
  **/
 
-var Backbone = require('backbone')
-var AnnotationModel = require('./annotation')
+const Backbone = require('backbone');
+const AnnotationModel = require('./annotation');
 
 module.exports = Backbone.Collection.extend({
   model: AnnotationModel,

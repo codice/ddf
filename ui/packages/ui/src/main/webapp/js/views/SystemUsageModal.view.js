@@ -19,7 +19,7 @@ define([
   'properties',
   'templates/systemUsage.layout.handlebars',
 ], function(Backbone, Modal, properties, systemUsageTemplate) {
-  var SystemUsageModal = Modal.extend({
+  const SystemUsageModal = Modal.extend({
     template: systemUsageTemplate,
     model: new Backbone.Model(properties),
     initialize: function() {
@@ -27,14 +27,14 @@ define([
       Modal.prototype.initialize.apply(this, arguments)
     },
     onRender: function() {
-      var usage = properties.admin.systemUsageMessage
-      var $iframe = this.$el.find('iframe')
+      const usage = properties.admin.systemUsageMessage;
+      const $iframe = this.$el.find('iframe');
       $iframe.ready(function() {
         $iframe.contents()[0].open()
         $iframe.contents()[0].write('<html>' + usage + '</html>')
         $iframe.contents()[0].close()
       })
     },
-  })
+  });
   return SystemUsageModal
 })

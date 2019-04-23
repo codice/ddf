@@ -24,14 +24,14 @@ define([
     Backbone,
     Marionette
   ) {
-    var gwcLayers = new GwcLayers.LayerModel()
+    const gwcLayers = new GwcLayers.LayerModel();
 
-    var gwcLayersView = new GwcLayersView.LayersPage({ model: gwcLayers })
+    const gwcLayersView = new GwcLayersView.LayersPage({ model: gwcLayers });
 
     // Define a controller to run this module
     // --------------------------------------
 
-    var Controller = Marionette.Controller.extend({
+    const Controller = Marionette.Controller.extend({
       initialize: function(options) {
         this.region = options.region
       },
@@ -39,7 +39,7 @@ define([
       show: function() {
         this.region.show(gwcLayersView)
       },
-    })
+    });
 
     // Initialize this module when the app starts
     // ------------------------------------------

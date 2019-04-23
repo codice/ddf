@@ -10,17 +10,17 @@
  *
  **/
 
-var properties = require('./properties.js')
-var BlockingLightbox = require('../component/lightbox/blocking/lightbox.blocking.view.js')
-var SystemUsageView = require('../component/system-usage/system-usage.view.js')
-var user = require('../component/singletons/user-instance.js')
+const properties = require('./properties.js');
+const BlockingLightbox = require('../component/lightbox/blocking/lightbox.blocking.view.js');
+const SystemUsageView = require('../component/system-usage/system-usage.view.js');
+const user = require('../component/singletons/user-instance.js');
 
 function hasMessage() {
   return properties.ui.systemUsageTitle
 }
 
 function hasNotSeenMessage() {
-  var systemUsage = window.sessionStorage.getItem('systemUsage')
+  const systemUsage = window.sessionStorage.getItem('systemUsage');
   if (systemUsage === null) {
     window.sessionStorage.setItem('systemUsage', '{}')
     return true
@@ -49,7 +49,7 @@ function shouldDisplayMessage() {
 
 function displayMessage() {
   if (shouldDisplayMessage()) {
-    var blockingLightbox = BlockingLightbox.generateNewLightbox()
+    const blockingLightbox = BlockingLightbox.generateNewLightbox();
     blockingLightbox.model.updateTitle(properties.ui.systemUsageTitle)
     blockingLightbox.model.open()
     blockingLightbox.showContent(new SystemUsageView())

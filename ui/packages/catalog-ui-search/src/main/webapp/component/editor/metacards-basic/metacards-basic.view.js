@@ -36,10 +36,10 @@ module.exports = EditorView.extend({
     EditorView.prototype.initialize.call(this, options)
   },
   onBeforeShow: function() {
-    var results = this.selectionInterface.getSelectedResults()
-    var metacards = results.map(function(result) {
+    const results = this.selectionInterface.getSelectedResults();
+    const metacards = results.map(function(result) {
       return result.get('metacard>properties').toJSON()
-    })
+    });
     this.editorProperties.show(
       PropertyCollectionView.generatePropertyCollectionView(metacards)
     )
@@ -53,8 +53,8 @@ module.exports = EditorView.extend({
     }
   },
   getValidation: function() {
-    var results = this.selectionInterface.getSelectedResults()
-    var self = this
+    const results = this.selectionInterface.getSelectedResults();
+    const self = this;
     self.editorProperties.currentView.clearValidation()
     results
       .filter(function(result) {
@@ -86,16 +86,16 @@ module.exports = EditorView.extend({
   },
   afterSave: function(editorJSON) {
     if (editorJSON.length > 0) {
-      var payload = [
+      const payload = [
         {
           ids: this.model.map(function(metacard) {
             return metacard.get('metacard').get('id')
           }),
           attributes: editorJSON,
         },
-      ]
+      ];
       LoadingCompanionView.beginLoading(this)
-      var self = this
+      const self = this;
       setTimeout(function() {
         $.ajax({
           url: './internal/metacards',

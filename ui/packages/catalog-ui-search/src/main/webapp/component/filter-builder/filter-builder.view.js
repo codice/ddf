@@ -13,18 +13,18 @@
  *
  **/
 
-var Marionette = require('marionette')
-var Backbone = require('backbone')
-var $ = require('jquery')
-var _ = require('underscore')
-var template = require('./filter-builder.hbs')
-var CustomElements = require('../../js/CustomElements.js')
-var FilterCollectionView = require('../filter/filter.collection.view.js')
-var DropdownModel = require('../dropdown/dropdown.js')
-var FilterView = require('../filter/filter.view.js')
-var cql = require('../../js/cql.js')
-var DropdownView = require('../dropdown/dropdown.view.js')
-var CQLUtils = require('../../js/CQLUtils.js')
+const Marionette = require('marionette');
+const Backbone = require('backbone');
+const $ = require('jquery');
+const _ = require('underscore');
+const template = require('./filter-builder.hbs');
+const CustomElements = require('../../js/CustomElements.js');
+const FilterCollectionView = require('../filter/filter.collection.view.js');
+const DropdownModel = require('../dropdown/dropdown.js');
+const FilterView = require('../filter/filter.view.js');
+const cql = require('../../js/cql.js');
+const DropdownView = require('../dropdown/dropdown.view.js');
+const CQLUtils = require('../../js/CQLUtils.js');
 
 import { serialize, deserialize } from './filter-serialization'
 
@@ -137,7 +137,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   transformToCql: function() {
     this.deleteInvalidFilters()
-    var filter = this.getFilters()
+    const filter = this.getFilters();
     if (filter.filters.length === 0) {
       return '("anyText" ILIKE \'%\')'
     } else {
@@ -167,7 +167,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   handleEditing: function() {
-    var isEditing = this.$el.hasClass('is-editing')
+    const isEditing = this.$el.hasClass('is-editing');
     if (isEditing) {
       this.turnOnEditing()
     } else {

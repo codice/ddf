@@ -55,8 +55,8 @@ function usngToWkt(usng) {
     return null
   }
 
-  var wkt = null
-  var points = []
+  let wkt = null;
+  const points = [];
   switch (usng.shape) {
     case 'point':
       wkt = usngGridToWktPoint(usng.point).toWkt()
@@ -121,7 +121,7 @@ function validateUsng(usng) {
       }
       break
     case 'circle':
-      var radius = parseFloat(usng.circle.radius)
+      const radius = parseFloat(usng.circle.radius);
       if (
         isNaN(radius) ||
         radius <= 0 ||

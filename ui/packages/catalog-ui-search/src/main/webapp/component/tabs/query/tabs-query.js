@@ -19,7 +19,7 @@ const QueryScheduleView = require('../../query-schedule/query-schedule.view.js')
 const QueryEditorView = require('../../query-editor/query-editor.view.js')
 const QueryAnnotationsView = require('../../query-annotations/query-annotations.view.js')
 
-var WorkspaceContentTabs = Tabs.extend({
+const WorkspaceContentTabs = Tabs.extend({
   defaults: {
     tabs: {
       Search: QueryEditorView,
@@ -32,6 +32,6 @@ var WorkspaceContentTabs = Tabs.extend({
   getAssociatedQuery: function() {
     return store.getQuery()
   },
-})
+});
 
 module.exports = WorkspaceContentTabs

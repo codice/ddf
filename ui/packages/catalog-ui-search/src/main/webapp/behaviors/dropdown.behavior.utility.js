@@ -119,14 +119,14 @@ module.exports = {
     )
   },
   updatePosition($dropdownEl, sourceEl) {
-    var clientRect = sourceEl.getBoundingClientRect()
-    var menuWidth = $dropdownEl[0].clientWidth
-    var necessaryLeft = Math.floor(
+    const clientRect = sourceEl.getBoundingClientRect();
+    const menuWidth = $dropdownEl[0].clientWidth;
+    const necessaryLeft = Math.floor(
       clientRect.left + clientRect.width / 2 - menuWidth / 2
-    )
-    var necessaryTop = Math.floor(clientRect.top + clientRect.height)
-    var bottomRoom = this.getBottomRoom(necessaryTop, $dropdownEl[0])
-    var topRoom = clientRect.top
+    );
+    const necessaryTop = Math.floor(clientRect.top + clientRect.height);
+    const bottomRoom = this.getBottomRoom(necessaryTop, $dropdownEl[0]);
+    const topRoom = clientRect.top;
     if (bottomRoom > topRoom) {
       $dropdownEl.addClass('is-bottom').removeClass('is-top')
       $dropdownEl.css('left', necessaryLeft).css('top', necessaryTop)

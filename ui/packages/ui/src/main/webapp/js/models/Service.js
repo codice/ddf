@@ -26,15 +26,15 @@ define([
 
   Backbone.Associations.SEPARATOR = '~'
 
-  var Service = {}
+  const Service = {};
 
   Service.Metatype = Backbone.AssociatedModel.extend({
     initialize: function() {
       this.transformOptions()
     },
     transformOptions: function() {
-      var optionLabels = this.get('optionLabels')
-      var optionValues = this.get('optionValues')
+      const optionLabels = this.get('optionLabels');
+      const optionValues = this.get('optionValues');
       if (optionValues) {
         this.set(
           'options',
@@ -86,13 +86,13 @@ define([
      * @returns {{type: string, mbean: string, operation: string}}
      */
     collectedData: function(pid) {
-      var model = this
-      var data = {
+      const model = this;
+      const data = {
         type: 'EXEC',
         mbean:
           'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
         operation: 'update',
-      }
+      };
       data.arguments = [pid]
       data.arguments.push(model.get('properties').toJSON())
       return data
@@ -107,11 +107,11 @@ define([
       if (!model) {
         return
       }
-      var configUrl = [
+      const configUrl = [
         model.configUrl,
         'createFactoryConfiguration',
         model.get('fpid'),
-      ].join('/')
+      ].join('/');
       return $.ajax({
         type: 'GET',
         url: configUrl,
@@ -134,8 +134,8 @@ define([
       ) {
         throw 'Unexpected result contents'
       }
-      var jsonResult
-      var jsonString = result[0]
+      let jsonResult;
+      let jsonString = result[0];
       if (typeof jsonString === 'string') {
         try {
           jsonResult = JSON.parse(jsonString.toString().trim())
@@ -164,19 +164,17 @@ define([
      * @return Return a deferred which is a handler with the success and failure callback.
      */
     sync: function() {
-      var deferred = $.Deferred(),
-        model = this,
-        addUrl = [model.configUrl, 'add'].join('/')
+      const deferred = $.Deferred(), model = this, addUrl = [model.configUrl, 'add'].join('/');
       //if it has a pid we are editing an existing record
-      var configExists = model.get('id')
-      var isFactory = model.get('fpid')
+      const configExists = model.get('id');
+      const isFactory = model.get('fpid');
       if (configExists || !isFactory) {
         // config exists OR is a non-factory config.  non-factory configs do not needs to be "makeConfigCall"-ed
-        var collect = model.collectedData(
+        const collect = model.collectedData(
           model.get('properties').get('service.pid') ||
             model.parents[0].get('id')
-        )
-        var jData = JSON.stringify(collect)
+        );
+        const jData = JSON.stringify(collect);
 
         $.ajax({
           type: 'POST',
@@ -189,8 +187,8 @@ define([
       } else {
         //no pid means this is a new record
         model.makeConfigCall(model).done(function(data) {
-          var collect = model.collectedData(JSON.parse(data).value)
-          var jData = JSON.stringify(collect)
+          const collect = model.collectedData(JSON.parse(data).value);
+          const jData = JSON.stringify(collect);
 
           $.ajax({
             type: 'POST',
@@ -205,11 +203,11 @@ define([
       return deferred
     },
     destroy: function() {
-      var deleteUrl = [
+      const deleteUrl = [
         this.configUrl,
         'delete',
         this.get('properties').get('service.pid'),
-      ].join('/')
+      ].join('/');
 
       return $.ajax({
         type: 'GET',
@@ -224,7 +222,7 @@ define([
       }
     },
     initializeFromMSF: function(msf) {
-      var fpid = msf.get('id')
+      const fpid = msf.get('id');
       this.set({
         fpid: fpid,
         name: msf.get('name'),
@@ -240,7 +238,7 @@ define([
         metatype.reduce(function(defaults, obj) {
           // Check for existence of default value;
           // If it doesn't exist, and it should be a boolean (type: 11), then set it to "false"
-          var defaultVal = obj.get('defaultValue')
+          const defaultVal = obj.get('defaultValue');
           if (defaultVal) {
             defaults[obj.get('id')] = defaultVal
           } else if (obj.get('type') === 11) {
@@ -254,8 +252,8 @@ define([
       return this
     },
     getConfigurationDisplayName: function() {
-      var displayName = this.get('id')
-      var properties = this.get('properties')
+      let displayName = this.get('id');
+      const properties = this.get('properties');
       if (isServiceFactory(properties)) {
         displayName =
           ServiceFactoryNameRegistry.getName(properties) ||

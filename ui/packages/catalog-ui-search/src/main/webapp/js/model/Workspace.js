@@ -9,14 +9,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-var $ = require('jquery')
-var _ = require('underscore')
-var Backbone = require('backbone')
-var Query = require('./Query.js')
-var List = require('./List.js')
-var Common = require('../Common.js')
-var ColorGenerator = require('../ColorGenerator.js')
-var QueryPolling = require('../QueryPolling.js')
+const $ = require('jquery');
+const _ = require('underscore');
+const Backbone = require('backbone');
+const Query = require('./Query.js');
+const List = require('./List.js');
+const Common = require('../Common.js');
+const ColorGenerator = require('../ColorGenerator.js');
+const QueryPolling = require('../QueryPolling.js');
 const user = require('component/singletons/user-instance')
 const announcement = require('component/announcement')
 require('backbone-associations')
@@ -46,7 +46,7 @@ const workspaceShouldBeResaved = model =>
 const WorkspaceQueryCollection = Backbone.Collection.extend({
   model: Query.Model,
   initialize: function() {
-    var searchList = this
+    const searchList = this;
     this._colorGenerator = ColorGenerator.getNewGenerator()
     this.listenTo(this, 'add', function(query) {
       query.setColor(searchList._colorGenerator.getColor(query.getId()))
@@ -100,9 +100,9 @@ module.exports = PartialAssociatedModel.extend({
     }
   },
   addQuery: function() {
-    var query = new Query.Model({
+    const query = new Query.Model({
       excludeUnnecessaryAttributes: false,
-    })
+    });
     this.get('queries').add(query)
     return query.get('id')
   },
@@ -145,13 +145,13 @@ module.exports = PartialAssociatedModel.extend({
   saveLocal: function(options) {
     this.set('id', this.get('id') || Common.generateUUID())
     this.set('metacard.modified', Date.now())
-    var localWorkspaces = this.collection.getLocalWorkspaces()
+    const localWorkspaces = this.collection.getLocalWorkspaces();
     localWorkspaces[this.get('id')] = this.toJSON()
     window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces))
     this.trigger('sync', this, options)
   },
   destroyLocal: function(options) {
-    var localWorkspaces = this.collection.getLocalWorkspaces()
+    const localWorkspaces = this.collection.getLocalWorkspaces();
     delete localWorkspaces[this.get('id')]
     window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces))
     this.collection.remove(this)

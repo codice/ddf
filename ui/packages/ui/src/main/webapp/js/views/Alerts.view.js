@@ -19,10 +19,10 @@ define([
   'jquery',
   'underscore',
 ], function(Marionette, alertsTemplate, $, _) {
-  var AlertsView = {}
+  const AlertsView = {};
 
-  var dismissUrl =
-    './jolokia/exec/org.codice.ddf.ui.admin.api:type=AdminAlertMBean/dismissAlert'
+  const dismissUrl =
+    './jolokia/exec/org.codice.ddf.ui.admin.api:type=AdminAlertMBean/dismissAlert';
 
   AlertsView.View = Marionette.ItemView.extend({
     template: alertsTemplate,
@@ -35,7 +35,7 @@ define([
       change: 'render',
     },
     toggleDetailsMsg: function() {
-      var model = this.model
+      const model = this.model;
       model.get('details-button-action') === 'Show'
         ? model.set('details-button-action', 'Hide')
         : model.set('details-button-action', 'Show')
@@ -44,7 +44,7 @@ define([
         : model.set('collapse', 'out')
     },
     serializeData: function() {
-      var json = this.model.toJSON()
+      const json = this.model.toJSON();
       json.showChevron = true
       json.details = _.map(json.details, function(val) {
         if (val.message !== undefined) {
@@ -78,13 +78,13 @@ define([
     },
     // Performs the actual AJAX call to dismiss the alert
     dismissAlert: function() {
-      var model = this.model
+      const model = this.model;
 
-      var data = {
+      let data = {
         type: 'EXEC',
         mbean: 'org.codice.ddf.ui.admin.api:type=AdminAlertMBean',
         operation: 'dismissAlert',
-      }
+      };
       data.arguments = [model.get('id')]
       data = JSON.stringify(data)
       $.ajax({

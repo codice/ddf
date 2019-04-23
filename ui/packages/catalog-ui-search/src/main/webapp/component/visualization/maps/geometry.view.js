@@ -10,15 +10,15 @@
  *
  **/
 
-var Marionette = require('marionette')
-var store = require('../../../js/store.js')
-var iconHelper = require('../../../js/IconHelper.js')
-var _ = require('underscore')
-var _debounce = require('lodash/debounce')
-var wkx = require('wkx')
-var metacardDefinitions = require('../../singletons/metacard-definitions.js')
+const Marionette = require('marionette');
+const store = require('../../../js/store.js');
+const iconHelper = require('../../../js/IconHelper.js');
+const _ = require('underscore');
+const _debounce = require('lodash/debounce');
+const wkx = require('wkx');
+const metacardDefinitions = require('../../singletons/metacard-definitions.js');
 
-var GeometryView = Marionette.ItemView.extend({
+const GeometryView = Marionette.ItemView.extend({
   template: false,
   geometry: undefined,
   isSelected: undefined,
@@ -49,7 +49,7 @@ var GeometryView = Marionette.ItemView.extend({
     this.onDestroy()
     this.isSelected = undefined
     this.isClustered = undefined
-    var geometry = this.model.getGeometries()
+    const geometry = this.model.getGeometries();
     if (geometry.length > 0) {
       this.geometry = []
       _.forEach(
@@ -177,11 +177,11 @@ var GeometryView = Marionette.ItemView.extend({
     )
   },
   updateSelected: function() {
-    var selected = this.options.selectionInterface
+    const selected = this.options.selectionInterface
       .getSelectedResults()
       .some(function(result) {
         return result.id === this.model.id
-      }, this)
+      }, this);
     if (selected) {
       this.updateDisplay(true)
     } else {
@@ -203,7 +203,7 @@ var GeometryView = Marionette.ItemView.extend({
     }
   },
   checkIfClustered: function() {
-    var isClustered = this.options.clusterCollection.isClustered(this.model)
+    const isClustered = this.options.clusterCollection.isClustered(this.model);
     if (this.isClustered !== isClustered) {
       this.isClustered = isClustered
       if (isClustered) {
@@ -237,6 +237,6 @@ var GeometryView = Marionette.ItemView.extend({
       )
     }
   },
-})
+});
 
 module.exports = GeometryView

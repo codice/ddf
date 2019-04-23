@@ -10,7 +10,7 @@
  *
  **/
 define(['underscore', 'backbone'], function(_, Backbone) {
-  var AlertsModel = {}
+  const AlertsModel = {};
 
   AlertsModel.Alert = Backbone.Model.extend({
     defaults: {
@@ -35,11 +35,11 @@ define(['underscore', 'backbone'], function(_, Backbone) {
     }),
     parse: function(response) {
       if (response.stacktrace) {
-        var json = {}
+        const json = {};
 
-        var stackLines = response.stacktrace.split(/\n/)
+        const stackLines = response.stacktrace.split(/\n/);
         json.details = []
-        for (var i = 0; i < stackLines.length; i++) {
+        for (let i = 0; i < stackLines.length; i++) {
           json.details.push({ message: stackLines[i] })
         }
 

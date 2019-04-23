@@ -83,7 +83,7 @@ module.exports = Marionette.ItemView.extend({
         this.$el.find('.choice.is-all').addClass('is-selected')
         break
       case 'selected':
-        var srcs = this.model.get('value')
+        const srcs = this.model.get('value');
         srcs.forEach(
           function(src) {
             this.$el.find('[data-value="' + src + '"]').addClass('is-selected')
@@ -108,11 +108,11 @@ module.exports = Marionette.ItemView.extend({
     this.updateValue()
   },
   updateValue: function() {
-    var srcs = _.map(this.$el.find('.is-specific.is-selected'), function(
+    const srcs = _.map(this.$el.find('.is-specific.is-selected'), function(
       choice
     ) {
       return $(choice).attr('data-value')
-    })
+    });
     this.model.set({
       value: srcs,
       federation: 'selected',

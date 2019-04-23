@@ -91,7 +91,7 @@ require([
   'icanhaz',
 ], function($, Backbone, Marionette, Application, ich) {
   'use strict'
-  var app = Application.App
+  const app = Application.App;
   // Start up backbone.history.
   app.on('initialize:after', function() {
     Backbone.history.start()

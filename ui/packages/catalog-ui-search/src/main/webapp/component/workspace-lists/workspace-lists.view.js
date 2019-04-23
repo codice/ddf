@@ -14,17 +14,17 @@
  **/
 
 import ListCreate from '../list-create/list-create.js'
-var Marionette = require('marionette')
-var CustomElements = require('../../js/CustomElements.js')
-var template = require('./workspace-lists.hbs')
-var store = require('../../js/store.js')
-var ListSelectorView = require('../dropdown/list-select/dropdown.list-select.view.js')
-var DropdownModel = require('../dropdown/dropdown.js')
-var ResultSelectorView = require('../result-selector/result-selector.view.js')
-var $ = require('jquery')
-var PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
+const Marionette = require('marionette');
+const CustomElements = require('../../js/CustomElements.js');
+const template = require('./workspace-lists.hbs');
+const store = require('../../js/store.js');
+const ListSelectorView = require('../dropdown/list-select/dropdown.list-select.view.js');
+const DropdownModel = require('../dropdown/dropdown.js');
+const ResultSelectorView = require('../result-selector/result-selector.view.js');
+const $ = require('jquery');
+const PopoutView = require('../dropdown/popout/dropdown.popout.view.js');
 
-var selectedListId
+let selectedListId;
 
 module.exports = Marionette.LayoutView.extend({
   setDefaultModel: function() {
@@ -136,7 +136,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   updateResultsList: function() {
-    var listId = this.listSelect.currentView.model.get('value')
+    const listId = this.listSelect.currentView.model.get('value');
     if (listId) {
       selectedListId = listId
       if (

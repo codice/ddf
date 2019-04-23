@@ -63,14 +63,14 @@ const retrieveData = (data, url) =>
     })
 
 const operateOnData = (data, method) => {
-  var ids =
+  const ids =
     method === 'resendMessages'
       ? getSelectedIds(
           getSelectedMessages(data).filter(
             message => message.message.origin.length !== 0
           )
         )
-      : getSelectedIds(data)
+      : getSelectedIds(data);
   window
     .fetch('../jolokia/', {
       method: 'POST',

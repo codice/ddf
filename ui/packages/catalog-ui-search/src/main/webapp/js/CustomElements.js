@@ -10,9 +10,9 @@
  *
  **/
 
-var namespace = 'intrigue-'
+const namespace = 'intrigue-';
 
-var registry = {}
+const registry = {};
 
 module.exports = {
   register: function(name) {

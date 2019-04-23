@@ -13,10 +13,10 @@
  *
  **/
 
-var template = require('./query-status-row.hbs')
-var Marionette = require('marionette')
-var CustomElements = require('../../js/CustomElements.js')
-var user = require('../singletons/user-instance.js')
+const template = require('./query-status-row.hbs');
+const Marionette = require('marionette');
+const CustomElements = require('../../js/CustomElements.js');
+const user = require('../singletons/user-instance.js');
 
 module.exports = Marionette.ItemView.extend({
   className: 'is-tr',
@@ -40,7 +40,7 @@ module.exports = Marionette.ItemView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   serializeData: function() {
-    var modelJSON = this.model.toJSON()
+    const modelJSON = this.model.toJSON();
     modelJSON.fromremote = modelJSON.top - modelJSON.fromcache
     modelJSON.elapsed = modelJSON.elapsed / 1000
     modelJSON.anyHasReturned =

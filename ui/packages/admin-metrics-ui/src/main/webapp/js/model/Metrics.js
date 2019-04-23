@@ -15,7 +15,7 @@ define(['backbone', 'moment', 'backboneassociation'], function(
   moment
 ) {
   'use strict'
-  var Metrics = {}
+  const Metrics = {};
 
   Metrics.DetailModel = Backbone.AssociatedModel.extend({
     urlRoot: '../../services/internal/metrics/',
@@ -40,11 +40,11 @@ define(['backbone', 'moment', 'backboneassociation'], function(
         .replace('.000Z', 'Z')
     },
     summarize: function() {
-      var endDate = moment()
+      const endDate = moment();
       endDate.utc()
-      var unit = this.get('unit')
+      const unit = this.get('unit');
       endDate.startOf(unit)
-      var startDate = moment(endDate)
+      const startDate = moment(endDate);
       startDate.utc()
       startDate.subtract(this.get('range'), unit + 's')
       this.set(

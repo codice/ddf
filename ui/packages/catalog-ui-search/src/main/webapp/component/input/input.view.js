@@ -19,7 +19,7 @@ const $ = require('jquery')
 const InputTemplate = require('./input.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 
-var InputView = Marionette.LayoutView.extend({
+const InputView = Marionette.LayoutView.extend({
   className: function() {
     if (!this.model.get('property').get('enum')) {
       return 'is-' + this.model.getCalculatedType()
@@ -92,7 +92,7 @@ var InputView = Marionette.LayoutView.extend({
     this.$el.find('input').val(this.model.getValue())
   },
   toJSON: function() {
-    var attributeToVal = {}
+    const attributeToVal = {};
     attributeToVal[this.model.getId()] = this.model.getValue()
     return attributeToVal
   },
@@ -100,12 +100,12 @@ var InputView = Marionette.LayoutView.extend({
     this.$el.find('input').select()
   },
   hasChanged: function() {
-    var value = this.$el.find('input').val()
+    const value = this.$el.find('input').val();
     return value !== this.model.getInitialValue()
   },
   getCurrentValue: function() {
     return this.$el.find('input').val()
   },
-})
+});
 
 module.exports = InputView

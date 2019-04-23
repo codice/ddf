@@ -22,12 +22,12 @@ const store = require('../../../js/store.js')
 const properties = require('../../../js/properties.js')
 
 function getTypes(results) {
-  var types = {}
+  const types = {};
   results.forEach(function(result) {
-    var tags = result
+    const tags = result
       .get('metacard')
       .get('properties')
-      .get('metacard-tags')
+      .get('metacard-tags');
     if (result.isWorkspace()) {
       types.workspace = true
     } else if (result.isResource()) {
@@ -44,7 +44,7 @@ function getTypes(results) {
   return Object.keys(types)
 }
 
-var MetacardsTabsView = TabsView.extend({
+const MetacardsTabsView = TabsView.extend({
   className: 'is-metacards',
   setDefaultModel: function() {
     this.model = new MetacardsTabsModel()
@@ -57,7 +57,7 @@ var MetacardsTabsView = TabsView.extend({
     }
     this.determineAvailableContent()
     TabsView.prototype.initialize.call(this)
-    var debounceDetermineContent = _.debounce(this.handleMetacardChange, 200)
+    const debounceDetermineContent = _.debounce(this.handleMetacardChange, 200);
     this.listenTo(
       this.selectionInterface.getSelectedResults(),
       'update',
@@ -89,8 +89,8 @@ var MetacardsTabsView = TabsView.extend({
     this.determineContent()
   },
   determineContentFromType: function() {
-    var activeTabName = this.model.get('activeTab')
-    var types = getTypes(this.selectionInterface.getSelectedResults())
+    const activeTabName = this.model.get('activeTab');
+    const types = getTypes(this.selectionInterface.getSelectedResults());
     if (
       types.indexOf('revision') >= 0 &&
       ['Archive'].indexOf(activeTabName) >= 0
@@ -115,7 +115,7 @@ var MetacardsTabsView = TabsView.extend({
     ) {
       this.model.set('activeTab', 'Details')
     }
-    var activeTab = this.model.getActiveView()
+    const activeTab = this.model.getActiveView();
     this.tabsContent.show(
       new activeTab({
         selectionInterface: this.selectionInterface,
@@ -129,7 +129,7 @@ var MetacardsTabsView = TabsView.extend({
   },
   determineAvailableContent: function() {
     if (this.selectionInterface.getSelectedResults().length > 1) {
-      var types = getTypes(this.selectionInterface.getSelectedResults())
+      const types = getTypes(this.selectionInterface.getSelectedResults());
       this.$el.toggleClass('is-mixed', types.length > 1)
       this.$el.toggleClass('is-workspace', types.indexOf('workspace') >= 0)
       this.$el.toggleClass('is-resource', types.indexOf('resource') >= 0)
@@ -138,6 +138,6 @@ var MetacardsTabsView = TabsView.extend({
       this.$el.toggleClass('is-remote', types.indexOf('remote') >= 0)
     }
   },
-})
+});
 
 module.exports = MetacardsTabsView

@@ -14,7 +14,7 @@
  **/
 
 define(['jquery', 'underscore'], function($, _) {
-  var Utils = {
+  const Utils = {
     /**
      * Utility that handles the starting and stopping of the refresh button spin. Callers simply provide the
      * selector text and a function to invoke. When the function has completed, it must call done() to signal a
@@ -26,7 +26,7 @@ define(['jquery', 'underscore'], function($, _) {
      * @returns A utility for managing the spinning of the refresh button.
      */
     refreshButton: function(anchorSelector, toExec, view) {
-      var self = this
+      const self = this;
       self.initialized = false
       _.extend(self, {
         view: view,
@@ -64,7 +64,7 @@ define(['jquery', 'underscore'], function($, _) {
       })
       return self
     },
-  }
+  };
 
   return Utils
 })

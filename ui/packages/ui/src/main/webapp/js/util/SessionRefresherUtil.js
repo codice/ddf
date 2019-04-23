@@ -11,10 +11,10 @@
  **/
 
 define(['backbone', 'jquery'], function(Backbone, $) {
-  var sessionRenewUrl = '../services/internal/session/renew'
-  var sessionExpiryUrl = '../services/internal/session/expiry'
+  const sessionRenewUrl = '../services/internal/session/renew';
+  const sessionExpiryUrl = '../services/internal/session/expiry';
 
-  var sessionAutoRenewModel = new (Backbone.Model.extend({
+  const sessionAutoRenewModel = new (Backbone.Model.extend({
     defaults: {
       sessionRenewDate: undefined,
     },
@@ -30,11 +30,11 @@ define(['backbone', 'jquery'], function(Backbone, $) {
       $.get(sessionExpiryUrl).done(this.handleExpiryTimeResponse.bind(this))
     },
     handleExpiryTimeResponse: function(response) {
-      var msUntilTimeout = parseInt(response)
-      var msUntilAutoRenew = Math.max(
+      const msUntilTimeout = parseInt(response);
+      const msUntilAutoRenew = Math.max(
         msUntilTimeout * 0.7,
         msUntilTimeout - 60000
-      ) // 70% or at least one minute before
+      ); // 70% or at least one minute before
       this.set('sessionRenewDate', Date.now() + msUntilAutoRenew)
     },
     handleSessionRenewDate: function() {
@@ -53,7 +53,7 @@ define(['backbone', 'jquery'], function(Backbone, $) {
     renewSession: function() {
       $.get(sessionRenewUrl).done(this.handleExpiryTimeResponse.bind(this))
     },
-  }))()
+  }))();
 
   return sessionAutoRenewModel
 })

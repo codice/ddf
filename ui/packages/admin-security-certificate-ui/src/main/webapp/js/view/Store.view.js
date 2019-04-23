@@ -33,7 +33,7 @@ define([
   storeTable,
   UploadModal
 ) {
-  var StoreView = {}
+  const StoreView = {};
 
   ich.addTemplate('storePage', storePage)
   ich.addTemplate('storeRow', storeRow)
@@ -94,22 +94,22 @@ define([
       )
     },
     addKey: function() {
-      var modal = new UploadModal.UploadModal({
+      const modal = new UploadModal.UploadModal({
         url:
           '../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/addPrivateKey/',
         type: 'Private Key',
         collection: this.privateKey.get('value'),
-      })
+      });
       this.modalregion.show(modal)
       modal.show()
     },
     addTrust: function() {
-      var modal = new UploadModal.UploadModal({
+      const modal = new UploadModal.UploadModal({
         url:
           '../jolokia/exec/org.codice.ddf.security.certificate.keystore.editor.KeystoreEditor:service=keystore/addTrustedCertificate/',
         type: 'Certificate',
         collection: this.certificate.get('value'),
-      })
+      });
       this.modalregion.show(modal)
       modal.show()
     },

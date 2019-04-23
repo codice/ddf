@@ -13,10 +13,10 @@
  *
  **/
 
-var TableView = require('../table.view')
-var HeaderView = require('../../visualization/table/thead.view.js')
-var BodyView = require('../../visualization/table/tbody.view.js')
-var $ = require('jquery')
+const TableView = require('../table.view');
+const HeaderView = require('../../visualization/table/thead.view.js');
+const BodyView = require('../../visualization/table/tbody.view.js');
+const $ = require('jquery');
 
 function getOriginalEvent(e) {
   if (e.constructor === MouseEvent) {
@@ -43,7 +43,7 @@ module.exports = TableView.extend({
   },
   resize: function(e) {
     e = getOriginalEvent(e)
-    var newWidth = this.$el.find('table').width() + e.movementX
+    const newWidth = this.$el.find('table').width() + e.movementX;
     this.$el.find('table').css('width', newWidth)
   },
 })

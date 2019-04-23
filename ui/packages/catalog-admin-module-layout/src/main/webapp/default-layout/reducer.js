@@ -326,7 +326,7 @@ const setupEditor = (dispatch, getState) => {
 
   layout.on('stateChanged', function() {
     if (layout.isInitialised) {
-      var glConf = layout.toConfig().content
+      const glConf = layout.toConfig().content;
       var content = JSON.stringify(glConf, null, 2)
       dispatch(setBuffer(content))
     }

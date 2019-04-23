@@ -11,7 +11,7 @@
  **/
 const Marionette = require('marionette')
 
-var NotificationView = Marionette.View.extend({
+const NotificationView = Marionette.View.extend({
   render: function() {
     if (this.rendered) {
       this.$el.hide('fast')
@@ -36,6 +36,6 @@ var NotificationView = Marionette.View.extend({
       425
     )
   },
-})
+});
 
 module.exports = NotificationView

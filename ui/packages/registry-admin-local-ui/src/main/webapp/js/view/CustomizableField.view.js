@@ -25,7 +25,7 @@ define([
 ], function(ich, Marionette, Backbone, wreqr, _, $, Field, customList) {
   ich.addTemplate('customList', customList)
 
-  var Customizable = {}
+  const Customizable = {};
 
   Customizable.CustomizableCollectionView = Marionette.Layout.extend({
     template: 'customList',
@@ -44,11 +44,11 @@ define([
       )
     },
     onRender: function() {
-      var customFields = this.model
+      const customFields = this.model
         .get('fields')
         .models.filter(function(field) {
           return field.get('custom')
-        })
+        });
       this.customFieldsRegion.show(
         new Field.FieldCollectionView({
           collection: new Backbone.Collection(customFields),
@@ -59,12 +59,12 @@ define([
     },
     addField: function(event) {
       event.stopImmediatePropagation()
-      var fieldName = this.$('.field-name').val()
+      const fieldName = this.$('.field-name').val();
       if (!fieldName || fieldName.trim().length === 0) {
         return
       }
-      var fieldType = this.$('.field-type-selector').val()
-      var addedField = this.model.addField(fieldName, fieldType)
+      const fieldType = this.$('.field-type-selector').val();
+      const addedField = this.model.addField(fieldName, fieldType);
       this.$('.field-name').val('')
       if (addedField) {
         if (this.customFieldError) {
@@ -80,7 +80,7 @@ define([
       }
     },
     removeField: function(key) {
-      var removedField = this.model.removeField(key)
+      const removedField = this.model.removeField(key);
       wreqr.vent.trigger(
         'removedField:' + this.model.get('segmentId'),
         removedField
@@ -95,7 +95,7 @@ define([
       this.render()
     },
     serializeData: function() {
-      var data = {}
+      let data = {};
 
       if (this.model) {
         data = this.model.toJSON()

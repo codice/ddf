@@ -24,14 +24,14 @@ define([
     Backbone,
     Marionette
   ) {
-    var dataUsage = new DataUsage.UsageModel()
+    const dataUsage = new DataUsage.UsageModel();
 
-    var dataUsagePage = new DataUsageView.UsagePage({ model: dataUsage })
+    const dataUsagePage = new DataUsageView.UsagePage({ model: dataUsage });
 
     // Define a controller to run this module
     // --------------------------------------
 
-    var Controller = Marionette.Controller.extend({
+    const Controller = Marionette.Controller.extend({
       initialize: function(options) {
         this.region = options.region
       },
@@ -39,7 +39,7 @@ define([
       show: function() {
         this.region.show(dataUsagePage)
       },
-    })
+    });
 
     // Initialize this module when the app starts
     // ------------------------------------------

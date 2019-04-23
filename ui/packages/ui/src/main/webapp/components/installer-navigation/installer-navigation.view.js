@@ -28,7 +28,7 @@ define([
   Backbone,
   CustomElements
 ) {
-  var WelcomeView = Marionette.ItemView.extend({
+  const WelcomeView = Marionette.ItemView.extend({
     template: navigationTemplate,
     tagName: CustomElements.register('installer-navigation'),
     events: {
@@ -43,7 +43,7 @@ define([
       this.modelBinder = new Backbone.ModelBinder()
     },
     onRender: function() {
-      var bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name')
+      const bindings = Backbone.ModelBinder.createDefaultBindings(this.el, 'name');
       this.modelBinder.bind(this.model, this.$el, bindings)
       this.updateProgress()
     },
@@ -52,9 +52,9 @@ define([
       this.modelBinder.unbind()
     },
     updateProgress: function() {
-      var percentComplete =
+      const percentComplete =
         100 * (this.model.get('stepNumber') / this.model.get('totalSteps')) +
-        '%'
+        '%';
       this.$('.progress-bar').animate({ width: percentComplete }, 0, 'swing')
       this.$('.pager').html(navButtons(this.model.toJSON()))
       this.$('.progress-text').show()
@@ -97,7 +97,7 @@ define([
         )
       })
     },
-  })
+  });
 
   return WelcomeView
 })

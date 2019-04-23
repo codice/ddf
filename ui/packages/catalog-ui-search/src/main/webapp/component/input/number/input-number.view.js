@@ -13,14 +13,14 @@
  *
  **/
 
-var Marionette = require('marionette')
-var template = require('./input-number.hbs')
-var InputView = require('../input.view')
+const Marionette = require('marionette');
+const template = require('./input-number.hbs');
+const InputView = require('../input.view');
 
 module.exports = InputView.extend({
   template: template,
   getCurrentValue: function() {
-    var value = this.$el.find('input').val()
+    const value = this.$el.find('input').val();
     if (value !== '') {
       return Number(value)
     } else {

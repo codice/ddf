@@ -10,15 +10,15 @@
  *
  **/
 
-var Marionette = require('marionette')
-var $ = require('jquery')
-var _ = require('underscore')
-var store = require('../../../js/store.js')
-var ClusterView = require('./cluster.view')
-var Clustering = require('./Clustering')
-var metacardDefinitions = require('../../singletons/metacard-definitions.js')
+const Marionette = require('marionette');
+const $ = require('jquery');
+const _ = require('underscore');
+const store = require('../../../js/store.js');
+const ClusterView = require('./cluster.view');
+const Clustering = require('./Clustering');
+const metacardDefinitions = require('../../singletons/metacard-definitions.js');
 
-var ClusterCollectionView = Marionette.CollectionView.extend({
+const ClusterCollectionView = Marionette.CollectionView.extend({
   childView: ClusterView,
   selectionInterface: store,
   childViewOptions: function() {
@@ -109,10 +109,10 @@ var ClusterCollectionView = Marionette.CollectionView.extend({
   },
   calculateClusters: function() {
     if (this.isActive) {
-      var clusters = Clustering.calculateClusters(
+      const clusters = Clustering.calculateClusters(
         this.getResultsWithGeometry(),
         this.options.map
-      )
+      );
       this.collection.set(
         clusters.map(function(cluster) {
           return {
@@ -175,6 +175,6 @@ var ClusterCollectionView = Marionette.CollectionView.extend({
     this.isActive = !this.isActive
     this.calculateClusters()
   },
-})
+});
 
 module.exports = ClusterCollectionView

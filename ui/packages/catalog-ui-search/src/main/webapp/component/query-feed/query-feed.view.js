@@ -22,12 +22,12 @@ const QueryStatusView = require('../query-status/query-status.view.js')
 const moment = require('moment')
 
 function getResultsFound(total, data) {
-  var hits = data.reduce(function(hits, status) {
+  const hits = data.reduce(function(hits, status) {
     return status.hits ? hits + status.hits : hits
-  }, 0)
-  var searching = _.every(data, function(status) {
+  }, 0);
+  const searching = _.every(data, function(status) {
     return _.isUndefined(status.successful)
-  })
+  });
   if (searching && data.length > 0) {
     return 'Searching...'
   } else if (total >= hits) {
@@ -130,11 +130,11 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(model.get('result>status'), 'change', this.updateQuery)
   },
   serializeData: function() {
-    var query = this.model.toJSON({
+    const query = this.model.toJSON({
       additionalProperties: ['cid', 'color'],
-    })
+    });
     if (this.model.get('result')) {
-      var status = _.filter(
+      const status = _.filter(
         this.model
           .get('result')
           .get('status')
@@ -142,7 +142,7 @@ module.exports = Marionette.LayoutView.extend({
         function(status) {
           return status.id !== 'cache'
         }
-      )
+      );
       return {
         resultCount: getResultsFound(
           this.model.get('result').get('results').length,

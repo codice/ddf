@@ -10,16 +10,16 @@
  *
  **/
 const $ = require('jquery')
-var Backbone = require('backbone')
-var _ = require('underscore')
-var metacardDefinitions = require('../../component/singletons/metacard-definitions.js')
-var properties = require('../properties.js')
-var user = require('../../component/singletons/user-instance.js')
-var Common = require('../Common.js')
+const Backbone = require('backbone');
+const _ = require('underscore');
+const metacardDefinitions = require('../../component/singletons/metacard-definitions.js');
+const properties = require('../properties.js');
+const user = require('../../component/singletons/user-instance.js');
+const Common = require('../Common.js');
 require('backbone-associations')
-var QueryResponseSourceStatus = require('./QueryResponseSourceStatus.js')
-var QueryResultCollection = require('./QueryResult.collection.js')
-var ResultForm = require('../../component/result-form/result-form.js')
+const QueryResponseSourceStatus = require('./QueryResponseSourceStatus.js');
+const QueryResultCollection = require('./QueryResult.collection.js');
+const ResultForm = require('../../component/result-form/result-form.js');
 
 let rpc = null
 
@@ -33,7 +33,7 @@ if (properties.webSocketsEnabled && window.WebSocket) {
 }
 
 function generateThumbnailUrl(url) {
-  var newUrl = url
+  let newUrl = url;
   if (url.indexOf('?') >= 0) {
     newUrl += '&'
   } else {
@@ -193,7 +193,7 @@ module.exports = Backbone.AssociatedModel.extend({
     }
   },
   handleError: function(resultModel, response, sent) {
-    var dataJSON = JSON.parse(sent.data)
+    const dataJSON = JSON.parse(sent.data);
     this.updateMessages(
       response.responseJSON
         ? response.responseJSON.message
@@ -204,7 +204,7 @@ module.exports = Backbone.AssociatedModel.extend({
   handleSync: function(resultModel, response, sent) {
     this.updateStatus()
     if (sent) {
-      var dataJSON = JSON.parse(sent.data)
+      const dataJSON = JSON.parse(sent.data);
       this.updateMessages(
         response.status.messages,
         dataJSON.src,
@@ -215,13 +215,13 @@ module.exports = Backbone.AssociatedModel.extend({
   parse: function(resp, options) {
     metacardDefinitions.addMetacardDefinitions(resp.types)
     if (resp.results) {
-      var queryId = this.getQueryId()
-      var selectedResultTemplate = ResultForm.getResultCollection().filteredList.filter(
+      const queryId = this.getQueryId();
+      const selectedResultTemplate = ResultForm.getResultCollection().filteredList.filter(
         form =>
           form.id === this.get('selectedResultTemplate') ||
           form.value === this.get('selectedResultTemplate')
-      )[0]
-      var color = this.getColor()
+      )[0];
+      const color = this.getColor();
       _.forEach(resp.results, function(result) {
         result.propertyTypes =
           resp.types[result.metacard.properties['metacard-type']]
@@ -237,9 +237,9 @@ module.exports = Backbone.AssociatedModel.extend({
         handleResultFormFields(result, selectedResultTemplate)
         result.actions.forEach(action => (action.queryId = queryId))
 
-        var thumbnailAction = _.findWhere(result.actions, {
+        const thumbnailAction = _.findWhere(result.actions, {
           id: 'catalog.data.metacard.thumbnail',
-        })
+        });
         if (result.hasThumbnail && thumbnailAction) {
           result.metacard.properties.thumbnail = generateThumbnailUrl(
             thumbnailAction.url
@@ -255,9 +255,9 @@ module.exports = Backbone.AssociatedModel.extend({
     }
 
     if (_.isEmpty(this.resultCountsBySource)) {
-      var metacardIdToSourcesIndex = this.createIndexOfMetacardToSources(
+      const metacardIdToSourcesIndex = this.createIndexOfMetacardToSources(
         resp.results
-      )
+      );
       this.updateResultCountsBySource(
         this.createIndexOfSourceToResultCount(
           metacardIdToSourcesIndex,
@@ -289,7 +289,7 @@ module.exports = Backbone.AssociatedModel.extend({
     if (userTriggered === true || this.allowAutoMerge()) {
       this.lastMerge = Date.now()
 
-      var resultsIncludingDuplicates = this.get('results')
+      const resultsIncludingDuplicates = this.get('results')
         .map(function(m) {
           return m.pick('id', 'src')
         })
@@ -297,24 +297,24 @@ module.exports = Backbone.AssociatedModel.extend({
           this.get('queuedResults').map(function(m) {
             return m.pick('id', 'src')
           })
-        )
-      var metacardIdToSourcesIndex = this.createIndexOfMetacardToSources(
+        );
+      const metacardIdToSourcesIndex = this.createIndexOfMetacardToSources(
         resultsIncludingDuplicates
-      )
+      );
 
-      var interimCollection = new QueryResultCollection(
+      const interimCollection = new QueryResultCollection(
         this.get('results').models
-      )
+      );
 
       interimCollection.add(this.get('queuedResults').models, {
         merge: true,
       })
       interimCollection.comparator = this.get('results').comparator
       interimCollection.sort()
-      var maxResults = user
+      const maxResults = user
         .get('user')
         .get('preferences')
-        .get('resultCount')
+        .get('resultCount');
       this.get('results').reset(interimCollection.slice(0, maxResults))
 
       this.updateResultCountsBySource(
@@ -330,7 +330,7 @@ module.exports = Backbone.AssociatedModel.extend({
     }
   },
   updateResultCountsBySource(resultCounts) {
-    for (var src in resultCounts) {
+    for (const src in resultCounts) {
       this.resultCountsBySource[src] = Math.max(
         this.resultCountsBySource[src] || 0,
         resultCounts[src]
@@ -357,13 +357,13 @@ module.exports = Backbone.AssociatedModel.extend({
   // create an index of source -> last number of results from server
   createIndexOfSourceToResultCount: function(metacardIdToSourcesIndex, models) {
     return models.reduce(function(index, metacard) {
-      var sourcesForMetacard = metacardIdToSourcesIndex[metacard.id]
+      const sourcesForMetacard = metacardIdToSourcesIndex[metacard.id];
       sourcesForMetacard.forEach(src => {
         index[src] = index[src] || 0
         index[src]++
       })
       return index
-    }, {})
+    }, {});
   },
   cacheHasReturned: function() {
     return this.get('status')
@@ -433,7 +433,7 @@ module.exports = Backbone.AssociatedModel.extend({
   cancel: function() {
     this.unsubscribe()
     if (this.has('status')) {
-      var statuses = this.get('status')
+      const statuses = this.get('status');
       statuses.forEach(function(status) {
         if (status.get('state') === 'ACTIVE') {
           status.set({

@@ -13,9 +13,9 @@
  *
  **/
 
-var Marionette = require('marionette')
-var template = require('./hover-preview.hbs')
-var CustomElements = require('../../js/CustomElements.js')
+const Marionette = require('marionette');
+const template = require('./hover-preview.hbs');
+const CustomElements = require('../../js/CustomElements.js');
 
 module.exports = Marionette.ItemView.extend({
   template: template,

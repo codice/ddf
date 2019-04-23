@@ -43,14 +43,14 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-summary', this.options.summary)
   },
   handleTypes: function() {
-    var types = {}
+    const types = {};
     this.options.selectionInterface
       .getSelectedResults()
       .forEach(function(result) {
-        var tags = result
+        const tags = result
           .get('metacard')
           .get('properties')
-          .get('metacard-tags')
+          .get('metacard-tags');
         if (result.isWorkspace()) {
           types.workspace = true
         } else if (result.isResource()) {

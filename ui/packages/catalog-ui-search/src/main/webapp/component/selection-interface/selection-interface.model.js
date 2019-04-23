@@ -10,12 +10,12 @@
  *
  **/
 
-var _ = require('underscore')
-var Backbone = require('backbone')
-var Metacard = require('../../js/model/Metacard.js')
-var Query = require('../../js/model/Query.js')
-var QueryResponse = require('../../js/model/QueryResponse.js')
-var QueryResult = require('../../js/model/QueryResult.js')
+const _ = require('underscore');
+const Backbone = require('backbone');
+const Metacard = require('../../js/model/Metacard.js');
+const Query = require('../../js/model/Query.js');
+const QueryResponse = require('../../js/model/QueryResponse.js');
+const QueryResult = require('../../js/model/QueryResult.js');
 
 module.exports = Backbone.AssociatedModel.extend({
   relations: [
@@ -79,7 +79,7 @@ module.exports = Backbone.AssociatedModel.extend({
     )
   },
   updateActiveSearchResultsAttributes: function() {
-    var availableAttributes = this.get('activeSearchResults')
+    const availableAttributes = this.get('activeSearchResults')
       .reduce(function(currentAvailable, result) {
         currentAvailable = _.union(
           currentAvailable,
@@ -92,7 +92,7 @@ module.exports = Backbone.AssociatedModel.extend({
         )
         return currentAvailable
       }, [])
-      .sort()
+      .sort();
     this.set('activeSearchResultsAttributes', availableAttributes)
   },
   getActiveSearchResultsAttributes: function() {

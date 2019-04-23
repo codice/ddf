@@ -22,7 +22,7 @@ const QueryTabsView = require('../tabs/query/tabs-query.view.js')
 const QuerySelectorView = require('../query-selector/query-selector.view.js')
 const store = require('../../js/store.js')
 
-var Queries = Marionette.LayoutView.extend({
+const Queries = Marionette.LayoutView.extend({
   setDefaultModel: function() {
     this.model = store.getCurrentWorkspace()
   },
@@ -48,7 +48,7 @@ var Queries = Marionette.LayoutView.extend({
     this.changeQuery()
   },
   changeQuery: function() {
-    var queryRef = store.getQuery()
+    const queryRef = store.getQuery();
     if (queryRef === undefined) {
       this.queriesDetails.empty()
     } else {
@@ -64,6 +64,6 @@ var Queries = Marionette.LayoutView.extend({
     this.$el.addClass('shifted-right')
     this.$el.removeClass('shifted-left')
   },
-})
+});
 
 module.exports = Queries

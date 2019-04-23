@@ -13,18 +13,18 @@
  *
  **/
 
-var _ = require('underscore')
-var $ = require('jquery')
-var wreqr = require('../../../js/wreqr.js')
-var template = require('./combined-map.hbs')
-var Marionette = require('marionette')
-var CustomElements = require('../../../js/CustomElements.js')
-var CesiumView = require('../maps/cesium/cesium.view.js')
-var OpenlayersView = require('../maps/openlayers/openlayers.view.js')
-var Common = require('../../../js/Common.js')
-var store = require('../../../js/store.js')
-var user = require('../../singletons/user-instance.js')
-var featureDetection = require('../../singletons/feature-detection.js')
+const _ = require('underscore');
+const $ = require('jquery');
+const wreqr = require('../../../js/wreqr.js');
+const template = require('./combined-map.hbs');
+const Marionette = require('marionette');
+const CustomElements = require('../../../js/CustomElements.js');
+const CesiumView = require('../maps/cesium/cesium.view.js');
+const OpenlayersView = require('../maps/openlayers/openlayers.view.js');
+const Common = require('../../../js/Common.js');
+const store = require('../../../js/store.js');
+const user = require('../../singletons/user-instance.js');
+const featureDetection = require('../../singletons/feature-detection.js');
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('combined-map'),

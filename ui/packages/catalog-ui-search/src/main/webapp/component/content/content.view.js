@@ -77,7 +77,7 @@ const Root = styled.div`
   z-index: @zIndexContent;
 `
 
-var ContentView = Marionette.LayoutView.extend({
+const ContentView = Marionette.LayoutView.extend({
   template() {
     return (
       <Root>
@@ -160,6 +160,6 @@ var ContentView = Marionette.LayoutView.extend({
     }
   },
   _mapView: undefined,
-})
+});
 
 module.exports = ContentView

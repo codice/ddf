@@ -62,8 +62,8 @@ module.exports = Marionette.LayoutView.extend(
       this.center()
     },
     center: function() {
-      var $confirmationContainer = this.$el.find('.confirmation-container')
-      var height = $confirmationContainer.height() / 2
+      const $confirmationContainer = this.$el.find('.confirmation-container');
+      const height = $confirmationContainer.height() / 2;
       $confirmationContainer.css('top', 'calc(40% - ' + height + 'px)')
     },
     close: function() {
@@ -72,7 +72,7 @@ module.exports = Marionette.LayoutView.extend(
   },
   {
     generateConfirmation: function(attributes) {
-      var confirmation = new Confirmation(attributes)
+      const confirmation = new Confirmation(attributes);
       new this({
         model: confirmation,
       })

@@ -10,8 +10,8 @@
  *
  **/
 
-var OverwriteModel = require('../../js/model/Overwrite.js')
-var Backbone = require('backbone')
+const OverwriteModel = require('../../js/model/Overwrite.js');
+const Backbone = require('backbone');
 
 module.exports = new (Backbone.Collection.extend({
   model: OverwriteModel,

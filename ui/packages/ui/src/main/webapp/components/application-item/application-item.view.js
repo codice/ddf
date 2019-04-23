@@ -24,10 +24,10 @@ define([
 
   // List of apps that cannot have any actions performed on them through
   // the applications module
-  var disableList = ['platform-app', 'admin-app']
+  const disableList = ['platform-app', 'admin-app'];
 
   // Itemview for each individual application
-  var AppInfoView = Marionette.Layout.extend({
+  const AppInfoView = Marionette.Layout.extend({
     template: template,
     tagName: CustomElements.register('application-item'),
     regions: {
@@ -54,8 +54,8 @@ define([
     },
     // Will disable functionality for certain applications
     serializeData: function() {
-      var that = this
-      var disable = false
+      const that = this;
+      let disable = false;
       disableList.forEach(function(child) {
         if (that.model.get('appId') === child) {
           disable = true
@@ -80,7 +80,7 @@ define([
     onBeforeClose: function() {
       this.$el.popover('destroy')
     },
-  })
+  });
 
   return AppInfoView
 })

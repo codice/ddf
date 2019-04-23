@@ -12,28 +12,28 @@
 
 //meant to be used for just in time feature detection
 
-var Backbone = require('backbone')
-var $ = require('jquery')
-var _ = require('underscore')
-var properties = require('../../js/properties.js')
+const Backbone = require('backbone');
+const $ = require('jquery');
+const _ = require('underscore');
+const properties = require('../../js/properties.js');
 import fetch from '../../react-component/utils/fetch'
 const featureDetection = require('./feature-detection')
 
-var invalidateUrl = './internal/session/invalidate?prevurl='
+const invalidateUrl = './internal/session/invalidate?prevurl=';
 
-var idleNoticeDuration = 60000
+const idleNoticeDuration = 60000;
 // Length of inactivity that will trigger user timeout (15 minutes in ms by default)
 // See STIG V-69243
-var idleTimeoutThreshold =
+const idleTimeoutThreshold =
   parseInt(properties.ui.timeout) > 0
     ? parseInt(properties.ui.timeout) * 60000
-    : 900000
+    : 900000;
 
 function getIdleTimeoutDate() {
   return idleTimeoutThreshold + Date.now()
 }
 
-var sessionTimeoutModel = new (Backbone.Model.extend({
+const sessionTimeoutModel = new (Backbone.Model.extend({
   defaults: {
     showPrompt: false,
     idleTimeoutDate: 0,
@@ -66,7 +66,7 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
     }
   },
   setPromptTimer: function() {
-    var timeout = this.get('idleTimeoutDate') - idleNoticeDuration - Date.now()
+    let timeout = this.get('idleTimeoutDate') - idleNoticeDuration - Date.now();
     timeout = Math.max(0, timeout)
     this.promptTimer = setTimeout(this.showPrompt.bind(this), timeout)
   },
@@ -80,7 +80,7 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
     clearTimeout(this.promptTimer)
   },
   setLogoutTimer: function() {
-    var timeout = this.get('idleTimeoutDate') - Date.now()
+    let timeout = this.get('idleTimeoutDate') - Date.now();
     timeout = Math.max(0, timeout)
     this.logoutTimer = setTimeout(this.logout.bind(this), timeout)
   },
@@ -88,7 +88,7 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
     clearTimeout(this.logoutTimer)
   },
   resetIdleTimeoutDate: function() {
-    var idleTimeoutDate = getIdleTimeoutDate()
+    const idleTimeoutDate = getIdleTimeoutDate();
     if (featureDetection.supportsFeature('localStorage')) {
       try {
         localStorage.setItem('idleTimeoutDate', idleTimeoutDate)
@@ -126,6 +126,6 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
   getIdleSeconds: function() {
     return parseInt((this.get('idleTimeoutDate') - Date.now()) / 1000)
   },
-}))()
+}))();
 
 module.exports = sessionTimeoutModel

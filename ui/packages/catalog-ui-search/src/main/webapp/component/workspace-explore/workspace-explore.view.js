@@ -22,7 +22,7 @@ const QuerySelectorView = require('../query-selector/query-selector.view.js')
 const store = require('../../js/store.js')
 const lightboxViewInstance = require('../lightbox/lightbox.view.instance.js')
 
-var WorkspaceExplore = Marionette.LayoutView.extend({
+const WorkspaceExplore = Marionette.LayoutView.extend({
   setDefaultModel: function() {
     this.model = store.getCurrentWorkspace()
   },
@@ -45,6 +45,6 @@ var WorkspaceExplore = Marionette.LayoutView.extend({
       this.workspaceExploreQueries.show(new QuerySelectorView())
     }
   },
-})
+});
 
 module.exports = WorkspaceExplore

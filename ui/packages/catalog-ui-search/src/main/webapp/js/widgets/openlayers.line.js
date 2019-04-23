@@ -24,7 +24,7 @@ const olUtils = require('../OpenLayersGeometryUtils')
 const DistanceUtils = require('../DistanceUtils.js')
 
 function translateFromOpenlayersCoordinates(coords) {
-  var coordinates = []
+  const coordinates = [];
   _.each(coords, function(point) {
     point = ol.proj.transform(
       [
@@ -45,7 +45,7 @@ function translateFromOpenlayersCoordinates(coords) {
 }
 
 function translateToOpenlayersCoordinates(coords) {
-  var coordinates = []
+  const coordinates = [];
   _.each(coords, function(item) {
     if (item[0].constructor === Array) {
       coordinates.push(translateToOpenlayersCoordinates(item))
@@ -62,7 +62,7 @@ function translateToOpenlayersCoordinates(coords) {
   return coordinates
 }
 
-var Draw = {}
+const Draw = {};
 
 Draw.LineView = Marionette.View.extend({
   initialize: function(options) {
@@ -81,20 +81,20 @@ Draw.LineView = Marionette.View.extend({
   },
 
   modelToPolygon: function(model) {
-    var polygon = model.get('line')
-    var setArr = _.uniq(polygon)
+    const polygon = model.get('line');
+    const setArr = _.uniq(polygon);
     if (setArr.length < 2) {
       return
     }
 
-    var rectangle = new ol.geom.LineString(
+    const rectangle = new ol.geom.LineString(
       translateToOpenlayersCoordinates(setArr)
-    )
+    );
     return rectangle
   },
 
   updatePrimitive: function(model) {
-    var polygon = this.modelToPolygon(model)
+    const polygon = this.modelToPolygon(model);
     // make sure the current model has width and height before drawing
     if (polygon && !_.isUndefined(polygon)) {
       this.drawBorderedPolygon(polygon)
@@ -102,7 +102,7 @@ Draw.LineView = Marionette.View.extend({
   },
 
   updateGeometry: function(model) {
-    var rectangle = this.modelToPolygon(model)
+    const rectangle = this.modelToPolygon(model);
     if (rectangle) {
       this.drawBorderedPolygon(rectangle)
     }
@@ -113,19 +113,19 @@ Draw.LineView = Marionette.View.extend({
       // handles case where model changes to empty vars and we don't want to draw anymore
       return
     }
-    var lineWidth =
+    const lineWidth =
       DistanceUtils.getDistanceInMeters(
         this.model.get('lineWidth'),
         this.model.get('lineUnits')
-      ) || 1
+      ) || 1;
 
-    var turfLine = Turf.lineString(
+    const turfLine = Turf.lineString(
       translateFromOpenlayersCoordinates(rectangle.getCoordinates())
-    )
-    var bufferedLine = Turf.buffer(turfLine, lineWidth, 'meters')
-    var geometryRepresentation = new ol.geom.MultiLineString(
+    );
+    const bufferedLine = Turf.buffer(turfLine, lineWidth, 'meters');
+    const geometryRepresentation = new ol.geom.MultiLineString(
       translateToOpenlayersCoordinates(bufferedLine.geometry.coordinates)
-    )
+    );
 
     if (this.vectorLayer) {
       this.map.removeLayer(this.vectorLayer)
@@ -137,19 +137,19 @@ Draw.LineView = Marionette.View.extend({
 
     this.billboard.setId(this.model.cid)
 
-    var color = this.model.get('color')
+    const color = this.model.get('color');
 
-    var iconStyle = new ol.style.Style({
+    const iconStyle = new ol.style.Style({
       stroke: new ol.style.Stroke({
         color: color ? color : '#914500',
         width: 3,
       }),
-    })
+    });
     this.billboard.setStyle(iconStyle)
 
-    var vectorSource = new ol.source.Vector({
+    const vectorSource = new ol.source.Vector({
       features: [this.billboard],
-    })
+    });
 
     var vectorLayer = new ol.layer.Vector({
       source: vectorSource,
@@ -172,7 +172,7 @@ Draw.LineView = Marionette.View.extend({
     wreqr.vent.trigger('search:linedisplay', this.model)
   },
   start: function() {
-    var that = this
+    const that = this;
 
     this.primitive = new ol.interaction.Draw({
       type: 'LineString',
@@ -226,15 +226,15 @@ Draw.Controller = DrawingController.extend({
   drawingType: 'line',
   show: function(model) {
     if (this.enabled) {
-      var existingView = this.getViewForModel(model)
+      const existingView = this.getViewForModel(model);
       if (existingView) {
         existingView.destroyPrimitive()
         existingView.updatePrimitive(model)
       } else {
-        var view = new Draw.LineView({
+        const view = new Draw.LineView({
           map: this.options.map,
           model: model,
-        })
+        });
         view.updatePrimitive(model)
         this.addView(view)
       }
@@ -244,12 +244,12 @@ Draw.Controller = DrawingController.extend({
   },
   draw: function(model) {
     if (this.enabled) {
-      var view = new Draw.LineView({
+      const view = new Draw.LineView({
         map: this.options.map,
         model: model,
-      })
+      });
 
-      var existingView = this.getViewForModel(model)
+      const existingView = this.getViewForModel(model);
       if (existingView) {
         existingView.stop()
         existingView.destroyPrimitive()

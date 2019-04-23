@@ -10,12 +10,12 @@
  *
  **/
 /* global require */
-var $ = require('jquery')
-var Backbone = require('backbone')
-var Marionette = require('marionette')
-var CustomElements = require('../../js/CustomElements.js')
-var template = require('./session-timeout.hbs')
-var sessionTimeoutModel = require('../singletons/session-timeout.js')
+const $ = require('jquery');
+const Backbone = require('backbone');
+const Marionette = require('marionette');
+const CustomElements = require('../../js/CustomElements.js');
+const template = require('./session-timeout.hbs');
+const sessionTimeoutModel = require('../singletons/session-timeout.js');
 
 module.exports = Marionette.LayoutView.extend({
   template: template,

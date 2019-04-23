@@ -10,15 +10,15 @@
  *
  **/
 
-var UploadModel = require('./Upload')
-var Backbone = require('backbone')
-var Common = require('../Common.js')
-var wreqr = require('../wreqr.js')
-var _ = require('underscore')
+const UploadModel = require('./Upload');
+const Backbone = require('backbone');
+const Common = require('../Common.js');
+const wreqr = require('../wreqr.js');
+const _ = require('underscore');
 
-var updatePreferences = _.throttle(function() {
+const updatePreferences = _.throttle(function() {
   wreqr.vent.trigger('preferences:save')
-}, 1000)
+}, 1000);
 
 module.exports = Backbone.AssociatedModel.extend({
   options: undefined,

@@ -13,30 +13,30 @@
  *
  **/
 
-var wreqr = require('../../js/wreqr.js')
-var _ = require('underscore')
-var template = require('./attributes-rearrange.hbs')
-var Marionette = require('marionette')
-var CustomElements = require('../../js/CustomElements.js')
-var Common = require('../../js/Common.js')
-var user = require('../singletons/user-instance.js')
-var properties = require('../../js/properties.js')
-var Sortable = require('sortablejs')
-var metacardDefinitions = require('../singletons/metacard-definitions.js')
+const wreqr = require('../../js/wreqr.js');
+const _ = require('underscore');
+const template = require('./attributes-rearrange.hbs');
+const Marionette = require('marionette');
+const CustomElements = require('../../js/CustomElements.js');
+const Common = require('../../js/Common.js');
+const user = require('../singletons/user-instance.js');
+const properties = require('../../js/properties.js');
+const Sortable = require('sortablejs');
+const metacardDefinitions = require('../singletons/metacard-definitions.js');
 
 function calculateAvailableAttributesFromSelection(selectionInterface) {
-  var types = _.union.apply(
+  const types = _.union.apply(
     this,
     selectionInterface.getSelectedResults().map(result => {
       return [result.get('metacardType')]
     })
-  )
-  var possibleAttributes = _.intersection.apply(
+  );
+  const possibleAttributes = _.intersection.apply(
     this,
     types.map(type => {
       return Object.keys(metacardDefinitions.metacardDefinitions[type])
     })
-  )
+  );
   return selectionInterface
     .getSelectedResults()
     .reduce(function(currentAvailable, result) {
@@ -95,10 +95,10 @@ module.exports = Marionette.ItemView.extend({
   },
   getShown: function() {
     if (this.options.summary) {
-      var usersChoice = user
+      const usersChoice = user
         .get('user')
         .get('preferences')
-        .get('inspector-summaryShown')
+        .get('inspector-summaryShown');
       if (usersChoice.length > 0) {
         return usersChoice
       } else {
@@ -112,10 +112,10 @@ module.exports = Marionette.ItemView.extend({
   },
   getHidden: function() {
     if (this.options.summary) {
-      var usersChoice = user
+      const usersChoice = user
         .get('user')
         .get('preferences')
-        .get('inspector-summaryShown')
+        .get('inspector-summaryShown');
       if (usersChoice.length > 0) {
         return calculateAvailableAttributesFromSelection(
           this.options.selectionInterface
@@ -134,14 +134,14 @@ module.exports = Marionette.ItemView.extend({
   },
   getPreferredOrder: function() {
     if (this.options.summary) {
-      var usersShown = user
+      const usersShown = user
         .get('user')
         .get('preferences')
-        .get('inspector-summaryShown')
-      var usersOrder = user
+        .get('inspector-summaryShown');
+      const usersOrder = user
         .get('user')
         .get('preferences')
-        .get('inspector-summaryOrder')
+        .get('inspector-summaryOrder');
       if (usersOrder.length > 0) {
         return usersOrder
       } else {
@@ -156,14 +156,14 @@ module.exports = Marionette.ItemView.extend({
   },
   getNewAttributes: function() {
     if (this.options.summary) {
-      var usersShown = user
+      const usersShown = user
         .get('user')
         .get('preferences')
-        .get('inspector-summaryShown')
-      var usersOrder = user
+        .get('inspector-summaryShown');
+      const usersOrder = user
         .get('user')
         .get('preferences')
-        .get('inspector-summaryOrder')
+        .get('inspector-summaryOrder');
       if (usersShown.length > 0 || usersOrder.length > 0) {
         return usersShown.filter(function(attr) {
           return usersOrder.indexOf(attr) === -1
@@ -172,10 +172,10 @@ module.exports = Marionette.ItemView.extend({
         return []
       }
     } else {
-      var detailsOrder = user
+      const detailsOrder = user
         .get('user')
         .get('preferences')
-        .get('inspector-detailsOrder')
+        .get('inspector-detailsOrder');
       return calculateAvailableAttributesFromSelection(
         this.options.selectionInterface
       ).filter(function(attr) {
@@ -184,15 +184,15 @@ module.exports = Marionette.ItemView.extend({
     }
   },
   serializeData: function() {
-    var preferredHeader = this.getPreferredOrder()
-    var newAttributes = this.getNewAttributes()
+    const preferredHeader = this.getPreferredOrder();
+    const newAttributes = this.getNewAttributes();
     newAttributes.sort(function(a, b) {
       return metacardDefinitions.attributeComparator(a, b)
     })
-    var hidden = this.getHidden()
-    var availableAttributes = calculateAvailableAttributesFromSelection(
+    const hidden = this.getHidden();
+    const availableAttributes = calculateAvailableAttributesFromSelection(
       this.options.selectionInterface
-    )
+    );
 
     return _.union(preferredHeader, newAttributes).map(function(property) {
       return {
@@ -214,10 +214,10 @@ module.exports = Marionette.ItemView.extend({
     })
   },
   handleSave: function() {
-    var prefs = user.get('user').get('preferences')
-    var key = this.options.summary
+    const prefs = user.get('user').get('preferences');
+    const key = this.options.summary
       ? 'inspector-summaryOrder'
-      : 'inspector-detailsOrder'
+      : 'inspector-detailsOrder';
     prefs.set(
       key,
       _.map(this.$el.find('.column'), function(element) {

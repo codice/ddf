@@ -104,7 +104,7 @@ module.exports = Marionette.LayoutView.extend(
       return this.el
     },
     determineSelections: function() {
-      var values = this.model.get('value')
+      const values = this.model.get('value');
       if (
         this.options.isMultiSelect === undefined &&
         (values[0] === undefined || values[0] === null)
@@ -113,9 +113,9 @@ module.exports = Marionette.LayoutView.extend(
       }
       return values.map(
         function(value) {
-          var selection = this.options.list.filter(function(item) {
+          const selection = this.options.list.filter(function(item) {
             return JSON.stringify(item.value) === JSON.stringify(value)
-          })
+          });
           if (selection.length > 0) {
             return selection[0]
           } else {
@@ -125,11 +125,11 @@ module.exports = Marionette.LayoutView.extend(
             }
           }
         }.bind(this)
-      )
+      );
     },
     serializeData: function() {
       if (this.options.list) {
-        var selections = this.determineSelections()
+        const selections = this.determineSelections();
         return {
           value: selections,
           concatenatedLabel: selections

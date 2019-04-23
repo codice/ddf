@@ -18,7 +18,7 @@ define(['underscore', 'backbone', 'marionette', 'icanhaz'], function(
 ) {
   'use strict'
 
-  var Application = {}
+  const Application = {};
 
   Marionette.Renderer.render = function(template, data) {
     if (!template) {

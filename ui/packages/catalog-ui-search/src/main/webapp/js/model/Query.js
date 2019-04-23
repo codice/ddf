@@ -27,7 +27,7 @@ require('backbone-associations')
 import PartialAssociatedModel from '../../js/extensions/backbone.partialAssociatedModel'
 const plugin = require('plugins/query')
 
-var Query = {}
+const Query = {};
 
 function limitToDeleted(cqlString) {
   return CQLUtils.transformFilterToCQL({
@@ -168,7 +168,7 @@ Query.Model = PartialAssociatedModel.extend({
     this.listenTo(this, 'change:cql', () => this.set('isOutdated', true))
   },
   buildSearchData: function() {
-    var data = this.toJSON()
+    const data = this.toJSON();
 
     switch (data.federation) {
       case 'local':
@@ -252,18 +252,18 @@ Query.Model = PartialAssociatedModel.extend({
     )
     this.cancelCurrentSearches()
 
-    var data = Common.duplicate(this.buildSearchData())
+    const data = Common.duplicate(this.buildSearchData());
     data.batchId = Common.generateUUID()
     if (options.resultCountOnly) {
       data.count = 0
     }
-    var sources = data.src
-    var initialStatus = sources.map(function(src) {
+    const sources = data.src;
+    const initialStatus = sources.map(function(src) {
       return {
         id: src,
       }
-    })
-    var result
+    });
+    let result;
     if (this.get('result') && this.get('result').get('results')) {
       result = this.get('result')
       result.setColor(this.getColor())
@@ -297,13 +297,13 @@ Query.Model = PartialAssociatedModel.extend({
       sources.unshift('cache')
     }
 
-    var cqlString = data.cql
+    let cqlString = data.cql;
     if (options.limitToDeleted) {
       cqlString = limitToDeleted(cqlString)
     } else if (options.limitToHistoric) {
       cqlString = limitToHistoric(cqlString)
     }
-    var query = this
+    const query = this;
 
     const currentSearches = this.preQueryPlugin(
       sources.map(src => ({
@@ -347,7 +347,7 @@ Query.Model = PartialAssociatedModel.extend({
             }
           },
           error: function(model, response, options) {
-            var srcStatus = result.get('status').get(search.src)
+            const srcStatus = result.get('status').get(search.src);
             if (srcStatus) {
               srcStatus.set({
                 successful: false,
@@ -356,7 +356,7 @@ Query.Model = PartialAssociatedModel.extend({
             }
             response.options = options
           },
-        })
+        });
       })
       if (typeof done === 'function') {
         done(this.currentSearches)
@@ -377,7 +377,7 @@ Query.Model = PartialAssociatedModel.extend({
     })
   },
   setSources: function(sources) {
-    var sourceArr = []
+    const sourceArr = [];
     sources.each(function(src) {
       if (src.get('available') === true) {
         sourceArr.push(src.get('id'))
@@ -393,7 +393,7 @@ Query.Model = PartialAssociatedModel.extend({
     if (this.get('id')) {
       return this.get('id')
     } else {
-      var id = this._cloneOf || this.id || Common.generateUUID()
+      const id = this._cloneOf || this.id || Common.generateUUID();
       this.set('id')
       return id
     }
@@ -415,28 +415,28 @@ Query.Model = PartialAssociatedModel.extend({
     )
   },
   hasNextServerPage: function() {
-    var pageSize = user
+    const pageSize = user
       .get('user')
       .get('preferences')
-      .get('resultCount')
+      .get('resultCount');
     return Boolean(
       this.get('result')
         .get('status')
         .find(
           function(status) {
-            var startingIndex = this.getStartIndexForSource(status.id)
-            var total = status.get('hits')
+            const startingIndex = this.getStartIndexForSource(status.id);
+            const total = status.get('hits');
             return total - startingIndex >= pageSize
           }.bind(this)
         )
-    )
+    );
   },
   getPreviousServerPage: function() {
     this.get('result')
       .getSourceList()
       .forEach(
         function(src) {
-          var increment = this.get('result').getLastResultCountForSource(src)
+          const increment = this.get('result').getLastResultCountForSource(src);
           this.currentIndexForSource[src] = Math.max(
             this.getStartIndexForSource(src) - increment,
             1
@@ -451,7 +451,7 @@ Query.Model = PartialAssociatedModel.extend({
       .getSourceList()
       .forEach(
         function(src) {
-          var increment = this.get('result').getLastResultCountForSource(src)
+          const increment = this.get('result').getLastResultCountForSource(src);
           this.currentIndexForSource[src] =
             this.getStartIndexForSource(src) + increment
         }.bind(this)
@@ -481,13 +481,13 @@ Query.Model = PartialAssociatedModel.extend({
     return lengthWithoutDuplicates + numberOfDuplicates
   },
   getResultsRangeLabel: function(resultsCollection) {
-    var results = resultsCollection.length
-    var hits = _.filter(
+    const results = resultsCollection.length;
+    const hits = _.filter(
       this.get('result')
         .get('status')
         .toJSON(),
       status => status.id !== 'cache'
-    ).reduce((hits, status) => (status.hits ? hits + status.hits : hits), 0)
+    ).reduce((hits, status) => (status.hits ? hits + status.hits : hits), 0);
 
     if (results === 0) {
       return '0 results'
@@ -495,10 +495,10 @@ Query.Model = PartialAssociatedModel.extend({
       return results + ' results'
     }
 
-    var serverPageSize = user.get('user>preferences>resultCount')
-    var startingIndex = this.get('serverPageIndex') * serverPageSize
-    var endingIndex =
-      startingIndex + this.lengthWithDuplicates(resultsCollection)
+    const serverPageSize = user.get('user>preferences>resultCount');
+    const startingIndex = this.get('serverPageIndex') * serverPageSize;
+    const endingIndex =
+      startingIndex + this.lengthWithDuplicates(resultsCollection);
 
     return startingIndex + 1 + '-' + endingIndex + ' of ' + hits
   },

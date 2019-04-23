@@ -115,12 +115,12 @@ module.exports = Marionette.LayoutView.extend({
     this.edit()
   },
   focus: function() {
-    var tabbable = _.filter(
+    const tabbable = _.filter(
       this.$el.find('[tabindex], input, button'),
       function(element) {
         return element.offsetParent !== null
       }
-    )
+    );
     if (tabbable.length > 0) {
       $(tabbable[0]).focus()
     }

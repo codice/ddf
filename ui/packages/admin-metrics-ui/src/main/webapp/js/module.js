@@ -25,14 +25,14 @@ define([
     Backbone,
     Marionette
   ) {
-    var metrics = new Metrics.MetricsModel()
+    const metrics = new Metrics.MetricsModel();
 
-    var metricsPage = new MetricsView.MetricsPage({ model: metrics })
+    const metricsPage = new MetricsView.MetricsPage({ model: metrics });
 
     // Define a controller to run this module
     // --------------------------------------
 
-    var Controller = Marionette.Controller.extend({
+    const Controller = Marionette.Controller.extend({
       initialize: function(options) {
         this.region = options.region
       },
@@ -40,7 +40,7 @@ define([
       show: function() {
         this.region.show(metricsPage)
       },
-    })
+    });
 
     // Initialize this module when the app starts
     // ------------------------------------------

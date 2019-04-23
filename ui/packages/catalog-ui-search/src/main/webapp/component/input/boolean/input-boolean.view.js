@@ -12,9 +12,9 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-var Marionette = require('marionette')
-var template = require('./input-boolean.hbs')
-var InputView = require('../input.view')
+const Marionette = require('marionette');
+const template = require('./input-boolean.hbs');
+const InputView = require('../input.view');
 
 module.exports = InputView.extend({
   template: template,

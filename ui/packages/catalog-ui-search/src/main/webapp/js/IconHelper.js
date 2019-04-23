@@ -1,6 +1,6 @@
 const _ = require('lodash')
 const _get = require('lodash/get')
-var _map = {
+const _map = {
   default: {
     class: 'fa fa-file',
     style: {
@@ -105,10 +105,10 @@ var _map = {
       size: '15px',
     },
   },
-}
+};
 
 /* Maps top-level mime type category names to the closest icon. */
-var _mimeMap = {
+const _mimeMap = {
   application: _map.document,
   audio: _map.sound,
   example: _map.default,
@@ -119,11 +119,11 @@ var _mimeMap = {
   multipart: _map.collection,
   text: _map.text,
   video: _map.video,
-}
+};
 
 /*  This is the default icon that will be used if a Metacard cannot be
         mapped to an icon. Set default attributes to empty strings for no icon. */
-var _default = _map.default
+const _default = _map.default;
 
 /* Remove resource keyword from datatype and covert to lowercase. */
 function _formatAttribute(attr) {
@@ -151,13 +151,7 @@ function _iconExistsInMap(attr, map) {
 
 /* Find the correct icon based on various Metacard attributes. */
 function _deriveIconByMetacard(metacard) {
-  var prop,
-    dataTypes,
-    metacardType,
-    mimeType,
-    contentType,
-    contentTypeVersion,
-    icon = _default
+  let prop, dataTypes, metacardType, mimeType, contentType, contentTypeVersion, icon = _default;
 
   prop = metacard.get('metacard').get('properties')
   dataTypes = prop.get('datatype')
@@ -166,7 +160,7 @@ function _deriveIconByMetacard(metacard) {
   contentType = _formatAttribute(prop.get('metadata-content-type'))
 
   if (mimeType !== undefined) {
-    var mime = mimeType.split('/')
+    const mime = mimeType.split('/');
     if (mime && mime.length === 2) {
       mimeType = mime[0]
     }
@@ -191,27 +185,27 @@ function _deriveIconByName(name) {
 
 module.exports = {
   getClass: function(metacard) {
-    var i = _deriveIconByMetacard(metacard)
+    const i = _deriveIconByMetacard(metacard);
     return _get(i, 'class', _default.class)
   },
   getUnicode: function(metacard) {
-    var i = _deriveIconByMetacard(metacard)
+    const i = _deriveIconByMetacard(metacard);
     return _get(_map, 'style.code', _default.style.code)
   },
   getFont: function(metacard) {
-    var i = _deriveIconByMetacard(metacard)
+    const i = _deriveIconByMetacard(metacard);
     return _get(_map, 'style.font', _default.style.font)
   },
   getSize: function(metacard) {
-    var i = _deriveIconByMetacard(metacard)
+    const i = _deriveIconByMetacard(metacard);
     return _get(_map, 'style.size', _default.style.size)
   },
   getFull: function(metacard) {
-    var i = _deriveIconByMetacard(metacard)
+    const i = _deriveIconByMetacard(metacard);
     return i !== undefined ? i : _default
   },
   getClassByName: function(name) {
-    var i = _deriveIconByName(name)
+    const i = _deriveIconByName(name);
     return _get(i, 'class', _default.class)
   },
 }

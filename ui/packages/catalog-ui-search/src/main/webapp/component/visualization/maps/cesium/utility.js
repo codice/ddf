@@ -10,8 +10,8 @@
  *
  **/
 
-var _ = require('underscore')
-var Cesium = require('cesium')
+const _ = require('underscore');
+const Cesium = require('cesium');
 
 /*
   A variety of helpful functions for dealing with Cesium
@@ -37,16 +37,16 @@ module.exports = {
       Calculates the center of given a geometry (WKT)
     */
   calculateCartographicCenterOfGeometryInDegrees: function(propertyModel) {
-    var cartographicCenterInRadians = this.calculateCartographicCenterOfGeometryInRadians(
+    const cartographicCenterInRadians = this.calculateCartographicCenterOfGeometryInRadians(
       propertyModel
-    )
+    );
     return [
       Cesium.Math.toDegrees(cartographicCenterInRadians.longitude),
       Cesium.Math.toDegrees(cartographicCenterInRadians.latitude),
     ]
   },
   calculateWindowCenterOfGeometry: function(geometry, map) {
-    var cartesian3position = geometry
+    let cartesian3position = geometry;
     if (cartesian3position.constructor !== Cesium.Cartesian3) {
       cartesian3position = this.calculateCartesian3CenterOfGeometry(
         cartesian3position
@@ -61,9 +61,9 @@ module.exports = {
       Calculates the center of given geometries (WKT)
     */
   calculateCartesian3CenterOfGeometries: function(propertyModels) {
-    var allPoints = propertyModels.map(function(propertyModel) {
+    const allPoints = propertyModels.map(function(propertyModel) {
       return propertyModel.getPoints()
-    })
+    });
     return Cesium.BoundingSphere.fromPoints(
       Cesium.Cartesian3.fromDegreesArray(_.flatten(allPoints))
     ).center
@@ -80,9 +80,9 @@ module.exports = {
       Calculates the center of given geometries (WKT)
     */
   calculateCartographicCenterOfGeometriesInDegrees: function(propertyModels) {
-    var cartographicCenterInRadians = this.calculateCartographicCenterOfGeometriesInRadians(
+    const cartographicCenterInRadians = this.calculateCartographicCenterOfGeometriesInRadians(
       propertyModels
-    )
+    );
     return [
       Cesium.Math.toDegrees(cartographicCenterInRadians.longitude),
       Cesium.Math.toDegrees(cartographicCenterInRadians.latitude),

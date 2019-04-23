@@ -14,7 +14,7 @@
 
 const Marionette = require('marionette')
 
-var Controller = Marionette.Object.extend({
+const Controller = Marionette.Object.extend({
   initialize: function(options) {
     this.collection = options.collection
     this.layerForCid = {}
@@ -27,6 +27,6 @@ var Controller = Marionette.Object.extend({
     this.listenTo(this.collection, 'add', this.addLayer)
     this.listenTo(this.collection, 'remove', this.removeLayer)
   },
-})
+});
 
 module.exports = Controller

@@ -13,16 +13,16 @@
  *
  **/
 
-var Marionette = require('marionette')
-var CustomElements = require('../../js/CustomElements.js')
-var store = require('../../js/store.js')
-var template = require('./query-feedback.hbs')
-var PropertyView = require('../property/property.view.js')
-var PropertyModel = require('../property/property.js')
-var _ = require('underscore')
-var router = require('../router/router.js')
-var user = require('../singletons/user-instance.js')
-var $ = require('jquery')
+const Marionette = require('marionette');
+const CustomElements = require('../../js/CustomElements.js');
+const store = require('../../js/store.js');
+const template = require('./query-feedback.hbs');
+const PropertyView = require('../property/property.view.js');
+const PropertyModel = require('../property/property.js');
+const _ = require('underscore');
+const router = require('../router/router.js');
+const user = require('../singletons/user-instance.js');
+const $ = require('jquery');
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -61,7 +61,7 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox')
   },
   handleSend: function() {
-    var payload = {
+    const payload = {
       user: {
         email: user.get('user').get('email'),
         name: user.get('user').get('username'),
@@ -85,7 +85,7 @@ module.exports = Marionette.LayoutView.extend({
         name: store.getCurrentWorkspace().get('title'),
       },
       comments: this.comments.currentView.model.getValue()[0],
-    }
+    };
     $.post('./internal/feedback', JSON.stringify(payload))
     this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox')
   },

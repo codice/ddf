@@ -13,12 +13,12 @@
  *
  **/
 
-var wreqr = require('../../js/wreqr.js')
-var Marionette = require('marionette')
-var _ = require('underscore')
-var $ = require('jquery')
-var template = require('./upload-item.hbs')
-var CustomElements = require('../../js/CustomElements.js')
+const wreqr = require('../../js/wreqr.js');
+const Marionette = require('marionette');
+const _ = require('underscore');
+const $ = require('jquery');
+const template = require('./upload-item.hbs');
+const CustomElements = require('../../js/CustomElements.js');
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -46,21 +46,21 @@ module.exports = Marionette.LayoutView.extend({
     this.handleValidating()
   },
   handleSending: function() {
-    var sending = this.model.get('sending')
+    const sending = this.model.get('sending');
     this.$el.toggleClass('show-progress', sending)
   },
   handlePercentage: function() {
-    var percentage = this.model.get('percentage')
+    const percentage = this.model.get('percentage');
     this.$el.find('.info-progress').css('width', percentage + '%')
     this.$el.find('.bottom-percentage').html(Math.floor(percentage) + '%')
   },
   handleError: function() {
-    var error = this.model.get('error')
+    const error = this.model.get('error');
     this.$el.toggleClass('has-error', error)
     this.$el.find('.error-message').html(this.model.escape('message'))
   },
   handleSuccess: function(file, response) {
-    var success = this.model.get('success')
+    const success = this.model.get('success');
     this.$el.toggleClass('has-success', success)
     this.$el
       .find('.success-message .message-text')
@@ -71,15 +71,15 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('has-children', this.model.hasChildren())
   },
   handleValidating: function() {
-    var validating = this.model.get('validating')
+    const validating = this.model.get('validating');
     this.$el.toggleClass('checking-validation', validating)
   },
   handleIssues: function() {
-    var issues = this.model.get('issues')
+    const issues = this.model.get('issues');
     this.$el.toggleClass('has-validation-issues', issues)
   },
   serializeData: function() {
-    var modelJSON = this.model.toJSON()
+    const modelJSON = this.model.toJSON();
     modelJSON.file = {
       name: modelJSON.file.name,
       size: (modelJSON.file.size / 1000000).toFixed(2) + 'MB, ',

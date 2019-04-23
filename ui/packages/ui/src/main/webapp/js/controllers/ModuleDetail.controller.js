@@ -32,17 +32,17 @@ define([
   PluginTabView,
   Q
 ) {
-  var ModuleDetailController = Marionette.Controller.extend({
+  const ModuleDetailController = Marionette.Controller.extend({
     initialize: function(options) {
       this.regions = options.regions
     },
     show: function() {
-      var layoutView = new ModuleDetailLayout()
+      const layoutView = new ModuleDetailLayout();
       this.regions.applications.show(layoutView)
 
       this.fetchSystemConfigPlugins()
         .then(function(systemConfigPlugins) {
-          var staticModulePlugins = [
+          const staticModulePlugins = [
             new Backbone.Model({
               id: 'systemInformationModuleTabID',
               displayName: 'Information',
@@ -60,22 +60,22 @@ define([
               javascriptLocation:
                 'components/application-services/application-services.view',
             }),
-          ]
+          ];
 
-          var staticList = new ModulePlugin.Collection()
+          const staticList = new ModulePlugin.Collection();
           staticList.comparator = function(model) {
             return model.get('displayName')
           }
           staticList.add(staticModulePlugins)
 
-          var dynamicList = new Backbone.Collection()
+          const dynamicList = new Backbone.Collection();
           dynamicList.comparator = function(model) {
             return model.get('displayName')
           }
           dynamicList.add(systemConfigPlugins.models)
           dynamicList.sort()
 
-          var completeList = new Backbone.Collection()
+          const completeList = new Backbone.Collection();
           completeList.add(staticList.models)
           completeList.add(dynamicList.models)
 
@@ -90,9 +90,9 @@ define([
         })
     },
     fetchSystemConfigPlugins: function() {
-      var pageName = 'system-module'
-      var collection = new AppConfigPlugin.Collection()
-      var defer = Q.defer()
+      const pageName = 'system-module';
+      const collection = new AppConfigPlugin.Collection();
+      const defer = Q.defer();
       collection.fetchByAppName(pageName, {
         success: function() {
           defer.resolve(collection)
@@ -103,7 +103,7 @@ define([
       })
       return defer.promise
     },
-  })
+  });
 
   return ModuleDetailController
 })

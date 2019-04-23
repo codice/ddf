@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-var _ = require('underscore')
+const _ = require('underscore');
 
 module.exports = function(state, action) {
   if (state === undefined) {

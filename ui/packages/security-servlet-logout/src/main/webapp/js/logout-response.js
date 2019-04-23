@@ -1,11 +1,11 @@
 ;(function() {
-  var searchString = (window.location.search + '').split('?')
+  const searchString = (window.location.search + '').split('?');
 
   if (searchString[1] !== undefined) {
-    var searchParams = searchString[1].split('&')
+    const searchParams = searchString[1].split('&');
 
     searchParams.forEach(function(paramString) {
-      var param = paramString.split('=')
+      const param = paramString.split('=');
 
       if (param[0] === 'msg') {
         $('#extramessage')

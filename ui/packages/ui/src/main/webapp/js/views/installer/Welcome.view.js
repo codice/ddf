@@ -18,7 +18,7 @@ define([
   'backbone.marionette',
   'templates/installer/welcome.handlebars',
 ], function(Marionette, welcomeTemplate) {
-  var WelcomeView = Marionette.ItemView.extend({
+  const WelcomeView = Marionette.ItemView.extend({
     template: welcomeTemplate,
     tagName: 'div',
     className: 'full-height',
@@ -38,7 +38,7 @@ define([
       //this is your hook to perform any teardown that must be done before going to the previous step
       this.navigationModel.previousStep()
     },
-  })
+  });
 
   return WelcomeView
 })

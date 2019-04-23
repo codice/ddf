@@ -11,9 +11,9 @@
  **/
 
 define([], function() {
-  var namespace = 'admin-'
+  const namespace = 'admin-';
 
-  var registry = {}
+  const registry = {};
 
   return {
     register: function(name) {

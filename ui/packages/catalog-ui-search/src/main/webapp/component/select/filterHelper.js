@@ -14,7 +14,7 @@
  **/
 function matchesFilter(filterValue, str, matchcase) {
   filterValue = getAppropriateString(filterValue, matchcase)
-  var reg = new RegExp('\\b' + filterValue + '.*')
+  const reg = new RegExp('\\b' + filterValue + '.*');
   if (getAppropriateString(str, matchcase).match(reg) !== null) {
     return true
   }

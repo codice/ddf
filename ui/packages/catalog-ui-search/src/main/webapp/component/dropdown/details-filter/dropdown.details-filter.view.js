@@ -13,11 +13,11 @@
  *
  **/
 
-var Marionette = require('marionette')
-var _ = require('underscore')
-var DropdownView = require('../dropdown.view')
-var template = require('./dropdown.details-filter.hbs')
-var ComponentView = require('../../details-filter/details-filter.view.js')
+const Marionette = require('marionette');
+const _ = require('underscore');
+const DropdownView = require('../dropdown.view');
+const template = require('./dropdown.details-filter.hbs');
+const ComponentView = require('../../details-filter/details-filter.view.js');
 
 module.exports = DropdownView.extend({
   template: template,
@@ -29,7 +29,7 @@ module.exports = DropdownView.extend({
     this.listenTo(this.model, 'change:value', this.handleFilter)
   },
   handleFilter: function() {
-    var value = this.model.get('value')
+    const value = this.model.get('value');
     this.$el.toggleClass('has-filter', value !== undefined && value !== '')
   },
 })

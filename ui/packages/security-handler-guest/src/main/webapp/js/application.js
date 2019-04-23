@@ -22,7 +22,7 @@ define([
 
   ich.addTemplate('appHeader', appHeader)
 
-  var Application = {}
+  const Application = {};
 
   Application.App = new Marionette.Application()
 

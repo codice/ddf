@@ -12,13 +12,7 @@
 
 const $ = require('jquery')
 $.whenAll = function() {
-  var args = arguments,
-    sliceDeferred = [].slice,
-    i = 0,
-    length = args.length,
-    count = length,
-    rejected,
-    deferred = $.Deferred()
+  let args = arguments, sliceDeferred = [].slice, i = 0, length = args.length, count = length, rejected, deferred = $.Deferred();
 
   function resolveFunc(i, reject) {
     return function(value) {
@@ -28,10 +22,10 @@ $.whenAll = function() {
         // Strange bug in FF4:
         // Values changed onto the arguments object sometimes end up as undefined values
         // outside the $.when method. Cloning the object into a fresh array solves the issue
-        var fn = rejected ? deferred.rejectWith : deferred.resolveWith
+        const fn = rejected ? deferred.rejectWith : deferred.resolveWith;
         fn.call(deferred, deferred, sliceDeferred.call(args, 0))
       }
-    }
+    };
   }
 
   for (; i < length; i++) {

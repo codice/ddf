@@ -10,13 +10,13 @@
  *
  **/
 
-var _ = require('underscore')
+const _ = require('underscore');
 
 function throwUnimplementedException() {
   throw 'Method has not been implemented.'
 }
 
-var exposedMethods = [
+const exposedMethods = [
   'onLeftClick',
   'onRightClick',
   'onMouseMove',
@@ -42,16 +42,16 @@ var exposedMethods = [
   'showGeometry',
   'removeGeometry',
   'destroy',
-]
+];
 
-var interfaceImplementation = exposedMethods.reduce(function(
+const interfaceImplementation = exposedMethods.reduce(function(
   implementations,
   methodName
 ) {
   implementations[methodName] = throwUnimplementedException
   return implementations
 },
-{})
+{});
 
 module.exports = function MapCommunication() {
   return _.extend({}, interfaceImplementation)

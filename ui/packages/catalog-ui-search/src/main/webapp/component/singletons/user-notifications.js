@@ -10,19 +10,19 @@
  *
  **/
 
-var user = require('./user-instance.js')
-var Backbone = require('backbone')
+const user = require('./user-instance.js');
+const Backbone = require('backbone');
 
 module.exports = new (Backbone.Collection.extend({
   initialize: function() {
-    var uploads = user
+    const uploads = user
       .get('user')
       .get('preferences')
-      .get('uploads')
-    var alerts = user
+      .get('uploads');
+    const alerts = user
       .get('user')
       .get('preferences')
-      .get('alerts')
+      .get('alerts');
     this.add(uploads.models)
     this.add(alerts.models)
     this.listenTo(uploads, 'add', this.add)

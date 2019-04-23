@@ -14,7 +14,7 @@
  **/
 
 define(['underscore', 'backbone'], function(_, Backbone) {
-  var FileHelper = Backbone.Model.extend({
+  const FileHelper = Backbone.Model.extend({
     isValid: function() {
       return this.get('name') !== undefined
     },
@@ -29,7 +29,7 @@ define(['underscore', 'backbone'], function(_, Backbone) {
       return type
     },
     setData: function(data) {
-      var file = (this.f = data.files[0])
+      const file = (this.f = data.files[0]);
       this.set({
         name: file.name,
         size: file.size,
@@ -37,7 +37,7 @@ define(['underscore', 'backbone'], function(_, Backbone) {
       })
     },
     load: function(done) {
-      var reader = new FileReader()
+      const reader = new FileReader();
       reader.onloadend = _.bind(function() {
         this.set('data', reader.result.split(',')[1])
         done()
@@ -52,7 +52,7 @@ define(['underscore', 'backbone'], function(_, Backbone) {
         data: this.get('data'),
       }
     },
-  })
+  });
 
   return FileHelper
 })

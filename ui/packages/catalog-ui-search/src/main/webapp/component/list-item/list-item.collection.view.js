@@ -13,9 +13,9 @@
  *
  **/
 
-var Marionette = require('marionette')
-var CustomElements = require('../../js/CustomElements.js')
-var ListItemView = require('./list-item.view')
+const Marionette = require('marionette');
+const CustomElements = require('../../js/CustomElements.js');
+const ListItemView = require('./list-item.view');
 const user = require('../../component/singletons/user-instance')
 
 module.exports = Marionette.CollectionView.extend({

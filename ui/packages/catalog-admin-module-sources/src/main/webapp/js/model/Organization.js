@@ -14,7 +14,7 @@
  **/
 
 define(['backbone'], function(Backbone) {
-  var Organization = {}
+  let Organization = {};
 
   Organization = Backbone.Model.extend({
     // Defaults set to 'Not Provided' to indicate the software correctly pulled the Organizational Info

@@ -14,14 +14,14 @@
  **/
 
 define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
-  var Feature = {}
+  const Feature = {};
 
-  var featureUrl =
-    './jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/AllFeatures'
-  var installUrl =
-    './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/installFeature(java.lang.String)/'
-  var uninstallUrl =
-    './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/uninstallFeature(java.lang.String)/'
+  const featureUrl =
+    './jolokia/read/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/AllFeatures';
+  const installUrl =
+    './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/installFeature(java.lang.String)/';
+  const uninstallUrl =
+    './jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/uninstallFeature(java.lang.String)/';
 
   Feature.Model = Backbone.Model.extend({
     initialize: function(options) {

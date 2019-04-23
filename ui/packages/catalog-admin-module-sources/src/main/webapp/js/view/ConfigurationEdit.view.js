@@ -37,7 +37,7 @@ define([
   textTypeList,
   checkboxTypeTemplate
 ) {
-  var ConfigurationEditView = {}
+  const ConfigurationEditView = {};
 
   if (!ich['configuration.configurationItem']) {
     ich.addTemplate('configuration.configurationItem', configurationItem)
@@ -69,10 +69,10 @@ define([
         this.model.collection.remove(this.model)
       },
       onRender: function() {
-        var bindings = Backbone.ModelBinder.createDefaultBindings(
+        const bindings = Backbone.ModelBinder.createDefaultBindings(
           this.el,
           'name'
-        )
+        );
         this.modelBinder.bind(this.model, this.$el, bindings)
       },
       onClose: function() {
@@ -114,8 +114,7 @@ define([
         this.listenTo(wreqr.vent, 'beforesave', this.saveValues)
       },
       updateValues: function() {
-        var csvVal,
-          view = this
+        let csvVal, view = this;
         if (
           this.configuration.get('properties') &&
           this.configuration.get('properties').get(this.model.get('id'))
@@ -140,7 +139,7 @@ define([
         }
       },
       saveValues: function() {
-        var values = []
+        const values = [];
         this.collectionArray.models.forEach(function(model) {
           values.push(model.get('value'))
         })
@@ -188,10 +187,10 @@ define([
      * Save all values properties into the sourceModal
      */
     serializeData: function() {
-      var modelJSON = this.model.toJSON()
-      var value = this.options.configuration
+      const modelJSON = this.model.toJSON();
+      let value = this.options.configuration
         .get('properties')
-        .get(this.model.get('id'))
+        .get(this.model.get('id'));
 
       if (modelJSON.type === 11) {
         if (value !== undefined) {
@@ -219,7 +218,7 @@ define([
       })
     },
     updateModel: function(e) {
-      var config = this.options.configuration
+      const config = this.options.configuration;
       config.get('properties').set(this.model.get('id'), e.target.value)
     },
   })
@@ -235,8 +234,8 @@ define([
         this.setupPopOvers()
       },
       buildItemView: function(item, ItemViewType, itemViewOptions) {
-        var view
-        var configuration = this.options.configuration
+        let view;
+        const configuration = this.options.configuration;
         this.collection.forEach(function(property) {
           if (item.get('id') === property.id) {
             if (property.description) {
@@ -249,13 +248,13 @@ define([
                 note: property.note,
               })
             }
-            var options = _.extend(
+            const options = _.extend(
               {
                 model: item,
                 configuration: configuration,
               },
               itemViewOptions
-            )
+            );
 
             view = new ItemViewType(options)
           }
@@ -269,11 +268,10 @@ define([
        * Set up the popovers based on if the selector has a description.
        */
       setupPopOvers: function() {
-        var view = this
+        const view = this;
         this.service.get('metatype').forEach(function(each) {
           if (!_.isUndefined(each.get('description'))) {
-            var options,
-              selector = ".description[data-title='" + each.id + "']"
+            let options, selector = ".description[data-title='" + each.id + "']";
             options = {
               title: each.get('name'),
               content: each.get('description'),

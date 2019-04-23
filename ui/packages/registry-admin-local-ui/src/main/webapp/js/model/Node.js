@@ -23,7 +23,7 @@ define([
   'wreqr',
   'backboneassociation',
 ], function(Backbone, _, FieldDescriptors, Segment, Association, $, wreqr) {
-  var Node = {}
+  const Node = {};
 
   Node.Model = Backbone.Model.extend({
     url:
@@ -45,7 +45,7 @@ define([
       this.initializeData()
     },
     initializeData: function() {
-      var model = this
+      const model = this;
       if (!model.get('id')) {
         model.set('id', 'temp-id') //this id will be replaced on the server with a real uuid
       }
@@ -62,7 +62,7 @@ define([
         model.get('RegistryObjectList').ExtrinsicObject = []
       }
 
-      var nodeDef = this.getObjectOfType('urn:registry:federation:node')
+      const nodeDef = this.getObjectOfType('urn:registry:federation:node');
       if (!nodeDef || nodeDef.length === 0) {
         model.get('RegistryObjectList').ExtrinsicObject.push({
           id: 'urn:registry:node',
@@ -151,11 +151,11 @@ define([
         associationModel: this.associationModel,
       })
       this.contentInfo.constructTitle = FieldDescriptors.constructNameTitle
-      var extrinsics = this.get('RegistryObjectList').ExtrinsicObject
-      var contentOnly = _.without(
+      const extrinsics = this.get('RegistryObjectList').ExtrinsicObject;
+      const contentOnly = _.without(
         extrinsics,
         _.findWhere(extrinsics, { objectType: 'urn:registry:federation:node' })
-      )
+      );
       this.contentInfo.populateFromModel(contentOnly, this.descriptors)
 
       this.associationModel
@@ -180,7 +180,7 @@ define([
       this.organizationInfo.saveData()
       this.contactInfo.saveData()
       this.contentInfo.saveData()
-      var model = this
+      const model = this;
       model.get('RegistryObjectList').ExtrinsicObject = [
         this.generalInfo.get('backingData')[0],
       ]
@@ -196,7 +196,7 @@ define([
       }
     },
     validate: function() {
-      var errors = []
+      const errors = [];
       this.appendErrors(errors, this.generalInfo.validate())
       this.appendErrors(errors, this.serviceInfo.validate())
       this.appendErrors(errors, this.organizationInfo.validate())
@@ -236,12 +236,12 @@ define([
     },
     createNode: function(options) {
       this.unset('id')
-      var response = this.syncNode(
+      const response = this.syncNode(
         this.createUrl,
         this,
         'createLocalEntry(java.util.Map)',
         options
-      )
+      );
       response.addOperation = true
       return response
     },
@@ -254,14 +254,14 @@ define([
       )
     },
     syncNode: function(url, args, operation, options) {
-      var data = {
+      let data = {
         type: 'EXEC',
         mbean: 'org.codice.ddf.registry:type=FederationAdminMBean',
         operation: operation,
-      }
+      };
       data.arguments = [args]
       data = JSON.stringify(data)
-      var response = $.ajax({
+      const response = $.ajax({
         type: 'POST',
         contentType: 'application/json',
         data: data,
@@ -279,17 +279,17 @@ define([
           if (options.error) {
             options.error(error)
           }
-        })
+        });
       return response
     },
     getObjectOfType: function(type) {
-      var foundObjects = []
-      var prop
-      var registryList = this.get('RegistryObjectList')
+      const foundObjects = [];
+      let prop;
+      const registryList = this.get('RegistryObjectList');
       for (prop in registryList) {
         if (registryList.hasOwnProperty(prop)) {
-          var objArray = registryList[prop]
-          for (var i = 0; i < objArray.length; i++) {
+          const objArray = registryList[prop];
+          for (let i = 0; i < objArray.length; i++) {
             if (objArray[i].objectType === type) {
               foundObjects.push(objArray[i])
             }
@@ -337,9 +337,9 @@ define([
       })
     },
     getIdentityNode: function() {
-      var array = this.models.filter(function(model) {
+      const array = this.models.filter(function(model) {
         return model.get('identityNode')
-      })
+      });
       if (array.length === 1) {
         return array[0]
       }
@@ -351,14 +351,14 @@ define([
       })
     },
     deleteNodes: function(nodes) {
-      var mbean = 'org.codice.ddf.registry:type=FederationAdminMBean'
-      var operation = 'deleteLocalEntry'
+      const mbean = 'org.codice.ddf.registry:type=FederationAdminMBean';
+      const operation = 'deleteLocalEntry';
 
-      var data = {
+      let data = {
         type: 'EXEC',
         mbean: mbean,
         operation: operation,
-      }
+      };
 
       data.arguments = [nodes]
       data = JSON.stringify(data)

@@ -13,14 +13,14 @@
  *
  **/
 
-var Marionette = require('marionette')
-var template = require('./query-time.hbs')
-var CustomElements = require('../../js/CustomElements.js')
-var PropertyView = require('../property/property.view.js')
-var Property = require('../property/property.js')
-var properties = require('../../js/properties.js')
-var CQLUtils = require('../../js/CQLUtils.js')
-var metacardDefinitions = require('../singletons/metacard-definitions.js')
+const Marionette = require('marionette');
+const template = require('./query-time.hbs');
+const CustomElements = require('../../js/CustomElements.js');
+const PropertyView = require('../property/property.view.js');
+const Property = require('../property/property.js');
+const properties = require('../../js/properties.js');
+const CQLUtils = require('../../js/CQLUtils.js');
+const metacardDefinitions = require('../singletons/metacard-definitions.js');
 const RelativeTimeView = require('../relative-time/relative-time.view.js')
 const BetweenTimeView = require('../between-time/between-time.view.js')
 
@@ -60,8 +60,8 @@ module.exports = Marionette.LayoutView.extend({
     })
   },
   constructFilter: function() {
-    var filters = []
-    var timeRange = this.basicTime.currentView.model.getValue()[0]
+    const filters = [];
+    const timeRange = this.basicTime.currentView.model.getValue()[0];
     let timeSelection = this.basicTemporalSelections.currentView.model.getValue()[0]
     timeSelection = !timeSelection.length ? undefined : timeSelection
     let timeBefore, timeAfter, timeDuring, relativeFunction
@@ -107,18 +107,18 @@ module.exports = Marionette.LayoutView.extend({
       filters.push(timeFilter)
     }
     if (relativeFunction && timeSelection) {
-      var timeDuration = {
+      const timeDuration = {
         type: 'OR',
         filters: timeSelection.map(selection =>
           CQLUtils.generateFilter('=', selection, relativeFunction)
         ),
-      }
+      };
       filters.push(timeDuration)
     }
     return filters
   },
   handleTimeRangeValue: function() {
-    var timeRange = this.basicTime.currentView.model.getValue()[0]
+    const timeRange = this.basicTime.currentView.model.getValue()[0];
     this.$el.toggleClass('is-timeRange-any', timeRange === 'any')
     this.$el.toggleClass('is-timeRange-before', timeRange === 'before')
     this.$el.toggleClass('is-timeRange-after', timeRange === 'after')
@@ -161,7 +161,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   setupTimeBefore: function() {
-    var currentBefore = ''
+    let currentBefore = '';
     if (this.options.filter.anyDate) {
       this.options.filter.anyDate.forEach(function(subfilter) {
         if (subfilter.type === 'BEFORE') {
@@ -182,7 +182,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   setupTimeAfter: function() {
-    var currentAfter = ''
+    let currentAfter = '';
 
     if (this.options.filter.anyDate) {
       this.options.filter.anyDate.forEach(function(subfilter) {
@@ -204,7 +204,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   setupTimeBetween: function() {
-    var value = ''
+    let value = '';
 
     // Pre-fill the last edited value or the load value from query
     if (this.options.filter.anyDate) {
@@ -222,7 +222,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   setupTimeInput: function() {
-    var currentValue = 'any'
+    let currentValue = 'any';
     if (this.options.filter.anyDate) {
       if (this.options.filter.anyDate[0].type === 'DURING') {
         currentValue = 'between'

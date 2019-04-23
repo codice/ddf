@@ -49,7 +49,7 @@ define([
   SystemUsageController,
   Properties
 ) {
-  var Application = {}
+  const Application = {};
 
   Application.App = new Marionette.Application()
 
@@ -74,20 +74,20 @@ define([
   })
 
   //setup models
-  var options = {
+  const options = {
     delay: 30000,
-  }
+  };
 
-  var addModuleRegions = function() {
+  const addModuleRegions = function() {
     //add tab regions
     Application.ModuleModel.get('value').each(function(module) {
-      var obj = {}
+      const obj = {};
       obj[module.get('id')] = '#' + module.get('id')
       if (!Application.App.getRegion(module.get('id'))) {
         Application.App.addRegions(obj)
       }
     })
-  }
+  };
 
   Application.ModuleModel = new Module.Model()
   Application.ModuleModel.fetch().done(addModuleRegions)
@@ -107,7 +107,7 @@ define([
       },
     }))()
   )
-  var modulePoller = poller.get(Application.ModuleModel, options)
+  const modulePoller = poller.get(Application.ModuleModel, options);
   modulePoller.on('success', addModuleRegions)
 
   modulePoller.start()

@@ -31,7 +31,7 @@ define([
   userDataTable,
   userPageControl
 ) {
-  var DataUsageView = {}
+  const DataUsageView = {};
 
   ich.addTemplate('userDataPage', userDataPage)
   ich.addTemplate('userDataTable', userDataTable)
@@ -60,19 +60,19 @@ define([
       'change .data-limit-td': 'contentChanged',
     },
     contentChanged: function(e) {
-      var dataSize = $(e.target)
+      const dataSize = $(e.target)
         .parent()
         .find('select')
         .find(':selected')
-        .text()
-      var inputValue = $(e.target)
+        .text();
+      const inputValue = $(e.target)
         .parent()
         .find('input')
-        .val()
-      var user = $(e.target)
+        .val();
+      const user = $(e.target)
         .parent()
         .find('input')
-        .attr('name')
+        .attr('name');
 
       if (this.model.isLimitChanged(user, inputValue, dataSize)) {
         $(e.target).addClass('notify')
@@ -116,13 +116,13 @@ define([
       )
     },
     updateUsers: function() {
-      var userData = this.model.get('users')
-      var data = {}
-      var updateAllUsers = $('.data-limit-all').val()
-      var allDataSize = $('.data-size-all')
+      const userData = this.model.get('users');
+      const data = {};
+      const updateAllUsers = $('.data-limit-all').val();
+      const allDataSize = $('.data-size-all')
         .find(':selected')
-        .text()
-      var dataAllUsersByteLimit
+        .text();
+      let dataAllUsersByteLimit;
 
       if (allDataSize === 'GB') {
         dataAllUsersByteLimit = this.getToBytes(
@@ -136,14 +136,14 @@ define([
         )
       }
 
-      var that = this
+      const that = this;
 
       $('.usertabledata tr').each(function(i, row) {
-        var $row = $(row)
-        var user = $row.find('td[name*="user"]').html()
+        const $row = $(row);
+        const user = $row.find('td[name*="user"]').html();
 
-        var dataSize = $row.find(':selected').text()
-        var usageLimit
+        const dataSize = $row.find(':selected').text();
+        let usageLimit;
 
         if (dataSize === 'GB') {
           usageLimit = parseFloat(
@@ -153,7 +153,7 @@ define([
           usageLimit = parseInt($row.find('input[name*="' + user + '"]').val())
         }
 
-        var dataByteLimit = that.getToBytes(usageLimit, dataSize)
+        const dataByteLimit = that.getToBytes(usageLimit, dataSize);
 
         if (
           updateAllUsers !== '' &&
@@ -178,11 +178,11 @@ define([
         this.model.submitUsageData(data)
       }
 
-      var updateTime = $('.input-time').val()
+      const updateTime = $('.input-time').val();
       if (updateTime !== this.model.get('cronTime')) {
         this.model.updateCronTime(updateTime)
       }
-      var updateMonitorLocalSources = $('.monitor-checkbox').prop('checked')
+      const updateMonitorLocalSources = $('.monitor-checkbox').prop('checked');
       if (updateMonitorLocalSources !== this.model.get('monitorLocalSources')) {
         this.model.updateMonitorLocalSources(updateMonitorLocalSources)
       }
@@ -193,10 +193,10 @@ define([
       this.model.trigger('change:monitorLocalSources', this.model)
     },
     notifyAllData: function(e) {
-      var value = $(e.target).val()
-      var select = $(e.target)
+      const value = $(e.target).val();
+      const select = $(e.target)
         .parent()
-        .find('select')
+        .find('select');
 
       if (value !== '') {
         $(e.target).addClass('notify')
@@ -207,7 +207,7 @@ define([
       }
     },
     notifyTimeChange: function(e) {
-      var timeInput = $(e.target).val()
+      const timeInput = $(e.target).val();
       if (timeInput !== this.model.get('cronTime')) {
         $(e.target).addClass('notify')
       } else {
@@ -215,7 +215,7 @@ define([
       }
     },
     getToBytes: function(dataLimit, dataSize) {
-      var toBytes
+      let toBytes;
 
       if (dataLimit === -1) {
         return dataLimit
@@ -230,10 +230,10 @@ define([
       return dataLimit * toBytes
     },
     setupPopOver: function(selector, content) {
-      var options = {
+      const options = {
         trigger: 'hover',
         content: content,
-      }
+      };
       this.$el.find(selector).popover(options)
     },
   })

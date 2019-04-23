@@ -34,7 +34,7 @@ const QueryTimeView = require('../query-time/query-time.view.js')
 const Common = require('../../js/Common.js')
 
 function isNested(filter) {
-  var nested = false
+  let nested = false;
   filter.filters.forEach(function(subfilter) {
     nested = nested || subfilter.filters
   })
@@ -48,7 +48,7 @@ function getMatchTypeAttribute() {
 }
 
 function isTypeLimiter(filter) {
-  var typesFound = {}
+  let typesFound = {};
   filter.filters.forEach(function(subfilter) {
     typesFound[CQLUtils.getProperty(subfilter)] = true
   })
@@ -72,8 +72,8 @@ function isAnyDate(filter) {
       'DATE'
     )
   }
-  var typesFound = {}
-  var valuesFound = {}
+  let typesFound = {};
+  let valuesFound = {};
   filter.filters.forEach(function(subfilter) {
     typesFound[subfilter.type] = true
     valuesFound[subfilter.value] = true
@@ -122,8 +122,8 @@ function handleAnyDateFilter(propertyValueMap, filter) {
 }
 
 function translateFilterToBasicMap(filter) {
-  var propertyValueMap = {}
-  var downConversion = false
+  const propertyValueMap = {};
+  let downConversion = false;
 
   if (!filter.filters && isAnyDate(filter)) {
     handleAnyDateFilter(propertyValueMap, filter)
@@ -203,7 +203,7 @@ module.exports = Marionette.LayoutView.extend({
       ? store.getQueryById(this.model._cloneOf)
       : this.model
     const filter = getFilterTree(this.model)
-    var translationToBasicMap = translateFilterToBasicMap(filter)
+    const translationToBasicMap = translateFilterToBasicMap(filter);
     this.filter = translationToBasicMap.propertyValueMap
     this.handleDownConversion(translationToBasicMap.downConversion)
     this.setupSettings()
@@ -247,7 +247,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   setupTypeSpecific: function() {
-    var currentValue = []
+    let currentValue = [];
     if (this.filter['metadata-content-type']) {
       currentValue = _.uniq(
         this.filter['metadata-content-type'].map(function(subfilter) {
@@ -297,7 +297,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   setupType: function() {
-    var currentValue = 'any'
+    let currentValue = 'any';
     if (this.filter['metadata-content-type']) {
       currentValue = 'specific'
     }
@@ -321,7 +321,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   setupLocation: function() {
-    var currentValue = 'any'
+    let currentValue = 'any';
     if (this.filter.anyGeo) {
       currentValue = 'specific'
     }
@@ -345,7 +345,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   setupLocationInput: function() {
-    var currentValue = ''
+    let currentValue = '';
     if (this.filter.anyGeo) {
       currentValue = this.filter.anyGeo[0]
     }
@@ -360,12 +360,12 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   handleTypeValue: function() {
-    var type = this.basicType.currentView.model.getValue()[0]
+    const type = this.basicType.currentView.model.getValue()[0];
     this.$el.toggleClass('is-type-any', type === 'any')
     this.$el.toggleClass('is-type-specific', type === 'specific')
   },
   handleLocationValue: function() {
-    var location = this.basicLocation.currentView.model.getValue()[0]
+    const location = this.basicLocation.currentView.model.getValue()[0];
     this.$el.toggleClass('is-location-any', location === 'any')
     this.$el.toggleClass('is-location-specific', location === 'specific')
   },
@@ -419,12 +419,12 @@ module.exports = Marionette.LayoutView.extend({
         region.currentView.turnOnEditing()
       }
     })
-    var tabbable = _.filter(
+    const tabbable = _.filter(
       this.$el.find('[tabindex], input, button'),
       function(element) {
         return element.offsetParent !== null
       }
-    )
+    );
     if (tabbable.length > 0) {
       $(tabbable[0]).focus()
     }
@@ -443,8 +443,8 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.removeClass('is-editing')
     this.basicSettings.currentView.saveToModel()
 
-    var filter = this.constructFilter()
-    var generatedCQL = CQLUtils.transformFilterToCQL(filter)
+    const filter = this.constructFilter();
+    const generatedCQL = CQLUtils.transformFilterToCQL(filter);
     this.model.set({
       filterTree: filter,
       cql: generatedCQL,
@@ -454,11 +454,11 @@ module.exports = Marionette.LayoutView.extend({
     return this.basicSettings.currentView.isValid()
   },
   constructFilter: function() {
-    var filters = []
+    const filters = [];
 
-    var text = this.basicText.currentView.model.getValue()[0]
+    const text = this.basicText.currentView.model.getValue()[0];
     if (text !== '') {
-      var matchCase = this.basicTextMatch.currentView.model.getValue()[0]
+      const matchCase = this.basicTextMatch.currentView.model.getValue()[0];
       filters.push(CQLUtils.generateFilter(matchCase, 'anyText', text))
     }
 
@@ -466,17 +466,17 @@ module.exports = Marionette.LayoutView.extend({
       filters.push(timeFilter)
     })
 
-    var locationSpecific = this.basicLocation.currentView.model.getValue()[0]
-    var location = this.basicLocationSpecific.currentView.model.getValue()[0]
-    var locationFilter = CQLUtils.generateFilter(undefined, 'anyGeo', location)
+    const locationSpecific = this.basicLocation.currentView.model.getValue()[0];
+    const location = this.basicLocationSpecific.currentView.model.getValue()[0];
+    const locationFilter = CQLUtils.generateFilter(undefined, 'anyGeo', location);
     if (locationSpecific === 'specific' && locationFilter) {
       filters.push(locationFilter)
     }
 
-    var types = this.basicType.currentView.model.getValue()[0]
-    var typesSpecific = this.basicTypeSpecific.currentView.model.getValue()[0]
+    const types = this.basicType.currentView.model.getValue()[0];
+    const typesSpecific = this.basicTypeSpecific.currentView.model.getValue()[0];
     if (types === 'specific' && typesSpecific.length !== 0) {
-      var typeFilter = {
+      const typeFilter = {
         type: 'OR',
         filters: typesSpecific
           .map(function(specificType) {
@@ -495,7 +495,7 @@ module.exports = Marionette.LayoutView.extend({
               )
             })
           ),
-      }
+      };
       filters.push(typeFilter)
     }
 
@@ -509,8 +509,8 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   setDefaultTitle: function() {
-    var text = this.basicText.currentView.model.getValue()[0]
-    var title
+    const text = this.basicText.currentView.model.getValue()[0];
+    let title;
     if (text === '') {
       title = this.model.get('cql')
     } else {

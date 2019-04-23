@@ -12,14 +12,14 @@
 
 //meant to be used for just in time feature detection
 
-var Backbone = require('backbone')
-var $ = require('jquery')
-var _ = require('underscore')
+const Backbone = require('backbone');
+const $ = require('jquery');
+const _ = require('underscore');
 
-var sessionRenewUrl = './internal/session/renew'
-var sessionExpiryUrl = './internal/session/expiry'
+const sessionRenewUrl = './internal/session/renew';
+const sessionExpiryUrl = './internal/session/expiry';
 
-var sessionAutoRenewModel = new (Backbone.Model.extend({
+const sessionAutoRenewModel = new (Backbone.Model.extend({
   defaults: {
     sessionRenewDate: undefined,
   },
@@ -35,11 +35,11 @@ var sessionAutoRenewModel = new (Backbone.Model.extend({
       })
   },
   handleExpiryTimeResponse: function(response) {
-    var msUntilTimeout = parseInt(response)
-    var msUntilAutoRenew = Math.max(
+    const msUntilTimeout = parseInt(response);
+    const msUntilAutoRenew = Math.max(
       msUntilTimeout * 0.7,
       msUntilTimeout - 60000
-    ) // 70% or at least one minute before
+    ); // 70% or at least one minute before
     this.set('sessionRenewDate', Date.now() + msUntilAutoRenew)
   },
   handleSessionRenewDate: function() {
@@ -62,6 +62,6 @@ var sessionAutoRenewModel = new (Backbone.Model.extend({
         console.log('what do we do on a failure')
       })
   },
-}))()
+}))();
 
 module.exports = sessionAutoRenewModel

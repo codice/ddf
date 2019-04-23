@@ -14,164 +14,164 @@ define(['icanhaz', 'underscore', 'handlebars'], function(ich, _, Handlebars) {
   'use strict'
 
   // The module to be exported
-  var helper,
-    helpers = {
-      isNotBlank: function(context, block) {
-        if (context && context !== '') {
-          return block.fn(this)
-        } else {
-          return block.inverse(this)
-        }
-      },
-      is: function(value, test, options) {
-        if (value === test) {
-          return options.fn(this)
-        } else {
-          return options.inverse(this)
-        }
-      },
-      isnt: function(value, test, options) {
-        if (value !== test) {
-          return options.fn(this)
-        } else {
-          return options.inverse(this)
-        }
-      },
-      isUrl: function(value, options) {
-        if (value && value !== '' && _.isString(value)) {
-          var protocol = value.toLowerCase().split('/')[0]
-          if (protocol && (protocol === 'http:' || protocol === 'https:')) {
+  let helper,
+      helpers = {
+        isNotBlank: function(context, block) {
+          if (context && context !== '') {
+            return block.fn(this)
+          } else {
+            return block.inverse(this)
+          }
+        },
+        is: function(value, test, options) {
+          if (value === test) {
             return options.fn(this)
+          } else {
+            return options.inverse(this)
           }
-        }
-        return options.inverse(this)
-      },
-      gt: function(value, test, options) {
-        if (value > test) {
-          return options.fn(this)
-        } else {
+        },
+        isnt: function(value, test, options) {
+          if (value !== test) {
+            return options.fn(this)
+          } else {
+            return options.inverse(this)
+          }
+        },
+        isUrl: function(value, options) {
+          if (value && value !== '' && _.isString(value)) {
+            const protocol = value.toLowerCase().split('/')[0];
+            if (protocol && (protocol === 'http:' || protocol === 'https:')) {
+              return options.fn(this)
+            }
+          }
           return options.inverse(this)
-        }
-      },
+        },
+        gt: function(value, test, options) {
+          if (value > test) {
+            return options.fn(this)
+          } else {
+            return options.inverse(this)
+          }
+        },
 
-      gte: function(value, test, options) {
-        if (value >= test) {
-          return options.fn(this)
-        } else {
-          return options.inverse(this)
-        }
-      },
-      lt: function(value, test, options) {
-        if (value < test) {
-          return options.fn(this)
-        } else {
-          return options.inverse(this)
-        }
-      },
+        gte: function(value, test, options) {
+          if (value >= test) {
+            return options.fn(this)
+          } else {
+            return options.inverse(this)
+          }
+        },
+        lt: function(value, test, options) {
+          if (value < test) {
+            return options.fn(this)
+          } else {
+            return options.inverse(this)
+          }
+        },
 
-      lte: function(value, test, options) {
-        if (value <= test) {
-          return options.fn(this)
-        } else {
-          return options.inverse(this)
-        }
-      },
-      ifAnd: function() {
-        var args = _.flatten(arguments)
-        var items = _.initial(args)
-        var result = true
-        var block = _.last(args)
-        _.each(items, function(item) {
-          if (!item) {
-            result = false
+        lte: function(value, test, options) {
+          if (value <= test) {
+            return options.fn(this)
+          } else {
+            return options.inverse(this)
           }
-        })
-        if (result) {
-          return block.fn(this)
-        } else {
-          return block.inverse(this)
-        }
-      },
-      ifOr: function() {
-        var args = _.flatten(arguments)
-        var items = _.initial(args)
-        var result = false
-        var block = _.last(args)
-        _.each(items, function(item) {
-          if (item) {
-            result = true
+        },
+        ifAnd: function() {
+          const args = _.flatten(arguments);
+          const items = _.initial(args);
+          let result = true;
+          const block = _.last(args);
+          _.each(items, function(item) {
+            if (!item) {
+              result = false
+            }
+          })
+          if (result) {
+            return block.fn(this)
+          } else {
+            return block.inverse(this)
           }
-        })
-        if (result) {
-          return block.fn(this)
-        } else {
-          return block.inverse(this)
-        }
-      },
-      ifNotAnd: function() {
-        var args = _.flatten(arguments)
-        var items = _.initial(args)
-        var result = true
-        var block = _.last(args)
-        _.each(items, function(item) {
-          if (!item) {
-            result = false
+        },
+        ifOr: function() {
+          const args = _.flatten(arguments);
+          const items = _.initial(args);
+          let result = false;
+          const block = _.last(args);
+          _.each(items, function(item) {
+            if (item) {
+              result = true
+            }
+          })
+          if (result) {
+            return block.fn(this)
+          } else {
+            return block.inverse(this)
           }
-        })
-        if (result) {
-          return block.inverse(this)
-        } else {
-          return block.fn(this)
-        }
-      },
-      ifNotOr: function() {
-        var args = _.flatten(arguments)
-        var items = _.initial(args)
-        var result = false
-        var block = _.last(args)
-        _.each(items, function(item) {
-          if (item) {
-            result = true
+        },
+        ifNotAnd: function() {
+          const args = _.flatten(arguments);
+          const items = _.initial(args);
+          let result = true;
+          const block = _.last(args);
+          _.each(items, function(item) {
+            if (!item) {
+              result = false
+            }
+          })
+          if (result) {
+            return block.inverse(this)
+          } else {
+            return block.fn(this)
           }
-        })
-        if (result) {
-          return block.inverse(this)
-        } else {
-          return block.fn(this)
-        }
-      },
-      propertyTitle: function(str) {
-        if (_.isString(str)) {
-          return _.chain(str)
-            .words()
-            .map(function(word) {
-              return _.capitalize(word)
-            })
-            .join(' ')
-        }
-        return str
-      },
-      safeString: function(str) {
-        if (_.isString(str)) {
-          return new Handlebars.SafeString(str)
-        }
-        return str
-      },
-      splitDashes: function(str) {
-        return str.split('-').join(' ')
-      },
-      encodeString: function(str) {
-        if (_.isString(str)) {
-          return encodeURIComponent(str)
-        }
-        return str
-      },
-      debug: function() {
-        console.log('Current Context')
-        console.log('====================')
-        console.log(this)
-      },
-    }
+        },
+        ifNotOr: function() {
+          const args = _.flatten(arguments);
+          const items = _.initial(args);
+          let result = false;
+          const block = _.last(args);
+          _.each(items, function(item) {
+            if (item) {
+              result = true
+            }
+          })
+          if (result) {
+            return block.inverse(this)
+          } else {
+            return block.fn(this)
+          }
+        },
+        propertyTitle: function(str) {
+          if (_.isString(str)) {
+            return _.chain(str)
+              .words()
+              .map(function(word) {
+                return _.capitalize(word)
+              })
+              .join(' ')
+          }
+          return str
+        },
+        safeString: function(str) {
+          if (_.isString(str)) {
+            return new Handlebars.SafeString(str)
+          }
+          return str
+        },
+        splitDashes: function(str) {
+          return str.split('-').join(' ')
+        },
+        encodeString: function(str) {
+          if (_.isString(str)) {
+            return encodeURIComponent(str)
+          }
+          return str
+        },
+        debug: function() {
+          console.log('Current Context')
+          console.log('====================')
+          console.log(this)
+        },
+      };
 
   // Export helpers
   for (helper in helpers) {

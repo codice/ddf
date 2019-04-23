@@ -14,20 +14,20 @@
  **/
 
 import ListCreate from '../list-create/list-create.js'
-var Marionette = require('marionette')
-var _ = require('underscore')
-var $ = require('jquery')
-var CustomElements = require('../../js/CustomElements.js')
-var ListItemCollectionView = require('../list-item/list-item.collection.view.js')
-var template = require('./list-select.hbs')
-var PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
+const Marionette = require('marionette');
+const _ = require('underscore');
+const $ = require('jquery');
+const CustomElements = require('../../js/CustomElements.js');
+const ListItemCollectionView = require('../list-item/list-item.collection.view.js');
+const template = require('./list-select.hbs');
+const PopoutView = require('../dropdown/popout/dropdown.popout.view.js');
 
-var eventsHash = {
+const eventsHash = {
   click: 'handleClick',
-}
+};
 
-var namespace = CustomElements.getNamespace()
-var listItemClickEvent = 'click ' + namespace + 'list-item'
+const namespace = CustomElements.getNamespace();
+const listItemClickEvent = 'click ' + namespace + 'list-item';
 eventsHash[listItemClickEvent] = 'handleListItemClick'
 
 let ListSelectingView = ListItemCollectionView.extend({
@@ -42,7 +42,7 @@ let ListSelectingView = ListItemCollectionView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   handleValue: function() {
-    var listId = this.model.get('value')
+    const listId = this.model.get('value');
     this.$el.find(namespace + 'list-item').removeClass('is-selected')
     if (listId) {
       this.$el

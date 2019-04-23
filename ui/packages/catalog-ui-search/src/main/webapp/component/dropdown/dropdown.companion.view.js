@@ -64,9 +64,9 @@ module.exports = Marionette.LayoutView.extend(
       )
     },
     updateWidth: function() {
-      var clientRect = this.options.linkedView
+      const clientRect = this.options.linkedView
         .getCenteringElement()
-        .getBoundingClientRect()
+        .getBoundingClientRect();
       if (this.options.linkedView.hasLimitedWidth) {
         this.$el.css(
           'width',
@@ -80,7 +80,7 @@ module.exports = Marionette.LayoutView.extend(
       }
     },
     updateFilterMaxHeight: function(bottomRoom) {
-      var extraRoom = '0rem'
+      let extraRoom = '0rem';
       if (this.isMultiSelect()) {
         extraRoom = '2.75rem'
       }
@@ -106,7 +106,7 @@ module.exports = Marionette.LayoutView.extend(
       this.$el.toggleClass('has-tail', this.options.linkedView.hasTail)
     },
     handleOpenChange: function() {
-      var isOpen = this.options.linkedView.model.get('isOpen')
+      const isOpen = this.options.linkedView.model.get('isOpen');
       if (isOpen) {
         this.onOpen()
       } else {
@@ -118,9 +118,9 @@ module.exports = Marionette.LayoutView.extend(
         $('body').append(this.el)
         this.render()
         this.handleTail()
-        var componentToShow =
+        const componentToShow =
           this.options.linkedView.componentToShow ||
-          this.options.linkedView.options.componentToShow
+          this.options.linkedView.options.componentToShow;
         this.componentToShow.show(
           new componentToShow(
             _.extend(
@@ -171,7 +171,7 @@ module.exports = Marionette.LayoutView.extend(
       if (this.isDestroyed) {
         return
       }
-      var code = event.keyCode
+      let code = event.keyCode;
       if (event.charCode && code == 0) code = event.charCode
       switch (code) {
         case 13:
@@ -188,7 +188,7 @@ module.exports = Marionette.LayoutView.extend(
           // Key down
           break
         default:
-          var filterValue = this.$el.children('input').val()
+          const filterValue = this.$el.children('input').val();
           this.options.linkedView.model.set('filterValue', filterValue)
           this.updateWidth()
           this.updatePosition()
@@ -199,7 +199,7 @@ module.exports = Marionette.LayoutView.extend(
       if (this.isDestroyed) {
         return
       }
-      var code = event.keyCode
+      let code = event.keyCode;
       if (event.charCode && code == 0) code = event.charCode
       switch (code) {
         case 13:
@@ -230,10 +230,10 @@ module.exports = Marionette.LayoutView.extend(
           break
         default:
           //anything else
-          var hasFiltering = Boolean(
+          const hasFiltering = Boolean(
             this.options.linkedView.hasFiltering ||
               this.options.linkedView.options.hasFiltering
-          )
+          );
           if (hasFiltering) {
             Common.queueExecution(() => {
               this.$el.children('input').focus()

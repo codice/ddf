@@ -38,9 +38,9 @@ define([
 ) {
   'use strict'
 
-  var Model = {}
+  const Model = {};
 
-  var NewApplicationView = Marionette.Layout.extend({
+  const NewApplicationView = Marionette.Layout.extend({
     template() {
       return <React.Fragment />
     },
@@ -72,14 +72,14 @@ define([
         this.model.get('isEditMode')
       )
     },
-  })
+  });
 
-  var BOX_LAYOUT = 0
-  var ROW_LAYOUT = 1
-  var ACTIVE_STATE = 'ACTIVE'
+  const BOX_LAYOUT = 0;
+  const ROW_LAYOUT = 1;
+  const ACTIVE_STATE = 'ACTIVE';
 
   // Main layout view for all the applications
-  var ApplicationView = Marionette.Layout.extend({
+  const ApplicationView = Marionette.Layout.extend({
     template: template,
     tagName: CustomElements.register('applications'),
     className: 'full-height well',
@@ -118,7 +118,7 @@ define([
       )
     },
     onRender: function() {
-      var view = this
+      const view = this;
 
       _.defer(function() {
         view.appsgridInstalled.show(
@@ -156,7 +156,7 @@ define([
     toggleEditMode: function(isEditMode) {
       this.$el.toggleClass('edit-mode', isEditMode)
     },
-  })
+  });
 
   return ApplicationView
 })

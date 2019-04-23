@@ -115,7 +115,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
     )
   },
   updateActiveSearchResultsAttributes: function() {
-    var availableAttributes = this.get('activeSearchResults')
+    const availableAttributes = this.get('activeSearchResults')
       .reduce(function(currentAvailable, result) {
         currentAvailable = _.union(
           currentAvailable,
@@ -128,7 +128,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
         )
         return currentAvailable
       }, [])
-      .sort()
+      .sort();
     this.set('activeSearchResultsAttributes', availableAttributes)
   },
   getActiveSearchResultsAttributes: function() {

@@ -9,9 +9,9 @@
  */
 const Cesium = require('cesium')
 
-var DrawHelper = (module.exports = (function() {
+const DrawHelper = (module.exports = (function() {
   // static variables
-  var ellipsoid = Cesium.Ellipsoid.WGS84
+  const ellipsoid = Cesium.Ellipsoid.WGS84;
 
   // constructor
   function _(cesiumWidget) {
@@ -25,13 +25,13 @@ var DrawHelper = (module.exports = (function() {
   }
 
   _.prototype.initialiseHandlers = function() {
-    var scene = this._scene
-    var _self = this
+    const scene = this._scene;
+    const _self = this;
     // scene events
-    var handler = new Cesium.ScreenSpaceEventHandler(scene.canvas)
+    const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
     function callPrimitiveCallback(name, position) {
       if (_self._handlersMuted == true) return
-      var pickedObject = scene.pick(position)
+      const pickedObject = scene.pick(position);
       if (
         pickedObject &&
         pickedObject.primitive &&
@@ -46,10 +46,10 @@ var DrawHelper = (module.exports = (function() {
     handler.setInputAction(function(movement) {
       callPrimitiveCallback('leftDoubleClick', movement.position)
     }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK)
-    var mouseOutObject
+    let mouseOutObject;
     handler.setInputAction(function(movement) {
       if (_self._handlersMuted == true) return
-      var pickedObject = scene.pick(movement.endPosition)
+      let pickedObject = scene.pick(movement.endPosition);
       if (
         mouseOutObject &&
         (!pickedObject || mouseOutObject != pickedObject.primitive)
@@ -87,7 +87,7 @@ var DrawHelper = (module.exports = (function() {
   // register event handling for an editable shape
   // shape should implement setEditMode and setHighlighted
   _.prototype.registerEditableShape = function(surface) {
-    var _self = this
+    const _self = this;
 
     // handlers for interactions
     // highlight polygon when mouse is entering
@@ -154,17 +154,17 @@ var DrawHelper = (module.exports = (function() {
     this._editedSurface = surface
   }
 
-  var material = Cesium.Material.fromType(Cesium.Material.ColorType)
+  const material = Cesium.Material.fromType(Cesium.Material.ColorType);
   material.uniforms.color = new Cesium.Color(1.0, 1.0, 0.0, 0.5)
 
-  var defaultShapeOptions = {
+  const defaultShapeOptions = {
     ellipsoid: Cesium.Ellipsoid.WGS84,
     textureRotationAngle: 0.0,
     height: 0.0,
     asynchronous: true,
     show: true,
     debugShowBoundingVolume: false,
-  }
+  };
 
   var defaultSurfaceOptions = copyOptions(defaultShapeOptions, {
     appearance: new Cesium.EllipsoidSurfaceAppearance({
@@ -196,7 +196,7 @@ var DrawHelper = (module.exports = (function() {
   //    Cesium.Polygon.prototype.drawOutline = drawOutline;
   //
 
-  var ChangeablePrimitive = (function() {
+  const ChangeablePrimitive = (function() {
     function _() {}
 
     _.prototype.initialiseOptions = function(options) {
@@ -258,7 +258,7 @@ var DrawHelper = (module.exports = (function() {
         this._textureRotationAngle !== this.textureRotationAngle ||
         this._id !== this.id
       ) {
-        var geometry = this.getGeometry()
+        const geometry = this.getGeometry();
         if (!geometry) {
           return
         }
@@ -311,7 +311,7 @@ var DrawHelper = (module.exports = (function() {
         }
       }
 
-      var primitive = this._primitive
+      const primitive = this._primitive;
       primitive.appearance.material = this.material
       primitive.debugShowBoundingVolume = this.debugShowBoundingVolume
       primitive.update(context, frameState, commandList)
@@ -341,7 +341,7 @@ var DrawHelper = (module.exports = (function() {
     }
 
     return _
-  })()
+  })();
 
   _.ExtentPrimitive = (function() {
     function _(options) {
@@ -632,11 +632,11 @@ var DrawHelper = (module.exports = (function() {
     return _
   })()
 
-  var defaultBillboard = {
+  const defaultBillboard = {
     iconUrl: './img/dragIcon.png',
     shiftX: 0,
     shiftY: 0,
-  }
+  };
 
   var dragBillboard = {
     iconUrl: './img/dragIcon.png',
@@ -651,7 +651,7 @@ var DrawHelper = (module.exports = (function() {
   }
 
   _.prototype.createBillboardGroup = function(points, options, callbacks) {
-    var markers = new _.BillboardGroup(this, options)
+    const markers = new _.BillboardGroup(this, options);
     markers.addBillboards(points, callbacks)
     return markers
   }
@@ -663,7 +663,7 @@ var DrawHelper = (module.exports = (function() {
     this._options = copyOptions(options, defaultBillboard)
 
     // create one common billboard collection for all billboards
-    var b = new Cesium.BillboardCollection()
+    const b = new Cesium.BillboardCollection();
     this._scene.primitives.add(b)
     this._billboards = b
     // keep an ordered list of billboards
@@ -671,7 +671,7 @@ var DrawHelper = (module.exports = (function() {
   }
 
   _.BillboardGroup.prototype.createBillboard = function(position, callbacks) {
-    var billboard = this._billboards.add({
+    const billboard = this._billboards.add({
       show: true,
       position: position,
       pixelOffset: new Cesium.Cartesian2(
@@ -684,12 +684,12 @@ var DrawHelper = (module.exports = (function() {
       scale: 1.0,
       image: this._options.iconUrl,
       color: new Cesium.Color(1.0, 1.0, 1.0, 1.0),
-    })
+    });
 
     // if editable
     if (callbacks) {
       var _self = this
-      var screenSpaceCameraController = this._scene.screenSpaceCameraController
+      const screenSpaceCameraController = this._scene.screenSpaceCameraController;
       function enableRotation(enable) {
         screenSpaceCameraController.enableRotate = enable
       }
@@ -711,7 +711,7 @@ var DrawHelper = (module.exports = (function() {
             billboard.position = position
             // find index
             for (
-              var i = 0, I = _self._orderedBillboards.length;
+              let i = 0, I = _self._orderedBillboards.length;
               i < I && _self._orderedBillboards[i] != billboard;
               ++i
             );
@@ -728,10 +728,10 @@ var DrawHelper = (module.exports = (function() {
           var handler = new Cesium.ScreenSpaceEventHandler(_self._scene.canvas)
 
           handler.setInputAction(function(movement) {
-            var cartesian = _self._scene.camera.pickEllipsoid(
+            const cartesian = _self._scene.camera.pickEllipsoid(
               movement.endPosition,
               ellipsoid
-            )
+            );
             if (cartesian) {
               onDrag(cartesian)
             } else {
@@ -794,14 +794,14 @@ var DrawHelper = (module.exports = (function() {
   }
 
   _.BillboardGroup.prototype.addBillboards = function(positions, callbacks) {
-    var index = 0
+    let index = 0;
     for (; index < positions.length; index++) {
       this.addBillboard(positions[index], callbacks)
     }
   }
 
   _.BillboardGroup.prototype.updateBillboardsPositions = function(positions) {
-    var index = 0
+    let index = 0;
     for (; index < positions.length; index++) {
       this.getBillboard(index).position = positions[index]
     }
@@ -840,19 +840,19 @@ var DrawHelper = (module.exports = (function() {
       tooltip.setVisible(false)
     })
 
-    var _self = this
-    var scene = this._scene
-    var primitives = scene.primitives
-    var tooltip = this._tooltip
+    const _self = this;
+    const scene = this._scene;
+    const primitives = scene.primitives;
+    const tooltip = this._tooltip;
 
-    var markers = new _.BillboardGroup(this, options)
+    const markers = new _.BillboardGroup(this, options);
 
-    var mouseHandler = new Cesium.ScreenSpaceEventHandler(scene.canvas)
+    const mouseHandler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
 
     // Now wait for start
     mouseHandler.setInputAction(function(movement) {
       if (movement.position != null) {
-        var cartesian = scene.camera.pickEllipsoid(movement.position, ellipsoid)
+        const cartesian = scene.camera.pickEllipsoid(movement.position, ellipsoid);
         if (cartesian) {
           markers.addBillboard(cartesian)
           _self.stopDrawing()
@@ -862,9 +862,9 @@ var DrawHelper = (module.exports = (function() {
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
 
     mouseHandler.setInputAction(function(movement) {
-      var position = movement.endPosition
+      const position = movement.endPosition;
       if (position != null) {
-        var cartesian = scene.camera.pickEllipsoid(position, ellipsoid)
+        const cartesian = scene.camera.pickEllipsoid(position, ellipsoid);
         if (cartesian) {
           tooltip.showAt(
             position,
@@ -901,13 +901,13 @@ var DrawHelper = (module.exports = (function() {
       tooltip.setVisible(false)
     })
 
-    var _self = this
-    var scene = this._scene
-    var primitives = scene.primitives
-    var tooltip = this._tooltip
+    const _self = this;
+    const scene = this._scene;
+    const primitives = scene.primitives;
+    const tooltip = this._tooltip;
 
-    var minPoints = isPolygon ? 3 : 2
-    var poly
+    const minPoints = isPolygon ? 3 : 2;
+    let poly;
     if (isPolygon) {
       poly = new DrawHelper.PolygonPrimitive(options)
     } else {
@@ -916,15 +916,15 @@ var DrawHelper = (module.exports = (function() {
     poly.asynchronous = false
     primitives.add(poly)
 
-    var positions = []
-    var markers = new _.BillboardGroup(this, defaultBillboard)
+    const positions = [];
+    const markers = new _.BillboardGroup(this, defaultBillboard);
 
-    var mouseHandler = new Cesium.ScreenSpaceEventHandler(scene.canvas)
+    const mouseHandler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
 
     // Now wait for start
     mouseHandler.setInputAction(function(movement) {
       if (movement.position != null) {
-        var cartesian = scene.camera.pickEllipsoid(movement.position, ellipsoid)
+        const cartesian = scene.camera.pickEllipsoid(movement.position, ellipsoid);
         if (cartesian) {
           // first click
           if (positions.length == 0) {
@@ -945,12 +945,12 @@ var DrawHelper = (module.exports = (function() {
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
 
     mouseHandler.setInputAction(function(movement) {
-      var position = movement.endPosition
+      const position = movement.endPosition;
       if (position != null) {
         if (positions.length == 0) {
           tooltip.showAt(position, '<p>Click to add first point</p>')
         } else {
-          var cartesian = scene.camera.pickEllipsoid(position, ellipsoid)
+          const cartesian = scene.camera.pickEllipsoid(position, ellipsoid);
           if (cartesian) {
             positions.pop()
             // make sure it is slightly different
@@ -978,12 +978,12 @@ var DrawHelper = (module.exports = (function() {
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
 
     mouseHandler.setInputAction(function(movement) {
-      var position = movement.position
+      const position = movement.position;
       if (position != null) {
         if (positions.length < minPoints + 2) {
           return
         } else {
-          var cartesian = scene.camera.pickEllipsoid(position, ellipsoid)
+          const cartesian = scene.camera.pickEllipsoid(position, ellipsoid);
           if (cartesian) {
             _self.stopDrawing()
             if (typeof options.callback == 'function') {
@@ -1018,16 +1018,16 @@ var DrawHelper = (module.exports = (function() {
       tooltip.setVisible(false)
     })
 
-    var _self = this
-    var scene = this._scene
-    var primitives = this._scene.primitives
-    var tooltip = this._tooltip
+    const _self = this;
+    const scene = this._scene;
+    const primitives = this._scene.primitives;
+    const tooltip = this._tooltip;
 
-    var firstPoint = null
-    var extent = null
-    var markers = null
+    let firstPoint = null;
+    let extent = null;
+    let markers = null;
 
-    var mouseHandler = new Cesium.ScreenSpaceEventHandler(scene.canvas)
+    const mouseHandler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
 
     function updateExtent(value) {
       if (extent == null) {
@@ -1037,7 +1037,7 @@ var DrawHelper = (module.exports = (function() {
       }
       extent.rectangle = value
       // update the markers
-      var corners = getExtentCorners(value)
+      const corners = getExtentCorners(value);
       // create if they do not yet exist
       if (markers == null) {
         markers = new _.BillboardGroup(_self, defaultBillboard)
@@ -1050,12 +1050,12 @@ var DrawHelper = (module.exports = (function() {
     // Now wait for start
     mouseHandler.setInputAction(function(movement) {
       if (movement.position != null) {
-        var cartesian = scene.camera.pickEllipsoid(movement.position, ellipsoid)
+        const cartesian = scene.camera.pickEllipsoid(movement.position, ellipsoid);
         if (cartesian) {
           if (extent == null) {
             // create the rectangle
             firstPoint = ellipsoid.cartesianToCartographic(cartesian)
-            var value = getExtent(firstPoint, firstPoint)
+            const value = getExtent(firstPoint, firstPoint);
             updateExtent(value)
           } else {
             _self.stopDrawing()
@@ -1073,17 +1073,17 @@ var DrawHelper = (module.exports = (function() {
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN)
 
     mouseHandler.setInputAction(function(movement) {
-      var position = movement.endPosition
+      const position = movement.endPosition;
       if (position != null) {
         if (extent == null) {
           tooltip.showAt(position, '<p>Click to start drawing rectangle</p>')
         } else {
-          var cartesian = scene.camera.pickEllipsoid(position, ellipsoid)
+          const cartesian = scene.camera.pickEllipsoid(position, ellipsoid);
           if (cartesian) {
-            var value = getExtent(
+            const value = getExtent(
               firstPoint,
               ellipsoid.cartesianToCartographic(cartesian)
-            )
+            );
             updateExtent(value)
             tooltip.showAt(
               position,
@@ -1107,20 +1107,20 @@ var DrawHelper = (module.exports = (function() {
       tooltip.setVisible(false)
     })
 
-    var _self = this
-    var scene = this._scene
-    var primitives = this._scene.primitives
-    var tooltip = this._tooltip
+    const _self = this;
+    const scene = this._scene;
+    const primitives = this._scene.primitives;
+    const tooltip = this._tooltip;
 
-    var circle = null
-    var markers = null
+    let circle = null;
+    let markers = null;
 
-    var mouseHandler = new Cesium.ScreenSpaceEventHandler(scene.canvas)
+    const mouseHandler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
 
     // Now wait for start
     mouseHandler.setInputAction(function(movement) {
       if (movement.position != null) {
-        var cartesian = scene.camera.pickEllipsoid(movement.position, ellipsoid)
+        const cartesian = scene.camera.pickEllipsoid(movement.position, ellipsoid);
         if (cartesian) {
           if (circle == null) {
             // create the circle
@@ -1144,12 +1144,12 @@ var DrawHelper = (module.exports = (function() {
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN)
 
     mouseHandler.setInputAction(function(movement) {
-      var position = movement.endPosition
+      const position = movement.endPosition;
       if (position != null) {
         if (circle == null) {
           tooltip.showAt(position, '<p>Click to start drawing the circle</p>')
         } else {
-          var cartesian = scene.camera.pickEllipsoid(position, ellipsoid)
+          const cartesian = scene.camera.pickEllipsoid(position, ellipsoid);
           if (cartesian) {
             circle.setRadius(
               Cesium.Cartesian3.distance(circle.getCenter(), cartesian)
@@ -1166,7 +1166,7 @@ var DrawHelper = (module.exports = (function() {
   }
 
   _.prototype.enhancePrimitives = function() {
-    var drawHelper = this
+    const drawHelper = this;
 
     Cesium.Billboard.prototype.setEditable = function() {
       if (this._editable) {
@@ -1175,9 +1175,9 @@ var DrawHelper = (module.exports = (function() {
 
       this._editable = true
 
-      var billboard = this
+      const billboard = this;
 
-      var _self = this
+      const _self = this;
 
       function enableRotation(enable) {
         drawHelper._scene.screenSpaceCameraController.enableRotate = enable
@@ -1201,10 +1201,10 @@ var DrawHelper = (module.exports = (function() {
         )
 
         handler.setInputAction(function(movement) {
-          var cartesian = drawHelper._scene.camera.pickEllipsoid(
+          const cartesian = drawHelper._scene.camera.pickEllipsoid(
             movement.endPosition,
             ellipsoid
-          )
+          );
           if (cartesian) {
             onDrag(cartesian)
           } else {
@@ -1225,7 +1225,7 @@ var DrawHelper = (module.exports = (function() {
     }
 
     function setHighlighted(highlighted) {
-      var scene = drawHelper._scene
+      const scene = drawHelper._scene;
 
       // if no change
       // if already highlighted, the outline polygon will be available
@@ -1265,16 +1265,16 @@ var DrawHelper = (module.exports = (function() {
       // display markers
       if (editMode) {
         drawHelper.setEdited(this)
-        var scene = drawHelper._scene
-        var _self = this
+        const scene = drawHelper._scene;
+        const _self = this;
         // create the markers and handlers for the editing
         if (this._markers == null) {
-          var markers = new _.BillboardGroup(drawHelper, dragBillboard)
-          var editMarkers = new _.BillboardGroup(drawHelper, dragHalfBillboard)
+          const markers = new _.BillboardGroup(drawHelper, dragBillboard);
+          const editMarkers = new _.BillboardGroup(drawHelper, dragHalfBillboard);
           // function for updating the edit markers around a certain point
           function updateHalfMarkers(index, positions) {
             // update the half markers before and after the index
-            var editIndex = index - 1 < 0 ? positions.length - 1 : index - 1
+            let editIndex = index - 1 < 0 ? positions.length - 1 : index - 1;
             if (editIndex < editMarkers.countBillboards()) {
               editMarkers.getBillboard(
                 editIndex
@@ -1293,7 +1293,7 @@ var DrawHelper = (module.exports = (function() {
               positions: _self.positions,
             })
           }
-          var handleMarkerChanges = {
+          const handleMarkerChanges = {
             dragHandlers: {
               onDrag: function(index, position) {
                 _self.positions[index] = position
@@ -1322,12 +1322,12 @@ var DrawHelper = (module.exports = (function() {
                 return 'Double click to remove this point'
               }
             },
-          }
+          };
           // add billboards and keep an ordered list of them for the polygon edges
           markers.addBillboards(_self.positions, handleMarkerChanges)
           this._markers = markers
           function calculateHalfMarkerPosition(index) {
-            var positions = _self.positions
+            const positions = _self.positions;
             return ellipsoid.cartographicToCartesian(
               new Cesium.EllipsoidGeodesic(
                 ellipsoid.cartesianToCartographic(positions[index]),
@@ -1337,13 +1337,13 @@ var DrawHelper = (module.exports = (function() {
               ).interpolateUsingFraction(0.5)
             )
           }
-          var halfPositions = []
+          const halfPositions = [];
           var index = 0
           var length = _self.positions.length + (this.isPolygon ? 0 : -1)
           for (; index < length; index++) {
             halfPositions.push(calculateHalfMarkerPosition(index))
           }
-          var handleEditMarkerChanges = {
+          const handleEditMarkerChanges = {
             dragHandlers: {
               onDragStart: function(index, position) {
                 // add a new position to the polygon but not a new marker yet
@@ -1377,7 +1377,7 @@ var DrawHelper = (module.exports = (function() {
             tooltip: function() {
               return 'Drag to create a new point'
             },
-          }
+          };
           editMarkers.addBillboards(halfPositions, handleEditMarkerChanges)
           this._editMarkers = editMarkers
           // add a handler for clicking in the globe
@@ -1385,7 +1385,7 @@ var DrawHelper = (module.exports = (function() {
             scene.canvas
           )
           this._globeClickhandler.setInputAction(function(movement) {
-            var pickedObject = scene.pick(movement.position)
+            const pickedObject = scene.pick(movement.position);
             if (!(pickedObject && pickedObject.primitive)) {
               _self.setEditMode(false)
             }
@@ -1413,7 +1413,7 @@ var DrawHelper = (module.exports = (function() {
         return
       }
 
-      var polyline = this
+      const polyline = this;
       polyline.isPolygon = false
       polyline.asynchronous = false
 
@@ -1421,7 +1421,7 @@ var DrawHelper = (module.exports = (function() {
 
       polyline.setEditMode = setEditMode
 
-      var originalWidth = this.width
+      const originalWidth = this.width;
 
       polyline.setHighlighted = function(highlighted) {
         // disable if already in edit mode
@@ -1448,10 +1448,10 @@ var DrawHelper = (module.exports = (function() {
     }
 
     DrawHelper.PolygonPrimitive.prototype.setEditable = function() {
-      var polygon = this
+      const polygon = this;
       polygon.asynchronous = false
 
-      var scene = drawHelper._scene
+      const scene = drawHelper._scene;
 
       drawHelper.registerEditableShape(polygon)
 
@@ -1469,8 +1469,8 @@ var DrawHelper = (module.exports = (function() {
         return
       }
 
-      var extent = this
-      var scene = drawHelper._scene
+      const extent = this;
+      const scene = drawHelper._scene;
 
       drawHelper.registerEditableShape(extent)
       extent.asynchronous = false
@@ -1487,17 +1487,17 @@ var DrawHelper = (module.exports = (function() {
           drawHelper.setEdited(this)
           // create the markers and handlers for the editing
           if (this._markers == null) {
-            var markers = new _.BillboardGroup(drawHelper, dragBillboard)
+            const markers = new _.BillboardGroup(drawHelper, dragBillboard);
             function onEdited() {
               extent.executeListeners({
                 name: 'onEdited',
                 extent: extent.extent,
               })
             }
-            var handleMarkerChanges = {
+            const handleMarkerChanges = {
               dragHandlers: {
                 onDrag: function(index, position) {
-                  var corner = markers.getBillboard((index + 2) % 4).position
+                  const corner = markers.getBillboard((index + 2) % 4).position;
                   extent.setExtent(
                     getExtent(
                       ellipsoid.cartesianToCartographic(corner),
@@ -1515,7 +1515,7 @@ var DrawHelper = (module.exports = (function() {
               tooltip: function() {
                 return 'Drag to change the corners of this extent'
               },
-            }
+            };
             markers.addBillboards(
               getExtentCorners(extent.extent),
               handleMarkerChanges
@@ -1526,7 +1526,7 @@ var DrawHelper = (module.exports = (function() {
               scene.canvas
             )
             this._globeClickhandler.setInputAction(function(movement) {
-              var pickedObject = scene.pick(movement.position)
+              const pickedObject = scene.pick(movement.position);
               // disable edit if pickedobject is different or not an object
               if (
                 !(
@@ -1565,8 +1565,8 @@ var DrawHelper = (module.exports = (function() {
         return
       }
 
-      var ellipse = this
-      var scene = drawHelper._scene
+      const ellipse = this;
+      const scene = drawHelper._scene;
 
       ellipse.asynchronous = false
 
@@ -1582,10 +1582,10 @@ var DrawHelper = (module.exports = (function() {
         if (editMode) {
           // make sure all other shapes are not in edit mode before starting the editing of this shape
           drawHelper.setEdited(this)
-          var _self = this
+          const _self = this;
           // create the markers and handlers for the editing
           if (this._markers == null) {
-            var markers = new _.BillboardGroup(drawHelper, dragBillboard)
+            const markers = new _.BillboardGroup(drawHelper, dragBillboard);
             function getMarkerPositions() {
               return Cesium.Shapes.computeEllipseBoundary(
                 ellipsoid,
@@ -1605,13 +1605,13 @@ var DrawHelper = (module.exports = (function() {
                 rotation: 0,
               })
             }
-            var handleMarkerChanges = {
+            const handleMarkerChanges = {
               dragHandlers: {
                 onDrag: function(index, position) {
-                  var distance = Cesium.Cartesian3.distance(
+                  const distance = Cesium.Cartesian3.distance(
                     ellipse.getCenter(),
                     position
-                  )
+                  );
                   if (index % 2 == 0) {
                     ellipse.setSemiMajorAxis(distance)
                   } else {
@@ -1626,7 +1626,7 @@ var DrawHelper = (module.exports = (function() {
               tooltip: function() {
                 return 'Drag to change the excentricity and radius'
               },
-            }
+            };
             markers.addBillboards(getMarkerPositions(), handleMarkerChanges)
             this._markers = markers
             // add a handler for clicking in the globe
@@ -1634,7 +1634,7 @@ var DrawHelper = (module.exports = (function() {
               scene.canvas
             )
             this._globeClickhandler.setInputAction(function(movement) {
-              var pickedObject = scene.pick(movement.position)
+              const pickedObject = scene.pick(movement.position);
               if (!(pickedObject && pickedObject.primitive)) {
                 _self.setEditMode(false)
               }
@@ -1664,17 +1664,15 @@ var DrawHelper = (module.exports = (function() {
     _.CirclePrimitive.prototype.getCircleCartesianCoordinates = function(
       granularity
     ) {
-      var geometry = Cesium.CircleOutlineGeometry.createGeometry(
+      const geometry = Cesium.CircleOutlineGeometry.createGeometry(
         new Cesium.CircleOutlineGeometry({
           ellipsoid: ellipsoid,
           center: this.getCenter(),
           radius: this.getRadius(),
           granularity: granularity,
         })
-      )
-      var count = 0,
-        value,
-        values = []
+      );
+      let count = 0, value, values = [];
       for (; count < geometry.attributes.position.values.length; count += 3) {
         value = geometry.attributes.position.values
         values.push(
@@ -1693,8 +1691,8 @@ var DrawHelper = (module.exports = (function() {
         return
       }
 
-      var circle = this
-      var scene = drawHelper._scene
+      const circle = this;
+      const scene = drawHelper._scene;
 
       circle.asynchronous = false
 
@@ -1710,10 +1708,10 @@ var DrawHelper = (module.exports = (function() {
         if (editMode) {
           // make sure all other shapes are not in edit mode before starting the editing of this shape
           drawHelper.setEdited(this)
-          var _self = this
+          const _self = this;
           // create the markers and handlers for the editing
           if (this._markers == null) {
-            var markers = new _.BillboardGroup(drawHelper, dragBillboard)
+            const markers = new _.BillboardGroup(drawHelper, dragBillboard);
             function getMarkerPositions() {
               return _self.getCircleCartesianCoordinates(
                 Cesium.Math.PI_OVER_TWO
@@ -1726,7 +1724,7 @@ var DrawHelper = (module.exports = (function() {
                 radius: circle.getRadius(),
               })
             }
-            var handleMarkerChanges = {
+            const handleMarkerChanges = {
               dragHandlers: {
                 onDrag: function(index, position) {
                   circle.setRadius(
@@ -1741,7 +1739,7 @@ var DrawHelper = (module.exports = (function() {
               tooltip: function() {
                 return 'Drag to change the radius'
               },
-            }
+            };
             markers.addBillboards(getMarkerPositions(), handleMarkerChanges)
             this._markers = markers
             // add a handler for clicking in the globe
@@ -1749,7 +1747,7 @@ var DrawHelper = (module.exports = (function() {
               scene.canvas
             )
             this._globeClickhandler.setInputAction(function(movement) {
-              var pickedObject = scene.pick(movement.position)
+              const pickedObject = scene.pick(movement.position);
               if (!(pickedObject && pickedObject.primitive)) {
                 _self.setEditMode(false)
               }
@@ -1785,7 +1783,7 @@ var DrawHelper = (module.exports = (function() {
         throw new Cesium.DeveloperError('Container is required')
       }
 
-      var drawOptions = {
+      const drawOptions = {
         markerIcon: './img/glyphicons_242_google_maps.png',
         polylineIcon: './img/glyphicons_097_vector_path_line.png',
         polygonIcon: './img/glyphicons_096_vector_path_polygon.png',
@@ -1796,31 +1794,31 @@ var DrawHelper = (module.exports = (function() {
         polygonDrawingOptions: defaultPolygonOptions,
         extentDrawingOptions: defaultExtentOptions,
         circleDrawingOptions: defaultCircleOptions,
-      }
+      };
 
       fillOptions(options, drawOptions)
 
-      var _self = this
+      const _self = this;
 
-      var toolbar = document.createElement('DIV')
+      const toolbar = document.createElement('DIV');
       toolbar.className = 'toolbar'
       options.container.appendChild(toolbar)
 
       function addIcon(id, url, title, callback) {
-        var div = document.createElement('DIV')
+        const div = document.createElement('DIV');
         div.className = 'button'
         div.title = title
         toolbar.appendChild(div)
         div.onclick = callback
-        var span = document.createElement('SPAN')
+        const span = document.createElement('SPAN');
         div.appendChild(span)
-        var image = document.createElement('IMG')
+        const image = document.createElement('IMG');
         image.src = url
         span.appendChild(image)
         return div
       }
 
-      var scene = drawHelper._scene
+      const scene = drawHelper._scene;
 
       addIcon(
         'marker',
@@ -1921,7 +1919,7 @@ var DrawHelper = (module.exports = (function() {
   }
 
   function getExtent(mn, mx) {
-    var e = new Cesium.Rectangle()
+    const e = new Cesium.Rectangle();
 
     // Re-order so west < east and south < north
     e.west = Math.min(mn.longitude, mx.longitude)
@@ -1930,7 +1928,7 @@ var DrawHelper = (module.exports = (function() {
     e.north = Math.max(mn.latitude, mx.latitude)
 
     // Check for approx equal (shouldn't require abs due to re-order)
-    var epsilon = Cesium.Math.EPSILON7
+    const epsilon = Cesium.Math.EPSILON7;
 
     if (e.east - e.west < epsilon) {
       e.east += epsilon * 2.0
@@ -1944,15 +1942,15 @@ var DrawHelper = (module.exports = (function() {
   }
 
   function createTooltip(frameDiv) {
-    var tooltip = function(frameDiv) {
-      var div = document.createElement('DIV')
+    const tooltip = function(frameDiv) {
+      const div = document.createElement('DIV');
       div.className = 'twipsy right'
 
-      var arrow = document.createElement('DIV')
+      const arrow = document.createElement('DIV');
       arrow.className = 'twipsy-arrow'
       div.appendChild(arrow)
 
-      var title = document.createElement('DIV')
+      const title = document.createElement('DIV');
       title.className = 'twipsy-inner'
       div.appendChild(title)
 
@@ -1961,7 +1959,7 @@ var DrawHelper = (module.exports = (function() {
 
       // add to frame div and display coordinates
       frameDiv.appendChild(div)
-    }
+    };
 
     tooltip.prototype.setVisible = function(visible) {
       this._div.style.display = visible ? 'block' : 'none'
@@ -2002,7 +2000,7 @@ var DrawHelper = (module.exports = (function() {
 
     to = to || new from.constructor()
 
-    for (var name in from) {
+    for (const name in from) {
       to[name] =
         typeof to[name] == 'undefined' ? clone(from[name], null) : to[name]
     }
@@ -2012,7 +2010,7 @@ var DrawHelper = (module.exports = (function() {
 
   function fillOptions(options, defaultOptions) {
     options = options || {}
-    var option
+    let option;
     for (option in defaultOptions) {
       if (options[option] === undefined) {
         options[option] = clone(defaultOptions[option])
@@ -2022,8 +2020,7 @@ var DrawHelper = (module.exports = (function() {
 
   // shallow copy
   function copyOptions(options, defaultOptions) {
-    var newOptions = clone(options),
-      option
+    let newOptions = clone(options), option;
     for (option in defaultOptions) {
       if (newOptions[option] === undefined) {
         newOptions[option] = clone(defaultOptions[option])
@@ -2050,7 +2047,7 @@ var DrawHelper = (module.exports = (function() {
         this._listeners[event.name] &&
         this._listeners[event.name].length > 0
       ) {
-        var index = 0
+        let index = 0;
         for (; index < this._listeners[event.name].length; index++) {
           this._listeners[event.name][index](event)
         }
@@ -2063,4 +2060,4 @@ var DrawHelper = (module.exports = (function() {
   }
 
   return _
-})())
+})());

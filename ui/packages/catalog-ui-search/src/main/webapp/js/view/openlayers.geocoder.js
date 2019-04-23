@@ -17,9 +17,9 @@ const wreqr = require('../wreqr.js')
 const geocoderTemplate = require('templates/geocoder.handlebars')
 const $ = require('jquery')
 
-var geocoder = {}
-var url = './internal/REST/v1/Locations'
-var geocoderModel = new Backbone.Model()
+const geocoder = {};
+const url = './internal/REST/v1/Locations';
+const geocoderModel = new Backbone.Model();
 geocoder.View = Marionette.ItemView.extend({
   template: geocoderTemplate,
   events: {
@@ -32,10 +32,10 @@ geocoder.View = Marionette.ItemView.extend({
     this.listenTo(this.model, 'change', this.changedSearchText)
   },
   onRender: function() {
-    var searchBinding = Backbone.ModelBinder.createDefaultBindings(
+    const searchBinding = Backbone.ModelBinder.createDefaultBindings(
       this.el,
       'name'
-    )
+    );
     this.modelBinder.bind(this.model, this.$el, searchBinding)
   },
   searchOnEnter: function(e) {
@@ -56,7 +56,7 @@ geocoder.View = Marionette.ItemView.extend({
     }
   },
   search: function() {
-    var view = this
+    const view = this;
     if (this.model.get('searchText')) {
       $.ajax({
         url: url,
@@ -72,7 +72,7 @@ geocoder.View = Marionette.ItemView.extend({
             )
             return
           }
-          var resourceSet = result.resourceSets[0]
+          const resourceSet = result.resourceSets[0];
           if (resourceSet.resources.length === 0) {
             view.model.set(
               'searchText',
@@ -80,13 +80,13 @@ geocoder.View = Marionette.ItemView.extend({
             )
             return
           }
-          var resource = resourceSet.resources[0]
+          const resource = resourceSet.resources[0];
           view.model.set('searchText', resource.name)
-          var bbox = resource.bbox
-          var south = bbox[2]
-          var west = bbox[1]
-          var north = bbox[0]
-          var east = bbox[3]
+          const bbox = resource.bbox;
+          const south = bbox[2];
+          const west = bbox[1];
+          const north = bbox[0];
+          const east = bbox[3];
           wreqr.vent.trigger('search:maprectanglefly', [
             [west, north],
             [east, south],

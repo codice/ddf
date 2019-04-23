@@ -20,7 +20,7 @@ const TabsView = require('../tabs.view')
 const QueryTabsModel = require('./tabs-query')
 const store = require('../../../js/store.js')
 
-var QueryTabsView = TabsView.extend({
+const QueryTabsView = TabsView.extend({
   className: 'is-query',
   setDefaultModel: function() {
     this.model = new QueryTabsModel()
@@ -38,7 +38,7 @@ var QueryTabsView = TabsView.extend({
     this.determineContent()
   },
   determineTabForExistingQuery: function() {
-    var activeTab = this.model.getActiveView()
+    const activeTab = this.model.getActiveView();
     this.tabsContent.show(
       new activeTab({
         model: this.model.getAssociatedQuery(),
@@ -46,14 +46,14 @@ var QueryTabsView = TabsView.extend({
     )
   },
   determineTabForNewQuery: function() {
-    var activeTabName = this.model.get('activeTab')
+    const activeTabName = this.model.get('activeTab');
     if (activeTabName !== 'Search') {
       this.model.set('activeTab', 'Search')
     }
     this.determineTabForExistingQuery()
   },
   determineContent: function() {
-    var currentQuery = store.get('content').get('query')
+    const currentQuery = store.get('content').get('query');
     if (currentQuery) {
       if (currentQuery._cloneOf) {
         this.determineTabForExistingQuery()
@@ -63,9 +63,9 @@ var QueryTabsView = TabsView.extend({
     }
   },
   determineAvailableContent: function() {
-    var currentQuery = store.get('content').get('query')
+    const currentQuery = store.get('content').get('query');
     this.$el.toggleClass('is-new', currentQuery && !currentQuery._cloneOf)
   },
-})
+});
 
 module.exports = QueryTabsView

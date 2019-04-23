@@ -41,7 +41,7 @@
     headerLayout,
     footerLayout
   ) {
-    var app = Application.App
+    const app = Application.App;
 
     // setup the area that the modules will load into and asynchronously require in each module
     // so that it can render itself into the area that was just constructed for it
@@ -74,28 +74,28 @@
 
     // setup alert banners
     app.addInitializer(function() {
-      var alerts = new Backbone.Collection([])
+      let alerts = new Backbone.Collection([]);
 
-      var backendAlerts = new AlertsModel.BackendAlerts()
+      const backendAlerts = new AlertsModel.BackendAlerts();
       backendAlerts.fetch()
       alerts = backendAlerts
 
       $(document).ajaxError(function(_, jqxhr) {
         if (jqxhr.status === 401 || jqxhr.status === 403) {
-          var sessionTimeoutAlert = AlertsModel.Jolokia({
+          const sessionTimeoutAlert = AlertsModel.Jolokia({
             stacktrace: 'Forbidden',
-          })
+          });
           // do not show any other alerts if session timeout
           alerts = new Backbone.Collection([sessionTimeoutAlert])
         }
       })
 
-      var AlertsCollectionView = Marionette.CollectionView.extend({
+      const AlertsCollectionView = Marionette.CollectionView.extend({
         itemView: AlertsView.View,
         comparator: function(model) {
           return model.get('priority')
         },
-      })
+      });
 
       Application.App.alertsRegion.show(
         new AlertsCollectionView({

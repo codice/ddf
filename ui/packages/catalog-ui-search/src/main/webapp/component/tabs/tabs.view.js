@@ -28,7 +28,7 @@ function namespacedEvent(event, view) {
  *  and determineContent should be overwritten.
  */
 
-var TabsView = Marionette.LayoutView.extend({
+const TabsView = Marionette.LayoutView.extend({
   template: TabsTemplate,
   tagName: CustomElements.register('tabs'),
   modelEvents: {
@@ -42,7 +42,7 @@ var TabsView = Marionette.LayoutView.extend({
     tabsContent: '.tabs-content',
   },
   initialize: function() {
-    var view = this
+    const view = this;
     this._resizeHandler = _.throttle(this._resizeHandler, 200)
     $(window).on(namespacedEvent('resize', view), function() {
       view._resizeHandler()
@@ -65,7 +65,7 @@ var TabsView = Marionette.LayoutView.extend({
     this.determineContent()
   },
   showTab: function(shouldResize) {
-    var currentTab = this.model.getActiveTab()
+    const currentTab = this.model.getActiveTab();
     this.$el.find('.is-active').removeClass('is-active')
     this.$el.find('[data-id="' + currentTab + '"]').addClass('is-active')
     this.showActiveDropdownTab()
@@ -79,7 +79,7 @@ var TabsView = Marionette.LayoutView.extend({
     })
   },
   determineContent: function() {
-    var activeTab = this.model.getActiveView()
+    const activeTab = this.model.getActiveView();
     const activeTabOptions = this.model.getActiveViewOptions()
     if (activeTabOptions !== undefined) {
       this.tabsContent.show(new activeTab(activeTabOptions))
@@ -88,10 +88,10 @@ var TabsView = Marionette.LayoutView.extend({
     }
   },
   showActiveDropdownTab: function() {
-    var hasActiveTab =
+    const hasActiveTab =
       this.$el.find(
         '> .tabs-list .tabs-dropdown .tabs-title.is-active.is-merged'
-      ).length !== 0
+      ).length !== 0;
     if (hasActiveTab) {
       this.$el.find('> .tabs-list .tabs-dropdown').addClass('has-activeTab')
     } else {
@@ -99,13 +99,13 @@ var TabsView = Marionette.LayoutView.extend({
     }
   },
   changeTab: function(event) {
-    var tab = event.currentTarget.getAttribute('data-id')
+    const tab = event.currentTarget.getAttribute('data-id');
     this.model.setActiveTab(tab)
   },
   _clickHandler: function() {
-    var view = this
-    var tabList = view.$el.find('> .tabs-list')
-    var menu = tabList.find('.tabs-dropdown')
+    const view = this;
+    const tabList = view.$el.find('> .tabs-list');
+    const menu = tabList.find('.tabs-dropdown');
     menu.off('click').on('click', function() {
       tabList.toggleClass('is-open')
       if (tabList.hasClass('is-open')) {
@@ -121,19 +121,19 @@ var TabsView = Marionette.LayoutView.extend({
     })
   },
   _widthWhenCollapsed: function() {
-    var widthWhenCollaspsed = []
+    const widthWhenCollaspsed = [];
     this._widthWhenCollapsed = function() {
       return widthWhenCollaspsed
     }
     return widthWhenCollaspsed
   },
   _resizeHandler: function() {
-    var view = this
-    var menu = view.$el.find('> .tabs-list')[0]
+    const view = this;
+    const menu = view.$el.find('> .tabs-list')[0];
     if (!menu) {
       return
     }
-    var expandedList = menu.querySelector('.tabs-expanded')
+    const expandedList = menu.querySelector('.tabs-expanded');
     if (
       view._hasMergeableTabs() &&
       expandedList.scrollWidth > expandedList.clientWidth
@@ -153,7 +153,7 @@ var TabsView = Marionette.LayoutView.extend({
       }
     }
     if (menu.querySelectorAll('.is-merged').length > 0) {
-      var alreadyCollapsed = menu.classList.contains('is-collapsed')
+      const alreadyCollapsed = menu.classList.contains('is-collapsed');
       if (!alreadyCollapsed) {
         menu.classList.add('is-collapsed')
         view._resizeHandler()
@@ -170,21 +170,21 @@ var TabsView = Marionette.LayoutView.extend({
     )
   },
   _mergeTab: function() {
-    var id = this.$el
+    const id = this.$el
       .find('> .tabs-list .tabs-expanded > .tabs-tab:not(.is-merged)')
       .last()
-      .attr('data-id')
+      .attr('data-id');
     this.$el.find('> .tabs-list [data-id="' + id + '"]').addClass('is-merged')
   },
   _unmergeTab: function() {
-    var id = this.$el
+    const id = this.$el
       .find('> .tabs-list .tabs-expanded > .tabs-tab.is-merged')
       .first()
-      .attr('data-id')
+      .attr('data-id');
     this.$el
       .find('> .tabs-list [data-id="' + id + '"]')
       .removeClass('is-merged')
   },
-})
+});
 
 module.exports = TabsView

@@ -14,7 +14,7 @@
  **/
 
 define(['backbone'], function(Backbone) {
-  var RemoteStatus = {}
+  const RemoteStatus = {};
   RemoteStatus.Model = Backbone.Model.extend({
     url:
       '../../jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getProperties/',

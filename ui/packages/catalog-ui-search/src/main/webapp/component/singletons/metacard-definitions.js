@@ -136,7 +136,7 @@ module.exports = new (Backbone.Model.extend({
     ) {
       this.getEnumForMetacardDefinition(metacardDefinitionName)
       this.metacardDefinitions[metacardDefinitionName] = metacardDefinition
-      for (var type in metacardDefinition) {
+      for (const type in metacardDefinition) {
         if (metacardDefinition.hasOwnProperty(type)) {
           this.metacardTypes[type] = metacardDefinition[type]
           this.metacardTypes[type].id = this.metacardTypes[type].id || type
@@ -156,8 +156,8 @@ module.exports = new (Backbone.Model.extend({
     return false
   },
   addMetacardDefinitions: function(metacardDefinitions) {
-    var updated = false
-    for (var metacardDefinition in metacardDefinitions) {
+    let updated = false;
+    for (const metacardDefinition in metacardDefinitions) {
       if (metacardDefinitions.hasOwnProperty(metacardDefinition)) {
         updated =
           this.addMetacardDefinition(
@@ -178,8 +178,8 @@ module.exports = new (Backbone.Model.extend({
     )
   },
   attributeComparator: function(a, b) {
-    var attrToCompareA = this.getLabel(a).toLowerCase()
-    var attrToCompareB = this.getLabel(b).toLowerCase()
+    const attrToCompareA = this.getLabel(a).toLowerCase();
+    const attrToCompareB = this.getLabel(b).toLowerCase();
     if (attrToCompareA < attrToCompareB) {
       return -1
     }
@@ -190,8 +190,8 @@ module.exports = new (Backbone.Model.extend({
   },
   sortMetacardTypes: function(metacardTypes) {
     return metacardTypes.sort(function(a, b) {
-      var attrToCompareA = (a.alias || a.id).toLowerCase()
-      var attrToCompareB = (b.alias || b.id).toLowerCase()
+      const attrToCompareA = (a.alias || a.id).toLowerCase();
+      const attrToCompareB = (b.alias || b.id).toLowerCase();
       if (attrToCompareA < attrToCompareB) {
         return -1
       }
@@ -199,11 +199,11 @@ module.exports = new (Backbone.Model.extend({
         return 1
       }
       return 0
-    })
+    });
   },
   updateSortedMetacardTypes: function() {
     this.sortedMetacardTypes = []
-    for (var propertyType in this.metacardTypes) {
+    for (const propertyType in this.metacardTypes) {
       if (this.metacardTypes.hasOwnProperty(propertyType)) {
         this.sortedMetacardTypes.push(this.metacardTypes[propertyType])
       }
@@ -211,7 +211,7 @@ module.exports = new (Backbone.Model.extend({
     this.sortMetacardTypes(this.sortedMetacardTypes)
   },
   getLabel: function(id) {
-    var definition = this.metacardTypes[id]
+    const definition = this.metacardTypes[id];
     return definition ? definition.alias || id : id
   },
   getMetacardStartingTypes: function() {

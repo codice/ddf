@@ -151,9 +151,9 @@ Behaviors.addBehavior(
       this.updateWidth(dropdown)
     },
     updateWidth(dropdown) {
-      var clientRect = this.getDropdownElement(
+      const clientRect = this.getDropdownElement(
         dropdown
-      )[0].getBoundingClientRect()
+      )[0].getBoundingClientRect();
       if (
         window.getComputedStyle(dropdown._instance.el)['min-width'] === '0px'
       ) {
@@ -176,7 +176,7 @@ Behaviors.addBehavior(
     },
     generateHandleKeydown(dropdown) {
       return event => {
-        var code = event.keyCode
+        let code = event.keyCode;
         if (event.charCode && code == 0) code = event.charCode
         switch (code) {
           case 27:
@@ -187,7 +187,7 @@ Behaviors.addBehavior(
             this.refocusOnDropdownElement(dropdown)
             break
         }
-      }
+      };
     },
     generateHandleCloseDropdown(dropdown) {
       return e => {

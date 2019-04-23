@@ -13,9 +13,9 @@
  *
  **/
 
-var Marionette = require('marionette')
-var DropdownView = require('../dropdown.view')
-var template = require('./dropdown.associations-filter.hbs')
+const Marionette = require('marionette');
+const DropdownView = require('../dropdown.view');
+const template = require('./dropdown.associations-filter.hbs');
 
 module.exports = DropdownView.extend({
   template: template,

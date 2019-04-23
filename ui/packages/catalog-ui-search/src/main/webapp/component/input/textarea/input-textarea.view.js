@@ -13,10 +13,10 @@
  *
  **/
 
-var Marionette = require('marionette')
-var template = require('./input-textarea.hbs')
-var InputView = require('../input.view')
-var $ = require('jquery')
+const Marionette = require('marionette');
+const template = require('./input-textarea.hbs');
+const InputView = require('../input.view');
+const $ = require('jquery');
 
 module.exports = InputView.extend({
   template: template,
@@ -41,26 +41,26 @@ module.exports = InputView.extend({
     return this.$el.find('textarea').val()
   },
   hasOverflowed: function() {
-    var textarea = this.$el.find('.ta-disabled')
-    var scrollableHeight = textarea.prop('scrollHeight')
-    var currViewableHeight = parseInt(textarea.css('max-height'), 10)
+    const textarea = this.$el.find('.ta-disabled');
+    const scrollableHeight = textarea.prop('scrollHeight');
+    const currViewableHeight = parseInt(textarea.css('max-height'), 10);
     this.$el.toggleClass(
       'has-overflowed',
       scrollableHeight > currViewableHeight + 10
     )
   },
   expand: function() {
-    var textarea = this.$el.find('.ta-disabled')
-    var scrollableHeight = textarea.prop('scrollHeight')
-    var currViewableHeight = parseInt(textarea.css('max-height'), 10)
+    const textarea = this.$el.find('.ta-disabled');
+    const scrollableHeight = textarea.prop('scrollHeight');
+    const currViewableHeight = parseInt(textarea.css('max-height'), 10);
     this.$el.toggleClass('is-expanded', true)
     textarea.css('height', scrollableHeight + 15)
     textarea.css('max-height', scrollableHeight + 15)
   },
   contract: function() {
-    var textarea = this.$el.find('.ta-disabled')
-    var scrollableHeight = textarea.prop('scrollHeight')
-    var currViewableHeight = parseInt(textarea.css('max-height'), 10)
+    const textarea = this.$el.find('.ta-disabled');
+    const scrollableHeight = textarea.prop('scrollHeight');
+    const currViewableHeight = parseInt(textarea.css('max-height'), 10);
     this.$el.toggleClass('is-expanded', false)
     textarea.css('height', '75px')
     textarea.css('max-height', '75px')

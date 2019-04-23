@@ -23,7 +23,7 @@ define([
   'use strict'
 
   function testFilter(blob, filter) {
-    var filtered = false
+    let filtered = false;
     if (filter.name !== undefined && filter.name !== '') {
       if (blob.name.toLowerCase().indexOf(filter.name.toLowerCase()) === -1) {
         filtered = true
@@ -39,7 +39,7 @@ define([
     return filtered
   }
 
-  var FeatureRow = Marionette.ItemView.extend({
+  const FeatureRow = Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('feature-item'),
     attributes: function() {
@@ -85,7 +85,7 @@ define([
         this.model.get('status') === 'Installed'
       )
     },
-  })
+  });
 
   return FeatureRow
 })

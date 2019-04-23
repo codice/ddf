@@ -10,7 +10,7 @@
  *
  **/
 
-var Backbone = require('backbone')
+const Backbone = require('backbone');
 const user = require('../singletons/user-instance.js')
 
 module.exports = Backbone.Model.extend({

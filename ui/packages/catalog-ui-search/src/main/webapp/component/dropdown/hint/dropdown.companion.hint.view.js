@@ -19,7 +19,7 @@ const $ = require('jquery')
 const DropdownCompanionView = require('../dropdown.companion.view')
 const CustomElements = require('../../../js/CustomElements.js')
 
-var namespace = CustomElements.getNamespace()
+const namespace = CustomElements.getNamespace();
 
 module.exports = DropdownCompanionView.extend({
   className: 'is-hint',

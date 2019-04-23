@@ -13,17 +13,17 @@
  *
  **/
 
-var wreqr = require('../../js/wreqr.js')
-var Marionette = require('marionette')
-var _ = require('underscore')
-var $ = require('jquery')
-var template = require('./ingest.hbs')
-var CustomElements = require('../../js/CustomElements.js')
-var router = require('../router/router.js')
-var IngestDetails = require('../ingest-details/ingest-details.view.js')
-var IngestEditor = require('../ingest-editor/ingest-editor.view.js')
-var properties = require('../../js/properties.js')
-var announcement = require('../announcement/index.jsx')
+const wreqr = require('../../js/wreqr.js');
+const Marionette = require('marionette');
+const _ = require('underscore');
+const $ = require('jquery');
+const template = require('./ingest.hbs');
+const CustomElements = require('../../js/CustomElements.js');
+const router = require('../router/router.js');
+const IngestDetails = require('../ingest-details/ingest-details.view.js');
+const IngestEditor = require('../ingest-editor/ingest-editor.view.js');
+const properties = require('../../js/properties.js');
+const announcement = require('../announcement/index.jsx');
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -50,7 +50,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleRoute()
   },
   onBeforeShow: function() {
-    var isEditorShown = properties.editorAttributes.length > 0
+    const isEditorShown = properties.editorAttributes.length > 0;
     this.$el.toggleClass('editor-hidden', !isEditorShown)
     if (isEditorShown) {
       this.ingestEditor.show(new IngestEditor())
@@ -73,7 +73,7 @@ module.exports = Marionette.LayoutView.extend({
       .join(' ')
   },
   validateAttributes: function(callback) {
-    var propertyCollectionView = this.ingestEditor.currentView.getPropertyCollectionView()
+    const propertyCollectionView = this.ingestEditor.currentView.getPropertyCollectionView();
     propertyCollectionView.clearValidation()
     return $.ajax({
       url: './internal/prevalidate',

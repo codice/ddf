@@ -8,7 +8,7 @@
 import React from 'react'
 import ListCreate from '../../react-component/presentation/list-create/list-create'
 
-var Marionette = require('marionette')
+const Marionette = require('marionette');
 
 const ListCreateView = Marionette.LayoutView.extend({
   template() {

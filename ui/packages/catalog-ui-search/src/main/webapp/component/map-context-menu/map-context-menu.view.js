@@ -16,13 +16,13 @@
 import * as React from 'react'
 import { MapContextMenu } from '../../react-component/presentation/map-context-menu'
 
-var _ = require('underscore')
-var Marionette = require('marionette')
-var CustomElements = require('../../js/CustomElements.js')
-var InspectorView = require('../visualization/inspector/inspector.view.js')
-var HistogramView = require('../visualization/histogram/histogram.view.js')
-var SelectionInterfaceModel = require('../selection-interface/selection-interface.model.js')
-var lightboxInstance = require('../lightbox/lightbox.view.instance.js')
+const _ = require('underscore');
+const Marionette = require('marionette');
+const CustomElements = require('../../js/CustomElements.js');
+const InspectorView = require('../visualization/inspector/inspector.view.js');
+const HistogramView = require('../visualization/histogram/histogram.view.js');
+const SelectionInterfaceModel = require('../selection-interface/selection-interface.model.js');
+const lightboxInstance = require('../lightbox/lightbox.view.instance.js');
 
 module.exports = Marionette.LayoutView.extend({
   template({ mouseLat, mouseLon, target, coordinateValues, selectionCount }) {
@@ -198,7 +198,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   serializeData: function() {
-    var mapModelJSON = this.options.mapModel.toJSON()
+    const mapModelJSON = this.options.mapModel.toJSON();
     mapModelJSON.selectionCount = this.options.selectionInterface.getSelectedResults().length
     return mapModelJSON
   },

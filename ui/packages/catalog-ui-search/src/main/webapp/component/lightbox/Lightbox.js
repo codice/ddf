@@ -12,7 +12,7 @@
 
 const _ = require('underscore')
 const Backbone = require('backbone')
-var Lightbox = Backbone.Model.extend({
+const Lightbox = Backbone.Model.extend({
   defaults: {
     open: false,
     title: 'Default Title',
@@ -29,6 +29,6 @@ var Lightbox = Backbone.Model.extend({
   updateTitle: function(title) {
     this.set('title', title)
   },
-})
+});
 
 module.exports = Lightbox

@@ -20,21 +20,21 @@ module.exports = {
     if (_.isUndefined(this.isWebglAvailable)) {
       this.isWebglAvailable = false
 
-      var context = window.WebGLRenderingContext
+      const context = window.WebGLRenderingContext;
 
-      var canvas = document.createElement('canvas')
+      const canvas = document.createElement('canvas');
 
-      var webglOptions = {}
+      const webglOptions = {};
 
       // Override select WebGL defaults
       webglOptions.alpha = false // WebGL default is true
       webglOptions.failIfMajorPerformanceCaveat = true // WebGL default is false
 
       try {
-        var gl =
+        const gl =
           canvas.getContext('webgl', webglOptions) ||
           canvas.getContext('experimental-webgl', webglOptions) ||
-          undefined
+          undefined;
         if (gl && context) {
           this.isWebglAvailable = true
         }

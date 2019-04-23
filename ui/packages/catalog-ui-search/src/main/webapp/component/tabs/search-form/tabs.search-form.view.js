@@ -29,7 +29,7 @@ module.exports = TabsView.extend({
     TabsView.prototype.initialize.call(this)
   },
   determineContent: function() {
-    var activeTab = this.model.getActiveView()
+    const activeTab = this.model.getActiveView();
     this.tabsContent.show(
       new activeTab({
         model: this.options.queryModel || new Query.Model(),

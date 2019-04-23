@@ -21,7 +21,7 @@ define([
 ], function(Backbone, Marionette, wreqr, moduleDetailLayout) {
   'use strict'
 
-  var ModuleDetailLayout = Marionette.Layout.extend({
+  const ModuleDetailLayout = Marionette.Layout.extend({
     template: moduleDetailLayout,
     regions: {
       content: '.content',
@@ -36,7 +36,7 @@ define([
     selectFirstTab: function() {
       this.$('.tab-container a:first').tab('show')
     },
-  })
+  });
 
   return ModuleDetailLayout
 })

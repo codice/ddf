@@ -14,7 +14,7 @@
 define(['backbone.marionette', 'bootstrap'], function(Marionette) {
   'use strict'
 
-  var Application = {}
+  const Application = {};
 
   Application.App = new Marionette.Application()
 

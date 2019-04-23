@@ -16,9 +16,9 @@
 define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
   'use strict'
 
-  var Applications = {}
+  const Applications = {};
 
-  var versionRegex = /([^0-9]*)([0-9]+.*$)/
+  const versionRegex = /([^0-9]*)([0-9]+.*$)/;
 
   // Applications.TreeNode
   // ---------------------
@@ -35,9 +35,9 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
     },
 
     initialize: function() {
-      var children = this.get('children')
-      var that = this
-      var changeObj = {}
+      const children = this.get('children');
+      const that = this;
+      const changeObj = {};
 
       // Some (not properly created) applications features file result in a name that includes the
       // version number - strip that off and move it into the version number.
@@ -78,10 +78,10 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
     // This function strips the version from the display name and
     // places it in the version variable so the details show correctly.
     massageVersionNumbers: function() {
-      var changeObj = {}
+      const changeObj = {};
       changeObj.displayName = this.get('name')
       if (this.get('version') === '0.0.0') {
-        var matches = this.get('name').match(versionRegex)
+        const matches = this.get('name').match(versionRegex);
         if (matches.length === 3) {
           changeObj.displayName = matches[1]
           changeObj.version = matches[2]
@@ -95,11 +95,11 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
     // doesn't yield a display name, then it extracts it from the application name - camel-case
     // it and remove the dashes.
     cleanupDisplayName: function() {
-      var changeObj = {}
+      const changeObj = {};
 
       if (this.has('description')) {
-        var desc = this.get('description')
-        var values = desc.split('::')
+        const desc = this.get('description');
+        const values = desc.split('::');
         if (values.length > 1) {
           changeObj.description = values[0]
           changeObj.displayName = values[1]
@@ -107,10 +107,10 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
       }
 
       if (typeof changeObj.displayName === 'undefined') {
-        var tempName = this.get('displayName') //.replace(/\./g,'');
-        var names = tempName.split('-')
-        var workingName = ''
-        var that = this
+        const tempName = this.get('displayName'); //.replace(/\./g,'');
+        const names = tempName.split('-');
+        let workingName = '';
+        const that = this;
         _.each(names, function(name) {
           if (workingName.length > 0) {
             workingName = workingName + ' '
@@ -135,7 +135,7 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
     // an array of each paragraph for the details template to display.
     updateDescription: function() {
       if (this.has('description')) {
-        var descArray = this.get('description').split('\\n')
+        const descArray = this.get('description').split('\\n');
         this.set('paragraphs', descArray)
       }
     },
@@ -161,7 +161,7 @@ define(['backbone', 'jquery', 'underscore'], function(Backbone, $, _) {
 
   // Represents the response from the application-service when obtaining the list of all applications
   // on the system.
-  var applicationsResponseCache
+  let applicationsResponseCache;
   Applications.Response = Backbone.Model.extend({
     fetch: function() {
       if (applicationsResponseCache === undefined) {

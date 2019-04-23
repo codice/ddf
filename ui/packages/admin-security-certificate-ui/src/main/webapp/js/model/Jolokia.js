@@ -27,7 +27,7 @@ define(['backbone', 'backboneassociations'], function(Backbone) {
       return Backbone.sync.call(this, method, model, options)
     },
     post: function() {
-      var file = this.get('file')
+      const file = this.get('file');
       if (file !== undefined) {
         return {
           type: 'EXEC',
@@ -45,5 +45,5 @@ define(['backbone', 'backboneassociations'], function(Backbone) {
         }
       }
     },
-  })
+  });
 })

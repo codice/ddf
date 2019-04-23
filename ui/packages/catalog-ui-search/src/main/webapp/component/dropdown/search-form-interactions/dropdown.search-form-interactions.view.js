@@ -13,10 +13,10 @@
  *
  **/
 
-var Marionette = require('marionette')
-var DropdownView = require('../dropdown.view')
-var template = require('./dropdown.search-form-interactions.hbs')
-var SearchFormInteractionsView = require('../../search-form-interactions/search-form-interactions.view.js')
+const Marionette = require('marionette');
+const DropdownView = require('../dropdown.view');
+const template = require('./dropdown.search-form-interactions.hbs');
+const SearchFormInteractionsView = require('../../search-form-interactions/search-form-interactions.view.js');
 
 module.exports = DropdownView.extend({
   template: template,
