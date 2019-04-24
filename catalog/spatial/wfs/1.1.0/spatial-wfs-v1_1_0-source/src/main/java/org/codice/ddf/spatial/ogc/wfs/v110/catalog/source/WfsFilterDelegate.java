@@ -290,46 +290,37 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   @Override
   public FilterType propertyIsEqualTo(String propertyName, Date date) {
     return buildPropertyIsFilterType(
-        propertyName,
-        convertDateToIso8601Format(date),
-        PROPERTY_IS_OPS.PropertyIsEqualTo,
-        DEFAULT_MATCH_CASE);
+        propertyName, convertDateToIso8601Format(date), PROPERTY_IS_OPS.PropertyIsEqualTo);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, int literal) {
-    return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo, DEFAULT_MATCH_CASE);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, short literal) {
-    return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo, DEFAULT_MATCH_CASE);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, long literal) {
-    return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo, DEFAULT_MATCH_CASE);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, float literal) {
-    return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo, DEFAULT_MATCH_CASE);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, double literal) {
-    return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo, DEFAULT_MATCH_CASE);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, boolean literal) {
-    return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo, DEFAULT_MATCH_CASE);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
   }
 
   @Override
@@ -348,49 +339,39 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   @Override
   public FilterType propertyIsNotEqualTo(String propertyName, Date literal) {
     return buildPropertyIsFilterType(
-        propertyName,
-        convertDateToIso8601Format(literal),
-        PROPERTY_IS_OPS.PropertyIsNotEqualTo,
-        DEFAULT_MATCH_CASE);
+        propertyName, convertDateToIso8601Format(literal), PROPERTY_IS_OPS.PropertyIsNotEqualTo);
   }
 
   @Override
   public FilterType propertyIsNotEqualTo(String propertyName, Number literal) {
-    return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsNotEqualTo, DEFAULT_MATCH_CASE);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsNotEqualTo);
   }
 
   @Override
   public FilterType propertyIsNotEqualTo(String propertyName, boolean literal) {
-    return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsNotEqualTo, DEFAULT_MATCH_CASE);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsNotEqualTo);
   }
 
   @Override
   public FilterType propertyIsGreaterThan(String propertyName, String literal) {
-    return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThan, DEFAULT_MATCH_CASE);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThan);
   }
 
   @Override
   public FilterType propertyIsGreaterThan(String propertyName, Date literal) {
     return buildPropertyIsFilterType(
-        propertyName,
-        convertDateToIso8601Format(literal),
-        PROPERTY_IS_OPS.PropertyIsGreaterThan,
-        DEFAULT_MATCH_CASE);
+        propertyName, convertDateToIso8601Format(literal), PROPERTY_IS_OPS.PropertyIsGreaterThan);
   }
 
   @Override
   public FilterType propertyIsGreaterThan(String propertyName, Number literal) {
-    return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThan, DEFAULT_MATCH_CASE);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThan);
   }
 
   @Override
   public FilterType propertyIsGreaterThanOrEqualTo(String propertyName, String literal) {
     return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo, DEFAULT_MATCH_CASE);
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo);
   }
 
   @Override
@@ -398,41 +379,35 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     return buildPropertyIsFilterType(
         propertyName,
         convertDateToIso8601Format(literal),
-        PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo,
-        DEFAULT_MATCH_CASE);
+        PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo);
   }
 
   @Override
   public FilterType propertyIsGreaterThanOrEqualTo(String propertyName, Number literal) {
     return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo, DEFAULT_MATCH_CASE);
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsGreaterThanOrEqualTo);
   }
 
   @Override
   public FilterType propertyIsLessThan(String propertyName, String literal) {
-    return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan, DEFAULT_MATCH_CASE);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan);
   }
 
   @Override
   public FilterType propertyIsLessThan(String propertyName, Date literal) {
     return buildPropertyIsFilterType(
-        propertyName,
-        convertDateToIso8601Format(literal),
-        PROPERTY_IS_OPS.PropertyIsLessThan,
-        DEFAULT_MATCH_CASE);
+        propertyName, convertDateToIso8601Format(literal), PROPERTY_IS_OPS.PropertyIsLessThan);
   }
 
   @Override
   public FilterType propertyIsLessThan(String propertyName, Number literal) {
-    return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan, DEFAULT_MATCH_CASE);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThan);
   }
 
   @Override
   public FilterType propertyIsLessThanOrEqualTo(String propertyName, String literal) {
     return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo, DEFAULT_MATCH_CASE);
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo);
   }
 
   @Override
@@ -440,14 +415,13 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     return buildPropertyIsFilterType(
         propertyName,
         convertDateToIso8601Format(literal),
-        PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo,
-        DEFAULT_MATCH_CASE);
+        PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo);
   }
 
   @Override
   public FilterType propertyIsLessThanOrEqualTo(String propertyName, Number literal) {
     return buildPropertyIsFilterType(
-        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo, DEFAULT_MATCH_CASE);
+        propertyName, literal, PROPERTY_IS_OPS.PropertyIsLessThanOrEqualTo);
   }
 
   @Override
@@ -493,6 +467,11 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       return null;
     }
     return filter;
+  }
+
+  private FilterType buildPropertyIsFilterType(
+      String propertyName, Object literal, PROPERTY_IS_OPS propertyIsType) {
+    return buildPropertyIsFilterType(propertyName, literal, propertyIsType, DEFAULT_MATCH_CASE);
   }
 
   private FilterType buildPropertyIsFilterType(
