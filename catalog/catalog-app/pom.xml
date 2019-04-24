@@ -690,15 +690,5 @@
             <artifactId>catalog-transformer-bootflag</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <!-- Feature Dependencies -->
-        <dependency>
-            <groupId>ddf.features</groupId>
-            <artifactId>utilities</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <!-- End Feature Dependencies -->
     </dependencies>
 </project>
