@@ -30,7 +30,6 @@
 //
 package org.codice.ddf.security.session;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Iterator;
@@ -38,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.platform.session.api.HttpSessionInvalidator;
@@ -97,7 +97,7 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
     }
   }
 
-  private List<AttributeSharingSessionDataStore> dataStores = new ArrayList<>();
+  private List<AttributeSharingSessionDataStore> dataStores = new CopyOnWriteArrayList<>();
 
   private void registerSessionManager() {
     Bundle bundle = FrameworkUtil.getBundle(AttributeSharingHashSessionIdManager.class);
