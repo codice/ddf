@@ -79,19 +79,22 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
     public void invalidateSession(
         String subjectName, Function<Map<String, Object>, String> sessionSubjectExtractor) {
 
-      final Optional<String> sessionIdOptional =
-          idManager
-              .dataStores
-              .stream()
-              .map(AttributeSharingSessionDataStore::getSessionDataMap)
-              .map(Map::entrySet)
-              .flatMap(Collection::stream)
-              .filter(
-                  e ->
-                      subjectName.equals(
-                          sessionSubjectExtractor.apply(e.getValue().getAllAttributes())))
-              .map(Map.Entry::getKey)
-              .findFirst();
+      final Optional<String> sessionIdOptional;
+      synchronized (idManager.dataStores) {
+        sessionIdOptional =
+            idManager
+                .dataStores
+                .stream()
+                .map(AttributeSharingSessionDataStore::getSessionDataMap)
+                .map(Map::entrySet)
+                .flatMap(Collection::stream)
+                .filter(
+                    e ->
+                        subjectName.equals(
+                            sessionSubjectExtractor.apply(e.getValue().getAllAttributes())))
+                .map(Map.Entry::getKey)
+                .findFirst();
+      }
 
       sessionIdOptional.ifPresent(idManager::invalidateSession);
     }
@@ -134,8 +137,10 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
   /** @see org.eclipse.jetty.server.SessionIdManager#invalidateAll(String) */
   @Override
   public void invalidateAll(String id) {
-    for (AttributeSharingSessionDataStore dataStore : dataStores) {
-      dataStore.delete(id);
+    synchronized (dataStores) {
+      for (AttributeSharingSessionDataStore dataStore : dataStores) {
+        dataStore.delete(id);
+      }
     }
 
     super.invalidateAll(id);
@@ -144,8 +149,10 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
   /** @see org.eclipse.jetty.server.SessionIdManager#expireAll(String) */
   @Override
   public void expireAll(String id) {
-    for (AttributeSharingSessionDataStore dataStore : dataStores) {
-      dataStore.delete(id);
+    synchronized (dataStores) {
+      for (AttributeSharingSessionDataStore dataStore : dataStores) {
+        dataStore.delete(id);
+      }
     }
 
     super.expireAll(id);
@@ -198,9 +205,11 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
   }
 
   protected Map<String, Object> sessionAttributes(String id) {
-    for (AttributeSharingSessionDataStore dataStore : dataStores) {
-      if (dataStore.getSessionDataMap().containsKey(id)) {
-        return dataStore.getSessionDataMap().get(id).getAllAttributes();
+    synchronized (dataStores) {
+      for (AttributeSharingSessionDataStore dataStore : dataStores) {
+        if (dataStore.getSessionDataMap().containsKey(id)) {
+          return dataStore.getSessionDataMap().get(id).getAllAttributes();
+        }
       }
     }
     return null;
