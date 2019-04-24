@@ -49,13 +49,6 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure_9_0.dtd">
         </Arg>
     </Call>
 
-    <Call name="addBean">
-        <Arg>
-            <New id="SessionCacheFactory"
-              class="org.eclipse.jetty.server.session.NullSessionCacheFactory"/>
-        </Arg>
-    </Call>
-
     <Get name="handler">
         <Call name="addHandler">
           <Arg>
