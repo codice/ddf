@@ -85,11 +85,6 @@ Fixes: #____
 
 #### Screenshots
 <!--(if appropriate)-->
-#### Checklist:
-- [ ] Documentation Updated
-- [ ] Update / Add Threat Dragon models
-- [ ] Update / Add Unit Tests
-- [ ] Update / Add Integration Tests
 
 #### Notes on Review Process
 Please see [Notes on Review Process](https://codice.atlassian.net/wiki/spaces/DDF/pages/71946981/Pull+Request+Guidelines) for further guidance on requirements for merging and abbreviated reviews. 
