@@ -31,15 +31,14 @@
 package org.codice.ddf.security.session;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import javax.annotation.Nullable;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.platform.session.api.HttpSessionInvalidator;
 import org.eclipse.jetty.server.Server;
@@ -80,21 +79,28 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
     public void invalidateSession(
         String subjectName, Function<Map<String, Object>, String> sessionSubjectExtractor) {
 
-      final Optional<String> sessionIdOptional =
-          idManager
-              .latestSessionAttributes
-              .entrySet()
-              .stream()
-              .filter(e -> subjectName.equals(sessionSubjectExtractor.apply(e.getValue())))
-              .map(Map.Entry::getKey)
-              .findFirst();
+      final Optional<String> sessionIdOptional;
+      synchronized (idManager.dataStores) {
+        sessionIdOptional =
+            idManager
+                .dataStores
+                .stream()
+                .map(AttributeSharingSessionDataStore::getSessionDataMap)
+                .map(Map::entrySet)
+                .flatMap(Collection::stream)
+                .filter(
+                    e ->
+                        subjectName.equals(
+                            sessionSubjectExtractor.apply(e.getValue().getAllAttributes())))
+                .map(Map.Entry::getKey)
+                .findFirst();
+      }
 
       sessionIdOptional.ifPresent(idManager::invalidateSession);
     }
   }
 
   private List<AttributeSharingSessionDataStore> dataStores = new ArrayList<>();
-  private Map<String, Map<String, Object>> latestSessionAttributes = new ConcurrentHashMap();
 
   private void registerSessionManager() {
     Bundle bundle = FrameworkUtil.getBundle(AttributeSharingHashSessionIdManager.class);
@@ -131,17 +137,23 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
   /** @see org.eclipse.jetty.server.SessionIdManager#invalidateAll(String) */
   @Override
   public void invalidateAll(String id) {
-    Map sessionAttributes = latestSessionAttributes.remove(id);
-
-    if (sessionAttributes != null) {
-      super.invalidateAll(id);
+    synchronized (dataStores) {
+      for (AttributeSharingSessionDataStore dataStore : dataStores) {
+        dataStore.delete(id);
+      }
     }
+
+    super.invalidateAll(id);
   }
 
   /** @see org.eclipse.jetty.server.SessionIdManager#expireAll(String) */
   @Override
   public void expireAll(String id) {
-    latestSessionAttributes.remove(id);
+    synchronized (dataStores) {
+      for (AttributeSharingSessionDataStore dataStore : dataStores) {
+        dataStore.delete(id);
+      }
+    }
 
     super.expireAll(id);
   }
@@ -183,9 +195,8 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
       String id,
       Map<String, Object> sessionAttributes) {
     // Make sure these attributes are different than the latest.
-    if (sessionAttributes != null && !sessionAttributes.equals(getLatestSessionAttributes(id))) {
+    if (sessionAttributes != null) {
       LOGGER.trace("Pushing new session attributes to all web contexts for session {}", id);
-      latestSessionAttributes.put(id, sessionAttributes);
       dataStores
           .stream()
           .filter(ds -> ds != callingDataStore)
@@ -193,15 +204,14 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
     }
   }
 
-  /**
-   * Called by {@link AttributeSharingSessionDataStore} when a new session is being created in their
-   * context for a session that exists in another context.
-   *
-   * @param id the session id
-   * @return the session attributes
-   */
-  @Nullable
-  protected Map<String, Object> getLatestSessionAttributes(String id) {
-    return latestSessionAttributes.get(id);
+  protected Map<String, Object> sessionAttributes(String id) {
+    synchronized (dataStores) {
+      for (AttributeSharingSessionDataStore dataStore : dataStores) {
+        if (dataStore.getSessionDataMap().containsKey(id)) {
+          return dataStore.getSessionDataMap().get(id).getAllAttributes();
+        }
+      }
+    }
+    return null;
   }
 }
