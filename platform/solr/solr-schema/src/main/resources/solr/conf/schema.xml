@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
 /**
- * Copyright (c) Codice Foundation
+ * Copyright (c) Connexta, LLC
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
  * version 3 of the License, or any later version.
@@ -41,6 +41,8 @@
     <field name="id_txt" type="string" indexed="true" stored="true" required="true" multiValued="false" docValues="true"/>
     <field name="id_txt_tokenized" type="text" indexed="true" stored="false" required="false"/>
     <field name="id_txt_tokenized_has_case" type="text_case" indexed="true" stored="false" required="false"/>
+
+    <field name="language_detected" type="string" indexed="true" stored="true" multiValued="true"/>
 
     <field name="lux_xml" type="binary" indexed="false" stored="true"/>
 
@@ -82,18 +84,25 @@
     <fieldType name="binary" class="solr.BinaryField"/>
 
     <fieldType name="text" class="solr.TextField" positionIncrementGap="100">
-      <analyzer type="index">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.WordDelimiterGraphFilterFactory" preserveOriginal="1"/>
-        <filter class="solr.FlattenGraphFilterFactory"/>
-      </analyzer>
-      <analyzer type="query">
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
-        <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.WordDelimiterGraphFilterFactory"/>
-      </analyzer>
+        <analyzer type="index">
+            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory" preserveOriginal="1"/>
+            <filter class="solr.FlattenGraphFilterFactory"/>
+            <!-- The phonetic filter used here will allow highlighting query results if the query
+                 algorithm is the same as the index algorithm -->
+            <filter class="solr.PhoneticFilterFactory" inject="true" encoder="DoubleMetaphone"/>
+            <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+        </analyzer>
+        <analyzer type="query">
+            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+            <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.WordDelimiterGraphFilterFactory"/>
+            <!-- Remove the following line once the DDF changes make it in to be able to selectively
+                 enable/disable homonym matching-->
+            <!--         <filter class="solr.PhoneticFilterFactory" inject="true" encoder="DoubleMetaphone"/> -->
+        </analyzer>
     </fieldType>
 
     <fieldType name="text_case" class="solr.TextField" positionIncrementGap="100">
@@ -125,5 +134,86 @@
                allowMultiOverlap="true" />
 
     <fieldType name="location" class="solr.LatLonPointSpatialField"/>
+
+    <fieldType name="text_phonetics" class="solr.TextField" positionIncrementGap="100">
+        <analyzer>
+            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.PhoneticFilterFactory" inject="true" encoder="DoubleMetaphone"/>
+            <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+        </analyzer>
+    </fieldType>
+    <dynamicField name="*_txt_phonetics" type="text_phonetics" docValues="false" multiValued="true" indexed="true" stored="false"/>
+    <copyField source="*_txt" dest="*_txt_phonetics"/>
+
+    <!-- Enable any/all of the following to provide support for different phonetic algorithms.
+         Highlighting will not work if the indexed field was not indexed with the same algorithm
+         used in the query.  If that is desired it is suggested to modify the above text_phonetics
+         field type as well as the index analyzer in the text field type to use the desired
+         algorithm. -->
+    <!--
+    <fieldType name="text_phonetic_bm" class="solr.TextField" positionIncrementGap="100">
+        <analyzer>
+            <tokenizer class="solr.StandardTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.BeiderMorseFilterFactory" nameType="GENERIC" ruleType="APPROX" concat="true" languageSet="auto"/>
+        </analyzer>
+    </fieldType>
+    <dynamicField name="*_txt_phonetic_bm" type="text_phonetic_bm" docValues="false" multiValued="true" indexed="true" stored="false"/>
+    <copyField source="*_txt" dest="*_txt_phonetic_bm"/>
+    -->
+    <!--
+    <fieldType name="text_phonetic_caverphone" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.PhoneticFilterFactory" encoder="Caverphone" inject="true"/>
+      </analyzer>
+    </fieldType>
+    <dynamicField name="*_txt_phonetic_caverphone" type="text_phonetic_caverphone" docValues="false" multiValued="true" indexed="true" stored="false"/>
+    <copyField source="*_txt" dest="*_txt_phonetic_caverphone"/>
+    -->
+    <!--
+    <fieldType name="text_phonetic_cologne" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.PhoneticFilterFactory" encoder="ColognePhonetic" inject="true"/>
+      </analyzer>
+    </fieldType>
+    <dynamicField name="*_txt_phonetic_cologne" type="text_phonetic_cologne" docValues="false" multiValued="true" indexed="true" stored="false"/>
+    <copyField source="*_txt" dest="*_txt_phonetic_cologne"/>
+    -->
+    <!--
+    <fieldType name="text_phonetic_nysiis" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.PhoneticFilterFactory" encoder="Nysiis" inject="true"/>
+      </analyzer>
+    </fieldType>
+    <dynamicField name="*_txt_phonetic_nysiis" type="text_phonetic_nysiis" docValues="false" multiValued="true" indexed="true" stored="false"/>
+    <copyField source="*_txt" dest="*_txt_phonetic_nysiis"/>
+    -->
+    <!--
+    <fieldType name="text_phonetic_soundex" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.PhoneticFilterFactory" encoder="RefinedSoundex" inject="true"/>
+      </analyzer>
+    </fieldType>
+    <dynamicField name="*_txt_phonetic_soundex" type="text_phonetic_soundex" docValues="false" multiValued="true" indexed="true" stored="false"/>
+    <copyField source="*_txt" dest="*_txt_phonetic_soundex"/>
+    -->
+
+    <fieldType name="text_suggest" class="solr.TextField" positionIncrementGap="100">
+        <analyzer>
+            <tokenizer class="solr.StandardTokenizerFactory"/>
+            <filter class="solr.StandardFilterFactory"/>
+            <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>
+    <field name="spellcheckfield" type="text_suggest" multiValued="true" indexed="true" stored="false" omitNorms="true"/>
+    <!-- Copy each field that should contribute to the spellcheck dictionary -->
+    <copyField source="title_txt" dest="spellcheckfield"/>
+    <copyField source="description_txt" dest="spellcheckfield"/>
 
 </schema>

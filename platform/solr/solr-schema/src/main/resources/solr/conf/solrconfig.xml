@@ -96,7 +96,7 @@
 
   <lib dir="${solr.install.dir:../../../..}/contrib/velocity/lib" regex=".*\.jar" />
   <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-velocity-\d.*\.jar" />
-    <lib dir="${solr.install.dir:../../../..}/plugins/" regex=".*\.jar" />
+  <lib dir="${solr.install.dir:../../../..}/plugins/" regex=".*\.jar" />
   <!-- an exact 'path' can be used instead of a 'dir' to specify a
        specific jar file.  This will cause a serious error to be logged
        if it can't be loaded.
@@ -624,6 +624,7 @@
          system has authentication enabled.
 
     <requestParsers enableRemoteStreaming="false"
+          enableStreamBody="false"
                     multipartUploadLimitInKB="-1"
                     formdataUploadLimitInKB="-1"
                     addHttpRequestToContext="false"/>
@@ -705,71 +706,32 @@
        queries across multiple shards
     -->
   <requestHandler name="/select" class="solr.SearchHandler">
-    <!-- default values for query parameters can be specified, these
-         will be overridden by parameters in the request
-      -->
     <lst name="defaults">
       <str name="echoParams">explicit</str>
-      <int name="rows">10</int>
-      <!-- Default search field
-         <str name="df">text</str>
-        -->
-      <!-- Change from JSON to XML format (the default prior to Solr 7.0)
-         <str name="wt">xml</str>
-        -->
+      <str name="spellcheck">true</str>
+      <str name="spellcheck.dictionary">filebased</str>
+      <!-- Uncomment the lines below to enable the data index based dictionary and then comment
+           out the filebased dictionary lines above. WARNING: Doing so may expose sensitive data
+           if not every user is allowed to see all of the suggestion words from the data index.
+           Additionally, the data index will not correct words that are misspelled within the data
+           already. In fact, it will assume that all of the data is a correct spelling. In essence,
+           changing this configuration makes it work more as a data suggester rather than a
+           spellchecking capability. -->
+      <!--       <str name="spellcheck.dictionary">indexbased</str>
+            <str name="spellcheck.dictionary">wordbreak</str> -->
+      <str name="spellcheck.extendedResults">true</str>
+      <str name="spellcheck.count">10</str>
+      <str name="spellcheck.alternativeTermCount">5</str>
+      <str name="spellcheck.maxResultsForSuggest">5</str>
+      <str name="spellcheck.collate">true</str>
+      <str name="spellcheck.collateExtendedResults">true</str>
+      <str name="spellcheck.maxCollationTries">100</str>
+      <str name="spellcheck.maxCollations">5</str>
+      <str name="spellcheck.onlyMorePopular">true</str>
     </lst>
-    <!-- In addition to defaults, "appends" params can be specified
-         to identify values which should be appended to the list of
-         multi-val params from the query (or the existing "defaults").
-      -->
-    <!-- In this example, the param "fq=instock:true" would be appended to
-         any query time fq params the user may specify, as a mechanism for
-         partitioning the index, independent of any user selected filtering
-         that may also be desired (perhaps as a result of faceted searching).
-
-         NOTE: there is *absolutely* nothing a client can do to prevent these
-         "appends" values from being used, so don't use this mechanism
-         unless you are sure you always want it.
-      -->
-    <!--
-       <lst name="appends">
-         <str name="fq">inStock:true</str>
-       </lst>
-      -->
-    <!-- "invariants" are a way of letting the Solr maintainer lock down
-         the options available to Solr clients.  Any params values
-         specified here are used regardless of what values may be specified
-         in either the query, the "defaults", or the "appends" params.
-
-         In this example, the facet.field and facet.query params would
-         be fixed, limiting the facets clients can use.  Faceting is
-         not turned on by default - but if the client does specify
-         facet=true in the request, these are the only facets they
-         will be able to see counts for; regardless of what other
-         facet.field or facet.query params they may specify.
-
-         NOTE: there is *absolutely* nothing a client can do to prevent these
-         "invariants" values from being used, so don't use this mechanism
-         unless you are sure you always want it.
-      -->
-    <!--
-       <lst name="invariants">
-         <str name="facet.field">cat</str>
-         <str name="facet.field">manu_exact</str>
-         <str name="facet.query">price:[* TO 500]</str>
-         <str name="facet.query">price:[500 TO *]</str>
-       </lst>
-      -->
-    <!-- If the default list of SearchComponents is not desired, that
-         list can either be overridden completely, or components can be
-         prepended or appended to the default list.  (see below)
-      -->
-    <!--
-       <arr name="components">
-         <str>nameOfCustomComponent1</str>
-         <str>nameOfCustomComponent2</str>
-       </arr>
-      -->
+    <arr name="last-components">
+      <str>spellcheck</str>
+    </arr>
   </requestHandler>
 
   <!-- A request handler that returns indented JSON by default -->
@@ -800,6 +762,7 @@
   <initParams path="/update/**,/query,/select,/tvrh,/elevate,/spell,/browse">
     <lst name="defaults">
       <str name="df">_text_</str>
+      <str name="update.chain">langid</str>
     </lst>
   </initParams>
 
@@ -870,47 +833,42 @@
     -->
   <searchComponent name="spellcheck" class="solr.SpellCheckComponent">
 
-    <str name="queryAnalyzerFieldType">text_general</str>
+    <str name="queryAnalyzerFieldType">text_suggest</str>
 
-    <!-- Multiple "Spell Checkers" can be declared and used by this
-         component
-      -->
-
-    <!-- a spellchecker built from a field of the main index -->
     <lst name="spellchecker">
-      <str name="name">default</str>
-      <str name="field">_text_</str>
-      <str name="classname">solr.DirectSolrSpellChecker</str>
-      <!-- the spellcheck distance measure used, the default is the internal levenshtein -->
-      <str name="distanceMeasure">internal</str>
-      <!-- minimum accuracy needed to be considered a valid spellcheck suggestion -->
-      <float name="accuracy">0.5</float>
-      <!-- the maximum #edits we consider when enumerating terms: can be 1 or 2 -->
-      <int name="maxEdits">2</int>
-      <!-- the minimum shared prefix when enumerating terms -->
-      <int name="minPrefix">1</int>
-      <!-- maximum number of inspections per result. -->
-      <int name="maxInspections">5</int>
-      <!-- minimum length of a query term to be considered for correction -->
-      <int name="minQueryLength">4</int>
-      <!-- maximum threshold of documents a query term can appear to be considered for correction -->
-      <float name="maxQueryFrequency">0.01</float>
-      <!-- uncomment this to require suggestions to occur in 1% of the documents
-        <float name="thresholdTokenFrequency">.01</float>
-      -->
+      <!-- The spellcheck index will need to be built once for this dictionary before it will work -->
+      <str name="name">filebased</str>
+      <str name="classname">solr.FileBasedSpellChecker</str>
+      <str name="sourceLocation">dictionary.txt</str>
+      <str name="spellcheckIndexDir">./spellcheckerFile</str>
+      <str name="characterEncoding">UTF-8</str>
+      <!--       <str name="buildOnCommit">true</str> -->
     </lst>
-
-    <!-- a spellchecker that can break or combine words.  See "/spell" handler below for usage -->
-    <!--
+    <lst name="spellchecker">
+      <str name="name">indexbased</str>
+      <str name="field">spellcheckfield</str>
+      <str name="classname">solr.IndexBasedSpellChecker</str>
+      <str name="distanceMeasure">org.apache.lucene.search.spell.LevenshteinDistance</str>
+      <str name="accuracy">0.5</str>
+      <int name="maxEdits">1</int>
+      <int name="minPrefix">1</int>
+      <int name="maxInspections">5</int>
+      <int name="minQueryLength">4</int>
+      <str name="maxQueryFrequency">0.01</str>
+      <str name="buildOnCommit">true</str>
+    </lst>
     <lst name="spellchecker">
       <str name="name">wordbreak</str>
       <str name="classname">solr.WordBreakSolrSpellChecker</str>
-      <str name="field">name</str>
+      <str name="field">spellcheckfield</str>
+      <!-- should multiple words from the query be combined in a dictionary search -->
       <str name="combineWords">true</str>
+      <!-- should words from the query be broken in a dictionary search -->
       <str name="breakWords">true</str>
-      <int name="maxChanges">10</int>
+      <int name="maxChanges">5</int>
+      <int name="minBreakLength">3</int>
+      <str name="buildOnCommit">true</str>
     </lst>
-    -->
   </searchComponent>
 
   <!-- A request handler for demonstrating the spellcheck component.
@@ -932,7 +890,7 @@
            and from the 'wordbreak' spellchecker and combine them.
            collations (re-written queries) can include a combination of
            corrections from both spellcheckers -->
-      <str name="spellcheck.dictionary">default</str>
+      <str name="spellcheck.dictionary">filebased</str>
       <str name="spellcheck">on</str>
       <str name="spellcheck.extendedResults">true</str>
       <str name="spellcheck.count">10</str>
@@ -1179,7 +1137,7 @@
 
   <!-- The update.autoCreateFields property can be turned to false to disable schemaless mode -->
   <updateRequestProcessorChain name="add-unknown-fields-to-the-schema" default="${update.autoCreateFields:true}"
-           processor="uuid,remove-blank,field-name-mutating,parse-boolean,parse-long,parse-double,parse-date">
+                               processor="uuid,remove-blank,field-name-mutating,parse-boolean,parse-long,parse-double,parse-date">
     <processor class="solr.LogUpdateProcessorFactory"/>
     <processor class="solr.DistributedUpdateProcessorFactory"/>
     <processor class="solr.RunUpdateProcessorFactory"/>
@@ -1218,17 +1176,17 @@
        rich documents injected via ExtractingRequestHandler.
        See more about langId at http://wiki.apache.org/solr/LanguageDetection
     -->
-  <!--
-   <updateRequestProcessorChain name="langid">
-     <processor class="org.apache.solr.update.processor.TikaLanguageIdentifierUpdateProcessorFactory">
-       <str name="langid.fl">text,title,subject,description</str>
-       <str name="langid.langField">language_s</str>
-       <str name="langid.fallback">en</str>
-     </processor>
-     <processor class="solr.LogUpdateProcessorFactory" />
-     <processor class="solr.RunUpdateProcessorFactory" />
-   </updateRequestProcessorChain>
-  -->
+  <!-- -->
+  <updateRequestProcessorChain name="langid">
+    <processor class="org.apache.solr.update.processor.TikaLanguageIdentifierUpdateProcessorFactory">
+      <str name="langid.fl">_text_,title_txt,description_txt</str>
+      <str name="langid.langField">language_detected</str>
+      <str name="langid.fallback">en</str>
+    </processor>
+    <processor class="solr.LogUpdateProcessorFactory" />
+    <processor class="solr.RunUpdateProcessorFactory" />
+  </updateRequestProcessorChain>
+  <!-- -->
 
   <!-- Script update processor
 
@@ -1352,37 +1310,37 @@
     -->
 
 
-    <!-- Placename Suggestion Component
+  <!-- Placename Suggestion Component
 
-    This component can return a list of auto-complete suggestions
-    when entering placenames.
-    -->
-    <searchComponent name="suggest" class="solr.SuggestComponent">
-        <lst name="suggester">
-            <str name="name">suggestPlace</str>
-            <str name="lookupImpl">BlendedInfixLookupFactory</str>
-            <str name="indexPath">place_suggest_index</str>
-            <str name="dictionaryImpl">DocumentDictionaryFactory</str>
-            <str name="suggestAnalyzerFieldType">lowercase</str>
-            <str name="field">title_txt</str>
-            <str name="contextField">metacard-tags_txt</str>
-            <str name="weightField">ext.gazetteer-sort-value_int</str>
-            <str name="sortField">ext.population_lng</str>
-            <str name="payloadField">id_txt</str>
-            <str name="buildOnStartup">false</str>
-        </lst>
-    </searchComponent>
+  This component can return a list of auto-complete suggestions
+  when entering placenames.
+  -->
+  <searchComponent name="suggest" class="solr.SuggestComponent">
+    <lst name="suggester">
+      <str name="name">suggestPlace</str>
+      <str name="lookupImpl">BlendedInfixLookupFactory</str>
+      <str name="indexPath">place_suggest_index</str>
+      <str name="dictionaryImpl">DocumentDictionaryFactory</str>
+      <str name="suggestAnalyzerFieldType">lowercase</str>
+      <str name="field">title_txt</str>
+      <str name="contextField">metacard-tags_txt</str>
+      <str name="weightField">ext.gazetteer-sort-value_int</str>
+      <str name="sortField">ext.population_lng</str>
+      <str name="payloadField">id_txt</str>
+      <str name="buildOnStartup">false</str>
+    </lst>
+  </searchComponent>
 
-    <requestHandler name="/suggest" class="solr.SearchHandler" startup="lazy">
-        <lst name="defaults">
-            <str name="suggest">true</str>
-            <str name="suggest.count">50</str>
-        </lst>
-        <arr name="components">
-            <str>suggest</str>
-        </arr>
-    </requestHandler>
+  <requestHandler name="/suggest" class="solr.SearchHandler" startup="lazy">
+    <lst name="defaults">
+      <str name="suggest">true</str>
+      <str name="suggest.count">50</str>
+    </lst>
+    <arr name="components">
+      <str>suggest</str>
+    </arr>
+  </requestHandler>
 
-    <queryParser name="xpath" class="org.codice.solr.xpath.XpathQParserPlugin"/>
+  <queryParser name="xpath" class="org.codice.solr.xpath.XpathQParserPlugin"/>
 
 </config>
