@@ -54,7 +54,8 @@ public class ConfigurationFileProxy {
               "solrconfig-inmemory.xml",
               "stopwords.txt",
               "stopwords_en.txt",
-              "synonyms.txt"));
+              "synonyms.txt",
+              "dictionary.txt"));
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileProxy.class);
 

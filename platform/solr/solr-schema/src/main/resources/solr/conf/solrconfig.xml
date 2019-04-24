@@ -842,7 +842,6 @@
       <str name="sourceLocation">dictionary.txt</str>
       <str name="spellcheckIndexDir">./spellcheckerFile</str>
       <str name="characterEncoding">UTF-8</str>
-      <!--       <str name="buildOnCommit">true</str> -->
     </lst>
     <lst name="spellchecker">
       <str name="name">indexbased</str>
