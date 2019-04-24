@@ -86,9 +86,9 @@ const SelectAllToggle = createToggle({
     return (
       currentResults.length > 0 &&
       selectedResults.length >= currentResults.length &&
-      currentResults.every(currentResult => {
-        return selectedResults.get(currentResult) !== undefined
-      })
+      currentResults.every(
+        currentResult => selectedResults.get(currentResult) !== undefined
+      )
     )
   },
 })
