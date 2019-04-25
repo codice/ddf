@@ -116,7 +116,7 @@
       ]
     }
   ],
-  "webSocketsEnabled": true,
+  "webSocketsEnabled": false,
   "showRelevanceScores": false,
   "customPositiveColor": "#428442",
   "product": "Intrigue",
