@@ -59,49 +59,49 @@
 |true
 
 |Convert to BBox
-|[[_shouldConvertToBBox]]shouldConvertToBBox
+a|[[_shouldConvertToBBox]]shouldConvertToBBox
 |Boolean
 |Converts Polygon and Point-Radius searches to a Bounding Box for compatibility with older interfaces. Generated bounding box is a very rough representation of the input geometry.
 |true
 |true
 
 |Multi Point-Radius polygon approximation vertices
-|[[_numMultiPointRadiusVertices]]numMultiPointRadiusVertices
+a|[[_numMultiPointRadiusVertices]]numMultiPointRadiusVertices
 |Integer
 |When performing a multi point-radius search, increase this value for more accurate polygon approximation. Minimum value is 4, maximum value is 32.
 |32
 |true
 
 |Point radius polygon simplification distance tolerance
-|[[_distanceTolerance]]distanceTolerance
+a|[[_distanceTolerance]]distanceTolerance
 |Integer
 |The maximum distance (in meters) from the original vertices a reduced vertex may lie on a simplified circular polygon.
 |1
 |true
 
 |Disable CN Check
-|[[_disableCnCheck]]disableCnCheck
+a|[[_disableCnCheck]]disableCnCheck
 |Boolean
 |Disable CN check for the server certificate. This should only be used when testing.
 |false
 |true
 
 |Connection Timeout
-|[[_connectionTimeout]]connectionTimeout
+a|[[_connectionTimeout]]connectionTimeout
 |Integer
 |Amount of time to attempt to establish a connection before timing out, in milliseconds.
 |30000
 |true
 
 |Receive Timeout
-|[[_receiveTimeout]]receiveTimeout
+a|[[_receiveTimeout]]receiveTimeout
 |Integer
 |Amount of time to wait for a response before timing out, in milliseconds.
 |60000
 |true
 
 |Entry XML Element
-|[[_markUpSet]]markUpSet
+a|[[_markUpSet]]markUpSet
 |String
 |XML Element from the Response Entry to transform into a Metacard.
 |
