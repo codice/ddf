@@ -408,6 +408,7 @@ grant codeBase "file:/catalog-plugin-videothumbnail/catalog-rest-endpoint/catalo
 grant codeBase "file:/catalog-transformer-zip/org.apache.commons.net/catalog-core-camelcomponent/org.apache.camel.camel-sjms/org.apache.commons.pool" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.lang.RuntimePermission "createClassLoader";
 }
 
 grant codeBase "file:/catalog-ui-search" {
