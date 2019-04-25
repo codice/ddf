@@ -125,9 +125,27 @@ To retrieve a query metacard through the queries endpoint, send a `GET` request 
 |asc, desc
 |String
 
+|text
+|A text field to search against a few attributes.
+|None
+|All strings
+|String
+
 |===
 
 A successful retrieval request will return a status of `200 OK`.
+
+=== Queries Endpoint Retrieve All Fuzzy Examples
+
+To retrieve all query metacards based on some text based value through the queries endpoint, send a `GET` request to the queries endpoint specifying a value for `text` as a query parameters.
+
+.Retrieve All Queries Fuzzy Search Endpoint URL
+[source,https]
+----
+https://<HOSTNAME>:<PORT>/search/catalog/internal/queries?text=<VALUE>
+----
+
+A fuzzy search will only be performed against the `title`, `modified`, `owner`, and `description` attributes.
 
 === Queries Endpoint Retrieve Examples
 
