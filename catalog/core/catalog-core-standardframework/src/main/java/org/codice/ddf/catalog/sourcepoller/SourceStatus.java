@@ -11,14 +11,25 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.util.impl;
+package org.codice.ddf.catalog.sourcepoller;
+
+import ddf.catalog.source.Source;
 
 /**
- * The SourceStatus is an enum representing the state a source (Catalog Provider, Federated Source,
- * or Connected Source) can be in
+ * Describes a state of availability of a {@link Source}. {@link SourceStatus} includes more states
+ * than a {@code boolean} for available/unavailable.
  */
-enum SourceStatus {
-  UNCHECKED,
+public enum SourceStatus {
+
+  /** Indicates that {@link Source#isAvailable()} returned {@code true} */
   AVAILABLE,
-  UNAVAILABLE
+
+  /** Indicates that {@link Source#isAvailable()} returned {@code false} */
+  UNAVAILABLE,
+
+  /** Indicates that {@link Source#isAvailable()} threw an exception */
+  EXCEPTION,
+
+  /** Indicates that {@link Source#isAvailable()} timed out */
+  TIMEOUT
 }

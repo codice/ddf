@@ -11,45 +11,40 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <!--
-    This metatype resides in the standard catalog framework instead of in the SortedFederationStrategy bundle because standard catalog framework creates
-    SortedFederationStrategy and uses the (executor) pool singleton from SortedFederationStrategy across a few of its instantiated implementations.
-    This metatype may go away once a smarter federation strategy is implemented.
-     -->
-    <OCD description="Catalog Caching Federation Strategy"
-         name="Catalog Federation Strategy"
+    <!--This metatype resides in the standard catalog framework instead of in the SortedFederationStrategy bundle
+    because standard catalog framework creates SortedFederationStrategy and uses the (executor) pool singleton from
+    SortedFederationStrategy across a few of its instantiated implementations. This metatype may go away once a smarter
+    federation strategy is implemented.-->
+    <OCD description="Catalog Caching Federation Strategy" name="Catalog Federation Strategy"
          id="ddf.catalog.federation.impl.CachingFederationStrategy">
-        <AD name="Maximum start index" id="maxStartIndex" required="true" type="Integer"
-            default="50000"
-            description="Sets a limit on the number of results this sorted federation strategy can handle from each federated source. A large start index
-        in conjunction with several federated sources could yield a large result set, which the sorted federation strategy has a limited ability to do.  
-        The admin can make a rough calculation to decide what maximum start index to use based on the amount of memory in the system, the amount of 
-        federated sources, the number of threads, and the expected amount of query results requested 
-        ( (average # of threads) * (maximum # of federated sources) * (maxStartIndex + maximumQueryResults) ) must fit into the allocated memory of 
-        the running distribution.  This field will be removed when sorted federation strategy has the ability to sort a larger amount of results."/>
+        <AD name="Maximum start index" id="maxStartIndex" type="Integer" default="50000"
+            description="Sets a limit on the number of results this sorted federation strategy can handle from each
+            federated source. A large start index in conjunction with several federated sources could yield a large
+            result set, which the sorted federation strategy has a limited ability to do. The admin can make a rough
+            calculation to decide what maximum start index to use based on the amount of memory in the system, the
+            amount of federated sources, the number of threads, and the expected amount of query results requested
+            ( (average # of threads) * (maximum # of federated sources) * (maxStartIndex + maximumQueryResults) ) must
+            fit into the allocated memory of the running distribution. This field will be removed when sorted federation
+            strategy has the ability to sort a larger amount of results."/>
 
-        <AD name="Expiration Interval" id="expirationIntervalInMinutes" required="true" type="Long"
-            default="10"
+        <AD name="Expiration Interval" id="expirationIntervalInMinutes" type="Long" default="10"
             description="Interval that Solr Cache checks for expired documents to remove."/>
 
-        <AD name="Expiration Age" id="expirationAgeInMinutes" required="true" type="Long"
-            default="10080"
-            description="The number of minutes a document will remain in the cache before it will expire. Default is 7 days."/>
-        <AD description="Cache all results unless configured as native" name="Cache Everything"
-            id="cachingEverything" required="true" type="Boolean" default="false"/>
+        <AD name="Expiration Age" id="expirationAgeInMinutes" type="Long" default="10080"
+            description="The number of minutes a document will remain in the cache before it will expire. Default is
+            7 days."/>
 
-        <AD description="Cache remote ingest results" name="Cache Remote Ingests"
-            id="cacheRemoteIngests" required="true" type="Boolean" default="false"/>
+        <AD name="Cache Everything" id="cachingEverything" type="Boolean" default="false"
+            description="Cache all results unless configured as native"/>
 
-        <AD
-            description="Strategy for caching query results"
-            name="Query Result Cache Strategy" id="cacheStrategy" required="true"
-            type="String"
-            default="ALL">
+        <AD name="Cache Remote Ingests" id="cacheRemoteIngests" type="Boolean" default="false"
+            description="Cache remote ingest results"/>
+
+        <AD name="Query Result Cache Strategy" id="cacheStrategy" type="String" default="ALL"
+            description="Strategy for caching query results">
             <Option label="All" value="ALL"/>
             <Option label="Federated" value="FEDERATED"/>
             <Option label="None" value="NONE"/>

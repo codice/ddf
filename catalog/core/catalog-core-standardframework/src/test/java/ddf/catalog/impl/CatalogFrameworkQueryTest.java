@@ -52,15 +52,16 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.util.impl.CachedSource;
-import ddf.catalog.util.impl.SourcePoller;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import org.codice.ddf.catalog.sourcepoller.SourcePoller;
+import org.codice.ddf.catalog.sourcepoller.SourceStatus;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.temporal.object.DefaultInstant;
@@ -85,19 +86,16 @@ public class CatalogFrameworkQueryTest {
         new MockMemoryProvider(
             "Provider", "Provider", "v1.0", "DDF", new HashSet<ContentType>(), true, new Date());
 
-    // Mock register the provider in the container
-    // Mock the source poller
-    SourcePoller mockPoller = mock(SourcePoller.class);
-    CachedSource source = mock(CachedSource.class);
-    when(source.isAvailable()).thenReturn(Boolean.TRUE);
-    when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(source);
+    final SourcePoller<SourceStatus> mockStatusSourcePoller = mock(SourcePoller.class);
+    when(mockStatusSourcePoller.getCachedValueForSource(isA(Source.class)))
+        .thenReturn(Optional.of(SourceStatus.AVAILABLE));
+
     ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<>();
     FrameworkProperties props = new FrameworkProperties();
     props.setCatalogProviders(Collections.singletonList(provider));
     props.setPostIngest(postIngestPlugins);
     props.setFederationStrategy(new MockFederationStrategy());
     props.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
-    props.setSourcePoller(mockPoller);
     props.setFilterBuilder(new GeotoolsFilterBuilder());
     props.setDefaultAttributeValueRegistry(new DefaultAttributeValueRegistryImpl());
 
@@ -111,7 +109,9 @@ public class CatalogFrameworkQueryTest {
     MetacardFactory metacardFactory =
         new MetacardFactory(props.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard = new OperationsMetacardSupport(props, metacardFactory);
-    SourceOperations sourceOperations = new SourceOperations(props, sourceActionRegistry);
+    SourceOperations sourceOperations =
+        new SourceOperations(
+            props, sourceActionRegistry, mockStatusSourcePoller, mock(SourcePoller.class));
     QueryOperations queryOperations =
         new QueryOperations(props, sourceOperations, opsSecurity, opsMetacard);
     ResourceOperations resourceOperations =

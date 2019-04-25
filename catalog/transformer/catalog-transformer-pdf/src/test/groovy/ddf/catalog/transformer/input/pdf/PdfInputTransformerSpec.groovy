@@ -19,7 +19,11 @@ import ddf.catalog.data.MetacardType
 import ddf.catalog.data.impl.AttributeDescriptorImpl
 import ddf.catalog.data.impl.BasicTypes
 import ddf.catalog.data.impl.MetacardTypeImpl
-import ddf.catalog.data.impl.types.*
+import ddf.catalog.data.impl.types.AssociationsAttributes
+import ddf.catalog.data.impl.types.ContactAttributes
+import ddf.catalog.data.impl.types.MediaAttributes
+import ddf.catalog.data.impl.types.TopicAttributes
+import ddf.catalog.data.impl.types.ValidationAttributes
 import org.osgi.framework.Bundle
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
