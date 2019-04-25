@@ -47,6 +47,7 @@ public class ConfigurationFileProxy {
   protected static final List<String> SOLR_CONFIG_FILES =
       Collections.unmodifiableList(
           Arrays.asList(
+              "dictionary.txt",
               "protwords.txt",
               "schema.xml",
               "solr.xml",
@@ -54,8 +55,7 @@ public class ConfigurationFileProxy {
               "solrconfig-inmemory.xml",
               "stopwords.txt",
               "stopwords_en.txt",
-              "synonyms.txt",
-              "dictionary.txt"));
+              "synonyms.txt"));
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationFileProxy.class);
 
