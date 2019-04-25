@@ -1175,7 +1175,6 @@
        rich documents injected via ExtractingRequestHandler.
        See more about langId at http://wiki.apache.org/solr/LanguageDetection
     -->
-  <!-- -->
   <updateRequestProcessorChain name="langid">
     <processor class="org.apache.solr.update.processor.TikaLanguageIdentifierUpdateProcessorFactory">
       <str name="langid.fl">_text_,title_txt,description_txt</str>
@@ -1185,7 +1184,6 @@
     <processor class="solr.LogUpdateProcessorFactory" />
     <processor class="solr.RunUpdateProcessorFactory" />
   </updateRequestProcessorChain>
-  <!-- -->
 
   <!-- Script update processor
 
