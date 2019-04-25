@@ -16,10 +16,6 @@ package org.codice.ddf.registry.api.internal;
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.CatalogStore;
 
-/**
- * <b> This code is experimental. While this interface is functional and tested, it may change or be
- * removed in a future version of the library. </b>
- */
 public interface RegistryStore extends CatalogStore, ConfiguredService {
 
   /**
