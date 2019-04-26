@@ -61,7 +61,7 @@
     "istanbul": "0.4.5",
     "opn-cli": "3.1.0",
     "react-addons-test-utils": "15.4.2",
-    "@connexta/ace": "git://github.com/connexta/ace.git#v0.0.7"
+    "@connexta/ace": "*"
   },
   "files": [
     "target/webapp",

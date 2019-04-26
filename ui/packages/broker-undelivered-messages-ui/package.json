@@ -34,7 +34,7 @@
     "node-lessify": "0.1.4",
     "tap": "5.7.2",
     "tape": "4.5.1",
-    "@connexta/ace": "git://github.com/connexta/ace.git#v0.0.7"
+    "@connexta/ace": "*"
   },
   "browserify": {
     "transform": [
