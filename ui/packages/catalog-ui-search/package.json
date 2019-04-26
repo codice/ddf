@@ -34,6 +34,7 @@
     "sinon": "5.0.7"
   },
   "dependencies": {
+    "@connexta/atlas": "0.0.35",
     "@turf/circle": "3.3.3",
     "@turf/meta": "3.13.0",
     "@turf/turf": "3.4.1",

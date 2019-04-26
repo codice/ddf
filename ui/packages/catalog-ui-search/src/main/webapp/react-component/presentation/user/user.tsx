@@ -11,8 +11,6 @@
  **/
 import * as React from 'react'
 import styled from '../../styles/styled-components'
-import TextField from '../../../react-component/container/input-wrappers/text'
-import PasswordField from '../../../react-component/container/input-wrappers/password'
 import { Button, buttonTypeEnum } from '../../presentation/button'
 import { hot } from 'react-hot-loader'
 
@@ -40,76 +38,23 @@ const Root = styled<{}, 'div'>('div')`
 
 type Props = {
   username: string
-  password: string
   email: string
-  isGuest: boolean
-  isIdp: boolean
-  signIn: () => void
   signOut: () => void
-  handleUsernameChange: () => void
-  handlePasswordChange: () => void
 }
 
-export default hot(module)(
-  ({
-    username,
-    email,
-    isGuest,
-    isIdp,
-    signIn,
-    signOut,
-    password,
-    handleUsernameChange,
-    handlePasswordChange,
-  }: Props) => {
-    return (
-      <Root>
-        {isGuest && !isIdp ? (
-          <>
-            <div className="user-info">
-              <TextField
-                placeholder="Username"
-                value={username}
-                showLabel={false}
-                showValidationIssues={false}
-                onChange={handleUsernameChange}
-              />
-              <PasswordField
-                value={password}
-                showLabel={false}
-                showValidationIssues={false}
-                onChange={handlePasswordChange}
-                onKeyPress={event => {
-                  if (event.key === 'Enter') {
-                    signIn()
-                  }
-                }}
-              />
-            </div>
-            <div className="is-divider" />
-            <Button
-              buttonType={buttonTypeEnum.primary}
-              text="Sign In"
-              onClick={signIn}
-            />
-          </>
-        ) : (
-          <>
-            <div className="user-info">
-              <div className="info-username is-large-font is-bold">
-                {username}
-              </div>
-              <div className="info-email is-medium-font">{email}</div>
-            </div>
-            <div className="is-divider" />
-            <Button
-              buttonType={buttonTypeEnum.negative}
-              text="Sign Out"
-              onClick={signOut}
-            />
-          </>
-        )}
-      </Root>
-    )
-  }
-)
+export default hot(module)(({ username, email, signOut }: Props) => {
+  return (
+    <Root>
+      <div className="user-info">
+        <div className="info-username is-large-font is-bold">{username}</div>
+        <div className="info-email is-medium-font">{email}</div>
+      </div>
+      <div className="is-divider" />
+      <Button
+        buttonType={buttonTypeEnum.negative}
+        text="Sign Out"
+        onClick={signOut}
+      />
+    </Root>
+  )
+})

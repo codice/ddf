@@ -18,6 +18,7 @@ import {
   addOnFirstRender,
   switchRenderToReact,
 } from '@connexta/atlas/extensions/marionette'
+import processActions from '@connexta/atlas/atoms/logout'
 patchListenTo()
 addOnFirstRender()
 switchRenderToReact({ aggressive: false, Provider: Theme })
@@ -102,8 +103,10 @@ define([
         'click button': 'logout',
       },
       logout: function() {
-        window.location =
-          '../logout/?prevurl=' + encodeURI(window.location.pathname)
+        $.get('../services/logout/actions', function(data) {
+          var actions = JSON.parse(data)
+          processActions({ actions: actions })
+        })
       },
     }))()
   )
