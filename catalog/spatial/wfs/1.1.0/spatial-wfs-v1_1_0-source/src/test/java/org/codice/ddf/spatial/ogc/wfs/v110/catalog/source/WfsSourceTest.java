@@ -1327,7 +1327,7 @@ public class WfsSourceTest {
   private void assertCorrectMetacardsReturned(
       List<Result> results, int startIndex, int expectedNumberOfMetacards) {
 
-    assertThat(results.size(), is(expectedNumberOfMetacards));
+    assertThat(results, hasSize(expectedNumberOfMetacards));
     for (int i = 0; i < expectedNumberOfMetacards; i++) {
       int id = startIndex + i;
       assertThat(results.get(i).getMetacard().getId(), equalTo("ID_" + String.valueOf(id)));
