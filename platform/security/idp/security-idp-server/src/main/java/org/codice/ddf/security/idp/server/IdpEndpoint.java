@@ -81,6 +81,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -91,6 +92,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -103,6 +105,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import net.shibboleth.utilities.java.support.logic.ConstraintViolationException;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
@@ -937,12 +940,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
       if (authObj != null && authObj.username != null && authObj.password != null) {
         token = tokenFactory.fromUsernamePassword(authObj.username, authObj.password);
       } else {
-        BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
-        HandlerResult handlerResult =
-            basicAuthenticationHandler.getNormalizedToken(request, null, null, false);
-        if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
-          token = handlerResult.getToken();
-        }
+        token = getNormalizedBasicAuthenticationToken(request);
       }
     } else if (SAML.equals(authMethod)) {
       LOGGER.debug("Logging user in via SAML assertion.");
@@ -992,6 +990,34 @@ public class IdpEndpoint implements Idp, SessionHandler {
       response.setDestination(binding.creator().getAssertionConsumerServiceURL(authnRequest));
     }
     return response;
+  }
+
+  /** Allows us to get the headers without calling the {@link BasicAuthenticationHandler} */
+  private BaseAuthenticationToken getNormalizedBasicAuthenticationToken(ServletRequest request) {
+    String authHeader = ((HttpServletRequest) request).getHeader(HttpHeaders.AUTHORIZATION);
+    if (StringUtils.isEmpty(authHeader)) {
+      return null;
+    }
+
+    String[] parts = authHeader.trim().split(" ");
+    if (parts.length == 2) {
+      String authType = parts[0];
+      String authInfo = parts[1];
+
+      if (authType.equalsIgnoreCase("Basic")) {
+        byte[] decode = Base64.getDecoder().decode(authInfo);
+        if (decode != null) {
+          String userPass = new String(decode, StandardCharsets.UTF_8);
+          String[] authComponents = userPass.split(":");
+          if (authComponents.length == 2) {
+            return tokenFactory.fromUsernamePassword(authComponents[0], authComponents[1]);
+          } else if ((authComponents.length == 1) && (userPass.endsWith(":"))) {
+            return tokenFactory.fromUsernamePassword(authComponents[0], "");
+          }
+        }
+      }
+    }
+    return null;
   }
 
   private Cookie getCookie(HttpServletRequest request) {

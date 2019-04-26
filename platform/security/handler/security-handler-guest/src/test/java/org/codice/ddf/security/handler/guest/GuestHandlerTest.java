@@ -28,8 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.FilterChain;
-import org.codice.ddf.security.OcspService;
-import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.junit.Test;
@@ -40,11 +38,6 @@ public class GuestHandlerTest {
   @Test
   public void testGetNormalizedToken() throws AuthenticationException {
     GuestHandler handler = new GuestHandler();
-    BaseAuthenticationTokenFactory tokenFactory = new BaseAuthenticationTokenFactory();
-    handler.setTokenFactory(tokenFactory);
-    OcspService ocspService = mock(OcspService.class);
-    handler.setOcspService(ocspService);
-
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
     FilterChain chain = mock(FilterChain.class);
@@ -62,8 +55,6 @@ public class GuestHandlerTest {
   @Test
   public void testHandleError() throws IOException {
     GuestHandler handler = new GuestHandler();
-    BaseAuthenticationTokenFactory tokenFactory = new BaseAuthenticationTokenFactory();
-    handler.setTokenFactory(tokenFactory);
     StringWriter writer = new StringWriter(1024);
     PrintWriter printWriter = new PrintWriter(writer);
     HttpServletRequest request = mock(HttpServletRequest.class);

@@ -87,12 +87,9 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
       return handlerResult;
     }
 
-    // we didn't find the credentials, see if we are to do anything or not
-    if (resolve) {
-      doAuthPrompt((HttpServletResponse) response);
-      handlerResult.setStatus(HandlerResult.Status.REDIRECTED);
-    }
-
+    // prompt for credentials since we didn't find any
+    doAuthPrompt((HttpServletResponse) response);
+    handlerResult.setStatus(HandlerResult.Status.REDIRECTED);
     return handlerResult;
   }
 
