@@ -14,21 +14,16 @@ import { render } from 'react-dom'
 import React from 'react'
 const Parser = require('html-react-parser')
 const properties = require('properties')
-import ThemeContainer from '../../react-component/container/theme-container'
-import { IntlProvider } from 'react-intl'
+import ExtensionPoints from '../../extension-points'
+
+const Providers = ExtensionPoints.providers
 
 Marionette.ItemView.prototype.attachElContent = function(rendering) {
   this.triggerMethod('before:react:attach', rendering)
   render(
-    <ThemeContainer>
-      <React.Fragment>
-        <IntlProvider locale={navigator.language} messages={properties.i18n}>
-          <React.Fragment>
-            {React.isValidElement(rendering) ? rendering : Parser(rendering)}
-          </React.Fragment>
-        </IntlProvider>
-      </React.Fragment>
-    </ThemeContainer>,
+    <Providers>
+      {React.isValidElement(rendering) ? rendering : Parser(rendering)}
+    </Providers>,
     this.el
   )
   this.triggerMethod('after:react:attach', rendering)
