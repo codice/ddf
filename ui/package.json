@@ -44,6 +44,7 @@
     "packages/*"
   ],
   "resolutions": {
-    "admin-ui/@connexta/atlas/backbone.marionette": "1.8.8"
+    "admin-ui/@connexta/atlas/backbone.marionette": "1.8.8",
+    "@connexta/ace": "git://github.com/connexta/ace.git#v0.0.7"
   }
 }

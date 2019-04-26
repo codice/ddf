@@ -15,5 +15,8 @@
   "files": [
     "node_modules/cesium/Build/Cesium"
   ],
-  "context-path": "/search/catalog/cesium/assets"
+  "context-path": "/search/catalog/cesium/assets",
+  "devDependencies": {
+    "@connexta/ace": "*"
+  }
 }
