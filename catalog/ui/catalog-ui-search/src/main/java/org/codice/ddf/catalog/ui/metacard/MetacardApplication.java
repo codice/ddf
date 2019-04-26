@@ -175,6 +175,8 @@ public class MetacardApplication implements SparkApplication {
   private static final Type METACARD_CHANGES_LIST_TYPE =
       new TypeToken<List<MetacardChanges>>() {}.getType();
 
+  private static final Type ATTRIBUTE_CHANGE_TYPE = new TypeToken<AttributeChange>() {}.getType();
+
   private static final Type ASSOCIATED_EDGE_LIST_TYPE =
       new TypeToken<List<Associated.Edge>>() {}.getType();
 
@@ -468,9 +470,20 @@ public class MetacardApplication implements SparkApplication {
                 "Unable to un-subscribe from workspace, " + userid + " has no email address.");
           }
           String id = req.params(":id");
-          subscriptions.removeEmail(id, email);
-          return ImmutableMap.of(
-              "message", String.format("Successfully un-subscribed to id = %s.", id));
+          if (StringUtils.isEmpty(req.body())) {
+            subscriptions.removeEmail(id, email);
+            return ImmutableMap.of(
+                "message", String.format("Successfully un-subscribed to id = %s.", id));
+          } else {
+            String body = req.body();
+            AttributeChange attributeChange = GSON.fromJson(body, ATTRIBUTE_CHANGE_TYPE);
+            subscriptions.removeEmails(id, new HashSet<>(attributeChange.getValues()));
+            return ImmutableMap.of(
+                "message",
+                String.format(
+                    "Successfully un-subscribed emails %s id = %s.",
+                    attributeChange.getValues().toString(), id));
+          }
         },
         util::getJson);
 
