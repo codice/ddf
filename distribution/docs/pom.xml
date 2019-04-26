@@ -153,7 +153,7 @@
                                     <classifier>adoc-files</classifier>
                                     <version>${project.version}</version>
                                     <type>zip</type>
-                                    <outputDirectory>${project.build.directory}/upstream-adoc/ui-help</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/pre-build-${project.version}/upstream-adoc-${project.version}/ui-help</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>ddf.ui.search</groupId>
@@ -179,7 +179,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/doc-contents
+                            <outputDirectory>${project.build.directory}/build-${project.version}/filtered-adoc
                             </outputDirectory>
                             <resources>
                                 <resource>
@@ -208,14 +208,34 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/doc-contents/content</outputDirectory>
+                            <outputDirectory>${project.build.directory}/build-${project.version}/filtered-adoc/content</outputDirectory>
                             <resources>                                
                                 <resource>
-                                    <directory>${project.build.directory}/upstream-adoc</directory>
+                                    <directory>${project.build.directory}/pre-build-${project.version}/upstream-adoc-${project.version}</directory>
                                     <filtering>true</filtering>
                                     <includes>
                                         <include>**/*.adoc</include>
                                         <include>**/*.html</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-scripts</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/asciidoctor-ready-${project.version}/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}/build-${project.version}/filtered-adoc/content</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>scripts.html</include>
+                                        <include>config.adoc</include>
                                     </includes>
                                 </resource>
                             </resources>
@@ -260,8 +280,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <inputDirectory>${project.build.directory}/doc-contents</inputDirectory>
-                    <outputDirectory>${project.build.directory}/asciidoctor-ready</outputDirectory>
+                    <inputDirectory>${project.build.directory}/build-${project.version}/filtered-adoc</inputDirectory>
+                    <outputDirectory>${project.build.directory}/asciidoctor-ready-${project.version}</outputDirectory>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -328,7 +348,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <sourceDirectory>${project.build.directory}/asciidoctor-ready
+                    <sourceDirectory>${project.build.directory}/asciidoctor-ready-${project.version}
                     </sourceDirectory>
                     <gemPath>${project.build.directory}/gems-provided</gemPath>
                     <headerFooter>true</headerFooter>
