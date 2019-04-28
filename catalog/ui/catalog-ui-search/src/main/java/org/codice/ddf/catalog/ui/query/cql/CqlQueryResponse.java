@@ -58,6 +58,8 @@ public class CqlQueryResponse {
 
   private final Map<String, List<FacetValueCount>> facets;
 
+  private final String solrQuery;
+
   // Transient so as not to be serialized to/from JSON
   private final transient QueryResponse queryResponse;
 
@@ -138,6 +140,7 @@ public class CqlQueryResponse {
             .collect(Collectors.toList());
 
     this.facets = getFacetResults(queryResponse.getPropertyValue(EXPERIMENTAL_FACET_RESULTS_KEY));
+    this.solrQuery = (String) queryResponse.getProperties().get("query");
   }
 
   private Map<String, List<FacetValueCount>> getFacetResults(Serializable facetResults) {

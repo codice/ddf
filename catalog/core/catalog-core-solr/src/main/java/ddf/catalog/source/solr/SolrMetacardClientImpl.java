@@ -254,6 +254,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
           totalHits = docs.getNumFound();
           addDocsToResults(docs, results);
         }
+        responseProps.put("query", query.get("q"));
       }
 
       if (isFacetedQuery) {
@@ -269,7 +270,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       throw new UnsupportedQueryException("Could not complete solr query.", e);
     }
 
-    responseProps.put("query", query.get("q"));
     return new SourceResponseImpl(request, responseProps, results, totalHits);
   }
 

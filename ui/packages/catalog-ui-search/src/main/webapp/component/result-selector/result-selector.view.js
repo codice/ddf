@@ -115,6 +115,7 @@ const ResultSelector = Marionette.LayoutView.extend({
           key={Math.random()}
           results={collapsedResults}
           selectionInterface={this.options.selectionInterface}
+          solrQuery={this.model.get('result').get('solrQuery')}
         />
         <MarionetteRegionContainer
           key={Math.random()}
