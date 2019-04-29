@@ -227,7 +227,7 @@ Query.Model = PartialAssociatedModel.extend({
     }
 
     this.listenTo(this, 'change:result', () => {
-      if(this.has('result')){
+      if (this.has('result')) {
         this.listenTo(this.get('result'), 'reset:results', sync)
         this.listenTo(this.get('result'), 'change', sync)
       }
@@ -493,9 +493,7 @@ Query.Model = PartialAssociatedModel.extend({
     this.startSearch()
   },
   getNextServerPage: function() {
-    this.dispatch(
-      nextPage({ sourceList: this.get('src'), results: this.get('result') })
-    )
+    this.dispatch(nextPage())
     this.set('serverPageIndex', serverPageIndex(this.state))
     this.startSearch()
   },
