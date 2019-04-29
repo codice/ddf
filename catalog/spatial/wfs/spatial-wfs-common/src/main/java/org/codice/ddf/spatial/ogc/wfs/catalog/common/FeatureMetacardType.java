@@ -26,7 +26,6 @@ import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.ValidationAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +33,6 @@ import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaComplexContent;
 import org.apache.ws.commons.schema.XmlSchemaComplexContentExtension;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaContent;
@@ -42,7 +40,12 @@ import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaParticle;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaSequenceMember;
+import org.apache.ws.commons.schema.XmlSchemaSimpleContentExtension;
+import org.apache.ws.commons.schema.XmlSchemaSimpleContentRestriction;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
+import org.apache.ws.commons.schema.XmlSchemaSimpleTypeContent;
+import org.apache.ws.commons.schema.XmlSchemaSimpleTypeList;
+import org.apache.ws.commons.schema.XmlSchemaSimpleTypeRestriction;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.constants.Constants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.MetacardTypeEnhancer;
@@ -55,21 +58,23 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FeatureMetacardType.class);
 
-  private transient List<String> properties = new ArrayList<>();
+  private final transient List<String> properties = new ArrayList<>();
 
-  private transient List<String> textualProperties = new ArrayList<>();
+  private final transient List<String> textualProperties = new ArrayList<>();
 
-  private transient List<String> gmlProperties = new ArrayList<>();
+  private final transient List<String> gmlProperties = new ArrayList<>();
 
-  private transient List<String> temporalProperties = new ArrayList<>();
+  private final transient List<String> temporalProperties = new ArrayList<>();
 
-  private transient QName featureType;
+  private final transient QName featureType;
 
-  private transient String propertyPrefix;
+  private final transient String propertyPrefix;
 
-  private transient List<String> nonQueryableProperties;
+  private final transient List<String> nonQueryableProperties;
 
-  private transient String gmlNamespace;
+  private final transient String gmlNamespace;
+
+  private final transient XmlSchema schema;
 
   private static final String EXT_PREFIX = "ext.";
 
@@ -104,6 +109,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
     addAllDescriptors();
 
+    this.schema = schema;
     this.featureType = featureType;
     this.nonQueryableProperties = nonQueryableProperties;
     this.propertyPrefix = EXT_PREFIX + getName() + ".";
@@ -160,6 +166,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     addDescriptors(new MediaAttributes().getAttributeDescriptors());
   }
 
+  @Override
   public String getName() {
     return featureType.getLocalPart();
   }
@@ -178,11 +185,8 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
   private void processXmlSchema(XmlSchema schema) {
     Map<QName, XmlSchemaElement> elements = schema.getElements();
-    Iterator<XmlSchemaElement> xmlSchemaElementIterator = elements.values().iterator();
 
-    while (xmlSchemaElementIterator.hasNext()) {
-      Object o = xmlSchemaElementIterator.next();
-      XmlSchemaElement element = (XmlSchemaElement) o;
+    for (final XmlSchemaElement element : elements.values()) {
       XmlSchemaType schemaType = element.getSchemaType();
       if (schemaType instanceof XmlSchemaComplexType) {
         processComplexType(element);
@@ -195,18 +199,23 @@ public class FeatureMetacardType extends MetacardTypeImpl {
   private void processComplexType(XmlSchemaElement xmlSchemaElement) {
     if (!processGmlType(xmlSchemaElement)) {
       XmlSchemaType schemaType = xmlSchemaElement.getSchemaType();
-      if ((schemaType != null) && (schemaType instanceof XmlSchemaComplexType)) {
+      if (schemaType instanceof XmlSchemaComplexType) {
         XmlSchemaComplexType complexType = (XmlSchemaComplexType) schemaType;
         if (complexType.getParticle() != null) {
           processXmlSchemaParticle(complexType.getParticle());
-        } else {
-          if (complexType.getContentModel() instanceof XmlSchemaComplexContent) {
-            XmlSchemaContent content = complexType.getContentModel().getContent();
-            if (content instanceof XmlSchemaComplexContentExtension) {
-              XmlSchemaComplexContentExtension extension =
-                  (XmlSchemaComplexContentExtension) content;
-              processXmlSchemaParticle(extension.getParticle());
-            }
+        } else if (complexType.getContentModel() != null) {
+          XmlSchemaContent content = complexType.getContentModel().getContent();
+          if (content instanceof XmlSchemaComplexContentExtension) {
+            XmlSchemaComplexContentExtension extension = (XmlSchemaComplexContentExtension) content;
+            processXmlSchemaParticle(extension.getParticle());
+          } else if (content instanceof XmlSchemaSimpleContentExtension) {
+            final XmlSchemaSimpleContentExtension extension =
+                (XmlSchemaSimpleContentExtension) content;
+            processSimpleContent(xmlSchemaElement, extension.getBaseTypeName());
+          } else if (content instanceof XmlSchemaSimpleContentRestriction) {
+            final XmlSchemaSimpleContentRestriction restriction =
+                (XmlSchemaSimpleContentRestriction) content;
+            processSimpleContent(xmlSchemaElement, restriction.getBaseTypeName());
           }
         }
       }
@@ -214,13 +223,9 @@ public class FeatureMetacardType extends MetacardTypeImpl {
   }
 
   private void processXmlSchemaParticle(XmlSchemaParticle particle) {
-    XmlSchemaSequence schemaSequence;
     if (particle instanceof XmlSchemaSequence) {
-      schemaSequence = (XmlSchemaSequence) particle;
-      List<XmlSchemaSequenceMember> schemaObjectCollection = schemaSequence.getItems();
-      Iterator<XmlSchemaSequenceMember> iterator = schemaObjectCollection.iterator();
-      while (iterator.hasNext()) {
-        Object element = iterator.next();
+      XmlSchemaSequence schemaSequence = (XmlSchemaSequence) particle;
+      for (final XmlSchemaSequenceMember element : schemaSequence.getItems()) {
         if (element instanceof XmlSchemaElement) {
           XmlSchemaElement innerElement = ((XmlSchemaElement) element);
           XmlSchemaType innerEleType = innerElement.getSchemaType();
@@ -237,28 +242,93 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     }
   }
 
-  private void processSimpleType(XmlSchemaElement xmlSchemaElement) {
-    QName qName = xmlSchemaElement.getSchemaTypeName();
-    String name = xmlSchemaElement.getName();
-    AttributeType<?> attributeType = toBasicType(qName);
+  private void processSimpleContent(
+      final XmlSchemaElement parentElement, final QName simpleContentTypeName) {
+    final QName baseTypeName = getBaseTypeQName(simpleContentTypeName);
+
+    if (baseTypeName != null) {
+      mapSchemaElement(parentElement, baseTypeName);
+    } else {
+      LOGGER.debug("Could not find the base type for simple content: {}", simpleContentTypeName);
+    }
+  }
+
+  private void processSimpleType(final XmlSchemaElement xmlSchemaElement) {
+    final QName baseTypeName =
+        getBaseTypeQName((XmlSchemaSimpleType) xmlSchemaElement.getSchemaType());
+
+    if (baseTypeName != null) {
+      mapSchemaElement(xmlSchemaElement, baseTypeName);
+    } else {
+      LOGGER.debug("Could not find the base type for simple type: {}", xmlSchemaElement.getQName());
+    }
+  }
+
+  private QName getBaseTypeQName(final XmlSchemaSimpleType simpleType) {
+    final boolean isBasicType = toBasicType(simpleType.getQName()) != null;
+    if (isBasicType) {
+      return simpleType.getQName();
+    }
+
+    final XmlSchemaSimpleTypeContent content = simpleType.getContent();
+    if (content instanceof XmlSchemaSimpleTypeList) {
+      final XmlSchemaSimpleTypeList simpleListType = (XmlSchemaSimpleTypeList) content;
+      if (simpleListType.getItemType() != null) {
+        return getBaseTypeQName(simpleListType.getItemType());
+      } else {
+        final QName restrictionBaseTypeName = simpleListType.getItemTypeName();
+        return getBaseTypeQName(restrictionBaseTypeName);
+      }
+    } else if (content instanceof XmlSchemaSimpleTypeRestriction) {
+      final XmlSchemaSimpleTypeRestriction simpleRestrictionType =
+          (XmlSchemaSimpleTypeRestriction) content;
+      if (simpleRestrictionType.getBaseType() != null) {
+        return getBaseTypeQName(simpleRestrictionType.getBaseType());
+      } else {
+        final QName restrictionBaseTypeName = simpleRestrictionType.getBaseTypeName();
+        return getBaseTypeQName(restrictionBaseTypeName);
+      }
+    } else {
+      return null;
+    }
+  }
+
+  private QName getBaseTypeQName(final QName simpleTypeQName) {
+    final boolean isBasicType = toBasicType(simpleTypeQName) != null;
+    if (isBasicType) {
+      return simpleTypeQName;
+    }
+
+    final XmlSchemaSimpleType simpleType =
+        (XmlSchemaSimpleType) schema.getTypeByName(simpleTypeQName);
+    if (simpleType == null) {
+      return null;
+    }
+
+    return getBaseTypeQName(simpleType);
+  }
+
+  private void mapSchemaElement(final XmlSchemaElement element, final QName elementBaseTypeName) {
+    final String elementName = element.getName();
+    final AttributeType<?> attributeType = toBasicType(elementBaseTypeName);
 
     if (attributeType != null) {
-      boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1;
+      final boolean multivalued = element.getMaxOccurs() > 1;
       add(
           new FeatureAttributeDescriptor(
-              propertyPrefix + name,
-              name,
-              isQueryable(name) /* indexed */,
+              propertyPrefix + elementName,
+              elementName,
+              isQueryable(elementName) /* indexed */,
               true /* stored */,
               false /* tokenized */,
-              multiValued,
+              multivalued,
               attributeType));
     }
-    if (Constants.XSD_STRING.equals(qName)) {
-      textualProperties.add(propertyPrefix + name);
+    if (Constants.XSD_STRING.equals(elementBaseTypeName)) {
+      textualProperties.add(propertyPrefix + elementName);
     }
 
-    properties.add(propertyPrefix + name);
+    properties.add(propertyPrefix + elementName);
   }
 
   private Boolean processGmlType(XmlSchemaElement xmlSchemaElement) {
@@ -289,10 +359,10 @@ public class FeatureMetacardType extends MetacardTypeImpl {
       return true;
     }
 
-    if ((qName != null)
+    if (qName != null
         && qName.getNamespaceURI().equals(gmlNamespace)
-        && (!StringUtils.isEmpty(name))) {
-      LOGGER.debug("Adding geo property: {}", propertyPrefix + name);
+        && StringUtils.isNotEmpty(name)) {
+      LOGGER.debug("Adding geo property: {}{}", propertyPrefix, name);
       gmlProperties.add(propertyPrefix + name);
 
       boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1;

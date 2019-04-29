@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:gml="http://www.opengis.net/gml" xmlns:test="http://codice.org/test"
+  targetNamespace="http://codice.org/test">
+  <complexType name="Complex">
+    <complexContent>
+      <extension base="complexType">
+        <sequence>
+          <element name="ELEMENT_NAME2" type="xsd:string"/>
+        </sequence>
+      </extension>
+    </complexContent>
+  </complexType>
+  <complexType name="FeatureType">
+    <sequence>
+      <element name="ELEMENT_NAME1" type="gml:PolygonType"/>
+      <element name="AComplexElement" type="test:Complex"/>
+    </sequence>
+  </complexType>
+  <element name="FeatureTypeName" type="test:FeatureType"/>
+</schema>
