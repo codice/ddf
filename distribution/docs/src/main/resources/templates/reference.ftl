@@ -1,5 +1,5 @@
 = ${branding} Reference Guide
-include::${project.build.directory}/doc-contents/content/config.adoc[]
+include::${project.build.directory}/doc-contents-${project.version}/content/config.adoc[]
 :title: Reference
 :toc: left
 :architecture-prefix: architecture.adoc#_
@@ -16,4 +16,4 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 
 <#include "build/reference.ftl">
 
-include::${project.build.directory}/doc-contents/content/scripts.html[]
+include::${project.build.directory}/doc-contents-${project.version}/content/scripts.html[]

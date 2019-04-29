@@ -1,5 +1,5 @@
 = ${branding} User's Guide
-include::${project.build.directory}/doc-contents/content/config.adoc[]
+include::${project.build.directory}/doc-contents-${project.version}/content/config.adoc[]
 :title: Using ${branding-expanded}
 :architecture-prefix: architecture.adoc#_
 :developing-prefix: developing.adoc#_
@@ -15,4 +15,4 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 
 <#include "build/using.ftl">
 
-include::${project.build.directory}/doc-contents/content/scripts.html[]
+include::${project.build.directory}/doc-contents-${project.version}/content/scripts.html[]

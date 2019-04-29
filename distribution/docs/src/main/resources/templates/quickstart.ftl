@@ -1,5 +1,5 @@
 = ${branding-expanded}: Quick Start Guide
-include::${project.build.directory}/doc-contents/content/config.adoc[]
+include::${project.build.directory}/doc-contents-${project.version}/content/config.adoc[]
 :title: ${branding-expanded} Quick Start Guide
 :architecture-prefix: architecture.adoc#_
 :developing-prefix: documentation.adoc#_
@@ -13,4 +13,4 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 
 <#include "build/quickstart.ftl">
 
-include::${project.build.directory}/doc-contents/content/scripts.html[]
+include::${project.build.directory}/doc-contents-${project.version}/content/scripts.html[]

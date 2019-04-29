@@ -1,5 +1,5 @@
 = Managing
-include::${project.build.directory}/doc-contents/content/config.adoc[]
+include::${project.build.directory}/doc-contents-${project.version}/content/config.adoc[]
 :title: Managing ${branding}
 :architecture-prefix: architecture.adoc#_
 :developing-prefix: developing.adoc#_
@@ -13,4 +13,4 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 
 <#include "build/managing.ftl">
 
-include::${project.build.directory}/doc-contents/content/scripts.html[]
+include::${project.build.directory}/doc-contents-${project.version}/content/scripts.html[]
