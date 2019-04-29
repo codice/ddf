@@ -9,11 +9,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
-var sessionTimeoutModel = require('../component/singletons/session-timeout.js')
-var BlockingLightbox = require('../component/lightbox/blocking/lightbox.blocking.view.js')
-var SessionTimeoutView = require('../component/session-timeout/session-timeout.view.js')
-var blockingLightbox = BlockingLightbox.generateNewLightbox()
+const Marionette = require('marionette')
+const sessionTimeoutModel = require('../component/singletons/session-timeout.js')
+const BlockingLightbox = require('../component/lightbox/blocking/lightbox.blocking.view.js')
+const blockingLightbox = BlockingLightbox.generateNewLightbox()
+import SessionTimeout from '../react-component/presentation/session-timeout'
+const SessionTimeoutView = Marionette.LayoutView.extend({
+  template: () => <SessionTimeout />,
+})
 
 function showPrompt() {
   return sessionTimeoutModel.get('showPrompt')
@@ -23,7 +26,7 @@ sessionTimeoutModel.on('change:showPrompt', () => {
   if (showPrompt()) {
     blockingLightbox.model.updateTitle('Session Expiring')
     blockingLightbox.model.open()
-    blockingLightbox.showContent(new SessionTimeoutView())
+    blockingLightbox.showContent(SessionTimeoutView)
   } else {
     blockingLightbox.model.close()
   }
