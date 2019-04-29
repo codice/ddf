@@ -222,9 +222,9 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@connexta/ace@*", "@connexta/ace@git://github.com/connexta/ace.git#v0.0.7":
+"@connexta/ace@*", "@connexta/ace@git://github.com/connexta/ace.git#eaebb0fcbd5d4d9f97ced0ff9c3611ce1497fab6":
   version "1.0.0"
-  resolved "git://github.com/connexta/ace.git#5231824b41680ae33cf8482cbff73eeedf0262e8"
+  resolved "git://github.com/connexta/ace.git#eaebb0fcbd5d4d9f97ced0ff9c3611ce1497fab6"
   dependencies:
     "@connexta/eslint-plugin-connexta" "git://github.com/connexta/eslint-plugin-connexta.git#v0.0.2"
     "@ljharb/eslint-config" "12.2.1"
@@ -264,11 +264,13 @@
     maven-deploy "1.5.0"
     mini-css-extract-plugin "0.4.5"
     minimist "1.2.0"
+    mkdirp "^0.5.1"
     mocha "5.2.0"
     mocha-headless-chrome "2.0.1"
     mocha-loader "1.1.3"
     ora "3.0.0"
     prettier "1.14.2"
+    puppeteer "1.5.0"
     raw-loader "0.5.1"
     react-dev-utils "5.0.2"
     react-hot-loader "4.3.5"
@@ -276,7 +278,11 @@
     script-loader "0.7.2"
     simple-progress-webpack-plugin "1.1.2"
     style-loader "0.20.3"
-    stylelint-custom-processor-loader "0.5.0"
+    stylelint "9.5.0"
+    stylelint-config-recommended "2.1.0"
+    stylelint-config-styled-components "0.1.1"
+    stylelint-custom-processor-loader "0.6.0"
+    stylelint-processor-styled-components "1.3.2"
     ts-loader "5.3.3"
     typescript "3.0.3"
     url-loader "1.0.1"
@@ -16339,9 +16345,9 @@ stylelint-config-styled-components@0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/stylelint-config-styled-components/-/stylelint-config-styled-components-0.1.1.tgz#b408388d7c687833ab4be4c4e6522d97d2827ede"
 
-stylelint-custom-processor-loader@0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/stylelint-custom-processor-loader/-/stylelint-custom-processor-loader-0.5.0.tgz#304d13e0c995b9f8a68da1a8d899700e2deacad8"
+stylelint-custom-processor-loader@0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/stylelint-custom-processor-loader/-/stylelint-custom-processor-loader-0.6.0.tgz#57b70095e9999252967ff8aa2ec185cbbfbe3cba"
   dependencies:
     loader-utils "~1.1.0"
 
