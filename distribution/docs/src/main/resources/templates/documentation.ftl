@@ -1,5 +1,5 @@
 = ${branding-expanded} Documentation: Complete Documentation
-include::${project.build.directory}/doc-contents/content/config.adoc[]
+include::config.adoc[]
 :architecture-prefix: _
 :developing-prefix: _
 :integrating-prefix: _
@@ -51,10 +51,15 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 == Appendices
 :sectnums:
 
+[appendix]
+== Application References
+
 <#include "build/application-reference.ftl">
 
+[appendix]
 <#include "build/reference.ftl">
 
+[appendix]
 <#include "build/metadata-reference.ftl">
 
-include::${project.build.directory}/doc-contents/content/scripts.html[]
+include::${project.build.directory}/asciidoctor-ready-${project.version}/scripts.html[]
