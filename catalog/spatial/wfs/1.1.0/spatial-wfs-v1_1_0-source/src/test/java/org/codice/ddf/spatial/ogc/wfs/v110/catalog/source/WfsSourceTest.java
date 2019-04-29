@@ -700,7 +700,6 @@ public class WfsSourceTest {
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
 
-    assertThat(results.size(), is(pageSize));
     assertThat(response.getHits(), equalTo(new Long(MAX_FEATURES)));
 
     // Verify that metacards 1 thru 4 were returned since pageSize=4
@@ -772,6 +771,26 @@ public class WfsSourceTest {
 
     assertThat(results.size(), is(1));
     assertThat(response.getHits(), is((long) numFeatures));
+  }
+
+  /** Since page size=4 and startIndex=5, should get 4 results back and total hits of 10. */
+  @Test
+  public void testPagingToSecondPage()
+      throws WfsException, SecurityServiceException, TransformerConfigurationException,
+          UnsupportedQueryException {
+
+    int pageSize = 4;
+    int startIndex = 5;
+
+    setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, MAX_FEATURES, null);
+
+    SourceResponse response = executeQuery(startIndex, pageSize);
+    List<Result> results = response.getResults();
+
+    assertThat(response.getHits(), equalTo(new Long(MAX_FEATURES)));
+
+    // Verify that metacards 5 thru 8 were returned
+    assertCorrectMetacardsReturned(results, startIndex, 4);
   }
 
   /**
@@ -1308,6 +1327,7 @@ public class WfsSourceTest {
   private void assertCorrectMetacardsReturned(
       List<Result> results, int startIndex, int expectedNumberOfMetacards) {
 
+    assertThat(results, hasSize(expectedNumberOfMetacards));
     for (int i = 0; i < expectedNumberOfMetacards; i++) {
       int id = startIndex + i;
       assertThat(results.get(i).getMetacard().getId(), equalTo("ID_" + String.valueOf(id)));
