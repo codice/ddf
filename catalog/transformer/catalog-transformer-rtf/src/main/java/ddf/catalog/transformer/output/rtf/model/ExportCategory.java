@@ -100,7 +100,7 @@ public class ExportCategory implements RtfCategory {
 
   private String attributeKeyFrom(String key) {
     if (key.startsWith(EXTENDED_ATTRIBUTE_PREFIX)) {
-      key = key.replace(EXTENDED_ATTRIBUTE_PREFIX, "");
+      key = key.replaceFirst(EXTENDED_ATTRIBUTE_PREFIX, "");
     }
 
     String formattedAttribute =
