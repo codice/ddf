@@ -134,11 +134,7 @@
                 <artifactId>security</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.jasig.cas.client</groupId>
-                <artifactId>cas-client-core</artifactId>
-                <version>${cas.client.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>ddf.security</groupId>
                 <artifactId>ddf-security-common</artifactId>
@@ -215,7 +211,6 @@
         <module>core</module>
         <module>policy</module>
         <module>sts</module>
-        <module>cas</module>
         <module>pdp</module>
         <module>pep</module>
         <module>handler</module>

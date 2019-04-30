@@ -34,7 +34,7 @@ public class AssociatedQueryMetacardsHandler {
   private final CatalogFramework catalogFramework;
 
   private static final Set<String> QUERY_ATTRIBUTE_NAMES =
-      QueryMetacardTypeImpl.QUERY_ATTRIBUTE_NAMES;
+      QueryMetacardTypeImpl.getQueryAttributeNames();
 
   public AssociatedQueryMetacardsHandler(CatalogFramework catalogFramework) {
     this.catalogFramework = catalogFramework;

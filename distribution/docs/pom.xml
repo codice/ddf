@@ -144,7 +144,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/doc-contents
+                            <outputDirectory>${project.build.directory}/build-${project.version}/filtered-adoc
                             </outputDirectory>
                             <resources>
                                 <resource>
@@ -167,20 +167,20 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>copy-upstream</id>
+                        <id>copy-scripts</id>
                         <phase>process-sources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/doc-contents/content</outputDirectory>
-                            <resources>                                
+                            <outputDirectory>${project.build.directory}/asciidoctor-ready-${project.version}/</outputDirectory>
+                            <resources>
                                 <resource>
-                                    <directory>${project.build.directory}/upstream-adoc</directory>
+                                    <directory>src/main/resources/content</directory>
                                     <filtering>true</filtering>
                                     <includes>
-                                        <include>**/*.adoc</include>
-                                        <include>**/*.html</include>
+                                        <include>scripts.html</include>
+                                        <include>config.adoc</include>
                                     </includes>
                                 </resource>
                             </resources>
@@ -218,8 +218,8 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <inputDirectory>${project.build.directory}/doc-contents</inputDirectory>
-                    <outputDirectory>${project.build.directory}/asciidoctor-ready</outputDirectory>
+                    <inputDirectory>${project.build.directory}/build-${project.version}/filtered-adoc</inputDirectory>
+                    <outputDirectory>${project.build.directory}/asciidoctor-ready-${project.version}</outputDirectory>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -286,7 +286,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <sourceDirectory>${project.build.directory}/asciidoctor-ready
+                    <sourceDirectory>${project.build.directory}/asciidoctor-ready-${project.version}
                     </sourceDirectory>
                     <gemPath>${project.build.directory}/gems-provided</gemPath>
                     <headerFooter>true</headerFooter>
@@ -383,7 +383,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule
-                                    implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
+                                        implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
                                     <maxArtifactSize>2.16_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>

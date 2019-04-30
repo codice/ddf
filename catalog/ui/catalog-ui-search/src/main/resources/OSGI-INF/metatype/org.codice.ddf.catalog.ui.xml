@@ -204,6 +204,12 @@
             type="Boolean"
             default="true"/>
 
+        <AD id="spellcheckEnabled"
+            name="Enable Spellcheck"
+            description="Enable Spellcheck for searches."
+            type="Boolean"
+            default="false"/>
+
         <AD id="basicSearchTemporalSelectionDefault"
             name="Basic Search Temporal Selections"
             description="Enable Basic Search Temporal Selections."

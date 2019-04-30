@@ -3,7 +3,7 @@
 :status: published
 :parent: Configuring User Access
 :summary: Introduction to the ${admin-console}.
-:order: 06
+:order: 05
 
 == {title}
 

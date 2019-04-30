@@ -47,7 +47,7 @@ import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.branding.BrandingPlugin;
-import org.codice.ddf.catalog.ui.security.FacetWhitelistConfiguration;
+import org.codice.ddf.catalog.ui.security.faceting.FacetWhitelistConfiguration;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.codice.proxy.http.HttpProxyService;
@@ -133,6 +133,8 @@ public class ConfigurationApplication implements SparkApplication {
   private Boolean archiveSearchEnabled = true;
 
   private Boolean metacardPreviewEnabled = true;
+
+  private Boolean spellcheckEnabled = false;
 
   private BrandingPlugin branding;
 
@@ -541,6 +543,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("isHistoricalSearchDisabled", !historicalSearchEnabled);
     config.put("isArchiveSearchDisabled", !archiveSearchEnabled);
     config.put("isMetacardPreviewDisabled", !metacardPreviewEnabled);
+    config.put("isSpellcheckEnabled", spellcheckEnabled);
     config.put(
         "isVersioningEnabled",
         historianConfiguration != null && historianConfiguration.isHistoryEnabled());
@@ -1109,6 +1112,14 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setMetacardPreviewEnabled(Boolean metacardPreviewEnabled) {
     this.metacardPreviewEnabled = metacardPreviewEnabled;
+  }
+
+  public Boolean getSpellcheckEnabled() {
+    return spellcheckEnabled;
+  }
+
+  public void setSpellcheckEnabled(Boolean spellcheckEnabled) {
+    this.spellcheckEnabled = spellcheckEnabled;
   }
 
   public void setHistorianConfiguration(HistorianConfiguration historian) {

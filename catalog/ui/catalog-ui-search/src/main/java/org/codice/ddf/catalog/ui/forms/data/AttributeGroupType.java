@@ -29,6 +29,7 @@ import java.util.Set;
  * in a future version of the library.</i>
  */
 public class AttributeGroupType extends MetacardTypeImpl {
+  // If the tag changes, update the 'access-controlled-tag' service property as well
   public static final String ATTRIBUTE_GROUP_TAG = "attribute-group";
 
   public static final String ATTRIBUTE_GROUP_LIST = "ui.attribute-group";

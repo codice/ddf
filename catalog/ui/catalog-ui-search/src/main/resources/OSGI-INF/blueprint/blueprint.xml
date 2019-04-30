@@ -61,14 +61,14 @@ Implementation details
     </bean>
 
     <bean id="accessControlSecurityConfiguration"
-          class="org.codice.ddf.catalog.ui.security.AccessControlSecurityConfiguration">
+          class="org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlSecurityConfiguration">
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui.security"
                 update-strategy="container-managed"/>
     </bean>
 
     <bean id="facetWhitelistConfiguration"
-          class="org.codice.ddf.catalog.ui.security.FacetWhitelistConfiguration">
+          class="org.codice.ddf.catalog.ui.security.faceting.FacetWhitelistConfiguration">
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui.facetwhitelist"
                 update-strategy="container-managed"/>
@@ -122,7 +122,7 @@ Implementation details
     -->
 
     <bean id="authenticationApplication"
-          class="org.codice.ddf.catalog.ui.security.AuthenticationApplication">
+          class="org.codice.ddf.catalog.ui.security.app.AuthenticationApplication">
         <argument ref="securityAuthenticationService"/>
     </bean>
 
@@ -154,7 +154,7 @@ Implementation details
         <argument ref="geoCoderService"/>
     </bean>
 
-    <bean id="logoutApplication" class="org.codice.ddf.catalog.ui.security.LogoutApplication">
+    <bean id="logoutApplication" class="org.codice.ddf.catalog.ui.security.app.LogoutApplication">
         <argument ref="logoutService"/>
     </bean>
 
@@ -163,7 +163,7 @@ Implementation details
         <argument ref="sessionManagementService"/>
     </bean>
 
-    <bean id="userApplication" class="org.codice.ddf.catalog.ui.security.UserApplication">
+    <bean id="userApplication" class="org.codice.ddf.catalog.ui.security.app.UserApplication">
         <argument ref="persistentStore"/>
         <argument ref="endpointUtil"/>
         <argument ref="subjectIdentity"/>
@@ -345,6 +345,7 @@ Implementation details
         <argument ref="catalogFramework"/>
         <argument ref="endpointUtil"/>
         <argument ref="filterBuilder"/>
+        <argument ref="subjectIdentity"/>
     </bean>
 
     <!--
@@ -371,12 +372,6 @@ Implementation details
         <argument ref="templateTransformer"/>
         <argument ref="endpointUtil"/>
     </bean>
-
-    <!--
-    =============================================================
-    SPARK
-    =============================================================
-    -->
 
     <bean id="rootReqSupplier" class="org.codice.ddf.catalog.ui.RootContextRequestSupplier"/>
     <bean id="sparkServlet" class="org.codice.ddf.catalog.ui.SparkServlet">

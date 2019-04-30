@@ -48,6 +48,11 @@ const createToggle = ({ isSelected, handleClick }) => {
         'update add remove reset',
         this.render
       )
+      this.listenTo(
+        this.options.selectionInterface.getActiveSearchResults(),
+        'update add remove reset',
+        this.render
+      )
     },
   })
 }
@@ -76,12 +81,14 @@ const SelectAllToggle = createToggle({
     }
   },
   isSelected() {
-    const currentResultsLength = this.options.selectionInterface.getActiveSearchResults()
-      .length
+    const currentResults = this.options.selectionInterface.getActiveSearchResults()
+    const selectedResults = this.options.selectionInterface.getSelectedResults()
     return (
-      currentResultsLength > 0 &&
-      currentResultsLength ===
-        this.options.selectionInterface.getSelectedResults().length
+      currentResults.length > 0 &&
+      selectedResults.length >= currentResults.length &&
+      currentResults.every(
+        currentResult => selectedResults.get(currentResult) !== undefined
+      )
     )
   },
 })

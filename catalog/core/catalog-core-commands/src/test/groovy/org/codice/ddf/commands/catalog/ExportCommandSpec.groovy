@@ -35,7 +35,6 @@ import org.apache.karaf.shell.api.console.Session
 import org.codice.ddf.commands.util.DigitalSignature
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
-import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -196,7 +195,7 @@ class ExportCommandSpec extends Specification {
 
         then:
         tmpHomeDir.list() == [] // dir is empty
-        
+
         where:
         userInputString << ["n", "N", "no", "NO", "something that isn't no", "n\r"]
     }

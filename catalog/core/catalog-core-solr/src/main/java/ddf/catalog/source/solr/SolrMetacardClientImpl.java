@@ -114,7 +114,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   public static final String POINT_KEY = "pt";
 
-  public static final int GET_BY_ID_LIMIT = 200;
+  public static final int GET_BY_ID_LIMIT = 100;
 
   public static final String EXCLUDE_ATTRIBUTES = "excludeAttributes";
 
@@ -182,7 +182,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
           .filter(attr -> attr.contains(String.valueOf(FIRST_CHAR_OF_SUFFIX)))
           .forEach(query::addFacetField);
 
-      query.setFacetSort(textFacetProp.getSortKey().name());
+      query.setFacetSort(textFacetProp.getSortKey().name().toLowerCase());
       query.setFacetLimit(textFacetProp.getFacetLimit());
       query.setFacetMinCount(textFacetProp.getMinFacetCount());
     }
@@ -245,9 +245,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         responseProps.put(SUGGESTION_RESULT_KEY, (Serializable) suggestionResults);
       }
 
-      if (solrResponse.getSpellCheckResponse() != null
-          && solrResponse.getResults().size() == 0
-          && solrResponse.getSpellCheckResponse().getCollatedResults().size() != 0) {
+      if (userSpellcheckIsOn(request) && solrSpellcheckHasResults(solrResponse)) {
         query.set("q", findQueryToResend(query, solrResponse));
         solrResponse = client.query(query, METHOD.POST);
         docs = solrResponse.getResults();
@@ -271,7 +269,22 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       throw new UnsupportedQueryException("Could not complete solr query.", e);
     }
 
+    responseProps.put("query", query.get("q"));
     return new SourceResponseImpl(request, responseProps, results, totalHits);
+  }
+
+  private boolean userSpellcheckIsOn(QueryRequest request) {
+    Boolean userSpellcheckChoice = false;
+    if (request.getProperties().get("spellcheck") != null) {
+      userSpellcheckChoice = (Boolean) request.getProperties().get("spellcheck");
+    }
+    return userSpellcheckChoice;
+  }
+
+  private boolean solrSpellcheckHasResults(QueryResponse solrResponse) {
+    return solrResponse.getSpellCheckResponse() != null
+        && solrResponse.getResults().size() == 0
+        && solrResponse.getSpellCheckResponse().getCollatedResults().size() != 0;
   }
 
   private String findQueryToResend(SolrQuery query, QueryResponse solrResponse) {

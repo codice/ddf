@@ -75,6 +75,8 @@ public class CqlRequest {
 
   private String batchId;
 
+  private Boolean spellcheck;
+
   private List<Sort> sorts = Collections.emptyList();
 
   private Set<String> facets = Collections.emptySet();
@@ -113,6 +115,14 @@ public class CqlRequest {
 
   public String getBatchId() {
     return batchId;
+  }
+
+  public void setSpellcheck(boolean spellcheck) {
+    this.spellcheck = spellcheck;
+  }
+
+  public boolean getSpellcheck() {
+    return spellcheck;
   }
 
   public void setSrc(String src) {
@@ -238,6 +248,10 @@ public class CqlRequest {
 
     if (StringUtils.isNotEmpty(queryType)) {
       queryRequest.getProperties().put("queryType", queryType);
+    }
+
+    if (spellcheck != null) {
+      queryRequest.getProperties().put("spellcheck", spellcheck);
     }
 
     return queryRequest;

@@ -17,7 +17,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -45,7 +44,8 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
   private boolean directory;
   private long length;
 
-  private final Set<AsyncFileEntry> children = new ConcurrentSkipListSet<>();
+  //  Due to how GSON deserializes this, this variable cannot be a Set.
+  private final ConcurrentSkipListSet<AsyncFileEntry> children = new ConcurrentSkipListSet<>();
   //  Leaving transient to avoid loops
   @Nullable private transient AsyncFileEntry parent;
 
@@ -61,7 +61,7 @@ public class AsyncFileEntry implements Comparable<AsyncFileEntry> {
     refresh();
   }
 
-  //  For GSON serialization
+  //  For GSON deserialization
   private AsyncFileEntry() {
     contentFile = null;
   }

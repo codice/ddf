@@ -1184,14 +1184,20 @@ public class AsyncFileAlterationObserverTest {
   @Test
   public void testJsonSerial() throws Exception {
 
-    initNestedDirectory(1, 1, 0, 0);
+    initNestedDirectory(10, 1, 0, 0);
     observer.initialize();
+
+    initFiles(1, monitoredDirectory, "zz00");
+    initFiles(1, monitoredDirectory, "za0");
+    initFiles(1, monitoredDirectory, "z5a0");
 
     AsyncFileAlterationObserver two = AsyncFileAlterationObserver.load(new File("File01"), store);
 
+    two.setListener(fileListener);
     two.checkAndNotify();
 
     assertThat(two.getRootFile().getChildren().get(0).getParent().isPresent(), is(true));
+    verify(fileListener, times(3)).onFileCreate(any(File.class), any(Synchronization.class));
   }
 
   @Test(expected = IllegalArgumentException.class)

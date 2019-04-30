@@ -21,6 +21,12 @@ import ddf.catalog.util.impl.MaskableImpl;
 public abstract class AbstractWfsSource extends MaskableImpl
     implements FederatedSource, ConnectedSource, ConfiguredService {
 
+  protected static final String CERT_ALIAS_KEY = "certAlias";
+
+  protected static final String KEYSTORE_PATH_KEY = "keystorePath";
+
+  protected static final String SSL_PROTOCOL_KEY = "sslProtocol";
+
   private static final String DEFAULT_SSL_PROTOCOL = "TLSv1.2";
 
   protected String certAlias;

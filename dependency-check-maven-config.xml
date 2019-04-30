@@ -590,5 +590,12 @@
         <cve>CVE-2018-19361</cve>
         <cve>CVE-2018-19360</cve>
     </suppress>
+    <suppress>
+        <notes>
+            A CVE against tomcat-embed-jasper, which is brought in transitively from pax-web-jsp.
+            The CVE applies to the Windows command-line, which has no impact on DDF as it is used.
+        </notes>
+        <cve>CVE-2019-0232</cve>
+    </suppress>
 
 </suppressions>

@@ -280,6 +280,7 @@ public class CatalogServiceImpl implements CatalogService {
     jsonObject.put("title", action.getTitle());
     jsonObject.put("url", action.getUrl().toString());
     jsonObject.put("description", action.getDescription());
+    jsonObject.put("id", action.getId());
     return jsonObject;
   }
 

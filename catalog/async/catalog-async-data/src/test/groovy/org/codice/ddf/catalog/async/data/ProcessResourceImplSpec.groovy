@@ -169,14 +169,14 @@ class ProcessResourceImplSpec extends Specification {
         thrown IllegalArgumentException
     }
 
-    def 'test getInputStream()'(){
+    def 'test getInputStream()'() {
         def processResource = new ProcessResourceImpl(ID, inputStream, MIME_TYPE, RESOURCE_NAME, SIZE, QUALIFIER)
 
         expect:
         IOUtils.toByteArray(processResource.getInputStream()) == inputStreamBytes
     }
 
-    def 'input stream can be loaded multiple times'(){
+    def 'input stream can be loaded multiple times'() {
         def processResource = new ProcessResourceImpl(ID, inputStream, MIME_TYPE, RESOURCE_NAME, SIZE, QUALIFIER)
 
         when:
@@ -190,7 +190,7 @@ class ProcessResourceImplSpec extends Specification {
         is1Bytes == IOUtils.toByteArray(is3)
     }
 
-    def 'IOException is thrown when getInputStream is called after close' () {
+    def 'IOException is thrown when getInputStream is called after close'() {
         def processResource = new ProcessResourceImpl(ID, inputStream, MIME_TYPE, RESOURCE_NAME, SIZE, QUALIFIER)
         processResource.getInputStream()
         processResource.close()
@@ -202,7 +202,7 @@ class ProcessResourceImplSpec extends Specification {
         thrown(IOException)
     }
 
-    def 'input stream is closed when getInputStream is called'(){
+    def 'input stream is closed when getInputStream is called'() {
         def spyInputStream = Spy(inputStream)
         def processResource = new ProcessResourceImpl(ID, spyInputStream, MIME_TYPE, RESOURCE_NAME, SIZE, QUALIFIER)
 
@@ -213,7 +213,7 @@ class ProcessResourceImplSpec extends Specification {
         1 * spyInputStream.close()
     }
 
-    def 'input stream is closed when close is called'(){
+    def 'input stream is closed when close is called'() {
         def spyInputStream = Spy(inputStream)
         def processResource = new ProcessResourceImpl(ID, spyInputStream, MIME_TYPE, RESOURCE_NAME, SIZE, QUALIFIER)
 

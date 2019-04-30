@@ -22,7 +22,8 @@ import spock.lang.Specification
 
 import java.util.function.Supplier
 
-import static org.codice.ddf.catalog.async.data.impl.ProcessResourceImpl.*
+import static org.codice.ddf.catalog.async.data.impl.ProcessResourceImpl.DEFAULT_MIME_TYPE
+import static org.codice.ddf.catalog.async.data.impl.ProcessResourceImpl.DEFAULT_NAME
 
 class LazyProcessResourceImplSpec extends Specification {
 
@@ -67,10 +68,10 @@ class LazyProcessResourceImplSpec extends Specification {
         thrown(IllegalArgumentException)
 
         where:
-        metacardId   | resourceSupplier
-        null         | Mock(Supplier)
-        ""           | Mock(Supplier)
-        " "          | Mock(Supplier)
+        metacardId  | resourceSupplier
+        null        | Mock(Supplier)
+        ""          | Mock(Supplier)
+        " "         | Mock(Supplier)
         METACARD_ID | null
 
     }
@@ -307,14 +308,14 @@ class LazyProcessResourceImplSpec extends Specification {
         lazyProcessResource.modified
     }
 
-    def 'test getInputStream'(){
+    def 'test getInputStream'() {
         def lazyProcessResource = new LazyProcessResourceImpl(METACARD_ID, supplier)
 
         expect:
         IOUtils.toByteArray(lazyProcessResource.getInputStream()) == inputStreamBytes
     }
 
-    def 'input stream can be loaded multiple times'(){
+    def 'input stream can be loaded multiple times'() {
         def lazyProcessResource = new LazyProcessResourceImpl(METACARD_ID, supplier)
 
         when:
@@ -328,7 +329,7 @@ class LazyProcessResourceImplSpec extends Specification {
         is1Bytes == IOUtils.toByteArray(is3)
     }
 
-    def 'IOException thrown when getInputStream is called but input stream is null'(){
+    def 'IOException thrown when getInputStream is called but input stream is null'() {
         def nullInputStreamResource = Mock(Resource) {
             getSize() >> RESOURCE_SIZE
             getInputStream() >> null
@@ -361,7 +362,7 @@ class LazyProcessResourceImplSpec extends Specification {
         thrown(IOException)
     }
 
-    def 'input stream is closed when getInputStream is called'(){
+    def 'input stream is closed when getInputStream is called'() {
         def spyInputStream = Spy(RESOURCE_INPUTSTREAM)
 
         def spyInputStreamResource = Mock(Resource) {
@@ -383,7 +384,7 @@ class LazyProcessResourceImplSpec extends Specification {
         1 * spyInputStream.close()
     }
 
-    def 'input stream is closed when close is called after a lazy loading method'(){
+    def 'input stream is closed when close is called after a lazy loading method'() {
         def spyInputStream = Spy(RESOURCE_INPUTSTREAM)
 
         def spyInputStreamResource = Mock(Resource) {

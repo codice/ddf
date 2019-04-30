@@ -25,6 +25,8 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,11 +34,9 @@ import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
+import javax.xml.transform.stream.StreamSource;
 import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaComplexType;
-import org.apache.ws.commons.schema.XmlSchemaElement;
-import org.apache.ws.commons.schema.XmlSchemaSimpleType;
-import org.apache.ws.commons.schema.constants.Constants;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
@@ -53,8 +53,6 @@ public class GenericFeatureConverterTest {
   private static final String FEATURE_TYPE = "video_data_set";
 
   private static final String SOURCE_ID = "WFS_2_0";
-
-  private static final String GML = "GML";
 
   private static final String PROPERTY_PREFIX = FEATURE_TYPE + ".";
 
@@ -76,19 +74,15 @@ public class GenericFeatureConverterTest {
 
   private static final String START_DATE_ELEMENT = "start_date";
 
-  private static final String STYLE_ID_ELEMENT = "style_id";
-
   private static final String WIDTH_ELEMENT = "width";
 
   private static final String GROUND_GEOM_ELEMENT = "ground_geom";
-
-  private static final String STATES_TITLE_ELEMENT = "STATE_NAME";
 
   private static final String STATES_FEATURE_TYPE = "states";
 
   @Test
   @Ignore // DDF-733
-  public void testUnmarshalSingleFeatureXmlToObject() {
+  public void testUnmarshalSingleFeatureXmlToObject() throws Exception {
     XStream xstream = new XStream(new WstxDriver());
 
     MetacardType metacardType = buildMetacardType();
@@ -145,7 +139,7 @@ public class GenericFeatureConverterTest {
   }
 
   @Test
-  public void testUnmarshalFeatureCollectionXmlToObject() {
+  public void testUnmarshalFeatureCollectionXmlToObject() throws Exception {
     XStream xstream = new XStream(new WstxDriver());
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
@@ -171,7 +165,7 @@ public class GenericFeatureConverterTest {
   }
 
   @Test
-  public void testUnmarshalMultiQueryFeatureCollectionXmlToObject() {
+  public void testUnmarshalMultiQueryFeatureCollectionXmlToObject() throws Exception {
     XStream xstream = new XStream(new WstxDriver());
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
@@ -204,7 +198,7 @@ public class GenericFeatureConverterTest {
   }
 
   @Test
-  public void testGeoServerLatLonSwappingForMultiPolygon() {
+  public void testGeoServerLatLonSwappingForMultiPolygon() throws Exception {
     XStream xstream = new XStream(new WstxDriver());
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
@@ -238,7 +232,7 @@ public class GenericFeatureConverterTest {
   }
 
   @Test
-  public void testGeoServerLatLonSwappingForPoint() {
+  public void testGeoServerLatLonSwappingForPoint() throws Exception {
     XStream xstream = new XStream(new WstxDriver());
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
@@ -337,10 +331,11 @@ public class GenericFeatureConverterTest {
   }
 
   /*
-   * This test will check is the MetacardMapper maps the feature value of 'states.STATE_NAME' to the metacard property 'title'.
+   * This test will check that the MetacardMapper maps the feature value of 'states.STATE_NAME' to the metacard property 'title'.
    */
   @Test
-  public void testUnmarshalMultiQueryFeatureCollectionXmlToObjectWithMetacardMapper() {
+  public void testUnmarshalMultiQueryFeatureCollectionXmlToObjectWithMetacardMapper()
+      throws Exception {
     // Create Metacard Mapper
     String featureProp = "ext.states.STATE_NAME";
     String metacardAttr = "title";
@@ -377,93 +372,28 @@ public class GenericFeatureConverterTest {
                 "MULTIPOLYGON (((-89.104965 36.953869, -89.129585 36.86644, -89.166496 36.843422000000004,"));
   }
 
-  private MetacardType buildMetacardType() {
-
-    XmlSchema schema = new XmlSchema();
-    schema.getElements().putAll(buildElementMap(schema));
+  private MetacardType buildMetacardType() throws IOException {
+    final XmlSchema schema = loadSchema("video_data_set.xsd");
 
     return new FeatureMetacardType(
-        schema, new QName(FEATURE_TYPE), new ArrayList<String>(), Wfs20Constants.GML_3_2_NAMESPACE);
+        schema, new QName(FEATURE_TYPE), new ArrayList<>(), Wfs20Constants.GML_3_2_NAMESPACE);
   }
 
-  private Map<QName, XmlSchemaElement> buildElementMap(XmlSchema schema) {
-    Map<QName, XmlSchemaElement> elementMap = new HashMap<QName, XmlSchemaElement>();
-    elementMap.put(
-        new QName(ID_ELEMENT), buildSchemaElement(ID_ELEMENT, schema, Constants.XSD_LONG));
-    elementMap.put(
-        new QName(VERSION_ELEMENT),
-        buildSchemaElement(VERSION_ELEMENT, schema, Constants.XSD_LONG));
-    elementMap.put(
-        new QName(END_DATE_ELEMENT),
-        buildSchemaElement(END_DATE_ELEMENT, schema, Constants.XSD_DATETIME));
-    elementMap.put(
-        new QName(FILENAME_ELEMENT),
-        buildSchemaElement(FILENAME_ELEMENT, schema, Constants.XSD_STRING));
-    elementMap.put(
-        new QName(HEIGHT_ELEMENT), buildSchemaElement(HEIGHT_ELEMENT, schema, Constants.XSD_LONG));
-    elementMap.put(
-        new QName(INDEX_ID_ELEMENT),
-        buildSchemaElement(INDEX_ID_ELEMENT, schema, Constants.XSD_STRING));
-    elementMap.put(
-        new QName(OTHER_TAGS_XML_ELEMENT),
-        buildSchemaElement(OTHER_TAGS_XML_ELEMENT, schema, Constants.XSD_STRING));
-    elementMap.put(
-        new QName(REPOSITORY_ID_ELEMENT),
-        buildSchemaElement(REPOSITORY_ID_ELEMENT, schema, Constants.XSD_LONG));
-    elementMap.put(
-        new QName(START_DATE_ELEMENT),
-        buildSchemaElement(START_DATE_ELEMENT, schema, Constants.XSD_DATETIME));
-    elementMap.put(
-        new QName(STYLE_ID_ELEMENT),
-        buildSchemaElement(STYLE_ID_ELEMENT, schema, Constants.XSD_DECIMAL));
-    elementMap.put(
-        new QName(WIDTH_ELEMENT), buildSchemaElement(WIDTH_ELEMENT, schema, Constants.XSD_LONG));
-
-    XmlSchemaElement gmlElement = new XmlSchemaElement(schema, true);
-    gmlElement.setSchemaType(new XmlSchemaComplexType(schema, false));
-    gmlElement.setSchemaTypeName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, GML));
-    gmlElement.setName(GROUND_GEOM_ELEMENT);
-    elementMap.put(new QName(GROUND_GEOM_ELEMENT), gmlElement);
-
-    return elementMap;
-  }
-
-  private MetacardType buildStatesMetacardType() {
-
-    XmlSchema schema = new XmlSchema();
-    schema.getElements().putAll(buildStatesElementMap(schema));
+  private MetacardType buildStatesMetacardType() throws IOException {
+    final XmlSchema schema = loadSchema("states.xsd");
 
     return new FeatureMetacardType(
         schema,
         new QName(STATES_FEATURE_TYPE),
-        new ArrayList<String>(),
+        new ArrayList<>(),
         Wfs20Constants.GML_3_2_NAMESPACE);
   }
 
-  private Map<QName, XmlSchemaElement> buildStatesElementMap(XmlSchema schema) {
-    Map<QName, XmlSchemaElement> elementMap = new HashMap<QName, XmlSchemaElement>();
-
-    elementMap.put(
-        new QName(STATES_TITLE_ELEMENT),
-        buildSchemaElement(STATES_TITLE_ELEMENT, schema, Constants.XSD_STRING));
-
-    XmlSchemaElement gmlElement = new XmlSchemaElement(schema, true);
-    gmlElement.setSchemaType(new XmlSchemaComplexType(schema, false));
-    gmlElement.setSchemaTypeName(new QName(Wfs20Constants.GML_3_2_NAMESPACE, GML));
-    gmlElement.setName("the_geom");
-    elementMap.put(new QName("the_geom"), gmlElement);
-
-    return elementMap;
-  }
-
-  private XmlSchemaElement buildSchemaElement(
-      String elementName, XmlSchema schema, QName typeName) {
-    XmlSchemaElement element = new XmlSchemaElement(schema, true);
-    element.setSchemaType(new XmlSchemaSimpleType(schema, false));
-    element.setSchemaTypeName(typeName);
-    element.setName(elementName);
-
-    return element;
+  private XmlSchema loadSchema(final String schemaFile) throws IOException {
+    final XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
+    try (final InputStream schemaStream = new FileInputStream("src/test/resources/" + schemaFile)) {
+      return schemaCollection.read(new StreamSource(schemaStream));
+    }
   }
 
   private String getOtherTagsXml() {

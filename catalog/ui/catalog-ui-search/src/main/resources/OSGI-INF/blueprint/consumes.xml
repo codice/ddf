@@ -184,4 +184,9 @@ Services (OSGi) that catalog-ui-search CONSUMES from DDF
     =============================================================
     -->
 
+    <bean id="accessControlTags" class="org.codice.ddf.catalog.ui.security.accesscontrol.AccessControlTags"/>
+    <reference-list interface="ddf.catalog.data.MetacardType" member-type="service-reference">
+        <reference-listener ref="accessControlTags" bind-method="bindTag" unbind-method="unbindTag"/>
+    </reference-list>
+
 </blueprint>

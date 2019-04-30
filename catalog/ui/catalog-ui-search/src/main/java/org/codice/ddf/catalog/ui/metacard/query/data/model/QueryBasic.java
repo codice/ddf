@@ -33,6 +33,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,6 +46,18 @@ public class QueryBasic {
 
   @SerializedName("title")
   private String title;
+
+  @SerializedName("created")
+  private Date created;
+
+  @SerializedName("modified")
+  private Date modified;
+
+  @SerializedName("owner")
+  private String owner;
+
+  @SerializedName("description")
+  private String description;
 
   @SerializedName("cql")
   private String cql;
@@ -82,6 +95,10 @@ public class QueryBasic {
   public QueryBasic(Metacard metacard) {
     this.metacardId = getAttributeValue(metacard, Core.ID, String.class);
     this.title = getAttributeValue(metacard, Core.TITLE, String.class);
+    this.owner = getAttributeValue(metacard, Core.METACARD_OWNER, String.class);
+    this.description = getAttributeValue(metacard, Core.DESCRIPTION, String.class);
+    this.created = getAttributeValue(metacard, Core.CREATED, Date.class);
+    this.modified = getAttributeValue(metacard, Core.MODIFIED, Date.class);
     this.cql = getAttributeValue(metacard, QUERY_CQL, String.class);
     this.filterTree = getAttributeValue(metacard, QUERY_FILTER_TREE, String.class);
     this.enterprise = getAttributeValue(metacard, QUERY_ENTERPRISE, Boolean.class);
@@ -103,6 +120,10 @@ public class QueryBasic {
 
     metacard.setAttribute(new AttributeImpl(Core.ID, this.metacardId));
     metacard.setAttribute(new AttributeImpl(Core.TITLE, this.title));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_OWNER, this.owner));
+    metacard.setAttribute(new AttributeImpl(Core.DESCRIPTION, this.description));
+    metacard.setAttribute(new AttributeImpl(Core.CREATED, this.created));
+    metacard.setAttribute(new AttributeImpl(Core.MODIFIED, this.modified));
     metacard.setAttribute(new AttributeImpl(QUERY_CQL, this.cql));
     metacard.setAttribute(new AttributeImpl(QUERY_FILTER_TREE, this.filterTree));
     metacard.setAttribute(new AttributeImpl(QUERY_ENTERPRISE, this.enterprise));
@@ -116,6 +137,10 @@ public class QueryBasic {
     metacard.setAttribute(new AttributeImpl(FACETS, (Serializable) this.facets));
 
     return new QueryMetacardImpl(metacard);
+  }
+
+  public void setOwner(String owner) {
+    this.owner = owner;
   }
 
   private static <T> T getAttributeValue(Metacard metacard, String name, Class<T> type) {

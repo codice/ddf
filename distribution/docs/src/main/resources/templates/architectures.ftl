@@ -1,5 +1,5 @@
 = ${branding-expanded} Architecture
-include::${project.build.directory}/doc-contents/content/config.adoc[]
+include::config.adoc[]
 :title: ${branding-expanded} Architecture
 :architecture-prefix: _
 :developing-prefix: developing.adoc#_
@@ -13,4 +13,4 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 
 <#include "build/developing.ftl">
 
-include::${project.build.directory}/doc-contents/content/scripts.html[]
+include::${project.build.directory}/asciidoctor-ready-${project.version}/scripts.html[]

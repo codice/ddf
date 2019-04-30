@@ -11,3 +11,11 @@ It is also the process of translating metadata from one format to another. 
 Data migration is necessary when a user decides to use metadata from one catalog provider in another catalog provider.
 
 The process for changing catalog providers involves first exporting the metadata from the original catalog provider and ingesting it into another.
+
+From the ${command-console}, use these commands to export data from the existing catalog and then import into the new one.
+
+`catalog:export`:: Exports Metacards and history from the current Catalog to an auto-generated file inside ${home_directory}. +
+Use the `catalog:export --help` command to see all available options.
+
+`catalog:import <FILE_NAME>`:: Imports Metacards and history into the current Catalog. +
+Use the `catalog:import --help` command to see all available options.

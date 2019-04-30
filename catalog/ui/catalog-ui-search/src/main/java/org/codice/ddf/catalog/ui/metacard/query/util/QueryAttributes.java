@@ -40,4 +40,6 @@ public class QueryAttributes {
   public static final String SCHEDULES = "schedules";
 
   public static final String FACETS = "facets";
+
+  private QueryAttributes() {}
 }

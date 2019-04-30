@@ -48,7 +48,7 @@ class RedirectServletSpec extends Specification {
         thrown expectedException
 
         where:
-        defaultDefaultUri  || expectedException
+        defaultDefaultUri   || expectedException
         null                || NullPointerException
         ''                  || IllegalArgumentException
         ' '                 || IllegalArgumentException

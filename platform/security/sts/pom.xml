@@ -42,6 +42,5 @@
         <module>security-sts-attributequerycommon</module>
         <module>security-sts-propertyclaimshandler</module>
         <module>security-sts-certificateclaimshandler</module>
-        <module>security-sts-casclaimshandler</module>
     </modules>
 </project>
