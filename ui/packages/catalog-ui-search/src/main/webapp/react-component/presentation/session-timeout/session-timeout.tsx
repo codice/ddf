@@ -22,11 +22,10 @@ const SessionTimeoutRoot = styled.div`
   overflow: hidden;
 `
 const Message = styled.div`
-    max-height: 'calc(100% - ${props =>
-      props.theme.minimumButtonSize} - 0.5rem)';
-    height: auto;
-    text-align: center;
-    padding: ${props => props.theme.mediumSpacing};
+  max-height: 'calc(100% - 2.25rem)';
+  height: auto;
+  text-align: center;
+  padding: ${props => props.theme.mediumSpacing};
 `
 
 type State = {
