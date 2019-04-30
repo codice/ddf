@@ -29,7 +29,9 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import ddf.catalog.util.impl.SortedServiceReferenceList;
 import ddf.geo.formatter.CompositeGeometry;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -41,12 +43,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.function.Function;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +83,8 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
   private AttributeRegistry attributeRegistry;
 
+  private SortedServiceReferenceList inputTransformers;
+
   /** Transforms GeoJson (http://www.geojson.org/) into a {@link Metacard} */
   @Override
   public Metacard transform(InputStream input) throws IOException, CatalogTransformerException {
@@ -95,7 +101,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
     Map<String, Object> properties = getProperties(rootObject);
 
     final String propertyTypeName = (String) properties.get(METACARD_TYPE_PROPERTY_KEY);
-    MetacardImpl metacard = getMetacard(propertyTypeName);
+    MetacardImpl metacard = getMetacard(propertyTypeName, properties);
 
     MetacardType metacardType = metacard.getMetacardType();
     LOGGER.debug("Metacard type name: {}", metacardType.getName());
@@ -190,11 +196,38 @@ public class GeoJsonInputTransformer implements InputTransformer {
     return properties;
   }
 
-  private MetacardImpl getMetacard(String propertyTypeName) throws CatalogTransformerException {
+  private MetacardImpl getMetacard(String propertyTypeName, Map<String, Object> properties)
+      throws CatalogTransformerException {
     if (isEmpty(propertyTypeName) || metacardTypes == null) {
       LOGGER.debug(
-          "MetacardType specified in input is null or empty.  Assuming default MetacardType");
-      return new MetacardImpl();
+          "MetacardType specified in input is null or empty.  Trying all transformers in order...");
+      Optional<MetacardImpl> first =
+          inputTransformers == null
+              ? Optional.of(new MetacardImpl())
+              : inputTransformers
+                  .stream()
+                  .map(
+                      serviceReference -> {
+                        try {
+                          InputTransformer inputTransformer =
+                              (InputTransformer)
+                                  FrameworkUtil.getBundle(this.getClass())
+                                      .getBundleContext()
+                                      .getService(serviceReference);
+                          return new MetacardImpl(
+                              inputTransformer.transform(
+                                  new ByteArrayInputStream(
+                                      ((String) properties.get("metadata")).getBytes())));
+                        } catch (Exception e) {
+                          LOGGER.debug(
+                              "Error calling transformer: " + serviceReference.getProperty("id"),
+                              e);
+                        }
+                        return null;
+                      })
+                  .filter(Objects::nonNull)
+                  .findFirst();
+      return first.orElse(new MetacardImpl());
     } else {
       MetacardType metacardType =
           metacardTypes
@@ -303,5 +336,13 @@ public class GeoJsonInputTransformer implements InputTransformer {
       default:
         return null;
     }
+  }
+
+  public SortedServiceReferenceList getInputTransformers() {
+    return inputTransformers;
+  }
+
+  public void setInputTransformers(SortedServiceReferenceList inputTransformers) {
+    this.inputTransformers = inputTransformers;
   }
 }
