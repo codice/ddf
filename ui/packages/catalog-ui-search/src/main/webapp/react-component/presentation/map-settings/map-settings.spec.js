@@ -22,6 +22,14 @@ import {
 } from '../../../test/mock-api/mock-properties'
 let MapSettings
 
+const checkDropdown = wrapper => {
+  const options = wrapper.childAt(0).props().children[0].props.options
+  expect(options[0].value).to.be.equals('degrees')
+  expect(options[1].value).to.be.equals('decimal')
+  expect(options[2].value).to.be.equals('mgrs')
+  expect(options[3].value).to.be.equals('utm')
+}
+
 describe('Test <MapSettings> container component', () => {
   before(() => {
     mockJquery()
@@ -32,14 +40,19 @@ describe('Test <MapSettings> container component', () => {
     unmockJquery()
     unmockProperties()
   })
-  it('Test <MapSettings> selected coordinates system is provided', () => {
-    const wrapper = mount(<MapSettings selected="mgrs" />)
-    expect(wrapper.contains('Settings')).to.equal(true)
-    expect(wrapper.props().selected).to.equal('mgrs')
-  })
-  it('Test <MapSettings> no coordinate system selection specified', () => {
+
+  it('Test <MapSettings> no choice is selected', () => {
     const wrapper = mount(<MapSettings />)
-    expect(wrapper.contains('Settings')).to.equal(true)
-    expect(wrapper.props().selected).to.be.undefined
+    const selectedValue = wrapper.childAt(0).props().children[0].props.value
+    expect(selectedValue).to.be.undefined
+    checkDropdown(wrapper)
+    wrapper.unmount()
+  })
+  it('Test <MapSettings> MGRS is selected', () => {
+    const wrapper = mount(<MapSettings selected="mgrs" />)
+    const selectedValue = wrapper.childAt(0).props().children[0].props.value
+    expect(selectedValue).to.be.equal('mgrs')
+    checkDropdown(wrapper)
+    wrapper.unmount()
   })
 })
