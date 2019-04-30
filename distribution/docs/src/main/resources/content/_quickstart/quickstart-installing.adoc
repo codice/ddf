@@ -150,7 +150,7 @@ Prior to installing ${branding}, ensure the system time is accurate to prevent f
 
 === Quick Install of ${branding}
 
-. Download the ${branding} {download-url}[zip file].
+. Download the ${branding} {download-url}[zip file] {external-link}.
 . Install ${branding} by unzipping the zip file.
 +
 .Windows Zip Utility Warning
