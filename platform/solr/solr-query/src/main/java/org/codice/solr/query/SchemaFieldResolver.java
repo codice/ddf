@@ -14,6 +14,7 @@
 package org.codice.solr.query;
 
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
@@ -86,7 +87,7 @@ public class SchemaFieldResolver {
       new HashMap<String, AttributeFormat>();
 
   private static final Map<AttributeFormat, String> FORMAT_TO_SUFFIX_MAP =
-      new HashMap<AttributeFormat, String>();
+      new EnumMap<>(AttributeFormat.class);
 
   static {
     SUFFIX_TO_FORMAT_MAP.put(GEO_SUFFIX, AttributeFormat.GEOMETRY);

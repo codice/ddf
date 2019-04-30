@@ -150,6 +150,8 @@ public class RegistryStoreCleanupHandler implements EventHandler {
       }
     } catch (InterruptedException e) {
       executor.shutdownNow();
+
+      Thread.currentThread().interrupt();
     }
   }
 

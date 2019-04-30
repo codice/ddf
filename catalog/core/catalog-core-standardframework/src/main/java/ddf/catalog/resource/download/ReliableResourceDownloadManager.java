@@ -76,6 +76,8 @@ public class ReliableResourceDownloadManager implements DownloadManager {
       executor.awaitTermination(ONE_SECOND_IN_MS, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
       executor.shutdownNow();
+
+      Thread.currentThread().interrupt();
     }
   }
 

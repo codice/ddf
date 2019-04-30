@@ -334,6 +334,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
   private Boolean processGmlType(XmlSchemaElement xmlSchemaElement) {
     QName qName = xmlSchemaElement.getSchemaTypeName();
     String name = xmlSchemaElement.getName();
+    String propertyPrefixWithName = propertyPrefix + name;
 
     if (qName != null
         && StringUtils.isNotEmpty(name)
@@ -346,7 +347,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
       boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1;
       add(
           new FeatureAttributeDescriptor(
-              propertyPrefix + name,
+              propertyPrefixWithName,
               name,
               isQueryable(name) /* indexed */,
               true /* stored */,
@@ -354,7 +355,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
               multiValued,
               BasicTypes.DATE_TYPE));
 
-      properties.add(propertyPrefix + name);
+      properties.add(propertyPrefixWithName);
 
       return true;
     }
@@ -362,13 +363,14 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     if (qName != null
         && qName.getNamespaceURI().equals(gmlNamespace)
         && StringUtils.isNotEmpty(name)) {
-      LOGGER.debug("Adding geo property: {}{}", propertyPrefix, name);
-      gmlProperties.add(propertyPrefix + name);
+
+      LOGGER.debug("Adding geo property: {}", propertyPrefixWithName);
+      gmlProperties.add(propertyPrefixWithName);
 
       boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1;
       add(
           new FeatureAttributeDescriptor(
-              propertyPrefix + name,
+              propertyPrefixWithName,
               name,
               isQueryable(name) /* indexed */,
               true /* stored */,
@@ -376,7 +378,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
               multiValued,
               BasicTypes.GEO_TYPE));
 
-      properties.add(propertyPrefix + name);
+      properties.add(propertyPrefixWithName);
 
       return true;
     }

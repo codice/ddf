@@ -570,6 +570,10 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       tlsParams.setUseHttpsURLConnectionDefaultSslSocketFactory(false);
       tlsParams.setCertAlias(keyInfo.getAlias());
       try {
+        if (keyManagers == null) {
+          throw new KeyManagementException("keyManagers was null");
+        }
+
         boolean validProtocolFound = false;
         String validProtocolsStr = System.getProperty("jdk.tls.client.protocols");
         if (StringUtils.isNotBlank(validProtocolsStr)) {

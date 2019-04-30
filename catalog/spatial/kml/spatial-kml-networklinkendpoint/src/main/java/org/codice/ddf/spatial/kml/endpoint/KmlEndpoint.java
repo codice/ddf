@@ -81,7 +81,7 @@ public class KmlEndpoint {
 
   private static final String ICONS_RESOURCE_LOC = "icons/";
 
-  private static final long REFRESH_INTERVAL = 12 * 60 * 60; // 12 Hours in Seconds
+  private static final long REFRESH_INTERVAL = 12L * 60 * 60; // 12 Hours in Seconds
 
   /** Default refresh time after the View stops moving */
   private static final double DEFAULT_VIEW_REFRESH_TIME = 2.0;

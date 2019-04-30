@@ -153,8 +153,8 @@ public class GeoNamesWebService implements GeoEntryQueryable {
             .map(JSONObject.class::cast)
             .map(
                 obj -> {
-                  double lat = Double.valueOf((String) obj.get(LAT_KEY));
-                  double lon = Double.valueOf((String) obj.get(LON_KEY));
+                  double lat = Double.parseDouble((String) obj.get(LAT_KEY));
+                  double lon = Double.parseDouble((String) obj.get(LON_KEY));
                   String cityName = (String) obj.get(PLACENAME_KEY);
                   Point cityPoint = new PointImpl(lon, lat, SpatialContext.GEO);
                   return new NearbyLocationImpl(wktCenterPoint, cityPoint, cityName);

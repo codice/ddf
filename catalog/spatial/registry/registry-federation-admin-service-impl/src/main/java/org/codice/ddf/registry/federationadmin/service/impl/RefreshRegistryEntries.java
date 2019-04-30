@@ -100,6 +100,10 @@ public class RefreshRegistryEntries {
                 refreshRegistryEntries();
               } catch (FederationAdminException e) {
                 LOGGER.error("Problem refreshing registry entries.", e);
+              } catch (InterruptedException e) {
+                LOGGER.error("Thread interrupted while refreshing registry entries.", e);
+
+                Thread.currentThread().interrupt();
               }
             },
             10,
@@ -114,7 +118,7 @@ public class RefreshRegistryEntries {
    *
    * @throws FederationAdminException
    */
-  public void refreshRegistryEntries() throws FederationAdminException {
+  public void refreshRegistryEntries() throws FederationAdminException, InterruptedException {
 
     if (!registriesAvailable()) {
       return;
@@ -281,7 +285,8 @@ public class RefreshRegistryEntries {
   }
 
   /** Directly queries the stores without going through the catalog framework */
-  private RemoteRegistryResults getRemoteRegistryMetacardsMap() throws FederationAdminException {
+  private RemoteRegistryResults getRemoteRegistryMetacardsMap()
+      throws FederationAdminException, InterruptedException {
     Map<String, Metacard> remoteRegistryMetacards = new HashMap<>();
     List<String> failedQueries = new ArrayList<>();
     List<String> storesQueried = new ArrayList<>();
@@ -335,7 +340,8 @@ public class RefreshRegistryEntries {
     return new RemoteRegistryResults(remoteRegistryMetacards, failedQueries, storesQueried);
   }
 
-  private List<RemoteResult> executeTasks(List<Callable<RemoteResult>> tasks) {
+  private List<RemoteResult> executeTasks(List<Callable<RemoteResult>> tasks)
+      throws InterruptedException {
     List<RemoteResult> results = new ArrayList<>();
     try {
       List<Future<RemoteResult>> futures = executor.invokeAll(tasks);
@@ -353,6 +359,8 @@ public class RefreshRegistryEntries {
       }
     } catch (InterruptedException e) {
       LOGGER.debug("Remote registry queries interrupted", e);
+
+      throw e;
     }
     return results;
   }
@@ -474,6 +482,8 @@ public class RefreshRegistryEntries {
       }
     } catch (InterruptedException e) {
       executor.shutdownNow();
+
+      Thread.currentThread().interrupt();
     }
   }
 

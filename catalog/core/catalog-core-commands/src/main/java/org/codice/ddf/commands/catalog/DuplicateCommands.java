@@ -119,7 +119,8 @@ public abstract class DuplicateCommands extends CqlCommands {
    * @param filter - the filter to query with
    */
   protected void duplicateInBatches(
-      CatalogFacade queryFacade, CatalogFacade ingestFacade, Filter filter, String sourceId) {
+      CatalogFacade queryFacade, CatalogFacade ingestFacade, Filter filter, String sourceId)
+      throws InterruptedException {
     AtomicInteger queryIndex = new AtomicInteger(1);
 
     final long originalQuerySize;
@@ -221,14 +222,13 @@ public abstract class DuplicateCommands extends CqlCommands {
       }
 
       executorService.shutdown();
-
-      while (!executorService.isTerminated()) {
-        try {
-          TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-          // ignore
-        }
+      try {
+        executorService.awaitTermination(1, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+        executorService.shutdownNow();
+        throw e;
       }
+
       printProgressAndFlush(start, Math.max(totalWanted, ingestedCount.get()), ingestedCount.get());
     } else { // Single threaded
       ResultIterable iter;

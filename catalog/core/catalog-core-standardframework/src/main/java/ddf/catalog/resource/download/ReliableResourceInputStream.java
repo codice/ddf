@@ -194,6 +194,9 @@ public class ReliableResourceInputStream extends InputStream {
           try {
             Thread.sleep(100);
           } catch (InterruptedException e) {
+            downloadState.setDownloadState(DownloadManagerState.DownloadState.CANCELED);
+
+            Thread.currentThread().interrupt();
           }
         }
       }

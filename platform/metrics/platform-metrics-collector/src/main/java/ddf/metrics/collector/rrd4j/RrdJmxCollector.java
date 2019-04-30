@@ -268,13 +268,16 @@ public class RrdJmxCollector implements JmxCollector {
     LOGGER.trace("ENTERING: configureCollector() for collector {}", mbeanAttributeName);
 
     if (!isMbeanAccessible()) {
-      LOGGER.debug(
-          "MBean attribute {} is not accessible - no collector will be configured for it.",
-          mbeanAttributeName);
-      throw new CollectorException(
-          "MBean attribute "
-              + mbeanAttributeName
-              + " is not accessible - no collector will be configured for it.");
+      String errorMessage = " is not accessible";
+
+      if (Thread.interrupted()) {
+        errorMessage += " due to thread interrupt";
+      }
+
+      errorMessage += " - no collector will be configured for it.";
+
+      LOGGER.debug("MBean attribute {}{}", mbeanAttributeName, errorMessage);
+      throw new CollectorException("MBean attribute " + mbeanAttributeName + errorMessage);
     }
 
     if (rrdDataSourceType == null) {
@@ -353,7 +356,9 @@ public class RrdJmxCollector implements JmxCollector {
           LOGGER.trace("MBean [{}] not found, sleeping...", mbeanName);
           Thread.sleep(1000);
         } catch (InterruptedException ie) {
-          // Ignore this
+          Thread.currentThread().interrupt();
+
+          return false;
         }
       }
     }

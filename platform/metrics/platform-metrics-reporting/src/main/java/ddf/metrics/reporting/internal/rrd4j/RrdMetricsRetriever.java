@@ -199,117 +199,118 @@ public class RrdMetricsRetriever implements MetricsRetriever {
       String title)
       throws IOException, MetricsGraphException {
     // Create RRD DB in read-only mode for the specified RRD file
-    RrdDb rrdDb = new RrdDb(rrdFilename, true);
+    try (RrdDb rrdDb = new RrdDb(rrdFilename, true)) {
 
-    // Extract the data source (should always only be one data source per RRD file - otherwise
-    // we have a problem)
-    if (rrdDb.getDsCount() != 1) {
-      throw new MetricsGraphException(
-          "Only one data source per RRD file is supported - RRD file "
-              + rrdFilename
-              + " has "
-              + rrdDb.getDsCount()
-              + " data sources.");
-    }
-
-    // Define attributes of the graph to be created for this metric
-    RrdGraphDef graphDef = new RrdGraphDef();
-    graphDef.setTimeSpan(startTime, endTime);
-    graphDef.setImageFormat("PNG");
-    graphDef.setShowSignature(false);
-    graphDef.setStep(RRD_STEP);
-    graphDef.setVerticalLabel(verticalAxisLabel);
-    graphDef.setHeight(500);
-    graphDef.setWidth(1000);
-    graphDef.setTitle(title);
-
-    // Since we have verified only one datasource in RRD file/RRDb, then know
-    // that we can index by zero safely and get the metric's data
-    Datasource dataSource = rrdDb.getDatasource(0);
-    DsType dataSourceType = dataSource.getType();
-
-    // Determine the type of Data Source for this RRD file
-    // (Need to know this because COUNTER and DERIVE data is averaged across samples and the
-    // vertical axis of the
-    // generated graph by default will show data per rrdStep interval)
-    if (dataSourceType == DsType.COUNTER || dataSourceType == DsType.DERIVE) {
-      if (LOGGER.isTraceEnabled()) {
-        dumpData(ConsolFun.TOTAL, "TOTAL", rrdDb, dataSourceType.name(), startTime, endTime);
+      // Extract the data source (should always only be one data source per RRD file - otherwise
+      // we have a problem)
+      if (rrdDb.getDsCount() != 1) {
+        throw new MetricsGraphException(
+            "Only one data source per RRD file is supported - RRD file "
+                + rrdFilename
+                + " has "
+                + rrdDb.getDsCount()
+                + " data sources.");
       }
 
-      // If we ever needed to adjust the metric's data collected by RRD by the archive step
-      // (which is the rrdStep * archiveSampleCount) this is how to do it.
-      // FetchRequest fetchRequest = rrdDb.createFetchRequest(ConsolFun.AVERAGE, startTime,
-      // endTime);
-      // Archive archive = rrdDb.findMatchingArchive(fetchRequest);
-      // long archiveStep = archive.getArcStep();
-      // LOGGER.debug("archiveStep = " + archiveStep);
-      long rrdStep = rrdDb.getRrdDef().getStep();
-      LOGGER.debug("rrdStep = {}", rrdStep);
+      // Define attributes of the graph to be created for this metric
+      RrdGraphDef graphDef = new RrdGraphDef();
+      graphDef.setTimeSpan(startTime, endTime);
+      graphDef.setImageFormat("PNG");
+      graphDef.setShowSignature(false);
+      graphDef.setStep(RRD_STEP);
+      graphDef.setVerticalLabel(verticalAxisLabel);
+      graphDef.setHeight(500);
+      graphDef.setWidth(1000);
+      graphDef.setTitle(title);
 
-      // Still TBD if we want to graph the AVERAGE data on the same graph
-      // graphDef.comment(metricName + "   ");
-      // graphDef.datasource("myAverage", rrdFilename, "data", ConsolFun.AVERAGE);
-      // graphDef.datasource("realAverage", "myAverage," + rrdStep + ",*");
-      // graphDef.line("realAverage", Color.GREEN, "Average", 2);
+      // Since we have verified only one datasource in RRD file/RRDb, then know
+      // that we can index by zero safely and get the metric's data
+      Datasource dataSource = rrdDb.getDatasource(0);
+      DsType dataSourceType = dataSource.getType();
 
-      // Multiplied by the rrdStep to "undo" the automatic averaging that RRD does
-      // when it collects TOTAL data - we want the actual totals for the step, not
-      // the average of the totals.
-      graphDef.datasource("myTotal", rrdFilename, dataSource.getName(), ConsolFun.TOTAL);
-      graphDef.datasource("realTotal", "myTotal," + rrdStep + ",*");
+      // Determine the type of Data Source for this RRD file
+      // (Need to know this because COUNTER and DERIVE data is averaged across samples and the
+      // vertical axis of the
+      // generated graph by default will show data per rrdStep interval)
+      if (dataSourceType == DsType.COUNTER || dataSourceType == DsType.DERIVE) {
+        if (LOGGER.isTraceEnabled()) {
+          dumpData(ConsolFun.TOTAL, "TOTAL", rrdDb, dataSourceType.name(), startTime, endTime);
+        }
 
-      // If real total exceeds the threshold value used to constrain/filter spike data out,
-      // then set total to UNKNOWN, which means this sample will not be graphed. This prevents
-      // spike data that is typically 4.2E+09 (graphed as 4.3G) from corrupting the RRD graph.
-      graphDef.datasource(
-          "constrainedTotal", "realTotal," + metricsMaxThreshold + ",GT,UNKN,realTotal,IF");
-      graphDef.line("constrainedTotal", Color.BLUE, convertCamelCase(metricName), 2);
+        // If we ever needed to adjust the metric's data collected by RRD by the archive step
+        // (which is the rrdStep * archiveSampleCount) this is how to do it.
+        // FetchRequest fetchRequest = rrdDb.createFetchRequest(ConsolFun.AVERAGE, startTime,
+        // endTime);
+        // Archive archive = rrdDb.findMatchingArchive(fetchRequest);
+        // long archiveStep = archive.getArcStep();
+        // LOGGER.debug("archiveStep = " + archiveStep);
+        long rrdStep = rrdDb.getRrdDef().getStep();
+        LOGGER.debug("rrdStep = {}", rrdStep);
 
-      // Add some spacing between the graph and the summary stats shown beneath the graph
-      graphDef.comment("\\s");
-      graphDef.comment("\\s");
-      graphDef.comment("\\c");
+        // Still TBD if we want to graph the AVERAGE data on the same graph
+        // graphDef.comment(metricName + "   ");
+        // graphDef.datasource("myAverage", rrdFilename, "data", ConsolFun.AVERAGE);
+        // graphDef.datasource("realAverage", "myAverage," + rrdStep + ",*");
+        // graphDef.line("realAverage", Color.GREEN, "Average", 2);
 
-      // Average, Min, and Max over all of the TOTAL data - displayed at bottom of the graph
-      graphDef.gprint("constrainedTotal", ConsolFun.AVERAGE, "Average = %.3f%s");
-      graphDef.gprint("constrainedTotal", ConsolFun.MIN, "Min = %.3f%s");
-      graphDef.gprint("constrainedTotal", ConsolFun.MAX, "Max = %.3f%s");
-    } else if (dataSourceType == DsType.GAUGE) {
-      if (LOGGER.isTraceEnabled()) {
-        dumpData(ConsolFun.AVERAGE, "AVERAGE", rrdDb, dataSourceType.name(), startTime, endTime);
+        // Multiplied by the rrdStep to "undo" the automatic averaging that RRD does
+        // when it collects TOTAL data - we want the actual totals for the step, not
+        // the average of the totals.
+        graphDef.datasource("myTotal", rrdFilename, dataSource.getName(), ConsolFun.TOTAL);
+        graphDef.datasource("realTotal", "myTotal," + rrdStep + ",*");
+
+        // If real total exceeds the threshold value used to constrain/filter spike data out,
+        // then set total to UNKNOWN, which means this sample will not be graphed. This prevents
+        // spike data that is typically 4.2E+09 (graphed as 4.3G) from corrupting the RRD graph.
+        graphDef.datasource(
+            "constrainedTotal", "realTotal," + metricsMaxThreshold + ",GT,UNKN,realTotal,IF");
+        graphDef.line("constrainedTotal", Color.BLUE, convertCamelCase(metricName), 2);
+
+        // Add some spacing between the graph and the summary stats shown beneath the graph
+        graphDef.comment("\\s");
+        graphDef.comment("\\s");
+        graphDef.comment("\\c");
+
+        // Average, Min, and Max over all of the TOTAL data - displayed at bottom of the graph
+        graphDef.gprint("constrainedTotal", ConsolFun.AVERAGE, "Average = %.3f%s");
+        graphDef.gprint("constrainedTotal", ConsolFun.MIN, "Min = %.3f%s");
+        graphDef.gprint("constrainedTotal", ConsolFun.MAX, "Max = %.3f%s");
+      } else if (dataSourceType == DsType.GAUGE) {
+        if (LOGGER.isTraceEnabled()) {
+          dumpData(ConsolFun.AVERAGE, "AVERAGE", rrdDb, dataSourceType.name(), startTime, endTime);
+        }
+
+        graphDef.datasource("myAverage", rrdFilename, dataSource.getName(), ConsolFun.AVERAGE);
+        graphDef.line("myAverage", Color.RED, convertCamelCase(metricName), 2);
+
+        // Add some spacing between the graph and the summary stats shown beneath the graph
+        graphDef.comment("\\s");
+        graphDef.comment("\\s");
+        graphDef.comment("\\c");
+
+        // Average, Min, and Max over all of the AVERAGE data - displayed at bottom of the graph
+        graphDef.gprint("myAverage", ConsolFun.AVERAGE, "Average = %.3f%s");
+        graphDef.gprint("myAverage", ConsolFun.MIN, "Min = %.3f%s");
+        graphDef.gprint("myAverage", ConsolFun.MAX, "Max = %.3f%s");
+      } else {
+        rrdDb.close();
+        throw new MetricsGraphException(
+            "Unsupported data source type "
+                + dataSourceType.name()
+                + " in RRD file "
+                + rrdFilename
+                + ", only DERIVE, COUNTER and GAUGE data source types supported.");
       }
 
-      graphDef.datasource("myAverage", rrdFilename, dataSource.getName(), ConsolFun.AVERAGE);
-      graphDef.line("myAverage", Color.RED, convertCamelCase(metricName), 2);
-
-      // Add some spacing between the graph and the summary stats shown beneath the graph
-      graphDef.comment("\\s");
-      graphDef.comment("\\s");
-      graphDef.comment("\\c");
-
-      // Average, Min, and Max over all of the AVERAGE data - displayed at bottom of the graph
-      graphDef.gprint("myAverage", ConsolFun.AVERAGE, "Average = %.3f%s");
-      graphDef.gprint("myAverage", ConsolFun.MIN, "Min = %.3f%s");
-      graphDef.gprint("myAverage", ConsolFun.MAX, "Max = %.3f%s");
-    } else {
       rrdDb.close();
-      throw new MetricsGraphException(
-          "Unsupported data source type "
-              + dataSourceType.name()
-              + " in RRD file "
-              + rrdFilename
-              + ", only DERIVE, COUNTER and GAUGE data source types supported.");
+
+      // Use "-" as filename so that RRD creates the graph only in memory (no file is
+      // created, hence no file locking problems due to race conditions between multiple clients)
+      graphDef.setFilename("-");
+      RrdGraph graph = new RrdGraph(graphDef);
+
+      return graph.getRrdGraphInfo().getBytes();
     }
-
-    rrdDb.close();
-
-    // Use "-" as filename so that RRD creates the graph only in memory (no file is
-    // created, hence no file locking problems due to race conditions between multiple clients)
-    graphDef.setFilename("-");
-    RrdGraph graph = new RrdGraph(graphDef);
-
-    return graph.getRrdGraphInfo().getBytes();
   }
 
   @Override
@@ -765,87 +766,88 @@ public class RrdMetricsRetriever implements MetricsRetriever {
     LOGGER.trace("ENTERING: getMetricData");
 
     // Create RRD DB in read-only mode for the specified RRD file
-    RrdDb rrdDb = new RrdDb(rrdFilename, true);
+    try (RrdDb rrdDb = new RrdDb(rrdFilename, true)) {
 
-    // Extract the data source (should always only be one data source per RRD file - otherwise
-    // we have a problem)
-    if (rrdDb.getDsCount() != 1) {
-      throw new MetricsGraphException(
-          "Only one data source per RRD file is supported - RRD file "
-              + rrdFilename
-              + " has "
-              + rrdDb.getDsCount()
-              + " data sources.");
-    }
+      // Extract the data source (should always only be one data source per RRD file - otherwise
+      // we have a problem)
+      if (rrdDb.getDsCount() != 1) {
+        throw new MetricsGraphException(
+            "Only one data source per RRD file is supported - RRD file "
+                + rrdFilename
+                + " has "
+                + rrdDb.getDsCount()
+                + " data sources.");
+      }
 
-    // The step (sample) interval that determines how often RRD collects the metric's data
-    long rrdStep = rrdDb.getRrdDef().getStep();
+      // The step (sample) interval that determines how often RRD collects the metric's data
+      long rrdStep = rrdDb.getRrdDef().getStep();
 
-    // Retrieve the RRD file's data source type to determine how (later)
-    // to store the metric's data for presentation.
-    DsType dataSourceType = rrdDb.getDatasource(0).getType();
+      // Retrieve the RRD file's data source type to determine how (later)
+      // to store the metric's data for presentation.
+      DsType dataSourceType = rrdDb.getDatasource(0).getType();
 
-    // Fetch the metric's data from the RRD file for the specified time range
-    FetchRequest fetchRequest = rrdDb.createFetchRequest(ConsolFun.TOTAL, startTime, endTime);
-    FetchData fetchData = fetchRequest.fetchData();
-    long[] timestamps = fetchData.getTimestamps();
-    double[] values = fetchData.getValues(0);
+      // Fetch the metric's data from the RRD file for the specified time range
+      FetchRequest fetchRequest = rrdDb.createFetchRequest(ConsolFun.TOTAL, startTime, endTime);
+      FetchData fetchData = fetchRequest.fetchData();
+      long[] timestamps = fetchData.getTimestamps();
+      double[] values = fetchData.getValues(0);
 
-    // Done retrieving data from the RRD database - close it, otherwise no one else will
-    // be able to access it later.
-    rrdDb.close();
+      // Done retrieving data from the RRD database - close it, otherwise no one else will
+      // be able to access it later.
+      rrdDb.close();
 
-    // The lists of the metric's timestamps and their associated values that have non-"NaN"
-    // values
-    List<Long> validTimestamps = new ArrayList<Long>();
-    List<Double> validValues = new ArrayList<Double>();
+      // The lists of the metric's timestamps and their associated values that have non-"NaN"
+      // values
+      List<Long> validTimestamps = new ArrayList<Long>();
+      List<Double> validValues = new ArrayList<Double>();
 
-    long totalCount = 0;
-    MetricData metricData = new MetricData();
+      long totalCount = 0;
+      MetricData metricData = new MetricData();
 
-    if (dataSourceType == DsType.COUNTER || dataSourceType == DsType.DERIVE) {
-      // Counters are for constantly incrementing data, hence they can
-      // have a summation of their totals
-      metricData.setHasTotalCount(true);
-      for (int i = 0; i < timestamps.length; i++) {
-        long timestamp = timestamps[i];
-        // Filter out the RRD values that have not yet been sampled (they will
-        // have been set to NaN as a placeholder when the RRD file was created)
-        if (timestamp >= startTime
-            && timestamp <= endTime
-            && !Double.toString(values[i]).equals("NaN")) {
-          // RRD averages the collected samples over the step interval.
-          // To "undo" this averaging and get the actual count, need to
-          // multiply the sampled data value by the RRD step interval.
-          double nonAveragedValue = (double) (values[i] * rrdStep);
-          validTimestamps.add(timestamp);
-          validValues.add(nonAveragedValue);
-          totalCount += (long) nonAveragedValue;
+      if (dataSourceType == DsType.COUNTER || dataSourceType == DsType.DERIVE) {
+        // Counters are for constantly incrementing data, hence they can
+        // have a summation of their totals
+        metricData.setHasTotalCount(true);
+        for (int i = 0; i < timestamps.length; i++) {
+          long timestamp = timestamps[i];
+          // Filter out the RRD values that have not yet been sampled (they will
+          // have been set to NaN as a placeholder when the RRD file was created)
+          if (timestamp >= startTime
+              && timestamp <= endTime
+              && !Double.toString(values[i]).equals("NaN")) {
+            // RRD averages the collected samples over the step interval.
+            // To "undo" this averaging and get the actual count, need to
+            // multiply the sampled data value by the RRD step interval.
+            double nonAveragedValue = (double) (values[i] * rrdStep);
+            validTimestamps.add(timestamp);
+            validValues.add(nonAveragedValue);
+            totalCount += (long) nonAveragedValue;
+          }
+        }
+      } else if (dataSourceType == DsType.GAUGE) {
+        // Gauges are for data that waxes and wanes, hence no total count
+        metricData.setHasTotalCount(false);
+        for (int i = 0; i < timestamps.length; i++) {
+          long timestamp = timestamps[i];
+          // Filter out the RRD values that have not yet been sampled (they will
+          // have been set to NaN as a placeholder when the RRD file was created)
+          if (timestamp >= startTime
+              && timestamp <= endTime
+              && !Double.toString(values[i]).equals("NaN")) {
+            validTimestamps.add(timestamp);
+            validValues.add(values[i]);
+          }
         }
       }
-    } else if (dataSourceType == DsType.GAUGE) {
-      // Gauges are for data that waxes and wanes, hence no total count
-      metricData.setHasTotalCount(false);
-      for (int i = 0; i < timestamps.length; i++) {
-        long timestamp = timestamps[i];
-        // Filter out the RRD values that have not yet been sampled (they will
-        // have been set to NaN as a placeholder when the RRD file was created)
-        if (timestamp >= startTime
-            && timestamp <= endTime
-            && !Double.toString(values[i]).equals("NaN")) {
-          validTimestamps.add(timestamp);
-          validValues.add(values[i]);
-        }
-      }
+
+      metricData.setTimestamps(validTimestamps);
+      metricData.setValues(validValues);
+      metricData.setTotalCount(totalCount);
+
+      LOGGER.trace("EXITING: getMetricData");
+
+      return metricData;
     }
-
-    metricData.setTimestamps(validTimestamps);
-    metricData.setValues(validValues);
-    metricData.setTotalCount(totalCount);
-
-    LOGGER.trace("EXITING: getMetricData");
-
-    return metricData;
   }
 
   private void dumpData(

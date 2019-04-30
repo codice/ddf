@@ -64,6 +64,8 @@ public class RegistryPublicationHandler implements EventHandler {
       }
     } catch (InterruptedException e) {
       executor.shutdownNow();
+
+      Thread.currentThread().interrupt();
     }
   }
 

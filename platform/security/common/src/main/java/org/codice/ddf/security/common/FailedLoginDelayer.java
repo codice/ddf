@@ -28,6 +28,8 @@ public class FailedLoginDelayer {
       TimeUnit.SECONDS.sleep(TIMEOUT);
     } catch (InterruptedException e1) {
       LOGGER.debug("Error sleeping for failed login attempt");
+
+      Thread.currentThread().interrupt();
     }
   }
 }

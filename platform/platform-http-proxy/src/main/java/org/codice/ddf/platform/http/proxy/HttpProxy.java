@@ -75,8 +75,8 @@ public class HttpProxy {
     Properties properties = getProperties();
     stopProxy();
 
-    boolean isSecureEnabled = Boolean.valueOf(properties.getProperty(SECURE_ENABLED_PROPERTY));
-    boolean isHttpEnabled = Boolean.valueOf(properties.getProperty(HTTP_ENABLED_PROPERTY));
+    boolean isSecureEnabled = Boolean.parseBoolean(properties.getProperty(SECURE_ENABLED_PROPERTY));
+    boolean isHttpEnabled = Boolean.parseBoolean(properties.getProperty(HTTP_ENABLED_PROPERTY));
     if (isSecureEnabled && !isHttpEnabled) {
       String httpPort = properties.getProperty(PORT_PROPERTY);
       String httpsPort = properties.getProperty(SECURE_PORT_PROPERTY);

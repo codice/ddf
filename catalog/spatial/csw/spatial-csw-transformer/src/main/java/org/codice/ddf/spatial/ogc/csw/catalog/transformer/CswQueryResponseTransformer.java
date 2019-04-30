@@ -293,14 +293,20 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
         int index = results.indexOf(futures.get(completedFuture));
         try {
           contents[index] = completedFuture.get().getInputStream();
-        } catch (ExecutionException | CancellationException | InterruptedException e) {
+        } catch (ExecutionException | CancellationException e) {
           LOGGER.debug("Error transforming Metacard", e);
           numResults.decrementAndGet();
+        } catch (InterruptedException e) {
+          numResults.decrementAndGet();
+
+          Thread.currentThread().interrupt();
+          throw new CatalogTransformerException("Metacard transform interrupted", e);
         } finally {
           futures.remove(completedFuture);
         }
       } catch (InterruptedException e) {
-        LOGGER.debug("Metacard transform interrupted", e);
+        Thread.currentThread().interrupt();
+        throw new CatalogTransformerException("Metacard transform interrupted", e);
       }
     }
 
@@ -469,6 +475,8 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
     try {
       queryExecutor.awaitTermination(2L, TimeUnit.MINUTES);
     } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+
       throw new IllegalStateException(QUERY_POOL_NAME + " graceful shutdown interrupted.", e);
     }
   }
