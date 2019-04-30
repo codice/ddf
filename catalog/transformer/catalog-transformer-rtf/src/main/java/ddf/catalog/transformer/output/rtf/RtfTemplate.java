@@ -84,9 +84,7 @@ public class RtfTemplate {
   public Rtf rtf(Rtf doc) {
     doc.section(p(), p(), p(font(1, bold(this.metacard.getTitle()))).alignCentered());
 
-    this.categories
-        .stream()
-        .forEach(exportCategory -> appendSection(doc, exportCategory, this.metacard));
+    this.categories.forEach(exportCategory -> appendSection(doc, exportCategory, this.metacard));
 
     return doc;
   }
@@ -97,7 +95,7 @@ public class RtfTemplate {
   private Function<String, Function<byte[], InputStream>> memoizeForImageData =
       metacardId -> data -> fromBytes(metacardId, data);
 
-  private Rtf appendSection(Rtf rtf, RtfCategory category, Metacard metacard) {
+  private void appendSection(Rtf rtf, RtfCategory category, Metacard metacard) {
     rtf.p();
     rtf.p(bold(category.getTitle()));
 
@@ -111,7 +109,7 @@ public class RtfTemplate {
             .map(appendPropertyFunction)
             .collect(Collectors.toList());
 
-    return rtf.section(rows);
+    rtf.section(rows);
   }
 
   private RtfRow appendProperty(

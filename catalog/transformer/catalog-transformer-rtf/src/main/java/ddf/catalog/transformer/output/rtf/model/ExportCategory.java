@@ -26,6 +26,8 @@ import org.apache.commons.lang.WordUtils;
 
 public class ExportCategory implements RtfCategory {
 
+  public static final String EXTENDED_ATTRIBUTE_PREFIX = "ext.";
+
   public static final String EMPTY_VALUE = "--";
 
   private String title;
@@ -97,6 +99,10 @@ public class ExportCategory implements RtfCategory {
   }
 
   private String attributeKeyFrom(String key) {
+    if (key.startsWith(EXTENDED_ATTRIBUTE_PREFIX)) {
+      key = key.replaceFirst(EXTENDED_ATTRIBUTE_PREFIX, "");
+    }
+
     String formattedAttribute =
         Stream.of(key.split("\\."))
             .map(part -> part.replaceAll("-", " "))

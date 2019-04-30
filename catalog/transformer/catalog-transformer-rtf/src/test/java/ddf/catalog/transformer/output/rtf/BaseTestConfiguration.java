@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
 
 public abstract class BaseTestConfiguration {
@@ -40,24 +41,38 @@ public abstract class BaseTestConfiguration {
 
   static final String EMPTY_ATTRIBUTE = "Empty";
   static final String SIMPLE_ATTRIBUTE = "Simple";
+  static final String EXTENDED_ATTRIBUTE = "ext.extended-attribute";
 
   private static final String UNKNOWN_ATTRIBUTE = "Unknown";
 
-  public List<RtfCategory> getCategories() {
-    return Arrays.asList(
-            "Associations",
-            "Contact",
-            "Core",
-            "DateTime",
-            "Location",
-            "Media",
-            "Security",
-            "Topic",
-            "Validation",
-            "Version")
-        .stream()
-        .map(this::categoryFor)
-        .collect(Collectors.toList());
+  public static final List<RtfCategory> MOCK_CATEGORY =
+      Stream.of(
+              "Associations",
+              "Contact",
+              "Core",
+              "DateTime",
+              "Extended",
+              "Location",
+              "Media",
+              "Security",
+              "Topic",
+              "Validation",
+              "Version")
+          .map(BaseTestConfiguration::categoryFor)
+          .collect(Collectors.toList());
+
+  private static RtfCategory categoryFor(String name) {
+    RtfCategory category = new ExportCategory();
+    category.setAttributes(
+        Arrays.asList(
+            EMPTY_ATTRIBUTE,
+            SIMPLE_ATTRIBUTE,
+            Core.THUMBNAIL,
+            UNKNOWN_ATTRIBUTE,
+            EXTENDED_ATTRIBUTE));
+    category.setTitle(name);
+
+    return category;
   }
 
   String getReferenceMetacardRtfFile() throws IOException {
@@ -118,6 +133,9 @@ public abstract class BaseTestConfiguration {
     Attribute mockSimpleAttribute = createSimpleAttribute();
     when(metacard.getAttribute(SIMPLE_ATTRIBUTE)).thenReturn(mockSimpleAttribute);
 
+    Attribute mockExtendedAttribute = createExtendedAttribute();
+    when(metacard.getAttribute(EXTENDED_ATTRIBUTE)).thenReturn(mockExtendedAttribute);
+
     return metacard;
   }
 
@@ -137,19 +155,17 @@ public abstract class BaseTestConfiguration {
     return mockAttribute;
   }
 
+  Attribute createExtendedAttribute() {
+    Attribute mockAttribute = mock(Attribute.class);
+    when(mockAttribute.getValue()).thenReturn("Extended Value");
+
+    return mockAttribute;
+  }
+
   Attribute createSimpleAttribute() {
     Attribute mockAttribute = mock(Attribute.class);
     when(mockAttribute.getValue()).thenReturn("Simple value");
 
     return mockAttribute;
-  }
-
-  RtfCategory categoryFor(String name) {
-    RtfCategory category = new ExportCategory();
-    category.setAttributes(
-        Arrays.asList(EMPTY_ATTRIBUTE, SIMPLE_ATTRIBUTE, Core.THUMBNAIL, UNKNOWN_ATTRIBUTE));
-    category.setTitle(name);
-
-    return category;
   }
 }
