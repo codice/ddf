@@ -21,8 +21,6 @@ import static org.junit.Assert.assertThat;
 
 import com.tutego.jrtf.Rtf;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.transformer.output.rtf.model.RtfCategory;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,21 +28,19 @@ public class RtfTemplateTest extends BaseTestConfiguration {
   private static final String METACARD_TITLE = "Test Metacard Title";
 
   private Metacard mockMetacard;
-  private List<RtfCategory> mockCategories;
 
   @Before
   public void setup() {
     mockMetacard = createMockMetacard(METACARD_TITLE);
-    mockCategories = getCategories();
   }
 
   @Test
   public void testBuildingRtfFromTemplate() {
     RtfTemplate template =
-        new RtfTemplate.Builder().withMetacard(mockMetacard).withCategories(mockCategories).build();
+        new RtfTemplate.Builder().withMetacard(mockMetacard).withCategories(MOCK_CATEGORY).build();
 
     assertThat("Template cannot be null", template, notNullValue());
-    assertThat("There should be 5 categories", mockCategories.get(0).getAttributes(), hasSize(5));
+    assertThat("There should be 5 categories", MOCK_CATEGORY.get(0).getAttributes(), hasSize(5));
 
     Rtf doc = Rtf.rtf();
 

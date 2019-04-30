@@ -28,24 +28,15 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.catalog.transformer.output.rtf.model.RtfCategory;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.activation.MimeTypeParseException;
-import org.junit.Before;
 import org.junit.Test;
 
 public class RtfQueryResponseAndMetacardTransformerTest extends BaseTestConfiguration {
-
-  private List<RtfCategory> mockCategories;
-
-  @Before
-  public void setup() {
-    mockCategories = getCategories();
-  }
 
   @Test
   public void testCreateTransformer() throws MimeTypeParseException {
@@ -158,7 +149,7 @@ public class RtfQueryResponseAndMetacardTransformerTest extends BaseTestConfigur
   }
 
   private RtfQueryResponseAndMetacardTransformer createTransformer() throws MimeTypeParseException {
-    return new RtfQueryResponseAndMetacardTransformer(mockCategories);
+    return new RtfQueryResponseAndMetacardTransformer(MOCK_CATEGORY);
   }
 
   List<Result> createMockResults() {

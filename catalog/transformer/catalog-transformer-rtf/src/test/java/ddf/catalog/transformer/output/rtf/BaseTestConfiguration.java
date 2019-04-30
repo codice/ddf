@@ -45,21 +45,34 @@ public abstract class BaseTestConfiguration {
 
   private static final String UNKNOWN_ATTRIBUTE = "Unknown";
 
-  public List<RtfCategory> getCategories() {
-    return Stream.of(
-            "Associations",
-            "Contact",
-            "Core",
-            "DateTime",
-            "Extended",
-            "Location",
-            "Media",
-            "Security",
-            "Topic",
-            "Validation",
-            "Version")
-        .map(this::categoryFor)
-        .collect(Collectors.toList());
+  public static final List<RtfCategory> MOCK_CATEGORY =
+      Stream.of(
+              "Associations",
+              "Contact",
+              "Core",
+              "DateTime",
+              "Extended",
+              "Location",
+              "Media",
+              "Security",
+              "Topic",
+              "Validation",
+              "Version")
+          .map(BaseTestConfiguration::categoryFor)
+          .collect(Collectors.toList());
+
+  private static RtfCategory categoryFor(String name) {
+    RtfCategory category = new ExportCategory();
+    category.setAttributes(
+        Arrays.asList(
+            EMPTY_ATTRIBUTE,
+            SIMPLE_ATTRIBUTE,
+            Core.THUMBNAIL,
+            UNKNOWN_ATTRIBUTE,
+            EXTENDED_ATTRIBUTE));
+    category.setTitle(name);
+
+    return category;
   }
 
   String getReferenceMetacardRtfFile() throws IOException {
@@ -154,19 +167,5 @@ public abstract class BaseTestConfiguration {
     when(mockAttribute.getValue()).thenReturn("Simple value");
 
     return mockAttribute;
-  }
-
-  RtfCategory categoryFor(String name) {
-    RtfCategory category = new ExportCategory();
-    category.setAttributes(
-        Arrays.asList(
-            EMPTY_ATTRIBUTE,
-            SIMPLE_ATTRIBUTE,
-            Core.THUMBNAIL,
-            UNKNOWN_ATTRIBUTE,
-            EXTENDED_ATTRIBUTE));
-    category.setTitle(name);
-
-    return category;
   }
 }
