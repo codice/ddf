@@ -14,6 +14,9 @@ import * as React from 'react'
 import styled from '../../styles/styled-components'
 const sessionTimeoutModel = require('../../../component/singletons/session-timeout')
 import { Button, buttonTypeEnum } from '../button'
+import withListenTo, {
+  WithBackboneProps,
+} from '../../container/backbone-container'
 
 const SessionTimeoutRoot = styled.div`
   height: 100%;
@@ -22,29 +25,50 @@ const SessionTimeoutRoot = styled.div`
   overflow: hidden;
 `
 const Message = styled.div`
-  max-height: 'calc(100% - 2.25rem)';
+  max-height: calc(100% - 2.25rem);
   height: auto;
   text-align: center;
   padding: ${props => props.theme.mediumSpacing};
 `
+const ButtonStyling = {
+  height: '2.75rem',
+  width: '100%',
+}
 
 type State = {
   timeLeft: number
 }
+type Props = {} & WithBackboneProps
+
 const renewSession = () => {
   sessionTimeoutModel.renew()
 }
 
-class SessionTimeout extends React.Component<{}, State> {
+class SessionTimeout extends React.Component<Props, State> {
   constructor(props: any) {
     super(props)
-    this.setState({ timeLeft: sessionTimeoutModel.getIdleSeconds() })
+    this.props.listenTo(
+      sessionTimeoutModel,
+      'change:idleTimeoutDate',
+      this.updateState.bind(this)
+    )
+    this.state = {
+      timeLeft: sessionTimeoutModel.getIdleSeconds(),
+    }
   }
-  render() {
-    setTimeout(
+  componentDidMount() {
+    setInterval(
       () => this.setState({ timeLeft: sessionTimeoutModel.getIdleSeconds() }),
       1000
     )
+  }
+  updateState() {
+    setInterval(
+      () => this.setState({ timeLeft: sessionTimeoutModel.getIdleSeconds() }),
+      1000
+    )
+  }
+  render() {
     return this.state.timeLeft < 0 ? (
       <SessionTimeoutRoot>
         <Message>Session Expired. Please refresh the page to continue.</Message>
@@ -57,12 +81,18 @@ class SessionTimeout extends React.Component<{}, State> {
             {sessionTimeoutModel.getIdleSeconds()}
           </label>{' '}
           seconds.
+          <div>Press "Continue Working" to remain logged in.</div>
         </Message>
-        <div>Press "Continue Working" to remain logged in.</div>
-        <Button buttonType={buttonTypeEnum.primary} onClick={renewSession} />
+        <Button
+          buttonType={buttonTypeEnum.primary}
+          onClick={renewSession}
+          style={ButtonStyling}
+        >
+          Continue Working
+        </Button>
       </SessionTimeoutRoot>
     )
   }
 }
 
-export default SessionTimeout
+export default withListenTo(SessionTimeout)
