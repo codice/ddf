@@ -14,9 +14,6 @@ import * as React from 'react'
 import styled from '../../styles/styled-components'
 const sessionTimeoutModel = require('../../../component/singletons/session-timeout')
 import { Button, buttonTypeEnum } from '../button'
-import withListenTo, {
-  WithBackboneProps,
-} from '../../container/backbone-container'
 
 const SessionTimeoutRoot = styled.div`
   height: 100%;
@@ -38,35 +35,27 @@ const ButtonStyling = {
 type State = {
   timeLeft: number
 }
-type Props = {} & WithBackboneProps
 
 const renewSession = () => {
   sessionTimeoutModel.renew()
 }
 
-class SessionTimeout extends React.Component<Props, State> {
+class SessionTimeout extends React.Component<{}, State> {
+  interval: any
   constructor(props: any) {
     super(props)
-    this.props.listenTo(
-      sessionTimeoutModel,
-      'change:idleTimeoutDate',
-      this.updateState.bind(this)
-    )
     this.state = {
       timeLeft: sessionTimeoutModel.getIdleSeconds(),
     }
   }
   componentDidMount() {
-    setInterval(
+    this.interval = setInterval(
       () => this.setState({ timeLeft: sessionTimeoutModel.getIdleSeconds() }),
       1000
     )
   }
-  updateState() {
-    setInterval(
-      () => this.setState({ timeLeft: sessionTimeoutModel.getIdleSeconds() }),
-      1000
-    )
+  componentWillUnmount() {
+    clearInterval(this.interval)
   }
   render() {
     return this.state.timeLeft < 0 ? (
@@ -95,4 +84,4 @@ class SessionTimeout extends React.Component<Props, State> {
   }
 }
 
-export default withListenTo(SessionTimeout)
+export default SessionTimeout
