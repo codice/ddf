@@ -1260,6 +1260,28 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     throw new IllegalArgumentException("Unable to create Geometry from WKT String");
   }
 
+  @Override
+  public FilterType during(String propertyName, Date startDate, Date endDate) {
+    return propertyIsBetween(propertyName, startDate, endDate);
+  }
+
+  @Override
+  public FilterType before(String propertyName, Date date) {
+    return propertyIsLessThan(propertyName, date);
+  }
+
+  @Override
+  public FilterType after(String propertyName, Date date) {
+    return propertyIsGreaterThan(propertyName, date);
+  }
+
+  @Override
+  public FilterType relative(String propertyName, long duration) {
+    final DateTime now = new DateTime();
+    final DateTime start = now.minus(duration);
+    return during(propertyName, start.toDate(), now.toDate());
+  }
+
   @SuppressWarnings("squid:S00115")
   private enum PROPERTY_IS_OPS {
     PropertyIsEqualTo,
