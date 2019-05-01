@@ -128,6 +128,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private final DynamicSchemaResolver resolver;
 
+  private static final String COMMA_DELIMITER = ", ";
+
   private static final Supplier<Boolean> ZERO_PAGESIZE_COMPATIBILTY =
       () -> Boolean.valueOf(System.getProperty(ZERO_PAGESIZE_COMPATIBILITY_PROPERTY));
 
@@ -219,7 +221,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
         solrResponse = client.query(realTimeQuery, METHOD.POST);
       } else {
-        query.set("spellcheck", "on");
         solrResponse = client.query(query, METHOD.POST);
       }
 
@@ -259,7 +260,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         }
 
         List<String> solrQuery = parseSpellcheckedQuery(query.get("q"));
-        //        responseProps.put("query", query.get("q"));
         responseProps.put("query", (Serializable) solrQuery);
       }
 
@@ -287,14 +287,19 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     List<String> spellcheckedValues = new ArrayList<>();
     spellcheckedValues.add("Showing results for:");
     while (matcher.find()) {
-      spellcheckedValues.add(matcher.group(1));
+      spellcheckedValues.add(matcher.group(1) + COMMA_DELIMITER);
     }
     removeDefaultResourcesQuery(spellcheckedValues);
+    String lastValueNoCommaDelimeter = spellcheckedValues.get(spellcheckedValues.size() - 1);
+    spellcheckedValues.set(
+        spellcheckedValues.size() - 1,
+        lastValueNoCommaDelimeter.substring(
+            0, lastValueNoCommaDelimeter.length() - COMMA_DELIMITER.length()));
     return spellcheckedValues;
   }
 
   private void removeDefaultResourcesQuery(List<String> spellcheckedValues) {
-    String resource = "resource's";
+    String resource = "resource's" + COMMA_DELIMITER;
     if (spellcheckedValues.contains(resource)) {
       spellcheckedValues.remove(resource);
     }

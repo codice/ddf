@@ -4,6 +4,9 @@ import { hot } from 'react-hot-loader'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import styled from '../../react-component/styles/styled-components'
 
+const MAX_RESULT_FOR_STRING_LENGTH = 69
+const SHOW_MORE_LENGTH = 11
+
 type Props = {
   results: any[]
   selectionInterface: any
@@ -51,7 +54,7 @@ const ResultGroup = styled.div`
 const render = (props: Props) => {
   const { results } = props
   if (results.length === 0) {
-    getNoResultsView(props)
+    return getNoResultsView(props)
   }
   return getResultView(props)
 }
@@ -67,14 +70,11 @@ const getNoResultsView = (props: Props) => {
 
 const getResultView = (props: Props) => {
   const { results, selectionInterface, className, solrQuery } = props
-  // const showingResultsFor = createShowResultText(solrQuery)
+  const showingResultsFor = createShowResultText(solrQuery)
 
   return (
     <SolrQueryDisplay className={className}>
-      {/* <div className="solr-query">Showing Results for: Normal, Fast, Email... + 5 more</div>
-      <div className="solr-query">Did you mean: Normale, Fsat, Emaile</div> */}
-
-      <div className="solr-query">{solrQuery}</div>
+      <div className="solr-query">{showingResultsFor}</div>
       <ResultItemCollection
         className={`${className} is-list has-list-highlighting`}
       >
@@ -130,13 +130,31 @@ const getResultView = (props: Props) => {
   )
 }
 
-// function createShowResultText(solrQuery: any[]) {
-//   let showingResultsFor = ''
-//   solrQuery.forEach(function(fieldValue) {
-//     console.log(fieldValue)
-//     showingResultsFor += fieldValue + ','
-//   })
-//   return showingResultsFor
-// }
+function createShowResultText(solrQuery: any[]) {
+  if (solrQuery !== undefined && solrQuery !== null) {
+    let showingResultsFor = solrQuery.shift() + ' '
+    for (let i = 0; i < solrQuery.length - 1; i++) {
+      showingResultsFor = checkMaxLength(showingResultsFor, solrQuery)
+    }
+    if (
+      showingResultsFor.length + solrQuery[0].length <
+      MAX_RESULT_FOR_STRING_LENGTH
+    ) {
+      return checkMaxLength(showingResultsFor, solrQuery)
+    }
+    return showingResultsFor
+  }
+}
+
+function checkMaxLength(currentResultForText: string, solrQuery: any[]) {
+  const fieldValue = solrQuery.shift()
+  if (
+    currentResultForText.length + fieldValue.length <
+    MAX_RESULT_FOR_STRING_LENGTH - SHOW_MORE_LENGTH
+  ) {
+    return (currentResultForText += fieldValue)
+  }
+  return (currentResultForText += '... +' + (solrQuery.length+1) + ' more')
+}
 
 export default hot(module)(render)
