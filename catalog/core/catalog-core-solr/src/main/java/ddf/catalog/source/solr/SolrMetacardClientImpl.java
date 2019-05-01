@@ -66,6 +66,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -217,6 +219,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
         solrResponse = client.query(realTimeQuery, METHOD.POST);
       } else {
+        query.set("spellcheck", "on");
         solrResponse = client.query(query, METHOD.POST);
       }
 
@@ -254,7 +257,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
           totalHits = docs.getNumFound();
           addDocsToResults(docs, results);
         }
-        responseProps.put("query", query.get("q"));
+
+        List<String> solrQuery = parseSpellcheckedQuery(query.get("q"));
+        //        responseProps.put("query", query.get("q"));
+        responseProps.put("query", (Serializable) solrQuery);
       }
 
       if (isFacetedQuery) {
@@ -271,6 +277,27 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     }
 
     return new SourceResponseImpl(request, responseProps, results, totalHits);
+  }
+
+  private List<String> parseSpellcheckedQuery(String query) {
+    String spellcheckRegex = ":\"(.*?[^\\\"])\"";
+    Pattern spellcheckPattern = Pattern.compile(spellcheckRegex);
+    Matcher matcher = spellcheckPattern.matcher(query);
+
+    List<String> spellcheckedValues = new ArrayList<>();
+    spellcheckedValues.add("Showing results for:");
+    while (matcher.find()) {
+      spellcheckedValues.add(matcher.group(1));
+    }
+    removeDefaultResourcesQuery(spellcheckedValues);
+    return spellcheckedValues;
+  }
+
+  private void removeDefaultResourcesQuery(List<String> spellcheckedValues) {
+    String resource = "resource's";
+    if (spellcheckedValues.contains(resource)) {
+      spellcheckedValues.remove(resource);
+    }
   }
 
   private boolean userSpellcheckIsOn(QueryRequest request) {

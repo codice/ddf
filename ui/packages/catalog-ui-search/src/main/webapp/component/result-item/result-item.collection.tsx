@@ -8,7 +8,7 @@ type Props = {
   results: any[]
   selectionInterface: any
   className?: string
-  solrQuery: string
+  solrQuery: any[]
 }
 
 const ResultItemCollection = styled.div`
@@ -30,6 +30,7 @@ const SolrQueryDisplay = styled.div`
     padding: ${props => props.theme.minimumSpacing};
     box-shadow: none !important;
     text-align: center;
+    font-size: 12px;
   }
 `
 
@@ -66,9 +67,13 @@ const getNoResultsView = (props: Props) => {
 
 const getResultView = (props: Props) => {
   const { results, selectionInterface, className, solrQuery } = props
+  // const showingResultsFor = createShowResultText(solrQuery)
 
   return (
     <SolrQueryDisplay className={className}>
+      {/* <div className="solr-query">Showing Results for: Normal, Fast, Email... + 5 more</div>
+      <div className="solr-query">Did you mean: Normale, Fsat, Emaile</div> */}
+
       <div className="solr-query">{solrQuery}</div>
       <ResultItemCollection
         className={`${className} is-list has-list-highlighting`}
@@ -124,5 +129,14 @@ const getResultView = (props: Props) => {
     </SolrQueryDisplay>
   )
 }
+
+// function createShowResultText(solrQuery: any[]) {
+//   let showingResultsFor = ''
+//   solrQuery.forEach(function(fieldValue) {
+//     console.log(fieldValue)
+//     showingResultsFor += fieldValue + ','
+//   })
+//   return showingResultsFor
+// }
 
 export default hot(module)(render)
