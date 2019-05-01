@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setTimeout*/
+
 import ListCreate from '../list-create/list-create.js'
 var Marionette = require('marionette')
 var CustomElements = require('../../js/CustomElements.js')

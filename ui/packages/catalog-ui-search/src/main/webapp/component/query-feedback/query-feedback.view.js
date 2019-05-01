@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var Marionette = require('marionette')
 var CustomElements = require('../../js/CustomElements.js')
 var store = require('../../js/store.js')
@@ -74,7 +74,7 @@ module.exports = Marionette.LayoutView.extend({
         results: this.model
           .get('result')
           .get('results')
-          .fullCollection.toJSON(),
+          .toJSON(),
         status: this.model
           .get('result')
           .get('status')

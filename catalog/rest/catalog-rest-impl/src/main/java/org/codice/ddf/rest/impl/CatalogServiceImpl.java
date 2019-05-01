@@ -280,6 +280,7 @@ public class CatalogServiceImpl implements CatalogService {
     jsonObject.put("title", action.getTitle());
     jsonObject.put("url", action.getUrl().toString());
     jsonObject.put("description", action.getDescription());
+    jsonObject.put("id", action.getId());
     return jsonObject;
   }
 
@@ -974,7 +975,7 @@ public class CatalogServiceImpl implements CatalogService {
       InputStream inputStream,
       AttributeType.AttributeFormat attributeFormat) {
     try (InputStream is = inputStream;
-        InputStream boundedStream = new BoundedInputStream(is, MAX_INPUT_SIZE + 1)) {
+        InputStream boundedStream = new BoundedInputStream(is, MAX_INPUT_SIZE + 1L)) {
       if (attributeFormat == OBJECT) {
         LOGGER.debug("Object type not supported for override");
         return;

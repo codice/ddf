@@ -36,9 +36,8 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  ---------------------------------------------------------------------
  **/
-/*global define*/
 
-define(['ace/handlebars/runtime', 'jquery'], function(Handlebars, $) {
+define(['@connexta/ace/handlebars/runtime', 'jquery'], function(Handlebars, $) {
   'use strict'
   var ich = {}
 

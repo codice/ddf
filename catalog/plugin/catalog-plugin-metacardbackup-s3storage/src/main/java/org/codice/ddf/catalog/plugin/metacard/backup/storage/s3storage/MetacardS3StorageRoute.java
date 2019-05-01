@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.plugin.metacard.backup.storage.s3storage;
 
+import static org.apache.camel.builder.PredicateBuilder.and;
 import static org.apache.camel.builder.PredicateBuilder.not;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -22,6 +23,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import ddf.camel.component.catalog.ingest.PostIngestConsumer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +79,10 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
   private List<String> routeIds = new ArrayList<>();
 
   private final org.apache.camel.impl.SimpleRegistry registry;
+
+  private MetacardTemplate metacardTemplate = null;
+
+  private AmazonS3 s3Client = null;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MetacardS3StorageRoute.class);
 
@@ -150,8 +156,13 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
     routeIds.clear();
 
     StringBuilder options = new StringBuilder();
+    metacardTemplate = new MetacardTemplate(objectTemplate);
+    s3Client = getS3Client();
 
-    registry.put("s3Client", getS3Client());
+    DeleteBean deleteBean = new DeleteBean(s3Client, s3Bucket);
+
+    registry.put("s3Client", s3Client);
+    registry.put("deleteBean", deleteBean);
     addOption(options, AWS_S3_CLIENT_PROP, "#s3Client");
 
     addOption(options, AWS_S3_DELETE_AFTER_WRITE_PROP, "false");
@@ -183,16 +194,19 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
         .setHeader(
             METACARD_BACKUP_KEEP_DELETED_RTE_PROP,
             simple(String.valueOf(keepDeletedMetacards), Boolean.class))
+        .setHeader(S3Constants.KEY, method(metacardTemplate, "applyTemplate(${body})"))
         .choice()
-        .when(not(getCheckDeletePredicate()))
+        .when(
+            and(
+                header(PostIngestConsumer.ACTION).isEqualTo(PostIngestConsumer.DELETE),
+                getCheckDeletePredicate()))
+        .bean(deleteBean, "delete")
         .stop()
         .otherwise()
         .choice()
         .when(not(getShouldBackupPredicate()))
         .stop()
         .otherwise()
-        .setHeader(
-            S3Constants.KEY, method(new MetacardTemplate(objectTemplate), "applyTemplate(${body})"))
         .to("catalog:metacardtransformer")
         .setHeader(S3Constants.CANNED_ACL, simple(s3CannedAclName))
         .setHeader(S3Constants.CONTENT_LENGTH, simple("${body.length}"))

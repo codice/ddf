@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, alert*/
+
 const LightboxView = require('./Lightbox.view')
 const lightboxInstance = require('./lightboxInstance')
 module.exports = new LightboxView({

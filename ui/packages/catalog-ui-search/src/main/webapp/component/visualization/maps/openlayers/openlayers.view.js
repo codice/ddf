@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var MapView = require('../map.view')
 var wreqr = require('../../../../js/wreqr.js')
 var $ = require('jquery')

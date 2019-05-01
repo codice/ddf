@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var Backbone = require('backbone')
 var _ = require('underscore')
 var lessStyles = require('../../js/uncompiled-less.unless')

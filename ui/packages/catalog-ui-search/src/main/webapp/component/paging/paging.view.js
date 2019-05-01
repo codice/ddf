@@ -12,21 +12,36 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, alert*/
+
+import * as React from 'react'
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const CustomElements = require('../../js/CustomElements.js')
-const template = require('./paging.hbs')
 const _debounce = require('lodash/debounce')
+import Paging from './paging'
 
 module.exports = Marionette.ItemView.extend({
   tagName: CustomElements.register('paging'),
-  template: template,
+  template() {
+    const currentQuery = this.getQuery()
+    const serverPageIndex = currentQuery.get('serverPageIndex')
+    return (
+      <Paging
+        page={serverPageIndex + 1}
+        hasNextServerPage={currentQuery.hasNextServerPage()}
+        hasPreviousServerPage={currentQuery.hasPreviousServerPage()}
+        onClickNext={this.nextServerPage.bind(this)}
+        onClickPrevious={this.previousServerPage.bind(this)}
+      />
+    )
+  },
   initialize: function(options) {
-    this.listenTo(this.model, 'reset', this.render)
+    this.listenTo(this.model, 'reset', () => {
+      setTimeout(() => {
+        this.render
+      }, 100)
+    })
     this.listenTo(
-      this.model.fullCollection,
+      this.model,
       'add remove update',
       this.updateSelectionInterfaceComplete
     )
@@ -34,23 +49,6 @@ module.exports = Marionette.ItemView.extend({
       this.updateSelectionInterface,
       200,
       { leading: true, trailing: true }
-    )
-    this.updateSelectionInterfaceComplete = _debounce(
-      this.updateSelectionInterfaceComplete,
-      200,
-      { leading: true, trailing: true }
-    )
-    this.updateSelectionInterfaceComplete()
-  },
-  updateSelectionInterfaceComplete: function() {
-    this.options.selectionInterface.setCompleteActiveSearchResults(
-      this.model.fullCollection.reduce(function(results, result) {
-        results.push(result)
-        if (result.duplicates) {
-          results = results.concat(result.duplicates)
-        }
-        return results
-      }, [])
     )
   },
   updateSelectionInterface: function() {
@@ -64,28 +62,6 @@ module.exports = Marionette.ItemView.extend({
       }, [])
     )
   },
-  events: {
-    'click .first': 'firstPage',
-    'click .previous': 'previousPage',
-    'click .next': 'nextPage',
-    'click .last': 'lastPage',
-    'click .server-previous': 'previousServerPage',
-    'click .server-next': 'nextServerPage',
-  },
-  firstPage: function() {
-    this.model.getFirstPage()
-  },
-  previousPage: function() {
-    this.model.getPreviousPage()
-    this.updateResultsRange()
-  },
-  nextPage: function() {
-    this.model.getNextPage()
-    this.updateResultsRange()
-  },
-  lastPage: function() {
-    this.model.getLastPage()
-  },
   previousServerPage: function() {
     this.getQuery().getPreviousServerPage()
   },
@@ -96,22 +72,9 @@ module.exports = Marionette.ItemView.extend({
     this.updateSelectionInterface()
   },
   serializeData: function() {
-    var query = this.getQuery()
-    var resultsCollection = this.model
-    return {
-      pages: query.getResultsRangeLabel(this.model),
-      hasPreviousPage: resultsCollection.hasPreviousPage(),
-      hasNextPage: resultsCollection.hasNextPage(),
-      showNextServerPage:
-        !resultsCollection.hasNextPage() && query.hasNextServerPage(),
-      showPreviousServerPage:
-        !resultsCollection.hasPreviousPage() && query.hasPreviousServerPage(),
-    }
+    return {}
   },
   getQuery: function() {
     return this.options.selectionInterface.getCurrentQuery()
-  },
-  updateResultsRange: function() {
-    this.$('.status').text(this.getQuery().getResultsRangeLabel(this.model))
   },
 })

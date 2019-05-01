@@ -1,1 +1,1 @@
-module.exports = require('ace/prettierrc')
+module.exports = require("@connexta/ace/prettierrc");

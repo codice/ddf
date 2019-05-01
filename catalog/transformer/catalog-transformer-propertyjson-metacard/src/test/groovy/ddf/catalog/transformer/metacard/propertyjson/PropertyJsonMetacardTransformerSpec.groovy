@@ -25,9 +25,6 @@ import spock.lang.Specification
 import java.text.SimpleDateFormat
 import java.time.Instant
 
-import static groovy.json.JsonOutput.prettyPrint
-import static groovy.json.JsonOutput.toJson
-
 class PropertyJsonMetacardTransformerSpec extends Specification {
 
     MetacardTransformer jsonTransformer = new PropertyJsonMetacardTransformer();

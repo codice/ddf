@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, setTimeout*/
+
 import wrapNum from '../../../react-component/utils/wrap-num/wrap-num.tsx'
 import * as React from 'react'
 import ZoomToHomeButton from '../../../react-component/button/split-button/zoomToHome.tsx'
@@ -155,6 +155,7 @@ module.exports = Marionette.LayoutView.extend({
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }
+    this.onMapLoaded = options.onMapLoaded || (() => {})
     this.mapModel = new MapModel()
     this.listenTo(store.get('content'), 'change:drawing', this.handleDrawing)
     this.handleDrawing()
@@ -320,7 +321,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   onMapHover: function(event, mapEvent) {
     var metacard = this.options.selectionInterface
-      .getCompleteActiveSearchResults()
+      .getActiveSearchResults()
       .get(mapEvent.mapTarget)
     this.updateTarget(metacard)
     this.$el.toggleClass(
@@ -418,6 +419,7 @@ module.exports = Marionette.LayoutView.extend({
       function(Map) {
         this.createMap(Map)
         this.hasLoadedMap = true
+        this.onMapLoaded(this.map.getOpenLayersMap())
       }.bind(this)
     )
   },

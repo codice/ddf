@@ -9,12 +9,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
-define(['underscore', 'ace/handlebars', 'ace/handlebars/runtime'], function(
-  _,
-  Handlebars,
-  HandlebarsRuntime
-) {
+
+define([
+  'underscore',
+  '@connexta/ace/handlebars',
+  '@connexta/ace/handlebars/runtime',
+], function(_, Handlebars, HandlebarsRuntime) {
   'use strict'
 
   const addHelper = (name, func) => {

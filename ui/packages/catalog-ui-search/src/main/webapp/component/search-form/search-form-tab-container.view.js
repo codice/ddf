@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 const Marionette = require('marionette')
 const template = require('./search-form.collection.hbs')
 const SearchFormCollectionView = require('./search-form.collection.view')

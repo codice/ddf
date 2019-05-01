@@ -10,19 +10,13 @@
  *
  **/
 const Backbone = require('backbone')
-const properties = require('../properties.js')
 const resultSort = require('./ResultSort.js')
 const filterUtility = require('../filter.js')
 const QueryResultModel = require('./QueryResult.js')
 require('backbone-associations')
-require('backbone.paginator')
 
-module.exports = Backbone.PageableCollection.extend({
-  state: {
-    pageSize: properties.getPageSize(),
-  },
+module.exports = Backbone.Collection.extend({
   model: QueryResultModel,
-  mode: 'client',
   amountFiltered: 0,
   generateFilteredVersion: function(filter) {
     var filteredCollection = new this.constructor()
@@ -33,7 +27,7 @@ module.exports = Backbone.PageableCollection.extend({
   updateFilteredVersion: function(filter) {
     this.amountFiltered = 0
     if (filter) {
-      return this.fullCollection.filter(
+      return this.filter(
         function(result) {
           var passFilter = filterUtility.matchesFilters(
             result.get('metacard').toJSON(),
@@ -46,21 +40,21 @@ module.exports = Backbone.PageableCollection.extend({
         }.bind(this)
       )
     } else {
-      return this.fullCollection.models
+      return this.models
     }
   },
   updateSorting: function(sorting) {
     if (sorting) {
-      resultSort.sortResults(sorting, this.fullCollection)
+      resultSort.sortResults(sorting, this)
     }
   },
   collapseDuplicates: function() {
     var collapsedCollection = new this.constructor()
-    collapsedCollection.set(this.fullCollection.models)
+    collapsedCollection.set(this.models)
     collapsedCollection.amountFiltered = this.amountFiltered
-    var endIndex = collapsedCollection.fullCollection.length
+    var endIndex = collapsedCollection.length
     for (var i = 0; i < endIndex; i++) {
-      var currentResult = collapsedCollection.fullCollection.models[i]
+      var currentResult = collapsedCollection.models[i]
       var currentChecksum = currentResult
         .get('metacard')
         .get('properties')
@@ -69,9 +63,7 @@ module.exports = Backbone.PageableCollection.extend({
         .get('metacard')
         .get('properties')
         .get('id')
-      var duplicates = collapsedCollection.fullCollection.filter(function(
-        result
-      ) {
+      var duplicates = collapsedCollection.filter(function(result) {
         var comparedChecksum = result
           .get('metacard')
           .get('properties')
@@ -91,8 +83,8 @@ module.exports = Backbone.PageableCollection.extend({
       currentResult.duplicates = undefined
       if (duplicates.length > 0) {
         currentResult.duplicates = duplicates
-        collapsedCollection.fullCollection.remove(duplicates)
-        endIndex = collapsedCollection.fullCollection.length
+        collapsedCollection.remove(duplicates)
+        endIndex = collapsedCollection.length
       }
     }
     return collapsedCollection

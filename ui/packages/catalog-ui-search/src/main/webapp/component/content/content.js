@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 const $ = require('jquery')
 const _ = require('underscore')
 const Backbone = require('backbone')
@@ -69,8 +69,6 @@ module.exports = Backbone.AssociatedModel.extend({
     editing: true,
     activeSearchResults: [],
     activeSearchResultsAttributes: [],
-    completeActiveSearchResults: [],
-    completeActiveSearchResultsAttributes: [],
     drawing: false,
     drawingModel: undefined,
   },
@@ -86,38 +84,6 @@ module.exports = Backbone.AssociatedModel.extend({
       'update add remove reset',
       this.updateActiveSearchResultsAttributes
     )
-    this.listenTo(
-      this.get('completeActiveSearchResults'),
-      'update add remove reset',
-      this.updateActiveSearchResultsFullAttributes
-    )
-  },
-  updateActiveSearchResultsFullAttributes: function() {
-    this.clearSelectedResults()
-    var availableAttributes = this.get('completeActiveSearchResults')
-      .reduce(function(currentAvailable, result) {
-        currentAvailable = _.union(
-          currentAvailable,
-          Object.keys(
-            result
-              .get('metacard')
-              .get('properties')
-              .toJSON()
-          )
-        )
-        return currentAvailable
-      }, [])
-      .sort()
-    this.set('completeActiveSearchResultsAttributes', availableAttributes)
-  },
-  getCompleteActiveSearchResultsAttributes: function() {
-    return this.get('completeActiveSearchResultsAttributes')
-  },
-  getCompleteActiveSearchResults: function() {
-    return this.get('completeActiveSearchResults')
-  },
-  setCompleteActiveSearchResults: function(results) {
-    this.get('completeActiveSearchResults').reset(results.models || results)
   },
   updateActiveSearchResultsAttributes: function() {
     var availableAttributes = this.get('activeSearchResults')

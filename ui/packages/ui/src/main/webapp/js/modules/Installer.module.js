@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, console */
+
 define([
   'js/application',
   'components/installer/installer.view',

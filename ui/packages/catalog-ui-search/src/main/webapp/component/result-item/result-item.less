@@ -12,6 +12,7 @@
     height: @minimumLineSize;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding: 0px @minimumSpacing;
 
     > .header-title {
       display: inline;
@@ -22,6 +23,7 @@
     white-space: nowrap;
     text-align: right;
     height: @minimumButtonSize;
+    padding: 0px @minimumSpacing;
 
     > .result-download {
       display: none;
@@ -57,7 +59,6 @@
     width: ~'calc(100% - 0.5*@{minimumSpacing})';
     position: relative;
     left: 0.5 * @minimumSpacing;
-    padding: 0px @minimumSpacing;
   }
 
   .result-add {
@@ -74,6 +75,10 @@
     overflow: hidden;
     -ms-text-overflow: ellipsis;
     text-overflow: ellipsis;
+  }
+
+  .content-body {
+    padding: 0px @minimumSpacing;
   }
 
   .content-body .details-property {
@@ -107,6 +112,10 @@
   .source-icon {
     display: inline;
     padding-right: @minimumSpacing;
+  }
+
+  .checkbox-container {
+    float: left;
   }
 }
 

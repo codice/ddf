@@ -13,7 +13,6 @@
  *
  **/
 
-/*global define*/
 define([
   'application',
   'js/view/GwcLayers.view.js',

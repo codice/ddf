@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var Marionette = require('marionette')
 var behaviors = {}
 Marionette.Behaviors.behaviorsLookup = function() {

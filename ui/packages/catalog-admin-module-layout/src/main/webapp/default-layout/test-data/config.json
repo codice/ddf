@@ -74,7 +74,6 @@
           "queryFeedbackEmailSubjectTemplate": "Query Feedback from {{username}}",
           "task": false,
           "queryFeedbackEmailBodyTemplate": "<h2>Query Feedback</h2><p><br><b>Authenticated User</b>: {{{auth_username}}}<br><br><b>User</b>: {{{username}}}<br><br><b>Email</b>: {{{email}}}<br><br><b>Workspace</b>: {{{workspace_name}}} ({{{workspace_id}}})<br><br><b>Query</b>: {{{query}}}<br><br><b>Query time</b>: {{{query_initiated_time}}}<br><br><b>Query status</b>: {{{query_status}}}<br><br><b>Comments</b>: {{{comments}}}<br><br><b>Query_results</b>: <pre>{{{query_results}}}</pre></p>",
-          "resultPageSize": 25,
           "signIn": true,
           "sourcePollInterval": 60000
         },
@@ -359,16 +358,6 @@
         "description": "Allow editing capability to be visible in the UI",
         "id": "isEditingAllowed",
         "type": 11,
-        "cardinality": 0,
-        "optionValues": []
-      },
-      {
-        "defaultValue": ["25"],
-        "optionLabels": [],
-        "name": "Result Page Size",
-        "description": "Specifies the number of results allowed per page on the client-side.",
-        "id": "resultPageSize",
-        "type": 3,
         "cardinality": 0,
         "optionValues": []
       },

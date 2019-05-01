@@ -45,7 +45,6 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.download.ReliableResourceDownloadManager;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.util.impl.SourcePoller;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.mime.mapper.MimeTypeMapperImpl;
@@ -67,8 +66,6 @@ public class ResourceOperationsTest {
   ResourceOperations resourceOperations;
 
   FrameworkProperties frameworkProperties;
-
-  SourcePoller mockPoller;
 
   FederationStrategy mockFederationStrategy;
 
@@ -143,7 +140,6 @@ public class ResourceOperationsTest {
     frameworkProperties = new FrameworkProperties();
     frameworkProperties.setAccessPlugins(new ArrayList<>());
     frameworkProperties.setPolicyPlugins(new ArrayList<>());
-    frameworkProperties.setSourcePoller(mockPoller);
     frameworkProperties.setPostResource(mockPostResourcePlugins);
     frameworkProperties.setFederationStrategy(mockFederationStrategy);
     frameworkProperties.setFilterBuilder(new GeotoolsFilterBuilder());

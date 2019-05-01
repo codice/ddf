@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, setTimeout*/
+
 var Backbone = require('backbone')
 var $ = require('jquery')
 require('../jquery.whenAll.js')

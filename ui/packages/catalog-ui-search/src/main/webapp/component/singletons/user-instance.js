@@ -9,6 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var User = require('../../js/model/User.js')
 module.exports = new User.Response()

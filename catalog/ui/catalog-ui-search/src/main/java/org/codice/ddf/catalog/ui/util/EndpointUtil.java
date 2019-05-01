@@ -757,7 +757,7 @@ public class EndpointUtil {
     }
     byte[] bytes =
         IOUtils.toByteArray(
-            new BoundedInputStream(req.raw().getInputStream(), config.getMaximumUploadSize() + 1));
+            new BoundedInputStream(req.raw().getInputStream(), config.getMaximumUploadSize() + 1L));
     if (bytes.length > config.getMaximumUploadSize()) {
       throw new EntityTooLargeException(req.ip(), req.userAgent(), req.url(), random.nextInt());
     }

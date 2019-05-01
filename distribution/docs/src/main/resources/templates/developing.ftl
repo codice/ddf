@@ -1,5 +1,5 @@
 = Developing ${branding} Components: Developer's Guide
-include::${project.build.directory}/doc-contents/content/config.adoc[]
+include::config.adoc[]
 :title: Developing ${branding} Components
 :architecture-prefix: architecture.adoc#_
 :developing-prefix: _
@@ -15,4 +15,4 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 
 <#include "build/development-guidelines.ftl">
 
-include::${project.build.directory}/doc-contents/content/scripts.html[]
+include::${project.build.directory}/asciidoctor-ready-${project.version}/scripts.html[]

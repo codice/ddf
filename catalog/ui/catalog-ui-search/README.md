@@ -1,7 +1,32 @@
 ## Internal Documentation for the Intrigue Backend
 
 This is internal documentation. Some of the data structures documented here are either subject to 
-change or are not publicly exposed. 
+change or are not publicly exposed.
+
+### Maintaining the blueprint files
+
+Catalog UI Search's blueprint definitions have been broken up into four files, each of which is further
+subdivided by exposed functionality. Any component that has an ID can be referenced by that ID across
+the different XML files.
+
+The files exist to organize components with respect to the coupling between Catalog UI Search and DDF:
+1. `endpoints.xml` is where exposed networking services live that the UI itself will consume.
+1. `provides.xml` is for publishing OSGi services **to** DDF to support the container itself and other distributions.
+1. `consumes.xml` is for retrieving OSGi services **from** DDF to support the UI.
+1. `blueprint.xml` is for beans, objects, and implementation details supporting the above.
+
+Before adding services to the `provides.xml` file, consider alternative approaches to supply DDF with the
+services it needs.
+
+Before adding more code to `EndpointUtil`, consider a separate class or splitting up existing logic into
+a separate class that does one thing, and one thing really well.
+
+Within the files, sections exist to organize components with respect to the functionality they enable:
+1. Simple apps that just proxy existing interfaces, such as catalog services or auth services.
+1. Major apps, such as querying, workspaces, search forms, and other logical groups of REST services.
+1. Plugins that define policies that Intrigue relies on.
+
+New, refined, or refactored functionality should update the sections accordingly.
 
 ### Spark Applications Overview
 

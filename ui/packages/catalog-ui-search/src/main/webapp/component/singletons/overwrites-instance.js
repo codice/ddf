@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var OverwriteModel = require('../../js/model/Overwrite.js')
 var Backbone = require('backbone')
 

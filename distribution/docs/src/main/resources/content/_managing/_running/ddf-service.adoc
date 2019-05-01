@@ -39,7 +39,7 @@ ${branding-lowercase}${at-symbol}local> wrapper:install -i setenv-wrapper.conf -
 +
 .Windows
 ----
-${branding-lowercase}${at-symbol}local> wrapper:install -i setenv-windows-wrapper.conf -n${branding-lowercase} -d ${branding-lowercase} -D "${branding} Service"
+${branding-lowercase}${at-symbol}local> wrapper:install -i setenv-windows-wrapper.conf -n ${branding-lowercase} -d ${branding-lowercase} -D "${branding} Service"
 ----
 . (Windows users skip this step) (All *NIX) If ${branding} was installed to run as a non-root
 user (as-recommended,) edit `${home_directory}/bin/${branding-lowercase}-service` and change

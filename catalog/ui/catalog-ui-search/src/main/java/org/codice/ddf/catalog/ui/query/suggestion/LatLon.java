@@ -18,6 +18,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.commons.math3.util.Precision;
 import org.codice.usng4j.BoundingBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,8 @@ class LatLon {
       return false;
     }
     LatLon latLon = (LatLon) o;
-    return lat.equals(latLon.lat) && lon.equals(latLon.lon);
+    return Precision.equals(lat, latLon.lat, .0000000001)
+        && Precision.equals(lon, latLon.lon, .0000000001);
   }
 
   @Override

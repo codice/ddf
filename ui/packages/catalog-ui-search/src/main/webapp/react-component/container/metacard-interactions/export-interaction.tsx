@@ -1,31 +1,28 @@
 import * as React from 'react'
-import * as PopoutView from '../../../component/dropdown/popout/dropdown.popout.view'
-import * as ExportActionsView from '../../../component/export-actions/export-actions.view'
-import MarionetteRegionContainer from '../marionette-region-container'
-import { Model, Props } from '.'
+import ResultsExport from '../results-export'
+import { Props } from '.'
+import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
 import { hot } from 'react-hot-loader'
 
-const ExportActions = ({ model }: Props) => {
+const store = require('../../../js/store.js')
+const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')
+
+const onExport = (props: Props) => {
+  props.onClose()
+  lightboxInstance.model.updateTitle('Export Results')
+  lightboxInstance.model.open()
+  lightboxInstance.showContent(<ResultsExport store={store} />)
+}
+
+export const ExportActions = (props: Props) => {
   return (
-    <MarionetteRegionContainer
-      data-help="Opens the available actions for the item."
-      className="metacard-interaction interaction-actions-export composed-menu"
-      view={createResultActionsExportRegion(model)}
-      viewOptions={{ model }}
+    <MetacardInteraction
+      onClick={() => onExport(props)}
+      icon="fa fa-share"
+      text="Export as"
+      help="Starts the export process for the selected results."
     />
   )
 }
-
-const createResultActionsExportRegion = (model: Model) =>
-  PopoutView.createSimpleDropdown({
-    componentToShow: ExportActionsView,
-    dropdownCompanionBehaviors: {
-      navigation: {},
-    },
-    modelForComponent: model.first(),
-    leftIcon: 'fa fa-external-link',
-    rightIcon: 'fa fa-chevron-down',
-    label: 'Export as',
-  })
 
 export default hot(module)(ExportActions)

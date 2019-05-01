@@ -33,6 +33,7 @@
         <feature>simple-search-ui</feature>
         <bundle>mvn:ddf.spatial.kml/spatial-kml-transformer/${project.version}</bundle>
         <bundle>mvn:ddf.spatial.kml/spatial-kml-networklinkendpoint/${project.version}</bundle>
+        <bundle>mvn:org.apache.commons/commons-math3/${commons-math3.version}</bundle>
     </feature>
 
     <feature name="spatial-common-ogc" version="${project.version}" description="Common ogc">
@@ -170,7 +171,7 @@
     </feature>
 
     <feature name="spatial-wps" version="${project.version}"
-             description="Spatial WPS Endpoint">
+        description="Spatial WPS Endpoint">
         <feature>spatial-wps-api</feature>
         <feature>spatial-process-api</feature>
         <feature>apache-commons</feature>

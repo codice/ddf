@@ -3,7 +3,7 @@
 :status: published
 :parent: Configuring User Access
 :summary: Requiring certificate to log in.
-:order: 09
+:order: 08
 
 == {title}
 

@@ -9,7 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global window*/
 
 const Cesium = require('cesium')
 const _ = require('underscore')

@@ -76,6 +76,7 @@ import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.SpellCheckResponse.Collation;
 import org.apache.solr.client.solrj.response.SuggesterResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -113,7 +114,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   public static final String POINT_KEY = "pt";
 
-  public static final int GET_BY_ID_LIMIT = 200;
+  public static final int GET_BY_ID_LIMIT = 100;
 
   public static final String EXCLUDE_ATTRIBUTES = "excludeAttributes";
 
@@ -162,7 +163,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     SolrFilterDelegate solrFilterDelegate = filterDelegateFactory.newInstance(resolver);
     SolrQuery query = getSolrQuery(request, solrFilterDelegate);
 
-    List<Result> results = new ArrayList<>();
     Map<String, Serializable> responseProps = new HashMap<>();
 
     boolean isFacetedQuery = false;
@@ -182,7 +182,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
           .filter(attr -> attr.contains(String.valueOf(FIRST_CHAR_OF_SUFFIX)))
           .forEach(query::addFacetField);
 
-      query.setFacetSort(textFacetProp.getSortKey().name());
+      query.setFacetSort(textFacetProp.getSortKey().name().toLowerCase());
       query.setFacetLimit(textFacetProp.getFacetLimit());
       query.setFacetMinCount(textFacetProp.getMinFacetCount());
     }
@@ -207,6 +207,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     }
 
     long totalHits = 0;
+    List<Result> results = new ArrayList<>();
 
     try {
       QueryResponse solrResponse;
@@ -244,6 +245,17 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         responseProps.put(SUGGESTION_RESULT_KEY, (Serializable) suggestionResults);
       }
 
+      if (userSpellcheckIsOn(request) && solrSpellcheckHasResults(solrResponse)) {
+        query.set("q", findQueryToResend(query, solrResponse));
+        solrResponse = client.query(query, METHOD.POST);
+        docs = solrResponse.getResults();
+        results = new ArrayList<>();
+        if (docs != null) {
+          totalHits = docs.getNumFound();
+          addDocsToResults(docs, results);
+        }
+      }
+
       if (isFacetedQuery) {
         List<FacetField> facetFields = solrResponse.getFacetFields();
         if (CollectionUtils.isNotEmpty(facetFields)) {
@@ -257,7 +269,34 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       throw new UnsupportedQueryException("Could not complete solr query.", e);
     }
 
+    responseProps.put("query", query.get("q"));
     return new SourceResponseImpl(request, responseProps, results, totalHits);
+  }
+
+  private boolean userSpellcheckIsOn(QueryRequest request) {
+    Boolean userSpellcheckChoice = false;
+    if (request.getProperties().get("spellcheck") != null) {
+      userSpellcheckChoice = (Boolean) request.getProperties().get("spellcheck");
+    }
+    return userSpellcheckChoice;
+  }
+
+  private boolean solrSpellcheckHasResults(QueryResponse solrResponse) {
+    return solrResponse.getSpellCheckResponse() != null
+        && solrResponse.getResults().size() == 0
+        && solrResponse.getSpellCheckResponse().getCollatedResults().size() != 0;
+  }
+
+  private String findQueryToResend(SolrQuery query, QueryResponse solrResponse) {
+    long maxHits = Integer.MIN_VALUE;
+    String queryToResend = query.get("q");
+    for (Collation collation : solrResponse.getSpellCheckResponse().getCollatedResults()) {
+      if (maxHits < collation.getNumberOfHits()) {
+        maxHits = collation.getNumberOfHits();
+        queryToResend = collation.getCollationQueryString();
+      }
+    }
+    return queryToResend;
   }
 
   private void addDocsToResults(SolrDocumentList docs, List<Result> results)

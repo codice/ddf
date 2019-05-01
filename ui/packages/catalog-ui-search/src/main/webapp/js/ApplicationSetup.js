@@ -9,8 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, window */
-/*jslint nomen:false, -W064 */
+
 ;(function injectStyles() {
   if (process.env.NODE_ENV !== 'production') {
     require('../dev/styles/styles.less') // include styles for dev guide components
@@ -183,5 +182,4 @@ Marionette.Region.prototype.reset = function() {
   return this
 }
 
-require('./ApplicationStart.js')
-require('codice-icons/icons/codice.font')
+require('@connexta/icons/icons/codice.font')

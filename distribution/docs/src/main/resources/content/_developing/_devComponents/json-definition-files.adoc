@@ -4,11 +4,6 @@
 :summary: Introduction to JSON definition files.
 :order: 32
 
-[WARNING]
-====
-This section concerns capabilities that are considered experimental. The features described in this section may change or be removed in a future version of the application.
-====
-
 ${branding} supports adding new attribute types, metacard types, validators, and more using json-formatted definition files.
 
 The following may be defined in a JSON definition file:

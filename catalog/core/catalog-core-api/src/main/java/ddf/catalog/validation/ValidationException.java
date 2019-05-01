@@ -14,6 +14,7 @@
 package ddf.catalog.validation;
 
 import java.util.List;
+import org.apache.commons.collections.CollectionUtils;
 
 /**
  * Thrown to indicate that a validation operation could not be completed. Provides information in
@@ -84,7 +85,7 @@ public abstract class ValidationException extends Exception {
     StringBuilder messageBuilder = new StringBuilder(super.toString());
 
     List<String> errors = getErrors();
-    if (null != errors && errors.size() > 0) {
+    if (CollectionUtils.isNotEmpty(errors)) {
       messageBuilder.append(":ERRORS");
       for (String error : errors) {
         messageBuilder.append(":");
@@ -93,7 +94,7 @@ public abstract class ValidationException extends Exception {
     }
 
     List<String> warnings = getWarnings();
-    if (null != warnings && warnings.size() > 0) {
+    if (CollectionUtils.isNotEmpty(warnings)) {
       messageBuilder.append(":WARNINGS");
       for (String warning : warnings) {
         messageBuilder.append(":");

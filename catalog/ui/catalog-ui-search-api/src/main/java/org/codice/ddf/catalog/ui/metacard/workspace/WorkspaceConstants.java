@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.ui.metacard.workspace;
 
 public class WorkspaceConstants {
+  // If the tag changes, update the 'access-controlled-tag' service property as well
   public static final String WORKSPACE_TAG = "workspace";
 
   public static final String WORKSPACE_METACARDS = "metacards";

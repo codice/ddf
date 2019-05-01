@@ -1,4 +1,3 @@
-/*global $, window, decodeURI */
 ;(function() {
   var prevUrl = $.url().param('prevurl')
 

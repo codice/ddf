@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, window, setTimeout, location*/
+
 /* eslint-disable no-undefined */
 const wreqr = require('./wreqr.js')
 const _ = require('underscore')
@@ -20,13 +20,9 @@ const router = require('../component/router/router.js')
 import ReactRouter from '../react-component/container/router-container'
 import React from 'react'
 import { render } from 'react-dom'
-const plugin = require('plugins/router')
+import ExtensionPoints from '../extension-points'
 // notfound route needs to come at the end otherwise no other routes will work
-const routeDefinitions = {
-  ...plugin(require('!./router/routes-loader!js/router/routes.js')),
-  ...require('!./router/routes-loader!js/router/routes-dev.js'),
-  ...require('!./router/routes-loader!js/router/routes-notfound.js'),
-}
+const routeDefinitions = ExtensionPoints.routes
 
 const initializeRoutes = function(routeDefinitions) {
   Application.App.router.show(

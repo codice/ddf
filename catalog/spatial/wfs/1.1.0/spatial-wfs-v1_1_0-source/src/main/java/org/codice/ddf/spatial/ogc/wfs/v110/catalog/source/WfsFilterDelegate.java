@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
+import static com.google.common.primitives.Doubles.asList;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -57,6 +59,7 @@ import net.opengis.filter.v_1_1_0.UpperBoundaryType;
 import net.opengis.gml.v_3_1_1.AbstractGeometryType;
 import net.opengis.gml.v_3_1_1.AbstractRingPropertyType;
 import net.opengis.gml.v_3_1_1.CoordinatesType;
+import net.opengis.gml.v_3_1_1.DirectPositionType;
 import net.opengis.gml.v_3_1_1.EnvelopeType;
 import net.opengis.gml.v_3_1_1.LineStringType;
 import net.opengis.gml.v_3_1_1.LinearRingType;
@@ -1072,7 +1075,17 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     bboxType.setPropertyName(createPropertyNameType(propertyName).getValue());
 
     EnvelopeType envelopeType = gmlObjectFactory.createEnvelopeType();
-    envelopeType.setCoordinates(createCoordinatesTypeFromWkt(wkt).getValue());
+
+    Envelope envelope = createEnvelopeFromWkt(wkt);
+
+    DirectPositionType lowerCorner = new DirectPositionType();
+    lowerCorner.setValue(asList(envelope.getMinX(), envelope.getMinY()));
+    envelopeType.setLowerCorner(lowerCorner);
+
+    DirectPositionType upperCorner = new DirectPositionType();
+    upperCorner.setValue(asList(envelope.getMaxX(), envelope.getMaxY()));
+    envelopeType.setUpperCorner(upperCorner);
+
     bboxType.setEnvelope(gmlObjectFactory.createEnvelope(envelopeType));
 
     return filterObjectFactory.createBBOX(bboxType);
@@ -1125,28 +1138,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     } else {
       throw new IllegalArgumentException("Unable to parse Point coordinates from WKT String");
     }
-  }
-
-  private String buildCoordinateString(Envelope envelope) {
-    return String.valueOf(envelope.getMinX())
-        + ","
-        + envelope.getMinY()
-        + " "
-        + envelope.getMaxX()
-        + ","
-        + envelope.getMaxY();
-  }
-
-  private JAXBElement<CoordinatesType> createCoordinatesTypeFromWkt(String wkt) {
-
-    Envelope envelope = createEnvelopeFromWkt(wkt);
-
-    String coords = buildCoordinateString(envelope);
-    CoordinatesType coordinatesType = new CoordinatesType();
-
-    coordinatesType.setValue(coords);
-
-    return gmlObjectFactory.createCoordinates(coordinatesType);
   }
 
   private JAXBElement<LiteralType> createLiteralType(Object literalValue) {
@@ -1280,6 +1271,28 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       }
     }
     throw new IllegalArgumentException("Unable to create Geometry from WKT String");
+  }
+
+  @Override
+  public FilterType during(String propertyName, Date startDate, Date endDate) {
+    return propertyIsBetween(propertyName, startDate, endDate);
+  }
+
+  @Override
+  public FilterType before(String propertyName, Date date) {
+    return propertyIsLessThan(propertyName, date);
+  }
+
+  @Override
+  public FilterType after(String propertyName, Date date) {
+    return propertyIsGreaterThan(propertyName, date);
+  }
+
+  @Override
+  public FilterType relative(String propertyName, long duration) {
+    final DateTime now = new DateTime();
+    final DateTime start = now.minus(duration);
+    return during(propertyName, start.toDate(), now.toDate());
   }
 
   @SuppressWarnings("squid:S00115")

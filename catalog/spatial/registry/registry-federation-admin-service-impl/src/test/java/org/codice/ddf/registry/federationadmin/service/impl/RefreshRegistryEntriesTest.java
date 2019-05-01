@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.registry.federationadmin.service.impl;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.doAnswer;
@@ -365,10 +366,11 @@ public class RefreshRegistryEntriesTest {
   }
 
   @Test
-  public void testDestroyInterupt() throws Exception {
+  public void testDestroyInterrupt() throws Exception {
     when(executorService.awaitTermination(anyLong(), any(TimeUnit.class)))
         .thenThrow(new InterruptedException("interrupt"));
     refreshRegistryEntries.destroy();
+    assertTrue(Thread.interrupted());
     verify(executorService, times(1)).awaitTermination(anyLong(), any(TimeUnit.class));
     verify(executorService, times(1)).shutdownNow();
   }

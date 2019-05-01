@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, window*/
+
 var sessionTimeoutModel = require('../component/singletons/session-timeout.js')
 var BlockingLightbox = require('../component/lightbox/blocking/lightbox.blocking.view.js')
 var SessionTimeoutView = require('../component/session-timeout/session-timeout.view.js')

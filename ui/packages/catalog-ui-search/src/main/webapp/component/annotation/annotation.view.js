@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var template = require('./annotation.hbs')
 var $ = require('jquery')
 var _ = require('underscore')

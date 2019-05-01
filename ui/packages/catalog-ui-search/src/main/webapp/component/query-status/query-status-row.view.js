@@ -12,11 +12,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var template = require('./query-status-row.hbs')
 var Marionette = require('marionette')
 var CustomElements = require('../../js/CustomElements.js')
 var user = require('../singletons/user-instance.js')
+const cql = require('../../js/cql')
 
 module.exports = Marionette.ItemView.extend({
   className: 'is-tr',
@@ -29,10 +30,11 @@ module.exports = Marionette.ItemView.extend({
     change: 'render',
   },
   triggerFilter: function() {
+    const term = cql.translateUserqlToCql(this.model.id)
     user
       .get('user')
       .get('preferences')
-      .set('resultFilter', '("source-id" = \'' + this.model.id + "')")
+      .set('resultFilter', '("source-id" = \'' + term + "')")
     user
       .get('user')
       .get('preferences')

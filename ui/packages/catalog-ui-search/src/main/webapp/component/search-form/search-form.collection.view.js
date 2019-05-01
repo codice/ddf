@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 const Marionette = require('marionette')
 import SearchFormView, { Item, NewForm } from './search-form.view'
 const CustomElements = require('../../js/CustomElements')

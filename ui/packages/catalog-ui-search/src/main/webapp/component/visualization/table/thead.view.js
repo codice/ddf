@@ -12,22 +12,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, setTimeout*/
-var wreqr = require('../../../js/wreqr.js')
+
 var _ = require('underscore')
 var $ = require('jquery')
 var template = require('./thead.hbs')
 var Marionette = require('marionette')
 var CustomElements = require('../../../js/CustomElements.js')
-var Common = require('../../../js/Common.js')
 var user = require('../../singletons/user-instance.js')
 var properties = require('../../../js/properties.js')
 var metacardDefinitions = require('../../singletons/metacard-definitions.js')
-var jqueryui = require('jquery-ui')
 require('jquery-ui/ui/widgets/resizable')
 var isResizing = false
+const {
+  SelectAllToggle,
+} = require('../../selection-checkbox/selection-checkbox.view.js')
 
-module.exports = Marionette.ItemView.extend({
+module.exports = Marionette.LayoutView.extend({
   template: template,
   className: 'is-thead',
   tagName: CustomElements.register('result-thead'),
@@ -36,6 +36,9 @@ module.exports = Marionette.ItemView.extend({
     'resize th': 'updateColumnWidth',
     'resizestart th': 'startResize',
     'resizestop th': 'stopResize',
+  },
+  regions: {
+    checkboxContainer: '.checkbox-container',
   },
   initialize: function(options) {
     if (!options.selectionInterface) {
@@ -63,6 +66,14 @@ module.exports = Marionette.ItemView.extend({
     this.$el.find('.resizer').resizable({
       handles: 'e',
     })
+    this.showCheckbox()
+  },
+  showCheckbox: function() {
+    this.checkboxContainer.show(
+      new SelectAllToggle({
+        selectionInterface: this.options.selectionInterface,
+      })
+    )
   },
   updateSorting: function(e) {
     var attribute = e.currentTarget.getAttribute('data-propertyid')

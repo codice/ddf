@@ -281,7 +281,14 @@ public class ReliableResourceDownloader implements Runnable {
               downloaderConfig.getMonitorPeriodMS());
           downloadStarted.set(Boolean.TRUE);
           reliableResourceStatus = downloadFuture.get();
-        } catch (InterruptedException | CancellationException | ExecutionException e) {
+        } catch (InterruptedException e) {
+          LOGGER.info(
+              "{} - Unable to store product file {}", e.getClass().getSimpleName(), filePath, e);
+          reliableResourceCallable.setInterruptDownload(Boolean.TRUE);
+          reliableResourceStatus = reliableResourceCallable.getReliableResourceStatus();
+
+          Thread.currentThread().interrupt();
+        } catch (CancellationException | ExecutionException e) {
           LOGGER.info(
               "{} - Unable to store product file {}", e.getClass().getSimpleName(), filePath, e);
           reliableResourceStatus = reliableResourceCallable.getReliableResourceStatus();
@@ -489,14 +496,13 @@ public class ReliableResourceDownloader implements Runnable {
       }
     } catch (IOException e) {
       LOGGER.info("Unable to store product file {}", filePath, e);
-      downloadState.setDownloadState(DownloadState.FAILED);
-      eventPublisher.postRetrievalStatus(
-          resourceResponse,
-          ProductRetrievalStatus.FAILED,
-          metacard,
-          "Unable to store product file.",
-          reliableResourceStatus.getBytesRead(),
-          downloadIdentifier);
+
+      postFailedDownloadState(reliableResourceStatus);
+    } catch (InterruptedException e) {
+      LOGGER.info("Unable to store product file {}", filePath, e);
+      Thread.currentThread().interrupt();
+
+      postFailedDownloadState(reliableResourceStatus);
     } finally {
       cleanupAfterDownload(reliableResourceStatus);
       downloadExecutor.shutdown();
@@ -542,6 +548,17 @@ public class ReliableResourceDownloader implements Runnable {
     LOGGER.debug("result of deleting partial cache file = {}", result);
   }
 
+  private void postFailedDownloadState(ReliableResourceStatus reliableResourceStatus) {
+    downloadState.setDownloadState(DownloadState.FAILED);
+    eventPublisher.postRetrievalStatus(
+        resourceResponse,
+        ProductRetrievalStatus.FAILED,
+        metacard,
+        "Unable to store product file.",
+        reliableResourceStatus.getBytesRead(),
+        downloadIdentifier);
+  }
+
   private void cleanupAfterDownload(ReliableResourceStatus reliableResourceStatus) {
 
     if (reliableResourceStatus != null) {
@@ -576,15 +593,12 @@ public class ReliableResourceDownloader implements Runnable {
     LOGGER.debug("Closed source InputStream");
   }
 
-  private void delay() {
-    try {
-      LOGGER.debug(
-          "Waiting {} ms before attempting to re-retrieve and cache product {}",
-          downloaderConfig.getDelayBetweenAttemptsMS(),
-          filePath);
-      Thread.sleep(downloaderConfig.getDelayBetweenAttemptsMS());
-    } catch (InterruptedException e1) {
-    }
+  private void delay() throws InterruptedException {
+    LOGGER.debug(
+        "Waiting {} ms before attempting to re-retrieve and cache product {}",
+        downloaderConfig.getDelayBetweenAttemptsMS(),
+        filePath);
+    Thread.sleep(downloaderConfig.getDelayBetweenAttemptsMS());
   }
 
   /** Closes FileBackedOutputStream and deletes its underlying tmp file (if any) */

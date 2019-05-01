@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, require, module*/
+
 var Marionette = require('marionette')
 var _ = require('underscore')
 var _merge = require('lodash/merge')

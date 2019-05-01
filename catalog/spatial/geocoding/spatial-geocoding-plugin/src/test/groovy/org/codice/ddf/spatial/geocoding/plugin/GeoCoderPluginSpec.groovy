@@ -284,7 +284,7 @@ class GeoCoderPluginSpec extends Specification {
     def getTestUpdates(Attribute... attributes) {
         def metacard = new MetacardImpl();
 
-        Arrays.stream(attributes).forEach{ attribute ->
+        Arrays.stream(attributes).forEach { attribute ->
             metacard.setAttribute(attribute)
         }
 
@@ -297,7 +297,7 @@ class GeoCoderPluginSpec extends Specification {
     def getTestMetacards(Attribute... attributes) {
         def metacard = new MetacardImpl();
 
-        Arrays.stream(attributes).forEach{ attribute ->
+        Arrays.stream(attributes).forEach { attribute ->
             metacard.setAttribute(attribute)
         }
 

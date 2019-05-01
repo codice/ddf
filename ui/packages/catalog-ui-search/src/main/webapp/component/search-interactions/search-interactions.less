@@ -2,7 +2,6 @@
   > * {
     white-space: nowrap;
     padding: 0px 10px;
-    cursor: pointer;
     overflow: hidden;
     line-height: @minimumButtonSize;
     height: @minimumButtonSize;
@@ -11,6 +10,10 @@
     &.is-active {
       background: fade(contrast(@backgroundDropdown), 10%);
     }
+  }
+
+  .interaction {
+    cursor: pointer;
   }
 
   .interaction-icon,

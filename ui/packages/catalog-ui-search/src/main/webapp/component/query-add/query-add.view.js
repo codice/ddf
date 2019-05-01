@@ -12,8 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
-const $ = require('jquery')
+
 const Marionette = require('marionette')
 const template = require('./query-add.hbs')
 const CustomElements = require('../../js/CustomElements.js')
@@ -26,14 +25,9 @@ const store = require('../../js/store.js')
 const QueryConfirmationView = require('../confirmation/query/confirmation.query.view.js')
 const LoadingView = require('../loading/loading.view.js')
 const wreqr = require('../../js/wreqr.js')
-const cql = require('../../js/cql.js')
 const announcement = require('../announcement/index.jsx')
+const user = require('../singletons/user-instance.js')
 import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
-const SearchFormModel = require('../search-form/search-form.js')
-const properties = require('../../js/properties.js')
-const lightboxResultInstance = require('../lightbox/result/lightbox.result.view.js')
-const lightboxInstance = lightboxResultInstance.generateNewLightbox()
-const QueryResult = require('../result-form/result-form.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -50,8 +44,9 @@ module.exports = Marionette.LayoutView.extend({
     'click .editor-saveRun': 'saveRun',
   },
   initialize: function() {
-    this.model = new Query.Model()
+    this.model = new Query.Model(this.getDefaultQuery())
     this.listenTo(this.model, 'resetToDefaults change:type', this.reshow)
+    this.listenTo(this.model, 'change:filterTree', this.reshow)
     this.listenTo(this.model, 'closeDropdown', this.closeDropdown)
     this.listenForSave()
   },
@@ -81,6 +76,39 @@ module.exports = Marionette.LayoutView.extend({
   onBeforeShow: function() {
     this.reshow()
     this.showTitle()
+  },
+  getDefaultQuery: function() {
+    let userDefaultTemplate = user.getQuerySettings().get('template')
+    if (!userDefaultTemplate) {
+      return {}
+    }
+    let sorts =
+      userDefaultTemplate['querySettings'] &&
+      userDefaultTemplate['querySettings'].sorts
+    if (sorts) {
+      sorts = sorts.map(sort => ({
+        attribute: sort.split(',')[0],
+        direction: sort.split(',')[1],
+      }))
+    }
+    return {
+      type: 'custom',
+      title: userDefaultTemplate['title'],
+      filterTree: userDefaultTemplate['filterTemplate'],
+      src:
+        (userDefaultTemplate['querySettings'] &&
+          userDefaultTemplate['querySettings'].src) ||
+        '',
+      federation:
+        (userDefaultTemplate['querySettings'] &&
+          userDefaultTemplate['querySettings'].federation) ||
+        'enterprise',
+      sorts: sorts || [],
+      'detail-level':
+        (userDefaultTemplate['querySettings'] &&
+          userDefaultTemplate['querySettings']['detail-level']) ||
+        'allFields',
+    }
   },
   showTitle: function() {
     this.queryTitle.show(

@@ -9,10 +9,10 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 const _ = require('underscore')
 const moment = require('moment')
-const Handlebars = require('ace/handlebars/runtime')
+const Handlebars = require('@connexta/ace/handlebars/runtime')
 const Common = require('./Common.js')
 const metacardDefinitions = require('../component/singletons/metacard-definitions.js')
 const _get = require('lodash/get')
@@ -42,15 +42,15 @@ function bind(options, callback) {
 var helper,
   helpers = {
     /*
-             * Handlebars Helper: Moment.js
-             * @author: https://github.com/Arkkimaagi
-             * Built for Assemble: the static site generator and
-             * component builder for Node.js, Grunt.js and Yeoman.
-             * http://assemble.io
-             *
-             * Copyright (c) 2013, Upstage
-             * Licensed under the MIT license.
-             */
+     * Handlebars Helper: Moment.js
+     * @author: https://github.com/Arkkimaagi
+     * Built for Assemble: the static site generator and
+     * component builder for Node.js, Grunt.js and Yeoman.
+     * http://assemble.io
+     *
+     * Copyright (c) 2013, Upstage
+     * Licensed under the MIT license.
+     */
     momentHelp: function(context, block) {
       var momentObj, date, i
       if (context && context.hash) {

@@ -11,47 +11,37 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD description="Local site"
-         name="Catalog Standard Framework"
-         id="ddf.catalog.CatalogFrameworkImpl">
-        <AD name="Enable Fanout Proxy" id="fanoutEnabled" type="Boolean"
-            default="false"
+    <OCD description="Local site" name="Catalog Standard Framework" id="ddf.catalog.CatalogFrameworkImpl">
+        <AD name="Enable Fanout Proxy" id="fanoutEnabled" type="Boolean" default="false"
             description="When enabled the Framework acts as a proxy, federating requests to all available sources. All requests are executed as federated queries and resource retrievals, allowing the framework to be the sole component exposing the functionality of all of its Federated Sources."/>
-        <AD name="Enable Notifications" id="notificationEnabled" required="false" type="Boolean"
-            default="true"
+        <AD name="Enable Notifications" id="notificationEnabled" required="false" type="Boolean" default="true"
             description="Check to enable notifications."/>
-        <AD name="Fanout tag blacklist" id="fanoutTagBlacklist" type="String"
-            cardinality="100"
+        <AD name="Fanout tag blacklist" id="fanoutTagBlacklist" type="String" cardinality="100"
             description="Ingest operations with tags in this list will be rejected."/>
-
     </OCD>
 
-    <OCD name="Query Operations"
-         id="ddf.catalog.impl.operations.QueryOperations">
-        <AD name="Fanout proxy tag blacklist" id="fanoutProxyTagBlacklist"
-            type="String" cardinality="100"
+    <OCD name="Query Operations" id="ddf.catalog.impl.operations.QueryOperations">
+        <AD name="Fanout proxy tag blacklist" id="fanoutProxyTagBlacklist" type="String" cardinality="100"
             default="registry,registry-remote"
             description="Query operations with tags in this list will not be passed through."/>
-        <AD name="Query timeout (milliseconds)" id="queryTimeoutMillis" type="Long"
-            default="300000"
+        <AD name="Query timeout (milliseconds)" id="queryTimeoutMillis" type="Long" default="300000"
             description="Time in milliseconds that a query will wait on the queue before timeout."/>
-
     </OCD>
 
     <OCD name="Historian" id="ddf.catalog.history.Historian">
-        <AD name="Enable Versioning" id="historyEnabled" type="Boolean"
-            default="true"
+        <AD name="Enable Versioning" id="historyEnabled" type="Boolean" default="true"
             description="Enables versioning of both metacards and content."/>
     </OCD>
 
-    <OCD name="Source Poller" id="ddf.catalog.util.impl.SourcePoller">
-        <AD name="Interval" id="interval" type="Integer"
-            default="1"
-            description="The interval (in minutes) at which to execute successive source polling. Must be a positive, nonzero integer."/>
+    <OCD name="Status Source Poller Runner" id="org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner">
+        <AD name="Poll Interval (minutes)" id="pollIntervalMinutes" type="Integer" default="1" min="1"
+            description="The interval (in minutes) at which to recheck the availability of all sources. Must be at least
+            1 minute. WARNING: Increasing this value increases the maximum delay for the Source Poller to be updated for
+            when a source availability changes and when sources are created/modified/deleted. See the Documentation for
+            more details."/>
     </OCD>
 
     <OCD name="Source Actions" id="ddf.catalog.impl.action.SourceActionProviderImpl">
@@ -59,30 +49,27 @@
         <AD name="Title" id="title" type="String"/>
         <AD name="Description" id="description" type="String"/>
         <AD name="URL" id="url" type="String"
-            description="Warning: When the embedded document has the same origin as the embedding page, it will have full access to internal apis. Make sure you trust the page." />
+            description="Warning: When the embedded document has the same origin as the embedding page, it will have full access to internal apis. Make sure you trust the page."/>
     </OCD>
 
     <Designate pid="ddf.catalog.impl.action.SourceActionProviderImpl">
         <Object ocdref="ddf.catalog.impl.action.SourceActionProviderImpl"/>
     </Designate>
 
-    <Designate
-        pid="ddf.catalog.CatalogFrameworkImpl">
-        <Object
-            ocdref="ddf.catalog.CatalogFrameworkImpl"/>
+    <Designate pid="ddf.catalog.CatalogFrameworkImpl">
+        <Object ocdref="ddf.catalog.CatalogFrameworkImpl"/>
     </Designate>
 
     <Designate pid="ddf.catalog.history.Historian">
         <Object ocdref="ddf.catalog.history.Historian"/>
     </Designate>
 
-    <Designate pid="ddf.catalog.util.impl.SourcePoller">
-        <Object ocdref="ddf.catalog.util.impl.SourcePoller"/>
+    <Designate pid="org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner">
+        <Object ocdref="org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner"/>
     </Designate>
 
     <Designate pid="ddf.catalog.impl.operations.QueryOperations">
         <Object ocdref="ddf.catalog.impl.operations.QueryOperations"/>
     </Designate>
-
 
 </metatype:MetaData>

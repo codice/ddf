@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, window*/
+
 import React from 'react'
 import { Sharing } from '../../react-component/container/sharing'
 

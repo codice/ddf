@@ -9,7 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
 
 var ClusterModel = require('./cluster')
 var Backbone = require('backbone')

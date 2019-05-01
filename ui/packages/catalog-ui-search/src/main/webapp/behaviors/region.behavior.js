@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 const Behaviors = require('./Behaviors')
 const Marionette = require('marionette')
 const $ = require('jquery')

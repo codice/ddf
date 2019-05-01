@@ -9,8 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require */
-/*jslint nomen:false, -W064 */
+
 require.config({
   paths: {
     bootstrap: '../../webjars/bootstrap/3.3.7/dist/js/bootstrap.min',

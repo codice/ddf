@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, alert*/
+
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
@@ -35,14 +35,12 @@ var WorkspaceContentTabsView = TabsView.extend({
         this.options.selectionInterface.setCurrentQuery(undefined)
         this.options.selectionInterface.setActiveSearchResults([])
         this.options.selectionInterface.clearSelectedResults()
-        this.options.selectionInterface.setCompleteActiveSearchResults([])
         break
       default:
         store.get('content').set('query', undefined)
         this.options.selectionInterface.setCurrentQuery(undefined)
         this.options.selectionInterface.setActiveSearchResults([])
         this.options.selectionInterface.clearSelectedResults()
-        this.options.selectionInterface.setCompleteActiveSearchResults([])
     }
   },
   determineContent: function() {

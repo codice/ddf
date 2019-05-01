@@ -9,7 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
 
 const $ = require('jquery')
 const Backbone = require('backbone')

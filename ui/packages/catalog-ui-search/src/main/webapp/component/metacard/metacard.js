@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 const _ = require('underscore')
 const Backbone = require('backbone')
 const Metacard = require('../../js/model/Metacard.js')
@@ -53,8 +53,6 @@ module.exports = new (Backbone.AssociatedModel.extend({
     selectedResults: [],
     activeSearchResults: [],
     activeSearchResultsAttributes: [],
-    completeActiveSearchResults: [],
-    completeActiveSearchResultsAttributes: [],
   },
   initialize: function() {
     this.set('currentResult', new QueryResponse())
@@ -65,11 +63,6 @@ module.exports = new (Backbone.AssociatedModel.extend({
       this.get('activeSearchResults'),
       'update add remove reset',
       this.updateActiveSearchResultsAttributes
-    )
-    this.listenTo(
-      this.get('completeActiveSearchResults'),
-      'update add remove reset',
-      this.updateActiveSearchResultsFullAttributes
     )
     this.listenTo(router, 'change', this.handleRoute)
     this.handleRoute()
@@ -105,32 +98,6 @@ module.exports = new (Backbone.AssociatedModel.extend({
         currentQuery: queryForMetacard,
       })
     }
-  },
-  updateActiveSearchResultsFullAttributes: function() {
-    var availableAttributes = this.get('completeActiveSearchResults')
-      .reduce(function(currentAvailable, result) {
-        currentAvailable = _.union(
-          currentAvailable,
-          Object.keys(
-            result
-              .get('metacard')
-              .get('properties')
-              .toJSON()
-          )
-        )
-        return currentAvailable
-      }, [])
-      .sort()
-    this.set('completeActiveSearchResultsAttributes', availableAttributes)
-  },
-  getCompleteActiveSearchResultsAttributes: function() {
-    return this.get('completeActiveSearchResultsAttributes')
-  },
-  getCompleteActiveSearchResults: function() {
-    return this.get('completeActiveSearchResults')
-  },
-  setCompleteActiveSearchResults: function(results) {
-    this.get('completeActiveSearchResults').reset(results.models || results)
   },
   handleResultChange: function() {
     this.listenTo(
@@ -170,9 +137,6 @@ module.exports = new (Backbone.AssociatedModel.extend({
   handleUpdate: function() {
     this.clearSelectedResults()
     this.setActiveSearchResults(this.get('currentResult').get('results'))
-    this.setCompleteActiveSearchResults(
-      this.get('currentResult').get('results')
-    )
     this.addSelectedResult(this.get('currentMetacard'))
   },
   handleCurrentMetacard: function() {

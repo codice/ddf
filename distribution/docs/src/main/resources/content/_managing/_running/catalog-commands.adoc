@@ -34,6 +34,12 @@ Deprecated as of ddf-catalog 2.5.0. Please use `platform:envlist`.
 
 Provides a list of environment variables.
 
+|catalog:export
+|Exports Metacards and history from the current Catalog.
+
+|catalog:import
+|Imports Metacards and history into the current Catalog.
+
 |catalog:ingest
 |Ingests data files into the Catalog. XML is the default transformer used. See <<{managing-prefix}ingest_command,Ingest Command>> for detailed instructions on ingesting data and <<{integrating-prefix}available_input_transformers,Input Transformers>> for all available transformers.
 

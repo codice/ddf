@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, alert*/
+
 /** Main view page for add. */
 define([
   'backbone.marionette',

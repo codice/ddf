@@ -9,15 +9,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
 
 // #Main Application
-define(['underscore', 'backbone', 'marionette', 'ace/handlebars'], function(
-  _,
-  Backbone,
-  Marionette,
-  hbs
-) {
+define([
+  'underscore',
+  'backbone',
+  'marionette',
+  '@connexta/ace/handlebars',
+], function(_, Backbone, Marionette, hbs) {
   'use strict'
 
   var Application = {}

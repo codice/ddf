@@ -630,7 +630,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
           haveOcd = true;
         }
 
-        if (haveOcd) {
+        if (haveOcd && ocd != null) {
           Service service = new ServiceImpl();
           String description = ocd.getDescription();
           service.setId(pid);

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var template = require('./query-status-header.hbs')
 var Marionette = require('marionette')
 var CustomElements = require('../../js/CustomElements.js')

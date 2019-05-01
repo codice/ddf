@@ -9,7 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define,window*/
 
 const $ = require('jquery')
 const Backbone = require('backbone')
@@ -127,15 +126,6 @@ module.exports = new (Backbone.Model.extend({
   },
   removeSelectedResult: function(metacard) {
     this.getSelectedResults().remove(metacard)
-  },
-  getCompleteActiveSearchResultsAttributes: function() {
-    return this.get('content').getCompleteActiveSearchResultsAttributes()
-  },
-  getCompleteActiveSearchResults: function() {
-    return this.get('content').getCompleteActiveSearchResults()
-  },
-  setCompleteActiveSearchResults: function(results) {
-    this.get('content').setCompleteActiveSearchResults(results)
   },
   getActiveSearchResultsAttributes: function() {
     return this.get('content').getActiveSearchResultsAttributes()

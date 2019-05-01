@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 import wrapNum from '../../../react-component/utils/wrap-num/wrap-num.tsx'
 
 const Backbone = require('backbone')

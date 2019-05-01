@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 const _ = require('underscore')
 const user = require('../../singletons/user-instance.js')
 const Dropdown = require('../dropdown')

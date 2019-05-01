@@ -3,7 +3,7 @@
 :status: published
 :summary: Other methods of ingesting data.
 :parent: Ingesting Data
-:order: 04
+:order: 05
 
 == {title}
 

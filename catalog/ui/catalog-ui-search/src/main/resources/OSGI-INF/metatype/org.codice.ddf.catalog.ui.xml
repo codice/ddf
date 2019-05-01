@@ -204,6 +204,12 @@
             type="Boolean"
             default="true"/>
 
+        <AD id="spellcheckEnabled"
+            name="Enable Spellcheck"
+            description="Enable Spellcheck for searches."
+            type="Boolean"
+            default="false"/>
+
         <AD id="basicSearchTemporalSelectionDefault"
             name="Basic Search Temporal Selections"
             description="Enable Basic Search Temporal Selections."
@@ -259,12 +265,6 @@
             description="Specifies the interval during which new results can be merged automatically. This is the time allowed since last merge (in milliseconds)."
             type="Integer"
             default="1000"/>
-
-        <AD id="resultPageSize"
-            name="Result Page Size"
-            description="Specifies the number of results allowed per page on the client-side."
-            type="Integer"
-            default="25"/>
 
         <AD id="queryFeedbackEmailSubjectTemplate"
             name="Query Feedback Email Subject Template"

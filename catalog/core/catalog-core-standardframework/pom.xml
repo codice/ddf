@@ -332,6 +332,12 @@
             <version>${awaitility.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.npathai</groupId>
+            <artifactId>hamcrest-optional</artifactId>
+            <version>${hamcrest-optional.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -361,7 +367,8 @@
                             ddf.catalog.resource.data,
                             org.codice.ddf.catalog.resource.download,
                             org.codice.ddf.catalog.resource.cache,
-                            org.codice.ddf.catalog.resource.download.internal
+                            org.codice.ddf.catalog.resource.download.internal,
+                            org.codice.ddf.catalog.sourcepoller
                         </Export-Package>
                         <Import-Package>
                             <!--excluded javax.xml.xquery package coming from lux -->
@@ -415,7 +422,7 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.69</minimum>
+                                            <minimum>0.68</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>

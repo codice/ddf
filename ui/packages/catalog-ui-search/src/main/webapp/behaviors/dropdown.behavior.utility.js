@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 /*
     This is only here until we fully deprecate dropdown.companion.view and dropdown.view.
     It will help ensure we keep some of the functionality between the two dropdown methods in sync.

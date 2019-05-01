@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 const Tabs = require('../tabs.js')
 const MySearchFormCollectionView = require('../../search-form/search-form-tab-container.view.js')
 const MySearchSharingFormCollectionView = require('../../search-form/forms-sharing/search-form-sharing-tab-container.view.js')

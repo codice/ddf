@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var Backbone = require('backbone')
 
 module.exports = Backbone.Model.extend({
@@ -25,6 +25,7 @@ module.exports = Backbone.Model.extend({
         },
       ],
       template: undefined,
+      spellcheck: false,
     }
   },
   isTemplate: function(template) {

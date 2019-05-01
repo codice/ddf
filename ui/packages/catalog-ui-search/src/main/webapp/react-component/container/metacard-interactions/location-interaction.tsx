@@ -1,10 +1,10 @@
 import * as React from 'react'
 
-import * as QueryConfirmationView from '../../../component/confirmation/query/confirmation.query.view'
-import * as LoadingView from '../../../component/loading/loading.view'
+const QueryConfirmationView = require('../../../component/confirmation/query/confirmation.query.view')
+const LoadingView = require('../../../component/loading/loading.view')
 
 import { Geometry } from 'wkx'
-import * as store from '../../../js/store'
+const store = require('../../../js/store')
 
 import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
 import { Props, Model, Result } from './'
@@ -14,15 +14,46 @@ const CqlUtils = require('../../../js/CQLUtils')
 const wreqr = require('wreqr')
 const Query = require('../../../js/model/Query')
 
+const addFilter = (filterTree: any, filter: any) => {
+  filter.value = filter.value.value
+  filterTree.filters.push(filter)
+}
+
+const addMultipleFilters = (filterTree: any, filters: any) => {
+  filters.forEach((filter: any) => {
+    addFilter(filterTree, filter)
+  })
+}
+
+const createFilterTree = (locations: string[]) => {
+  const filterTree = {
+    type: 'OR',
+    filters: [] as any[],
+  }
+
+  locations.forEach((location: string) => {
+    const filterObject = CqlUtils.transformCQLToFilter(location)
+    if (filterObject.filters !== undefined) {
+      addMultipleFilters(filterTree, filterObject.filters)
+    } else {
+      addFilter(filterTree, filterObject)
+    }
+  })
+
+  return filterTree
+}
+
 const handleCreateSearch = (props: Props) => {
   const locations = getGeoLocations(props.model)
 
   if (locations.length === 0) return
 
   const locationString = `(${locations.join(` OR `)})`
+  const filterTree = createFilterTree(locations)
   const newQuery = new Query.Model({
-    type: locations.length > 1 ? 'advanced' : 'basic',
+    type: filterTree.filters.length > 1 ? 'advanced' : 'basic',
   })
+  newQuery.set('filterTree', filterTree)
   newQuery.set('cql', locationString)
 
   const existingQuery = store.getCurrentQueries()

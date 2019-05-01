@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setTimeout*/
+
 const Marionette = require('marionette')
 const Backbone = require('backbone')
 const _ = require('underscore')
@@ -29,8 +29,10 @@ const Common = require('../../js/Common.js')
 const properties = require('../../js/properties.js')
 const plugin = require('plugins/query-settings')
 const announcement = require('../announcement/index.jsx')
-import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
 const ResultForm = require('../result-form/result-form.js')
+import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
+import * as React from 'react'
+import RadioComponent from '../../react-component/container/input-wrappers/radio'
 
 module.exports = plugin(
   Marionette.LayoutView.extend({
@@ -45,6 +47,7 @@ module.exports = plugin(
     },
     regions: {
       settingsSortField: '.settings-sorting-field',
+      spellcheckForm: '.spellcheck-form',
       settingsSrc: '.settings-src',
       resultForm: '.result-form',
       extensions: '.query-extensions',
@@ -71,6 +74,7 @@ module.exports = plugin(
       this.renderResultForms(this.resultFormCollection.filteredList)
     },
     onBeforeShow: function() {
+      this.setupSpellcheck()
       this.setupSortFieldDropdown()
       this.setupSrcDropdown()
       this.turnOnEditing()
@@ -158,6 +162,34 @@ module.exports = plugin(
       )
       this.settingsSrc.currentView.turnOffEditing()
     },
+    setupSpellcheck: function() {
+      if (!properties.isSpellcheckEnabled) {
+        this.model.set('spellcheck', false)
+        return
+      }
+      const spellcheckView = Marionette.ItemView.extend({
+        template: () => (
+          <RadioComponent
+            value={this.model.get('spellcheck')}
+            label="Spellcheck"
+            options={[
+              {
+                label: 'On',
+                value: true,
+              },
+              {
+                label: 'Off',
+                value: false,
+              },
+            ]}
+            onChange={value => {
+              this.model.set('spellcheck', value)
+            }}
+          />
+        ),
+      })
+      this.spellcheckForm.show(new spellcheckView())
+    },
     turnOffEditing: function() {
       this.$el.removeClass('is-editing')
       this.regionManager.forEach(function(region) {
@@ -182,6 +214,7 @@ module.exports = plugin(
     },
     toJSON: function() {
       var federation = this._srcDropdownModel.get('federation')
+      const spellcheck = this.model.get('spellcheck')
       var src
       if (federation === 'selected') {
         src = this._srcDropdownModel.get('value')
@@ -201,6 +234,7 @@ module.exports = plugin(
         federation: federation,
         sorts: sorts,
         'detail-level': detailLevel,
+        spellcheck,
       }
     },
     saveToModel: function() {

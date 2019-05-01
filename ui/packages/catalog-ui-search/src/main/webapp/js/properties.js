@@ -9,8 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
-var DEFAULT_PAGE_SIZE = 25
+
 var DEFAULT_AUTO_MERGE_TIME = 1000
 
 const $ = require('jquery')
@@ -146,9 +145,6 @@ var properties = {
   hasExperimentalEnabled: function() {
     return this.isExperimental
   },
-  getPageSize: function() {
-    return this.resultPageSize || DEFAULT_PAGE_SIZE
-  },
   getAutoMergeTime: function() {
     return this.autoMergeTime || DEFAULT_AUTO_MERGE_TIME
   },
@@ -166,6 +162,12 @@ var properties = {
   },
   isUploadEnabled: function() {
     return this.showIngest
+  },
+  isDevelopment() {
+    return process.env.NODE_ENV !== 'production'
+  },
+  isSpellcheckEnabled: function() {
+    return this.isSpellcheckEnabled
   },
   isMetacardPreviewEnabled: function() {
     return !this.isMetacardPreviewDisabled

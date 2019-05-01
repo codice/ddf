@@ -37,9 +37,4 @@ public class ServiceStoreTest {
     assertThat(obj1, notNullValue());
     assertThat(obj2, nullValue());
   }
-
-  @Test(expected = CloneNotSupportedException.class)
-  public void testClone() throws Throwable {
-    serviceStore.clone();
-  }
 }

@@ -12,32 +12,61 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
 
 const CustomElements = require('../../js/CustomElements.js')
 const Marionette = require('marionette')
-const Router = require('../router/router.js')
 const user = require('../singletons/user-instance')
 const SearchForm = require('../search-form/search-form')
+import { matchesFilter } from '../select/filterHelper'
 import React from 'react'
+import { lighten, readableColor, transparentize } from 'polished'
 import styled from '../../react-component/styles/styled-components'
+
+const ListContainer = styled.div`
+  max-height: 50vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+`
+
+const ScrollableContainer = styled.div`
+  overflow-y: auto;
+`
 
 const ListItem = styled.div`
   cursor: pointer;
   display: block;
   line-height: ${props => props.theme.minimumButtonSize};
   padding: 0px ${props => props.theme.largeSpacing};
+  box-sizing: border-box;
 `
+
+const HoverableListItem = styled(ListItem)`
+  &:hover {
+    background: ${props =>
+      transparentize(0.9, readableColor(props.theme.backgroundDropdown))};
+    box-shadow: inset 0px 0px 0px 1px ${props => props.theme.primaryColor};
+  }
+`
+
+const WarningItem = styled(ListItem)`
+  text-align: center;
+  color: ${props => lighten(0.2, props.theme.warningColor)};
+`
+
+const NothingFound = () => <WarningItem>Nothing Found</WarningItem>
 
 const NoSearchForms = () => <ListItem>No search forms are available</ListItem>
 
 const SearchFormItem = ({ title, onClick }) => {
-  return <ListItem onClick={onClick}>{title}</ListItem>
+  return <HoverableListItem onClick={onClick}>{title}</HoverableListItem>
 }
 
 const FilterPadding = styled.div`
-  padding-left: ${props => props.theme.minimumSpacing};
+  box-sizing: border-box;
   padding-right: ${props => props.theme.minimumSpacing};
+  padding-bottom: ${props => props.theme.minimumSpacing};
+  padding-left: ${props => props.theme.minimumSpacing};
 `
 class SearchForms extends React.Component {
   constructor(props) {
@@ -50,8 +79,12 @@ class SearchForms extends React.Component {
     const { filter } = this.state
     const { forms, onClick } = this.props
 
+    const filteredForms = forms.filter(form =>
+      matchesFilter(filter, form.title, false)
+    )
+
     return (
-      <React.Fragment>
+      <ListContainer>
         <FilterPadding>
           <input
             style={{ width: '100%' }}
@@ -60,17 +93,20 @@ class SearchForms extends React.Component {
             placeholder="Type to filter"
           />
         </FilterPadding>
-        {forms.length === 0 ? <NoSearchForms /> : null}
-        {forms
-          .filter(form => form.title.toLowerCase().match(filter.toLowerCase()))
-          .map(form => (
+        <ScrollableContainer>
+          {forms.length === 0 ? <NoSearchForms /> : null}
+          {filteredForms.map(form => (
             <SearchFormItem
               title={form.title}
               key={form.id}
               onClick={() => onClick(form)}
             />
           ))}
-      </React.Fragment>
+          {forms.length !== 0 && filteredForms.length === 0 ? (
+            <NothingFound />
+          ) : null}
+        </ScrollableContainer>
+      </ListContainer>
     )
   }
 }

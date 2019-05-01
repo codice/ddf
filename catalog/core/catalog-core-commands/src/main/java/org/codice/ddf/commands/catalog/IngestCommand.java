@@ -690,6 +690,8 @@ public class IngestCommand extends CatalogCommands {
 
       INGEST_LOGGER.error(
           "Thread interrupted while waiting to 'put' metacard: {}", metacard.getId(), e);
+
+      Thread.currentThread().interrupt();
     }
   }
 

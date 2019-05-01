@@ -28,7 +28,6 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableMap;
@@ -701,7 +700,6 @@ public class WfsSourceTest {
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
 
-    assertThat(results.size(), is(pageSize));
     assertThat(response.getHits(), equalTo(new Long(MAX_FEATURES)));
 
     // Verify that metacards 1 thru 4 were returned since pageSize=4
@@ -773,6 +771,26 @@ public class WfsSourceTest {
 
     assertThat(results.size(), is(1));
     assertThat(response.getHits(), is((long) numFeatures));
+  }
+
+  /** Since page size=4 and startIndex=5, should get 4 results back and total hits of 10. */
+  @Test
+  public void testPagingToSecondPage()
+      throws WfsException, SecurityServiceException, TransformerConfigurationException,
+          UnsupportedQueryException {
+
+    int pageSize = 4;
+    int startIndex = 5;
+
+    setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, MAX_FEATURES, null);
+
+    SourceResponse response = executeQuery(startIndex, pageSize);
+    List<Result> results = response.getResults();
+
+    assertThat(response.getHits(), equalTo(new Long(MAX_FEATURES)));
+
+    // Verify that metacards 5 thru 8 were returned
+    assertCorrectMetacardsReturned(results, startIndex, 4);
   }
 
   /**
@@ -1220,9 +1238,6 @@ public class WfsSourceTest {
     final String keystorePath = "/path/to/keystore";
     final String sslProtocol = "TLSv1.2";
 
-    source.setCertAlias(certAlias);
-    source.setKeystorePath(keystorePath);
-    source.setSslProtocol(sslProtocol);
     source.setPollInterval(1);
 
     final Map<String, Object> configuration =
@@ -1230,6 +1245,9 @@ public class WfsSourceTest {
             .put("wfsUrl", wfsUrl)
             .put("disableCnCheck", disableCnCheck)
             .put("allowRedirects", allowRedirects)
+            .put("certAlias", certAlias)
+            .put("keystorePath", keystorePath)
+            .put("sslProtocol", sslProtocol)
             .put("connectionTimeout", connectionTimeout)
             .put("receiveTimeout", receiveTimeout)
             .put("pollInterval", 1)
@@ -1287,55 +1305,6 @@ public class WfsSourceTest {
             eq(receiveTimeout));
   }
 
-  @Test
-  public void testNoWfsClientRefreshWhenConfigurationDoesNotChange()
-      throws SecurityServiceException, WfsException {
-    setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, ONE_FEATURE, null);
-
-    verify(mockClientFactoryFactory)
-        .getSecureCxfClientFactory(
-            anyString(),
-            eq(Wfs.class),
-            any(List.class),
-            isA(MarkableStreamInterceptor.class),
-            anyBoolean(),
-            anyBoolean(),
-            anyInt(),
-            anyInt());
-
-    verify(mockWfs).getCapabilities(any(GetCapabilitiesRequest.class));
-    verify(mockWfs).describeFeatureType(any(DescribeFeatureTypeRequest.class));
-
-    final String wfsUrl = "http://localhost/wfs";
-    final Boolean disableCnCheck = false;
-    final Boolean allowRedirects = true;
-    final Integer initialConnectionTimeout = 10000;
-    final Integer initialReceiveTimeout = 20000;
-
-    source.setWfsUrl(wfsUrl);
-    source.setDisableCnCheck(disableCnCheck);
-    source.setAllowRedirects(allowRedirects);
-    source.setConnectionTimeout(initialConnectionTimeout);
-    source.setReceiveTimeout(initialReceiveTimeout);
-    source.setPollInterval(1);
-
-    final Map<String, Object> configuration =
-        ImmutableMap.<String, Object>builder()
-            .put("wfsUrl", wfsUrl)
-            .put("disableCnCheck", disableCnCheck)
-            .put("allowRedirects", allowRedirects)
-            .put("connectionTimeout", initialConnectionTimeout)
-            .put("receiveTimeout", initialReceiveTimeout)
-            .put("pollInterval", 1)
-            .build();
-    source.refresh(configuration);
-
-    verifyNoMoreInteractions(mockClientFactoryFactory);
-
-    verify(mockWfs).getCapabilities(any(GetCapabilitiesRequest.class));
-    verify(mockWfs).describeFeatureType(any(DescribeFeatureTypeRequest.class));
-  }
-
   private SourceResponse executeQuery(int startIndex, int pageSize)
       throws UnsupportedQueryException {
 
@@ -1358,6 +1327,7 @@ public class WfsSourceTest {
   private void assertCorrectMetacardsReturned(
       List<Result> results, int startIndex, int expectedNumberOfMetacards) {
 
+    assertThat(results, hasSize(expectedNumberOfMetacards));
     for (int i = 0; i < expectedNumberOfMetacards; i++) {
       int id = startIndex + i;
       assertThat(results.get(i).getMetacard().getId(), equalTo("ID_" + String.valueOf(id)));

@@ -68,11 +68,11 @@ const transformFilter = filter => {
       )
     }
 
-    const [property, distance, value] = params
+    const [type, distance, value] = params
 
     return {
       // this is confusing but 'type' on the model is actually the name of the property we're filtering on
-      type: property,
+      type,
       comparator: 'NEAR',
       value: [{ value, distance }],
     }
@@ -144,23 +144,30 @@ export const serialize = model => {
     const value = model.get('value')[0]
     const type = comparatorToCQL[comparator]
 
-    if (comparator === 'NEAR') {
-      return CQLUtils.generateFilterForFilterFunction('proximity', [
-        property,
-        value.distance,
-        value.value,
-      ])
+    let filter
+    switch (comparator) {
+      case 'NEAR':
+        filter = CQLUtils.generateFilterForFilterFunction('proximity', [
+          property,
+          value.distance,
+          value.value,
+        ])
+        break
+      case 'IS EMPTY':
+        filter = CQLUtils.generateIsEmptyFilter(property)
+        break
+      default:
+        filter = CQLUtils.generateFilter(
+          type,
+          property,
+          value === undefined ? '' : value
+        )
+        break
     }
-
-    if (comparator === 'IS EMPTY') {
-      return CQLUtils.generateIsEmptyFilter(property)
+    return {
+      ...filter,
+      extensionData: model.get('extensionData'),
     }
-
-    return CQLUtils.generateFilter(
-      type,
-      property,
-      value === undefined ? '' : value
-    )
   }
 }
 

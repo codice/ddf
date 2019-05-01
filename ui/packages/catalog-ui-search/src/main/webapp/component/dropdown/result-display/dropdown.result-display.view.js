@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.result-display.hbs')
 module.exports = DropdownView.extend({

@@ -53,7 +53,6 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
          - Extensible PDP with XACML 3.0 support for authorization decisions
          - LDAP integration
              - Included OSGi enabled OpenDJ LDAP server
-         - CAS integration
          - X.509 authentication
          - Basic authentication
          - SAML authentication

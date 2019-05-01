@@ -18,6 +18,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -34,6 +35,7 @@ import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
+import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
@@ -72,10 +74,9 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.IngestException;
+import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.catalog.util.impl.SourcePoller;
-import ddf.catalog.util.impl.SourcePollerRunner;
 import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeToTransformerMapper;
 import java.io.InputStream;
@@ -83,9 +84,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import javax.activation.MimeType;
+import org.codice.ddf.catalog.sourcepoller.SourcePoller;
+import org.codice.ddf.catalog.sourcepoller.SourceStatus;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.junit.Before;
 import org.junit.Test;
@@ -110,12 +114,8 @@ public class FanoutCatalogFrameworkTest {
   @Before
   public void initFramework() {
 
-    // Mock register the provider in the container
-    SourcePollerRunner runner = new SourcePollerRunner();
-    SourcePoller poller = new SourcePoller(runner);
     ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
     frameworkProperties = new FrameworkProperties();
-    frameworkProperties.setSourcePoller(poller);
     frameworkProperties.setFederationStrategy(new MockFederationStrategy());
     frameworkProperties.setPostIngest(postIngestPlugins);
 
@@ -129,13 +129,33 @@ public class FanoutCatalogFrameworkTest {
   }
 
   private CatalogFrameworkImpl createCatalogFramework(FrameworkProperties frameworkProperties) {
+    final SourcePoller<SourceStatus> mockStatusSourcePoller = mock(SourcePoller.class);
+    doAnswer(
+            invocationOnMock ->
+                Optional.of(
+                    ((Source) invocationOnMock.getArguments()[0]).isAvailable()
+                        ? SourceStatus.AVAILABLE
+                        : SourceStatus.UNAVAILABLE))
+        .when(mockStatusSourcePoller)
+        .getCachedValueForSource(any(Source.class));
+    final SourcePoller<Set<ContentType>> mockContentTypesSourcePoller = mock(SourcePoller.class);
+    doAnswer(
+            invocationOnMock ->
+                Optional.of(((Source) invocationOnMock.getArguments()[0]).getContentTypes()))
+        .when(mockContentTypesSourcePoller)
+        .getCachedValueForSource(any(Source.class));
+
     OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
     SourceOperations sourceOperations =
-        new SourceOperations(frameworkProperties, sourceActionRegistry);
+        new SourceOperations(
+            frameworkProperties,
+            sourceActionRegistry,
+            mockStatusSourcePoller,
+            mockContentTypesSourcePoller);
     TransformOperations transformOperations = new TransformOperations(frameworkProperties);
     QueryOperations queryOperations =
         new QueryOperations(frameworkProperties, sourceOperations, opsSecurity, opsMetacard);
@@ -223,9 +243,11 @@ public class FanoutCatalogFrameworkTest {
   @Test
   public void testQueryReplacesSourceId() throws Exception {
     ConnectedSource source1 = mock(ConnectedSource.class);
-    ConnectedSource source2 = mock(ConnectedSource.class);
     when(source1.getId()).thenReturn("source1");
+    when(source1.isAvailable()).thenReturn(true);
+    ConnectedSource source2 = mock(ConnectedSource.class);
     when(source2.getId()).thenReturn("source2");
+    when(source2.isAvailable()).thenReturn(true);
 
     frameworkProperties.setConnectedSources(ImmutableList.of(source1, source2));
     frameworkProperties.setQueryResponsePostProcessor(mock(QueryResponsePostProcessor.class));
@@ -343,8 +365,6 @@ public class FanoutCatalogFrameworkTest {
    */
   @Test
   public void testNullContentTypesInGetSourceInfo() throws SourceUnavailableException {
-    SourcePollerRunner runner = new SourcePollerRunner();
-    SourcePoller poller = new SourcePoller(runner);
     ArrayList<PostIngestPlugin> postIngestPlugins = new ArrayList<PostIngestPlugin>();
 
     SourceInfoRequest request = new SourceInfoRequestEnterprise(true);
@@ -353,14 +373,11 @@ public class FanoutCatalogFrameworkTest {
     FederatedSource mockFederatedSource = mock(FederatedSource.class);
     when(mockFederatedSource.isAvailable()).thenReturn(true);
 
-    // Mockito would not accept Collections.emptySet() as the parameter for
-    // thenReturn for mockFederatedSource.getContentTypes()
-    when(mockFederatedSource.getContentTypes()).thenReturn(null);
+    when(mockFederatedSource.getContentTypes()).thenReturn(Collections.emptySet());
 
     fedSources.add(mockFederatedSource);
 
     FrameworkProperties frameworkProperties = new FrameworkProperties();
-    frameworkProperties.setSourcePoller(poller);
     frameworkProperties.setFederationStrategy(new MockFederationStrategy());
     frameworkProperties.setPostIngest(postIngestPlugins);
     List<FederatedSource> sourceList = new ArrayList<>(fedSources);
@@ -427,8 +444,22 @@ public class FanoutCatalogFrameworkTest {
         new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
+
+    final SourcePoller<SourceStatus> mockStatusSourcePoller = mock(SourcePoller.class);
+    doAnswer(
+            invocationOnMock ->
+                Optional.of(
+                    ((Source) invocationOnMock.getArguments()[0]).isAvailable()
+                        ? SourceStatus.AVAILABLE
+                        : SourceStatus.UNAVAILABLE))
+        .when(mockStatusSourcePoller)
+        .getCachedValueForSource(any(Source.class));
     SourceOperations sourceOperations =
-        new SourceOperations(frameworkProperties, sourceActionRegistry);
+        new SourceOperations(
+            frameworkProperties,
+            sourceActionRegistry,
+            mockStatusSourcePoller,
+            mock(SourcePoller.class));
     sourceOperations.bind(catalogProvider);
     sourceOperations.bind(storageProvider);
 
@@ -492,8 +523,22 @@ public class FanoutCatalogFrameworkTest {
         new MetacardFactory(frameworkProperties.getMimeTypeToTransformerMapper(), uuidGenerator);
     OperationsMetacardSupport opsMetacard =
         new OperationsMetacardSupport(frameworkProperties, metacardFactory);
+
+    final SourcePoller<SourceStatus> mockStatusSourcePoller = mock(SourcePoller.class);
+    doAnswer(
+            invocationOnMock ->
+                Optional.of(
+                    ((Source) invocationOnMock.getArguments()[0]).isAvailable()
+                        ? SourceStatus.AVAILABLE
+                        : SourceStatus.UNAVAILABLE))
+        .when(mockStatusSourcePoller)
+        .getCachedValueForSource(any(Source.class));
     SourceOperations sourceOperations =
-        new SourceOperations(frameworkProperties, sourceActionRegistry);
+        new SourceOperations(
+            frameworkProperties,
+            sourceActionRegistry,
+            mockStatusSourcePoller,
+            mock(SourcePoller.class));
     sourceOperations.bind(catalogProvider);
     sourceOperations.bind(storageProvider);
 

@@ -13,25 +13,30 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
+import static java.util.Arrays.asList;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
+import io.restassured.path.xml.XmlPath;
+import io.restassured.path.xml.config.XmlPathConfig;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +50,8 @@ import net.opengis.filter.v_1_1_0.BinarySpatialOpType;
 import net.opengis.filter.v_1_1_0.DistanceBufferType;
 import net.opengis.filter.v_1_1_0.FilterType;
 import net.opengis.filter.v_1_1_0.UnaryLogicOpType;
+import net.opengis.gml.v_3_1_1.DirectPositionType;
+import net.opengis.gml.v_3_1_1.EnvelopeType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants.SPATIAL_OPERATORS;
@@ -75,7 +82,7 @@ public class WfsFilterDelegateTest {
 
   private static final String UNLITERAL = "Unliteral";
 
-  private static final List<String> SUPPORTED_GEO = Arrays.asList("Intersects", "BBox", "Within");
+  private static final List<String> SUPPORTED_GEO = asList("Intersects", "BBox", "Within");
 
   private static final String POLYGON = "POLYGON ((30 -10, 30 30, 10 30, 10 -10, 30 -10))";
 
@@ -400,7 +407,7 @@ public class WfsFilterDelegateTest {
   public void testAnd() {
     WfsFilterDelegate delegate = createTextualDelegate();
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
-    FilterType filterToCheck = delegate.and(Arrays.asList(filter, filter));
+    FilterType filterToCheck = delegate.and(asList(filter, filter));
     assertThat(filterToCheck, notNullValue());
     assertThat(filterToCheck.isSetLogicOps(), is(true));
   }
@@ -422,7 +429,7 @@ public class WfsFilterDelegateTest {
   public void testOr() {
     WfsFilterDelegate delegate = createTextualDelegate();
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
-    FilterType filterToCheck = delegate.or(Arrays.asList(filter, filter));
+    FilterType filterToCheck = delegate.or(asList(filter, filter));
     assertThat(filterToCheck, notNullValue());
     assertThat(filterToCheck.isSetLogicOps(), is(true));
   }
@@ -1189,6 +1196,60 @@ public class WfsFilterDelegateTest {
     assertXMLEqual(propertyIsEqualToXmlBoolean, marshal(filter));
   }
 
+  @Test
+  public void testPropertyIsDuring() throws JAXBException, IOException, SAXException {
+    whenPropertiesDateType();
+    final WfsFilterDelegate delegate = createDelegate();
+    final FilterType filter = delegate.during(MOCK_PROPERTY, date, endDate);
+    assertXMLEqual(propertyBetweenXmlDate, marshal(filter));
+  }
+
+  @Test
+  public void testPropertyIsBefore() throws JAXBException, IOException, SAXException {
+    whenPropertiesDateType();
+    final WfsFilterDelegate delegate = createDelegate();
+    final FilterType filter = delegate.before(MOCK_PROPERTY, date);
+    assertXMLEqual(propertyLessThanXmlDate, marshal(filter));
+  }
+
+  @Test
+  public void testPropertyIsAfter() throws JAXBException, IOException, SAXException {
+    whenPropertiesDateType();
+    final WfsFilterDelegate delegate = createDelegate();
+    final FilterType filter = delegate.after(MOCK_PROPERTY, date);
+    assertXMLEqual(propertyGreaterThanXmlDate, marshal(filter));
+  }
+
+  @Test
+  public void testPropertyIsRelative() throws JAXBException {
+    whenPropertiesDateType();
+    final WfsFilterDelegate delegate = createDelegate();
+    final FilterType filter = delegate.relative(MOCK_PROPERTY, 100_000L);
+    final String xml = marshal(filter);
+
+    final XmlPathConfig config =
+        new XmlPathConfig().declaredNamespace("ogc", "http://www.opengis.net/ogc");
+
+    final XmlPath xmlPath = new XmlPath(xml).using(config);
+    final String lowerBoundary =
+        xmlPath.getString("ogc:Filter.ogc:PropertyIsBetween.ogc:LowerBoundary.ogc:Literal");
+    assertThat(
+        "There was no lower boundary in the filter XML.",
+        lowerBoundary,
+        not(isEmptyOrNullString()));
+
+    final String upperBoundary =
+        xmlPath.getString("ogc:Filter.ogc:PropertyIsBetween.ogc:UpperBoundary.ogc:Literal");
+    assertThat(
+        "There was no upper boundary in the filter XML.",
+        upperBoundary,
+        not(isEmptyOrNullString()));
+
+    final long start = OffsetDateTime.parse(lowerBoundary).toInstant().toEpochMilli();
+    final long end = OffsetDateTime.parse(upperBoundary).toInstant().toEpochMilli();
+    assertThat("The dates were not 100 seconds apart.", end - start, is(100_000L));
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void testBlacklistedGeoProperty() {
     WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.BBOX.getValue());
@@ -1276,6 +1337,17 @@ public class WfsFilterDelegateTest {
     assertThat(filter.getLogicOps().getValue(), is(instanceOf(UnaryLogicOpType.class)));
     UnaryLogicOpType type = (UnaryLogicOpType) filter.getLogicOps().getValue();
     assertThat(type.getSpatialOps().getValue(), is(instanceOf(BBOXType.class)));
+
+    BBOXType bboxType = (BBOXType) type.getSpatialOps().getValue();
+    EnvelopeType envelope = bboxType.getEnvelope().getValue();
+
+    DirectPositionType lowerCorner = envelope.getLowerCorner();
+    assertThat("The bounding box's lower corner was null.", lowerCorner, is(notNullValue()));
+    assertThat(lowerCorner.getValue(), is(asList(10.0, -10.0)));
+
+    DirectPositionType upperCorner = envelope.getUpperCorner();
+    assertThat("The bounding box's upper corner was null.", upperCorner, is(notNullValue()));
+    assertThat(upperCorner.getValue(), is(asList(30.0, 30.0)));
   }
 
   @Test
@@ -1347,6 +1419,17 @@ public class WfsFilterDelegateTest {
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
     assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BBOXType.class)));
     assertThat(filter.isSetLogicOps(), is(false));
+
+    BBOXType bboxType = (BBOXType) filter.getSpatialOps().getValue();
+    EnvelopeType envelope = bboxType.getEnvelope().getValue();
+
+    DirectPositionType lowerCorner = envelope.getLowerCorner();
+    assertThat("The bounding box's lower corner was null.", lowerCorner, is(notNullValue()));
+    assertThat(lowerCorner.getValue(), is(asList(10.0, -10.0)));
+
+    DirectPositionType upperCorner = envelope.getUpperCorner();
+    assertThat("The bounding box's upper corner was null.", upperCorner, is(notNullValue()));
+    assertThat(upperCorner.getValue(), is(asList(30.0, 30.0)));
   }
 
   @Test

@@ -40,11 +40,9 @@ import ddf.catalog.plugin.PostResourcePlugin;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.IngestException;
-import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.catalog.util.impl.SourcePoller;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
 import ddf.mime.mapper.MimeTypeMapperImpl;
@@ -57,6 +55,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.activation.MimeType;
+import org.codice.ddf.catalog.sourcepoller.SourcePoller;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,8 +78,6 @@ public class RemoteDeleteOperationsTest {
   OperationsSecuritySupport opsSecuritySupport;
 
   FrameworkProperties frameworkProperties;
-
-  SourcePoller mockPoller;
 
   CatalogProvider provider;
 
@@ -266,7 +263,6 @@ public class RemoteDeleteOperationsTest {
     frameworkProperties = new FrameworkProperties();
     frameworkProperties.setAccessPlugins(new ArrayList<>());
     frameworkProperties.setPolicyPlugins(new ArrayList<>());
-    frameworkProperties.setSourcePoller(mockPoller);
     frameworkProperties.setCatalogProviders(Collections.singletonList((CatalogProvider) provider));
     frameworkProperties.setPostResource(mockPostResourcePlugins);
     frameworkProperties.setFederationStrategy(mockFederationStrategy);
@@ -286,9 +282,6 @@ public class RemoteDeleteOperationsTest {
 
   private void setUpMocks() throws IOException, CatalogTransformerException {
     String localProviderName = "ddf";
-
-    mockPoller = mock(SourcePoller.class);
-    when(mockPoller.getCachedSource(isA(Source.class))).thenReturn(null);
 
     provider = mock(CatalogProvider.class);
     when(provider.getId()).thenReturn(localProviderName);
@@ -352,7 +345,11 @@ public class RemoteDeleteOperationsTest {
 
   private void setUpDeleteOperations() {
     SourceOperations sourceOperations =
-        new SourceOperations(frameworkProperties, mockSourceActionRegistry);
+        new SourceOperations(
+            frameworkProperties,
+            mockSourceActionRegistry,
+            mock(SourcePoller.class),
+            mock(SourcePoller.class));
     OperationsSecuritySupport opsSecurity = new OperationsSecuritySupport();
     MetacardFactory metacardFactory =
         new MetacardFactory(mimeTypeToTransformerMapper, uuidGenerator);

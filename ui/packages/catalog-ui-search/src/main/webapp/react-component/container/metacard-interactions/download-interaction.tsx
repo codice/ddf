@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as sources from '../../../component/singletons/sources-instance'
+const sources = require('../../../component/singletons/sources-instance')
 import { Model, Result, Props } from '.'
 import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
 import { hot } from 'react-hot-loader'

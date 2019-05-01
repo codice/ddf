@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require,define,setTimeout*/
+
 import * as React from 'react'
 import { iframeResizer } from 'iframe-resizer'
 define([

@@ -17,15 +17,9 @@ import ddf.catalog.data.impl.AttributeImpl
 import ddf.catalog.data.impl.MetacardImpl
 import ddf.catalog.validation.ValidationException
 import ddf.catalog.validation.impl.validator.RelationshipValidator
-import ddf.catalog.validation.report.AttributeValidationReport
 import ddf.catalog.validation.report.MetacardValidationReport
-import ddf.catalog.validation.violation.ValidationViolation
-import org.apache.commons.lang.ObjectUtils
 import spock.lang.Specification
 import spock.lang.Unroll
-
-import static org.hamcrest.Matchers.is
-import static org.junit.Assert.assertThat
 
 class RelationshipValidatorSpec extends Specification {
     public static final String MUST_HAVE = "mustHave"

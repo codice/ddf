@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, require, setTimeout */
+
 // #Main Application
 const $ = require('jquery')
 const _ = require('underscore')

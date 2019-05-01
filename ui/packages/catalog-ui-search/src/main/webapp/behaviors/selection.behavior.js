@@ -12,13 +12,13 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 const Behaviors = require('./Behaviors')
 const Marionette = require('marionette')
 
 function getMaxIndex(selectionInterface) {
   const selectedResults = selectionInterface.getSelectedResults()
-  const completeResults = selectionInterface.getCompleteActiveSearchResults()
+  const completeResults = selectionInterface.getActiveSearchResults()
   return selectedResults.reduce(function(maxIndex, result) {
     return Math.max(maxIndex, completeResults.indexOf(result))
   }, -1)
@@ -26,14 +26,14 @@ function getMaxIndex(selectionInterface) {
 
 function getMinIndex(selectionInterface) {
   const selectedResults = selectionInterface.getSelectedResults()
-  const completeResults = selectionInterface.getCompleteActiveSearchResults()
+  const completeResults = selectionInterface.getActiveSearchResults()
   return selectedResults.reduce(function(minIndex, result) {
     return Math.min(minIndex, completeResults.indexOf(result))
   }, completeResults.length)
 }
 
 const doubleClickTime = 500 // how soon a user has to click for it to be a double click
-const textSelectionTime = 200 // how long a user has to hold down mousebutton for us to recognize it as wanting to do text selection
+const textSelectionTime = 500 // how long a user has to hold down mousebutton for us to recognize it as wanting to do text selection
 
 Behaviors.addBehavior(
   'selection',
@@ -63,9 +63,9 @@ Behaviors.addBehavior(
         return
       }
       const resultid = event.currentTarget.getAttribute('data-resultid')
-      const alreadySelected =
-        this.options.selectionInterface.getSelectedResults().get(resultid) !==
-        undefined
+      const selectedResults = this.options.selectionInterface.getSelectedResults()
+      const alreadySelected = selectedResults.get(resultid) !== undefined
+      const onlySelected = selectedResults.length === 1
       //shift key wins over all else
       if (event.shiftKey) {
         this.handleShiftClick(resultid, alreadySelected)
@@ -73,13 +73,13 @@ Behaviors.addBehavior(
         this.handleControlClick(resultid, alreadySelected)
       } else {
         this.options.selectionInterface.clearSelectedResults()
-        this.handleControlClick(resultid, alreadySelected)
+        this.handleControlClick(resultid, alreadySelected && onlySelected)
       }
     },
     handleShiftClick: function(resultid, alreadySelected) {
       const selectedResults = this.options.selectionInterface.getSelectedResults()
       const indexClicked = this.options.selectionInterface
-        .getCompleteActiveSearchResults()
+        .getActiveSearchResults()
         .indexOfId(resultid)
       const firstIndex = getMinIndex(this.options.selectionInterface)
       const lastIndex = getMaxIndex(this.options.selectionInterface)
@@ -96,22 +96,18 @@ Behaviors.addBehavior(
     selectBetween: function(startIndex, endIndex) {
       this.options.selectionInterface.addSelectedResult(
         this.options.selectionInterface
-          .getCompleteActiveSearchResults()
+          .getActiveSearchResults()
           .slice(startIndex, endIndex)
       )
     },
     handleControlClick: function(resultid, alreadySelected) {
       if (alreadySelected) {
         this.options.selectionInterface.removeSelectedResult(
-          this.options.selectionInterface
-            .getCompleteActiveSearchResults()
-            .get(resultid)
+          this.options.selectionInterface.getActiveSearchResults().get(resultid)
         )
       } else {
         this.options.selectionInterface.addSelectedResult(
-          this.options.selectionInterface
-            .getCompleteActiveSearchResults()
-            .get(resultid)
+          this.options.selectionInterface.getActiveSearchResults().get(resultid)
         )
       }
     },

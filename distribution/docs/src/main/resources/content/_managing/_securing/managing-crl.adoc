@@ -1,4 +1,4 @@
-:title: Managing Certificate Revocation List (CRL)
+:title: Managing Certificate Revocation
 :type: configuration
 :status: published
 :parent: Configuring User Access
@@ -9,11 +9,12 @@
 
 * *{hardening-step}*
 
-For hardening purposes, it is recommended to implement a way to verify the CRL at least daily.
+For hardening purposes, it is recommended to implement a way to verify a Certificate Revocation List (CRL) at least daily or an Online Certificate Status Protocol (OCSP) server.
 
+=== Managing a Certificate Revocation List (CRL)
 A Certificate Revocation List is a collection of formerly-valid certificates that should explicitly _not_ be accepted.
 
-=== Creating a Certificate Revocation List (CRL)
+==== Creating a CRL
 
 Create a CRL in which the token issuer's certificate is valid.
 The example uses OpenSSL.
@@ -27,7 +28,7 @@ Windows does not include OpenSSL by default.
 For Windows platforms, a additional download of https://www.openssl.org/source/[OpenSSL] or an alternative is required.
 ====
 
-==== Revoke a Certificate and Create a New CRL that Contains the Revoked Certificate
+===== Revoke a Certificate and Create a New CRL that Contains the Revoked Certificate
 
 ----
 $> openssl ca -revoke tokenissuer.crt
@@ -35,12 +36,12 @@ $> openssl ca -revoke tokenissuer.crt
 $> openssl ca -gencrl -out crl-tokenissuer-revoked.pem
 ----
 
-==== Viewing a CRL
+===== Viewing a CRL
 
 . Use the following command to view the serial numbers of the revoked certificates:
 `$> openssl crl -inform PEM -text -noout -in crl-tokenissuer-revoked.pem`
 
-=== Enabling Certificate Revocation
+==== Enabling Certificate Revocation
 
 [NOTE]
 ====
@@ -72,7 +73,7 @@ If the CRL cannot be placed in ${home_directory}/etc/keystores but can be access
 
 A local CRL file will be created and the `encryption.properties` and `signature.properties` files will be set as mentioned above.
 
-==== Add Revocation to a Web Context
+===== Add Revocation to a Web Context
 
 The PKIHandler implements CRL revocation, so any web context that is configured to use PKI authentication will also use CRL revocation if revocation is enabled.
 
@@ -91,7 +92,7 @@ Disabling or enabling CRL revocation or modifying the CRL file will require a re
 If CRL checking is already enabled, adding a new context via the *Web Context Policy Manager* will not require a restart.
 ====
 
-==== Adding Revocation to an Endpoint
+===== Adding Revocation to an Endpoint
 
 [NOTE]
 ====
@@ -121,7 +122,7 @@ Add the following property to the `jasws` endpoint in the endpoint's `blueprint.
 </jaxws:endpoint>
 ----
 
-==== Verifying Revocation
+===== Verifying Revocation
 
 A *Warning* similar to the following will be displayed in the logs of the source and endpoint showing the exception encountered during certificate validation:
 
@@ -142,3 +143,23 @@ Caused by: java.security.cert.CertPathValidatorException: Certificate has been r
     at org.apache.ws.security.components.crypto.Merlin.verifyTrust(Merlin.java:814)[161:org.apache.ws.security.wss4j:1.6.9]
     ... 45 more
 ----
+
+=== Managing an Online Certificate Status Protocol (OCSP) Server
+
+An Online Certificate Status Protocol is a protocol used to verify the revocation status of a certificate.
+An OCSP server can be queried with a certificate to verify if it is revoked.
+
+The advantage of using an OCSP Server over a CRL is the fact that a local copy of the revoked certificates is not needed.
+
+==== Enabling OCSP Revocation
+
+. Navigate to the ${admin-console}.
+. Navigate to *System -> Configuration -> Online Certificate Status Protocol (OCSP)*.
+. Add the URL of the OCSP server under *OCSP server URL*.
+. Check the *Enable validating a certificate against an OCSP server* option.
+
+[NOTE]
+====
+If an error occurs while communicating with the OCSP server, an alert will be posted to the ${admin-console}.
+Until the error is resolved, certificates will not be verified against the server.
+====

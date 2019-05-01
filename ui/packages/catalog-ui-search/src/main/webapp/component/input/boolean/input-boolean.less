@@ -10,8 +10,9 @@
   }
 
   .checkbox-placeholder {
-    width: 100%;
+    width: auto;
     padding-left: 10px;
+    padding-right: 10px;
     height: 100%;
     text-align: left;
 
@@ -22,10 +23,13 @@
 
   .is-not-checked {
     display: block;
+    font-size: @largeFontSize;
   }
 
   .is-checked {
     display: none;
+    font-size: @largeFontSize;
+    color: @primary-color;
   }
 
   input:checked + button {

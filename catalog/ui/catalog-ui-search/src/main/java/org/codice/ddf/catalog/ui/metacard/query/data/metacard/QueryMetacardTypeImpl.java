@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 public class QueryMetacardTypeImpl extends MetacardTypeImpl {
   private static final Set<AttributeDescriptor> QUERY_DESCRIPTORS;
 
-  public static final Set<String> QUERY_ATTRIBUTE_NAMES;
+  private static final Set<String> QUERY_ATTRIBUTE_NAMES;
 
   static {
     QUERY_DESCRIPTORS = new HashSet<>();
@@ -47,6 +47,14 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
     QUERY_DESCRIPTORS.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Core.ID));
 
     QUERY_DESCRIPTORS.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Core.TITLE));
+
+    QUERY_DESCRIPTORS.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Core.CREATED));
+
+    QUERY_DESCRIPTORS.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Core.MODIFIED));
+
+    QUERY_DESCRIPTORS.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Core.METACARD_OWNER));
+
+    QUERY_DESCRIPTORS.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Core.DESCRIPTION));
 
     QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
@@ -157,5 +165,9 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
 
   public QueryMetacardTypeImpl(String name, Set<AttributeDescriptor> descriptors) {
     super(name, descriptors);
+  }
+
+  public static Set<String> getQueryAttributeNames() {
+    return QUERY_ATTRIBUTE_NAMES;
   }
 }

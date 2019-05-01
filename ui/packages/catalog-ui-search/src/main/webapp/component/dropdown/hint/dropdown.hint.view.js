@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
+
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.hint.hbs')
 const ComponentView = require('../../hint/hint.view.js')

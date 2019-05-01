@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+
 var template = require('./association.hbs')
 var Marionette = require('marionette')
 var CustomElements = require('../../js/CustomElements.js')
@@ -38,7 +38,7 @@ function determineChoices(view) {
     .getCurrentQuery()
     .get('result')
     .get('results')
-    .fullCollection.filter(function(result) {
+    .filter(function(result) {
       return result.get('metacard').id !== currentMetacard.get('metacard').id
     })
     .filter(function(result) {

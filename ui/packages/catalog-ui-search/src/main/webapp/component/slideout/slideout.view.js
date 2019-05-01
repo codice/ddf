@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, window, setTimeout*/
+
 import React from 'react'
 var Marionette = require('marionette')
 var CustomElements = require('../../js/CustomElements.js')
@@ -35,7 +35,7 @@ module.exports = Marionette.ItemView.extend({
       <React.Fragment>
         <div className="slideout-cover" />
         <div className="slideout-content">
-          <ContentView />
+          <ContentView closeSlideout={this.close.bind(this)} />
         </div>
       </React.Fragment>
     )

@@ -13,7 +13,6 @@
 var metacardDefinitions = require('../../component/singletons/metacard-definitions.js')
 
 require('backbone-associations')
-require('backbone.paginator')
 
 function parseMultiValue(value) {
   if (value && value.constructor === Array) {

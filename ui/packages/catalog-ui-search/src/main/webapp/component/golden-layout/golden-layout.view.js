@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, window*/
+
 var _ = require('underscore')
 var _merge = require('lodash/merge')
 var _debounce = require('lodash/debounce')

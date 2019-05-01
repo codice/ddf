@@ -42,10 +42,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jasig.cas.client</groupId>
-            <artifactId>cas-client-core</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>ddf.security.sts</groupId>
             <artifactId>security-sts-x509delegationhandler</artifactId>
