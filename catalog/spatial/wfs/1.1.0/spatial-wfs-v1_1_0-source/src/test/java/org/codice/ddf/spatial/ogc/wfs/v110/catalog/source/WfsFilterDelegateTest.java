@@ -103,7 +103,7 @@ public class WfsFilterDelegateTest {
   private final String propertyIsEqualToXmlBoolean =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
           + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsEqualTo>"
+          + "<PropertyIsEqualTo matchCase=\"true\">"
           + "<Literal>false</Literal>"
           + "<PropertyName>mockProperty</PropertyName>"
           + "</PropertyIsEqualTo>"
@@ -111,7 +111,7 @@ public class WfsFilterDelegateTest {
 
   private final String propertyIsEqualToXml =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsEqualTo>"
+          + "<PropertyIsEqualTo matchCase=\"true\">"
           + "<Literal>1</Literal>"
           + "<PropertyName>mockProperty</PropertyName>"
           + "</PropertyIsEqualTo>"
@@ -119,7 +119,7 @@ public class WfsFilterDelegateTest {
 
   private final String propertyIsEqualToXmlDecimal =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsEqualTo>"
+          + "<PropertyIsEqualTo matchCase=\"true\">"
           + "<Literal>1.0</Literal>"
           + "<PropertyName>mockProperty</PropertyName>"
           + "</PropertyIsEqualTo>"
@@ -128,7 +128,16 @@ public class WfsFilterDelegateTest {
   private final String propertyIsEqualToXmlLiteral =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
           + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsEqualTo>"
+          + "<PropertyIsEqualTo matchCase=\"true\">"
+          + "<PropertyName>mockProperty</PropertyName>"
+          + "<Literal>Literal</Literal>"
+          + "</PropertyIsEqualTo>"
+          + "</Filter>";
+
+  private final String propertyIsEqualToXmlLiteralMatchCaseFalse =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+          + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
+          + "<PropertyIsEqualTo matchCase=\"false\">"
           + "<PropertyName>mockProperty</PropertyName>"
           + "<Literal>Literal</Literal>"
           + "</PropertyIsEqualTo>"
@@ -137,7 +146,16 @@ public class WfsFilterDelegateTest {
   private final String propertyNotEqualToXmlLiteral =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
           + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsNotEqualTo>"
+          + "<PropertyIsNotEqualTo matchCase=\"true\">"
+          + "<PropertyName>mockProperty</PropertyName>"
+          + "<Literal>Literal</Literal>"
+          + "</PropertyIsNotEqualTo>"
+          + "</Filter>";
+
+  private final String propertyNotEqualToXmlLiteralMatchCaseFalse =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+          + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
+          + "<PropertyIsNotEqualTo matchCase=\"false\">"
           + "<PropertyName>mockProperty</PropertyName>"
           + "<Literal>Literal</Literal>"
           + "</PropertyIsNotEqualTo>"
@@ -147,7 +165,7 @@ public class WfsFilterDelegateTest {
 
   private final String propertyNotEqualToXml =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsNotEqualTo>"
+          + "<PropertyIsNotEqualTo matchCase=\"true\">"
           + "<Literal>1</Literal>"
           + "<PropertyName>mockProperty</PropertyName>"
           + "</PropertyIsNotEqualTo>"
@@ -155,7 +173,7 @@ public class WfsFilterDelegateTest {
 
   private final String propertyNotEqualToXmlDecimal =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsNotEqualTo>"
+          + "<PropertyIsNotEqualTo matchCase=\"true\">"
           + "<Literal>1.0</Literal>"
           + "<PropertyName>mockProperty</PropertyName>"
           + "</PropertyIsNotEqualTo>"
@@ -166,7 +184,7 @@ public class WfsFilterDelegateTest {
   private final String propertyNotEqualToXmlBoolean =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
           + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsNotEqualTo>"
+          + "<PropertyIsNotEqualTo matchCase=\"true\">"
           + "<Literal>false</Literal>"
           + "<PropertyName>mockProperty</PropertyName>"
           + "</PropertyIsNotEqualTo>"
@@ -175,7 +193,7 @@ public class WfsFilterDelegateTest {
   private final String propertyGreaterThanXmlLiteral =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
           + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsGreaterThan>"
+          + "<PropertyIsGreaterThan matchCase=\"true\">"
           + "<PropertyName>mockProperty</PropertyName>"
           + "<Literal>Literal</Literal>"
           + "</PropertyIsGreaterThan>"
@@ -183,7 +201,7 @@ public class WfsFilterDelegateTest {
 
   private final String propertyGreaterThanXml =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsGreaterThan>"
+          + "<PropertyIsGreaterThan matchCase=\"true\">"
           + "<Literal>1</Literal>"
           + "<PropertyName>mockProperty</PropertyName>"
           + "</PropertyIsGreaterThan>"
@@ -191,7 +209,7 @@ public class WfsFilterDelegateTest {
 
   private final String propertyGreaterThanXmlDecimal =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsGreaterThan>"
+          + "<PropertyIsGreaterThan matchCase=\"true\">"
           + "<Literal>1.0</Literal>"
           + "<PropertyName>mockProperty</PropertyName>"
           + "</PropertyIsGreaterThan>"
@@ -202,7 +220,7 @@ public class WfsFilterDelegateTest {
   private final String propertyGreaterThanOrEqualToXmlLiteral =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
           + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsGreaterThanOrEqualTo>"
+          + "<PropertyIsGreaterThanOrEqualTo matchCase=\"true\">"
           + "<PropertyName>mockProperty</PropertyName>"
           + "<Literal>Literal</Literal>"
           + "</PropertyIsGreaterThanOrEqualTo>"
@@ -210,7 +228,7 @@ public class WfsFilterDelegateTest {
 
   private final String propertyGreaterThanOrEqualToXml =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsGreaterThanOrEqualTo>"
+          + "<PropertyIsGreaterThanOrEqualTo matchCase=\"true\">"
           + "<Literal>1</Literal>"
           + "<PropertyName>mockProperty</PropertyName>"
           + "</PropertyIsGreaterThanOrEqualTo>"
@@ -218,7 +236,7 @@ public class WfsFilterDelegateTest {
 
   private final String propertyGreaterThanOrEqualToXmlDecimal =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsGreaterThanOrEqualTo>"
+          + "<PropertyIsGreaterThanOrEqualTo matchCase=\"true\">"
           + "<Literal>1.0</Literal>"
           + "<PropertyName>mockProperty</PropertyName>"
           + "</PropertyIsGreaterThanOrEqualTo>"
@@ -230,7 +248,7 @@ public class WfsFilterDelegateTest {
   private final String propertyLessThanXmlLiteral =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
           + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsLessThan>"
+          + "<PropertyIsLessThan matchCase=\"true\">"
           + "<PropertyName>mockProperty</PropertyName>"
           + "<Literal>Literal</Literal>"
           + "</PropertyIsLessThan>"
@@ -238,7 +256,7 @@ public class WfsFilterDelegateTest {
 
   private final String propertyLessThanXml =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsLessThan>"
+          + "<PropertyIsLessThan matchCase=\"true\">"
           + "<Literal>1</Literal>"
           + "<PropertyName>mockProperty</PropertyName>"
           + "</PropertyIsLessThan>"
@@ -246,7 +264,7 @@ public class WfsFilterDelegateTest {
 
   private final String propertyLessThanXmlDecimal =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsLessThan>"
+          + "<PropertyIsLessThan matchCase=\"true\">"
           + "<Literal>1.0</Literal>"
           + "<PropertyName>mockProperty</PropertyName>"
           + "</PropertyIsLessThan>"
@@ -257,7 +275,7 @@ public class WfsFilterDelegateTest {
   private final String propertyLessThanOrEqualToXmlLiteral =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
           + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsLessThanOrEqualTo>"
+          + "<PropertyIsLessThanOrEqualTo matchCase=\"true\">"
           + "<PropertyName>mockProperty</PropertyName>"
           + "<Literal>Literal</Literal>"
           + "</PropertyIsLessThanOrEqualTo>"
@@ -265,7 +283,7 @@ public class WfsFilterDelegateTest {
 
   private final String propertyLessThanOrEqualToXml =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsLessThanOrEqualTo>"
+          + "<PropertyIsLessThanOrEqualTo matchCase=\"true\">"
           + "<Literal>1</Literal>"
           + "<PropertyName>mockProperty</PropertyName>"
           + "</PropertyIsLessThanOrEqualTo>"
@@ -273,13 +291,61 @@ public class WfsFilterDelegateTest {
 
   private final String propertyLessThanOrEqualToXmlDecimal =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-          + "<PropertyIsLessThanOrEqualTo>"
+          + "<PropertyIsLessThanOrEqualTo matchCase=\"true\">"
           + "<Literal>1.0</Literal>"
           + "<PropertyName>mockProperty</PropertyName>"
           + "</PropertyIsLessThanOrEqualTo>"
           + "</Filter>";
 
   private final String propertyLessThanOrEqualToXmlDate = getPropertyLessThanOrEqualToXmlDate();
+
+  private final String propertyIsLikeXmlLiteral =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+          + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
+          + "<PropertyIsLike matchCase=\"true\" escapeChar=\"!\" singleChar=\"?\" wildCard=\"*\">"
+          + "<PropertyName>mockProperty</PropertyName>"
+          + "<Literal>Literal</Literal>"
+          + "</PropertyIsLike>"
+          + "</Filter>";
+
+  private final String propertyIsLikeXmlLiteralMatchCaseFalse =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+          + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
+          + "<PropertyIsLike matchCase=\"false\" escapeChar=\"!\" singleChar=\"?\" wildCard=\"*\">"
+          + "<PropertyName>mockProperty</PropertyName>"
+          + "<Literal>Literal</Literal>"
+          + "</PropertyIsLike>"
+          + "</Filter>";
+
+  private final String propertyIsLikeXmlLiteralAnyText =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+          + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
+          + "<Or>"
+          + "<PropertyIsLike matchCase=\"true\" escapeChar=\"!\" singleChar=\"?\" wildCard=\"*\">"
+          + "<PropertyName>mockProperty</PropertyName>"
+          + "<Literal>Literal</Literal>"
+          + "</PropertyIsLike>"
+          + "<PropertyIsLike matchCase=\"true\" escapeChar=\"!\" singleChar=\"?\" wildCard=\"*\">"
+          + "<PropertyName>mockProperty2</PropertyName>"
+          + "<Literal>Literal</Literal>"
+          + "</PropertyIsLike>"
+          + "</Or>"
+          + "</Filter>";
+
+  private final String propertyIsLikeXmlLiteralAnyTextMatchCaseFalse =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+          + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
+          + "<Or>"
+          + "<PropertyIsLike matchCase=\"false\" escapeChar=\"!\" singleChar=\"?\" wildCard=\"*\">"
+          + "<PropertyName>mockProperty</PropertyName>"
+          + "<Literal>Literal</Literal>"
+          + "</PropertyIsLike>"
+          + "<PropertyIsLike matchCase=\"false\" escapeChar=\"!\" singleChar=\"?\" wildCard=\"*\">"
+          + "<PropertyName>mockProperty2</PropertyName>"
+          + "<Literal>Literal</Literal>"
+          + "</PropertyIsLike>"
+          + "</Or>"
+          + "</Filter>";
 
   private final String propertyBetweenXmlLiteral =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
@@ -399,6 +465,23 @@ public class WfsFilterDelegateTest {
     WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, LITERAL, true);
+
+    assertXMLEqual(propertyIsEqualToXmlLiteral, marshal(filter));
+  }
+
+  @Test
+  public void testPropertyIsEqualToStringMatchCase()
+      throws JAXBException, SAXException, IOException {
+
+    whenPropertiesStringType();
+
+    WfsFilterDelegate delegate = createDelegate();
+
+    FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, LITERAL, false);
+
+    assertXMLEqual(propertyIsEqualToXmlLiteralMatchCaseFalse, marshal(filter));
+
+    filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, LITERAL, true);
 
     assertXMLEqual(propertyIsEqualToXmlLiteral, marshal(filter));
   }
@@ -527,6 +610,20 @@ public class WfsFilterDelegateTest {
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, LITERAL, true);
 
     assertXMLEqual(propertyNotEqualToXmlLiteral, marshal(filter));
+  }
+
+  @Test
+  public void testPropertyIsNotEqualToStringMatchCase()
+      throws JAXBException, SAXException, IOException {
+    WfsFilterDelegate delegate = createBooleanDelegate();
+
+    FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, LITERAL, true);
+
+    assertXMLEqual(propertyNotEqualToXmlLiteral, marshal(filter));
+
+    filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, LITERAL, false);
+
+    assertXMLEqual(propertyNotEqualToXmlLiteralMatchCaseFalse, marshal(filter));
   }
 
   @Test
@@ -946,17 +1043,26 @@ public class WfsFilterDelegateTest {
   }
 
   @Test
-  public void testPropertyIsLikeStringStringBooleanAnyText() {
+  public void testPropertyIsLikeStringStringBooleanAnyText() throws Exception {
     WfsFilterDelegate delegate = createTextualDelegate();
     FilterType filter = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
-    // 1 property will produce a ComparisonOp
-    assertThat(filter.isSetComparisonOps(), is(true));
-    assertThat(filter.getComparisonOps(), notNullValue());
-    assertThat(filter.getComparisonOps(), is(instanceOf(JAXBElement.class)));
+    assertXMLEqual(propertyIsLikeXmlLiteral, marshal(filter));
   }
 
   @Test
-  public void testPropertyIsLikeStringStringBooleanAnyTextMultipleProperties() {
+  public void testPropertyIsLikeMatchCase() throws Exception {
+    whenPropertiesStringType();
+    WfsFilterDelegate delegate = createDelegate();
+
+    FilterType filter = delegate.propertyIsLike(MOCK_PROPERTY, LITERAL, true);
+    assertXMLEqual(propertyIsLikeXmlLiteral, marshal(filter));
+
+    filter = delegate.propertyIsLike(MOCK_PROPERTY, LITERAL, false);
+    assertXMLEqual(propertyIsLikeXmlLiteralMatchCaseFalse, marshal(filter));
+  }
+
+  @Test
+  public void testPropertyIsLikeStringStringBooleanAnyTextMultipleProperties() throws Exception {
     mockProps.add(MOCK_PROPERTY);
     mockProps.add(MOCK_PROPERTY_2);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockProps);
@@ -970,11 +1076,28 @@ public class WfsFilterDelegateTest {
                 MOCK_PROPERTY_2, MOCK_PROPERTY_2, true, true, true, true, BasicTypes.STRING_TYPE));
     WfsFilterDelegate delegate = createDelegate();
     FilterType filter = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
-    // Mulitple properties will produce a LogicOp (OR)
-    assertThat(filter.isSetComparisonOps(), is(false));
-    assertThat(filter.isSetLogicOps(), is(true));
-    assertThat(filter.getLogicOps(), notNullValue());
-    assertThat(filter.getLogicOps(), is(instanceOf(JAXBElement.class)));
+    assertXMLEqual(propertyIsLikeXmlLiteralAnyText, marshal(filter));
+  }
+
+  @Test
+  public void testPropertyIsLikeAnyTextMultiplePropertiesMatchCase() throws Exception {
+    mockProps.add(MOCK_PROPERTY);
+    mockProps.add(MOCK_PROPERTY_2);
+    when(featureMetacardType.getTextualProperties()).thenReturn(mockProps);
+    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
+        .thenReturn(
+            new FeatureAttributeDescriptor(
+                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY_2))
+        .thenReturn(
+            new FeatureAttributeDescriptor(
+                MOCK_PROPERTY_2, MOCK_PROPERTY_2, true, true, true, true, BasicTypes.STRING_TYPE));
+    WfsFilterDelegate delegate = createDelegate();
+    FilterType filter = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
+    assertXMLEqual(propertyIsLikeXmlLiteralAnyText, marshal(filter));
+
+    filter = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, false);
+    assertXMLEqual(propertyIsLikeXmlLiteralAnyTextMatchCaseFalse, marshal(filter));
   }
 
   @Test
@@ -1503,7 +1626,7 @@ public class WfsFilterDelegateTest {
   private String getPropertyEqualToXmlDate() {
     return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
         + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-        + "<PropertyIsEqualTo>"
+        + "<PropertyIsEqualTo matchCase=\"true\">"
         + "<Literal>"
         + convertDateToIso8601Format(date)
         + "</Literal>"
@@ -1515,7 +1638,7 @@ public class WfsFilterDelegateTest {
   private String getPropertyNotEqualToXmlDate() {
     return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
         + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-        + "<PropertyIsNotEqualTo>"
+        + "<PropertyIsNotEqualTo matchCase=\"true\">"
         + "<PropertyName>mockProperty</PropertyName>"
         + "<Literal>"
         + convertDateToIso8601Format(date)
@@ -1527,7 +1650,7 @@ public class WfsFilterDelegateTest {
   private String getPropertyGreaterThanXmlDate() {
     return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
         + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-        + "<PropertyIsGreaterThan>"
+        + "<PropertyIsGreaterThan matchCase=\"true\">"
         + "<PropertyName>mockProperty</PropertyName>"
         + "<Literal>"
         + convertDateToIso8601Format(date)
@@ -1539,7 +1662,7 @@ public class WfsFilterDelegateTest {
   private String getPropertyGreaterThanOrEqualToXmlDate() {
     return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
         + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-        + "<PropertyIsGreaterThanOrEqualTo>"
+        + "<PropertyIsGreaterThanOrEqualTo matchCase=\"true\">"
         + "<PropertyName>mockProperty</PropertyName>"
         + "<Literal>"
         + convertDateToIso8601Format(date)
@@ -1551,7 +1674,7 @@ public class WfsFilterDelegateTest {
   private String getPropertyLessThanXmlDate() {
     return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
         + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-        + "<PropertyIsLessThan>"
+        + "<PropertyIsLessThan matchCase=\"true\">"
         + "<PropertyName>mockProperty</PropertyName>"
         + "<Literal>"
         + convertDateToIso8601Format(date)
@@ -1563,7 +1686,7 @@ public class WfsFilterDelegateTest {
   private String getPropertyLessThanOrEqualToXmlDate() {
     return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
         + "<Filter xmlns:ns2=\"http://www.opengis.net/gml\" xmlns=\"http://www.opengis.net/ogc\" xmlns:ns3=\"http://www.w3.org/1999/xlink\">"
-        + "<PropertyIsLessThanOrEqualTo>"
+        + "<PropertyIsLessThanOrEqualTo matchCase=\"true\">"
         + "<PropertyName>mockProperty</PropertyName>"
         + "<Literal>"
         + convertDateToIso8601Format(date)
