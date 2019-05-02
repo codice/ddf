@@ -25,9 +25,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreQueryPlugin;
-import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.Subject;
 import ddf.security.SubjectIdentity;
 import ddf.security.SubjectUtils;
@@ -36,7 +34,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.shiro.SecurityUtils;
-import org.geotools.filter.visitor.SimplifyingFilterVisitor;
+import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +50,10 @@ import org.slf4j.LoggerFactory;
  * <p>When identifying a {@link Filter} that only selects access controlled metacards, the current
  * implementation takes a best effort approach on the entire filter as a whole. It does not perform
  * modification on individual subtrees, only the entire filter, or not at all.
+ *
+ * <p>While passing a filter to this plugin that contains logical redundancy will not result in
+ * over-filtering, it could cause a potentially optimizable filter to be ignored. If the filter
+ * contains tags within double negation, for example. See {@link TagAggregationVisitor}'s javadoc.
  *
  * <p>This plugin will skip processing queries when any of the below are true:
  *
@@ -94,8 +96,7 @@ public class AccessControlPreQueryPlugin implements PreQueryPlugin {
   }
 
   @Override
-  public QueryRequest process(QueryRequest input)
-      throws PluginExecutionException, StopProcessingException {
+  public QueryRequest process(QueryRequest input) {
     if (!configuration.isPolicyToFilterEnabled()) {
       LOGGER.debug(
           "Will not modify filter because policy to filter mapping is disabled; "
@@ -117,20 +118,19 @@ public class AccessControlPreQueryPlugin implements PreQueryPlugin {
     }
 
     final Query query = input.getQuery();
-    final SimplifyingFilterVisitor simpleVisitor = new SimplifyingFilterVisitor();
-    final Filter simplified = (Filter) query.accept(simpleVisitor, null);
-
-    LOGGER.trace("Simplified filter [{}]", simplified);
+    LOGGER.trace("Received query [{}]", query);
 
     final TagAggregationVisitor tagVisitor = new TagAggregationVisitor();
-    simplified.accept(tagVisitor, null);
+    query.accept(tagVisitor, null);
 
     final Set<String> discoveredTags = tagVisitor.getTags();
     if (CollectionUtils.isEmpty(discoveredTags)) {
-      LOGGER.debug(
-          "Will not modify filter; subject's ({}) query [{}] did not completely bind results to tags",
-          subjectIdentifier,
-          query);
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "Will not modify filter; subject's ({}) query [{}] did not imply all results had tags",
+            subjectIdentifier,
+            filterOnly(query));
+      }
       return input;
     }
 
@@ -138,16 +138,25 @@ public class AccessControlPreQueryPlugin implements PreQueryPlugin {
     final Set<String> tagsNotAccessControlled =
         Sets.difference(discoveredTags, tagsThatAreAccessControlled);
     if (CollectionUtils.isNotEmpty(tagsNotAccessControlled)) {
-      LOGGER.debug(
-          "Will not modify filter; subject's ({}) query [{}] referenced tags that are not in access controlled set [{}]",
-          subjectIdentifier,
-          query,
-          tagsThatAreAccessControlled);
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "Will not modify filter; subject's ({}) query [{}] referenced tags "
+                + "[{}] that are not in access controlled set [{}]",
+            subjectIdentifier,
+            filterOnly(query),
+            tagsNotAccessControlled,
+            tagsThatAreAccessControlled);
+      }
       return input;
     }
 
     final Filter policyBranch = createSecurityPolicySubset(subjectIdentifier, groups);
-    LOGGER.debug("Adding access control policy to the query filter [{}]", policyBranch);
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug(
+          "Query filter [{}] will be modified with access control policy [{}]",
+          filterOnly(query),
+          policyBranch);
+    }
 
     final Filter combined = filterBuilder.allOf(query, policyBranch);
     return new QueryRequestImpl(
@@ -169,6 +178,11 @@ public class AccessControlPreQueryPlugin implements PreQueryPlugin {
         SubjectUtils.getAttribute(subject, configuration.getSystemUserAttribute());
     LOGGER.debug("Obtained user's groups: {}", groups);
     return groups;
+  }
+
+  private Filter filterOnly(Query query) {
+    final DuplicatingFilterVisitor dupeVisitor = new DuplicatingFilterVisitor();
+    return (Filter) query.accept(dupeVisitor, null);
   }
 
   private Filter createSecurityPolicySubset(String identifier, Set<String> groups) {

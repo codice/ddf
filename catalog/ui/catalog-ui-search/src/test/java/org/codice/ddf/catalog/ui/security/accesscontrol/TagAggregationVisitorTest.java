@@ -648,4 +648,50 @@ public class TagAggregationVisitorTest {
     filter.accept(tagAggregationVisitor, null);
     assertThat(tagAggregationVisitor.getTags(), is(empty()));
   }
+
+  /*
+   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+   * Logical Redundancies
+   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+   */
+
+  @Test
+  public void testTagsPropagateThroughDoubleAndRedundancy() {
+    Filter filter =
+        FILTER_BUILDER.allOf(
+            FILTER_BUILDER.attribute(Core.TITLE).is().like().text("*term*"),
+            FILTER_BUILDER.allOf(
+                FILTER_BUILDER.attribute(Core.METACARD_TAGS).is().like().text(TAG_A),
+                FILTER_BUILDER.attribute(Core.METACARD_TAGS).is().equalTo().text(TAG_B)));
+    filter.accept(tagAggregationVisitor, null);
+    assertThat(tagAggregationVisitor.getTags(), hasSize(2));
+    assertThat(tagAggregationVisitor.getTags(), hasItems(TAG_A, TAG_B));
+  }
+
+  @Test
+  public void testTagsPropagateThroughDoubleOrRedundancy() {
+    Filter filter =
+        FILTER_BUILDER.anyOf(
+            FILTER_BUILDER.attribute(Core.METACARD_TAGS).is().like().text(TAG_A),
+            FILTER_BUILDER.anyOf(
+                FILTER_BUILDER.attribute(Core.METACARD_TAGS).is().equalTo().text(TAG_B),
+                FILTER_BUILDER.attribute(Core.METACARD_TAGS).is().equalTo().text("third")));
+    filter.accept(tagAggregationVisitor, null);
+    assertThat(tagAggregationVisitor.getTags(), hasSize(3));
+    assertThat(tagAggregationVisitor.getTags(), hasItems(TAG_A, TAG_B, "third"));
+  }
+
+  /**
+   * Very few queries with double negation will come through the system, let alone ones that also
+   * are eligible for policy mapping. Not worth optimizing for this case.
+   */
+  @Test
+  public void testTagsDoNotPropagateThroughUnsupportedDoubleNotRedundancy() {
+    Filter filter =
+        FILTER_BUILDER.not(
+            FILTER_BUILDER.not(
+                FILTER_BUILDER.attribute(Core.METACARD_TAGS).is().like().text(TAG_A)));
+    filter.accept(tagAggregationVisitor, null);
+    assertThat(tagAggregationVisitor.getTags(), is(empty()));
+  }
 }

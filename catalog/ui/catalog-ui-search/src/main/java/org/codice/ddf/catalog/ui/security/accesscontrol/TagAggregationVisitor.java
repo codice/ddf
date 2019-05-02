@@ -41,15 +41,30 @@ import org.slf4j.LoggerFactory;
  * guaranteed any result in the list will have at least one tag found in {@link #getTags()}. If this
  * cannot be guaranteed, the resultant tag set will be empty.
  *
- * <p>Run this visitor against a simplified filter. Running against filters without optimized logic
- * is not supported. If no other algorithms are available, {@link
- * org.geotools.filter.visitor.SimplifyingFilterVisitor} can be used.
- *
  * <p>Note that {@link PropertyIsNotEqualTo} is not implemented, despite it potentially referencing
  * metacard tags. That's because aggregation can only effectively operate on what is known to be
  * true, not necessarily what is known to be false. This is because true predicates narrow down the
  * result space in deterministic ways without the need of the entire taxonomy or database schema to
  * compute the truthy alternative for a falsey filter, which would be prohibitively large.
+ *
+ * <p>For best results, run this visitor against a simplified filter. Running against filters
+ * without optimized logic is only partially supported. Tags within the following logical operators
+ * will be propagated up the tree correctly:
+ *
+ * <ul>
+ *   <li>AND within an AND
+ *   <li>OR within an OR
+ * </ul>
+ *
+ * <p>Tags within the following logical operators <b>will be ignored</b>:
+ *
+ * <ul>
+ *   <li>NOT within a NOT
+ * </ul>
+ *
+ * <p>Given the vast majority of filters will not explicitly contain double negation, and the UI
+ * already does some optimization work for us, skipping policy optimization on these kinds of
+ * filters is acceptable.
  */
 @SuppressWarnings("squid:S1192" /* Constants not actually helpful for log statements */)
 public class TagAggregationVisitor extends TagBaseVisitor {
