@@ -42,8 +42,6 @@
     <field name="id_txt_tokenized" type="text" indexed="true" stored="false" required="false"/>
     <field name="id_txt_tokenized_has_case" type="text_case" indexed="true" stored="false" required="false"/>
 
-    <field name="language_detected" type="string" indexed="true" stored="true" multiValued="true"/>
-
     <field name="lux_xml" type="binary" indexed="false" stored="true"/>
 
     <!-- Dynamic Fields -->
@@ -127,17 +125,6 @@
                allowMultiOverlap="true" />
 
     <fieldType name="location" class="solr.LatLonPointSpatialField"/>
-
-    <fieldType name="text_phonetics" class="solr.TextField" positionIncrementGap="100">
-        <analyzer>
-            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <filter class="solr.LowerCaseFilterFactory"/>
-            <filter class="solr.PhoneticFilterFactory" inject="true" encoder="DoubleMetaphone"/>
-            <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
-        </analyzer>
-    </fieldType>
-    <dynamicField name="*_txt_phonetics" type="text_phonetics" docValues="false" multiValued="true" indexed="true" stored="false"/>
-    <copyField source="*_txt" dest="*_txt_phonetics"/>
 
     <fieldType name="text_suggest" class="solr.TextField" positionIncrementGap="100">
         <analyzer>

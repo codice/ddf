@@ -624,7 +624,6 @@
          system has authentication enabled.
 
     <requestParsers enableRemoteStreaming="false"
-          enableStreamBody="false"
                     multipartUploadLimitInKB="-1"
                     formdataUploadLimitInKB="-1"
                     addHttpRequestToContext="false"/>
@@ -762,7 +761,6 @@
   <initParams path="/update/**,/query,/select,/tvrh,/elevate,/spell,/browse">
     <lst name="defaults">
       <str name="df">_text_</str>
-      <str name="update.chain">langid</str>
     </lst>
   </initParams>
 
@@ -1175,6 +1173,7 @@
        rich documents injected via ExtractingRequestHandler.
        See more about langId at http://wiki.apache.org/solr/LanguageDetection
     -->
+  <!--
   <updateRequestProcessorChain name="langid">
     <processor class="org.apache.solr.update.processor.TikaLanguageIdentifierUpdateProcessorFactory">
       <str name="langid.fl">_text_,title_txt,description_txt</str>
@@ -1184,7 +1183,7 @@
     <processor class="solr.LogUpdateProcessorFactory" />
     <processor class="solr.RunUpdateProcessorFactory" />
   </updateRequestProcessorChain>
-
+  -->
   <!-- Script update processor
 
     This example hooks in an update processor implemented using JavaScript.
