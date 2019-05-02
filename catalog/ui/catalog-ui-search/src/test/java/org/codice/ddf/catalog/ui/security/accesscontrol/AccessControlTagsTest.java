@@ -21,6 +21,7 @@ import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +68,15 @@ public class AccessControlTagsTest {
 
   @Test
   public void testBindWithServicePropertyOfIncorrectTypeIsIgnored() {
-    when(mockTypeRef.getProperty("access-controlled-tag")).thenReturn(new Object());
+    when(mockTypeRef.getProperty(ACCESS_CONTROLLED_TAG)).thenReturn(new Object());
+    tagSet.bindTag(mockTypeRef);
+    assertThat(tagSet.getAccessControlledTags(), is(empty()));
+  }
+
+  @Test
+  public void testBindWithServicePropertyOfInvalidSetIsIgnored() {
+    when(mockTypeRef.getProperty(ACCESS_CONTROLLED_TAG))
+        .thenReturn(ImmutableSet.of("string", new Object()));
     tagSet.bindTag(mockTypeRef);
     assertThat(tagSet.getAccessControlledTags(), is(empty()));
   }
@@ -78,6 +87,15 @@ public class AccessControlTagsTest {
     tagSet.bindTag(mockTypeRef);
     assertThat(tagSet.getAccessControlledTags(), hasSize(1));
     assertThat(tagSet.getAccessControlledTags(), hasItems(EXPECTED_TAG_A));
+  }
+
+  @Test
+  public void testBindWithExpectedServicePropertySetSavesTheTags() {
+    when(mockTypeRef.getProperty(ACCESS_CONTROLLED_TAG))
+        .thenReturn(ImmutableSet.of(EXPECTED_TAG_A, EXPECTED_TAG_B));
+    tagSet.bindTag(mockTypeRef);
+    assertThat(tagSet.getAccessControlledTags(), hasSize(2));
+    assertThat(tagSet.getAccessControlledTags(), hasItems(EXPECTED_TAG_A, EXPECTED_TAG_B));
   }
 
   @Test
@@ -108,7 +126,20 @@ public class AccessControlTagsTest {
     assertThat(tagSet.getAccessControlledTags(), hasSize(1));
     assertThat(tagSet.getAccessControlledTags(), hasItems(EXPECTED_TAG_A));
 
-    when(mockTypeRef.getProperty("access-controlled-tag")).thenReturn(new Object());
+    when(mockTypeRef.getProperty(ACCESS_CONTROLLED_TAG)).thenReturn(new Object());
+    tagSet.unbindTag(mockTypeRef);
+    assertThat(tagSet.getAccessControlledTags(), hasSize(1));
+    assertThat(tagSet.getAccessControlledTags(), hasItems(EXPECTED_TAG_A));
+  }
+
+  @Test
+  public void testUnbindWithServicePropertyOfInvalidSetIsIgnored() {
+    bindTagForTest(EXPECTED_TAG_A);
+    assertThat(tagSet.getAccessControlledTags(), hasSize(1));
+    assertThat(tagSet.getAccessControlledTags(), hasItems(EXPECTED_TAG_A));
+
+    when(mockTypeRef.getProperty(ACCESS_CONTROLLED_TAG))
+        .thenReturn(ImmutableSet.of("string", new Object()));
     tagSet.unbindTag(mockTypeRef);
     assertThat(tagSet.getAccessControlledTags(), hasSize(1));
     assertThat(tagSet.getAccessControlledTags(), hasItems(EXPECTED_TAG_A));
@@ -121,6 +152,19 @@ public class AccessControlTagsTest {
     assertThat(tagSet.getAccessControlledTags(), hasItems(EXPECTED_TAG_A));
 
     when(mockTypeRef.getProperty(ACCESS_CONTROLLED_TAG)).thenReturn(EXPECTED_TAG_A);
+    tagSet.unbindTag(mockTypeRef);
+    assertThat(tagSet.getAccessControlledTags(), is(empty()));
+  }
+
+  @Test
+  public void testUnbindWithExpectedServicePropertySetRemovesTheTags() {
+    bindTagForTest(EXPECTED_TAG_A);
+    bindTagForTest(EXPECTED_TAG_B);
+    assertThat(tagSet.getAccessControlledTags(), hasSize(2));
+    assertThat(tagSet.getAccessControlledTags(), hasItems(EXPECTED_TAG_A, EXPECTED_TAG_B));
+
+    when(mockTypeRef.getProperty(ACCESS_CONTROLLED_TAG))
+        .thenReturn(ImmutableSet.of(EXPECTED_TAG_A, EXPECTED_TAG_B));
     tagSet.unbindTag(mockTypeRef);
     assertThat(tagSet.getAccessControlledTags(), is(empty()));
   }
