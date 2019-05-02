@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.xmlunit.matchers.HasXPathMatcher.hasXPath;
 
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.ContentType;
@@ -46,6 +48,8 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.encryption.EncryptionService;
 import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,6 +61,10 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 import net.opengis.filter.v_1_1_0.BinaryLogicOpType;
@@ -81,6 +89,8 @@ import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.impl.MetacardMapperImpl;
 import org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
@@ -88,6 +98,7 @@ import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.DescribeFeatureTypeReq
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
@@ -96,6 +107,8 @@ import org.opengis.filter.Filter;
 import org.osgi.framework.BundleContext;
 
 public class WfsSourceTest {
+  private static final Map<String, String> NAMESPACE_CONTEXT =
+      ImmutableMap.of("wfs", "http://www.opengis.net/wfs", "ogc", "http://www.opengis.net/ogc");
 
   private static final String ONE_TEXT_PROPERTY_SCHEMA =
       "<?xml version=\"1.0\"?>"
@@ -205,11 +218,13 @@ public class WfsSourceTest {
         return typeName1.compareTo(typeName2);
       };
 
+  private static JAXBContext jaxbContext;
+
   private final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
 
   private Wfs mockWfs = mock(Wfs.class);
 
-  private WFSCapabilitiesType mockCapabilites = new WFSCapabilitiesType();
+  private WFSCapabilitiesType mockCapabilities = new WFSCapabilitiesType();
 
   private WfsFeatureCollection mockFeatureCollection = mock(WfsFeatureCollection.class);
 
@@ -228,6 +243,17 @@ public class WfsSourceTest {
   private WfsMetacardTypeRegistry mockWfsMetacardTypeRegistry = mock(WfsMetacardTypeRegistry.class);
 
   private ClientFactoryFactory mockClientFactoryFactory = mock(ClientFactoryFactory.class);
+
+  private List<MetacardMapper> metacardMappers = new ArrayList<>();
+
+  @BeforeClass
+  public static void setupClass() {
+    try {
+      jaxbContext = JAXBContext.newInstance("net.opengis.wfs.v_1_1_0");
+    } catch (JAXBException e) {
+      fail(e.getMessage());
+    }
+  }
 
   public void setUp(
       final String schema,
@@ -277,15 +303,15 @@ public class WfsSourceTest {
         .thenReturn(mockFactory);
 
     // GetCapabilities Response
-    when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilites);
-    mockCapabilites.setFilterCapabilities(new FilterCapabilities());
-    mockCapabilites.getFilterCapabilities().setSpatialCapabilities(new SpatialCapabilitiesType());
-    mockCapabilites
+    when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilities);
+    mockCapabilities.setFilterCapabilities(new FilterCapabilities());
+    mockCapabilities.getFilterCapabilities().setSpatialCapabilities(new SpatialCapabilitiesType());
+    mockCapabilities
         .getFilterCapabilities()
         .getSpatialCapabilities()
         .setSpatialOperators(new SpatialOperatorsType());
     if (CollectionUtils.isNotEmpty(supportedGeos)) {
-      mockCapabilites
+      mockCapabilities
           .getFilterCapabilities()
           .getSpatialCapabilities()
           .getSpatialOperators()
@@ -316,7 +342,7 @@ public class WfsSourceTest {
     when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class))).thenReturn(xmlSchema);
 
     sampleFeatures = new ArrayList<>();
-    mockCapabilites.setFeatureTypeList(new FeatureTypeListType());
+    mockCapabilities.setFeatureTypeList(new FeatureTypeListType());
     if (numFeatures != null) {
       for (int ii = 0; ii < numFeatures; ii++) {
 
@@ -333,7 +359,7 @@ public class WfsSourceTest {
         if (null != srsName) {
           feature.setDefaultSRS(srsName);
         }
-        mockCapabilites.getFeatureTypeList().getFeatureType().add(feature);
+        mockCapabilities.getFeatureTypeList().getFeatureType().add(feature);
       }
     }
 
@@ -375,7 +401,7 @@ public class WfsSourceTest {
     source.setContext(mockContext);
     source.setWfsMetacardTypeRegistry(mockWfsMetacardTypeRegistry);
     source.setMetacardTypeEnhancers(Collections.emptyList());
-    source.setMetacardMappers(Collections.emptyList());
+    source.setMetacardMappers(metacardMappers);
     source.setPollInterval(10);
     source.init();
   }
@@ -1127,6 +1153,43 @@ public class WfsSourceTest {
   }
 
   @Test
+  public void testSourceUsesMetacardMapperToMapMetacardAttributesToFeatureProperties()
+      throws Exception {
+    final MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
+    metacardMapper.setFeatureType("SampleFeature0");
+    metacardMapper.setTitleMapping("ext.SampleFeature0.orderperson");
+    metacardMapper.setResourceUriMapping("ext.SampleFeature0.orderdog");
+    metacardMappers.add(metacardMapper);
+
+    setUp(TWO_TEXT_PROPERTY_SCHEMA, null, null, ONE_FEATURE, null);
+
+    final Filter filter =
+        builder.allOf(
+            builder.attribute(Core.TITLE).is().equalTo().text("something"),
+            builder.attribute(Core.RESOURCE_URI).is().equalTo().text("anything"));
+    final Query query = new QueryImpl(filter);
+    final QueryRequest queryRequest = new QueryRequestImpl(query);
+    source.query(queryRequest);
+
+    final ArgumentCaptor<GetFeatureType> getFeatureCaptor =
+        ArgumentCaptor.forClass(GetFeatureType.class);
+    verify(mockWfs).getFeature(getFeatureCaptor.capture());
+
+    final GetFeatureType getFeatureType = getFeatureCaptor.getValue();
+    final String getFeatureXml = marshal(getFeatureType);
+    assertThat(
+        getFeatureXml,
+        hasXPath(
+                "/wfs:GetFeature/wfs:Query/ogc:Filter/ogc:And/ogc:PropertyIsEqualTo[ogc:PropertyName='orderperson' and ogc:Literal='something']")
+            .withNamespaceContext(NAMESPACE_CONTEXT));
+    assertThat(
+        getFeatureXml,
+        hasXPath(
+                "/wfs:GetFeature/wfs:Query/ogc:Filter/ogc:And/ogc:PropertyIsEqualTo[ogc:PropertyName='orderdog' and ogc:Literal='anything']")
+            .withNamespaceContext(NAMESPACE_CONTEXT));
+  }
+
+  @Test
   public void testTimeoutConfiguration() throws Exception {
     setUp(ONE_TEXT_PROPERTY_SCHEMA, null, null, ONE_FEATURE, null);
 
@@ -1288,5 +1351,20 @@ public class WfsSourceTest {
       int id = startIndex + i;
       assertThat(results.get(i).getMetacard().getId(), equalTo("ID_" + id));
     }
+  }
+
+  private String marshal(final GetFeatureType getFeatureType) throws JAXBException {
+    Writer writer = new StringWriter();
+    Marshaller marshaller = jaxbContext.createMarshaller();
+    marshaller.marshal(getGetFeatureTypeJaxbElement(getFeatureType), writer);
+    return writer.toString();
+  }
+
+  private JAXBElement<GetFeatureType> getGetFeatureTypeJaxbElement(
+      final GetFeatureType getFeatureType) {
+    return new JAXBElement<>(
+        new QName("http://www.opengis.net/wfs", "GetFeature"),
+        GetFeatureType.class,
+        getFeatureType);
   }
 }

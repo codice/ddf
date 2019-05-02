@@ -200,6 +200,12 @@
             <version>3.3.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-matchers</artifactId>
+            <version>${xmlunit-matchers.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <resources>
