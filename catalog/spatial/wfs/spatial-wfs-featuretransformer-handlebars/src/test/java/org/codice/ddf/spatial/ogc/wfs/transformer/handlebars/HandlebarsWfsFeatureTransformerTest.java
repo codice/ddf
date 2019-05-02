@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.transformer.handlebars;
 
+import static org.codice.ddf.libs.geo.util.GeospatialUtil.LAT_LON_ORDER;
+import static org.codice.ddf.libs.geo.util.GeospatialUtil.LON_LAT_ORDER;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -51,6 +53,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HandlebarsWfsFeatureTransformerTest {
+
   private static final String EXPECTED_FEATURE_TYPE =
       "{http://www.neverland.org/peter/pan}PeterPan";
   private static final String EXPECTED_FEATURE_TYPE_LOCAL_PART = "PeterPan";
@@ -85,6 +88,7 @@ public class HandlebarsWfsFeatureTransformerTest {
     transformer.setFeatureType(EXPECTED_FEATURE_TYPE);
     transformer.setAttributeMappings(getMappings());
     transformer.setMetacardTypeRegistry(mockMetacardTypeRegistry);
+    transformer.setFeatureCoordinateOrder(LAT_LON_ORDER);
 
     inputStream =
         new BufferedInputStream(
@@ -230,6 +234,36 @@ public class HandlebarsWfsFeatureTransformerTest {
             HandlebarsWfsFeatureTransformer.class.getResourceAsStream("/notAFeatureMember.xml"));
     Optional<Metacard> metacardOptional = transformer.apply(randomXmlInputStream, mockWfsMetadata);
     assertThat(metacardOptional, equalTo(Optional.empty()));
+  }
+
+  @Test
+  public void coordinateOrderIsReversedWhenFeatureCoordinateOrderIsLatLon() throws Exception {
+    transformer.setFeatureCoordinateOrder(LAT_LON_ORDER);
+
+    try (final InputStream is = getClass().getResourceAsStream("/FeatureMemberPolygon.xml")) {
+      final Optional<Metacard> metacardOptional = transformer.apply(is, mockWfsMetadata);
+      assertThat(
+          "The transformer did not return a metacard.", metacardOptional.isPresent(), is(true));
+
+      assertThat(
+          metacardOptional.get().getLocation(),
+          is("POLYGON ((25.35 15.25, 25.55 15.35, 25.55 15.55, 25.35 15.65, 25.35 15.25))"));
+    }
+  }
+
+  @Test
+  public void coordinateOrderIsNotReversedWhenFeatureCoordinateOrderIsLonLat() throws Exception {
+    transformer.setFeatureCoordinateOrder(LON_LAT_ORDER);
+
+    try (final InputStream is = getClass().getResourceAsStream("/FeatureMemberPolygon.xml")) {
+      final Optional<Metacard> metacardOptional = transformer.apply(is, mockWfsMetadata);
+      assertThat(
+          "The transformer did not return a metacard.", metacardOptional.isPresent(), is(true));
+
+      assertThat(
+          metacardOptional.get().getLocation(),
+          is("POLYGON ((15.25 25.35, 15.35 25.55, 15.55 25.55, 15.65 25.35, 15.25 25.35))"));
+    }
   }
 
   private void assertDefaultAttributesExist(Metacard metacard) {

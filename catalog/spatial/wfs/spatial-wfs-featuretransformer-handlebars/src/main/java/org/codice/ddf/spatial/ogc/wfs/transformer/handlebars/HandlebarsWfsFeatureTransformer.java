@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.transformer.handlebars;
 
+import static org.codice.ddf.libs.geo.util.GeospatialUtil.LAT_LON_ORDER;
 import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.B;
 import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.BYTES_PER_GB;
 import static org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants.BYTES_PER_KB;
@@ -29,6 +30,8 @@ import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
@@ -37,13 +40,14 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -67,7 +71,6 @@ import javax.xml.stream.events.XMLEvent;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.FeatureTypeType;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.io.IOUtils;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry;
@@ -76,6 +79,7 @@ import org.codice.ddf.spatial.ogc.wfs.featuretransformer.WfsMetadata;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
 import org.codice.ddf.transformer.xml.streaming.impl.Gml3ToWktImpl;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
+import org.geotools.xml.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -104,8 +108,6 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
 
   private static final String TEMPLATE = "template";
 
-  private static final String UTF8_ENCODING = "UTF-8";
-
   private static final String METACARD_ID = "metacardId";
 
   private static final String GML_NAMESPACE = "http://www.opengis.net/gml";
@@ -118,13 +120,11 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
 
   private MetacardType metacardType;
 
-  private Map<String, FeatureAttributeEntry> mappingEntries;
+  private Map<String, FeatureAttributeEntry> mappingEntries = new HashMap<>();
 
   private WfsMetacardTypeRegistry metacardTypeRegistry;
 
-  public HandlebarsWfsFeatureTransformer() {
-    mappingEntries = new HashMap<>();
-  }
+  private String featureCoordinateOrder;
 
   @Override
   public Optional<Metacard> apply(InputStream inputStream, WfsMetadata metadata) {
@@ -230,7 +230,6 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
   private String getIdAttributeValue(
       StartElement startElement, Map<String, String> namespaces, String namespaceAlias) {
     String id = null;
-    startElement.getAttributeByName(new QName(namespaces.get(namespaceAlias), "id")).getValue();
     javax.xml.stream.events.Attribute idAttribute =
         startElement.getAttributeByName(new QName(namespaces.get(namespaceAlias), "id"));
     if (idAttribute != null) {
@@ -309,7 +308,6 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
       }
     } finally {
       eventWriter.close();
-      IOUtils.closeQuietly(stringWriter);
     }
   }
 
@@ -498,11 +496,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
         serializable = wkt;
         break;
       case BINARY:
-        try {
-          serializable = value.getBytes(UTF8_ENCODING);
-        } catch (UnsupportedEncodingException e) {
-          LOGGER.debug("Error encoding the binary value into the metacard.", e);
-        }
+        serializable = value.getBytes(StandardCharsets.UTF_8);
         break;
       case DATE:
         try {
@@ -518,34 +512,42 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
   }
 
   private String getWktFromGeometry(String geometry) {
-    String wkt = getWktFromGml3(geometry);
+    String wkt = getWktFromGml(geometry, new org.geotools.gml3.GMLConfiguration());
     if (StringUtils.isNotBlank(wkt)) {
       return wkt;
     }
     LOGGER.debug("Error converting gml to wkt using gml3 configuration. Trying gml2.");
-    return getWktFromGml2(geometry);
+    return getWktFromGml(geometry, new org.geotools.gml2.GMLConfiguration());
   }
 
-  private String getWktFromGml3(String geometry) {
-    String wkt = null;
-    Gml3ToWkt gml3ToWkt = new Gml3ToWktImpl(new org.geotools.gml3.GMLConfiguration());
-    try {
-      wkt = gml3ToWkt.convert(geometry);
+  private String getWktFromGml(final String geometry, final Configuration gmlConfiguration) {
+    final Gml3ToWkt gml3ToWkt = new Gml3ToWktImpl(gmlConfiguration);
+    try (final InputStream gmlStream =
+        new ByteArrayInputStream(geometry.getBytes(StandardCharsets.UTF_8))) {
+      final Object gmlObject = gml3ToWkt.parseXml(gmlStream);
+      if (gmlObject instanceof Geometry) {
+        final Geometry geo = (Geometry) gmlObject;
+        if (LAT_LON_ORDER.equals(featureCoordinateOrder)) {
+          swapCoordinates(geo);
+        }
+        return new WKTWriter().write(geo);
+      } else {
+        LOGGER.debug("{} could not be parsed to a Geometry object.", geometry);
+        return null;
+      }
     } catch (Exception e) {
-      LOGGER.debug("Error converting gml to wkt using gml3 configuration. GML: {}.", geometry, e);
+      LOGGER.debug(
+          "Error converting gml to wkt using configuration {}. GML: {}.",
+          gmlConfiguration,
+          geometry,
+          e);
+      return null;
     }
-    return wkt;
   }
 
-  private String getWktFromGml2(String geometry) {
-    String wkt = null;
-    Gml3ToWkt gml3ToWkt = new Gml3ToWktImpl(new org.geotools.gml2.GMLConfiguration());
-    try {
-      wkt = gml3ToWkt.convert(geometry);
-    } catch (Exception e) {
-      LOGGER.debug("Error converting gml to wkt using gml2 configuration. GML: {}.", geometry, e);
-    }
-    return wkt;
+  private void swapCoordinates(final Geometry geo) {
+    LOGGER.trace("Swapping Lat/Lon coords to Lon/Lat for geometry: {}", geo);
+    geo.apply(new CoordinateOrderTransformer());
   }
 
   private boolean isPrefixBound(StartElement startElement, String prefix) {
@@ -689,5 +691,9 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
     String resourceSizeAsString = resourceSize.toPlainString();
     LOGGER.debug("resource size in bytes: {}", resourceSizeAsString);
     return resourceSizeAsString;
+  }
+
+  public void setFeatureCoordinateOrder(final String featureCoordinateOrder) {
+    this.featureCoordinateOrder = featureCoordinateOrder;
   }
 }
