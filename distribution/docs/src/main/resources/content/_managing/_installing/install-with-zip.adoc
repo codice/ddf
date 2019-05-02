@@ -15,7 +15,7 @@ Prior to installing ${branding}, ensure the system time is accurate to prevent f
 
 To install the ${branding} distribution zip, perform the following:
 
-. Download the ${branding} {download-url}[zip file].
+. Download the ${branding} {download-url}[zip file] {external-link}.
 . After the <<{managing-prefix}installation_prerequisites,prerequisites>> have been met, change the current directory to the desired install directory, creating a new directory if desired.
 This will be referred to as `${home_directory}`.
 +

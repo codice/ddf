@@ -11,4 +11,4 @@ If a new installation of ${branding} is required, first see the <<{managing-pref
 
 If you would like to set up a test or demo installation to use while developing an external client, see the <<{quickstart-prefix}quick_start_tutorial,Quick Start Tutorial>> for demo instructions.
 
-For troubleshooting and known issues, see the {release-notes-url}[Release Notes].
+For troubleshooting and known issues, see the {release-notes-url}[Release Notes] {external-link}.

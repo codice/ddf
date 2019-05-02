@@ -49,7 +49,6 @@ ${home_directory}/bin/client.bat -h <FQDN>
 ----
 
 Use the `-h` option followed by the name (`<FQDN>`) or IP of the host where ${branding} is running.
-U
 ====
 
 ==== Stopping ${branding}
