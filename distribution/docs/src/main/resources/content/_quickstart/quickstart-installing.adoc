@@ -184,13 +184,27 @@ ${branding-lowercase}${at-symbol}local>
 
 === Quick Install of ${branding} on a remote headless server
 
-If ${branding} is being installed on a remote server that has no user interface some additional steps must be taken prior to starting the system.
+If ${branding} is being installed on a remote server that has no user interface, the hostname will need to be updated in the configuration files and certificates.
 
-. Update any references to localhost in the following files. These references to localhost should be updated to match either the hostname or IP of the system.
-** `${home_directory}/etc/custom.system.properties`
-** `${home_directory}/etc/users.properties`
-** `${home_directory}/etc/users.attributes`
-. From the console go to ${home_directory}/etc/certs.
-.. If using a hostname run: `sh CertNew.sh -cn <hostname> -san "DNS:<hostname>"` (or `CertNew -cn <hostname> -san "DNS:<hostname>"` on windows).
-.. If using an IP address run: `sh CertNew.sh -cn <IP> -san "IP:<IP>"` (or `CertNew -cn <IP> -san "IP:<IP>"` on windows).
+[NOTE]
+====
+Do not replace _all_ instances of `localhost`, only those specified.
+====
+
+.Configuring with a new hostname
+. Update the ${home_directory}/etc/custom.system.properties file. The entry `org.codice.ddf.system.hostname=localhost` should be updated to `org.codice.ddf.system.hostname=<HOSTNAME>`.
+. Update the ${home_directory}/etc/users.properties file. Change the `localhost=localhost[...]` entry to <HOSTNAME>=<HOSTNAME>. (Keep the rest of the line as is.)
+. Update the ${home_directory}/etc/users.attributes file. Change the "localhost" entry to "<HOSTNAME>".
+. From the console go to ${home_directory}/etc/certs and run the appropriate script.
+.. *NIX: `sh CertNew.sh -cn <hostname> -san "DNS:<hostname>"`.
+.. Windows: `CertNew -cn <hostname> -san "DNS:<hostname>"`.
+. Proceed with starting the system and continue as usual.
+
+.Configuring with an IP address
+. Update the ${home_directory}/etc/custom.system.properties file. The entry `org.codice.ddf.system.hostname=localhost` should be updated to `org.codice.ddf.system.hostname=<IP>`.
+. Update the ${home_directory}/etc/users.properties file. Change the `localhost=localhost[...]` entry to <IP>=<IP>. (Keep the rest of the line as is.)
+. Update the ${home_directory}/etc/users.attributes file. Change the "localhost" entry to "<IP>".
+. From the console go to ${home_directory}/etc/certs and run the appropriate script.
+.. *NIX: `sh CertNew.sh -cn <IP> -san "IP:<IP>"`.
+.. Windows: `CertNew -cn <IP> -san "IP:<IP>"`.
 . Proceed with starting the system and continue as usual.
