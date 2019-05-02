@@ -14,13 +14,9 @@
  **/
 
 const Marionette = require('marionette')
-const Backbone = require('backbone')
-const $ = require('jquery')
-const _ = require('underscore')
 const template = require('./filter-builder.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const FilterCollectionView = require('../filter/filter.collection.view.js')
-const DropdownModel = require('../dropdown/dropdown.js')
 const FilterView = require('../filter/filter.view.js')
 const cql = require('../../js/cql.js')
 const DropdownView = require('../dropdown/dropdown.view.js')

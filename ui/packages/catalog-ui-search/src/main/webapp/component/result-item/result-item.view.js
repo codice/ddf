@@ -20,7 +20,6 @@ import { readableColor } from 'polished'
 import MetacardInteractionsDropdown from '../../react-component/container/metacard-interactions/metacard-interactions-dropdown'
 const Backbone = require('backbone')
 const Marionette = require('marionette')
-const _ = require('underscore')
 const CustomElements = require('../../js/CustomElements.js')
 const IconHelper = require('../../js/IconHelper.js')
 const store = require('../../js/store.js')

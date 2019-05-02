@@ -11,12 +11,10 @@
  **/
 
 const Marionette = require('marionette')
-const Backbone = require('backbone')
 const ol = require('openlayers')
 const _ = require('underscore')
 const properties = require('../properties.js')
 const wreqr = require('../wreqr.js')
-const maptype = require('../maptype.js')
 const NotificationView = require('./notification.view')
 const Turf = require('@turf/turf')
 const DrawingController = require('./drawing.controller')

@@ -11,7 +11,6 @@
  **/
 
 const Marionette = require('marionette')
-const store = require('../../../js/store.js')
 const _ = require('underscore')
 const _debounce = require('lodash/debounce')
 const calculateConvexHull = require('geo-convex-hull')

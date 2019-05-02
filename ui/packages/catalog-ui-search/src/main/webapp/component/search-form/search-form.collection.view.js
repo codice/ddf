@@ -16,7 +16,6 @@
 const Marionette = require('marionette')
 import SearchFormView, { Item, NewForm } from './search-form.view'
 const CustomElements = require('../../js/CustomElements')
-const user = require('../singletons/user-instance')
 const wreqr = require('../../exports/wreqr.js')
 import React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'

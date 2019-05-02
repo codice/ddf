@@ -20,11 +20,8 @@ const $ = require('jquery')
 const template = require('./result-add.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
-const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
 const List = require('../../js/model/List.js')
 const PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
-const filter = require('../../js/filter.js')
-const cql = require('../../js/cql.js')
 const _ = require('lodash')
 
 module.exports = Marionette.LayoutView.extend({

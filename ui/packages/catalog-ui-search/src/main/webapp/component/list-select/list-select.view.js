@@ -15,7 +15,6 @@
 
 import ListCreate from '../list-create/list-create.js'
 const Marionette = require('marionette')
-const _ = require('underscore')
 const $ = require('jquery')
 const CustomElements = require('../../js/CustomElements.js')
 const ListItemCollectionView = require('../list-item/list-item.collection.view.js')

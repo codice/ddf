@@ -18,7 +18,6 @@ const _ = require('underscore')
 const $ = require('jquery')
 const CustomElements = require('../../js/CustomElements.js')
 const sources = require('../singletons/sources-instance.js')
-const properties = require('properties')
 import React from 'react'
 import { FormattedMessage } from 'react-intl'
 

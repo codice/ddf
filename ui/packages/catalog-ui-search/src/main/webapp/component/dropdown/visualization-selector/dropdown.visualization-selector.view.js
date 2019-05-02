@@ -14,8 +14,6 @@
  **/
 
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./dropdown.visualization-selector.hbs')
 const DropdownView = require('../dropdown.view')
 import VisualizationSelector from '../../../react-component/presentation/visualization-selector/visualization-selector'
