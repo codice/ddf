@@ -182,7 +182,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
         } else if (version.equals(migratable.getVersion())) {
           migratable.doImport(this);
         } else {
-          migratable.doIncompatibleImport(this, version);
+          migratable.doVersionUpgradeImport(this, version);
         }
       } finally {
         inputStreams.forEach(IOUtils::closeQuietly); // we do not care if we failed to close them

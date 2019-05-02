@@ -45,7 +45,7 @@ public class MigratableTest {
     Mockito.when(report.record(Mockito.any(MigrationMessage.class))).thenReturn(report);
     Mockito.when(report.record(Mockito.any(MigrationException.class))).thenReturn(report);
 
-    migratable.doIncompatibleImport(context, INCOMPATIBLE_VERSION);
+    migratable.doVersionUpgradeImport(context, INCOMPATIBLE_VERSION);
 
     final ArgumentCaptor<MigrationException> capture =
         ArgumentCaptor.forClass(MigrationException.class);

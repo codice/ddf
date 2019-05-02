@@ -57,6 +57,10 @@
             <version>${karaf.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.utils</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

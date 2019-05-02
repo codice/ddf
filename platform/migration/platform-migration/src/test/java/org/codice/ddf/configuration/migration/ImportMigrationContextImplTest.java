@@ -806,7 +806,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     context.doImport();
 
     Mockito.verify(migratable).doImport(context);
-    Mockito.verify(migratable, Mockito.never()).doIncompatibleImport(context, VERSION);
+    Mockito.verify(migratable, Mockito.never()).doVersionUpgradeImport(context, VERSION);
     Mockito.verify(migratable, Mockito.never()).doMissingImport(context);
   }
 
@@ -819,12 +819,12 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     context.processMetadata(metadata); // make sure context has a version
 
     Mockito.when(migratable.getVersion()).thenReturn(VERSION + "2");
-    Mockito.doNothing().when(migratable).doIncompatibleImport(Mockito.any(), Mockito.eq(VERSION));
+    Mockito.doNothing().when(migratable).doVersionUpgradeImport(Mockito.any(), Mockito.eq(VERSION));
 
     context.doImport();
 
     Mockito.verify(migratable, Mockito.never()).doImport(context);
-    Mockito.verify(migratable).doIncompatibleImport(context, VERSION);
+    Mockito.verify(migratable).doVersionUpgradeImport(context, VERSION);
     Mockito.verify(migratable, Mockito.never()).doMissingImport(context);
   }
 
@@ -837,7 +837,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     context.doImport();
 
     Mockito.verify(migratable, Mockito.never()).doImport(context);
-    Mockito.verify(migratable, Mockito.never()).doIncompatibleImport(context, VERSION);
+    Mockito.verify(migratable, Mockito.never()).doVersionUpgradeImport(context, VERSION);
     Mockito.verify(migratable).doMissingImport(context);
   }
 
@@ -855,7 +855,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     context.doImport();
 
     Mockito.verify(migratable, Mockito.never()).doImport(context);
-    Mockito.verify(migratable, Mockito.never()).doIncompatibleImport(context, VERSION);
+    Mockito.verify(migratable, Mockito.never()).doVersionUpgradeImport(context, VERSION);
     Mockito.verify(migratable, Mockito.never()).doMissingImport(context);
   }
 }

@@ -46,6 +46,7 @@ grant
   codeBase "file:/platform-migratable" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}bin${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "write";
 }
 
 grant

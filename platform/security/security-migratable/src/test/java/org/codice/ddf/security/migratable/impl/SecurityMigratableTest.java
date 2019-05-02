@@ -148,7 +148,7 @@ public class SecurityMigratableTest {
     SecurityMigratable securityMigratable = new SecurityMigratable();
 
     // Perform Test
-    securityMigratable.doIncompatibleImport(mockImportMigrationContext, UNSUPPORTED_VERSION);
+    securityMigratable.doVersionUpgradeImport(mockImportMigrationContext, UNSUPPORTED_VERSION);
 
     // Verify
     verify(mockImportMigrationContext).getReport();

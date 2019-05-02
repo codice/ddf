@@ -195,7 +195,7 @@ public class PlatformMigratableTest {
     PlatformMigratable platformMigratable = new PlatformMigratable();
 
     // Perform Test
-    platformMigratable.doIncompatibleImport(mockImportMigrationContext, UNSUPPORTED_VERSION);
+    platformMigratable.doVersionUpgradeImport(mockImportMigrationContext, UNSUPPORTED_VERSION);
 
     // Verify
     verify(mockImportMigrationContext).getReport();

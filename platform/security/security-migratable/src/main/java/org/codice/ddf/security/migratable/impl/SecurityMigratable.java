@@ -23,6 +23,7 @@ import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
+import org.codice.ddf.migration.MigrationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,9 +39,12 @@ public class SecurityMigratable implements Migratable {
    *
    * <p>1.0 - initial version
    */
-  private static final String CURRENT_VERSION = "1.0";
+  private static final String CURRENT_VERSION = "2.0";
 
   private static final Path PDP_POLICIES_DIR = Paths.get("etc", "pdp");
+
+  private static final Path CONFIGURATIONS_POLICY_FILE =
+      Paths.get("security", "configurations.policy");
 
   private static final Path SECURITY_POLICIES_DIR = Paths.get("security");
 
@@ -106,6 +110,42 @@ public class SecurityMigratable implements Migratable {
 
   @Override
   public void doImport(ImportMigrationContext context) {
+    importPropertiesFiles(context);
+    importPdpPolicies(context);
+    LOGGER.debug(
+        "Importing security policy Directory at [{}]...", SecurityMigratable.SECURITY_POLICIES_DIR);
+    context.getEntry(SecurityMigratable.SECURITY_POLICIES_DIR).restore();
+  }
+
+  @Override
+  public void doVersionUpgradeImport(ImportMigrationContext context, String migratableVersion) {
+    if (Float.parseFloat(migratableVersion) > Float.parseFloat(getVersion())) {
+      context
+          .getReport()
+          .record(
+              new MigrationException(
+                  IMPORT_UNSUPPORTED_MIGRATABLE_VERSION_ERROR,
+                  migratableVersion,
+                  getId(),
+                  getVersion()));
+      return;
+    }
+
+    importPropertiesFiles(context);
+    importPdpPolicies(context);
+
+    LOGGER.debug(
+        "Importing configurations policy at [{}]...",
+        SecurityMigratable.CONFIGURATIONS_POLICY_FILE);
+    context.getEntry(SecurityMigratable.CONFIGURATIONS_POLICY_FILE).restore(false);
+  }
+
+  private void importPdpPolicies(ImportMigrationContext context) {
+    LOGGER.debug("Importing PDP Directory at [{}]...", SecurityMigratable.PDP_POLICIES_DIR);
+    context.getEntry(SecurityMigratable.PDP_POLICIES_DIR).restore();
+  }
+
+  private void importPropertiesFiles(ImportMigrationContext context) {
     SecurityMigratable.PROPERTIES_FILES
         .stream()
         .map(context::getEntry)
@@ -119,10 +159,5 @@ public class SecurityMigratable implements Migratable {
         .filter(Optional::isPresent)
         .map(Optional::get)
         .forEach(ImportMigrationEntry::restore);
-    LOGGER.debug("Importing PDP Directory at [{}]...", SecurityMigratable.PDP_POLICIES_DIR);
-    context.getEntry(SecurityMigratable.PDP_POLICIES_DIR).restore();
-    LOGGER.debug(
-        "Importing security policy Directory at [{}]...", SecurityMigratable.SECURITY_POLICIES_DIR);
-    context.getEntry(SecurityMigratable.SECURITY_POLICIES_DIR).restore();
   }
 }
