@@ -6,7 +6,7 @@
 :summary: Using WFS Services
 
 The Web Feature Service (WFS) is an http://www.opengeospatial.org/[Open Geospatial Consortium (OGC)] Specification.
-${branding} supports the ability to integrate WFS 1.0 and WFS 2.0 Web Services.
+${branding} supports the ability to integrate WFS 1.0, 1.1, and 2.0 Web Services.
 
 [NOTE]
 ====
@@ -20,7 +20,8 @@ Each WFS server can have one or more feature types with each type being defined 
 The schema for each type can be discovered by issuing a `DescribeFeatureType` request to the WFS server for the feature type in question.
 The WFS source handles WFS capability discovery and requests for feature type description when an instance of the WFS source is configured and created.
 
-See the <<{managing-prefix}wfs_1_0_source,WFS v1.0.0 Source>> or <<{managing-prefix}wfs_2_0_source,WFS v2.0.0 Source>> for more information about how to configure a WFS source.
+See the <<{managing-prefix}wfs_1_0_source,WFS v1.0.0 Source>>, <<{managing-prefix}wfs_1_1_source,WFS v1.1.0 Source>>,
+or <<{managing-prefix}wfs_2_0_source,WFS v2.0.0 Source>> for more information about how to configure a WFS source.
 
 .Converting a WFS Feature
 In order to expose WFS features to ${branding} clients, the WFS feature must be converted into the common data format of the ${branding}, a metacard.
