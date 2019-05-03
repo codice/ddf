@@ -41,7 +41,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.xml.bind.JAXBContext;
@@ -1510,7 +1509,7 @@ public class WfsFilterDelegateTest {
 
     whenGeom(MOCK_GEOM, MOCK_GEOM2, true, true);
 
-    List<String> supportedGeo = Collections.singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue());
+    List<String> supportedGeo = singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue());
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, metacardMapper, supportedGeo);
 
@@ -1535,7 +1534,7 @@ public class WfsFilterDelegateTest {
   public void testAllGmlPropertiesBlacklisted() {
     whenGeom(MOCK_GEOM, MOCK_GEOM2, false, false);
 
-    List<String> supportedGeo = Collections.singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue());
+    List<String> supportedGeo = singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue());
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, metacardMapper, supportedGeo);
 
@@ -1565,7 +1564,7 @@ public class WfsFilterDelegateTest {
         new WfsFilterDelegate(
             featureMetacardType,
             metacardMapper,
-            Collections.singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue()));
+            singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue()));
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
 
     assertThat(filter, nullValue());
@@ -1901,7 +1900,7 @@ public class WfsFilterDelegateTest {
             new FeatureAttributeDescriptor(
                 MOCK_GEOM, MOCK_GEOM, true, false, false, false, BasicTypes.STRING_TYPE));
 
-    List<String> supportedGeo = Collections.singletonList(spatialOpType);
+    List<String> supportedGeo = singletonList(spatialOpType);
     return new WfsFilterDelegate(featureMetacardType, metacardMapper, supportedGeo);
   }
 
