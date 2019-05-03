@@ -75,6 +75,53 @@ const handleTieredSearchLocalFinish = function(ids) {
   this.startSearch({ results, status })
 }
 
+const reducer = (state = [{}], action) => {
+  switch (action.type) {
+    case 'CLEAR_PAGES':
+      return [{}]
+    case 'NEXT_PAGE':
+      return state.concat({})
+    case 'PREVIOUS_PAGE':
+      return state.slice(0, -1)
+    case 'UPDATE_RESULTS':
+      const srcs = action.payload.results
+        .map(({ src }) => src)
+        .reduce((counts, src) => {
+          if (counts[src] === undefined) {
+            counts[src] = 0
+          }
+          counts[src] += 1
+          return counts
+        }, {})
+
+      return state.slice(0, -1).concat(srcs)
+    default:
+      return state
+  }
+}
+
+const currentIndexForSource = state => {
+  return state.reduce((counts, page) => {
+    return Object.keys(page).reduce((counts, src) => {
+      const resultCount = page[src]
+
+      if (counts[src] === undefined) {
+        counts[src] = 1
+      }
+      counts[src] += resultCount
+
+      return counts
+    }, counts)
+  }, {})
+}
+
+const serverPageIndex = state => state.length
+
+const previousPage = () => ({ type: 'PREVIOUS_PAGE' })
+const nextPage = () => ({ type: 'NEXT_PAGE' })
+const clearPages = () => ({ type: 'CLEAR_PAGES' })
+const updateResults = payload => ({ type: 'UPDATE_RESULTS', payload })
+
 Query.Model = PartialAssociatedModel.extend({
   relations: [
     {
@@ -84,6 +131,9 @@ Query.Model = PartialAssociatedModel.extend({
       isTransient: true,
     },
   ],
+  dispatch(action) {
+    this.state = reducer(this.state, action)
+  },
   set: function(data, ...args) {
     if (
       typeof data === 'object' &&
@@ -127,7 +177,7 @@ Query.Model = PartialAssociatedModel.extend({
           },
         ],
         result: undefined,
-        serverPageIndex: 0,
+        serverPageIndex: 1,
         type: 'text',
         isLocal: false,
         isOutdated: false,
@@ -157,15 +207,31 @@ Query.Model = PartialAssociatedModel.extend({
   },
   initialize: function() {
     this.currentIndexForSource = {}
+    this.state = [{}]
 
     _.bindAll.apply(_, [this].concat(_.functions(this))) // underscore bindAll does not take array arg
     this.set('id', this.getId())
-    this.listenTo(
-      user.get('user>preferences'),
-      'change:resultCount',
-      this.handleChangeResultCount
-    )
     this.listenTo(this, 'change:cql', () => this.set('isOutdated', true))
+
+    const sync = () => {
+      this.dispatch(updateResults(this.get('result').toJSON()))
+      this.set('serverPageIndex', serverPageIndex(this.state))
+
+      const totalHits = this.get('result')
+        .get('status')
+        .reduce((total, status) => {
+          return total + status.get('hits')
+        }, 0)
+
+      this.set('totalHits', totalHits)
+    }
+
+    this.listenTo(this, 'change:result', () => {
+      if (this.has('result')) {
+        this.listenTo(this.get('result'), 'reset:results', sync)
+        this.listenTo(this.get('result'), 'change', sync)
+      }
+    })
   },
   buildSearchData: function() {
     var data = this.toJSON()
@@ -215,7 +281,8 @@ Query.Model = PartialAssociatedModel.extend({
     }
   },
   startSearchFromFirstPage: function(options) {
-    this.handleChangeResultCount()
+    this.dispatch(clearPages())
+    this.set('serverPageIndex', serverPageIndex(this.state))
     this.startSearch(options)
   },
   startTieredSearch: function(ids) {
@@ -408,70 +475,34 @@ Query.Model = PartialAssociatedModel.extend({
     return this.get('color')
   },
   hasPreviousServerPage: function() {
-    return Boolean(
-      _.find(this.currentIndexForSource, function(index) {
-        return index > 1
-      })
-    )
+    return serverPageIndex(this.state) > 1
   },
   hasNextServerPage: function() {
-    var pageSize = user
+    const pageSize = user
       .get('user')
       .get('preferences')
       .get('resultCount')
-    return Boolean(
-      this.get('result')
-        .get('status')
-        .find(
-          function(status) {
-            var startingIndex = this.getStartIndexForSource(status.id)
-            var total = status.get('hits')
-            return total - startingIndex >= pageSize
-          }.bind(this)
-        )
-    )
+
+    const totalHits = this.get('totalHits')
+    const currentPage = serverPageIndex(this.state)
+    return currentPage < Math.ceil(totalHits / pageSize)
   },
   getPreviousServerPage: function() {
-    this.get('result')
-      .getSourceList()
-      .forEach(
-        function(src) {
-          var increment = this.get('result').getLastResultCountForSource(src)
-          this.currentIndexForSource[src] = Math.max(
-            this.getStartIndexForSource(src) - increment,
-            1
-          )
-        }.bind(this)
-      )
-    this.set('serverPageIndex', Math.max(0, this.get('serverPageIndex') - 1))
+    this.dispatch(previousPage())
+    this.set('serverPageIndex', serverPageIndex(this.state))
     this.startSearch()
   },
   getNextServerPage: function() {
-    this.get('result')
-      .getSourceList()
-      .forEach(
-        function(src) {
-          var increment = this.get('result').getLastResultCountForSource(src)
-          this.currentIndexForSource[src] =
-            this.getStartIndexForSource(src) + increment
-        }.bind(this)
-      )
-    this.set('serverPageIndex', this.get('serverPageIndex') + 1)
+    this.dispatch(nextPage())
+    this.set('serverPageIndex', serverPageIndex(this.state))
     this.startSearch()
   },
   // get the starting offset (beginning of the server page) for the given source
   getStartIndexForSource: function(src) {
-    return this.currentIndexForSource[src] || 1
+    return currentIndexForSource(this.state)[src] || 1
   },
   // if the server page size changes, reset our indices and let them get
   // recalculated on the next fetch
-  handleChangeResultCount: function() {
-    this.currentIndexForSource = {}
-    this.set('serverPageIndex', 0)
-    if (this.get('result')) {
-      this.get('result').resetResultCountsBySource()
-    }
-  },
   lengthWithDuplicates(resultsCollection) {
     const lengthWithoutDuplicates = resultsCollection.length
     const numberOfDuplicates = resultsCollection.reduce((count, result) => {
@@ -496,7 +527,7 @@ Query.Model = PartialAssociatedModel.extend({
     }
 
     var serverPageSize = user.get('user>preferences>resultCount')
-    var startingIndex = this.get('serverPageIndex') * serverPageSize
+    var startingIndex = serverPageIndex(this.state) * serverPageSize
     var endingIndex =
       startingIndex + this.lengthWithDuplicates(resultsCollection)
 

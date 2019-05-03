@@ -331,10 +331,7 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   updateResultCountsBySource(resultCounts) {
     for (var src in resultCounts) {
-      this.resultCountsBySource[src] = Math.max(
-        this.resultCountsBySource[src] || 0,
-        resultCounts[src]
-      )
+      this.resultCountsBySource[src] = resultCounts[src]
     }
   },
   getSourceList() {

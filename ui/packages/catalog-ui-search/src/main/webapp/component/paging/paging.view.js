@@ -24,9 +24,10 @@ module.exports = Marionette.ItemView.extend({
   template() {
     const currentQuery = this.getQuery()
     const serverPageIndex = currentQuery.get('serverPageIndex')
+
     return (
       <Paging
-        page={serverPageIndex + 1}
+        page={serverPageIndex}
         hasNextServerPage={currentQuery.hasNextServerPage()}
         hasPreviousServerPage={currentQuery.hasPreviousServerPage()}
         onClickNext={this.nextServerPage.bind(this)}
@@ -35,11 +36,16 @@ module.exports = Marionette.ItemView.extend({
     )
   },
   initialize: function(options) {
-    this.listenTo(this.model, 'reset', () => {
-      setTimeout(() => {
-        this.render
-      }, 100)
-    })
+    const safeRender = () => {
+      if (!this.isDestroyed) {
+        this.render()
+      }
+    }
+
+    this.listenTo(this.getQuery(), 'change:serverPageIndex', safeRender)
+    this.listenTo(this.getQuery(), 'change:totalHits', safeRender)
+    this.listenTo(this.model, 'reset', safeRender)
+
     this.listenTo(
       this.model,
       'add remove update',
