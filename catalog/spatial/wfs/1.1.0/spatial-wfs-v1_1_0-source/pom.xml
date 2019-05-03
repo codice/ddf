@@ -24,6 +24,14 @@
     <name>DDF :: Spatial :: WFS :: 1.1.0 :: Source</name>
     <dependencies>
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
             <version>${project.version}</version>
@@ -34,8 +42,35 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-client</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.xmlschema</groupId>
+            <artifactId>xmlschema-core</artifactId>
+            <version>2.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-featuretransformer-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
@@ -101,23 +136,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.security</groupId>
-            <artifactId>security-rest-cxfwrapper</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-context</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-saxon</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-wfs-converter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-wfs-v1_1_0-converter</artifactId>
+            <artifactId>security-rest-clientapi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -133,12 +152,20 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
@@ -168,6 +195,10 @@
             <artifactId>spatial-wfs-metacardtype-registry-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>
@@ -189,9 +220,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>tika-bundle</artifactId>
-            <version>${tika.thirdparty.bundle.version}</version>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -228,8 +258,6 @@
                             spatial-wfs-v1_1_0-common,
                             spatial-wfs-source,
                             spatial-ogc-common,
-                            spatial-wfs-converter;scope=compile|runtime,
-                            spatial-wfs-v1_1_0-converter,
                             catalog-core-api-impl,
                             ddf-security-common,
                             platform-util,
