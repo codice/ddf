@@ -137,7 +137,8 @@ abstract class PollerRunner<K, V> {
     if (!startPollingLock.tryLock()) {
       final String message =
           "Unable to start the schedule. Multiple threads may not start the schedule at the same time.";
-      LOGGER.warn("{} The Poller will not be periodically updated. Try restarting the system.");
+      LOGGER.warn(
+          "{} The Poller will not be periodically updated. Try restarting the system.", message);
       throw new IllegalStateException(message);
     }
 
