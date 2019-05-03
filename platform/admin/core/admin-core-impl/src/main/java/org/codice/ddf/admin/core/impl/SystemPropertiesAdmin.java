@@ -38,6 +38,7 @@ import javax.management.StandardMBean;
 import org.apache.commons.io.FileUtils;
 import org.apache.felix.utils.properties.Properties;
 import org.codice.ddf.admin.core.api.SystemPropertyDetails;
+import org.codice.ddf.admin.core.api.jmx.SystemPropertiesAdminInterceptor;
 import org.codice.ddf.admin.core.api.jmx.SystemPropertiesAdminMBean;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
@@ -110,6 +111,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     PROTOCOL_OPTIONS.add(HTTP_PROTOCOL);
   }
 
+  private List<SystemPropertiesAdminInterceptor> systemPropertiesAdminInterceptors;
   private MBeanServer mbeanServer;
   private ObjectName objectName;
   private String oldHostName = SystemBaseUrl.INTERNAL.getHost();
@@ -210,30 +212,41 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       return;
     }
 
+    Properties systemDotProperties;
     try {
-      Properties systemDotProperties = new Properties(systemPropertiesFile);
+      systemDotProperties = new Properties(systemPropertiesFile);
 
-      // save off the current/old hostname before we make any changes
-      oldHostName = systemDotProperties.getProperty(SystemBaseUrl.INTERNAL_HOST);
-      updatedSystemProperties.forEach(
-          (key, value) -> {
-            // Clears out the property value before setting it
-            //
-            // We have to do this because when we read in the properties, the values are
-            // expanded which can lead to a state where the value is erroneously not updated
-            // after being checked.
-            systemDotProperties.put(key, "");
-            systemDotProperties.put(key, value);
-          });
+    } catch (IOException e) {
+      LOGGER.warn("Exception reading system.properties file.", e);
+      return;
+    }
 
+    // save off the current/old hostname before we make any changes
+    oldHostName = systemDotProperties.getProperty(SystemBaseUrl.INTERNAL_HOST);
+    updatedSystemProperties.forEach(
+        (key, value) -> {
+          // Clears out the property value before setting it
+          //
+          // We have to do this because when we read in the properties, the values are
+          // expanded which can lead to a state where the value is erroneously not updated
+          // after being checked.
+          systemDotProperties.put(key, "");
+          systemDotProperties.put(key, value);
+        });
+
+    callInterceptors(systemDotProperties);
+
+    try {
       systemDotProperties.save();
     } catch (IOException e) {
-      LOGGER.warn("Exception while reading or writing to system.properties file.", e);
+      LOGGER.warn("Exception writing to system.properties file.", e);
     }
 
     writeOutUsersDotPropertiesFile(userPropertiesFile);
     writeOutUsersDotAttributesFile(userAttributesFile);
   }
+
+  private void callInterceptors(Properties systemPropertiesFile) {}
 
   /*
    * Writes user property data to the relevant file after replacing the default hostname where
