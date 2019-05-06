@@ -30,7 +30,7 @@
 
         <AD id="policyToFilterEnabled"
             name="Attempt to optimize queries by enhancing them with policy information"
-            description="Allows the system to introspect user queries and defer processing to Solr if appropriate"
+            description="Allows the system to introspect user queries and move some policy filtering to Solr as part of the query, if appropriate"
             type="Boolean"
             default="true"
             required="false"/>
