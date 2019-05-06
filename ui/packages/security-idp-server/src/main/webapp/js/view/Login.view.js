@@ -37,11 +37,20 @@ define([
       this.model = new Backbone.Model(window.idpState)
     },
     onRender: function() {
+      this.selectors = [
+        '#username',
+        '#password',
+        '.btn-upsignin',
+        '.btn-upclear',
+        '.btn-pkisignin',
+        '.btn-guestsignin',
+      ]
       setTimeout(() => {
         this.$el.find('#username').focus()
       }, 0)
     },
     logInEnter: function(e) {
+      this.$('#loginerrorup').hide()
       if (e.keyCode === 13) {
         this.logInUser()
       }
@@ -64,9 +73,9 @@ define([
       $.ajax({
         type: 'GET',
         url: './login/sso',
-        async: false,
         data: this.model.toJSON(),
         beforeSend: function(xhr) {
+          view.showSpinnerAndDisableInput()
           if (view.model.get('AuthMethod') === 'up') {
             var base64 = window.btoa(
               view.$('#username').val() + ':' + view.$('#password').val()
@@ -76,6 +85,7 @@ define([
         },
         error: function() {
           $('#loginerror' + view.model.get('AuthMethod')).show()
+          view.hideSpinnerAndEnableInput()
         },
         success: function(data) {
           sentData = data
@@ -88,8 +98,17 @@ define([
         }
       })
     },
-    showErrorText: function() {
-      this.$('#loginError').show()
+    showSpinnerAndDisableInput: function() {
+      $('#loginspinner').show()
+      this.selectors.forEach(function(selector) {
+        $(selector).attr('disabled', true)
+      })
+    },
+    hideSpinnerAndEnableInput: function() {
+      $('#loginspinner').hide()
+      this.selectors.forEach(function(selector) {
+        $(selector).attr('disabled', false)
+      })
     },
     setErrorState: function() {
       this.$('#password').focus(function() {
@@ -99,7 +118,7 @@ define([
     clearFields: function() {
       this.$('#username').val('')
       this.$('#password').val('')
-      this.$('#loginError').hide()
+      this.$('#loginerrorup').hide()
     },
   })
 
