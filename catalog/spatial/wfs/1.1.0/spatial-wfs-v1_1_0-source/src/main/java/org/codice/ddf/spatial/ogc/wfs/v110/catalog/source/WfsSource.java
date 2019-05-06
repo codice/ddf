@@ -1061,22 +1061,21 @@ public class WfsSource extends AbstractWfsSource {
    * @author kcwire
    */
   private class WfsSourceAvailabilityCommand implements AvailabilityCommand {
-
-    private void availabilityChanged(boolean isAvailable) {
-      if (isAvailable) {
-        LOGGER.debug("WFS source {} is available.", getId());
-      } else {
-        LOGGER.debug("WFS source {} is unavailable.", getId());
-      }
+    private void availabilityChangedToAvailable() {
+      LOGGER.debug("WFS source {} is available.", getId());
 
       for (SourceMonitor monitor : WfsSource.this.sourceMonitors) {
-        if (isAvailable) {
-          LOGGER.debug("Notifying source monitor that WFS source {} is available.", getId());
-          monitor.setAvailable();
-        } else {
-          LOGGER.debug("Notifying source monitor that WFS source {} is unavailable.", getId());
-          monitor.setUnavailable();
-        }
+        LOGGER.debug("Notifying source monitor that WFS source {} is available.", getId());
+        monitor.setAvailable();
+      }
+    }
+
+    private void availabilityChangedToUnavailable() {
+      LOGGER.debug("WFS source {} is unavailable.", getId());
+
+      for (SourceMonitor monitor : WfsSource.this.sourceMonitors) {
+        LOGGER.debug("Notifying source monitor that WFS source {} is unavailable.", getId());
+        monitor.setUnavailable();
       }
     }
 
@@ -1087,10 +1086,12 @@ public class WfsSource extends AbstractWfsSource {
       // Simple "ping" to ensure the source is responding
       boolean newAvailability = (null != getCapabilities());
       if (oldAvailability != newAvailability) {
-        availabilityChanged(newAvailability);
         // If the source becomes available, configure it.
         if (newAvailability) {
+          availabilityChangedToAvailable();
           configureWfsFeatures();
+        } else {
+          availabilityChangedToUnavailable();
         }
       }
       return newAvailability;
