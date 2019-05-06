@@ -117,24 +117,26 @@ module.exports = Marionette.LayoutView.extend({
         <button className="filter-remove is-negative">
           <span className="fa fa-minus" />
         </button>
-        <div
-          className="filter-attribute"
-          data-help="Property to compare against."
-        />
-        <div
-          className="filter-comparator"
-          data-help="How to compare the value for this property against
-the provided value."
-        />
-        <div
-          className="filter-input"
-          data-help="The value for the property to use during comparison."
-        />
-        <ExtensionPoints.filterActions
-          model={this.model}
-          metacardDefinitions={metacardDefinitions}
-          options={this.options}
-        />
+        <div className="filter-region global-bracket is-left">
+          <div
+            className="filter-attribute"
+            data-help="Property to compare against."
+          />
+          <div
+            className="filter-comparator"
+            data-help="How to compare the value for this property against
+  the provided value."
+          />
+          <div
+            className="filter-input"
+            data-help="The value for the property to use during comparison."
+          />
+          <ExtensionPoints.filterActions
+            model={this.model}
+            metacardDefinitions={metacardDefinitions}
+            options={this.options}
+          />
+        </div>
       </React.Fragment>
     )
   },

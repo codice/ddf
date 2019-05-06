@@ -3,6 +3,29 @@
   white-space: nowrap;
   margin: @minimumSpacing;
 
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .filter-region {
+    display: flex;
+    flex-direction: column;
+    padding-left: @minimumSpacing;
+
+    > * {
+      height: calc(@minimumButtonSize + @minimumSpacing);
+      line-height: calc(@minimumButtonSize + @minimumSpacing);
+    }
+
+    > *:first-child {
+      margin-top: @minimumSpacing;
+    }
+
+    > *:last-child {
+      margin-bottom: @minimumSpacing;
+    }
+  }
+
   > .filter-remove,
   > .filter-attribute,
   > .filter-comparator,
