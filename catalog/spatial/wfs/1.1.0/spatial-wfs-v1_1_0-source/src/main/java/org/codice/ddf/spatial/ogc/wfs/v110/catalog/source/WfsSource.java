@@ -55,6 +55,7 @@ import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.net.ssl.SSLHandshakeException;
 import javax.ws.rs.WebApplicationException;
@@ -538,14 +539,16 @@ public class WfsSource extends AbstractWfsSource {
   }
 
   private MetacardMapper getMetacardMapper(final QName featureTypeName) {
+    final Predicate<MetacardMapper> matchesFeatureType =
+        mapper -> mapper.getFeatureType().equals(featureTypeName.toString());
     return metacardMappers
         .stream()
-        .filter(mapper -> mapper.getFeatureType().equals(featureTypeName.toString()))
+        .filter(matchesFeatureType)
         .findAny()
         .orElseGet(
             () -> {
               LOGGER.debug(
-                  "Could not find MetacardMapper for featureType {}. Returning a default implementation.",
+                  "Could not find a MetacardMapper for featureType {}. Returning a default implementation.",
                   featureTypeName);
               return new MetacardMapperImpl();
             });
