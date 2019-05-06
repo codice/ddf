@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.bind.JAXBElement;
@@ -464,29 +465,15 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     }
 
     final String featurePropertyName =
-        Optional.ofNullable(metacardMapper.getFeatureProperty(propertyName)).orElse(propertyName);
-
-    if (isWfsFeatureProperty(featurePropertyName)) {
-      final FeatureAttributeDescriptor featureAttributeDescriptor =
-          (FeatureAttributeDescriptor)
-              featureMetacardType.getAttributeDescriptor(featurePropertyName);
-      if (featureAttributeDescriptor.isIndexed()) {
-        final FilterType filter = new FilterType();
-        filter.setComparisonOps(
-            createPropertyIsBetween(
-                featureAttributeDescriptor.getPropertyName(), lowerBoundary, upperBoundary));
-        return filter;
-      } else {
-        throw new IllegalArgumentException(
-            String.format(PROPERTY_NOT_QUERYABLE, featurePropertyName));
-      }
-    } else {
-      LOGGER.debug(
-          "The property '{}' could not be mapped to a feature property of feature type '{}'.",
-          propertyName,
-          featureMetacardType.getFeatureType());
-      return null;
+        mapQueryPropertyToFeatureProperty(propertyName, this::isWfsFeatureProperty);
+    if (featurePropertyName != null) {
+      final FilterType filter = new FilterType();
+      filter.setComparisonOps(
+          createPropertyIsBetween(featurePropertyName, lowerBoundary, upperBoundary));
+      return filter;
     }
+
+    return null;
   }
 
   private FilterType buildPropertyIsFilterType(
@@ -545,32 +532,39 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       PROPERTY_IS_OPS propertyIsType,
       boolean isCaseSensitive) {
     final String featurePropertyName =
-        Optional.ofNullable(metacardMapper.getFeatureProperty(propertyName)).orElse(propertyName);
+        mapQueryPropertyToFeatureProperty(propertyName, this::isWfsFeatureProperty);
+    if (featurePropertyName != null) {
+      final FilterType filter = new FilterType();
+      filter.setComparisonOps(
+          createPropertyIsFilter(featurePropertyName, literal, propertyIsType, isCaseSensitive));
+      return filter;
+    }
 
-    if (isWfsFeatureProperty(featurePropertyName)) {
+    return null;
+  }
+
+  private String mapQueryPropertyToFeatureProperty(
+      final String queryProperty, final Predicate<String> isWfsFeatureProperty) {
+    final String featurePropertyName =
+        Optional.ofNullable(metacardMapper.getFeatureProperty(queryProperty)).orElse(queryProperty);
+
+    if (isWfsFeatureProperty.test(featurePropertyName)) {
       final FeatureAttributeDescriptor featureAttributeDescriptor =
           (FeatureAttributeDescriptor)
               featureMetacardType.getAttributeDescriptor(featurePropertyName);
       if (featureAttributeDescriptor.isIndexed()) {
-        final FilterType filter = new FilterType();
-        filter.setComparisonOps(
-            createPropertyIsFilter(
-                featureAttributeDescriptor.getPropertyName(),
-                literal,
-                propertyIsType,
-                isCaseSensitive));
-        return filter;
+        return featureAttributeDescriptor.getPropertyName();
       } else {
         throw new IllegalArgumentException(
             String.format(PROPERTY_NOT_QUERYABLE, featurePropertyName));
       }
-    } else {
-      LOGGER.debug(
-          "The property '{}' could not be mapped to a feature property of feature type '{}'.",
-          propertyName,
-          featureMetacardType.getFeatureType());
-      return null;
     }
+
+    LOGGER.debug(
+        "The property '{}' could not be mapped to a feature property of feature type '{}'.",
+        featurePropertyName,
+        featureMetacardType.getFeatureType());
+    return null;
   }
 
   private FilterType buildPropertyIsFilterTypeForAnyText(
@@ -946,28 +940,15 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private FilterType buildGeospatialFilter(
       String spatialOpType, String propertyName, String wkt, Double distance) {
     final String featurePropertyName =
-        Optional.ofNullable(metacardMapper.getFeatureProperty(propertyName)).orElse(propertyName);
+        mapQueryPropertyToFeatureProperty(propertyName, this::isWfsGeospatialFeatureProperty);
 
-    if (isWfsGeospatialFeatureProperty(featurePropertyName)) {
-      final FeatureAttributeDescriptor attrDesc =
-          (FeatureAttributeDescriptor)
-              featureMetacardType.getAttributeDescriptor(featurePropertyName);
-      if (attrDesc != null && attrDesc.isIndexed()) {
-        final FilterType filter = new FilterType();
-        filter.setSpatialOps(
-            createSpatialOpType(spatialOpType, attrDesc.getPropertyName(), wkt, distance));
-        return filter;
-      } else {
-        throw new IllegalArgumentException(
-            String.format(PROPERTY_NOT_QUERYABLE, featurePropertyName));
-      }
-    } else {
-      LOGGER.debug(
-          "The property '{}' could not be mapped to a feature property of feature type '{}'.",
-          propertyName,
-          featureMetacardType.getFeatureType());
-      return null;
+    if (featurePropertyName != null) {
+      final FilterType filter = new FilterType();
+      filter.setSpatialOps(createSpatialOpType(spatialOpType, featurePropertyName, wkt, distance));
+      return filter;
     }
+
+    return null;
   }
 
   private FilterType buildGeospatialFilterForAnyGeo(
