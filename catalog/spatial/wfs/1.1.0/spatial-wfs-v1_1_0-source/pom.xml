@@ -101,12 +101,6 @@
             <artifactId>ows-v_1_0_0</artifactId>
             <version>${org.jvnet.ogc.wfs.1.1.0.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.hisrc.w3c/xlink-v_1_0 -->
-        <dependency>
-            <groupId>org.hisrc.w3c</groupId>
-            <artifactId>xlink-v_1_0</artifactId>
-            <version>1.4.0</version>
-        </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-source</artifactId>
@@ -164,10 +158,6 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
@@ -186,11 +176,6 @@
             <version>0.11.0</version>
         </dependency>
         <dependency>
-            <groupId>ddf.jaxb</groupId>
-            <artifactId>spatial-wfs-v1_0_0-schema-bindings</artifactId>
-            <version>${ddf.jaxb.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-metacardtype-registry-api</artifactId>
             <version>${project.version}</version>
@@ -201,18 +186,6 @@
         </dependency>
 
         <!-- Test Dependencies -->
-        <dependency>
-            <groupId>org.picocontainer</groupId>
-            <artifactId>picocontainer</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.thirdparty</groupId>
-            <artifactId>geotools-suite</artifactId>
-            <version>${org.geotools.bundle.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
@@ -234,6 +207,16 @@
             <groupId>org.xmlunit</groupId>
             <artifactId>xmlunit-matchers</artifactId>
             <version>${xmlunit-matchers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -259,10 +242,8 @@
                             spatial-wfs-source,
                             spatial-ogc-common,
                             catalog-core-api-impl,
-                            ddf-security-common,
                             platform-util,
-                            geospatial,
-                            spatial-wfs-v1_0_0-schema-bindings
+                            geospatial
                         </Embed-Dependency>
                         <Private-Package>
                             org.codice.ddf.spatial.ogc.wfs.catalog.mapper.impl
@@ -275,27 +256,6 @@
                         <Include-Resource>{maven-resources},target/classes/describable.properties</Include-Resource>
                     </instructions>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>check-artifact-size</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <ArtifactSizeEnforcerRule
-                                    implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>1.3_MB</maxArtifactSize>
-                                </ArtifactSizeEnforcerRule>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
