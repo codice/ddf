@@ -39,6 +39,7 @@
         <feature>security-core</feature>
         <feature>security-encryption</feature>
         <feature>util-uuidgenerator</feature>
+        <bundle>mvn:ddf.admin.core/admin-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.solr/solr-password/${project.version}</bundle>
     </feature>
 

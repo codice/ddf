@@ -27,7 +27,7 @@
         <argument ref="clientFactoryFactory"/>
     </bean>
     <service id="solrPasswordUpdate" ref="solrBasicAuthenticationInstaller"
-        interface=" org.codice.ddf.admin.core.api.jmx.SystemPropertiesAdminInterceptor"/>
+        interface="org.codice.ddf.admin.core.api.jmx.SystemPropertiesAdminInterceptor"/>
 </blueprint>
 
 
