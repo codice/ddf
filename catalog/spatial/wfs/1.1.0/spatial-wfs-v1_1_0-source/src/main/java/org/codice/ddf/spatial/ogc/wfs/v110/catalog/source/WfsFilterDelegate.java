@@ -548,23 +548,23 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     final String featurePropertyName =
         Optional.ofNullable(metacardMapper.getFeatureProperty(queryProperty)).orElse(queryProperty);
 
-    if (isWfsFeatureProperty.test(featurePropertyName)) {
-      final FeatureAttributeDescriptor featureAttributeDescriptor =
-          (FeatureAttributeDescriptor)
-              featureMetacardType.getAttributeDescriptor(featurePropertyName);
-      if (featureAttributeDescriptor.isIndexed()) {
-        return featureAttributeDescriptor.getPropertyName();
-      } else {
-        throw new IllegalArgumentException(
-            String.format(PROPERTY_NOT_QUERYABLE, featurePropertyName));
-      }
+    if (!isWfsFeatureProperty.test(featurePropertyName)) {
+      LOGGER.debug(
+          "The property '{}' could not be mapped to a feature property of feature type '{}'.",
+          featurePropertyName,
+          featureMetacardType.getFeatureType());
+      return null;
     }
 
-    LOGGER.debug(
-        "The property '{}' could not be mapped to a feature property of feature type '{}'.",
-        featurePropertyName,
-        featureMetacardType.getFeatureType());
-    return null;
+    final FeatureAttributeDescriptor featureAttributeDescriptor =
+        (FeatureAttributeDescriptor)
+            featureMetacardType.getAttributeDescriptor(featurePropertyName);
+    if (featureAttributeDescriptor.isIndexed()) {
+      return featureAttributeDescriptor.getPropertyName();
+    } else {
+      throw new IllegalArgumentException(
+          String.format(PROPERTY_NOT_QUERYABLE, featurePropertyName));
+    }
   }
 
   private FilterType buildPropertyIsFilterTypeForAnyText(
