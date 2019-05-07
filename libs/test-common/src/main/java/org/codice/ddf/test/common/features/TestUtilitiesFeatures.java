@@ -64,4 +64,3 @@ public class TestUtilitiesFeatures {
     return new FeatureImpl(FEATURE_COORDINATES.getFeatureFileUrl(), REST_ASSURED);
   }
 }
-//

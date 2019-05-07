@@ -58,10 +58,24 @@ public class SolrPasswordUpdateImpl
   }
 
   /**
-   * If the Solr password is still the default value, change it. Only call this method if the system
-   * is configured to use basic authentication for Solr. This method will only change the password
-   * if it detects that the default password is still in use. This object is intended to be a
-   * singleton, a blueprint bean. That is why is can use itself as the lock
+   * Determine if the Solr password should be changed. If it should be changed then:
+   *
+   * <p>Generate a secure password
+   *
+   * <p>Update the running Solr process to use the new password
+   *
+   * <p>Encrypt the new password Update the properties argument by settings the solr password to the
+   * encrypted value
+   *
+   * <p>The Solr password will be changed if the criteria are all met:
+   *
+   * <p>The application is configured to use basic authentication with Solr
+   *
+   * <p>The application is configured to attempt to automatically change the Solr password The
+   * default password is still in use
+   *
+   * <p>This object is intended to be a singleton, a blueprint bean. That is why it can use itself
+   * as the lock.
    */
   public synchronized void updateSystemProperties(Map<String, String> properties) {
     if (properties == null) {
