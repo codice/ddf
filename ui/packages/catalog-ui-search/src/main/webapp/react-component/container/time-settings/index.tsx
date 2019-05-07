@@ -13,119 +13,17 @@
  *
  **/
 import * as React from 'react'
+import { hot } from 'react-hot-loader'
 import * as moment from 'moment'
-const momentTimezone = require('moment-timezone')
 
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 
 import View from '../../presentation/time-settings'
 
-import * as Common from '../../../js/Common'
-import * as Property from '../../../component/property/property'
-import * as user from '../../../component/singletons/user-instance'
-
-const TimeZones = [
-  {
-    label: '-12:00',
-    value: Common.getTimeZones()['-12'],
-  },
-  {
-    label: '-11:00',
-    value: Common.getTimeZones()['-11'],
-  },
-  {
-    label: '-10:00',
-    value: Common.getTimeZones()['-10'],
-  },
-  {
-    label: '-09:00',
-    value: Common.getTimeZones()['-9'],
-  },
-  {
-    label: '-08:00',
-    value: Common.getTimeZones()['-8'],
-  },
-  {
-    label: '-07:00',
-    value: Common.getTimeZones()['-7'],
-  },
-  {
-    label: '-06:00',
-    value: Common.getTimeZones()['-6'],
-  },
-  {
-    label: '-05:00',
-    value: Common.getTimeZones()['-5'],
-  },
-  {
-    label: '-04:00',
-    value: Common.getTimeZones()['-4'],
-  },
-  {
-    label: '-03:00',
-    value: Common.getTimeZones()['-3'],
-  },
-  {
-    label: '-02:00',
-    value: Common.getTimeZones()['-2'],
-  },
-  {
-    label: '-01:00',
-    value: Common.getTimeZones()['-1'],
-  },
-  {
-    label: 'UTC, +00:00',
-    value: Common.getTimeZones()['UTC'],
-  },
-  {
-    label: '+01:00',
-    value: Common.getTimeZones()['1'],
-  },
-  {
-    label: '+02:00',
-    value: Common.getTimeZones()['2'],
-  },
-  {
-    label: '+03:00',
-    value: Common.getTimeZones()['3'],
-  },
-  {
-    label: '+04:00',
-    value: Common.getTimeZones()['4'],
-  },
-  {
-    label: '+05:00',
-    value: Common.getTimeZones()['5'],
-  },
-  {
-    label: '+06:00',
-    value: Common.getTimeZones()['6'],
-  },
-  {
-    label: '+07:00',
-    value: Common.getTimeZones()['7'],
-  },
-  {
-    label: '+08:00',
-    value: Common.getTimeZones()['8'],
-  },
-  {
-    label: '+09:00',
-    value: Common.getTimeZones()['9'],
-  },
-  {
-    label: '+10:00',
-    value: Common.getTimeZones()['10'],
-  },
-  {
-    label: '+11:00',
-    value: Common.getTimeZones()['11'],
-  },
-  {
-    label: '+12:00',
-    value: Common.getTimeZones()['12'],
-  },
-]
+const momentTimezone = require('moment-timezone')
+const Common = require('../../../js/Common')
+const Property = require('../../../component/property/property')
+const user = require('../../../component/singletons/user-instance')
 
 const TimeFormat = [
   {
@@ -142,28 +40,51 @@ const TimeFormat = [
   },
 ]
 
+enum TimeZoneSign {
+  POSITIVE = '+',
+  NEGATIVE = '-',
+}
+
+const generateTimeZones = (sign: TimeZoneSign, rangeLimit: number) =>
+  Array(rangeLimit)
+    .fill(rangeLimit)
+    .map((_: any, index: number) => ({
+      label: `${sign}${index + 1}:00`,
+      value: Common.getTimeZones()[index + 1],
+    }))
+
+const TimeZones = [
+  ...generateTimeZones(TimeZoneSign.POSITIVE, 12),
+  {
+    label: 'UTC, +00:00',
+    value: Common.getTimeZones()['UTC'],
+  },
+  ...generateTimeZones(TimeZoneSign.NEGATIVE, 12),
+]
+
 type UserPreferences = {
   get: (key: string) => any
   set: ({}) => void
   savePreferences: () => void
 }
 
+type State = {
+  currentTime: string
+  timeFormatModel: Model
+  timeZoneModel: Model
+}
+
+type Model = {
+  get: (key: string) => any
+}
+
 const getUserPreferences = (): UserPreferences =>
   user.get('user').get('preferences')
 
-const timeZoneModel = new Property({
-  label: 'Time Zone',
-  value: [getUserPreferences().get('timeZone')],
-  enum: TimeZones,
-})
-
-const timeFormatModel = new Property({
-  label: 'Time Format',
-  value: [getUserPreferences().get('dateTimeFormat')],
-  enum: TimeFormat,
-})
-
 const savePreferences = (model: {}) => {
+  const nullOrUndefinedValues = !Object.values(model).every(value => !!value)
+  if (nullOrUndefinedValues) return
+
   const preferences = getUserPreferences()
 
   preferences.set(model)
@@ -180,40 +101,62 @@ const getCurrentTime = (
   timeZone: string = getCurrentTimeZone()
 ) => momentTimezone.tz(moment(), timeZone).format(format)
 
-export default withListenTo(
-  class extends React.Component<WithBackboneProps, { currentTime: string }> {
-    timer: any
-    constructor(props: WithBackboneProps) {
-      super(props)
+class TimeSettingsContainer extends React.Component<WithBackboneProps, State> {
+  timer: any
+  constructor(props: WithBackboneProps) {
+    super(props)
 
-      this.state = { currentTime: getCurrentTime() }
+    const timeZoneModel = new Property({
+      label: 'Time Zone',
+      value: [getUserPreferences().get('timeZone')],
+      enum: TimeZones,
+    })
+
+    const timeFormatModel = new Property({
+      label: 'Time Format',
+      value: [getUserPreferences().get('dateTimeFormat')],
+      enum: TimeFormat,
+    })
+
+    this.state = {
+      currentTime: getCurrentTime(),
+      timeFormatModel,
+      timeZoneModel,
     }
-
-    componentDidMount = () => {
-      this.props.listenTo(timeFormatModel, 'change:value', () =>
-        savePreferences({
-          dateTimeFormat: timeFormatModel.get('value').shift(),
-        })
-      )
-      this.props.listenTo(timeZoneModel, 'change:value', () =>
-        savePreferences({ timeZone: timeZoneModel.get('value').shift() })
-      )
-
-      const updateCurrentTimeClock = () =>
-        this.setState({ currentTime: getCurrentTime() })
-
-      this.timer = setInterval(updateCurrentTimeClock, 50)
-    }
-
-    componentWillUnmount = () => clearInterval(this.timer)
-
-    render = () => (
-      <View
-        {...this.props}
-        timeZoneModel={timeZoneModel}
-        timeFormatModel={timeFormatModel}
-        currentTime={this.state.currentTime}
-      />
-    )
   }
-)
+
+  componentDidMount = () => {
+    this.props.listenTo(
+      this.state.timeFormatModel,
+      'change:value',
+      (model: Model) =>
+        savePreferences({
+          dateTimeFormat: model.get('value').shift(),
+        })
+    )
+    this.props.listenTo(
+      this.state.timeZoneModel,
+      'change:value',
+      (model: Model) =>
+        savePreferences({ timeZone: model.get('value').shift() })
+    )
+
+    const updateCurrentTimeClock = () =>
+      this.setState({ currentTime: getCurrentTime() })
+
+    this.timer = setInterval(updateCurrentTimeClock, 50)
+  }
+
+  componentWillUnmount = () => clearInterval(this.timer)
+
+  render = () => (
+    <View
+      {...this.props}
+      timeZoneModel={this.state.timeZoneModel}
+      timeFormatModel={this.state.timeFormatModel}
+      currentTime={this.state.currentTime}
+    />
+  )
+}
+
+export default hot(module)(withListenTo(TimeSettingsContainer))

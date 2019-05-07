@@ -15,9 +15,10 @@
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import styled from '../../styles/styled-components'
-import * as PropertyView from '../../../component/property/property.view'
 
 import MarionetteRegionContainer from '../../container/marionette-region-container'
+
+const PropertyView = require('../../../component/property/property.view')
 
 const Root = styled.div`
   overflow: auto;
@@ -28,20 +29,20 @@ const Root = styled.div`
 const Time = styled.div`
   width: 100%;
   font-weight: bolder;
-  padding-top: 10px;
-  padding-right: 10px;
-  padding-bottom: 10px;
-  padding-left: 10px;
+  padding-top: ${props => props.theme.minimumSpacing};
+  padding-right: ${props => props.theme.minimumSpacing};
+  padding-bottom: ${props => props.theme.minimumSpacing};
+  padding-left: ${props => props.theme.minimumSpacing};
 `
 
 const TimeLabel = styled.div`
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: ${props => props.theme.minimumSpacing};
+  padding-bottom: ${props => props.theme.minimumSpacing};
 `
 
 const TimeValue = styled.div`
-  padding-top: 10px;
-  padding-left: 10px;
+  padding-top: ${props => props.theme.minimumSpacing};
+  padding-left: ${props => props.theme.minimumSpacing};
 `
 
 type Props = {
@@ -50,21 +51,39 @@ type Props = {
   currentTime: string
 }
 
-export default hot(module)((props: Props) => (
-  <Root {...props}>
-    <MarionetteRegionContainer
-      view={PropertyView}
-      viewOptions={{ model: props.timeZoneModel }}
-      bindView={view => view.turnOnEditing()}
-    />
-    <MarionetteRegionContainer
-      view={PropertyView}
-      viewOptions={{ model: props.timeFormatModel }}
-      bindView={view => view.turnOnEditing()}
-    />
-    <Time>
-      <TimeLabel>Current Time (example)</TimeLabel>
-      <TimeValue>{props.currentTime}</TimeValue>
-    </Time>
-  </Root>
-))
+type MarionetteRegionView = {
+  turnOnEditing: () => void
+}
+
+class TimeSettingsPresentation extends React.Component<Props, {}> {
+  timeZoneView: MarionetteRegionView
+  timeFormatView: MarionetteRegionView
+
+  componentDidMount = () => {
+    this.timeZoneView.turnOnEditing()
+    this.timeFormatView.turnOnEditing()
+  }
+
+  render = () => {
+    if (!this.timeZoneView)
+      this.timeZoneView = new PropertyView({ model: this.props.timeZoneModel })
+
+    if (!this.timeFormatView)
+      this.timeFormatView = new PropertyView({
+        model: this.props.timeFormatModel,
+      })
+
+    return (
+      <Root {...this.props}>
+        <MarionetteRegionContainer view={this.timeZoneView} />
+        <MarionetteRegionContainer view={this.timeFormatView} />
+        <Time>
+          <TimeLabel>Current Time (example)</TimeLabel>
+          <TimeValue>{this.props.currentTime}</TimeValue>
+        </Time>
+      </Root>
+    )
+  }
+}
+
+export default hot(module)(TimeSettingsPresentation)
