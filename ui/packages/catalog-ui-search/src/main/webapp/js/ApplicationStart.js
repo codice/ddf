@@ -13,7 +13,6 @@
 const $ = require('jquery')
 const app = require('./application.js')
 const properties = require('./properties.js')
-properties.init()
 const store = require('./store.js')
 const user = require('../component/singletons/user-instance.js')
 require('./MediaQueries.js')
