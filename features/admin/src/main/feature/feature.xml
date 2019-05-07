@@ -109,7 +109,6 @@
         <feature>persistence-core</feature>
         <feature>platform-migratable-api</feature>
         <feature>security-handler-api</feature>
-        <feature>solr-password</feature>
 
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
