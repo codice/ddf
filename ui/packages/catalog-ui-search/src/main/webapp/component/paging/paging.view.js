@@ -37,9 +37,11 @@ module.exports = Marionette.ItemView.extend({
   },
   initialize: function(options) {
     const safeRender = () => {
-      if (!this.isDestroyed) {
-        this.render()
-      }
+      setTimeout(() => {
+        if (!this.isDestroyed) {
+          this.render()
+        }
+      }, 100)
     }
 
     this.listenTo(this.getQuery(), 'change:serverPageIndex', safeRender)
