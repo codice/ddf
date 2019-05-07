@@ -1,10 +1,10 @@
 import fetch from '../fetch'
 
 type Query = {
-  srcs: string[]
-  count: number
+  srcs?: string[]
+  count?: number
   cql: string
-  facets: string[]
+  facets?: string[]
 }
 
 const query = async (q: Query) => {
