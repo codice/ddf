@@ -12,14 +12,15 @@
  **/
 
  -->
-<gml:featureMember xmlns:wfs="http://www.opengis.net/wfs" xmlns:neverland="http://www.neverland.org/peter/pan" xmlns:gml="http://www.opengis.net/gml" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <neverland:PeterPan gml:id="pan.1">
+<gml:featureMember xmlns:neverland="http://www.neverland.org/peter/pan"
+  xmlns:gml="http://www.opengis.net/gml" xmlns:test="http://www.codice.org/test">
+    <neverland:PeterPan gml:id="pan.1" attr1="value1">
         <neverland:CountryCode>GBR</neverland:CountryCode>
         <neverland:PeterPanFriends></neverland:PeterPanFriends>
         <neverland:PeterPanNotify></neverland:PeterPanNotify>
         <neverland:PANStatus>Active</neverland:PANStatus>
         <neverland:PANAction></neverland:PANAction>
-        <neverland:PanTopic>General PAN 1</neverland:PanTopic>
+        <neverland:PanTopic test:attr1="value2" test:attr2="value3">General PAN 1</neverland:PanTopic>
         <neverland:PANMissionElement></neverland:PANMissionElement>
         <neverland:Analytics></neverland:Analytics>
         <neverland:Keyword>Imagery</neverland:Keyword>

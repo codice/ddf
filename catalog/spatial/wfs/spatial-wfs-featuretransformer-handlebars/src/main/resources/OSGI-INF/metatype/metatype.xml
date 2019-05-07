@@ -42,7 +42,10 @@
 
         <AD id="attributeMappings"
             name="Attribute Mappings"
-            description='List of attribute mappings using a handlebars template. Example: {"attributeName": "the-attribute", "featureName": "TheId", "template": "{{myFeature.theid}}"}'
+            description='List of attribute mappings using a handlebars template. Example:
+              {"attributeName": "the-attribute", "featureName": "TheId", "template": "{{TheId}}"}.
+              You can refer to an attribute of a feature property using the syntax "FeatureProperty@attribute".
+              Example: {"attributeName": "the-attribute", "featureName": "TheId@theAttribute", "template": "{{TheId@theAttribute}}"}.'
             type="String"
             default=''
             required="false"

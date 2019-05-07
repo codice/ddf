@@ -168,6 +168,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
           canHandleFeatureType |=
               processStartElement(
                   xmlEventReader, startElement, namespaces, contextMap, canHandleFeatureType);
+          addXmlAttributesToContextMap(startElement, contextMap);
         } else if (xmlEvent.isCharacters()) {
           contextMap.put(elementName, xmlEvent.asCharacters().getData());
         }
@@ -246,6 +247,18 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
     }
 
     return id;
+  }
+
+  private void addXmlAttributesToContextMap(
+      final StartElement startElement, final Map<String, String> contextMap) {
+    final Iterator<javax.xml.stream.events.Attribute> attributeIterator =
+        startElement.getAttributes();
+    while (attributeIterator.hasNext()) {
+      final javax.xml.stream.events.Attribute attribute = attributeIterator.next();
+      final String attributeKey =
+          startElement.getName().getLocalPart() + "@" + attribute.getName().getLocalPart();
+      contextMap.put(attributeKey, attribute.getValue());
+    }
   }
 
   private XMLEventReader getXmlEventReader(InputStream inputStream) throws XMLStreamException {
