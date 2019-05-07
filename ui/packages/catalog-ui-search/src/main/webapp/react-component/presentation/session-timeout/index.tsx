@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,11 +9,5 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="message">
-    <div>You will be logged out automatically in <label class="timer">{{this.timeLeft}}</label>
-        seconds.
-    </div>
-    <div>Press "Continue working" to remain logged in.</div>
-</div>
-<button class="is-primary">Continue working</button>
+
+export { default } from './session-timeout'
