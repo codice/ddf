@@ -76,12 +76,7 @@
             <artifactId>geotools-suite</artifactId>
             <version>${org.geotools.bundle.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-password</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
+         <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-dependencies</artifactId>
             <version>${project.version}</version>
@@ -94,6 +89,11 @@
         <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-factory-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-password</artifactId>
             <version>${project.version}</version>
         </dependency>
 

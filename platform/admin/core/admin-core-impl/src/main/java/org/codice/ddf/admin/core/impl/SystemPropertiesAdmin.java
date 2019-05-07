@@ -111,6 +111,15 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     PROTOCOL_OPTIONS.add(HTTP_PROTOCOL);
   }
 
+  public List<SystemPropertiesAdminInterceptor> getSystemPropertiesAdminInterceptors() {
+    return systemPropertiesAdminInterceptors;
+  }
+
+  public void setSystemPropertiesAdminInterceptors(
+      List<SystemPropertiesAdminInterceptor> systemPropertiesAdminInterceptors) {
+    this.systemPropertiesAdminInterceptors = systemPropertiesAdminInterceptors;
+  }
+
   private List<SystemPropertiesAdminInterceptor> systemPropertiesAdminInterceptors;
   private MBeanServer mbeanServer;
   private ObjectName objectName;
@@ -246,7 +255,14 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     writeOutUsersDotAttributesFile(userAttributesFile);
   }
 
-  private void callInterceptors(Properties systemPropertiesFile) {}
+  private void callInterceptors(Properties systemPropertiesFile) {
+
+    for (SystemPropertiesAdminInterceptor each : getSystemPropertiesAdminInterceptors()) {
+      if (each != null) {
+        each.updateSystemProperties(systemPropertiesFile);
+      }
+    }
+  }
 
   /*
    * Writes user property data to the relevant file after replacing the default hostname where

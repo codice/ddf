@@ -19,6 +19,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,6 +29,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +38,7 @@ import java.util.Properties;
 import javax.management.NotCompliantMBeanException;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.admin.core.api.SystemPropertyDetails;
+import org.codice.ddf.admin.core.api.jmx.SystemPropertiesAdminInterceptor;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
 import org.junit.Before;
@@ -269,6 +275,36 @@ public class SystemPropertiesAdminTest {
 
     // Test that the test property wasn't overridden
     assertThat(systemProps.getProperty(testPropertyKey), equalTo(testPropertyNewValue));
+  }
+
+  @Test
+  // Test non-null service
+  public void testCallingInterceptors() throws NotCompliantMBeanException {
+    SystemPropertiesAdmin spa = new SystemPropertiesAdmin(mockGuestClaimsHandlerExt);
+    SystemPropertiesAdminInterceptor mockSpax1 = mock(SystemPropertiesAdminInterceptor.class);
+    SystemPropertiesAdminInterceptor mockSpax2 = mock(SystemPropertiesAdminInterceptor.class);
+    org.apache.felix.utils.properties.Properties mockProperties =
+        mock(org.apache.felix.utils.properties.Properties.class);
+    spa.setSystemPropertiesAdminInterceptors(Arrays.asList(mockSpax1, mockSpax2));
+    spa.writeSystemProperties(mockProperties);
+    verify(mockSpax1).updateSystemProperties(any(Map.class));
+    verify(mockSpax2).updateSystemProperties(any(Map.class));
+  }
+
+  // Test null service
+  @Test
+  public void testNullInterceptor() throws NotCompliantMBeanException {
+    SystemPropertiesAdmin spa = new SystemPropertiesAdmin(mockGuestClaimsHandlerExt);
+    List<SystemPropertiesAdminInterceptor> list = new ArrayList<>();
+    list.add(null);
+    spa.setSystemPropertiesAdminInterceptors(list);
+    org.apache.felix.utils.properties.Properties mockProperties =
+        mock(org.apache.felix.utils.properties.Properties.class);
+    try {
+      spa.writeSystemProperties(mockProperties);
+    } catch (NullPointerException e) {
+      fail("Should not have thrown NPE");
+    }
   }
 
   private String getDetailsValue(List<SystemPropertyDetails> props, String key) {

@@ -57,14 +57,11 @@
         <property name="guestClaimsHandlerExt" ref="guestClaimsHandlerExt"/>
     </bean>
 
-    <reference-list id="systemPropertiesAdminInterceptorRefs"
-      interface="org.codice.ddf.admin.core.api.jmx.SystemPropertiesAdminInterceptor" />
-    
     <bean id="systemProperties" class="org.codice.ddf.admin.core.impl.SystemPropertiesAdmin"
           destroy-method="shutdown">
         <argument ref="guestClaimsHandlerExt"/>
       <property name="systemPropertiesAdminInterceptors" ref="systemPropertiesAdminInterceptorRefs"/>
-     
+
     </bean>
 
     <bean id="adminAlerts" class="org.codice.ddf.admin.core.impl.AdminAlertImpl" init-method="init" destroy-method="destroy">
@@ -78,5 +75,10 @@
 
     <reference-list id="moduleList" interface="org.codice.ddf.ui.admin.api.module.AdminModule"
                     availability="optional"/>
+
+    <reference-list id="systemPropertiesAdminInterceptorRefs"
+        interface="org.codice.ddf.admin.core.api.jmx.SystemPropertiesAdminInterceptor"
+        availability="optional"/>
+
 
 </blueprint>

@@ -20,18 +20,16 @@ import org.codice.ddf.cxf.client.SecureCxfClientFactory
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator
 import spock.lang.Specification
 import spock.lang.Unroll
-import spock.util.environment.RestoreSystemProperties
 
 import javax.ws.rs.core.Response
 
-@RestoreSystemProperties
 class SolrPasswordUpdateSpec extends Specification {
 
     public static final String PLAINTEXT_PASSWORD = 'plaintext password'
     public static final String BOOTSTRAP_PASSWORD = 'admin'
     public static final String SOLR_URL = 'http://solr'
     public static final String SOLR_USERNAME = 'admin'
-    private static final String WRAPPED_PASSWORD = 'ENC(encrypted password)';
+    private static final String WRAPPED_PASSWORD = 'ENC(encrypted password)'
 
     def uuidGenerator = Mock(UuidGenerator) {
         generateUuid() >> PLAINTEXT_PASSWORD
@@ -42,18 +40,21 @@ class SolrPasswordUpdateSpec extends Specification {
         decryptValue(BOOTSTRAP_PASSWORD) >> BOOTSTRAP_PASSWORD
     }
 
+    def properties = null
+
     def setup() {
-        System.setProperty('solr.http.url', SOLR_URL);
-        System.setProperty('solr.username', SOLR_USERNAME);
-        System.setProperty('solr.password', BOOTSTRAP_PASSWORD);
-        System.setProperty('solr.attemptAutoPasswordChange', 'true')
-        System.setProperty('solr.useBasicAuth', 'true')
+        properties = new HashMap<String, String>()
+        properties.put('solr.http.url', SOLR_URL)
+        properties.put('solr.username', SOLR_USERNAME)
+        properties.put('solr.password', BOOTSTRAP_PASSWORD)
+        properties.put('solr.attemptAutoPasswordChange', 'true')
+        properties.put('solr.useBasicAuth', 'true')
     }
 
     @Unroll
     def 'update solr password is #outcome'() {
         given:
-        System.setProperty('solr.attemptAutoPasswordChange', attemptAutoPasswordChange);
+        properties.put('solr.attemptAutoPasswordChange', attemptAutoPasswordChange);
 
 
         def statusType = Mock(Response.StatusType) {
@@ -75,28 +76,40 @@ class SolrPasswordUpdateSpec extends Specification {
             getSecureCxfClientFactory(SOLR_URL, _, SOLR_USERNAME, BOOTSTRAP_PASSWORD) >> secureClientFactory
         }
 
-        def spySolrPasswordUpdate = Spy(SolrPasswordUpdateImpl, constructorArgs: [uuidGenerator, clientFactoryFactory, encryptionService]) {
-            isPasswordSavedSuccessfully() >> fileUpdateSuccess
-        }
+        SolrPasswordUpdateImpl solrPasswordUpdate = new SolrPasswordUpdateImpl(uuidGenerator, clientFactoryFactory, encryptionService)
 
         when:
-        spySolrPasswordUpdate.execute()
+        // Send the execute() message and NOT the update() message to the object.
+        // The implementation of update also runs cleanup, which removes access to the mock HTTP response objects
+        solrPasswordUpdate.execute(properties)
+        def actualSuccess = solrPasswordUpdate.isSolrPasswordChangeSuccessful()
 
         then:
-        System.getProperty('solr.password').equals(passwordInMemory)
-        spySolrPasswordUpdate.isSolrPasswordChangeSuccessfull().equals(solrUpdateSuccess)
+        properties.get('solr.password').equals expectedPassword
+        solrUpdateSuccess.equals actualSuccess
 
         where:
-        outcome     || attemptAutoPasswordChange | responseCode                        | solrUpdateSuccess | fileUpdateSuccess | passwordInMemory
-        'sucessful' || 'true'                    | Response.Status.Family.SUCCESSFUL   | true              | true              | WRAPPED_PASSWORD
-        'partial'   || 'true'                    | Response.Status.Family.SUCCESSFUL   | true              | false             | BOOTSTRAP_PASSWORD
-        'an error'  || 'true'                    | Response.Status.Family.SERVER_ERROR | false             | false             | BOOTSTRAP_PASSWORD
-        'disabled'  || 'false'                   | null                                | false             | false             | BOOTSTRAP_PASSWORD
+        outcome      || attemptAutoPasswordChange | responseCode                        | solrUpdateSuccess | expectedPassword
+        'successful' || 'true'                    | Response.Status.Family.SUCCESSFUL   | true              | WRAPPED_PASSWORD
+        'an error'   || 'true'                    | Response.Status.Family.SERVER_ERROR | false             | BOOTSTRAP_PASSWORD
+        'disabled'   || 'false'                   | null                                | false             | BOOTSTRAP_PASSWORD
+    }
+
+    def 'bad properties object'() {
+        given:
+        def spySolrPasswordUpdate = Spy(SolrPasswordUpdateImpl, constructorArgs: [uuidGenerator, null, encryptionService])
+
+        when:
+        spySolrPasswordUpdate.updateSystemProperties(null)
+
+        then:
+        0 * spySolrPasswordUpdate.execute(_)
     }
 
     def 'password generation wrapping encrypted string'() {
         when:
-        def solrPasswordUpdate = new SolrPasswordUpdateImpl(uuidGenerator, null, encryptionService);
+        def solrPasswordUpdate = new SolrPasswordUpdateImpl(uuidGenerator, null, encryptionService)
+        solrPasswordUpdate.properties = properties
         solrPasswordUpdate.generatePassword()
 
         then:
@@ -104,24 +117,11 @@ class SolrPasswordUpdateSpec extends Specification {
         solrPasswordUpdate.newPasswordWrappedEncrypted.equals(WRAPPED_PASSWORD)
     }
 
-    def 'password property not defined'() {
-        given:
-        System.clearProperty('solr.password')
-
-        when:
-        def solrPasswordUpdate = new SolrPasswordUpdateImpl(uuidGenerator, null, encryptionService);
-        solrPasswordUpdate.generatePassword();
-
-        then:
-        solrPasswordUpdate.getPlaintextPasswordFromProperties() == null
-    }
-
     def 'object cleanup'() {
         given:
         SolrPasswordUpdateImpl solrPasswordUpdate = new SolrPasswordUpdateImpl(null, null, null)
         solrPasswordUpdate.newPasswordPlainText = "not null"
         solrPasswordUpdate.newPasswordWrappedEncrypted = "not null"
-        solrPasswordUpdate.passwordSavedSuccessfully = true
         solrPasswordUpdate.solrAuthResource = Mock(SolrAuthResource)
         solrPasswordUpdate.solrResponse = Mock(javax.ws.rs.core.Response.StatusType)
 
@@ -131,7 +131,6 @@ class SolrPasswordUpdateSpec extends Specification {
         then:
         solrPasswordUpdate.newPasswordPlainText == null
         solrPasswordUpdate.newPasswordWrappedEncrypted == null
-        solrPasswordUpdate.passwordSavedSuccessfully == false
         solrPasswordUpdate.solrAuthResource == null
         solrPasswordUpdate.solrResponse == null
     }

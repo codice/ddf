@@ -26,7 +26,8 @@
         <argument ref="encryptionService"/>
         <argument ref="clientFactoryFactory"/>
     </bean>
-    <service id="solrPasswordUpdate" ref="solrBasicAuthenticationInstaller" interface="ddf.platform.solr.security.SolrPasswordUpdate"/>
+    <service id="solrPasswordUpdate" ref="solrBasicAuthenticationInstaller"
+        interface=" org.codice.ddf.admin.core.api.jmx.SystemPropertiesAdminInterceptor"/>
 </blueprint>
 
 
