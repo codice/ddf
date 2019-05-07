@@ -39,7 +39,7 @@ module.exports = Marionette.LayoutView.extend({
     uploadDetails: '> .upload-details .details-summary',
   },
   initialize: function() {
-    var modelJSON = this.model.toJSON()
+    const modelJSON = this.model.toJSON()
   },
   onBeforeShow: function() {
     this.uploadDetails.show(
@@ -50,7 +50,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleFinished()
   },
   handleFinished: function() {
-    var finished = this.model.get('finished')
+    const finished = this.model.get('finished')
     this.$el.toggleClass('is-finished', finished)
   },
   removeModel: function() {

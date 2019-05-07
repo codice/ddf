@@ -13,16 +13,16 @@
  *
  **/
 
-var wreqr = require('../../../js/wreqr.js')
-var _ = require('underscore')
-var template = require('./table-rearrange.hbs')
-var Marionette = require('marionette')
-var CustomElements = require('../../../js/CustomElements.js')
-var Common = require('../../../js/Common.js')
-var user = require('../../singletons/user-instance.js')
-var properties = require('../../../js/properties.js')
-var Sortable = require('sortablejs')
-var metacardDefinitions = require('../../singletons/metacard-definitions.js')
+const wreqr = require('../../../js/wreqr.js')
+const _ = require('underscore')
+const template = require('./table-rearrange.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('../../../js/CustomElements.js')
+const Common = require('../../../js/Common.js')
+const user = require('../../singletons/user-instance.js')
+const properties = require('../../../js/properties.js')
+const Sortable = require('sortablejs')
+const metacardDefinitions = require('../../singletons/metacard-definitions.js')
 
 module.exports = Marionette.ItemView.extend({
   template: template,
@@ -42,19 +42,19 @@ module.exports = Marionette.ItemView.extend({
     )
   },
   serializeData: function() {
-    var prefs = user.get('user').get('preferences')
-    var results = this.options.selectionInterface
+    const prefs = user.get('user').get('preferences')
+    const results = this.options.selectionInterface
       .getActiveSearchResults()
       .toJSON()
-    var preferredHeader = user
+    const preferredHeader = user
       .get('user')
       .get('preferences')
       .get('columnOrder')
-    var hiddenColumns = user
+    const hiddenColumns = user
       .get('user')
       .get('preferences')
       .get('columnHide')
-    var availableAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes()
+    const availableAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes()
 
     return preferredHeader.map(function(property) {
       return {
@@ -72,7 +72,7 @@ module.exports = Marionette.ItemView.extend({
     Sortable.create(this.el.querySelector('.rearrange-columns'))
   },
   handleSave: function() {
-    var prefs = user.get('user').get('preferences')
+    const prefs = user.get('user').get('preferences')
     prefs.set(
       'columnOrder',
       _.map(this.$el.find('.column'), function(element) {

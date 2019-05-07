@@ -13,14 +13,14 @@
  *
  **/
 
-var _ = require('underscore')
-var $ = require('jquery')
-var template = require('./low-bandwidth-map.hbs')
-var Marionette = require('marionette')
-var CustomElements = require('../../../js/CustomElements.js')
-var CombinedMapView = require('../combined-map/combined-map.view.js')
-var OpenlayersView = require('../maps/openlayers/openlayers.view.js')
-var router = require('../../router/router.js')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./low-bandwidth-map.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('../../../js/CustomElements.js')
+const CombinedMapView = require('../combined-map/combined-map.view.js')
+const OpenlayersView = require('../maps/openlayers/openlayers.view.js')
+const router = require('../../router/router.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('low-bandwidth-map'),

@@ -13,9 +13,9 @@
  *
  **/
 
-var Marionette = require('marionette')
-var template = require('./result-link.hbs')
-var CustomElements = require('../../js/CustomElements.js')
+const Marionette = require('marionette')
+const template = require('./result-link.hbs')
+const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('result-link'),

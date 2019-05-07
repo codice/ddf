@@ -64,7 +64,7 @@ module.exports = ConfirmationView.extend({
     this.handleValue()
   },
   handleValue: function() {
-    var value = this.getValue()
+    const value = this.getValue()
     this.$el.toggleClass('has-value', value !== undefined && value !== '')
   },
   getValue: function() {

@@ -71,8 +71,8 @@ module.exports = new (Backbone.AssociatedModel.extend({
   handleRoute() {
     const routerJSON = router.toJSON()
     if (routerJSON.name === 'openAlert') {
-      var alertId = routerJSON.args[0]
-      var alert = user
+      const alertId = routerJSON.args[0]
+      const alert = user
         .get('user')
         .get('preferences')
         .get('alerts')
@@ -114,7 +114,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
     }
   },
   updateActiveSearchResultsAttributes: function() {
-    var availableAttributes = this.get('activeSearchResults')
+    const availableAttributes = this.get('activeSearchResults')
       .reduce(function(currentAvailable, result) {
         currentAvailable = _.union(
           currentAvailable,

@@ -11,10 +11,10 @@
  **/
 
 //meant to be used for just in time feature detection
-var Backbone = require('backbone')
+const Backbone = require('backbone')
 require('backbone-associations')
 
-var LogoutAction = Backbone.AssociatedModel.extend({
+const LogoutAction = Backbone.AssociatedModel.extend({
   defaults: {
     auth: '',
     description: '',
@@ -24,12 +24,12 @@ var LogoutAction = Backbone.AssociatedModel.extend({
   },
 })
 
-var LogoutActions = Backbone.Collection.extend({
+const LogoutActions = Backbone.Collection.extend({
   model: LogoutAction,
   url: './internal/logout/actions',
 })
 
-var logoutModel = new (Backbone.AssociatedModel.extend({
+const logoutModel = new (Backbone.AssociatedModel.extend({
   defaults: {
     actions: [],
     fetched: false,

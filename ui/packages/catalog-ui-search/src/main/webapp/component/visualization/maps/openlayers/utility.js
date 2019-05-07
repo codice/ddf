@@ -10,12 +10,12 @@
  *
  **/
 
-var _ = require('underscore')
-var Openlayers = require('openlayers')
-var properties = require('../../../../js/properties.js')
+const _ = require('underscore')
+const Openlayers = require('openlayers')
+const properties = require('../../../../js/properties.js')
 
 function convertPointCoordinate(point) {
-  var coords = [point[0], point[1]]
+  const coords = [point[0], point[1]]
   return Openlayers.proj.transform(coords, 'EPSG:4326', properties.projection)
 }
 
@@ -31,17 +31,17 @@ module.exports = {
       Calculates the center of given a geometry (WKT)
     */
   calculateOpenlayersCenterOfGeometry: function(propertyModel) {
-    var lineObject = propertyModel.getPoints().map(function(coordinate) {
+    const lineObject = propertyModel.getPoints().map(function(coordinate) {
       return convertPointCoordinate(coordinate)
     })
-    var extent = Openlayers.extent.boundingExtent(lineObject)
+    const extent = Openlayers.extent.boundingExtent(lineObject)
     return Openlayers.extent.getCenter(extent)
   },
   /*
       Calculates the center of given a geometry (WKT)
     */
   calculateCartographicCenterOfGeometryInDegrees: function(propertyModel) {
-    var openlayersCenter = this.calculateOpenlayersCenterOfGeometry(
+    const openlayersCenter = this.calculateOpenlayersCenterOfGeometry(
       propertyModel
     )
     return unconvertPointCoordinate(openlayersCenter)
@@ -50,7 +50,7 @@ module.exports = {
       Calculates the center of given geometries (WKT)
     */
   calculateOpenlayersCenterOfGeometries: function(propertyModels) {
-    var allPoints = _.flatten(
+    const allPoints = _.flatten(
       propertyModels.map(function(propertyModel) {
         return propertyModel.getPoints()
       }),
@@ -58,14 +58,14 @@ module.exports = {
     ).map(function(coordinate) {
       return convertPointCoordinate(coordinate)
     })
-    var extent = Openlayers.extent.boundingExtent(allPoints)
+    const extent = Openlayers.extent.boundingExtent(allPoints)
     return Openlayers.extent.getCenter(extent)
   },
   /*
       Calculates the center of given geometries (WKT)
     */
   calculateCartographicCenterOfGeometriesInDegrees: function(propertyModels) {
-    var openlayersCenter = this.calculateOpenlayersCenterOfGeometries(
+    const openlayersCenter = this.calculateOpenlayersCenterOfGeometries(
       propertyModels
     )
     return unconvertPointCoordinate(openlayersCenter)

@@ -13,7 +13,7 @@
 const Backbone = require('backbone')
 require('marionette')
 
-var wreqr = {}
+const wreqr = {}
 
 wreqr.vent = new Backbone.Wreqr.EventAggregator()
 wreqr.commands = new Backbone.Wreqr.Commands()

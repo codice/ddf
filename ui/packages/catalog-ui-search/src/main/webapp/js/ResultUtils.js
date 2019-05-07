@@ -10,14 +10,14 @@
  *
  **/
 
-var store = require('./store.js')
-var alert = require('../component/alert/alert.js')
-var _ = require('underscore')
-var metacardDefinitions = require('../component/singletons/metacard-definitions.js')
+const store = require('./store.js')
+const alert = require('../component/alert/alert.js')
+const _ = require('underscore')
+const metacardDefinitions = require('../component/singletons/metacard-definitions.js')
 
 module.exports = {
   refreshResult: function(result) {
-    var id = result.get('metacard').id
+    const id = result.get('metacard').id
     result.refreshData()
     store.get('workspaces').forEach(function(workspace) {
       workspace.get('queries').forEach(function(query) {
@@ -53,7 +53,7 @@ module.exports = {
       })
   },
   updateResults: function(results, response) {
-    var attributeMap = response.reduce(function(attributeMap, changes) {
+    const attributeMap = response.reduce(function(attributeMap, changes) {
       return changes.attributes.reduce(function(attrMap, chnges) {
         attrMap[chnges.attribute] = metacardDefinitions.metacardTypes[
           chnges.attribute
@@ -70,7 +70,7 @@ module.exports = {
         return attrMap
       }, attributeMap)
     }, {})
-    var unsetAttributes = []
+    const unsetAttributes = []
     _.forEach(attributeMap, function(value, key) {
       if (
         value === undefined ||
@@ -83,7 +83,7 @@ module.exports = {
     if (results.length === undefined) {
       results = [results]
     }
-    var ids = results.map(function(result) {
+    const ids = results.map(function(result) {
       return result.get('metacard').id
     })
     results.forEach(function(metacard) {

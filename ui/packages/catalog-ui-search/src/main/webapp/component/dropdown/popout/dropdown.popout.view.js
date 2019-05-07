@@ -13,11 +13,11 @@
  *
  **/
 
-var Marionette = require('marionette')
-var _ = require('underscore')
-var $ = require('jquery')
-var DropdownView = require('../dropdown.view')
-var template = require('./dropdown.popout.hbs')
+const Marionette = require('marionette')
+const _ = require('underscore')
+const $ = require('jquery')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.popout.hbs')
 
 module.exports = DropdownView.extend({
   template: template,

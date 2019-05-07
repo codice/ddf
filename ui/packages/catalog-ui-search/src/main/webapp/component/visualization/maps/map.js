@@ -10,13 +10,13 @@
  *
  **/
 
-var _ = require('underscore')
+const _ = require('underscore')
 
 function throwUnimplementedException() {
   throw 'Method has not been implemented.'
 }
 
-var exposedMethods = [
+const exposedMethods = [
   'onLeftClick',
   'onRightClick',
   'onMouseMove',
@@ -44,7 +44,7 @@ var exposedMethods = [
   'destroy',
 ]
 
-var interfaceImplementation = exposedMethods.reduce(function(
+const interfaceImplementation = exposedMethods.reduce(function(
   implementations,
   methodName
 ) {

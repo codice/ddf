@@ -10,13 +10,13 @@
  *
  **/
 
-var Marionette = require('marionette')
-var store = require('../../../js/store.js')
-var _ = require('underscore')
-var _debounce = require('lodash/debounce')
-var calculateConvexHull = require('geo-convex-hull')
+const Marionette = require('marionette')
+const store = require('../../../js/store.js')
+const _ = require('underscore')
+const _debounce = require('lodash/debounce')
+const calculateConvexHull = require('geo-convex-hull')
 
-var ClusterView = Marionette.ItemView.extend({
+const ClusterView = Marionette.ItemView.extend({
   template: false,
   geometry: undefined,
   convexHull: undefined,
@@ -38,7 +38,7 @@ var ClusterView = Marionette.ItemView.extend({
     )
   },
   handleCluster: function() {
-    var center = this.options.map.getCartographicCenterOfClusterInDegrees(
+    const center = this.options.map.getCartographicCenterOfClusterInDegrees(
       this.model
     )
     this.geometry.push(
@@ -56,23 +56,23 @@ var ClusterView = Marionette.ItemView.extend({
     )
   },
   addConvexHull: function() {
-    var points = this.model.get('results').map(function(result) {
+    const points = this.model.get('results').map(function(result) {
       return result
         .get('metacard')
         .get('properties')
         .getPoints()
     })
-    var data = _.flatten(points, true).map(function(coord) {
+    const data = _.flatten(points, true).map(function(coord) {
       return {
         longitude: coord[0],
         latitude: coord[1],
       }
     })
-    var convexHull = calculateConvexHull(data).map(function(coord) {
+    const convexHull = calculateConvexHull(data).map(function(coord) {
       return [coord.longitude, coord.latitude]
     })
     convexHull.push(convexHull[0])
-    var geometry = this.options.map.addLine(convexHull, {
+    const geometry = this.options.map.addLine(convexHull, {
       id: this.model.get('results').map(function(result) {
         return result.id
       }),
@@ -102,9 +102,9 @@ var ClusterView = Marionette.ItemView.extend({
     }
   },
   updateSelected: function() {
-    var selected = 0
-    var selectedResults = this.options.selectionInterface.getSelectedResults()
-    var results = this.model.get('results')
+    let selected = 0
+    const selectedResults = this.options.selectionInterface.getSelectedResults()
+    const results = this.model.get('results')
     // if there are less selected results, loop over those instead of this model's results
     if (selectedResults.length < results.length) {
       selectedResults.some(

@@ -56,7 +56,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   serializeData: function() {
-    var workspacesJSON = this.model.toJSON()
+    const workspacesJSON = this.model.toJSON()
     workspacesJSON.niceDate = moment(
       workspacesJSON['metacard.modified']
     ).fromNow()

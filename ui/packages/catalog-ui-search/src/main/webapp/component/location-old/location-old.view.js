@@ -119,7 +119,7 @@ module.exports = Marionette.LayoutView.extend({
   // Updates the map with a drawing whenever the user is entering coordinates manually
   updateMap: function() {
     if (!this.isDestroyed) {
-      var mode = this.model.get('mode')
+      const mode = this.model.get('mode')
       if (mode !== undefined && store.get('content').get('drawing') !== true) {
         wreqr.vent.trigger('search:' + mode + 'display', this.model)
       }
@@ -231,8 +231,8 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.trigger('change')
   },
   getCurrentValue: function() {
-    var modelJSON = this.model.toJSON()
-    var type
+    const modelJSON = this.model.toJSON()
+    let type
     if (modelJSON.polygon !== undefined) {
       type = ShapeUtils.isArray3D(modelJSON.polygon)
         ? 'MULTIPOLYGON'

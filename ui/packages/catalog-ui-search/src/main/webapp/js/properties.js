@@ -10,7 +10,7 @@
  *
  **/
 
-var DEFAULT_AUTO_MERGE_TIME = 1000
+const DEFAULT_AUTO_MERGE_TIME = 1000
 
 const $ = require('jquery')
 const _ = require('underscore')
@@ -28,7 +28,7 @@ function match(regexList, attribute) {
   )
 }
 
-var properties = {
+const properties = {
   commitHash: __COMMIT_HASH__,
   isDirty: __IS_DIRTY__,
   commitDate: __COMMIT_DATE__,
@@ -59,7 +59,7 @@ var properties = {
 
   init: function() {
     // use this function to initialize variables that rely on others
-    var props = this
+    let props = this
     $.ajax({
       async: false, // must be synchronous to guarantee that no tests are run before fixture is loaded
       cache: false,

@@ -24,7 +24,7 @@ module.exports = new (Backbone.Model.extend({
     this.set('workspaces', new WorkspaceCollection())
 
     window.onbeforeunload = function() {
-      var unsaved = this.get('workspaces')
+      const unsaved = this.get('workspaces')
         .chain()
         .map(function(workspace) {
           if (!workspace.isSaved()) {
@@ -45,7 +45,7 @@ module.exports = new (Backbone.Model.extend({
     }.bind(this)
 
     this.listenTo(this.get('workspaces'), 'remove', function() {
-      var currentWorkspace = this.getCurrentWorkspace()
+      const currentWorkspace = this.getCurrentWorkspace()
       if (currentWorkspace && !this.get('workspaces').get(currentWorkspace)) {
         this.get('content').set('currentWorkspace', undefined)
       }
@@ -77,7 +77,7 @@ module.exports = new (Backbone.Model.extend({
   },
   handleWorkspaceChange: function() {
     if (this.get('content').changedAttributes().currentWorkspace) {
-      var previousWorkspace = this.get('content').previousAttributes()
+      const previousWorkspace = this.get('content').previousAttributes()
         .currentWorkspace
       if (
         previousWorkspace &&
@@ -103,7 +103,7 @@ module.exports = new (Backbone.Model.extend({
     return this.getCurrentWorkspace().get('queries')
   },
   setQueryById: function(queryId) {
-    var queryRef = this.getCurrentQueries().get(queryId)
+    const queryRef = this.getCurrentQueries().get(queryId)
     this.setQueryByReference(queryRef.clone())
   },
   setQueryByReference: function(queryRef) {

@@ -16,12 +16,12 @@
 const Marionette = require('marionette')
 const template = require('./notification.hbs')
 const CustomElements = require('../../js/CustomElements.js')
-var NotificationEmpty = Marionette.ItemView.extend({
+const NotificationEmpty = Marionette.ItemView.extend({
   className: 'notification-empty',
   template: 'No recent notifications.',
 })
 
-var NotificationItem = Marionette.ItemView.extend({
+const NotificationItem = Marionette.ItemView.extend({
   template: template,
   className: 'notification',
   events: {

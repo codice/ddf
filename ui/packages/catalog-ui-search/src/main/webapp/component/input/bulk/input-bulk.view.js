@@ -60,7 +60,7 @@ module.exports = InputView.extend({
       this.enumRegion.currentView.model,
       'change:value',
       function() {
-        var value = this.enumRegion.currentView.model.get('value')[0]
+        const value = this.enumRegion.currentView.model.get('value')[0]
         switch (value) {
           case 'bulkDefault':
             this.model.revert()
@@ -97,8 +97,8 @@ module.exports = InputView.extend({
   },
   serializeData: function() {
     // need duplicate (usually toJSON returns a side-effect free version, but this has a nested object that isn't using backbone associations)
-    var modelJSON = Common.duplicate(this.model.toJSON())
-    var type = this.model.getCalculatedType()
+    const modelJSON = Common.duplicate(this.model.toJSON())
+    const type = this.model.getCalculatedType()
     modelJSON.isThumbnail = type === 'thumbnail'
     switch (type) {
       case 'date':
@@ -140,7 +140,7 @@ module.exports = InputView.extend({
     return modelJSON
   },
   initializeDropdown: function() {
-    var enumValues = [
+    const enumValues = [
       {
         label: 'Multiple Values',
         value: 'bulkDefault',
@@ -153,13 +153,13 @@ module.exports = InputView.extend({
         help: 'Select this to enter a custom value.',
       },
     ]
-    var type = this.model.getCalculatedType()
+    const type = this.model.getCalculatedType()
     _.forEach(
       this.model.get('values'),
       function(valueInfo) {
-        var value = valueInfo.value
-        var label = valueInfo.hasNoValue ? 'No Value' : value
-        var type = this.model.getCalculatedType()
+        let value = valueInfo.value
+        let label = valueInfo.hasNoValue ? 'No Value' : value
+        const type = this.model.getCalculatedType()
         if (!valueInfo.hasNoValue) {
           switch (type) {
             case 'date':

@@ -17,24 +17,24 @@ import wrapNum from '../../../react-component/utils/wrap-num/wrap-num.tsx'
 import * as React from 'react'
 import ZoomToHomeButton from '../../../react-component/button/split-button/zoomToHome.tsx'
 
-var wreqr = require('../../../js/wreqr.js')
-var template = require('./map.hbs')
-var Marionette = require('marionette')
-var CustomElements = require('../../../js/CustomElements.js')
-var LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
-var store = require('../../../js/store.js')
-var GeometryCollectionView = require('./geometry.collection.view')
-var ClusterCollectionView = require('./cluster.collection.view')
-var ClusterCollection = require('./cluster.collection')
-var CQLUtils = require('../../../js/CQLUtils.js')
-var LocationModel = require('../../location-old/location-old.js')
-var user = require('../../singletons/user-instance.js')
-var LayersDropdown = require('../../dropdown/layers/dropdown.layers.view.js')
-var DropdownModel = require('../../dropdown/dropdown.js')
-var MapContextMenuDropdown = require('../../dropdown/map-context-menu/dropdown.map-context-menu.view.js')
-var MapModel = require('./map.model')
-var properties = require('../../../js/properties.js')
-var Common = require('../../../js/Common.js')
+const wreqr = require('../../../js/wreqr.js')
+const template = require('./map.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('../../../js/CustomElements.js')
+const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
+const store = require('../../../js/store.js')
+const GeometryCollectionView = require('./geometry.collection.view')
+const ClusterCollectionView = require('./cluster.collection.view')
+const ClusterCollection = require('./cluster.collection')
+const CQLUtils = require('../../../js/CQLUtils.js')
+const LocationModel = require('../../location-old/location-old.js')
+const user = require('../../singletons/user-instance.js')
+const LayersDropdown = require('../../dropdown/layers/dropdown.layers.view.js')
+const DropdownModel = require('../../dropdown/dropdown.js')
+const MapContextMenuDropdown = require('../../dropdown/map-context-menu/dropdown.map-context-menu.view.js')
+const MapModel = require('./map.model')
+const properties = require('../../../js/properties.js')
+const Common = require('../../../js/Common.js')
 const announcement = require('../../announcement')
 
 const Gazetteer = require('../../../react-component/location/gazetteer.js')
@@ -320,7 +320,7 @@ module.exports = Marionette.LayoutView.extend({
     this.toolbarSettings.show(new MapSettingsView())
   },
   onMapHover: function(event, mapEvent) {
-    var metacard = this.options.selectionInterface
+    const metacard = this.options.selectionInterface
       .getActiveSearchResults()
       .get(mapEvent.mapTarget)
     this.updateTarget(metacard)
@@ -330,8 +330,8 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   updateTarget: function(metacard) {
-    var target
-    var targetMetacard
+    let target
+    let targetMetacard
     if (metacard) {
       target = metacard
         .get('metacard')
@@ -447,14 +447,14 @@ module.exports = Marionette.LayoutView.extend({
   },
   handleCurrentQuery: function() {
     this.removePreviousLocations()
-    var currentQuery = this.options.selectionInterface.get('currentQuery')
+    const currentQuery = this.options.selectionInterface.get('currentQuery')
     if (currentQuery) {
       this.handleFilter(
         CQLUtils.transformCQLToFilter(currentQuery.get('cql')),
         currentQuery.get('color')
       )
     }
-    var resultFilter = user
+    const resultFilter = user
       .get('user')
       .get('preferences')
       .get('resultFilter')
@@ -470,8 +470,8 @@ module.exports = Marionette.LayoutView.extend({
         }.bind(this)
       )
     } else {
-      var pointText
-      var locationModel
+      let pointText
+      let locationModel
       switch (filter.type) {
         case 'DWITHIN':
           if (CQLUtils.isPolygonFilter(filter)) {
@@ -481,7 +481,7 @@ module.exports = Marionette.LayoutView.extend({
           if (CQLUtils.isPointRadiusFilter(filter)) {
             pointText = filter.value.value.substring(6)
             pointText = pointText.substring(0, pointText.length - 1)
-            var latLon = pointText.split(' ')
+            const latLon = pointText.split(' ')
             locationModel = new LocationModel({
               lat: latLon[1],
               lon: latLon[0],

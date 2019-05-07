@@ -10,7 +10,7 @@
  *
  **/
 
-var user = require('../../component/singletons/user-instance.js')
+const user = require('../../component/singletons/user-instance.js')
 
 const _ = require('underscore')
 const Backbone = require('backbone')
@@ -28,9 +28,9 @@ function removeLocalCatalogIfNeeded(response, localCatalog) {
   return response
 }
 
-var Types = Backbone.Collection.extend({})
+const Types = Backbone.Collection.extend({})
 
-var computeTypes = function(sources) {
+const computeTypes = function(sources) {
   if (_.size(properties.typeNameMapping) > 0) {
     return _.map(properties.typeNameMapping, function(value, key) {
       if (_.isArray(value)) {

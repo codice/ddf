@@ -10,8 +10,8 @@
  *
  **/
 
-var Backbone = require('backbone')
-var ResultUtils = require('../ResultUtils.js')
+const Backbone = require('backbone')
+const ResultUtils = require('../ResultUtils.js')
 
 module.exports = Backbone.Model.extend({
   defaults: function() {
@@ -49,7 +49,7 @@ module.exports = Backbone.Model.extend({
     this.set('percentage', percentage)
   },
   handleError: function(file, response) {
-    var message =
+    const message =
       this.get('result')
         .get('metacard')
         .get('properties')
@@ -63,7 +63,7 @@ module.exports = Backbone.Model.extend({
     })
   },
   handleSuccess: function(file) {
-    var message =
+    const message =
       this.get('result')
         .get('metacard')
         .get('properties')

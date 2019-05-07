@@ -10,5 +10,5 @@
  *
  **/
 
-var User = require('../../js/model/User.js')
+const User = require('../../js/model/User.js')
 module.exports = new User.Response()

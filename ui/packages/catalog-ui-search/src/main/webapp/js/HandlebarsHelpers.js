@@ -39,20 +39,20 @@ function bind(options, callback) {
 }
 
 // The module to be exported
-var helper,
+let helper,
   helpers = {
     /*
-     * Handlebars Helper: Moment.js
-     * @author: https://github.com/Arkkimaagi
-     * Built for Assemble: the static site generator and
-     * component builder for Node.js, Grunt.js and Yeoman.
-     * http://assemble.io
-     *
-     * Copyright (c) 2013, Upstage
-     * Licensed under the MIT license.
-     */
+       * Handlebars Helper: Moment.js
+       * @author: https://github.com/Arkkimaagi
+       * Built for Assemble: the static site generator and
+       * component builder for Node.js, Grunt.js and Yeoman.
+       * http://assemble.io
+       *
+       * Copyright (c) 2013, Upstage
+       * Licensed under the MIT license.
+       */
     momentHelp: function(context, block) {
-      var momentObj, date, i
+      let momentObj, date, i
       if (context && context.hash) {
         block = _.cloneDeep(context)
         context = undefined
@@ -61,7 +61,7 @@ var helper,
       for (i in block.hash) {
         if (momentObj[i]) {
           if (typeof momentObj[i] === 'function') {
-            var func = momentObj[i]
+            const func = momentObj[i]
             date = func.call(momentObj, block.hash[i])
           }
         } else {
@@ -77,10 +77,10 @@ var helper,
         block = _.cloneDeep(context)
         context = 0
       }
-      var duration = moment.duration(context)
+      let duration = moment.duration(context)
       // Reset the language back to default before doing anything else
       duration = duration.lang('en')
-      for (var i in block.hash) {
+      for (const i in block.hash) {
         if (duration[i]) {
           duration = duration[i](block.hash[i])
         } else {
@@ -117,10 +117,10 @@ var helper,
       }
     },
     isAnd: function() {
-      var args = _.flatten(arguments)
-      var items = _.initial(args)
-      var result = true
-      var block = _.last(args)
+      const args = _.flatten(arguments)
+      const items = _.initial(args)
+      let result = true
+      const block = _.last(args)
       _.each(items, function(item, i) {
         if (i % 2 === 0) {
           if (item !== items[i + 1]) {
@@ -136,7 +136,7 @@ var helper,
     },
     isUrl: function(value, options) {
       if (value !== null && value !== '' && _.isString(value)) {
-        var protocol = value.toLowerCase().split('/')[0]
+        const protocol = value.toLowerCase().split('/')[0]
         if (protocol && (protocol === 'http:' || protocol === 'https:')) {
           return options.fn(this)
         }
@@ -172,10 +172,10 @@ var helper,
       }
     },
     ifAnd: function() {
-      var args = _.flatten(arguments)
-      var items = _.initial(args)
-      var result = true
-      var block = _.last(args)
+      const args = _.flatten(arguments)
+      const items = _.initial(args)
+      let result = true
+      const block = _.last(args)
       _.each(items, function(item) {
         if (!item) {
           result = false
@@ -188,10 +188,10 @@ var helper,
       }
     },
     ifOr: function() {
-      var args = _.flatten(arguments)
-      var items = _.initial(args)
-      var result = false
-      var block = _.last(args)
+      const args = _.flatten(arguments)
+      const items = _.initial(args)
+      let result = false
+      const block = _.last(args)
       _.each(items, function(item) {
         if (item) {
           result = true
@@ -204,10 +204,10 @@ var helper,
       }
     },
     ifNotAnd: function() {
-      var args = _.flatten(arguments)
-      var items = _.initial(args)
-      var result = true
-      var block = _.last(args)
+      const args = _.flatten(arguments)
+      const items = _.initial(args)
+      let result = true
+      const block = _.last(args)
       _.each(items, function(item) {
         if (!item) {
           result = false
@@ -220,10 +220,10 @@ var helper,
       }
     },
     ifNotOr: function() {
-      var args = _.flatten(arguments)
-      var items = _.initial(args)
-      var result = false
-      var block = _.last(args)
+      const args = _.flatten(arguments)
+      const items = _.initial(args)
+      let result = false
+      const block = _.last(args)
       _.each(items, function(item) {
         if (item) {
           result = true
@@ -268,7 +268,7 @@ var helper,
       return Common.getResourceUrlFromThumbUrl(img)
     },
     getAlias: function(field) {
-      var definition = metacardDefinitions.metacardTypes[field]
+      const definition = metacardDefinitions.metacardTypes[field]
       if (definition) {
         return definition.alias || definition.id
       } else {
@@ -286,9 +286,9 @@ var helper,
       }
     },
     bindInput: function(options) {
-      var callback = function() {
-        var $target = this.$el.find(options.hash.selector)
-        var value = _get(this.serializeData(), options.hash.key)
+      const callback = function() {
+        const $target = this.$el.find(options.hash.selector)
+        const value = _get(this.serializeData(), options.hash.key)
         $target.each(function() {
           if ($(this).val() !== value) {
             $(this).val(value)
@@ -298,24 +298,24 @@ var helper,
       return bind(options, callback)
     },
     bindAttr: function(options) {
-      var callback = function() {
-        var $target = this.$el.find(options.hash.selector)
-        var value = _get(this.serializeData(), options.hash.key)
+      const callback = function() {
+        const $target = this.$el.find(options.hash.selector)
+        const value = _get(this.serializeData(), options.hash.key)
         $target.attr(options.hash.attr, value)
       }
       return bind(options, callback)
     },
     bind: function(options) {
-      var callback = function() {
-        var $target = this.$el.find(options.hash.selector)
-        var value = _get(this.serializeData(), options.hash.key)
+      const callback = function() {
+        const $target = this.$el.find(options.hash.selector)
+        const value = _get(this.serializeData(), options.hash.key)
         $target.html(Common.escapeHTML(value))
       }
       return bind(options, callback)
     },
     path: function() {
-      var outArray = []
-      for (var arg = 0; arg < arguments.length; arg++) {
+      const outArray = []
+      for (let arg = 0; arg < arguments.length; arg++) {
         if (typeof arguments[arg] === 'object') {
           break
         }
