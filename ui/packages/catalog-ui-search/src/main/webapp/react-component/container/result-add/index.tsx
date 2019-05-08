@@ -16,10 +16,11 @@ import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 import * as _ from 'lodash'
-import * as ListModel from '../../../js/model/List'
-import * as store from '../../../js/store'
 
 import View from '../../presentation/result-add'
+
+const ListModel = require('../../../js/model/List')
+const store = require('../../../js/store')
 
 const LIST_CQL_KEY = 'list.cql'
 const LIST_BOOKMARKS_KEY = 'list.bookmarks'
@@ -83,51 +84,49 @@ const removeFromList = (id: string, metacardIds: [string]) =>
     .get(id)
     .removeBookmarks(metacardIds)
 
-export default hot(module)(
-  withListenTo(
-    class extends React.Component<Props, State> {
-      constructor(props: Props) {
-        super(props)
+class ResultAddContainer extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
 
-        this.state = {
-          resultItems: formatList(this.props.model),
-        }
-      }
-
-      componentDidMount = () => {
-        const updateResultItemsState = () =>
-          this.setState({ resultItems: formatList(this.props.model) })
-
-        this.props.listenTo(
-          getLists(),
-          'add remove update change',
-          updateResultItemsState
-        )
-      }
-
-      updateBookmark = (id: any) => {
-        const existingBookmarks = getLists()
-          .get(id)
-          .get(LIST_BOOKMARKS_KEY)
-        const metacardIds = this.props.model.map(
-          (item: any) => item.get('metacard').id
-        )
-
-        const alreadyBookmarked =
-          _.intersection(existingBookmarks, metacardIds).length > 0
-
-        alreadyBookmarked
-          ? removeFromList(id, metacardIds as [any])
-          : addToList(id, metacardIds as [any])
-      }
-
-      render = () => (
-        <View
-          model={this.props.model}
-          items={this.state.resultItems}
-          bookmarkHandler={this.updateBookmark}
-        />
-      )
+    this.state = {
+      resultItems: formatList(this.props.model),
     }
+  }
+
+  componentDidMount = () => {
+    const updateResultItemsState = () =>
+      this.setState({ resultItems: formatList(this.props.model) })
+
+    this.props.listenTo(
+      getLists(),
+      'add remove update change',
+      updateResultItemsState
+    )
+  }
+
+  updateBookmark = (id: any) => {
+    const existingBookmarks = getLists()
+      .get(id)
+      .get(LIST_BOOKMARKS_KEY)
+    const metacardIds = this.props.model.map(
+      (item: any) => item.get('metacard').id
+    )
+
+    const alreadyBookmarked =
+      _.intersection(existingBookmarks, metacardIds).length > 0
+
+    alreadyBookmarked
+      ? removeFromList(id, metacardIds as [any])
+      : addToList(id, metacardIds as [any])
+  }
+
+  render = () => (
+    <View
+      model={this.props.model}
+      items={this.state.resultItems}
+      bookmarkHandler={this.updateBookmark}
+    />
   )
-)
+}
+
+export default hot(module)(withListenTo(ResultAddContainer))

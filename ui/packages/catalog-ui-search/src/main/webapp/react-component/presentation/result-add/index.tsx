@@ -16,15 +16,16 @@ import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import styled from '../../styles/styled-components'
 import MarionetteRegionContainer from '../../container/marionette-region-container'
-import * as PopoutView from '../../../component/dropdown/popout/dropdown.popout.view'
-import * as ListCreateView from '../../../component/list-create/list-create.view'
+
+const ListCreate = require('../../../component/list-create/list-create').default
+const PopoutView = require('../../../component/dropdown/popout/dropdown.popout.view')
 
 type Result = {
   matchesFilter?: boolean
   alreadyContains?: boolean
   icon: any
   title: string
-  id: any
+  id: string
 }
 
 type Props = {
@@ -44,6 +45,17 @@ const Button = styled.button`
   text-align: left;
   height: ${props => props.theme.minimumButtonSize};
   line-height: ${props => props.theme.minimumButtonSize};
+  cursor: pointer;
+  opacity: ${props => props.theme.minimumOpacity};
+
+  &:hover:not(.is-disabled):not([disabled]),
+  &:focus:not(.is-disabled):not([disabled]) {
+    opacity: 1;
+  }
+
+  &.is-active:not(.is-disabled):not([disabled]) {
+    opacity: 1;
+  }
 `
 
 const IconSpan = styled.span`
@@ -62,11 +74,12 @@ const getIconStyle = (result: Result) => {
   return 'fa-ban'
 }
 
+const getButtonIsDisabledStyle = (result: Result): String =>
+  !result.alreadyContains && !result.matchesFilter ? 'is-disabled' : ''
+
 const renderButton = (result: Result, props: Props) => (
   <Button
-    className={`is-button is-neutral ${!result.alreadyContains &&
-      !result.matchesFilter &&
-      'is-disabled'}`}
+    className={`is-neutral ${getButtonIsDisabledStyle(result)}`}
     key={result.id}
     onClick={() => props.bookmarkHandler(result.id)}
   >
@@ -83,17 +96,16 @@ export default hot(module)((props: Props) => (
     {props.items && props.items.map(item => renderButton(item, props))}
     {props.items && props.items.length > 0 && <div className="is-divider" />}
     <MarionetteRegionContainer
-      view={(viewProps: any) => PopoutView.createSimpleDropdown(viewProps)}
-      className="is-button is-neutral composed-button create-new-list"
-      viewOptions={{
+      className="is-button is-neutral composed-button"
+      view={PopoutView.createSimpleDropdown({
         modelForComponent: props.model,
-        componentToShow: ListCreateView,
+        componentToShow: ListCreate,
         leftIcon: 'fa fa-plus',
         label: 'Create New List',
         options: {
           withBookmarks: true,
         },
-      }}
+      })}
     />
   </Root>
 ))

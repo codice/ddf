@@ -13,9 +13,6 @@
  *
  **/
 
-var Marionette = require('marionette')
-var _ = require('underscore')
-var $ = require('jquery')
 var DropdownView = require('../dropdown.view')
 var template = require('./dropdown.popout.hbs')
 
