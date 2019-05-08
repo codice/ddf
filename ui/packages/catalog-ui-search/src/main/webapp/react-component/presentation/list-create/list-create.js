@@ -34,40 +34,50 @@ const AddButton = props => {
   )
 }
 
+const createListView = () => {
+  return new ListEditorView({
+    model: new List(),
+    showListTemplates: true,
+    showFooter: false,
+  })
+}
+
 class ListCreate extends React.Component {
   constructor(props) {
     super(props)
-    this.listEditor = new ListEditorView({
-      model: new List(),
-      showListTemplates: true,
-      showFooter: false,
-    })
+    this.state = {
+      listEditor: createListView(),
+    }
   }
 
   createList = () => {
-    this.listEditor.save()
+    this.state.listEditor.save()
     store
       .getCurrentWorkspace()
       .get('lists')
-      .add(this.listEditor.model)
+      .add(this.state.listEditor.model)
+    this.setState({ listEditor: createListView() })
   }
 
   createListWithBookmarks = () => {
-    this.listEditor.save()
+    this.state.listEditor.save()
     if (
       this.props.model.every(result => {
-        return result.matchesCql(this.listEditor.model.get('list.cql'))
+        return result.matchesCql(this.state.listEditor.model.get('list.cql'))
       })
     ) {
-      this.listEditor.model.addBookmarks(
+      this.state.listEditor.model.addBookmarks(
         this.props.model.map(result => {
           return result.get('metacard').id
         })
       )
-      store
-        .getCurrentWorkspace()
-        .get('lists')
-        .add(this.listEditor.model, { preventSwitch: true })
+      setTimeout(() => {
+        store
+          .getCurrentWorkspace()
+          .get('lists')
+          .add(this.state.listEditor.model, { preventSwitch: true })
+        this.setState({ listEditor: createListView() })
+      }, 50)
     } else {
       this.props.listenTo(
         ConfirmationView.generateConfirmation({
@@ -82,7 +92,8 @@ class ListCreate extends React.Component {
             store
               .getCurrentWorkspace()
               .get('lists')
-              .add(this.listEditor.model, { preventSwitch: true })
+              .add(this.state.listEditor.model, { preventSwitch: true })
+            this.setState({ listEditor: createListView() })
           }
         }
       )
@@ -92,15 +103,13 @@ class ListCreate extends React.Component {
   render() {
     return (
       <CreateContainer>
-        <MarionetteRegionContainer view={this.listEditor} />
+        <MarionetteRegionContainer view={this.state.listEditor} />
         {this.props.withBookmarks ? (
-          <AddButton onClick={this.createList}>
+          <AddButton onClick={this.createListWithBookmarks}>
             Create New List with Result(s)
           </AddButton>
         ) : (
-          <AddButton onClick={this.createListWithBookmarks}>
-            Create New List
-          </AddButton>
+          <AddButton onClick={this.createList}>Create New List</AddButton>
         )}
       </CreateContainer>
     )
