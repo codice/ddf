@@ -256,10 +256,11 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
   }
 
   private void callInterceptors(Properties systemPropertiesFile) {
-
-    for (SystemPropertiesAdminInterceptor each : getSystemPropertiesAdminInterceptors()) {
-      if (each != null) {
-        each.updateSystemProperties(systemPropertiesFile);
+    if (getSystemPropertiesAdminInterceptors() != null) {
+      for (SystemPropertiesAdminInterceptor each : getSystemPropertiesAdminInterceptors()) {
+        if (each != null) {
+          each.updateSystemProperties(systemPropertiesFile);
+        }
       }
     }
   }
