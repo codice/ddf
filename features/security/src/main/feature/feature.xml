@@ -485,6 +485,7 @@
         <bundle>mvn:ddf.security.servlet/security-servlet-logout-service/${project.version}</bundle>
         <bundle>mvn:ddf.security.servlet/security-servlet-logout/${project.version}</bundle>
         <bundle>mvn:ddf.security.servlet/security-servlet-logout-endpoint/${project.version}</bundle>
+        <bundle>mvn:ddf.security.servlet/security-servlet-default-logout/${project.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
     </feature>
 

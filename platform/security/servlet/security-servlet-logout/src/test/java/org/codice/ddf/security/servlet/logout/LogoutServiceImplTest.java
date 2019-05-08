@@ -19,11 +19,15 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import ddf.action.Action;
+import ddf.action.ActionProvider;
+import ddf.action.impl.ActionImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.common.SecurityTokenHolder;
 import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import javax.servlet.http.HttpSession;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -54,13 +58,13 @@ public class LogoutServiceImplTest {
 
   @Test
   public void testLogout() throws ParseException, SecurityServiceException {
-    DefaultLogoutAction defaultLogoutActionProvider = new DefaultLogoutAction();
-    Action defaultLogoutAction = defaultLogoutActionProvider.getAction(null);
+    MockLogoutAction mockLogoutActionProvider = new MockLogoutAction();
+    Action defaultLogoutAction = mockLogoutActionProvider.getAction(null);
 
     LogoutServiceImpl logoutServiceImpl = new LogoutServiceImpl();
     logoutServiceImpl.setHttpSessionFactory(sessionFactory);
     logoutServiceImpl.setSecurityManager(sm);
-    logoutServiceImpl.setLogoutActionProviders(ImmutableList.of(defaultLogoutActionProvider));
+    logoutServiceImpl.setLogoutActionProviders(ImmutableList.of(mockLogoutActionProvider));
 
     String responseMessage = logoutServiceImpl.getActionProviders(null);
 
@@ -71,5 +75,26 @@ public class LogoutServiceImplTest {
     assertEquals(defaultActionProperty.get("description"), defaultLogoutAction.getDescription());
     assertEquals(defaultActionProperty.get("title"), defaultLogoutAction.getTitle());
     assertEquals(defaultActionProperty.get("url"), defaultLogoutAction.getUrl().toString());
+  }
+
+  public class MockLogoutAction implements ActionProvider {
+
+    @Override
+    public <T> Action getAction(T subject) {
+      try {
+        return new ActionImpl(
+            "security.logout.test",
+            "Test Logout",
+            "Test",
+            new URL("https://localhost:8993/logout/test"));
+      } catch (MalformedURLException e) {
+        return null;
+      }
+    }
+
+    @Override
+    public String getId() {
+      return "security.logout.test";
+    }
   }
 }

@@ -47,6 +47,7 @@ public class LogoutServletTest {
   @Before
   public void testsetup() {
     localLogoutServlet = new MockLocalLogoutServlet();
+    localLogoutServlet.setRedirectUri("/logout/logout-response.html");
     request = mock(HttpServletRequest.class);
     response = mock(HttpServletResponse.class);
 

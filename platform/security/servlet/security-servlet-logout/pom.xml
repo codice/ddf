@@ -29,10 +29,6 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
         </dependency>
@@ -52,64 +48,20 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.jayway.restassured</groupId>
-            <artifactId>json-path</artifactId>
-            <version>2.4.0</version>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.servlet</groupId>
+            <artifactId>security-servlet-logout-service</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.lib</groupId>
-            <artifactId>common-system</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
             <version>${json-smart.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.security.servlet</groupId>
@@ -125,17 +77,9 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            commons-lang3,
-                            ddf-security-common,
-                            httpclient,
-                            httpcore,
-                            httpmime,
-                            gson-support,
-                            platform-util,
-                            platform-util-unavailableurls
+                            gson-support
                         </Embed-Dependency>
                         <Import-Package>
-                            com.sun.management;resolution:=optional,
                             *
                         </Import-Package>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
@@ -181,7 +125,7 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.89</minimum>
+                                            <minimum>0.90</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
