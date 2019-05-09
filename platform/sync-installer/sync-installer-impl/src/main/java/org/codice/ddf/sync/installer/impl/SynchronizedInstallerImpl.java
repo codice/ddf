@@ -62,11 +62,11 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
 
   private static final String SERVICE_PID_FILTER = "(" + Constants.SERVICE_PID + "=%s)";
 
-  private static final long DEFAULT_MAX_FEATURE_WAIT = TimeUnit.MINUTES.toMillis(2);
+  private static final long DEFAULT_MAX_FEATURE_WAIT = TimeUnit.MINUTES.toMillis(10);
 
-  private static final long DEFAULT_MAX_SERVICE_WAIT = TimeUnit.MINUTES.toMillis(2);
+  private static final long DEFAULT_MAX_SERVICE_WAIT = TimeUnit.MINUTES.toMillis(10);
 
-  private static final long DEFAULT_MAX_BUNDLE_WAIT = TimeUnit.MINUTES.toMillis(2);
+  private static final long DEFAULT_MAX_BUNDLE_WAIT = TimeUnit.MINUTES.toMillis(10);
 
   private static final long DEFAULT_POLLING_INTERVAL = TimeUnit.SECONDS.toMillis(3);
 
