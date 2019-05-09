@@ -559,12 +559,12 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     final FeatureAttributeDescriptor featureAttributeDescriptor =
         (FeatureAttributeDescriptor)
             featureMetacardType.getAttributeDescriptor(featurePropertyName);
-    if (featureAttributeDescriptor.isIndexed()) {
-      return featureAttributeDescriptor.getPropertyName();
-    } else {
+    if (!featureAttributeDescriptor.isIndexed()) {
       throw new IllegalArgumentException(
           String.format(PROPERTY_NOT_QUERYABLE, featurePropertyName));
     }
+
+    return featureAttributeDescriptor.getPropertyName();
   }
 
   private FilterType buildPropertyIsFilterTypeForAnyText(
