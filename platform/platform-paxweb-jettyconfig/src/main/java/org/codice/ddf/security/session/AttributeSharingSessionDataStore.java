@@ -46,19 +46,20 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
    * session's attributes.
    *
    * @param id the session id
-   * @param sessionAttributes the session's attributes
+   * @param updatedSessionData the session's attributes
    */
-  public void updateSessionAttributes(String id, Map<String, Object> sessionAttributes) {
+  public void updateSessionAttributes(String id, SessionData updatedSessionData) {
     synchronized (sessionDataMap) {
       SessionData sessionData = sessionDataMap.get(id);
 
-      if (sessionData != null && !sessionData.getAllAttributes().equals(sessionAttributes)) {
+      if (sessionData != null && !sessionData.getAllAttributes().equals(sessionData)) {
         LOGGER.trace(
             "Storing new attributes for session {} at context {}",
             id,
             _context.getCanonicalContextPath());
         sessionData.clearAllAttributes();
-        sessionData.putAllAttributes(sessionAttributes);
+        sessionData.putAllAttributes(updatedSessionData.getAllAttributes());
+        sessionData.setExpiry(updatedSessionData.getExpiry());
       }
     }
   }
@@ -77,8 +78,7 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
 
   @Override
   public void doStore(String id, SessionData data, long lastSaveTime) {
-    attributeSharingHashSessionIdManager.provideNewSessionAttributes(
-        this, id, data.getAllAttributes());
+    attributeSharingHashSessionIdManager.provideNewSessionAttributes(this, id, data);
 
     synchronized (sessionDataMap) {
       sessionDataMap.put(id, data);
