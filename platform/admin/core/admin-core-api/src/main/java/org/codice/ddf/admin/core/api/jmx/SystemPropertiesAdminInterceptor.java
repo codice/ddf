@@ -16,8 +16,8 @@ package org.codice.ddf.admin.core.api.jmx;
 import java.util.Map;
 
 /**
- * OSGI services interface. Object that provide this service are called by the SystemPropertiesAdmin
- * object just before it saves system property changes to disk. This is objects in other modules a
+ * OSGI service interface. Objects that provide this service are called by the SystemPropertiesAdmin
+ * object just before it saves system property changes to disk. This lets objects in other modules a
  * chance to make their own changes to system properties during the UI installation process -- the
  * SystemPropertiesAdmin object is not invoked as part of a headless installation.
  *
