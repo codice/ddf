@@ -362,6 +362,8 @@ public class TestCatalog extends AbstractIntegrationTest {
 
   @Test
   public void testPointOfContactUpdatePlugin() throws Exception {
+    // Must explicitly add basic auth to log in with a username and password
+    getSecurityPolicy().configureRestForBasic();
     StringWriter writer = new StringWriter();
     IOUtils.copy(IOUtils.toInputStream(getFileContent("/metacard1.xml")), writer);
     String id =
@@ -392,6 +394,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         .when()
         .put(new DynamicUrl(REST_PATH, id).getUrl());
 
+    // Must use SAML|GUEST to get guest access since basic is a terminating authentication type
+    getSecurityPolicy().configureRestForGuest();
     when()
         .get(REST_PATH.getUrl() + id)
         .then()

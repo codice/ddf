@@ -7,4 +7,4 @@
 
 == {title}
 
-If using SOAP services, ${branding} can be configured to use the included <<{developing-prefix}security_token_service,Security Token Service (STS)>>, or <<{managing-prefix}connecting_to_external_sts,connected to an external STS>>.
+If using SOAP services, ${branding} can be configured to use the included <<{developing-prefix}security_token_service,Security Token Service (STS)>>.

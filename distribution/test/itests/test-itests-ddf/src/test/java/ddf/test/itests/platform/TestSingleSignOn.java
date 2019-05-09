@@ -186,7 +186,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
       ingest(
           getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
 
-      getSecurityPolicy().configureWebContextPolicy(null, IDP_AUTH_TYPES, null, null);
+      getSecurityPolicy().configureWebContextPolicy(IDP_AUTH_TYPES, null, null);
       getServiceManager().waitForAllBundles();
 
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");

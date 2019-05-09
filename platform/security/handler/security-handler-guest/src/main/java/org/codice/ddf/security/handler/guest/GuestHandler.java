@@ -61,7 +61,7 @@ public class GuestHandler implements AuthenticationHandler {
       throws AuthenticationException {
     HandlerResult result = new HandlerResult();
 
-    // For guest - if credentials were provided, return them, if not, then return guest credentials
+    // For guest - always return guest credentials
     BaseAuthenticationToken authToken = new GuestAuthenticationToken(request.getRemoteAddr());
 
     result.setSource("GuestHandler");

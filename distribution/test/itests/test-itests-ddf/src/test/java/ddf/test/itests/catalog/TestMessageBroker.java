@@ -20,7 +20,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
-import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
@@ -127,6 +126,8 @@ public class TestMessageBroker extends AbstractIntegrationTest {
   @BeforeExam
   public void beforeExam() throws Exception {
     waitForSystemReady();
+    getSecurityPolicy().configureRestForBasic();
+    waitForSystemReady();
     System.setProperty("artemis.amqp.port", AMQP_PORT.getPort());
     System.setProperty("artemis.multiprotocol.port", ARTEMIS_PORT.getPort());
     System.setProperty("artemis.openwire.port", OPENWIRE_PORT.getPort());
@@ -155,7 +156,7 @@ public class TestMessageBroker extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testUndeliveredMessagesRetry() throws URISyntaxException, InterruptedException {
+  public void testUndeliveredMessagesRetry() throws Exception {
     MockEndpoint endpoint =
         camelContext.getEndpoint(MOCK_UNDELIVERED_TEST_ENDPOINT, MockEndpoint.class);
     endpoint.expectedBodiesReceived("retry");
@@ -174,7 +175,7 @@ public class TestMessageBroker extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testUndeliveredMessagesDelete() throws URISyntaxException, InterruptedException {
+  public void testUndeliveredMessagesDelete() throws Exception {
     MockEndpoint endpoint =
         camelContext.getEndpoint(MOCK_UNDELIVERED_TEST_ENDPOINT, MockEndpoint.class);
     endpoint.expectedBodiesReceived("delete");

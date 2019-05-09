@@ -140,5 +140,5 @@ To configure the IdP client (also known as the SP) that interacts with the speci
 </md:EntityDescriptor>
 ----
 
-When using the included IdP, ${branding} can be configured to use the <<{managing-prefix}configuring_included_sts,included Security Token Service(STS)>> or an <<{managing-prefix}connecting_to_external_sts,external STS>>.
+When using the included IdP, ${branding} can be configured to use the <<{managing-prefix}configuring_included_sts,included Security Token Service(STS)>>.
 
