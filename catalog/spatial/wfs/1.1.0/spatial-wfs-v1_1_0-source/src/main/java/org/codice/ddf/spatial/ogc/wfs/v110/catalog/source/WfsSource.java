@@ -564,7 +564,7 @@ public class WfsSource extends AbstractWfsSource {
 
           this.featureTypeFilters.put(
               featureMetacardType.getFeatureType(),
-              new WfsFilterDelegate(featureMetacardType, supportedGeo));
+              new WfsFilterDelegate(featureMetacardType, supportedGeo, coordinateOrder));
 
           mcTypeRegs.put(ftSimpleName, featureMetacardType);
 

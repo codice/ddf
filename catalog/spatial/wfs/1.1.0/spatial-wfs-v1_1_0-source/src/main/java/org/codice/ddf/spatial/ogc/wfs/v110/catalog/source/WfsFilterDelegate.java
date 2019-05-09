@@ -14,6 +14,8 @@
 package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
 import static com.google.common.primitives.Doubles.asList;
+import static java.util.stream.Collectors.joining;
+import static org.codice.ddf.libs.geo.util.GeospatialUtil.LAT_LON_ORDER;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -27,14 +29,13 @@ import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import net.opengis.filter.v_1_1_0.AbstractIdType;
@@ -100,25 +101,29 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
       ThreadLocal.withInitial(WKTWriter::new);
 
-  private FeatureMetacardType featureMetacardType;
+  private final FeatureMetacardType featureMetacardType;
 
-  private ObjectFactory filterObjectFactory = new ObjectFactory();
+  private final ObjectFactory filterObjectFactory = new ObjectFactory();
 
-  private net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory =
+  private final net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory =
       new net.opengis.gml.v_3_1_1.ObjectFactory();
+
+  private final boolean isLatLonOrder;
 
   private List<String> supportedGeo;
 
   private List<QName> geometryOperands;
 
-  public WfsFilterDelegate(FeatureMetacardType featureMetacardType, List<String> supportedGeo) {
-
+  public WfsFilterDelegate(
+      FeatureMetacardType featureMetacardType, List<String> supportedGeo, String coordinateOrder) {
     if (featureMetacardType == null) {
       throw new IllegalArgumentException("FeatureMetacardType can not be null");
     }
     this.featureMetacardType = featureMetacardType;
     this.supportedGeo = supportedGeo;
     setSupportedGeometryOperands(Wfs11Constants.wktOperandsAsList());
+
+    isLatLonOrder = LAT_LON_ORDER.equals(coordinateOrder);
   }
 
   public void setSupportedGeometryOperands(List<QName> geometryOperands) {
@@ -131,8 +136,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   public void setSupportedGeoFilters(List<String> supportedGeos) {
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug(
-          "Updating supportedGeos to: {}", supportedGeos.stream().collect(Collectors.joining(",")));
+      LOGGER.debug("Updating supportedGeos to: {}", supportedGeos.stream().collect(joining(",")));
     }
     this.supportedGeo = supportedGeos;
   }
@@ -1078,12 +1082,20 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     Envelope envelope = createEnvelopeFromWkt(wkt);
 
+    List<Double> lowerCornerCoordinates = asList(envelope.getMinX(), envelope.getMinY());
+    List<Double> upperCornerCoordinates = asList(envelope.getMaxX(), envelope.getMaxY());
+
+    if (isLatLonOrder) {
+      Collections.reverse(lowerCornerCoordinates);
+      Collections.reverse(upperCornerCoordinates);
+    }
+
     DirectPositionType lowerCorner = new DirectPositionType();
-    lowerCorner.setValue(asList(envelope.getMinX(), envelope.getMinY()));
+    lowerCorner.setValue(lowerCornerCoordinates);
     envelopeType.setLowerCorner(lowerCorner);
 
     DirectPositionType upperCorner = new DirectPositionType();
-    upperCorner.setValue(asList(envelope.getMaxX(), envelope.getMaxY()));
+    upperCorner.setValue(upperCornerCoordinates);
     envelopeType.setUpperCorner(upperCorner);
 
     bboxType.setEnvelope(gmlObjectFactory.createEnvelope(envelopeType));
@@ -1097,14 +1109,11 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     Coordinate[] coordinates = getCoordinatesFromWkt(wkt);
     if (coordinates != null && coordinates.length > 0) {
-      StringBuilder coordString = new StringBuilder();
-
-      for (Coordinate coordinate : coordinates) {
-        coordString.append(coordinate.y).append(",").append(coordinate.x).append(" ");
-      }
+      String coordinateString =
+          isLatLonOrder ? latLonCoordinateString(coordinates) : lonLatCoordinateString(coordinates);
 
       CoordinatesType coordinatesType = new CoordinatesType();
-      coordinatesType.setValue(coordString.toString());
+      coordinatesType.setValue(coordinateString);
       coordinatesType.setDecimal(".");
       coordinatesType.setCs(",");
       coordinatesType.setTs(" ");
@@ -1129,8 +1138,11 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     if (coordinates != null && coordinates.length > 0) {
 
       CoordinatesType coordinatesType = new CoordinatesType();
-      coordinatesType.setValue(coordinates[0].y + "," + coordinates[0].x);
-
+      String coordinateString =
+          isLatLonOrder
+              ? latLonCoordinateString(coordinates[0])
+              : lonLatCoordinateString(coordinates[0]);
+      coordinatesType.setValue(coordinateString);
       PointType point = new PointType();
       point.setCoordinates(coordinatesType);
 
@@ -1210,6 +1222,22 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     return bufferedWkt;
   }
 
+  private String latLonCoordinateString(final Coordinate[] coordinates) {
+    return Arrays.stream(coordinates).map(this::latLonCoordinateString).collect(joining(" "));
+  }
+
+  private String latLonCoordinateString(final Coordinate coordinate) {
+    return coordinate.y + "," + coordinate.x;
+  }
+
+  private String lonLatCoordinateString(final Coordinate[] coordinates) {
+    return Arrays.stream(coordinates).map(this::lonLatCoordinateString).collect(joining(" "));
+  }
+
+  private String lonLatCoordinateString(final Coordinate coordinate) {
+    return coordinate.x + "," + coordinate.y;
+  }
+
   /**
    * This method approximates the degrees in latitude for the given distance (in meters) using the
    * formula for the meridian distance on Earth.
@@ -1230,9 +1258,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     LineStringType lineStringType = gmlObjectFactory.createLineStringType();
 
     String coordinatesValue =
-        Stream.of(geometry.getCoordinates())
-            .map(coordinate -> coordinate.y + "," + coordinate.x)
-            .collect(Collectors.joining(" "));
+        isLatLonOrder
+            ? latLonCoordinateString(geometry.getCoordinates())
+            : lonLatCoordinateString(geometry.getCoordinates());
 
     CoordinatesType coordinatesType = gmlObjectFactory.createCoordinatesType();
     coordinatesType.setValue(coordinatesValue);
