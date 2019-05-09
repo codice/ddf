@@ -22,8 +22,10 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Map;
 import javax.annotation.Nullable;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.admin.core.api.jmx.SystemPropertiesAdminInterceptor;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
@@ -31,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SolrPasswordUpdateImpl
-    implements org.codice.ddf.admin.core.api.jmx.SystemPropertiesAdminInterceptor {
+    implements SystemPropertiesAdminInterceptor {
 
   private static final String SET_USER_JSON_TEMPLATE = "{ \"set-user\": {\"%s\" : \"%s\"}}";
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrPasswordUpdateImpl.class);
@@ -156,7 +158,7 @@ public class SolrPasswordUpdateImpl
 
   private void setPasswordInSolr() {
     try (InputStream is = new ByteArrayInputStream(getSetUserJson().getBytes())) {
-      javax.ws.rs.core.Response response = solrAuthResource.sendRequest(is);
+      Response response = solrAuthResource.sendRequest(is);
       solrResponse = response.getStatusInfo();
       if (isSolrPasswordChangeSuccessful()) {
         LOGGER.info("New password was set in Solr server.");
