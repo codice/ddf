@@ -146,9 +146,23 @@ module.exports = Backbone.AssociatedModel.extend({
                   responseJSON: res,
                 })
                 break
+              case -32000:
+                if (rpc !== null) {
+                  rpc.close()
+                  rpc = null
+                }
+                options.error({
+                  responseJSON: {
+                    message: 'User not logged in.',
+                  },
+                })
+                break
               default:
                 // notify user and fallback to http
-                rpc = null
+                if (rpc !== null) {
+                  rpc.close()
+                  rpc = null
+                }
                 options.error({
                   responseJSON: {
                     message:
