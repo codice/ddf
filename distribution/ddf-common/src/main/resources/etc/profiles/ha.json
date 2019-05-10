@@ -6,7 +6,7 @@
     "catalog-core",
     "catalog-core-content",
     "catalog-core-downloadaction",
-    "catalog-core-validationparser",
+    "catalog-core-definitionparser",
     "catalog-core-validator",
     "catalog-plugin-expirationdate",
     "catalog-plugin-jpeg2000",

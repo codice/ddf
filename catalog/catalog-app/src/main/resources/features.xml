@@ -489,10 +489,10 @@
         <feature>catalog-plugin-metacard-validation</feature>
     </feature>
 
-    <feature name="catalog-core-validationparser" version="${project.version}"
+    <feature name="catalog-core-definitionparser" version="${project.version}"
              description="Provides the ability to define new metacard types, attributes, attribute validators, and default values via JSON files">
         <feature>catalog-core-validator</feature>
-        <bundle>mvn:ddf.catalog.core/catalog-core-validationparser/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.core/catalog-core-definitionparser/${project.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
     </feature>
 
@@ -670,7 +670,7 @@
         <feature>catalog-admin-module-maplayers</feature>
         <feature>catalog-admin-module-layout</feature>
         <feature>catalog-admin-poller-service</feature>
-        <feature>catalog-core-validationparser</feature>
+        <feature>catalog-core-definitionparser</feature>
         <feature>catalog-transformer-pdf</feature>
         <feature>catalog-transformer-pptx</feature>
         <feature>catalog-validator-metacardwkt</feature>

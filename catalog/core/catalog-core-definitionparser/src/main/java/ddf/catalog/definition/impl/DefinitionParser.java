@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.validation.impl;
+package ddf.catalog.definition.impl;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -38,6 +38,16 @@ import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.InjectableAttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.AssociationsAttributes;
+import ddf.catalog.data.impl.types.ContactAttributes;
+import ddf.catalog.data.impl.types.CoreAttributes;
+import ddf.catalog.data.impl.types.DateTimeAttributes;
+import ddf.catalog.data.impl.types.LocationAttributes;
+import ddf.catalog.data.impl.types.MediaAttributes;
+import ddf.catalog.data.impl.types.SecurityAttributes;
+import ddf.catalog.data.impl.types.TopicAttributes;
+import ddf.catalog.data.impl.types.ValidationAttributes;
+import ddf.catalog.data.impl.types.VersionAttributes;
 import ddf.catalog.validation.AttributeValidator;
 import ddf.catalog.validation.AttributeValidatorRegistry;
 import ddf.catalog.validation.MetacardValidator;
@@ -63,6 +73,7 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -78,6 +89,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -91,7 +103,9 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ValidationParser implements ArtifactInstaller {
+public class DefinitionParser implements ArtifactInstaller {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefinitionParser.class);
 
   private static final String METACARD_VALIDATORS_PROPERTY = "metacardvalidators";
 
@@ -116,14 +130,6 @@ public class ValidationParser implements ArtifactInstaller {
   public static final Type OUTER_VALIDATOR_TYPE =
       new TypeToken<List<Outer.Validator>>() {}.getType();
 
-  private final AttributeRegistry attributeRegistry;
-
-  private final AttributeValidatorRegistry attributeValidatorRegistry;
-
-  private final DefaultAttributeValueRegistry defaultAttributeValueRegistry;
-
-  private final Map<String, Changeset> changesetsByFile = new ConcurrentHashMap<>();
-
   private static final Gson GSON =
       new GsonBuilder()
           .disableHtmlEscaping()
@@ -132,30 +138,55 @@ public class ValidationParser implements ArtifactInstaller {
           .setLenient()
           .create();
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ValidationParser.class);
+  private final AttributeRegistry attributeRegistry;
+
+  private final AttributeValidatorRegistry attributeValidatorRegistry;
+
+  private final DefaultAttributeValueRegistry defaultAttributeValueRegistry;
+
+  private final Map<String, Changeset> changesetsByFile = new ConcurrentHashMap<>();
 
   private final Function<Class, Bundle> bundleLookup;
 
-  public ValidationParser(
+  private final List<MetacardType> metacardTypes;
+
+  private final List<MetacardType> coreTypes =
+      ImmutableList.of(
+          new AssociationsAttributes(),
+          new ContactAttributes(),
+          new CoreAttributes(),
+          new DateTimeAttributes(),
+          new LocationAttributes(),
+          new MediaAttributes(),
+          new SecurityAttributes(),
+          new TopicAttributes(),
+          new ValidationAttributes(),
+          new VersionAttributes());
+
+  public DefinitionParser(
       AttributeRegistry attributeRegistry,
       AttributeValidatorRegistry attributeValidatorRegistry,
-      DefaultAttributeValueRegistry defaultAttributeValueRegistry) {
+      DefaultAttributeValueRegistry defaultAttributeValueRegistry,
+      List<MetacardType> metacardTypes) {
     this(
         attributeRegistry,
         attributeValidatorRegistry,
         defaultAttributeValueRegistry,
+        metacardTypes,
         FrameworkUtil::getBundle);
   }
 
   @VisibleForTesting
-  ValidationParser(
+  DefinitionParser(
       AttributeRegistry attributeRegistry,
       AttributeValidatorRegistry attributeValidatorRegistry,
       DefaultAttributeValueRegistry defaultAttributeValueRegistry,
+      List<MetacardType> metacardTypes,
       Function<Class, Bundle> bundleLookup) {
     this.attributeRegistry = attributeRegistry;
     this.attributeValidatorRegistry = attributeValidatorRegistry;
     this.defaultAttributeValueRegistry = defaultAttributeValueRegistry;
+    this.metacardTypes = metacardTypes;
     this.bundleLookup = bundleLookup;
   }
 
@@ -265,30 +296,36 @@ public class ValidationParser implements ArtifactInstaller {
 
   @SuppressWarnings("squid:S1149" /* Confined by underlying contract */)
   private List<Callable<Boolean>> parseMetacardTypes(
-      Changeset changeset, List<Outer.MetacardType> metacardTypes) {
+      Changeset changeset, List<Outer.MetacardType> incomingMetacardTypes) {
     List<Callable<Boolean>> staged = new ArrayList<>();
     BundleContext context = getBundleContext();
-    for (Outer.MetacardType metacardType : metacardTypes) {
+    List<MetacardType> stagedTypes = new ArrayList<>();
+
+    for (Outer.MetacardType metacardType : incomingMetacardTypes) {
       Set<AttributeDescriptor> attributeDescriptors =
           new HashSet<>(MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
       Set<String> requiredAttributes = new HashSet<>();
 
-      metacardType.attributes.forEach(
-          (attributeName, attribute) -> {
-            AttributeDescriptor descriptor =
-                attributeRegistry
-                    .lookup(attributeName)
-                    .orElseThrow(
-                        () ->
-                            new IllegalStateException(
-                                String.format(
-                                    "Metacard type [%s] includes the attribute [%s], but that attribute is not in the attribute registry.",
-                                    metacardType.type, attributeName)));
-            attributeDescriptors.add(descriptor);
-            if (attribute.required) {
-              requiredAttributes.add(attributeName);
-            }
-          });
+      Set<AttributeDescriptor> extendedAttributes =
+          Optional.of(metacardType)
+              .map(omt -> omt.extendsTypes)
+              .orElse(Collections.emptyList())
+              .stream()
+              .flatMap(getSpecifiedTypes(stagedTypes))
+              .collect(Collectors.toSet());
+
+      attributeDescriptors.addAll(extendedAttributes);
+
+      Optional.ofNullable(metacardType.attributes)
+          .orElse(Collections.emptyMap())
+          .forEach(
+              (attributeName, attribute) ->
+                  processAttribute(
+                      metacardType,
+                      attributeDescriptors,
+                      requiredAttributes,
+                      attributeName,
+                      attribute));
 
       if (!requiredAttributes.isEmpty()) {
         final MetacardValidator validator =
@@ -305,6 +342,7 @@ public class ValidationParser implements ArtifactInstaller {
       Dictionary<String, Object> properties = new DictionaryMap<>();
       properties.put(NAME_PROPERTY, metacardType.type);
       MetacardType type = new MetacardTypeImpl(metacardType.type, attributeDescriptors);
+      stagedTypes.add(type);
       staged.add(
           () -> {
             ServiceRegistration<MetacardType> registration =
@@ -314,6 +352,48 @@ public class ValidationParser implements ArtifactInstaller {
           });
     }
     return staged;
+  }
+
+  private void processAttribute(
+      Outer.MetacardType metacardType,
+      /*Mutable*/ Set<AttributeDescriptor> attributeDescriptors,
+      /*Mutable*/ Set<String> requiredAttributes,
+      String attributeName,
+      Outer.MetacardAttribute attribute) {
+    AttributeDescriptor descriptor =
+        attributeRegistry
+            .lookup(attributeName)
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        String.format(
+                            "Metacard type '%s' includes the attribute '%s', but that attribute is not in the attribute registry.",
+                            metacardType.type, attributeName)));
+    attributeDescriptors.add(descriptor);
+    if (attribute.required) {
+      requiredAttributes.add(attributeName);
+    }
+  }
+
+  private Function<String, Stream<? extends AttributeDescriptor>> getSpecifiedTypes(
+      List<MetacardType> stagedTypes) {
+    return type ->
+        new ImmutableList.Builder<MetacardType>()
+            .addAll(metacardTypes)
+            .addAll(stagedTypes)
+            .addAll(coreTypes)
+            .build()
+            .stream()
+            .filter(mt -> mt.getName().equals(type))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new RuntimeException(
+                        String.format(
+                            "Could not find a metacard type by name '%s'. Was the type already defined or defined first in the list of definitions?",
+                            type)))
+            .getAttributeDescriptors()
+            .stream();
   }
 
   private List<Callable<Boolean>> registerMetacardValidators(
@@ -594,7 +674,7 @@ public class ValidationParser implements ArtifactInstaller {
                           () ->
                               new IllegalStateException(
                                   String.format(
-                                      "The default value for the attribute [%s] cannot be parsed because that attribute has not been registered in the attribute registry",
+                                      "The default value for the attribute '%s' cannot be parsed because that attribute has not been registered in the attribute registry",
                                       attribute)));
               Serializable defaultValue = parseDefaultValue(descriptor, defaultObj.value);
               List<String> metacardTypes = defaultObj.metacardTypes;
@@ -735,6 +815,7 @@ public class ValidationParser implements ArtifactInstaller {
 
     private static class MetacardType {
       String type;
+      List<String> extendsTypes;
       Map<String, MetacardAttribute> attributes;
     }
 

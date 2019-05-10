@@ -54,7 +54,7 @@ catalog/core/catalog-core-standardframework/src/main/**/impl/		  @codice/core-ap
 catalog/core/catalog-core-standardframework/src/main/**/resource/     @codice/core-apis @stustison
 catalog/core/catalog-core-standardframework/src/main/java/ddf/catalog/history/		@rzwiefel
 
-catalog/core/catalog-core-validationparser/ 	@rzwiefel
+catalog/core/catalog-core-definitionparser/ 	@rzwiefel
 
 catalog/core/catalog-core-versioning/*				@rzwiefel
 

@@ -1,4 +1,4 @@
-package ddf.catalog.validation.impl
+package ddf.catalog.definition.impl
 
 import ddf.catalog.data.AttributeRegistry
 import ddf.catalog.data.DefaultAttributeValueRegistry
@@ -14,6 +14,7 @@ import ddf.catalog.data.impl.types.CoreAttributes
 import ddf.catalog.validation.AttributeValidatorRegistry
 import ddf.catalog.validation.MetacardValidator
 import ddf.catalog.validation.ReportingMetacardValidator
+import ddf.catalog.validation.impl.AttributeValidatorRegistryImpl
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.osgi.framework.Bundle
@@ -26,12 +27,12 @@ import java.time.ZoneOffset
 
 import static org.mockito.Matchers.isNull
 
-class ValidationParserSpec extends Specification {
+class DefinitionParserSpec extends Specification {
 
     @Rule
     TemporaryFolder temporaryFolder = new TemporaryFolder()
 
-    ValidationParser validationParser
+    DefinitionParser definitionParser
 
     AttributeRegistry attributeRegistry
 
@@ -45,16 +46,24 @@ class ValidationParserSpec extends Specification {
 
     BundleContext mockBundleContext = Mock(BundleContext)
 
+    List<MetacardType> alreadyRegisteredTypes = [
+            new MetacardTypeImpl("testMetacard", [new CoreAttributes()]),
+            new MetacardTypeImpl("already-registered-type", [new CoreAttributes()])]
+
     void setup() {
         attributeRegistry = new AttributeRegistryImpl()
 
         attributeValidatorRegistry = new AttributeValidatorRegistryImpl()
 
-        attributeRegistry.registerMetacardType(new MetacardTypeImpl("testMetacard", Arrays.asList(new CoreAttributes())))
+        attributeRegistry.registerMetacardType(new MetacardTypeImpl("testMetacard", [new CoreAttributes()]))
 
         defaultAttributeValueRegistry = new DefaultAttributeValueRegistryImpl()
-        validationParser = new ValidationParser(attributeRegistry, attributeValidatorRegistry,
-                defaultAttributeValueRegistry, { clazz -> mockBundle })
+        definitionParser = new DefinitionParser(
+                attributeRegistry,
+                attributeValidatorRegistry,
+                defaultAttributeValueRegistry,
+                alreadyRegisteredTypes,
+                { clazz -> mockBundle })
 
         mockBundle.getBundleContext() >> mockBundleContext
 
@@ -63,7 +72,7 @@ class ValidationParserSpec extends Specification {
 
     def "test blank file"() {
         when: "Blank file installed should be noop"
-        validationParser.install(file)
+        definitionParser.install(file)
 
         then:
         notThrown(Exception)
@@ -74,7 +83,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write('{}') }
 
         when:
-        validationParser.install(file)
+        definitionParser.install(file)
 
         then:
         notThrown(Exception)
@@ -85,7 +94,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write('lk124!%^(#)zjlksdf@#%!@%spacecats243623ZCBV\\|') }
 
         when:
-        validationParser.install(file)
+        definitionParser.install(file)
 
         then:
         thrown(Exception)
@@ -108,7 +117,7 @@ class ValidationParserSpec extends Specification {
         def attribute2Name = "attribute2"
 
         when: "the definition file is installed"
-        validationParser.install(file)
+        definitionParser.install(file)
 
         then: "a required attributes metacard validator is registered as a service"
         1 * mockBundleContext.registerService(
@@ -142,7 +151,7 @@ class ValidationParserSpec extends Specification {
                 null) >>> [injectService1, injectService2]
 
         when: "the definition file is uninstalled"
-        validationParser.uninstall(file)
+        definitionParser.uninstall(file)
 
         then: "the required attributes metacard validator service is deregistered"
         1 * validatorService.unregister()
@@ -190,7 +199,7 @@ class ValidationParserSpec extends Specification {
         def updatedAttribute2Name = "attribute2-updated"
 
         when: "the file is installed then updated"
-        validationParser.install(file)
+        definitionParser.install(file)
 
         String updatedFileContents = valid.replaceAll(type1Name, updatedType1Name)
                 .replaceAll(type2Name, updatedType2Name)
@@ -198,7 +207,7 @@ class ValidationParserSpec extends Specification {
                 .replaceAll(attribute2Name, updatedAttribute2Name)
 
         file.withPrintWriter({ it.write(updatedFileContents) })
-        validationParser.update(file)
+        definitionParser.update(file)
 
         then: "a required attributes metacard validator service is registered on the install"
         1 * mockBundleContext.registerService(
@@ -281,7 +290,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(defaultValues) }
 
         when:
-        validationParser.install(file)
+        definitionParser.install(file)
 
         then:
         verifyDefaultValue("type2", "title", "Default Title")
@@ -314,7 +323,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(invalidValidator) }
 
         when:
-        validationParser.install(file)
+        definitionParser.install(file)
 
         then:
         thrown(IllegalArgumentException)
@@ -325,7 +334,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(valid.replace("pattern", "spacecats")) }
 
         when:
-        validationParser.install(file)
+        definitionParser.install(file)
 
         then:
         thrown(IllegalArgumentException)
@@ -338,7 +347,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(valid) }
 
         when:
-        validationParser.install(file)
+        definitionParser.install(file)
 
         then:
         1 * mockBundleContext.registerService(InjectableAttribute.class, {
@@ -367,7 +376,7 @@ class ValidationParserSpec extends Specification {
         def type2Name = "type2";
 
         when:
-        validationParser.install(file)
+        definitionParser.install(file)
 
         then:
         1 * mockBundleContext.registerService(MetacardType.class, {
@@ -380,12 +389,75 @@ class ValidationParserSpec extends Specification {
         }, { it.get("name") == type2Name })
     }
 
+  def "test metacard extensions with pre-existing types and ones declared in same file"() {
+    setup:
+    file.withPrintWriter { it.write(extendsTypes) }
+    def type1name = "type1"
+    def type2name = "type2"
+
+    def coreAttributes = new CoreAttributes().attributeDescriptors.collect({ ad -> ad.name })
+    def type1Attributes = ["attribute1", "attribute2"]
+    def type2Attributes = ["attribute3"]
+
+    when:
+    definitionParser.install(file)
+
+    then: "type 1 contains the two defined attributes plus core attributes which are a part of 'already-registered-type'"
+    1 * mockBundleContext.registerService(
+        MetacardType.class,
+        { MetacardType it ->
+          it.attributeDescriptors.collect({ ad -> ad.name }).
+              containsAll(coreAttributes.plus(type1Attributes))
+        },
+        { it.name == type1name })
+
+    then: "type 2 contains all of type1 attributes + attribute3"
+    1 * mockBundleContext.registerService(
+        MetacardType.class,
+        { MetacardType it ->
+          it.attributeDescriptors
+              .collect({ ad -> ad.name })
+              .containsAll(coreAttributes.plus(type1Attributes).plus(type2Attributes))
+        },
+        { it.name == type2name })
+  }
+
+    def "test metacardTypes without listing attributes and attributes without required listed still work"() {
+        setup:
+        file.withPrintWriter { it.write(extendsTypesNoRequiredNoAttributes) }
+        def type3name = "type3"
+
+        def coreAttributes = new CoreAttributes().attributeDescriptors.collect({ ad -> ad.name })
+        def type1Attributes = ["attribute1", "attribute2"]
+        def type2Attributes = ["attribute3"]
+
+        when:
+        definitionParser.install(file)
+
+        then: "type 3 contains the type1 and type2 (and still works without 'attributes' field)"
+        1 * mockBundleContext.registerService(
+                MetacardType.class,
+                { MetacardType it ->
+                    it.attributeDescriptors.collect({ ad -> ad.name })
+                            .containsAll(coreAttributes.plus(type1Attributes).plus(type2Attributes))
+                },
+                { it.name == type3name })
+
+        then: "No validators were registered since required:true wasn't set"
+        0 * mockBundleContext.registerService(
+                MetacardValidator.class,
+                _,
+                _)
+
+
+    }
+
     def "test metacard validators"() {
         setup:
         file.withPrintWriter { it.write(metacardValidator) }
 
         when:
-        validationParser.install(file)
+        definitionParser.install(file)
 
         then:
         1 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, isNull())
@@ -396,7 +468,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(invalidRequiredAttrMetacardValidator) }
 
         when:
-        validationParser.install(file)
+        definitionParser.install(file)
 
         then:
         0 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, isNull())
@@ -407,7 +479,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(invalidMetacardValidator) }
 
         when:
-        validationParser.install(file)
+        definitionParser.install(file)
 
         then:
         0 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, isNull())
@@ -418,7 +490,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(matchAnyAttributeValidator) }
 
         when:
-        validationParser.install(file)
+        definitionParser.install(file)
 
         then:
         attributeValidatorRegistry.getValidators("title").size() == 2
@@ -429,7 +501,7 @@ class ValidationParserSpec extends Specification {
         file.withPrintWriter { it.write(relationshipAttributeValidator) }
 
         when:
-        validationParser.install(file)
+        definitionParser.install(file)
 
         then:
         1 * mockBundleContext.registerService(_, _ as MetacardValidator, _)
@@ -696,6 +768,108 @@ class ValidationParserSpec extends Specification {
                 "arguments": [null, "mustHave", "description", null]
             }
         ]
+    }
+}
+'''
+
+    String extendsTypes = '''
+{
+    "metacardTypes": [
+        {
+            "type": "type1",
+            "extendsTypes": ["already-registered-type"],
+            "attributes": {
+                "attribute1": {
+                    "required": true
+                },
+                "attribute2": {
+                    "required": false
+                }
+            }
+        },
+        {
+            "type": "type2",
+            "extendsTypes": ["type1"],
+            "attributes": {
+                "attribute3": {
+                    "required": false
+                }
+            }
+        }
+    ],
+    "attributeTypes": {
+        "attribute1": {
+            "type": "STRING_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        },
+        "attribute2": {
+            "type": "XML_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": true
+        },
+        "attribute3": {
+            "type": "STRING_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        }
+    }
+}
+'''
+
+    String extendsTypesNoRequiredNoAttributes = '''
+{
+    "metacardTypes": [
+        {
+            "type": "type1",
+            "extendsTypes": ["already-registered-type"],
+            "attributes": {
+                "attribute1": {},
+                "attribute2": {}
+            }
+        },
+        {
+            "type": "type2",
+            "extendsTypes": ["type1"],
+            "attributes": {
+                "attribute3": {
+                    "required": false
+                }
+            }
+        },
+        {
+            "type": "type3",
+            "extendsTypes": ["type1", "type2"]
+        }
+    ],
+    "attributeTypes": {
+        "attribute1": {
+            "type": "STRING_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        },
+        "attribute2": {
+            "type": "XML_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": true
+        },
+        "attribute3": {
+            "type": "STRING_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        }
     }
 }
 '''

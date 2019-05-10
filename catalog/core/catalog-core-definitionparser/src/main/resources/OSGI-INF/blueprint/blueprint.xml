@@ -14,7 +14,7 @@
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="validationDeployer" class="ddf.catalog.validation.impl.ValidationParser">
+    <bean id="definitionDeployer" class="ddf.catalog.definition.impl.DefinitionParser">
         <argument>
             <reference interface="ddf.catalog.data.AttributeRegistry"/>
         </argument>
@@ -24,8 +24,11 @@
         <argument>
             <reference interface="ddf.catalog.data.DefaultAttributeValueRegistry"/>
         </argument>
+        <argument>
+            <reference-list interface="ddf.catalog.data.MetacardType" />
+        </argument>
     </bean>
 
-    <service ref="validationDeployer" interface="org.apache.felix.fileinstall.ArtifactInstaller"/>
+    <service ref="definitionDeployer" interface="org.apache.felix.fileinstall.ArtifactInstaller"/>
 
 </blueprint>

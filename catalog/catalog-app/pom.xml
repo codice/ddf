@@ -466,7 +466,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-validationparser</artifactId>
+            <artifactId>catalog-core-definitionparser</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
