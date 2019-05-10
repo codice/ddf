@@ -44,11 +44,20 @@ module.exports = Marionette.LayoutView.extend({
     'click .editor-saveRun': 'saveRun',
   },
   initialize: function() {
+    this.listenTo(user.getQuerySettings(), 'change', this.handleUserChange)
+    this.updateDefaultQuery()
+  },
+  updateDefaultQuery: function() {
     this.model = new Query.Model(this.getDefaultQuery())
     this.listenTo(this.model, 'resetToDefaults change:type', this.reshow)
     this.listenTo(this.model, 'change:filterTree', this.reshow)
     this.listenTo(this.model, 'closeDropdown', this.closeDropdown)
     this.listenForSave()
+  },
+  handleUserChange: function() {
+    this.stopListening(this.model)
+    this.updateDefaultQuery()
+    this.cancel()
   },
   reshow: function() {
     this.$el.toggleClass(
