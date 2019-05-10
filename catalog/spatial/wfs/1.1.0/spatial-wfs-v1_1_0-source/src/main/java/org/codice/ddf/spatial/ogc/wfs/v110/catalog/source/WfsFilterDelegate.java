@@ -27,7 +27,6 @@ import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -1211,22 +1210,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     }
 
     return bufferedWkt;
-  }
-
-  private String latLonCoordinateString(final Coordinate[] coordinates) {
-    return Arrays.stream(coordinates).map(this::latLonCoordinateString).collect(joining(" "));
-  }
-
-  private String latLonCoordinateString(final Coordinate coordinate) {
-    return coordinate.y + "," + coordinate.x;
-  }
-
-  private String lonLatCoordinateString(final Coordinate[] coordinates) {
-    return Arrays.stream(coordinates).map(this::lonLatCoordinateString).collect(joining(" "));
-  }
-
-  private String lonLatCoordinateString(final Coordinate coordinate) {
-    return coordinate.x + "," + coordinate.y;
   }
 
   /**
