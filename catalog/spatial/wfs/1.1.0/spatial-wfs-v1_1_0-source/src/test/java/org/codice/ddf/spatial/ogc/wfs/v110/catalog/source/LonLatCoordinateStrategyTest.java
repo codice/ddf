@@ -25,12 +25,12 @@ public class LonLatCoordinateStrategyTest {
   private final LonLatCoordinateStrategy lonLatCoordinateStrategy = new LonLatCoordinateStrategy();
 
   @Test
-  public void toStringSingleCoordinateReturnsCommaSeparatedCoordinateValuesInLatLonOrder() {
+  public void toStringSingleCoordinateReturnsCommaSeparatedCoordinateValuesInLonLatOrder() {
     assertThat(lonLatCoordinateStrategy.toString(new Coordinate(10, 20)), is("10.0,20.0"));
   }
 
   @Test
-  public void toStringMultipleCoordinatesReturnsSpaceSeparatedCoordinatePairsInLatLonOrder() {
+  public void toStringMultipleCoordinatesReturnsSpaceSeparatedCoordinatePairsInLonLatOrder() {
     assertThat(
         lonLatCoordinateStrategy.toString(
             new Coordinate[] {new Coordinate(10, 20), new Coordinate(20, 30)}),
@@ -38,13 +38,13 @@ public class LonLatCoordinateStrategyTest {
   }
 
   @Test
-  public void lowerCornerReturnsEnvelopeMinimumValuesInLatLonOrder() {
+  public void lowerCornerReturnsEnvelopeMinimumValuesInLonLatOrder() {
     final Envelope envelope = new Envelope(10, 20, 30, 40);
     assertThat(lonLatCoordinateStrategy.lowerCorner(envelope), contains(10.0, 30.0));
   }
 
   @Test
-  public void upperCornerReturnsEnvelopeMaximumValuesInLatLonOrder() {
+  public void upperCornerReturnsEnvelopeMaximumValuesInLonLatOrder() {
     final Envelope envelope = new Envelope(10, 20, 30, 40);
     assertThat(lonLatCoordinateStrategy.upperCorner(envelope), contains(20.0, 40.0));
   }
