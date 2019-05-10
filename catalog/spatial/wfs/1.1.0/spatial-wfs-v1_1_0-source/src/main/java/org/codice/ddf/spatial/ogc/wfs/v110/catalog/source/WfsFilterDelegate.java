@@ -13,9 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
-import static com.google.common.primitives.Doubles.asList;
 import static java.util.stream.Collectors.joining;
-import static org.codice.ddf.libs.geo.util.GeospatialUtil.LAT_LON_ORDER;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -108,14 +106,16 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private final net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory =
       new net.opengis.gml.v_3_1_1.ObjectFactory();
 
-  private final boolean isLatLonOrder;
+  private final CoordinateStrategy coordinateStrategy;
 
   private List<String> supportedGeo;
 
   private List<QName> geometryOperands;
 
   public WfsFilterDelegate(
-      FeatureMetacardType featureMetacardType, List<String> supportedGeo, String coordinateOrder) {
+      FeatureMetacardType featureMetacardType,
+      List<String> supportedGeo,
+      CoordinateStrategy coordinateStrategy) {
     if (featureMetacardType == null) {
       throw new IllegalArgumentException("FeatureMetacardType can not be null");
     }
@@ -123,7 +123,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     this.supportedGeo = supportedGeo;
     setSupportedGeometryOperands(Wfs11Constants.wktOperandsAsList());
 
-    isLatLonOrder = LAT_LON_ORDER.equals(coordinateOrder);
+    this.coordinateStrategy = coordinateStrategy;
   }
 
   public void setSupportedGeometryOperands(List<QName> geometryOperands) {
@@ -1082,13 +1082,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     Envelope envelope = createEnvelopeFromWkt(wkt);
 
-    List<Double> lowerCornerCoordinates = asList(envelope.getMinX(), envelope.getMinY());
-    List<Double> upperCornerCoordinates = asList(envelope.getMaxX(), envelope.getMaxY());
-
-    if (isLatLonOrder) {
-      Collections.reverse(lowerCornerCoordinates);
-      Collections.reverse(upperCornerCoordinates);
-    }
+    List<Double> lowerCornerCoordinates = coordinateStrategy.lowerCorner(envelope);
+    List<Double> upperCornerCoordinates = coordinateStrategy.upperCorner(envelope);
 
     DirectPositionType lowerCorner = new DirectPositionType();
     lowerCorner.setValue(lowerCornerCoordinates);
@@ -1109,8 +1104,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     Coordinate[] coordinates = getCoordinatesFromWkt(wkt);
     if (coordinates != null && coordinates.length > 0) {
-      String coordinateString =
-          isLatLonOrder ? latLonCoordinateString(coordinates) : lonLatCoordinateString(coordinates);
+      String coordinateString = coordinateStrategy.toString(coordinates);
 
       CoordinatesType coordinatesType = new CoordinatesType();
       coordinatesType.setValue(coordinateString);
@@ -1138,10 +1132,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     if (coordinates != null && coordinates.length > 0) {
 
       CoordinatesType coordinatesType = new CoordinatesType();
-      String coordinateString =
-          isLatLonOrder
-              ? latLonCoordinateString(coordinates[0])
-              : lonLatCoordinateString(coordinates[0]);
+      String coordinateString = coordinateStrategy.toString(coordinates[0]);
       coordinatesType.setValue(coordinateString);
       PointType point = new PointType();
       point.setCoordinates(coordinatesType);
@@ -1257,10 +1248,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private JAXBElement<LineStringType> createLineString(Geometry geometry) {
     LineStringType lineStringType = gmlObjectFactory.createLineStringType();
 
-    String coordinatesValue =
-        isLatLonOrder
-            ? latLonCoordinateString(geometry.getCoordinates())
-            : lonLatCoordinateString(geometry.getCoordinates());
+    String coordinatesValue = coordinateStrategy.toString(geometry.getCoordinates());
 
     CoordinatesType coordinatesType = gmlObjectFactory.createCoordinatesType();
     coordinatesType.setValue(coordinatesValue);
