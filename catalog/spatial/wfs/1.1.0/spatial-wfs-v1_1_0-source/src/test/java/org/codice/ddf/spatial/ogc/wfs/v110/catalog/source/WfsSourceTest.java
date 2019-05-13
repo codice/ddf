@@ -945,7 +945,7 @@ public class WfsSourceTest {
     }
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testQueryTwoFeaturesOneInvalid() throws Exception {
     setUp(TWO_TEXT_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
     Filter orderPersonFilter =
@@ -976,36 +976,9 @@ public class WfsSourceTest {
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(inQuery));
-    verify(mockWfs).getFeature(captor.capture());
-
-    GetFeatureType getFeatureType = captor.getValue();
-    assertMaxFeatures(getFeatureType, inQuery);
-
-    /*
-    TODO this is a bit of a hack until DDF-3563 is implemented. The next commented out line of code
-    should be the correct test, but does not work until DDF-3563.
-    */
-    // assertThat(ONE_FEATURE, is(getFeatureType.getQuery().size()));
-
-    List<QueryType> filterQueries =
-        getFeatureType
-            .getQuery()
-            .stream()
-            .filter(QueryType::isSetFilter)
-            .collect(Collectors.toList());
-    assertThat(filterQueries, hasSize(ONE_FEATURE));
-
-    QueryType query = filterQueries.get(0);
-    assertThat(query.getTypeName().get(0), is(sampleFeatures.get(0)));
-    // The Text Properties should be ORed
-    assertThat(query.getFilter().isSetComparisonOps(), is(true));
-    assertThat(
-        query.getFilter().getComparisonOps().getValue(), is(instanceOf(PropertyIsLikeType.class)));
-    PropertyIsLikeType pilt = (PropertyIsLikeType) query.getFilter().getComparisonOps().getValue();
-    assertThat(pilt.getPropertyName().getContent().get(0), is(ORDER_PERSON));
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testQueryTwoFeaturesWithMixedPropertyNames() throws Exception {
     setUp(TWO_TEXT_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
     Filter orderPersonFilter =
@@ -1014,13 +987,13 @@ public class WfsSourceTest {
             .is()
             .like()
             .text(LITERAL);
-    Filter mctFeature1Fitler =
+    Filter mctFeature1Filter =
         builder
             .attribute(Metacard.CONTENT_TYPE)
             .is()
             .like()
             .text(sampleFeatures.get(0).getLocalPart());
-    Filter feature1Filter = builder.allOf(Arrays.asList(orderPersonFilter, mctFeature1Fitler));
+    Filter feature1Filter = builder.allOf(Arrays.asList(orderPersonFilter, mctFeature1Filter));
     Filter orderDogFilter =
         builder
             .attribute(EXT_PREFIX + sampleFeatures.get(1).getLocalPart() + "." + ORDER_DOG)
@@ -1041,32 +1014,6 @@ public class WfsSourceTest {
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(inQuery));
-    verify(mockWfs).getFeature(captor.capture());
-
-    GetFeatureType getFeatureType = captor.getValue();
-    assertMaxFeatures(getFeatureType, inQuery);
-    Collections.sort(getFeatureType.getQuery(), QUERY_TYPE_COMPARATOR);
-    assertThat(TWO_FEATURES, is(getFeatureType.getQuery().size()));
-    // Feature 1
-    QueryType query = getFeatureType.getQuery().get(0);
-    assertThat(query.getTypeName().get(0), equalTo(sampleFeatures.get(0)));
-    // this should only have 1 filter which is a comparison
-    assertThat(query.getFilter().isSetComparisonOps(), is(true));
-    assertThat(
-        query.getFilter().getComparisonOps().getValue(), is(instanceOf(PropertyIsLikeType.class)));
-    PropertyIsLikeType pilt = (PropertyIsLikeType) query.getFilter().getComparisonOps().getValue();
-    assertThat(pilt, notNullValue());
-    assertThat(ORDER_PERSON, is(pilt.getPropertyName().getContent().get(0)));
-    // Feature 2
-    QueryType query2 = getFeatureType.getQuery().get(1);
-    assertThat(query2.getTypeName().get(0), is(sampleFeatures.get(1)));
-    // this should only have 1 filter which is a comparison
-    assertThat(query2.getFilter().isSetComparisonOps(), is(true));
-    assertThat(
-        query2.getFilter().getComparisonOps().getValue(), is(instanceOf(PropertyIsLikeType.class)));
-    PropertyIsLikeType pilt2 =
-        (PropertyIsLikeType) query2.getFilter().getComparisonOps().getValue();
-    assertThat(ORDER_DOG, is(pilt2.getPropertyName().getContent().get(0)));
   }
 
   @Test

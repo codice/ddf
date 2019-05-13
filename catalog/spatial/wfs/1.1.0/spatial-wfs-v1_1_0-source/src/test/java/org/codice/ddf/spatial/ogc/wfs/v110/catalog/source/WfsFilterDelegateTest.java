@@ -1033,14 +1033,12 @@ public class WfsFilterDelegateTest {
     delegate.propertyIsBetween(MOCK_PROPERTY, LITERAL, null);
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testPropertyIsLikeStringStringBoolean() {
     mockProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockProps);
     WfsFilterDelegate delegate = createDelegate();
-    FilterType filter = delegate.propertyIsLike(PROPERTY_NAME, LITERAL, true);
-    // Ensure this is an invalid FilterType
-    assertThat(filter, nullValue());
+    delegate.propertyIsLike(PROPERTY_NAME, LITERAL, true);
   }
 
   @Test
@@ -1583,15 +1581,13 @@ public class WfsFilterDelegateTest {
     assertXMLEqual(propertyIsEqualToXmlLiteral, marshal(filter));
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testPropertyIsFilterCannotMapToFeatureProperty() {
     whenPropertiesStringType();
 
     final WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, metacardMapper, emptyList());
-
-    final FilterType filter = delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
-    assertThat("The filter should have been null.", filter, is(nullValue()));
+    delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -1625,15 +1621,13 @@ public class WfsFilterDelegateTest {
     assertXMLEqual(propertyBetweenXmlDate, marshal(filter));
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testPropertyIsBetweenFilterCannotMapToFeatureProperty() {
     whenPropertiesDateType();
 
     final WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, metacardMapper, emptyList());
-
-    final FilterType filter = delegate.propertyIsBetween(Core.CREATED, date, endDate);
-    assertThat("The filter should have been null.", filter, is(nullValue()));
+    delegate.propertyIsBetween(Core.CREATED, date, endDate);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -1671,12 +1665,10 @@ public class WfsFilterDelegateTest {
         is(singletonList(MOCK_GEOM)));
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testGeospatialFilterCannotMapToFeatureProperty() {
     final WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue());
-
-    final FilterType filter = delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
-    assertThat("The filter should have been null.", filter, is(nullValue()));
+    delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
   }
 
   @Test(expected = IllegalArgumentException.class)

@@ -549,11 +549,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         Optional.ofNullable(metacardMapper.getFeatureProperty(queryProperty)).orElse(queryProperty);
 
     if (!isWfsFeatureProperty.test(featurePropertyName)) {
-      LOGGER.debug(
-          "The property '{}' could not be mapped to a feature property of feature type '{}'.",
-          featurePropertyName,
-          featureMetacardType.getFeatureType());
-      return null;
+      throw new IllegalArgumentException(
+          String.format(
+              "'%s' was mapped to '%s', which is not a feature property of '%s'",
+              queryProperty, featurePropertyName, featureMetacardType.getFeatureType()));
     }
 
     final FeatureAttributeDescriptor featureAttributeDescriptor =
