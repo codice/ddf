@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
+import static org.codice.ddf.libs.geo.util.GeospatialUtil.LAT_LON_ORDER;
+import static org.codice.ddf.libs.geo.util.GeospatialUtil.LON_LAT_ORDER;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -60,6 +62,7 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import net.opengis.filter.v_1_1_0.BinaryLogicOpType;
+import net.opengis.filter.v_1_1_0.DistanceBufferType;
 import net.opengis.filter.v_1_1_0.FeatureIdType;
 import net.opengis.filter.v_1_1_0.FilterCapabilities;
 import net.opengis.filter.v_1_1_0.LogicOpsType;
@@ -69,6 +72,7 @@ import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
 import net.opengis.filter.v_1_1_0.SpatialOpsType;
+import net.opengis.gml.v_3_1_1.PointType;
 import net.opengis.wfs.v_1_1_0.FeatureTypeListType;
 import net.opengis.wfs.v_1_1_0.FeatureTypeType;
 import net.opengis.wfs.v_1_1_0.GetFeatureType;
@@ -182,6 +186,8 @@ public class WfsSourceTest {
           + "</xs:schema>";
 
   private static final String POLYGON_WKT = "POLYGON ((30 10, 10 20, 20 40, 40 40, 30 10))";
+
+  private static final String POINT_WKT = "POINT (30 -10)";
 
   private static final String ORDER_PERSON = "orderperson";
 
@@ -1303,6 +1309,86 @@ public class WfsSourceTest {
             eq(allowRedirects),
             eq(connectionTimeout),
             eq(receiveTimeout));
+  }
+
+  @Test
+  public void testQueryLatLonCoordinateOrder() throws Exception {
+    setUp(
+        ONE_GML_PROPERTY_SCHEMA, Collections.singletonList("DWithin"), SRS_NAME, ONE_FEATURE, null);
+
+    source.setPollInterval(1);
+
+    final Map<String, Object> configuration =
+        ImmutableMap.<String, Object>builder()
+            .put("coordinateOrder", LAT_LON_ORDER)
+            .put("forceSpatialFilter", "NO_FILTER")
+            .put("allowRedirects", false)
+            .put("disableCnCheck", false)
+            .put("pollInterval", 1)
+            .build();
+    source.refresh(configuration);
+
+    final Filter withinFilter =
+        builder.attribute(Metacard.ANY_GEO).is().withinBuffer().wkt(POINT_WKT, 10.0);
+    final Query withinQuery = new QueryImpl(withinFilter);
+
+    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    source.query(new QueryRequestImpl(withinQuery));
+    verify(mockWfs).getFeature(captor.capture());
+
+    final GetFeatureType getFeatureType = captor.getValue();
+    assertThat(getFeatureType.getQuery(), hasSize(1));
+
+    final QueryType query = getFeatureType.getQuery().get(0);
+    assertThat(
+        query.getFilter().getSpatialOps().getValue(), is(instanceOf(DistanceBufferType.class)));
+
+    final DistanceBufferType distanceBufferType =
+        (DistanceBufferType) query.getFilter().getSpatialOps().getValue();
+    assertThat(distanceBufferType.getGeometry().getValue(), is(instanceOf(PointType.class)));
+
+    final PointType pointType = (PointType) distanceBufferType.getGeometry().getValue();
+    assertThat(pointType.getCoordinates().getValue(), is("-10.0,30.0"));
+  }
+
+  @Test
+  public void testQueryLonLatCoordinateOrder() throws Exception {
+    setUp(
+        ONE_GML_PROPERTY_SCHEMA, Collections.singletonList("DWithin"), SRS_NAME, ONE_FEATURE, null);
+
+    source.setPollInterval(1);
+
+    final Map<String, Object> configuration =
+        ImmutableMap.<String, Object>builder()
+            .put("coordinateOrder", LON_LAT_ORDER)
+            .put("forceSpatialFilter", "NO_FILTER")
+            .put("allowRedirects", false)
+            .put("disableCnCheck", false)
+            .put("pollInterval", 1)
+            .build();
+    source.refresh(configuration);
+
+    final Filter withinFilter =
+        builder.attribute(Metacard.ANY_GEO).is().withinBuffer().wkt(POINT_WKT, 10.0);
+    final Query withinQuery = new QueryImpl(withinFilter);
+
+    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+    source.query(new QueryRequestImpl(withinQuery));
+    verify(mockWfs).getFeature(captor.capture());
+
+    final GetFeatureType getFeatureType = captor.getValue();
+    assertThat(getFeatureType.getQuery(), hasSize(1));
+
+    final QueryType query = getFeatureType.getQuery().get(0);
+    assertThat(
+        query.getFilter().getSpatialOps().getValue(), is(instanceOf(DistanceBufferType.class)));
+
+    final DistanceBufferType distanceBufferType =
+        (DistanceBufferType) query.getFilter().getSpatialOps().getValue();
+    assertThat(distanceBufferType.getGeometry().getValue(), is(instanceOf(PointType.class)));
+
+    final PointType pointType = (PointType) distanceBufferType.getGeometry().getValue();
+    assertThat(pointType.getCoordinates().getValue(), is("30.0,-10.0"));
   }
 
   private SourceResponse executeQuery(int startIndex, int pageSize)
