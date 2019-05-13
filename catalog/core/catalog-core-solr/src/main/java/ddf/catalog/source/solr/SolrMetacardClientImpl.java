@@ -143,6 +143,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private final int commitNrtCommitWithinMs =
       Math.max(NumberUtils.toInt(accessProperty(SOLR_COMMIT_NRT_COMMITWITHINMS, "1000")), 0);
 
+  private final String spellcheckRegex = ":\"(.*?[^\\\"])\"";
+
+  private final Pattern spellcheckPattern = Pattern.compile(spellcheckRegex);
+
   public SolrMetacardClientImpl(
       SolrClient client,
       FilterAdapter catalogFilterAdapter,
@@ -280,12 +284,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   }
 
   private List<String> parseSpellcheckedQuery(String query) {
-    String spellcheckRegex = ":\"(.*?[^\\\"])\"";
-    Pattern spellcheckPattern = Pattern.compile(spellcheckRegex);
     Matcher matcher = spellcheckPattern.matcher(query);
 
     List<String> spellcheckedValues = new ArrayList<>();
-    spellcheckedValues.add("Showing results for:");
+    //    spellcheckedValues.add("Showing results for:");
     while (matcher.find()) {
       spellcheckedValues.add(matcher.group(1) + COMMA_DELIMITER);
     }

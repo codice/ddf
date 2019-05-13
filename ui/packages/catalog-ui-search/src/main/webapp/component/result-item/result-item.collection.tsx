@@ -132,7 +132,8 @@ const getResultView = (props: Props) => {
 
 function createShowResultText(solrQuery: any[]) {
   if (solrQuery !== undefined && solrQuery !== null) {
-    let showingResultsFor = solrQuery.shift() + ' '
+    let showingResultsFor = 'Showing Results for '
+    // let showingResultsFor = solrQuery.shift() + ' '
     for (let i = 0; i < solrQuery.length - 1; i++) {
       showingResultsFor = checkMaxLength(showingResultsFor, solrQuery)
     }
@@ -154,7 +155,7 @@ function checkMaxLength(currentResultForText: string, solrQuery: any[]) {
   ) {
     return (currentResultForText += fieldValue)
   }
-  return (currentResultForText += '... +' + (solrQuery.length+1) + ' more')
+  return (currentResultForText += '... +' + (solrQuery.length + 1) + ' more')
 }
 
 export default hot(module)(render)
