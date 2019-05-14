@@ -52,15 +52,25 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
     synchronized (sessionDataMap) {
       SessionData sessionData = sessionDataMap.get(id);
 
-      if (sessionData != null && !sessionData.getAllAttributes().equals(sessionData)) {
+      if (sessionData == null) {
+        return;
+      }
+
+      if (!sessionData.getAllAttributes().equals(updatedSessionData.getAllAttributes())) {
         LOGGER.trace(
             "Storing new attributes for session {} at context {}",
             id,
             _context.getCanonicalContextPath());
         sessionData.clearAllAttributes();
         sessionData.putAllAttributes(updatedSessionData.getAllAttributes());
-        sessionData.setExpiry(updatedSessionData.getExpiry());
       }
+
+      LOGGER.trace(
+          "Updating expiry for session {} at context {} to {}",
+          id,
+          _context.getCanonicalContextPath(),
+          updatedSessionData.getExpiry());
+      sessionData.setExpiry(updatedSessionData.getExpiry());
     }
   }
 
