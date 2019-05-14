@@ -39,7 +39,7 @@ module.exports = DropdownView.extend({
     this.handleFilter()
   },
   handleFilter: function() {
-    var resultFilter = user
+    const resultFilter = user
       .get('user')
       .get('preferences')
       .get('resultFilter')

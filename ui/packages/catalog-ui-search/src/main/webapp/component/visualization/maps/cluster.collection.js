@@ -10,10 +10,10 @@
  *
  **/
 
-var ClusterModel = require('./cluster')
-var Backbone = require('backbone')
+const ClusterModel = require('./cluster')
+const Backbone = require('backbone')
 
-var ClusterCollection = Backbone.Collection.extend({
+const ClusterCollection = Backbone.Collection.extend({
   model: ClusterModel,
   isClustered: function(result) {
     return Boolean(

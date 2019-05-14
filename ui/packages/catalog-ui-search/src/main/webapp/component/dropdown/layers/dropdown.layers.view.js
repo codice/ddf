@@ -13,11 +13,11 @@
  *
  **/
 
-var Marionette = require('marionette')
-var DropdownView = require('../dropdown.view')
-var template = require('./dropdown.layers.hbs')
-var LayersView = require('../../layers/layers.view.js')
-var user = require('../../singletons/user-instance.js')
+const Marionette = require('marionette')
+const DropdownView = require('../dropdown.view')
+const template = require('./dropdown.layers.hbs')
+const LayersView = require('../../layers/layers.view.js')
+const user = require('../../singletons/user-instance.js')
 
 module.exports = DropdownView.extend({
   template: template,

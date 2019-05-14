@@ -9,15 +9,15 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-var $ = require('jquery')
-var _ = require('underscore')
-var Backbone = require('backbone')
-var Query = require('./Query.js')
-var cql = require('../cql.js')
-var user = require('../../component/singletons/user-instance.js')
-var moment = require('moment')
+const $ = require('jquery')
+const _ = require('underscore')
+const Backbone = require('backbone')
+const Query = require('./Query.js')
+const cql = require('../cql.js')
+const user = require('../../component/singletons/user-instance.js')
+const moment = require('moment')
 require('backbone-associations')
-var WorkspaceModel = require('./Workspace.js')
+const WorkspaceModel = require('./Workspace.js')
 
 module.exports = Backbone.Collection.extend({
   model: WorkspaceModel,
@@ -31,7 +31,7 @@ module.exports = Backbone.Collection.extend({
     this.listenTo(this, 'sync', this.handleSync)
     this.handleUserChange()
     this.listenTo(user, 'change', this.handleUserChange)
-    var collection = this
+    const collection = this
     collection.on('add', function(workspace) {
       workspace.on('change:lastModifiedDate', function() {
         collection.sort()
@@ -72,8 +72,8 @@ module.exports = Backbone.Collection.extend({
       .startSearch()
   },
   createAdhocWorkspace: function(text) {
-    var cqlQuery
-    var title = text
+    let cqlQuery
+    let title = text
     if (text.length === 0) {
       cqlQuery = "anyText ILIKE '%'"
       title = '*'
@@ -84,7 +84,7 @@ module.exports = Backbone.Collection.extend({
         value: text,
       })
     }
-    var queryForWorkspace = new Query.Model({
+    const queryForWorkspace = new Query.Model({
       title: title,
       cql: cqlQuery,
       type: 'text',
@@ -98,7 +98,7 @@ module.exports = Backbone.Collection.extend({
       .startSearch()
   },
   createLocalWorkspace: function() {
-    var queryForWorkspace = new Query.Model({
+    const queryForWorkspace = new Query.Model({
       title: 'Example Local',
       federation: 'local',
       excludeUnnecessaryAttributes: false,
@@ -114,7 +114,7 @@ module.exports = Backbone.Collection.extend({
       .startSearch()
   },
   createAllWorkspace: function() {
-    var queryForWorkspace = new Query.Model({
+    const queryForWorkspace = new Query.Model({
       title: 'Example Federated',
       federation: 'enterprise',
       excludeUnnecessaryAttributes: false,
@@ -130,7 +130,7 @@ module.exports = Backbone.Collection.extend({
       .startSearch()
   },
   createGeoWorkspace: function() {
-    var queryForWorkspace = new Query.Model({
+    const queryForWorkspace = new Query.Model({
       title: 'Example Location',
       excludeUnnecessaryAttributes: false,
       cql:
@@ -146,7 +146,7 @@ module.exports = Backbone.Collection.extend({
       .startSearch()
   },
   createLatestWorkspace: function() {
-    var queryForWorkspace = new Query.Model({
+    const queryForWorkspace = new Query.Model({
       title: 'Example Temporal',
       excludeUnnecessaryAttributes: false,
       cql:
@@ -180,7 +180,7 @@ module.exports = Backbone.Collection.extend({
     })
   },
   saveLocalWorkspaces: function() {
-    var localWorkspaces = this.chain()
+    const localWorkspaces = this.chain()
       .filter(function(workspace) {
         return workspace.get('localStorage')
       })
@@ -203,7 +203,7 @@ module.exports = Backbone.Collection.extend({
     }
   },
   getLocalWorkspaces: function() {
-    var localWorkspaces = window.localStorage.getItem('workspaces') || '{}'
+    const localWorkspaces = window.localStorage.getItem('workspaces') || '{}'
     try {
       return this.convert2_10Format(JSON.parse(localWorkspaces))
     } catch (e) {
@@ -213,7 +213,7 @@ module.exports = Backbone.Collection.extend({
   },
   // override parse to merge server response with local storage
   parse: function(resp) {
-    var localWorkspaces = _.map(this.getLocalWorkspaces())
+    const localWorkspaces = _.map(this.getLocalWorkspaces())
     return resp.concat(localWorkspaces)
   },
 })

@@ -10,16 +10,16 @@
  *
  **/
 
-var user = require('./user-instance.js')
-var Backbone = require('backbone')
+const user = require('./user-instance.js')
+const Backbone = require('backbone')
 
 module.exports = new (Backbone.Collection.extend({
   initialize: function() {
-    var uploads = user
+    const uploads = user
       .get('user')
       .get('preferences')
       .get('uploads')
-    var alerts = user
+    const alerts = user
       .get('user')
       .get('preferences')
       .get('alerts')

@@ -13,8 +13,8 @@
  *
  **/
 
-var _ = require('underscore')
-var Marionette = require('marionette')
+const _ = require('underscore')
+const Marionette = require('marionette')
 
 _.extend(Marionette.Region.prototype, {
   // Displays a backbone view instance inside of the region.
@@ -34,25 +34,25 @@ _.extend(Marionette.Region.prototype, {
     this._ensureViewIsIntact(view)
     Marionette.MonitorDOMRefresh(view)
 
-    var showOptions = options || {}
-    var isDifferentView = view !== this.currentView
-    var preventDestroy = !!showOptions.preventDestroy
-    var forceShow = !!showOptions.forceShow
-    var replaceElement = !!showOptions.replaceElement
+    const showOptions = options || {}
+    const isDifferentView = view !== this.currentView
+    const preventDestroy = !!showOptions.preventDestroy
+    const forceShow = !!showOptions.forceShow
+    const replaceElement = !!showOptions.replaceElement
 
     // We are only changing the view if there is a current view to change to begin with
-    var isChangingView = !!this.currentView
+    const isChangingView = !!this.currentView
 
     // Only destroy the current view if we don't want to `preventDestroy` and if
     // the view given in the first argument is different than `currentView`
-    var _shouldDestroyView = isDifferentView && !preventDestroy
+    const _shouldDestroyView = isDifferentView && !preventDestroy
 
     // Only show the view given in the first argument if it is different than
     // the current view or if we want to re-show the view. Note that if
     // `_shouldDestroyView` is true, then `_shouldShowView` is also necessarily true.
-    var _shouldShowView = isDifferentView || forceShow
+    const _shouldShowView = isDifferentView || forceShow
 
-    var _shouldReplaceElement = replaceElement
+    const _shouldReplaceElement = replaceElement
 
     if (isChangingView) {
       this.triggerMethod('before:swapOut', this.currentView, this, options)
@@ -99,16 +99,16 @@ _.extend(Marionette.Region.prototype, {
       }
 
       // An array of views that we're about to display
-      var attachedRegion = Marionette.isNodeAttached(
+      const attachedRegion = Marionette.isNodeAttached(
         this.replaced ? this.currentView.el : this.el
       )
 
       // The views that we're about to attach to the document
       // It's important that we prevent _getNestedViews from being executed unnecessarily
       // as it's a potentially-slow method
-      var displayedViews = []
+      let displayedViews = []
 
-      var attachOptions = _.extend(
+      const attachOptions = _.extend(
         {
           triggerBeforeAttach: this.triggerBeforeAttach,
           triggerAttach: this.triggerAttach,
@@ -151,7 +151,7 @@ _.extend(Marionette.Region.prototype, {
     // present before replacing
     this._restoreEl()
 
-    var parent = this.el.parentNode
+    const parent = this.el.parentNode
 
     parent.replaceChild(view.el, this.el)
     this.replaced = true
@@ -163,8 +163,8 @@ _.extend(Marionette.Region.prototype, {
       return
     }
 
-    var view = this.currentView
-    var parent = view.el.parentNode
+    const view = this.currentView
+    const parent = view.el.parentNode
 
     if (!parent) {
       return
@@ -191,10 +191,10 @@ _.extend(Marionette.Region.prototype, {
   // Destroy the current view, if there is one. If there is no
   // current view, it does nothing and returns immediately.
   empty: function(options) {
-    var view = this.currentView
+    const view = this.currentView
 
-    var emptyOptions = options || {}
-    var preventDestroy = !!emptyOptions.preventDestroy
+    const emptyOptions = options || {}
+    const preventDestroy = !!emptyOptions.preventDestroy
     // If there is no view in the region
     // we should not remove anything
     if (!view) {

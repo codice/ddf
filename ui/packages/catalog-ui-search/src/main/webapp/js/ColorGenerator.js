@@ -11,9 +11,9 @@
  **/
 
 function getRandomColor() {
-  var letters = '789ABCD'
-  var color = '#'
-  for (var i = 0; i < 6; i++) {
+  const letters = '789ABCD'
+  let color = '#'
+  for (let i = 0; i < 6; i++) {
     color += letters[Math.floor(Math.random() * 6)]
   }
   return color
@@ -21,7 +21,7 @@ function getRandomColor() {
 
 module.exports = {
   getNewGenerator: function() {
-    var colors = [
+    const colors = [
       // 10 best taken from here: https://ux.stackexchange.com/questions/94696/color-palette-for-all-types-of-color-blindness
       // http://mkweb.bcgsc.ca/colorblind/
       '#004949', //dark turquoise
@@ -38,7 +38,7 @@ module.exports = {
       '#24ff24', //green
       // '#ffff6d'  //yellow
     ]
-    var idToColor = {}
+    const idToColor = {}
 
     return {
       getColor: function(id) {
@@ -52,7 +52,7 @@ module.exports = {
         return idToColor[id]
       },
       removeColor: function(id) {
-        var color = idToColor[id]
+        const color = idToColor[id]
         if (color !== undefined) {
           colors.push(color)
           delete idToColor[id]

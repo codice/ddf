@@ -13,17 +13,17 @@
  *
  **/
 
-var wreqr = require('../../js/wreqr.js')
-var _ = require('underscore')
-var template = require('./show-attribute.hbs')
-var Marionette = require('marionette')
-var CustomElements = require('../../js/CustomElements.js')
-var Common = require('../../js/Common.js')
-var user = require('../singletons/user-instance.js')
-var PropertyView = require('../property/property.view.js')
-var Property = require('../property/property.js')
-var properties = require('../../js/properties.js')
-var metacardDefinitions = require('../singletons/metacard-definitions.js')
+const wreqr = require('../../js/wreqr.js')
+const _ = require('underscore')
+const template = require('./show-attribute.hbs')
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const Common = require('../../js/Common.js')
+const user = require('../singletons/user-instance.js')
+const PropertyView = require('../property/property.view.js')
+const Property = require('../property/property.js')
+const properties = require('../../js/properties.js')
+const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
 function filterAndSort(attributes) {
   return attributes
@@ -80,9 +80,9 @@ function calculateAvailableAttributesFromActive(selectionInterface) {
 }
 
 function calculateSummaryAttributes() {
-  var propertiesToShow = []
-  var userPropertyArray = user.getSummaryShown()
-  var propertiesArray =
+  const propertiesToShow = []
+  const userPropertyArray = user.getSummaryShown()
+  const propertiesArray =
     userPropertyArray.length > 0 ? userPropertyArray : properties.summaryShow
   return propertiesArray
 }
@@ -97,7 +97,7 @@ module.exports = Marionette.LayoutView.extend({
     'click > button': 'handleReset',
   },
   handleReset: function() {
-    var prefs = user.get('user').get('preferences')
+    const prefs = user.get('user').get('preferences')
     prefs.set('inspector-summaryShown', [])
     prefs.savePreferences()
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
@@ -120,18 +120,20 @@ module.exports = Marionette.LayoutView.extend({
     this.handleSummaryShown()
   },
   handleSummaryShown: function() {
-    var usersChoice = user
+    const usersChoice = user
       .get('user')
       .get('preferences')
       .get('inspector-summaryShown')
     this.$el.toggleClass('has-custom-summary', usersChoice.length > 0)
   },
   onBeforeShow: function() {
-    var attributes = calculateAvailableAttributesFromSelection(
+    const attributes = calculateAvailableAttributesFromSelection(
       this.options.selectionInterface
     )
-    var summaryAttributes = calculateSummaryAttributes()
-    var totalAttributes = filterAndSort(_.union(attributes, summaryAttributes))
+    const summaryAttributes = calculateSummaryAttributes()
+    const totalAttributes = filterAndSort(
+      _.union(attributes, summaryAttributes)
+    )
     this.attributeSelector.show(
       new PropertyView({
         model: new Property({
@@ -158,7 +160,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   handleSave: function() {
-    var prefs = user.get('user').get('preferences')
+    const prefs = user.get('user').get('preferences')
     prefs.set(
       'inspector-summaryShown',
       this.attributeSelector.currentView.model.get('value')[0]

@@ -13,9 +13,9 @@
  *
  **/
 /* global require */
-var TabsView = require('../tabs.view')
-var ResultFormModel = require('./tabs.result-form')
-var store = require('../../../js/store.js')
+const TabsView = require('../tabs.view')
+const ResultFormModel = require('./tabs.result-form')
+const store = require('../../../js/store.js')
 
 module.exports = TabsView.extend({
   selectionInterface: store,
@@ -27,7 +27,7 @@ module.exports = TabsView.extend({
     TabsView.prototype.initialize.call(this)
   },
   determineContent: function() {
-    var ActiveTab = this.model.getActiveView()
+    const ActiveTab = this.model.getActiveView()
     this.tabsContent.show(
       new ActiveTab({
         model: this.options.model,

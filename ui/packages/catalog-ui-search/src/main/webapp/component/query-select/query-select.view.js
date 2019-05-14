@@ -20,12 +20,12 @@ const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
 const QueryItemCollectionView = require('../query-item/query-item.collection.view.js')
 
-var eventsHash = {
+const eventsHash = {
   click: 'handleClick',
 }
 
-var namespace = CustomElements.getNamespace()
-var queryItemClickEvent = 'click ' + namespace + 'query-item'
+const namespace = CustomElements.getNamespace()
+const queryItemClickEvent = 'click ' + namespace + 'query-item'
 eventsHash[queryItemClickEvent] = 'handleQueryItemClick'
 
 module.exports = QueryItemCollectionView.extend({
@@ -40,7 +40,7 @@ module.exports = QueryItemCollectionView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   handleValue: function() {
-    var queryId = this.model.get('value')
+    const queryId = this.model.get('value')
     this.$el.find(namespace + 'query-item').removeClass('is-selected')
     if (queryId) {
       this.$el

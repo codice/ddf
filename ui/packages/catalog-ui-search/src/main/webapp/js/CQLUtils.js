@@ -28,14 +28,14 @@ function sanitizeForCql(text) {
 }
 
 function lineToCQLLine(model) {
-  var cqlLINE = model.map(function(point) {
+  const cqlLINE = model.map(function(point) {
     return point[0] + ' ' + point[1]
   })
   return cqlLINE
 }
 
 function polygonToCQLPolygon(model) {
-  var cqlPolygon = model.map(function(point) {
+  const cqlPolygon = model.map(function(point) {
     return point[0] + ' ' + point[1]
   })
   if (cqlPolygon[0] !== cqlPolygon[cqlPolygon.length - 1]) {
@@ -107,7 +107,7 @@ function generateAnyGeoFilter(property, model) {
         }),
       }
     case 'MULTIPOLYGON':
-      var poly =
+      const poly =
         'MULTIPOLYGON' +
         sanitizeForCql(JSON.stringify(polygonToCQLMultiPolygon(model.polygon)))
       return {
@@ -150,7 +150,7 @@ function generateAnyGeoFilter(property, model) {
 }
 
 function buildIntersectOrCQL(shapes) {
-  var locationFilter = ''
+  let locationFilter = ''
   $.each(
     shapes,
     function(i, shape) {
@@ -167,7 +167,7 @@ function buildIntersectOrCQL(shapes) {
 
 function arrayFromPartialWkt(partialWkt) {
   // remove the leading and trailing parentheses
-  var result = partialWkt.replace(/^\(/, '').replace(/\)$/, '')
+  let result = partialWkt.replace(/^\(/, '').replace(/\)$/, '')
   // change parentheses to array brackets
   result = result.replace(/\(/g, '[').replace(/\)/g, ']')
   // change each space-separated coordinate pair to a two-element array
@@ -295,17 +295,17 @@ const isPolygonFilter = filter => {
 }
 
 function isPointRadiusFilter(filter) {
-  var filterValue =
+  const filterValue =
     typeof filter.value === 'object' ? filter.value.value : filter.value
   return filterValue && filterValue.indexOf('POINT') >= 0
 }
 
 function buildIntersectCQL(locationGeometry) {
-  var locationFilter = ''
-  var locationWkt = locationGeometry.toWkt()
-  var locationType = locationGeometry.toGeoJSON().type.toUpperCase()
+  let locationFilter = ''
+  let locationWkt = locationGeometry.toWkt()
+  const locationType = locationGeometry.toGeoJSON().type.toUpperCase()
 
-  var shapes
+  let shapes
   switch (locationType) {
     case 'POINT':
     case 'LINESTRING':

@@ -13,7 +13,7 @@
  *
  **/
 
-var SlideoutView = require('../slideout/slideout.view.js')
-var slideoutView = new SlideoutView()
+const SlideoutView = require('../slideout/slideout.view.js')
+const slideoutView = new SlideoutView()
 slideoutView.render()
 module.exports = slideoutView

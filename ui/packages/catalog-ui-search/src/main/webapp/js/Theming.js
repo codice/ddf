@@ -10,17 +10,17 @@
  *
  **/
 
-var $ = require('jquery')
-var wreqr = require('./wreqr.js')
-var _ = require('underscore')
-var user = require('../component/singletons/user-instance.js')
-var preferences = user.get('user').get('preferences')
-var Less = require('less')
-var lessStyles = require('./uncompiled-less.unless')
-var variableRegex = '/@(.*:[^;]*)/g'
-var variableRegexPrefix = '@'
-var variableRegexPostfix = '(.*:[^;]*)'
-var Common = require('./Common.js')
+const $ = require('jquery')
+const wreqr = require('./wreqr.js')
+const _ = require('underscore')
+const user = require('../component/singletons/user-instance.js')
+const preferences = user.get('user').get('preferences')
+const Less = require('less')
+let lessStyles = require('./uncompiled-less.unless')
+const variableRegex = '/@(.*:[^;]*)/g'
+const variableRegexPrefix = '@'
+const variableRegexPostfix = '(.*:[^;]*)'
+const Common = require('./Common.js')
 import { lessWorkerModel } from './../component/singletons/less.worker-instance'
 lessWorkerModel.subscribe(data => {
   if (data.method === 'render') {
@@ -31,8 +31,8 @@ lessWorkerModel.subscribe(data => {
 })
 
 function updateTheme(css) {
-  var existingUserStyles = $('[data-theme=user]')
-  var userStyles = document.createElement('style')
+  const existingUserStyles = $('[data-theme=user]')
+  const userStyles = document.createElement('style')
   userStyles.setAttribute('data-theme', 'user')
   userStyles.innerHTML = css
   document.body.appendChild(userStyles)
@@ -48,7 +48,7 @@ function handleThemeChange() {
 }
 
 function handleFontSizeChange() {
-  var fontSize = preferences.get('fontSize')
+  const fontSize = preferences.get('fontSize')
   $('html').css('fontSize', fontSize + 'px')
   Common.repaintForTimeframe(500, () => {
     wreqr.vent.trigger('resize')
@@ -57,7 +57,7 @@ function handleFontSizeChange() {
 }
 
 function handleAnimationChange() {
-  var animationMode = preferences.get('animation')
+  const animationMode = preferences.get('animation')
   $('html').toggleClass('no-animation', !animationMode)
 }
 

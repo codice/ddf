@@ -27,7 +27,7 @@ require('backbone-associations')
 import PartialAssociatedModel from '../../js/extensions/backbone.partialAssociatedModel'
 const plugin = require('plugins/query')
 
-var Query = {}
+const Query = {}
 
 function limitToDeleted(cqlString) {
   return CQLUtils.transformFilterToCQL({
@@ -234,7 +234,7 @@ Query.Model = PartialAssociatedModel.extend({
     })
   },
   buildSearchData: function() {
-    var data = this.toJSON()
+    const data = this.toJSON()
 
     switch (data.federation) {
       case 'local':
@@ -319,18 +319,18 @@ Query.Model = PartialAssociatedModel.extend({
     )
     this.cancelCurrentSearches()
 
-    var data = Common.duplicate(this.buildSearchData())
+    const data = Common.duplicate(this.buildSearchData())
     data.batchId = Common.generateUUID()
     if (options.resultCountOnly) {
       data.count = 0
     }
-    var sources = data.src
-    var initialStatus = sources.map(function(src) {
+    const sources = data.src
+    const initialStatus = sources.map(function(src) {
       return {
         id: src,
       }
     })
-    var result
+    let result
     if (this.get('result') && this.get('result').get('results')) {
       result = this.get('result')
       result.setColor(this.getColor())
@@ -364,13 +364,13 @@ Query.Model = PartialAssociatedModel.extend({
       sources.unshift('cache')
     }
 
-    var cqlString = data.cql
+    let cqlString = data.cql
     if (options.limitToDeleted) {
       cqlString = limitToDeleted(cqlString)
     } else if (options.limitToHistoric) {
       cqlString = limitToHistoric(cqlString)
     }
-    var query = this
+    const query = this
 
     const currentSearches = this.preQueryPlugin(
       sources.map(src => ({
@@ -414,7 +414,7 @@ Query.Model = PartialAssociatedModel.extend({
             }
           },
           error: function(model, response, options) {
-            var srcStatus = result.get('status').get(search.src)
+            const srcStatus = result.get('status').get(search.src)
             if (srcStatus) {
               srcStatus.set({
                 successful: false,
@@ -444,7 +444,7 @@ Query.Model = PartialAssociatedModel.extend({
     })
   },
   setSources: function(sources) {
-    var sourceArr = []
+    const sourceArr = []
     sources.each(function(src) {
       if (src.get('available') === true) {
         sourceArr.push(src.get('id'))
@@ -460,7 +460,7 @@ Query.Model = PartialAssociatedModel.extend({
     if (this.get('id')) {
       return this.get('id')
     } else {
-      var id = this._cloneOf || this.id || Common.generateUUID()
+      const id = this._cloneOf || this.id || Common.generateUUID()
       this.set('id')
       return id
     }
@@ -512,8 +512,8 @@ Query.Model = PartialAssociatedModel.extend({
     return lengthWithoutDuplicates + numberOfDuplicates
   },
   getResultsRangeLabel: function(resultsCollection) {
-    var results = resultsCollection.length
-    var hits = _.filter(
+    const results = resultsCollection.length
+    const hits = _.filter(
       this.get('result')
         .get('status')
         .toJSON(),
@@ -526,9 +526,9 @@ Query.Model = PartialAssociatedModel.extend({
       return results + ' results'
     }
 
-    var serverPageSize = user.get('user>preferences>resultCount')
-    var startingIndex = serverPageIndex(this.state) * serverPageSize
-    var endingIndex =
+    const serverPageSize = user.get('user>preferences>resultCount')
+    const startingIndex = serverPageIndex(this.state) * serverPageSize
+    const endingIndex =
       startingIndex + this.lengthWithDuplicates(resultsCollection)
 
     return startingIndex + 1 + '-' + endingIndex + ' of ' + hits

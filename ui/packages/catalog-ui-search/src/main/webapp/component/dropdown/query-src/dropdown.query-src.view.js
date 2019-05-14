@@ -89,7 +89,7 @@ module.exports = DropdownView.extend({
   hasTail: true,
   hasLimitedWidth: true,
   serializeData: function() {
-    var srcs = this.model.get('value')
+    const srcs = this.model.get('value')
     return {
       sources: sources.toJSON().filter(function(src) {
         return srcs.indexOf(src.id) !== -1

@@ -30,7 +30,7 @@ module.exports = InputView.extend({
     locationRegion: '.location-region',
   },
   serializeData() {
-    var value = this.model.get('value')
+    const value = this.model.get('value')
     return {
       label: value,
     }

@@ -13,8 +13,8 @@
  *
  **/
 
-var Marionette = require('marionette')
-var InputView = require('../input.view')
+const Marionette = require('marionette')
+const InputView = require('../input.view')
 import * as React from 'react'
 import InputPassword from './input-password'
 

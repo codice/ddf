@@ -87,7 +87,7 @@ module.exports = Marionette.LayoutView.extend(
       )
     },
     handleSpecialKeys: function(event) {
-      var code = event.keyCode
+      let code = event.keyCode
       if (event.charCode && code == 0) code = event.charCode
       switch (code) {
         case 27:

@@ -13,10 +13,10 @@
  *
  **/
 
-var uuid = require('uuid')
-var _ = require('underscore')
+const uuid = require('uuid')
+const _ = require('underscore')
 
-var remove = (exports.remove = function(id, timeout) {
+const remove = (exports.remove = function(id, timeout) {
   return function(dispatch) {
     dispatch({
       type: 'START_REMOVE_ANNOUNCEMENT',
@@ -33,7 +33,7 @@ var remove = (exports.remove = function(id, timeout) {
 })
 
 exports.announce = function(announcement, timeout) {
-  var id = uuid.v4()
+  const id = uuid.v4()
 
   return function(dispatch, getState) {
     getState()

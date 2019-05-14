@@ -42,14 +42,14 @@ function translateToOpenlayersCoordinate(coord) {
 }
 
 function translateToOpenlayersCoordinates(coords) {
-  var coordinates = []
+  const coordinates = []
   _.each(coords, function(item) {
     coordinates.push(translateToOpenlayersCoordinate(item))
   })
   return coordinates
 }
 
-var Draw = {}
+const Draw = {}
 
 Draw.CircleView = Marionette.View.extend({
   initialize: function(options) {
@@ -62,8 +62,8 @@ Draw.CircleView = Marionette.View.extend({
     this.updateGeometry(this.model)
   },
   setModelFromGeometry: function(geometry) {
-    var center = translateFromOpenlayersCoordinate(geometry.getCenter())
-    var rad =
+    const center = translateFromOpenlayersCoordinate(geometry.getCenter())
+    const rad =
       geometry.getRadius() *
       this.map
         .getView()
@@ -83,7 +83,7 @@ Draw.CircleView = Marionette.View.extend({
     if (model.get('lon') === undefined || model.get('lat') === undefined) {
       return undefined
     }
-    var rectangle = new ol.geom.Circle(
+    const rectangle = new ol.geom.Circle(
       translateToOpenlayersCoordinate([model.get('lon'), model.get('lat')]),
       DistanceUtils.getDistanceInMeters(
         model.get('radius'),
@@ -98,7 +98,7 @@ Draw.CircleView = Marionette.View.extend({
   },
 
   updatePrimitive: function(model) {
-    var polygon = this.modelToCircle(model)
+    const polygon = this.modelToCircle(model)
     // make sure the current model has width and height before drawing
     if (polygon && !_.isUndefined(polygon)) {
       this.drawBorderedPolygon(polygon)
@@ -111,7 +111,7 @@ Draw.CircleView = Marionette.View.extend({
       model.get('lat') !== undefined &&
       model.get('radius')
     ) {
-      var circle = this.modelToCircle(model)
+      const circle = this.modelToCircle(model)
       if (circle) {
         this.drawBorderedPolygon(circle)
       }
@@ -128,10 +128,10 @@ Draw.CircleView = Marionette.View.extend({
       return
     }
 
-    var point = Turf.point(
+    const point = Turf.point(
       translateFromOpenlayersCoordinate(rectangle.getCenter())
     )
-    var turfCircle = new TurfCircle(
+    const turfCircle = new TurfCircle(
       point,
       rectangle.getRadius() *
         this.map
@@ -141,7 +141,7 @@ Draw.CircleView = Marionette.View.extend({
       64,
       'meters'
     )
-    var geometryRepresentation = new ol.geom.LineString(
+    const geometryRepresentation = new ol.geom.LineString(
       translateToOpenlayersCoordinates(turfCircle.geometry.coordinates[0])
     )
 
@@ -151,9 +151,9 @@ Draw.CircleView = Marionette.View.extend({
 
     this.billboard.setId(this.model.cid)
 
-    var color = this.model.get('color')
+    const color = this.model.get('color')
 
-    var iconStyle = new ol.style.Style({
+    const iconStyle = new ol.style.Style({
       stroke: new ol.style.Stroke({
         color: color ? color : '#914500',
         width: 3,
@@ -161,7 +161,7 @@ Draw.CircleView = Marionette.View.extend({
     })
     this.billboard.setStyle(iconStyle)
 
-    var vectorSource = new ol.source.Vector({
+    const vectorSource = new ol.source.Vector({
       features: [this.billboard],
     })
 
@@ -189,7 +189,7 @@ Draw.CircleView = Marionette.View.extend({
     wreqr.vent.trigger('search:circledisplay', this.model)
   },
   start: function() {
-    var that = this
+    const that = this
 
     this.primitive = new ol.interaction.Draw({
       type: 'Circle',
@@ -244,12 +244,12 @@ Draw.Controller = DrawingController.extend({
   drawingType: 'circle',
   show: function(model) {
     if (this.enabled) {
-      var existingView = this.getViewForModel(model)
+      const existingView = this.getViewForModel(model)
       if (existingView) {
         existingView.destroyPrimitive()
         existingView.updateGeometry(model)
       } else {
-        var view = new Draw.CircleView({
+        const view = new Draw.CircleView({
           map: this.options.map,
           model: model,
         })
@@ -262,12 +262,12 @@ Draw.Controller = DrawingController.extend({
   },
   draw: function(model) {
     if (this.enabled) {
-      var view = new Draw.CircleView({
+      const view = new Draw.CircleView({
         map: this.options.map,
         model: model,
       })
 
-      var existingView = this.getViewForModel(model)
+      const existingView = this.getViewForModel(model)
       if (existingView) {
         existingView.stop()
         existingView.destroyPrimitive()

@@ -13,17 +13,17 @@
  *
  **/
 
-var template = require('./annotation.hbs')
-var $ = require('jquery')
-var _ = require('underscore')
-var Marionette = require('marionette')
-var CustomElements = require('../../js/CustomElements.js')
-var Common = require('../../js/Common.js')
-var PropertyView = require('../property/property.view.js')
-var Property = require('../property/property.js')
-var LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
-var userInstance = require('../singletons/user-instance.js')
-var announcement = require('../announcement/index.jsx')
+const template = require('./annotation.hbs')
+const $ = require('jquery')
+const _ = require('underscore')
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const Common = require('../../js/Common.js')
+const PropertyView = require('../property/property.view.js')
+const Property = require('../property/property.js')
+const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
+const userInstance = require('../singletons/user-instance.js')
+const announcement = require('../announcement/index.jsx')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('annotation'),
@@ -126,7 +126,7 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-deleting', false)
   },
   handleEdit: function() {
-    var requestData = {}
+    const requestData = {}
     requestData.note = this.annotationContent.currentView.model.get('value')[0]
     LoadingCompanionView.beginLoading(this)
     $.ajax({
@@ -150,7 +150,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   handleEditResponse: function(response) {
     if (response.responseType === 'success') {
-      var annotation = JSON.parse(response.response)
+      const annotation = JSON.parse(response.response)
       this.model.attributes.annotation = annotation.note
       this.onBeforeShow()
 

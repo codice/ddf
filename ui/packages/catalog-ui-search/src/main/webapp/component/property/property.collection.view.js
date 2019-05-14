@@ -45,7 +45,7 @@ module.exports = Marionette.CollectionView.extend(
       this.collection.sort()
     },
     addProperties: function(attributes) {
-      var newAttributes = attributes.filter(
+      const newAttributes = attributes.filter(
         attribute => !this.collection.get(attribute)
       )
       if (newAttributes.length > 0) {
@@ -114,10 +114,10 @@ module.exports = Marionette.CollectionView.extend(
       }
     },
     toPatchJSON: function(addedAttributes, removedAttributes) {
-      var attributeArray = []
+      const attributeArray = []
       this.children.forEach(function(childView) {
-        var isNew = addedAttributes.indexOf(childView.model.id) >= 0
-        var attribute = isNew ? childView.toJSON() : childView.toPatchJSON()
+        const isNew = addedAttributes.indexOf(childView.model.id) >= 0
+        const attribute = isNew ? childView.toJSON() : childView.toPatchJSON()
         if (attribute) {
           attributeArray.push(attribute)
         }
@@ -151,7 +151,7 @@ module.exports = Marionette.CollectionView.extend(
       })
     },
     updateValidation: function(validationReport) {
-      var self = this
+      const self = this
       validationReport.forEach(function(attributeValidationReport) {
         self.children
           .filter(function(childView) {
@@ -193,17 +193,17 @@ module.exports = Marionette.CollectionView.extend(
   {
     //contains methods for generating property collection views from service responses
     generateSummaryPropertyCollectionView: function(metacards) {
-      var PropertyCollectionView = this.generateCollectionView(metacards)
+      const PropertyCollectionView = this.generateCollectionView(metacards)
       PropertyCollectionView.collection.comparator = function(a, b) {
-        var preferredHeader = user
+        let preferredHeader = user
           .get('user')
           .get('preferences')
           .get('inspector-summaryOrder')
         if (preferredHeader.length === 0) {
           preferredHeader = properties.summaryShow
         }
-        var aIndex = preferredHeader.indexOf(a.id)
-        var bIndex = preferredHeader.indexOf(b.id)
+        const aIndex = preferredHeader.indexOf(a.id)
+        const bIndex = preferredHeader.indexOf(b.id)
         if (aIndex === -1 && bIndex === -1) {
           return metacardDefinitions.attributeComparator(a.id, b.id)
         }
@@ -230,14 +230,14 @@ module.exports = Marionette.CollectionView.extend(
       return PropertyCollectionView
     },
     generatePropertyCollectionView: function(metacards) {
-      var PropertyCollectionView = this.generateCollectionView(metacards)
+      const PropertyCollectionView = this.generateCollectionView(metacards)
       PropertyCollectionView.collection.comparator = function(a, b) {
-        var preferredHeader = user
+        const preferredHeader = user
           .get('user')
           .get('preferences')
           .get('inspector-detailsOrder')
-        var aIndex = preferredHeader.indexOf(a.id)
-        var bIndex = preferredHeader.indexOf(b.id)
+        const aIndex = preferredHeader.indexOf(a.id)
+        const bIndex = preferredHeader.indexOf(b.id)
         if (aIndex === -1 && bIndex === -1) {
           return metacardDefinitions.attributeComparator(a.id, b.id)
         }
@@ -268,7 +268,7 @@ module.exports = Marionette.CollectionView.extend(
       metacards,
       options
     ) {
-      var propertyArray = []
+      const propertyArray = []
       propertyNames.forEach(function(property) {
         if (metacardDefinitions.metacardTypes.hasOwnProperty(property)) {
           propertyArray.push({
@@ -313,8 +313,8 @@ module.exports = Marionette.CollectionView.extend(
     generateFilteredCollectionView: function(propertyArray, metacards) {
       propertyArray.forEach(function(property) {
         metacards.forEach(function(metacard) {
-          var value = metacard[property.id]
-          var isDefined = value !== undefined
+          let value = metacard[property.id]
+          const isDefined = value !== undefined
           let hasConflictingDefinition = false
           if (isDefined) {
             if (!metacardDefinitions.metacardTypes[property.id].multivalued) {
@@ -330,7 +330,7 @@ module.exports = Marionette.CollectionView.extend(
           } else {
             value = [value]
           }
-          var key = isDefined ? value : Common.undefined
+          const key = isDefined ? value : Common.undefined
           value.sort()
           property.value = value
           property.values[key] = property.values[key] || {

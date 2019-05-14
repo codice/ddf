@@ -23,8 +23,8 @@ const store = require('../../js/store.js')
 const cql = require('../../js/cql.js')
 const Query = require('../../js/model/Query.js')
 
-var getDeletedMetacards = function() {
-  var filter = {
+const getDeletedMetacards = function() {
+  const filter = {
     type: 'AND',
     filters: [
       { type: '=', property: '"metacard-tags"', value: 'revision' },
@@ -40,7 +40,7 @@ var getDeletedMetacards = function() {
   })
 }
 
-var RestoreItemView = Marionette.ItemView.extend({
+const RestoreItemView = Marionette.ItemView.extend({
   className: 'row',
   events: {
     'click .restore': 'restore',
@@ -50,7 +50,7 @@ var RestoreItemView = Marionette.ItemView.extend({
   },
   template: itemTemplate,
   serializeData: function() {
-    var properties = this.model
+    const properties = this.model
       .get('metacard')
       .get('properties')
       .toJSON()
@@ -63,14 +63,14 @@ var RestoreItemView = Marionette.ItemView.extend({
     }
   },
   restore: function() {
-    var model = this.model
+    const model = this.model
 
-    var historyId = model
+    const historyId = model
       .get('metacard')
       .get('properties')
       .get('metacard.version.id')
-    var metacardId = model.get('metacard').get('id')
-    var revert = './internal/history/revert/' + historyId + '/' + metacardId
+    const metacardId = model.get('metacard').get('id')
+    const revert = './internal/history/revert/' + historyId + '/' + metacardId
 
     $.get(revert).then(
       function() {
@@ -89,11 +89,11 @@ var RestoreItemView = Marionette.ItemView.extend({
   },
 })
 
-var EmptyRestoreItemView = Marionette.ItemView.extend({
+const EmptyRestoreItemView = Marionette.ItemView.extend({
   template: 'No items to restore.',
 })
 
-var RestoreCollectionView = Marionette.CollectionView.extend({
+const RestoreCollectionView = Marionette.CollectionView.extend({
   emptyView: EmptyRestoreItemView,
   childView: RestoreItemView,
 })

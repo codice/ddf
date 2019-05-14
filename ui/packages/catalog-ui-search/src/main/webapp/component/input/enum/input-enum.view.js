@@ -26,8 +26,8 @@ const user = require('../../singletons/user-instance.js')
 const DropdownModel = require('../../dropdown/dropdown.js')
 
 function getValue(model) {
-  var multivalued = model.get('property').get('enumMulti')
-  var value = model.get('value')
+  const multivalued = model.get('property').get('enumMulti')
+  let value = model.get('value')
   if (value !== undefined && model.get('property').get('type') === 'DATE') {
     if (multivalued && value.map) {
       value = value.map(function(subvalue) {
@@ -62,8 +62,8 @@ module.exports = InputView.extend({
     )
   },
   serializeData: function() {
-    var value = getValue(this.model)
-    var choice = this.model
+    const value = getValue(this.model)
+    const choice = this.model
       .get('property')
       .get('enum')
       .filter(function(choice) {
@@ -85,8 +85,8 @@ module.exports = InputView.extend({
     InputView.prototype.onRender.call(this)
   },
   initializeEnum: function() {
-    var value = getValue(this.model)
-    var dropdownModel = new DropdownModel({
+    const value = getValue(this.model)
+    const dropdownModel = new DropdownModel({
       value: value,
     })
     const list = this.model
@@ -133,7 +133,7 @@ module.exports = InputView.extend({
     this.enumRegion.currentView.model.set('value', getValue(this.model))
   },
   getCurrentValue: function() {
-    var currentValue = this.model.get('property').get('enumMulti')
+    const currentValue = this.model.get('property').get('enumMulti')
       ? this.enumRegion.currentView.model.get('value')
       : this.enumRegion.currentView.model.get('value')[0]
     switch (this.model.getCalculatedType()) {
@@ -148,8 +148,8 @@ module.exports = InputView.extend({
     }
   },
   isValid: function() {
-    var value = getValue(this.model)
-    var choice = this.model
+    const value = getValue(this.model)
+    const choice = this.model
       .get('property')
       .get('enum')
       .filter(function(choice) {

@@ -13,22 +13,22 @@
  *
  **/
 
-var Backbone = require('backbone')
-var Marionette = require('marionette')
-var wreqr = require('../../js/wreqr.js')
-var _ = require('underscore')
-var $ = require('jquery')
-var template = require('./associations-graph.hbs')
-var CustomElements = require('../../js/CustomElements.js')
-var store = require('../../js/store.js')
-var LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
-var AssociationView = require('../association/association.view.js')
-var Association = require('../association/association.js')
-var Vis = require('vis')
+const Backbone = require('backbone')
+const Marionette = require('marionette')
+const wreqr = require('../../js/wreqr.js')
+const _ = require('underscore')
+const $ = require('jquery')
+const template = require('./associations-graph.hbs')
+const CustomElements = require('../../js/CustomElements.js')
+const store = require('../../js/store.js')
+const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
+const AssociationView = require('../association/association.view.js')
+const Association = require('../association/association.js')
+const Vis = require('vis')
 
 function determineNodes(view) {
-  var currentMetacard = view.options.currentMetacard
-  var nodes = view.options.knownMetacards
+  const currentMetacard = view.options.currentMetacard
+  let nodes = view.options.knownMetacards
     .map(function(metacard) {
       return {
         id: metacard.id,
@@ -173,18 +173,18 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   handleSelection: function() {
-    var graphInspector = this.graphInspector.currentView
+    const graphInspector = this.graphInspector.currentView
     if (graphInspector) {
       handleSelection(this._parentNetwork, [graphInspector.model.cid])
       handleSelection(this._childNetwork, [graphInspector.model.cid])
     }
   },
   showParentGraph: function() {
-    var currentMetacard = this.options.currentMetacard
-    var nodes = determineNodes(this)
+    const currentMetacard = this.options.currentMetacard
+    let nodes = determineNodes(this)
 
     // create an array with edges
-    var edges = this.collection
+    const edges = this.collection
       .map(function(association) {
         return {
           arrows: {
@@ -220,7 +220,7 @@ module.exports = Marionette.LayoutView.extend({
       return
     }
 
-    var data = {
+    const data = {
       nodes: new Vis.DataSet(nodes),
       edges: new Vis.DataSet(edges),
     }
@@ -247,11 +247,11 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   showChildGraph: function() {
-    var currentMetacard = this.options.currentMetacard
-    var nodes = determineNodes(this)
+    const currentMetacard = this.options.currentMetacard
+    let nodes = determineNodes(this)
 
     // create an array with edges
-    var edges = this.collection
+    const edges = this.collection
       .map(function(association) {
         return {
           arrows: {
@@ -287,7 +287,7 @@ module.exports = Marionette.LayoutView.extend({
       return
     }
 
-    var data = {
+    const data = {
       nodes: new Vis.DataSet(nodes),
       edges: new Vis.DataSet(edges),
     }

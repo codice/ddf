@@ -24,10 +24,10 @@ const PropertyView = require('../property/property.view.js')
 const Property = require('../property/property.js')
 const properties = require('../../js/properties.js')
 
-var blacklist = ['anyText', 'anyGeo']
+const blacklist = ['anyText', 'anyGeo']
 
 function getSortLabel(attribute) {
-  var ascendingLabel, descendingLabel
+  let ascendingLabel, descendingLabel
   if (metacardDefinitions.metacardTypes[attribute] === undefined) {
     ascendingLabel = descendingLabel = ''
   } else {
@@ -167,8 +167,8 @@ module.exports = Marionette.LayoutView.extend({
     if (!this.sortAttribute) {
       return
     }
-    var attribute = this.sortAttribute.currentView.model.getValue()[0]
-    var labels = getSortLabel(attribute)
+    const attribute = this.sortAttribute.currentView.model.getValue()[0]
+    const labels = getSortLabel(attribute)
 
     if (this.sortDirection.currentView !== undefined) {
       this.model.set(

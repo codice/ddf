@@ -7,7 +7,7 @@ const mock = () => {
     const data = api('./internal/config')
     const uiConfig = api('./internal/platform/config/ui')
     // use this function to initialize variables that rely on others
-    var props = this
+    let props = this
     props = _.extend(props, data)
     props.ui = uiConfig
     this.handleEditing()

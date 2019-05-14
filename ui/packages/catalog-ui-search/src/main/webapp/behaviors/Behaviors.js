@@ -13,8 +13,8 @@
  *
  **/
 
-var Marionette = require('marionette')
-var behaviors = {}
+const Marionette = require('marionette')
+const behaviors = {}
 Marionette.Behaviors.behaviorsLookup = function() {
   return behaviors
 }

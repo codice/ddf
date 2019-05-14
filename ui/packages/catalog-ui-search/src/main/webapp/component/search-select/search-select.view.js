@@ -13,13 +13,13 @@
  *
  **/
 
-var Marionette = require('marionette')
-var CustomElements = require('../../js/CustomElements.js')
-var template = require('./search-select.hbs')
-var QuerySelectView = require('../query-select/query-select.view.js')
-var store = require('../../js/store.js')
-var Query = require('../../js/model/Query.js')
-var $ = require('jquery')
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
+const template = require('./search-select.hbs')
+const QuerySelectView = require('../query-select/query-select.view.js')
+const store = require('../../js/store.js')
+const Query = require('../../js/model/Query.js')
+const $ = require('jquery')
 
 module.exports = Marionette.LayoutView.extend({
   template: template,
@@ -59,7 +59,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   addQuery: function() {
     if (store.getCurrentWorkspace().canAddQuery()) {
-      var newQuery = new Query.Model()
+      const newQuery = new Query.Model()
       store.setQueryByReference(newQuery)
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     }

@@ -28,7 +28,7 @@ function validTextColour(stringToTest) {
     return false
   }
 
-  var image = document.createElement('img')
+  const image = document.createElement('img')
   image.style.color = 'rgb(0, 0, 0)'
   image.style.color = stringToTest
   if (image.style.color !== 'rgb(0, 0, 0)') {
@@ -40,8 +40,8 @@ function validTextColour(stringToTest) {
 }
 
 function removeAlpha(color) {
-  var $input = $(document.createElement('input'))
-  var hexString = $input
+  const $input = $(document.createElement('input'))
+  const hexString = $input
     .spectrum()
     .spectrum('set', color)
     .spectrum('get')
@@ -94,7 +94,7 @@ module.exports = InputView.extend({
     this.$el.find('input').select()
   },
   getCurrentValue: function() {
-    var currentValue = this.$el
+    const currentValue = this.$el
       .find('input')
       .spectrum('get')
       .toHexString()
@@ -114,7 +114,7 @@ module.exports = InputView.extend({
     )
   },
   onDestroy: function() {
-    var colorpicker = this.$el.find('input')
+    const colorpicker = this.$el.find('input')
     if (colorpicker) {
       colorpicker.spectrum('destroy')
     }

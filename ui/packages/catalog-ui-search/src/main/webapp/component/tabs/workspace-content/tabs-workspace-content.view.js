@@ -20,7 +20,7 @@ const TabsView = require('../tabs.view')
 const store = require('../../../js/store.js')
 const wreqr = require('../../../js/wreqr.js')
 
-var WorkspaceContentTabsView = TabsView.extend({
+const WorkspaceContentTabsView = TabsView.extend({
   initialize: function() {
     TabsView.prototype.initialize.call(this)
     this.listenTo(
@@ -44,7 +44,7 @@ var WorkspaceContentTabsView = TabsView.extend({
     }
   },
   determineContent: function() {
-    var activeTab = this.model.getActiveView()
+    const activeTab = this.model.getActiveView()
     this.tabsContent.show(
       new activeTab({
         selectionInterface: store,

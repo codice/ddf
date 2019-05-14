@@ -37,8 +37,8 @@ Backbone.Associations.setSeparator('>')
  * @param options
  * @returns {Q Promise}
  */
-var fetchPromise = function(options) {
-  var deferred = Q.defer(),
+const fetchPromise = function(options) {
+  const deferred = Q.defer(),
     modelOrCollection = this
   options = options ? _.clone(options) : {}
 
