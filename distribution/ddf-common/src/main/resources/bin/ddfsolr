@@ -28,6 +28,7 @@ SCRIPTDIR=$(dirname $0)
 HOME_DIR=$(cd "${SCRIPTDIR}/.."; pwd -P)
 GET=${SCRIPTDIR}/get_property
 SOLR_EXEC=${HOME_DIR}/solr/bin/solr
+STOPKEY_FILE=${SCRIPTDIR}/SOLR_STOPKEY
 
 # Read port from custom.system.properties file
 SOLR_PORT=$($GET "solr.http.port")
@@ -56,7 +57,7 @@ generate_stopkey() {
     # The urandom stream does not spit out valid UTF-8 characters.
     # Tell Mac OS to not interpret the bytes as charcters with LC_ALL=C
     export STOP_KEY=`cat /dev/urandom | env LC_CTYPE=C tr -dc a-z0-9 | head -c 8`
-    echo $STOP_KEY >& STOPKEY
+    echo $STOP_KEY >& ${STOPKEY_FILE}
 }
 
 
@@ -73,9 +74,9 @@ start_solr() {
 
 stop_solr() {
 
-	if [ -f STOPKEY ]; then
-	    export STOP_KEY=`cat STOPKEY`;
-	    rm STOPKEY;
+	if [ -f "${STOPKEY_FILE}" ]; then
+	    export STOP_KEY=`cat ${STOPKEY_FILE}`;
+	    rm ${STOPKEY_FILE};
 	fi
     $SOLR_EXEC stop -p $SOLR_PORT;
 
