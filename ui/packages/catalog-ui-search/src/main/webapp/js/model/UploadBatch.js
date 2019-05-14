@@ -9,6 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+import { UPLOADS, PREFERENCES } from '../events'
 
 const UploadModel = require('./Upload')
 const Backbone = require('backbone')
@@ -17,7 +18,7 @@ const wreqr = require('../wreqr.js')
 const _ = require('underscore')
 
 const updatePreferences = _.throttle(function() {
-  wreqr.vent.trigger('preferences:save')
+  wreqr.vent.trigger(PREFERENCES.SAVE)
 }, 1000)
 
 module.exports = Backbone.AssociatedModel.extend({
@@ -177,7 +178,7 @@ module.exports = Backbone.AssociatedModel.extend({
         sending: true,
         sentAt: Date.now(), //- Math.random() * 14 * 86400000
       })
-      wreqr.vent.trigger('uploads:add', this)
+      wreqr.vent.trigger(UPLOADS.ADD, this)
       this.listenTo(this, 'change', updatePreferences)
       this.options.dropzone.options.autoProcessQueue = true
       this.options.dropzone.processQueue()

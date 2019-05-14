@@ -15,6 +15,8 @@ import {
   Security,
 } from '../../react-component/utils/security/security'
 
+import { ALERTS, UPLOADS, PREFERENCES } from '../events'
+
 const _ = require('underscore')
 const _get = require('lodash.get')
 const wreqr = require('../wreqr.js')
@@ -185,9 +187,9 @@ User.Preferences = Backbone.AssociatedModel.extend({
   initialize() {
     this.handleAlertPersistence()
     this.handleResultCount()
-    this.listenTo(wreqr.vent, 'alerts:add', this.addAlert)
-    this.listenTo(wreqr.vent, 'uploads:add', this.addUpload)
-    this.listenTo(wreqr.vent, 'preferences:save', this.savePreferences)
+    this.listenTo(wreqr.vent, ALERTS.ADD, this.addAlert)
+    this.listenTo(wreqr.vent, UPLOADS.ADD, this.addUpload)
+    this.listenTo(wreqr.vent, PREFERENCES.SAVE, this.savePreferences)
     this.listenTo(this.get('alerts'), 'remove', this.savePreferences)
     this.listenTo(this.get('uploads'), 'remove', this.savePreferences)
     this.listenTo(this, 'change:visualization', this.savePreferences)

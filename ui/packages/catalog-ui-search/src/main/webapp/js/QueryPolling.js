@@ -10,6 +10,8 @@
  *
  **/
 
+import { ALERTS } from './events'
+
 const $ = require('jquery')
 const _ = require('underscore')
 const wreqr = require('./wreqr.js')
@@ -191,9 +193,13 @@ startSearch = function(originalQuery, timeRange, queryToRun) {
           })
         const when = Date.now()
         if (metacardIds.length > 0) {
-          wreqr.vent.trigger('alerts:add', {
+          wreqr.vent.trigger(ALERTS.ADD, {
             queryId: originalQuery.id,
             workspaceId: originalQuery.collection.parents[0].id,
+            queryOptions: {
+              federation: originalQuery.get('federation'),
+              src: originalQuery.get('src'),
+            },
             when,
             metacardIds,
           })

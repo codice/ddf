@@ -26,7 +26,7 @@ const sourceDataFromAlert = alert => {
   const haveSources = sources && sources.length > 0
 
   return {
-    federation: (haveSources && 'selected') || 'enterprise',
+    federation: haveSources ? 'selected' : 'enterprise',
     ...(haveSources && { src: sources }),
   }
 }
