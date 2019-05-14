@@ -245,18 +245,14 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         responseProps.put(SUGGESTION_RESULT_KEY, (Serializable) suggestionResults);
       }
 
-      if (userSpellcheckIsOn(request)) {
-        SolrQuery spellcheckQuery = new SolrQuery(query.get("q"));
-        solrResponse = client.query(spellcheckQuery, METHOD.POST);
-        if (solrSpellcheckHasResults(solrResponse)) {
-          query.set("q", findQueryToResend(spellcheckQuery, solrResponse));
-          solrResponse = client.query(query, METHOD.POST);
-          docs = solrResponse.getResults();
-          results = new ArrayList<>();
-          if (docs != null) {
-            totalHits = docs.getNumFound();
-            addDocsToResults(docs, results);
-          }
+      if (userSpellcheckIsOn(request) && solrSpellcheckHasResults(solrResponse)) {
+        query.set("q", findQueryToResend(query, solrResponse));
+        solrResponse = client.query(query, METHOD.POST);
+        docs = solrResponse.getResults();
+        results = new ArrayList<>();
+        if (docs != null) {
+          totalHits = docs.getNumFound();
+          addDocsToResults(docs, results);
         }
       }
 
