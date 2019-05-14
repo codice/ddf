@@ -591,4 +591,11 @@
         </notes>
         <cve>CVE-2018-11788</cve>
     </suppress>
+    <suppress>
+        <notes>
+            A CVE against tomcat-embed-jasper-8.5.32.jar for a vulnerability in its CLI. DDF does
+            not utilize or expose that capability so this is not an issue.
+        </notes>
+        <cve>CVE-2019-0232</cve>
+    </suppress>
 </suppressions>
