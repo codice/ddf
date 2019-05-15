@@ -10,7 +10,6 @@
  *
  **/
 
-const _ = require('underscore')
 const Backbone = require('backbone')
 const Tabs = Backbone.Model.extend({
   defaults: {

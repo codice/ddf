@@ -10,7 +10,6 @@
  *
  **/
 
-const _ = require('underscore')
 const Backbone = require('backbone')
 const QueryResult = require('../../../js/model/QueryResult.js')
 module.exports = Backbone.AssociatedModel.extend({

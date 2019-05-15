@@ -10,7 +10,6 @@
  *
  **/
 
-const _ = require('underscore')
 const Tabs = require('../tabs')
 const WorkspaceSearchView = require('../../workspace-search/workspace-search.view.js')
 const WorkspaceListsView = require('../../workspace-lists/workspace-lists.view.js')

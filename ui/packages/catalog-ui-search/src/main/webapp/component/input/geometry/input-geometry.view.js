@@ -13,11 +13,7 @@
  *
  **/
 
-const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./input-geometry.hbs')
-const CustomElements = require('../../../js/CustomElements.js')
 const InputView = require('../input.view')
 const LocationView = require('../../location-new/location-new.view.js')
 

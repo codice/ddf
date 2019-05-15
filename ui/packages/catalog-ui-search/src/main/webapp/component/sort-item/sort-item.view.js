@@ -14,12 +14,9 @@
  **/
 
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./sort-item.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const metacardDefinitions = require('../singletons/metacard-definitions.js')
-const DropdownView = require('../dropdown/dropdown.view.js')
 const PropertyView = require('../property/property.view.js')
 const Property = require('../property/property.js')
 const properties = require('../../js/properties.js')

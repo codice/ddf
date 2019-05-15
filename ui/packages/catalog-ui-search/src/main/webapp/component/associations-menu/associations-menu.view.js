@@ -13,7 +13,6 @@
  *
  **/
 
-const wreqr = require('../../js/wreqr.js')
 const template = require('./associations-menu.hbs')
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')

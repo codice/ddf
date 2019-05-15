@@ -10,7 +10,6 @@
  *
  **/
 
-const $ = require('jquery')
 const _ = require('underscore')
 const webgl = require('./webglcheck.js')
 const twoD = require('./2dmapcheck.js')

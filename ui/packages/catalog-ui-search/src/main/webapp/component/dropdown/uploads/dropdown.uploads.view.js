@@ -13,8 +13,6 @@
  *
  **/
 
-const _ = require('underscore')
-const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.uploads.hbs')
 const ComponentView = require('../../uploads/uploads.view.js')

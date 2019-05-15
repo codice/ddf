@@ -23,7 +23,6 @@ const QueryAdhoc = require('../query-adhoc/query-adhoc.view.js')
 const cql = require('../../js/cql.js')
 const CQLUtils = require('../../js/CQLUtils.js')
 const store = require('../../js/store.js')
-const user = require('../singletons/user-instance.js')
 const announcement = require('../announcement/index.jsx')
 import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
 

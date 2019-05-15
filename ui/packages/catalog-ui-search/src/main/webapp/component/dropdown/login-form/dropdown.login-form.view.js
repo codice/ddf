@@ -13,9 +13,7 @@
  *
  **/
 
-const _ = require('underscore')
 const user = require('../../singletons/user-instance.js')
-const Dropdown = require('../dropdown')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.login-form.hbs')
 const CustomElements = require('../../../js/CustomElements.js')

@@ -13,7 +13,6 @@
  *
  **/
 
-const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')

@@ -14,15 +14,12 @@
  **/
 
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./query-schedule.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
 const properties = require('../../js/properties.js')
 const PropertyView = require('../property/property.view.js')
 const Property = require('../property/property.js')
-const DropdownView = require('../dropdown/dropdown.view.js')
 const Moment = require('moment')
 const Common = require('../../js/Common.js')
 

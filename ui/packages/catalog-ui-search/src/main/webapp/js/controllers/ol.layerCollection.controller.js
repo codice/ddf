@@ -13,8 +13,6 @@
 /*jshint newcap: false, bitwise: false */
 
 const _ = require('underscore')
-const $ = require('jquery')
-const Marionette = require('marionette')
 const ol = require('openlayers')
 const properties = require('../properties.js')
 const CommonLayerController = require('./common.layerCollection.controller.js')

@@ -10,7 +10,6 @@
  *
  **/
 
-const _ = require('underscore')
 const Tabs = require('../tabs')
 const store = require('../../../js/store.js')
 const QuerySettingsView = require('../../query-settings/query-settings.view.js')

@@ -16,7 +16,6 @@
 const _ = require('underscore')
 const Marionette = require('marionette')
 const Backbone = require('backbone')
-const $ = require('jquery')
 const properties = require('../../js/properties.js')
 const template = require('./layers.hbs')
 const LayerItemCollectionView = require('../layer-item/layer-item.collection.view.js')

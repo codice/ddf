@@ -13,7 +13,6 @@
  *
  **/
 
-const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
 const template = require('./visualization.hbs')
@@ -22,7 +21,6 @@ const CombinedMapView = require('./combined-map/combined-map.view.js')
 const HistogramView = require('./histogram/histogram.view.js')
 const TableView = require('./table/table-viz.view.js')
 const user = require('../singletons/user-instance.js')
-const maptype = require('../../js/maptype.js')
 
 function getActiveVisualization() {
   return user

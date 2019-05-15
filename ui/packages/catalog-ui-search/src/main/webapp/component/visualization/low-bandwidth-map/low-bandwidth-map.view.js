@@ -14,7 +14,6 @@
  **/
 
 const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./low-bandwidth-map.hbs')
 const Marionette = require('marionette')
 const CustomElements = require('../../../js/CustomElements.js')

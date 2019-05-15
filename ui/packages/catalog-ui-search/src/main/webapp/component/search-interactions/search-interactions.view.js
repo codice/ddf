@@ -14,14 +14,10 @@
  **/
 
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./search-interactions.hbs')
 const CustomElements = require('../../js/CustomElements.js')
-const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
 const DropdownModel = require('../dropdown/dropdown.js')
 const SearchFormSelectorDropdownView = require('../dropdown/search-form-selector/dropdown.search-form-selector.view.js')
-const _merge = require('lodash/merge')
 const ConfirmationView = require('../confirmation/confirmation.view.js')
 const user = require('../singletons/user-instance.js')
 const properties = require('../../js/properties.js')

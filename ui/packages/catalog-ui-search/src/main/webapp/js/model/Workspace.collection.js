@@ -9,7 +9,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const $ = require('jquery')
 const _ = require('underscore')
 const Backbone = require('backbone')
 const Query = require('./Query.js')

@@ -13,9 +13,6 @@
  *
  **/
 
-const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const ComponentView = require('../../query-src/query-src.view.js')
 const sources = require('../../singletons/sources-instance.js')

@@ -13,7 +13,6 @@
  *
  **/
 
-const Marionette = require('marionette')
 const template = require('./input-number.hbs')
 const InputView = require('../input.view')
 

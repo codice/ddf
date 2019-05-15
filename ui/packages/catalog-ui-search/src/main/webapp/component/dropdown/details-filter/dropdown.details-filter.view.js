@@ -13,8 +13,6 @@
  *
  **/
 
-const Marionette = require('marionette')
-const _ = require('underscore')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.details-filter.hbs')
 const ComponentView = require('../../details-filter/details-filter.view.js')

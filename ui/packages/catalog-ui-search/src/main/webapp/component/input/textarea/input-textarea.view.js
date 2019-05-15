@@ -13,7 +13,6 @@
  *
  **/
 
-const Marionette = require('marionette')
 const template = require('./input-textarea.hbs')
 const InputView = require('../input.view')
 const $ = require('jquery')

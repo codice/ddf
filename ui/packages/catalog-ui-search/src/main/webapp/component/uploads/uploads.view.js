@@ -14,8 +14,6 @@
  **/
 
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./uploads.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const UploadBatchItemCollectionView = require('../upload-batch-item/upload-batch-item.collection.view.js')

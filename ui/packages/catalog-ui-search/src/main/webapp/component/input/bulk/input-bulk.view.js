@@ -13,11 +13,8 @@
  *
  **/
 
-const Marionette = require('marionette')
 const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./input-bulk.hbs')
-const CustomElements = require('../../../js/CustomElements.js')
 const InputView = require('../input.view.js')
 const MultivalueView = require('../../multivalue/multivalue.view.js')
 const DropdownView = require('../../dropdown/dropdown.view.js')

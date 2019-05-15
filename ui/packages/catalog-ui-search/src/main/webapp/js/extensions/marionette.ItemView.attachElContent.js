@@ -13,7 +13,6 @@ const Marionette = require('marionette')
 import { render } from 'react-dom'
 import React from 'react'
 const Parser = require('html-react-parser')
-const properties = require('properties')
 import ExtensionPoints from '../../extension-points'
 
 const Providers = ExtensionPoints.providers

@@ -13,7 +13,6 @@
  *
  **/
 
-const Marionette = require('marionette')
 const TabsView = require('../tabs.view')
 const SearchFormTabsModel = require('./tabs.search-form')
 const store = require('../../../js/store.js')

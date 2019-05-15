@@ -8,7 +8,6 @@ const ListEditor = require('../inputs/list-editor')
 const { DdLatitude, DdLongitude } = require('./coordinates')
 const { validateDdPoint } = require('../utils')
 const { ddPoint } = require('../models')
-const errorMessages = require('../utils/errors')
 const DistanceUtils = require('../../../js/DistanceUtils')
 
 const minimumDifference = 0.0001

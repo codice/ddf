@@ -14,8 +14,6 @@
  **/
 
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const resultsTemplate = require('./results.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const QuerySelectDropdown = require('../dropdown/query-select/dropdown.query-select.view.js')

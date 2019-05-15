@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const Marionette = require('marionette')
 const template = require('./input-boolean.hbs')
 const InputView = require('../input.view')
 

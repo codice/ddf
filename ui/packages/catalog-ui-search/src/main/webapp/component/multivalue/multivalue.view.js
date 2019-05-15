@@ -13,10 +13,7 @@
  *
  **/
 
-const Backbone = require('backbone')
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./multivalue.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const ValueCollection = require('../value/value.collection.view.js')

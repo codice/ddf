@@ -10,8 +10,6 @@
  *
  **/
 
-const user = require('../../component/singletons/user-instance.js')
-
 const _ = require('underscore')
 const Backbone = require('backbone')
 const poller = require('backbone-poller')

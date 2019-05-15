@@ -23,12 +23,9 @@ import {
 
 const Marionette = require('marionette')
 const CustomElements = require('../../../js/CustomElements.js')
-const $ = require('jquery')
 const TableVisibility = require('./table-visibility.view')
 const TableRearrange = require('./table-rearrange.view')
 const ResultsTableView = require('../../table/results/table-results.view.js')
-const user = require('../../singletons/user-instance.js')
-const properties = require('../../../js/properties.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('table-viz'),

@@ -31,7 +31,6 @@ const LayerCollectionController = require('../../../../js/controllers/ol.layerCo
 const user = require('../../../singletons/user-instance.js')
 const User = require('../../../../js/model/User.js')
 const wreqr = require('../../../../js/wreqr.js')
-const mtgeo = require('mt-geo')
 
 const defaultColor = '#3c6dd5'
 

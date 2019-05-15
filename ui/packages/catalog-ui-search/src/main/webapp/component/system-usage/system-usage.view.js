@@ -19,7 +19,6 @@ const CustomElements = require('../../js/CustomElements.js')
 const properties = require('../../js/properties.js')
 const user = require('../singletons/user-instance.js')
 const preferences = user.get('user').get('preferences')
-const $ = require('jquery')
 
 function getSrc() {
   return (

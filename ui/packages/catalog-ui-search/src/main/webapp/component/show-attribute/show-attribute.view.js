@@ -13,12 +13,10 @@
  *
  **/
 
-const wreqr = require('../../js/wreqr.js')
 const _ = require('underscore')
 const template = require('./show-attribute.hbs')
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
-const Common = require('../../js/Common.js')
 const user = require('../singletons/user-instance.js')
 const PropertyView = require('../property/property.view.js')
 const Property = require('../property/property.js')

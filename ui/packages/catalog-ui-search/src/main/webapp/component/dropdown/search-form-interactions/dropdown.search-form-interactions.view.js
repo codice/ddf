@@ -13,7 +13,6 @@
  *
  **/
 
-const Marionette = require('marionette')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.search-form-interactions.hbs')
 const SearchFormInteractionsView = require('../../search-form-interactions/search-form-interactions.view.js')
