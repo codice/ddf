@@ -17,13 +17,17 @@ const DistanceUtils = require('../DistanceUtils.js')
 
 const { GeometryRenderView, GeometryController } = require('./cesium.base.line')
 
-const createBufferedPolygonPoints = (polygonPoints, model) => {
+const createBufferedPolygonPointsFromModel = (polygonPoints, model) => {
   const width =
     DistanceUtils.getDistanceInMeters(
       model.toJSON().polygonBufferWidth,
       model.get('polygonBufferUnits')
     ) || 1
 
+  return createBufferedPolygonPoints(polygonPoints, width)
+}
+
+const createBufferedPolygonPoints = (polygonPoints, width) => {
   return Turf.buffer(
     Turf.lineString(polygonPoints),
     Math.max(width, 1),
@@ -80,13 +84,23 @@ class PolygonRenderView extends GeometryRenderView {
           point[1] = DistanceUtils.coordinateRound(point[1])
         })
 
-        const bufferedPolygonPoints = createBufferedPolygonPoints(
+        const drawnPolygonPoints = createBufferedPolygonPoints(polygonPoints, 1)
+
+        const bufferedPolygonPoints = createBufferedPolygonPointsFromModel(
           polygonPoints,
           this.model
         )
+        const bufferedPolygons = bufferedPolygonPoints.geometry.coordinates.map(
+          set => Turf.polygon([set])
+        )
+        const bufferedPolygon = Turf.union(...bufferedPolygons)
+
         const primitive = this.primitive
-        bufferedPolygonPoints.geometry.coordinates.forEach(set =>
+        bufferedPolygon.geometry.coordinates.forEach(set =>
           primitive.add(this.constructLinePrimitive(set))
+        )
+        drawnPolygonPoints.geometry.coordinates.forEach(set =>
+          primitive.add(this.constructDottedLinePrimitive(set))
         )
       }.bind(this)
     )

@@ -76,6 +76,23 @@ class GeometryRenderView extends Marionette.View {
     }
   }
 
+  constructDottedLinePrimitive = coordinates => {
+    const color = this.model.get('color')
+
+    return {
+      width: 4,
+      material: Cesium.Material.fromType('PolylineDash', {
+        color: color
+          ? Cesium.Color.fromCssColorString(color)
+          : Cesium.Color.KHAKI,
+        dashLength: 16.0,
+        dashPattern: 7.0,
+      }),
+      id: 'userDrawing',
+      positions: Cesium.Cartesian3.fromDegreesArray(_.flatten(coordinates)),
+    }
+  }
+
   listenForCameraChange = () => {
     this.map.scene.camera.moveStart.addEventListener(
       this.handleCameraMoveStart,

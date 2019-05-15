@@ -152,35 +152,69 @@ Draw.PolygonView = Marionette.View.extend({
         this.model.get('polygonBufferUnits')
       ) || 1
 
-    const segments = coordinates.map(set => {
+    const drawnPolygonSegments = coordinates.map(set => {
+      return Turf.multiLineString([translateFromOpenlayersCoordinates(set)])
+        .geometry.coordinates
+    })
+
+    const bufferPolygonSegments = coordinates.map(set => {
       const polySegment = Turf.multiLineString([
         translateFromOpenlayersCoordinates(set),
       ])
-      return Turf.buffer(polySegment, bufferWidth, 'meters').geometry
-        .coordinates
+      const bufferPolygons = Turf.buffer(
+        polySegment,
+        bufferWidth,
+        'meters'
+      ).geometry.coordinates.map(set => {
+        return Turf.polygon([set])
+      })
+      return Turf.union(...bufferPolygons).geometry.coordinates
     })
 
-    const geometryRepresentation =
-      (segments && new ol.geom.MultiPolygon(segments)) || coordinates
+    const bufferGeometryRepresentation =
+      (bufferPolygonSegments &&
+        new ol.geom.MultiPolygon(bufferPolygonSegments)) ||
+      coordinates
+
+    const drawnGeometryRepresentation =
+      (drawnPolygonSegments &&
+        new ol.geom.MultiPolygon(drawnPolygonSegments)) ||
+      coordinates
 
     this.billboard = new ol.Feature({
-      geometry: geometryRepresentation,
+      geometry: bufferGeometryRepresentation,
     })
 
     this.billboard.setId(this.model.cid)
 
+    const drawnPolygonFeature = new ol.Feature({
+      geometry: drawnGeometryRepresentation,
+    })
+
     const color = this.model.get('color')
 
-    const iconStyle = new ol.style.Style({
+    const bufferPolygonIconStyle = new ol.style.Style({
       stroke: new ol.style.Stroke({
         color: color ? color : '#914500',
         width: 3,
       }),
+      zIndex: 1,
     })
-    this.billboard.setStyle(iconStyle)
+
+    const drawnPolygonIconStyle = new ol.style.Style({
+      stroke: new ol.style.Stroke({
+        color: color ? color : '#914500',
+        width: 2,
+        lineDash: [10, 5],
+      }),
+      zIndex: 0,
+    })
+
+    this.billboard.setStyle(bufferPolygonIconStyle)
+    drawnPolygonFeature.setStyle(drawnPolygonIconStyle)
 
     const vectorSource = new ol.source.Vector({
-      features: [this.billboard],
+      features: [this.billboard, drawnPolygonFeature],
     })
 
     const vectorLayer = new ol.layer.Vector({
