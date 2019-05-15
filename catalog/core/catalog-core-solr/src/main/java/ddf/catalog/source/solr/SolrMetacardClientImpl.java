@@ -66,8 +66,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -79,6 +77,7 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SpellCheckResponse.Collation;
+import org.apache.solr.client.solrj.response.SpellCheckResponse.Suggestion;
 import org.apache.solr.client.solrj.response.SuggesterResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -128,7 +127,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private final DynamicSchemaResolver resolver;
 
-  private static final String COMMA_DELIMITER = ", ";
+  //  private static final String COMMA_DELIMITER = ", ";
 
   private static final Supplier<Boolean> ZERO_PAGESIZE_COMPATIBILTY =
       () -> Boolean.valueOf(System.getProperty(ZERO_PAGESIZE_COMPATIBILITY_PROPERTY));
@@ -142,10 +141,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private final int commitNrtCommitWithinMs =
       Math.max(NumberUtils.toInt(accessProperty(SOLR_COMMIT_NRT_COMMITWITHINMS, "1000")), 0);
-
-  private final String spellcheckRegex = ":\"(.*?[^\\\"])\"";
-
-  private final Pattern spellcheckPattern = Pattern.compile(spellcheckRegex);
 
   public SolrMetacardClientImpl(
       SolrClient client,
@@ -262,9 +257,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
           totalHits = docs.getNumFound();
           addDocsToResults(docs, results);
         }
-
-        List<String> solrQuery = parseSpellcheckedQuery(query.get("q"));
-        responseProps.put("query", (Serializable) solrQuery);
+        responseProps.put("query", (Serializable) getSearchTermFieldValues(solrResponse));
       }
 
       if (isFacetedQuery) {
@@ -283,26 +276,16 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     return new SourceResponseImpl(request, responseProps, results, totalHits);
   }
 
-  private List<String> parseSpellcheckedQuery(String query) {
-    Matcher matcher = spellcheckPattern.matcher(query);
-
-    List<String> spellcheckedValues = new ArrayList<>();
-    while (matcher.find()) {
-      spellcheckedValues.add(matcher.group(1) + COMMA_DELIMITER);
-    }
-    removeDefaultResourcesQuery(spellcheckedValues);
-    String lastValueNoCommaDelimeter = spellcheckedValues.get(spellcheckedValues.size() - 1);
-    spellcheckedValues.set(
-        spellcheckedValues.size() - 1,
-        lastValueNoCommaDelimeter.substring(
-            0, lastValueNoCommaDelimeter.length() - COMMA_DELIMITER.length()));
-    return spellcheckedValues;
+  private List<String> getSearchTermFieldValues(QueryResponse solrResponse) {
+    Map<String, Suggestion> suggestions = solrResponse.getSpellCheckResponse().getSuggestionMap();
+    Set<String> fieldValues = suggestions.keySet();
+    removeResourceFieldValue(fieldValues);
+    return new ArrayList<>(fieldValues);
   }
 
-  private void removeDefaultResourcesQuery(List<String> spellcheckedValues) {
-    String resource = "resource's" + COMMA_DELIMITER;
-    if (spellcheckedValues.contains(resource)) {
-      spellcheckedValues.remove(resource);
+  private void removeResourceFieldValue(Set<String> fieldValues) {
+    if (fieldValues.contains("resource")) {
+      fieldValues.remove("resource");
     }
   }
 
