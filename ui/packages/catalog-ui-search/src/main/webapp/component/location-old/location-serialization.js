@@ -1,5 +1,3 @@
-const wkx = require('wkx')
-const DistanceUtils = require('../../js/DistanceUtils')
 const plugin = require('plugins/location-serialization')
 
 const LineString = {

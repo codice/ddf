@@ -13,21 +13,7 @@
  *
  **/
 
-const wreqr = require('../../../js/wreqr.js')
-const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
-const CustomElements = require('../../../js/CustomElements.js')
 const ContentView = require('../content.view')
-const properties = require('../../../js/properties.js')
-const WorkspaceContentTabs = require('../../tabs/workspace-content/tabs-workspace-content.js')
-const WorkspaceContentTabsView = require('../../tabs/workspace-content/tabs-workspace-content.view.js')
-const QueryTabsView = require('../../tabs/query/tabs-query.view.js')
-const store = require('../../../js/store.js')
-const MetacardTabsView = require('../../tabs/metacard/tabs-metacard.view.js')
-const MetacardsTabsView = require('../../tabs/metacards/tabs-metacards.view.js')
-const Common = require('../../../js/Common.js')
-const MetacardTitleView = require('../../metacard-title/metacard-title.view.js')
 const uploadInstance = require('../../upload/upload.js')
 const ResultSelectorView = require('../../result-selector/result-selector.view.js')
 const VisualizationView = require('../../golden-layout/golden-layout.view.js')

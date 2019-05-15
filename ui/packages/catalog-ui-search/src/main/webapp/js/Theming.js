@@ -12,10 +12,8 @@
 
 const $ = require('jquery')
 const wreqr = require('./wreqr.js')
-const _ = require('underscore')
 const user = require('../component/singletons/user-instance.js')
 const preferences = user.get('user').get('preferences')
-const Less = require('less')
 let lessStyles = require('./uncompiled-less.unless')
 const variableRegex = '/@(.*:[^;]*)/g'
 const variableRegexPrefix = '@'

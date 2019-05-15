@@ -22,7 +22,6 @@ const CustomElements = require('../../js/CustomElements.js')
 const Dropzone = require('dropzone')
 const UploadItemCollectionView = require('../upload-item/upload-item.collection.view.js')
 const UploadBatchModel = require('../../js/model/UploadBatch.js')
-const userInstance = require('../singletons/user-instance.js')
 const Common = require('../../js/Common.js')
 const UploadSummary = require('../upload-summary/upload-summary.view.js')
 

@@ -13,9 +13,6 @@
  *
  **/
 
-const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.show-attribute.hbs')
 const ShowAttributeView = require('../../show-attribute/show-attribute.view.js')

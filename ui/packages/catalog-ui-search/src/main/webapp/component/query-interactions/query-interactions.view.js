@@ -16,7 +16,6 @@
 const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
-const $ = require('jquery')
 import * as React from 'react'
 const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')

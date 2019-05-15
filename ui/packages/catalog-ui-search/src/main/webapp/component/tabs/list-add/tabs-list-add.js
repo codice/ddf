@@ -10,9 +10,7 @@
  *
  **/
 
-const _ = require('underscore')
 const Tabs = require('../tabs')
-const store = require('../../../js/store.js')
 const IngestView = require('../../ingest/ingest.view.js')
 const BuilderView = require('../../builder/builder.view.js')
 

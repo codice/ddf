@@ -13,15 +13,11 @@
  *
  **/
 
-const Backbone = require('backbone')
 const Marionette = require('marionette')
 const wreqr = require('../../js/wreqr.js')
 const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./associations-graph.hbs')
 const CustomElements = require('../../js/CustomElements.js')
-const store = require('../../js/store.js')
-const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
 const AssociationView = require('../association/association.view.js')
 const Association = require('../association/association.js')
 const Vis = require('vis')

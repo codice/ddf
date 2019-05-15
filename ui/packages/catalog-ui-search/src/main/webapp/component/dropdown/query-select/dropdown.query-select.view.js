@@ -13,12 +13,8 @@
  *
  **/
 
-const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.query-select.hbs')
-const ComponentView = require('../../query-select/query-select.view.js')
 const QueryItemView = require('../../query-item/query-item.view.js')
 const SearchSelectView = require('../../search-select/search-select.view.js')
 const store = require('../../../js/store.js')

@@ -13,15 +13,10 @@
  *
  **/
 
-const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./confirmation.query.hbs')
 const ConfirmationView = require('../confirmation.view')
-const CustomElements = require('../../../js/CustomElements.js')
 const QuerySelectDropdown = require('../../dropdown/query-select/dropdown.query-select.view.js')
 const DropdownModel = require('../../dropdown/dropdown.js')
-const store = require('../../../js/store.js')
 
 module.exports = ConfirmationView.extend({
   template: template,

@@ -13,7 +13,6 @@
  *
  **/
 
-const Marionette = require('marionette')
 const InputView = require('../input.view')
 const template = require('./input-autocomplete.hbs')
 const _ = require('underscore')

@@ -10,10 +10,7 @@
  *
  **/
 
-const $ = require('jquery')
 const Backbone = require('backbone')
-const poller = require('backbone-poller')
-const _ = require('underscore')
 const WorkspaceCollection = require('./model/Workspace.collection.js')
 const Content = require('../component/content/content.js')
 const router = require('../component/router/router.js')

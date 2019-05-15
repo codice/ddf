@@ -13,9 +13,7 @@
  *
  **/
 
-const $ = require('jquery')
 const _ = require('underscore')
-const Marionette = require('marionette')
 const template = require('./input-with-param.hbs')
 const InputView = require('../input.view')
 

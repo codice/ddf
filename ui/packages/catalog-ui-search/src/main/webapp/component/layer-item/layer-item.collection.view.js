@@ -13,10 +13,7 @@
  *
  **/
 /* global require*/
-const _ = require('underscore')
 const Marionette = require('marionette')
-const Backbone = require('backbone')
-const $ = require('jquery')
 const CustomElements = require('../../js/CustomElements.js')
 const Sortable = require('sortablejs')
 

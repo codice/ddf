@@ -13,10 +13,7 @@
  *
  **/
 
-const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./workspace-details.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const moment = require('moment')

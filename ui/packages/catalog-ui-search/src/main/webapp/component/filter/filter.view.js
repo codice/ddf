@@ -25,7 +25,6 @@ const DropdownView = require('../dropdown/dropdown.view.js')
 const RelativeTimeView = require('../relative-time/relative-time.view.js')
 const BetweenTimeView = require('../between-time/between-time.view.js')
 const ValueModel = require('../value/value.js')
-const CQLUtils = require('../../js/CQLUtils.js')
 const properties = require('../../js/properties.js')
 const Common = require('../../js/Common.js')
 import {

@@ -13,12 +13,7 @@
  *
  **/
 
-const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./input-enum.hbs')
-const CustomElements = require('../../../js/CustomElements.js')
-const Common = require('../../../js/Common.js')
 const InputView = require('../input.view')
 const DropdownView = require('../../dropdown/dropdown.view.js')
 const moment = require('moment')

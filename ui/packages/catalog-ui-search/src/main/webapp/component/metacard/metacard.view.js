@@ -13,10 +13,8 @@
  *
  **/
 
-const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
-const $ = require('jquery')
 const template = require('./metacard.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const metacardInstance = require('./metacard.js')

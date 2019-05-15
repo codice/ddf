@@ -13,8 +13,6 @@
  *
  **/
 
-const Marionette = require('marionette')
-const _ = require('underscore')
 const $ = require('jquery')
 const DropdownCompanionView = require('../dropdown.companion.view')
 const CustomElements = require('../../../js/CustomElements.js')

@@ -15,7 +15,6 @@
 
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
-const properties = require('properties')
 import * as React from 'react'
 import { FormattedMessage } from 'react-intl'
 

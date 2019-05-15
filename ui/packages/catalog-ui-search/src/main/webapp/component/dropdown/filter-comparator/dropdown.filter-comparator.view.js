@@ -13,9 +13,6 @@
  *
  **/
 
-const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.filter-comparator.hbs')
 const ComponentView = require('../../filter-comparator/filter-comparator.view.js')

@@ -15,7 +15,6 @@
 
 const Marionette = require('marionette')
 const _ = require('underscore')
-const $ = require('jquery')
 const CustomElements = require('../../js/CustomElements.js')
 const Sortable = require('sortablejs')
 

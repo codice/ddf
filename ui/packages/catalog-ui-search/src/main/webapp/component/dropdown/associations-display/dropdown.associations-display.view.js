@@ -13,7 +13,6 @@
  *
  **/
 
-const Marionette = require('marionette')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.associations-display.hbs')
 

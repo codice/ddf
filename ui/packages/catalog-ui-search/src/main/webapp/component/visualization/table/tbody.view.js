@@ -13,12 +13,8 @@
  *
  **/
 
-const wreqr = require('../../../js/wreqr.js')
-const $ = require('jquery')
-const _ = require('underscore')
 const Marionette = require('marionette')
 const CustomElements = require('../../../js/CustomElements.js')
-const Common = require('../../../js/Common.js')
 const RowView = require('./row.view')
 require('../../../behaviors/selection.behavior.js')
 

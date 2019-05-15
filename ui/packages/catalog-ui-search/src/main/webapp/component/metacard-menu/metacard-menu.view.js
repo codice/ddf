@@ -16,7 +16,6 @@
 const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const Backbone = require('backbone')
-const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./metacard-menu.hbs')
 const CustomElements = require('../../js/CustomElements.js')

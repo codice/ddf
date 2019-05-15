@@ -18,7 +18,6 @@ const CustomElements = require('../../js/CustomElements.js')
 const template = require('./notification-group.hbs')
 const NotificationListView = require('../notification-list/notification-list.view.js')
 const userNotifications = require('../singletons/user-notifications.js')
-const user = require('../singletons/user-instance.js')
 const $ = require('jquery')
 const Common = require('../../js/Common.js')
 

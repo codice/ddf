@@ -15,8 +15,6 @@
 
 const Marionette = require('marionette')
 const _ = require('underscore')
-const $ = require('jquery')
-const store = require('../../js/store.js')
 const template = require('./ingest-editor.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const PropertyCollectionView = require('../property/property.collection.view.js')

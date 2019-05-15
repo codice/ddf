@@ -10,7 +10,6 @@
  *
  **/
 const Backbone = require('backbone')
-const _ = require('underscore')
 require('backbone-associations')
 
 const MetacardPropertiesModel = require('./MetacardProperties.js')

@@ -13,13 +13,9 @@
  *
  **/
 
-const Marionette = require('marionette')
-const _ = require('underscore')
-const $ = require('jquery')
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.search-interactions.hbs')
 const ComponentView = require('../../search-interactions/search-interactions.view.js')
-const store = require('../../../js/store.js')
 
 module.exports = DropdownView.extend({
   template: template,

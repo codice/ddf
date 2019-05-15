@@ -13,14 +13,11 @@
  *
  **/
 
-const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
 const template = require('./input-date.hbs')
-const CustomElements = require('../../../js/CustomElements.js')
 const moment = require('moment-timezone')
 const InputView = require('../input.view')
-const Common = require('../../../js/Common.js')
 const user = require('../../singletons/user-instance.js')
 require('eonasdan-bootstrap-datetimepicker')
 

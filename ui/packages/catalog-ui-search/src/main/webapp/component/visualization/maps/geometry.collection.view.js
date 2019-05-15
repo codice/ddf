@@ -10,9 +10,7 @@
  *
  **/
 
-const Backbone = require('backbone')
 const Marionette = require('marionette')
-const $ = require('jquery')
 const _ = require('underscore')
 const store = require('../../../js/store.js')
 const GeometryView = require('./geometry.view')
