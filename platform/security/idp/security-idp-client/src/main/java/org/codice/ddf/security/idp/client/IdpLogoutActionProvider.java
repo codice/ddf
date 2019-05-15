@@ -21,7 +21,6 @@ import ddf.security.encryption.EncryptionService;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Map;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
@@ -38,41 +37,41 @@ public class IdpLogoutActionProvider implements ActionProvider {
   private static final String DESCRIPTION =
       "Logging out of the Identity Provider(IDP) realm will logout all external accounts signed in to that Identity Provider.";
 
-  EncryptionService encryptionService;
+  private static final String SAML_TYPE_START =
+      "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1";
+
+  private EncryptionService encryptionService;
 
   /**
    * *
    *
    * @param <T> is a Map<String, Subject>
-   * @param realmSubjectMap containing a realm of "idp" with the corresponding subject
+   * @param subject the corresponding subject
    * @return IdpLogoutActionProvider containing the logout url
    */
-  public <T> Action getAction(T realmSubjectMap) {
-    if (!canHandle(realmSubjectMap)) {
+  public <T> Action getAction(T subject) {
+    if (!canHandle(subject)) {
       return null;
     }
 
     String logoutUrlString = "";
     URL logoutUrl = null;
-    if (realmSubjectMap instanceof Map) {
-      try {
+    try {
 
-        @SuppressWarnings("unchecked")
-        String nameId =
-            SubjectUtils.getName((Subject) ((Map) realmSubjectMap).get("idp"), "You", true);
+      @SuppressWarnings("unchecked")
+      String nameId = SubjectUtils.getName((Subject) subject, "You", true);
 
-        String nameIdTimestamp = nameId + "\n" + System.currentTimeMillis();
-        nameIdTimestamp = URLEncoder.encode(encryptionService.encrypt(nameIdTimestamp));
-        logoutUrlString =
-            SystemBaseUrl.EXTERNAL.constructUrl(
-                "/saml/logout/request?EncryptedNameIdTime=" + nameIdTimestamp, true);
-        logoutUrl = new URL(logoutUrlString);
+      String nameIdTimestamp = nameId + "\n" + System.currentTimeMillis();
+      nameIdTimestamp = URLEncoder.encode(encryptionService.encrypt(nameIdTimestamp));
+      logoutUrlString =
+          SystemBaseUrl.EXTERNAL.constructUrl(
+              "/saml/logout/request?EncryptedNameIdTime=" + nameIdTimestamp, true);
+      logoutUrl = new URL(logoutUrlString);
 
-      } catch (MalformedURLException e) {
-        LOGGER.info("Unable to resolve URL: {}", logoutUrlString);
-      } catch (ClassCastException e) {
-        LOGGER.debug("Unable to cast parameter to Map<String, Subject>, {}", realmSubjectMap, e);
-      }
+    } catch (MalformedURLException e) {
+      LOGGER.info("Unable to resolve URL: {}", logoutUrlString);
+    } catch (ClassCastException e) {
+      LOGGER.debug("Unable to cast parameter to Subject, {}", subject, e);
     }
     return new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl);
   }
@@ -87,6 +86,10 @@ public class IdpLogoutActionProvider implements ActionProvider {
   }
 
   private <T> boolean canHandle(T subject) {
-    return subject instanceof Map;
+    if (subject instanceof Subject) {
+      String type = SubjectUtils.getType((Subject) subject);
+      return type != null && type.startsWith(SAML_TYPE_START);
+    }
+    return false;
   }
 }

@@ -56,6 +56,8 @@ public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
   @BeforeExam
   public void beforeExam() throws Exception {
     waitForSystemReady();
+    getSecurityPolicy().configureRestForGuest();
+    waitForSystemReady();
   }
 
   @After

@@ -17,15 +17,17 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import ddf.action.Action;
+import ddf.action.ActionProvider;
+import ddf.action.impl.ActionImpl;
 import ddf.security.SecurityConstants;
 import ddf.security.common.SecurityTokenHolder;
 import ddf.security.http.SessionFactory;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.MalformedURLException;
+import java.net.URL;
 import javax.servlet.http.HttpSession;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -43,11 +45,6 @@ public class LogoutServiceImplTest {
 
   @BeforeClass
   public static void initialize() {
-
-    Map<String, SecurityToken> realmTokenMap = new HashMap<>();
-    realmTokenMap.put("karaf", new SecurityToken());
-    realmTokenMap.put("ldap", new SecurityToken());
-
     sessionFactory = mock(SessionFactory.class);
     HttpSession httpSession = mock(HttpSession.class);
     SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
@@ -56,42 +53,48 @@ public class LogoutServiceImplTest {
     when(sessionFactory.getOrCreateSession(null)).thenReturn(httpSession);
     when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION))
         .thenReturn(securityTokenHolder);
-    when(securityTokenHolder.getRealmTokenMap()).thenReturn(realmTokenMap);
+    when(securityTokenHolder.getSecurityToken()).thenReturn(new SecurityToken());
   }
 
   @Test
   public void testLogout() throws ParseException, SecurityServiceException {
-    KarafLogoutAction karafLogoutActionProvider = new KarafLogoutAction();
-    LdapLogoutAction ldapLogoutActionProvider = new LdapLogoutAction();
-    Action karafLogoutAction = karafLogoutActionProvider.getAction(null);
-    Action ldapLogoutAction = ldapLogoutActionProvider.getAction(null);
+    MockLogoutAction mockLogoutActionProvider = new MockLogoutAction();
+    Action defaultLogoutAction = mockLogoutActionProvider.getAction(null);
 
     LogoutServiceImpl logoutServiceImpl = new LogoutServiceImpl();
     logoutServiceImpl.setHttpSessionFactory(sessionFactory);
     logoutServiceImpl.setSecurityManager(sm);
-    logoutServiceImpl.setLogoutActionProviders(
-        Arrays.asList(karafLogoutActionProvider, ldapLogoutActionProvider));
+    logoutServiceImpl.setLogoutActionProviders(ImmutableList.of(mockLogoutActionProvider));
 
     String responseMessage = logoutServiceImpl.getActionProviders(null);
 
     JSONArray actionProperties = (JSONArray) new JSONParser().parse(responseMessage);
-    assertEquals(2, actionProperties.size());
-    JSONObject karafActionProperty = ((JSONObject) actionProperties.get(0));
+    assertEquals(1, actionProperties.size());
+    JSONObject defaultActionProperty = ((JSONObject) actionProperties.get(0));
 
-    assertEquals(karafActionProperty.get("description"), karafLogoutAction.getDescription());
-    assertEquals(
-        karafActionProperty.get("realm"),
-        karafLogoutAction.getId().substring(karafLogoutAction.getId().lastIndexOf(".") + 1));
-    assertEquals(karafActionProperty.get("title"), karafLogoutAction.getTitle());
-    assertEquals(karafActionProperty.get("url"), karafLogoutAction.getUrl().toString());
+    assertEquals(defaultActionProperty.get("description"), defaultLogoutAction.getDescription());
+    assertEquals(defaultActionProperty.get("title"), defaultLogoutAction.getTitle());
+    assertEquals(defaultActionProperty.get("url"), defaultLogoutAction.getUrl().toString());
+  }
 
-    JSONObject ldapActionProperty = ((JSONObject) actionProperties.get(1));
+  public class MockLogoutAction implements ActionProvider {
 
-    assertEquals(ldapActionProperty.get("description"), ldapLogoutAction.getDescription());
-    assertEquals(
-        ldapActionProperty.get("realm"),
-        ldapLogoutAction.getId().substring(ldapLogoutAction.getId().lastIndexOf(".") + 1));
-    assertEquals(ldapActionProperty.get("title"), ldapLogoutAction.getTitle());
-    assertEquals(ldapActionProperty.get("url"), ldapLogoutAction.getUrl().toString());
+    @Override
+    public <T> Action getAction(T subject) {
+      try {
+        return new ActionImpl(
+            "security.logout.test",
+            "Test Logout",
+            "Test",
+            new URL("https://localhost:8993/logout/test"));
+      } catch (MalformedURLException e) {
+        return null;
+      }
+    }
+
+    @Override
+    public String getId() {
+      return "security.logout.test";
+    }
   }
 }

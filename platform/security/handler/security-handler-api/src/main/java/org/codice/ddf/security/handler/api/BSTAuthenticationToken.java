@@ -43,8 +43,6 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
 
   protected static final String BST_CREDENTIALS = "Credentials:";
 
-  protected static final String BST_REALM = "Realm:";
-
   protected static final String NEWLINE = "\n";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BSTAuthenticationToken.class);
@@ -57,11 +55,7 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
   protected String tokenId = BST_LN;
 
   public BSTAuthenticationToken(Object principal, Object credentials) {
-    this(principal, credentials, DEFAULT_REALM);
-  }
-
-  public BSTAuthenticationToken(Object principal, Object credentials, String realm) {
-    super(principal, realm, credentials);
+    super(principal, credentials);
   }
 
   private static JAXBContext initContext() {
@@ -76,8 +70,8 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
   /**
    * Creates an instance of BaseAuthenticationToken by parsing the given credential string. The
    * passed boolean indicates if the provided credentials are encoded or not. If the string contains
-   * the necessary components (username, password, realm), a new instance of BaseAuthenticationToken
-   * is created and initialized with the credentials. If not, a null value is returned.
+   * the necessary components (username and password), a new instance of BaseAuthenticationToken is
+   * created and initialized with the credentials. If not, a null value is returned.
    *
    * @param stringBST unencoded credentials string
    * @return initialized username/password token if parsed successfully, null otherwise
@@ -93,12 +87,11 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
             : stringBST;
     if (!StringUtils.isEmpty(unencodedCreds) && unencodedCreds.startsWith(BST_PRINCIPAL)) {
       String[] components = unencodedCreds.split(NEWLINE);
-      if (components.length == 3) {
+      if (components.length == 2) {
         String p = parseComponent(components[0], BST_PRINCIPAL);
         String c = parseComponent(components[1], BST_CREDENTIALS);
-        String r = parseComponent(components[2], BST_REALM);
 
-        baseAuthenticationToken = new BaseAuthenticationToken(p, r, c);
+        baseAuthenticationToken = new BaseAuthenticationToken(p, c);
       }
     }
 
@@ -131,9 +124,6 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
     builder.append(NEWLINE);
     builder.append(BST_CREDENTIALS);
     builder.append(getCredentials());
-    builder.append(NEWLINE);
-    builder.append(BST_REALM);
-    builder.append(getRealm());
     String retVal = builder.toString();
     if (LOGGER.isTraceEnabled()) {
       String[] lines = retVal.split(NEWLINE);
@@ -153,7 +143,7 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
 
     BinarySecurityTokenType binarySecurityTokenType = createBinarySecurityTokenType(credential);
     JAXBElement<BinarySecurityTokenType> binarySecurityTokenElement =
-        new JAXBElement<BinarySecurityTokenType>(
+        new JAXBElement<>(
             new QName(
                 "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
                 "BinarySecurityToken"),

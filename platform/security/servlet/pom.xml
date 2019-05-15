@@ -27,6 +27,7 @@
         <module>security-servlet-logout-service</module>
         <module>security-servlet-logout</module>
         <module>security-servlet-logout-endpoint</module>
+        <module>security-servlet-default-logout</module>
         <module>security-servlet-whoami</module>
         <module>security-servlet-session-expiry</module>
     </modules>

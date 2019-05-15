@@ -24,9 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.UPAuthenticationToken;
-import org.codice.ddf.security.policy.context.ContextPolicy;
-import org.codice.ddf.security.policy.context.ContextPolicyManager;
+import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.codice.ddf.security.rest.authentication.service.AuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,19 +33,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
-  private ContextPolicyManager contextPolicyManager;
-
   private SecurityManager securityManager;
 
   private SessionFactory sessionFactory;
 
-  public AuthenticationServiceImpl(
-      ContextPolicyManager policyManager,
-      SecurityManager securityManager,
-      SessionFactory sessionFactory) {
-    this.contextPolicyManager = policyManager;
+  private BaseAuthenticationTokenFactory tokenFactory;
+
+  public AuthenticationServiceImpl(SecurityManager securityManager, SessionFactory sessionFactory) {
     this.securityManager = securityManager;
     this.sessionFactory = sessionFactory;
+    tokenFactory = new BaseAuthenticationTokenFactory();
   }
 
   @Override
@@ -64,16 +59,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       session.invalidate();
     }
 
-    // Get the realm from the previous url
-    String realm = BaseAuthenticationToken.DEFAULT_REALM;
-    ContextPolicy policy = contextPolicyManager.getContextPolicy(prevurl);
-    if (policy != null) {
-      realm = policy.getRealm();
-    }
-
     // Create an authentication token
-    UPAuthenticationToken authenticationToken =
-        new UPAuthenticationToken(username, password, realm);
+    BaseAuthenticationToken authenticationToken =
+        tokenFactory.fromUsernamePassword(username, password);
 
     // Authenticate
     Subject subject = securityManager.getSubject(authenticationToken);
@@ -94,7 +82,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         session = sessionFactory.getOrCreateSession(request);
         SecurityTokenHolder holder =
             (SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION);
-        holder.addSecurityToken(realm, securityToken);
+        holder.setSecurityToken(securityToken);
       }
     }
   }

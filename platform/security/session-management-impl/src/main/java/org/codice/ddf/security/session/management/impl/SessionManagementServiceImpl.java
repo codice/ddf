@@ -22,9 +22,6 @@ import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.net.URI;
 import java.time.Clock;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -58,28 +55,18 @@ public class SessionManagementServiceImpl implements SessionManagementService {
   @Override
   public String getRenewal(HttpServletRequest request) {
     HttpSession session = request.getSession(false);
-    boolean[] securityServiceExceptionThrown = new boolean[1];
-    securityServiceExceptionThrown[0] = false;
 
     String timeLeft = null;
     if (session != null) {
       Object securityToken = session.getAttribute(SecurityConstants.SAML_ASSERTION);
       if (securityToken instanceof SecurityTokenHolder) {
         SecurityTokenHolder tokenHolder = (SecurityTokenHolder) securityToken;
-        Map<String, SecurityToken> realmTokenMap = tokenHolder.getRealmTokenMap();
-        realmTokenMap
-            .keySet()
-            .forEach(
-                s -> {
-                  try {
-                    doRenew(s, realmTokenMap.get(s), tokenHolder);
-                  } catch (SecurityServiceException e) {
-                    securityServiceExceptionThrown[0] = true;
-                    LOGGER.error("Failed to renew", e);
-                  }
-                });
+        SecurityToken token = tokenHolder.getSecurityToken();
 
-        if (securityServiceExceptionThrown[0]) {
+        try {
+          doRenew(token, tokenHolder);
+        } catch (SecurityServiceException e) {
+          LOGGER.error("Failed to renew", e);
           return null;
         }
 
@@ -99,26 +86,20 @@ public class SessionManagementServiceImpl implements SessionManagementService {
   }
 
   private long getTimeLeft(SecurityTokenHolder securityToken) {
-    return securityToken
-        .getRealmTokenMap()
-        .values()
-        .stream()
-        .map(SecurityAssertionImpl::new)
-        .map(SecurityAssertionImpl::getNotOnOrAfter)
-        .map(Date::getTime)
-        .min(Comparator.comparing(Long::valueOf))
-        .map(m -> Math.max(m - clock.millis(), 0))
-        .orElse(0L);
+    SecurityAssertionImpl securityAssertion =
+        new SecurityAssertionImpl(securityToken.getSecurityToken());
+    long time = securityAssertion.getNotOnOrAfter().getTime();
+    return Math.max(time - clock.millis(), 0);
   }
 
-  private void doRenew(String realm, SecurityToken securityToken, SecurityTokenHolder tokenHolder)
+  private void doRenew(SecurityToken securityToken, SecurityTokenHolder tokenHolder)
       throws SecurityServiceException {
     SAMLAuthenticationToken samlToken =
-        new SAMLAuthenticationToken(securityToken.getPrincipal(), securityToken, realm);
+        new SAMLAuthenticationToken(securityToken.getPrincipal(), securityToken);
     Subject subject = securityManager.getSubject(samlToken);
     for (Object principal : subject.getPrincipals().asList()) {
       if (principal instanceof SecurityAssertion) {
-        tokenHolder.addSecurityToken(realm, ((SecurityAssertion) principal).getSecurityToken());
+        tokenHolder.setSecurityToken(((SecurityAssertion) principal).getSecurityToken());
       }
     }
   }

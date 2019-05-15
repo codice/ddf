@@ -21,7 +21,6 @@ import ddf.security.principal.GuestPrincipal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.apache.cxf.sts.request.ReceivedToken;
@@ -54,8 +53,6 @@ public class GuestValidator implements TokenValidator {
                 }
               });
 
-  private List<String> supportedRealm;
-
   private GuestAuthenticationToken getGuestTokenFromTarget(ReceivedToken validateTarget) {
     Object token = validateTarget.getToken();
     if ((token instanceof BinarySecurityTokenType)
@@ -65,7 +62,6 @@ public class GuestValidator implements TokenValidator {
       try {
         BaseAuthenticationToken base = GuestAuthenticationToken.parse(credential, true);
         return new GuestAuthenticationToken(
-            base.getRealm(),
             GuestAuthenticationToken.parseAddressFromName(base.getPrincipal().toString()));
       } catch (WSSecurityException e) {
         LOGGER.info(
@@ -94,22 +90,11 @@ public class GuestValidator implements TokenValidator {
   @Override
   public boolean canHandleToken(ReceivedToken validateTarget, String realm) {
     GuestAuthenticationToken guestToken = getGuestTokenFromTarget(validateTarget);
-    // currently realm is not being passed through (no RealmParser that determines the realm
-    // based on the web context. So this just looks at the realm passed in the credentials.
-    // This generic instance just looks for the default realms (DDF and Karaf)
     if (guestToken != null) {
-      if (guestToken.getRealm() == null) {
-        LOGGER.trace("No realm specified in request, canHandletoken = true");
-        return true;
-      } else {
-        if (supportedRealm.contains(guestToken.getRealm()) || "*".equals(guestToken.getRealm())) {
-          LOGGER.trace("Realm '{}' recognized - canHandleToken = true", guestToken.getRealm());
-          return true;
-        } else {
-          LOGGER.trace("Realm '{}' unrecognized - canHandleToken = false", guestToken.getRealm());
-        }
-      }
+      LOGGER.trace("Guest token extracted - canHandleToken = true");
+      return true;
     }
+    LOGGER.trace("Cannot extract guest token - canHandleToken = false");
     return false;
   }
 
@@ -128,29 +113,12 @@ public class GuestValidator implements TokenValidator {
       response.getAdditionalProperties().put(IP_ADDRESS_CLAIMS_KEY, guestToken.getIpAddress());
       response.setPrincipal(new GuestPrincipal(cache.getUnchecked(guestToken.getIpAddress())));
 
-      if (guestToken.getRealm() != null) {
-        if ((supportedRealm.contains(guestToken.getRealm()) || "*".equals(guestToken.getRealm()))
-            && guestToken.getCredentials().equals(GuestAuthenticationToken.GUEST_CREDENTIALS)
-            && validIpAddress(guestToken.getIpAddress())) {
-          validateTarget.setState(ReceivedToken.STATE.VALID);
-          validateTarget.setPrincipal(new GuestPrincipal(guestToken.getIpAddress()));
-        }
-      } else if (guestToken.getCredentials().equals(GuestAuthenticationToken.GUEST_CREDENTIALS)
+      if (guestToken.getCredentials().equals(GuestAuthenticationToken.GUEST_CREDENTIALS)
           && validIpAddress(guestToken.getIpAddress())) {
         validateTarget.setState(ReceivedToken.STATE.VALID);
         validateTarget.setPrincipal(new GuestPrincipal(guestToken.getIpAddress()));
       }
     }
     return response;
-  }
-
-  /**
-   * Set the realm that this validator supports. This can be used to differentiate between two
-   * instances of this validator where each contains a differnent token validator.
-   *
-   * @param supportedRealm string representing the realm supported by this validator
-   */
-  public void setSupportedRealm(List<String> supportedRealm) {
-    this.supportedRealm = supportedRealm;
   }
 }

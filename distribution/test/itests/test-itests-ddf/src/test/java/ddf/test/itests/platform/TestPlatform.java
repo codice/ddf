@@ -56,6 +56,9 @@ public class TestPlatform extends AbstractIntegrationTest {
       getServiceManager().startFeature(true, "metrics-reporting");
       getServiceManager().waitForAllBundles();
       // We need to start the Search UI to test that it redirects properly
+
+      // Must explicitly add basic auth to log in with a username and password
+      getSecurityPolicy().configureRestForBasic();
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
     }
@@ -63,48 +66,61 @@ public class TestPlatform extends AbstractIntegrationTest {
 
   @Test
   public void testLoggingServiceEndpoint() throws Exception {
+    try {
+      getSecurityPolicy().configureRestForBasic();
 
-    Response response =
-        given()
-            .auth()
-            .preemptive()
-            .basic(ADMIN, ADMIN)
-            .header("X-Requested-With", "XMLHttpRequest")
-            .header("Origin", LOGGING_SERVICE_JOLOKIA_URL.getUrl())
-            .expect()
-            .statusCode(200)
-            .when()
-            .get(LOGGING_SERVICE_JOLOKIA_URL.getUrl());
+      Response response =
+          given()
+              .auth()
+              .preemptive()
+              .basic(ADMIN, ADMIN)
+              .header("X-Requested-With", "XMLHttpRequest")
+              .header("Origin", LOGGING_SERVICE_JOLOKIA_URL.getUrl())
+              .expect()
+              .statusCode(200)
+              .when()
+              .get(LOGGING_SERVICE_JOLOKIA_URL.getUrl());
 
-    String bodyString = checkResponseBody(response, LOGGING_SERVICE_JOLOKIA_URL);
+      String bodyString = checkResponseBody(response, LOGGING_SERVICE_JOLOKIA_URL);
 
-    final List events = JsonPath.given(bodyString).get("value");
-    final Map firstEvent = (Map) events.get(0);
-    final String levelOfFirstEvent = firstEvent.get("level").toString();
-    final String unknownLevel = LogEvent.Level.UNKNOWN.getLevel();
-    assertThat(
-        String.format(
-            "The level of an event returned by %s should not be %s",
-            LOGGING_SERVICE_JOLOKIA_URL, unknownLevel),
-        levelOfFirstEvent,
-        not(equalTo(unknownLevel)));
+      final List events = JsonPath.given(bodyString).get("value");
+      final Map firstEvent = (Map) events.get(0);
+      final String levelOfFirstEvent = firstEvent.get("level").toString();
+      final String unknownLevel = LogEvent.Level.UNKNOWN.getLevel();
+      assertThat(
+          String.format(
+              "The level of an event returned by %s should not be %s",
+              LOGGING_SERVICE_JOLOKIA_URL, unknownLevel),
+          levelOfFirstEvent,
+          not(equalTo(unknownLevel)));
+
+    } finally {
+      getSecurityPolicy().configureRestForGuest();
+    }
   }
 
   @Test
-  public void testPlatformMetricsReportGeneration() {
-    Response response =
-        given()
-            .auth()
-            .preemptive()
-            .basic(ADMIN, ADMIN)
-            .header("X-Requested-With", "XMLHttpRequest")
-            .header("Origin", REPORT_GENERATION_URL.getUrl())
-            .expect()
-            .statusCode(200)
-            .when()
-            .get(REPORT_GENERATION_URL.getUrl());
+  public void testPlatformMetricsReportGeneration() throws Exception {
+    try {
+      getSecurityPolicy().configureRestForBasic();
 
-    checkResponseBody(response, REPORT_GENERATION_URL);
+      Response response =
+          given()
+              .auth()
+              .preemptive()
+              .basic(ADMIN, ADMIN)
+              .header("X-Requested-With", "XMLHttpRequest")
+              .header("Origin", REPORT_GENERATION_URL.getUrl())
+              .expect()
+              .statusCode(200)
+              .when()
+              .get(REPORT_GENERATION_URL.getUrl());
+
+      checkResponseBody(response, REPORT_GENERATION_URL);
+
+    } finally {
+      getSecurityPolicy().configureRestForGuest();
+    }
   }
 
   private String checkResponseBody(Response response, DynamicUrl url) {

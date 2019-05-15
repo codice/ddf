@@ -288,7 +288,8 @@ public class TestSpatial extends AbstractIntegrationTest {
   public void beforeExam() throws Exception {
     try {
       waitForSystemReady();
-
+      getSecurityPolicy().configureRestForGuest();
+      waitForSystemReady();
       setupMockServer();
 
       getCatalogBundle().waitForFederatedSource(WFS_11_SOURCE_ID);

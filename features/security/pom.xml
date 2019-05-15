@@ -97,6 +97,21 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-security-jose</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-security-jose-jaxrs</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf.services.sts</groupId>
+            <artifactId>cxf-services-sts-core</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.handler</groupId>
             <artifactId>security-handler-api</artifactId>
             <version>${project.version}</version>
@@ -163,19 +178,10 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-pkivalidator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.sts</groupId>
             <artifactId>security-sts-usernametokenvalidator</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-upbstvalidator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>ddf.security.sts</groupId>
             <artifactId>security-sts-realm</artifactId>
@@ -313,6 +319,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.servlet</groupId>
+            <artifactId>security-servlet-default-logout</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.servlet</groupId>
             <artifactId>security-servlet-session-expiry</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -445,6 +456,16 @@
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore-osgi</artifactId>
+            <version>4.4.10</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient-osgi</artifactId>
+            <version>4.5.6</version>
         </dependency>
         <dependency>
             <groupId>com.google.crypto.tink</groupId>

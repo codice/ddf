@@ -36,8 +36,8 @@ public class GuestAuthenticationToken extends BSTAuthenticationToken {
   public static final String GUEST_TOKEN_VALUE_TYPE =
       BSTAuthenticationToken.BST_NS + BSTAuthenticationToken.TOKEN_VALUE_SEPARATOR + BST_GUEST_LN;
 
-  public GuestAuthenticationToken(String realm, String name) {
-    super(new GuestPrincipal(name), GUEST_CREDENTIALS, realm);
+  public GuestAuthenticationToken(String name) {
+    super(new GuestPrincipal(name), GUEST_CREDENTIALS);
     setTokenValueType(BSTAuthenticationToken.BST_NS, BST_GUEST_LN);
     setTokenId(BST_GUEST_LN);
 
@@ -64,7 +64,7 @@ public class GuestAuthenticationToken extends BSTAuthenticationToken {
         ipAddress = "[" + ipAddress + "]";
       }
     } catch (UnknownHostException e) {
-      LOGGER.debug("Error formatting the ip address, using the unformatted ipaddress", e);
+      LOGGER.debug("Error formatting the ip address, using the unformatted ip address", e);
     }
 
     return ipAddress;
@@ -82,6 +82,6 @@ public class GuestAuthenticationToken extends BSTAuthenticationToken {
 
   @Override
   public String toString() {
-    return String.format("Guest IP: %s; realm: %s", getIpAddress(), realm);
+    return String.format("Guest IP: %s", getIpAddress());
   }
 }

@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.security.logout.service.LogoutService;
@@ -53,37 +52,27 @@ public class LogoutServiceImpl implements LogoutService {
   public String getActionProviders(HttpServletRequest request) throws SecurityServiceException {
 
     HttpSession session = httpSessionFactory.getOrCreateSession(request);
-    Map<String, SecurityToken> realmTokenMap =
+    SecurityToken token =
         ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION))
-            .getRealmTokenMap();
-    Map<String, Subject> realmSubjectMap = new HashMap<>();
+            .getSecurityToken();
 
-    for (Map.Entry<String, SecurityToken> entry : realmTokenMap.entrySet()) {
-      realmSubjectMap.put(entry.getKey(), securityManager.getSubject(entry.getValue()));
-    }
-
-    List<Map<String, String>> realmToPropMaps = new ArrayList<>();
+    Subject subject = securityManager.getSubject(token);
+    List<Map<String, String>> actionPropertiesList = new ArrayList<>();
 
     for (ActionProvider actionProvider : logoutActionProviders) {
-      Action action = actionProvider.getAction(realmSubjectMap);
+      Map<String, String> actionProperties = new HashMap<>();
+      Action action = actionProvider.getAction(subject);
       if (action != null) {
-        String realm = StringUtils.substringAfterLast(action.getId(), ".");
-
-        if (realmTokenMap.get(realm) != null) {
-          Map<String, String> actionProperties = new HashMap<>();
-          String displayName = SubjectUtils.getName(realmSubjectMap.get(realm), "", true);
-
-          actionProperties.put("title", action.getTitle());
-          actionProperties.put("realm", realm);
-          actionProperties.put("auth", displayName);
-          actionProperties.put("description", action.getDescription());
-          actionProperties.put("url", action.getUrl().toString());
-          realmToPropMaps.add(actionProperties);
-        }
+        String displayName = SubjectUtils.getName(subject, "", true);
+        actionProperties.put("title", action.getTitle());
+        actionProperties.put("auth", displayName);
+        actionProperties.put("description", action.getDescription());
+        actionProperties.put("url", action.getUrl().toString());
+        actionPropertiesList.add(actionProperties);
       }
     }
 
-    return GSON.toJson(realmToPropMaps);
+    return GSON.toJson(actionPropertiesList);
   }
 
   public void setHttpSessionFactory(SessionFactory httpSessionFactory) {

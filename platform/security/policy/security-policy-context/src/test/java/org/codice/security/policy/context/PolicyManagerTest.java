@@ -38,10 +38,6 @@ import org.junit.Test;
 /** Test for PolicyManager */
 public class PolicyManagerTest {
 
-  private static final String REALMS = "realms";
-
-  private static final String DEFAULT_REALM_CONTEXT_VALUE = "karaf";
-
   private static final String AUTH_TYPES = "authenticationTypes";
 
   private static final String REQ_ATTRS = "requiredAttributes";
@@ -51,15 +47,6 @@ public class PolicyManagerTest {
   private PolicyManager manager;
 
   private PolicyManager rollBackTestManager;
-
-  private String[] rollBackRealmValues = {
-    "/=" + DEFAULT_REALM_CONTEXT_VALUE,
-    "/A=a",
-    "/A/B/C/testContext4=abcTestContext4",
-    "/testContext5=karaf",
-    "/1/2/3/testContext6=" + DEFAULT_REALM_CONTEXT_VALUE,
-    "/A/B/C/testContext7=" + DEFAULT_REALM_CONTEXT_VALUE
-  };
 
   private String[] rollBackAuthTypesValues = {
     "/=SAML|GUEST", "/A=a", "/A/B/C/testContext4=abcTestContext4"
@@ -74,14 +61,6 @@ public class PolicyManagerTest {
     "/A/B/C/testContext4=",
     "/A/B/C/testContext8={AbcTestContext8=abcTestContext8}"
   };
-
-  private final Map<String, String> expectedRollBackRealms =
-      new ImmutableMap.Builder<String, String>()
-          .put("/testContext", DEFAULT_REALM_CONTEXT_VALUE)
-          .put("/1/2/3/testContext2", DEFAULT_REALM_CONTEXT_VALUE)
-          .put("/A/B/C/testContext3", "a")
-          .put("/A/B/C/testContext4", "abcTestContext4")
-          .build();
 
   private final Map<String, List<String>> expectedRollBackAuthTypes =
       new ImmutableMap.Builder<String, List<String>>()
@@ -122,30 +101,30 @@ public class PolicyManagerTest {
   public void setup() {
     manager = new PolicyManager();
     manager.setTraversalDepth(10);
-    manager.setContextPolicy("/", new Policy("/", null, new ArrayList<>(), null));
-    manager.setContextPolicy("/search", new Policy("/search", null, new ArrayList<>(), null));
-    manager.setContextPolicy("/admin", new Policy("/admin", null, new ArrayList<>(), null));
+    manager.setContextPolicy("/", new Policy("/", new ArrayList<>(), null));
+    manager.setContextPolicy("/search", new Policy("/search", new ArrayList<>(), null));
+    manager.setContextPolicy("/admin", new Policy("/admin", new ArrayList<>(), null));
     manager.setContextPolicy(
-        "/search/standard", new Policy("/search/standard", null, new ArrayList<>(), null));
+        "/search/standard", new Policy("/search/standard", new ArrayList<>(), null));
     manager.setContextPolicy(
-        "/search/simple", new Policy("/search/simple", null, new ArrayList<>(), null));
-    manager.setContextPolicy("/aaaaaa", new Policy("/aaaaaa", null, new ArrayList<>(), null));
-    manager.setContextPolicy("/aaa", new Policy("/aaa", null, new ArrayList<>(), null));
-    manager.setContextPolicy("/aaa/aaa", new Policy("/aaa/aaa", null, new ArrayList<>(), null));
-    manager.setContextPolicy("/foo/bar", new Policy("/foo/bar", null, new ArrayList<>(), null));
-    manager.setContextPolicy("/1/2", new Policy("/1/2", null, new ArrayList<>(), null));
+        "/search/simple", new Policy("/search/simple", new ArrayList<>(), null));
+    manager.setContextPolicy("/aaaaaa", new Policy("/aaaaaa", new ArrayList<>(), null));
+    manager.setContextPolicy("/aaa", new Policy("/aaa", new ArrayList<>(), null));
+    manager.setContextPolicy("/aaa/aaa", new Policy("/aaa/aaa", new ArrayList<>(), null));
+    manager.setContextPolicy("/foo/bar", new Policy("/foo/bar", new ArrayList<>(), null));
+    manager.setContextPolicy("/1/2", new Policy("/1/2", new ArrayList<>(), null));
     manager.setContextPolicy(
         "/1/2/3/4/5/6/7/8/9/10/11/12/13/14",
-        new Policy("/1/2/3/4/5/6/7/8/9/10/11/12/13/14", null, new ArrayList<>(), null));
+        new Policy("/1/2/3/4/5/6/7/8/9/10/11/12/13/14", new ArrayList<>(), null));
 
     for (Map.Entry<String, List<ContextAttributeMapping>> entry : simpleAttributeMap.entrySet()) {
       manager.setContextPolicy(
-          entry.getKey(), new Policy(entry.getKey(), null, new ArrayList<>(), entry.getValue()));
+          entry.getKey(), new Policy(entry.getKey(), new ArrayList<>(), entry.getValue()));
     }
 
     for (Map.Entry<String, List<ContextAttributeMapping>> entry : complexAttributeMap.entrySet()) {
       manager.setContextPolicy(
-          entry.getKey(), new Policy(entry.getKey(), null, new ArrayList<>(), entry.getValue()));
+          entry.getKey(), new Policy(entry.getKey(), new ArrayList<>(), entry.getValue()));
     }
 
     // Can't use Collections.singletonList because the context policy manager must be able to change
@@ -153,7 +132,6 @@ public class PolicyManagerTest {
     manager.setWhiteListContexts(Arrays.asList("/foo"));
 
     Map<String, Object> contextPolicies = new HashMap<>();
-    contextPolicies.put(REALMS, rollBackRealmValues);
     contextPolicies.put(AUTH_TYPES, rollBackAuthTypesValues);
     contextPolicies.put(REQ_ATTRS, rollBackReqAttrValues);
 
@@ -225,20 +203,6 @@ public class PolicyManagerTest {
   }
 
   /**
-   * Tests context rollbacks to the specified realms / <- /testContext - single rollback to default
-   * / <- /1/2/3/testContext2 - several rollbacks to default /A <- /A/B/C/testContext3 - several
-   * rollback to parent /A/B/C/testContext4 <- /A/B/C/testContext4 - no rollback
-   */
-  @Test
-  public void testContextRealmRollBack() {
-    for (String contextPath : expectedRollBackRealms.keySet()) {
-      assertThat(
-          expectedRollBackRealms.get(contextPath),
-          is(rollBackTestManager.getContextPolicy(contextPath).getRealm()));
-    }
-  }
-
-  /**
    * Tests context rollbacks to the specified authorization types / <- /testContext - single
    * rollback to default / <- /1/2/3/testContext2 - several rollbacks to default /A <-
    * /A/B/C/testContext3 - several rollback to parent /A/B/C/testContext4 <- /A/B/C/testContext4 -
@@ -272,9 +236,6 @@ public class PolicyManagerTest {
 
   @Test
   public void testInvalidEntry() {
-    assertThat(
-        rollBackTestManager.getContextPolicy("invalidContextPathEntry").getRealm(),
-        is(PolicyManager.DEFAULT_REALM_CONTEXT_VALUE));
     assertThat(
         rollBackTestManager.getContextPolicy("invalidContextPathEntry").getAllowedAttributeNames(),
         is(Arrays.asList(new String[] {})));

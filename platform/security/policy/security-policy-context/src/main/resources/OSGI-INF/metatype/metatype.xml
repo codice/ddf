@@ -24,11 +24,6 @@
             type="Integer"
             default="20"/>
 
-        <AD description="List of realms supporting each context. Karaf is provided by default. Example: /=karaf"
-            name="Context Realms" id="realms" required="true" cardinality="100"
-            type="String"
-            default="/=karaf"/>
-
         <AD description="List of authentication types required for each context. List of default valid authentication types are: IDP, SAML, BASIC, PKI, GUEST. Example: /context=AUTH1|AUTH2|AUTH3"
             name="Authentication Types" id="authenticationTypes" required="true" cardinality="100"
             type="String"

@@ -138,6 +138,10 @@
     <feature name="security-handler-api" version="${project.version}"
              description="API for authentication handlers for web applications.">
         <feature>security-core-api</feature>
+        <feature>parser-xml</feature>
+        <bundle>mvn:org.apache.cxf/cxf-rt-rs-security-jose/${cxf.version}</bundle>
+        <bundle>mvn:org.apache.cxf/cxf-rt-rs-security-jose-jaxrs/${cxf.version}</bundle>
+        <bundle>mvn:org.apache.cxf.services.sts/cxf-services-sts-core/${cxf.version}</bundle>
         <bundle>mvn:ddf.security.handler/security-handler-api/${project.version}</bundle>
     </feature>
 
@@ -253,10 +257,8 @@
         <bundle>mvn:ddf.security.sts/security-sts-samlvalidator/${project.version}</bundle>
         <feature>security-core-api</feature>
         <bundle>mvn:ddf.security.sts/security-sts-x509validator/${project.version}</bundle>
-        <bundle>mvn:ddf.security.sts/security-sts-pkivalidator/${project.version}</bundle>
         <feature>parser-xml</feature>
         <bundle>mvn:ddf.security.sts/security-sts-usernametokenvalidator/${project.version}</bundle>
-        <bundle>mvn:ddf.security.sts/security-sts-upbstvalidator/${project.version}</bundle>
     </feature>
 
     <feature name="security-sts-realm" version="${project.version}"
@@ -480,7 +482,10 @@
         <feature>cxf-jaxrs</feature>
         <feature>security-handler-api</feature>
         <feature>security-core</feature>
+        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/4.4.10</bundle>
+        <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/4.5.6</bundle>
         <bundle>mvn:ddf.security.servlet/security-servlet-logout-service/${project.version}</bundle>
+        <bundle>mvn:ddf.security.servlet/security-servlet-default-logout/${project.version}</bundle>
         <bundle>mvn:ddf.security.servlet/security-servlet-logout/${project.version}</bundle>
         <bundle>mvn:ddf.security.servlet/security-servlet-logout-endpoint/${project.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>

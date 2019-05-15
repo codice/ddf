@@ -373,14 +373,6 @@ public class AssertionConsumerService {
             }
             return super.getHeader(name);
           }
-
-          @Override
-          public Object getAttribute(String name) {
-            if (ContextPolicy.ACTIVE_REALM.equals(name)) {
-              return "idp";
-            }
-            return super.getAttribute(name);
-          }
         };
 
     SAMLAssertionHandler samlAssertionHandler = new SAMLAssertionHandler();

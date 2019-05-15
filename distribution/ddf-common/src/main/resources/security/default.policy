@@ -251,7 +251,7 @@ grant codeBase "file:/platform-osgi-configadmin/security-encryption-impl/catalog
     permission java.lang.RuntimePermission "getClassLoader";
 }
 
-grant codeBase "file:/security-handler-pki/security-sts-pkivalidator/security-sts-x509validator/security-handler-guest" {
+grant codeBase "file:/security-handler-pki/security-sts-x509validator/security-handler-guest" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.lang.RuntimePermission "getClassLoader";

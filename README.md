@@ -57,7 +57,6 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
          - Basic authentication
          - SAML authentication
          - Guest login support
-         - Multiple realm login support to mix and match different authentication types and services between endpoints
          - WS-Security, WS-SecurityPolicy, WS-Policy, WS-Trust, WS-SecureConversation, WS-Addressing
      - Provides a pluggable and extensible Security Framework (a set of APIs that define the integration with the DDF framework)
      - Provides Security Service reference implementations for a realistic end-to-end use case.

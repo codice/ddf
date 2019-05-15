@@ -26,11 +26,6 @@
                 <value>/=IDP|GUEST</value>
             </array>
         </property>
-        <property name="realms">
-            <array value-type="java.lang.String">
-                <value>/=karaf</value>
-            </array>
-        </property>
         <property name="requiredAttributes">
             <array value-type="java.lang.String">
                 <!-- @formatter:off -->

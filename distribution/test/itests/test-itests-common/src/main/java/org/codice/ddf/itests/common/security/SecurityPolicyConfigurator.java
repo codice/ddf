@@ -56,7 +56,7 @@ public class SecurityPolicyConfigurator {
   }
 
   public void configureRestForGuest(String whitelist) throws Exception {
-    configureWebContextPolicy(null, GUEST_AUTH_TYPES, null, createWhitelist(whitelist));
+    configureWebContextPolicy(GUEST_AUTH_TYPES, null, createWhitelist(whitelist));
   }
 
   public void configureRestForBasic() throws Exception {
@@ -64,7 +64,7 @@ public class SecurityPolicyConfigurator {
   }
 
   public void configureRestForBasic(String whitelist) throws Exception {
-    configureWebContextPolicy(null, BASIC_AUTH_TYPES, null, createWhitelist(whitelist));
+    configureWebContextPolicy(BASIC_AUTH_TYPES, null, createWhitelist(whitelist));
   }
 
   public void waitForBasicAuthReady(String url) {
@@ -86,8 +86,7 @@ public class SecurityPolicyConfigurator {
   }
 
   public void configureWebContextPolicy(
-      String realms, String authTypes, String requiredAttributes, String whitelist)
-      throws Exception {
+      String authTypes, String requiredAttributes, String whitelist) throws Exception {
 
     Map<String, Object> policyProperties = null;
     int retries = 0;
@@ -102,9 +101,6 @@ public class SecurityPolicyConfigurator {
       retries++;
     }
 
-    if (realms != null) {
-      putPolicyValues(policyProperties, "realms", realms);
-    }
     if (authTypes != null) {
       putPolicyValues(policyProperties, "authenticationTypes", authTypes);
     }
@@ -143,8 +139,6 @@ public class SecurityPolicyConfigurator {
 
           if (targetPolicy == null
               || !targetPolicy.getContextPath().equals(policy.getContextPath())
-              || (targetPolicy.getRealm() != null
-                  && !targetPolicy.getRealm().equals(policy.getRealm()))
               || !targetPolicy
                   .getAuthenticationMethods()
                   .containsAll(policy.getAuthenticationMethods())

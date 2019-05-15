@@ -13,28 +13,149 @@
  */
 package org.codice.ddf.security.handler.basic;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
+import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.UPAuthenticationToken;
+import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
+import org.codice.ddf.security.handler.api.HandlerResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Checks for basic authentication credentials in the http request header. If they exist, they are
- * retrieved and returned in the HandlerResult.
- */
-public class BasicAuthenticationHandler extends AbstractBasicAuthenticationHandler {
-  /** Basic type to use when configuring context policy. */
+public class BasicAuthenticationHandler implements AuthenticationHandler {
+
+  private static final String AUTHENTICATION_SCHEME_BASIC = "Basic";
+
   private static final String AUTH_TYPE = "BASIC";
 
-  public BasicAuthenticationHandler() {
-    LOGGER.debug("Creating basic username/token bst handler.");
-  }
+  private static final String SOURCE = "BasicHandler";
 
-  protected BaseAuthenticationToken getBaseAuthenticationToken(
-      String realm, String username, String password) {
-    return new UPAuthenticationToken(username, password, realm);
+  protected static final Logger LOGGER = LoggerFactory.getLogger(BasicAuthenticationHandler.class);
+
+  private final BaseAuthenticationTokenFactory tokenFactory;
+
+  public BasicAuthenticationHandler() {
+    tokenFactory = new BaseAuthenticationTokenFactory();
+    LOGGER.debug("Creating basic username/token bst handler.");
   }
 
   @Override
   public String getAuthenticationType() {
     return AUTH_TYPE;
+  }
+
+  /**
+   * Processes the incoming request to retrieve the username/password tokens. Handles responding to
+   * the client that authentication is needed if they are not present in the request. Returns the
+   * {@link org.codice.ddf.security.handler.api.HandlerResult} for the HTTP Request.
+   *
+   * @param request http request to obtain attributes from and to pass into any local filter chains
+   *     required
+   * @param response http response to return http responses or redirects
+   * @param chain original filter chain (should not be called from your handler)
+   * @param resolve flag with true implying that credentials should be obtained, false implying
+   *     return if no credentials are found.
+   * @return
+   */
+  @Override
+  public HandlerResult getNormalizedToken(
+      ServletRequest request, ServletResponse response, FilterChain chain, boolean resolve) {
+
+    HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
+    handlerResult.setSource(SOURCE);
+
+    HttpServletRequest httpRequest = (HttpServletRequest) request;
+    String path = httpRequest.getServletPath();
+    LOGGER.debug("Handling request for path {}", path);
+
+    LOGGER.debug("Doing authentication and authorization for path {}", path);
+
+    BaseAuthenticationToken token = extractAuthenticationInfo(httpRequest);
+
+    // we found credentials, attach to result and return with completed status
+    if (token != null) {
+      handlerResult.setToken(token);
+      handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+      return handlerResult;
+    }
+
+    // prompt for credentials since we didn't find any
+    doAuthPrompt((HttpServletResponse) response);
+    handlerResult.setStatus(HandlerResult.Status.REDIRECTED);
+    return handlerResult;
+  }
+
+  @Override
+  public HandlerResult handleError(
+      ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
+    doAuthPrompt((HttpServletResponse) servletResponse);
+    HandlerResult result = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
+    result.setSource(SOURCE);
+    LOGGER.debug("In error handler for basic auth - prompted for auth credentials.");
+    return result;
+  }
+
+  /**
+   * Return a 401 response back to the web browser to prompt for basic auth.
+   *
+   * @param response
+   */
+  private void doAuthPrompt(HttpServletResponse response) {
+    try {
+      response.setHeader(HttpHeaders.WWW_AUTHENTICATE, AUTHENTICATION_SCHEME_BASIC);
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      response.setContentLength(0);
+      response.flushBuffer();
+    } catch (IOException ioe) {
+      LOGGER.debug("Failed to send auth response: {}", ioe);
+    }
+  }
+
+  protected BaseAuthenticationToken extractAuthenticationInfo(HttpServletRequest request) {
+    String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+    if (StringUtils.isEmpty(authHeader)) {
+      return null;
+    }
+
+    return extractAuthInfo(authHeader);
+  }
+
+  /**
+   * Extract the Authorization header and parse into a username/password token.
+   *
+   * @param authHeader the authHeader string from the HTTP request
+   * @return the initialized BaseAuthenticationToken for this username and password combination (or
+   *     null)
+   */
+  protected BaseAuthenticationToken extractAuthInfo(String authHeader) {
+    BaseAuthenticationToken token = null;
+    authHeader = authHeader.trim();
+    String[] parts = authHeader.split(" ");
+    if (parts.length == 2) {
+      String authType = parts[0];
+      String authInfo = parts[1];
+
+      if (authType.equalsIgnoreCase(AUTHENTICATION_SCHEME_BASIC)) {
+        byte[] decode = Base64.getDecoder().decode(authInfo);
+        if (decode != null) {
+          String userPass = new String(decode, StandardCharsets.UTF_8);
+          String[] authComponents = userPass.split(":");
+          if (authComponents.length == 2) {
+            token = tokenFactory.fromUsernamePassword(authComponents[0], authComponents[1]);
+          } else if ((authComponents.length == 1) && (userPass.endsWith(":"))) {
+            token = tokenFactory.fromUsernamePassword(authComponents[0], "");
+          }
+        }
+      }
+    }
+    return token;
   }
 }

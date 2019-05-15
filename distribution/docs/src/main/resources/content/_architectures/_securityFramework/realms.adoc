@@ -94,18 +94,9 @@ This approach is often easier to configure for those that are not familiar with 
 
 |org.codice.ddf.security.validator.*
 |A number of STS validators are provided for X.509 (BinarySecurityToken), UsernameToken, SAML Assertion, and ${branding} custom tokens.
-The ${branding} custom tokens are all `BinarySecurityTokens` that may have PKI or username/password information as well as an authentication realm (correlates to JAAS realms installed in the container).
-The authentication realm allows an administrator to restrict which services they wish to use to authenticate users.
-For example: installing the `security-sts-ldaplogin` feature will enable a JAAS realm with the name "ldap".
-This realm can then be specified on any context using the Web Context Policy Manager.
-That realm selection is then passed via the token sent to the STS to determine which validator to use.
+The ${branding} custom tokens are all `BinarySecurityTokens` that may have PKI or username/password information.
 
 |===
-
-[NOTE]
-====
-Using the SAML Web SSO Identity Provider for authentication will ignore any realm settings and simply use all configured JAAS realms.
-====
 
 [WARNING]
 ====

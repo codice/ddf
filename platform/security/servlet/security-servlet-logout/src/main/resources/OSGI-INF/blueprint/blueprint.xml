@@ -16,23 +16,6 @@
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-
-    <service interface="ddf.action.ActionProvider">
-        <service-properties>
-            <entry key="id" value="security.logout.karaf"/>
-        </service-properties>
-        <bean class="org.codice.ddf.security.servlet.logout.KarafLogoutAction">
-        </bean>
-    </service>
-
-    <service interface="ddf.action.ActionProvider">
-        <service-properties>
-            <entry key="id" value="security.logout.ldap"/>
-        </service-properties>
-        <bean class="org.codice.ddf.security.servlet.logout.LdapLogoutAction">
-        </bean>
-    </service>
-
     <reference-list id="logoutActionProvidersList" interface="ddf.action.ActionProvider"
                     filter="(id=security.logout.*)" availability="optional"/>
 
@@ -51,13 +34,15 @@
 
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
-    <service interface="javax.servlet.Servlet">
+    <bean id="logoutServlet" class="org.codice.ddf.security.servlet.logout.LocalLogoutServlet" init-method="init">
+        <property name="redirectUri" value="/logout/logout-response.html"/>
+    </bean>
+
+    <service ref="logoutServlet" interface="javax.servlet.Servlet">
         <service-properties>
             <entry key="alias" value="/logout/local"/>
             <entry key="async-supported" value="true"/>
         </service-properties>
-        <bean class="org.codice.ddf.security.servlet.logout.LocalLogoutServlet" init-method="init">
-        </bean>
     </service>
 
 </blueprint>

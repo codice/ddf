@@ -81,6 +81,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -91,6 +92,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -103,6 +105,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import net.shibboleth.utilities.java.support.logic.ConstraintViolationException;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
@@ -126,12 +129,11 @@ import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.Security;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.handler.api.SessionHandler;
-import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
 import org.codice.ddf.security.handler.pki.PKIHandler;
 import org.codice.ddf.security.idp.binding.api.Binding;
@@ -142,7 +144,6 @@ import org.codice.ddf.security.idp.binding.soap.SoapBinding;
 import org.codice.ddf.security.idp.binding.soap.SoapRequestDecoder;
 import org.codice.ddf.security.idp.cache.CookieCache;
 import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
-import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.joda.time.DateTime;
 import org.opensaml.core.config.ConfigurationService;
@@ -200,7 +201,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
 
   private final ExecutorService asyncLogoutService;
   protected CookieCache cookieCache = new CookieCache();
-  private PKIAuthenticationTokenFactory tokenFactory;
+  private BaseAuthenticationTokenFactory tokenFactory;
   private OcspService ocspService;
   private SecurityManager securityManager;
   private AtomicReference<Map<String, EntityInformation>> serviceProviders =
@@ -925,7 +926,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
       throws SecurityServiceException, WSSecurityException {
     LOGGER.debug("Performing login for user. passive: {}, cookie: {}", passive, hasCookie);
     BaseAuthenticationToken token = null;
-    request.setAttribute(ContextPolicy.ACTIVE_REALM, BaseAuthenticationToken.ALL_REALM);
     if (PKI.equals(authMethod)) {
       LOGGER.debug("Logging user in via PKI.");
       PKIHandler pkiHandler = new PKIHandler();
@@ -938,25 +938,16 @@ public class IdpEndpoint implements Idp, SessionHandler {
     } else if (USER_PASS.equals(authMethod)) {
       LOGGER.debug("Logging user in via BASIC auth.");
       if (authObj != null && authObj.username != null && authObj.password != null) {
-        token =
-            new UPAuthenticationToken(
-                authObj.username, authObj.password, BaseAuthenticationToken.ALL_REALM);
+        token = tokenFactory.fromUsernamePassword(authObj.username, authObj.password);
       } else {
-        BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
-        HandlerResult handlerResult =
-            basicAuthenticationHandler.getNormalizedToken(request, null, null, false);
-        if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
-          token = handlerResult.getToken();
-        }
+        token = getNormalizedBasicAuthenticationToken(request);
       }
     } else if (SAML.equals(authMethod)) {
       LOGGER.debug("Logging user in via SAML assertion.");
-      token =
-          new SAMLAuthenticationToken(null, authObj.assertion, BaseAuthenticationToken.ALL_REALM);
+      token = new SAMLAuthenticationToken(null, authObj.assertion);
     } else if (GUEST.equals(authMethod) && guestAccess) {
       LOGGER.debug("Logging user in as Guest.");
-      token =
-          new GuestAuthenticationToken(BaseAuthenticationToken.ALL_REALM, request.getRemoteAddr());
+      token = new GuestAuthenticationToken(request.getRemoteAddr());
     } else {
       throw new IllegalArgumentException("Auth method is not supported.");
     }
@@ -1001,6 +992,34 @@ public class IdpEndpoint implements Idp, SessionHandler {
     return response;
   }
 
+  /** Allows us to get the headers without calling the {@link BasicAuthenticationHandler} */
+  private BaseAuthenticationToken getNormalizedBasicAuthenticationToken(ServletRequest request) {
+    String authHeader = ((HttpServletRequest) request).getHeader(HttpHeaders.AUTHORIZATION);
+    if (StringUtils.isEmpty(authHeader)) {
+      return null;
+    }
+
+    String[] parts = authHeader.trim().split(" ");
+    if (parts.length == 2) {
+      String authType = parts[0];
+      String authInfo = parts[1];
+
+      if (authType.equalsIgnoreCase("Basic")) {
+        byte[] decode = Base64.getDecoder().decode(authInfo);
+        if (decode != null) {
+          String userPass = new String(decode, StandardCharsets.UTF_8);
+          String[] authComponents = userPass.split(":");
+          if (authComponents.length == 2) {
+            return tokenFactory.fromUsernamePassword(authComponents[0], authComponents[1]);
+          } else if ((authComponents.length == 1) && (userPass.endsWith(":"))) {
+            return tokenFactory.fromUsernamePassword(authComponents[0], "");
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   private Cookie getCookie(HttpServletRequest request) {
     Map<String, Cookie> cookies = HttpUtils.getCookieMap(request);
     return cookies.get(COOKIE);
@@ -1036,7 +1055,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
           return false;
         } else if (!assertion.isPresentlyValid()) {
           SAMLAuthenticationToken samlAuthenticationToken =
-              new SAMLAuthenticationToken(null, securityToken, "idp");
+              new SAMLAuthenticationToken(null, securityToken);
           try {
             Subject subject = securityManager.getSubject(samlAuthenticationToken);
             for (Object principal : subject.getPrincipals().asList()) {
@@ -1575,7 +1594,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     this.securityManager = securityManager;
   }
 
-  public void setTokenFactory(PKIAuthenticationTokenFactory tokenFactory) {
+  public void setTokenFactory(BaseAuthenticationTokenFactory tokenFactory) {
     this.tokenFactory = tokenFactory;
   }
 

@@ -61,7 +61,6 @@ import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.saml.SAMLAssertionHandler;
-import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.joda.time.DateTime;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
@@ -217,7 +216,7 @@ public class IdpHandler implements AuthenticationHandler {
    * @param resolve flag with true implying that credentials should be obtained, false implying
    *     return if no credentials are found.
    * @return result of handling this request - status and optional tokens
-   * @throws ServletException
+   * @throws AuthenticationFailureException
    */
   @Override
   public HandlerResult getNormalizedToken(
@@ -235,16 +234,7 @@ public class IdpHandler implements AuthenticationHandler {
       }
       return new HandlerResult(HandlerResult.Status.NO_ACTION, null);
     }
-    HttpServletRequestWrapper wrappedRequest =
-        new HttpServletRequestWrapper(httpRequest) {
-          @Override
-          public Object getAttribute(String name) {
-            if (ContextPolicy.ACTIVE_REALM.equals(name)) {
-              return "idp";
-            }
-            return super.getAttribute(name);
-          }
-        };
+    HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(httpRequest);
 
     SAMLAssertionHandler samlAssertionHandler = new SAMLAssertionHandler();
     samlAssertionHandler.setSessionFactory(sessionFactory);
@@ -640,9 +630,8 @@ public class IdpHandler implements AuthenticationHandler {
   public HandlerResult handleError(
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
       throws AuthenticationFailureException {
-    String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
     HandlerResult result = new HandlerResult(HandlerResult.Status.NO_ACTION, null);
-    result.setSource(realm + "-" + SOURCE);
+    result.setSource(SOURCE);
     LOGGER.debug("In error handler for idp - no action taken.");
     return result;
   }

@@ -16,19 +16,13 @@ package org.codice.ddf.security.handler.guest;
 import java.io.IOException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.FilterChain;
-import org.codice.ddf.security.OcspService;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
-import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
-import org.codice.ddf.security.handler.pki.PKIHandler;
-import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,10 +37,6 @@ public class GuestHandler implements AuthenticationHandler {
   public static final String AUTH_TYPE = "GUEST";
 
   public static final String INVALID_MESSAGE = "Username/Password is invalid.";
-
-  private PKIAuthenticationTokenFactory tokenFactory;
-
-  private OcspService ocspService;
 
   @Override
   public String getAuthenticationType() {
@@ -71,53 +61,19 @@ public class GuestHandler implements AuthenticationHandler {
       throws AuthenticationException {
     HandlerResult result = new HandlerResult();
 
-    String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
-    // For guest - if credentials were provided, return them, if not, then return guest credentials
-    BaseAuthenticationToken authToken =
-        getAuthToken((HttpServletRequest) request, (HttpServletResponse) response, chain);
+    // For guest - always return guest credentials
+    BaseAuthenticationToken authToken = new GuestAuthenticationToken(request.getRemoteAddr());
 
-    result.setSource(realm + "-GuestHandler");
+    result.setSource("GuestHandler");
     result.setStatus(HandlerResult.Status.COMPLETED);
     result.setToken(authToken);
     return result;
-  }
-
-  /**
-   * Returns BSTAuthenticationToken for the HttpServletRequest
-   *
-   * @param request http request to obtain attributes from and to pass into any local filter chains
-   *     required
-   * @return BSTAuthenticationToken
-   */
-  private BaseAuthenticationToken getAuthToken(
-      HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-      throws AuthenticationException {
-    // check for basic auth first
-    String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
-    BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
-    HandlerResult handlerResult =
-        basicAuthenticationHandler.getNormalizedToken(request, response, chain, false);
-    if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
-      return handlerResult.getToken();
-    }
-    // if basic fails, check for PKI
-    PKIHandler pkiHandler = new PKIHandler();
-    pkiHandler.setTokenFactory(tokenFactory);
-    pkiHandler.setOcspService(ocspService);
-    handlerResult = pkiHandler.getNormalizedToken(request, response, chain, false);
-    if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
-      return handlerResult.getToken();
-    }
-
-    // if everything fails, the user is guest, log in as such
-    return new GuestAuthenticationToken(realm, request.getRemoteAddr());
   }
 
   @Override
   public HandlerResult handleError(
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
     HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-    String realm = (String) servletRequest.getAttribute(ContextPolicy.ACTIVE_REALM);
     httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
     try {
       httpResponse.getWriter().write(INVALID_MESSAGE);
@@ -127,21 +83,9 @@ public class GuestHandler implements AuthenticationHandler {
     }
 
     HandlerResult result = new HandlerResult();
-    result.setSource(realm + "-GuestHandler");
+    result.setSource("GuestHandler");
     LOGGER.debug("In error handler for guest - returning action completed.");
     result.setStatus(HandlerResult.Status.REDIRECTED);
     return result;
-  }
-
-  public PKIAuthenticationTokenFactory getTokenFactory() {
-    return tokenFactory;
-  }
-
-  public void setTokenFactory(PKIAuthenticationTokenFactory tokenFactory) {
-    this.tokenFactory = tokenFactory;
-  }
-
-  public void setOcspService(OcspService ocspService) {
-    this.ocspService = ocspService;
   }
 }

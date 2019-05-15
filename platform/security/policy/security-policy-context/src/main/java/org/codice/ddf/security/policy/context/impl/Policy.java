@@ -28,19 +28,15 @@ public class Policy implements ContextPolicy {
 
   private String contextPath;
 
-  private String realm;
-
   private Collection<String> authenticationMethods;
 
   private Collection<ContextAttributeMapping> attributeMappings;
 
   public Policy(
       String contextPath,
-      String realm,
       Collection<String> authenticationMethods,
       Collection<ContextAttributeMapping> attributeMappings) {
     this.contextPath = contextPath;
-    this.realm = realm;
     this.authenticationMethods = authenticationMethods;
     this.attributeMappings = attributeMappings;
   }
@@ -48,11 +44,6 @@ public class Policy implements ContextPolicy {
   @Override
   public String getContextPath() {
     return contextPath;
-  }
-
-  @Override
-  public String getRealm() {
-    return realm;
   }
 
   @Override
@@ -73,8 +64,8 @@ public class Policy implements ContextPolicy {
 
   @Override
   public Collection<String> getAllowedAttributeNames() {
-    List<String> names = new ArrayList<String>();
-    if (attributeMappings != null && attributeMappings.size() > 0) {
+    List<String> names = new ArrayList<>();
+    if (attributeMappings != null && !attributeMappings.isEmpty()) {
       for (ContextAttributeMapping mapping : attributeMappings) {
         names.add(mapping.getAttributeName());
       }
@@ -85,9 +76,9 @@ public class Policy implements ContextPolicy {
   @Override
   public Collection<ContextAttributeMapping> getAllowedAttributes() {
     if (attributeMappings == null) {
-      return new ArrayList<ContextAttributeMapping>();
+      return new ArrayList<>();
     }
-    return new ArrayList<ContextAttributeMapping>(attributeMappings);
+    return new ArrayList<>(attributeMappings);
   }
 
   @Override
@@ -95,8 +86,6 @@ public class Policy implements ContextPolicy {
     StringBuilder sb = new StringBuilder();
     sb.append("Context Path: ");
     sb.append(contextPath);
-    sb.append(", Realm: ");
-    sb.append(realm);
     sb.append(", Authentication Methods: ");
     sb.append(Arrays.toString(authenticationMethods.toArray()));
     sb.append(", AttributeMapping: ");
