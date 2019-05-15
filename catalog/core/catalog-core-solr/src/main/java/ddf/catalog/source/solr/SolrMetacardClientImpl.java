@@ -287,7 +287,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     Matcher matcher = spellcheckPattern.matcher(query);
 
     List<String> spellcheckedValues = new ArrayList<>();
-    //    spellcheckedValues.add("Showing results for:");
     while (matcher.find()) {
       spellcheckedValues.add(matcher.group(1) + COMMA_DELIMITER);
     }
@@ -318,7 +317,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private boolean solrSpellcheckHasResults(QueryResponse solrResponse) {
     return solrResponse.getSpellCheckResponse() != null
         && solrResponse.getResults().size() == 0
-        && solrResponse.getSpellCheckResponse().getCollatedResults().size() != 0;
+        && solrResponse.getSpellCheckResponse().getSuggestions().size() > 0;
   }
 
   private String findQueryToResend(SolrQuery query, QueryResponse solrResponse) {
