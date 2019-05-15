@@ -119,6 +119,7 @@ module.exports = Marionette.LayoutView.extend({
         isSearchFormEditor: true,
         onSave: () => {
           if (this.model.get('title').trim() !== '') {
+            this.updateQuerySettings(collection, id)
             this.saveTemplateToBackend(collection, id)
             this.navigateToForms()
           } else {
@@ -143,6 +144,17 @@ module.exports = Marionette.LayoutView.extend({
         isSearchFormEditor: true,
       })
     )
+  },
+  updateQuerySettings(collection, id) {
+    const currentQuerySettings = user.getQuerySettings()
+    const templateId = currentQuerySettings.get('template')
+      ? currentQuerySettings.get('template').id
+      : undefined
+    if (templateId === id) {
+      const template = this.getQueryAsQueryTemplate(collection, id)
+      currentQuerySettings.set({ type: 'custom', template })
+      user.savePreferences()
+    }
   },
   getQueryAsQueryTemplate: function(collection, id) {
     const formModel = collection.get(id) || new SearchFormModel()

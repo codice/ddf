@@ -45,7 +45,7 @@ module.exports = Marionette.LayoutView.extend({
     'click .editor-saveRun': 'saveRun',
   },
   initialize: function() {
-    this.listenTo(user.getQuerySettings(), 'change', querySettings =>
+    this.listenTo(user.getQuerySettings(), 'change:template', querySettings =>
       this.updateCurrentQuery(querySettings)
     )
     this.model = new Query.Model(this.getDefaultQuery())
