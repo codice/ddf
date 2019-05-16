@@ -106,8 +106,13 @@ module.exports = Marionette.LayoutView.extend({
     this.map.show(
       new MapView({
         selectionInterface: new SelectionInterface(),
+        onMapLoaded: olMap => {
+          this.showQueryForm(collection, id)
+        },
       })
     )
+  },
+  showQueryForm(collection, id) {
     this.editor.show(
       new QueryAdvanced({
         model: this.model,
