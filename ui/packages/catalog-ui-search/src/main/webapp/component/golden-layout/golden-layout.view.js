@@ -23,16 +23,13 @@ const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
 const GoldenLayout = require('golden-layout')
 const properties = require('../../js/properties.js')
-const TableView = require('../visualization/table/table-viz.view.js')
-const InspectorView = require('../visualization/inspector/inspector.view.js')
-const HistogramView = require('../visualization/histogram/histogram.view.js')
-const LowBandwidthMapView = require('../visualization/low-bandwidth-map/low-bandwidth-map.view.js')
 const Common = require('../../js/Common.js')
 const store = require('../../js/store.js')
 const user = require('../singletons/user-instance.js')
 const VisualizationDropdown = require('../dropdown/visualization-selector/dropdown.visualization-selector.view.js')
 const DropdownModel = require('../dropdown/dropdown.js')
 const sanitize = require('sanitize-html')
+import ExtensionPoints from '../../extension-points'
 
 const treeMap = (obj, fn, path = []) => {
   if (Array.isArray(obj)) {
@@ -261,14 +258,8 @@ module.exports = Marionette.LayoutView.extend({
     return sanitizeTree(currentConfig)
   },
   registerGoldenLayoutComponents: function() {
-    registerComponent(this, 'inspector', InspectorView)
-    registerComponent(this, 'table', TableView)
-    registerComponent(this, 'cesium', LowBandwidthMapView, {
-      desiredContainer: 'cesium',
-    })
-    registerComponent(this, 'histogram', HistogramView)
-    registerComponent(this, 'openlayers', LowBandwidthMapView, {
-      desiredContainer: 'openlayers',
+    ExtensionPoints.visualizations.forEach(viz => {
+      registerComponent(this, viz.id, viz.view, viz.options)
     })
   },
   detectIfGoldenLayoutMaximised: function() {
