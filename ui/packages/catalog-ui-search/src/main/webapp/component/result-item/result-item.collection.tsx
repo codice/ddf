@@ -133,9 +133,8 @@ const getResultView = (props: Props) => {
 function createShowResultText(solrQuery: any[]) {
   if (solrQuery !== undefined && solrQuery !== null) {
     let showingResultsFor = 'Showing Results for '
-    // let showingResultsFor = solrQuery.shift() + ' '
     for (let i = 0; i < solrQuery.length - 1; i++) {
-      showingResultsFor = checkMaxLength(showingResultsFor, solrQuery)
+      showingResultsFor = checkMaxLength(showingResultsFor, solrQuery) + ', '
     }
     if (
       showingResultsFor.length + solrQuery[0].length <
