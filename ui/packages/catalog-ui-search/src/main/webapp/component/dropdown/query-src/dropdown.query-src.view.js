@@ -23,9 +23,9 @@ import { FormattedMessage } from 'react-intl'
 const renderSourceLocal = source => (
   <React.Fragment>
     {source.local ? (
-      <i class="fa source-icon fa-home" />
+      <i className="fa source-icon fa-home" />
     ) : (
-      <i class="fa source-icon fa-cloud" />
+      <i className="fa source-icon fa-cloud" />
     )}
   </React.Fragment>
 )
@@ -34,10 +34,10 @@ const renderSourceAvailable = source => (
   <React.Fragment>
     <span className={'text-src ' + (source.available ? 'is-available' : '')}>
       {!source.available ? (
-        <i class="fa fa-exclamation-triangle src-availability" />
+        <i className="fa fa-exclamation-triangle src-availability" />
       ) : null}
       {renderSourceLocal(source)}
-      <span class="src-title">{source.id}</span>
+      <span className="src-title">{source.id}</span>
     </span>
   </React.Fragment>
 )
