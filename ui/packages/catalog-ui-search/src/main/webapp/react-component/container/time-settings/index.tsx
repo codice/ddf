@@ -45,12 +45,18 @@ enum TimeZoneSign {
   NEGATIVE = '-',
 }
 
+const getTimeZoneFor = (sign: TimeZoneSign, value: number) => {
+  if (sign === TimeZoneSign.POSITIVE) return Common.getTimeZones()[value]
+
+  return Common.getTimeZones()[`${sign}${value}`]
+}
+
 const generateTimeZones = (sign: TimeZoneSign, rangeLimit: number) =>
   Array(rangeLimit)
     .fill(rangeLimit)
     .map((_: any, index: number) => ({
       label: `${sign}${index + 1}:00`,
-      value: Common.getTimeZones()[index + 1],
+      value: getTimeZoneFor(sign, index + 1),
     }))
 
 const TimeZones = [
