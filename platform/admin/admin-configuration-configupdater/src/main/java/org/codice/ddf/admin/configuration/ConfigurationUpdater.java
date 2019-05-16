@@ -155,11 +155,11 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
    * will be updated on disk if necessary.
    */
   private void doHandleStore(ConfigurationContext context) throws IOException {
-    String pid = context.getServicePid();
-    File fileFromConfigAdmin = context.getConfigFile();
+    final String pid = context.getServicePid();
+    final File fileFromConfigAdmin = context.getConfigFile();
 
-    CachedConfigData cachedConfigData = pidDataMap.get(pid);
-    File fileFromCache = (cachedConfigData != null) ? cachedConfigData.getFelixFile() : null;
+    final CachedConfigData cachedConfigData = pidDataMap.get(pid);
+    final File fileFromCache = (cachedConfigData != null) ? cachedConfigData.getFelixFile() : null;
 
     if (fileFromCache == null && fileFromConfigAdmin == null) {
       // This config doesn't have an etc file, so we ignore this case (1)
@@ -167,16 +167,26 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       return;
     }
 
-    String appropriatePid =
+    final String appropriatePid =
         (context.getFactoryPid() == null) ? context.getServicePid() : context.getFactoryPid();
 
     if (fileFromCache == null) {
       // An etc config file was just dropped and we're seeing it for the first time (2)
-      LOGGER.debug("Tracking pid {}", pid);
-      CachedConfigData createdConfigData = new CachedConfigData(context);
-      pidDataMap.put(pid, createdConfigData);
+      final CachedConfigData createdConfigData = new CachedConfigData(context);
       processUpdate(
           appropriatePid, fileFromConfigAdmin, context.getSanitizedProperties(), createdConfigData);
+      if (fileFromConfigAdmin.exists()) {
+        LOGGER.debug(
+            "Tracking pid [{}] for installed configuration [{}]",
+            pid,
+            fileFromConfigAdmin.getAbsolutePath());
+        pidDataMap.put(pid, createdConfigData);
+      } else {
+        LOGGER.debug(
+            "Associated file [{}] for pid [{}] did not exist, will not track",
+            fileFromConfigAdmin.getAbsolutePath(),
+            pid);
+      }
       return;
     }
 
