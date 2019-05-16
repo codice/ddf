@@ -25,6 +25,12 @@ const readableNames = {
   east: 'longitude',
   north: 'latitude',
   south: 'latitude',
+  dmsLat: 'latitude',
+  dmsLon: 'longitude',
+  dmsNorth: 'latitude',
+  dmsSouth: 'latitude',
+  dmsWest: 'longitude',
+  dmsEast: 'longitude',
 }
 
 const validLatLon = {
@@ -170,13 +176,13 @@ module.exports = ({ state, setState, options }) => (
     setState={setState}
     cursor={key => value => {
       isDms = false
-      let validateCoords = ddValidators[key]
-      if (validateCoords === undefined) {
-        validateCoords = dmsValidators[key]
+      let coordValidator = ddValidators[key]
+      if (coordValidator === undefined) {
+        coordValidator = dmsValidators[key]
         isDms = true
       }
       if (!isDms) {
-        if (typeof validateCoords === 'function' && !validateCoords(value)) {
+        if (typeof coordValidator === 'function' && !coordValidator(value)) {
           errors = true
           inValidInput = value
           inValidKey = readableNames[key]
@@ -188,14 +194,14 @@ module.exports = ({ state, setState, options }) => (
         setState(key, value, (errors = false))
       } else {
         if (
-          typeof validateCoords === 'function' &&
-          validateCoords(value) !== value &&
+          typeof coordValidator === 'function' &&
+          coordValidator(value) !== value &&
           value !== ''
         ) {
           errors = true
           inValidInput = value
           inValidKey = readableNames[key]
-          defaultCoord = validateCoords(value)
+          defaultCoord = coordValidator(value)
           value = defaultCoord
           setState(key, value)
           return
