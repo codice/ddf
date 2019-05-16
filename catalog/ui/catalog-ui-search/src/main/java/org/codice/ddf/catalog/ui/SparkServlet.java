@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.ui;
 
+import static spark.Spark.after;
+
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
@@ -119,6 +121,11 @@ public class SparkServlet extends HttpServlet {
     matcherFilter =
         new MatcherFilter(
             ServletRoutes.get(), StaticFilesConfiguration.servletInstance, false, false);
+
+    after(
+        (request, response) -> {
+          response.header("Content-Encoding", "gzip");
+        });
   }
 
   @Override
