@@ -201,9 +201,11 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       }
       if (fileFromCache.exists()) {
         // The felix file prop was removed, which we can revert if the file exists (3)
-        LOGGER.info(
-            "{} has been illegally removed, reverting to [{}]", FELIX_FILENAME, fileFromCache);
-        context.setProperty(FELIX_FILENAME, fileFromCache.getAbsolutePath());
+        // Should revert to URI form since Felix's ConfigInstaller uses that as a key
+        final String revertedFilename = fileFromCache.getAbsoluteFile().toURI().toString();
+        LOGGER.debug(
+            "{} has been illegally removed, reverting to [{}]", FELIX_FILENAME, revertedFilename);
+        context.setProperty(FELIX_FILENAME, revertedFilename);
         processUpdate(
             appropriatePid, fileFromCache, context.getSanitizedProperties(), cachedConfigData);
         return;
