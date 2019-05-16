@@ -1,9 +1,53 @@
 import * as React from 'react'
+import styled from '../styles/styled-components'
 
 const CustomElements = require('../../js/CustomElements.js')
 const Component = CustomElements.registerReact('menu')
 
 const mod = (n: any, m: any) => ((n % m) + m) % m
+
+const MenuRoot = styled(Component)`
+  max-height: 25vh;
+  position: relative;
+`
+
+const after = `
+  ::after {
+    display: inline-block;
+    content: '\f00c';
+    font-family: FontAwesome;
+    font-style: normal;
+    position: absolute;
+    top: 50%;
+    right: 0px;
+    width: 2.275rem;
+    text-align: center;
+    transform: translateY(-50%);
+  }
+`
+
+const ItemRoot = styled.div<{active: boolean, selected: boolean}>`
+  position: relative;
+  padding: 0px ${({ theme }) => theme.minimumSpacing};
+  padding-right: ${({ theme }) => theme.minimumButtonSize};
+  box-sizing: border-box;
+  height: ${({ theme }) => theme.minimumButtonSize};
+  line-height: ${({ theme }) => theme.minimumButtonSize};
+  cursor: pointer;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  ${({ theme, active }) =>
+    active ? `box-shadow: inset 0px 0px 0px 1px  ${theme.primaryColor};` : ''}
+  ${({ selected }) => (selected ? 'font-weight: bold;' : '')}
+  ${({ selected }) => (selected ? after : '')}
+`
 
 class DocumentListener extends React.Component<any, any> {
   componentDidMount() {
@@ -112,10 +156,10 @@ export class Menu extends React.Component<any, any> {
     )
 
     return (
-      <Component>
+      <MenuRoot className={this.props.className}>
         {childrenWithProps}
         <DocumentListener event="keydown" listener={this.onKeyDown} />
-      </Component>
+      </MenuRoot>
     )
   }
 }
@@ -132,20 +176,17 @@ export class MenuItem extends React.Component<any, any> {
       style,
     } = this.props
     return (
-      <div
+      <ItemRoot
+        selected={selected}
+        active={active}
         style={style}
         onMouseEnter={() => onHover(value)}
         onFocus={() => onHover(value)}
         tabIndex={0}
-        className={
-          'input-menu-item ' +
-          (selected ? ' is-selected ' : '') +
-          (active ? ' is-active ' : '')
-        }
         onClick={() => onClick(value)}
       >
         {children || value}
-      </div>
+      </ItemRoot>
     )
   }
 }
