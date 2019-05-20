@@ -45,7 +45,11 @@ IF "%COMMAND%"=="start" (
 
 
 IF "%COMMAND%"=="stop" (
-   SET /P STOP_KEY=<%STOPKEY_FILE%
+REM Suppress error message about missing STOPKEY file. The script that calls ddfsolr.bat
+REM first calls stop to shutdown any current running Solr instances on the designated port.
+REM Because stop is called before start, there will never be a STOPKEY file
+REM and in those cases the missing file message is spurious.
+   SET /P STOP_KEY=<%STOPKEY_FILE% > nul 2> nul
    CALL %SOLR_EXEC% stop -p !solr.http.port!
    DEL %STOPKEY_FILE%
 )
