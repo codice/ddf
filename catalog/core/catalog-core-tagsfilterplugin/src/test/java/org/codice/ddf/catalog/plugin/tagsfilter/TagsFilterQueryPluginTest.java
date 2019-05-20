@@ -116,7 +116,7 @@ public class TagsFilterQueryPluginTest {
     when(contextualExpressionBuilder.text(Metacard.DEFAULT_TAG)).thenReturn(defaultTagFilter);
     Or anyOf = mock(Or.class);
     when(filterBuilder.anyOf(ImmutableList.of(defaultTagFilter, emptyFilter))).thenReturn(anyOf);
-    when(filterBuilder.allOf(anyOf, query)).thenReturn(mock(And.class));
+    when(filterBuilder.allOf(query, anyOf)).thenReturn(mock(And.class));
 
     when(filterAdapter.adapt(any(), any())).thenReturn(false);
     when(filterBuilder.attribute(Metacard.TAGS)).thenReturn(attributeBuilder);
@@ -140,7 +140,7 @@ public class TagsFilterQueryPluginTest {
     when(contextualExpressionBuilder.text(Metacard.DEFAULT_TAG)).thenReturn(defaultTagFilter);
     Or anyOf = mock(Or.class);
     when(filterBuilder.anyOf(ImmutableList.of(defaultTagFilter, emptyFilter))).thenReturn(anyOf);
-    when(filterBuilder.allOf(anyOf, query)).thenReturn(mock(And.class));
+    when(filterBuilder.allOf(query, anyOf)).thenReturn(mock(And.class));
 
     when(filterAdapter.adapt(any(), any())).thenReturn(false);
     when(filterBuilder.attribute(Metacard.TAGS)).thenReturn(attributeBuilder);
