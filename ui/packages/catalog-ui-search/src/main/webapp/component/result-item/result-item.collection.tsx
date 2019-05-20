@@ -10,7 +10,8 @@ type Props = {
   results: any[]
   selectionInterface: any
   className?: string
-  solrQuery: any[]
+  showingResultsForFields: any[]
+  userSpellcheckIsOn: boolean
 }
 
 const ResultItemCollection = styled.div`
@@ -65,110 +66,135 @@ class ResultItems extends React.Component<Props, State> {
     }
   }
 
-  createShowResultText(solrQuery: any[]) {
+  createShowResultText(showingResultsForFields: any[]) {
     let showingResultsFor = 'Showing Results for '
-    if (solrQuery !== undefined && solrQuery !== null) {
-      if (!this.state.expandSearchFieldText && solrQuery.length > 2) {
-        showingResultsFor += this.createCondensedResultsForText(solrQuery)
+    if (
+      showingResultsForFields !== undefined &&
+      showingResultsForFields !== null
+    ) {
+      if (
+        !this.state.expandSearchFieldText &&
+        showingResultsForFields.length > 2
+      ) {
+        showingResultsFor += this.createCondensedResultsForText(
+          showingResultsForFields
+        )
         return showingResultsFor
       }
 
-      showingResultsFor += this.createExpandedResultsForText(solrQuery)
+      showingResultsFor += this.createExpandedResultsForText(
+        showingResultsForFields
+      )
       return showingResultsFor
     }
   }
 
-  createCondensedResultsForText(solrQuery: any[]) {
-    const copyQuery = [...solrQuery]
+  createCondensedResultsForText(showingResultsForFields: any[]) {
+    const copyQuery = [...showingResultsForFields]
     copyQuery.splice(0, copyQuery.length - SHOW_MORE_LENGTH)
     return copyQuery.join(', ')
   }
 
-  createExpandedResultsForText(solrQuery: any[]) {
-    return solrQuery.join(', ')
+  createExpandedResultsForText(showingResultsForFields: any[]) {
+    return showingResultsForFields.join(', ')
   }
 
   render() {
-    const { results, selectionInterface, className, solrQuery } = this.props
-    const showingResultsFor = this.createShowResultText(solrQuery)
+    const {
+      results,
+      className,
+      showingResultsForFields,
+      userSpellcheckIsOn,
+    } = this.props
     if (results.length === 0) {
       return (
         <ResultItemCollection className={className}>
           <div className="result-item-collection-empty">No Results Found</div>
         </ResultItemCollection>
       )
+    } else if (userSpellcheckIsOn) {
+      const showingResultsFor = this.createShowResultText(
+        showingResultsForFields
+      )
+      return (
+        <SolrQueryDisplay className={className}>
+          <div className="solr-query">
+            {showingResultsFor}
+            {showingResultsForFields !== null && showingResultsForFields !== undefined && showingResultsForFields.length > 2 && (
+              <a
+                onClick={() => {
+                  this.setState({
+                    expandSearchFieldText: !this.state.expandSearchFieldText,
+                  })
+                }}
+              >
+                {this.state.expandSearchFieldText ? 'less' : 'more'}
+              </a>
+            )}
+          </div>
+          {this.createResultItemCollectionView()}
+        </SolrQueryDisplay>
+      )
+    } else {
+      return this.createResultItemCollectionView()
     }
-    return (
-      <SolrQueryDisplay className={className}>
-        <div className="solr-query">
-          {showingResultsFor}
-          {solrQuery.length > 2 && (
-            <a
-              onClick={() => {
-                this.setState({
-                  expandSearchFieldText: !this.state.expandSearchFieldText,
-                })
-              }}
-            >
-              {this.state.expandSearchFieldText ? 'less' : 'more'}
-            </a>
-          )}
-        </div>
+  }
 
-        <ResultItemCollection
-          className={`${className} is-list has-list-highlighting`}
-        >
-          {results.map(result => {
-            if (result.duplicates) {
-              const amount = result.duplicates.length + 1
-              return (
-                <ResultGroup key={result.id}>
-                  <div className="group-representation">
-                    {amount} duplicates
-                  </div>
-                  <div className="group-results global-bracket is-left">
-                    <ResultItemCollection className="is-list has-list-highlighting">
-                      <MarionetteRegionContainer
-                        view={childView}
-                        viewOptions={{
-                          selectionInterface,
-                          model: result,
-                        }}
-                        replaceElement
-                      />
-                      {result.duplicates.map((duplicate: any) => {
-                        return (
-                          <MarionetteRegionContainer
-                            key={duplicate.id}
-                            view={childView}
-                            viewOptions={{
-                              selectionInterface,
-                              model: duplicate,
-                            }}
-                            replaceElement
-                          />
-                        )
-                      })}
-                    </ResultItemCollection>
-                  </div>
-                </ResultGroup>
-              )
-            } else {
-              return (
-                <MarionetteRegionContainer
-                  key={result.id}
-                  view={childView}
-                  viewOptions={{
-                    selectionInterface,
-                    model: result,
-                  }}
-                  replaceElement
-                />
-              )
-            }
-          })}
-        </ResultItemCollection>
-      </SolrQueryDisplay>
+  createResultItemCollectionView() {
+    const { results, selectionInterface, className } = this.props
+
+    return (
+      <ResultItemCollection
+        className={`${className} is-list has-list-highlighting`}
+      >
+        {results.map(result => {
+          if (result.duplicates) {
+            const amount = result.duplicates.length + 1
+            return (
+              <ResultGroup key={result.id}>
+                <div className="group-representation">{amount} duplicates</div>
+                <div className="group-results global-bracket is-left">
+                  <ResultItemCollection className="is-list has-list-highlighting">
+                    <MarionetteRegionContainer
+                      view={childView}
+                      viewOptions={{
+                        selectionInterface,
+                        model: result,
+                      }}
+                      replaceElement
+                    />
+                    {result.duplicates.map((duplicate: any) => {
+                      return (
+                        <MarionetteRegionContainer
+                          key={duplicate.id}
+                          view={childView}
+                          viewOptions={{
+                            selectionInterface,
+                            model: duplicate,
+                          }}
+                          replaceElement
+                        />
+                      )
+                    })}
+                  </ResultItemCollection>
+                </div>
+              </ResultGroup>
+            )
+          } else {
+            return (
+              <MarionetteRegionContainer
+                key={result.id}
+                view={childView}
+                viewOptions={{
+                  selectionInterface,
+                  model: result,
+                }}
+                replaceElement
+              />
+            )
+          }
+        })}
+      </ResultItemCollection>
     )
   }
 }

@@ -116,6 +116,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   public static final String SHOWING_RESULTS_FOR_KEY = "showingResultsFor";
 
+  public static final String SPELLCHECK_KEY = "spellcheck";
+
   public static final int GET_BY_ID_LIMIT = 100;
 
   public static final String EXCLUDE_ATTRIBUTES = "excludeAttributes";
@@ -213,6 +215,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     long totalHits = 0;
     List<Result> results = new ArrayList<>();
 
+    Boolean userSpellcheckIsOn = userSpellcheckIsOn(request);
+
     try {
       QueryResponse solrResponse;
 
@@ -249,7 +253,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         responseProps.put(SUGGESTION_RESULT_KEY, (Serializable) suggestionResults);
       }
 
-      if (userSpellcheckIsOn(request) && solrSpellcheckHasResults(solrResponse)) {
+      if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
         query.set("q", findQueryToResend(query, solrResponse));
         solrResponse = client.query(query, METHOD.POST);
         docs = solrResponse.getResults();
@@ -275,6 +279,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       throw new UnsupportedQueryException("Could not complete solr query.", e);
     }
 
+    responseProps.put(SPELLCHECK_KEY, userSpellcheckIsOn);
     return new SourceResponseImpl(request, responseProps, results, totalHits);
   }
 
@@ -288,7 +293,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     fieldValues.remove(RESOURCE_ATTRIBUTE);
   }
 
-  private boolean userSpellcheckIsOn(QueryRequest request) {
+  private Boolean userSpellcheckIsOn(QueryRequest request) {
     Boolean userSpellcheckChoice = false;
     if (request.getProperties().get("spellcheck") != null) {
       userSpellcheckChoice = (Boolean) request.getProperties().get("spellcheck");

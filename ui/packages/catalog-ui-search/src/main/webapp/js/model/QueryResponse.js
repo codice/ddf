@@ -82,7 +82,8 @@ module.exports = Backbone.AssociatedModel.extend({
     queuedResults: [],
     merged: true,
     currentlyViewed: false,
-    solrQuery: undefined,
+    showingResultsForFields: [],
+    userSpellcheckIsOn: false,
   },
   relations: [
     {
@@ -282,7 +283,8 @@ module.exports = Backbone.AssociatedModel.extend({
     }
 
     return {
-      solrQuery: resp.solrQuery,
+      showingResultsForFields: resp.showingResultsForFields,
+      userSpellcheckIsOn: resp.userSpellcheckIsOn,
       queuedResults: resp.results,
       results: [],
       status: resp.status,
