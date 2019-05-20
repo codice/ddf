@@ -304,7 +304,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private boolean solrSpellcheckHasResults(QueryResponse solrResponse) {
     return solrResponse.getSpellCheckResponse() != null
         && solrResponse.getResults().size() == 0
-        && solrResponse.getSpellCheckResponse().getCollatedResults().size() > 0;
+        && CollectionUtils.isNotEmpty(solrResponse.getSpellCheckResponse().getCollatedResults());
   }
 
   private String findQueryToResend(SolrQuery query, QueryResponse solrResponse) {
