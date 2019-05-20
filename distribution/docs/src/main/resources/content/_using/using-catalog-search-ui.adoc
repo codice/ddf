@@ -45,6 +45,15 @@ Before searching in ${branding}, at least one workspace must be created.
 .Start new workspace
 image::start-new-workspace.png[start new workspace icon]
 
+[NOTE]
+====
+New workspaces inherit the search filter of the current workspace.
+====
+
+.Current filter is inherited
+image::search-filter.png[search filter]
+
+
 .Using a template
 . From the *Workspaces* view, click on an existing template.
 . Change the workspace title by clicking on the temporary workspace title in the upper left corner and entering a new title.
