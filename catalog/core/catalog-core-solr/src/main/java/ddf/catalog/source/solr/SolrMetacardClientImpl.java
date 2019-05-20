@@ -258,7 +258,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
           totalHits = docs.getNumFound();
           addDocsToResults(docs, results);
         }
-        responseProps.put(SHOWING_RESULTS_FOR_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
+        responseProps.put(
+            SHOWING_RESULTS_FOR_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
       }
 
       if (isFacetedQuery) {

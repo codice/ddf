@@ -27,6 +27,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.source.solr.SolrMetacardClientImpl;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -36,8 +37,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
-import ddf.catalog.source.solr.SolrMetacardClientImpl;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTerm;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTermsDelegate;
 import org.codice.ddf.catalog.ui.transformer.TransformerDescriptors;
@@ -142,7 +141,9 @@ public class CqlQueryResponse {
             .collect(Collectors.toList());
 
     this.facets = getFacetResults(queryResponse.getPropertyValue(EXPERIMENTAL_FACET_RESULTS_KEY));
-    this.showingResultsForFields = (List<String>) queryResponse.getProperties().get(SolrMetacardClientImpl.SHOWING_RESULTS_FOR_KEY);
+    this.showingResultsForFields =
+        (List<String>)
+            queryResponse.getProperties().get(SolrMetacardClientImpl.SHOWING_RESULTS_FOR_KEY);
   }
 
   private Map<String, List<FacetValueCount>> getFacetResults(Serializable facetResults) {
