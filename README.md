@@ -15,7 +15,7 @@
 
 # [Distributed Data Framework \(DDF\)](http://ddf.codice.org/)
 [![CLA assistant](https://cla-assistant.io/readme/badge/codice/ddf)](https://cla-assistant.io/codice/ddf)
-
+[![pullreminders](https://pullreminders.com/badge.svg)](https://pullreminders.com?ref=badge)
 
 
 Distributed Data Framework (DDF) is an open source, modular integration framework. 
