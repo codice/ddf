@@ -120,17 +120,19 @@ class ResultItems extends React.Component<Props, State> {
         <SolrQueryDisplay className={className}>
           <div className="solr-query">
             {showingResultsFor}
-            {showingResultsForFields !== null && showingResultsForFields !== undefined && showingResultsForFields.length > 2 && (
-              <a
-                onClick={() => {
-                  this.setState({
-                    expandSearchFieldText: !this.state.expandSearchFieldText,
-                  })
-                }}
-              >
-                {this.state.expandSearchFieldText ? 'less' : 'more'}
-              </a>
-            )}
+            {showingResultsForFields !== null &&
+              showingResultsForFields !== undefined &&
+              showingResultsForFields.length > 2 && (
+                <a
+                  onClick={() => {
+                    this.setState({
+                      expandSearchFieldText: !this.state.expandSearchFieldText,
+                    })
+                  }}
+                >
+                  {this.state.expandSearchFieldText ? 'less' : 'more'}
+                </a>
+              )}
           </div>
           {this.createResultItemCollectionView()}
         </SolrQueryDisplay>
