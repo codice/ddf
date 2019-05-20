@@ -118,6 +118,7 @@ const ResultSelector = Marionette.LayoutView.extend({
           showingResultsForFields={this.model
             .get('result')
             .get('showingResultsForFields')}
+          didYouMeanFields={this.model.get('result').get('didYouMeanFields')}
           userSpellcheckIsOn={this.model
             .get('result')
             .get('userSpellcheckIsOn')}

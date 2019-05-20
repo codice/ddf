@@ -11,6 +11,7 @@ type Props = {
   selectionInterface: any
   className?: string
   showingResultsForFields: any[]
+  didYouMeanFields: any[]
   userSpellcheckIsOn: boolean
 }
 
@@ -30,12 +31,10 @@ const ResultItemCollection = styled.div`
 
 const SolrQueryDisplay = styled.div`
   > .solr-query {
-    padding: ${props => props.theme.minimumSpacing};
+    padding: .25rem;
     box-shadow: none !important;
     text-align: center;
     font-size: 12px;
-    white-space: wrap;
-    word-wrap: normal;
   }
 `
 
@@ -53,8 +52,21 @@ const ResultGroup = styled.div`
   }
 `
 
+const ShowMore = styled.a`
+  padding: .25rem
+`
+
+const ResendQuery = styled.a`
+  padding: .15rem;
+  box-shadow: none !important;
+  text-align: center;
+  font-size: 12px;
+  text-decoration: none;
+`
+
 type State = {
-  expandSearchFieldText: boolean
+  expandShowingResultForText: boolean
+  expandDidYouMeanFieldText: boolean
 }
 
 class ResultItems extends React.Component<Props, State> {
@@ -62,7 +74,8 @@ class ResultItems extends React.Component<Props, State> {
     super(props)
 
     this.state = {
-      expandSearchFieldText: false,
+      expandShowingResultForText: false,
+      expandDidYouMeanFieldText: false,
     }
   }
 
@@ -73,7 +86,7 @@ class ResultItems extends React.Component<Props, State> {
       showingResultsForFields !== null
     ) {
       if (
-        !this.state.expandSearchFieldText &&
+        !this.state.expandShowingResultForText &&
         showingResultsForFields.length > 2
       ) {
         showingResultsFor += this.createCondensedResultsForText(
@@ -86,6 +99,21 @@ class ResultItems extends React.Component<Props, State> {
         showingResultsForFields
       )
       return showingResultsFor
+    }
+  }
+
+  createDidYouMeanText(didYouMeanFields: any[]) {
+    let didYouMean = 'Did you mean '
+    if (didYouMeanFields !== undefined && didYouMeanFields !== null) {
+      if (
+        !this.state.expandDidYouMeanFieldText &&
+        didYouMeanFields.length > 2
+      ) {
+        didYouMean += this.createCondensedResultsForText(didYouMeanFields)
+        return didYouMean
+      }
+      didYouMean += this.createExpandedResultsForText(didYouMeanFields)
+      return didYouMean
     }
   }
 
@@ -104,6 +132,7 @@ class ResultItems extends React.Component<Props, State> {
       results,
       className,
       showingResultsForFields,
+      didYouMeanFields,
       userSpellcheckIsOn,
     } = this.props
     if (results.length === 0) {
@@ -114,28 +143,55 @@ class ResultItems extends React.Component<Props, State> {
       )
     } else if (userSpellcheckIsOn) {
       const showingResultsFor = this.createShowResultText(
-        showingResultsForFields
-      )
+          showingResultsForFields
+        )
+      const  didYouMean = this.createDidYouMeanText(didYouMeanFields)
+
       return (
-        <SolrQueryDisplay className={className}>
-          <div className="solr-query">
-            {showingResultsFor}
-            {showingResultsForFields !== null &&
-              showingResultsForFields !== undefined &&
-              showingResultsForFields.length > 2 && (
-                <a
-                  onClick={() => {
-                    this.setState({
-                      expandSearchFieldText: !this.state.expandSearchFieldText,
-                    })
-                  }}
-                >
-                  {this.state.expandSearchFieldText ? 'less' : 'more'}
-                </a>
-              )}
-          </div>
+        <div>
+          <SolrQueryDisplay className={className}>
+            <div className="solr-query">
+              {showingResultsFor}
+              {showingResultsForFields !== null &&
+                showingResultsForFields !== undefined &&
+                showingResultsForFields.length > 2 && (
+                  <ShowMore
+                    onClick={() => {
+                      this.setState({
+                        expandShowingResultForText: !this.state
+                          .expandShowingResultForText,
+                      })
+                    }}
+                  >
+                    {this.state.expandShowingResultForText ? 'less' : 'more'}
+                  </ShowMore>
+                )}
+            </div>
+          </SolrQueryDisplay>
+          <ResendQuery className={className}
+          onClick={() => {
+            
+          }}>
+            <div className="solr-query">
+              {didYouMean}
+              {didYouMeanFields !== null &&
+                didYouMeanFields !== undefined &&
+                didYouMeanFields.length > 2 && (
+                  <ShowMore
+                    onClick={() => {
+                      this.setState({
+                        expandDidYouMeanFieldText: !this.state
+                          .expandDidYouMeanFieldText,
+                      })
+                    }}
+                  >
+                    {this.state.expandDidYouMeanFieldText ? 'less' : 'more'}
+                  </ShowMore>
+                )}
+            </div>
+          </ResendQuery>
           {this.createResultItemCollectionView()}
-        </SolrQueryDisplay>
+        </div>
       )
     } else {
       return this.createResultItemCollectionView()

@@ -116,6 +116,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   public static final String SHOWING_RESULTS_FOR_KEY = "showingResultsFor";
 
+  public static final String DID_YOU_MEAN_KEY = "didYouMean";
+
   public static final String SPELLCHECK_KEY = "spellcheck";
 
   public static final int GET_BY_ID_LIMIT = 100;
@@ -254,6 +256,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       }
 
       if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
+        responseProps.put(DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
         query.set("q", findQueryToResend(query, solrResponse));
         solrResponse = client.query(query, METHOD.POST);
         docs = solrResponse.getResults();
