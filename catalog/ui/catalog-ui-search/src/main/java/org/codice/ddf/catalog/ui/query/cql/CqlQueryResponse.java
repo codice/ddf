@@ -36,6 +36,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import ddf.catalog.source.solr.SolrMetacardClientImpl;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTerm;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTermsDelegate;
 import org.codice.ddf.catalog.ui.transformer.TransformerDescriptors;
@@ -58,7 +60,7 @@ public class CqlQueryResponse {
 
   private final Map<String, List<FacetValueCount>> facets;
 
-  private final List<String> solrQuery;
+  private final List<String> showingResultsForFields;
 
   // Transient so as not to be serialized to/from JSON
   private final transient QueryResponse queryResponse;
@@ -140,7 +142,7 @@ public class CqlQueryResponse {
             .collect(Collectors.toList());
 
     this.facets = getFacetResults(queryResponse.getPropertyValue(EXPERIMENTAL_FACET_RESULTS_KEY));
-    this.solrQuery = (List<String>) queryResponse.getProperties().get("query");
+    this.showingResultsForFields = (List<String>) queryResponse.getProperties().get(SolrMetacardClientImpl.SHOWING_RESULTS_FOR_KEY);
   }
 
   private Map<String, List<FacetValueCount>> getFacetResults(Serializable facetResults) {

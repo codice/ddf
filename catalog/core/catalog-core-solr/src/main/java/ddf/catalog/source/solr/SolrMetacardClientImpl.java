@@ -77,7 +77,6 @@ import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.SpellCheckResponse.Collation;
-import org.apache.solr.client.solrj.response.SpellCheckResponse.Suggestion;
 import org.apache.solr.client.solrj.response.SuggesterResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -115,9 +114,13 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   public static final String POINT_KEY = "pt";
 
+  public static final String SHOWING_RESULTS_FOR_KEY = "showingResultsFor";
+
   public static final int GET_BY_ID_LIMIT = 100;
 
   public static final String EXCLUDE_ATTRIBUTES = "excludeAttributes";
+
+  private static final String RESOURCE_ATTRIBUTE = "resource";
 
   private final SolrClient client;
 
@@ -126,8 +129,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private final FilterAdapter filterAdapter;
 
   private final DynamicSchemaResolver resolver;
-
-  //  private static final String COMMA_DELIMITER = ", ";
 
   private static final Supplier<Boolean> ZERO_PAGESIZE_COMPATIBILTY =
       () -> Boolean.valueOf(System.getProperty(ZERO_PAGESIZE_COMPATIBILITY_PROPERTY));
@@ -257,7 +258,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
           totalHits = docs.getNumFound();
           addDocsToResults(docs, results);
         }
-        responseProps.put("query", (Serializable) getSearchTermFieldValues(solrResponse));
+        responseProps.put(SHOWING_RESULTS_FOR_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
       }
 
       if (isFacetedQuery) {
@@ -277,16 +278,13 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   }
 
   private List<String> getSearchTermFieldValues(QueryResponse solrResponse) {
-    Map<String, Suggestion> suggestions = solrResponse.getSpellCheckResponse().getSuggestionMap();
-    Set<String> fieldValues = suggestions.keySet();
+    Set<String> fieldValues = solrResponse.getSpellCheckResponse().getSuggestionMap().keySet();
     removeResourceFieldValue(fieldValues);
     return new ArrayList<>(fieldValues);
   }
 
   private void removeResourceFieldValue(Set<String> fieldValues) {
-    if (fieldValues.contains("resource")) {
-      fieldValues.remove("resource");
-    }
+    fieldValues.remove(RESOURCE_ATTRIBUTE);
   }
 
   private boolean userSpellcheckIsOn(QueryRequest request) {
@@ -300,7 +298,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private boolean solrSpellcheckHasResults(QueryResponse solrResponse) {
     return solrResponse.getSpellCheckResponse() != null
         && solrResponse.getResults().size() == 0
-        && solrResponse.getSpellCheckResponse().getSuggestions().size() > 0;
+        && solrResponse.getSpellCheckResponse().getCollatedResults().size() > 0;
   }
 
   private String findQueryToResend(SolrQuery query, QueryResponse solrResponse) {
