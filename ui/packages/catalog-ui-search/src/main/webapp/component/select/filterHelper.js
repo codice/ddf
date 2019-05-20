@@ -14,30 +14,37 @@
  **/
 function matchesFilter(filterValue, str, matchcase) {
   filterValue = getAppropriateString(filterValue, matchcase)
+  filterValue = escapeRegExp(filterValue)
+  str = escapeRegExp(str)
   const reg = new RegExp('\\b' + filterValue + '.*')
   if (getAppropriateString(str, matchcase).match(reg) !== null) {
     return true
   }
-  if (
-    wordStartsWithFilter(getWords(str, matchcase), filterValue) === undefined
-  ) {
-    return false
-  }
-  return true
+  return (
+    wordStartsWithFilter(getWords(str, matchcase), filterValue) !== undefined
+  )
 }
+
 function getAppropriateString(str, matchcase) {
   str = str.toString()
   return matchcase === true ? str : str.toLowerCase()
 }
+
 function getWords(str, matchcase) {
   //Handle camelcase
   str = str.replace(/([A-Z])/g, ' $1')
   str = getAppropriateString(str, matchcase)
   //Handle dashes, dots, and spaces
-  return str.split(/[-\.\s]+/)
+  return str.split(/[-.\s]+/)
 }
+
 function wordStartsWithFilter(words, filter) {
   return words.find(word => word.indexOf(filter) === 0)
+}
+
+// Note that dot "." cannot be escaped since it's one of the attribute name delimiters AND a regex symbol
+function escapeRegExp(string) {
+  return string.replace(/[*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
 }
 
 export { matchesFilter, getAppropriateString }
