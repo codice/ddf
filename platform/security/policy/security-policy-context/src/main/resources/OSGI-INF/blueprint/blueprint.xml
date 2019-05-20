@@ -24,6 +24,7 @@
         <property name="authenticationTypes">
             <array value-type="java.lang.String">
                 <value>/=IDP|GUEST</value>
+                <value>/admin=IDP|basic</value>
             </array>
         </property>
         <property name="requiredAttributes">

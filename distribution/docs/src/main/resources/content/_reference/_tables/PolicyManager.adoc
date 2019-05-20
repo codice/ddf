@@ -27,7 +27,7 @@
 |authenticationTypes
 |String
 |List of authentication types required for each context. List of default valid authentication types are: IDP, SAML, BASIC, PKI, GUEST. Example: /context=AUTH1|AUTH2|AUTH3
-|/=IDP|GUEST
+|/=IDP|GUEST,/admin=IDP|basic
 |true
 
 |Required Attributes
