@@ -4,8 +4,7 @@ import { hot } from 'react-hot-loader'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import styled from '../../react-component/styles/styled-components'
 
-const MAX_RESULT_FOR_STRING_LENGTH = 69
-const SHOW_MORE_LENGTH = 11
+const SHOW_MORE_LENGTH = 2
 
 type Props = {
   results: any[]
@@ -34,6 +33,8 @@ const SolrQueryDisplay = styled.div`
     box-shadow: none !important;
     text-align: center;
     font-size: 12px;
+    white-space: wrap;
+    word-wrap: normal;
   }
 `
 
@@ -51,110 +52,125 @@ const ResultGroup = styled.div`
   }
 `
 
-const render = (props: Props) => {
-  const { results } = props
-  if (results.length === 0) {
-    return getNoResultsView(props)
+type State = {
+  expandSearchFieldText: boolean
+}
+
+class ResultItems extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
+
+    this.state = {
+      expandSearchFieldText: false,
+    }
   }
-  return getResultView(props)
-}
 
-const getNoResultsView = (props: Props) => {
-  const { className } = props
-  return (
-    <ResultItemCollection className={className}>
-      <div className="result-item-collection-empty">No Results Found</div>
-    </ResultItemCollection>
-  )
-}
-
-const getResultView = (props: Props) => {
-  const { results, selectionInterface, className, solrQuery } = props
-  const showingResultsFor = createShowResultText(solrQuery)
-
-  return (
-    <SolrQueryDisplay className={className}>
-      <div className="solr-query">{showingResultsFor}</div>
-      <ResultItemCollection
-        className={`${className} is-list has-list-highlighting`}
-      >
-        {results.map(result => {
-          if (result.duplicates) {
-            const amount = result.duplicates.length + 1
-            return (
-              <ResultGroup key={result.id}>
-                <div className="group-representation">{amount} duplicates</div>
-                <div className="group-results global-bracket is-left">
-                  <ResultItemCollection className="is-list has-list-highlighting">
-                    <MarionetteRegionContainer
-                      view={childView}
-                      viewOptions={{
-                        selectionInterface,
-                        model: result,
-                      }}
-                      replaceElement
-                    />
-                    {result.duplicates.map((duplicate: any) => {
-                      return (
-                        <MarionetteRegionContainer
-                          key={duplicate.id}
-                          view={childView}
-                          viewOptions={{
-                            selectionInterface,
-                            model: duplicate,
-                          }}
-                          replaceElement
-                        />
-                      )
-                    })}
-                  </ResultItemCollection>
-                </div>
-              </ResultGroup>
-            )
-          } else {
-            return (
-              <MarionetteRegionContainer
-                key={result.id}
-                view={childView}
-                viewOptions={{
-                  selectionInterface,
-                  model: result,
-                }}
-                replaceElement
-              />
-            )
-          }
-        })}
-      </ResultItemCollection>
-    </SolrQueryDisplay>
-  )
-}
-
-function createShowResultText(solrQuery: any[]) {
-  if (solrQuery !== undefined && solrQuery !== null) {
+  createShowResultText(solrQuery: any[]) {
     let showingResultsFor = 'Showing Results for '
-    for (let i = 0; i < solrQuery.length - 1; i++) {
-      showingResultsFor = checkMaxLength(showingResultsFor, solrQuery) + ', '
+    if (solrQuery !== undefined && solrQuery !== null) {
+      if (!this.state.expandSearchFieldText && solrQuery.length > 2) {
+        showingResultsFor += this.createCondensedResultsForText(solrQuery)
+        return showingResultsFor
+      }
+
+      showingResultsFor += this.createExpandedResultsForText(solrQuery)
+      return showingResultsFor
     }
-    if (
-      showingResultsFor.length + solrQuery[0].length <
-      MAX_RESULT_FOR_STRING_LENGTH
-    ) {
-      return checkMaxLength(showingResultsFor, solrQuery)
+  }
+
+  createCondensedResultsForText(solrQuery: any[]) {
+    const copyQuery = [...solrQuery]
+    copyQuery.splice(0, copyQuery.length - SHOW_MORE_LENGTH)
+    return copyQuery.join(', ')
+  }
+
+  createExpandedResultsForText(solrQuery: any[]) {
+    return solrQuery.join(', ')
+  }
+
+  render() {
+    const { results, selectionInterface, className, solrQuery } = this.props
+    const showingResultsFor = this.createShowResultText(solrQuery)
+    if (results.length === 0) {
+      return (
+        <ResultItemCollection className={className}>
+          <div className="result-item-collection-empty">No Results Found</div>
+        </ResultItemCollection>
+      )
     }
-    return showingResultsFor
+    return (
+      <SolrQueryDisplay className={className}>
+        <div className="solr-query">
+          {showingResultsFor}
+          {solrQuery.length > 2 && (
+            <a
+              onClick={() => {
+                this.setState({
+                  expandSearchFieldText: !this.state.expandSearchFieldText,
+                })
+              }}
+            >
+              {this.state.expandSearchFieldText ? 'less' : 'more'}
+            </a>
+          )}
+        </div>
+
+        <ResultItemCollection
+          className={`${className} is-list has-list-highlighting`}
+        >
+          {results.map(result => {
+            if (result.duplicates) {
+              const amount = result.duplicates.length + 1
+              return (
+                <ResultGroup key={result.id}>
+                  <div className="group-representation">
+                    {amount} duplicates
+                  </div>
+                  <div className="group-results global-bracket is-left">
+                    <ResultItemCollection className="is-list has-list-highlighting">
+                      <MarionetteRegionContainer
+                        view={childView}
+                        viewOptions={{
+                          selectionInterface,
+                          model: result,
+                        }}
+                        replaceElement
+                      />
+                      {result.duplicates.map((duplicate: any) => {
+                        return (
+                          <MarionetteRegionContainer
+                            key={duplicate.id}
+                            view={childView}
+                            viewOptions={{
+                              selectionInterface,
+                              model: duplicate,
+                            }}
+                            replaceElement
+                          />
+                        )
+                      })}
+                    </ResultItemCollection>
+                  </div>
+                </ResultGroup>
+              )
+            } else {
+              return (
+                <MarionetteRegionContainer
+                  key={result.id}
+                  view={childView}
+                  viewOptions={{
+                    selectionInterface,
+                    model: result,
+                  }}
+                  replaceElement
+                />
+              )
+            }
+          })}
+        </ResultItemCollection>
+      </SolrQueryDisplay>
+    )
   }
 }
 
-function checkMaxLength(currentResultForText: string, solrQuery: any[]) {
-  const fieldValue = solrQuery.shift()
-  if (
-    currentResultForText.length + fieldValue.length <
-    MAX_RESULT_FOR_STRING_LENGTH - SHOW_MORE_LENGTH
-  ) {
-    return (currentResultForText += fieldValue)
-  }
-  return (currentResultForText += '... +' + (solrQuery.length + 1) + ' more')
-}
-
-export default hot(module)(render)
+export default hot(module)(ResultItems)
