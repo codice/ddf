@@ -44,6 +44,7 @@ import org.codice.ddf.platform.session.api.HttpSessionInvalidator;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.session.DefaultSessionIdManager;
 import org.eclipse.jetty.server.session.Session;
+import org.eclipse.jetty.server.session.SessionData;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -181,19 +182,17 @@ public class AttributeSharingHashSessionIdManager extends DefaultSessionIdManage
    *
    * @param callingDataStore the datastore providing the attributes
    * @param id the session id
-   * @param sessionAttributes the session attributes
+   * @param sessionData the session attributes
    */
   protected void provideNewSessionAttributes(
-      AttributeSharingSessionDataStore callingDataStore,
-      String id,
-      Map<String, Object> sessionAttributes) {
+      AttributeSharingSessionDataStore callingDataStore, String id, SessionData sessionData) {
     // Make sure these attributes are different than the latest.
-    if (sessionAttributes != null) {
+    if (sessionData != null) {
       LOGGER.trace("Pushing new session attributes to all web contexts for session {}", id);
       dataStores
           .stream()
           .filter(ds -> ds != callingDataStore)
-          .forEach(ds -> ds.updateSessionAttributes(id, sessionAttributes));
+          .forEach(ds -> ds.updateSessionAttributes(id, sessionData));
     }
   }
 
