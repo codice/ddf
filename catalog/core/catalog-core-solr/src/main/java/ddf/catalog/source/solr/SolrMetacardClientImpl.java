@@ -230,12 +230,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         solrResponse = client.query(query, METHOD.POST);
       }
 
-      SolrDocumentList docs = solrResponse.getResults();
-      if (docs != null) {
-        totalHits = docs.getNumFound();
-        addDocsToResults(docs, results);
-      }
-
       SuggesterResponse suggesterResponse = solrResponse.getSuggesterResponse();
 
       if (suggesterResponse != null) {
@@ -253,6 +247,12 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
                 .collect(Collectors.toList());
 
         responseProps.put(SUGGESTION_RESULT_KEY, (Serializable) suggestionResults);
+      }
+
+      SolrDocumentList docs = solrResponse.getResults();
+      if (docs != null && !userSpellcheckIsOn) {
+        totalHits = docs.getNumFound();
+        addDocsToResults(docs, results);
       }
 
       if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {

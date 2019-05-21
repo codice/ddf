@@ -54,8 +54,13 @@ const ResultGroup = styled.div`
   }
 `
 
+const DidYouMeanContainer = styled.div`
+  text-align: center;
+`
+
 const ShowMore = styled.a`
   padding: 0.25rem;
+  font-size: 12px;
 `
 
 const ResendQuery = styled.a`
@@ -64,6 +69,7 @@ const ResendQuery = styled.a`
   text-align: center;
   font-size: 12px;
   text-decoration: none;
+  width: 100%;
 `
 
 type State = {
@@ -175,15 +181,16 @@ class ResultItems extends React.Component<Props, State> {
                 )}
             </div>
           </SolrQueryDisplay>
-          <ResendQuery
-            className={className}
-            onClick={() => {
-              this.rerunQuery()
-            }}
-          >
-            <div className="solr-query">
+          <DidYouMeanContainer>
+            <ResendQuery
+              onClick={() => {
+                this.rerunQuery()
+              }}
+            >
               {didYouMean}
-              {didYouMeanFields !== null &&
+
+            </ResendQuery>
+            {didYouMeanFields !== null &&
                 didYouMeanFields !== undefined &&
                 didYouMeanFields.length > 2 && (
                   <ShowMore
@@ -197,8 +204,8 @@ class ResultItems extends React.Component<Props, State> {
                     {this.state.expandDidYouMeanFieldText ? 'less' : 'more'}
                   </ShowMore>
                 )}
-            </div>
-          </ResendQuery>
+          </DidYouMeanContainer>
+
           {this.createResultItemCollectionView()}
         </div>
       )
