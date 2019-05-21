@@ -4,6 +4,8 @@ import { hot } from 'react-hot-loader'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import styled from '../../react-component/styles/styled-components'
 
+const store = require('../../js/store.js')
+
 const SHOW_MORE_LENGTH = 2
 
 type Props = {
@@ -31,7 +33,7 @@ const ResultItemCollection = styled.div`
 
 const SolrQueryDisplay = styled.div`
   > .solr-query {
-    padding: .25rem;
+    padding: 0.25rem;
     box-shadow: none !important;
     text-align: center;
     font-size: 12px;
@@ -53,11 +55,11 @@ const ResultGroup = styled.div`
 `
 
 const ShowMore = styled.a`
-  padding: .25rem
+  padding: 0.25rem;
 `
 
 const ResendQuery = styled.a`
-  padding: .15rem;
+  padding: 0.15rem;
   box-shadow: none !important;
   text-align: center;
   font-size: 12px;
@@ -127,6 +129,11 @@ class ResultItems extends React.Component<Props, State> {
     return showingResultsForFields.join(', ')
   }
 
+  rerunQuery() {
+    store.getCurrentQuery().set('spellcheck', false)
+    store.getCurrentQuery().startSearchFromFirstPage()
+  }
+
   render() {
     const {
       results,
@@ -143,9 +150,9 @@ class ResultItems extends React.Component<Props, State> {
       )
     } else if (userSpellcheckIsOn) {
       const showingResultsFor = this.createShowResultText(
-          showingResultsForFields
-        )
-      const  didYouMean = this.createDidYouMeanText(didYouMeanFields)
+        showingResultsForFields
+      )
+      const didYouMean = this.createDidYouMeanText(didYouMeanFields)
 
       return (
         <div>
@@ -168,10 +175,12 @@ class ResultItems extends React.Component<Props, State> {
                 )}
             </div>
           </SolrQueryDisplay>
-          <ResendQuery className={className}
-          onClick={() => {
-            
-          }}>
+          <ResendQuery
+            className={className}
+            onClick={() => {
+              this.rerunQuery()
+            }}
+          >
             <div className="solr-query">
               {didYouMean}
               {didYouMeanFields !== null &&
