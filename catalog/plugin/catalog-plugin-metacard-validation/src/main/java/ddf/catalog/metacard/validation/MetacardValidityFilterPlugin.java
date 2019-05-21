@@ -163,7 +163,7 @@ public class MetacardValidityFilterPlugin extends PreFederatedLocalProviderQuery
         // the original query
         QueryImpl newQuery =
             new QueryImpl(
-                filterBuilder.allOf(filterBuilder.allOf(filters), query),
+                filterBuilder.allOf(query, filterBuilder.allOf(filters)),
                 query.getStartIndex(),
                 query.getPageSize(),
                 query.getSortBy(),

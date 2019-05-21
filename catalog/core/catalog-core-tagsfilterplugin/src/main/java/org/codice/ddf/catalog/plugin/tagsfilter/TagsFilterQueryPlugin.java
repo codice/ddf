@@ -69,7 +69,7 @@ public class TagsFilterQueryPlugin extends PreFederatedLocalProviderQueryPlugin 
       // no tags filter given in props or in query. Add the default ones.
       filters.add(filterBuilder.attribute(Metacard.TAGS).is().like().text(Metacard.DEFAULT_TAG));
       filters.add(filterBuilder.attribute(Metacard.TAGS).empty());
-      Filter newFilter = filterBuilder.allOf(filterBuilder.anyOf(filters), query);
+      Filter newFilter = filterBuilder.allOf(query, filterBuilder.anyOf(filters));
 
       QueryImpl newQuery =
           new QueryImpl(
