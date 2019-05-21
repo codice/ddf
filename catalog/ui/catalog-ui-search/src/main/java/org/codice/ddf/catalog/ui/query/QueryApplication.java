@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.ui.query;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
-import static spark.Spark.after;
 import static spark.Spark.before;
 import static spark.Spark.exception;
 import static spark.Spark.get;
@@ -106,8 +105,6 @@ public class QueryApplication implements SparkApplication, Function {
           CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
           return GSON.toJson(cqlQueryResponse);
         });
-
-    after("/cql", (req, res) -> res.header("Content-Encoding", "gzip"));
 
     post("/cql/transform/:transformerId", cqlTransformHandler, GSON::toJson);
 

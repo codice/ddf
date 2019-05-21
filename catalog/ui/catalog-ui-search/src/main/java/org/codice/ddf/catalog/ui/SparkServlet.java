@@ -124,6 +124,20 @@ public class SparkServlet extends HttpServlet {
 
     after(
         (request, response) -> {
+          if (response.raw().containsHeader("Content-Encoding")) {
+            return;
+          }
+
+          String acceptEncoding = request.headers("Accept-Encoding");
+
+          boolean shouldGzip =
+              StringUtils.isNotBlank(acceptEncoding)
+                  && acceptEncoding.toLowerCase().contains("gzip");
+
+          if (!shouldGzip) {
+            return;
+          }
+
           response.header("Content-Encoding", "gzip");
         });
   }
