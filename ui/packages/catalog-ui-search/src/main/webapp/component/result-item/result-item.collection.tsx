@@ -188,22 +188,21 @@ class ResultItems extends React.Component<Props, State> {
               }}
             >
               {didYouMean}
-
             </ResendQuery>
             {didYouMeanFields !== null &&
-                didYouMeanFields !== undefined &&
-                didYouMeanFields.length > 2 && (
-                  <ShowMore
-                    onClick={() => {
-                      this.setState({
-                        expandDidYouMeanFieldText: !this.state
-                          .expandDidYouMeanFieldText,
-                      })
-                    }}
-                  >
-                    {this.state.expandDidYouMeanFieldText ? 'less' : 'more'}
-                  </ShowMore>
-                )}
+              didYouMeanFields !== undefined &&
+              didYouMeanFields.length > 2 && (
+                <ShowMore
+                  onClick={() => {
+                    this.setState({
+                      expandDidYouMeanFieldText: !this.state
+                        .expandDidYouMeanFieldText,
+                    })
+                  }}
+                >
+                  {this.state.expandDidYouMeanFieldText ? 'less' : 'more'}
+                </ShowMore>
+              )}
           </DidYouMeanContainer>
 
           {this.createResultItemCollectionView()}
