@@ -18,11 +18,7 @@
   "devDependencies": {
     "@types/react": "16.4.18",
     "@types/react-dom": "16.0.9",
-    "@connexta/ace": "*",
-    "stylelint": "9.5.0",
-    "stylelint-config-recommended": "2.1.0",
-    "stylelint-config-styled-components": "0.1.1",
-    "stylelint-processor-styled-components": "1.3.2"
+    "@connexta/ace": "*"
   },
   "dependencies": {
     "@connexta/atlas": "0.0.35",
