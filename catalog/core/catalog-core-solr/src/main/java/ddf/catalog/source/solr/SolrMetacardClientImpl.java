@@ -250,23 +250,29 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       }
 
       SolrDocumentList docs = solrResponse.getResults();
-      if (docs != null && !userSpellcheckIsOn) {
+      int originalQueryResultsSize = docs.size();
+      if (docs != null) {
         totalHits = docs.getNumFound();
         addDocsToResults(docs, results);
       }
 
       if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
-        responseProps.put(DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
         query.set("q", findQueryToResend(query, solrResponse));
-        solrResponse = client.query(query, METHOD.POST);
-        docs = solrResponse.getResults();
-        results = new ArrayList<>();
-        if (docs != null) {
-          totalHits = docs.getNumFound();
-          addDocsToResults(docs, results);
+        QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
+        docs = solrResponseRequery.getResults();
+        if (docs.size() > originalQueryResultsSize) {
+          results = new ArrayList<>();
+          if (docs != null) {
+            totalHits = docs.getNumFound();
+            addDocsToResults(docs, results);
+          }
+
+          responseProps.put(
+              DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
+          responseProps.put(
+              SHOWING_RESULTS_FOR_KEY,
+              (Serializable) getSearchTermFieldValues(solrResponseRequery));
         }
-        responseProps.put(
-            SHOWING_RESULTS_FOR_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
       }
 
       if (isFacetedQuery) {
