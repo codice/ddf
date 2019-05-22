@@ -13,18 +13,24 @@
  */
 package org.codice.ddf.platform.migratable.impl;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,6 +38,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -121,27 +128,34 @@ public class PlatformMigratableTest {
           Paths.get("etc", "ws-security", "server", "encryption.properties"),
           Paths.get("etc", "ws-security", "server", "signature.properties"));
 
+  private static final Path SYSTEM_PROPERTIES_PATH = Paths.get("etc", "custom.system.properties");
+
   private static final List<Path> REQUIRED_SYSTEM_FILES =
       ImmutableList.of(
-          Paths.get("etc", "custom.system.properties"),
+          SYSTEM_PROPERTIES_PATH,
           Paths.get("etc", "system.properties"),
           Paths.get("etc", "startup.properties"),
           Paths.get("etc", "custom.properties"),
           Paths.get("etc", "config.properties"));
 
+  private static final List<Path> UPGRADEABLE_SYSTEM_FILES =
+      ImmutableList.of( //
+          Paths.get("etc", "users.properties"), Paths.get("etc", "users.attributes"));
+
   private static final List<Path> OPTIONAL_SYSTEM_FILES =
-      ImmutableList.of(
-          Paths.get("etc", "users.properties"),
-          Paths.get("etc", "users.attributes"),
-          Paths.get("etc", "pdp", "ddf-metacard-attribute-ruleset.cfg"),
-          Paths.get("etc", "pdp", "ddf-user-attribute-ruleset.cfg"),
-          Paths.get("etc", "org.codice.ddf.admin.applicationlist.properties"),
-          Paths.get("etc", "fipsToIso.properties"),
-          Paths.get("etc", "log4j2.xml"),
-          Paths.get("etc", "certs", "meta"),
-          Paths.get("etc", "certs", "1"),
-          Paths.get("bin", "karaf"),
-          Paths.get("bin", "karaf.bat"));
+      ImmutableList.<Path>builder()
+          .addAll(UPGRADEABLE_SYSTEM_FILES)
+          .add(
+              Paths.get("etc", "pdp", "ddf-metacard-attribute-ruleset.cfg"),
+              Paths.get("etc", "pdp", "ddf-user-attribute-ruleset.cfg"),
+              Paths.get("etc", "org.codice.ddf.admin.applicationlist.properties"),
+              Paths.get("etc", "fipsToIso.properties"),
+              Paths.get("etc", "log4j2.xml"),
+              Paths.get("etc", "certs", "meta"),
+              Paths.get("etc", "certs", "1"),
+              Paths.get("bin", "karaf"),
+              Paths.get("bin", "karaf.bat"))
+          .build();
 
   private static final Path SERVICE_WRAPPER = Paths.get("etc", "ddf-wrapper.conf");
 
@@ -162,6 +176,16 @@ public class PlatformMigratableTest {
   private static final String DDF_IMPORTED_TAG = "original";
 
   private static final String DDF_HOME_SYSTEM_PROP_KEY = "ddf.home";
+
+  private static final String SYSTEM_PROP_CHANGED_KEY = "test";
+
+  private static final String SYSTEM_PROP_TO_PRESERVE_KEY = "solr.password";
+
+  private static final String SYSTEM_PROP_NEW_KEY = "test2";
+
+  private static final String SYSTEM_PROP_EXPORTED_VALUE = "exported";
+
+  private static final String SYSTEM_PROP_IMPORTING_VALUE = "importing";
 
   private static final PrintStream OUT = System.out;
 
@@ -204,7 +228,7 @@ public class PlatformMigratableTest {
   }
 
   /**
-   * Verify the when the system is in a default configuration, all of Platform Migratable's files
+   * Verify that when the system is in a default configuration, all of Platform Migratable's files
    * are successfully exported from system ddfExport and successfully imported into system
    * ddfImport.
    */
@@ -213,13 +237,7 @@ public class PlatformMigratableTest {
     // Setup export
     Path exportDir = tempDir.getRoot().toPath().toRealPath();
 
-    PlatformMigratable ePlatformMigratable = new PlatformMigratable();
-    List<Migratable> eMigratables = Arrays.asList(ePlatformMigratable);
-    ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(eMigratables, systemService);
-
-    // Perform export
-    MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
+    MigrationReport exportReport = doExport(exportDir);
 
     // Verify export
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -251,6 +269,37 @@ public class PlatformMigratableTest {
     verifyServiceWrapperImported();
   }
 
+  /**
+   * Verify that when the system is in a default configuration, all of Platform Migratable's
+   * relevant files are successfully imported into system for a version upgrade import.
+   */
+  @Test
+  public void testDoVersionUpgradeImport() throws IOException {
+    // Setup export
+    Path exportDir = tempDir.getRoot().toPath().toRealPath();
+
+    MigrationReport exportReport = doExport(exportDir);
+
+    // Setup import
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+
+    PlatformMigratable iPlatformMigratable = spy(new PlatformMigratable());
+    when(iPlatformMigratable.getVersion()).thenReturn("3.0");
+    List<Migratable> iMigratables = Arrays.asList(iPlatformMigratable);
+    ConfigurationMigrationManager iConfigurationMigrationManager =
+        new ConfigurationMigrationManager(iMigratables, systemService);
+
+    MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
+
+    // Verify import
+    assertThat("The import report has errors.", importReport.hasErrors(), is(false));
+    assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
+    assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
+    verifyUpgradeableSystemFilesImported();
+    verifyKeystoresImported();
+    verifyServiceWrapperImported();
+  }
+
   /** Verifies that when an optional file is missing the export succeeds and so does the import. */
   @Test
   public void testDoExportAndDoImportOptionalFileNotExported() throws IOException {
@@ -266,13 +315,7 @@ public class PlatformMigratableTest {
             .filter(p -> !p.equals(Paths.get("etc", "users.properties")))
             .collect(Collectors.toList());
 
-    PlatformMigratable ePlatformMigratable = new PlatformMigratable();
-    List<Migratable> eMigratables = Arrays.asList(ePlatformMigratable);
-    ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(eMigratables, systemService);
-
-    // Perform export
-    MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
+    MigrationReport exportReport = doExport(exportDir);
 
     // Verify export
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -304,6 +347,42 @@ public class PlatformMigratableTest {
     verifyServiceWrapperImported();
   }
 
+  /** Verifies that when an optional file is missing the version upgrade import still succeeds. */
+  @Test
+  public void testDoVersionUpgradeImportOptionalFileNotExported() throws IOException {
+    // Setup export
+    Path exportDir = tempDir.getRoot().toPath().toRealPath();
+
+    // Delete etc/users.properties. This file is optional, so it will not generate
+    // an error during export.
+    Files.delete(ddfHome.resolve("etc").resolve("users.properties").toRealPath());
+    List<Path> optionalFilesExported =
+        OPTIONAL_SYSTEM_FILES
+            .stream()
+            .filter(p -> !p.equals(Paths.get("etc", "users.properties")))
+            .collect(Collectors.toList());
+
+    MigrationReport exportReport = doExport(exportDir);
+
+    // Setup import
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+
+    PlatformMigratable iPlatformMigratable = spy(new PlatformMigratable());
+    when(iPlatformMigratable.getVersion()).thenReturn("3.0");
+    List<Migratable> iMigratables = Arrays.asList(iPlatformMigratable);
+    ConfigurationMigrationManager iConfigurationMigrationManager =
+        new ConfigurationMigrationManager(iMigratables, systemService);
+
+    MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
+
+    // Verify import
+    assertThat("The import report has errors.", importReport.hasErrors(), is(false));
+    assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
+    assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
+    verifyKeystoresImported();
+    verifyServiceWrapperImported();
+  }
+
   /**
    * Verifies that when a required files is missing, the export fails and no zip file is created.
    */
@@ -316,13 +395,7 @@ public class PlatformMigratableTest {
     // should get an export error.
     Files.delete(ddfHome.resolve("etc").resolve("custom.system.properties").toRealPath());
 
-    PlatformMigratable platformMigratable = new PlatformMigratable();
-    List<Migratable> configMigratables = Arrays.asList(platformMigratable);
-    ConfigurationMigrationManager configurationMigrationManager =
-        new ConfigurationMigrationManager(configMigratables, systemService);
-
-    // Perform export
-    MigrationReport exportReport = configurationMigrationManager.doExport(exportDir, this::print);
+    MigrationReport exportReport = doExport(exportDir);
 
     // Verify export
     assertThat("The export report doesn't not have errors.", exportReport.hasErrors(), is(true));
@@ -373,13 +446,7 @@ public class PlatformMigratableTest {
       }
     }
 
-    PlatformMigratable ePlatformMigratable = new PlatformMigratable();
-    List<Migratable> eMigratables = Arrays.asList(ePlatformMigratable);
-    ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(eMigratables, systemService);
-
-    // Perform export
-    MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
+    MigrationReport exportReport = doExport(exportDir);
 
     // Verify export
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -443,6 +510,169 @@ public class PlatformMigratableTest {
     verifyOptionalSystemFilesImported();
     verifyWsSecurityFilesImported();
     verifyServiceWrapperImported();
+  }
+
+  /**
+   * Verify that when the keystore and truststore are located outside of they system home directory,
+   * warnings are not recorded on import.
+   */
+  @Test
+  public void testDoVersionUpgradeImportKeystoresOutsideOfDdfHome() throws IOException {
+    // Setup export
+    Path exportDir = tempDir.getRoot().toPath().toRealPath();
+
+    // For export, move keystore and truststore into tempDir and reset system properties
+    for (Map.Entry<String, Path> entry : KEYSTORES_MAP.entrySet()) {
+      Path source = ddfHome.resolve(entry.getValue()).toRealPath();
+      Files.move(
+          source, tempDir.getRoot().toPath().toRealPath().resolve(entry.getValue().getFileName()));
+
+      if ("keystore".equals(entry.getKey())) {
+        System.setProperty(
+            KEYSTORE_SYSTEM_PROP_KEY,
+            tempDir
+                .getRoot()
+                .toPath()
+                .resolve(entry.getValue().getFileName())
+                .toRealPath()
+                .toString());
+      } else if ("truststore".equals(entry.getKey())) {
+        System.setProperty(
+            TRUSTSTORE_SYSTEM_PROP_KEY,
+            tempDir
+                .getRoot()
+                .toPath()
+                .resolve(entry.getValue().getFileName())
+                .toRealPath()
+                .toString());
+      }
+    }
+
+    MigrationReport exportReport = doExport(exportDir);
+
+    // Setup import
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    // For import, delete keystore and truststore since they are already in tempDir and reset system
+    // properties.
+    // Since these are outside of ddf.home, they should not be imported. A checksum should be
+    // computed
+    // to verify that they are the same as the exported files.
+    for (Map.Entry<String, Path> entry : KEYSTORES_MAP.entrySet()) {
+      Path keystore = ddfHome.resolve(entry.getValue()).toRealPath();
+      Files.delete(ddfHome.resolve(keystore));
+
+      if ("keystore".equals(entry.getKey())) {
+        System.setProperty(
+            KEYSTORE_SYSTEM_PROP_KEY,
+            tempDir
+                .getRoot()
+                .toPath()
+                .resolve(entry.getValue().getFileName())
+                .toRealPath()
+                .toString());
+      } else if ("truststore".equals(entry.getKey())) {
+        System.setProperty(
+            TRUSTSTORE_SYSTEM_PROP_KEY,
+            tempDir
+                .getRoot()
+                .toPath()
+                .resolve(entry.getValue().getFileName())
+                .toRealPath()
+                .toString());
+      }
+    }
+
+    PlatformMigratable iPlatformMigratable = spy(new PlatformMigratable());
+    when(iPlatformMigratable.getVersion()).thenReturn("3.0");
+    List<Migratable> iMigratables = Arrays.asList(iPlatformMigratable);
+    ConfigurationMigrationManager iConfigurationMigrationManager =
+        new ConfigurationMigrationManager(iMigratables, systemService);
+
+    MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
+
+    // Verify import
+    assertThat("The import report has errors.", importReport.hasErrors(), is(false));
+    assertThat("The import report does have warnings.", importReport.hasWarnings(), is(false));
+    assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
+    verifyUpgradeableSystemFilesImported();
+    verifyServiceWrapperImported();
+  }
+
+  /**
+   * Verify that when the exporting system has different system property values than the importing
+   * system, the exporting system's system property values win. Also, verify that system properties
+   * that only exist in the importing system are preserved, as well as a hard-coded list of system
+   * properties to preserve.
+   */
+  @Test
+  public void testDoVersionUpgradeImportWithNewSystemProperties() throws IOException {
+    // Setup export
+    Path exportDir = tempDir.getRoot().toPath().toRealPath();
+
+    Path exportSystemProps = ddfHome.resolve(Paths.get("etc", "custom.system.properties"));
+    Properties props = new Properties();
+
+    props.put(SYSTEM_PROP_CHANGED_KEY, SYSTEM_PROP_EXPORTED_VALUE);
+    props.put(SYSTEM_PROP_TO_PRESERVE_KEY, SYSTEM_PROP_EXPORTED_VALUE);
+
+    try (final Writer writer = new BufferedWriter(new FileWriter(exportSystemProps.toFile()))) {
+      props.store(writer, null);
+    }
+
+    MigrationReport exportReport = doExport(exportDir);
+
+    // Setup import
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+
+    Path importingSystemProps = ddfHome.resolve(Paths.get("etc", "custom.system.properties"));
+    props = new Properties();
+
+    props.put(SYSTEM_PROP_CHANGED_KEY, SYSTEM_PROP_IMPORTING_VALUE);
+    props.put(SYSTEM_PROP_TO_PRESERVE_KEY, SYSTEM_PROP_IMPORTING_VALUE);
+    props.put(SYSTEM_PROP_NEW_KEY, SYSTEM_PROP_IMPORTING_VALUE);
+
+    try (final Writer writer = new BufferedWriter(new FileWriter(importingSystemProps.toFile()))) {
+      props.store(writer, null);
+    }
+
+    PlatformMigratable iPlatformMigratable = spy(new PlatformMigratable());
+    when(iPlatformMigratable.getVersion()).thenReturn("3.0");
+    List<Migratable> iMigratables = Arrays.asList(iPlatformMigratable);
+    ConfigurationMigrationManager iConfigurationMigrationManager =
+        new ConfigurationMigrationManager(iMigratables, systemService);
+
+    MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
+
+    // Verify import
+    assertThat("The import report has errors.", importReport.hasErrors(), is(false));
+    assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
+    assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
+
+    File fileOnSystem = importingSystemProps.toRealPath().toFile();
+    org.apache.felix.utils.properties.Properties importedProps =
+        new org.apache.felix.utils.properties.Properties(fileOnSystem);
+
+    assertThat(
+        importedProps.getProperty(SYSTEM_PROP_CHANGED_KEY), equalTo(SYSTEM_PROP_EXPORTED_VALUE));
+    assertThat(
+        importedProps.getProperty(SYSTEM_PROP_TO_PRESERVE_KEY),
+        equalTo(SYSTEM_PROP_IMPORTING_VALUE));
+    assertThat(
+        importedProps.getProperty(SYSTEM_PROP_NEW_KEY), equalTo(SYSTEM_PROP_IMPORTING_VALUE));
+
+    verifyUpgradeableSystemFilesImported();
+    verifyKeystoresImported();
+    verifyServiceWrapperImported();
+  }
+
+  private MigrationReport doExport(Path exportDir) {
+    PlatformMigratable ePlatformMigratable = new PlatformMigratable();
+    List<Migratable> eMigratables = Arrays.asList(ePlatformMigratable);
+    ConfigurationMigrationManager eConfigurationMigrationManager =
+        new ConfigurationMigrationManager(eMigratables, systemService);
+
+    // Perform export
+    return eConfigurationMigrationManager.doExport(exportDir, this::print);
   }
 
   private void print(MigrationMessage msg) {
@@ -555,7 +785,7 @@ public class PlatformMigratableTest {
     for (Path sysFile : REQUIRED_SYSTEM_FILES) {
       Path p = ddfHome.resolve(sysFile).toRealPath();
       assertThat(String.format("%s does not exist.", p), p.toFile().exists(), is(true));
-      assertThat(String.format("%s was not imported.", p), verifiyImported(p), is(true));
+      assertThat(String.format("%s was not imported.", p), verifyImported(p), is(true));
     }
   }
 
@@ -563,7 +793,15 @@ public class PlatformMigratableTest {
     for (Path sysFile : OPTIONAL_SYSTEM_FILES) {
       Path p = ddfHome.resolve(sysFile).toRealPath();
       assertThat(String.format("%s does not exist.", p), p.toFile().exists(), is(true));
-      assertThat(String.format("%s was not imported.", p), verifiyImported(p), is(true));
+      assertThat(String.format("%s was not imported.", p), verifyImported(p), is(true));
+    }
+  }
+
+  private void verifyUpgradeableSystemFilesImported() throws IOException {
+    for (Path sysFile : UPGRADEABLE_SYSTEM_FILES) {
+      Path p = ddfHome.resolve(sysFile).toRealPath();
+      assertThat(String.format("%s does not exist.", p), p.toFile().exists(), is(true));
+      assertThat(String.format("%s was not imported.", p), verifyImported(p), is(true));
     }
   }
 
@@ -571,7 +809,7 @@ public class PlatformMigratableTest {
     for (Path sysFile : files) {
       Path p = ddfHome.resolve(sysFile).toRealPath();
       assertThat(String.format("%s does not exist.", p), p.toFile().exists(), is(true));
-      assertThat(String.format("%s was not imported.", p), verifiyImported(p), is(true));
+      assertThat(String.format("%s was not imported.", p), verifyImported(p), is(true));
     }
   }
 
@@ -579,7 +817,7 @@ public class PlatformMigratableTest {
     for (Path securityFile : WS_SECURITY_FILES) {
       Path p = ddfHome.resolve(securityFile).toRealPath();
       assertThat(String.format("%s does not exist.", p), p.toFile().exists(), is(true));
-      assertThat(String.format("%s was not imported.", p), verifiyImported(p), is(true));
+      assertThat(String.format("%s was not imported.", p), verifyImported(p), is(true));
     }
   }
 
@@ -589,20 +827,20 @@ public class PlatformMigratableTest {
       assertThat(
           String.format("%s does not exist.", keystore), keystore.toFile().exists(), is(true));
       assertThat(
-          String.format("%s was not imported.", keystore), verifiyImported(keystore), is(true));
+          String.format("%s was not imported.", keystore), verifyImported(keystore), is(true));
     }
   }
 
   private void verifyServiceWrapperImported() throws IOException {
     Path p = ddfHome.resolve(SERVICE_WRAPPER).toRealPath();
     assertThat(String.format("%s does not exist.", p), p.toFile().exists(), is(true));
-    assertThat(String.format("%s was not imported.", p), verifiyImported(p), is(true));
+    assertThat(String.format("%s was not imported.", p), verifyImported(p), is(true));
     p = ddfHome.resolve(SERVICE_WRAPPER_2).toRealPath();
     assertThat(String.format("%s does not exist.", p), p.toFile().exists(), is(true));
-    assertThat(String.format("%s was not imported.", p), verifiyImported(p), is(true));
+    assertThat(String.format("%s was not imported.", p), verifyImported(p), is(true));
   }
 
-  private boolean verifiyImported(Path p) throws IOException {
+  private boolean verifyImported(Path p) throws IOException {
     List<String> lines = Files.readAllLines(p, StandardCharsets.UTF_8);
     String tag = lines.get(0).split("&")[1];
     return StringUtils.equals(tag, String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME));

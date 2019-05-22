@@ -325,6 +325,34 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   }
 
   @Test
+  public void testConstructorWithNullProductVersion() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("null product version"));
+
+    new ImportMigrationManagerImpl(
+        report,
+        mockMigrationZipFile,
+        Collections.emptySet(),
+        Stream.empty(),
+        PRODUCT_BRANDING,
+        null);
+  }
+
+  @Test
+  public void testConstructorWithNullProductBranding() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("null product branding"));
+
+    new ImportMigrationManagerImpl(
+        report,
+        mockMigrationZipFile,
+        Collections.emptySet(),
+        Stream.empty(),
+        null,
+        PRODUCT_VERSION);
+  }
+
+  @Test
   public void testConstructorWhenZipIsOfInvalidVersion() throws Exception {
     zipEntry =
         getMetadataZipEntry(
@@ -408,23 +436,16 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   }
 
   @Test
-  public void testDoImportWithNullProductBranding() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(Matchers.containsString("null product branding"));
-
-    mgr.doImport(Arrays.asList(PRODUCT_VERSION));
-  }
-
-  @Test
-  public void testDoImportWithNullProductVersion() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(Matchers.containsString("null product version"));
-
-    mgr.doImport(null);
-  }
-
-  @Test
   public void testDoImportWithInvalidProductBranding() throws Exception {
+    mgr =
+        new ImportMigrationManagerImpl(
+            report,
+            mockMigrationZipFile,
+            Collections.emptySet(),
+            Stream.of(migratables),
+            PRODUCT_BRANDING + "2",
+            PRODUCT_VERSION);
+
     thrown.expect(MigrationException.class);
     thrown.expectMessage(Matchers.containsString("mismatched product"));
 
@@ -432,9 +453,9 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   }
 
   @Test
-  public void testDoImportWithInvalidProductVersion() throws Exception {
+  public void testDoImportWithUnsupportedProductVersion() throws Exception {
     thrown.expect(MigrationException.class);
-    thrown.expectMessage(Matchers.containsString("mismatched product version"));
+    thrown.expectMessage(Matchers.containsString("unsupported product version"));
 
     mgr.doImport(Arrays.asList(PRODUCT_VERSION + "2"));
   }

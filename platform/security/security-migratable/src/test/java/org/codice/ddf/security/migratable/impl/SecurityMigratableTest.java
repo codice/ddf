@@ -17,6 +17,8 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -82,7 +84,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class SecurityMigratableTest {
   private static final String SUPPORTED_BRANDING = "test";
 
-  private static final String SUPPORTED_VERSION = "1.0";
+  private static final String SUPPORTED_PRODUCT_VERSION = "1.0";
 
   private static final String UNSUPPORTED_VERSION = "666.0";
 
@@ -166,19 +168,15 @@ public class SecurityMigratableTest {
     // Setup export
     Path exportDir = tempDir.getRoot().toPath().toRealPath();
 
-    SecurityMigratable eSecurityMigratable = new SecurityMigratable();
-    List<Migratable> eMigratables = Arrays.asList(eSecurityMigratable);
-    ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(eMigratables, systemService);
-
     // Perform export
-    MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
+    MigrationReport exportReport = doExport(exportDir);
 
     // Verify export
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
     assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
     assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
-    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
+    String exportedZipBaseName =
+        String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_PRODUCT_VERSION);
     Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
     assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
@@ -198,6 +196,43 @@ public class SecurityMigratableTest {
     assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
     assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
     verifyPolicyFilesImported();
+    verifyPdpFilesImported();
+    verifyCrlImported();
+  }
+
+  /**
+   * Verify the when the system is in a default configuration, the Security Migratable's relevant
+   * files are successfully imported into system for a version upgrade import.
+   */
+  @Test
+  public void testDoVersionUpgradeImport() throws IOException {
+    // Setup export
+    Path exportDir = tempDir.getRoot().toPath().toRealPath();
+
+    // Perform export
+    doExport(exportDir);
+
+    // Setup import
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+
+    SecurityMigratable iSecurityMigratable = spy(new SecurityMigratable());
+    when(iSecurityMigratable.getVersion()).thenReturn("3.0");
+    List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
+    ConfigurationMigrationManager iConfigurationMigrationManager =
+        new ConfigurationMigrationManager(iMigratables, systemService);
+
+    MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
+
+    // Verify import
+    verify(iSecurityMigratable)
+        .doVersionUpgradeImport(any(ImportMigrationContext.class), anyString());
+    assertThat("The import report has errors.", importReport.hasErrors(), is(false));
+    assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
+    assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
+    Path policy =
+        ddfHome.resolve(SECURITY_POLICIES_DIR).resolve("configurations.policy").toRealPath();
+    assertThat(String.format("%s does not exist.", policy), policy.toFile().exists(), is(true));
+    assertThat(String.format("%s was not imported.", policy), verifyImported(policy), is(true));
     verifyPdpFilesImported();
     verifyCrlImported();
   }
@@ -218,19 +253,14 @@ public class SecurityMigratableTest {
         CRL.toString(),
         String.format("%s&%s", serverEncptProps.toRealPath().toString(), tag));
 
-    SecurityMigratable eSecurityMigratable = new SecurityMigratable();
-    List<Migratable> eMigratables = Arrays.asList(eSecurityMigratable);
-    ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(eMigratables, systemService);
-
-    // Perform export
-    MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
+    MigrationReport exportReport = doExport(exportDir);
 
     // Verify export
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
     assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
     assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
-    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
+    String exportedZipBaseName =
+        String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_PRODUCT_VERSION);
     Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
     assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
@@ -253,6 +283,48 @@ public class SecurityMigratableTest {
     verifyPdpFilesImported();
   }
 
+  /** Verifies that when no CRL (optional) is specified, the version upgrade import succeeds. */
+  @Test
+  public void testDoVersionUpgradeImportWhenNoCrlExists() throws IOException {
+    // Setup export
+    Path exportDir = tempDir.getRoot().toPath().toRealPath();
+
+    // Comment out CRL in etc/ws-security/server/encryption.properties
+    Path serverEncptProps =
+        ddfHome.resolve(Paths.get("etc", "ws-security", "server", "encryption.properties"));
+    String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME);
+    writeProperties(
+        serverEncptProps,
+        "_" + CRL_PROP_KEY,
+        CRL.toString(),
+        String.format("%s&%s", serverEncptProps.toRealPath().toString(), tag));
+
+    doExport(exportDir);
+
+    // Setup import
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+
+    SecurityMigratable iSecurityMigratable = spy(new SecurityMigratable());
+    when(iSecurityMigratable.getVersion()).thenReturn("3.0");
+    List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
+    ConfigurationMigrationManager iConfigurationMigrationManager =
+        new ConfigurationMigrationManager(iMigratables, systemService);
+
+    MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
+
+    // Verify import
+    verify(iSecurityMigratable)
+        .doVersionUpgradeImport(any(ImportMigrationContext.class), anyString());
+    assertThat("The import report has errors.", importReport.hasErrors(), is(false));
+    assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
+    assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
+    Path policy =
+        ddfHome.resolve(SECURITY_POLICIES_DIR).resolve("configurations.policy").toRealPath();
+    assertThat(String.format("%s does not exist.", policy), policy.toFile().exists(), is(true));
+    assertThat(String.format("%s was not imported.", policy), verifyImported(policy), is(true));
+    verifyPdpFilesImported();
+  }
+
   /** Verifies that when no PDP file exists, the export and import both succeed. */
   @Test
   public void testDoExportAndDoImportWhenNoPdpFileExists() throws IOException {
@@ -263,19 +335,15 @@ public class SecurityMigratableTest {
     Path xacmlPolicy = ddfHome.resolve(PDP_POLICIES_DIR).resolve(XACML_POLICY);
     Files.delete(xacmlPolicy);
 
-    SecurityMigratable eSecurityMigratable = new SecurityMigratable();
-    List<Migratable> eMigratables = Arrays.asList(eSecurityMigratable);
-    ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(eMigratables, systemService);
-
     // Perform export
-    MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
+    MigrationReport exportReport = doExport(exportDir);
 
     // Verify export
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
     assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
     assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
-    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
+    String exportedZipBaseName =
+        String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_PRODUCT_VERSION);
     Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
     assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
@@ -298,6 +366,43 @@ public class SecurityMigratableTest {
     verifyCrlImported();
   }
 
+  /** Verifies that when no PDP file exists, the version upgrade import succeeds. */
+  @Test
+  public void testDoVersionUpgradeImportWhenNoPdpFileExists() throws IOException {
+    // Setup export
+    Path exportDir = tempDir.getRoot().toPath().toRealPath();
+
+    // Remove PDP file
+    Path xacmlPolicy = ddfHome.resolve(PDP_POLICIES_DIR).resolve(XACML_POLICY);
+    Files.delete(xacmlPolicy);
+
+    // Perform export
+    doExport(exportDir);
+
+    // Setup import
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+
+    SecurityMigratable iSecurityMigratable = spy(new SecurityMigratable());
+    when(iSecurityMigratable.getVersion()).thenReturn("3.0");
+    List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
+    ConfigurationMigrationManager iConfigurationMigrationManager =
+        new ConfigurationMigrationManager(iMigratables, systemService);
+
+    MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
+
+    // Verify import
+    verify(iSecurityMigratable)
+        .doVersionUpgradeImport(any(ImportMigrationContext.class), anyString());
+    assertThat("The import report has errors.", importReport.hasErrors(), is(false));
+    assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
+    assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
+    Path policy =
+        ddfHome.resolve(SECURITY_POLICIES_DIR).resolve("configurations.policy").toRealPath();
+    assertThat(String.format("%s does not exist.", policy), policy.toFile().exists(), is(true));
+    assertThat(String.format("%s was not imported.", policy), verifyImported(policy), is(true));
+    verifyCrlImported();
+  }
+
   /** Verifies that when no policy file exists, the export and import both succeed. */
   @Test
   public void testDoExportAndDoImportWhenNoPolicyFileExists() throws IOException {
@@ -310,19 +415,15 @@ public class SecurityMigratableTest {
       Files.delete(policy);
     }
 
-    SecurityMigratable eSecurityMigratable = new SecurityMigratable();
-    List<Migratable> eMigratables = Arrays.asList(eSecurityMigratable);
-    ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(eMigratables, systemService);
-
     // Perform export
-    MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
+    MigrationReport exportReport = doExport(exportDir);
 
     // Verify export
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
     assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
     assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
-    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
+    String exportedZipBaseName =
+        String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_PRODUCT_VERSION);
     Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
     assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
@@ -338,6 +439,42 @@ public class SecurityMigratableTest {
     MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
 
     // Verify import
+    assertThat("The import report has errors.", importReport.hasErrors(), is(false));
+    assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
+    assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
+    verifyPdpFilesImported();
+    verifyCrlImported();
+  }
+
+  /** Verifies that when no policy file exists, the version upgrade import succeeds. */
+  @Test
+  public void testDoVersionUpgradeImportWhenNoPolicyFileExists() throws IOException {
+    // Setup export
+    Path exportDir = tempDir.getRoot().toPath().toRealPath();
+
+    // Remove Policy file
+    for (final String file : POLICY_FILES) {
+      Path policy = ddfHome.resolve(SECURITY_POLICIES_DIR).resolve(file);
+      Files.delete(policy);
+    }
+
+    // Perform export
+    doExport(exportDir);
+
+    // Setup import
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+
+    SecurityMigratable iSecurityMigratable = spy(new SecurityMigratable());
+    when(iSecurityMigratable.getVersion()).thenReturn("3.0");
+    List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
+    ConfigurationMigrationManager iConfigurationMigrationManager =
+        new ConfigurationMigrationManager(iMigratables, systemService);
+
+    MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
+
+    // Verify import
+    verify(iSecurityMigratable)
+        .doVersionUpgradeImport(any(ImportMigrationContext.class), anyString());
     assertThat("The import report has errors.", importReport.hasErrors(), is(false));
     assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
     assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
@@ -387,7 +524,8 @@ public class SecurityMigratableTest {
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
     assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
     assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
-    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
+    String exportedZipBaseName =
+        String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_PRODUCT_VERSION);
     Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
     assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
@@ -408,6 +546,68 @@ public class SecurityMigratableTest {
     assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
   }
 
+  /**
+   * Verify that when the PDP file, polciy files, and CRL do not exists, the version upgrade import
+   * succeeds.
+   */
+  @Test
+  public void testDoVersionUpgradeImportWhenNoFiles() throws IOException {
+    // Setup export
+    Path exportDir = tempDir.getRoot().toPath().toRealPath();
+
+    // Comment out CRL in etc/ws-security/server/encryption.properties
+    Path serverEncptProps =
+        ddfHome.resolve(Paths.get("etc", "ws-security", "server", "encryption.properties"));
+    String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME);
+
+    writeProperties(
+        serverEncptProps,
+        "_" + CRL_PROP_KEY,
+        CRL.toString(),
+        String.format("%s&%s", serverEncptProps.toRealPath().toString(), tag));
+
+    // Remove PDP file
+    Path xacmlPolicy = ddfHome.resolve(PDP_POLICIES_DIR).resolve(XACML_POLICY);
+    Files.delete(xacmlPolicy);
+
+    // Remove policy files
+    for (final String file : POLICY_FILES) {
+      Path policy = ddfHome.resolve(SECURITY_POLICIES_DIR).resolve(file);
+      Files.delete(policy);
+    }
+
+    // Perform export
+    doExport(exportDir);
+
+    // Setup import
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+
+    SecurityMigratable iSecurityMigratable = spy(new SecurityMigratable());
+    when(iSecurityMigratable.getVersion()).thenReturn("3.0");
+    List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
+    ConfigurationMigrationManager iConfigurationMigrationManager =
+        new ConfigurationMigrationManager(iMigratables, systemService);
+
+    MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
+
+    // Verify import
+    verify(iSecurityMigratable)
+        .doVersionUpgradeImport(any(ImportMigrationContext.class), anyString());
+    assertThat("The import report has errors.", importReport.hasErrors(), is(false));
+    assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
+    assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
+  }
+
+  private MigrationReport doExport(Path exportDir) throws IOException {
+    SecurityMigratable eSecurityMigratable = new SecurityMigratable();
+    List<Migratable> eMigratables = Arrays.asList(eSecurityMigratable);
+    ConfigurationMigrationManager eConfigurationMigrationManager =
+        new ConfigurationMigrationManager(eMigratables, systemService);
+
+    // Perform export
+    return eConfigurationMigrationManager.doExport(exportDir, this::print);
+  }
+
   private void print(MigrationMessage msg) {
     if (msg instanceof MigrationException) {
       ((MigrationException) msg).printStackTrace(System.out);
@@ -424,7 +624,7 @@ public class SecurityMigratableTest {
     Files.createDirectory(binDir);
     System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
     setupBrandingFile(SUPPORTED_BRANDING);
-    setupVersionFile(SUPPORTED_VERSION);
+    setupVersionFile(SUPPORTED_PRODUCT_VERSION);
     for (Path path : PROPERTIES_FILES) {
       Path p = ddfHome.resolve(path);
       Files.createDirectories(p.getParent());
@@ -498,7 +698,7 @@ public class SecurityMigratableTest {
     for (final String file : POLICY_FILES) {
       Path policy = ddfHome.resolve(SECURITY_POLICIES_DIR).resolve(file).toRealPath();
       assertThat(String.format("%s does not exist.", policy), policy.toFile().exists(), is(true));
-      assertThat(String.format("%s was not imported.", policy), verifiyImported(policy), is(true));
+      assertThat(String.format("%s was not imported.", policy), verifyImported(policy), is(true));
     }
   }
 
@@ -507,16 +707,16 @@ public class SecurityMigratableTest {
     assertThat(
         String.format("%s does not exist.", xacmlPolicy), xacmlPolicy.toFile().exists(), is(true));
     assertThat(
-        String.format("%s was not imported.", xacmlPolicy), verifiyImported(xacmlPolicy), is(true));
+        String.format("%s was not imported.", xacmlPolicy), verifyImported(xacmlPolicy), is(true));
   }
 
   private void verifyCrlImported() throws IOException {
     Path crl = ddfHome.resolve(CRL).toRealPath();
     assertThat(String.format("%s does not exist.", crl), crl.toFile().exists(), is(true));
-    assertThat(String.format("%s was not imported.", crl), verifiyImported(crl), is(true));
+    assertThat(String.format("%s was not imported.", crl), verifyImported(crl), is(true));
   }
 
-  private boolean verifiyImported(Path p) throws IOException {
+  private boolean verifyImported(Path p) throws IOException {
     List<String> lines = Files.readAllLines(p, StandardCharsets.UTF_8);
     String tag = lines.get(0).split("&")[1];
     return StringUtils.equals(tag, String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME));

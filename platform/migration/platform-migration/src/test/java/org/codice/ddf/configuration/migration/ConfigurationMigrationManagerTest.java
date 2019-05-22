@@ -798,10 +798,11 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
 
     Mockito.doReturn(zip).when(configurationMigrationManager).newZipFileFor(Mockito.notNull());
     Mockito.doReturn(valid).when(zip).isValidChecksum();
+    Mockito.doReturn(Paths.get(encryptedFileName)).when(zip).getZipPath();
   }
 
   private void verifyZipEncryptedFile() {
-    verify(configurationMigrationManager).newZipFileFor(Paths.get(encryptedFileName));
+    verify(configurationMigrationManager).newZipFileFor(path);
   }
 
   private void reportHasInfoMessage(Stream<MigrationInformation> infos, Matcher<String> matcher) {

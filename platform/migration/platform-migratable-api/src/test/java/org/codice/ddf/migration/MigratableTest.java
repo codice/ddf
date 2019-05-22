@@ -41,7 +41,7 @@ public class MigratableTest {
   }
 
   @Test
-  public void testDoIncompatibleImport() throws Exception {
+  public void testDoVersionUpgradeImport() throws Exception {
     Mockito.when(report.record(Mockito.any(MigrationMessage.class))).thenReturn(report);
     Mockito.when(report.record(Mockito.any(MigrationException.class))).thenReturn(report);
 
@@ -56,7 +56,7 @@ public class MigratableTest {
     Assert.assertThat(
         capture.getValue().getMessage(),
         Matchers.equalTo(
-            "Incompatibility error: unsupported exported migrated version ["
+            "Import error: unsupported exported version ["
                 + INCOMPATIBLE_VERSION
                 + "] for migratable ["
                 + MIGRATABLE_ID
