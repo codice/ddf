@@ -43,8 +43,10 @@ import java.io.Serializable;
 import java.nio.BufferOverflowException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.Test;
@@ -287,6 +289,19 @@ public class DynamicSchemaResolverTest {
         new DynamicSchemaResolver()
             .getField("unknown", AttributeFormat.STRING, false, Collections.EMPTY_MAP),
         is("unknown_txt_tokenized"));
+
+    Map<String, Serializable> enabledFeatures = new HashMap<String, Serializable>();
+    enabledFeatures.put(DynamicSchemaResolver.PHONETICS_FEATURE, Boolean.TRUE);
+    assertThat(
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.STRING, false, enabledFeatures),
+        is("unknown_txt_phonetics"));
+
+    enabledFeatures.put(DynamicSchemaResolver.PHONETICS_FEATURE, Boolean.FALSE);
+    assertThat(
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.STRING, false, enabledFeatures),
+        is("unknown_txt_tokenized"));
   }
 
   @Test
@@ -318,6 +333,13 @@ public class DynamicSchemaResolverTest {
     assertThat(
         new DynamicSchemaResolver()
             .getField("unknown", AttributeFormat.STRING, true, Collections.EMPTY_MAP),
+        is("unknown_txt"));
+
+    Map<String, Serializable> enabledFeatures = new HashMap<String, Serializable>();
+    enabledFeatures.put(DynamicSchemaResolver.PHONETICS_FEATURE, Boolean.TRUE);
+    assertThat(
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.STRING, true, enabledFeatures),
         is("unknown_txt"));
   }
 }

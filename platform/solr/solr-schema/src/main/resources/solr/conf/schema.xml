@@ -90,7 +90,6 @@
         </analyzer>
         <analyzer type="query">
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <!-- <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/> -->
             <filter class="solr.LowerCaseFilterFactory"/>
             <filter class="solr.WordDelimiterGraphFilterFactory"/>
         </analyzer>
