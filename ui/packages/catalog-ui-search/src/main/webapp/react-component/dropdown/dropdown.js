@@ -121,7 +121,7 @@ const Component = styled.div`
   position: relative;
 `
 
-class DropdownBody extends React.Component {
+class Dropdown extends React.Component {
   constructor(props) {
     super(props)
     this.state = { open: false, rect: null }
@@ -177,10 +177,19 @@ class DropdownBody extends React.Component {
     return this.props.open !== undefined ? this.props.open : this.state.open
   }
   render() {
+    const anchor = this.props.anchor ? (
+      React.cloneElement(this.props.anchor, { onClick: this.onToggle })
+    ) : (
+      <div onClick={this.onToggle}>
+        <Text className="is-input">{this.props.label}</Text>
+        <Icon className="fa fa-caret-down" />
+      </div>
+    )
+
     return (
       <Component>
         <div tabIndex="0" ref={ref => (this.ref = ref)}>
-          {React.cloneElement(this.props.anchor, { onClick: this.onToggle })}
+          {anchor}
           {this.isOpen() ? (
             <div>
               {createPortal(
@@ -201,20 +210,6 @@ class DropdownBody extends React.Component {
       </Component>
     )
   }
-}
-
-const Dropdown = ({ label, anchor, ...props }) => {
-  const dropdownProps = {
-    anchor: anchor || (
-      <div>
-        <Text className="is-input">{label}</Text>
-        <Icon className="fa fa-caret-down" />
-      </div>
-    ),
-    ...props,
-  }
-
-  return <DropdownBody {...dropdownProps} />
 }
 
 module.exports = Dropdown
