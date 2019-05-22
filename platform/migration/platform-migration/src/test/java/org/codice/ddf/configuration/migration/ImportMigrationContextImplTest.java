@@ -811,7 +811,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
   }
 
   @Test
-  public void testDoImportWhenVersionIsIncompatible() throws Exception {
+  public void testDoImportWhenVersionIsUnsupported() throws Exception {
     final Map<String, Object> metadata =
         ImmutableMap.of(MigrationContextImpl.METADATA_VERSION, VERSION);
 

@@ -25,7 +25,7 @@ public class MigratableTest {
 
   private static final String VERSION = "1.0";
 
-  private static final String INCOMPATIBLE_VERSION = "1.1";
+  private static final String UNSUPPORTED_VERSION = "1.1";
 
   private final Migratable migratable = Mockito.mock(Migratable.class, Mockito.CALLS_REAL_METHODS);
 
@@ -45,7 +45,7 @@ public class MigratableTest {
     Mockito.when(report.record(Mockito.any(MigrationMessage.class))).thenReturn(report);
     Mockito.when(report.record(Mockito.any(MigrationException.class))).thenReturn(report);
 
-    migratable.doVersionUpgradeImport(context, INCOMPATIBLE_VERSION);
+    migratable.doVersionUpgradeImport(context, UNSUPPORTED_VERSION);
 
     final ArgumentCaptor<MigrationException> capture =
         ArgumentCaptor.forClass(MigrationException.class);
@@ -57,7 +57,7 @@ public class MigratableTest {
         capture.getValue().getMessage(),
         Matchers.equalTo(
             "Import error: unsupported exported version ["
-                + INCOMPATIBLE_VERSION
+                + UNSUPPORTED_VERSION
                 + "] for migratable ["
                 + MIGRATABLE_ID
                 + "]; currently supporting ["
