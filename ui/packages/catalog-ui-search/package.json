@@ -11,7 +11,7 @@
     "pretest": "ace bundle --env=test",
     "test": "ace test ./target/test/index.html",
     "start:test": "ace start --env=test",
-    "build": "ace bundle",
+    "build": "node --max_old_space_size=8192 ../../node_modules/@connexta/ace/bin.js bundle",
     "postbuild": "ace package",
     "m2": "yarn install:m2",
     "install:m2": "ace clean && ace bundle && ace package && ace install"
