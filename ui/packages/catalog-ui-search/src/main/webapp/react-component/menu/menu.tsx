@@ -26,7 +26,7 @@ const after = `
   }
 `
 
-const ItemRoot = styled.div<{active: boolean, selected: boolean}>`
+const ItemRoot = styled.div<{ active: boolean; selected: boolean }>`
   position: relative;
   padding: 0px ${({ theme }) => theme.minimumSpacing};
   padding-right: ${({ theme }) => theme.minimumButtonSize};
