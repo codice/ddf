@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
-import static com.google.common.primitives.Doubles.asList;
+import static java.util.stream.Collectors.joining;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -33,8 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import net.opengis.filter.v_1_1_0.AbstractIdType;
@@ -100,25 +98,31 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
       ThreadLocal.withInitial(WKTWriter::new);
 
-  private FeatureMetacardType featureMetacardType;
+  private final FeatureMetacardType featureMetacardType;
 
-  private ObjectFactory filterObjectFactory = new ObjectFactory();
+  private final ObjectFactory filterObjectFactory = new ObjectFactory();
 
-  private net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory =
+  private final net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory =
       new net.opengis.gml.v_3_1_1.ObjectFactory();
+
+  private final CoordinateStrategy coordinateStrategy;
 
   private List<String> supportedGeo;
 
   private List<QName> geometryOperands;
 
-  public WfsFilterDelegate(FeatureMetacardType featureMetacardType, List<String> supportedGeo) {
-
+  public WfsFilterDelegate(
+      FeatureMetacardType featureMetacardType,
+      List<String> supportedGeo,
+      CoordinateStrategy coordinateStrategy) {
     if (featureMetacardType == null) {
       throw new IllegalArgumentException("FeatureMetacardType can not be null");
     }
     this.featureMetacardType = featureMetacardType;
     this.supportedGeo = supportedGeo;
     setSupportedGeometryOperands(Wfs11Constants.wktOperandsAsList());
+
+    this.coordinateStrategy = coordinateStrategy;
   }
 
   public void setSupportedGeometryOperands(List<QName> geometryOperands) {
@@ -131,8 +135,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   public void setSupportedGeoFilters(List<String> supportedGeos) {
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug(
-          "Updating supportedGeos to: {}", supportedGeos.stream().collect(Collectors.joining(",")));
+      LOGGER.debug("Updating supportedGeos to: {}", supportedGeos.stream().collect(joining(",")));
     }
     this.supportedGeo = supportedGeos;
   }
@@ -1078,12 +1081,15 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     Envelope envelope = createEnvelopeFromWkt(wkt);
 
+    List<Double> lowerCornerCoordinates = coordinateStrategy.lowerCorner(envelope);
+    List<Double> upperCornerCoordinates = coordinateStrategy.upperCorner(envelope);
+
     DirectPositionType lowerCorner = new DirectPositionType();
-    lowerCorner.setValue(asList(envelope.getMinX(), envelope.getMinY()));
+    lowerCorner.setValue(lowerCornerCoordinates);
     envelopeType.setLowerCorner(lowerCorner);
 
     DirectPositionType upperCorner = new DirectPositionType();
-    upperCorner.setValue(asList(envelope.getMaxX(), envelope.getMaxY()));
+    upperCorner.setValue(upperCornerCoordinates);
     envelopeType.setUpperCorner(upperCorner);
 
     bboxType.setEnvelope(gmlObjectFactory.createEnvelope(envelopeType));
@@ -1097,14 +1103,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     Coordinate[] coordinates = getCoordinatesFromWkt(wkt);
     if (coordinates != null && coordinates.length > 0) {
-      StringBuilder coordString = new StringBuilder();
-
-      for (Coordinate coordinate : coordinates) {
-        coordString.append(coordinate.y).append(",").append(coordinate.x).append(" ");
-      }
+      String coordinateString = coordinateStrategy.toString(coordinates);
 
       CoordinatesType coordinatesType = new CoordinatesType();
-      coordinatesType.setValue(coordString.toString());
+      coordinatesType.setValue(coordinateString);
       coordinatesType.setDecimal(".");
       coordinatesType.setCs(",");
       coordinatesType.setTs(" ");
@@ -1129,8 +1131,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     if (coordinates != null && coordinates.length > 0) {
 
       CoordinatesType coordinatesType = new CoordinatesType();
-      coordinatesType.setValue(coordinates[0].y + "," + coordinates[0].x);
-
+      String coordinateString = coordinateStrategy.toString(coordinates[0]);
+      coordinatesType.setValue(coordinateString);
       PointType point = new PointType();
       point.setCoordinates(coordinatesType);
 
@@ -1229,10 +1231,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private JAXBElement<LineStringType> createLineString(Geometry geometry) {
     LineStringType lineStringType = gmlObjectFactory.createLineStringType();
 
-    String coordinatesValue =
-        Stream.of(geometry.getCoordinates())
-            .map(coordinate -> coordinate.y + "," + coordinate.x)
-            .collect(Collectors.joining(" "));
+    String coordinatesValue = coordinateStrategy.toString(geometry.getCoordinates());
 
     CoordinatesType coordinatesType = gmlObjectFactory.createCoordinatesType();
     coordinatesType.setValue(coordinatesValue);
