@@ -25,9 +25,11 @@ const cql = require('../../js/cql.js')
 const ResultSortDropdownView = require('../dropdown/result-sort/dropdown.result-sort.view.js')
 const user = require('../singletons/user-instance.js')
 const ResultStatusView = require('../result-status/result-status.view.js')
+const store = require('../../js/store.js')
 require('../../behaviors/selection.behavior.js')
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import ResultItemCollection from '../result-item/result-item.collection'
+
 const {
   SelectAllToggle,
 } = require('../selection-checkbox/selection-checkbox.view.js')
@@ -122,6 +124,7 @@ const ResultSelector = Marionette.LayoutView.extend({
           userSpellcheckIsOn={this.model
             .get('result')
             .get('userSpellcheckIsOn')}
+          store={store}
         />
         <MarionetteRegionContainer
           key={Math.random()}

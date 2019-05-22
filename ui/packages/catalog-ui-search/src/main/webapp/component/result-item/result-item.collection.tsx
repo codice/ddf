@@ -4,8 +4,6 @@ import { hot } from 'react-hot-loader'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import styled from '../../react-component/styles/styled-components'
 
-const store = require('../../js/store.js')
-
 const SHOW_MORE_LENGTH = 2
 
 type Props = {
@@ -15,6 +13,7 @@ type Props = {
   showingResultsForFields: any[]
   didYouMeanFields: any[]
   userSpellcheckIsOn: boolean
+  store: any
 }
 
 const ResultItemCollection = styled.div`
@@ -135,7 +134,7 @@ class ResultItems extends React.Component<Props, State> {
     return showingResultsForFields.join(', ')
   }
 
-  rerunQuery() {
+  rerunQuery(store: any) {
     store.getCurrentQuery().set('spellcheck', false)
     store.getCurrentQuery().startSearchFromFirstPage()
     store.getCurrentQuery().set('spellcheck', true)
@@ -148,6 +147,7 @@ class ResultItems extends React.Component<Props, State> {
       showingResultsForFields,
       didYouMeanFields,
       userSpellcheckIsOn,
+      store,
     } = this.props
     if (results.length === 0) {
       return (
@@ -185,7 +185,7 @@ class ResultItems extends React.Component<Props, State> {
           <DidYouMeanContainer>
             <ResendQuery
               onClick={() => {
-                this.rerunQuery()
+                this.rerunQuery(store)
               }}
             >
               {didYouMean}
