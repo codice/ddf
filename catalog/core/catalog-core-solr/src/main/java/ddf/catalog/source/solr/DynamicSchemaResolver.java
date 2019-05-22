@@ -54,6 +54,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
@@ -103,6 +104,8 @@ public class DynamicSchemaResolver {
   public static final String SCORE_FIELD_NAME = "score";
 
   public static final int TOKEN_MAXIMUM_BYTES = 32766;
+
+  public static final String PHONETICS_FEATURE = "phonetics";
 
   protected static final char FIRST_CHAR_OF_SUFFIX = '_';
 
@@ -603,7 +606,10 @@ public class DynamicSchemaResolver {
    *     schema field name that matches the dynamic field type formatting.
    */
   public String getField(
-      String propertyName, AttributeFormat format, boolean isSearchedAsExactValue) {
+      String propertyName,
+      AttributeFormat format,
+      boolean isSearchedAsExactValue,
+      Map<String, Serializable> enabledFeatures) {
 
     if (Metacard.ANY_GEO.equals(propertyName)) {
       return Metacard.GEOGRAPHY + "_geo_index";
@@ -611,7 +617,9 @@ public class DynamicSchemaResolver {
 
     final String fieldSuffix = getFieldSuffix(format);
     String fieldName =
-        propertyName + fieldSuffix + (isSearchedAsExactValue ? "" : getSpecialIndexSuffix(format));
+        propertyName
+            + fieldSuffix
+            + (isSearchedAsExactValue ? "" : getSpecialIndexSuffix(format, enabledFeatures));
 
     if (fieldsCache.contains(fieldName)) {
       return fieldName;
@@ -666,15 +674,28 @@ public class DynamicSchemaResolver {
     return cachedMetacardType;
   }
 
-  public String getCaseSensitiveField(String mappedPropertyName) {
+  public String getCaseSensitiveField(
+      String mappedPropertyName, Map<String, Serializable> enabledFeatures) {
+    if (isPhoneticsEnabled(enabledFeatures)
+        && mappedPropertyName.endsWith(SchemaFields.PHONETICS)) {
+      return mappedPropertyName;
+    }
     // TODO We can check if this field really does exist
     return mappedPropertyName + SchemaFields.HAS_CASE;
   }
 
   protected String getSpecialIndexSuffix(AttributeFormat format) {
+    return getSpecialIndexSuffix(format, Collections.EMPTY_MAP);
+  }
+
+  protected String getSpecialIndexSuffix(
+      AttributeFormat format, Map<String, Serializable> enabledFeatures) {
 
     switch (format) {
       case STRING:
+        if (isPhoneticsEnabled(enabledFeatures)) {
+          return SchemaFields.PHONETICS;
+        }
         return SchemaFields.TOKENIZED;
       case GEOMETRY:
         return SchemaFields.INDEXED;
@@ -685,6 +706,15 @@ public class DynamicSchemaResolver {
     }
 
     return "";
+  }
+
+  private boolean isPhoneticsEnabled(Map<String, Serializable> enabledFeatures) {
+    Boolean phoneticsEnabled = false;
+    Object phoneticsValue = enabledFeatures.get(PHONETICS_FEATURE);
+    if (phoneticsValue != null) {
+      phoneticsEnabled = (Boolean) phoneticsValue;
+    }
+    return phoneticsEnabled;
   }
 
   private void addToFieldsCache(Set<AttributeDescriptor> descriptors) {
@@ -705,6 +735,8 @@ public class DynamicSchemaResolver {
                 + schemaFields.getFieldSuffix(format)
                 + getSpecialIndexSuffix(format)
                 + SchemaFields.HAS_CASE);
+        fieldsCache.add(
+            ad.getName() + schemaFields.getFieldSuffix(format) + SchemaFields.PHONETICS);
         anyTextFieldsCache.add(ad.getName() + schemaFields.getFieldSuffix(format));
       }
 

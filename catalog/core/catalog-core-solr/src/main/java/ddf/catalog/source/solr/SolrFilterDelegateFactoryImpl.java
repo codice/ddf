@@ -13,11 +13,15 @@
  */
 package ddf.catalog.source.solr;
 
+import java.io.Serializable;
+import java.util.Map;
+
 /** Implementation that provides the original/base {@link SolrFilterDelegate} */
 public class SolrFilterDelegateFactoryImpl implements SolrFilterDelegateFactory {
 
   @Override
-  public SolrFilterDelegate newInstance(DynamicSchemaResolver resolver) {
-    return new SolrFilterDelegate(resolver);
+  public SolrFilterDelegate newInstance(
+      DynamicSchemaResolver resolver, Map<String, Serializable> enabledFeatures) {
+    return new SolrFilterDelegate(resolver, enabledFeatures);
   }
 }

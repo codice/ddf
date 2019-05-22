@@ -90,7 +90,7 @@
         </analyzer>
         <analyzer type="query">
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-            <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+            <!-- <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/> -->
             <filter class="solr.LowerCaseFilterFactory"/>
             <filter class="solr.WordDelimiterGraphFilterFactory"/>
         </analyzer>
@@ -138,5 +138,21 @@
     <!-- Copy each field that should contribute to the spellcheck dictionary -->
     <copyField source="title_txt" dest="spellcheckfield"/>
     <copyField source="description_txt" dest="spellcheckfield"/>
+
+    <fieldType name="text_phonetics" class="solr.TextField" positionIncrementGap="100">
+        <analyzer type="index">
+            <tokenizer class="solr.StandardTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.BeiderMorseFilterFactory" nameType="GENERIC" ruleType="APPROX" concat="true" languageSet="auto"/>
+        </analyzer>
+        <analyzer type="query">
+            <tokenizer class="solr.StandardTokenizerFactory"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.SynonymGraphFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+            <filter class="solr.BeiderMorseFilterFactory" nameType="GENERIC" ruleType="APPROX" concat="true" languageSet="auto"/>
+        </analyzer>
+    </fieldType>
+    <dynamicField name="*_txt_phonetics" type="text_phonetics" docValues="false" multiValued="true" indexed="true" stored="false"/>
+    <copyField source="*_txt" dest="*_txt_phonetics"/>
 
 </schema>

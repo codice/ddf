@@ -51,6 +51,8 @@ public class SchemaFields {
 
   public static final String TOKENIZED = "_tokenized";
 
+  public static final String PHONETICS = "_phonetics";
+
   public static final String HAS_CASE = "_has_case";
 
   public static final String TEXT_PATH = "_tpt";

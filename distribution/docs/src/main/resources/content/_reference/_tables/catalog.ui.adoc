@@ -253,6 +253,13 @@ Example:
 |false
 |false
 
+|Enable Similar Word Matching
+|phoneticsEnabled
+|Boolean
+|Enable phonetic and synonym matching for searches.
+|false
+|false
+
 |Basic Search Temporal Selections
 |basicSearchTemporalSelectionDefault
 |String

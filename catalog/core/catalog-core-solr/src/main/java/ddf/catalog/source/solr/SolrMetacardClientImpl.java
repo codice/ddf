@@ -166,7 +166,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       return new QueryResponseImpl(request, new ArrayList<>(), true, 0L);
     }
 
-    SolrFilterDelegate solrFilterDelegate = filterDelegateFactory.newInstance(resolver);
+    SolrFilterDelegate solrFilterDelegate =
+        filterDelegateFactory.newInstance(resolver, request.getProperties());
     SolrQuery query = getSolrQuery(request, solrFilterDelegate);
 
     Map<String, Serializable> responseProps = new HashMap<>();
@@ -402,10 +403,17 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     Set<ContentType> finalSet = new HashSet<>();
 
     String contentTypeField =
-        resolver.getField(Metacard.CONTENT_TYPE, AttributeType.AttributeFormat.STRING, true);
+        resolver.getField(
+            Metacard.CONTENT_TYPE,
+            AttributeType.AttributeFormat.STRING,
+            true,
+            Collections.EMPTY_MAP);
     String contentTypeVersionField =
         resolver.getField(
-            Metacard.CONTENT_TYPE_VERSION, AttributeType.AttributeFormat.STRING, true);
+            Metacard.CONTENT_TYPE_VERSION,
+            AttributeType.AttributeFormat.STRING,
+            true,
+            Collections.EMPTY_MAP);
 
     /*
      * If we didn't find the field, it most likely means it does not exist. If it does not
@@ -697,7 +705,11 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       } else if (sortProperty.equals(Result.TEMPORAL)) {
         query.addSort(
             resolver.getSortKey(
-                resolver.getField(Metacard.EFFECTIVE, AttributeType.AttributeFormat.DATE, false)),
+                resolver.getField(
+                    Metacard.EFFECTIVE,
+                    AttributeType.AttributeFormat.DATE,
+                    false,
+                    Collections.EMPTY_MAP)),
             order);
       } else {
         List<String> resolvedProperties = resolver.getAnonymousField(sortProperty);

@@ -210,6 +210,12 @@
             type="Boolean"
             default="false"/>
 
+        <AD id="phoneticsEnabled"
+            name="Enable Similar Word Matching"
+            description="Enable phonetic and synonym matching for text searches."
+            type="Boolean"
+            default="false"/>
+
         <AD id="basicSearchTemporalSelectionDefault"
             name="Basic Search Temporal Selections"
             description="Enable Basic Search Temporal Selections."

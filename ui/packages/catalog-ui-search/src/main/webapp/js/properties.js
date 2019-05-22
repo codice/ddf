@@ -169,6 +169,9 @@ const properties = {
   isSpellcheckEnabled: function() {
     return this.isSpellcheckEnabled
   },
+  isPhoneticsEnabled: function() {
+    return this.isPhoneticsEnabled
+  },
   isMetacardPreviewEnabled: function() {
     return !this.isMetacardPreviewDisabled
   },
