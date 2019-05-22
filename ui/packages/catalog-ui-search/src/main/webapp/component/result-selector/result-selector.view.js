@@ -124,7 +124,7 @@ const ResultSelector = Marionette.LayoutView.extend({
           userSpellcheckIsOn={this.model
             .get('result')
             .get('userSpellcheckIsOn')}
-          store={store}
+          model={this.model}
         />
         <MarionetteRegionContainer
           key={Math.random()}

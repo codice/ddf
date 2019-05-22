@@ -13,7 +13,7 @@ type Props = {
   showingResultsForFields: any[]
   didYouMeanFields: any[]
   userSpellcheckIsOn: boolean
-  store: any
+  model: any
 }
 
 const ResultItemCollection = styled.div`
@@ -134,10 +134,10 @@ class ResultItems extends React.Component<Props, State> {
     return showingResultsForFields.join(', ')
   }
 
-  rerunQuery(store: any) {
-    store.getCurrentQuery().set('spellcheck', false)
-    store.getCurrentQuery().startSearchFromFirstPage()
-    store.getCurrentQuery().set('spellcheck', true)
+  rerunQuery(model: any) {
+    model.set('spellcheck', false)
+    model.startSearchFromFirstPage()
+    model.set('spellcheck', true)
   }
 
   render() {
@@ -147,7 +147,7 @@ class ResultItems extends React.Component<Props, State> {
       showingResultsForFields,
       didYouMeanFields,
       userSpellcheckIsOn,
-      store,
+      model,
     } = this.props
     if (results.length === 0) {
       return (
@@ -185,7 +185,7 @@ class ResultItems extends React.Component<Props, State> {
           <DidYouMeanContainer>
             <ResendQuery
               onClick={() => {
-                this.rerunQuery(store)
+                this.rerunQuery(model)
               }}
             >
               {didYouMean}
