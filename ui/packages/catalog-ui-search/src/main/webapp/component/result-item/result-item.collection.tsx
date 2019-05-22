@@ -138,6 +138,7 @@ class ResultItems extends React.Component<Props, State> {
   rerunQuery() {
     store.getCurrentQuery().set('spellcheck', false)
     store.getCurrentQuery().startSearchFromFirstPage()
+    store.getCurrentQuery().set('spellcheck', true)
   }
 
   render() {
