@@ -30,15 +30,6 @@ const ResultItemCollection = styled.div`
   }
 `
 
-const SolrQueryDisplay = styled.div`
-  > .solr-query {
-    padding: 0.25rem;
-    box-shadow: none !important;
-    text-align: center;
-    font-size: 12px;
-  }
-`
-
 const ResultGroup = styled.div`
   box-shadow: none !important;
   background: inherit !important;
@@ -53,20 +44,27 @@ const ResultGroup = styled.div`
   }
 `
 
-const DidYouMeanContainer = styled.div`
+const ShowingResultsForContainer = styled.div`
+  padding: 0.15rem;
   text-align: center;
+  font-size: 0.75rem;
+  border: none !important;
 `
 
 const ShowMore = styled.a`
-  padding: 0.25rem;
-  font-size: 12px;
+  padding: 0.15rem;
+  font-size: 0.75rem;
+`
+
+const DidYouMeanContainer = styled.div`
+  text-align: center;
+  border: none !important;
 `
 
 const ResendQuery = styled.a`
   padding: 0.15rem;
-  box-shadow: none !important;
   text-align: center;
-  font-size: 12px;
+  font-size: 0.75rem;
   text-decoration: none;
   width: 100%;
 `
@@ -90,7 +88,8 @@ class ResultItems extends React.Component<Props, State> {
     let showingResultsFor = 'Showing Results for '
     if (
       showingResultsForFields !== undefined &&
-      showingResultsForFields !== null
+      showingResultsForFields !== null &&
+      showingResultsForFields.length > 0
     ) {
       if (
         !this.state.expandShowingResultForText &&
@@ -107,11 +106,16 @@ class ResultItems extends React.Component<Props, State> {
       )
       return showingResultsFor
     }
+    return null
   }
 
   createDidYouMeanText(didYouMeanFields: any[]) {
     let didYouMean = 'Did you mean '
-    if (didYouMeanFields !== undefined && didYouMeanFields !== null) {
+    if (
+      didYouMeanFields !== undefined &&
+      didYouMeanFields !== null &&
+      didYouMeanFields.length > 0
+    ) {
       if (
         !this.state.expandDidYouMeanFieldText &&
         didYouMeanFields.length > 2
@@ -122,6 +126,7 @@ class ResultItems extends React.Component<Props, State> {
       didYouMean += this.createExpandedResultsForText(didYouMeanFields)
       return didYouMean
     }
+    return null
   }
 
   createCondensedResultsForText(showingResultsForFields: any[]) {
@@ -144,9 +149,10 @@ class ResultItems extends React.Component<Props, State> {
     const {
       results,
       className,
+      userSpellcheckIsOn,
+      selectionInterface,
       showingResultsForFields,
       didYouMeanFields,
-      userSpellcheckIsOn,
       model,
     } = this.props
     if (results.length === 0) {
@@ -162,9 +168,11 @@ class ResultItems extends React.Component<Props, State> {
       const didYouMean = this.createDidYouMeanText(didYouMeanFields)
 
       return (
-        <div>
-          <SolrQueryDisplay className={className}>
-            <div className="solr-query">
+        <ResultItemCollection
+          className={`${className} is-list has-list-highlighting`}
+        >
+          {showingResultsFor !== null && (
+            <ShowingResultsForContainer>
               {showingResultsFor}
               {showingResultsForFields !== null &&
                 showingResultsForFields !== undefined &&
@@ -180,34 +188,84 @@ class ResultItems extends React.Component<Props, State> {
                     {this.state.expandShowingResultForText ? 'less' : 'more'}
                   </ShowMore>
                 )}
-            </div>
-          </SolrQueryDisplay>
-          <DidYouMeanContainer>
-            <ResendQuery
-              onClick={() => {
-                this.rerunQuery(model)
-              }}
-            >
-              {didYouMean}
-            </ResendQuery>
-            {didYouMeanFields !== null &&
-              didYouMeanFields !== undefined &&
-              didYouMeanFields.length > 2 && (
-                <ShowMore
-                  onClick={() => {
-                    this.setState({
-                      expandDidYouMeanFieldText: !this.state
-                        .expandDidYouMeanFieldText,
-                    })
-                  }}
-                >
-                  {this.state.expandDidYouMeanFieldText ? 'less' : 'more'}
-                </ShowMore>
-              )}
-          </DidYouMeanContainer>
+            </ShowingResultsForContainer>
+          )}
+          {didYouMean !== null && (
+            <DidYouMeanContainer>
+              <ResendQuery
+                onClick={() => {
+                  this.rerunQuery(model)
+                }}
+              >
+                {didYouMean}
+              </ResendQuery>
+              {didYouMeanFields !== null &&
+                didYouMeanFields !== undefined &&
+                didYouMeanFields.length > 2 && (
+                  <ShowMore
+                    onClick={() => {
+                      this.setState({
+                        expandDidYouMeanFieldText: !this.state
+                          .expandDidYouMeanFieldText,
+                      })
+                    }}
+                  >
+                    {this.state.expandDidYouMeanFieldText ? 'less' : 'more'}
+                  </ShowMore>
+                )}
+            </DidYouMeanContainer>
+          )}
 
-          {this.createResultItemCollectionView()}
-        </div>
+          {results.map(result => {
+            if (result.duplicates) {
+              const amount = result.duplicates.length + 1
+              return (
+                <ResultGroup key={result.id}>
+                  <div className="group-representation">
+                    {amount} duplicates
+                  </div>
+                  <div className="group-results global-bracket is-left">
+                    <ResultItemCollection className="is-list has-list-highlighting">
+                      <MarionetteRegionContainer
+                        view={childView}
+                        viewOptions={{
+                          selectionInterface,
+                          model: result,
+                        }}
+                        replaceElement
+                      />
+                      {result.duplicates.map((duplicate: any) => {
+                        return (
+                          <MarionetteRegionContainer
+                            key={duplicate.id}
+                            view={childView}
+                            viewOptions={{
+                              selectionInterface,
+                              model: duplicate,
+                            }}
+                            replaceElement
+                          />
+                        )
+                      })}
+                    </ResultItemCollection>
+                  </div>
+                </ResultGroup>
+              )
+            } else {
+              return (
+                <MarionetteRegionContainer
+                  key={result.id}
+                  view={childView}
+                  viewOptions={{
+                    selectionInterface,
+                    model: result,
+                  }}
+                  replaceElement
+                />
+              )
+            }
+          })}
+        </ResultItemCollection>
       )
     } else {
       return this.createResultItemCollectionView()
