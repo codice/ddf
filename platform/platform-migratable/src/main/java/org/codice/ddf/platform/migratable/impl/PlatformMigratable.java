@@ -52,23 +52,31 @@ public class PlatformMigratable implements Migratable {
 
   private static final Path BIN_DIR = Paths.get("bin");
 
+  /*
+   Files included in an import operation when upgrading to a newer version.
+  */
   private static final List<String> SYSTEM_PROPERTIES_TO_PRESERVE =
-      ImmutableList.of("solr.password");
+      ImmutableList.of("solr.password", "migration.supported.versions");
 
-  private static final Path SYSTEM_PROPERTIES_PATH = Paths.get("etc", "custom.system.properties");
-
-  private static final List<Path> REQUIRED_SYSTEM_PATHS =
-      ImmutableList.of( //
-          Paths.get("etc", "ws-security"),
-          Paths.get("etc", "system.properties"),
-          SYSTEM_PROPERTIES_PATH,
-          Paths.get("etc", "startup.properties"),
-          Paths.get("etc", "custom.properties"),
-          Paths.get("etc", "config.properties"));
+  private static final Path CUSTOM_SYSTEM_PROPERTIES_PATH =
+      Paths.get("etc", "custom.system.properties");
 
   private static final List<Path> UPGRADEABLE_SYSTEM_PATHS =
       ImmutableList.of( //
           Paths.get("etc", "users.properties"), Paths.get("etc", "users.attributes"));
+
+  /*
+   Files (in addition to the above) that are included under normal export and import operations
+   within the same product version.
+  */
+  private static final List<Path> REQUIRED_SYSTEM_PATHS =
+      ImmutableList.of( //
+          Paths.get("etc", "ws-security"),
+          Paths.get("etc", "system.properties"),
+          CUSTOM_SYSTEM_PROPERTIES_PATH,
+          Paths.get("etc", "startup.properties"),
+          Paths.get("etc", "custom.properties"),
+          Paths.get("etc", "config.properties"));
 
   private static final List<Path> OPTIONAL_SYSTEM_PATHS =
       ImmutableList.<Path>builder()
@@ -196,7 +204,7 @@ public class PlatformMigratable implements Migratable {
 
       importedProps.load(
           context
-              .getEntry(PlatformMigratable.SYSTEM_PROPERTIES_PATH)
+              .getEntry(PlatformMigratable.CUSTOM_SYSTEM_PROPERTIES_PATH)
               .getInputStream()
               .orElseThrow(IOException::new));
       currentProps = new Properties(fileOnSystem);

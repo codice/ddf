@@ -60,6 +60,7 @@ The same step-by-step process above can be followed when migrating configuration
 * Only a subset of configuration files are currently imported:
 ** Files under `etc/ws-security`
 ** Files under `etc/pdp`
+** `etc/users.attributes` and `etc/users.properties`
 ** `security/configurations.policy`
 ** `etc/custom.system.properties`
 ** Keystores
