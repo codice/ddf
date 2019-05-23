@@ -177,13 +177,19 @@ class Dropdown extends React.Component {
     return this.props.open !== undefined ? this.props.open : this.state.open
   }
   render() {
+    const anchor = this.props.anchor ? (
+      React.cloneElement(this.props.anchor, { onClick: this.onToggle })
+    ) : (
+      <div onClick={this.onToggle}>
+        <Text className="is-input">{this.props.label}</Text>
+        <Icon className="fa fa-caret-down" />
+      </div>
+    )
+
     return (
       <Component>
         <div tabIndex="0" ref={ref => (this.ref = ref)}>
-          <div onClick={() => this.onToggle()}>
-            <Text className="is-input">{this.props.label}</Text>
-            <Icon className="fa fa-caret-down" />
-          </div>
+          {anchor}
           {this.isOpen() ? (
             <div>
               {createPortal(
