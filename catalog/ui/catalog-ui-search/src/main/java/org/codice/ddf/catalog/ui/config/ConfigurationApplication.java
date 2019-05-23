@@ -136,6 +136,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean spellcheckEnabled = false;
 
+  private Boolean phoneticsEnabled = false;
+
   private BrandingPlugin branding;
 
   private Integer timeout = 300000;
@@ -544,6 +546,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("isArchiveSearchDisabled", !archiveSearchEnabled);
     config.put("isMetacardPreviewDisabled", !metacardPreviewEnabled);
     config.put("isSpellcheckEnabled", spellcheckEnabled);
+    config.put("isPhoneticsEnabled", phoneticsEnabled);
     config.put(
         "isVersioningEnabled",
         historianConfiguration != null && historianConfiguration.isHistoryEnabled());
@@ -1120,6 +1123,14 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setSpellcheckEnabled(Boolean spellcheckEnabled) {
     this.spellcheckEnabled = spellcheckEnabled;
+  }
+
+  public Boolean getPhoneticsEnabled() {
+    return phoneticsEnabled;
+  }
+
+  public void setPhoneticsEnabled(Boolean phoneticsEnabled) {
+    this.phoneticsEnabled = phoneticsEnabled;
   }
 
   public void setHistorianConfiguration(HistorianConfiguration historian) {

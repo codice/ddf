@@ -14,6 +14,7 @@
  **/
 import React from 'react'
 import styled from '../../styles/styled-components'
+import ExtensionPoints from '../../../extension-points'
 
 const CustomElement = styled.div`
   height: 100%;
@@ -49,43 +50,19 @@ const VisualizationText = styled.div`
   display: inline-block;
   vertical-align: middle;
 `
-const configs = {
-  openlayers: {
-    title: '2D Map',
+
+const configs = ExtensionPoints.visualizations.reduce((cfg, viz) => {
+  const { id, title, icon } = viz
+
+  cfg[id] = {
+    title,
     type: 'component',
-    componentName: 'openlayers',
-    icon: 'fa fa-map',
+    componentName: id,
+    icon,
     componentState: {},
-  },
-  cesium: {
-    title: '3D Map',
-    type: 'component',
-    componentName: 'cesium',
-    icon: 'fa fa-globe',
-    componentState: {},
-  },
-  inspector: {
-    title: 'Inspector',
-    type: 'component',
-    componentName: 'inspector',
-    icon: 'fa fa-info',
-    componentState: {},
-  },
-  table: {
-    title: 'Table',
-    type: 'component',
-    componentName: 'table',
-    icon: 'fa fa-table',
-    componentState: {},
-  },
-  histogram: {
-    title: 'Histogram',
-    type: 'component',
-    componentName: 'histogram',
-    icon: 'fa fa-bar-chart',
-    componentState: {},
-  },
-}
+  }
+  return cfg
+}, {})
 
 const unMaximize = contentItem => {
   if (contentItem.isMaximised) {

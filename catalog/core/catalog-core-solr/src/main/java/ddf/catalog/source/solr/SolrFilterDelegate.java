@@ -29,6 +29,7 @@ import ddf.catalog.impl.filter.ProximityFunction;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -156,8 +157,12 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
   private final Set<String> ids = new HashSet<>();
 
-  public SolrFilterDelegate(DynamicSchemaResolver resolver) {
+  private Map<String, Serializable> enabledFeatures;
+
+  public SolrFilterDelegate(
+      DynamicSchemaResolver resolver, Map<String, Serializable> enabledFeatures) {
     this.resolver = resolver;
+    this.enabledFeatures = enabledFeatures;
     dateFormat.setTimeZone(UTC_TIME_ZONE);
   }
 
@@ -314,7 +319,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
       return new SolrQuery(wildcardSolrQuery(searchPhrase, propertyName, isCaseSensitive, false));
     } else {
       if (isCaseSensitive) {
-        mappedPropertyName = resolver.getCaseSensitiveField(mappedPropertyName);
+        mappedPropertyName = resolver.getCaseSensitiveField(mappedPropertyName, enabledFeatures);
       }
 
       return new SolrQuery(mappedPropertyName + ":" + searchPhrase);
@@ -355,7 +360,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
   private String wildcardSolrQuery(
       String searchPhrase, String propertyName, boolean isCaseSensitive, boolean isExact) {
     String solrQuery;
-    String tokenized = resolver.getSpecialIndexSuffix(AttributeFormat.STRING);
+    String tokenized = resolver.getSpecialIndexSuffix(AttributeFormat.STRING, enabledFeatures);
     if (Metacard.ANY_TEXT.equals(propertyName)) {
       solrQuery =
           resolver
@@ -371,7 +376,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
               .map(
                   textField -> {
                     if (isCaseSensitive && !isExact) {
-                      return resolver.getCaseSensitiveField(textField);
+                      return resolver.getCaseSensitiveField(textField, enabledFeatures);
                     } else {
                       return textField;
                     }
@@ -381,7 +386,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     } else {
       String field = getMappedPropertyName(propertyName, AttributeFormat.STRING, true) + tokenized;
       if (isCaseSensitive) {
-        field = resolver.getCaseSensitiveField(field);
+        field = resolver.getCaseSensitiveField(field, enabledFeatures);
       }
       solrQuery = field + ":" + searchPhrase;
     }
@@ -865,7 +870,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
       }
       xpath = xpath + "[contains(" + result + ", '" + phrase + "')]";
       query =
-          resolver.getField(Metacard.METADATA, AttributeFormat.STRING, false)
+          resolver.getField(Metacard.METADATA, AttributeFormat.STRING, false, enabledFeatures)
               + ":\""
               + searchPhrase.replaceAll("\"", "\\\\")
               + "\"";
@@ -968,7 +973,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
       throw new UnsupportedOperationException("Property name should not be null.");
     }
 
-    return resolver.getField(propertyName, format, isSearchedAsExactString);
+    return resolver.getField(propertyName, format, isSearchedAsExactString, enabledFeatures);
   }
 
   /**

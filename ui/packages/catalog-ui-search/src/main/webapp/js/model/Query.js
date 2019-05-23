@@ -183,6 +183,7 @@ Query.Model = PartialAssociatedModel.extend({
         isOutdated: false,
         'detail-level': undefined,
         spellcheck: false,
+        phonetics: false,
       },
       user.getQuerySettings().toJSON()
     )
@@ -264,7 +265,8 @@ Query.Model = PartialAssociatedModel.extend({
       'cql',
       'sorts',
       'id',
-      'spellcheck'
+      'spellcheck',
+      'phonetics'
     )
   },
   isOutdated() {

@@ -15,12 +15,14 @@ import Navigator, { Props } from './navigator'
 import filterActions from './filter-actions'
 import { SFC } from '../react-component/hoc/utils'
 import { providers, Props as ProviderProps } from './providers'
+import visualizations from './visualizations'
 
 export type ExtensionPointsType = {
   routes: {}
   navigator: SFC<Props>
   filterActions: React.ReactNode
   providers: SFC<ProviderProps>
+  visualizations: any[]
 }
 
 const ExtensionPoints: ExtensionPointsType = {
@@ -28,6 +30,7 @@ const ExtensionPoints: ExtensionPointsType = {
   navigator: Navigator,
   filterActions: filterActions,
   providers: providers,
+  visualizations: visualizations,
 }
 
 export default ExtensionPoints

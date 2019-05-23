@@ -15,6 +15,7 @@ package org.codice.ddf.security.session;
 
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_OK;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -30,6 +31,7 @@ import javax.servlet.http.HttpSession;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.session.HouseKeeper;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.xml.XmlConfiguration;
@@ -44,6 +46,8 @@ public class JettySessionManagementTest {
 
   private static Server server;
   private static int port;
+  private static final int SCAVENGE_INTERVAL_SECONDS = 3;
+  private static final int MAX_INACTIVE_INTERVAL_SECONDS = 5;
 
   @BeforeClass
   public static void setupClass() throws Exception {
@@ -60,9 +64,22 @@ public class JettySessionManagementTest {
     ServerConnector connector = new ServerConnector(server);
     connector.setPort(0);
     server.addConnector(connector);
-    ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+
+    ServletContextHandler context =
+        new ServletContextHandler(null, "/context1", ServletContextHandler.SESSIONS);
     context.addServlet(new ServletHolder(new TestServlet()), "/");
+    context.getSessionHandler().setMaxInactiveInterval(MAX_INACTIVE_INTERVAL_SECONDS);
     handlers.addHandler(context);
+
+    ServletContextHandler context2 =
+        new ServletContextHandler(null, "/context2", ServletContextHandler.SESSIONS);
+    context2.addServlet(new ServletHolder(new TestServlet()), "/");
+    context2.getSessionHandler().setMaxInactiveInterval(MAX_INACTIVE_INTERVAL_SECONDS);
+    handlers.addHandler(context2);
+
+    HouseKeeper houseKeeper = new HouseKeeper();
+    houseKeeper.setIntervalSec(SCAVENGE_INTERVAL_SECONDS);
+    server.getSessionIdManager().setSessionHouseKeeper(houseKeeper);
 
     server.start();
 
@@ -81,7 +98,7 @@ public class JettySessionManagementTest {
   public void sessionsCanBeObtained() throws Exception {
     String sessionId =
         RestAssured.given()
-            .get(String.format("http://localhost:%s/newSession", port))
+            .get(String.format("http://localhost:%s/context1/newSession", port))
             .then()
             .statusCode(is(SC_OK))
             .extract()
@@ -96,7 +113,7 @@ public class JettySessionManagementTest {
     String sessionId =
         RestAssured.given()
             .filter(sessionFilter)
-            .get(String.format("http://localhost:%s/newSession", port))
+            .get(String.format("http://localhost:%s/context1/newSession", port))
             .then()
             .statusCode(is(SC_OK))
             .extract()
@@ -105,7 +122,7 @@ public class JettySessionManagementTest {
 
     RestAssured.given()
         .filter(sessionFilter)
-        .get(String.format("http://localhost:%s/existingSession", port))
+        .get(String.format("http://localhost:%s/context1/existingSession", port))
         .then()
         .statusCode(is(SC_OK));
   }
@@ -116,7 +133,7 @@ public class JettySessionManagementTest {
     String sessionId =
         RestAssured.given()
             .filter(sessionFilter)
-            .get(String.format("http://localhost:%s/newSession", port))
+            .get(String.format("http://localhost:%s/context1/newSession", port))
             .then()
             .statusCode(is(SC_OK))
             .extract()
@@ -125,19 +142,19 @@ public class JettySessionManagementTest {
 
     RestAssured.given()
         .filter(sessionFilter)
-        .get(String.format("http://localhost:%s/existingSession", port))
+        .get(String.format("http://localhost:%s/context1/existingSession", port))
         .then()
         .statusCode(is(SC_OK));
 
     RestAssured.given()
         .filter(sessionFilter)
-        .get(String.format("http://localhost:%s/invalidateSession", port))
+        .get(String.format("http://localhost:%s/context1/invalidateSession", port))
         .then()
         .statusCode(is(SC_OK));
 
     RestAssured.given()
         .filter(sessionFilter)
-        .get(String.format("http://localhost:%s/existingSession", port))
+        .get(String.format("http://localhost:%s/context1/existingSession", port))
         .then()
         .statusCode(is(SC_BAD_REQUEST));
   }
@@ -145,27 +162,71 @@ public class JettySessionManagementTest {
   @Test
   public void sessionsMaintainAttributesBetweenContexts() {
     SessionFilter sessionFilter = new SessionFilter();
+    logIntoBothContexts(sessionFilter);
+
+    RestAssured.given()
+        .filter(sessionFilter)
+        .get(String.format("http://localhost:%s/context1/addSessionAttribute", port))
+        .then()
+        .statusCode(is(SC_OK));
+
+    RestAssured.given()
+        .filter(sessionFilter)
+        .get(String.format("http://localhost:%s/context2/checkSessionAttribute", port))
+        .then()
+        .statusCode(is(SC_OK));
+  }
+
+  @Test
+  public void sessionsAreRefreshedAcrossContexts() throws InterruptedException {
+    SessionFilter sessionFilter = new SessionFilter();
+    logIntoBothContexts(sessionFilter);
+
+    RestAssured.given()
+        .filter(sessionFilter)
+        .get(String.format("http://localhost:%s/context1/existingSession", port))
+        .then()
+        .statusCode(is(SC_OK));
+
+    Thread.sleep((SCAVENGE_INTERVAL_SECONDS + 1) * 1000);
+
+    RestAssured.given()
+        .filter(sessionFilter)
+        .get(String.format("http://localhost:%s/context2/existingSession", port))
+        .then()
+        .statusCode(is(SC_OK));
+
+    Thread.sleep((SCAVENGE_INTERVAL_SECONDS + 1) * 1000);
+
+    RestAssured.given()
+        .filter(sessionFilter)
+        .get(String.format("http://localhost:%s/context1/existingSession", port))
+        .then()
+        .statusCode(is(SC_OK));
+  }
+
+  private void logIntoBothContexts(SessionFilter sessionFilter) {
     String sessionId =
         RestAssured.given()
             .filter(sessionFilter)
-            .get(String.format("http://localhost:%s/newSession", port))
+            .get(String.format("http://localhost:%s/context1/newSession", port))
             .then()
             .statusCode(is(SC_OK))
             .extract()
             .sessionId();
 
     assertThat(sessionId, is(not(nullValue())));
-    RestAssured.given()
-        .filter(sessionFilter)
-        .get(String.format("http://localhost:%s/addSessionAttribute", port))
-        .then()
-        .statusCode(is(SC_OK));
 
-    RestAssured.given()
-        .filter(sessionFilter)
-        .get(String.format("http://localhost:%s/checkSessionAttribute", port))
-        .then()
-        .statusCode(is(SC_OK));
+    String sessionId2 =
+        RestAssured.given()
+            .filter(sessionFilter)
+            .get(String.format("http://localhost:%s/context2/newSession", port))
+            .then()
+            .statusCode(is(SC_OK))
+            .extract()
+            .sessionId();
+
+    assertThat(sessionId, equalTo(sessionId2));
   }
 
   private static class TestServlet extends HttpServlet {

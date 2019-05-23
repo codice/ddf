@@ -78,11 +78,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.solr</groupId>
-            <artifactId>solr-password</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-dependencies</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -94,6 +89,16 @@
         <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-factory-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-password</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

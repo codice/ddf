@@ -27,6 +27,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.source.solr.SolrMetacardClientImpl;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -57,6 +58,10 @@ public class CqlQueryResponse {
   private final Status status;
 
   private final Map<String, List<FacetValueCount>> facets;
+
+  private final List<String> showingResultsForFields;
+
+  private final Boolean userSpellcheckIsOn;
 
   // Transient so as not to be serialized to/from JSON
   private final transient QueryResponse queryResponse;
@@ -138,6 +143,11 @@ public class CqlQueryResponse {
             .collect(Collectors.toList());
 
     this.facets = getFacetResults(queryResponse.getPropertyValue(EXPERIMENTAL_FACET_RESULTS_KEY));
+    this.showingResultsForFields =
+        (List<String>)
+            queryResponse.getProperties().get(SolrMetacardClientImpl.SHOWING_RESULTS_FOR_KEY);
+    this.userSpellcheckIsOn =
+        (Boolean) queryResponse.getProperties().get(SolrMetacardClientImpl.SPELLCHECK_KEY);
   }
 
   private Map<String, List<FacetValueCount>> getFacetResults(Serializable facetResults) {

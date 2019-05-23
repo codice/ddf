@@ -41,6 +41,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.xml.bind.JAXBContext;
@@ -55,6 +56,10 @@ import net.opengis.filter.v_1_1_0.FilterType;
 import net.opengis.filter.v_1_1_0.UnaryLogicOpType;
 import net.opengis.gml.v_3_1_1.DirectPositionType;
 import net.opengis.gml.v_3_1_1.EnvelopeType;
+import net.opengis.gml.v_3_1_1.LineStringType;
+import net.opengis.gml.v_3_1_1.LinearRingType;
+import net.opengis.gml.v_3_1_1.PointType;
+import net.opengis.gml.v_3_1_1.PolygonType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
@@ -88,7 +93,9 @@ public class WfsFilterDelegateTest {
 
   private static final List<String> SUPPORTED_GEO = asList("Intersects", "BBox", "Within");
 
-  private static final String POLYGON = "POLYGON ((30 -10, 30 30, 10 30, 10 -10, 30 -10))";
+  private static final String POLYGON = "POLYGON ((40 -10, 40 30, 10 30, 10 -10, 40 -10))";
+
+  private static final String LINESTRING = "LINESTRING (30 10, 10 30, 50 40)";
 
   private static final String POINT = "POINT (30 -10)";
 
@@ -408,7 +415,7 @@ public class WfsFilterDelegateTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testWfsFilterDelegateNullFeatureMetacardType() {
-    new WfsFilterDelegate(null, metacardMapper, emptyList());
+    new WfsFilterDelegate(null, metacardMapper, null, new LatLonCoordinateStrategy());
   }
 
   @Test
@@ -502,6 +509,14 @@ public class WfsFilterDelegateTest {
     assertThat(filter.isSetComparisonOps(), is(true));
     assertThat(filter.getComparisonOps(), notNullValue());
     assertThat(filter.getComparisonOps(), is(instanceOf(JAXBElement.class)));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testPropertyIsEqualToStringStringBooleanAnyTextNullMetacardType() {
+
+    WfsFilterDelegate delegate =
+        new WfsFilterDelegate(null, metacardMapper, SUPPORTED_GEO, new LatLonCoordinateStrategy());
+    delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
   }
 
   @Test
@@ -1251,7 +1266,8 @@ public class WfsFilterDelegateTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testBlacklistedGeoProperty() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.BBOX.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.BBOX.getValue(), new LatLonCoordinateStrategy());
 
     when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM))
         .thenReturn(
@@ -1262,7 +1278,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testBeyondFilter() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.BEYOND.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.BEYOND.getValue(), new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
     assertThat(filter.isSetSpatialOps(), is(true));
@@ -1271,7 +1288,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testBeyondAsNotDwithin() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue(), new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
     assertThat(filter.getLogicOps().getValue(), is(instanceOf(UnaryLogicOpType.class)));
@@ -1281,7 +1299,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testBeyondFilterUnsupported() {
-    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP);
+    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP, new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
     assertThat(filter, nullValue());
@@ -1289,7 +1307,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testContainsFilter() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.CONTAINS.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.CONTAINS.getValue(), new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.contains(Metacard.ANY_GEO, POLYGON);
     assertBinarySpatialOpFilter(filter);
@@ -1297,7 +1316,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testContainsUnsupported() {
-    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP);
+    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP, new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.contains(Metacard.ANY_GEO, POLYGON);
     assertThat(filter, nullValue());
@@ -1305,7 +1324,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testCrossesFilter() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.CROSSES.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.CROSSES.getValue(), new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.crosses(Metacard.ANY_GEO, POLYGON);
 
@@ -1314,7 +1334,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testCrossesUnsupported() {
-    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP);
+    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP, new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.crosses(Metacard.ANY_GEO, POLYGON);
     assertThat(filter, nullValue());
@@ -1322,7 +1342,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testDisjointFilter() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DISJOINT.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.DISJOINT.getValue(), new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.disjoint(Metacard.ANY_GEO, POLYGON);
     assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BinarySpatialOpType.class)));
@@ -1330,7 +1351,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testDisjointAsNotBBox() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.BBOX.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.BBOX.getValue(), new LonLatCoordinateStrategy());
 
     FilterType filter = delegate.disjoint(Metacard.ANY_GEO, POLYGON);
     assertThat(filter.getLogicOps().getValue(), is(instanceOf(UnaryLogicOpType.class)));
@@ -1346,12 +1368,13 @@ public class WfsFilterDelegateTest {
 
     DirectPositionType upperCorner = envelope.getUpperCorner();
     assertThat("The bounding box's upper corner was null.", upperCorner, is(notNullValue()));
-    assertThat(upperCorner.getValue(), is(asList(30.0, 30.0)));
+    assertThat(upperCorner.getValue(), is(asList(40.0, 30.0)));
   }
 
   @Test
   public void testDWithinFilterPolygon() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue(), new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POLYGON, DISTANCE);
     assertDistanceBufferFilter(filter);
@@ -1359,7 +1382,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testDWithinFilterPoint() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue(), new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POINT, DISTANCE);
     assertDistanceBufferFilter(filter);
@@ -1367,7 +1391,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testDwithinAsNotBeyond() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.BEYOND.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.BEYOND.getValue(), new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POLYGON, DISTANCE);
     assertThat(filter.getLogicOps().getValue(), is(instanceOf(UnaryLogicOpType.class)));
@@ -1381,7 +1406,9 @@ public class WfsFilterDelegateTest {
    */
   @Test
   public void testDwithinAsIntersects() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.INTERSECTS.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(
+            SPATIAL_OPERATORS.INTERSECTS.getValue(), new LatLonCoordinateStrategy());
     /**
      * Made distance a large value so if the original WKT and the buffered WKT are plotted at:
      * http://openlayers.org/dev/examples/vector-formats.html one can easily see the buffer.
@@ -1396,7 +1423,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testDwithinUnsupported() {
-    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP);
+    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP, new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POLYGON, DISTANCE);
     assertThat(filter, nullValue());
@@ -1404,7 +1431,9 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testIntersects() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.INTERSECTS.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(
+            SPATIAL_OPERATORS.INTERSECTS.getValue(), new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
 
@@ -1413,7 +1442,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testIntersectsAsBoundingBox() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.BBOX.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.BBOX.getValue(), new LonLatCoordinateStrategy());
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
     assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BBOXType.class)));
@@ -1428,12 +1458,13 @@ public class WfsFilterDelegateTest {
 
     DirectPositionType upperCorner = envelope.getUpperCorner();
     assertThat("The bounding box's upper corner was null.", upperCorner, is(notNullValue()));
-    assertThat(upperCorner.getValue(), is(asList(30.0, 30.0)));
+    assertThat(upperCorner.getValue(), is(asList(40.0, 30.0)));
   }
 
   @Test
   public void testIntersectsAsNotDisjoint() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DISJOINT.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.DISJOINT.getValue(), new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
 
@@ -1446,7 +1477,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testIntersectsUnsupported() {
-    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP);
+    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP, new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
     assertThat(filter, nullValue());
@@ -1454,7 +1485,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testOverlapsFilter() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.OVERLAPS.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.OVERLAPS.getValue(), new LatLonCoordinateStrategy());
     FilterType filter = delegate.overlaps(Metacard.ANY_GEO, POLYGON);
 
     assertBinarySpatialOpFilter(filter);
@@ -1462,7 +1494,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testOverlapsUnsupported() {
-    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP);
+    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP, new LatLonCoordinateStrategy());
     FilterType filter = delegate.overlaps(Metacard.ANY_GEO, POLYGON);
 
     assertThat(filter, nullValue());
@@ -1470,7 +1502,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testTouchesFilter() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.TOUCHES.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.TOUCHES.getValue(), new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.touches(Metacard.ANY_GEO, POLYGON);
 
@@ -1479,7 +1512,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testTouchesUnsupported() {
-    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP);
+    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP, new LatLonCoordinateStrategy());
     FilterType filter = delegate.touches(Metacard.ANY_GEO, POLYGON);
 
     assertThat(filter, nullValue());
@@ -1487,7 +1520,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testWithinFilter() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.WITHIN.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.WITHIN.getValue(), new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.within(Metacard.ANY_GEO, POLYGON);
 
@@ -1496,7 +1530,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testWithinUnsupported() {
-    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP);
+    WfsFilterDelegate delegate = setupFilterDelegate(NO_OP, new LatLonCoordinateStrategy());
     FilterType filter = delegate.within(Metacard.ANY_GEO, POLYGON);
 
     assertThat(filter, nullValue());
@@ -1509,7 +1543,8 @@ public class WfsFilterDelegateTest {
 
     List<String> supportedGeo = singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue());
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, metacardMapper, supportedGeo);
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, supportedGeo, new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
     assertThat(filter, notNullValue());
@@ -1519,7 +1554,8 @@ public class WfsFilterDelegateTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testSingleGmlPropertyBlacklisted() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.CONTAINS.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.CONTAINS.getValue(), new LatLonCoordinateStrategy());
     when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM))
         .thenReturn(
             new FeatureAttributeDescriptor(
@@ -1532,9 +1568,10 @@ public class WfsFilterDelegateTest {
   public void testAllGmlPropertiesBlacklisted() {
     whenGeom(MOCK_GEOM, MOCK_GEOM2, false, false);
 
-    List<String> supportedGeo = singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue());
+    List<String> supportedGeo = Collections.singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue());
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, metacardMapper, supportedGeo);
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, supportedGeo, new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
     assertThat(filter, nullValue());
@@ -1542,13 +1579,16 @@ public class WfsFilterDelegateTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testBadPolygonWkt() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.INTERSECTS.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(
+            SPATIAL_OPERATORS.INTERSECTS.getValue(), new LatLonCoordinateStrategy());
     delegate.intersects(Metacard.ANY_GEO, "junk");
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testBadPointWkt() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue());
+    WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue(), new LatLonCoordinateStrategy());
     delegate.dwithin(Metacard.ANY_GEO, "junk", DISTANCE);
   }
 
@@ -1562,7 +1602,8 @@ public class WfsFilterDelegateTest {
         new WfsFilterDelegate(
             featureMetacardType,
             metacardMapper,
-            singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue()));
+            Collections.singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue()),
+            new LatLonCoordinateStrategy());
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
 
     assertThat(filter, nullValue());
@@ -1575,7 +1616,8 @@ public class WfsFilterDelegateTest {
     doReturn(MOCK_PROPERTY).when(metacardMapper).getFeatureProperty(Core.TITLE);
 
     final WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, metacardMapper, emptyList());
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, emptyList(), new LatLonCoordinateStrategy());
 
     final FilterType filter = delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
     assertXMLEqual(propertyIsEqualToXmlLiteral, marshal(filter));
@@ -1586,7 +1628,8 @@ public class WfsFilterDelegateTest {
     whenPropertiesStringType();
 
     final WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, metacardMapper, emptyList());
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, emptyList(), new LatLonCoordinateStrategy());
     delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
   }
 
@@ -1602,7 +1645,8 @@ public class WfsFilterDelegateTest {
                 MOCK_PROPERTY, MOCK_PROPERTY, false, true, true, true, BasicTypes.STRING_TYPE));
 
     final WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, metacardMapper, emptyList());
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, emptyList(), new LatLonCoordinateStrategy());
 
     delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
   }
@@ -1615,7 +1659,8 @@ public class WfsFilterDelegateTest {
     doReturn(MOCK_PROPERTY).when(metacardMapper).getFeatureProperty(Core.CREATED);
 
     final WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, metacardMapper, emptyList());
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, emptyList(), new LatLonCoordinateStrategy());
 
     final FilterType filter = delegate.propertyIsBetween(Core.CREATED, date, endDate);
     assertXMLEqual(propertyBetweenXmlDate, marshal(filter));
@@ -1626,7 +1671,8 @@ public class WfsFilterDelegateTest {
     whenPropertiesDateType();
 
     final WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, metacardMapper, emptyList());
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, emptyList(), new LatLonCoordinateStrategy());
     delegate.propertyIsBetween(Core.CREATED, date, endDate);
   }
 
@@ -1642,7 +1688,8 @@ public class WfsFilterDelegateTest {
                 MOCK_PROPERTY, MOCK_PROPERTY, false, true, true, true, BasicTypes.DATE_TYPE));
 
     final WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, metacardMapper, emptyList());
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, emptyList(), new LatLonCoordinateStrategy());
 
     delegate.propertyIsBetween(Core.CREATED, date, endDate);
   }
@@ -1651,7 +1698,8 @@ public class WfsFilterDelegateTest {
   public void testGeospatialFilterWithMetacardAttributeMappedToFeatureProperty() {
     doReturn(MOCK_GEOM).when(metacardMapper).getFeatureProperty(Core.LOCATION);
 
-    final WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue());
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue(), new LatLonCoordinateStrategy());
 
     final FilterType filter = delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
     assertThat("The filter is not spatial.", filter.isSetSpatialOps(), is(true));
@@ -1667,7 +1715,8 @@ public class WfsFilterDelegateTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testGeospatialFilterCannotMapToFeatureProperty() {
-    final WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue());
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue(), new LatLonCoordinateStrategy());
     delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
   }
 
@@ -1675,14 +1724,178 @@ public class WfsFilterDelegateTest {
   public void testGeospatialFilterFeaturePropertyIsNotQueryable() {
     doReturn(MOCK_GEOM).when(metacardMapper).getFeatureProperty(Core.LOCATION);
 
-    final WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue());
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue(), new LatLonCoordinateStrategy());
 
     when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM))
         .thenReturn(
             new FeatureAttributeDescriptor(
                 MOCK_GEOM, MOCK_GEOM, false, false, false, false, BasicTypes.STRING_TYPE));
 
+    /*
+        WfsFilterDelegate delegate =
+            new WfsFilterDelegate(null, supportedGeo, new LatLonCoordinateStrategy());
+    */
+
     delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
+  }
+
+  @Test
+  public void testBoundingBoxLatLonOrder() {
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.BBOX.getValue(), new LatLonCoordinateStrategy());
+
+    final FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
+    assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BBOXType.class)));
+
+    final BBOXType bboxType = (BBOXType) filter.getSpatialOps().getValue();
+    final EnvelopeType envelope = bboxType.getEnvelope().getValue();
+
+    final DirectPositionType lowerCorner = envelope.getLowerCorner();
+    assertThat("The bounding box's lower corner was null.", lowerCorner, is(notNullValue()));
+    assertThat(lowerCorner.getValue(), is(asList(-10.0, 10.0)));
+
+    final DirectPositionType upperCorner = envelope.getUpperCorner();
+    assertThat("The bounding box's upper corner was null.", upperCorner, is(notNullValue()));
+    assertThat(upperCorner.getValue(), is(asList(30.0, 40.0)));
+  }
+
+  @Test
+  public void testBoundingBoxLonLatOrder() {
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.BBOX.getValue(), new LonLatCoordinateStrategy());
+
+    final FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
+    assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BBOXType.class)));
+
+    final BBOXType bboxType = (BBOXType) filter.getSpatialOps().getValue();
+    final EnvelopeType envelope = bboxType.getEnvelope().getValue();
+
+    final DirectPositionType lowerCorner = envelope.getLowerCorner();
+    assertThat("The bounding box's lower corner was null.", lowerCorner, is(notNullValue()));
+    assertThat(lowerCorner.getValue(), is(asList(10.0, -10.0)));
+
+    final DirectPositionType upperCorner = envelope.getUpperCorner();
+    assertThat("The bounding box's upper corner was null.", upperCorner, is(notNullValue()));
+    assertThat(upperCorner.getValue(), is(asList(40.0, 30.0)));
+  }
+
+  @Test
+  public void testPointLatLonOrder() {
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue(), new LatLonCoordinateStrategy());
+
+    final FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POINT, DISTANCE);
+    assertThat(filter.getSpatialOps().getValue(), is(instanceOf(DistanceBufferType.class)));
+
+    final DistanceBufferType distanceBufferType =
+        (DistanceBufferType) filter.getSpatialOps().getValue();
+    assertThat(distanceBufferType.getGeometry().getValue(), is(instanceOf(PointType.class)));
+
+    final PointType pointType = (PointType) distanceBufferType.getGeometry().getValue();
+    assertThat(pointType.getCoordinates().getValue(), is("-10.0,30.0"));
+  }
+
+  @Test
+  public void testPointLonLatOrder() {
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue(), new LonLatCoordinateStrategy());
+
+    final FilterType filter = delegate.dwithin(Metacard.ANY_GEO, POINT, DISTANCE);
+    assertThat(filter.getSpatialOps().getValue(), is(instanceOf(DistanceBufferType.class)));
+
+    final DistanceBufferType distanceBufferType =
+        (DistanceBufferType) filter.getSpatialOps().getValue();
+    assertThat(distanceBufferType.getGeometry().getValue(), is(instanceOf(PointType.class)));
+
+    final PointType pointType = (PointType) distanceBufferType.getGeometry().getValue();
+    assertThat(pointType.getCoordinates().getValue(), is("30.0,-10.0"));
+  }
+
+  @Test
+  public void testPolygonLatLonOrder() {
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(
+            SPATIAL_OPERATORS.INTERSECTS.getValue(), new LatLonCoordinateStrategy());
+
+    final FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
+    assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BinarySpatialOpType.class)));
+
+    final BinarySpatialOpType binarySpatialOpType =
+        (BinarySpatialOpType) filter.getSpatialOps().getValue();
+    assertThat(binarySpatialOpType.getGeometry().getValue(), is(instanceOf(PolygonType.class)));
+
+    final PolygonType polygonType = (PolygonType) binarySpatialOpType.getGeometry().getValue();
+    assertThat(
+        polygonType.getExterior().getValue().getRing().getValue(),
+        is(instanceOf(LinearRingType.class)));
+
+    final LinearRingType linearRingType =
+        (LinearRingType) polygonType.getExterior().getValue().getRing().getValue();
+    assertThat(
+        linearRingType.getCoordinates().getValue(),
+        is("-10.0,40.0 30.0,40.0 30.0,10.0 -10.0,10.0 -10.0,40.0"));
+  }
+
+  @Test
+  public void testPolygonLonLatOrder() {
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(
+            SPATIAL_OPERATORS.INTERSECTS.getValue(), new LonLatCoordinateStrategy());
+
+    final FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
+    assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BinarySpatialOpType.class)));
+
+    final BinarySpatialOpType binarySpatialOpType =
+        (BinarySpatialOpType) filter.getSpatialOps().getValue();
+    assertThat(binarySpatialOpType.getGeometry().getValue(), is(instanceOf(PolygonType.class)));
+
+    final PolygonType polygonType = (PolygonType) binarySpatialOpType.getGeometry().getValue();
+    assertThat(
+        polygonType.getExterior().getValue().getRing().getValue(),
+        is(instanceOf(LinearRingType.class)));
+
+    final LinearRingType linearRingType =
+        (LinearRingType) polygonType.getExterior().getValue().getRing().getValue();
+    assertThat(
+        linearRingType.getCoordinates().getValue(),
+        is("40.0,-10.0 40.0,30.0 10.0,30.0 10.0,-10.0 40.0,-10.0"));
+  }
+
+  @Test
+  public void testLineStringLatLonOrder() {
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(
+            SPATIAL_OPERATORS.INTERSECTS.getValue(), new LatLonCoordinateStrategy());
+
+    final FilterType filter = delegate.intersects(Metacard.ANY_GEO, LINESTRING);
+    assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BinarySpatialOpType.class)));
+
+    final BinarySpatialOpType binarySpatialOpType =
+        (BinarySpatialOpType) filter.getSpatialOps().getValue();
+    assertThat(binarySpatialOpType.getGeometry().getValue(), is(instanceOf(LineStringType.class)));
+
+    final LineStringType lineStringType =
+        (LineStringType) binarySpatialOpType.getGeometry().getValue();
+    assertThat(lineStringType.getCoordinates().getValue(), is("10.0,30.0 30.0,10.0 40.0,50.0"));
+  }
+
+  @Test
+  public void testLineStringLonLatOrder() {
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(
+            SPATIAL_OPERATORS.INTERSECTS.getValue(), new LonLatCoordinateStrategy());
+
+    final FilterType filter = delegate.intersects(Metacard.ANY_GEO, LINESTRING);
+    assertThat(filter.getSpatialOps().getValue(), is(instanceOf(BinarySpatialOpType.class)));
+
+    final BinarySpatialOpType binarySpatialOpType =
+        (BinarySpatialOpType) filter.getSpatialOps().getValue();
+    assertThat(binarySpatialOpType.getGeometry().getValue(), is(instanceOf(LineStringType.class)));
+
+    final LineStringType lineStringType =
+        (LineStringType) binarySpatialOpType.getGeometry().getValue();
+    assertThat(lineStringType.getCoordinates().getValue(), is("30.0,10.0 10.0,30.0 50.0,40.0"));
   }
 
   private JAXBElement<FilterType> getFilterTypeJaxbElement(FilterType filterType) {
@@ -1848,7 +2061,8 @@ public class WfsFilterDelegateTest {
   }
 
   private WfsFilterDelegate createDelegate() {
-    return new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO);
+    return new WfsFilterDelegate(
+        featureMetacardType, metacardMapper, SUPPORTED_GEO, new LatLonCoordinateStrategy());
   }
 
   private WfsFilterDelegate createIntegerDelegate() {
@@ -1882,7 +2096,8 @@ public class WfsFilterDelegateTest {
     assertThat(filter.getSpatialOps().getValue(), is(instanceOf(DistanceBufferType.class)));
   }
 
-  private WfsFilterDelegate setupFilterDelegate(String spatialOpType) {
+  private WfsFilterDelegate setupFilterDelegate(
+      String spatialOpType, CoordinateStrategy coordinateStrategy) {
     List<String> gmlProps = new ArrayList<>();
     gmlProps.add(MOCK_GEOM);
 
@@ -1892,8 +2107,9 @@ public class WfsFilterDelegateTest {
             new FeatureAttributeDescriptor(
                 MOCK_GEOM, MOCK_GEOM, true, false, false, false, BasicTypes.STRING_TYPE));
 
-    List<String> supportedGeo = singletonList(spatialOpType);
-    return new WfsFilterDelegate(featureMetacardType, metacardMapper, supportedGeo);
+    List<String> supportedGeo = Collections.singletonList(spatialOpType);
+    return new WfsFilterDelegate(
+        featureMetacardType, metacardMapper, supportedGeo, coordinateStrategy);
   }
 
   private void whenTextualStringType() {

@@ -115,6 +115,12 @@ const ResultSelector = Marionette.LayoutView.extend({
           key={Math.random()}
           results={collapsedResults}
           selectionInterface={this.options.selectionInterface}
+          showingResultsForFields={this.model
+            .get('result')
+            .get('showingResultsForFields')}
+          userSpellcheckIsOn={this.model
+            .get('result')
+            .get('userSpellcheckIsOn')}
         />
         <MarionetteRegionContainer
           key={Math.random()}

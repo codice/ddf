@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
+import static org.codice.ddf.libs.geo.util.GeospatialUtil.LAT_LON_ORDER;
+
 import ddf.catalog.Constants;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -79,7 +81,6 @@ import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
-import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
@@ -179,7 +180,7 @@ public class WfsSource extends AbstractWfsSource {
 
   private String password;
 
-  private String coordinateOrder = GeospatialUtil.LAT_LON_ORDER;
+  private String coordinateOrder = LAT_LON_ORDER;
 
   private Boolean disableCnCheck = Boolean.FALSE;
 
@@ -516,7 +517,8 @@ public class WfsSource extends AbstractWfsSource {
           MetacardMapper metacardMapper = getMetacardMapper(featureTypeType.getName());
           this.featureTypeFilters.put(
               featureMetacardType.getFeatureType(),
-              new WfsFilterDelegate(featureMetacardType, metacardMapper, supportedGeo));
+              new WfsFilterDelegate(
+                  featureMetacardType, metacardMapper, supportedGeo, getCoordinateStrategy()));
 
           mcTypeRegs.put(ftSimpleName, featureMetacardType);
 
@@ -1108,6 +1110,12 @@ public class WfsSource extends AbstractWfsSource {
 
   public String getCoordinateOrder() {
     return this.coordinateOrder;
+  }
+
+  private CoordinateStrategy getCoordinateStrategy() {
+    return LAT_LON_ORDER.equals(coordinateOrder)
+        ? new LatLonCoordinateStrategy()
+        : new LonLatCoordinateStrategy();
   }
 
   public void setWfsMetacardTypeRegistry(WfsMetacardTypeRegistry wfsMetacardTypeRegistry) {

@@ -41,8 +41,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.utils</artifactId>
+            <groupId>ddf.admin.core</groupId>
+            <artifactId>admin-core-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

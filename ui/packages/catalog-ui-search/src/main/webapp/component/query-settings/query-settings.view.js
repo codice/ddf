@@ -48,6 +48,7 @@ module.exports = plugin(
     regions: {
       settingsSortField: '.settings-sorting-field',
       spellcheckForm: '.spellcheck-form',
+      phoneticsForm: '.phonetics-form',
       settingsSrc: '.settings-src',
       resultForm: '.result-form',
       extensions: '.query-extensions',
@@ -75,6 +76,7 @@ module.exports = plugin(
     },
     onBeforeShow: function() {
       this.setupSpellcheck()
+      this.setupPhonetics()
       this.setupSortFieldDropdown()
       this.setupSrcDropdown()
       this.turnOnEditing()
@@ -190,6 +192,34 @@ module.exports = plugin(
       })
       this.spellcheckForm.show(new spellcheckView())
     },
+    setupPhonetics: function() {
+      if (!properties.isPhoneticsEnabled) {
+        this.model.set('phonetics', false)
+        return
+      }
+      const phoneticsView = Marionette.ItemView.extend({
+        template: () => (
+          <RadioComponent
+            value={this.model.get('phonetics')}
+            label="Similar Word Matching"
+            options={[
+              {
+                label: 'On',
+                value: true,
+              },
+              {
+                label: 'Off',
+                value: false,
+              },
+            ]}
+            onChange={value => {
+              this.model.set('phonetics', value)
+            }}
+          />
+        ),
+      })
+      this.phoneticsForm.show(new phoneticsView())
+    },
     turnOffEditing: function() {
       this.$el.removeClass('is-editing')
       this.regionManager.forEach(function(region) {
@@ -215,6 +245,7 @@ module.exports = plugin(
     toJSON: function() {
       let federation = this._srcDropdownModel.get('federation')
       const spellcheck = this.model.get('spellcheck')
+      const phonetics = this.model.get('phonetics')
       let src
       if (federation === 'selected') {
         src = this._srcDropdownModel.get('value')
@@ -235,6 +266,7 @@ module.exports = plugin(
         sorts: sorts,
         'detail-level': detailLevel,
         spellcheck,
+        phonetics,
       }
     },
     saveToModel: function() {

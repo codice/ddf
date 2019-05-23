@@ -11,13 +11,27 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.source.solr;
+package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
-import java.io.Serializable;
-import java.util.Map;
+import static java.util.Arrays.asList;
 
-public interface SolrFilterDelegateFactory {
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import java.util.List;
 
-  public SolrFilterDelegate newInstance(
-      DynamicSchemaResolver resolver, Map<String, Serializable> enabledFeatures);
+class LatLonCoordinateStrategy implements CoordinateStrategy {
+  @Override
+  public String toString(final Coordinate coordinate) {
+    return coordinate.y + "," + coordinate.x;
+  }
+
+  @Override
+  public List<Double> lowerCorner(final Envelope envelope) {
+    return asList(envelope.getMinY(), envelope.getMinX());
+  }
+
+  @Override
+  public List<Double> upperCorner(final Envelope envelope) {
+    return asList(envelope.getMaxY(), envelope.getMaxX());
+  }
 }

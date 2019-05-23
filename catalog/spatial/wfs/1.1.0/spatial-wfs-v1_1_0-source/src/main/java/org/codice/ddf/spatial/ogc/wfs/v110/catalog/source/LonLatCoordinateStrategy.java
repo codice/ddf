@@ -11,9 +11,27 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.platform.solr.security;
+package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
-public interface SolrPasswordUpdate extends Runnable {
+import static java.util.Arrays.asList;
 
-  void run();
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import java.util.List;
+
+class LonLatCoordinateStrategy implements CoordinateStrategy {
+  @Override
+  public String toString(final Coordinate coordinate) {
+    return coordinate.x + "," + coordinate.y;
+  }
+
+  @Override
+  public List<Double> lowerCorner(final Envelope envelope) {
+    return asList(envelope.getMinX(), envelope.getMinY());
+  }
+
+  @Override
+  public List<Double> upperCorner(final Envelope envelope) {
+    return asList(envelope.getMaxX(), envelope.getMaxY());
+  }
 }

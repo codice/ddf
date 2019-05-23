@@ -21,6 +21,7 @@ const CombinedMapView = require('./combined-map/combined-map.view.js')
 const HistogramView = require('./histogram/histogram.view.js')
 const TableView = require('./table/table-viz.view.js')
 const user = require('../singletons/user-instance.js')
+import ExtensionPoints from '../../extension-points'
 
 function getActiveVisualization() {
   return user
@@ -44,19 +45,14 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(getPreferences(), 'change:visualization', this.onBeforeShow)
   },
   onBeforeShow: function() {
-    switch (getActiveVisualization()) {
-      case '2dmap':
-        this.showOpenlayers()
-        break
-      case '3dmap':
-        this.showCesium()
-        break
-      case 'histogram':
-        this.showHistogram()
-        break
-      case 'table':
-        this.showTable()
-        break
+    const id = getActiveVisualization()
+    const viz = ExtensionPoints.visualizations.find(viz => viz.id === id)
+    if (viz !== undefined) {
+      this.activeVisualization.show(
+        new viz.view({
+          selectionInterface: this.options.selectionInterface,
+        })
+      )
     }
   },
   showOpenlayers: function() {

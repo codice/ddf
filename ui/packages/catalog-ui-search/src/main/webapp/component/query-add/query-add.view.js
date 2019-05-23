@@ -23,6 +23,7 @@ const QueryAdhoc = require('../query-adhoc/query-adhoc.view.js')
 const Query = require('../../js/model/Query.js')
 const store = require('../../js/store.js')
 const QueryConfirmationView = require('../confirmation/query/confirmation.query.view.js')
+const SearchForm = require('../search-form/search-form')
 const LoadingView = require('../loading/loading.view.js')
 const wreqr = require('../../js/wreqr.js')
 const announcement = require('../announcement/index.jsx')
@@ -44,11 +45,24 @@ module.exports = Marionette.LayoutView.extend({
     'click .editor-saveRun': 'saveRun',
   },
   initialize: function() {
+    this.listenTo(user.getQuerySettings(), 'change:template', querySettings =>
+      this.updateCurrentQuery(querySettings)
+    )
     this.model = new Query.Model(this.getDefaultQuery())
     this.listenTo(this.model, 'resetToDefaults change:type', this.reshow)
     this.listenTo(this.model, 'change:filterTree', this.reshow)
     this.listenTo(this.model, 'closeDropdown', this.closeDropdown)
     this.listenForSave()
+  },
+  updateCurrentQuery: function(currentQuerySettings) {
+    if (currentQuerySettings.get('type') === 'custom') {
+      const searchForm = new SearchForm(currentQuerySettings.get('template'))
+      const sharedAttributes = searchForm.transformToQueryStructure()
+      this.model.set({
+        type: 'custom',
+        ...sharedAttributes,
+      })
+    }
   },
   reshow: function() {
     this.$el.toggleClass(
