@@ -287,7 +287,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
         case 1:
           return new MigrationZipFile(exportFilePaths.get(0));
         case 0:
-          throw new MigrationException(Messages.IMPORT_FILE_MISSING_ERROR, exportDirectory);
+          throw new MigrationException(Messages.IMPORT_FILE_MISSING_ERROR, exportDirectory, "");
         default:
           throw new MigrationException(Messages.IMPORT_FILE_MULTIPLE_ERROR, exportDirectory);
       }

@@ -220,7 +220,7 @@ public class PlatformMigratable implements Migratable {
 
       importedProps.save(fileOnSystem);
     } catch (IOException e) {
-      LOGGER.warn("Failed to upgrade system properties", e);
+      LOGGER.warn("Failed to upgrade custom.system.properties", e);
     }
   }
 

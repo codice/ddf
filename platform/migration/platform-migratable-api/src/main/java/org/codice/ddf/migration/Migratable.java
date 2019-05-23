@@ -37,7 +37,7 @@ import org.codice.ddf.platform.services.common.Describable;
  * be removed in a future version of the library. </b>
  */
 public interface Migratable extends Describable {
-  public static final String IMPORT_UNSUPPORTED_MIGRATABLE_VERSION_ERROR =
+  String IMPORT_UNSUPPORTED_MIGRATABLE_VERSION_ERROR =
       "Import error: unsupported exported version [%s] for migratable [%s]; currently supporting [%s].";
 
   /**

@@ -55,6 +55,7 @@ grant
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}signature.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}encryption.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}signature.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}security${/}configurations.policy", "read";
 }
 
 grant codeBase "file:/admin-core-appservice" {
