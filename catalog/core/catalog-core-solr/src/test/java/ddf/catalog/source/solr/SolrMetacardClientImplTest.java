@@ -92,7 +92,7 @@ public class SolrMetacardClientImplTest {
         new TestSolrMetacardClientImpl(
             client, catalogFilterAdapter, solrFilterDelegateFactory, dynamicSchemaResolver);
 
-    when(solrFilterDelegateFactory.newInstance(dynamicSchemaResolver))
+    when(solrFilterDelegateFactory.newInstance(dynamicSchemaResolver, Collections.EMPTY_MAP))
         .thenReturn(mock(SolrFilterDelegate.class));
     when(catalogFilterAdapter.adapt(any(), any())).thenReturn(solrQuery);
     when(client.query(solrQuery, SolrRequest.METHOD.POST)).thenReturn(queryResponse);

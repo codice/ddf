@@ -43,8 +43,10 @@ import java.io.Serializable;
 import java.nio.BufferOverflowException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.Test;
@@ -274,40 +276,70 @@ public class DynamicSchemaResolverTest {
   @Test
   public void getField() {
     assertThat(
-        new DynamicSchemaResolver().getField("unknown", AttributeFormat.GEOMETRY, false),
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.GEOMETRY, false, Collections.EMPTY_MAP),
         is("unknown_geo_index"));
 
     assertThat(
-        new DynamicSchemaResolver().getField("unknown", AttributeFormat.XML, false),
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.XML, false, Collections.EMPTY_MAP),
         is("unknown_xml_tpt"));
 
     assertThat(
-        new DynamicSchemaResolver().getField("unknown", AttributeFormat.STRING, false),
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.STRING, false, Collections.EMPTY_MAP),
+        is("unknown_txt_tokenized"));
+
+    Map<String, Serializable> enabledFeatures = new HashMap<String, Serializable>();
+    enabledFeatures.put(DynamicSchemaResolver.PHONETICS_FEATURE, Boolean.TRUE);
+    assertThat(
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.STRING, false, enabledFeatures),
+        is("unknown_txt_phonetics"));
+
+    enabledFeatures.put(DynamicSchemaResolver.PHONETICS_FEATURE, Boolean.FALSE);
+    assertThat(
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.STRING, false, enabledFeatures),
         is("unknown_txt_tokenized"));
   }
 
   @Test
   public void getFieldExactValue() {
     assertThat(
-        new DynamicSchemaResolver().getField("unknown", AttributeFormat.DOUBLE, true),
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.DOUBLE, true, Collections.EMPTY_MAP),
         is("unknown_dbl"));
     assertThat(
-        new DynamicSchemaResolver().getField("unknown", AttributeFormat.LONG, true),
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.LONG, true, Collections.EMPTY_MAP),
         is("unknown_lng"));
     assertThat(
-        new DynamicSchemaResolver().getField("unknown", AttributeFormat.INTEGER, true),
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.INTEGER, true, Collections.EMPTY_MAP),
         is("unknown_int"));
     assertThat(
-        new DynamicSchemaResolver().getField("unknown", AttributeFormat.SHORT, true),
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.SHORT, true, Collections.EMPTY_MAP),
         is("unknown_shr"));
     assertThat(
-        new DynamicSchemaResolver().getField("unknown", AttributeFormat.FLOAT, true),
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.FLOAT, true, Collections.EMPTY_MAP),
         is("unknown_flt"));
     assertThat(
-        new DynamicSchemaResolver().getField("anyGeo", AttributeFormat.BINARY, true),
+        new DynamicSchemaResolver()
+            .getField("anyGeo", AttributeFormat.BINARY, true, Collections.EMPTY_MAP),
         is("location_geo_index"));
     assertThat(
-        new DynamicSchemaResolver().getField("unknown", AttributeFormat.STRING, true),
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.STRING, true, Collections.EMPTY_MAP),
+        is("unknown_txt"));
+
+    Map<String, Serializable> enabledFeatures = new HashMap<String, Serializable>();
+    enabledFeatures.put(DynamicSchemaResolver.PHONETICS_FEATURE, Boolean.TRUE);
+    assertThat(
+        new DynamicSchemaResolver()
+            .getField("unknown", AttributeFormat.STRING, true, enabledFeatures),
         is("unknown_txt"));
   }
 }

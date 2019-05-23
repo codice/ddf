@@ -77,6 +77,8 @@ public class CqlRequest {
 
   private Boolean spellcheck;
 
+  private Boolean phonetics;
+
   private List<Sort> sorts = Collections.emptyList();
 
   private Set<String> facets = Collections.emptySet();
@@ -123,6 +125,14 @@ public class CqlRequest {
 
   public boolean getSpellcheck() {
     return spellcheck;
+  }
+
+  public void setPhonetics(boolean phonetics) {
+    this.phonetics = phonetics;
+  }
+
+  public boolean getPhonetics() {
+    return phonetics;
   }
 
   public void setSrc(String src) {
@@ -252,6 +262,10 @@ public class CqlRequest {
 
     if (spellcheck != null) {
       queryRequest.getProperties().put("spellcheck", spellcheck);
+    }
+
+    if (phonetics != null) {
+      queryRequest.getProperties().put("phonetics", phonetics);
     }
 
     return queryRequest;

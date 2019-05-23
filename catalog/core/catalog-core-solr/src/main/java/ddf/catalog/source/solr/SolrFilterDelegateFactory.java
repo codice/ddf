@@ -13,7 +13,11 @@
  */
 package ddf.catalog.source.solr;
 
+import java.io.Serializable;
+import java.util.Map;
+
 public interface SolrFilterDelegateFactory {
 
-  public SolrFilterDelegate newInstance(DynamicSchemaResolver resolver);
+  public SolrFilterDelegate newInstance(
+      DynamicSchemaResolver resolver, Map<String, Serializable> enabledFeatures);
 }
