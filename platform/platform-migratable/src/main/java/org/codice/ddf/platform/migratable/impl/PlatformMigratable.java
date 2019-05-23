@@ -180,7 +180,7 @@ public class PlatformMigratable implements Migratable {
     }
 
     LOGGER.debug("Upgrading system properties...");
-    upgradeSystemProperties(context);
+    upgradeCustomSystemProperties(context);
 
     LOGGER.debug("Importing remaining system files...");
     PlatformMigratable.UPGRADEABLE_SYSTEM_PATHS
@@ -191,7 +191,7 @@ public class PlatformMigratable implements Migratable {
     importServiceWrapperFiles(context);
   }
 
-  private void upgradeSystemProperties(ImportMigrationContext context) {
+  private void upgradeCustomSystemProperties(ImportMigrationContext context) {
     Properties importedProps = new Properties();
     Properties currentProps;
 
