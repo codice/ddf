@@ -24,6 +24,7 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.osgi.framework.Constants.SERVICE_PID;
+import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_BUNDLELOCATION;
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
 import java.io.File;
@@ -238,6 +239,7 @@ public class ConfigurationContextImplTest {
   public void testGetSanitizedData() {
     testProps.put(SERVICE_PID, TEST_PID);
     testProps.put(SERVICE_FACTORYPID, TEST_PID);
+    testProps.put(SERVICE_BUNDLELOCATION, TEST_PID);
     testProps.put(FELIX_FILENAME, temporaryFile.toURI());
     testProps.put(FELIX_NEW_CONFIG, true);
     testProps.put(SERVICE_FACTORY_PIDLIST, new ArrayList<>());
