@@ -381,7 +381,7 @@ public abstract class SamlValidator {
     protected void checkDestination() throws ValidationException {
       if (isNotBlank(logoutResponse.getDestination())) {
         try {
-          if (!builder.destination.equals(
+          if (!builder.destination.equalsIgnoreCase(
               HttpUtils.validateAndStripQueryString(logoutResponse.getDestination()))) {
             throw new ValidationException("Destination validation failed");
           }
