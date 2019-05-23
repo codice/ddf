@@ -35,7 +35,7 @@ After adding permissions, a system restart is required for them to take effect.
 . permission java.io.FilePermission "<DIRECTORY_PATH>", "read";
 . permission java.io.FilePermission "<DIRECTORY_PATH>${/}-", "read, write";
 
-Trailing slashes after <DIRECTORY_PATH> have no effect on the permissions granted. For example, adding a permission for "/test/path" and "/test/path/" are equivalent. The recursive forms "/test/path${/}-", and "/test/path/${/}-" are also equivalent.
+Trailing slashes after <DIRECTORY_PATH> have no effect on the permissions granted. For example, adding a permission for "${/}test${/}path" and "${/}test${/}path${/}" are equivalent. The recursive forms "${/}test${/}path${/}-", and "${/}test${/}path${/}${/}-" are also equivalent.
 
 Line 1 gives the CDM the permissions to read from the monitored directory path. Line 2 gives the CDM the permissions to recursively read and write from the monitored directory path, specified by the directory path's suffix "${/}-".
 
