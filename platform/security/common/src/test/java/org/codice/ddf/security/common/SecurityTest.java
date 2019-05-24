@@ -156,6 +156,8 @@ public class SecurityTest {
           assertThat(security.getSystemSubject(), not(equalTo(null)));
           return null;
         });
+
+    verify(security).auditSystemSubjectAccess();
   }
 
   @Test
@@ -240,6 +242,8 @@ public class SecurityTest {
     } catch (InvocationTargetException e) {
       assertThat(e.getCause(), is(instanceOf(UnsupportedOperationException.class)));
     }
+
+    verify(security).auditFailedCodeExecutionForSystemSubject(any(ExecutionException.class));
   }
 
   @Test

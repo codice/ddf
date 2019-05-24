@@ -181,6 +181,7 @@ public class Security {
       auditSystemSubjectElevation();
       return subject.execute(codeToRun);
     } catch (ExecutionException e) {
+      auditFailedCodeExecutionForSystemSubject(e);
       throw new InvocationTargetException(e.getCause());
     }
   }
@@ -197,6 +198,7 @@ public class Security {
    */
   @Nullable
   public final synchronized Subject getSystemSubject() {
+    auditSystemSubjectAccess();
     final java.lang.SecurityManager security = System.getSecurityManager();
 
     if (security != null) {
@@ -367,6 +369,10 @@ public class Security {
     return null;
   }
 
+  void auditFailedCodeExecutionForSystemSubject(ExecutionException e) {
+    SecurityLogger.auditWarn("Failed to execute code as System subject", e.getCause());
+  }
+
   @VisibleForTesting
   void auditInsufficientPermissions() {
     SecurityLogger.audit(INSUFFICIENT_PERMISSIONS_ERROR);
@@ -375,6 +381,11 @@ public class Security {
   @VisibleForTesting
   void auditSystemSubjectElevation() {
     SecurityLogger.auditWarn("Elevating current user permissions to use System subject");
+  }
+
+  @VisibleForTesting
+  void auditSystemSubjectAccess() {
+    SecurityLogger.audit("Attempting to get System Subject");
   }
 
   private BaseAuthenticationTokenFactory createBasicTokenFactory() {
