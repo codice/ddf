@@ -30,6 +30,7 @@ const IGNORED_WORKSPACE_ATTRIBUTES = [
   'id',
   'subscribed',
   'serverPageIndex',
+  'totalHits',
 ]
 
 /**
