@@ -20,11 +20,14 @@
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
-    <!-- Get reference to Filter Adapter implementation -->
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
-    <reference-list id="metacardTypeEnhancerList"
+    <reference-list id="metacardTypeEnhancers"
                     interface="org.codice.ddf.spatial.ogc.wfs.catalog.MetacardTypeEnhancer"
+                    availability="optional"/>
+
+    <reference-list id="metacardMappers"
+                    interface="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"
                     availability="optional"/>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
@@ -41,10 +44,20 @@
             interface="ddf.catalog.source.FederatedSource">
         <cm:managed-component class="org.codice.ddf.spatial.ogc.wfs.v110.catalog.source.WfsSource"
                               init-method="init" destroy-method="destroy">
-            <argument ref="encryptionService"/>
-            <argument ref="metacardTypeRegistry"/>
-            <argument ref="featureTransformationService"/>
             <argument ref="clientFactoryFactory"/>
+            <argument ref="encryptionService"/>
+            <argument>
+                <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor">
+                    <argument>
+                        <bean class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+                          factory-method="newThreadFactory">
+                            <argument value="wfsSourceThread"/>
+                        </bean>
+                    </argument>
+                </bean>
+            </argument>
+            <property name="wfsMetacardTypeRegistry" ref="metacardTypeRegistry"/>
+            <property name="featureTransformationService" ref="featureTransformationService"/>
             <property name="context" ref="blueprintBundleContext"/>
             <property name="filterAdapter" ref="filterAdapter"/>
             <property name="wfsUrl" value=""/>
@@ -62,7 +75,8 @@
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
             <property name="coordinateOrder" value="LAT_LON"/>
-            <property name="metacardTypeEnhancers" ref="metacardTypeEnhancerList"/>
+            <property name="metacardTypeEnhancers" ref="metacardTypeEnhancers"/>
+            <property name="metacardMappers" ref="metacardMappers"/>
             <property name="srsName" value="EPSG:4326"/>
 
             <cm:managed-properties persistent-id="" update-strategy="component-managed"

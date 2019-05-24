@@ -14,6 +14,8 @@
 package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -22,12 +24,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.types.Core;
 import io.restassured.path.xml.XmlPath;
 import io.restassured.path.xml.config.XmlPathConfig;
 import java.io.IOException;
@@ -58,6 +62,7 @@ import net.opengis.gml.v_3_1_1.PointType;
 import net.opengis.gml.v_3_1_1.PolygonType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants.SPATIAL_OPERATORS;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.joda.time.DateTime;
@@ -391,10 +396,14 @@ public class WfsFilterDelegateTest {
 
   private List<String> mockProps;
 
+  private MetacardMapper metacardMapper;
+
   @Before
   public void setUp() {
     mockProps = new ArrayList<>();
     when(featureMetacardType.getGmlProperties()).thenReturn(mockGmlProps);
+
+    metacardMapper = mock(MetacardMapper.class);
   }
 
   @Test
@@ -405,8 +414,8 @@ public class WfsFilterDelegateTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testWFSFilterDelegateNullSchema() {
-    new WfsFilterDelegate(null, null, new LatLonCoordinateStrategy());
+  public void testWfsFilterDelegateNullFeatureMetacardType() {
+    new WfsFilterDelegate(null, metacardMapper, null, new LatLonCoordinateStrategy());
   }
 
   @Test
@@ -506,7 +515,7 @@ public class WfsFilterDelegateTest {
   public void testPropertyIsEqualToStringStringBooleanAnyTextNullMetacardType() {
 
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(null, SUPPORTED_GEO, new LatLonCoordinateStrategy());
+        new WfsFilterDelegate(null, metacardMapper, SUPPORTED_GEO, new LatLonCoordinateStrategy());
     delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
   }
 
@@ -1039,14 +1048,12 @@ public class WfsFilterDelegateTest {
     delegate.propertyIsBetween(MOCK_PROPERTY, LITERAL, null);
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testPropertyIsLikeStringStringBoolean() {
     mockProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockProps);
     WfsFilterDelegate delegate = createDelegate();
-    FilterType filter = delegate.propertyIsLike(PROPERTY_NAME, LITERAL, true);
-    // Ensure this is an invalid FilterType
-    assertThat(filter, nullValue());
+    delegate.propertyIsLike(PROPERTY_NAME, LITERAL, true);
   }
 
   @Test
@@ -1534,9 +1541,10 @@ public class WfsFilterDelegateTest {
 
     whenGeom(MOCK_GEOM, MOCK_GEOM2, true, true);
 
-    List<String> supportedGeo = Collections.singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue());
+    List<String> supportedGeo = singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue());
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, supportedGeo, new LatLonCoordinateStrategy());
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, supportedGeo, new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
     assertThat(filter, notNullValue());
@@ -1562,7 +1570,8 @@ public class WfsFilterDelegateTest {
 
     List<String> supportedGeo = Collections.singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue());
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, supportedGeo, new LatLonCoordinateStrategy());
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, supportedGeo, new LatLonCoordinateStrategy());
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
     assertThat(filter, nullValue());
@@ -1592,6 +1601,7 @@ public class WfsFilterDelegateTest {
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(
             featureMetacardType,
+            metacardMapper,
             Collections.singletonList(SPATIAL_OPERATORS.INTERSECTS.getValue()),
             new LatLonCoordinateStrategy());
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
@@ -1599,14 +1609,135 @@ public class WfsFilterDelegateTest {
     assertThat(filter, nullValue());
   }
 
+  @Test
+  public void testPropertyIsFilterWithMetacardAttributeMappedToFeatureProperty() throws Exception {
+    whenPropertiesStringType();
+
+    doReturn(MOCK_PROPERTY).when(metacardMapper).getFeatureProperty(Core.TITLE);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, emptyList(), new LatLonCoordinateStrategy());
+
+    final FilterType filter = delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
+    assertXMLEqual(propertyIsEqualToXmlLiteral, marshal(filter));
+  }
+
   @Test(expected = IllegalArgumentException.class)
-  public void testGeoFilterNullMetacardType() {
-    List<String> supportedGeo = Collections.singletonList(SPATIAL_OPERATORS.BEYOND.getValue());
+  public void testPropertyIsFilterCannotMapToFeatureProperty() {
+    whenPropertiesStringType();
 
-    WfsFilterDelegate delegate =
-        new WfsFilterDelegate(null, supportedGeo, new LatLonCoordinateStrategy());
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, emptyList(), new LatLonCoordinateStrategy());
+    delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
+  }
 
-    delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
+  @Test(expected = IllegalArgumentException.class)
+  public void testPropertyIsFilterFeaturePropertyIsNotQueryable() {
+    whenPropertiesStringType();
+
+    doReturn(MOCK_PROPERTY).when(metacardMapper).getFeatureProperty(Core.TITLE);
+
+    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
+        .thenReturn(
+            new FeatureAttributeDescriptor(
+                MOCK_PROPERTY, MOCK_PROPERTY, false, true, true, true, BasicTypes.STRING_TYPE));
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, emptyList(), new LatLonCoordinateStrategy());
+
+    delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
+  }
+
+  @Test
+  public void testPropertyIsBetweenFilterWithMetacardAttributeMappedToFeatureProperty()
+      throws Exception {
+    whenPropertiesDateType();
+
+    doReturn(MOCK_PROPERTY).when(metacardMapper).getFeatureProperty(Core.CREATED);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, emptyList(), new LatLonCoordinateStrategy());
+
+    final FilterType filter = delegate.propertyIsBetween(Core.CREATED, date, endDate);
+    assertXMLEqual(propertyBetweenXmlDate, marshal(filter));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testPropertyIsBetweenFilterCannotMapToFeatureProperty() {
+    whenPropertiesDateType();
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, emptyList(), new LatLonCoordinateStrategy());
+    delegate.propertyIsBetween(Core.CREATED, date, endDate);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testPropertyIsBetweenFilterFeaturePropertyIsNotQueryable() {
+    whenPropertiesDateType();
+
+    doReturn(MOCK_PROPERTY).when(metacardMapper).getFeatureProperty(Core.CREATED);
+
+    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
+        .thenReturn(
+            new FeatureAttributeDescriptor(
+                MOCK_PROPERTY, MOCK_PROPERTY, false, true, true, true, BasicTypes.DATE_TYPE));
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            featureMetacardType, metacardMapper, emptyList(), new LatLonCoordinateStrategy());
+
+    delegate.propertyIsBetween(Core.CREATED, date, endDate);
+  }
+
+  @Test
+  public void testGeospatialFilterWithMetacardAttributeMappedToFeatureProperty() {
+    doReturn(MOCK_GEOM).when(metacardMapper).getFeatureProperty(Core.LOCATION);
+
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue(), new LatLonCoordinateStrategy());
+
+    final FilterType filter = delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
+    assertThat("The filter is not spatial.", filter.isSetSpatialOps(), is(true));
+    assertThat(filter.getSpatialOps().getValue(), is(instanceOf(DistanceBufferType.class)));
+
+    final DistanceBufferType distanceBufferType =
+        (DistanceBufferType) filter.getSpatialOps().getValue();
+    assertThat(
+        String.format("'%s' was not mapped to '%s' in the query.", Core.LOCATION, MOCK_GEOM),
+        distanceBufferType.getPropertyName().getContent(),
+        is(singletonList(MOCK_GEOM)));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGeospatialFilterCannotMapToFeatureProperty() {
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue(), new LatLonCoordinateStrategy());
+    delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGeospatialFilterFeaturePropertyIsNotQueryable() {
+    doReturn(MOCK_GEOM).when(metacardMapper).getFeatureProperty(Core.LOCATION);
+
+    final WfsFilterDelegate delegate =
+        setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue(), new LatLonCoordinateStrategy());
+
+    when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM))
+        .thenReturn(
+            new FeatureAttributeDescriptor(
+                MOCK_GEOM, MOCK_GEOM, false, false, false, false, BasicTypes.STRING_TYPE));
+
+    /*
+        WfsFilterDelegate delegate =
+            new WfsFilterDelegate(null, supportedGeo, new LatLonCoordinateStrategy());
+    */
+
+    delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
   }
 
   @Test
@@ -1931,7 +2062,7 @@ public class WfsFilterDelegateTest {
 
   private WfsFilterDelegate createDelegate() {
     return new WfsFilterDelegate(
-        featureMetacardType, SUPPORTED_GEO, new LatLonCoordinateStrategy());
+        featureMetacardType, metacardMapper, SUPPORTED_GEO, new LatLonCoordinateStrategy());
   }
 
   private WfsFilterDelegate createIntegerDelegate() {
@@ -1977,7 +2108,8 @@ public class WfsFilterDelegateTest {
                 MOCK_GEOM, MOCK_GEOM, true, false, false, false, BasicTypes.STRING_TYPE));
 
     List<String> supportedGeo = Collections.singletonList(spatialOpType);
-    return new WfsFilterDelegate(featureMetacardType, supportedGeo, coordinateStrategy);
+    return new WfsFilterDelegate(
+        featureMetacardType, metacardMapper, supportedGeo, coordinateStrategy);
   }
 
   private void whenTextualStringType() {

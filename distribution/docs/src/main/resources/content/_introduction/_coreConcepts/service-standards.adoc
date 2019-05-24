@@ -25,9 +25,9 @@ Standards marked *Experimental* are functional and have been tested, but are sub
 |<<{managing-prefix}gmd_csw_source,Geographic MetaData extensible markup language (GMD) CSW Source>>
 |Supported
 
-|http://www.opengeospatial.org/standards/wfs[OGC Web Feature Service WFS 1.0/2.0] {external-link}
+|http://www.opengeospatial.org/standards/wfs[OGC Web Feature Service WFS 1.0/1.1/2.0] {external-link}
 |
-|<<{managing-prefix}wfs_1_0_source,WFS 1.0 Source>>, <<{managing-prefix}wfs_2_0_source,WFS 2.0 Source>>
+|<<{managing-prefix}wfs_1_0_source,WFS 1.0 Source>>, <<{managing-prefix}wfs_1_1_source,WFS 1.1 Source>>, <<{managing-prefix}wfs_2_0_source,WFS 2.0 Source>>
 |Supported
 
 |http://www.opengeospatial.org/standards/wps[OGC WPS 2.0] {external-link} Web Processing Service
