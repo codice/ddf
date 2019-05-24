@@ -369,6 +369,7 @@ public class Security {
     return null;
   }
 
+  @VisibleForTesting
   void auditFailedCodeExecutionForSystemSubject(ExecutionException e) {
     SecurityLogger.auditWarn("Failed to execute code as System subject", e.getCause());
   }
