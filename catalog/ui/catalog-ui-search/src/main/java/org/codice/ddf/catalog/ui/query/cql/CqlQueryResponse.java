@@ -59,7 +59,7 @@ public class CqlQueryResponse {
 
   private final Map<String, List<FacetValueCount>> facets;
 
-  private final List<String> showingResultsForFields;
+  private final List<String> showingResultsForFields, didYouMeanFields;
 
   private final Boolean userSpellcheckIsOn;
 
@@ -143,6 +143,8 @@ public class CqlQueryResponse {
             .collect(Collectors.toList());
 
     this.facets = getFacetResults(queryResponse.getPropertyValue(EXPERIMENTAL_FACET_RESULTS_KEY));
+    this.didYouMeanFields =
+        (List<String>) queryResponse.getProperties().get(SolrMetacardClientImpl.DID_YOU_MEAN_KEY);
     this.showingResultsForFields =
         (List<String>)
             queryResponse.getProperties().get(SolrMetacardClientImpl.SHOWING_RESULTS_FOR_KEY);

@@ -116,6 +116,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   public static final String SHOWING_RESULTS_FOR_KEY = "showingResultsFor";
 
+  public static final String DID_YOU_MEAN_KEY = "didYouMean";
+
   public static final String SPELLCHECK_KEY = "spellcheck";
 
   public static final int GET_BY_ID_LIMIT = 100;
@@ -229,12 +231,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         solrResponse = client.query(query, METHOD.POST);
       }
 
-      SolrDocumentList docs = solrResponse.getResults();
-      if (docs != null) {
-        totalHits = docs.getNumFound();
-        addDocsToResults(docs, results);
-      }
-
       SuggesterResponse suggesterResponse = solrResponse.getSuggesterResponse();
 
       if (suggesterResponse != null) {
@@ -254,17 +250,30 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         responseProps.put(SUGGESTION_RESULT_KEY, (Serializable) suggestionResults);
       }
 
+      SolrDocumentList docs = solrResponse.getResults();
+      int originalQueryResultsSize = docs.size();
+      if (docs != null) {
+        totalHits = docs.getNumFound();
+        addDocsToResults(docs, results);
+      }
+
       if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
         query.set("q", findQueryToResend(query, solrResponse));
-        solrResponse = client.query(query, METHOD.POST);
-        docs = solrResponse.getResults();
-        results = new ArrayList<>();
-        if (docs != null) {
-          totalHits = docs.getNumFound();
-          addDocsToResults(docs, results);
+        QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
+        docs = solrResponseRequery.getResults();
+        if (docs.size() > originalQueryResultsSize) {
+          results = new ArrayList<>();
+          if (docs != null) {
+            totalHits = docs.getNumFound();
+            addDocsToResults(docs, results);
+          }
+
+          responseProps.put(
+              DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
+          responseProps.put(
+              SHOWING_RESULTS_FOR_KEY,
+              (Serializable) getSearchTermFieldValues(solrResponseRequery));
         }
-        responseProps.put(
-            SHOWING_RESULTS_FOR_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
       }
 
       if (isFacetedQuery) {
@@ -304,7 +313,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private boolean solrSpellcheckHasResults(QueryResponse solrResponse) {
     return solrResponse.getSpellCheckResponse() != null
-        && solrResponse.getResults().size() == 0
         && CollectionUtils.isNotEmpty(solrResponse.getSpellCheckResponse().getCollatedResults());
   }
 

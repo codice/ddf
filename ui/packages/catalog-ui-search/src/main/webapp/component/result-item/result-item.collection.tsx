@@ -11,7 +11,9 @@ type Props = {
   selectionInterface: any
   className?: string
   showingResultsForFields: any[]
+  didYouMeanFields: any[]
   userSpellcheckIsOn: boolean
+  model: any
 }
 
 const ResultItemCollection = styled.div`
@@ -25,17 +27,6 @@ const ResultItemCollection = styled.div`
 
   > *:not(:nth-child(1)) {
     margin-top: ${props => props.theme.minimumSpacing};
-  }
-`
-
-const SolrQueryDisplay = styled.div`
-  > .solr-query {
-    padding: ${props => props.theme.minimumSpacing};
-    box-shadow: none !important;
-    text-align: center;
-    font-size: 12px;
-    white-space: wrap;
-    word-wrap: normal;
   }
 `
 
@@ -53,8 +44,34 @@ const ResultGroup = styled.div`
   }
 `
 
+const ShowingResultsForContainer = styled.div`
+  padding: 0.15rem;
+  text-align: center;
+  font-size: 0.75rem;
+  border: none !important;
+`
+
+const ShowMore = styled.a`
+  padding: 0.15rem;
+  font-size: 0.75rem;
+`
+
+const DidYouMeanContainer = styled.div`
+  text-align: center;
+  border: none !important;
+`
+
+const ResendQuery = styled.a`
+  padding: 0.15rem;
+  text-align: center;
+  font-size: 0.75rem;
+  text-decoration: none;
+  width: 100%;
+`
+
 type State = {
-  expandSearchFieldText: boolean
+  expandShowingResultForText: boolean
+  expandDidYouMeanFieldText: boolean
 }
 
 class ResultItems extends React.Component<Props, State> {
@@ -62,7 +79,8 @@ class ResultItems extends React.Component<Props, State> {
     super(props)
 
     this.state = {
-      expandSearchFieldText: false,
+      expandShowingResultForText: false,
+      expandDidYouMeanFieldText: false,
     }
   }
 
@@ -70,10 +88,11 @@ class ResultItems extends React.Component<Props, State> {
     let showingResultsFor = 'Showing Results for '
     if (
       showingResultsForFields !== undefined &&
-      showingResultsForFields !== null
+      showingResultsForFields !== null &&
+      showingResultsForFields.length > 0
     ) {
       if (
-        !this.state.expandSearchFieldText &&
+        !this.state.expandShowingResultForText &&
         showingResultsForFields.length > 2
       ) {
         showingResultsFor += this.createCondensedResultsForText(
@@ -87,6 +106,27 @@ class ResultItems extends React.Component<Props, State> {
       )
       return showingResultsFor
     }
+    return null
+  }
+
+  createDidYouMeanText(didYouMeanFields: any[]) {
+    let didYouMean = 'Did you mean '
+    if (
+      didYouMeanFields !== undefined &&
+      didYouMeanFields !== null &&
+      didYouMeanFields.length > 0
+    ) {
+      if (
+        !this.state.expandDidYouMeanFieldText &&
+        didYouMeanFields.length > 2
+      ) {
+        didYouMean += this.createCondensedResultsForText(didYouMeanFields)
+        return didYouMean
+      }
+      didYouMean += this.createExpandedResultsForText(didYouMeanFields)
+      return didYouMean
+    }
+    return null
   }
 
   createCondensedResultsForText(showingResultsForFields: any[]) {
@@ -99,12 +139,21 @@ class ResultItems extends React.Component<Props, State> {
     return showingResultsForFields.join(', ')
   }
 
+  rerunQuery(model: any) {
+    model.set('spellcheck', false)
+    model.startSearchFromFirstPage()
+    model.set('spellcheck', true)
+  }
+
   render() {
     const {
       results,
       className,
-      showingResultsForFields,
       userSpellcheckIsOn,
+      selectionInterface,
+      showingResultsForFields,
+      didYouMeanFields,
+      model,
     } = this.props
     if (results.length === 0) {
       return (
@@ -116,26 +165,107 @@ class ResultItems extends React.Component<Props, State> {
       const showingResultsFor = this.createShowResultText(
         showingResultsForFields
       )
+      const didYouMean = this.createDidYouMeanText(didYouMeanFields)
+
       return (
-        <SolrQueryDisplay className={className}>
-          <div className="solr-query">
-            {showingResultsFor}
-            {showingResultsForFields !== null &&
-              showingResultsForFields !== undefined &&
-              showingResultsForFields.length > 2 && (
-                <a
-                  onClick={() => {
-                    this.setState({
-                      expandSearchFieldText: !this.state.expandSearchFieldText,
-                    })
+        <ResultItemCollection
+          className={`${className} is-list has-list-highlighting`}
+        >
+          {showingResultsFor !== null && (
+            <ShowingResultsForContainer>
+              {showingResultsFor}
+              {showingResultsForFields !== null &&
+                showingResultsForFields !== undefined &&
+                showingResultsForFields.length > 2 && (
+                  <ShowMore
+                    onClick={() => {
+                      this.setState({
+                        expandShowingResultForText: !this.state
+                          .expandShowingResultForText,
+                      })
+                    }}
+                  >
+                    {this.state.expandShowingResultForText ? 'less' : 'more'}
+                  </ShowMore>
+                )}
+            </ShowingResultsForContainer>
+          )}
+          {didYouMean !== null && (
+            <DidYouMeanContainer>
+              <ResendQuery
+                onClick={() => {
+                  this.rerunQuery(model)
+                }}
+              >
+                {didYouMean}
+              </ResendQuery>
+              {didYouMeanFields !== null &&
+                didYouMeanFields !== undefined &&
+                didYouMeanFields.length > 2 && (
+                  <ShowMore
+                    onClick={() => {
+                      this.setState({
+                        expandDidYouMeanFieldText: !this.state
+                          .expandDidYouMeanFieldText,
+                      })
+                    }}
+                  >
+                    {this.state.expandDidYouMeanFieldText ? 'less' : 'more'}
+                  </ShowMore>
+                )}
+            </DidYouMeanContainer>
+          )}
+
+          {results.map(result => {
+            if (result.duplicates) {
+              const amount = result.duplicates.length + 1
+              return (
+                <ResultGroup key={result.id}>
+                  <div className="group-representation">
+                    {amount} duplicates
+                  </div>
+                  <div className="group-results global-bracket is-left">
+                    <ResultItemCollection className="is-list has-list-highlighting">
+                      <MarionetteRegionContainer
+                        view={childView}
+                        viewOptions={{
+                          selectionInterface,
+                          model: result,
+                        }}
+                        replaceElement
+                      />
+                      {result.duplicates.map((duplicate: any) => {
+                        return (
+                          <MarionetteRegionContainer
+                            key={duplicate.id}
+                            view={childView}
+                            viewOptions={{
+                              selectionInterface,
+                              model: duplicate,
+                            }}
+                            replaceElement
+                          />
+                        )
+                      })}
+                    </ResultItemCollection>
+                  </div>
+                </ResultGroup>
+              )
+            } else {
+              return (
+                <MarionetteRegionContainer
+                  key={result.id}
+                  view={childView}
+                  viewOptions={{
+                    selectionInterface,
+                    model: result,
                   }}
-                >
-                  {this.state.expandSearchFieldText ? 'less' : 'more'}
-                </a>
-              )}
-          </div>
-          {this.createResultItemCollectionView()}
-        </SolrQueryDisplay>
+                  replaceElement
+                />
+              )
+            }
+          })}
+        </ResultItemCollection>
       )
     } else {
       return this.createResultItemCollectionView()

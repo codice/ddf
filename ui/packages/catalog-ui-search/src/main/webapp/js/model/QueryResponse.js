@@ -83,6 +83,7 @@ module.exports = Backbone.AssociatedModel.extend({
     merged: true,
     currentlyViewed: false,
     showingResultsForFields: [],
+    didYouMeanFields: [],
     userSpellcheckIsOn: false,
   },
   relations: [
@@ -284,6 +285,7 @@ module.exports = Backbone.AssociatedModel.extend({
 
     return {
       showingResultsForFields: resp.showingResultsForFields,
+      didYouMeanFields: resp.didYouMeanFields,
       userSpellcheckIsOn: resp.userSpellcheckIsOn,
       queuedResults: resp.results,
       results: [],
