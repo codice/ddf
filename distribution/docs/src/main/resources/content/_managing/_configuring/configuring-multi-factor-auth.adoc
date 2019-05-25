@@ -1,0 +1,23 @@
+:title: Configuring Multi Factor Authentication
+:type: subConfiguration
+:status: published
+:parent: Configuring REST Services for Users
+:summary: Configuring Multi Factor Authentication using Keycloak as an IdP.
+:order: 23
+
+== {title}
+
+Mutli-factor authentication, sometimes referred to as two-factor authentication, allows for greater security.
+It does this by requiring users to provide multiple proofs of identity, typically through something they know (such as a password), and something they have/are (such as a randomly generated pin number sent to one of their personal devices).
+The IdP that comes with ${branding} does not support multi-factor authentication by default.
+
+Keycloak can be used to help setup and configure multi-factor authentication.
+See <<{managing-prefix}connecting_to_an_external_identity_provider,Connecting to an External Identity Provider>> on how to initially hookup Keycloak.
+
+.Configuring Keycloak for MFA
+. Download and install Keycloak from here: https://www.keycloak.org/downloads.html[Keycloak Downloads^] {external link}
+. See https://www.keycloak.org/docs/latest/server_installation/index.html#_operating-mode[Choosing an Operating Mode^] {external link} to choose a specific operation mode.
+. Set up an Admin User following these steps here: https://www.keycloak.org/docs/latest/server_admin/index.html#server-initialization[Server Admin Initialization^] {external link}
+. Refer to https://www.keycloak.org/docs/latest/server_admin/index.html#otp-policies[OTP Policies^] {external link} for how to set up multi-factor authentication using supported authentication tools such as *FreeOTP* and *Google Authenticator*.
+
+See the https://www.keycloak.org/documentation.html[Keycloak Documentation^] {external link} for more information and details about how to configure Keycloack for multi-factor authentication.

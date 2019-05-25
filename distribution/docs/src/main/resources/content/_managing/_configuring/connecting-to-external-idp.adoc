@@ -21,6 +21,11 @@ The SP metadata can found at `https://<FQDN>:<PORT>/services/saml/sso/metadata`.
 
 [NOTE]
 ====
+The certificate that the external IdP uses for signing will need to be added to the ${branding}'s keystore. See <<{managing-prefix}updating_key_store_trust_store_via_the_admin_console,Updating Key Store / Trust Store via the Admin Console>> for details.
+====
+
+[NOTE]
+====
 ${branding} may not interoperate successfully with all IdPs.
 To idenify the ones it can interoperate with use the https://github.com/codice/saml-conformance[The Security Assertion Markup Language (SAML) Conformance Test Kit (CTK)] {external-link}
 ====
