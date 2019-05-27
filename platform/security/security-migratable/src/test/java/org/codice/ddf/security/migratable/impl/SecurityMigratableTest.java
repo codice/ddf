@@ -84,7 +84,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class SecurityMigratableTest {
   private static final String SUPPORTED_BRANDING = "test";
 
-  private static final String SUPPORTED_PRODUCT_VERSION = "1.0";
+  private static final String SUPPORTED_PRODUCT_VERSION = "2.0";
 
   private static final String UNSUPPORTED_VERSION = "666.0";
 
@@ -115,6 +115,8 @@ public class SecurityMigratableTest {
   private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
 
   private static final Path CRL = Paths.get("etc", "certs", "demoCA", "crl", "crl.pem");
+
+  private static final Path MIGRATION_PROPERTIES = Paths.get("etc", "migration.properties");
 
   private static final String XACML_POLICY = "xacml.xml";
 
@@ -150,7 +152,8 @@ public class SecurityMigratableTest {
     SecurityMigratable securityMigratable = new SecurityMigratable();
 
     // Perform Test
-    securityMigratable.doVersionUpgradeImport(mockImportMigrationContext, UNSUPPORTED_VERSION);
+    securityMigratable.doVersionUpgradeImport(
+        mockImportMigrationContext, new Properties(), UNSUPPORTED_VERSION);
 
     // Verify
     verify(mockImportMigrationContext).getReport();
@@ -225,7 +228,8 @@ public class SecurityMigratableTest {
 
     // Verify import
     verify(iSecurityMigratable)
-        .doVersionUpgradeImport(any(ImportMigrationContext.class), anyString());
+        .doVersionUpgradeImport(
+            any(ImportMigrationContext.class), any(Properties.class), anyString());
     assertThat("The import report has errors.", importReport.hasErrors(), is(false));
     assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
     assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
@@ -314,7 +318,8 @@ public class SecurityMigratableTest {
 
     // Verify import
     verify(iSecurityMigratable)
-        .doVersionUpgradeImport(any(ImportMigrationContext.class), anyString());
+        .doVersionUpgradeImport(
+            any(ImportMigrationContext.class), any(Properties.class), anyString());
     assertThat("The import report has errors.", importReport.hasErrors(), is(false));
     assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
     assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
@@ -392,7 +397,8 @@ public class SecurityMigratableTest {
 
     // Verify import
     verify(iSecurityMigratable)
-        .doVersionUpgradeImport(any(ImportMigrationContext.class), anyString());
+        .doVersionUpgradeImport(
+            any(ImportMigrationContext.class), any(Properties.class), anyString());
     assertThat("The import report has errors.", importReport.hasErrors(), is(false));
     assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
     assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
@@ -474,7 +480,8 @@ public class SecurityMigratableTest {
 
     // Verify import
     verify(iSecurityMigratable)
-        .doVersionUpgradeImport(any(ImportMigrationContext.class), anyString());
+        .doVersionUpgradeImport(
+            any(ImportMigrationContext.class), any(Properties.class), anyString());
     assertThat("The import report has errors.", importReport.hasErrors(), is(false));
     assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
     assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
@@ -592,7 +599,8 @@ public class SecurityMigratableTest {
 
     // Verify import
     verify(iSecurityMigratable)
-        .doVersionUpgradeImport(any(ImportMigrationContext.class), anyString());
+        .doVersionUpgradeImport(
+            any(ImportMigrationContext.class), any(Properties.class), anyString());
     assertThat("The import report has errors.", importReport.hasErrors(), is(false));
     assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
     assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
@@ -625,6 +633,7 @@ public class SecurityMigratableTest {
     System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
     setupBrandingFile(SUPPORTED_BRANDING);
     setupVersionFile(SUPPORTED_PRODUCT_VERSION);
+    setupMigrationProperties(SUPPORTED_PRODUCT_VERSION);
     for (Path path : PROPERTIES_FILES) {
       Path p = ddfHome.resolve(path);
       Files.createDirectories(p.getParent());
@@ -661,6 +670,15 @@ public class SecurityMigratableTest {
     Files.createFile(versionFile);
     FileUtils.writeStringToFile(
         versionFile.toFile().getCanonicalFile(), version, StandardCharsets.UTF_8);
+  }
+
+  private void setupMigrationProperties(String version) throws IOException {
+    Files.createDirectories(ddfHome.resolve(MIGRATION_PROPERTIES).getParent());
+    Files.createFile(ddfHome.resolve(MIGRATION_PROPERTIES));
+    FileUtils.writeStringToFile(
+        ddfHome.resolve(MIGRATION_PROPERTIES).toRealPath().toFile(),
+        "supported.versions=" + version,
+        StandardCharsets.UTF_8);
   }
 
   private void setupCrl(String tag) throws IOException {

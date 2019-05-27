@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.migration;
 
+import java.util.Properties;
 import org.codice.ddf.platform.services.common.Describable;
 
 /**
@@ -92,7 +93,7 @@ public interface Migratable extends Describable {
    * @throws MigrationException to stop the import operation
    */
   public default void doVersionUpgradeImport(
-      ImportMigrationContext context, String migratableVersion) {
+      ImportMigrationContext context, Properties migrationProperties, String migratableVersion) {
     context
         .getReport()
         .record(

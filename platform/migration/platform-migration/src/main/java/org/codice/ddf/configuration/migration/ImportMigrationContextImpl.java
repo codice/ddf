@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
@@ -162,7 +163,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
    */
   @SuppressWarnings(
       "PMD.DefaultPackage" /* designed to be called from ImportMigrationManagerImpl within this package */)
-  void doImport() {
+  void doImport(Properties migrationProps) {
     if (migratable != null) {
       final String version = getVersion().orElse(null);
 
@@ -182,7 +183,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
         } else if (version.equals(migratable.getVersion())) {
           migratable.doImport(this);
         } else {
-          migratable.doVersionUpgradeImport(this, version);
+          migratable.doVersionUpgradeImport(this, migrationProps, version);
         }
       } finally {
         inputStreams.forEach(IOUtils::closeQuietly); // we do not care if we failed to close them

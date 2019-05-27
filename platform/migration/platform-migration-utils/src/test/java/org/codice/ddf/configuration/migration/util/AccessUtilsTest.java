@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.configuration.migration;
+package org.codice.ddf.configuration.migration.util;
 
 import java.io.IOException;
 import org.codice.ddf.util.function.ThrowingRunnable;

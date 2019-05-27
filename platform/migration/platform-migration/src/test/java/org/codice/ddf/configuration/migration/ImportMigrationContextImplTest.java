@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import org.apache.commons.io.FilenameUtils;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
@@ -772,7 +773,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
   @Test
   public void testDoImportForSystemContext() throws Exception {
     // no migratable and no id
-    context.doImport();
+    context.doImport(new Properties());
 
     Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
     Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
@@ -782,7 +783,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
   public void testDoImportWhenNoMigratableInstalled() throws Exception {
     context = new ImportMigrationContextImpl(report, mockMigrationZipFile, MIGRATABLE_ID);
 
-    context.doImport();
+    context.doImport(new Properties());
 
     Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
 
@@ -803,10 +804,12 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     Mockito.when(migratable.getVersion()).thenReturn(VERSION);
     Mockito.doNothing().when(migratable).doImport(Mockito.any());
 
-    context.doImport();
+    Properties migrationProps = new Properties();
+    context.doImport(migrationProps);
 
     Mockito.verify(migratable).doImport(context);
-    Mockito.verify(migratable, Mockito.never()).doVersionUpgradeImport(context, VERSION);
+    Mockito.verify(migratable, Mockito.never())
+        .doVersionUpgradeImport(context, migrationProps, VERSION);
     Mockito.verify(migratable, Mockito.never()).doMissingImport(context);
   }
 
@@ -819,12 +822,15 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     context.processMetadata(metadata); // make sure context has a version
 
     Mockito.when(migratable.getVersion()).thenReturn(VERSION + "2");
-    Mockito.doNothing().when(migratable).doVersionUpgradeImport(Mockito.any(), Mockito.eq(VERSION));
+    Mockito.doNothing()
+        .when(migratable)
+        .doVersionUpgradeImport(Mockito.any(), Mockito.any(), Mockito.eq(VERSION));
 
-    context.doImport();
+    Properties migrationProps = new Properties();
+    context.doImport(migrationProps);
 
     Mockito.verify(migratable, Mockito.never()).doImport(context);
-    Mockito.verify(migratable).doVersionUpgradeImport(context, VERSION);
+    Mockito.verify(migratable).doVersionUpgradeImport(context, migrationProps, VERSION);
     Mockito.verify(migratable, Mockito.never()).doMissingImport(context);
   }
 
@@ -834,10 +840,12 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
 
     Mockito.doNothing().when(migratable).doMissingImport(Mockito.any());
 
-    context.doImport();
+    Properties migrationProps = new Properties();
+    context.doImport(migrationProps);
 
     Mockito.verify(migratable, Mockito.never()).doImport(context);
-    Mockito.verify(migratable, Mockito.never()).doVersionUpgradeImport(context, VERSION);
+    Mockito.verify(migratable, Mockito.never())
+        .doVersionUpgradeImport(context, migrationProps, VERSION);
     Mockito.verify(migratable).doMissingImport(context);
   }
 
@@ -852,10 +860,12 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     Mockito.when(migratable.getVersion()).thenReturn(VERSION);
     Mockito.doNothing().when(migratable).doImport(Mockito.any());
 
-    context.doImport();
+    Properties migrationProps = new Properties();
+    context.doImport(migrationProps);
 
     Mockito.verify(migratable, Mockito.never()).doImport(context);
-    Mockito.verify(migratable, Mockito.never()).doVersionUpgradeImport(context, VERSION);
+    Mockito.verify(migratable, Mockito.never())
+        .doVersionUpgradeImport(context, migrationProps, VERSION);
     Mockito.verify(migratable, Mockito.never()).doMissingImport(context);
   }
 }

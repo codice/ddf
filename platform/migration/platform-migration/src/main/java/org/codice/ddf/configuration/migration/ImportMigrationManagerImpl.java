@@ -20,10 +20,13 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -152,14 +155,14 @@ public class ImportMigrationManagerImpl implements Closeable {
   /**
    * Proceed with the import migration operation.
    *
-   * @param supportedVersions the current product version to compare against
+   * @param migrationProps migration properties loaded from etc/migration.properties
    * @throws IllegalArgumentException if <code>currentProductBranding</code> or <code>
    *     currentProductVersion</code> is <code>null</code>
    * @throws MigrationException if the versions don't match or if a failure occurred that required
    *     interrupting the operation right away
    */
-  public void doImport(List<String> supportedVersions) {
-    Validate.notNull(supportedVersions, "invalid null supported versions");
+  public void doImport(Properties migrationProps) {
+    Validate.notNull(migrationProps, "invalid null migration properties");
     if (!currentProductBranding.equals(this.productBranding)) {
       throw new MigrationException(
           Messages.IMPORT_MISMATCH_PRODUCT_ERROR, this.productBranding, currentProductBranding);
@@ -167,7 +170,10 @@ public class ImportMigrationManagerImpl implements Closeable {
 
     // TODO: Remove once version upgrades are officially supported. This will keep the system from
     // trying to upgrade from a version of the product that is migratable version 1 but too old.
-    if (!supportedVersions.contains(this.productVersion)) {
+    List<String> supportedVersions =
+        getSupportedVersions(migrationProps.getProperty("supported.versions"));
+    if (this.currentProductVersion != this.productVersion
+        && !supportedVersions.contains(this.productVersion)) {
       throw new MigrationException(
           Messages.IMPORT_UNSUPPORTED_PRODUCT_VERSION_ERROR,
           this.productVersion,
@@ -178,7 +184,7 @@ public class ImportMigrationManagerImpl implements Closeable {
         currentProductBranding,
         currentProductVersion,
         version);
-    contexts.values().forEach(ImportMigrationContextImpl::doImport);
+    contexts.values().forEach(c -> c.doImport(migrationProps));
   }
 
   @Override
@@ -197,6 +203,17 @@ public class ImportMigrationManagerImpl implements Closeable {
   @VisibleForTesting
   Collection<ImportMigrationContextImpl> getContexts() {
     return contexts.values();
+  }
+
+  private List<String> getSupportedVersions(String commaDelimitedVersions) {
+    if (commaDelimitedVersions == null) {
+      return Collections.emptyList();
+    } else {
+      return Arrays.asList(commaDelimitedVersions.split(","))
+          .stream()
+          .map(String::trim)
+          .collect(Collectors.toList());
+    }
   }
 
   private ImportMigrationContextImpl getContextFor(String id) {

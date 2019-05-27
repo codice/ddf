@@ -128,11 +128,12 @@ public class PlatformMigratableTest {
           Paths.get("etc", "ws-security", "server", "encryption.properties"),
           Paths.get("etc", "ws-security", "server", "signature.properties"));
 
-  private static final Path SYSTEM_PROPERTIES_PATH = Paths.get("etc", "custom.system.properties");
+  private static final Path CUSTOM_SYSTEM_PROPERTIES_PATH =
+      Paths.get("etc", "custom.system.properties");
 
   private static final List<Path> REQUIRED_SYSTEM_FILES =
       ImmutableList.of(
-          SYSTEM_PROPERTIES_PATH,
+          Paths.get("etc", "custom.system.properties"),
           Paths.get("etc", "system.properties"),
           Paths.get("etc", "startup.properties"),
           Paths.get("etc", "custom.properties"),
@@ -143,19 +144,18 @@ public class PlatformMigratableTest {
           Paths.get("etc", "users.properties"), Paths.get("etc", "users.attributes"));
 
   private static final List<Path> OPTIONAL_SYSTEM_FILES =
-      ImmutableList.<Path>builder()
-          .addAll(UPGRADEABLE_SYSTEM_FILES)
-          .add(
-              Paths.get("etc", "pdp", "ddf-metacard-attribute-ruleset.cfg"),
-              Paths.get("etc", "pdp", "ddf-user-attribute-ruleset.cfg"),
-              Paths.get("etc", "org.codice.ddf.admin.applicationlist.properties"),
-              Paths.get("etc", "fipsToIso.properties"),
-              Paths.get("etc", "log4j2.xml"),
-              Paths.get("etc", "certs", "meta"),
-              Paths.get("etc", "certs", "1"),
-              Paths.get("bin", "karaf"),
-              Paths.get("bin", "karaf.bat"))
-          .build();
+      ImmutableList.of( //
+          Paths.get("etc", "users.properties"),
+          Paths.get("etc", "users.attributes"),
+          Paths.get("etc", "pdp", "ddf-metacard-attribute-ruleset.cfg"),
+          Paths.get("etc", "pdp", "ddf-user-attribute-ruleset.cfg"),
+          Paths.get("etc", "org.codice.ddf.admin.applicationlist.properties"),
+          Paths.get("etc", "fipsToIso.properties"),
+          Paths.get("etc", "log4j2.xml"),
+          Paths.get("etc", "certs", "meta"),
+          Paths.get("etc", "certs", "1"),
+          Paths.get("bin", "karaf"),
+          Paths.get("bin", "karaf.bat"));
 
   private static final Path SERVICE_WRAPPER = Paths.get("etc", "ddf-wrapper.conf");
 
@@ -163,7 +163,7 @@ public class PlatformMigratableTest {
 
   private static final String SUPPORTED_BRANDING = "test";
 
-  private static final String SUPPORTED_VERSION = "1.0";
+  private static final String SUPPORTED_VERSION = "2.0";
 
   private static final String UNSUPPORTED_VERSION = "666.0";
 
@@ -186,6 +186,8 @@ public class PlatformMigratableTest {
   private static final String SYSTEM_PROP_EXPORTED_VALUE = "exported";
 
   private static final String SYSTEM_PROP_IMPORTING_VALUE = "importing";
+
+  private static final Path MIGRATION_PROPERTIES_PATH = Paths.get("etc", "migration.properties");
 
   private static final PrintStream OUT = System.out;
 
@@ -219,7 +221,8 @@ public class PlatformMigratableTest {
     PlatformMigratable platformMigratable = new PlatformMigratable();
 
     // Perform Test
-    platformMigratable.doVersionUpgradeImport(mockImportMigrationContext, UNSUPPORTED_VERSION);
+    platformMigratable.doVersionUpgradeImport(
+        mockImportMigrationContext, new Properties(), UNSUPPORTED_VERSION);
 
     // Verify
     verify(mockImportMigrationContext).getReport();
@@ -362,7 +365,7 @@ public class PlatformMigratableTest {
             .filter(p -> !p.equals(Paths.get("etc", "users.properties")))
             .collect(Collectors.toList());
 
-    MigrationReport exportReport = doExport(exportDir);
+    doExport(exportDir);
 
     // Setup import
     setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
@@ -609,7 +612,7 @@ public class PlatformMigratableTest {
     // Setup export
     Path exportDir = tempDir.getRoot().toPath().toRealPath();
 
-    Path exportSystemProps = ddfHome.resolve(Paths.get("etc", "custom.system.properties"));
+    Path exportSystemProps = ddfHome.resolve(CUSTOM_SYSTEM_PROPERTIES_PATH);
     Properties props = new Properties();
 
     props.put(SYSTEM_PROP_CHANGED_KEY, SYSTEM_PROP_EXPORTED_VALUE);
@@ -619,16 +622,19 @@ public class PlatformMigratableTest {
       props.store(writer, null);
     }
 
-    MigrationReport exportReport = doExport(exportDir);
+    doExport(exportDir);
 
     // Setup import
     setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
 
-    Path importingSystemProps = ddfHome.resolve(Paths.get("etc", "custom.system.properties"));
+    Path importingSystemProps = ddfHome.resolve(CUSTOM_SYSTEM_PROPERTIES_PATH);
     props = new Properties();
 
+    // Will be overwritten by exported value
     props.put(SYSTEM_PROP_CHANGED_KEY, SYSTEM_PROP_IMPORTING_VALUE);
+    // Will be preserved and exported value ignored
     props.put(SYSTEM_PROP_TO_PRESERVE_KEY, SYSTEM_PROP_IMPORTING_VALUE);
+    // Will be preserved since this property doesn't exist in the exported properties
     props.put(SYSTEM_PROP_NEW_KEY, SYSTEM_PROP_IMPORTING_VALUE);
 
     try (final Writer writer = new BufferedWriter(new FileWriter(importingSystemProps.toFile()))) {
@@ -665,6 +671,42 @@ public class PlatformMigratableTest {
     verifyServiceWrapperImported();
   }
 
+  /** Verifies that when an optional file is missing the version upgrade import still succeeds. */
+  @Test
+  public void testDoVersionUpgradeImportWhenSystemPropertiesToPreserveAreMissing()
+      throws IOException {
+    // Setup export
+    Path exportDir = tempDir.getRoot().toPath().toRealPath();
+
+    doExport(exportDir);
+
+    // Setup import
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+
+    // Effectively remove the system.properties.to.preserve property
+    Path migrationPropsPath = ddfHome.resolve(MIGRATION_PROPERTIES_PATH);
+    Properties props = new Properties();
+    props.setProperty("supported.versions", SUPPORTED_VERSION);
+    try (final Writer writer = new BufferedWriter(new FileWriter(migrationPropsPath.toFile()))) {
+      props.store(writer, null);
+    }
+
+    PlatformMigratable iPlatformMigratable = spy(new PlatformMigratable());
+    when(iPlatformMigratable.getVersion()).thenReturn("3.0");
+    List<Migratable> iMigratables = Arrays.asList(iPlatformMigratable);
+    ConfigurationMigrationManager iConfigurationMigrationManager =
+        new ConfigurationMigrationManager(iMigratables, systemService);
+
+    MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
+
+    // Verify import
+    assertThat("The import report has no errors.", importReport.hasErrors(), is(false));
+    assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
+    assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
+    verifyKeystoresImported();
+    verifyServiceWrapperImported();
+  }
+
   private MigrationReport doExport(Path exportDir) {
     PlatformMigratable ePlatformMigratable = new PlatformMigratable();
     List<Migratable> eMigratables = Arrays.asList(ePlatformMigratable);
@@ -692,6 +734,7 @@ public class PlatformMigratableTest {
     System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
     setupBrandingFile(SUPPORTED_BRANDING);
     setupVersionFile(SUPPORTED_VERSION);
+    setupMigrationProperties(SUPPORTED_VERSION);
     setupKeystores(tag);
     for (Path path : REQUIRED_SYSTEM_FILES) {
       Path p = ddfHome.resolve(path);
@@ -764,6 +807,17 @@ public class PlatformMigratableTest {
             TRUSTSTORE_SYSTEM_PROP_KEY, TRUSTSTORE_PATH_SYSTEM_PROP_VALUE.toString());
       }
     }
+  }
+
+  private void setupMigrationProperties(String version) throws IOException {
+    Files.createDirectories(ddfHome.resolve(MIGRATION_PROPERTIES_PATH).getParent());
+    Files.createFile(ddfHome.resolve(MIGRATION_PROPERTIES_PATH));
+    FileUtils.writeStringToFile(
+        ddfHome.resolve(MIGRATION_PROPERTIES_PATH).toRealPath().toFile(),
+        String.format(
+            "supported.versions=%s\nsystem.properties.to.preserve=%s",
+            version, SYSTEM_PROP_TO_PRESERVE_KEY),
+        StandardCharsets.UTF_8);
   }
 
   private void setupBrandingFile(String branding) throws IOException {

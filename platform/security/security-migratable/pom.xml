@@ -50,6 +50,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.migration</groupId>
+            <artifactId>platform-migration-utils</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.karaf.system</groupId>
             <artifactId>org.apache.karaf.system.core</artifactId>
             <version>${karaf.version}</version>

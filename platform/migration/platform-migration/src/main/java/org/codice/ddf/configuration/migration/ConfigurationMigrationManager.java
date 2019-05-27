@@ -15,18 +15,20 @@ package org.codice.ddf.configuration.migration;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.security.common.audit.SecurityLogger;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOError;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
@@ -42,6 +44,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.karaf.system.SystemService;
+import org.codice.ddf.configuration.migration.util.AccessUtils;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMessage;
@@ -64,6 +67,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   private static final String PRODUCT_VERSION_FILENAME = "Version.txt";
 
+  private static final String MIGRATION_PROPERTIES_FILENAME = "migration.properties";
+
   private static final String EXPORT_EXTENSION = ".dar";
 
   private static final String EXPORT_DIR = "exported";
@@ -83,8 +88,6 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
   private final String productBranding;
 
   private final String productVersion;
-
-  private final List<String> supportedVersions;
 
   /**
    * Constructor.
@@ -126,12 +129,6 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
                           System.getProperty(ConfigurationMigrationManager.DDF_HOME_KEY),
                           ConfigurationMigrationManager.PRODUCT_VERSION_FILENAME),
                       "version"));
-      this.supportedVersions =
-          AccessUtils.doPrivileged(
-              () ->
-                  ConfigurationMigrationManager.getSupportedVersions(
-                      System.getProperty(ConfigurationMigrationManager.SUPPORTED_VERSIONS_KEY),
-                      productVersion));
     } catch (SecurityException | IOException e) {
       LOGGER.error(
           String.format(
@@ -156,15 +153,6 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
           .filter(s -> !s.isEmpty())
           .orElseThrow(
               () -> new IOException(String.format("missing product %s information", type)));
-    }
-  }
-
-  private static List<String> getSupportedVersions(
-      String commaDelimitedVersions, String currentVersion) throws IOException {
-    if (commaDelimitedVersions == null) {
-      return Collections.singletonList(currentVersion);
-    } else {
-      return Arrays.asList(commaDelimitedVersions.split(","));
     }
   }
 
@@ -229,7 +217,10 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   @VisibleForTesting
   void delegateToImportMigrationManager(
-      MigrationReportImpl report, MigrationZipFile zip, Set<String> mandatoryMigratables) {
+      MigrationReportImpl report,
+      MigrationZipFile zip,
+      Set<String> mandatoryMigratables,
+      Properties migrationProps) {
     final ImportMigrationManagerImpl mgr =
         new ImportMigrationManagerImpl(
             report,
@@ -240,7 +231,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
             productVersion);
     try {
       report.record(Messages.IMPORTING_DATA, productBranding, zip.getZipPath());
-      mgr.doImport(supportedVersions);
+      mgr.doImport(migrationProps);
     } finally {
       IOUtils.closeQuietly(mgr); // do not care if we fail to close the mgr/zip file
     }
@@ -295,6 +286,33 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       throw new MigrationException(Messages.IMPORT_FILE_MISSING_ERROR, exportDirectory, e);
     } catch (SecurityException | IOException e) {
       throw new MigrationException(Messages.IMPORT_FILE_OPEN_ERROR, exportDirectory, e);
+    }
+  }
+
+  @VisibleForTesting
+  Properties loadMigrationProperties() {
+    try {
+      return AccessUtils.doPrivileged(
+          () -> {
+            try (InputStream inputStream =
+                new FileInputStream(
+                    Paths.get(
+                            System.getProperty(ConfigurationMigrationManager.DDF_HOME_KEY),
+                            "etc",
+                            ConfigurationMigrationManager.MIGRATION_PROPERTIES_FILENAME)
+                        .toString())) {
+              Properties props = new Properties();
+              props.load(inputStream);
+              return props;
+            }
+          });
+    } catch (IOException e) {
+      LOGGER.error(
+          String.format(
+              "unable to load migration properties from '%s'; ",
+              ConfigurationMigrationManager.MIGRATION_PROPERTIES_FILENAME),
+          e);
+      throw new IOError(e);
     }
   }
 
@@ -370,7 +388,9 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       if (!zip.isValidChecksum()) {
         throw new MigrationException(Messages.IMPORT_ZIP_CHECKSUM_INVALID, zip.getZipPath());
       }
-      delegateToImportMigrationManager(report, zip, mandatoryMigratables);
+
+      delegateToImportMigrationManager(
+          report, zip, mandatoryMigratables, loadMigrationProperties());
     } catch (MigrationException e) {
       report.record(e);
     } catch (SecurityException e) {

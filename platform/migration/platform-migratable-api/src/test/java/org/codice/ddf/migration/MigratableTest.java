@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.migration;
 
+import java.util.Properties;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,7 +46,7 @@ public class MigratableTest {
     Mockito.when(report.record(Mockito.any(MigrationMessage.class))).thenReturn(report);
     Mockito.when(report.record(Mockito.any(MigrationException.class))).thenReturn(report);
 
-    migratable.doVersionUpgradeImport(context, UNSUPPORTED_VERSION);
+    migratable.doVersionUpgradeImport(context, new Properties(), UNSUPPORTED_VERSION);
 
     final ArgumentCaptor<MigrationException> capture =
         ArgumentCaptor.forClass(MigrationException.class);

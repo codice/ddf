@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.platform.migratable.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
@@ -21,8 +22,13 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.felix.utils.properties.Properties;
+import org.codice.ddf.configuration.migration.util.AccessUtils;
+import org.codice.ddf.configuration.migration.util.VersionUtils;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ImportMigrationContext;
@@ -44,6 +50,9 @@ public class PlatformMigratable implements Migratable {
    */
   private static final String CURRENT_VERSION = "2.0";
 
+  private static final String CUSTOM_SYSTEM_PROPERTIES_ERROR =
+      "Failed to upgrade custom.system.properties; %s";
+
   private static final String KEYSTORE_SYSTEM_PROP = "javax.net.ssl.keyStore";
 
   private static final String TRUSTSTORE_SYSTEM_PROP = "javax.net.ssl.trustStore";
@@ -51,12 +60,6 @@ public class PlatformMigratable implements Migratable {
   private static final Path ETC_DIR = Paths.get("etc");
 
   private static final Path BIN_DIR = Paths.get("bin");
-
-  /*
-   Files included in an import operation when upgrading to a newer version.
-  */
-  private static final List<String> SYSTEM_PROPERTIES_TO_PRESERVE =
-      ImmutableList.of("solr.password", "migration.supported.versions");
 
   private static final Path CUSTOM_SYSTEM_PROPERTIES_PATH =
       Paths.get("etc", "custom.system.properties");
@@ -66,32 +69,30 @@ public class PlatformMigratable implements Migratable {
           Paths.get("etc", "users.properties"), Paths.get("etc", "users.attributes"));
 
   /*
-   Files (in addition to the above) that are included under normal export and import operations
-   within the same product version.
+   Files below are included under export and import operations within the same product version.
   */
   private static final List<Path> REQUIRED_SYSTEM_PATHS =
       ImmutableList.of( //
           Paths.get("etc", "ws-security"),
           Paths.get("etc", "system.properties"),
-          CUSTOM_SYSTEM_PROPERTIES_PATH,
+          Paths.get("etc", "custom.system.properties"),
           Paths.get("etc", "startup.properties"),
           Paths.get("etc", "custom.properties"),
           Paths.get("etc", "config.properties"));
 
   private static final List<Path> OPTIONAL_SYSTEM_PATHS =
-      ImmutableList.<Path>builder()
-          .addAll(UPGRADEABLE_SYSTEM_PATHS)
-          .add(
-              Paths.get("etc", "pdp", "ddf-metacard-attribute-ruleset.cfg"),
-              Paths.get("etc", "pdp", "ddf-user-attribute-ruleset.cfg"),
-              Paths.get("etc", "org.codice.ddf.admin.applicationlist.properties"),
-              Paths.get("etc", "fipsToIso.properties"),
-              Paths.get("etc", "log4j2.xml"),
-              Paths.get("etc", "certs", "meta"),
-              Paths.get("etc", "certs", "1"),
-              Paths.get("bin", "karaf"),
-              Paths.get("bin", "karaf.bat"))
-          .build();
+      ImmutableList.of( //
+          Paths.get("etc", "users.properties"),
+          Paths.get("etc", "users.attributes"),
+          Paths.get("etc", "pdp", "ddf-metacard-attribute-ruleset.cfg"),
+          Paths.get("etc", "pdp", "ddf-user-attribute-ruleset.cfg"),
+          Paths.get("etc", "org.codice.ddf.admin.applicationlist.properties"),
+          Paths.get("etc", "fipsToIso.properties"),
+          Paths.get("etc", "log4j2.xml"),
+          Paths.get("etc", "certs", "meta"),
+          Paths.get("etc", "certs", "1"),
+          Paths.get("bin", "karaf"),
+          Paths.get("bin", "karaf.bat"));
 
   private static final PathMatcher SERVICE_WRAPPER_CONF_FILTER =
       FileSystems.getDefault().getPathMatcher("glob:**/*-wrapper.conf");
@@ -166,21 +167,20 @@ public class PlatformMigratable implements Migratable {
   }
 
   @Override
-  public void doVersionUpgradeImport(ImportMigrationContext context, String migratableVersion) {
-    if (Float.parseFloat(migratableVersion) > Float.parseFloat(getVersion())) {
-      context
-          .getReport()
-          .record(
-              new MigrationException(
-                  IMPORT_UNSUPPORTED_MIGRATABLE_VERSION_ERROR,
-                  migratableVersion,
-                  getId(),
-                  getVersion()));
+  public void doVersionUpgradeImport(
+      ImportMigrationContext context,
+      java.util.Properties migrationProperties,
+      String migratableVersion) {
+    if (!VersionUtils.isValidMigratableVersion(context, migratableVersion, getVersion(), getId())) {
       return;
     }
 
     LOGGER.debug("Upgrading system properties...");
-    upgradeCustomSystemProperties(context);
+    try {
+      AccessUtils.doPrivileged(() -> upgradeCustomSystemProperties(context, migrationProperties));
+    } catch (IOException e) {
+      context.getReport().record(new MigrationException(CUSTOM_SYSTEM_PROPERTIES_ERROR, e));
+    }
 
     LOGGER.debug("Importing remaining system files...");
     PlatformMigratable.UPGRADEABLE_SYSTEM_PATHS
@@ -191,37 +191,47 @@ public class PlatformMigratable implements Migratable {
     importServiceWrapperFiles(context);
   }
 
-  private void upgradeCustomSystemProperties(ImportMigrationContext context) {
+  @VisibleForTesting
+  void upgradeCustomSystemProperties(
+      ImportMigrationContext context, java.util.Properties migrationProperties) throws IOException {
     Properties importedProps = new Properties();
     Properties currentProps;
 
-    try {
-      File fileOnSystem =
-          Paths.get(System.getProperty("ddf.home"))
-              .toRealPath(LinkOption.NOFOLLOW_LINKS)
-              .resolve(Paths.get("etc", "custom.system.properties"))
-              .toFile();
+    File fileOnSystem =
+        Paths.get(System.getProperty("ddf.home"))
+            .toRealPath(LinkOption.NOFOLLOW_LINKS)
+            .resolve(Paths.get("etc", "custom.system.properties"))
+            .toFile();
+    currentProps = new Properties(fileOnSystem);
 
-      importedProps.load(
-          context
-              .getEntry(PlatformMigratable.CUSTOM_SYSTEM_PROPERTIES_PATH)
-              .getInputStream()
-              .orElseThrow(IOException::new));
-      currentProps = new Properties(fileOnSystem);
+    importedProps.load(
+        context
+            .getEntry(PlatformMigratable.CUSTOM_SYSTEM_PROPERTIES_PATH)
+            .getInputStream()
+            .orElseThrow(IOException::new));
 
-      currentProps
-          .entrySet()
-          .stream()
-          .filter(
-              e ->
-                  !importedProps.containsKey(e.getKey())
-                      || SYSTEM_PROPERTIES_TO_PRESERVE.contains(e.getKey()))
-          .forEach(e -> importedProps.put(e.getKey(), e.getValue()));
+    List<String> systemPropertiesToPreserve =
+        migrationProperties.getProperty("system.properties.to.preserve") != null
+            ? parseStringsIntoList(migrationProperties.getProperty("system.properties.to.preserve"))
+            : Collections.emptyList();
 
-      importedProps.save(fileOnSystem);
-    } catch (IOException e) {
-      LOGGER.warn("Failed to upgrade custom.system.properties", e);
-    }
+    currentProps
+        .entrySet()
+        .stream()
+        .filter(
+            e ->
+                !importedProps.containsKey(e.getKey())
+                    || systemPropertiesToPreserve.contains(e.getKey()))
+        .forEach(e -> importedProps.put(e.getKey(), e.getValue()));
+
+    importedProps.save(fileOnSystem);
+  }
+
+  private List<String> parseStringsIntoList(String commaDelimitedList) {
+    return Arrays.asList(commaDelimitedList.split(","))
+        .stream()
+        .map(String::trim)
+        .collect(Collectors.toList());
   }
 
   private void importKeystores(ImportMigrationContext context) {

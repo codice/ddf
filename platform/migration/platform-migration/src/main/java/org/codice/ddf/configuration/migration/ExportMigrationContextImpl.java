@@ -35,6 +35,7 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.output.ClosedOutputStream;
 import org.apache.commons.io.output.ProxyOutputStream;
 import org.apache.commons.lang.Validate;
+import org.codice.ddf.configuration.migration.util.AccessUtils;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.Migratable;

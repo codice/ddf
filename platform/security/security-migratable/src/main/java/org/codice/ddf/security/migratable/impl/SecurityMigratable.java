@@ -18,12 +18,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
+import org.codice.ddf.configuration.migration.util.VersionUtils;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
-import org.codice.ddf.migration.MigrationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,16 +119,9 @@ public class SecurityMigratable implements Migratable {
   }
 
   @Override
-  public void doVersionUpgradeImport(ImportMigrationContext context, String migratableVersion) {
-    if (Float.parseFloat(migratableVersion) > Float.parseFloat(getVersion())) {
-      context
-          .getReport()
-          .record(
-              new MigrationException(
-                  IMPORT_UNSUPPORTED_MIGRATABLE_VERSION_ERROR,
-                  migratableVersion,
-                  getId(),
-                  getVersion()));
+  public void doVersionUpgradeImport(
+      ImportMigrationContext context, Properties migrationProps, String migratableVersion) {
+    if (!VersionUtils.isValidMigratableVersion(context, migratableVersion, getVersion(), getId())) {
       return;
     }
 

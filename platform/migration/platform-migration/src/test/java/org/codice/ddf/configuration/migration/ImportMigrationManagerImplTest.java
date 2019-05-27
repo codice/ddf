@@ -18,9 +18,9 @@ import com.google.common.base.Charsets;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import org.codice.ddf.migration.Migratable;
@@ -372,7 +372,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
   @Test
   public void testDoImport() throws Exception {
-    mgr.doImport(Arrays.asList(PRODUCT_VERSION));
+    mgr.doImport(getMigrationPropsWithSupportedVersion(PRODUCT_VERSION));
 
     Mockito.verify(migratable).doImport(Mockito.notNull());
     Mockito.verify(migratable2).doImport(Mockito.notNull());
@@ -390,7 +390,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
             PRODUCT_BRANDING,
             PRODUCT_VERSION);
 
-    mgr.doImport(Arrays.asList(PRODUCT_VERSION));
+    mgr.doImport(getMigrationPropsWithSupportedVersion(PRODUCT_VERSION));
 
     Mockito.verify(migratable).doImport(Mockito.notNull());
     Mockito.verify(migratable2).doImport(Mockito.notNull());
@@ -428,7 +428,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
     thrown.expect(Matchers.sameInstance(me));
 
-    mgr.doImport(Arrays.asList(PRODUCT_VERSION));
+    mgr.doImport(getMigrationPropsWithSupportedVersion(PRODUCT_VERSION));
 
     Mockito.verify(migratable).doImport(Mockito.notNull());
     Mockito.verify(migratable2).doImport(Mockito.notNull());
@@ -449,7 +449,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(MigrationException.class);
     thrown.expectMessage(Matchers.containsString("mismatched product"));
 
-    mgr.doImport(Arrays.asList(PRODUCT_VERSION));
+    mgr.doImport(getMigrationPropsWithSupportedVersion(PRODUCT_VERSION));
   }
 
   @Test
@@ -457,6 +457,12 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(MigrationException.class);
     thrown.expectMessage(Matchers.containsString("unsupported product version"));
 
-    mgr.doImport(Arrays.asList(PRODUCT_VERSION + "2"));
+    mgr.doImport(getMigrationPropsWithSupportedVersion(PRODUCT_VERSION + "2"));
+  }
+
+  private Properties getMigrationPropsWithSupportedVersion(String version) {
+    Properties migrationProps = new Properties();
+    migrationProps.setProperty("supported.versions", version);
+    return migrationProps;
   }
 }
