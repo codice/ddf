@@ -241,8 +241,7 @@ public class ConfigurationUpdaterTest {
     installer.initialize(configs);
     installer.handleStore(mockContext);
 
-    verify(mockContext)
-        .setProperty(eq(FELIX_FILENAME), eq(fileB.getAbsoluteFile().toURI().toString()));
+    verify(mockContext).setProperty(eq(FELIX_FILENAME), eq(fileB.getAbsolutePath()));
   }
 
   @Test(expected = IllegalStateException.class)
