@@ -8,7 +8,7 @@ const Common = require('../../../js/Common.js')
 module.exports = BaseGuideView.extend({
   templates: {},
   styles: {},
-  template: template,
+  template,
   tagName: CustomElements.register('dev-input-guide'),
   regions: {
     exampleOne: '.example:nth-of-type(1) .instance',

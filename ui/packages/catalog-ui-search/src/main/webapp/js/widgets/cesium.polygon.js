@@ -107,11 +107,11 @@ class PolygonController extends GeometryController {
   }
 
   createRenderView = model => {
-    return new PolygonRenderView({ model: model, map: this.map })
+    return new PolygonRenderView({ model, map: this.map })
   }
 }
 
 module.exports = {
-  PolygonRenderView: PolygonRenderView,
+  PolygonRenderView,
   Controller: PolygonController,
 }

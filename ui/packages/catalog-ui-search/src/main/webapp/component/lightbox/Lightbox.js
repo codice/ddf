@@ -16,16 +16,16 @@ const Lightbox = Backbone.Model.extend({
     open: false,
     title: 'Default Title',
   },
-  close: function() {
+  close() {
     this.set('open', false)
   },
-  open: function() {
+  open() {
     this.set('open', true)
   },
-  isOpen: function() {
+  isOpen() {
     return this.get('open')
   },
-  updateTitle: function(title) {
+  updateTitle(title) {
     this.set('title', title)
   },
 })

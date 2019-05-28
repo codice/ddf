@@ -21,7 +21,7 @@ const VisualizationView = require('../../golden-layout/golden-layout.view.js')
 module.exports = ContentView.extend({
   className: 'is-upload',
   selectionInterface: uploadInstance,
-  initialize: function() {
+  initialize() {
     this._mapView = new VisualizationView({
       selectionInterface: uploadInstance,
       configName: 'goldenLayoutUpload',
@@ -34,13 +34,13 @@ module.exports = ContentView.extend({
       this.updateContentLeft
     )
   },
-  onRender: function() {
+  onRender() {
     this.updateContentLeft()
     if (this._mapView) {
       this.contentRight.show(this._mapView)
     }
   },
-  updateContentLeft: function() {
+  updateContentLeft() {
     this.contentLeft.show(
       new ResultSelectorView({
         model: uploadInstance.get('currentQuery'),
@@ -48,7 +48,7 @@ module.exports = ContentView.extend({
       })
     )
   },
-  unselectQueriesAndResults: function() {
+  unselectQueriesAndResults() {
     uploadInstance.clearSelectedResults()
   },
 })

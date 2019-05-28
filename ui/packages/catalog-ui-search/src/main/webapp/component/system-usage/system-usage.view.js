@@ -43,19 +43,19 @@ function populateIframe(view) {
 }
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('system-usage'),
   events: {
     'click button': 'handleClick',
   },
-  initialize: function() {},
-  serializeData: function() {
+  initialize() {},
+  serializeData() {
     return {
       fontSize: preferences.get('fontSize'),
-      properties: properties,
+      properties,
     }
   },
-  handleClick: function() {
+  handleClick() {
     if (
       !user.get('user').isGuestUser() &&
       properties.ui.systemUsageOncePerSession
@@ -68,7 +68,7 @@ module.exports = Marionette.LayoutView.extend({
     }
     this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox')
   },
-  onAttach: function() {
+  onAttach() {
     if (user.fetched) {
       populateIframe(this)
     } else {

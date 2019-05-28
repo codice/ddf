@@ -21,7 +21,7 @@ import * as React from 'react'
 import LayerItem from '../../react-component/layer-item'
 
 const LayerItemView = Marionette.ItemView.extend({
-  attributes: function() {
+  attributes() {
     return {
       'data-id': this.model.id,
     }
@@ -35,14 +35,14 @@ module.exports = Marionette.CollectionView.extend({
   childView: LayerItemView,
   tagName: CustomElements.register('layer-item-collection'),
   className: 'no-spacing',
-  childViewOptions: function() {
+  childViewOptions() {
     return {
       sortable: this.sortable,
       updateOrdering: this.options.updateOrdering,
       focusModel: this.options.focusModel,
     }
   },
-  onBeforeRenderCollection: function() {
+  onBeforeRenderCollection() {
     this.sortable = Sortable.create(this.el, {
       handle: 'button.layer-rearrange',
       animation: 250,

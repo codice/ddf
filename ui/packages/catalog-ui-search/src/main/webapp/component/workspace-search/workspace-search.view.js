@@ -20,17 +20,17 @@ const ResultsView = require('../results/results.view.js')
 const store = require('../../js/store.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('workspace-search'),
   regions: {
     searchResults: '> .search-results',
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     if (store.getCurrentWorkspace()) {
       this.setupSearchResults()
     }
   },
-  setupSearchResults: function() {
+  setupSearchResults() {
     this.searchResults.show(
       new ResultsView({
         selectionInterface: store,

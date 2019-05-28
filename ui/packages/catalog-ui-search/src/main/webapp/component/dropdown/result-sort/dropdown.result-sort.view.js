@@ -29,10 +29,10 @@ const ResultSortView = Marionette.LayoutView.extend({
 })
 
 module.exports = DropdownView.extend({
-  template: template,
+  template,
   className: 'is-resultSort',
   componentToShow: ResultSortView,
-  initialize: function() {
+  initialize() {
     DropdownView.prototype.initialize.call(this)
     this.listenTo(
       user.get('user').get('preferences'),
@@ -41,7 +41,7 @@ module.exports = DropdownView.extend({
     )
     this.handleSort()
   },
-  handleSort: function() {
+  handleSort() {
     const resultSort = user
       .get('user')
       .get('preferences')

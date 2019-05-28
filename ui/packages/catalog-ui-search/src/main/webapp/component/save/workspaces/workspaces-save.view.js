@@ -21,10 +21,10 @@ module.exports = SaveView.extend({
     'data-help': 'Saves all workspaces.',
     title: 'Saves all workspaces.',
   },
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = store
   },
-  initialize: function(options) {
+  initialize(options) {
     if (options.model === undefined) {
       this.setDefaultModel()
     }
@@ -34,12 +34,12 @@ module.exports = SaveView.extend({
       this.handleSaved
     )
   },
-  isSaved: function() {
+  isSaved() {
     return !this.model.get('workspaces').find(function(workspace) {
       return !workspace.isSaved()
     })
   },
-  triggerSave: function() {
+  triggerSave() {
     this.model.get('workspaces').saveAll()
   },
 })

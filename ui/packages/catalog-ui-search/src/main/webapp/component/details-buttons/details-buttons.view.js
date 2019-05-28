@@ -18,12 +18,12 @@ const template = require('./details-buttons.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.ItemView.extend({
-  setDefaultModel: function() {
+  setDefaultModel() {
     //override
   },
-  template: template,
+  template,
   tagName: CustomElements.register('details-buttons'),
-  initialize: function(options) {
+  initialize(options) {
     if (options.model === undefined) {
       this.setDefaultModel()
     }

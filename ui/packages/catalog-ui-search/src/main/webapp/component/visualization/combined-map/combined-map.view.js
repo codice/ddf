@@ -22,11 +22,11 @@ const featureDetection = require('../../singletons/feature-detection.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('combined-map'),
-  template: template,
+  template,
   regions: {
     mapContainer: '> .map-container',
   },
-  onRender: function() {
+  onRender() {
     this.listenToOnce(featureDetection, 'change:cesium', this.render)
     if (featureDetection.supportsFeature('cesium')) {
       this.mapContainer.show(new CesiumView(this.options))

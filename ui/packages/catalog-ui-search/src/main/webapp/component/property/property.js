@@ -39,12 +39,12 @@ module.exports = Backbone.Model.extend({
     showRequiredWarning: false,
     transformValue: true,
   },
-  setDefaultValue: function() {
+  setDefaultValue() {
     if (this.get('initializeToDefault')) {
       this.set('value', this.get('multivalued') ? [] : [this.getDefaultValue()])
     }
   },
-  getDefaultValue: function() {
+  getDefaultValue() {
     switch (this.getCalculatedType()) {
       case 'boolean':
         return true
@@ -55,7 +55,7 @@ module.exports = Backbone.Model.extend({
     }
   },
   //transform incoming value so later comparisons are easier
-  transformValue: function() {
+  transformValue() {
     const currentValue = this.getValue()
     switch (this.getCalculatedType()) {
       case 'thumbnail':
@@ -85,7 +85,7 @@ module.exports = Backbone.Model.extend({
         return
     }
   },
-  initialize: function() {
+  initialize() {
     this._setCalculatedType()
     this.setDefaultValue()
     if (this.get('transformValue')) {
@@ -95,12 +95,12 @@ module.exports = Backbone.Model.extend({
     this.setDefaultLabel()
     this.listenTo(this, 'change:value', this.updateHasChanged)
   },
-  setDefaultLabel: function() {
+  setDefaultLabel() {
     if (!this.get('label')) {
       this.set('label', this.get('id'))
     }
   },
-  hasChanged: function() {
+  hasChanged() {
     const currentValue = this.getValue()
     currentValue.sort()
     switch (this.getCalculatedType()) {
@@ -135,40 +135,40 @@ module.exports = Backbone.Model.extend({
         )
     }
   },
-  updateHasChanged: function() {
+  updateHasChanged() {
     this.set('hasChanged', this.hasChanged())
   },
-  getValue: function() {
+  getValue() {
     return this.get('value')
   },
-  setLabel: function(label) {
+  setLabel(label) {
     this.set('label', label)
   },
-  setValue: function(val) {
+  setValue(val) {
     this.set('value', val)
   },
-  getId: function() {
+  getId() {
     return this.get('id')
   },
-  getInitialValue: function() {
+  getInitialValue() {
     return this.get('_initialValue')
   },
-  isReadOnly: function() {
+  isReadOnly() {
     return this.get('readOnly')
   },
-  hasConflictingDefinitions: function() {
+  hasConflictingDefinitions() {
     return this.get('hasConflictingDefinition') === true
   },
-  isEditing: function() {
+  isEditing() {
     return this.get('isEditing')
   },
-  isMultivalued: function() {
+  isMultivalued() {
     return this.get('multivalued')
   },
-  isRequired: function() {
+  isRequired() {
     return this.get('required')
   },
-  isHomogeneous: function() {
+  isHomogeneous() {
     return !this.get('bulk') || Object.keys(this.get('values')).length <= 1
   },
   isValid() {
@@ -186,30 +186,30 @@ module.exports = Backbone.Model.extend({
   hideRequiredWarning() {
     this.set('showRequiredWarning', false)
   },
-  isBlank: function() {
+  isBlank() {
     return this.getValue().every(function(value) {
       return value == null || value.trim().length === 0
     })
   },
-  onlyEditing: function() {
+  onlyEditing() {
     return this.get('onlyEditing')
   },
-  showLabel: function() {
+  showLabel() {
     return this.get('showLabel')
   },
-  showValidationIssues: function() {
+  showValidationIssues() {
     return this.get('showValidationIssues')
   },
-  revert: function() {
+  revert() {
     this.set({
       hasChanged: false,
       value: this.getInitialValue(),
     })
   },
-  _setInitialValue: function() {
+  _setInitialValue() {
     this.set('_initialValue', this.getValue())
   },
-  _setCalculatedType: function() {
+  _setCalculatedType() {
     let calculatedType
 
     switch (this.get('type')) {
@@ -264,7 +264,7 @@ module.exports = Backbone.Model.extend({
     }
     this.set('calculatedType', calculatedType)
   },
-  getCalculatedType: function() {
+  getCalculatedType() {
     return this.get('calculatedType')
   },
 })

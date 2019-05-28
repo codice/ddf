@@ -21,7 +21,7 @@ import React from 'react'
 const CustomElements = require('../../../js/CustomElements.js')
 
 module.exports = DropdownView.extend({
-  template: template,
+  template,
   className: 'is-visualizationSelector is-button',
   componentToShow: Marionette.ItemView.extend({
     template() {

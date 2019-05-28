@@ -46,19 +46,19 @@ module.exports = Marionette.ItemView.extend({
     click: 'handleOutsideClick',
     keydown: 'handleSpecialKeys',
   },
-  initialize: function() {
+  initialize() {
     $('body').append(this.el)
     this.listenForClose()
     this.listenForEscape()
     this.listenTo(router, 'change', this.close)
   },
-  listenForEscape: function() {
+  listenForEscape() {
     $(window).on(
       'keydown.' + CustomElements.getNamespace() + componentName,
       this.handleSpecialKeys.bind(this)
     )
   },
-  listenForClose: function() {
+  listenForClose() {
     this.$el.on(
       'closeSlideout.' + CustomElements.getNamespace(),
       function() {
@@ -66,19 +66,19 @@ module.exports = Marionette.ItemView.extend({
       }.bind(this)
     )
   },
-  open: function() {
+  open() {
     this.$el.toggleClass('is-open', true)
   },
-  handleOutsideClick: function(event) {
+  handleOutsideClick(event) {
     if (event.target === this.el.children[0]) {
       this.close()
     }
   },
-  close: function() {
+  close() {
     this.$el.toggleClass('is-open', false)
     this.emptyContent()
   },
-  emptyContent: function() {
+  emptyContent() {
     setTimeout(
       function() {
         this.updateContent()
@@ -86,11 +86,11 @@ module.exports = Marionette.ItemView.extend({
       Common.coreTransitionTime * 1.1
     )
   },
-  updateContent: function(view) {
+  updateContent(view) {
     this.contentView = view
     this.render()
   },
-  handleSpecialKeys: function(event) {
+  handleSpecialKeys(event) {
     let code = event.keyCode
     if (event.charCode && code == 0) code = event.charCode
     switch (code) {
@@ -101,7 +101,7 @@ module.exports = Marionette.ItemView.extend({
         break
     }
   },
-  handleEscape: function() {
+  handleEscape() {
     this.close()
   },
 })

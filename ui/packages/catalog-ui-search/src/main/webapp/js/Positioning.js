@@ -15,7 +15,7 @@ const zeroOpacity = '0'
 const notDisplayed = 'none'
 
 module.exports = {
-  isEffectivelyHidden: function(element) {
+  isEffectivelyHidden(element) {
     if (element === document) {
       return false
     } else if (element === null) {

@@ -134,7 +134,7 @@ Query.Model = PartialAssociatedModel.extend({
   dispatch(action) {
     this.state = reducer(this.state, action)
   },
-  set: function(data, ...args) {
+  set(data, ...args) {
     if (
       typeof data === 'object' &&
       data.filterTree !== undefined &&
@@ -149,7 +149,7 @@ Query.Model = PartialAssociatedModel.extend({
     }
     return PartialAssociatedModel.prototype.set.call(this, data, ...args)
   },
-  toJSON: function(...args) {
+  toJSON(...args) {
     const json = PartialAssociatedModel.prototype.toJSON.call(this, ...args)
     if (typeof json.filterTree === 'object') {
       json.filterTree = JSON.stringify(json.filterTree)
@@ -160,7 +160,7 @@ Query.Model = PartialAssociatedModel.extend({
   //only contains 5 items to know if we can search or not
   //as soon as the model contains more than 5 items, we assume
   //that we have enough values to search
-  defaults: function() {
+  defaults() {
     return _merge(
       {
         cql: "anyText ILIKE ''",
@@ -188,7 +188,7 @@ Query.Model = PartialAssociatedModel.extend({
       user.getQuerySettings().toJSON()
     )
   },
-  resetToDefaults: function(overridenDefaults) {
+  resetToDefaults(overridenDefaults) {
     const defaults = _.omit(this.defaults(), [
       'isLocal',
       'serverPageIndex',
@@ -197,16 +197,16 @@ Query.Model = PartialAssociatedModel.extend({
     this.set(_merge(defaults, overridenDefaults))
     this.trigger('resetToDefaults')
   },
-  applyDefaults: function() {
+  applyDefaults() {
     this.set(_.pick(this.defaults(), ['sorts', 'federation', 'src']))
   },
-  revert: function() {
+  revert() {
     this.trigger('revert')
   },
-  isLocal: function() {
+  isLocal() {
     return this.get('isLocal')
   },
-  initialize: function() {
+  initialize() {
     this.currentIndexForSource = {}
     this.state = [{}]
 
@@ -234,7 +234,7 @@ Query.Model = PartialAssociatedModel.extend({
       }
     })
   },
-  buildSearchData: function() {
+  buildSearchData() {
     const data = this.toJSON()
 
     switch (data.federation) {
@@ -282,12 +282,12 @@ Query.Model = PartialAssociatedModel.extend({
       this.startSearch()
     }
   },
-  startSearchFromFirstPage: function(options) {
+  startSearchFromFirstPage(options) {
     this.dispatch(clearPages())
     this.set('serverPageIndex', serverPageIndex(this.state))
     this.startSearch(options)
   },
-  startTieredSearch: function(ids) {
+  startTieredSearch(ids) {
     this.set('federation', 'local')
     this.startSearch(undefined, searches => {
       $.when(...searches).then(() => {
@@ -304,10 +304,10 @@ Query.Model = PartialAssociatedModel.extend({
       })
     })
   },
-  preQueryPlugin: async function(data) {
+  async preQueryPlugin(data) {
     return data
   },
-  startSearch: function(options, done) {
+  startSearch(options, done) {
     this.set('isOutdated', false)
     if (this.get('cql') === '') {
       return
@@ -354,7 +354,7 @@ Query.Model = PartialAssociatedModel.extend({
         selectedResultTemplate: this.get('detail-level'),
       })
       this.set({
-        result: result,
+        result,
       })
     }
 
@@ -409,13 +409,13 @@ Query.Model = PartialAssociatedModel.extend({
           method: 'POST',
           processData: false,
           timeout: properties.timeout,
-          success: function(model, response, options) {
+          success(model, response, options) {
             response.options = options
             if (options.resort === true) {
               model.get('results').sort()
             }
           },
-          error: function(model, response, options) {
+          error(model, response, options) {
             const srcStatus = result.get('status').get(search.src)
             if (srcStatus) {
               srcStatus.set({
@@ -433,19 +433,19 @@ Query.Model = PartialAssociatedModel.extend({
     })
   },
   currentSearches: [],
-  cancelCurrentSearches: function() {
+  cancelCurrentSearches() {
     this.currentSearches.forEach(request => {
       request.abort('Canceled')
     })
     this.currentSearches = []
   },
-  clearResults: function() {
+  clearResults() {
     this.cancelCurrentSearches()
     this.set({
       result: undefined,
     })
   },
-  setSources: function(sources) {
+  setSources(sources) {
     const sourceArr = []
     sources.each(function(src) {
       if (src.get('available') === true) {
@@ -458,7 +458,7 @@ Query.Model = PartialAssociatedModel.extend({
       this.set('src', '')
     }
   },
-  getId: function() {
+  getId() {
     if (this.get('id')) {
       return this.get('id')
     } else {
@@ -467,19 +467,19 @@ Query.Model = PartialAssociatedModel.extend({
       return id
     }
   },
-  setColor: function(color) {
+  setColor(color) {
     this.set('color', color)
   },
-  getColor: function() {
+  getColor() {
     return this.get('color')
   },
-  color: function() {
+  color() {
     return this.get('color')
   },
-  hasPreviousServerPage: function() {
+  hasPreviousServerPage() {
     return serverPageIndex(this.state) > 1
   },
-  hasNextServerPage: function() {
+  hasNextServerPage() {
     const pageSize = user
       .get('user')
       .get('preferences')
@@ -489,18 +489,18 @@ Query.Model = PartialAssociatedModel.extend({
     const currentPage = serverPageIndex(this.state)
     return currentPage < Math.ceil(totalHits / pageSize)
   },
-  getPreviousServerPage: function() {
+  getPreviousServerPage() {
     this.dispatch(previousPage())
     this.set('serverPageIndex', serverPageIndex(this.state))
     this.startSearch()
   },
-  getNextServerPage: function() {
+  getNextServerPage() {
     this.dispatch(nextPage())
     this.set('serverPageIndex', serverPageIndex(this.state))
     this.startSearch()
   },
   // get the starting offset (beginning of the server page) for the given source
-  getStartIndexForSource: function(src) {
+  getStartIndexForSource(src) {
     return currentIndexForSource(this.state)[src] || 1
   },
   // if the server page size changes, reset our indices and let them get
@@ -513,7 +513,7 @@ Query.Model = PartialAssociatedModel.extend({
     }, 0)
     return lengthWithoutDuplicates + numberOfDuplicates
   },
-  getResultsRangeLabel: function(resultsCollection) {
+  getResultsRangeLabel(resultsCollection) {
     const results = resultsCollection.length
     const hits = _.filter(
       this.get('result')

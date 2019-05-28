@@ -11,10 +11,10 @@
  **/
 
 module.exports = {
-  getFontSize: function(percentage) {
+  getFontSize(percentage) {
     return (percentage * 16) / 100
   },
-  getZoomScale: function(fontSize) {
+  getZoomScale(fontSize) {
     return Math.floor(100 * (fontSize / 16))
   },
 }

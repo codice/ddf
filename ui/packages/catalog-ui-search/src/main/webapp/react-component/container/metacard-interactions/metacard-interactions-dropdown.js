@@ -63,7 +63,7 @@ const ContainerView = Marionette.ItemView.extend({
     }
   },
 
-  initialize: function() {
+  initialize() {
     if (this.model.length === 1) {
       this.listenTo(
         this.model
@@ -75,7 +75,7 @@ const ContainerView = Marionette.ItemView.extend({
       )
     }
   },
-  handleModelUpdates: function() {
+  handleModelUpdates() {
     this.render()
   },
 })

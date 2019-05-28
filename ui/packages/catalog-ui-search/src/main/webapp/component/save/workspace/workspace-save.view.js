@@ -20,13 +20,13 @@ module.exports = SaveView.extend({
     'data-help': 'Saves the workspace.',
     title: 'Saves the workspace.',
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(this.model, 'change', this.handleSaved)
   },
-  isSaved: function() {
+  isSaved() {
     return this.model.isSaved()
   },
-  triggerSave: function(e) {
+  triggerSave(e) {
     e.stopPropagation()
     this.model.save()
   },

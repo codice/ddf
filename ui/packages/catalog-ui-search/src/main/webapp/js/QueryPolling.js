@@ -194,8 +194,8 @@ startSearch = function(originalQuery, timeRange, queryToRun) {
           wreqr.vent.trigger('alerts:add', {
             queryId: originalQuery.id,
             workspaceId: originalQuery.collection.parents[0].id,
-            when: when,
-            metacardIds: metacardIds,
+            when,
+            metacardIds,
           })
         }
       }
@@ -230,7 +230,7 @@ sources.on('sync', function() {
 })
 
 module.exports = {
-  handleAddingQuery: function(query) {
+  handleAddingQuery(query) {
     this.handleRemovingQuery(query)
     query.listenTo(query, 'change:polling', this.handlePollingUpdate.bind(this))
     query.listenTo(query, 'change:src', this.handleSrcUpdate.bind(this))
@@ -242,19 +242,19 @@ module.exports = {
         startSearch(query, timeRange)
       }, polling)
       pollingQueries[query.id] = {
-        intervalId: intervalId,
+        intervalId,
       }
     }
   },
-  handleRemovingQuery: function(query) {
+  handleRemovingQuery(query) {
     removeExistingPolling(query.id)
     removeExistingFailures(query.id)
   },
-  handlePollingUpdate: function(query) {
+  handlePollingUpdate(query) {
     this.handleAddingQuery(query)
   },
   // in the case of a source update we should verify that we don't retry failures pertaining to srcs that don't matter anymore
-  handleSrcUpdate: function(query) {
+  handleSrcUpdate(query) {
     switch (query.get('federation')) {
       case 'selected':
         removeImpertinentFailures(query.id)
@@ -264,7 +264,7 @@ module.exports = {
         break
     }
   },
-  getPollingQueries: function() {
+  getPollingQueries() {
     return pollingQueries
   },
 }

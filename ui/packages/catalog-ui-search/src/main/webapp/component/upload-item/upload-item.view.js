@@ -20,7 +20,7 @@ const template = require('./upload-item.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('upload-item'),
   events: {
     'click .upload-cancel': 'cancelUpload',
@@ -35,8 +35,8 @@ module.exports = Marionette.LayoutView.extend({
     'change:validating': 'handleValidating',
     'change:issues': 'handleIssues',
   },
-  initialize: function() {},
-  onRender: function() {
+  initialize() {},
+  onRender() {
     this.handleSending()
     this.handlePercentage()
     this.handleError()
@@ -44,21 +44,21 @@ module.exports = Marionette.LayoutView.extend({
     this.handleIssues()
     this.handleValidating()
   },
-  handleSending: function() {
+  handleSending() {
     const sending = this.model.get('sending')
     this.$el.toggleClass('show-progress', sending)
   },
-  handlePercentage: function() {
+  handlePercentage() {
     const percentage = this.model.get('percentage')
     this.$el.find('.info-progress').css('width', percentage + '%')
     this.$el.find('.bottom-percentage').html(Math.floor(percentage) + '%')
   },
-  handleError: function() {
+  handleError() {
     const error = this.model.get('error')
     this.$el.toggleClass('has-error', error)
     this.$el.find('.error-message').html(this.model.escape('message'))
   },
-  handleSuccess: function(file, response) {
+  handleSuccess(file, response) {
     const success = this.model.get('success')
     this.$el.toggleClass('has-success', success)
     this.$el
@@ -69,15 +69,15 @@ module.exports = Marionette.LayoutView.extend({
   handleChildren() {
     this.$el.toggleClass('has-children', this.model.hasChildren())
   },
-  handleValidating: function() {
+  handleValidating() {
     const validating = this.model.get('validating')
     this.$el.toggleClass('checking-validation', validating)
   },
-  handleIssues: function() {
+  handleIssues() {
     const issues = this.model.get('issues')
     this.$el.toggleClass('has-validation-issues', issues)
   },
-  serializeData: function() {
+  serializeData() {
     const modelJSON = this.model.toJSON()
     modelJSON.file = {
       name: modelJSON.file.name,
@@ -86,7 +86,7 @@ module.exports = Marionette.LayoutView.extend({
     }
     return modelJSON
   },
-  cancelUpload: function() {
+  cancelUpload() {
     this.cancelUpload = $.noop
     this.$el.toggleClass('is-removed', true)
     setTimeout(
@@ -96,7 +96,7 @@ module.exports = Marionette.LayoutView.extend({
       250
     )
   },
-  expandUpload: function() {
+  expandUpload() {
     wreqr.vent.trigger('router:navigate', {
       fragment: 'metacards/' + this.model.get('id'),
       options: {
@@ -104,7 +104,7 @@ module.exports = Marionette.LayoutView.extend({
       },
     })
   },
-  expandIfSuccess: function() {
+  expandIfSuccess() {
     if (this.model.get('success') && !this.model.hasChildren()) {
       this.expandUpload()
     }

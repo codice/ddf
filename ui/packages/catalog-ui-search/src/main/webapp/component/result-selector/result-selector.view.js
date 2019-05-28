@@ -143,7 +143,7 @@ const ResultSelector = Marionette.LayoutView.extend({
     'click > .resultSelector-new .merge': 'mergeNewResults',
     'click > .resultSelector-new .ignore': 'ignoreNewResults',
   },
-  behaviors: function() {
+  behaviors() {
     return {
       selection: {
         selectionInterface: this.options.selectionInterface,
@@ -157,7 +157,7 @@ const ResultSelector = Marionette.LayoutView.extend({
     resultSort: '.menu-resultSort',
     checkboxContainer: '.checkbox-container',
   },
-  initialize: function(options) {
+  initialize(options) {
     if (!this.model.get('result')) {
       if (options.tieredSearchIds) {
         this.model.startTieredSearch(options.tieredSearchIds)
@@ -173,30 +173,30 @@ const ResultSelector = Marionette.LayoutView.extend({
     this.startListeningToMerged()
     this.startListeningToStatus()
   },
-  mergeNewResults: function() {
+  mergeNewResults() {
     this.model.get('result').mergeNewResults()
   },
-  ignoreNewResults: function() {
+  ignoreNewResults() {
     this.$el.toggleClass('ignore-new', true)
   },
-  handleMerged: function() {
+  handleMerged() {
     this.$el.toggleClass('ignore-new', false)
     this.$el.toggleClass('has-unmerged', this.model.get('result').isUnmerged())
   },
-  startListeningToMerged: function() {
+  startListeningToMerged() {
     this.listenTo(this.model.get('result'), 'change:merged', this.handleMerged)
   },
-  handleStatus: function() {
+  handleStatus() {
     this.$el.toggleClass('is-searching', this.model.get('result').isSearching())
   },
-  startListeningToStatus: function() {
+  startListeningToStatus() {
     this.listenTo(
       this.model.get('result'),
       'sync request error',
       this.handleStatus
     )
   },
-  startListeningToBlacklist: function() {
+  startListeningToBlacklist() {
     this.listenTo(
       user
         .get('user')
@@ -206,24 +206,24 @@ const ResultSelector = Marionette.LayoutView.extend({
       this.render
     )
   },
-  startListeningToResult: function() {
+  startListeningToResult() {
     this.listenTo(this.model.get('result'), 'reset:results', this.render)
   },
-  startListeningToFilter: function() {
+  startListeningToFilter() {
     this.listenTo(
       user.get('user').get('preferences'),
       'change:resultFilter',
       this.render
     )
   },
-  startListeningToSort: function() {
+  startListeningToSort() {
     this.listenTo(
       user.get('user').get('preferences'),
       'change:resultSort',
       this.render
     )
   },
-  scrollIntoView: function(metacard) {
+  scrollIntoView(metacard) {
     const result = this.$el.find(
       '.resultSelector-list ' +
         resultItemSelector +
@@ -249,31 +249,31 @@ const ResultSelector = Marionette.LayoutView.extend({
       region.currentView.$el.toggleClass('is-hidden', resultCountOnly)
     })
   },
-  handleFiltering: function(resultCollection) {
+  handleFiltering(resultCollection) {
     this.$el.toggleClass('has-filter', resultCollection.amountFiltered !== 0)
   },
-  showResultFilterDropdown: function() {
+  showResultFilterDropdown() {
     this.resultFilter.show(
       new ResultFilterDropdownView({
         model: new DropdownModel(),
       })
     )
   },
-  showResultSortDropdown: function() {
+  showResultSortDropdown() {
     this.resultSort.show(
       new ResultSortDropdownView({
         model: new DropdownModel(),
       })
     )
   },
-  showCheckbox: function() {
+  showCheckbox() {
     this.checkboxContainer.show(
       new SelectAllToggle({
         selectionInterface: this.options.selectionInterface,
       })
     )
   },
-  showResultDisplayDropdown: function() {
+  showResultDisplayDropdown() {
     this.resultDisplay.show(
       DropdownView.createSimpleDropdown({
         list: [
@@ -306,7 +306,7 @@ const ResultSelector = Marionette.LayoutView.extend({
       }
     )
   },
-  onDestroy: function() {
+  onDestroy() {
     Common.queueExecution(
       function() {
         if (this.model.get('result')) {

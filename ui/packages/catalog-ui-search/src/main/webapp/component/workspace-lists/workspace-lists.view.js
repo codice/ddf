@@ -27,10 +27,10 @@ const PopoutView = require('../dropdown/popout/dropdown.popout.view.js')
 let selectedListId
 
 module.exports = Marionette.LayoutView.extend({
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = store.getCurrentWorkspace().get('lists')
   },
-  template: template,
+  template,
   tagName: CustomElements.register('workspace-lists'),
   regions: {
     listSelect: '> .list-select',
@@ -43,18 +43,18 @@ module.exports = Marionette.LayoutView.extend({
     'click > .lists-empty .quick-search': 'triggerSearch',
     'click > .list-empty .quick-delete': 'triggerDelete',
   },
-  initialize: function(options) {
+  initialize(options) {
     if (options.model === undefined) {
       this.setDefaultModel()
     }
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     if (store.getCurrentWorkspace()) {
       this.setupWorkspaceListSelect()
     }
     this.setupQuickCreateList()
   },
-  setupQuickCreateList: function() {
+  setupQuickCreateList() {
     this.listQuickCreate.show(
       PopoutView.createSimpleDropdown({
         componentToShow: ListCreate,
@@ -66,7 +66,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  getPreselectedList: function() {
+  getPreselectedList() {
     if (this.model.length === 1) {
       return this.model.first().id
     } else if (this.model.get(selectedListId)) {
@@ -75,7 +75,7 @@ module.exports = Marionette.LayoutView.extend({
       return undefined
     }
   },
-  setupWorkspaceListSelect: function() {
+  setupWorkspaceListSelect() {
     this.listSelect.show(
       new ListSelectorView({
         model: new DropdownModel({
@@ -100,7 +100,7 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(this.model, 'add', this.handleAdd)
     this.handleUpdates()
   },
-  handleAdd: function(newList, lists, options) {
+  handleAdd(newList, lists, options) {
     if (options.preventSwitch !== true) {
       this.listSelect.currentView.model.set('value', newList.id)
       this.listSelect.currentView.model.close()
@@ -112,20 +112,20 @@ module.exports = Marionette.LayoutView.extend({
     this.handleEmptyList()
     this.handleSelection()
   },
-  handleSelection: function() {
+  handleSelection() {
     this.$el.toggleClass(
       'has-selection',
       this.model.get(this.listSelect.currentView.model.get('value')) !==
         undefined
     )
   },
-  handleEmptyLists: function() {
+  handleEmptyLists() {
     this.$el.toggleClass('is-empty-lists', this.model.isEmpty())
     if (this.model.length === 1) {
       this.listSelect.currentView.model.set('value', this.model.first().id)
     }
   },
-  handleEmptyList: function() {
+  handleEmptyList() {
     if (
       this.model.get(selectedListId) &&
       this.model.get(selectedListId).isEmpty()
@@ -135,7 +135,7 @@ module.exports = Marionette.LayoutView.extend({
       this.$el.removeClass('is-empty-list')
     }
   },
-  updateResultsList: function() {
+  updateResultsList() {
     const listId = this.listSelect.currentView.model.get('value')
     if (listId) {
       selectedListId = listId
@@ -159,10 +159,10 @@ module.exports = Marionette.LayoutView.extend({
     }
     this.handleEmptyList()
   },
-  triggerDelete: function() {
+  triggerDelete() {
     this.model.remove(this.model.get(selectedListId))
   },
-  triggerSearch: function() {
+  triggerSearch() {
     $('.content-adhoc')
       .mousedown()
       .click()

@@ -20,27 +20,27 @@ const SearchFormCollection = require('../../search-form/search-form-collection-i
 const Backbone = require('backbone')
 
 module.exports = DropdownView.extend({
-  template: template,
+  template,
   className: 'is-search-form-selector',
   componentToShow: SearchFormsList,
-  initialize: function() {
+  initialize() {
     DropdownView.prototype.initialize.call(this)
     this.listenTo(this.model, 'change:isOpen', this.handleClose)
   },
-  handleClose: function() {
+  handleClose() {
     if (!this.model.get('isOpen')) {
       this.onDestroy()
       this.initializeDropdown()
     }
   },
-  initializeComponentModel: function() {
+  initializeComponentModel() {
     //override if you need more functionality
     this.modelForComponent = new Backbone.Model({
       currentQuery: this.options.modelForComponent,
       searchForms: SearchFormCollection.getCollection(),
     })
   },
-  listenToComponent: function() {
+  listenToComponent() {
     //override if you need more functionality
   },
 })

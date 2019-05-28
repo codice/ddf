@@ -72,7 +72,7 @@ module.exports = Backbone.AssociatedModel.extend({
     drawing: false,
     drawingModel: undefined,
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(wreqr.vent, 'search:drawline', this.turnOnDrawing)
     this.listenTo(wreqr.vent, 'search:drawcircle', this.turnOnDrawing)
     this.listenTo(wreqr.vent, 'search:drawpoly', this.turnOnDrawing)
@@ -85,7 +85,7 @@ module.exports = Backbone.AssociatedModel.extend({
       this.updateActiveSearchResultsAttributes
     )
   },
-  updateActiveSearchResultsAttributes: function() {
+  updateActiveSearchResultsAttributes() {
     const availableAttributes = this.get('activeSearchResults')
       .reduce(function(currentAvailable, result) {
         currentAvailable = _.union(
@@ -102,55 +102,55 @@ module.exports = Backbone.AssociatedModel.extend({
       .sort()
     this.set('activeSearchResultsAttributes', availableAttributes)
   },
-  getActiveSearchResultsAttributes: function() {
+  getActiveSearchResultsAttributes() {
     return this.get('activeSearchResultsAttributes')
   },
-  turnOnDrawing: function(model) {
+  turnOnDrawing(model) {
     this.set('drawing', true)
     this.set('drawingModel', model)
     $('html').toggleClass('is-drawing', true)
   },
-  turnOffDrawing: function() {
+  turnOffDrawing() {
     this.set('drawing', false)
     $('html').toggleClass('is-drawing', false)
   },
-  isEditing: function() {
+  isEditing() {
     return this.get('editing')
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.set('editing', true)
   },
-  turnOffEditing: function() {
+  turnOffEditing() {
     this.set('editing', false)
   },
-  getQuery: function() {
+  getQuery() {
     return this.get('query')
   },
-  setQuery: function(queryRef) {
+  setQuery(queryRef) {
     this.set('query', queryRef)
   },
-  getActiveSearchResults: function() {
+  getActiveSearchResults() {
     return this.get('activeSearchResults')
   },
-  setActiveSearchResults: function(results) {
+  setActiveSearchResults(results) {
     this.get('activeSearchResults').reset(results.models || results)
   },
-  addToActiveSearchResults: function(results) {
+  addToActiveSearchResults(results) {
     this.get('activeSearchResults').add(results.models || results)
   },
-  getSelectedResults: function() {
+  getSelectedResults() {
     return this.get('selectedResults')
   },
-  clearSelectedResults: function() {
+  clearSelectedResults() {
     this.getSelectedResults().reset()
   },
-  addSelectedResult: function(metacard) {
+  addSelectedResult(metacard) {
     this.getSelectedResults().add(metacard)
   },
-  removeSelectedResult: function(metacard) {
+  removeSelectedResult(metacard) {
     this.getSelectedResults().remove(metacard)
   },
-  filterQuery: function(queryRef) {
+  filterQuery(queryRef) {
     const filteredQueries = this.get('filteredQueries')
     const filtered = Boolean(filteredQueries.get(queryRef))
     if (filtered) {
@@ -159,10 +159,10 @@ module.exports = Backbone.AssociatedModel.extend({
       filteredQueries.add(queryRef)
     }
   },
-  setCurrentQuery: function(query) {
+  setCurrentQuery(query) {
     this.set('currentQuery', query)
   },
-  getCurrentQuery: function() {
+  getCurrentQuery() {
     return this.get('currentQuery')
   },
 })

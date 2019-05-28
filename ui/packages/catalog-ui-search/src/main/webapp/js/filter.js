@@ -462,8 +462,8 @@ function matchesFilters(metacard, resultFilter) {
 }
 
 module.exports = {
-  matchesFilters: matchesFilters,
-  matchesCql: function(metacardJSON, cqlString) {
+  matchesFilters,
+  matchesCql(metacardJSON, cqlString) {
     if (cqlString === '') {
       return true
     }

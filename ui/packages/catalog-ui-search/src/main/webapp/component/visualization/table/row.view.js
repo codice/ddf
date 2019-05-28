@@ -35,13 +35,13 @@ module.exports = Marionette.LayoutView.extend({
     resultThumbnail: '.is-thumbnail',
     checkboxContainer: '.checkbox-container',
   },
-  attributes: function() {
+  attributes() {
     return {
       'data-resultid': this.model.id,
     }
   },
-  template: template,
-  initialize: function(options) {
+  template,
+  initialize(options) {
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }
@@ -67,12 +67,12 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.handleSelectionChange()
   },
-  handleSelectionChange: function() {
+  handleSelectionChange() {
     const selectedResults = this.options.selectionInterface.getSelectedResults()
     const isSelected = selectedResults.get(this.model.id)
     this.$el.toggleClass('is-selected', Boolean(isSelected))
   },
-  onRender: function() {
+  onRender() {
     this.checkIfDownloadable()
     this.checkIfLinks()
     this.$el.attr(this.attributes())
@@ -87,7 +87,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  handleResultThumbnail: function() {
+  handleResultThumbnail() {
     const hiddenColumns = user
       .get('user')
       .get('preferences')
@@ -107,7 +107,7 @@ module.exports = Marionette.LayoutView.extend({
       )
     }
   },
-  checkIfDownloadable: function() {
+  checkIfDownloadable() {
     this.$el.toggleClass(
       'is-downloadable',
       this.model
@@ -116,7 +116,7 @@ module.exports = Marionette.LayoutView.extend({
         .get('resource-download-url') !== undefined
     )
   },
-  checkIfLinks: function() {
+  checkIfLinks() {
     this.$el.toggleClass(
       'is-links',
       this.model
@@ -125,7 +125,7 @@ module.exports = Marionette.LayoutView.extend({
         .get('associations.external') !== undefined
     )
   },
-  triggerDownload: function() {
+  triggerDownload() {
     window.open(
       this.model
         .get('metacard')
@@ -133,7 +133,7 @@ module.exports = Marionette.LayoutView.extend({
         .get('resource-download-url')
     )
   },
-  serializeData: function() {
+  serializeData() {
     const prefs = user.get('user').get('preferences')
     const preferredHeader = user
       .get('user')
@@ -173,15 +173,15 @@ module.exports = Marionette.LayoutView.extend({
             className = 'is-thumbnail'
           }
           return {
-            property: property,
-            value: value,
+            property,
+            value,
             class: className,
             hidden: this.isHidden(property),
           }
         }),
     }
   },
-  isHidden: function(property) {
+  isHidden(property) {
     const hiddenColumns = user
       .get('user')
       .get('preferences')

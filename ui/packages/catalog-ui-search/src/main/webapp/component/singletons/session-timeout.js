@@ -38,56 +38,56 @@ const sessionTimeoutModel = new (Backbone.Model.extend({
     showPrompt: false,
     idleTimeoutDate: 0,
   },
-  initialize: function() {
+  initialize() {
     $(window).on('storage', this.handleLocalStorageChange.bind(this))
     this.listenTo(this, 'change:idleTimeoutDate', this.handleIdleTimeoutDate)
     this.listenTo(this, 'change:showPrompt', this.handleShowPrompt)
     this.resetIdleTimeoutDate()
     this.handleShowPrompt()
   },
-  handleLocalStorageChange: function() {
+  handleLocalStorageChange() {
     this.set(
       'idleTimeoutDate',
       parseInt(localStorage.getItem('idleTimeoutDate'))
     )
     this.hidePrompt()
   },
-  handleIdleTimeoutDate: function() {
+  handleIdleTimeoutDate() {
     this.clearPromptTimer()
     this.setPromptTimer()
     this.clearLogoutTimer()
     this.setLogoutTimer()
   },
-  handleShowPrompt: function() {
+  handleShowPrompt() {
     if (this.get('showPrompt')) {
       this.stopListeningForUserActivity()
     } else {
       this.startListeningForUserActivity()
     }
   },
-  setPromptTimer: function() {
+  setPromptTimer() {
     let timeout = this.get('idleTimeoutDate') - idleNoticeDuration - Date.now()
     timeout = Math.max(0, timeout)
     this.promptTimer = setTimeout(this.showPrompt.bind(this), timeout)
   },
-  showPrompt: function() {
+  showPrompt() {
     this.set('showPrompt', true)
   },
-  hidePrompt: function() {
+  hidePrompt() {
     this.set('showPrompt', false)
   },
-  clearPromptTimer: function() {
+  clearPromptTimer() {
     clearTimeout(this.promptTimer)
   },
-  setLogoutTimer: function() {
+  setLogoutTimer() {
     let timeout = this.get('idleTimeoutDate') - Date.now()
     timeout = Math.max(0, timeout)
     this.logoutTimer = setTimeout(this.logout.bind(this), timeout)
   },
-  clearLogoutTimer: function() {
+  clearLogoutTimer() {
     clearTimeout(this.logoutTimer)
   },
-  resetIdleTimeoutDate: function() {
+  resetIdleTimeoutDate() {
     const idleTimeoutDate = getIdleTimeoutDate()
     if (featureDetection.supportsFeature('localStorage')) {
       try {
@@ -98,16 +98,16 @@ const sessionTimeoutModel = new (Backbone.Model.extend({
     }
     this.set('idleTimeoutDate', idleTimeoutDate)
   },
-  startListeningForUserActivity: function() {
+  startListeningForUserActivity() {
     $(document).on(
       'keydown.sessionTimeout mousedown.sessionTimeout',
       _.throttle(this.resetIdleTimeoutDate.bind(this), 5000)
     )
   },
-  stopListeningForUserActivity: function() {
+  stopListeningForUserActivity() {
     $(document).off('keydown.sessionTimeout mousedown.sessionTimeout')
   },
-  logout: function() {
+  logout() {
     if (window.onbeforeunload != null) {
       window.onbeforeunload = null
     }
@@ -119,11 +119,11 @@ const sessionTimeoutModel = new (Backbone.Model.extend({
         window.location.replace(text)
       })
   },
-  renew: function() {
+  renew() {
     this.hidePrompt()
     this.resetIdleTimeoutDate()
   },
-  getIdleSeconds: function() {
+  getIdleSeconds() {
     return parseInt((this.get('idleTimeoutDate') - Date.now()) / 1000)
   },
 }))()

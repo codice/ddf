@@ -25,7 +25,7 @@ const properties = require('../../js/properties.js')
 const announcement = require('../announcement/index.jsx')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('ingest'),
   modelEvents: {},
   events: {},
@@ -34,10 +34,10 @@ module.exports = Marionette.LayoutView.extend({
     ingestDetails: '.ingest-details',
     ingestEditor: '.ingest-editor',
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(router, 'change', this.handleRoute)
   },
-  handleRoute: function() {
+  handleRoute() {
     if (
       router.toJSON().name === 'openIngest' &&
       !properties.isUploadEnabled()
@@ -48,7 +48,7 @@ module.exports = Marionette.LayoutView.extend({
   onRender() {
     this.handleRoute()
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     const isEditorShown = properties.editorAttributes.length > 0
     this.$el.toggleClass('editor-hidden', !isEditorShown)
     if (isEditorShown) {
@@ -65,13 +65,13 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  filterMessage: function(message) {
+  filterMessage(message) {
     return message
       .split(' ')
       .map(word => properties.attributeAliases[word] || word)
       .join(' ')
   },
-  validateAttributes: function(callback) {
+  validateAttributes(callback) {
     const propertyCollectionView = this.ingestEditor.currentView.getPropertyCollectionView()
     propertyCollectionView.clearValidation()
     return $.ajax({

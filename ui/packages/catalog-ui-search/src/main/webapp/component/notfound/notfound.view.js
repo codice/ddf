@@ -39,7 +39,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   tagName: CustomElements.register('notfound'),
-  serializeData: function() {
+  serializeData() {
     return {
       route: window.location.hash.substring(1),
     }

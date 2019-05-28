@@ -58,7 +58,7 @@ Draw.PolygonModel = Backbone.Model.extend({
 })
 
 Draw.PolygonView = Marionette.View.extend({
-  initialize: function(options) {
+  initialize(options) {
     this.map = options.map
     this.listenTo(
       this.model,
@@ -68,13 +68,13 @@ Draw.PolygonView = Marionette.View.extend({
     this.updatePrimitive(this.model)
   },
 
-  setModelFromGeometry: function(geometry) {
+  setModelFromGeometry(geometry) {
     this.model.set({
       polygon: translateFromOpenlayersCoordinates(geometry.getCoordinates()),
     })
   },
 
-  coordsToLineString: function(rawCoords) {
+  coordsToLineString(rawCoords) {
     const coords = []
     const setArr = _.uniq(rawCoords)
     if (setArr.length < 3) {
@@ -97,7 +97,7 @@ Draw.PolygonView = Marionette.View.extend({
     return [coords]
   },
 
-  modelToPolygon: function(model) {
+  modelToPolygon(model) {
     const coords = model.get('polygon')
     if (!coords) {
       return
@@ -117,7 +117,7 @@ Draw.PolygonView = Marionette.View.extend({
     return polygons
   },
 
-  updatePrimitive: function(model) {
+  updatePrimitive(model) {
     const polygon = this.modelToPolygon(model)
     // make sure the current model has width and height before drawing
     if (polygon && !_.isUndefined(polygon)) {
@@ -125,14 +125,14 @@ Draw.PolygonView = Marionette.View.extend({
     }
   },
 
-  updateGeometry: function(model) {
+  updateGeometry(model) {
     const rectangle = this.modelToPolygon(model)
     if (rectangle) {
       this.drawBorderedPolygon(rectangle)
     }
   },
 
-  drawBorderedPolygon: function(rectangle) {
+  drawBorderedPolygon(rectangle) {
     if (!rectangle) {
       // handles case where model changes to empty vars and we don't want to draw anymore
       return
@@ -191,7 +191,7 @@ Draw.PolygonView = Marionette.View.extend({
     this.map.addLayer(vectorLayer)
   },
 
-  handleRegionStop: function(sketchFeature) {
+  handleRegionStop(sketchFeature) {
     const geometry = olUtils.wrapCoordinatesFromGeometry(
       sketchFeature.feature.getGeometry()
     )
@@ -206,7 +206,7 @@ Draw.PolygonView = Marionette.View.extend({
     this.model.trigger('EndExtent', this.model)
     wreqr.vent.trigger('search:polydisplay', this.model)
   },
-  start: function() {
+  start() {
     const that = this
 
     this.primitive = new ol.interaction.Draw({
@@ -229,7 +229,7 @@ Draw.PolygonView = Marionette.View.extend({
     })
   },
   accuratePolygonId: undefined,
-  showAccuratePolygon: function(sketchFeature) {
+  showAccuratePolygon(sketchFeature) {
     this.accuratePolygonId = window.requestAnimationFrame(
       function() {
         this.drawBorderedPolygon(sketchFeature.feature.getGeometry())
@@ -238,11 +238,11 @@ Draw.PolygonView = Marionette.View.extend({
     )
   },
 
-  stop: function() {
+  stop() {
     this.stopListening()
   },
 
-  destroyPrimitive: function() {
+  destroyPrimitive() {
     window.cancelAnimationFrame(this.accuratePolygonId)
     if (this.primitive) {
       this.map.removeInteraction(this.primitive)
@@ -251,7 +251,7 @@ Draw.PolygonView = Marionette.View.extend({
       this.map.removeLayer(this.vectorLayer)
     }
   },
-  destroy: function() {
+  destroy() {
     this.destroyPrimitive()
     this.remove()
   },
@@ -259,7 +259,7 @@ Draw.PolygonView = Marionette.View.extend({
 
 Draw.Controller = DrawingController.extend({
   drawingType: 'poly',
-  show: function(model) {
+  show(model) {
     if (this.enabled) {
       const polygonModel = model || new Draw.PolygonModel()
 
@@ -279,7 +279,7 @@ Draw.Controller = DrawingController.extend({
       return polygonModel
     }
   },
-  draw: function(model) {
+  draw(model) {
     if (this.enabled) {
       const polygonModel = model || new Draw.PolygonModel()
       const view = new Draw.PolygonView({

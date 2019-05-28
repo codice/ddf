@@ -19,7 +19,7 @@ const CustomElements = require('../../js/CustomElements.js')
 const Sortable = require('sortablejs')
 
 module.exports = Marionette.CollectionView.extend({
-  getChildView: function(item) {
+  getChildView(item) {
     switch (item.type) {
       case 'filter':
         return this.options['filter-builder'].filterView
@@ -28,7 +28,7 @@ module.exports = Marionette.CollectionView.extend({
     }
   },
   tagName: CustomElements.register('filter-collection'),
-  onBeforeRenderCollection: function() {
+  onBeforeRenderCollection() {
     this.sortable = Sortable.create(this.el, {
       handle: 'div.filter-rearrange',
       animation: 250,
@@ -50,7 +50,7 @@ module.exports = Marionette.CollectionView.extend({
       }.bind(this),
     })
   },
-  childViewOptions: function() {
+  childViewOptions() {
     return {
       editing: true,
       isForm: this.options.isForm || false,
@@ -59,22 +59,22 @@ module.exports = Marionette.CollectionView.extend({
       suggester: this.options.suggester,
     }
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(this.collection, 'remove', this.handleMinusButton)
     this.listenTo(this.collection, 'add', this.handleMinusButton)
     this.handleMinusButton()
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.children.forEach(function(childView) {
       childView.turnOnEditing()
     })
   },
-  turnOffEditing: function() {
+  turnOffEditing() {
     this.children.forEach(function(childView) {
       childView.turnOffEditing()
     })
   },
-  handleMinusButton: function() {
+  handleMinusButton() {
     this.$el.toggleClass('can-delete', this.collection.length > 1)
   },
 })

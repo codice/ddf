@@ -49,7 +49,7 @@ function translateToOpenlayersCoordinates(coords) {
 const Draw = {}
 
 Draw.CircleView = Marionette.View.extend({
-  initialize: function(options) {
+  initialize(options) {
     this.map = options.map
     this.listenTo(
       this.model,
@@ -58,7 +58,7 @@ Draw.CircleView = Marionette.View.extend({
     )
     this.updateGeometry(this.model)
   },
-  setModelFromGeometry: function(geometry) {
+  setModelFromGeometry(geometry) {
     const center = translateFromOpenlayersCoordinate(geometry.getCenter())
     const rad =
       geometry.getRadius() *
@@ -76,7 +76,7 @@ Draw.CircleView = Marionette.View.extend({
     })
   },
 
-  modelToCircle: function(model) {
+  modelToCircle(model) {
     if (model.get('lon') === undefined || model.get('lat') === undefined) {
       return undefined
     }
@@ -94,7 +94,7 @@ Draw.CircleView = Marionette.View.extend({
     return rectangle
   },
 
-  updatePrimitive: function(model) {
+  updatePrimitive(model) {
     const polygon = this.modelToCircle(model)
     // make sure the current model has width and height before drawing
     if (polygon && !_.isUndefined(polygon)) {
@@ -102,7 +102,7 @@ Draw.CircleView = Marionette.View.extend({
     }
   },
 
-  updateGeometry: function(model) {
+  updateGeometry(model) {
     if (
       model.get('lon') !== undefined &&
       model.get('lat') !== undefined &&
@@ -115,7 +115,7 @@ Draw.CircleView = Marionette.View.extend({
     }
   },
 
-  drawBorderedPolygon: function(rectangle) {
+  drawBorderedPolygon(rectangle) {
     if (this.vectorLayer) {
       this.map.removeLayer(this.vectorLayer)
     }
@@ -170,7 +170,7 @@ Draw.CircleView = Marionette.View.extend({
     this.map.addLayer(vectorLayer)
   },
 
-  handleRegionStop: function(sketchFeature) {
+  handleRegionStop(sketchFeature) {
     const geometry = olUtils.wrapCoordinatesFromGeometry(
       sketchFeature.feature.getGeometry()
     )
@@ -185,7 +185,7 @@ Draw.CircleView = Marionette.View.extend({
     this.model.trigger('EndExtent', this.model)
     wreqr.vent.trigger('search:circledisplay', this.model)
   },
-  start: function() {
+  start() {
     const that = this
 
     this.primitive = new ol.interaction.Draw({
@@ -208,7 +208,7 @@ Draw.CircleView = Marionette.View.extend({
     })
   },
   accurateCircleId: undefined,
-  showAccurateCircle: function(sketchFeature) {
+  showAccurateCircle(sketchFeature) {
     this.accurateCircleId = window.requestAnimationFrame(
       function() {
         this.drawBorderedPolygon(sketchFeature.feature.getGeometry())
@@ -218,11 +218,11 @@ Draw.CircleView = Marionette.View.extend({
     )
   },
 
-  stop: function() {
+  stop() {
     this.stopListening()
   },
 
-  destroyPrimitive: function() {
+  destroyPrimitive() {
     window.cancelAnimationFrame(this.accurateCircleId)
     if (this.primitive) {
       this.map.removeInteraction(this.primitive)
@@ -231,7 +231,7 @@ Draw.CircleView = Marionette.View.extend({
       this.map.removeLayer(this.vectorLayer)
     }
   },
-  destroy: function() {
+  destroy() {
     this.destroyPrimitive()
     this.remove()
   },
@@ -239,7 +239,7 @@ Draw.CircleView = Marionette.View.extend({
 
 Draw.Controller = DrawingController.extend({
   drawingType: 'circle',
-  show: function(model) {
+  show(model) {
     if (this.enabled) {
       const existingView = this.getViewForModel(model)
       if (existingView) {
@@ -248,7 +248,7 @@ Draw.Controller = DrawingController.extend({
       } else {
         const view = new Draw.CircleView({
           map: this.options.map,
-          model: model,
+          model,
         })
         view.updatePrimitive(model)
         this.addView(view)
@@ -257,11 +257,11 @@ Draw.Controller = DrawingController.extend({
       return model
     }
   },
-  draw: function(model) {
+  draw(model) {
     if (this.enabled) {
       const view = new Draw.CircleView({
         map: this.options.map,
-        model: model,
+        model,
       })
 
       const existingView = this.getViewForModel(model)

@@ -23,10 +23,10 @@ module.exports = Backbone.Collection.extend({
   url: './internal/workspaces',
   useAjaxSync: true,
   fetched: false,
-  handleSync: function() {
+  handleSync() {
     this.fetched = true
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(this, 'sync', this.handleSync)
     this.handleUserChange()
     this.listenTo(user, 'change', this.handleUserChange)
@@ -38,30 +38,30 @@ module.exports = Backbone.Collection.extend({
     })
     this.listenTo(this, 'add', this.tagGuestWorkspace)
   },
-  handleUserChange: function() {
+  handleUserChange() {
     this.fetch({
       remove: false,
     })
   },
-  tagGuestWorkspace: function(model) {
+  tagGuestWorkspace(model) {
     if (this.isGuestUser() && model.isNew()) {
       model.set({
         localStorage: true,
       })
     }
   },
-  isGuestUser: function() {
+  isGuestUser() {
     return user.get('user').isGuestUser()
   },
-  comparator: function(workspace) {
+  comparator(workspace) {
     return -moment(workspace.get('lastModifiedDate')).unix()
   },
-  createWorkspace: function(title) {
+  createWorkspace(title) {
     this.create({
       title: title || 'New Workspace',
     })
   },
-  createWorkspaceWithQuery: function(queryModel) {
+  createWorkspaceWithQuery(queryModel) {
     this.create({
       title: 'New Workspace',
       queries: [queryModel],
@@ -70,7 +70,7 @@ module.exports = Backbone.Collection.extend({
       .first()
       .startSearch()
   },
-  createAdhocWorkspace: function(text) {
+  createAdhocWorkspace(text) {
     let cqlQuery
     let title = text
     if (text.length === 0) {
@@ -84,7 +84,7 @@ module.exports = Backbone.Collection.extend({
       })
     }
     const queryForWorkspace = new Query.Model({
-      title: title,
+      title,
       cql: cqlQuery,
       type: 'text',
     })
@@ -96,7 +96,7 @@ module.exports = Backbone.Collection.extend({
       .first()
       .startSearch()
   },
-  createLocalWorkspace: function() {
+  createLocalWorkspace() {
     const queryForWorkspace = new Query.Model({
       title: 'Example Local',
       federation: 'local',
@@ -112,7 +112,7 @@ module.exports = Backbone.Collection.extend({
       .first()
       .startSearch()
   },
-  createAllWorkspace: function() {
+  createAllWorkspace() {
     const queryForWorkspace = new Query.Model({
       title: 'Example Federated',
       federation: 'enterprise',
@@ -128,7 +128,7 @@ module.exports = Backbone.Collection.extend({
       .first()
       .startSearch()
   },
-  createGeoWorkspace: function() {
+  createGeoWorkspace() {
     const queryForWorkspace = new Query.Model({
       title: 'Example Location',
       excludeUnnecessaryAttributes: false,
@@ -144,7 +144,7 @@ module.exports = Backbone.Collection.extend({
       .first()
       .startSearch()
   },
-  createLatestWorkspace: function() {
+  createLatestWorkspace() {
     const queryForWorkspace = new Query.Model({
       title: 'Example Temporal',
       excludeUnnecessaryAttributes: false,
@@ -164,21 +164,21 @@ module.exports = Backbone.Collection.extend({
       .first()
       .startSearch()
   },
-  duplicateWorkspace: function(workspace) {
+  duplicateWorkspace(workspace) {
     let duplicateWorkspace = _.pick(workspace.toJSON(), 'title', 'queries')
     duplicateWorkspace.queries = duplicateWorkspace.queries.map(query =>
       _.omit(query, 'isLocal', 'id')
     )
     this.create(duplicateWorkspace)
   },
-  saveAll: function() {
+  saveAll() {
     this.forEach(function(workspace) {
       if (!workspace.isSaved()) {
         workspace.save()
       }
     })
   },
-  saveLocalWorkspaces: function() {
+  saveLocalWorkspaces() {
     const localWorkspaces = this.chain()
       .filter(function(workspace) {
         return workspace.get('localStorage')
@@ -191,7 +191,7 @@ module.exports = Backbone.Collection.extend({
 
     window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces))
   },
-  convert2_10Format: function(localWorkspaceJSON) {
+  convert2_10Format(localWorkspaceJSON) {
     if (localWorkspaceJSON.constructor === Array) {
       return localWorkspaceJSON.reduce(function(blob, workspace) {
         blob[workspace.id] = workspace
@@ -201,7 +201,7 @@ module.exports = Backbone.Collection.extend({
       return localWorkspaceJSON
     }
   },
-  getLocalWorkspaces: function() {
+  getLocalWorkspaces() {
     const localWorkspaces = window.localStorage.getItem('workspaces') || '{}'
     try {
       return this.convert2_10Format(JSON.parse(localWorkspaces))
@@ -211,7 +211,7 @@ module.exports = Backbone.Collection.extend({
     return {}
   },
   // override parse to merge server response with local storage
-  parse: function(resp) {
+  parse(resp) {
     const localWorkspaces = _.map(this.getLocalWorkspaces())
     return resp.concat(localWorkspaces)
   },

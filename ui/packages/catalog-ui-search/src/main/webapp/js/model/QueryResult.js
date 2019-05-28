@@ -41,7 +41,7 @@ function humanizeResourceSize(result) {
 }
 
 module.exports = Backbone.AssociatedModel.extend({
-  defaults: function() {
+  defaults() {
     return {
       isResourceLocal: false,
     }
@@ -57,33 +57,33 @@ module.exports = Backbone.AssociatedModel.extend({
       key: 'actions',
       collectionType: Backbone.Collection.extend({
         model: MetacardActionModel,
-        comparator: function(c) {
+        comparator(c) {
           return c.get('title').toLowerCase()
         },
       }),
     },
   ],
-  initialize: function() {
+  initialize() {
     this.refreshData = _.throttle(this.refreshData, 200)
   },
-  getPreview: function() {
+  getPreview() {
     return this.get('actions').filter(
       action => action.title === 'Text Preview'
     )[0].url
   },
-  hasPreview: function() {
+  hasPreview() {
     return (
       this.get('actions').filter(action => action.title === 'Text Preview')
         .length > 0
     )
   },
-  matchesFilters: function(filters) {
+  matchesFilters(filters) {
     return filter.matchesFilters(this.get('metacard').toJSON(), filters)
   },
-  matchesCql: function(cql) {
+  matchesCql(cql) {
     return filter.matchesCql(this.get('metacard').toJSON(), cql)
   },
-  isWorkspace: function() {
+  isWorkspace() {
     return (
       this.get('metacard')
         .get('properties')
@@ -91,7 +91,7 @@ module.exports = Backbone.AssociatedModel.extend({
         .indexOf('workspace') >= 0
     )
   },
-  isResource: function() {
+  isResource() {
     return (
       this.get('metacard')
         .get('properties')
@@ -99,7 +99,7 @@ module.exports = Backbone.AssociatedModel.extend({
         .indexOf('resource') >= 0
     )
   },
-  isRevision: function() {
+  isRevision() {
     return (
       this.get('metacard')
         .get('properties')
@@ -107,7 +107,7 @@ module.exports = Backbone.AssociatedModel.extend({
         .indexOf('revision') >= 0
     )
   },
-  isDeleted: function() {
+  isDeleted() {
     return (
       this.get('metacard')
         .get('properties')
@@ -115,20 +115,20 @@ module.exports = Backbone.AssociatedModel.extend({
         .indexOf('deleted') >= 0
     )
   },
-  isRemote: function() {
+  isRemote() {
     return (
       this.get('metacard')
         .get('properties')
         .get('source-id') !== Sources.localCatalog
     )
   },
-  hasGeometry: function(attribute) {
+  hasGeometry(attribute) {
     return this.get('metacard').hasGeometry(attribute)
   },
-  getPoints: function(attribute) {
+  getPoints(attribute) {
     return this.get('metacard').getPoints(attribute)
   },
-  getGeometries: function(attribute) {
+  getGeometries(attribute) {
     return this.get('metacard').getGeometries(attribute)
   },
   hasExportActions() {
@@ -154,7 +154,7 @@ module.exports = Backbone.AssociatedModel.extend({
       action => action.id.indexOf('catalog.data.metacard.map.') === 0
     )
   },
-  refreshData: function() {
+  refreshData() {
     //let solr flush
     setTimeout(
       function() {
@@ -206,10 +206,10 @@ module.exports = Backbone.AssociatedModel.extend({
       1000
     )
   },
-  handleRefreshError: function() {
+  handleRefreshError() {
     //do nothing for now, should we announce this?
   },
-  parseRefresh: function(response) {
+  parseRefresh(response) {
     const queryId = this.get('metacard').get('queryId')
     const color = this.get('metacard').get('color')
     _.forEach(response.results, function(result) {

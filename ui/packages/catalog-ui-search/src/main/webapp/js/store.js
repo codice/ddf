@@ -16,7 +16,7 @@ const Content = require('../component/content/content.js')
 const router = require('../component/router/router.js')
 
 module.exports = new (Backbone.Model.extend({
-  initialize: function() {
+  initialize() {
     this.set('content', new Content())
     this.set('workspaces', new WorkspaceCollection())
 
@@ -65,14 +65,14 @@ module.exports = new (Backbone.Model.extend({
       }
     }
   },
-  clearOtherWorkspaces: function(workspaceId) {
+  clearOtherWorkspaces(workspaceId) {
     this.get('workspaces').forEach(function(workspaceModel) {
       if (workspaceId !== workspaceModel.id) {
         workspaceModel.clearResults()
       }
     })
   },
-  handleWorkspaceChange: function() {
+  handleWorkspaceChange() {
     if (this.get('content').changedAttributes().currentWorkspace) {
       const previousWorkspace = this.get('content').previousAttributes()
         .currentWorkspace
@@ -84,68 +84,68 @@ module.exports = new (Backbone.Model.extend({
       }
     }
   },
-  getWorkspaceById: function(workspaceId) {
+  getWorkspaceById(workspaceId) {
     return this.get('workspaces').get(workspaceId)
   },
-  setCurrentWorkspaceById: function(workspaceId) {
+  setCurrentWorkspaceById(workspaceId) {
     this.get('content').set(
       'currentWorkspace',
       this.get('workspaces').get(workspaceId)
     )
   },
-  getCurrentWorkspace: function() {
+  getCurrentWorkspace() {
     return this.get('content').get('currentWorkspace')
   },
-  getCurrentQueries: function() {
+  getCurrentQueries() {
     return this.getCurrentWorkspace().get('queries')
   },
-  setQueryById: function(queryId) {
+  setQueryById(queryId) {
     const queryRef = this.getCurrentQueries().get(queryId)
     this.setQueryByReference(queryRef.clone())
   },
-  setQueryByReference: function(queryRef) {
+  setQueryByReference(queryRef) {
     this.get('content').set('query', queryRef)
   },
-  getQuery: function() {
+  getQuery() {
     return this.get('content').get('query')
   },
-  getQueryById: function(queryId) {
+  getQueryById(queryId) {
     return this.getCurrentQueries().get(queryId)
   },
-  getSelectedResults: function() {
+  getSelectedResults() {
     return this.get('content').get('selectedResults')
   },
-  clearSelectedResults: function() {
+  clearSelectedResults() {
     this.getSelectedResults().reset()
   },
-  addSelectedResult: function(metacard) {
+  addSelectedResult(metacard) {
     this.getSelectedResults().add(metacard)
   },
-  removeSelectedResult: function(metacard) {
+  removeSelectedResult(metacard) {
     this.getSelectedResults().remove(metacard)
   },
-  getActiveSearchResultsAttributes: function() {
+  getActiveSearchResultsAttributes() {
     return this.get('content').getActiveSearchResultsAttributes()
   },
-  getActiveSearchResults: function() {
+  getActiveSearchResults() {
     return this.get('content').getActiveSearchResults()
   },
-  setActiveSearchResults: function(results) {
+  setActiveSearchResults(results) {
     this.get('content').setActiveSearchResults(results)
   },
-  addToActiveSearchResults: function(results) {
+  addToActiveSearchResults(results) {
     this.get('content').addToActiveSearchResults(results)
   },
-  saveCurrentWorkspace: function() {
+  saveCurrentWorkspace() {
     this.getCurrentWorkspace().save()
   },
-  setCurrentQuery: function(query) {
+  setCurrentQuery(query) {
     this.get('content').setCurrentQuery(query)
   },
-  getCurrentQuery: function() {
+  getCurrentQuery() {
     return this.get('content').getCurrentQuery()
   },
-  setWorkspaceRestrictions: function(workspaceId, restrictions) {
+  setWorkspaceRestrictions(workspaceId, restrictions) {
     const metacard = this.getWorkspaceById(workspaceId)
     restrictions.forEach(function(restriction) {
       metacard.attributes[restriction.attribute] = restriction.values

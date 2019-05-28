@@ -16,7 +16,7 @@ module.exports = BaseGuideView.extend({
     exampleThreeDropdown,
   },
   styles: {},
-  template: template,
+  template,
   tagName: CustomElements.register('dev-dropdown-guide'),
   regions: {
     exampleOne: '.example:nth-of-type(1) .instance',

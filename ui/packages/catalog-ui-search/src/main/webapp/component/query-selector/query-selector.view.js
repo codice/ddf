@@ -42,7 +42,7 @@ const Span = styled.span`
 const namespace = CustomElements.getNamespace()
 
 const QuerySelector = Marionette.LayoutView.extend({
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = store.getCurrentQueries()
   },
   template() {
@@ -66,7 +66,7 @@ const QuerySelector = Marionette.LayoutView.extend({
   },
   tagName: CustomElements.register('query-selector'),
   modelEvents: {},
-  events: function() {
+  events() {
     let eventObj = {
       'click .querySelector-add': 'addQuery',
       'click > .if-empty .quick-add': 'triggerQuery',
@@ -82,13 +82,13 @@ const QuerySelector = Marionette.LayoutView.extend({
   regions: {
     queryCollection: '.querySelector-list',
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.queryCollection.show(new QueryItemCollectionView())
     this.queryCollection.currentView.$el
       .addClass('is-list')
       .addClass('has-list-highlighting')
   },
-  initialize: function(options) {
+  initialize(options) {
     if (options.model === undefined) {
       this.setDefaultModel()
     }
@@ -98,17 +98,17 @@ const QuerySelector = Marionette.LayoutView.extend({
     this.listenTo(this.model, 'update', this.handleUpdate)
     this.listenTo(store.get('content'), 'change:query', this.handleQuerySelect)
   },
-  addQuery: function() {
+  addQuery() {
     if (this.model.canAddQuery()) {
       const newQuery = new Query.Model()
       store.setQueryByReference(newQuery)
     }
   },
-  selectQuery: function(event) {
+  selectQuery(event) {
     const queryId = event.currentTarget.getAttribute('data-queryId')
     store.setQueryById(queryId)
   },
-  handleQuerySelect: function() {
+  handleQuerySelect() {
     const query = store.getQuery()
     this.$el.find(namespace + 'query-item').removeClass('is-selected')
     if (query) {
@@ -117,17 +117,17 @@ const QuerySelector = Marionette.LayoutView.extend({
         .addClass('is-selected')
     }
   },
-  handleUpdate: function() {
+  handleUpdate() {
     this.handleMaxQueries()
     this.handleEmptyQueries()
   },
-  handleMaxQueries: function() {
+  handleMaxQueries() {
     this.$el.toggleClass('can-addQuery', this.model.canAddQuery())
   },
-  handleEmptyQueries: function() {
+  handleEmptyQueries() {
     this.$el.toggleClass('is-empty', this.model.isEmpty())
   },
-  triggerQuery: function() {
+  triggerQuery() {
     $('.content-adhoc')
       .mousedown()
       .click()

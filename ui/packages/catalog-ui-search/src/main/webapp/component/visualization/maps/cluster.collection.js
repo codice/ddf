@@ -15,7 +15,7 @@ const Backbone = require('backbone')
 
 const ClusterCollection = Backbone.Collection.extend({
   model: ClusterModel,
-  isClustered: function(result) {
+  isClustered(result) {
     return Boolean(
       this.find(function(cluster) {
         return Boolean(cluster.get('results').get(result))

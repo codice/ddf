@@ -86,7 +86,7 @@ function calculateSummaryAttributes() {
 }
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('show-attribute'),
   regions: {
     attributeSelector: '> .attribute-selector',
@@ -94,14 +94,14 @@ module.exports = Marionette.LayoutView.extend({
   events: {
     'click > button': 'handleReset',
   },
-  handleReset: function() {
+  handleReset() {
     const prefs = user.get('user').get('preferences')
     prefs.set('inspector-summaryShown', [])
     prefs.savePreferences()
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     this.onBeforeShow()
   },
-  initialize: function(options) {
+  initialize(options) {
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }
@@ -117,14 +117,14 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.handleSummaryShown()
   },
-  handleSummaryShown: function() {
+  handleSummaryShown() {
     const usersChoice = user
       .get('user')
       .get('preferences')
       .get('inspector-summaryShown')
     this.$el.toggleClass('has-custom-summary', usersChoice.length > 0)
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     const attributes = calculateAvailableAttributesFromSelection(
       this.options.selectionInterface
     )
@@ -157,7 +157,7 @@ module.exports = Marionette.LayoutView.extend({
       this.handleSave
     )
   },
-  handleSave: function() {
+  handleSave() {
     const prefs = user.get('user').get('preferences')
     prefs.set(
       'inspector-summaryShown',

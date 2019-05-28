@@ -21,7 +21,7 @@ const FilterBuilderView = require('../filter-builder/filter-builder.view.js')
 const cql = require('../../js/cql.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('result-filter'),
   modelEvents: {
     change: 'render',
@@ -34,14 +34,14 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     editorProperties: '.editor-properties',
   },
-  initialize: function() {},
-  getResultFilter: function() {
+  initialize() {},
+  getResultFilter() {
     return user
       .get('user')
       .get('preferences')
       .get('resultFilter')
   },
-  onRender: function() {
+  onRender() {
     const resultFilter = this.getResultFilter()
     let filter
     if (resultFilter) {
@@ -63,10 +63,10 @@ module.exports = Marionette.LayoutView.extend({
     this.editorProperties.currentView.turnOffNesting()
     this.handleFilter()
   },
-  getFilter: function() {
+  getFilter() {
     return this.editorProperties.currentView.transformToCql()
   },
-  removeFilter: function() {
+  removeFilter() {
     user
       .get('user')
       .get('preferences')
@@ -77,7 +77,7 @@ module.exports = Marionette.LayoutView.extend({
       .savePreferences()
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  saveFilter: function() {
+  saveFilter() {
     user
       .get('user')
       .get('preferences')
@@ -88,7 +88,7 @@ module.exports = Marionette.LayoutView.extend({
       .savePreferences()
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  handleFilter: function() {
+  handleFilter() {
     const resultFilter = this.getResultFilter()
     this.$el.toggleClass('has-filter', Boolean(resultFilter))
   },

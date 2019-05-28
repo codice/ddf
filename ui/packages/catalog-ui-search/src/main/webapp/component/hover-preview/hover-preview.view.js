@@ -18,6 +18,6 @@ const template = require('./hover-preview.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('hover-preview'),
 })

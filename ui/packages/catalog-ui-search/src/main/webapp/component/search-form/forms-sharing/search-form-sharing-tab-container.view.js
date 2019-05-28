@@ -22,12 +22,12 @@ const LoadingCompanionView = require('../../loading-companion/loading-companion.
 const user = require('../../singletons/user-instance')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('shared-search-form-collection'),
   regions: {
     collectionView: '.collection',
   },
-  initialize: function() {
+  initialize() {
     this.searchFormCollection = SearchFormCollection
     this.listenTo(
       this.searchFormCollection,
@@ -35,7 +35,7 @@ module.exports = Marionette.LayoutView.extend({
       this.handleLoadingSpinner
     )
   },
-  onRender: function() {
+  onRender() {
     this.collectionView.show(
       new SearchFormCollectionView({
         collection: this.searchFormCollection.getCollection(),
@@ -49,7 +49,7 @@ module.exports = Marionette.LayoutView.extend({
     LoadingCompanionView.beginLoading(this, this.$el)
     this.handleLoadingSpinner()
   },
-  handleLoadingSpinner: function() {
+  handleLoadingSpinner() {
     if (this.searchFormCollection.getDoneLoading()) {
       LoadingCompanionView.endLoading(this)
     }

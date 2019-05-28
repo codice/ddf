@@ -63,7 +63,7 @@ function translateToOpenlayersCoordinates(coords) {
 const Draw = {}
 
 Draw.LineView = Marionette.View.extend({
-  initialize: function(options) {
+  initialize(options) {
     this.map = options.map
     this.listenTo(
       this.model,
@@ -72,13 +72,13 @@ Draw.LineView = Marionette.View.extend({
     )
     this.updatePrimitive(this.model)
   },
-  setModelFromGeometry: function(geometry) {
+  setModelFromGeometry(geometry) {
     this.model.set({
       line: translateFromOpenlayersCoordinates(geometry.getCoordinates()),
     })
   },
 
-  modelToPolygon: function(model) {
+  modelToPolygon(model) {
     const polygon = model.get('line')
     const setArr = _.uniq(polygon)
     if (setArr.length < 2) {
@@ -91,7 +91,7 @@ Draw.LineView = Marionette.View.extend({
     return rectangle
   },
 
-  updatePrimitive: function(model) {
+  updatePrimitive(model) {
     const polygon = this.modelToPolygon(model)
     // make sure the current model has width and height before drawing
     if (polygon && !_.isUndefined(polygon)) {
@@ -99,14 +99,14 @@ Draw.LineView = Marionette.View.extend({
     }
   },
 
-  updateGeometry: function(model) {
+  updateGeometry(model) {
     const rectangle = this.modelToPolygon(model)
     if (rectangle) {
       this.drawBorderedPolygon(rectangle)
     }
   },
 
-  drawBorderedPolygon: function(rectangle) {
+  drawBorderedPolygon(rectangle) {
     if (!rectangle) {
       // handles case where model changes to empty vars and we don't want to draw anymore
       return
@@ -157,7 +157,7 @@ Draw.LineView = Marionette.View.extend({
     this.map.addLayer(vectorLayer)
   },
 
-  handleRegionStop: function(sketchFeature) {
+  handleRegionStop(sketchFeature) {
     const geometry = olUtils.wrapCoordinatesFromGeometry(
       sketchFeature.feature.getGeometry()
     )
@@ -169,7 +169,7 @@ Draw.LineView = Marionette.View.extend({
     this.model.trigger('EndExtent', this.model)
     wreqr.vent.trigger('search:linedisplay', this.model)
   },
-  start: function() {
+  start() {
     const that = this
 
     this.primitive = new ol.interaction.Draw({
@@ -192,7 +192,7 @@ Draw.LineView = Marionette.View.extend({
     })
   },
   accurateLineId: undefined,
-  showAccurateLine: function(sketchFeature) {
+  showAccurateLine(sketchFeature) {
     this.accurateLineId = window.requestAnimationFrame(
       function() {
         this.drawBorderedPolygon(sketchFeature.feature.getGeometry())
@@ -201,11 +201,11 @@ Draw.LineView = Marionette.View.extend({
     )
   },
 
-  stop: function() {
+  stop() {
     this.stopListening()
   },
 
-  destroyPrimitive: function() {
+  destroyPrimitive() {
     window.cancelAnimationFrame(this.accurateLineId)
     if (this.primitive) {
       this.map.removeInteraction(this.primitive)
@@ -214,7 +214,7 @@ Draw.LineView = Marionette.View.extend({
       this.map.removeLayer(this.vectorLayer)
     }
   },
-  destroy: function() {
+  destroy() {
     this.destroyPrimitive()
     this.remove()
   },
@@ -222,7 +222,7 @@ Draw.LineView = Marionette.View.extend({
 
 Draw.Controller = DrawingController.extend({
   drawingType: 'line',
-  show: function(model) {
+  show(model) {
     if (this.enabled) {
       const existingView = this.getViewForModel(model)
       if (existingView) {
@@ -231,7 +231,7 @@ Draw.Controller = DrawingController.extend({
       } else {
         const view = new Draw.LineView({
           map: this.options.map,
-          model: model,
+          model,
         })
         view.updatePrimitive(model)
         this.addView(view)
@@ -240,11 +240,11 @@ Draw.Controller = DrawingController.extend({
       return model
     }
   },
-  draw: function(model) {
+  draw(model) {
     if (this.enabled) {
       const view = new Draw.LineView({
         map: this.options.map,
-        model: model,
+        model,
       })
 
       const existingView = this.getViewForModel(model)

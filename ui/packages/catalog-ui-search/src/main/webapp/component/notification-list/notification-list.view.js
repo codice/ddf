@@ -33,14 +33,14 @@ module.exports = Marionette.CollectionView.extend({
   collection: userNotifications,
   className: 'is-list has-list-highlighting',
   tagName: CustomElements.register('notification-list'),
-  getChildView: function(model) {
+  getChildView(model) {
     if (model.constructor === UploadItemModel) {
       return UploadItemView
     } else {
       return AlertItemView
     }
   },
-  filter: function(model) {
+  filter(model) {
     return matchesFilter(this.options.filter, model)
   },
 })

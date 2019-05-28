@@ -23,14 +23,14 @@ const properties = require('../../../js/properties.js')
 const metacardDefinitions = require('../../singletons/metacard-definitions.js')
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('table-visibility'),
   events: {
     'click .column': 'toggleVisibility',
     'click .footer-cancel': 'destroy',
     'click .footer-save': 'handleSave',
   },
-  initialize: function(options) {
+  initialize(options) {
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }
@@ -40,7 +40,7 @@ module.exports = Marionette.ItemView.extend({
       this.render
     )
   },
-  serializeData: function() {
+  serializeData() {
     const prefs = user.get('user').get('preferences')
     const results = this.options.selectionInterface
       .getActiveSearchResults()
@@ -67,11 +67,11 @@ module.exports = Marionette.ItemView.extend({
       }
     })
   },
-  toggleVisibility: function(e) {
+  toggleVisibility(e) {
     $(e.currentTarget).toggleClass('is-hidden-column')
   },
-  onRender: function() {},
-  handleSave: function() {
+  onRender() {},
+  handleSave() {
     const prefs = user.get('user').get('preferences')
     prefs.set(
       'columnHide',

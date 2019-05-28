@@ -31,7 +31,7 @@ const user = require('../singletons/user-instance.js')
 import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('query-add'),
   regions: {
     queryContent: '> form > .editor-content > .content-form',
@@ -44,7 +44,7 @@ module.exports = Marionette.LayoutView.extend({
     'click .editor-save': 'save',
     'click .editor-saveRun': 'saveRun',
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(user.getQuerySettings(), 'change:template', querySettings =>
       this.updateCurrentQuery(querySettings)
     )
@@ -54,7 +54,7 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(this.model, 'closeDropdown', this.closeDropdown)
     this.listenForSave()
   },
-  updateCurrentQuery: function(currentQuerySettings) {
+  updateCurrentQuery(currentQuerySettings) {
     if (currentQuerySettings.get('type') === 'custom') {
       const searchForm = new SearchForm(currentQuerySettings.get('template'))
       const sharedAttributes = searchForm.transformToQueryStructure()
@@ -64,7 +64,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     }
   },
-  reshow: function() {
+  reshow() {
     this.$el.toggleClass(
       'is-form-builder',
       this.model.get('type') === 'new-form'
@@ -87,11 +87,11 @@ module.exports = Marionette.LayoutView.extend({
         break
     }
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.reshow()
     this.showTitle()
   },
-  getDefaultQuery: function() {
+  getDefaultQuery() {
     let userDefaultTemplate = user.getQuerySettings().get('template')
     if (!userDefaultTemplate) {
       return {}
@@ -124,14 +124,14 @@ module.exports = Marionette.LayoutView.extend({
         'allFields',
     }
   },
-  showTitle: function() {
+  showTitle() {
     this.queryTitle.show(
       new QueryTitle({
         model: this.model,
       })
     )
   },
-  showFormBuilder: function() {
+  showFormBuilder() {
     this.queryContent.show(
       new QueryAdvanced({
         model: this.model,
@@ -140,26 +140,26 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  showText: function() {
+  showText() {
     this.queryContent.show(
       new QueryAdhoc({
         model: this.model,
       })
     )
   },
-  showBasic: function() {
+  showBasic() {
     this.queryContent.show(
       new QueryBasic({
         model: this.model,
       })
     )
   },
-  handleEditOnShow: function() {
+  handleEditOnShow() {
     if (this.$el.hasClass('is-editing')) {
       this.edit()
     }
   },
-  showAdvanced: function() {
+  showAdvanced() {
     this.queryContent.show(
       new QueryAdvanced({
         model: this.model,
@@ -169,7 +169,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  showCustom: function() {
+  showCustom() {
     this.queryContent.show(
       new QueryAdvanced({
         model: this.model,
@@ -178,18 +178,18 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  focus: function() {
+  focus() {
     this.queryContent.currentView.focus()
   },
-  edit: function() {
+  edit() {
     this.$el.addClass('is-editing')
     this.queryContent.currentView.edit()
   },
-  cancel: function() {
+  cancel() {
     this.$el.removeClass('is-editing')
     this.onBeforeShow()
   },
-  save: function() {
+  save() {
     this.queryContent.currentView.save()
     this.queryTitle.currentView.save()
     if (this.$el.hasClass('is-form-builder')) {
@@ -202,10 +202,10 @@ module.exports = Marionette.LayoutView.extend({
     this.cancel()
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  setDefaultTitle: function() {
+  setDefaultTitle() {
     this.queryContent.currentView.setDefaultTitle()
   },
-  saveRun: function() {
+  saveRun() {
     if (!this.queryContent.currentView.isValid()) {
       announcement.announce(InvalidSearchFormMessage)
       return
@@ -247,14 +247,14 @@ module.exports = Marionette.LayoutView.extend({
       )
     }
   },
-  endSave: function() {
+  endSave() {
     this.model.startSearch()
     store.setCurrentQuery(this.model)
     this.initialize()
     this.cancel()
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  listenForSave: function() {
+  listenForSave() {
     this.$el.off('saveQuery.' + CustomElements.getNamespace()).on(
       'saveQuery.' + CustomElements.getNamespace(),
       function(e) {
@@ -262,7 +262,7 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  closeDropdown: function() {
+  closeDropdown() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
 })

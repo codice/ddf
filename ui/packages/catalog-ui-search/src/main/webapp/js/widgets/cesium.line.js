@@ -97,11 +97,11 @@ class LineController extends GeometryController {
   }
 
   createRenderView = model => {
-    return new LineRenderView({ model: model, map: this.map })
+    return new LineRenderView({ model, map: this.map })
   }
 }
 
 module.exports = {
-  LineRenderView: LineRenderView,
+  LineRenderView,
   Controller: LineController,
 }

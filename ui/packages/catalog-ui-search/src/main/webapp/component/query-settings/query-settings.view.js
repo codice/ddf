@@ -36,7 +36,7 @@ import RadioComponent from '../../react-component/container/input-wrappers/radio
 
 module.exports = plugin(
   Marionette.LayoutView.extend({
-    template: template,
+    template,
     tagName: CustomElements.register('query-settings'),
     modelEvents: {},
     events: {
@@ -54,8 +54,8 @@ module.exports = plugin(
       extensions: '.query-extensions',
     },
     ui: {},
-    focus: function() {},
-    initialize: function() {
+    focus() {},
+    initialize() {
       this.model = this.model._cloneOf
         ? store.getQueryById(this.model._cloneOf)
         : this.model
@@ -71,10 +71,10 @@ module.exports = plugin(
         this.handleFormUpdate
       )
     },
-    handleFormUpdate: function(newForm) {
+    handleFormUpdate(newForm) {
       this.renderResultForms(this.resultFormCollection.filteredList)
     },
-    onBeforeShow: function() {
+    onBeforeShow() {
       this.setupSpellcheck()
       this.setupPhonetics()
       this.setupSortFieldDropdown()
@@ -83,7 +83,7 @@ module.exports = plugin(
       this.renderResultForms(this.resultFormCollection.filteredList)
       this.setupExtensions()
     },
-    renderResultForms: function(resultTemplates) {
+    renderResultForms(resultTemplates) {
       resultTemplates = resultTemplates ? resultTemplates : []
       resultTemplates.push({
         label: 'All Fields',
@@ -118,8 +118,8 @@ module.exports = plugin(
       )
       this.resultForm.currentView.turnOnEditing()
     },
-    getExtensions: function() {},
-    setupExtensions: function() {
+    getExtensions() {},
+    setupExtensions() {
       const extensions = this.getExtensions()
       if (extensions !== undefined) {
         this.extensions.show(extensions)
@@ -127,7 +127,7 @@ module.exports = plugin(
         this.extensions.empty()
       }
     },
-    handleChangeDetailLevel: function(model, values) {
+    handleChangeDetailLevel(model, values) {
       $.each(
         model.get('enum'),
         function(index, value) {
@@ -137,10 +137,10 @@ module.exports = plugin(
         }.bind(this)
       )
     },
-    onRender: function() {
+    onRender() {
       this.setupSrcDropdown()
     },
-    setupSortFieldDropdown: function() {
+    setupSortFieldDropdown() {
       this.settingsSortField.show(
         new SortItemCollectionView({
           collection: new Backbone.Collection(this.model.get('sorts')),
@@ -148,7 +148,7 @@ module.exports = plugin(
         })
       )
     },
-    setupSrcDropdown: function() {
+    setupSrcDropdown() {
       const sources = this.model.get('src')
       this._srcDropdownModel = new DropdownModel({
         value: sources ? sources : [],
@@ -164,7 +164,7 @@ module.exports = plugin(
       )
       this.settingsSrc.currentView.turnOffEditing()
     },
-    setupSpellcheck: function() {
+    setupSpellcheck() {
       if (!properties.isSpellcheckEnabled) {
         this.model.set('spellcheck', false)
         return
@@ -192,7 +192,7 @@ module.exports = plugin(
       })
       this.spellcheckForm.show(new spellcheckView())
     },
-    setupPhonetics: function() {
+    setupPhonetics() {
       if (!properties.isPhoneticsEnabled) {
         this.model.set('phonetics', false)
         return
@@ -220,7 +220,7 @@ module.exports = plugin(
       })
       this.phoneticsForm.show(new phoneticsView())
     },
-    turnOffEditing: function() {
+    turnOffEditing() {
       this.$el.removeClass('is-editing')
       this.regionManager.forEach(function(region) {
         if (region.currentView && region.currentView.turnOffEditing) {
@@ -228,7 +228,7 @@ module.exports = plugin(
         }
       })
     },
-    turnOnEditing: function() {
+    turnOnEditing() {
       this.$el.addClass('is-editing')
       this.regionManager.forEach(function(region) {
         if (region.currentView && region.currentView.turnOnEditing) {
@@ -237,12 +237,12 @@ module.exports = plugin(
       })
       this.focus()
     },
-    cancel: function() {
+    cancel() {
       this.$el.removeClass('is-editing')
       this.onBeforeShow()
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     },
-    toJSON: function() {
+    toJSON() {
       let federation = this._srcDropdownModel.get('federation')
       const spellcheck = this.model.get('spellcheck')
       const phonetics = this.model.get('phonetics')
@@ -261,21 +261,21 @@ module.exports = plugin(
         detailLevel = undefined
       }
       return {
-        src: src,
-        federation: federation,
-        sorts: sorts,
+        src,
+        federation,
+        sorts,
         'detail-level': detailLevel,
         spellcheck,
         phonetics,
       }
     },
-    saveToModel: function() {
+    saveToModel() {
       this.model.set(this.toJSON())
     },
-    isValid: function() {
+    isValid() {
       return this.settingsSortField.currentView.collection.models.length !== 0
     },
-    save: function() {
+    save() {
       if (!this.isValid()) {
         announcement.announce(InvalidSearchFormMessage)
         return
@@ -284,7 +284,7 @@ module.exports = plugin(
       this.cancel()
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     },
-    run: function() {
+    run() {
       if (!this.isValid()) {
         announcement.announce(InvalidSearchFormMessage)
         return

@@ -29,16 +29,16 @@ of application */
 const DECIMAL_PRECISION = 6
 
 module.exports = {
-  distToDegrees: function(distanceInMeters) {
+  distToDegrees(distanceInMeters) {
     return this.toDegrees(this.distToRadians(distanceInMeters))
   },
-  distToRadians: function(distanceInMeters) {
+  distToRadians(distanceInMeters) {
     return distanceInMeters / EARTH_MEAN_RADIUS_METERS
   },
-  toDegrees: function(distanceInRadians) {
+  toDegrees(distanceInRadians) {
     return distanceInRadians * RADIANS_TO_DEGREES
   },
-  getDistanceInMeters: function(distance, units) {
+  getDistanceInMeters(distance, units) {
     distance = distance || 0
     switch (units) {
       case 'kilometers':
@@ -56,7 +56,7 @@ module.exports = {
         return distance
     }
   },
-  getDistanceFromMeters: function(distance, units) {
+  getDistanceFromMeters(distance, units) {
     distance = distance || 0
     switch (units) {
       case 'kilometers':
@@ -74,11 +74,11 @@ module.exports = {
         return distance
     }
   },
-  altitudeRound: function(value) {
+  altitudeRound(value) {
     // round the value, don't need picometer precision.
     return Math.round(value)
   },
-  coordinateRound: function(value) {
+  coordinateRound(value) {
     return parseFloat(parseFloat(value).toFixed(DECIMAL_PRECISION))
   },
 }

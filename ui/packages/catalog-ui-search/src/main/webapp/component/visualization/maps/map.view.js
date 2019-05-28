@@ -76,8 +76,8 @@ function getHomeCoordinates() {
           lon = wrapNum(lon, -180, 180)
           lat = wrapNum(lat, -90, 90)
           return {
-            lon: lon,
-            lat: lat,
+            lon,
+            lat,
           }
         })
         .filter(coordinateObj => {
@@ -119,10 +119,10 @@ function getBoundingBox(coordinates) {
     return undefined
   }
   return {
-    north: north,
-    east: east,
-    south: south,
-    west: west,
+    north,
+    east,
+    south,
+    west,
   }
 }
 
@@ -136,7 +136,7 @@ const defaultHomeBoundingBox = {
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('map'),
-  template: template,
+  template,
   regions: {
     mapDrawingPopup: '#mapDrawingPopup',
     mapContextMenu: '.map-context-menu',
@@ -151,7 +151,7 @@ module.exports = Marionette.LayoutView.extend({
   map: undefined,
   mapModel: undefined,
   hasLoadedMap: false,
-  initialize: function(options) {
+  initialize(options) {
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }
@@ -162,12 +162,12 @@ module.exports = Marionette.LayoutView.extend({
     this.setupMouseLeave()
     this.listenTo(store.get('workspaces'), 'add', this.zoomToHome)
   },
-  setupMouseLeave: function() {
+  setupMouseLeave() {
     this.$el.on('mouseleave', () => {
       this.mapModel.clearMouseCoordinates()
     })
   },
-  setupCollections: function() {
+  setupCollections() {
     if (!this.map) {
       throw 'Map has not been set.'
     }
@@ -184,7 +184,7 @@ module.exports = Marionette.LayoutView.extend({
       selectionInterface: this.options.selectionInterface,
     })
   },
-  setupListeners: function() {
+  setupListeners() {
     this.listenTo(
       wreqr.vent,
       'metacard:overlay',
@@ -246,7 +246,7 @@ module.exports = Marionette.LayoutView.extend({
     this.setupRightClickMenu()
     this.setupMapInfo()
   },
-  zoomToHome: function() {
+  zoomToHome() {
     const home = [
       user
         .get('user')
@@ -258,7 +258,7 @@ module.exports = Marionette.LayoutView.extend({
 
     this.map.zoomToBoundingBox(home)
   },
-  saveAsHome: function() {
+  saveAsHome() {
     const boundingBox = this.map.getBoundingBox()
     const userPreferences = user.get('user').get('preferences')
     userPreferences.set('mapHome', boundingBox)
@@ -268,7 +268,7 @@ module.exports = Marionette.LayoutView.extend({
       type: 'success',
     })
   },
-  addPanZoom: function() {
+  addPanZoom() {
     const PanZoomView = Marionette.ItemView.extend({
       template: () => (
         <Gazetteer setState={({ polygon }) => this.map.doPanZoom(polygon)} />
@@ -280,7 +280,7 @@ module.exports = Marionette.LayoutView.extend({
     this.addRegion('toolbarPanZoom', '.toolbar-panzoom')
     this.toolbarPanZoom.show(new PanZoomView())
   },
-  addHome: function() {
+  addHome() {
     const containerClass = 'zoomToHome-container'
     const ZoomToHomeButtonView = Marionette.ItemView.extend({
       template: () => (
@@ -296,7 +296,7 @@ module.exports = Marionette.LayoutView.extend({
     this.addRegion('zoomToHomeButtonView', `.${containerClass}`)
     this.zoomToHomeButtonView.show(new ZoomToHomeButtonView())
   },
-  addClustering: function() {
+  addClustering() {
     this.$el
       .find('.cesium-viewer-toolbar')
       .append(
@@ -307,7 +307,7 @@ module.exports = Marionette.LayoutView.extend({
           '</div>'
       )
   },
-  addSettings: function() {
+  addSettings() {
     const MapSettingsView = Marionette.ItemView.extend({
       template() {
         return <MapSettings />
@@ -319,7 +319,7 @@ module.exports = Marionette.LayoutView.extend({
     this.addRegion('toolbarSettings', '.toolbar-settings')
     this.toolbarSettings.show(new MapSettingsView())
   },
-  onMapHover: function(event, mapEvent) {
+  onMapHover(event, mapEvent) {
     const metacard = this.options.selectionInterface
       .getActiveSearchResults()
       .get(mapEvent.mapTarget)
@@ -329,7 +329,7 @@ module.exports = Marionette.LayoutView.extend({
       Boolean(mapEvent.mapTarget && mapEvent.mapTarget !== 'userDrawing')
     )
   },
-  updateTarget: function(metacard) {
+  updateTarget(metacard) {
     let target
     let targetMetacard
     if (metacard) {
@@ -340,11 +340,11 @@ module.exports = Marionette.LayoutView.extend({
       targetMetacard = metacard
     }
     this.mapModel.set({
-      target: target,
-      targetMetacard: targetMetacard,
+      target,
+      targetMetacard,
     })
   },
-  onRightClick: function(event, mapEvent) {
+  onRightClick(event, mapEvent) {
     event.preventDefault()
     this.$el
       .find('.map-context-menu')
@@ -353,7 +353,7 @@ module.exports = Marionette.LayoutView.extend({
     this.mapModel.updateClickCoordinates()
     this.mapContextMenu.currentView.model.open()
   },
-  setupRightClickMenu: function() {
+  setupRightClickMenu() {
     this.mapContextMenu.show(
       new MapContextMenuDropdown({
         model: new DropdownModel(),
@@ -365,7 +365,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupMapInfo: function() {
+  setupMapInfo() {
     const map = this.mapModel
     const MapInfoView = Marionette.ItemView.extend({
       template() {
@@ -382,10 +382,10 @@ module.exports = Marionette.LayoutView.extend({
         is finished loading / starting up.
         Also, make sure you resolve that deferred by passing the reference to the map implementation.
     */
-  loadMap: function() {
+  loadMap() {
     throw 'Map not implemented'
   },
-  createMap: function(Map) {
+  createMap(Map) {
     this.map = Map(
       this.el.querySelector('#mapContainer'),
       this.options.selectionInterface,
@@ -403,7 +403,7 @@ module.exports = Marionette.LayoutView.extend({
     this.endLoading()
     this.zoomToHome()
   },
-  addLayers: function() {
+  addLayers() {
     this.$el
       .find('.cesium-viewer-toolbar')
       .append('<div class="toolbar-layers is-button"></div>')
@@ -414,7 +414,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  initializeMap: function() {
+  initializeMap() {
     this.loadMap().then(
       function(Map) {
         this.createMap(Map)
@@ -423,13 +423,13 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  startLoading: function() {
+  startLoading() {
     LoadingCompanionView.beginLoading(this)
   },
-  endLoading: function() {
+  endLoading() {
     LoadingCompanionView.endLoading(this)
   },
-  onRender: function() {
+  onRender() {
     this.startLoading()
     setTimeout(
       function() {
@@ -438,14 +438,14 @@ module.exports = Marionette.LayoutView.extend({
       1000
     )
   },
-  toggleClustering: function() {
+  toggleClustering() {
     this.$el.toggleClass('is-clustering')
     this.clusterCollectionView.toggleActive()
   },
-  handleDrawing: function() {
+  handleDrawing() {
     this.$el.toggleClass('is-drawing', store.get('content').get('drawing'))
   },
-  handleCurrentQuery: function() {
+  handleCurrentQuery() {
     this.removePreviousLocations()
     const currentQuery = this.options.selectionInterface.get('currentQuery')
     if (currentQuery) {
@@ -462,7 +462,7 @@ module.exports = Marionette.LayoutView.extend({
       this.handleFilter(CQLUtils.transformCQLToFilter(resultFilter), '#c89600')
     }
   },
-  handleFilter: function(filter, color) {
+  handleFilter(filter, color) {
     if (filter.filters) {
       filter.filters.forEach(
         function(subfilter) {
@@ -486,7 +486,7 @@ module.exports = Marionette.LayoutView.extend({
               lat: latLon[1],
               lon: latLon[0],
               radius: filter.distance,
-              color: color,
+              color,
             })
             this.map.showCircleShape(locationModel)
           } else {
@@ -499,7 +499,7 @@ module.exports = Marionette.LayoutView.extend({
                   return Number(value)
                 })
               }),
-              color: color,
+              color,
             })
             this.map.showLineShape(locationModel)
           }
@@ -514,15 +514,15 @@ module.exports = Marionette.LayoutView.extend({
     const filterValue = typeof value === 'string' ? value : value.value
     const locationModel = new LocationModel({
       polygon: CQLUtils.arrayFromPolygonWkt(filterValue),
-      color: color,
+      color,
       ...(distance && { polygonBufferWidth: distance }),
     })
     this.map.showPolygonShape(locationModel)
   },
-  removePreviousLocations: function() {
+  removePreviousLocations() {
     this.map.destroyShapes()
   },
-  onDestroy: function() {
+  onDestroy() {
     if (this.geometryCollectionView) {
       this.geometryCollectionView.destroy()
     }

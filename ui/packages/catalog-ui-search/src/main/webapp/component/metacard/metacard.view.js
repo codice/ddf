@@ -23,12 +23,12 @@ const GoldenLayoutMetacardView = require('../golden-layout/golden-layout.view.js
 let queryForMetacard
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('metacard'),
   regions: {
     detailsTabular: '.details-tabular',
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(
       metacardInstance,
       'change:currentResult',
@@ -36,14 +36,14 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.listenToCurrentMetacard()
   },
-  listenToCurrentMetacard: function() {
+  listenToCurrentMetacard() {
     /*
                 The throttle on the result change should take care of issues with result set merging, but this is a good to have in case
                 the timing changes or something else goes awry that we haven't thought of yet.
             */
     this.listenTo(metacardInstance, 'change:currentMetacard', this.handleStatus)
   },
-  handleStatus: function() {
+  handleStatus() {
     this.$el.toggleClass(
       'not-found',
       metacardInstance.get('currentMetacard') === undefined
@@ -53,7 +53,7 @@ module.exports = Marionette.LayoutView.extend({
       metacardInstance.get('currentResult').isSearching()
     )
   },
-  handleResultChange: function() {
+  handleResultChange() {
     this.handleStatus()
     this.listenTo(
       metacardInstance.get('currentResult'),
@@ -61,10 +61,10 @@ module.exports = Marionette.LayoutView.extend({
       _.throttle(this.handleStatus, 60, { leading: false })
     )
   },
-  onRender: function() {
+  onRender() {
     this.handleResultChange()
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.detailsTabular.show(
       new GoldenLayoutMetacardView({
         selectionInterface: metacardInstance,

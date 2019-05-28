@@ -17,25 +17,25 @@ const Tabs = Backbone.Model.extend({
     tabsOptions: {},
     activeTab: undefined,
   },
-  initialize: function() {
+  initialize() {
     this.setDefaultActiveTab()
   },
-  setDefaultActiveTab: function() {
+  setDefaultActiveTab() {
     const tabs = this.get('tabs')
     if (Object.keys(tabs).length > 0 && !this.getActiveTab()) {
       this.set('activeTab', Object.keys(tabs)[0])
     }
   },
-  setActiveTab: function(tab) {
+  setActiveTab(tab) {
     this.set('activeTab', tab)
   },
-  getActiveTab: function() {
+  getActiveTab() {
     return this.get('activeTab')
   },
-  getActiveView: function() {
+  getActiveView() {
     return this.get('tabs')[this.getActiveTab()]
   },
-  getActiveViewOptions: function() {
+  getActiveViewOptions() {
     if (this.get('tabsOptions')) {
       return this.get('tabsOptions')[this.getActiveTab()]
     }

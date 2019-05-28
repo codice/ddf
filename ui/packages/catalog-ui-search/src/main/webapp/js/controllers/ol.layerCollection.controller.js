@@ -132,11 +132,11 @@ const createLayer = (type, opts) => {
 }
 
 const Controller = CommonLayerController.extend({
-  initialize: function() {
+  initialize() {
     // there is no automatic chaining of initialize.
     CommonLayerController.prototype.initialize.apply(this, arguments)
   },
-  makeMap: function(options) {
+  makeMap(options) {
     this.collection.forEach(model => {
       this.addLayer(model)
     })
@@ -149,7 +149,7 @@ const Controller = CommonLayerController.extend({
 
     const config = {
       target: options.element,
-      view: view,
+      view,
       interactions: ol.interaction.defaults({ doubleClickZoom: false }),
     }
 
@@ -161,13 +161,13 @@ const Controller = CommonLayerController.extend({
     this.isMapCreated = true
     return this.map
   },
-  onDestroy: function() {
+  onDestroy() {
     if (this.isMapCreated) {
       this.map.setTarget(null)
       this.map = null
     }
   },
-  addLayer: async function(model) {
+  async addLayer(model) {
     const { id, type } = model.toJSON()
     const opts = _.omit(model.attributes, 'type', 'label', 'index', 'modelCid')
     opts.show = model.shouldShowLayer()
@@ -181,7 +181,7 @@ const Controller = CommonLayerController.extend({
       model.set('warning', e.message)
     }
   },
-  removeLayer: function(model) {
+  removeLayer(model) {
     const id = model.get('id')
     const layer = this.layerForCid[id]
     if (layer !== undefined) {
@@ -190,19 +190,19 @@ const Controller = CommonLayerController.extend({
     delete this.layerForCid[id]
     this.reIndexLayers()
   },
-  setAlpha: function(model) {
+  setAlpha(model) {
     const layer = this.layerForCid[model.id]
     if (layer !== undefined) {
       layer.setOpacity(model.get('alpha'))
     }
   },
-  setShow: function(model) {
+  setShow(model) {
     const layer = this.layerForCid[model.id]
     if (layer !== undefined) {
       layer.setVisible(model.shouldShowLayer())
     }
   },
-  reIndexLayers: function() {
+  reIndexLayers() {
     this.collection.forEach(function(model, index) {
       const layer = this.layerForCid[model.id]
       if (layer !== undefined) {

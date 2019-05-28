@@ -30,20 +30,20 @@ module.exports = Backbone.AssociatedModel.extend({
       messages: [],
     }
   },
-  initialize: function() {
+  initialize() {
     if (this.get('successful') !== undefined) {
       this.set('hasReturned', true)
     } else {
       this.listenToOnce(this, 'change:successful', this.setHasReturned)
     }
   },
-  setHasReturned: function() {
+  setHasReturned() {
     this.set('hasReturned', true)
   },
-  setCacheHasReturned: function() {
+  setCacheHasReturned() {
     this.set('cacheHasReturned', true)
   },
-  updateMessages: function(messages, id, status) {
+  updateMessages(messages, id, status) {
     if (this.id === id) {
       this.set('messages', messages)
     }
@@ -55,7 +55,7 @@ module.exports = Backbone.AssociatedModel.extend({
       })
     }
   },
-  updateStatus: function(results) {
+  updateStatus(results) {
     let top = 0
     let fromcache = 0
     results.forEach(
@@ -74,8 +74,8 @@ module.exports = Backbone.AssociatedModel.extend({
       }.bind(this)
     )
     this.set({
-      top: top,
-      fromcache: fromcache,
+      top,
+      fromcache,
     })
   },
 })

@@ -20,38 +20,38 @@ const SearchSelectView = require('../../search-select/search-select.view.js')
 const store = require('../../../js/store.js')
 
 module.exports = DropdownView.extend({
-  template: template,
+  template,
   className: 'is-querySelect',
   componentToShow: SearchSelectView,
   regions: {
     queryItem: '.querySelect-item',
   },
-  initialize: function() {
+  initialize() {
     DropdownView.prototype.initialize.call(this)
     this.listenTo(store.getCurrentQueries(), 'remove', this.handleRemoveQuery)
     this.handleHideActions()
   },
-  handleHideActions: function() {
+  handleHideActions() {
     this.$el.toggleClass('hide-actions', this.options.hideActions === true)
   },
-  initializeComponentModel: function() {
+  initializeComponentModel() {
     //override if you need more functionality
     this.modelForComponent = this.options.model
   },
-  listenToComponent: function() {
+  listenToComponent() {
     //override if you need more functionality
   },
   isCentered: true,
-  getCenteringElement: function() {
+  getCenteringElement() {
     return this.el
   },
   hasTail: true,
-  handleRemoveQuery: function(removedQuery) {
+  handleRemoveQuery(removedQuery) {
     if (removedQuery.id === this.model.get('value')) {
       this.model.set('value', undefined)
     }
   },
-  onRender: function() {
+  onRender() {
     DropdownView.prototype.onRender.call(this)
     const queryId = this.model.get('value')
     if (queryId) {

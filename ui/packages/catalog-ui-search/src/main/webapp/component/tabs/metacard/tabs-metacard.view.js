@@ -21,11 +21,11 @@ const properties = require('../../../js/properties.js')
 
 module.exports = TabsView.extend({
   className: 'is-metacard',
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = new MetacardTabsModel()
   },
   selectionInterface: store,
-  initialize: function(options) {
+  initialize(options) {
     this.selectionInterface = options.selectionInterface || store
     if (options.model === undefined) {
       this.setDefaultModel()
@@ -61,11 +61,11 @@ module.exports = TabsView.extend({
       throttleDetermineContent
     )
   },
-  handleMetacardChange: function() {
+  handleMetacardChange() {
     this.determineAvailableContent()
     this.determineContent()
   },
-  determineContentFromType: function() {
+  determineContentFromType() {
     const activeTabName = this.model.get('activeTab')
     const result = this.selectionInterface.getSelectedResults().first()
     if (
@@ -110,12 +110,12 @@ module.exports = TabsView.extend({
       )
     }
   },
-  determineContent: function() {
+  determineContent() {
     if (this.selectionInterface.getSelectedResults().length === 1) {
       this.determineContentFromType()
     }
   },
-  determineAvailableContent: function() {
+  determineAvailableContent() {
     if (this.selectionInterface.getSelectedResults().length === 1) {
       const result = this.selectionInterface.getSelectedResults().first()
       this.$el.toggleClass('is-workspace', result.isWorkspace())
@@ -126,7 +126,7 @@ module.exports = TabsView.extend({
       this.$el.toggleClass('lacks-preview', !result.hasPreview())
     }
   },
-  determineDisabledContent: function() {
+  determineDisabledContent() {
     this.$el.toggleClass(
       'is-editing-disabled',
       properties.isEditingRestricted()

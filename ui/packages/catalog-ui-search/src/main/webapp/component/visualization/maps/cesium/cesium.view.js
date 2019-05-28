@@ -22,9 +22,9 @@ const _ = require('underscore')
 const featureDetection = require('../../../singletons/feature-detection.js')
 
 module.exports = MapView.extend({
-  template: template,
+  template,
   className: 'is-cesium',
-  events: function() {
+  events() {
     return _.extend(
       {
         'click > .not-supported button': 'switchTo2DMap',
@@ -32,14 +32,14 @@ module.exports = MapView.extend({
       MapView.prototype.events
     )
   },
-  loadMap: function() {
+  loadMap() {
     const deferred = new $.Deferred()
     require(['./map.cesium'], function(CesiumMap) {
       deferred.resolve(CesiumMap)
     })
     return deferred
   },
-  createMap: function() {
+  createMap() {
     try {
       MapView.prototype.createMap.apply(this, arguments)
     } catch (err) {
@@ -54,7 +54,7 @@ module.exports = MapView.extend({
       this.endLoading()
     }
   },
-  switchTo2DMap: function() {
+  switchTo2DMap() {
     if (!this.isDestroyed) {
       featureDetection.addFailure('cesium')
     }

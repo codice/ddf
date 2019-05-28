@@ -42,7 +42,7 @@ const templatePromiseSupplier = () =>
     context: this,
     url: './internal/forms/query',
     contentType: 'application/json',
-    success: function(data) {
+    success(data) {
       fixTemplates(data)
       cachedTemplates = data
       promiseIsResolved = true
@@ -56,7 +56,7 @@ module.exports = Backbone.AssociatedModel.extend({
     doneLoading: false,
     searchForms: [],
   },
-  initialize: function() {
+  initialize() {
     if (promiseIsResolved === true) {
       this.addAllForms()
       promiseIsResolved = false
@@ -74,8 +74,8 @@ module.exports = Backbone.AssociatedModel.extend({
       collectionType: Backbone.Collection.extend({
         model: SearchForm,
         url: './internal/forms/query',
-        initialize: function() {},
-        comparator: function(a, b) {
+        initialize() {},
+        comparator(a, b) {
           const titleA = a.get('title') || ''
           const titleB = b.get('title') || ''
           return titleA.toLowerCase().localeCompare(titleB.toLowerCase())
@@ -83,7 +83,7 @@ module.exports = Backbone.AssociatedModel.extend({
       }),
     },
   ],
-  addAllForms: function() {
+  addAllForms() {
     if (!this.isDestroyed) {
       cachedTemplates.forEach(
         function(value, index) {
@@ -110,19 +110,19 @@ module.exports = Backbone.AssociatedModel.extend({
     }
     this.get('searchForms').sort()
   },
-  getCollection: function() {
+  getCollection() {
     return this.get('searchForms')
   },
-  addSearchForm: function(searchForm) {
+  addSearchForm(searchForm) {
     this.get('searchForms').add(searchForm, { merge: true })
   },
-  getDoneLoading: function() {
+  getDoneLoading() {
     return this.get('doneLoading')
   },
-  doneLoading: function() {
+  doneLoading() {
     this.set('doneLoading', true)
   },
-  deleteCachedTemplateById: function(id) {
+  deleteCachedTemplateById(id) {
     cachedTemplates = _.filter(cachedTemplates, function(template) {
       return template.id !== id
     })

@@ -23,10 +23,10 @@ module.exports = DropdownView.extend({
     'data-help':
       'Used to setup a local filter of a result set.  It does not re-execute the search.',
   },
-  template: template,
+  template,
   className: 'is-resultFilter',
   componentToShow: ComponentView,
-  initialize: function() {
+  initialize() {
     DropdownView.prototype.initialize.call(this)
     this.listenTo(
       user.get('user').get('preferences'),
@@ -35,7 +35,7 @@ module.exports = DropdownView.extend({
     )
     this.handleFilter()
   },
-  handleFilter: function() {
+  handleFilter() {
     const resultFilter = user
       .get('user')
       .get('preferences')

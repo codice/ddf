@@ -21,7 +21,7 @@ const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.LayoutView.extend(
   {
-    template: template,
+    template,
     tagName: CustomElements.register('confirmation'),
     modelEvents: {
       'change:choice': 'close',
@@ -32,45 +32,45 @@ module.exports = Marionette.LayoutView.extend(
       'click .confirmation-no': 'handleNo',
       'click .confirmation-yes': 'handleYes',
     },
-    initialize: function(options) {
+    initialize(options) {
       $('body').append(this.el)
       this.render()
       this.handleChoices()
     },
-    handleMousedown: function(event) {
+    handleMousedown(event) {
       event.stopPropagation()
     },
-    handleChoices: function() {
+    handleChoices() {
       this.$el.toggleClass(
         'has-two-choices',
         this.model.get('no') !== undefined
       )
     },
-    handleOutsideClick: function(event) {
+    handleOutsideClick(event) {
       if (event.target === this.el) {
         this.model.makeChoice(false)
       }
     },
-    handleNo: function() {
+    handleNo() {
       this.model.makeChoice(false)
     },
-    handleYes: function() {
+    handleYes() {
       this.model.makeChoice(true)
     },
-    onRender: function() {
+    onRender() {
       this.center()
     },
-    center: function() {
+    center() {
       const $confirmationContainer = this.$el.find('.confirmation-container')
       const height = $confirmationContainer.height() / 2
       $confirmationContainer.css('top', 'calc(40% - ' + height + 'px)')
     },
-    close: function() {
+    close() {
       this.destroy()
     },
   },
   {
-    generateConfirmation: function(attributes) {
+    generateConfirmation(attributes) {
       const confirmation = new Confirmation(attributes)
       new this({
         model: confirmation,

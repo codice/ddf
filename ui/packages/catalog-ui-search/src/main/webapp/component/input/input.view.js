@@ -19,7 +19,7 @@ const InputTemplate = require('./input.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 
 const InputView = Marionette.LayoutView.extend({
-  className: function() {
+  className() {
     if (!this.model.get('property').get('enum')) {
       return 'is-' + this.model.getCalculatedType()
     } else {
@@ -28,7 +28,7 @@ const InputView = Marionette.LayoutView.extend({
   },
   template: InputTemplate,
   tagName: CustomElements.register('input'),
-  attributes: function() {
+  attributes() {
     return {
       'data-id': this.model.getId(),
     }
@@ -37,7 +37,7 @@ const InputView = Marionette.LayoutView.extend({
     'change:isEditing': 'handleEdit',
   },
   regions: {},
-  initialize: function() {
+  initialize() {
     if (this.model.get('property')) {
       this.listenTo(
         this.model.get('property'),
@@ -47,19 +47,19 @@ const InputView = Marionette.LayoutView.extend({
       this.listenTo(this.model, 'change:isValid', this.handleValidation)
     }
   },
-  serializeData: function() {
+  serializeData() {
     return _.extend(this.model.toJSON(), { cid: this.cid })
   },
-  onRender: function() {
+  onRender() {
     this.handleEdit()
     this.handleReadOnly()
     this.handleValue()
     this.validate()
   },
-  onAttach: function() {
+  onAttach() {
     this.listenForChange()
   },
-  listenForChange: function() {
+  listenForChange() {
     this.$el.on(
       'change keyup input',
       function() {
@@ -73,36 +73,36 @@ const InputView = Marionette.LayoutView.extend({
       this.model.setIsValid(this.isValid())
     }
   },
-  handleValidation: function() {
+  handleValidation() {
     if (this.model.showValidationIssues()) {
       this.$el.toggleClass('has-validation-issues', !this.model.isValid())
     }
   },
-  isValid: function() {
+  isValid() {
     return true //overwrite on a per input basis
   },
-  handleReadOnly: function() {
+  handleReadOnly() {
     this.$el.toggleClass('is-readOnly', this.model.isReadOnly())
   },
-  handleEdit: function() {
+  handleEdit() {
     this.$el.toggleClass('is-editing', this.model.isEditing())
   },
-  handleValue: function() {
+  handleValue() {
     this.$el.find('input').val(this.model.getValue())
   },
-  toJSON: function() {
+  toJSON() {
     const attributeToVal = {}
     attributeToVal[this.model.getId()] = this.model.getValue()
     return attributeToVal
   },
-  focus: function() {
+  focus() {
     this.$el.find('input').select()
   },
-  hasChanged: function() {
+  hasChanged() {
     const value = this.$el.find('input').val()
     return value !== this.model.getInitialValue()
   },
-  getCurrentValue: function() {
+  getCurrentValue() {
     return this.$el.find('input').val()
   },
 })

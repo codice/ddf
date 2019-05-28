@@ -25,7 +25,7 @@ function moveHeaders(elementToUpdate, elementToMatch) {
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('table'),
-  template: template,
+  template,
   regions: {
     bodyThead: {
       selector: 'thead',
@@ -37,17 +37,17 @@ module.exports = Marionette.LayoutView.extend({
     },
   },
   headerAnimationFrameId: undefined,
-  getHeaderView: function() {
+  getHeaderView() {
     console.log(
       'You need to overwrite this function and provide the constructed HeaderView'
     )
   },
-  getBodyView: function() {
+  getBodyView() {
     console.log(
       'You need to overwrite this function and provide the constructed BodyView'
     )
   },
-  onRender: function() {
+  onRender() {
     this.bodyTbody.show(this.getBodyView(), {
       replaceElement: true,
     })
@@ -57,7 +57,7 @@ module.exports = Marionette.LayoutView.extend({
     this.onDestroy()
     this.startUpdatingHeaders()
   },
-  startUpdatingHeaders: function() {
+  startUpdatingHeaders() {
     window.requestAnimationFrame(
       function() {
         moveHeaders.call(this)
@@ -65,7 +65,7 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  onDestroy: function() {
+  onDestroy() {
     window.cancelAnimationFrame(this.headerAnimationFrameId)
   },
 })

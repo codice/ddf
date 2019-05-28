@@ -19,15 +19,15 @@ const ComponentView = require('../../hint/hint.view.js')
 const HintDropdownCompanion = require('./dropdown.companion.hint.view')
 
 module.exports = DropdownView.extend({
-  template: template,
+  template,
   className: 'is-hint',
   componentToShow: ComponentView,
-  initializeDropdown: function() {
+  initializeDropdown() {
     this.dropdownCompanion = HintDropdownCompanion.getNewCompanionView(this)
   },
-  initializeComponentModel: function() {
+  initializeComponentModel() {
     //override if you need more functionality
     this.modelForComponent = this.options.modelForComponent
   },
-  listenToComponent: function() {},
+  listenToComponent() {},
 })

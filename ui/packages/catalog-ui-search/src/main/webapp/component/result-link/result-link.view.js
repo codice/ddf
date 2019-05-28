@@ -19,9 +19,9 @@ const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('result-link'),
-  template: template,
+  template,
 
-  serializeData: function() {
+  serializeData() {
     return this.model
       .get('metacard')
       .get('properties')

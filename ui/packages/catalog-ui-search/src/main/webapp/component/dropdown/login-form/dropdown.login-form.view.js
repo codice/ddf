@@ -28,14 +28,14 @@ const getName = function(user) {
 }
 
 module.exports = DropdownView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('login-dropdown'),
   componentToShow: ComponentView,
-  initializeComponentModel: function() {
+  initializeComponentModel() {
     this.modelForComponent = user
     this.model.set('value', getName(this.modelForComponent.get('user')))
   },
-  listenToComponent: function() {
+  listenToComponent() {
     this.listenTo(
       this.modelForComponent,
       'change',
@@ -45,7 +45,7 @@ module.exports = DropdownView.extend({
     )
   },
   isCentered: true,
-  getCenteringElement: function() {
+  getCenteringElement() {
     return this.el
   },
   hasTail: true,

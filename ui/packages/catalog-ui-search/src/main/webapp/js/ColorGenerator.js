@@ -20,7 +20,7 @@ function getRandomColor() {
 }
 
 module.exports = {
-  getNewGenerator: function() {
+  getNewGenerator() {
     const colors = [
       // 10 best taken from here: https://ux.stackexchange.com/questions/94696/color-palette-for-all-types-of-color-blindness
       // http://mkweb.bcgsc.ca/colorblind/
@@ -41,7 +41,7 @@ module.exports = {
     const idToColor = {}
 
     return {
-      getColor: function(id) {
+      getColor(id) {
         if (idToColor[id] === undefined) {
           if (colors.length === 0) {
             idToColor[id] = undefined
@@ -51,7 +51,7 @@ module.exports = {
         }
         return idToColor[id]
       },
-      removeColor: function(id) {
+      removeColor(id) {
         const color = idToColor[id]
         if (color !== undefined) {
           colors.push(color)

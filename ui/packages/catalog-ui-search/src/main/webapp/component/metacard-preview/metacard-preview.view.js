@@ -42,13 +42,13 @@ function getSrc(previewHtml, textColor) {
 }
 
 module.exports = Marionette.ItemView.extend({
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = this.selectionInterface.getSelectedResults().first()
   },
-  template: template,
+  template,
   tagName: CustomElements.register('metacard-preview'),
   selectionInterface: store,
-  initialize: function(options) {
+  initialize(options) {
     this.selectionInterface =
       options.selectionInterface || this.selectionInterface
     if (!options.model) {
@@ -71,7 +71,7 @@ module.exports = Marionette.ItemView.extend({
         }.bind(this)
       )
   },
-  onAttach: function() {
+  onAttach() {
     this.textColor = window.getComputedStyle(this.el).color
     this.previewRequest.then(
       function() {
@@ -88,7 +88,7 @@ module.exports = Marionette.ItemView.extend({
     )
   },
   // golden layout destroys and recreates elements in such a way as to empty iframes: https://github.com/deepstreamIO/golden-layout/issues/154
-  populateIframeIfNecessary: function() {
+  populateIframeIfNecessary() {
     if (
       this.$el
         .find('iframe')
@@ -98,7 +98,7 @@ module.exports = Marionette.ItemView.extend({
       this.populateIframe()
     }
   },
-  populateIframe: function() {
+  populateIframe() {
     const $iframe = this.$el.find('iframe')
     $iframe.ready(
       function() {
@@ -108,5 +108,5 @@ module.exports = Marionette.ItemView.extend({
       }.bind(this)
     )
   },
-  onDestroy: function() {},
+  onDestroy() {},
 })

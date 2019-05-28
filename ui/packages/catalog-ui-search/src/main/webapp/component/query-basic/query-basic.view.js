@@ -162,8 +162,8 @@ function translateFilterToBasicMap(filter) {
     propertyValueMap[CQLUtils.getProperty(filter)].push(filter)
   }
   return {
-    propertyValueMap: propertyValueMap,
-    downConversion: downConversion,
+    propertyValueMap,
+    downConversion,
   }
 }
 
@@ -175,7 +175,7 @@ function getFilterTree(model) {
 }
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('query-basic'),
   modelEvents: {},
   events: {
@@ -195,7 +195,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   ui: {},
   filter: undefined,
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.model = this.model._cloneOf
       ? store.getQueryById(this.model._cloneOf)
       : this.model
@@ -228,14 +228,14 @@ module.exports = Marionette.LayoutView.extend({
     this.handleTypeValue()
     this.edit()
   },
-  setupSettings: function() {
+  setupSettings() {
     this.basicSettings.show(
       new QuerySettingsView({
         model: this.model,
       })
     )
   },
-  setupTime: function() {
+  setupTime() {
     this.basicTime.show(
       new QueryTimeView({
         model: this.model,
@@ -243,7 +243,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupTypeSpecific: function() {
+  setupTypeSpecific() {
     let currentValue = []
     if (this.filter['metadata-content-type']) {
       currentValue = _.uniq(
@@ -281,7 +281,7 @@ module.exports = Marionette.LayoutView.extend({
               ? metacardDefinitions.enums.datatype.map(function(value) {
                   return {
                     label: value,
-                    value: value,
+                    value,
                     class: 'icon ' + IconHelper.getClassByName(value),
                   }
                 })
@@ -293,7 +293,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupType: function() {
+  setupType() {
     let currentValue = 'any'
     if (this.filter['metadata-content-type']) {
       currentValue = 'specific'
@@ -317,7 +317,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupLocation: function() {
+  setupLocation() {
     let currentValue = 'any'
     if (this.filter.anyGeo) {
       currentValue = 'specific'
@@ -341,7 +341,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupLocationInput: function() {
+  setupLocationInput() {
     let currentValue = ''
     if (this.filter.anyGeo) {
       currentValue = this.filter.anyGeo[0]
@@ -356,17 +356,17 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  handleTypeValue: function() {
+  handleTypeValue() {
     const type = this.basicType.currentView.model.getValue()[0]
     this.$el.toggleClass('is-type-any', type === 'any')
     this.$el.toggleClass('is-type-specific', type === 'specific')
   },
-  handleLocationValue: function() {
+  handleLocationValue() {
     const location = this.basicLocation.currentView.model.getValue()[0]
     this.$el.toggleClass('is-location-any', location === 'any')
     this.$el.toggleClass('is-location-specific', location === 'specific')
   },
-  setupTextMatchInput: function() {
+  setupTextMatchInput() {
     this.basicTextMatch.show(
       new PropertyView({
         model: new Property({
@@ -391,7 +391,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupTextInput: function() {
+  setupTextInput() {
     this.basicText.show(
       new PropertyView({
         model: new Property({
@@ -402,14 +402,14 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  turnOffEdit: function() {
+  turnOffEdit() {
     this.regionManager.forEach(function(region) {
       if (region.currentView && region.currentView.turnOffEditing) {
         region.currentView.turnOffEditing()
       }
     })
   },
-  edit: function() {
+  edit() {
     this.$el.addClass('is-editing')
     this.regionManager.forEach(function(region) {
       if (region.currentView && region.currentView.turnOnEditing) {
@@ -426,17 +426,17 @@ module.exports = Marionette.LayoutView.extend({
       $(tabbable[0]).focus()
     }
   },
-  focus: function() {
+  focus() {
     this.basicText.currentView.focus()
   },
-  cancel: function() {
+  cancel() {
     this.$el.removeClass('is-editing')
     this.onBeforeShow()
   },
-  handleDownConversion: function(downConversion) {
+  handleDownConversion(downConversion) {
     this.$el.toggleClass('is-down-converted', downConversion)
   },
-  save: function() {
+  save() {
     this.$el.removeClass('is-editing')
     this.basicSettings.currentView.saveToModel()
 
@@ -447,10 +447,10 @@ module.exports = Marionette.LayoutView.extend({
       cql: generatedCQL,
     })
   },
-  isValid: function() {
+  isValid() {
     return this.basicSettings.currentView.isValid()
   },
-  constructFilter: function() {
+  constructFilter() {
     const filters = []
 
     const text = this.basicText.currentView.model.getValue()[0]
@@ -506,10 +506,10 @@ module.exports = Marionette.LayoutView.extend({
 
     return {
       type: 'AND',
-      filters: filters,
+      filters,
     }
   },
-  setDefaultTitle: function() {
+  setDefaultTitle() {
     const text = this.basicText.currentView.model.getValue()[0]
     let title
     if (text === '') {

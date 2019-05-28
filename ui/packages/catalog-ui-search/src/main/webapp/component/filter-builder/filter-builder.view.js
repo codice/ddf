@@ -25,7 +25,7 @@ const CQLUtils = require('../../js/CQLUtils.js')
 import { serialize, deserialize } from './filter-serialization'
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('filter-builder'),
   events: {
     'click > .filter-header > .contents-buttons .getValue': 'printValue',
@@ -38,7 +38,7 @@ module.exports = Marionette.LayoutView.extend({
     filterOperator: '.filter-operator',
     filterContents: '.contents-filters',
   },
-  initialize: function() {
+  initialize() {
     const {
       filter,
       isResultFilter = false,
@@ -60,7 +60,7 @@ module.exports = Marionette.LayoutView.extend({
       this.turnOffRootOperator()
     }
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.$el.toggleClass('is-sortable', this.options.isSortable || false)
     this.filterOperator.show(
       DropdownView.createSimpleDropdown({
@@ -100,27 +100,27 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  updateOperatorDropdown: function() {
+  updateOperatorDropdown() {
     this.filterOperator.currentView.model.set('value', [
       this.model.get('operator'),
     ])
   },
-  handleOperatorUpdate: function() {
+  handleOperatorUpdate() {
     this.model.set(
       'operator',
       this.filterOperator.currentView.model.get('value')[0]
     )
   },
-  delete: function() {
+  delete() {
     this.model.destroy()
   },
-  addFilter: function(filter) {
+  addFilter(filter) {
     this.collection.push({
       isResultFilter: this.isResultFilter,
     })
     this.handleEditing()
   },
-  addFilterBuilder: function() {
+  addFilterBuilder() {
     this.collection.push({
       filterBuilder: true,
       isResultFilter: this.isResultFilter,
@@ -128,10 +128,10 @@ module.exports = Marionette.LayoutView.extend({
     this.handleEditing()
   },
   filterView: FilterView,
-  printValue: function() {
+  printValue() {
     alert(this.transformToCql())
   },
-  transformToCql: function() {
+  transformToCql() {
     this.deleteInvalidFilters()
     const filter = this.getFilters()
     if (filter.filters.length === 0) {
@@ -140,10 +140,10 @@ module.exports = Marionette.LayoutView.extend({
       return CQLUtils.transformFilterToCQL(filter)
     }
   },
-  getFilters: function() {
+  getFilters() {
     return serialize(this.model)
   },
-  deleteInvalidFilters: function() {
+  deleteInvalidFilters() {
     const collection = this.collection.filter(function(model) {
       return model.get('isValid') !== false
     })
@@ -154,15 +154,15 @@ module.exports = Marionette.LayoutView.extend({
       this.delete()
     }
   },
-  revert: function() {
+  revert() {
     this.$el.removeClass('is-editing')
   },
-  serializeData: function() {
+  serializeData() {
     return {
       cql: 'anyText ILIKE ""',
     }
   },
-  handleEditing: function() {
+  handleEditing() {
     const isEditing = this.$el.hasClass('is-editing')
     if (isEditing) {
       this.turnOnEditing()
@@ -170,26 +170,26 @@ module.exports = Marionette.LayoutView.extend({
       this.turnOffEditing()
     }
   },
-  sortCollection: function() {
+  sortCollection() {
     this.collection.sort()
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.$el.addClass('is-editing')
     this.filterOperator.currentView.turnOnEditing()
     this.filterContents.currentView.turnOnEditing()
   },
-  turnOffEditing: function() {
+  turnOffEditing() {
     this.$el.removeClass('is-editing')
     this.filterOperator.currentView.turnOffEditing()
     this.filterContents.currentView.turnOffEditing()
   },
-  turnOffNesting: function() {
+  turnOffNesting() {
     this.$el.addClass('hide-nesting')
   },
-  turnOffRootOperator: function() {
+  turnOffRootOperator() {
     this.$el.addClass('hide-root-operator')
   },
-  turnOffFieldAdditions: function() {
+  turnOffFieldAdditions() {
     this.$el.addClass('hide-field-button')
   },
 })

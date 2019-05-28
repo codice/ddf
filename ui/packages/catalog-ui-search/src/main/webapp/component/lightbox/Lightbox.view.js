@@ -67,7 +67,7 @@ module.exports = Marionette.LayoutView.extend(
       click: 'handleOutsideClick',
       'click .lightbox-close': 'close',
     },
-    initialize: function() {
+    initialize() {
       $('body').append(this.el)
       this.listenTo(
         store.get('workspaces'),
@@ -78,13 +78,13 @@ module.exports = Marionette.LayoutView.extend(
       this.listenForRoute()
       this.listenForEscape()
     },
-    listenForEscape: function() {
+    listenForEscape() {
       $(window).on(
         'keydown.' + CustomElements.getNamespace() + componentName,
         this.handleSpecialKeys.bind(this)
       )
     },
-    handleSpecialKeys: function(event) {
+    handleSpecialKeys(event) {
       let code = event.keyCode
       if (event.charCode && code == 0) code = event.charCode
       switch (code) {
@@ -95,10 +95,10 @@ module.exports = Marionette.LayoutView.extend(
           break
       }
     },
-    listenForRoute: function() {
+    listenForRoute() {
       this.listenTo(router, 'change', this.handleRouteChange)
     },
-    listenForClose: function() {
+    listenForClose() {
       this.$el.on(
         CustomElements.getNamespace() + 'close-' + componentName,
         function() {
@@ -106,28 +106,28 @@ module.exports = Marionette.LayoutView.extend(
         }.bind(this)
       )
     },
-    handleOpen: function() {
+    handleOpen() {
       this.$el.toggleClass('is-open', this.model.isOpen())
       $('html').toggleClass('open-lightbox', true)
     },
-    handleRouteChange: function() {
+    handleRouteChange() {
       this.close()
     },
-    handleEscape: function() {
+    handleEscape() {
       this.close()
     },
-    handleOutsideClick: function(event) {
+    handleOutsideClick(event) {
       if (event.target === this.el) {
         this.close()
       }
     },
-    close: function() {
+    close() {
       this.model.close()
       $('html').toggleClass('open-lightbox', false)
     },
   },
   {
-    generateNewLightbox: function() {
+    generateNewLightbox() {
       return new this({
         model: new Lightbox(),
       })

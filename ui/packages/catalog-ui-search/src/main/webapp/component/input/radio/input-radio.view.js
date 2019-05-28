@@ -18,14 +18,14 @@ const InputView = require('../input.view')
 const RadioView = require('../../radio/radio.view.js')
 
 module.exports = InputView.extend({
-  template: template,
+  template,
   events: {
     'click .input-revert': 'revert',
   },
   regions: {
     radioRegion: '.radio-region',
   },
-  listenForChange: function() {
+  listenForChange() {
     this.$el.on(
       'click',
       function() {
@@ -33,7 +33,7 @@ module.exports = InputView.extend({
       }.bind(this)
     )
   },
-  serializeData: function() {
+  serializeData() {
     const value = this.model.get('value')
     const choice = this.model
       .get('property')
@@ -48,11 +48,11 @@ module.exports = InputView.extend({
       label: choice ? choice.label : value,
     }
   },
-  onRender: function() {
+  onRender() {
     this.initializeRadio()
     InputView.prototype.onRender.call(this)
   },
-  initializeRadio: function() {
+  initializeRadio() {
     this.radioRegion.show(
       RadioView.createRadio({
         options: this.model
@@ -68,7 +68,7 @@ module.exports = InputView.extend({
             } else {
               return {
                 label: value,
-                value: value,
+                value,
                 title: value.title,
               }
             }
@@ -77,13 +77,13 @@ module.exports = InputView.extend({
       })
     )
   },
-  handleReadOnly: function() {
+  handleReadOnly() {
     this.$el.toggleClass('is-readOnly', this.model.isReadOnly())
   },
-  handleValue: function() {
+  handleValue() {
     this.radioRegion.currentView.model.set('value', this.model.get('value'))
   },
-  getCurrentValue: function() {
+  getCurrentValue() {
     const currentValue = this.radioRegion.currentView.model.get('value')
     return currentValue
   },

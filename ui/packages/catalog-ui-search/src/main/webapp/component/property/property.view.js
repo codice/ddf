@@ -23,9 +23,9 @@ const Property = require('./property')
 
 module.exports = Marionette.LayoutView.extend(
   {
-    template: template,
+    template,
     tagName: CustomElements.register('property'),
-    attributes: function() {
+    attributes() {
       return {
         'data-id': this.model.get('id'),
         'data-label': this.model.get('label') || this.model.get('id'),
@@ -46,10 +46,10 @@ module.exports = Marionette.LayoutView.extend(
     regions: {
       propertyValue: '.property-value',
     },
-    serializeData: function() {
+    serializeData() {
       return _.extend(this.model.toJSON(), { cid: this.cid })
     },
-    initialize: function() {
+    initialize() {
       this.turnOnLimitedWidth()
       this.listenTo(
         this.model,
@@ -62,7 +62,7 @@ module.exports = Marionette.LayoutView.extend(
         this.validateRequired
       )
     },
-    onRender: function() {
+    onRender() {
       this.handleEdit()
       this.handleReadOnly()
       this.handleRequired()
@@ -73,48 +73,48 @@ module.exports = Marionette.LayoutView.extend(
       this.handleLabel()
       this.handleOnlyEditing()
     },
-    onBeforeShow: function() {
+    onBeforeShow() {
       this.propertyValue.show(
         new BulkInputView({
           model: this.model,
         })
       )
     },
-    hide: function() {
+    hide() {
       this.$el.toggleClass('is-hidden', true)
     },
-    show: function() {
+    show() {
       this.$el.toggleClass('is-hidden', false)
     },
-    handleOnlyEditing: function() {
+    handleOnlyEditing() {
       this.$el.toggleClass('only-editing', this.model.onlyEditing())
     },
-    handleLabel: function() {
+    handleLabel() {
       this.$el.toggleClass('hide-label', !this.model.showLabel())
     },
-    handleConflictingAttributeDefinition: function() {
+    handleConflictingAttributeDefinition() {
       this.$el.toggleClass(
         'has-conflicting-definitions',
         this.model.hasConflictingDefinitions()
       )
     },
-    handleReadOnly: function() {
+    handleReadOnly() {
       this.$el.toggleClass('is-readOnly', this.model.isReadOnly())
     },
-    handleRequired: function() {
+    handleRequired() {
       if (this.model.isRequired()) {
         this.$el.addClass('is-required')
       } else {
         this.$el.removeClass('is-required')
       }
     },
-    handleEdit: function() {
+    handleEdit() {
       this.$el.toggleClass('is-editing', this.model.get('isEditing'))
     },
-    handleValue: function() {
+    handleValue() {
       this.$el.find('input').val(this.model.getValue())
     },
-    turnOnEditing: function() {
+    turnOnEditing() {
       if (
         !this.model.get('readOnly') &&
         !this.model.hasConflictingDefinitions()
@@ -123,14 +123,14 @@ module.exports = Marionette.LayoutView.extend(
       }
       this.$el.addClass('is-editing')
     },
-    turnOffEditing: function() {
+    turnOffEditing() {
       this.model.set('isEditing', false)
       this.$el.removeClass('is-editing')
     },
-    turnOnLimitedWidth: function() {
+    turnOnLimitedWidth() {
       this.$el.addClass('has-limited-width')
     },
-    revert: function() {
+    revert() {
       this.model.revert()
       this.onBeforeShow()
     },
@@ -143,25 +143,25 @@ module.exports = Marionette.LayoutView.extend(
     hideRequiredWarning() {
       this.model.hideRequiredWarning()
     },
-    save: function() {
+    save() {
       const value = this.$el.find('input').val()
       this.model.save(value)
     },
-    toJSON: function() {
+    toJSON() {
       const value = this.model.getValue()
       return {
         attribute: this.model.getId(),
         values: value,
       }
     },
-    toPatchJSON: function() {
+    toPatchJSON() {
       if (this.hasChanged()) {
         return this.toJSON()
       } else {
         return undefined
       }
     },
-    focus: function() {
+    focus() {
       setTimeout(
         function() {
           this.$el.find('input').select()
@@ -169,21 +169,21 @@ module.exports = Marionette.LayoutView.extend(
         0
       )
     },
-    hasChanged: function() {
+    hasChanged() {
       return this.model.get('hasChanged')
     },
-    handleRevert: function() {
+    handleRevert() {
       if (this.hasChanged()) {
         this.$el.addClass('is-changed')
       } else {
         this.$el.removeClass('is-changed')
       }
     },
-    concatMessages: function(totalMessage, currentMessage) {
+    concatMessages(totalMessage, currentMessage) {
       totalMessage.push(currentMessage)
       return totalMessage
     },
-    updateValidation: function(validationReport) {
+    updateValidation(validationReport) {
       this._validationReport = validationReport
       const $validationElement = this.$el.find('.property-validation')
       if (validationReport.errors.length > 0) {
@@ -211,7 +211,7 @@ module.exports = Marionette.LayoutView.extend(
       }
       this.handleBulkValidation(validationReport)
     },
-    handleBulkValidation: function(validationReport) {
+    handleBulkValidation(validationReport) {
       const elementsToCheck = this.$el.find(
         '.is-bulk > .if-viewing .list-value'
       )
@@ -247,7 +247,7 @@ module.exports = Marionette.LayoutView.extend(
         }
       })
     },
-    setMessage: function(elements, message) {
+    setMessage(elements, message) {
       _.forEach(elements, function(el) {
         const element = $(el)
         if (element.is('div')) {
@@ -264,7 +264,7 @@ module.exports = Marionette.LayoutView.extend(
         }
       })
     },
-    clearValidation: function() {
+    clearValidation() {
       let $validationElement = this.$el.find('.property-validation')
       this.$el.removeClass('has-warning').removeClass('has-error')
       $validationElement.addClass('is-hidden')
@@ -278,7 +278,7 @@ module.exports = Marionette.LayoutView.extend(
         $validationElement.addClass('is-hidden')
       })
     },
-    handleValidation: function() {
+    handleValidation() {
       if (this._validationReport) {
         this.updateValidation(this._validationReport)
       }
@@ -300,7 +300,7 @@ module.exports = Marionette.LayoutView.extend(
     },
   },
   {
-    getPropertyView: function(modelJSON) {
+    getPropertyView(modelJSON) {
       return new this({
         model: new Property(modelJSON),
       })

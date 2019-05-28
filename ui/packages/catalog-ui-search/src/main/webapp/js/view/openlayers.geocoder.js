@@ -25,19 +25,19 @@ geocoder.View = Marionette.ItemView.extend({
     'keyup #searchfield': 'searchOnEnter',
     'click #searchbutton': 'search',
   },
-  initialize: function() {
+  initialize() {
     this.model = geocoderModel
     this.modelBinder = new Backbone.ModelBinder()
     this.listenTo(this.model, 'change', this.changedSearchText)
   },
-  onRender: function() {
+  onRender() {
     const searchBinding = Backbone.ModelBinder.createDefaultBindings(
       this.el,
       'name'
     )
     this.modelBinder.bind(this.model, this.$el, searchBinding)
   },
-  searchOnEnter: function(e) {
+  searchOnEnter(e) {
     if (e.keyCode === 13) {
       //user pushed enter, perform search
       this.model.set('searchText', this.$('#searchfield').val())
@@ -47,23 +47,23 @@ geocoder.View = Marionette.ItemView.extend({
       e.preventDefault()
     }
   },
-  changedSearchText: function() {
+  changedSearchText() {
     if (this.model.get('searchText')) {
       this.$('#searchfield').addClass('geocoder-input-wide')
     } else {
       this.$('#searchfield').removeClass('geocoder-input-wide')
     }
   },
-  search: function() {
+  search() {
     const view = this
     if (this.model.get('searchText')) {
       $.ajax({
-        url: url,
+        url,
         data: 'jsonp=jsonp&query=' + this.model.get('searchText'),
         contentType: 'application/javascript',
         dataType: 'jsonp',
         jsonp: 'jsonp',
-        success: function(result) {
+        success(result) {
           if (result.resourceSets.length === 0) {
             view.model.set(
               'searchText',
@@ -91,7 +91,7 @@ geocoder.View = Marionette.ItemView.extend({
             [east, south],
           ])
         },
-        error: function(data) {
+        error(data) {
           view.model.set('searchText', data)
         },
       })

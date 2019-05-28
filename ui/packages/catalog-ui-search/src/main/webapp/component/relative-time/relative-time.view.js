@@ -30,13 +30,13 @@ import { serialize, deserialize } from './serial'
     "RELATIVE(PT1.5H)"
 */
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('relative-time'),
   regions: {
     basicTimeRelativeValue: '.relative-value',
     basicTimeRelativeUnit: '.relative-unit',
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.setupTimeRelative()
     this.turnOnEditing()
     this.listenTo(
@@ -51,7 +51,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.updateModelValue()
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.$el.addClass('is-editing')
     this.regionManager.forEach(function(region) {
       if (region.currentView && region.currentView.turnOnEditing) {
@@ -59,7 +59,7 @@ module.exports = Marionette.LayoutView.extend({
       }
     })
   },
-  getViewValue: function() {
+  getViewValue() {
     let last = this.basicTimeRelativeValue.currentView.model.getValue()[0]
     if (last === '') {
       last = 0
@@ -90,7 +90,7 @@ module.exports = Marionette.LayoutView.extend({
       return this.getOptionsValue()
     }
   },
-  setupTimeRelative: function() {
+  setupTimeRelative() {
     const { last = 1, unit = 'h' } = this.getStartingValue() || {}
     this.basicTimeRelativeValue.show(
       new PropertyView({
@@ -133,7 +133,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  isValid: function() {
+  isValid() {
     const value = this.getModelValue()
     return value.last !== undefined && value.unit !== undefined
   },

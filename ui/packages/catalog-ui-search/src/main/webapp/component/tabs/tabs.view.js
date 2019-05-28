@@ -41,7 +41,7 @@ const TabsView = Marionette.LayoutView.extend({
   regions: {
     tabsContent: '.tabs-content',
   },
-  initialize: function() {
+  initialize() {
     const view = this
     this._resizeHandler = _.throttle(this._resizeHandler, 200)
     $(window).on(namespacedEvent('resize', view), function() {
@@ -49,22 +49,22 @@ const TabsView = Marionette.LayoutView.extend({
     })
     this.listenTo(wreqr.vent, 'resize', this._resizeHandler)
   },
-  onRender: function() {
+  onRender() {
     this.showTab(true)
     this.determineContent()
     this._clickHandler()
   },
-  onAttach: function() {
+  onAttach() {
     this._resizeHandler()
   },
-  onBeforeDestroy: function() {
+  onBeforeDestroy() {
     $(window).off(namespacedEvent('resize', this))
   },
-  handleTabChange: function() {
+  handleTabChange() {
     this.showTab(true)
     this.determineContent()
   },
-  showTab: function(shouldResize) {
+  showTab(shouldResize) {
     const currentTab = this.model.getActiveTab()
     this.$el.find('.is-active').removeClass('is-active')
     this.$el.find('[data-id="' + currentTab + '"]').addClass('is-active')
@@ -73,12 +73,12 @@ const TabsView = Marionette.LayoutView.extend({
       this._resizeHandler()
     }
   },
-  serializeData: function() {
+  serializeData() {
     return _.extend(this.model.toJSON(), {
       tabTitles: Object.keys(this.model.get('tabs')),
     })
   },
-  determineContent: function() {
+  determineContent() {
     const activeTab = this.model.getActiveView()
     const activeTabOptions = this.model.getActiveViewOptions()
     if (activeTabOptions !== undefined) {
@@ -87,7 +87,7 @@ const TabsView = Marionette.LayoutView.extend({
       this.tabsContent.show(new activeTab())
     }
   },
-  showActiveDropdownTab: function() {
+  showActiveDropdownTab() {
     const hasActiveTab =
       this.$el.find(
         '> .tabs-list .tabs-dropdown .tabs-title.is-active.is-merged'
@@ -98,11 +98,11 @@ const TabsView = Marionette.LayoutView.extend({
       this.$el.find('> .tabs-list .tabs-dropdown').removeClass('has-activeTab')
     }
   },
-  changeTab: function(event) {
+  changeTab(event) {
     const tab = event.currentTarget.getAttribute('data-id')
     this.model.setActiveTab(tab)
   },
-  _clickHandler: function() {
+  _clickHandler() {
     const view = this
     const tabList = view.$el.find('> .tabs-list')
     const menu = tabList.find('.tabs-dropdown')
@@ -120,14 +120,14 @@ const TabsView = Marionette.LayoutView.extend({
       }
     })
   },
-  _widthWhenCollapsed: function() {
+  _widthWhenCollapsed() {
     const widthWhenCollaspsed = []
     this._widthWhenCollapsed = function() {
       return widthWhenCollaspsed
     }
     return widthWhenCollaspsed
   },
-  _resizeHandler: function() {
+  _resizeHandler() {
     const view = this
     const menu = view.$el.find('> .tabs-list')[0]
     if (!menu) {
@@ -163,20 +163,20 @@ const TabsView = Marionette.LayoutView.extend({
     }
     view.showTab(false)
   },
-  _hasMergeableTabs: function() {
+  _hasMergeableTabs() {
     return (
       this.$el.find('> .tabs-list .tabs-expanded > .tabs-tab:not(.is-merged)')
         .length !== 0
     )
   },
-  _mergeTab: function() {
+  _mergeTab() {
     const id = this.$el
       .find('> .tabs-list .tabs-expanded > .tabs-tab:not(.is-merged)')
       .last()
       .attr('data-id')
     this.$el.find('> .tabs-list [data-id="' + id + '"]').addClass('is-merged')
   },
-  _unmergeTab: function() {
+  _unmergeTab() {
     const id = this.$el
       .find('> .tabs-list .tabs-expanded > .tabs-tab.is-merged')
       .first()

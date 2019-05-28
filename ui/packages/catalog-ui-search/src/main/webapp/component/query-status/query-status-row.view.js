@@ -22,14 +22,14 @@ const cql = require('../../js/cql')
 module.exports = Marionette.ItemView.extend({
   className: 'is-tr',
   tagName: CustomElements.register('query-status-row'),
-  template: template,
+  template,
   events: {
     'click button': 'triggerFilter',
   },
   modelEvents: {
     change: 'render',
   },
-  triggerFilter: function() {
+  triggerFilter() {
     const term = cql.translateUserqlToCql(this.model.id)
     user
       .get('user')
@@ -41,7 +41,7 @@ module.exports = Marionette.ItemView.extend({
       .savePreferences()
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  serializeData: function() {
+  serializeData() {
     const modelJSON = this.model.toJSON()
     modelJSON.fromremote = modelJSON.top - modelJSON.fromcache
     modelJSON.elapsed = modelJSON.elapsed / 1000

@@ -125,7 +125,7 @@ function validateWkt(wkt) {
     valid = false
     error = errorMessages.invalidWktCoordinates
   }
-  return { valid: valid, error: error }
+  return { valid, error }
 }
 
 function createCoordPair(coordinate) {

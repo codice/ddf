@@ -23,19 +23,19 @@ module.exports = Marionette.LayoutView.extend({
   template: EditableRowsTemplate,
   events: { 'click .add-row': 'addRow' },
   regions: { rows: '.rows' },
-  initialize: function() {
+  initialize() {
     this.listenTo(this.collection, 'add remove update reset', this.checkEmpty)
   },
-  checkEmpty: function() {
+  checkEmpty() {
     this.$el.toggleClass('is-empty', this.collection.isEmpty())
   },
-  addRow: function() {
+  addRow() {
     this.collection.add({})
   },
-  embed: function(model) {
-    return new JsonView({ model: model })
+  embed(model) {
+    return new JsonView({ model })
   },
-  onRender: function() {
+  onRender() {
     this.rows.show(
       new EditableRowsView({
         collection: this.collection,

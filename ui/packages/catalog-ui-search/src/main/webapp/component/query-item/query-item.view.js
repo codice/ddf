@@ -26,8 +26,8 @@ require('../../behaviors/button.behavior.js')
 require('../../behaviors/dropdown.behavior.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
-  attributes: function() {
+  template,
+  attributes() {
     return {
       'data-queryid': this.model.id,
     }
@@ -85,7 +85,7 @@ module.exports = Marionette.LayoutView.extend({
     querySettings: '.query-settings',
     querySchedule: '.query-schedule',
   },
-  initialize: function(options) {
+  initialize(options) {
     if (this.model.has('result')) {
       this.startListeningToStatus()
     } else {
@@ -94,12 +94,12 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(this.model, 'change:polling', this.handlePolling)
     this.handlePolling()
   },
-  serializeData: function() {
+  serializeData() {
     return this.model.toJSON({
       additionalProperties: ['cid', 'color'],
     })
   },
-  onRender: function() {
+  onRender() {
     this.queryFeed.show(
       new QueryFeedView({
         model: this.model,
@@ -113,15 +113,15 @@ module.exports = Marionette.LayoutView.extend({
       polling !== undefined && polling !== false
     )
   },
-  handleStatus: function() {
+  handleStatus() {
     this.$el.toggleClass('is-searching', this.model.get('result').isSearching())
   },
-  resultAdded: function(model) {
+  resultAdded(model) {
     if (model.has('result') && _.isUndefined(model.previous('result'))) {
       this.startListeningToStatus()
     }
   },
-  startListeningToStatus: function() {
+  startListeningToStatus() {
     this.handleStatus()
     this.listenTo(
       this.model.get('result'),
@@ -129,11 +129,11 @@ module.exports = Marionette.LayoutView.extend({
       this.handleStatus
     )
   },
-  runQuery: function(e) {
+  runQuery(e) {
     this.model.startSearchFromFirstPage()
     e.stopPropagation()
   },
-  stopQuery: function(e) {
+  stopQuery(e) {
     this.model.cancelCurrentSearches()
     e.stopPropagation()
   },

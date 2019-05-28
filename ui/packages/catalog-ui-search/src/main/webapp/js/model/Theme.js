@@ -126,7 +126,7 @@ function sanitizeColors(theme) {
 }
 
 module.exports = Backbone.Model.extend({
-  defaults: function() {
+  defaults() {
     const blob = {
       spacingMode: _get(properties, 'spacingMode', 'comfortable'),
       theme: _get(properties, 'theme', 'dark'),
@@ -136,11 +136,11 @@ module.exports = Backbone.Model.extend({
     })
     return blob
   },
-  initialize: function() {},
-  getCustomColorNames: function() {
+  initialize() {},
+  getCustomColorNames() {
     return colorVariables
   },
-  getTheme: function() {
+  getTheme() {
     const theme = this.toJSON()
     sanitizeColors(theme)
 
@@ -149,10 +149,10 @@ module.exports = Backbone.Model.extend({
       spacingModes[theme.spacingMode] /* , colorModes[theme.colorMode] */
     )
   },
-  getColorMode: function() {
+  getColorMode() {
     return this.get('theme')
   },
-  getSpacingMode: function() {
+  getSpacingMode() {
     return this.get('spacingMode')
   },
 })

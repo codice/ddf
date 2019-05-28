@@ -19,12 +19,12 @@ const queryItemView = require('./query-item.view')
 const store = require('../../js/store.js')
 
 module.exports = Marionette.CollectionView.extend({
-  setDefaultCollection: function() {
+  setDefaultCollection() {
     this.collection = store.getCurrentQueries()
   },
   tagName: CustomElements.register('query-item-collection'),
   childView: queryItemView,
-  initialize: function(options) {
+  initialize(options) {
     if (!options.collection) {
       this.setDefaultCollection()
     }

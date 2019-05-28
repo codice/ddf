@@ -69,9 +69,9 @@ function calculateAvailableAttributesFromSelection(selectionInterface) {
 }
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('attributes-rearrange'),
-  initialize: function(options) {
+  initialize(options) {
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }
@@ -91,7 +91,7 @@ module.exports = Marionette.ItemView.extend({
       this.render
     )
   },
-  getShown: function() {
+  getShown() {
     if (this.options.summary) {
       const usersChoice = user
         .get('user')
@@ -108,7 +108,7 @@ module.exports = Marionette.ItemView.extend({
       )
     }
   },
-  getHidden: function() {
+  getHidden() {
     if (this.options.summary) {
       const usersChoice = user
         .get('user')
@@ -130,7 +130,7 @@ module.exports = Marionette.ItemView.extend({
         .get('inspector-detailsHidden')
     }
   },
-  getPreferredOrder: function() {
+  getPreferredOrder() {
     if (this.options.summary) {
       const usersShown = user
         .get('user')
@@ -152,7 +152,7 @@ module.exports = Marionette.ItemView.extend({
         .get('inspector-detailsOrder')
     }
   },
-  getNewAttributes: function() {
+  getNewAttributes() {
     if (this.options.summary) {
       const usersShown = user
         .get('user')
@@ -181,7 +181,7 @@ module.exports = Marionette.ItemView.extend({
       })
     }
   },
-  serializeData: function() {
+  serializeData() {
     const preferredHeader = this.getPreferredOrder()
     const newAttributes = this.getNewAttributes()
     newAttributes.sort(function(a, b) {
@@ -204,14 +204,14 @@ module.exports = Marionette.ItemView.extend({
       }
     })
   },
-  onRender: function() {
+  onRender() {
     Sortable.create(this.el, {
       onEnd: () => {
         this.handleSave()
       },
     })
   },
-  handleSave: function() {
+  handleSave() {
     const prefs = user.get('user').get('preferences')
     const key = this.options.summary
       ? 'inspector-summaryOrder'

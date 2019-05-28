@@ -254,14 +254,14 @@ module.exports = Marionette.LayoutView.extend({
   },
   events: {},
   defaultValue: undefined,
-  initialize: function() {
+  initialize() {
     this.showHistogram = _.debounce(this.showHistogram, 30)
     this.updateHistogram = _.debounce(this.updateHistogram, 30)
     this.handleResize = _.debounce(this.handleResize, 30)
     this.removeResizeHandler().addResizeHandler()
     this.setupListeners()
   },
-  showHistogram: function() {
+  showHistogram() {
     if (
       this.histogramAttribute.currentView.model.getValue()[0] &&
       this.options.selectionInterface.getActiveSearchResults().length !== 0
@@ -295,7 +295,7 @@ module.exports = Marionette.LayoutView.extend({
       this.el.querySelector('.histogram-container').innerHTML = ''
     }
   },
-  updateHistogram: function() {
+  updateHistogram() {
     const histogramElement = this.el.querySelector('.histogram-container')
     if (
       histogramElement !== null &&
@@ -316,7 +316,7 @@ module.exports = Marionette.LayoutView.extend({
       }
     }
   },
-  updateTheme: function(e) {
+  updateTheme(e) {
     const histogramElement = this.el.querySelector('.histogram-container')
     if (
       histogramElement.children.length !== 0 &&
@@ -327,7 +327,7 @@ module.exports = Marionette.LayoutView.extend({
       histogramElement.layout.margin = theme.margin
     }
   },
-  updateFontSize: function(e) {
+  updateFontSize(e) {
     const histogramElement = this.el.querySelector('.histogram-container')
     if (
       histogramElement.children.length !== 0 &&
@@ -337,7 +337,7 @@ module.exports = Marionette.LayoutView.extend({
       histogramElement.layout.font.size = e.get('fontSize')
     }
   },
-  showHistogramAttributeSelector: function() {
+  showHistogramAttributeSelector() {
     let defaultValue = []
     defaultValue = this.defaultValue || defaultValue
     this.histogramAttribute.show(
@@ -360,12 +360,12 @@ module.exports = Marionette.LayoutView.extend({
       this.showHistogram
     )
   },
-  onRender: function() {
+  onRender() {
     this.showHistogramAttributeSelector()
     this.showHistogram()
     this.handleEmpty()
   },
-  determineInitialData: function() {
+  determineInitialData() {
     const activeResults = this.options.selectionInterface.getActiveSearchResults()
     return [
       {
@@ -386,7 +386,7 @@ module.exports = Marionette.LayoutView.extend({
       },
     ]
   },
-  determineData: function(plot) {
+  determineData(plot) {
     const activeResults = this.options.selectionInterface.getActiveSearchResults()
     const selectedResults = this.options.selectionInterface.getSelectedResults()
     const xbins = Common.duplicate(plot._fullData[0].xbins)
@@ -415,7 +415,7 @@ module.exports = Marionette.LayoutView.extend({
           },
         },
         autobinx: false,
-        xbins: xbins,
+        xbins,
       },
       {
         x: calculateAttributeArray(
@@ -430,17 +430,17 @@ module.exports = Marionette.LayoutView.extend({
           color: 'rgba(255, 255, 255, .2)',
         },
         autobinx: false,
-        xbins: xbins,
+        xbins,
       },
     ]
   },
-  handleEmpty: function() {
+  handleEmpty() {
     this.$el.toggleClass(
       'is-empty',
       this.options.selectionInterface.getActiveSearchResults().length === 0
     )
   },
-  handleResize: function() {
+  handleResize() {
     const histogramElement = this.el.querySelector('.histogram-container')
     this.$el.find('rect.drag').off('mousedown')
     if (histogramElement._context) {
@@ -455,19 +455,19 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  addResizeHandler: function() {
+  addResizeHandler() {
     this.listenTo(wreqr.vent, 'resize', this.handleResize)
     $(window).on('resize.histogram', this.handleResize.bind(this))
     return this
   },
-  removeResizeHandler: function() {
+  removeResizeHandler() {
     $(window).off('resize.histogram')
     return this
   },
-  onDestroy: function() {
+  onDestroy() {
     this.removeResizeHandler()
   },
-  setupListeners: function() {
+  setupListeners() {
     this.listenTo(
       this.options.selectionInterface,
       'reset:completeActiveSearchResults',
@@ -505,12 +505,12 @@ module.exports = Marionette.LayoutView.extend({
       this.updateTheme
     )
   },
-  listenToHistogram: function() {
+  listenToHistogram() {
     this.el
       .querySelector('.histogram-container')
       .on('plotly_click', this.plotlyClickHandler.bind(this))
   },
-  plotlyClickHandler: function(data) {
+  plotlyClickHandler(data) {
     const indexClicked = getIndexClicked(data)
     const alreadySelected = this.pointsSelected.indexOf(indexClicked) >= 0
     if (this.shiftKey) {
@@ -524,7 +524,7 @@ module.exports = Marionette.LayoutView.extend({
     }
     this.resetKeyTracking()
   },
-  handleControlClick: function(data, alreadySelected) {
+  handleControlClick(data, alreadySelected) {
     const attributeToCheck = this.histogramAttribute.currentView.model.getValue()[0]
     const categories = this.retrieveCategoriesFromPlotly()
     if (alreadySelected) {
@@ -550,7 +550,7 @@ module.exports = Marionette.LayoutView.extend({
       this.pointsSelected.push(getIndexClicked(data))
     }
   },
-  handleShiftClick: function(data, alreadySelected) {
+  handleShiftClick(data, alreadySelected) {
     const indexClicked = getIndexClicked(data)
     const firstIndex =
       this.pointsSelected.length === 0
@@ -575,7 +575,7 @@ module.exports = Marionette.LayoutView.extend({
       this.selectBetween(firstIndex, indexClicked + 1)
     }
   },
-  selectBetween: function(firstIndex, lastIndex) {
+  selectBetween(firstIndex, lastIndex) {
     for (let i = firstIndex; i <= lastIndex; i++) {
       if (this.pointsSelected.indexOf(i) === -1) {
         this.pointsSelected.push(i)
@@ -600,7 +600,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   // This is an internal variable for Plotly, so it might break if we update Plotly in the future.
   // Regardless, there was no other way to reliably get the categories.
-  retrieveCategoriesFromPlotly: function() {
+  retrieveCategoriesFromPlotly() {
     const histogramElement = this.el.querySelector('.histogram-container')
     const xaxis = histogramElement._fullLayout.xaxis
     switch (xaxis.type) {
@@ -622,7 +622,7 @@ module.exports = Marionette.LayoutView.extend({
         return categories
     }
   },
-  retrieveCategoriesFromPlotlyForDates: function() {
+  retrieveCategoriesFromPlotlyForDates() {
     const histogramElement = this.el.querySelector('.histogram-container')
     const categories = []
     const xbins = histogramElement._fullData[0].xbins
@@ -653,12 +653,12 @@ module.exports = Marionette.LayoutView.extend({
     }
     return categories
   },
-  resetKeyTracking: function() {
+  resetKeyTracking() {
     this.shiftKey = false
     this.metaKey = false
     this.ctrlKey = false
   },
-  resetPointSelection: function() {
+  resetPointSelection() {
     this.pointsSelected = []
   },
   shiftKey: false,

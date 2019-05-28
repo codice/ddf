@@ -86,7 +86,7 @@ function determineChoices(view) {
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('association'),
-  template: template,
+  template,
   regions: {
     associationParent: '> .association-content > .association-parent',
     associationRelationship:
@@ -96,7 +96,7 @@ module.exports = Marionette.LayoutView.extend({
   events: {
     'click > .association-remove': 'removeAssociation',
   },
-  initialize: function() {
+  initialize() {
     const currentMetacardId = this.options.currentMetacard.get('metacard').id
     if (!this.model.get('parent')) {
       this.model.set('parent', currentMetacardId)
@@ -105,11 +105,11 @@ module.exports = Marionette.LayoutView.extend({
       this.model.set('child', currentMetacardId)
     }
   },
-  removeAssociation: function() {
+  removeAssociation() {
     this.model.collection.remove(this.model)
   },
   choices: undefined,
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.choices = determineChoices(this)
     this.showAssociationParent()
     this.showAssociationRelationship()
@@ -119,7 +119,7 @@ module.exports = Marionette.LayoutView.extend({
     this.updateReadOnlyLabels()
     this.checkHeritage()
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.$el.toggleClass('is-editing', true)
     this.regionManager.forEach(function(region) {
       if (region.currentView && region.currentView.turnOnEditing) {
@@ -127,7 +127,7 @@ module.exports = Marionette.LayoutView.extend({
       }
     })
   },
-  turnOffEditing: function() {
+  turnOffEditing() {
     this.$el.toggleClass('is-editing', false)
     this.regionManager.forEach(function(region) {
       if (region.currentView && region.currentView.turnOffEditing) {
@@ -135,14 +135,14 @@ module.exports = Marionette.LayoutView.extend({
       }
     })
   },
-  setupListeners: function() {
+  setupListeners() {
     this.listenTo(
       this.model,
       'change:parent change:child',
       this.ensureAtLeastOneCurrent
     )
   },
-  ensureAtLeastOneCurrent: function(model, options) {
+  ensureAtLeastOneCurrent(model, options) {
     const currentMetacard = this.options.currentMetacard
     const value = model.hasChanged('parent')
       ? model.get('parent')
@@ -156,7 +156,7 @@ module.exports = Marionette.LayoutView.extend({
     this.rerenderDropdowns()
     this.checkHeritage()
   },
-  checkHeritage: function() {
+  checkHeritage() {
     const currentMetacard = this.options.currentMetacard
     this.$el.toggleClass(
       'is-parent',
@@ -167,7 +167,7 @@ module.exports = Marionette.LayoutView.extend({
       this.model.get('child') === currentMetacard.get('metacard').id
     )
   },
-  rerenderDropdowns: function() {
+  rerenderDropdowns() {
     const childDropdown = this.associationChild.currentView.dropdownCompanion
       .componentToShow.currentView
     const parentDropdown = this.associationParent.currentView.dropdownCompanion
@@ -179,13 +179,13 @@ module.exports = Marionette.LayoutView.extend({
       parentDropdown.render()
     }
   },
-  updateAssociationParent: function() {
+  updateAssociationParent() {
     this.model.set(
       'parent',
       this.associationParent.currentView.model.get('value')
     )
   },
-  showAssociationParent: function() {
+  showAssociationParent() {
     this.associationParent.show(
       DropdownView.createSimpleDropdown({
         list: this.choices,
@@ -205,7 +205,7 @@ module.exports = Marionette.LayoutView.extend({
       getDropdownUpdateMethod(relatedModel, 'parent', this.model)
     )
   },
-  showAssociationRelationship: function() {
+  showAssociationRelationship() {
     this.associationRelationship.show(
       DropdownView.createSimpleDropdown({
         list: [
@@ -233,7 +233,7 @@ module.exports = Marionette.LayoutView.extend({
       getDropdownUpdateMethod(relatedModel, 'relationship', this.model)
     )
   },
-  showAssociationChild: function() {
+  showAssociationChild() {
     this.associationChild.show(
       DropdownView.createSimpleDropdown({
         list: this.choices,
@@ -253,7 +253,7 @@ module.exports = Marionette.LayoutView.extend({
       getDropdownUpdateMethod(relatedModel, 'child', this.model)
     )
   },
-  setupReadOnlyLabelListeners: function() {
+  setupReadOnlyLabelListeners() {
     this.listenTo(this.model, 'change:child', this.updateChildReadOnly)
     this.listenTo(
       this.model,
@@ -262,7 +262,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.listenTo(this.model, 'change:parent', this.updateParentReadOnly)
   },
-  updateChildReadOnly: function() {
+  updateChildReadOnly() {
     const currentMetacard = this.options.currentMetacard
     const currentId = this.model.get('child')
     const label =
@@ -275,7 +275,7 @@ module.exports = Marionette.LayoutView.extend({
       .attr('href', '#metacards/' + currentId)
       .html(Common.escapeHTML(label))
   },
-  updateParentReadOnly: function() {
+  updateParentReadOnly() {
     const currentMetacard = this.options.currentMetacard
     const currentId = this.model.get('parent')
     const label =
@@ -288,7 +288,7 @@ module.exports = Marionette.LayoutView.extend({
       .attr('href', '#metacards/' + currentId)
       .html(Common.escapeHTML(label))
   },
-  updateRelationshipReadOnly: function() {
+  updateRelationshipReadOnly() {
     const currentMetacard = this.options.currentMetacard
     const currentRelation =
       this.model.get('relationship') === 'related'
@@ -298,12 +298,12 @@ module.exports = Marionette.LayoutView.extend({
       .find('.association-relationship')
       .attr('data-label', currentRelation)
   },
-  updateReadOnlyLabels: function() {
+  updateReadOnlyLabels() {
     this.updateChildReadOnly()
     this.updateParentReadOnly()
     this.updateRelationshipReadOnly()
   },
-  getChoiceById: function(id) {
+  getChoiceById(id) {
     return this.choices.filter(function(choice) {
       return choice.value === id
     })[0]

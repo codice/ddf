@@ -21,7 +21,7 @@ require('../../../behaviors/selection.behavior.js')
 module.exports = Marionette.CollectionView.extend({
   tagName: CustomElements.register('result-tbody'),
   className: 'is-tbody is-list has-list-highlighting',
-  behaviors: function() {
+  behaviors() {
     return {
       selection: {
         selectionInterface: this.options.selectionInterface,
@@ -30,12 +30,12 @@ module.exports = Marionette.CollectionView.extend({
     }
   },
   childView: RowView,
-  childViewOptions: function() {
+  childViewOptions() {
     return {
       selectionInterface: this.options.selectionInterface,
     }
   },
-  initialize: function(options) {
+  initialize(options) {
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }

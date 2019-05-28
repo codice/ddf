@@ -12,7 +12,7 @@
 const Marionette = require('marionette')
 
 const NotificationView = Marionette.View.extend({
-  render: function() {
+  render() {
     if (this.rendered) {
       this.$el.hide('fast')
     }
@@ -28,7 +28,7 @@ const NotificationView = Marionette.View.extend({
     this.rendered = true
     return this
   },
-  destroy: function() {
+  destroy() {
     this.$el.animate(
       {
         height: 'hide',

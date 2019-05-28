@@ -18,26 +18,26 @@ const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.CollectionView.extend({
-  childView: childView,
+  childView,
   _options: undefined,
-  initialize: function(options) {
+  initialize(options) {
     this._options = options
   },
-  childViewOptions: function() {
+  childViewOptions() {
     return {
       selectionInterface: this._options.selectionInterface,
       parent: this._options.parent,
     }
   },
   tagName: CustomElements.register('annotation-collection'),
-  onAddChild: function(childView) {},
-  turnOnEditing: function() {
+  onAddChild(childView) {},
+  turnOnEditing() {
     this.$el.toggleClass('is-editing', true)
     this.children.forEach(function(childView) {
       childView.turnOnEditing()
     })
   },
-  turnOffEditing: function() {
+  turnOffEditing() {
     this.$el.toggleClass('is-editing', false)
     this.children.forEach(function(childView) {
       childView.turnOffEditing()

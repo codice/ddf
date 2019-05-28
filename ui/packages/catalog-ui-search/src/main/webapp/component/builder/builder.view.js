@@ -130,7 +130,7 @@ module.exports = Marionette.LayoutView.extend({
           const visibleAttributes = Object.keys(mds[currentValue])
           accumulator.availabletypes.push({
             metacardType: currentValue,
-            visibleAttributes: visibleAttributes,
+            visibleAttributes,
           })
           return accumulator
         },

@@ -64,7 +64,7 @@ function generateCql(bookmarks) {
 
 module.exports = Backbone.AssociatedModel.extend(
   {
-    defaults: function() {
+    defaults() {
       return {
         id: Common.generateUUID(),
         title: 'Untitled List',
@@ -82,7 +82,7 @@ module.exports = Backbone.AssociatedModel.extend(
         isTransient: true,
       },
     ],
-    initialize: function() {
+    initialize() {
       this.set(
         'query',
         new Query.Model({
@@ -95,7 +95,7 @@ module.exports = Backbone.AssociatedModel.extend(
         this.updateQuery
       )
     },
-    removeBookmarks: function(bookmarks) {
+    removeBookmarks(bookmarks) {
       if (!Array.isArray(bookmarks)) {
         bookmarks = [bookmarks]
       }
@@ -104,27 +104,27 @@ module.exports = Backbone.AssociatedModel.extend(
         this.get('list.bookmarks').filter(id => bookmarks.indexOf(id) === -1)
       )
     },
-    addBookmarks: function(bookmarks) {
+    addBookmarks(bookmarks) {
       if (!Array.isArray(bookmarks)) {
         bookmarks = [bookmarks]
       }
       this.set('list.bookmarks', _.union(this.get('list.bookmarks'), bookmarks))
     },
-    updateQuery: function() {
+    updateQuery() {
       this.get('query').set('cql', generateCql(this.get('list.bookmarks')))
     },
-    getIcon: function() {
+    getIcon() {
       return getRelevantIcon(this.get('list.icon'))
     },
-    isEmpty: function() {
+    isEmpty() {
       return this.get('list.bookmarks').length === 0
     },
   },
   {
-    getIconMapping: function() {
+    getIconMapping() {
       return iconMap
     },
-    getIconMappingForSelect: function() {
+    getIconMappingForSelect() {
       return _.map(iconMap, (value, key) => {
         return {
           label: key,

@@ -18,13 +18,13 @@ const template = require('./editable-row.hbs')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('editable-row'),
-  template: template,
+  template,
   events: { 'click .remove': 'removeRow' },
   regions: { embed: '.embed' },
-  removeRow: function() {
+  removeRow() {
     this.model.destroy()
   },
-  onRender: function() {
+  onRender() {
     this.embed.show(this.options.embed(this.model, this.options.embedOptions))
   },
 })

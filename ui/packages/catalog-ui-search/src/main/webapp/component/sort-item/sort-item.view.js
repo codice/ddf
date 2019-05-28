@@ -68,7 +68,7 @@ function getSortLabel(attribute) {
 }
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('sort-item'),
   sortAttributes: [],
   regions: {
@@ -79,15 +79,15 @@ module.exports = Marionette.LayoutView.extend({
     'click .sort-remove': 'removeModel',
     'click .sort-add': 'addModel',
   },
-  initialize: function(options) {
+  initialize(options) {
     this.index = options.childIndex
     this.collection = options.collection
   },
-  removeModel: function() {
+  removeModel() {
     this.model.destroy()
     this.destroy()
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.sortAttributes = metacardDefinitions.sortedMetacardTypes
       .filter(function(type) {
         return !properties.isHidden(type.id)
@@ -139,7 +139,7 @@ module.exports = Marionette.LayoutView.extend({
       this.updateDuplicates()
     })
   },
-  updateDuplicates: function() {
+  updateDuplicates() {
     const hasDuplicates =
       this.collection.models.filter(sort => {
         return (
@@ -150,17 +150,17 @@ module.exports = Marionette.LayoutView.extend({
 
     this.$el.toggleClass('sort-duplicate-show', hasDuplicates)
   },
-  turnOffEditing: function() {
+  turnOffEditing() {
     this.sortAttribute.currentView.turnOffEditing()
     this.sortDirection.currentView.turnOffEditing()
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.sortAttribute.currentView.turnOnEditing()
     if (!this.$el.hasClass('is-non-directional-sort')) {
       this.sortDirection.currentView.turnOnEditing()
     }
   },
-  handleAttribute: function() {
+  handleAttribute() {
     if (!this.sortAttribute) {
       return
     }
@@ -212,13 +212,13 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.updateDuplicates()
   },
-  getSortField: function() {
+  getSortField() {
     return this.sortAttribute.currentView.model.getValue()[0]
   },
-  getSortOrder: function() {
+  getSortOrder() {
     return this.sortDirection.currentView.model.getValue()[0]
   },
-  serializeData: function() {
+  serializeData() {
     const data = this.model.toJSON()
     data.aliased = metacardDefinitions.getLabel(data.attribute)
     if (data.aliased === 'RELEVANCE') {

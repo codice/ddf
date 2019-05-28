@@ -29,7 +29,7 @@ const properties = require('../../js/properties.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('list-editor'),
-  template: template,
+  template,
   events: {
     'click .editor-cancel': 'cancel',
     'click .editor-save': 'save',
@@ -42,10 +42,10 @@ module.exports = Marionette.LayoutView.extend({
     listIcon: '.list-icon',
   },
   listTemplateId: 'custom',
-  initialize: function(options) {
+  initialize(options) {
     this.model.set('showFooter', this.options.showFooter)
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.showListTitle()
     this.showListTemplate()
     this.showCQLSwitch()
@@ -53,7 +53,7 @@ module.exports = Marionette.LayoutView.extend({
     this.showIcon()
     this.edit()
   },
-  showListTitle: function() {
+  showListTitle() {
     this.listTitle.show(
       PropertyView.getPropertyView({
         label: 'Title',
@@ -96,7 +96,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     }
   },
-  showCQLSwitch: function() {
+  showCQLSwitch() {
     this.listCQLSwitch.show(
       PropertyView.getPropertyView({
         label: 'Limit based on filter',
@@ -120,11 +120,11 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.handleCQLSwitch()
   },
-  handleCQLSwitch: function() {
+  handleCQLSwitch() {
     const shouldLimit = this.listCQLSwitch.currentView.model.getValue()[0]
     this.$el.toggleClass('is-limited', shouldLimit)
   },
-  showCQL: function() {
+  showCQL() {
     this.listCQL.show(
       DropdownView.createSimpleDropdown({
         componentToShow: ListFilterView,
@@ -134,7 +134,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  showIcon: function() {
+  showIcon() {
     this.listIcon.show(
       PropertyView.getPropertyView({
         label: 'Icon',
@@ -143,7 +143,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  edit: function() {
+  edit() {
     this.$el.addClass('is-editing')
     this.regionManager.forEach(function(region) {
       if (region.currentView && region.currentView.turnOnEditing) {
@@ -160,12 +160,12 @@ module.exports = Marionette.LayoutView.extend({
       $(tabbable[0]).focus()
     }
   },
-  cancel: function() {
+  cancel() {
     this.$el.removeClass('is-editing')
     this.onBeforeShow()
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  saveIcon: function() {
+  saveIcon() {
     const icon =
       this.listTemplateId === 'custom'
         ? this.listIcon.currentView.model.getValue()[0]
@@ -174,10 +174,10 @@ module.exports = Marionette.LayoutView.extend({
           )[0]['list.icon']
     this.model.set('list.icon', icon)
   },
-  saveTitle: function() {
+  saveTitle() {
     this.model.set('title', this.listTitle.currentView.model.getValue()[0])
   },
-  saveCQL: function() {
+  saveCQL() {
     const shouldLimit = this.listCQLSwitch.currentView.model.getValue()[0]
     let cql = ''
     if (this.listTemplateId !== 'custom') {
@@ -189,13 +189,13 @@ module.exports = Marionette.LayoutView.extend({
     }
     this.model.set('list.cql', cql)
   },
-  save: function() {
+  save() {
     this.saveTitle()
     this.saveIcon()
     this.saveCQL()
     this.cancel()
   },
-  serializeData: function() {
+  serializeData() {
     return this.model.toJSON({
       additionalProperties: ['cid', 'color'],
     })

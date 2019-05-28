@@ -34,7 +34,7 @@ const $faviconElement = $('#favicon')
 const $loadingElement = $('#loading')
 
 const BannerView = Marionette.ItemView.extend({
-  tagName: function() {
+  tagName() {
     return this.options.tagName
   },
   template: banner,

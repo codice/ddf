@@ -20,7 +20,7 @@ module.exports = {
   /*
       Calculates the center of given a geometry (WKT)
     */
-  calculateCartesian3CenterOfGeometry: function(propertyModel) {
+  calculateCartesian3CenterOfGeometry(propertyModel) {
     return Cesium.BoundingSphere.fromPoints(
       Cesium.Cartesian3.fromDegreesArray(_.flatten(propertyModel.getPoints()))
     ).center
@@ -28,7 +28,7 @@ module.exports = {
   /*
       Calculates the center of given a geometry (WKT)
     */
-  calculateCartographicCenterOfGeometryInRadians: function(propertyModel) {
+  calculateCartographicCenterOfGeometryInRadians(propertyModel) {
     return Cesium.Cartographic.fromCartesian(
       this.calculateCartesian3CenterOfGeometry(propertyModel)
     )
@@ -36,7 +36,7 @@ module.exports = {
   /*
       Calculates the center of given a geometry (WKT)
     */
-  calculateCartographicCenterOfGeometryInDegrees: function(propertyModel) {
+  calculateCartographicCenterOfGeometryInDegrees(propertyModel) {
     const cartographicCenterInRadians = this.calculateCartographicCenterOfGeometryInRadians(
       propertyModel
     )
@@ -45,7 +45,7 @@ module.exports = {
       Cesium.Math.toDegrees(cartographicCenterInRadians.latitude),
     ]
   },
-  calculateWindowCenterOfGeometry: function(geometry, map) {
+  calculateWindowCenterOfGeometry(geometry, map) {
     let cartesian3position = geometry
     if (cartesian3position.constructor !== Cesium.Cartesian3) {
       cartesian3position = this.calculateCartesian3CenterOfGeometry(
@@ -60,7 +60,7 @@ module.exports = {
   /*
       Calculates the center of given geometries (WKT)
     */
-  calculateCartesian3CenterOfGeometries: function(propertyModels) {
+  calculateCartesian3CenterOfGeometries(propertyModels) {
     const allPoints = propertyModels.map(function(propertyModel) {
       return propertyModel.getPoints()
     })
@@ -71,7 +71,7 @@ module.exports = {
   /*
       Calculates the center of given geometries (WKT)
     */
-  calculateCartographicCenterOfGeometriesInRadians: function(propertyModels) {
+  calculateCartographicCenterOfGeometriesInRadians(propertyModels) {
     return Cesium.Cartographic.fromCartesian(
       this.calculateCartesian3CenterOfGeometries(propertyModels)
     )
@@ -79,7 +79,7 @@ module.exports = {
   /*
       Calculates the center of given geometries (WKT)
     */
-  calculateCartographicCenterOfGeometriesInDegrees: function(propertyModels) {
+  calculateCartographicCenterOfGeometriesInDegrees(propertyModels) {
     const cartographicCenterInRadians = this.calculateCartographicCenterOfGeometriesInRadians(
       propertyModels
     )

@@ -21,10 +21,10 @@ const user = require('../singletons/user-instance')
 const announcement = require('../announcement')
 
 module.exports = SearchFormViews.extend({
-  initialize: function() {
+  initialize() {
     SearchFormViews.prototype.initialize.call(this)
   },
-  changeView: function() {
+  changeView() {
     if (!user.canWrite(this.model)) {
       announcement.announce(
         {

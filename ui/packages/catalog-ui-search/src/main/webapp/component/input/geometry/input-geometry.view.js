@@ -18,7 +18,7 @@ const InputView = require('../input.view')
 const LocationView = require('../../location-new/location-new.view.js')
 
 module.exports = InputView.extend({
-  template: template,
+  template,
   events: {
     'click .input-revert': 'revert',
   },

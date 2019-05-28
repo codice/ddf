@@ -35,7 +35,7 @@ const wreqr = require('../../../../js/wreqr.js')
 const defaultColor = '#3c6dd5'
 
 const OpenLayerCollectionController = LayerCollectionController.extend({
-  initialize: function() {
+  initialize() {
     // there is no automatic chaining of initialize.
     LayerCollectionController.prototype.initialize.apply(this, arguments)
   },
@@ -121,20 +121,20 @@ module.exports = function OpenlayersMap(
   function setupDrawingTools(map) {
     return {
       bbox: new DrawBBox.Controller({
-        map: map,
-        notificationEl: notificationEl,
+        map,
+        notificationEl,
       }),
       circle: new DrawCircle.Controller({
-        map: map,
-        notificationEl: notificationEl,
+        map,
+        notificationEl,
       }),
       polygon: new DrawPolygon.Controller({
-        map: map,
-        notificationEl: notificationEl,
+        map,
+        notificationEl,
       }),
       line: new DrawLine.Controller({
-        map: map,
-        notificationEl: notificationEl,
+        map,
+        notificationEl,
       }),
     }
   }
@@ -152,25 +152,25 @@ module.exports = function OpenlayersMap(
   }
 
   const exposedMethods = _.extend({}, Map, {
-    drawLine: function(model) {
+    drawLine(model) {
       drawingTools.line.draw(model)
     },
-    drawBbox: function(model) {
+    drawBbox(model) {
       drawingTools.bbox.draw(model)
     },
-    drawCircle: function(model) {
+    drawCircle(model) {
       drawingTools.circle.draw(model)
     },
-    drawPolygon: function(model) {
+    drawPolygon(model) {
       drawingTools.polygon.draw(model)
     },
-    destroyDrawingTools: function() {
+    destroyDrawingTools() {
       drawingTools.line.destroy()
       drawingTools.polygon.destroy()
       drawingTools.circle.destroy()
       drawingTools.bbox.destroy()
     },
-    onLeftClick: function(callback) {
+    onLeftClick(callback) {
       $(map.getTargetElement()).on('click', function(e) {
         const boundingRect = map.getTargetElement().getBoundingClientRect()
         callback(e, {
@@ -181,13 +181,13 @@ module.exports = function OpenlayersMap(
         })
       })
     },
-    onRightClick: function(callback) {
+    onRightClick(callback) {
       $(map.getTargetElement()).on('contextmenu', function(e) {
         const boundingRect = map.getTargetElement().getBoundingClientRect()
         callback(e)
       })
     },
-    onMouseMove: function(callback) {
+    onMouseMove(callback) {
       $(map.getTargetElement()).on('mousemove', function(e) {
         const boundingRect = map.getTargetElement().getBoundingClientRect()
         callback(e, {
@@ -198,13 +198,13 @@ module.exports = function OpenlayersMap(
         })
       })
     },
-    onCameraMoveStart: function(callback) {
+    onCameraMoveStart(callback) {
       map.on('movestart', callback)
     },
-    onCameraMoveEnd: function(callback) {
+    onCameraMoveEnd(callback) {
       map.on('moveend', callback)
     },
-    doPanZoom: function(coords) {
+    doPanZoom(coords) {
       const that = this
       that.zoomOut({ duration: 1000 }, () => {
         setTimeout(() => {
@@ -212,15 +212,15 @@ module.exports = function OpenlayersMap(
         }, 0)
       })
     },
-    zoomOut: function(opts, next) {
+    zoomOut(opts, next) {
       next()
     },
-    zoomToSelected: function() {
+    zoomToSelected() {
       if (selectionInterface.getSelectedResults().length === 1) {
         this.panToResults(selectionInterface.getSelectedResults())
       }
     },
-    panToResults: function(results) {
+    panToResults(results) {
       const coordinates = _.flatten(
         results.map(function(result) {
           return result.getPoints()
@@ -229,7 +229,7 @@ module.exports = function OpenlayersMap(
       )
       this.panToExtent(coordinates)
     },
-    panToExtent: function(coords) {
+    panToExtent(coords) {
       if (coords.constructor === Array && coords.length > 0) {
         const lineObject = coords.map(function(coordinate) {
           return convertPointCoordinate(coordinate)
@@ -244,7 +244,7 @@ module.exports = function OpenlayersMap(
         })
       }
     },
-    zoomToExtent: function(coords, opts = {}) {
+    zoomToExtent(coords, opts = {}) {
       const lineObject = coords.map(function(coordinate) {
         return convertPointCoordinate(coordinate)
       })
@@ -257,13 +257,13 @@ module.exports = function OpenlayersMap(
         ...opts,
       })
     },
-    zoomToBoundingBox: function({ north, east, south, west }) {
+    zoomToBoundingBox({ north, east, south, west }) {
       this.zoomToExtent([[west, south], [east, north]])
     },
-    limit: function(value, min, max) {
+    limit(value, min, max) {
       return Math.min(Math.max(value, min), max)
     },
-    getBoundingBox: function() {
+    getBoundingBox() {
       const extent = map.getView().calculateExtent(map.getSize())
       let longitudeEast = wrapNum(extent[2], -180, 180)
       const longitudeWest = wrapNum(extent[0], -180, 180)
@@ -278,7 +278,7 @@ module.exports = function OpenlayersMap(
         west: longitudeWest,
       }
     },
-    overlayImage: function(model) {
+    overlayImage(model) {
       const metacardId = model.get('properties').get('id')
       this.removeOverlay(metacardId)
 
@@ -294,7 +294,7 @@ module.exports = function OpenlayersMap(
       const overlayLayer = new Openlayers.layer.Image({
         source: new Openlayers.source.ImageStatic({
           url: model.get('currentOverlayUrl'),
-          projection: projection,
+          projection,
           imageExtent: extent,
         }),
       })
@@ -302,13 +302,13 @@ module.exports = function OpenlayersMap(
       map.addLayer(overlayLayer)
       overlays[metacardId] = overlayLayer
     },
-    removeOverlay: function(metacardId) {
+    removeOverlay(metacardId) {
       if (overlays[metacardId]) {
         map.removeLayer(overlays[metacardId])
         delete overlays[metacardId]
       }
     },
-    removeAllOverlays: function() {
+    removeAllOverlays() {
       for (const overlay in overlays) {
         if (overlays.hasOwnProperty(overlay)) {
           map.removeLayer(overlays[overlay])
@@ -316,14 +316,14 @@ module.exports = function OpenlayersMap(
       }
       overlays = {}
     },
-    getCartographicCenterOfClusterInDegrees: function(cluster) {
+    getCartographicCenterOfClusterInDegrees(cluster) {
       return utility.calculateCartographicCenterOfGeometriesInDegrees(
         cluster.get('results').map(function(result) {
           return result
         })
       )
     },
-    getWindowLocationsOfResults: function(results) {
+    getWindowLocationsOfResults(results) {
       return results.map(function(result) {
         const openlayersCenterOfGeometry = utility.calculateOpenlayersCenterOfGeometry(
           result
@@ -340,7 +340,7 @@ module.exports = function OpenlayersMap(
             Adds a billboard point utilizing the passed in point and options.
             Options are a view to relate to, and an id, and a color.
         */
-    addPointWithText: function(point, options) {
+    addPointWithText(point, options) {
       const pointObject = convertPointCoordinate(point)
       const feature = new Openlayers.Feature({
         geometry: new Openlayers.geom.Point(pointObject),
@@ -376,7 +376,7 @@ module.exports = function OpenlayersMap(
           Adds a billboard point utilizing the passed in point and options.
           Options are a view to relate to, and an id, and a color.
         */
-    addPoint: function(point, options) {
+    addPoint(point, options) {
       const pointObject = convertPointCoordinate(point)
       const feature = new Openlayers.Feature({
         geometry: new Openlayers.geom.Point(pointObject),
@@ -423,7 +423,7 @@ module.exports = function OpenlayersMap(
           Adds a polyline utilizing the passed in line and options.
           Options are a view to relate to, and an id, and a color.
         */
-    addLine: function(line, options) {
+    addLine(line, options) {
       const lineObject = line.map(function(coordinate) {
         return convertPointCoordinate(coordinate)
       })
@@ -467,12 +467,12 @@ module.exports = function OpenlayersMap(
           Adds a polygon fill utilizing the passed in polygon and options.
           Options are a view to relate to, and an id.
         */
-    addPolygon: function(polygon, options) {},
+    addPolygon(polygon, options) {},
     /*
          Updates a passed in geometry to reflect whether or not it is selected.
          Options passed in are color and isSelected.
          */
-    updateCluster: function(geometry, options) {
+    updateCluster(geometry, options) {
       if (geometry.constructor === Array) {
         geometry.forEach(
           function(innerGeometry) {
@@ -522,7 +522,7 @@ module.exports = function OpenlayersMap(
           Updates a passed in geometry to reflect whether or not it is selected.
           Options passed in are color and isSelected.
         */
-    updateGeometry: function(geometry, options) {
+    updateGeometry(geometry, options) {
       if (geometry.constructor === Array) {
         geometry.forEach(
           function(innerGeometry) {
@@ -580,40 +580,40 @@ module.exports = function OpenlayersMap(
     /*
          Updates a passed in geometry to be hidden
          */
-    hideGeometry: function(geometry) {
+    hideGeometry(geometry) {
       geometry.setVisible(false)
     },
     /*
          Updates a passed in geometry to be shown
          */
-    showGeometry: function(geometry) {
+    showGeometry(geometry) {
       geometry.setVisible(true)
     },
-    removeGeometry: function(geometry) {
+    removeGeometry(geometry) {
       map.removeLayer(geometry)
     },
-    showPolygonShape: function(locationModel) {
+    showPolygonShape(locationModel) {
       const polygon = new DrawPolygon.PolygonView({
         model: locationModel,
-        map: map,
+        map,
       })
       shapes.push(polygon)
     },
-    showCircleShape: function(locationModel) {
+    showCircleShape(locationModel) {
       const circle = new DrawCircle.CircleView({
         model: locationModel,
-        map: map,
+        map,
       })
       shapes.push(circle)
     },
-    showLineShape: function(locationModel) {
+    showLineShape(locationModel) {
       const line = new DrawLine.LineView({
         model: locationModel,
-        map: map,
+        map,
       })
       shapes.push(line)
     },
-    showMultiLineShape: function(locationModel) {
+    showMultiLineShape(locationModel) {
       let lineObject = locationModel
         .get('multiline')
         .map(line => line.map(coords => convertPointCoordinate(coords)))
@@ -637,7 +637,7 @@ module.exports = function OpenlayersMap(
 
       return this.createVectorLayer(locationModel, feature)
     },
-    createVectorLayer: function(locationModel, feature) {
+    createVectorLayer(locationModel, feature) {
       let vectorSource = new Openlayers.source.Vector({
         features: [feature],
       })
@@ -651,23 +651,23 @@ module.exports = function OpenlayersMap(
 
       return vectorLayer
     },
-    destroyShape: function(cid) {
+    destroyShape(cid) {
       const shapeIndex = shapes.findIndex(shape => cid === shape.model.cid)
       if (shapeIndex >= 0) {
         shapes[shapeIndex].destroy()
         shapes.splice(shapeIndex, 1)
       }
     },
-    destroyShapes: function() {
+    destroyShapes() {
       shapes.forEach(function(shape) {
         shape.destroy()
       })
       shapes = []
     },
-    getOpenLayersMap: function() {
+    getOpenLayersMap() {
       return map
     },
-    destroy: function() {
+    destroy() {
       this.destroyDrawingTools()
       unlistenToResize()
     },

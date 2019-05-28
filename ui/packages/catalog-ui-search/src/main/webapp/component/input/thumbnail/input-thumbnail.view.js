@@ -32,16 +32,16 @@ function handleError() {
 }
 
 module.exports = InputView.extend({
-  template: template,
+  template,
   events: {
     'click button': 'upload',
     'change input': 'handleUpload',
   },
   listenForChange: $.noop,
-  serializeData: function() {
+  serializeData() {
     return _.extend(this.model.toJSON(), { cid: this.cid })
   },
-  handleUpload: function(e) {
+  handleUpload(e) {
     const self = this
     const img = this.$el.find('img')[0]
     const reader = new FileReader()
@@ -57,7 +57,7 @@ module.exports = InputView.extend({
     reader.onerror = handleError.bind(self)
     reader.readAsDataURL(e.target.files[0])
   },
-  handleValue: function() {
+  handleValue() {
     const self = this
     const img = this.$el.find('img')[0]
     const lnk = this.$el.find('a')
@@ -70,16 +70,16 @@ module.exports = InputView.extend({
     }
     this.handleEmpty()
   },
-  resizeButton: function() {
+  resizeButton() {
     this.$el.find('button').css('height', this.el.querySelector('img').height)
   },
-  focus: function() {
+  focus() {
     this.$el.find('input').select()
   },
-  handleEdit: function() {
+  handleEdit() {
     this.$el.toggleClass('is-editing', this.model.isEditing())
   },
-  handleEmpty: function() {
+  handleEmpty() {
     if (
       !(this.model.getValue() && this.model.getValue().constructor === String)
     ) {
@@ -88,14 +88,14 @@ module.exports = InputView.extend({
       this.$el.toggleClass('is-empty', false)
     }
   },
-  upload: function() {
+  upload() {
     this.$el.find('input').click()
   },
-  getCurrentValue: function() {
+  getCurrentValue() {
     const img = this.el.querySelector('img')
     return img.src.split(',')[1]
   },
-  listenForResize: function() {
+  listenForResize() {
     $(window)
       .off('resize.' + this.cid)
       .on(
@@ -108,14 +108,14 @@ module.exports = InputView.extend({
         )
       )
   },
-  stopListeningForResize: function() {
+  stopListeningForResize() {
     $(window).off('resize.' + this.cid)
   },
-  onRender: function() {
+  onRender() {
     InputView.prototype.onRender.call(this)
     this.listenForResize()
   },
-  onDestroy: function() {
+  onDestroy() {
     this.stopListeningForResize()
   },
 })

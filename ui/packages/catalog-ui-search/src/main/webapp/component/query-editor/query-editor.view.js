@@ -121,13 +121,13 @@ function translateFilterToBasicMap(filter) {
     propertyValueMap[CQLUtils.getProperty(filter)].push(filter)
   }
   return {
-    propertyValueMap: propertyValueMap,
-    downConversion: downConversion,
+    propertyValueMap,
+    downConversion,
   }
 }
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('query-editor'),
   regions: {
     queryContent: '> .editor-content > .content-form',
@@ -140,7 +140,7 @@ module.exports = Marionette.LayoutView.extend({
     'click .editor-save': 'save',
     'click .editor-saveRun': 'saveRun',
   },
-  initialize: function() {
+  initialize() {
     this.model = this.model._cloneOf
       ? store.getQueryById(this.model._cloneOf)
       : this.model
@@ -148,14 +148,14 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(this.model, 'revert', this.revert)
     this.originalType = this.model.get('type')
   },
-  revert: function() {
+  revert() {
     if (this.model.get('type') !== this.originalType) {
       this.model.set('type', this.originalType)
     } else {
       this.reshow()
     }
   },
-  reshow: function() {
+  reshow() {
     switch (this.model.get('type')) {
       case 'text':
         this.showText()
@@ -172,18 +172,18 @@ module.exports = Marionette.LayoutView.extend({
     }
     this.edit()
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.reshow()
     this.showTitle()
   },
-  showTitle: function() {
+  showTitle() {
     this.queryTitle.show(
       new QueryTitle({
         model: this.model,
       })
     )
   },
-  showText: function() {
+  showText() {
     const translationToBasicMap = translateFilterToBasicMap(
       cql.simplify(cql.read(this.model.get('cql')))
     )
@@ -196,14 +196,14 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  showBasic: function() {
+  showBasic() {
     this.queryContent.show(
       new QueryBasic({
         model: this.model,
       })
     )
   },
-  showCustom: function() {
+  showCustom() {
     this.queryContent.show(
       new QueryAdvanced({
         model: this.model,
@@ -212,27 +212,27 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  handleEditOnShow: function() {
+  handleEditOnShow() {
     if (this.$el.hasClass('is-editing')) {
       this.edit()
     }
   },
-  showAdvanced: function() {
+  showAdvanced() {
     this.queryContent.show(
       new QueryAdvanced({
         model: this.model,
       })
     )
   },
-  edit: function() {
+  edit() {
     this.$el.addClass('is-editing')
     this.queryContent.currentView.edit()
   },
-  cancel: function() {
+  cancel() {
     this.$el.removeClass('is-editing')
     this.onBeforeShow()
   },
-  save: function() {
+  save() {
     if (!this.queryContent.currentView.isValid()) {
       announcement.announce(InvalidSearchFormMessage)
       return
@@ -246,7 +246,7 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     this.originalType = this.model.get('type')
   },
-  saveRun: function() {
+  saveRun() {
     if (!this.queryContent.currentView.isValid()) {
       announcement.announce(InvalidSearchFormMessage)
       return

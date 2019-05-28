@@ -23,15 +23,15 @@ const alertInstance = require('../alert/alert.js')
 const Common = require('../../js/Common.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('alert-menu'),
   events: {
     'click > .workspace-title': 'goToWorkspace',
   },
-  onFirstRender: function() {
+  onFirstRender() {
     this.listenTo(alertInstance, 'change:currentAlert', this.render)
   },
-  goToWorkspace: function(e) {
+  goToWorkspace(e) {
     const workspaceId = $(e.currentTarget).attr('data-workspaceid')
     wreqr.vent.trigger('router:navigate', {
       fragment: 'workspaces/' + workspaceId,
@@ -40,7 +40,7 @@ module.exports = Marionette.LayoutView.extend({
       },
     })
   },
-  serializeData: function() {
+  serializeData() {
     if (alertInstance.get('currentAlert') === undefined) {
       return {}
     }

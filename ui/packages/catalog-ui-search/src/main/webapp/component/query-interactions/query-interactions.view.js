@@ -152,7 +152,7 @@ module.exports = Marionette.ItemView.extend({
     click: 'handleClick',
   },
   ui: {},
-  initialize: function() {
+  initialize() {
     if (!this.model.get('result')) {
       this.startListeningToSearch()
     }
@@ -175,36 +175,36 @@ module.exports = Marionette.ItemView.extend({
       this.render
     )
   },
-  onRender: function() {
+  onRender() {
     this.handleLocal()
   },
-  handleLocal: function() {
+  handleLocal() {
     this.$el.toggleClass('is-local', this.model.isLocal())
   },
-  startListeningToSearch: function() {
+  startListeningToSearch() {
     this.listenToOnce(this.model, 'change:result', this.startListeningForResult)
   },
-  startListeningForResult: function() {
+  startListeningForResult() {
     this.listenToOnce(this.model.get('result'), 'sync error', this.handleResult)
   },
-  handleRun: function() {
+  handleRun() {
     this.model.startSearchFromFirstPage()
   },
-  handleRefreshResultCount: function() {
+  handleRefreshResultCount() {
     this.model.startSearch({ resultCountOnly: true })
   },
-  handleCancel: function() {
+  handleCancel() {
     this.model.cancelCurrentSearches()
   },
-  handleDelete: function() {
+  handleDelete() {
     this.model.collection.remove(this.model)
   },
-  handleDeleted: function() {
+  handleDeleted() {
     this.model.startSearch({
       limitToDeleted: true,
     })
   },
-  handleDuplicate: function() {
+  handleDuplicate() {
     const copyAttributes = createDuplicateQuery(this.model.attributes)
     const newQuery = new this.model.constructor(copyAttributes)
     if (this.model.collection.canAddQuery()) {
@@ -239,12 +239,12 @@ module.exports = Marionette.ItemView.extend({
       )
     }
   },
-  handleHistoric: function() {
+  handleHistoric() {
     this.model.startSearch({
       limitToHistoric: true,
     })
   },
-  handleFeedback: function() {
+  handleFeedback() {
     lightboxInstance.model.updateTitle('Search Quality Feedback')
     lightboxInstance.model.open()
     lightboxInstance.showContent(
@@ -253,7 +253,7 @@ module.exports = Marionette.ItemView.extend({
       })
     )
   },
-  handleAnnotations: function() {
+  handleAnnotations() {
     lightboxInstance.model.updateTitle('Search Notes')
     lightboxInstance.model.open()
     lightboxInstance.showContent(
@@ -262,22 +262,22 @@ module.exports = Marionette.ItemView.extend({
       })
     )
   },
-  handleExport: function() {
+  handleExport() {
     lightboxInstance.model.updateTitle('Export Results')
     lightboxInstance.model.open()
     lightboxInstance.showContent(<ResultsExport store={store} />)
   },
-  handleZippedExport: function() {
+  handleZippedExport() {
     lightboxInstance.model.updateTitle('Export Results (Compressed)')
     lightboxInstance.model.open()
     lightboxInstance.showContent(
       <ResultsExport store={store} transformer={'zipCompression'} />
     )
   },
-  handleResult: function() {
+  handleResult() {
     this.$el.toggleClass('has-results', this.model.get('result') !== undefined)
   },
-  handleClick: function() {
+  handleClick() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
 })

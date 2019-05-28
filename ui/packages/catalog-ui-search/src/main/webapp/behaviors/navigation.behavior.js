@@ -86,30 +86,30 @@ Behaviors.addBehavior(
       keyup: 'handleSpaceKey',
       mouseover: 'handleMouseEnter',
     },
-    onRender: function() {
+    onRender() {
       this.view.$el.addClass('has-navigation-behavior')
       Common.queueExecution(() => {
         this.focus()
       })
     },
-    getMenuItems: function() {
+    getMenuItems() {
       return this.getAllPossibleMenuItems().filter(
         element => element.offsetParent !== null
       )
     },
-    getAllPossibleMenuItems: function() {
+    getAllPossibleMenuItems() {
       let menuItems = this.$el.find('> *').toArray()
       let fullMenuItems = expandComposedMenus(menuItems)
       return fullMenuItems
     },
-    focus: function() {
+    focus() {
       const menuItems = this.handleTabIndexes()
       $(menuItems).removeClass('is-active')
       $(menuItems[0])
         .addClass('is-active')
         .focus()
     },
-    handleMouseEnter: function(e) {
+    handleMouseEnter(e) {
       const menuItems = this.getMenuItems()
       const currentActive = menuItems.filter(element =>
         $(element).hasClass('is-active')
@@ -122,20 +122,20 @@ Behaviors.addBehavior(
           .focus()
       }
     },
-    handleEnter: function() {
+    handleEnter() {
       let menuItems = this.getMenuItems()
       let $currentActive = $(
         menuItems.filter(element => $(element).hasClass('is-active'))[0]
       )
       $currentActive.click()
     },
-    handleUpArrow: function() {
+    handleUpArrow() {
       handleArrowKey(this, true)
     },
-    handleDownArrow: function() {
+    handleDownArrow() {
       handleArrowKey(this, false)
     },
-    handleFocusIn: function(e) {
+    handleFocusIn(e) {
       const menuItems = this.getMenuItems()
       const currentActive = menuItems.filter(element =>
         $(element).hasClass('is-active')
@@ -146,7 +146,7 @@ Behaviors.addBehavior(
         $(mouseOver).addClass('is-active')
       }
     },
-    handleTabIndexes: function() {
+    handleTabIndexes() {
       let menuItems = this.getMenuItems()
       menuItems.forEach(element => {
         if (element.tabIndex === -1) {
@@ -172,7 +172,7 @@ Behaviors.addBehavior(
         buttons take action on keydown for enter in browsers, try it for yourself
         https://www.w3schools.com/tags/tryit.asp?filename=tryhtml_button_test
     */
-    handleSpecialKeys: function(event) {
+    handleSpecialKeys(event) {
       let code = event.keyCode
       if (event.charCode && code == 0) code = event.charCode
       switch (code) {

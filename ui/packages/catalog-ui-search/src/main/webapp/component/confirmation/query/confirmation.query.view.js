@@ -19,7 +19,7 @@ const QuerySelectDropdown = require('../../dropdown/query-select/dropdown.query-
 const DropdownModel = require('../../dropdown/dropdown.js')
 
 module.exports = ConfirmationView.extend({
-  template: template,
+  template,
   className: 'is-query',
   modelEvents: {
     'change:choice': 'close',
@@ -34,11 +34,11 @@ module.exports = ConfirmationView.extend({
   regions: {
     querySelect: '.confirmation-query',
   },
-  handleMousedown: function(e) {
+  handleMousedown(e) {
     e.stopPropagation()
     this.querySelect.currentView.model.close()
   },
-  onRender: function() {
+  onRender() {
     this.querySelect.show(
       new QuerySelectDropdown({
         model: new DropdownModel({
@@ -58,17 +58,17 @@ module.exports = ConfirmationView.extend({
     ConfirmationView.prototype.onRender.call(this)
     this.handleValue()
   },
-  handleValue: function() {
+  handleValue() {
     const value = this.getValue()
     this.$el.toggleClass('has-value', value !== undefined && value !== '')
   },
-  getValue: function() {
+  getValue() {
     return this.querySelect.currentView.model.get('value')
   },
-  handleNew: function() {
+  handleNew() {
     this.model.makeChoice(true)
   },
-  handleReplace: function() {
+  handleReplace() {
     this.model.makeChoice(this.getValue())
   },
 })

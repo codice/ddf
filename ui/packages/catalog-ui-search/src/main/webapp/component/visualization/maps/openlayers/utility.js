@@ -30,7 +30,7 @@ module.exports = {
   /*
       Calculates the center of given a geometry (WKT)
     */
-  calculateOpenlayersCenterOfGeometry: function(propertyModel) {
+  calculateOpenlayersCenterOfGeometry(propertyModel) {
     const lineObject = propertyModel.getPoints().map(function(coordinate) {
       return convertPointCoordinate(coordinate)
     })
@@ -40,7 +40,7 @@ module.exports = {
   /*
       Calculates the center of given a geometry (WKT)
     */
-  calculateCartographicCenterOfGeometryInDegrees: function(propertyModel) {
+  calculateCartographicCenterOfGeometryInDegrees(propertyModel) {
     const openlayersCenter = this.calculateOpenlayersCenterOfGeometry(
       propertyModel
     )
@@ -49,7 +49,7 @@ module.exports = {
   /*
       Calculates the center of given geometries (WKT)
     */
-  calculateOpenlayersCenterOfGeometries: function(propertyModels) {
+  calculateOpenlayersCenterOfGeometries(propertyModels) {
     const allPoints = _.flatten(
       propertyModels.map(function(propertyModel) {
         return propertyModel.getPoints()
@@ -64,7 +64,7 @@ module.exports = {
   /*
       Calculates the center of given geometries (WKT)
     */
-  calculateCartographicCenterOfGeometriesInDegrees: function(propertyModels) {
+  calculateCartographicCenterOfGeometriesInDegrees(propertyModels) {
     const openlayersCenter = this.calculateOpenlayersCenterOfGeometries(
       propertyModels
     )

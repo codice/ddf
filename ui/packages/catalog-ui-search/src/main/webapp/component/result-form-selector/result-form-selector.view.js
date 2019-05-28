@@ -21,11 +21,11 @@ const ResultFormsView = require('../tabs/result-form/tabs.result-form.view.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('result-form-selector'),
-  template: template,
+  template,
   regions: {
     tabsContent: '.content',
   },
-  onRender: function() {
+  onRender() {
     this.tabsContent.show(
       new ResultFormsView({
         model: this.model,

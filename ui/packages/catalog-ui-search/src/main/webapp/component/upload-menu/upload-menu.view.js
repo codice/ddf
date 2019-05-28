@@ -20,12 +20,12 @@ const uploadInstance = require('../upload/upload.js')
 const Common = require('../../js/Common.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('upload-menu'),
-  onFirstRender: function() {
+  onFirstRender() {
     this.listenTo(uploadInstance, 'change:currentUpload', this.render)
   },
-  serializeData: function() {
+  serializeData() {
     if (uploadInstance.get('currentUpload') === undefined) {
       return {}
     }

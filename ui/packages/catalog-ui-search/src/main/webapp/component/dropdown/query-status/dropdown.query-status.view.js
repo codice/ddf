@@ -18,22 +18,22 @@ const template = require('./dropdown.query-status.hbs')
 const ComponentView = require('../../query-status/query-status.view.js')
 
 module.exports = DropdownView.extend({
-  template: template,
+  template,
   className: 'is-query-status',
   componentToShow: ComponentView,
-  initialize: function() {
+  initialize() {
     DropdownView.prototype.initialize.call(this)
     this.handleSchedule()
     this.listenTo(this.options.modelForComponent, 'change', this.handleSchedule)
   },
-  initializeComponentModel: function() {
+  initializeComponentModel() {
     //override if you need more functionality
     this.modelForComponent = this.options.modelForComponent
   },
-  listenToComponent: function() {
+  listenToComponent() {
     //override if you need more functionality
   },
-  handleSchedule: function() {
+  handleSchedule() {
     this.$el.toggleClass(
       'is-polling',
       this.options.modelForComponent.get('polling') !== false

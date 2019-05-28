@@ -19,10 +19,10 @@ const ComponentView = require('../../uploads/uploads.view.js')
 const user = require('../../singletons/user-instance.js')
 
 module.exports = DropdownView.extend({
-  template: template,
+  template,
   className: 'is-uploads is-button',
   componentToShow: ComponentView,
-  initializeComponentModel: function() {
+  initializeComponentModel() {
     //override if you need more functionality
     this.modelForComponent = user
       .get('user')
@@ -30,21 +30,21 @@ module.exports = DropdownView.extend({
       .get('uploads')
     this.handleUploads()
   },
-  listenToComponent: function() {
+  listenToComponent() {
     this.listenTo(
       this.modelForComponent,
       'add remove reset',
       this.handleUploads
     )
   },
-  handleUploads: function() {
+  handleUploads() {
     this.$el.toggleClass('has-uploads', this.modelForComponent.length > 0)
   },
-  serializeData: function() {
+  serializeData() {
     return this.modelForComponent.toJSON()
   },
   isCentered: true,
-  getCenteringElement: function() {
+  getCenteringElement() {
     return this.el.querySelector('.notification-icon')
   },
   hasTail: true,

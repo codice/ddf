@@ -18,7 +18,7 @@ module.exports = Backbone.Model.extend({
     yes: 'Default yes',
     choice: undefined,
   },
-  makeChoice: function(choice) {
+  makeChoice(choice) {
     this.set('choice', choice)
   },
 })

@@ -20,13 +20,13 @@ const remove = (exports.remove = function(id, timeout) {
   return function(dispatch) {
     dispatch({
       type: 'START_REMOVE_ANNOUNCEMENT',
-      id: id,
+      id,
     })
 
     setTimeout(function() {
       dispatch({
         type: 'REMOVE_ANNOUNCEMENT',
-        id: id,
+        id,
       })
     }, timeout || 250)
   }
@@ -53,7 +53,7 @@ exports.announce = function(announcement, timeout) {
 
     dispatch({
       type: 'ADD_ANNOUNCEMENT',
-      announcement: _.extend({ id: id }, announcement),
+      announcement: _.extend({ id }, announcement),
     })
 
     if (announcement.type !== 'error') {

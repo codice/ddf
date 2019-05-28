@@ -39,7 +39,7 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     collection: '.collection',
   },
-  initialize: function() {
+  initialize() {
     this.searchFormCollection = SearchFormCollection
     this.listenTo(
       this.searchFormCollection,
@@ -64,7 +64,7 @@ module.exports = Marionette.LayoutView.extend({
       </Root>
     )
   },
-  onRender: function() {
+  onRender() {
     this.collection.show(
       new SearchFormCollectionView({
         collection: this.searchFormCollection.getCollection(),
@@ -76,7 +76,7 @@ module.exports = Marionette.LayoutView.extend({
     LoadingCompanionView.beginLoading(this, this.$el)
     this.handleLoadingSpinner()
   },
-  handleLoadingSpinner: function() {
+  handleLoadingSpinner() {
     if (this.searchFormCollection.getDoneLoading()) {
       LoadingCompanionView.endLoading(this)
     }

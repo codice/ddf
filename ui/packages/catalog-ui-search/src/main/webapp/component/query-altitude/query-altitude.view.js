@@ -22,7 +22,7 @@ const CQLUtils = require('../../js/CQLUtils.js')
 const DistanceUtils = require('../../js/DistanceUtils.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('query-altitude'),
   regions: {
     basicAltitude: '.basic-altitude',
@@ -33,7 +33,7 @@ module.exports = Marionette.LayoutView.extend({
     basicAltitudeBetweenBelow: '.basic-altitude-between .between-below',
   },
   previousAltitudeUnit: 'meters',
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.turnOnEditing()
     this.setupAltitudeInput()
     this.setupAltitudeAbove()
@@ -52,7 +52,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.handleAltitudeRangeValue()
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.$el.addClass('is-editing')
     this.regionManager.forEach(function(region) {
       if (region.currentView && region.currentView.turnOnEditing) {
@@ -60,7 +60,7 @@ module.exports = Marionette.LayoutView.extend({
       }
     })
   },
-  handleAltitudeRangeValue: function() {
+  handleAltitudeRangeValue() {
     const altitudeRange = this.basicAltitude.currentView.model.getValue()[0]
     this.$el.toggleClass('is-altitudeRange-any', altitudeRange === 'any')
     this.$el.toggleClass('is-altitudeRange-above', altitudeRange === 'above')
@@ -77,7 +77,7 @@ module.exports = Marionette.LayoutView.extend({
         altitudeRange === 'between'
     )
   },
-  setupAltitudeUnit: function() {
+  setupAltitudeUnit() {
     this.basicAltitudeUnits.show(
       new PropertyView({
         model: new Property({
@@ -109,7 +109,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  handleAltitudeUnitValue: function() {
+  handleAltitudeUnitValue() {
     const unit = this.basicAltitudeUnits.currentView.model.getValue()[0]
 
     const fields = [
@@ -138,7 +138,7 @@ module.exports = Marionette.LayoutView.extend({
 
     this.previousAltitudeUnit = unit
   },
-  setupAltitudeAbove: function() {
+  setupAltitudeAbove() {
     let currentAbove = 0
 
     const altFilters = this.options.filter['location.altitude-meters']
@@ -165,7 +165,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupAltitudeBelow: function() {
+  setupAltitudeBelow() {
     let currentBelow = 0
 
     const altFilters = this.options.filter['location.altitude-meters']
@@ -192,7 +192,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupAltitudeBetween: function() {
+  setupAltitudeBetween() {
     let currentBelow = 0
     let currentAbove = 0
 
@@ -235,7 +235,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupAltitudeInput: function() {
+  setupAltitudeInput() {
     let currentValue = 'any'
 
     const altFilters = this.options.filter['location.altitude-meters']
@@ -296,7 +296,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  constructFilter: function() {
+  constructFilter() {
     // Determine which option is selected for altitude range
     const filters = []
     const altitudeSelect = this.basicAltitude.currentView.model.getValue()[0]

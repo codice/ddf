@@ -24,7 +24,7 @@ const metacardInstance = require('../metacard/metacard.js')
 const MetacardTitleView = require('../metacard-title/metacard-title.view.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('metacard-menu'),
   events: {
     'click > .workspace-title': 'goToWorkspace',
@@ -32,10 +32,10 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     metacardTitle: '.metacard-title',
   },
-  onFirstRender: function() {
+  onFirstRender() {
     this.listenTo(metacardInstance, 'change:currentMetacard', this.render)
   },
-  onRender: function() {
+  onRender() {
     if (metacardInstance.get('currentMetacard')) {
       this.metacardTitle.show(
         new MetacardTitleView({
@@ -46,7 +46,7 @@ module.exports = Marionette.LayoutView.extend({
       )
     }
   },
-  goToWorkspace: function(e) {
+  goToWorkspace(e) {
     const workspaceId = $(e.currentTarget).attr('data-workspaceid')
     wreqr.vent.trigger('router:navigate', {
       fragment: 'workspaces/' + workspaceId,
@@ -55,7 +55,7 @@ module.exports = Marionette.LayoutView.extend({
       },
     })
   },
-  serializeData: function() {
+  serializeData() {
     const currentWorkspace = store.getCurrentWorkspace()
     let resultJSON, workspaceJSON
     if (metacardInstance.get('currentMetacard')) {

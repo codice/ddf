@@ -11,7 +11,7 @@ const LoadingCompanionView = require('../loading-companion/loading-companion.vie
 const announcement = require('../announcement/index.jsx')
 
 module.exports = Marionette.LayoutView.extend({
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = this.selectionInterface.getSelectedResults().first()
     this._metacardId = this.model.get('metacard').get('id')
   },
@@ -20,7 +20,7 @@ module.exports = Marionette.LayoutView.extend({
     notesList: '.notes-list',
     notesFeedback: '.notes-feedback',
   },
-  template: template,
+  template,
   tagName: CustomElements.register('metacard-notes'),
   selectionInterface: store,
   _notesCollection: undefined,
@@ -34,14 +34,14 @@ module.exports = Marionette.LayoutView.extend({
   childEvents: {
     'note:add': 'handleChildDelete',
   },
-  initialize: function(options) {
+  initialize(options) {
     this.selectionInterface =
       options.selectionInterface || this.selectionInterface
     if (!options.model) {
       this.setDefaultModel()
     }
   },
-  showNotesListView: function() {
+  showNotesListView() {
     this.notesList.show(
       new NoteCollectionView({
         collection: this._notesCollection,
@@ -51,7 +51,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.notesList.currentView.$el.addClass('is-list')
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.clearNotes()
     this.showAddNoteView()
     this.getNotesForMetacard()
@@ -59,12 +59,12 @@ module.exports = Marionette.LayoutView.extend({
     this.turnOnEditing()
     this.setupListeners()
   },
-  setupListeners: function() {
+  setupListeners() {
     this.listenTo(this._notesCollection, 'remove', function() {
       this.checkHasNotes()
     })
   },
-  showAddNoteView: function() {
+  showAddNoteView() {
     this.addNoteField.show(
       new PropertyView({
         model: new Property({
@@ -76,7 +76,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  getNotesForMetacard: function() {
+  getNotesForMetacard() {
     LoadingCompanionView.beginLoading(this)
     $.get('./internal/notes/' + this._metacardId).then(
       function(response) {
@@ -98,7 +98,7 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  handleRefresh: function() {
+  handleRefresh() {
     this.getNotesForMetacard()
     announcement.announce({
       title: 'Success!',
@@ -106,14 +106,14 @@ module.exports = Marionette.LayoutView.extend({
       type: 'success',
     })
   },
-  checkHasNotes: function() {
+  checkHasNotes() {
     if (this._notesCollection.length > 0) {
       this.$el.toggleClass('has-no-notes', false)
     } else {
       this.$el.toggleClass('has-no-notes', true)
     }
   },
-  parseNotes: function() {
+  parseNotes() {
     this.clearNotes()
     this._notes.forEach(
       function(note) {
@@ -128,19 +128,19 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  clearNotes: function() {
+  clearNotes() {
     if (!this._notesCollection) {
       this._notesCollection = new NoteCollection()
     }
     this._notesCollection.reset()
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.addNoteField.currentView.turnOnEditing()
   },
-  turnOffEditing: function() {
+  turnOffEditing() {
     this.$el.toggleClass('is-editing', false)
   },
-  handleCreate: function() {
+  handleCreate() {
     const note = this.addNoteField.currentView.model.get('value')[0]
     const noteObj = {}
     noteObj.parent = this._metacardId
@@ -192,10 +192,10 @@ module.exports = Marionette.LayoutView.extend({
       })
     }
   },
-  isValidResponse: function(response) {
+  isValidResponse(response) {
     return response !== ''
   },
-  handlePostResponse: function(response) {
+  handlePostResponse(response) {
     const note = JSON.parse(response)
 
     this._notesCollection.add({

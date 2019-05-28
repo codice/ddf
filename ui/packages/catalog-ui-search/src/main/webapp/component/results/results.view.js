@@ -25,7 +25,7 @@ const WorkspaceExploreView = require('../workspace-explore/workspace-explore.vie
 let selectedQueryId
 
 const ResultsView = Marionette.LayoutView.extend({
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = store.getCurrentQueries()
   },
   template: resultsTemplate,
@@ -35,12 +35,12 @@ const ResultsView = Marionette.LayoutView.extend({
     resultsSelect: '.results-select',
     resultsList: '.results-list',
   },
-  initialize: function(options) {
+  initialize(options) {
     if (options.model === undefined) {
       this.setDefaultModel()
     }
   },
-  getPreselectedQuery: function() {
+  getPreselectedQuery() {
     if (this.model.length === 1) {
       return this.model.first().id
     } else if (this.model.get(store.getCurrentQuery())) {
@@ -51,7 +51,7 @@ const ResultsView = Marionette.LayoutView.extend({
       return undefined
     }
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this._resultsSelectDropdownModel = new DropdownModel({
       value: this.getPreselectedQuery(),
     })
@@ -80,10 +80,10 @@ const ResultsView = Marionette.LayoutView.extend({
     this.listenTo(this.model, 'remove', this.handleEmptyQueries)
     this.listenTo(this.model, 'update', this.handleEmptyQueries)
   },
-  handleCurrentQuery: function() {
+  handleCurrentQuery() {
     this._resultsSelectDropdownModel.set('value', store.getCurrentQuery().id)
   },
-  updateResultsList: function() {
+  updateResultsList() {
     const queryId = this._resultsSelectDropdownModel.get('value')
     if (queryId) {
       selectedQueryId = queryId
@@ -97,7 +97,7 @@ const ResultsView = Marionette.LayoutView.extend({
       this.resultsList.empty()
     }
   },
-  handleEmptyQueries: function() {
+  handleEmptyQueries() {
     this.$el.toggleClass('is-empty', this.model.isEmpty())
     if (this.model.length === 1) {
       this._resultsSelectDropdownModel.set('value', this.model.first().id)

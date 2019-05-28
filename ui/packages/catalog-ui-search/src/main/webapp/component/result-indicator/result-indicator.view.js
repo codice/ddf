@@ -23,7 +23,7 @@ module.exports = Marionette.ItemView.extend({
     return <ResultIndicator colors={colors} />
   },
   className: 'customElement',
-  initialize: function() {
+  initialize() {
     this.debouncedRender = _.debounce(function() {
       if (!this.isDestroyed) {
         this.render()
@@ -31,12 +31,12 @@ module.exports = Marionette.ItemView.extend({
     }, 200)
     this.calculateColors()
   },
-  serializeData: function() {
+  serializeData() {
     return {
       colors: this.colors,
     }
   },
-  calculateColors: function() {
+  calculateColors() {
     const self = this
     self.colors = []
     const currentWorkspace = store.getCurrentWorkspace()

@@ -17,9 +17,9 @@ const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.workspaces-filter.hbs')
 
 module.exports = DropdownView.extend({
-  template: template,
+  template,
   className: 'is-workspacesFilter',
-  getCenteringElement: function() {
+  getCenteringElement() {
     return this.el.querySelector('.dropdown-text')
   },
 })

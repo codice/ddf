@@ -19,6 +19,6 @@ const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.ItemView.extend({
   className: 'is-thead',
-  template: template,
+  template,
   tagName: CustomElements.register('query-status-header'),
 })

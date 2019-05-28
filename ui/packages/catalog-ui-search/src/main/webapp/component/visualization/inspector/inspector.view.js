@@ -62,31 +62,31 @@ module.exports = Marionette.LayoutView.extend({
       selector: '.inspector-title',
     },
   },
-  initialize: function(options) {
+  initialize(options) {
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }
     this.setupListeners()
   },
-  handleEmpty: function() {
+  handleEmpty() {
     this.$el.toggleClass(
       'is-empty',
       this.options.selectionInterface.getSelectedResults().length === 0
     )
   },
-  onRender: function() {
+  onRender() {
     this.handleEmpty()
     this.showTitle()
     this.showContent()
   },
-  showTitle: function() {
+  showTitle() {
     this.inspectorTitle.show(
       new MetacardTitleView({
         model: this.options.selectionInterface.getSelectedResults(),
       })
     )
   },
-  showContent: function() {
+  showContent() {
     const selectedResults = this.options.selectionInterface.getSelectedResults()
     if (selectedResults.length === 1) {
       this.showMetacard()
@@ -94,7 +94,7 @@ module.exports = Marionette.LayoutView.extend({
       this.showMetacards()
     }
   },
-  showMetacards: function() {
+  showMetacards() {
     if (
       !this.inspector.currentView ||
       this.inspector.currentView.constructor !== MetacardsView
@@ -106,7 +106,7 @@ module.exports = Marionette.LayoutView.extend({
       )
     }
   },
-  showMetacard: function() {
+  showMetacard() {
     if (
       !this.inspector.currentView ||
       this.inspector.currentView.constructor !== MetacardView
@@ -118,7 +118,7 @@ module.exports = Marionette.LayoutView.extend({
       )
     }
   },
-  setupListeners: function() {
+  setupListeners() {
     this.listenTo(
       this.options.selectionInterface,
       'reset:activeSearchResults add:activeSearchResults',

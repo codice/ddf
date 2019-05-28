@@ -22,7 +22,7 @@ const template = require('./radio.hbs')
 
 module.exports = Marionette.ItemView.extend(
   {
-    template: template,
+    template,
     tagName: CustomElements.register('radio'),
     modelEvents: {
       'change:value': 'handleValue',
@@ -31,16 +31,16 @@ module.exports = Marionette.ItemView.extend(
     events: {
       'click button': 'handleClick',
     },
-    onRender: function() {
+    onRender() {
       this.handleValue()
       this.handleEditing()
     },
-    handleClick: function(event) {
+    handleClick(event) {
       const value = $(event.currentTarget).attr('data-value')
       this.model.set('value', JSON.parse(value))
       this.handleValue()
     },
-    handleEditing: function() {
+    handleEditing() {
       const isEditing = this.model.get('isEditing')
       this.$el.toggleClass('is-editing', isEditing)
       if (isEditing) {
@@ -49,7 +49,7 @@ module.exports = Marionette.ItemView.extend(
         this.$el.find('button').attr('disabled', 'disabled')
       }
     },
-    handleValue: function() {
+    handleValue() {
       const value = this.model.get('value')
       const choices = this.$el.children('[data-value]')
       choices.removeClass('is-selected')
@@ -62,13 +62,13 @@ module.exports = Marionette.ItemView.extend(
         }.bind(this)
       )
     },
-    turnOnEditing: function() {
+    turnOnEditing() {
       this.model.set('isEditing', true)
     },
-    turnOffEditing: function() {
+    turnOffEditing() {
       this.model.set('isEditing', false)
     },
-    serializeData: function() {
+    serializeData() {
       const modelJSON = this.model.toJSON()
       modelJSON.options.forEach(function(option) {
         option.value = JSON.stringify(option.value)
@@ -77,7 +77,7 @@ module.exports = Marionette.ItemView.extend(
     },
   },
   {
-    createRadio: function(configuration) {
+    createRadio(configuration) {
       return new this({
         model: new RadioModel({
           options: configuration.options,

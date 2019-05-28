@@ -22,7 +22,7 @@ const GeometryView = Marionette.ItemView.extend({
   geometry: undefined,
   isSelected: undefined,
   isClustered: undefined,
-  initialize: function() {
+  initialize() {
     this.updateGeometry()
     this.listenTo(
       this.model,
@@ -30,7 +30,7 @@ const GeometryView = Marionette.ItemView.extend({
       this.updateGeometry
     )
   },
-  updateGeometry: function(propertiesModel) {
+  updateGeometry(propertiesModel) {
     if (
       propertiesModel &&
       _.find(Object.keys(propertiesModel.changedAttributes()), function(
@@ -80,7 +80,7 @@ const GeometryView = Marionette.ItemView.extend({
       this.stopListening(this.options.clusterCollection)
     }
   },
-  handleGeometry: function(geometry) {
+  handleGeometry(geometry) {
     switch (geometry.type) {
       case 'Point':
         this.handlePoint(geometry.coordinates)
@@ -135,7 +135,7 @@ const GeometryView = Marionette.ItemView.extend({
         break
     }
   },
-  handlePoint: function(point) {
+  handlePoint(point) {
     this.geometry.push(
       this.options.map.addPoint(point, {
         id: this.model.id,
@@ -149,7 +149,7 @@ const GeometryView = Marionette.ItemView.extend({
       })
     )
   },
-  handleLine: function(line) {
+  handleLine(line) {
     this.geometry.push(
       this.options.map.addLine(line, {
         id: this.model.id,
@@ -162,7 +162,7 @@ const GeometryView = Marionette.ItemView.extend({
       })
     )
   },
-  handlePolygon: function(polygon) {
+  handlePolygon(polygon) {
     this.geometry = this.geometry.concat(
       this.options.map.addPolygon(polygon, {
         id: this.model.id,
@@ -175,7 +175,7 @@ const GeometryView = Marionette.ItemView.extend({
       })
     )
   },
-  updateSelected: function() {
+  updateSelected() {
     const selected = this.options.selectionInterface
       .getSelectedResults()
       .some(function(result) {
@@ -187,7 +187,7 @@ const GeometryView = Marionette.ItemView.extend({
       this.updateDisplay(false)
     }
   },
-  updateDisplay: function(isSelected) {
+  updateDisplay(isSelected) {
     if (!this.isClustered && this.isSelected !== isSelected) {
       this.isSelected = isSelected
       this.geometry.forEach(
@@ -195,13 +195,13 @@ const GeometryView = Marionette.ItemView.extend({
           this.options.map.updateGeometry(geometry, {
             color: this.model.get('metacard').get('color'),
             icon: iconHelper.getFull(this.model),
-            isSelected: isSelected,
+            isSelected,
           })
         }.bind(this)
       )
     }
   },
-  checkIfClustered: function() {
+  checkIfClustered() {
     const isClustered = this.options.clusterCollection.isClustered(this.model)
     if (this.isClustered !== isClustered) {
       this.isClustered = isClustered
@@ -213,21 +213,21 @@ const GeometryView = Marionette.ItemView.extend({
       }
     }
   },
-  showGeometry: function() {
+  showGeometry() {
     this.geometry.forEach(
       function(geometry) {
         this.options.map.showGeometry(geometry)
       }.bind(this)
     )
   },
-  hideGeometry: function() {
+  hideGeometry() {
     this.geometry.forEach(
       function(geometry) {
         this.options.map.hideGeometry(geometry)
       }.bind(this)
     )
   },
-  onDestroy: function() {
+  onDestroy() {
     if (this.geometry) {
       this.geometry.forEach(
         function(geometry) {

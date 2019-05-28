@@ -20,15 +20,15 @@ const AlertContentView = require('../content/alert/content.alert.view.js')
 const alertInstance = require('./alert.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('alert'),
   regions: {
     alertDetails: '.alert-details',
   },
-  onFirstRender: function() {
+  onFirstRender() {
     this.listenTo(alertInstance, 'change:currentAlert', this.onBeforeShow)
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     if (alertInstance.get('currentAlert')) {
       this.showSubViews()
     }

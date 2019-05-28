@@ -190,27 +190,27 @@ function _deriveIconByName(name) {
 }
 
 module.exports = {
-  getClass: function(metacard) {
+  getClass(metacard) {
     const i = _deriveIconByMetacard(metacard)
     return _get(i, 'class', _default.class)
   },
-  getUnicode: function(metacard) {
+  getUnicode(metacard) {
     const i = _deriveIconByMetacard(metacard)
     return _get(_map, 'style.code', _default.style.code)
   },
-  getFont: function(metacard) {
+  getFont(metacard) {
     const i = _deriveIconByMetacard(metacard)
     return _get(_map, 'style.font', _default.style.font)
   },
-  getSize: function(metacard) {
+  getSize(metacard) {
     const i = _deriveIconByMetacard(metacard)
     return _get(_map, 'style.size', _default.style.size)
   },
-  getFull: function(metacard) {
+  getFull(metacard) {
     const i = _deriveIconByMetacard(metacard)
     return i !== undefined ? i : _default
   },
-  getClassByName: function(name) {
+  getClassByName(name) {
     const i = _deriveIconByName(name)
     return _get(i, 'class', _default.class)
   },

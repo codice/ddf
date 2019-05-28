@@ -17,19 +17,19 @@ const template = require('./input-range.hbs')
 const InputView = require('../input.view')
 
 module.exports = InputView.extend({
-  template: template,
+  template,
   events: {
     'click .units-label': 'triggerFocus',
   },
-  triggerFocus: function() {
+  triggerFocus() {
     this.$el.find('input[type=number]').focus()
   },
-  onRender: function() {
+  onRender() {
     this.listenToRange()
     this.listenToInput()
     InputView.prototype.onRender.call(this)
   },
-  adjustValue: function(e) {
+  adjustValue(e) {
     let value = this.$el.find('input[type=number]').val()
     const max = this.model.get('property').get('max')
     const min = this.model.get('property').get('min')
@@ -43,13 +43,13 @@ module.exports = InputView.extend({
     this.$el.find('.units-value').html(value)
     this.$el.find('input[type=range]').val(value)
   },
-  listenToInput: function() {
+  listenToInput() {
     this.$el
       .find('input[type=number]')
       .off('change.range input.range')
       .on('change.range input.range', this.adjustValue.bind(this))
   },
-  listenToRange: function() {
+  listenToRange() {
     this.$el
       .find('input[type=range]')
       .off('change.range input.range')
@@ -62,7 +62,7 @@ module.exports = InputView.extend({
         }.bind(this)
       )
   },
-  listenForChange: function() {
+  listenForChange() {
     this.$el.on(
       'change keyup mouseup',
       function(e) {
@@ -81,7 +81,7 @@ module.exports = InputView.extend({
       }.bind(this)
     )
   },
-  saveChanges: function() {
+  saveChanges() {
     let currentValue = this.$el.find('input[type=range]').val()
     currentValue = Math.min(
       Math.max(currentValue, this.model.get('property').get('min')),

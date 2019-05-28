@@ -22,7 +22,7 @@ const user = require('../singletons/user-instance.js')
 const UploadSummaryView = require('../upload-summary/upload-summary.view.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('upload-batch-item'),
   modelEvents: {
     'change:finished': 'handleFinished',
@@ -35,10 +35,10 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     uploadDetails: '> .upload-details .details-summary',
   },
-  initialize: function() {
+  initialize() {
     const modelJSON = this.model.toJSON()
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.uploadDetails.show(
       new UploadSummaryView({
         model: this.model,
@@ -46,11 +46,11 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.handleFinished()
   },
-  handleFinished: function() {
+  handleFinished() {
     const finished = this.model.get('finished')
     this.$el.toggleClass('is-finished', finished)
   },
-  removeModel: function() {
+  removeModel() {
     this.$el.toggleClass('is-destroyed', true)
     setTimeout(
       function() {
@@ -63,10 +63,10 @@ module.exports = Marionette.LayoutView.extend({
       250
     )
   },
-  stopUpload: function() {
+  stopUpload() {
     this.model.cancel()
   },
-  expandUpload: function() {
+  expandUpload() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     this.$el.trigger('closeSlideout.' + CustomElements.getNamespace())
     wreqr.vent.trigger('router:navigate', {
@@ -76,7 +76,7 @@ module.exports = Marionette.LayoutView.extend({
       },
     })
   },
-  serializeData: function() {
+  serializeData() {
     return {
       when: Common.getMomentDate(this.model.get('sentAt')),
     }

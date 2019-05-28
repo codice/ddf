@@ -25,7 +25,7 @@ module.exports = Marionette.CollectionView.extend({
     className: 'select-collection-empty',
     template: 'Nothing Found',
   }),
-  getChildView: function() {
+  getChildView() {
     return this.options.customChildView || childView
   },
   tagName: CustomElements.register('select-collection'),
@@ -35,7 +35,7 @@ module.exports = Marionette.CollectionView.extend({
     'click .choice': 'handleChoice',
     'mouseenter .choice': 'handleMouseEnter',
   },
-  initialize: function() {
+  initialize() {
     this.collection = new Backbone.Collection(this.options.list)
     if (this.collection.first().get('filterChoice') === true) {
       this.collection
@@ -48,14 +48,14 @@ module.exports = Marionette.CollectionView.extend({
     }
     this.listenTo(this.model, 'change:filterValue', this.handleFilterUpdate)
   },
-  updateFilterChoice: function() {
+  updateFilterChoice() {
     const filterValue = this.model.get('filterValue')
     this.collection.first().set({
       label: filterValue !== '' ? filterValue : this.model.get('value')[0],
       value: filterValue !== '' ? filterValue : this.model.get('value')[0],
     })
   },
-  onAddChild: function(childView) {
+  onAddChild(childView) {
     if (!childView.isDestroyed && childView.model) {
       childView.$el.addClass('choice')
       childView.$el.attr(
@@ -68,10 +68,10 @@ module.exports = Marionette.CollectionView.extend({
       this.handleValueForChildView(childView)
     }
   },
-  onRender: function() {
+  onRender() {
     this.handleActive()
   },
-  handleValueForChildView: function(childView) {
+  handleValueForChildView(childView) {
     const values = this.model.get('value')
     values.forEach(function(value) {
       if (childView.$el.attr('data-value') === JSON.stringify(value)) {
@@ -79,17 +79,17 @@ module.exports = Marionette.CollectionView.extend({
       }
     })
   },
-  handleActive: function() {
+  handleActive() {
     this.$el
       .children('.choice')
       .first()
       .addClass('is-active')
   },
-  handleMouseEnter: function(e) {
+  handleMouseEnter(e) {
     this.$el.children('.is-active').removeClass('is-active')
     $(e.currentTarget).toggleClass('is-active')
   },
-  handleChoice: function(e) {
+  handleChoice(e) {
     if (!this.options.isMultiSelect) {
       this.$el.children('.is-selected').removeClass('is-selected')
     }
@@ -100,7 +100,7 @@ module.exports = Marionette.CollectionView.extend({
     }
   },
   filterValue: '',
-  handleToggleAll: function() {
+  handleToggleAll() {
     const availableChoices = this.$el.children()
     const selectAll = availableChoices.filter(':not(.is-selected)').length > 0
     const values = availableChoices
@@ -116,10 +116,10 @@ module.exports = Marionette.CollectionView.extend({
       this.removeValues(values)
     }
   },
-  handleFilterUpdate: function() {
+  handleFilterUpdate() {
     this.render()
   },
-  handleEnter: function(e) {
+  handleEnter(e) {
     if (!this.options.isMultiSelect) {
       this.$el.children('.is-selected').removeClass('is-selected')
     }
@@ -132,7 +132,7 @@ module.exports = Marionette.CollectionView.extend({
       }
     }
   },
-  handleDownArrow: function() {
+  handleDownArrow() {
     const $currentActive = this.$el.children('.choice.is-active')
     const $nextActive = $currentActive.next()
     if ($nextActive.length !== 0) {
@@ -150,7 +150,7 @@ module.exports = Marionette.CollectionView.extend({
       }
     }
   },
-  handleUpArrow: function() {
+  handleUpArrow() {
     const $currentActive = this.$el.children('.choice.is-active')
     const $nextActive = $currentActive.prev()
     if ($nextActive.length !== 0) {
@@ -165,7 +165,7 @@ module.exports = Marionette.CollectionView.extend({
       }
     }
   },
-  filter: function(child) {
+  filter(child) {
     let filterValue = this.model.get('filterValue')
     filterValue = filterValue !== undefined ? filterValue : ''
     if (
@@ -195,7 +195,7 @@ module.exports = Marionette.CollectionView.extend({
     }
     return true
   },
-  addValues: function(values) {
+  addValues(values) {
     const currentValues = this.model.get('value').slice()
     values.forEach(function(value) {
       const index = currentValues.indexOf(value)
@@ -207,7 +207,7 @@ module.exports = Marionette.CollectionView.extend({
       value: currentValues,
     })
   },
-  removeValues: function(values) {
+  removeValues(values) {
     const currentValues = this.model.get('value').slice()
     values.forEach(function(value) {
       const index = currentValues.indexOf(value)
@@ -219,7 +219,7 @@ module.exports = Marionette.CollectionView.extend({
       value: currentValues,
     })
   },
-  updateValue: function(target) {
+  updateValue(target) {
     const value = JSON.parse($(target).attr('data-value'))
     let values = this.model.get('value').slice()
     if (this.options.isMultiSelect) {

@@ -22,7 +22,7 @@ const properties = require('../../js/properties.js')
 const CQLUtils = require('../../js/CQLUtils.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('query-adhoc'),
   modelEvents: {},
   events: {
@@ -34,19 +34,19 @@ module.exports = Marionette.LayoutView.extend({
     textField: '.properties-text',
   },
   ui: {},
-  focus: function() {
+  focus() {
     this.textField.currentView.focus()
   },
-  initialize: function() {
+  initialize() {
     this.model = this.model._cloneOf
       ? store.getQueryById(this.model._cloneOf)
       : this.model
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.setupTextField()
     this.turnOnEditing()
   },
-  setupTextField: function() {
+  setupTextField() {
     this.textField.show(
       PropertyView.getPropertyView({
         id: 'Text',
@@ -73,7 +73,7 @@ module.exports = Marionette.LayoutView.extend({
       this.saveToModel
     )
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.$el.addClass('is-editing')
     this.regionManager.forEach(function(region) {
       if (region.currentView && region.currentView.turnOnEditing) {
@@ -82,15 +82,15 @@ module.exports = Marionette.LayoutView.extend({
     })
     this.focus()
   },
-  edit: function() {
+  edit() {
     this.$el.addClass('is-editing')
     this.turnOnEditing()
   },
-  cancel: function() {
+  cancel() {
     this.$el.removeClass('is-editing')
     this.onBeforeShow()
   },
-  saveToModel: function() {
+  saveToModel() {
     const text = this.textField.currentView.model.getValue()[0]
     let cql
     if (text.length === 0) {
@@ -100,14 +100,14 @@ module.exports = Marionette.LayoutView.extend({
     }
     this.model.set('cql', CQLUtils.transformFilterToCQL(cql))
   },
-  save: function() {
+  save() {
     this.$el.find('form')[0].submit()
     this.saveToModel()
   },
-  isValid: function() {
+  isValid() {
     return this.textField.currentView.isValid()
   },
-  setDefaultTitle: function() {
+  setDefaultTitle() {
     let title = this.textField.currentView.model.getValue()[0]
     if (title.length === 0) {
       title = '*'

@@ -3,7 +3,7 @@ const template = require('./about.hbs')
 const CustomElements = require('../../../js/CustomElements.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   className: 'pad-bottom',
   tagName: CustomElements.register('dev-about'),
   regions: {

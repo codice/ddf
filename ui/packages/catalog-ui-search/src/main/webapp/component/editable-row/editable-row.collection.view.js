@@ -20,7 +20,7 @@ const CustomElements = require('../../js/CustomElements.js')
 module.exports = Marionette.CollectionView.extend({
   childView: RowView,
   tagName: CustomElements.register('editable-row-collection'),
-  childViewOptions: function() {
+  childViewOptions() {
     return this.options
   },
 })

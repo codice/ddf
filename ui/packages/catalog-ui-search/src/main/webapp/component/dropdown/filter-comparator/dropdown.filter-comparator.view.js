@@ -18,14 +18,14 @@ const template = require('./dropdown.filter-comparator.hbs')
 const ComponentView = require('../../filter-comparator/filter-comparator.view.js')
 
 module.exports = DropdownView.extend({
-  template: template,
+  template,
   className: 'is-filterComparator',
   componentToShow: ComponentView,
-  initializeComponentModel: function() {
+  initializeComponentModel() {
     //override if you need more functionality
     this.modelForComponent = this.options.modelForComponent
   },
-  listenToComponent: function() {
+  listenToComponent() {
     //override if you need more functionality
     this.listenTo(
       this.modelForComponent,
@@ -36,7 +36,7 @@ module.exports = DropdownView.extend({
     )
   },
   isCentered: true,
-  getCenteringElement: function() {
+  getCenteringElement() {
     return this.el
   },
   hasTail: true,

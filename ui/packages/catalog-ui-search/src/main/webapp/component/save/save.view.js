@@ -20,7 +20,7 @@ require('../../behaviors/button.behavior.js')
 
 // Base View, meant to be extended for whatever needs a save button
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('save'),
   className: 'is-button',
   events: {
@@ -29,19 +29,19 @@ module.exports = Marionette.ItemView.extend({
   behaviors: {
     button: {},
   },
-  initialize: function() {
+  initialize() {
     // overwrite with listeners
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.handleSaved()
   },
-  isSaved: function() {
+  isSaved() {
     // overwrite with save check
   },
-  triggerSave: function() {
+  triggerSave() {
     // overwrite with save action
   },
-  handleSaved: function() {
+  handleSaved() {
     this.$el.toggleClass('is-saved', this.isSaved())
     this.$el.attr('tabindex', this.isSaved() ? -1 : 0)
   },

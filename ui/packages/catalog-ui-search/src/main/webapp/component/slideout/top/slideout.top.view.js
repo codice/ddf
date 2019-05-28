@@ -18,11 +18,11 @@ const $ = require('jquery')
 
 module.exports = SlideoutView.extend({
   className: 'is-top',
-  open: function() {
+  open() {
     $('html').toggleClass('has-slideout-top', true)
     this.$el.toggleClass('is-open', true)
   },
-  close: function() {
+  close() {
     this.$el.toggleClass('is-open', false)
     $('html').toggleClass('has-slideout-top', false)
   },

@@ -57,7 +57,7 @@ const isValidFacetAttribute = (id, type) => {
 }
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('query-advanced'),
   modelEvents: {},
   events: {
@@ -70,11 +70,11 @@ module.exports = Marionette.LayoutView.extend({
     queryAdvanced: '.query-advanced',
   },
   ui: {},
-  initialize: function() {
+  initialize() {
     this.$el.toggleClass('is-form-builder', this.options.isFormBuilder === true)
     this.$el.toggleClass('is-form', this.options.isForm === true)
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.model = this.model._cloneOf
       ? store.getQueryById(this.model._cloneOf)
       : this.model
@@ -113,7 +113,7 @@ module.exports = Marionette.LayoutView.extend({
     this.queryAdvanced.currentView.turnOffEditing()
     this.edit()
   },
-  focus: function() {
+  focus() {
     const tabbable = _.filter(
       this.$el.find('[tabindex], input, button'),
       function(element) {
@@ -124,7 +124,7 @@ module.exports = Marionette.LayoutView.extend({
       $(tabbable[0]).focus()
     }
   },
-  edit: function() {
+  edit() {
     this.$el.toggleClass(
       'is-empty',
       this.model.get('comparator') === 'IS EMPTY'
@@ -138,7 +138,7 @@ module.exports = Marionette.LayoutView.extend({
       //this.querySettings.currentView.turnOffEditing();
     }
   },
-  cancel: function() {
+  cancel() {
     fetchSuggestions.cache.clear()
     this.$el.removeClass('is-editing')
     this.onBeforeShow()
@@ -146,7 +146,7 @@ module.exports = Marionette.LayoutView.extend({
       this.options.onCancel()
     }
   },
-  save: function() {
+  save() {
     fetchSuggestions.cache.clear()
     if (!this.options.isSearchFormEditor) {
       this.$el.removeClass('is-editing')
@@ -165,13 +165,13 @@ module.exports = Marionette.LayoutView.extend({
       this.options.onSave()
     }
   },
-  isValid: function() {
+  isValid() {
     return this.querySettings.currentView.isValid()
   },
-  setDefaultTitle: function() {
+  setDefaultTitle() {
     this.model.set('title', this.model.get('cql'))
   },
-  serializeTemplateParameters: function() {
+  serializeTemplateParameters() {
     this.queryAdvanced.currentView.sortCollection()
     return {
       filterTree: this.queryAdvanced.currentView.getFilters(),

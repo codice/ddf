@@ -105,7 +105,7 @@ module.exports = Backbone.AssociatedModel.extend({
   ],
   url: './internal/cql',
   useAjaxSync: true,
-  initialize: function() {
+  initialize() {
     this.listenTo(
       this.get('queuedResults'),
       'add change remove reset',
@@ -125,7 +125,7 @@ module.exports = Backbone.AssociatedModel.extend({
     this.listenTo(this, 'sync', this.handleSync)
     this.resultCountsBySource = {}
   },
-  sync: function(method, model, options) {
+  sync(method, model, options) {
     if (rpc !== null) {
       let handled = false
       const promise = rpc
@@ -209,7 +209,7 @@ module.exports = Backbone.AssociatedModel.extend({
       )
     }
   },
-  handleError: function(resultModel, response, sent) {
+  handleError(resultModel, response, sent) {
     const dataJSON = JSON.parse(sent.data)
     this.updateMessages(
       response.responseJSON
@@ -218,7 +218,7 @@ module.exports = Backbone.AssociatedModel.extend({
       dataJSON.src
     )
   },
-  handleSync: function(resultModel, response, sent) {
+  handleSync(resultModel, response, sent) {
     this.updateStatus()
     if (sent) {
       const dataJSON = JSON.parse(sent.data)
@@ -229,7 +229,7 @@ module.exports = Backbone.AssociatedModel.extend({
       )
     }
   },
-  parse: function(resp, options) {
+  parse(resp, options) {
     metacardDefinitions.addMetacardDefinitions(resp.types)
     if (resp.results) {
       const queryId = this.getQueryId()
@@ -298,14 +298,14 @@ module.exports = Backbone.AssociatedModel.extend({
     const existingQueue = this.get('queuedResults').models
     this.get('queuedResults').reset(existingQueue.concat(results))
   },
-  allowAutoMerge: function() {
+  allowAutoMerge() {
     if (this.get('results').length === 0 || !this.get('currentlyViewed')) {
       return true
     } else {
       return Date.now() - this.lastMerge < properties.getAutoMergeTime()
     }
   },
-  mergeQueue: function(userTriggered) {
+  mergeQueue(userTriggered) {
     if (userTriggered === true || this.allowAutoMerge()) {
       this.lastMerge = Date.now()
 
@@ -364,7 +364,7 @@ module.exports = Backbone.AssociatedModel.extend({
     this.resultCountsBySource = {}
   },
   // create an index of metacard id -> list of sources it appears in
-  createIndexOfMetacardToSources: function(models) {
+  createIndexOfMetacardToSources(models) {
     return models.reduce(function(index, metacard) {
       index[metacard.id] = index[metacard.id] || []
       index[metacard.id].push(metacard.src)
@@ -372,7 +372,7 @@ module.exports = Backbone.AssociatedModel.extend({
     }, {})
   },
   // create an index of source -> last number of results from server
-  createIndexOfSourceToResultCount: function(metacardIdToSourcesIndex, models) {
+  createIndexOfSourceToResultCount(metacardIdToSourcesIndex, models) {
     return models.reduce(function(index, metacard) {
       const sourcesForMetacard = metacardIdToSourcesIndex[metacard.id]
       sourcesForMetacard.forEach(src => {
@@ -382,7 +382,7 @@ module.exports = Backbone.AssociatedModel.extend({
       return index
     }, {})
   },
-  cacheHasReturned: function() {
+  cacheHasReturned() {
     return this.get('status')
       .filter(function(statusModel) {
         return statusModel.id === 'cache'
@@ -391,7 +391,7 @@ module.exports = Backbone.AssociatedModel.extend({
         return statusModel.get('successful') !== undefined
       }, false)
   },
-  setCacheChecked: function() {
+  setCacheChecked() {
     if (this.cacheHasReturned()) {
       this.get('status').forEach(
         function(statusModel) {
@@ -400,14 +400,14 @@ module.exports = Backbone.AssociatedModel.extend({
       )
     }
   },
-  updateMessages: function(message, id, status) {
+  updateMessages(message, id, status) {
     this.get('status').forEach(
       function(statusModel) {
         statusModel.updateMessages(message, id, status)
       }.bind(this)
     )
   },
-  updateStatus: function() {
+  updateStatus() {
     this.setCacheChecked()
     this.get('status').forEach(
       function(statusModel) {
@@ -415,39 +415,39 @@ module.exports = Backbone.AssociatedModel.extend({
       }.bind(this)
     )
   },
-  updateMerged: function() {
+  updateMerged() {
     this.set('merged', this.get('queuedResults').length === 0)
   },
-  isUnmerged: function() {
+  isUnmerged() {
     return !this.get('merged')
   },
-  mergeNewResults: function() {
+  mergeNewResults() {
     this.mergeQueue(true)
     this.trigger('sync')
   },
-  handleCurrentlyViewed: function() {
+  handleCurrentlyViewed() {
     if (!this.get('currentlyViewed') && !this.get('merged')) {
       this.mergeNewResults()
     }
   },
-  isSearching: function() {
+  isSearching() {
     return this.get('status').some(function(status) {
       return status.get('successful') === undefined
     })
   },
-  setQueryId: function(queryId) {
+  setQueryId(queryId) {
     this.set('queryId', queryId)
   },
-  setColor: function(color) {
+  setColor(color) {
     this.set('color', color)
   },
-  getQueryId: function() {
+  getQueryId() {
     return this.get('queryId')
   },
-  getColor: function() {
+  getColor() {
     return this.get('color')
   },
-  cancel: function() {
+  cancel() {
     this.unsubscribe()
     if (this.has('status')) {
       const statuses = this.get('status')

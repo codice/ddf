@@ -83,7 +83,7 @@ function generateAnyGeoFilter(property, model) {
     case 'LINE':
       return {
         type: 'DWITHIN',
-        property: property,
+        property,
         value:
           'LINESTRING' +
           sanitizeForCql(JSON.stringify(lineToCQLLine(model.line))),
@@ -95,7 +95,7 @@ function generateAnyGeoFilter(property, model) {
     case 'POLYGON':
       return {
         type: model.polygonBufferWidth > 0 ? 'DWITHIN' : 'INTERSECTS',
-        property: property,
+        property,
         value: `POLYGON${sanitizeForCql(
           JSON.stringify(polygonToCQLPolygon(model.polygon))
         )}`,
@@ -112,7 +112,7 @@ function generateAnyGeoFilter(property, model) {
         sanitizeForCql(JSON.stringify(polygonToCQLMultiPolygon(model.polygon)))
       return {
         type: model.polygonBufferWidth > 0 ? 'DWITHIN' : 'INTERSECTS',
-        property: property,
+        property,
         value: poly,
         ...(model.polygonBufferWidth && {
           distance: DistanceUtils.getDistanceInMeters(
@@ -124,7 +124,7 @@ function generateAnyGeoFilter(property, model) {
     case 'BBOX':
       return {
         type: 'INTERSECTS',
-        property: property,
+        property,
         value:
           'POLYGON(' +
           sanitizeForCql(JSON.stringify(bboxToCQLPolygon(model))) +
@@ -133,7 +133,7 @@ function generateAnyGeoFilter(property, model) {
     case 'POINTRADIUS':
       return {
         type: 'DWITHIN',
-        property: property,
+        property,
         value: 'POINT(' + model.lon + ' ' + model.lat + ')',
         distance: DistanceUtils.getDistanceInMeters(
           model.radius,
@@ -143,7 +143,7 @@ function generateAnyGeoFilter(property, model) {
     default:
       return {
         type: 'INTERSECTS',
-        property: property,
+        property,
         value: '',
       }
   }

@@ -14,7 +14,7 @@ const Backbone = require('backbone')
 const ResultUtils = require('../ResultUtils.js')
 
 module.exports = Backbone.Model.extend({
-  defaults: function() {
+  defaults() {
     return {
       id: undefined,
       result: undefined,
@@ -27,10 +27,10 @@ module.exports = Backbone.Model.extend({
       dropzone: undefined,
     }
   },
-  initialize: function() {
+  initialize() {
     this.setupDropzoneListeners()
   },
-  setupDropzoneListeners: function() {
+  setupDropzoneListeners() {
     this.get('dropzone').on('sending', this.handleSending.bind(this))
     this.get('dropzone').on(
       'uploadprogress',
@@ -39,16 +39,16 @@ module.exports = Backbone.Model.extend({
     this.get('dropzone').on('error', this.handleError.bind(this))
     this.get('dropzone').on('success', this.handleSuccess.bind(this))
   },
-  handleSending: function(file) {
+  handleSending(file) {
     this.set({
-      file: file,
+      file,
       sending: true,
     })
   },
-  handleUploadProgress: function(file, percentage) {
+  handleUploadProgress(file, percentage) {
     this.set('percentage', percentage)
   },
-  handleError: function(file, response) {
+  handleError(file, response) {
     const message =
       this.get('result')
         .get('metacard')
@@ -59,10 +59,10 @@ module.exports = Backbone.Model.extend({
       response
     this.set({
       error: true,
-      message: message,
+      message,
     })
   },
-  handleSuccess: function(file) {
+  handleSuccess(file) {
     const message =
       this.get('result')
         .get('metacard')
@@ -72,11 +72,11 @@ module.exports = Backbone.Model.extend({
       file.name
     this.set({
       success: true,
-      message: message,
+      message,
     })
     ResultUtils.refreshResult(this.get('result'))
   },
-  removeIfUnused: function() {
+  removeIfUnused() {
     if (!this.get('sending')) {
       this.collection.remove(this)
     }

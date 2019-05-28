@@ -36,11 +36,11 @@ const imageryProviderTypes = {
 }
 
 const Controller = CommonLayerController.extend({
-  initialize: function() {
+  initialize() {
     // there is no automatic chaining of initialize.
     CommonLayerController.prototype.initialize.apply(this, arguments)
   },
-  makeMap: function(options) {
+  makeMap(options) {
     // must create cesium map after containing DOM is attached.
     this.map = new Cesium.Viewer(options.element, options.cesiumOptions)
     this.layerOrder = []
@@ -54,7 +54,7 @@ const Controller = CommonLayerController.extend({
     this.isMapCreated = true
     return this.map
   },
-  initLayer: function(model) {
+  initLayer(model) {
     const type = imageryProviderTypes[model.get('type')]
     const initObj = _.omit(
       model.attributes,
@@ -110,17 +110,17 @@ const Controller = CommonLayerController.extend({
     layer.alpha = model.get('alpha')
     layer.show = model.shouldShowLayer()
   },
-  onDestroy: function() {
+  onDestroy() {
     if (this.isMapCreated) {
       this.map.destroy()
       this.map = null
     }
   },
-  setAlpha: function(model) {
+  setAlpha(model) {
     const layer = this.layerForCid[model.id]
     layer.alpha = model.get('alpha')
   },
-  setShow: function(model) {
+  setShow(model) {
     if (!this.layerForCid[model.id]) {
       this.initLayer(model)
     }
@@ -134,7 +134,7 @@ const Controller = CommonLayerController.extend({
     so we have to reverse the order property here to make it display correctly.  
     in other words, order 1 means highest index.
   */
-  reIndexLayers: function() {
+  reIndexLayers() {
     const newLayerOrder = shiftLayers({
       prev: this.layerOrder,
       cur: this.collection.models.map(model => model.id).reverse(),

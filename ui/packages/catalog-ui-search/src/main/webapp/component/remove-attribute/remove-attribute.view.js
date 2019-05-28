@@ -61,17 +61,17 @@ function determineAttributes(selectionInterface) {
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('remove-attribute'),
-  template: template,
+  template,
   regions: {
     attributeSelector: '> .attribute-selector',
   },
-  removeAttribute: function() {
+  removeAttribute() {
     this.model.set(
       'value',
       this.attributeSelector.currentView.model.get('value')
     )
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     const attributes = determineAttributes(this.options.selectionInterface)
     this.attributeSelector.show(
       new PropertyView({

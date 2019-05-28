@@ -20,7 +20,7 @@ const ClusterView = Marionette.ItemView.extend({
   geometry: undefined,
   convexHull: undefined,
   selectionType: undefined,
-  initialize: function(options) {
+  initialize(options) {
     this.geometry = []
     this.geoController = options.geoController
     this.handleCluster()
@@ -36,7 +36,7 @@ const ClusterView = Marionette.ItemView.extend({
       this.updateSelected
     )
   },
-  handleCluster: function() {
+  handleCluster() {
     const center = this.options.map.getCartographicCenterOfClusterInDegrees(
       this.model
     )
@@ -54,7 +54,7 @@ const ClusterView = Marionette.ItemView.extend({
       })
     )
   },
-  addConvexHull: function() {
+  addConvexHull() {
     const points = this.model.get('results').map(function(result) {
       return result
         .get('metacard')
@@ -85,7 +85,7 @@ const ClusterView = Marionette.ItemView.extend({
     this.options.map.hideGeometry(geometry)
     this.geometry.push(geometry)
   },
-  handleHover: function(id) {
+  handleHover(id) {
     if (
       id &&
       this.model
@@ -100,7 +100,7 @@ const ClusterView = Marionette.ItemView.extend({
       this.options.map.hideGeometry(this.geometry[1])
     }
   },
-  updateSelected: function() {
+  updateSelected() {
     let selected = 0
     const selectedResults = this.options.selectionInterface.getSelectedResults()
     const results = this.model.get('results')
@@ -131,7 +131,7 @@ const ClusterView = Marionette.ItemView.extend({
       this.updateDisplay('unselected')
     }
   },
-  updateDisplay: function(selectionType) {
+  updateDisplay(selectionType) {
     if (this.selectionType !== selectionType) {
       this.selectionType = selectionType
       switch (selectionType) {
@@ -147,7 +147,7 @@ const ClusterView = Marionette.ItemView.extend({
       }
     }
   },
-  showFullySelected: function() {
+  showFullySelected() {
     this.options.map.updateCluster(this.geometry, {
       color: this.model
         .get('results')
@@ -160,7 +160,7 @@ const ClusterView = Marionette.ItemView.extend({
       textFill: 'black',
     })
   },
-  showPartiallySelected: function() {
+  showPartiallySelected() {
     this.options.map.updateCluster(this.geometry, {
       color: this.model
         .get('results')
@@ -173,7 +173,7 @@ const ClusterView = Marionette.ItemView.extend({
       textFill: 'white',
     })
   },
-  showUnselected: function() {
+  showUnselected() {
     this.options.map.updateCluster(this.geometry, {
       color: this.model
         .get('results')
@@ -186,7 +186,7 @@ const ClusterView = Marionette.ItemView.extend({
       textFill: 'white',
     })
   },
-  onDestroy: function() {
+  onDestroy() {
     if (this.geometry) {
       this.geometry.forEach(
         function(geometry) {

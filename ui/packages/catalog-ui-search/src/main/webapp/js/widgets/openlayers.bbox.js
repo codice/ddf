@@ -32,7 +32,7 @@ Draw.BboxModel = Backbone.Model.extend({
   },
 })
 Draw.BboxView = Marionette.View.extend({
-  initialize: function(options) {
+  initialize(options) {
     this.map = options.map
     this.listenTo(
       this.model,
@@ -40,7 +40,7 @@ Draw.BboxView = Marionette.View.extend({
       this.updateGeometry
     )
   },
-  setModelFromGeometry: function(geometry) {
+  setModelFromGeometry(geometry) {
     const extent = geometry.getExtent()
 
     const northWest = ol.proj.transform(
@@ -61,7 +61,7 @@ Draw.BboxView = Marionette.View.extend({
     })
   },
 
-  modelToRectangle: function(model) {
+  modelToRectangle(model) {
     //ensure that the values are numeric
     //so that the openlayer projections
     //do not fail
@@ -111,7 +111,7 @@ Draw.BboxView = Marionette.View.extend({
     return rectangle
   },
 
-  updatePrimitive: function(model) {
+  updatePrimitive(model) {
     const rectangle = this.modelToRectangle(model)
     // make sure the current model has width and height before drawing
     if (
@@ -129,14 +129,14 @@ Draw.BboxView = Marionette.View.extend({
     }
   },
 
-  updateGeometry: function(model) {
+  updateGeometry(model) {
     const rectangle = this.modelToRectangle(model)
     if (rectangle) {
       this.drawBorderedRectangle(rectangle)
     }
   },
 
-  drawBorderedRectangle: function(rectangle) {
+  drawBorderedRectangle(rectangle) {
     if (this.vectorLayer) {
       this.map.removeLayer(this.vectorLayer)
     }
@@ -174,7 +174,7 @@ Draw.BboxView = Marionette.View.extend({
     this.map.addLayer(vectorLayer)
   },
 
-  handleRegionStop: function() {
+  handleRegionStop() {
     const geometry = olUtils.wrapCoordinatesFromGeometry(
       this.primitive.getGeometry()
     )
@@ -189,7 +189,7 @@ Draw.BboxView = Marionette.View.extend({
     this.model.trigger('EndExtent', this.model)
     wreqr.vent.trigger('search:bboxdisplay', this.model)
   },
-  start: function() {
+  start() {
     const that = this
     this.primitive = new ol.interaction.DragBox({
       condition: ol.events.condition.always,
@@ -221,11 +221,11 @@ Draw.BboxView = Marionette.View.extend({
     })
   },
   startCoordinate: undefined,
-  stop: function() {
+  stop() {
     this.stopListening()
   },
 
-  destroyPrimitive: function() {
+  destroyPrimitive() {
     if (this.primitive) {
       this.map.removeInteraction(this.primitive)
     }
@@ -237,7 +237,7 @@ Draw.BboxView = Marionette.View.extend({
 
 Draw.Controller = DrawingController.extend({
   drawingType: 'bbox',
-  show: function(model) {
+  show(model) {
     if (this.enabled) {
       const bboxModel = model || new Draw.BboxModel()
 
@@ -257,7 +257,7 @@ Draw.Controller = DrawingController.extend({
       return bboxModel
     }
   },
-  draw: function(model) {
+  draw(model) {
     if (this.enabled) {
       const bboxModel = model || new Draw.BboxModel()
       const view = new Draw.BboxView({

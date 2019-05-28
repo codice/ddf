@@ -23,5 +23,5 @@ module.exports = Backbone.AssociatedModel.extend({
   defaults: {
     results: [],
   },
-  initialize: function() {},
+  initialize() {},
 })

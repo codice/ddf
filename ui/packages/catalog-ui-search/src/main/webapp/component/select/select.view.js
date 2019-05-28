@@ -19,9 +19,9 @@ const CustomElements = require('../../js/CustomElements.js')
 const Common = require('../../js/Common.js')
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('select'),
-  className: function() {
+  className() {
     let className = ''
     if (this.model.get('hasNoValue')) {
       className += ' hasNoValue'
@@ -34,18 +34,18 @@ module.exports = Marionette.ItemView.extend({
     }
     return className
   },
-  attributes: function() {
+  attributes() {
     return {
       'data-hits': this.model.get('hits'),
       'data-help': this.model.get('help'),
     }
   },
-  onRender: function() {
+  onRender() {
     if (this.model.get('description')) {
       this.$el.attr('data-help', this.model.get('description'))
     }
   },
-  serializeData: function() {
+  serializeData() {
     const modelJSON = this.model.toJSON()
     if (modelJSON.label.constructor === Array) {
       modelJSON.label = modelJSON.label.join(' | ')

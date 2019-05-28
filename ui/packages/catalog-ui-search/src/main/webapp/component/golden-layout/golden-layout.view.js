@@ -125,7 +125,7 @@ function registerComponent(
       setTimeout(function() {
         const componentView = new ComponentView(
           _.extend({}, options, componentState, {
-            container: container,
+            container,
           })
         )
         container.getElement().append(componentView.el)
@@ -192,7 +192,7 @@ function removeEphemeralState(config) {
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('golden-layout'),
-  template: template,
+  template,
   className: 'is-minimised',
   events: {
     'click > .golden-layout-toolbar .to-toggle-size': 'handleToggleSize',
@@ -201,10 +201,10 @@ module.exports = Marionette.LayoutView.extend({
     toolbar: '> .golden-layout-toolbar',
     widgetDropdown: '> .golden-layout-toolbar .to-add',
   },
-  initialize: function(options) {
+  initialize(options) {
     this.options.selectionInterface = options.selectionInterface || store
   },
-  updateFontSize: function() {
+  updateFontSize() {
     const goldenLayoutSettings = getGoldenLayoutSettings()
     this.goldenLayout.config.dimensions.borderWidth =
       goldenLayoutSettings.dimensions.borderWidth
@@ -218,10 +218,10 @@ module.exports = Marionette.LayoutView.extend({
       this.goldenLayout.updateSize()
     })
   },
-  updateSize: function() {
+  updateSize() {
     this.goldenLayout.updateSize()
   },
-  showWidgetDropdown: function() {
+  showWidgetDropdown() {
     this.widgetDropdown.show(
       new VisualizationDropdown({
         model: new DropdownModel(),
@@ -229,7 +229,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  showGoldenLayout: function() {
+  showGoldenLayout() {
     this.goldenLayout = new GoldenLayout(
       this.getGoldenLayoutConfig(),
       this.el.querySelector('.golden-layout-container')
@@ -246,7 +246,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.goldenLayout.init()
   },
-  getGoldenLayoutConfig: function() {
+  getGoldenLayoutConfig() {
     let currentConfig = user
       .get('user')
       .get('preferences')
@@ -257,25 +257,25 @@ module.exports = Marionette.LayoutView.extend({
     _merge(currentConfig, getGoldenLayoutSettings())
     return sanitizeTree(currentConfig)
   },
-  registerGoldenLayoutComponents: function() {
+  registerGoldenLayoutComponents() {
     ExtensionPoints.visualizations.forEach(viz => {
       registerComponent(this, viz.id, viz.view, viz.options)
     })
   },
-  detectIfGoldenLayoutMaximised: function() {
+  detectIfGoldenLayoutMaximised() {
     this.$el.toggleClass('is-maximised', isMaximised(this.goldenLayout.root))
   },
-  detectIfGoldenLayoutEmpty: function() {
+  detectIfGoldenLayoutEmpty() {
     this.$el.toggleClass(
       'is-empty',
       this.goldenLayout.root.contentItems.length === 0
     )
   },
-  handleGoldenLayoutInitialised: function() {
+  handleGoldenLayoutInitialised() {
     this.detectIfGoldenLayoutMaximised()
     this.detectIfGoldenLayoutEmpty()
   },
-  handleGoldenLayoutStackCreated: function(stack) {
+  handleGoldenLayoutStackCreated(stack) {
     stack.header.controlsContainer
       .find('.lm_close')
       .off('click')
@@ -286,7 +286,7 @@ module.exports = Marionette.LayoutView.extend({
         stack.remove()
       })
   },
-  handleGoldenLayoutStateChange: function(event) {
+  handleGoldenLayoutStateChange(event) {
     this.detectIfGoldenLayoutMaximised()
     this.detectIfGoldenLayoutEmpty()
     //https://github.com/deepstreamIO/golden-layout/issues/253
@@ -301,7 +301,7 @@ module.exports = Marionette.LayoutView.extend({
       //do not add a window resize event, that will cause an endless loop.  If you need something like that, listen to the wreqr resize event.
     }
   },
-  setupListeners: function() {
+  setupListeners() {
     this.listenTo(
       user.get('user').get('preferences'),
       'change:theme',
@@ -314,16 +314,16 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.listenForResize()
   },
-  onRender: function() {
+  onRender() {
     this.showGoldenLayout()
     this.showWidgetDropdown()
     this.setupListeners()
   },
-  handleToggleSize: function() {
+  handleToggleSize() {
     this.$el.toggleClass('is-minimised')
     this.goldenLayout.updateSize()
   },
-  listenForResize: function() {
+  listenForResize() {
     $(window).on(
       'resize.' + this.cid,
       _debounce(
@@ -338,10 +338,10 @@ module.exports = Marionette.LayoutView.extend({
       )
     )
   },
-  stopListeningForResize: function() {
+  stopListeningForResize() {
     $(window).off('resize.' + this.cid)
   },
-  onDestroy: function() {
+  onDestroy() {
     this.stopListeningForResize()
     if (this.goldenLayout) {
       this.goldenLayout.destroy()

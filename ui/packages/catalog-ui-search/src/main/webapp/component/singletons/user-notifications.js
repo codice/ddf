@@ -14,7 +14,7 @@ const user = require('./user-instance.js')
 const Backbone = require('backbone')
 
 module.exports = new (Backbone.Collection.extend({
-  initialize: function() {
+  initialize() {
     const uploads = user
       .get('user')
       .get('preferences')
@@ -30,15 +30,15 @@ module.exports = new (Backbone.Collection.extend({
     this.listenTo(alerts, 'add', this.add)
     this.listenTo(alerts, 'remove', this.remove)
   },
-  comparator: function(model) {
+  comparator(model) {
     return -model.getTimeComparator()
   },
-  hasUnseen: function() {
+  hasUnseen() {
     return this.some(function(notification) {
       return notification.get('unseen')
     })
   },
-  setSeen: function() {
+  setSeen() {
     this.forEach(function(notification) {
       notification.set('unseen', false)
     })

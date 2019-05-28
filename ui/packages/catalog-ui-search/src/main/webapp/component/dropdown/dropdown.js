@@ -20,16 +20,16 @@ module.exports = Backbone.Model.extend({
     value: undefined,
     isEditing: true,
   },
-  getValue: function() {
+  getValue() {
     return this.get('value')
   },
-  toggleOpen: function() {
+  toggleOpen() {
     this.set('isOpen', !this.get('isOpen'))
   },
-  close: function() {
+  close() {
     this.set('isOpen', false)
   },
-  open: function() {
+  open() {
     this.set('isOpen', true)
   },
 })

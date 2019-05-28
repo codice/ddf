@@ -46,7 +46,7 @@ const workspaceShouldBeResaved = model =>
 
 const WorkspaceQueryCollection = Backbone.Collection.extend({
   model: Query.Model,
-  initialize: function() {
+  initialize() {
     const searchList = this
     this._colorGenerator = ColorGenerator.getNewGenerator()
     this.listenTo(this, 'add', function(query) {
@@ -58,7 +58,7 @@ const WorkspaceQueryCollection = Backbone.Collection.extend({
       QueryPolling.handleRemovingQuery(query)
     })
   },
-  canAddQuery: function() {
+  canAddQuery() {
     return this.length < 10
   },
 })
@@ -72,7 +72,7 @@ const WorkspaceListCollection = Backbone.Collection.extend({
 
 module.exports = PartialAssociatedModel.extend({
   useAjaxSync: true,
-  defaults: function() {
+  defaults() {
     return {
       queries: [],
       metacards: [],
@@ -92,22 +92,22 @@ module.exports = PartialAssociatedModel.extend({
       collectionType: WorkspaceListCollection,
     },
   ],
-  canAddQuery: function() {
+  canAddQuery() {
     return this.get('queries').length < 10
   },
-  tryToAddQuery: function(queryModel) {
+  tryToAddQuery(queryModel) {
     if (this.canAddQuery()) {
       this.get('queries').add(queryModel)
     }
   },
-  addQuery: function() {
+  addQuery() {
     const query = new Query.Model({
       excludeUnnecessaryAttributes: false,
     })
     this.get('queries').add(query)
     return query.get('id')
   },
-  initialize: function() {
+  initialize() {
     this.get('queries').on('add', (model, collection) => {
       model.set('isLocal', this.isLocal())
       collection.trigger('change')
@@ -126,7 +126,7 @@ module.exports = PartialAssociatedModel.extend({
     this.listenTo(this, 'change', this.handleChange)
     this.listenTo(this, 'error', this.handleError)
   },
-  handleListChange: function(model) {
+  handleListChange(model) {
     if (
       model !== undefined &&
       _.intersection(Object.keys(model.changedAttributes()), ['actions'])
@@ -135,15 +135,15 @@ module.exports = PartialAssociatedModel.extend({
       this.set('saved', false)
     }
   },
-  handleQueryChange: function() {
+  handleQueryChange() {
     this.set('saved', false)
   },
-  handleChange: function(model) {
+  handleChange(model) {
     if (workspaceShouldBeResaved(model)) {
       this.set('saved', false)
     }
   },
-  saveLocal: function(options) {
+  saveLocal(options) {
     this.set('id', this.get('id') || Common.generateUUID())
     this.set('metacard.modified', Date.now())
     const localWorkspaces = this.collection.getLocalWorkspaces()
@@ -151,14 +151,14 @@ module.exports = PartialAssociatedModel.extend({
     window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces))
     this.trigger('sync', this, options)
   },
-  destroyLocal: function(options) {
+  destroyLocal(options) {
     const localWorkspaces = this.collection.getLocalWorkspaces()
     delete localWorkspaces[this.get('id')]
     window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces))
     this.collection.remove(this)
     this.trigger('sync', this, options)
   },
-  save: function(options) {
+  save(options) {
     if (!user.canWrite(this)) {
       announcement.announce(
         {
@@ -180,16 +180,16 @@ module.exports = PartialAssociatedModel.extend({
       }
     }
   },
-  handleError: function() {
+  handleError() {
     this.set('saved', false)
   },
-  isLocal: function() {
+  isLocal() {
     return Boolean(this.get('localStorage'))
   },
-  isSaved: function() {
+  isSaved() {
     return this.get('saved')
   },
-  destroy: function(options) {
+  destroy(options) {
     this.get('queries').forEach(function(query) {
       QueryPolling.handleRemovingQuery(query)
     })
@@ -199,7 +199,7 @@ module.exports = PartialAssociatedModel.extend({
       return Backbone.AssociatedModel.prototype.destroy.apply(this, arguments)
     }
   },
-  subscribe: function() {
+  subscribe() {
     $.ajax({
       type: 'post',
       url: './internal/subscribe/' + this.get('id'),
@@ -209,7 +209,7 @@ module.exports = PartialAssociatedModel.extend({
       }.bind(this)
     )
   },
-  unsubscribe: function() {
+  unsubscribe() {
     $.ajax({
       type: 'post',
       url: './internal/unsubscribe/' + this.get('id'),
@@ -219,7 +219,7 @@ module.exports = PartialAssociatedModel.extend({
       }.bind(this)
     )
   },
-  clearResults: function() {
+  clearResults() {
     this.get('queries').forEach(function(queryModel) {
       queryModel.clearResults()
     })

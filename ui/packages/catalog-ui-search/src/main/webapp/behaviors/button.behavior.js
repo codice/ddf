@@ -26,7 +26,7 @@ Behaviors.addBehavior(
       keydown: 'emulateClick',
       click: 'blur',
     },
-    emulateClick: function(e) {
+    emulateClick(e) {
       if (e.target === this.el && (e.keyCode === 13 || e.keyCode === 32)) {
         e.preventDefault()
         e.stopPropagation()
@@ -38,7 +38,7 @@ Behaviors.addBehavior(
         to the element when it is in edit mode.  Otherwise, users will be able to tab to it
         when it is disabled (so to speak).
     */
-    onRender: function() {
+    onRender() {
       if (this.view.model.toJSON().isEditing === false) {
         this.$el.removeAttr('tabindex')
       } else {

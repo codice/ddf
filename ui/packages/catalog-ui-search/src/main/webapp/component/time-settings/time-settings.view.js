@@ -25,7 +25,7 @@ const moment = require('moment')
 let counter = 0
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('time-settings'),
   regions: {
     propertyTimeZone: '.property-time-zone',
@@ -33,13 +33,13 @@ module.exports = Marionette.LayoutView.extend({
     propertyTimeCurrent: '.property-time-current',
   },
   animationFrameId: undefined,
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.setupTimeZone()
     this.setupResultCount()
     this.setupCurrentTime()
     this.repaintCurrentTime()
   },
-  repaintCurrentTime: function() {
+  repaintCurrentTime() {
     this.animationFrameId = window.requestAnimationFrame(() => {
       if (counter % 5 === 0) {
         this.setupCurrentTime()
@@ -48,7 +48,7 @@ module.exports = Marionette.LayoutView.extend({
       this.repaintCurrentTime()
     })
   },
-  setupCurrentTime: function() {
+  setupCurrentTime() {
     this.propertyTimeCurrent.show(
       new PropertyView({
         model: new Property({
@@ -183,7 +183,7 @@ module.exports = Marionette.LayoutView.extend({
       this.save
     )
   },
-  setupResultCount: function() {
+  setupResultCount() {
     const timeFormat = user
       .get('user')
       .get('preferences')
@@ -219,7 +219,7 @@ module.exports = Marionette.LayoutView.extend({
       this.save
     )
   },
-  save: function() {
+  save() {
     const preferences = user.get('user').get('preferences')
     preferences.set({
       dateTimeFormat: this.propertyTimeFormat.currentView.model.getValue()[0],
@@ -227,7 +227,7 @@ module.exports = Marionette.LayoutView.extend({
     })
     preferences.savePreferences()
   },
-  onDestroy: function() {
+  onDestroy() {
     window.cancelAnimationFrame(this.animationFrameId)
   },
 })

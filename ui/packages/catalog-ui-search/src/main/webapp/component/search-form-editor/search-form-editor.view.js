@@ -158,7 +158,7 @@ module.exports = Marionette.LayoutView.extend({
       user.savePreferences()
     }
   },
-  getQueryAsQueryTemplate: function(collection, id) {
+  getQueryAsQueryTemplate(collection, id) {
     const formModel = collection.get(id) || new SearchFormModel()
     const formParameters = this.editor.currentView.serializeTemplateParameters()
     let filterTree = cql.simplify(formParameters.filterTree || {})
@@ -183,7 +183,7 @@ module.exports = Marionette.LayoutView.extend({
       querySettings: filterSettings,
     }
   },
-  saveTemplateToBackend: function(collection, id) {
+  saveTemplateToBackend(collection, id) {
     const json = this.getQueryAsQueryTemplate(collection, id)
     const options = {
       success: () => {
@@ -196,7 +196,7 @@ module.exports = Marionette.LayoutView.extend({
     this.model.set(json)
     json.id ? this.model.save({}, options) : collection.create(json, options)
   },
-  navigateToForms: function() {
+  navigateToForms() {
     const fragment = `forms`
     wreqr.vent.trigger('router:navigate', {
       fragment,
@@ -205,14 +205,14 @@ module.exports = Marionette.LayoutView.extend({
       },
     })
   },
-  successMessage: function() {
+  successMessage() {
     announcement.announce({
       title: 'Success',
       message: 'Search form successfully saved',
       type: 'success',
     })
   },
-  errorMessage: function() {
+  errorMessage() {
     announcement.announce({
       title: 'Error',
       message: 'Search form failed to save',

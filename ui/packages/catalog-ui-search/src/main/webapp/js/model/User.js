@@ -57,7 +57,7 @@ User.updateMapLayers = function(layers) {
 }
 
 User.MapLayer = Backbone.AssociatedModel.extend({
-  defaults: function() {
+  defaults() {
     return {
       alpha: 0.5,
       show: true,
@@ -65,13 +65,13 @@ User.MapLayer = Backbone.AssociatedModel.extend({
     }
   },
   blacklist: ['warning'],
-  toJSON: function(options) {
+  toJSON(options) {
     return _.omit(this.attributes, this.blacklist)
   },
-  shouldShowLayer: function() {
+  shouldShowLayer() {
     return this.get('show') && this.get('alpha') > 0
   },
-  parse: function(resp) {
+  parse(resp) {
     const layer = _.clone(resp)
     layer.label = 'Type: ' + layer.type
     if (layer.layer) {
@@ -86,23 +86,23 @@ User.MapLayer = Backbone.AssociatedModel.extend({
 
 User.MapLayers = Backbone.Collection.extend({
   model: User.MapLayer,
-  defaults: function() {
+  defaults() {
     return _.map(_.values(properties.imageryProviders), function(layerConfig) {
       return new User.MapLayer(layerConfig, { parse: true })
     })
   },
-  initialize: function(models) {
+  initialize(models) {
     if (!models || models.length === 0) {
       this.set(this.defaults())
     }
   },
-  comparator: function(model) {
+  comparator(model) {
     return model.get('order')
   },
-  getMapLayerConfig: function(url) {
-    return this.findWhere({ url: url })
+  getMapLayerConfig(url) {
+    return this.findWhere({ url })
   },
-  savePreferences: function() {
+  savePreferences() {
     this.parents[0].savePreferences()
   },
 })
@@ -110,7 +110,7 @@ User.MapLayers = Backbone.Collection.extend({
 User.Preferences = Backbone.AssociatedModel.extend({
   useAjaxSync: true,
   url: './internal/user/preferences',
-  defaults: function() {
+  defaults() {
     return {
       id: 'preferences',
       mapLayers: new User.MapLayers(),
@@ -182,7 +182,7 @@ User.Preferences = Backbone.AssociatedModel.extend({
       relatedModel: QuerySettings,
     },
   ],
-  initialize: function() {
+  initialize() {
     this.handleAlertPersistence()
     this.handleResultCount()
     this.listenTo(wreqr.vent, 'alerts:add', this.addAlert)
@@ -198,18 +198,18 @@ User.Preferences = Backbone.AssociatedModel.extend({
     this.listenTo(this, 'change:goldenLayoutAlert', this.savePreferences)
     this.listenTo(this, 'change:mapHome', this.savePreferences)
   },
-  handleRemove: function() {
+  handleRemove() {
     this.savePreferences()
   },
-  addUpload: function(upload) {
+  addUpload(upload) {
     this.get('uploads').add(upload)
     this.savePreferences()
   },
-  addAlert: function(alertDetails) {
+  addAlert(alertDetails) {
     this.get('alerts').add(alertDetails)
     this.savePreferences()
   },
-  savePreferences: function() {
+  savePreferences() {
     const currentPrefs = this.toJSON()
     if (_.isEqual(currentPrefs, this.lastSaved)) {
       return
@@ -235,16 +235,16 @@ User.Preferences = Backbone.AssociatedModel.extend({
       })
     }
   },
-  resetBlacklist: function() {
+  resetBlacklist() {
     this.set('resultBlacklist', [])
   },
-  handleResultCount: function() {
+  handleResultCount() {
     this.set(
       'resultCount',
       Math.min(properties.resultCount, this.get('resultCount'))
     )
   },
-  handleAlertPersistence: function() {
+  handleAlertPersistence() {
     if (!this.get('alertPersistence')) {
       this.get('alerts').reset()
       this.get('uploads').reset()
@@ -254,30 +254,30 @@ User.Preferences = Backbone.AssociatedModel.extend({
       this.removeExpiredUploads(expiration)
     }
   },
-  removeExpiredAlerts: function(expiration) {
+  removeExpiredAlerts(expiration) {
     const expiredAlerts = this.get('alerts').filter(function(alert) {
       const recievedAt = alert.getTimeComparator()
       return Date.now() - recievedAt > expiration
     })
     this.get('alerts').remove(expiredAlerts)
   },
-  removeExpiredUploads: function(expiration) {
+  removeExpiredUploads(expiration) {
     const expiredUploads = this.get('uploads').filter(function(upload) {
       const recievedAt = upload.getTimeComparator()
       return Date.now() - recievedAt > expiration
     })
     this.get('uploads').remove(expiredUploads)
   },
-  getSummaryShown: function() {
+  getSummaryShown() {
     return this.get('inspector-summaryShown')
   },
-  getHoverPreview: function() {
+  getHoverPreview() {
     return this.get('hoverPreview')
   },
-  getQuerySettings: function() {
+  getQuerySettings() {
     return this.get('querySettings')
   },
-  parse: function(data, options) {
+  parse(data, options) {
     if (options && options.drop) {
       return {}
     }
@@ -286,7 +286,7 @@ User.Preferences = Backbone.AssociatedModel.extend({
 })
 
 User.Model = Backbone.AssociatedModel.extend({
-  defaults: function() {
+  defaults() {
     return {
       id: 'user',
       preferences: new User.Preferences(),
@@ -312,22 +312,22 @@ User.Model = Backbone.AssociatedModel.extend({
   getUserName() {
     return this.get('username')
   },
-  isGuestUser: function() {
+  isGuestUser() {
     return this.get('isGuest')
   },
-  getSummaryShown: function() {
+  getSummaryShown() {
     return this.get('preferences').getSummaryShown()
   },
-  getHoverPreview: function() {
+  getHoverPreview() {
     return this.get('preferences').getHoverPreview()
   },
-  getPreferences: function() {
+  getPreferences() {
     return this.get('preferences')
   },
-  savePreferences: function() {
+  savePreferences() {
     this.get('preferences').savePreferences()
   },
-  getQuerySettings: function() {
+  getQuerySettings() {
     return this.get('preferences').getQuerySettings()
   },
 })
@@ -343,12 +343,12 @@ User.Response = Backbone.AssociatedModel.extend({
     },
   ],
   fetched: false,
-  initialize: function() {
+  initialize() {
     this.listenTo(this, 'sync', this.handleSync)
     this.set('user', new User.Model())
     this.fetch()
   },
-  handleSync: function() {
+  handleSync() {
     this.fetched = true
     this.get('user')
       .get('preferences')
@@ -357,7 +357,7 @@ User.Response = Backbone.AssociatedModel.extend({
       .get('preferences')
       .handleResultCount()
   },
-  getGuestPreferences: function() {
+  getGuestPreferences() {
     try {
       return JSON.parse(window.localStorage.getItem('preferences')) || {}
     } catch (e) {
@@ -376,19 +376,19 @@ User.Response = Backbone.AssociatedModel.extend({
   getUserName() {
     return this.get('user').getUserName()
   },
-  getPreferences: function() {
+  getPreferences() {
     return this.get('user').getPreferences()
   },
-  savePreferences: function() {
+  savePreferences() {
     this.get('user').savePreferences()
   },
-  getQuerySettings: function() {
+  getQuerySettings() {
     return this.get('user').getQuerySettings()
   },
-  getSummaryShown: function() {
+  getSummaryShown() {
     return this.get('user').getSummaryShown()
   },
-  getUserReadableDateTime: function(date) {
+  getUserReadableDateTime(date) {
     return moment
       .tz(
         date,
@@ -402,13 +402,13 @@ User.Response = Backbone.AssociatedModel.extend({
           .get('dateTimeFormat')['datetimefmt']
       )
   },
-  getHoverPreview: function() {
+  getHoverPreview() {
     return this.get('user').getHoverPreview()
   },
-  isGuest: function() {
+  isGuest() {
     return this.get('user').isGuestUser()
   },
-  parse: function(body) {
+  parse(body) {
     if (body.isGuest) {
       return {
         user: _.extend({ id: 'user' }, body, {
@@ -430,13 +430,13 @@ User.Response = Backbone.AssociatedModel.extend({
       }
     }
   },
-  canRead: function(metacard) {
+  canRead(metacard) {
     return new Security(Restrictions.from(metacard)).canRead(this)
   },
-  canWrite: function(metacard) {
+  canWrite(metacard) {
     return new Security(Restrictions.from(metacard)).canWrite(this)
   },
-  canShare: function(metacard) {
+  canShare(metacard) {
     return new Security(Restrictions.from(metacard)).canShare(this)
   },
 })

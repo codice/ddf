@@ -84,7 +84,7 @@ const ContentView = Marionette.LayoutView.extend({
     contentRight: '.content-right',
   },
   selectionInterface: store,
-  initialize: function() {
+  initialize() {
     this._mapView = new GoldenLayoutView({
       selectionInterface: store.get('content'),
       configName: 'goldenLayout',
@@ -119,10 +119,10 @@ const ContentView = Marionette.LayoutView.extend({
       this.stopListening(previousWorkspace, 'partialSync')
     }
   },
-  startLoading: function() {
+  startLoading() {
     LoadingCompanionView.beginLoading(this)
   },
-  endLoading: function() {
+  endLoading() {
     LoadingCompanionView.endLoading(this)
   },
   updateContentLeft() {

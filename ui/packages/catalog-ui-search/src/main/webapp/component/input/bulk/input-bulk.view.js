@@ -46,13 +46,13 @@ function sortNoValueToTop(a, b) {
 
 module.exports = InputView.extend({
   className: 'is-bulk',
-  template: template,
+  template,
   regions: {
     enumRegion: '.enum-region',
     otherInput: '.input-other',
   },
   events: {},
-  listenForChange: function() {
+  listenForChange() {
     this.listenTo(
       this.enumRegion.currentView.model,
       'change:value',
@@ -86,13 +86,13 @@ module.exports = InputView.extend({
       }
     )
   },
-  onRender: function() {
+  onRender() {
     this.initializeDropdown()
     InputView.prototype.onRender.call(this)
     this.handleOther()
     this.handleBulk()
   },
-  serializeData: function() {
+  serializeData() {
     // need duplicate (usually toJSON returns a side-effect free version, but this has a nested object that isn't using backbone associations)
     const modelJSON = Common.duplicate(this.model.toJSON())
     const type = this.model.getCalculatedType()
@@ -136,7 +136,7 @@ module.exports = InputView.extend({
     modelJSON.values.sort(sortNoValueToTop)
     return modelJSON
   },
-  initializeDropdown: function() {
+  initializeDropdown() {
     const enumValues = [
       {
         label: 'Multiple Values',
@@ -173,8 +173,8 @@ module.exports = InputView.extend({
         }
         if (type !== 'thumbnail' || valueInfo.hasNoValue) {
           enumValues.push({
-            label: label,
-            value: value,
+            label,
+            value,
             hits: valueInfo.hits,
             hasNoValue: valueInfo.hasNoValue,
             isThumbnail: type === 'thumbnail',
@@ -191,7 +191,7 @@ module.exports = InputView.extend({
       })
     )
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.otherInput.show(
       new MultivalueView({
         model: this.model.isHomogeneous() ? this.model : this.model.clone(), // in most cases this view is the real input, except for the heterogenous case
@@ -211,22 +211,22 @@ module.exports = InputView.extend({
       this.otherInput.currentView.addNewValue()
     }
   },
-  handleChange: function() {
+  handleChange() {
     this.handleOther()
   },
-  handleOther: function() {
+  handleOther() {
     if (this.enumRegion.currentView.model.get('value')[0] === 'bulkCustom') {
       this.$el.addClass('is-other')
     } else {
       this.$el.removeClass('is-other')
     }
   },
-  handleBulk: function() {
+  handleBulk() {
     if (this.model.isHomogeneous()) {
       this.turnOffBulk()
     }
   },
-  turnOffBulk: function() {
+  turnOffBulk() {
     this.$el.addClass('is-homogeneous')
   },
 })

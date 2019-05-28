@@ -10,7 +10,7 @@ const QueryItemView = require('../../../component/query-item/query-item.view.js'
 const QueryModel = require('../../../js/model/Query.js')
 
 module.exports = BaseGuideView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('dev-card-guide'),
   regions: {
     resultExample: '.example > .result',

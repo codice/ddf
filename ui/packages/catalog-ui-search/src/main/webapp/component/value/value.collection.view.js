@@ -27,18 +27,18 @@ module.exports = Marionette.CollectionView.extend(
       remove: 'updateProperty',
       add: 'updateProperty',
     },
-    initialize: function() {
+    initialize() {
       this.updateProperty()
     },
-    getValue: function() {
+    getValue() {
       return this.collection.map(function(valueModel) {
         return valueModel.getValue()
       })
     },
-    updateProperty: function() {
+    updateProperty() {
       this.model.setValue(this.getValue())
     },
-    addNewValue: function(propertyModel) {
+    addNewValue(propertyModel) {
       this.collection.add({
         value: propertyModel.getDefaultValue(),
         property: propertyModel,
@@ -47,13 +47,13 @@ module.exports = Marionette.CollectionView.extend(
     },
   },
   {
-    generateValueCollectionView: function(propertyModel) {
+    generateValueCollectionView(propertyModel) {
       const valueCollection = new ValueCollection()
       if (propertyModel.get('value').length > 0) {
         valueCollection.add(
           propertyModel.get('value').map(function(value) {
             return {
-              value: value,
+              value,
               property: propertyModel,
             }
           })

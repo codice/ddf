@@ -36,7 +36,7 @@ function limitCacheSources(cql, sources) {
 }
 
 module.exports = {
-  trimCacheSources: function(cqlString, sources) {
+  trimCacheSources(cqlString, sources) {
     return CQLUtils.sanitizeGeometryCql(
       '(' +
         cql.write(

@@ -16,17 +16,17 @@ const template = require('./input-boolean.hbs')
 const InputView = require('../input.view')
 
 module.exports = InputView.extend({
-  template: template,
-  getCurrentValue: function() {
+  template,
+  getCurrentValue() {
     return this.$el.find('input').is(':checked')
   },
-  handleValue: function() {
+  handleValue() {
     this.$el.find('input').attr('checked', Boolean(this.model.getValue()))
   },
   events: {
     'click label': 'triggerCheckboxClick',
   },
-  triggerCheckboxClick: function() {
+  triggerCheckboxClick() {
     this.$el.find('input').click()
   },
 })

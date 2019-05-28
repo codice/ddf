@@ -19,16 +19,16 @@ const CustomElements = require('../../js/CustomElements.js')
 const _ = require('lodash')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('export-actions'),
   className: 'composed-menu',
   events: {
     'click > div': 'triggerAction',
   },
-  triggerAction: function(e) {
+  triggerAction(e) {
     window.open(e.target.getAttribute('data-url'))
   },
-  serializeData: function() {
+  serializeData() {
     const exportActions = this.model.getExportActions()
     return _.sortBy(
       exportActions.map(action => ({
