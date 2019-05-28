@@ -59,12 +59,9 @@ module.exports = Marionette.ItemView.extend({
     )
   },
   listenForClose() {
-    this.$el.on(
-      'closeSlideout.' + CustomElements.getNamespace(),
-      function() {
-        this.close()
-      }.bind(this)
-    )
+    this.$el.on('closeSlideout.' + CustomElements.getNamespace(), () => {
+      this.close()
+    })
   },
   open() {
     this.$el.toggleClass('is-open', true)
@@ -79,12 +76,9 @@ module.exports = Marionette.ItemView.extend({
     this.emptyContent()
   },
   emptyContent() {
-    setTimeout(
-      function() {
-        this.updateContent()
-      }.bind(this),
-      Common.coreTransitionTime * 1.1
-    )
+    setTimeout(() => {
+      this.updateContent()
+    }, Common.coreTransitionTime * 1.1)
   },
   updateContent(view) {
     this.contentView = view

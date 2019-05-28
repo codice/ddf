@@ -41,7 +41,7 @@ module.exports = Marionette.ItemView.extend({
     self.colors = []
     const currentWorkspace = store.getCurrentWorkspace()
     if (currentWorkspace) {
-      currentWorkspace.get('queries').forEach(function(query) {
+      currentWorkspace.get('queries').forEach(query => {
         if (!self.isDestroyed && query.get('result')) {
           const results = query.get('result').get('results')
           for (let i = 0; i <= results.length - 1; i++) {

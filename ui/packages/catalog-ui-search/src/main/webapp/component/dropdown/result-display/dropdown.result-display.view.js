@@ -20,9 +20,9 @@ module.exports = DropdownView.extend({
   className: 'is-resultDisplay',
   serializeData() {
     const values = this.model.get('value')
-    const selection = this.options.list.filter(function(item) {
-      return values.indexOf(item.value) !== -1
-    })[0]
+    const selection = this.options.list.filter(
+      item => values.indexOf(item.value) !== -1
+    )[0]
     return {
       selection,
       icon: selection.value === 'List' ? 'fa-bars' : 'fa-picture-o',

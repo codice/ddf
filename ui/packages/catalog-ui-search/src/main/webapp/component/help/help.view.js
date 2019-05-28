@@ -63,48 +63,32 @@ function traverseAncestors(element, compareValue, extractValue) {
 function findHighestAncestorTop(element) {
   return traverseAncestors(
     element,
-    function(currentTop, proposedTop) {
-      return Math.max(currentTop, proposedTop)
-    },
-    function(element) {
-      return element.getBoundingClientRect().top
-    }
+    (currentTop, proposedTop) => Math.max(currentTop, proposedTop),
+    element => element.getBoundingClientRect().top
   )
 }
 
 function findHighestAncestorLeft(element) {
   return traverseAncestors(
     element,
-    function(currentLeft, proposedLeft) {
-      return Math.max(currentLeft, proposedLeft)
-    },
-    function(element) {
-      return element.getBoundingClientRect().left
-    }
+    (currentLeft, proposedLeft) => Math.max(currentLeft, proposedLeft),
+    element => element.getBoundingClientRect().left
   )
 }
 
 function findLowestAncestorBottom(element) {
   return traverseAncestors(
     element,
-    function(currentBottom, proposedBottom) {
-      return Math.min(currentBottom, proposedBottom)
-    },
-    function(element) {
-      return element.getBoundingClientRect().bottom
-    }
+    (currentBottom, proposedBottom) => Math.min(currentBottom, proposedBottom),
+    element => element.getBoundingClientRect().bottom
   )
 }
 
 function findLowestAncestorRight(element) {
   return traverseAncestors(
     element,
-    function(currentRight, proposedRight) {
-      return Math.min(currentRight, proposedRight)
-    },
-    function(element) {
-      return element.getBoundingClientRect().right
-    }
+    (currentRight, proposedRight) => Math.min(currentRight, proposedRight),
+    element => element.getBoundingClientRect().right
   )
 }
 
@@ -114,12 +98,10 @@ function findBlockers() {
   )
     .add(CustomElements.getNamespace() + 'menu-vertical.is-open')
     .add('.is-blocker')
-  return _.map(blockingElements, function(blockingElement) {
-    return {
-      boundingRect: blockingElement.getBoundingClientRect(),
-      element: blockingElement,
-    }
-  })
+  return _.map(blockingElements, blockingElement => ({
+    boundingRect: blockingElement.getBoundingClientRect(),
+    element: blockingElement,
+  }))
 }
 
 function hasNotScrolledPastVertically(element, boundingRect) {
@@ -148,7 +130,7 @@ function withinScrollViewport(element, boundingRect) {
 }
 
 function isBlocked(element, boundingRect) {
-  return _.some(findBlockers(), function(blocker) {
+  return _.some(findBlockers(), blocker => {
     if (
       blocker.element !== element &&
       $(blocker.element).find(element).length === 0
@@ -243,19 +225,15 @@ module.exports = new (Marionette.LayoutView.extend({
     }
   },
   paintHints($elementsWithHints) {
-    this.animationFrameId = window.requestAnimationFrame(
-      function() {
-        const elements = $elementsWithHints.splice(0, 4)
-        if (elements.length > 0) {
-          elements.forEach(
-            function(element) {
-              this.paintHint(element)
-            }.bind(this)
-          )
-          this.paintHints($elementsWithHints)
-        }
-      }.bind(this)
-    )
+    this.animationFrameId = window.requestAnimationFrame(() => {
+      const elements = $elementsWithHints.splice(0, 4)
+      if (elements.length > 0) {
+        elements.forEach(element => {
+          this.paintHint(element)
+        })
+        this.paintHints($elementsWithHints)
+      }
+    })
   },
   showHints() {
     this.removeOldHints()
@@ -274,24 +252,21 @@ module.exports = new (Marionette.LayoutView.extend({
   },
   addUntoggleElement() {
     const $untoggleElement = $('.navigation-item.item-help')
-    _.forEach(
-      $untoggleElement,
-      function(element) {
-        const $untoggleElementClone = $(element).clone(true)
-        this.$el.append($untoggleElementClone)
-        const boundingRect = element.getBoundingClientRect()
-        $untoggleElementClone
-          .css('height', boundingRect.height)
-          .css('width', boundingRect.width)
-          .css('top', boundingRect.top)
-          .css('left', boundingRect.left)
-          .css('position', 'absolute')
-          .css('text-align', 'center')
-          .css('font-size', '1.4rem')
-          .css('overflow', 'hidden')
-          .on('click', this.toggleHints.bind(this))
-      }.bind(this)
-    )
+    _.forEach($untoggleElement, element => {
+      const $untoggleElementClone = $(element).clone(true)
+      this.$el.append($untoggleElementClone)
+      const boundingRect = element.getBoundingClientRect()
+      $untoggleElementClone
+        .css('height', boundingRect.height)
+        .css('width', boundingRect.width)
+        .css('top', boundingRect.top)
+        .css('left', boundingRect.left)
+        .css('position', 'absolute')
+        .css('text-align', 'center')
+        .css('font-size', '1.4rem')
+        .css('overflow', 'hidden')
+        .on('click', this.toggleHints.bind(this))
+    })
   },
   preventPropagation(e) {
     e.stopPropagation()
@@ -299,44 +274,35 @@ module.exports = new (Marionette.LayoutView.extend({
   listenForResize() {
     $(window).on(
       'resize.' + this.cid,
-      _.debounce(
-        function(event) {
-          this.showHints()
-        }.bind(this),
-        50
-      )
+      _.debounce(event => {
+        this.showHints()
+      }, 50)
     )
   },
   stopListeningForResize() {
     $(window).off('resize.' + this.cid)
   },
   listenForTyping() {
-    $(window).on(
-      'keydown.' + this.cid,
-      function(event) {
-        let code = event.keyCode
-        if (event.charCode && code == 0) code = event.charCode
-        switch (code) {
-          case 27:
-            // Escape
-            this.toggleHints()
-            break
-          default:
-            break
-        }
-      }.bind(this)
-    )
+    $(window).on('keydown.' + this.cid, event => {
+      let code = event.keyCode
+      if (event.charCode && code == 0) code = event.charCode
+      switch (code) {
+        case 27:
+          // Escape
+          this.toggleHints()
+          break
+        default:
+          break
+      }
+    })
   },
   stopListeningForTyping() {
     $(window).off('keydown.' + this.cid)
   },
   listenForClick() {
-    this.$el.on(
-      'click.' + this.cid,
-      function() {
-        this.toggleHints()
-      }.bind(this)
-    )
+    this.$el.on('click.' + this.cid, () => {
+      this.toggleHints()
+    })
   },
   stopListeningForClick() {
     this.$el.off('click.' + this.cid)

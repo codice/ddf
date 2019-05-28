@@ -75,35 +75,37 @@ module.exports = Marionette.CollectionView.extend(
       this.collection.remove(attributes)
     },
     turnOnEditing() {
-      this.children.forEach(function(childView) {
+      this.children.forEach(childView => {
         childView.turnOnEditing()
       })
     },
     turnOffEditing() {
-      this.children.forEach(function(childView) {
+      this.children.forEach(childView => {
         childView.turnOffEditing()
       })
     },
     revert() {
-      this.children.forEach(function(childView) {
+      this.children.forEach(childView => {
         if (childView.hasChanged()) {
           childView.revert()
         }
       })
     },
     save() {
-      this.children.forEach(function(childView) {
+      this.children.forEach(childView => {
         childView.save()
       })
     },
     toJSON() {
-      return this.children.reduce(function(attributeToVal, childView) {
-        return _.extend(attributeToVal, childView.toJSON())
-      }, {})
+      return this.children.reduce(
+        (attributeToVal, childView) =>
+          _.extend(attributeToVal, childView.toJSON()),
+        {}
+      )
     },
     toPropertyJSON() {
       return {
-        properties: this.children.reduce(function(attributeToVal, childView) {
+        properties: this.children.reduce((attributeToVal, childView) => {
           const json = childView.toJSON()
           const values = json.values
             .filter(n => n != null && n.length > 0)
@@ -114,14 +116,14 @@ module.exports = Marionette.CollectionView.extend(
     },
     toPatchJSON(addedAttributes, removedAttributes) {
       const attributeArray = []
-      this.children.forEach(function(childView) {
+      this.children.forEach(childView => {
         const isNew = addedAttributes.indexOf(childView.model.id) >= 0
         const attribute = isNew ? childView.toJSON() : childView.toPatchJSON()
         if (attribute) {
           attributeArray.push(attribute)
         }
       })
-      removedAttributes.forEach(function(attribute) {
+      removedAttributes.forEach(attribute => {
         attributeArray.push({
           attribute,
           values: [],
@@ -131,7 +133,7 @@ module.exports = Marionette.CollectionView.extend(
     },
     toPatchPropertyJSON() {
       return {
-        properties: this.children.reduce(function(attributeToVal, childView) {
+        properties: this.children.reduce((attributeToVal, childView) => {
           const json = childView.toPatchJSON()
           if (typeof json === 'undefined') {
             return attributeToVal
@@ -145,20 +147,19 @@ module.exports = Marionette.CollectionView.extend(
       }
     },
     clearValidation() {
-      this.children.forEach(function(childView) {
+      this.children.forEach(childView => {
         childView.clearValidation()
       })
     },
     updateValidation(validationReport) {
       const self = this
-      validationReport.forEach(function(attributeValidationReport) {
+      validationReport.forEach(attributeValidationReport => {
         self.children
-          .filter(function(childView) {
-            return (
+          .filter(
+            childView =>
               childView.model.get('id') === attributeValidationReport.attribute
-            )
-          })
-          .forEach(function(childView) {
+          )
+          .forEach(childView => {
             childView.updateValidation(attributeValidationReport)
           })
       })
@@ -169,9 +170,10 @@ module.exports = Marionette.CollectionView.extend(
       }
     },
     hasBlankRequiredAttributes() {
-      return this.children.some(function(propertyView) {
-        return propertyView.model.isRequired() && propertyView.model.isBlank()
-      })
+      return this.children.some(
+        propertyView =>
+          propertyView.model.isRequired() && propertyView.model.isBlank()
+      )
     },
     showRequiredWarnings() {
       this.children.forEach(propertyView => {
@@ -184,9 +186,7 @@ module.exports = Marionette.CollectionView.extend(
       })
     },
     isValid() {
-      return this.children.every(function(propertyView) {
-        return propertyView.isValid()
-      })
+      return this.children.every(propertyView => propertyView.isValid())
     },
   },
   {
@@ -264,7 +264,7 @@ module.exports = Marionette.CollectionView.extend(
     },
     generateFilteredPropertyCollectionView(propertyNames, metacards, options) {
       const propertyArray = []
-      propertyNames.forEach(function(property) {
+      propertyNames.forEach(property => {
         if (metacardDefinitions.metacardTypes.hasOwnProperty(property)) {
           propertyArray.push({
             enumFiltering: true,
@@ -306,8 +306,8 @@ module.exports = Marionette.CollectionView.extend(
     },
     /* Generates a collection view containing only properties in the propertyArray */
     generateFilteredCollectionView(propertyArray, metacards) {
-      propertyArray.forEach(function(property) {
-        metacards.forEach(function(metacard) {
+      propertyArray.forEach(property => {
+        metacards.forEach(metacard => {
           let value = metacard[property.id]
           const isDefined = value !== undefined
           let hasConflictingDefinition = false
@@ -367,14 +367,12 @@ module.exports = Marionette.CollectionView.extend(
             Object.keys(metacardDefinitions.metacardDefinitions[type])
           )
       )
-      const attributeKeys = metacards.map(function(metacard) {
-        return Object.keys(metacard)
-      })
+      const attributeKeys = metacards.map(metacard => Object.keys(metacard))
       let propertyIntersection = _.intersection(
         _.union.apply(_, attributeKeys),
         typeIntersection
       )
-      propertyIntersection = propertyIntersection.filter(function(property) {
+      propertyIntersection = propertyIntersection.filter(property => {
         if (metacardDefinitions.metacardTypes[property]) {
           return (
             !properties.isHidden(property) &&

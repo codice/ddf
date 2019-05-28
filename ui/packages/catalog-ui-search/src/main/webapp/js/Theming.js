@@ -68,7 +68,7 @@ function attemptToStart() {
     preferences.on('change:theme', handleThemeChange)
     preferences.on('change:animation', handleAnimationChange)
   } else {
-    user.once('sync', function() {
+    user.once('sync', () => {
       attemptToStart()
     })
   }
@@ -77,7 +77,7 @@ function attemptToStart() {
 attemptToStart()
 
 if (module.hot) {
-  module.hot.accept('./uncompiled-less.unless', function() {
+  module.hot.accept('./uncompiled-less.unless', () => {
     lessStyles = require('./uncompiled-less.unless')
     handleThemeChange()
   })

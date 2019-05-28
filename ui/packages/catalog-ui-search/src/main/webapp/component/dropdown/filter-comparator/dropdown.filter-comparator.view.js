@@ -27,13 +27,9 @@ module.exports = DropdownView.extend({
   },
   listenToComponent() {
     //override if you need more functionality
-    this.listenTo(
-      this.modelForComponent,
-      'change:comparator',
-      function() {
-        this.model.set('value', this.modelForComponent.get('comparator'))
-      }.bind(this)
-    )
+    this.listenTo(this.modelForComponent, 'change:comparator', () => {
+      this.model.set('value', this.modelForComponent.get('comparator'))
+    })
   },
   isCentered: true,
   getCenteringElement() {

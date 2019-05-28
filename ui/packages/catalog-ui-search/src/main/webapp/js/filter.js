@@ -139,7 +139,7 @@ function intersects(terraformerObject, value) {
     case 'Point':
       return terraformerObject.contains(value)
     case 'MultiPoint':
-      value.coordinates.forEach(function(coordinate) {
+      value.coordinates.forEach(coordinate => {
         intersected =
           intersected ||
           intersects(terraformerObject, {
@@ -153,7 +153,7 @@ function intersects(terraformerObject, value) {
     case 'Polygon':
       return terraformerObject.intersects(value)
     case 'MultiPolygon':
-      value.coordinates.forEach(function(coordinate) {
+      value.coordinates.forEach(coordinate => {
         intersected =
           intersected ||
           intersects(terraformerObject, {
@@ -165,12 +165,12 @@ function intersects(terraformerObject, value) {
     case 'Feature':
       return intersects(terraformerObject, value.geometry)
     case 'FeatureCollection':
-      value.features.forEach(function(feature) {
+      value.features.forEach(feature => {
         intersected = intersected || intersects(terraformerObject, feature)
       })
       return intersected
     case 'GeometryCollection':
-      value.geometries.forEach(function(geometry) {
+      value.geometries.forEach(geometry => {
         intersected = intersected || intersects(terraformerObject, geometry)
       })
       return intersected
@@ -221,11 +221,9 @@ function matchesLINESTRING(value, filter) {
   if (lineWidth <= 0) {
     return false
   }
-  const line = pointText.split(',').map(function(coordinate) {
-    return coordinate.split(' ').map(function(value) {
-      return Number(value)
-    })
-  })
+  const line = pointText
+    .split(',')
+    .map(coordinate => coordinate.split(' ').map(value => Number(value)))
   const turfLine = Turf.lineString(line)
   const bufferedLine = Turf.buffer(turfLine, lineWidth, 'meters')
   const polygonToCheck = new Terraformer.Polygon({
@@ -303,29 +301,26 @@ function matchesFilter(metacard, filter) {
     switch (filter.property) {
       case '"anyText"':
         valuesToCheck = Object.keys(metacard.properties)
-          .filter(function(property) {
-            return (
+          .filter(
+            property =>
               Boolean(metacardDefinitions.metacardTypes[property]) &&
               metacardDefinitions.metacardTypes[property].type === 'STRING'
-            )
-          })
-          .map(function(property) {
-            return metacard.properties[property]
-          })
+          )
+          .map(property => metacard.properties[property])
         break
       case 'anyGeo':
         valuesToCheck = Object.keys(metacard.properties)
-          .filter(function(property) {
-            return (
+          .filter(
+            property =>
               Boolean(metacardDefinitions.metacardTypes[property]) &&
               metacardDefinitions.metacardTypes[property].type === 'GEOMETRY'
-            )
-          })
-          .map(function(property) {
-            return new Terraformer.Primitive(
-              wkx.Geometry.parse(metacard.properties[property]).toGeoJSON()
-            )
-          })
+          )
+          .map(
+            property =>
+              new Terraformer.Primitive(
+                wkx.Geometry.parse(metacard.properties[property]).toGeoJSON()
+              )
+          )
         break
       default:
         const valueToCheck =

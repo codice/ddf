@@ -156,55 +156,49 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   refreshData() {
     //let solr flush
-    setTimeout(
-      function() {
-        const metacard = this.get('metacard')
-        const req = {
-          count: 1,
-          cql: CQLUtils.transformFilterToCQL({
-            type: 'AND',
-            filters: [
-              {
-                type: 'OR',
-                filters: [
-                  {
-                    type: '=',
-                    property: '"id"',
-                    value:
-                      metacard.get('properties').get('metacard.deleted.id') ||
-                      metacard.id,
-                  },
-                  {
-                    type: '=',
-                    property: '"metacard.deleted.id"',
-                    value: metacard.id,
-                  },
-                ],
-              },
-              {
-                type: 'ILIKE',
-                property: '"metacard-tags"',
-                value: '*',
-              },
-            ],
-          }),
-          id: '0',
-          sort: 'modified:desc',
-          src: metacard.get('properties').get('source-id'),
-          start: 1,
-        }
-        $.ajax({
-          type: 'POST',
-          url: './internal/cql',
-          data: JSON.stringify(req),
-          contentType: 'application/json',
-        }).then(
-          this.parseRefresh.bind(this),
-          this.handleRefreshError.bind(this)
-        )
-      }.bind(this),
-      1000
-    )
+    setTimeout(() => {
+      const metacard = this.get('metacard')
+      const req = {
+        count: 1,
+        cql: CQLUtils.transformFilterToCQL({
+          type: 'AND',
+          filters: [
+            {
+              type: 'OR',
+              filters: [
+                {
+                  type: '=',
+                  property: '"id"',
+                  value:
+                    metacard.get('properties').get('metacard.deleted.id') ||
+                    metacard.id,
+                },
+                {
+                  type: '=',
+                  property: '"metacard.deleted.id"',
+                  value: metacard.id,
+                },
+              ],
+            },
+            {
+              type: 'ILIKE',
+              property: '"metacard-tags"',
+              value: '*',
+            },
+          ],
+        }),
+        id: '0',
+        sort: 'modified:desc',
+        src: metacard.get('properties').get('source-id'),
+        start: 1,
+      }
+      $.ajax({
+        type: 'POST',
+        url: './internal/cql',
+        data: JSON.stringify(req),
+        contentType: 'application/json',
+      }).then(this.parseRefresh.bind(this), this.handleRefreshError.bind(this))
+    }, 1000)
   },
   handleRefreshError() {
     //do nothing for now, should we announce this?
@@ -212,7 +206,7 @@ module.exports = Backbone.AssociatedModel.extend({
   parseRefresh(response) {
     const queryId = this.get('metacard').get('queryId')
     const color = this.get('metacard').get('color')
-    _.forEach(response.results, function(result) {
+    _.forEach(response.results, result => {
       delete result.relevance
       result.propertyTypes =
         response.types[result.metacard.properties['metacard-type']]

@@ -57,12 +57,8 @@ module.exports = Marionette.LayoutView.extend({
     return _.chain(
       this.editorProperties.currentView.toPropertyJSON().properties
     )
-      .mapObject(function(values) {
-        return values.filter(value => value.trim().length > 0)
-      })
-      .pick(function(values) {
-        return values.length > 0
-      })
+      .mapObject(values => values.filter(value => value.trim().length > 0))
+      .pick(values => values.length > 0)
       .value()
   },
 })

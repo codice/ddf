@@ -91,10 +91,8 @@ module.exports = new (Backbone.AssociatedModel.extend({
             filters: _.flatten(
               upload
                 .get('uploads')
-                .filter(function(file) {
-                  return file.id || file.get('children') !== undefined
-                })
-                .map(function(file) {
+                .filter(file => file.id || file.get('children') !== undefined)
+                .map(file => {
                   if (file.get('children') !== undefined) {
                     return file.get('children').map(child => ({
                       type: '=',
@@ -133,7 +131,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
   },
   updateActiveSearchResultsAttributes() {
     const availableAttributes = this.get('activeSearchResults')
-      .reduce(function(currentAvailable, result) {
+      .reduce((currentAvailable, result) => {
         currentAvailable = _.union(
           currentAvailable,
           Object.keys(

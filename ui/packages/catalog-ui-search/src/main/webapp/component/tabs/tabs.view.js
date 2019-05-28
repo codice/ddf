@@ -44,7 +44,7 @@ const TabsView = Marionette.LayoutView.extend({
   initialize() {
     const view = this
     this._resizeHandler = _.throttle(this._resizeHandler, 200)
-    $(window).on(namespacedEvent('resize', view), function() {
+    $(window).on(namespacedEvent('resize', view), () => {
       view._resizeHandler()
     })
     this.listenTo(wreqr.vent, 'resize', this._resizeHandler)
@@ -106,10 +106,10 @@ const TabsView = Marionette.LayoutView.extend({
     const view = this
     const tabList = view.$el.find('> .tabs-list')
     const menu = tabList.find('.tabs-dropdown')
-    menu.off('click').on('click', function() {
+    menu.off('click').on('click', () => {
       tabList.toggleClass('is-open')
       if (tabList.hasClass('is-open')) {
-        $('body').on(namespacedEvent('click', view), function(e) {
+        $('body').on(namespacedEvent('click', view), e => {
           if (e.target !== menu[0] && menu.find(e.target).length === 0) {
             $('body').off(namespacedEvent('click', view))
             tabList.removeClass('is-open')

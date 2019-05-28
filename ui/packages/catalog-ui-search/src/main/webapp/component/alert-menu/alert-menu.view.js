@@ -45,9 +45,9 @@ module.exports = Marionette.LayoutView.extend({
       return {}
     }
     const alertJSON = alertInstance.get('currentAlert').toJSON()
-    const workspace = store.get('workspaces').filter(function(workspace) {
-      return workspace.get('queries').get(alertJSON.queryId)
-    })[0]
+    const workspace = store
+      .get('workspaces')
+      .filter(workspace => workspace.get('queries').get(alertJSON.queryId))[0]
     let query
     if (workspace) {
       query = workspace.get('queries').get(alertJSON.queryId)

@@ -100,12 +100,9 @@ module.exports = InputView.extend({
       .off('resize.' + this.cid)
       .on(
         'resize.' + this.cid,
-        _.throttle(
-          function(event) {
-            this.resizeButton()
-          }.bind(this),
-          16
-        )
+        _.throttle(event => {
+          this.resizeButton()
+        }, 16)
       )
   },
   stopListeningForResize() {

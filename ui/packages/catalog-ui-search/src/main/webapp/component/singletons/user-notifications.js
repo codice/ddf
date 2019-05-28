@@ -34,12 +34,10 @@ module.exports = new (Backbone.Collection.extend({
     return -model.getTimeComparator()
   },
   hasUnseen() {
-    return this.some(function(notification) {
-      return notification.get('unseen')
-    })
+    return this.some(notification => notification.get('unseen'))
   },
   setSeen() {
-    this.forEach(function(notification) {
+    this.forEach(notification => {
       notification.set('unseen', false)
     })
   },

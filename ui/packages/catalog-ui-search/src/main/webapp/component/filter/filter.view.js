@@ -162,21 +162,19 @@ the provided value."
     this.filterAttribute.show(
       DropdownView.createSimpleDropdown({
         list: metacardDefinitions.sortedMetacardTypes
-          .filter(function(metacardType) {
-            return !properties.isHidden(metacardType.id)
-          })
-          .filter(function(metacardType) {
-            return !metacardDefinitions.isHiddenType(metacardType.id)
-          })
-          .map(function(metacardType) {
-            return {
-              label: metacardType.alias || metacardType.id,
-              description: (properties.attributeDescriptions || {})[
-                metacardType.id
-              ],
-              value: metacardType.id,
-            }
-          }),
+          .filter(metacardType => !properties.isHidden(metacardType.id))
+          .filter(
+            metacardType => !metacardDefinitions.isHiddenType(metacardType.id)
+          )
+          .map(metacardType => ({
+            label: metacardType.alias || metacardType.id,
+
+            description: (properties.attributeDescriptions || {})[
+              metacardType.id
+            ],
+
+            value: metacardType.id,
+          })),
         defaultSelection: [this.model.get('type') || 'anyText'],
         hasFiltering: true,
       })

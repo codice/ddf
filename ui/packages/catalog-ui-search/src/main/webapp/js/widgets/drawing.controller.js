@@ -51,9 +51,7 @@ module.exports = Marionette.Controller.extend({
   },
   getViewForModel(model) {
     return this.views.filter(
-      function(view) {
-        return view.model === model && view.options.map === this.options.map
-      }.bind(this)
+      view => view.model === model && view.options.map === this.options.map
     )[0]
   },
   removeViewForModel(model) {

@@ -37,7 +37,7 @@ function calculateAvailableAttributesFromSelection(selectionInterface) {
   )
   return selectionInterface
     .getSelectedResults()
-    .reduce(function(currentAvailable, result) {
+    .reduce((currentAvailable, result) => {
       currentAvailable = _.union(
         currentAvailable,
         Object.keys(
@@ -50,7 +50,7 @@ function calculateAvailableAttributesFromSelection(selectionInterface) {
       return currentAvailable
     }, [])
     .filter(attribute => possibleAttributes.indexOf(attribute) >= 0)
-    .filter(function(property) {
+    .filter(property => {
       if (metacardDefinitions.metacardTypes[property]) {
         return !metacardDefinitions.metacardTypes[property].hidden
       } else {
@@ -163,9 +163,7 @@ module.exports = Marionette.ItemView.extend({
         .get('preferences')
         .get('inspector-summaryOrder')
       if (usersShown.length > 0 || usersOrder.length > 0) {
-        return usersShown.filter(function(attr) {
-          return usersOrder.indexOf(attr) === -1
-        })
+        return usersShown.filter(attr => usersOrder.indexOf(attr) === -1)
       } else {
         return []
       }
@@ -176,33 +174,28 @@ module.exports = Marionette.ItemView.extend({
         .get('inspector-detailsOrder')
       return calculateAvailableAttributesFromSelection(
         this.options.selectionInterface
-      ).filter(function(attr) {
-        return detailsOrder.indexOf(attr) === -1
-      })
+      ).filter(attr => detailsOrder.indexOf(attr) === -1)
     }
   },
   serializeData() {
     const preferredHeader = this.getPreferredOrder()
     const newAttributes = this.getNewAttributes()
-    newAttributes.sort(function(a, b) {
-      return metacardDefinitions.attributeComparator(a, b)
-    })
+    newAttributes.sort((a, b) => metacardDefinitions.attributeComparator(a, b))
     const hidden = this.getHidden()
     const availableAttributes = calculateAvailableAttributesFromSelection(
       this.options.selectionInterface
     )
 
-    return _.union(preferredHeader, newAttributes).map(function(property) {
-      return {
-        label: properties.attributeAliases[property],
-        id: property,
-        hidden: hidden.indexOf(property) >= 0,
-        notCurrentlyAvailable:
-          availableAttributes.indexOf(property) === -1 ||
-          properties.isHidden(property) ||
-          metacardDefinitions.isHiddenTypeExceptThumbnail(property),
-      }
-    })
+    return _.union(preferredHeader, newAttributes).map(property => ({
+      label: properties.attributeAliases[property],
+      id: property,
+      hidden: hidden.indexOf(property) >= 0,
+
+      notCurrentlyAvailable:
+        availableAttributes.indexOf(property) === -1 ||
+        properties.isHidden(property) ||
+        metacardDefinitions.isHiddenTypeExceptThumbnail(property),
+    }))
   },
   onRender() {
     Sortable.create(this.el, {
@@ -218,9 +211,9 @@ module.exports = Marionette.ItemView.extend({
       : 'inspector-detailsOrder'
     prefs.set(
       key,
-      _.map(this.$el.find('.column'), function(element) {
-        return element.getAttribute('data-propertyid')
-      })
+      _.map(this.$el.find('.column'), element =>
+        element.getAttribute('data-propertyid')
+      )
     )
     prefs.savePreferences()
   },

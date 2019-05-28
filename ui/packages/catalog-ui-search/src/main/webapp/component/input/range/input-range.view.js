@@ -53,33 +53,27 @@ module.exports = InputView.extend({
     this.$el
       .find('input[type=range]')
       .off('change.range input.range')
-      .on(
-        'change.range input.range',
-        function(e) {
-          const value = this.$el.find('input[type=range]').val()
-          this.$el.find('input[type=number]').val(value)
-          this.$el.find('.units-value').html(value)
-        }.bind(this)
-      )
+      .on('change.range input.range', e => {
+        const value = this.$el.find('input[type=range]').val()
+        this.$el.find('input[type=number]').val(value)
+        this.$el.find('.units-value').html(value)
+      })
   },
   listenForChange() {
-    this.$el.on(
-      'change keyup mouseup',
-      function(e) {
-        switch (e.target.type) {
-          case 'range':
-            if (e.type === 'mouseup' || e.type === 'keyup') {
-              this.saveChanges()
-            }
-            break
-          case 'number':
-            if (e.type === 'change') {
-              this.saveChanges()
-            }
-            break
-        }
-      }.bind(this)
-    )
+    this.$el.on('change keyup mouseup', e => {
+      switch (e.target.type) {
+        case 'range':
+          if (e.type === 'mouseup' || e.type === 'keyup') {
+            this.saveChanges()
+          }
+          break
+        case 'number':
+          if (e.type === 'change') {
+            this.saveChanges()
+          }
+          break
+      }
+    })
   },
   saveChanges() {
     let currentValue = this.$el.find('input[type=range]').val()

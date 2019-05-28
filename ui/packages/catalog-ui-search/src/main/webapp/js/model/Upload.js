@@ -27,20 +27,20 @@ function checkValidation(model) {
         .apply(this, [
           $.get(
             './internal/metacard/' + model.get('id') + '/attribute/validation'
-          ).then(function(response) {
+          ).then(response => {
             model.set({
               issues: model.get('issues') || response.length > 0,
             })
           }),
           $.get('./internal/metacard/' + model.get('id') + '/validation').then(
-            function(response) {
+            response => {
               model.set({
                 issues: model.get('issues') || response.length > 0,
               })
             }
           ),
         ])
-        .always(function() {
+        .always(() => {
           model.set({
             validating: false,
           })

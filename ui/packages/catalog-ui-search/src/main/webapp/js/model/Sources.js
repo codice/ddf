@@ -18,9 +18,7 @@ const $ = require('jquery')
 
 function removeLocalCatalogIfNeeded(response, localCatalog) {
   if (properties.isDisableLocalCatalog()) {
-    response = _.filter(response, function(source) {
-      return source.id !== localCatalog
-    })
+    response = _.filter(response, source => source.id !== localCatalog)
   }
 
   return response
@@ -30,7 +28,7 @@ const Types = Backbone.Collection.extend({})
 
 const computeTypes = function(sources) {
   if (_.size(properties.typeNameMapping) > 0) {
-    return _.map(properties.typeNameMapping, function(value, key) {
+    return _.map(properties.typeNameMapping, (value, key) => {
       if (_.isArray(value)) {
         return {
           name: key,
@@ -40,20 +38,12 @@ const computeTypes = function(sources) {
     })
   } else {
     return _.chain(sources)
-      .map(function(source) {
-        return source.contentTypes
-      })
+      .map(source => source.contentTypes)
       .flatten()
-      .filter(function(element) {
-        return element.name !== ''
-      })
-      .sortBy(function(element) {
-        return element.name.toUpperCase()
-      })
-      .uniq(false, function(type) {
-        return type.name
-      })
-      .map(function(element) {
+      .filter(element => element.name !== '')
+      .sortBy(element => element.name.toUpperCase())
+      .uniq(false, type => type.name)
+      .map(element => {
         element.value = element.name
         return element
       })
@@ -98,21 +88,19 @@ module.exports = Backbone.Collection.extend({
     return response
   },
   determineLocalCatalog() {
-    $.get('./internal/localcatalogid').then(
-      function(data) {
-        this.localCatalog = data['local-catalog-id']
+    $.get('./internal/localcatalogid').then(data => {
+      this.localCatalog = data['local-catalog-id']
 
-        poller
-          .get(this, {
-            delay: properties.sourcePollInterval,
-            delayed: properties.sourcePollInterval,
-            continueOnError: true,
-          })
-          .start()
+      poller
+        .get(this, {
+          delay: properties.sourcePollInterval,
+          delayed: properties.sourcePollInterval,
+          continueOnError: true,
+        })
+        .start()
 
-        this.fetch()
-      }.bind(this)
-    )
+      this.fetch()
+    })
   },
   updateLocalCatalog() {
     if (this.get(this.localCatalog)) {

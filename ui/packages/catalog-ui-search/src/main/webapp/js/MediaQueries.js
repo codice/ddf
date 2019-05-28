@@ -25,7 +25,7 @@ const mobileScreenSize = 26.25 //420 px
 const smallScreenSize = 58.75 //940 px
 const mediumScreenSize = 90 //1440 px
 
-const updateMediaQueries = _.throttle(function() {
+const updateMediaQueries = _.throttle(() => {
   const $html = $('html')
   const fontSize = parseInt(
     user

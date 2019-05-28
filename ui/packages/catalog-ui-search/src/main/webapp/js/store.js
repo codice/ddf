@@ -20,17 +20,15 @@ module.exports = new (Backbone.Model.extend({
     this.set('content', new Content())
     this.set('workspaces', new WorkspaceCollection())
 
-    window.onbeforeunload = function() {
+    window.onbeforeunload = () => {
       const unsaved = this.get('workspaces')
         .chain()
-        .map(function(workspace) {
+        .map(workspace => {
           if (!workspace.isSaved()) {
             return workspace.get('title')
           }
         })
-        .filter(function(title) {
-          return title !== undefined
-        })
+        .filter(title => title !== undefined)
         .value()
 
       if (unsaved.length > 0) {
@@ -39,7 +37,7 @@ module.exports = new (Backbone.Model.extend({
           unsaved.join(', ')
         )
       }
-    }.bind(this)
+    }
 
     this.listenTo(this.get('workspaces'), 'remove', function() {
       const currentWorkspace = this.getCurrentWorkspace()
@@ -66,7 +64,7 @@ module.exports = new (Backbone.Model.extend({
     }
   },
   clearOtherWorkspaces(workspaceId) {
-    this.get('workspaces').forEach(function(workspaceModel) {
+    this.get('workspaces').forEach(workspaceModel => {
       if (workspaceId !== workspaceModel.id) {
         workspaceModel.clearResults()
       }
@@ -147,7 +145,7 @@ module.exports = new (Backbone.Model.extend({
   },
   setWorkspaceRestrictions(workspaceId, restrictions) {
     const metacard = this.getWorkspaceById(workspaceId)
-    restrictions.forEach(function(restriction) {
+    restrictions.forEach(restriction => {
       metacard.attributes[restriction.attribute] = restriction.values
     })
   },

@@ -69,42 +69,38 @@ module.exports = Backbone.AssociatedModel.extend({
   ],
   addResultForms() {
     if (!this.isDestroyed) {
-      this.filteredList = _.map(resultTemplates, function(resultForm) {
-        return {
-          label: resultForm.title,
-          value: resultForm.title,
-          id: resultForm.id,
-          descriptors: resultForm.descriptors,
-          description: resultForm.description,
-          owner: resultForm.owner,
-          created: resultForm.created,
-          creator: resultForm.creator,
-          createdBy: resultForm.creator,
-          accessGroups: resultForm.accessGroups,
-          accessIndividuals: resultForm.accessIndividuals,
-          accessAdministrators: resultForm.accessAdministrators,
-        }
-      })
+      this.filteredList = _.map(resultTemplates, resultForm => ({
+        label: resultForm.title,
+        value: resultForm.title,
+        id: resultForm.id,
+        descriptors: resultForm.descriptors,
+        description: resultForm.description,
+        owner: resultForm.owner,
+        created: resultForm.created,
+        creator: resultForm.creator,
+        createdBy: resultForm.creator,
+        accessGroups: resultForm.accessGroups,
+        accessIndividuals: resultForm.accessIndividuals,
+        accessAdministrators: resultForm.accessAdministrators,
+      }))
 
-      resultTemplates.forEach(
-        function(value, index) {
-          this.addResultForm(
-            new ResultForm({
-              title: value.title,
-              type: 'result',
-              id: value.id,
-              descriptors: value.descriptors,
-              description: value.description,
-              owner: value.owner,
-              createdOn: value.created,
-              createdBy: value.creator,
-              accessGroups: value.accessGroups,
-              accessIndividuals: value.accessIndividuals,
-              accessAdministrators: value.accessAdministrators,
-            })
-          )
-        }.bind(this)
-      )
+      resultTemplates.forEach((value, index) => {
+        this.addResultForm(
+          new ResultForm({
+            title: value.title,
+            type: 'result',
+            id: value.id,
+            descriptors: value.descriptors,
+            description: value.description,
+            owner: value.owner,
+            createdOn: value.created,
+            createdBy: value.creator,
+            accessGroups: value.accessGroups,
+            accessIndividuals: value.accessIndividuals,
+            accessAdministrators: value.accessAdministrators,
+          })
+        )
+      })
       this.get('resultForms').sort()
     }
   },
@@ -128,15 +124,17 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   deleteCachedTemplateById(id) {
     if (this.filteredList) {
-      this.filteredList = _.filter(this.filteredList, function(template) {
-        return template.id !== id
-      })
+      this.filteredList = _.filter(
+        this.filteredList,
+        template => template.id !== id
+      )
       this.toggleUpdate()
     }
     if (resultTemplates) {
-      resultTemplates = _.filter(resultTemplates, function(template) {
-        return template.id !== id
-      })
+      resultTemplates = _.filter(
+        resultTemplates,
+        template => template.id !== id
+      )
     }
   },
 })

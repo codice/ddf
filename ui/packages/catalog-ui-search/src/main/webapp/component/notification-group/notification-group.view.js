@@ -57,35 +57,27 @@ module.exports = Marionette.LayoutView.extend({
     } else {
       this.$el.css('height', '')
     }
-    Common.executeAfterRepaint(
-      function() {
-        this.$el.toggleClass('is-empty', empty)
-      }.bind(this)
-    )
+    Common.executeAfterRepaint(() => {
+      this.$el.toggleClass('is-empty', empty)
+    })
   },
   handleClear(e) {
     this.$el.toggleClass('wait-for-confirmation', true)
-    setTimeout(
-      function() {
-        this.listenForClick()
-      }.bind(this),
-      0
-    )
+    setTimeout(() => {
+      this.listenForClick()
+    }, 0)
   },
   listenForClick() {
-    $(window).on(
-      'click.notification-group',
-      function(e) {
-        this.$el.toggleClass('wait-for-confirmation', false)
-        this.unlistenForClick()
-      }.bind(this)
-    )
+    $(window).on('click.notification-group', e => {
+      this.$el.toggleClass('wait-for-confirmation', false)
+      this.unlistenForClick()
+    })
   },
   unlistenForClick() {
     $(window).off('click.notification-group')
   },
   handleConfirm() {
-    this.groupItems.currentView.children.forEach(function(childView) {
+    this.groupItems.currentView.children.forEach(childView => {
       childView.removeModel()
     })
   },

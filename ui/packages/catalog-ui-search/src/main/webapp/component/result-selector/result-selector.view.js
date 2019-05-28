@@ -42,13 +42,11 @@ function mixinBlackListCQL(originalCQL) {
           .get('user')
           .get('preferences')
           .get('resultBlacklist')
-          .map(function(blacklistItem) {
-            return {
-              property: '"id"',
-              type: '!=',
-              value: blacklistItem.id,
-            }
-          }),
+          .map(blacklistItem => ({
+            property: '"id"',
+            type: '!=',
+            value: blacklistItem.id,
+          })),
         type: 'AND',
       },
     ],
@@ -307,13 +305,11 @@ const ResultSelector = Marionette.LayoutView.extend({
     )
   },
   onDestroy() {
-    Common.queueExecution(
-      function() {
-        if (this.model.get('result')) {
-          this.model.get('result').set('currentlyViewed', false)
-        }
-      }.bind(this)
-    )
+    Common.queueExecution(() => {
+      if (this.model.get('result')) {
+        this.model.get('result').set('currentlyViewed', false)
+      }
+    })
   },
 })
 

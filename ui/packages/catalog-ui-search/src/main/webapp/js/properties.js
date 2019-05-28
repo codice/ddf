@@ -18,12 +18,8 @@ const _ = require('underscore')
 function match(regexList, attribute) {
   return (
     _.chain(regexList)
-      .map(function(str) {
-        return new RegExp(str)
-      })
-      .find(function(regex) {
-        return regex.exec(attribute)
-      })
+      .map(str => new RegExp(str))
+      .find(regex => regex.exec(attribute))
       .value() !== undefined
   )
 }
@@ -66,7 +62,7 @@ const properties = {
       dataType: 'json',
       url: './internal/config',
     })
-      .done(function(data) {
+      .done(data => {
         props = _.extend(props, data)
 
         $.ajax({
@@ -75,11 +71,11 @@ const properties = {
           dataType: 'json',
           url: './internal/platform/config/ui',
         })
-          .done(function(uiConfig) {
+          .done(uiConfig => {
             props.ui = uiConfig
             return props
           })
-          .fail(function(jqXHR, status, errorThrown) {
+          .fail((jqXHR, status, errorThrown) => {
             if (console) {
               console.log(
                 'Platform UI Configuration could not be loaded: (status: ' +
@@ -91,7 +87,7 @@ const properties = {
             }
           })
       })
-      .fail(function(jqXHR, status, errorThrown) {
+      .fail((jqXHR, status, errorThrown) => {
         throw new Error(
           'Configuration could not be loaded: (status: ' +
             status +

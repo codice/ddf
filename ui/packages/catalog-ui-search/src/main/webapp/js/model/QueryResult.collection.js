@@ -27,18 +27,16 @@ module.exports = Backbone.Collection.extend({
   updateFilteredVersion(filter) {
     this.amountFiltered = 0
     if (filter) {
-      return this.filter(
-        function(result) {
-          const passFilter = filterUtility.matchesFilters(
-            result.get('metacard').toJSON(),
-            filter
-          )
-          if (!passFilter) {
-            this.amountFiltered++
-          }
-          return passFilter
-        }.bind(this)
-      )
+      return this.filter(result => {
+        const passFilter = filterUtility.matchesFilters(
+          result.get('metacard').toJSON(),
+          filter
+        )
+        if (!passFilter) {
+          this.amountFiltered++
+        }
+        return passFilter
+      })
     } else {
       return this.models
     }
@@ -63,7 +61,7 @@ module.exports = Backbone.Collection.extend({
         .get('metacard')
         .get('properties')
         .get('id')
-      const duplicates = collapsedCollection.filter(function(result) {
+      const duplicates = collapsedCollection.filter(result => {
         const comparedChecksum = result
           .get('metacard')
           .get('properties')
@@ -91,10 +89,10 @@ module.exports = Backbone.Collection.extend({
   },
   selectBetween(startIndex, endIndex) {
     const allModels = []
-    this.forEach(function(model) {
+    this.forEach(model => {
       allModels.push(model)
       if (model.duplicates) {
-        model.duplicates.forEach(function(duplicate) {
+        model.duplicates.forEach(duplicate => {
           allModels.push(duplicate)
         })
       }

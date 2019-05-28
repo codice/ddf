@@ -37,11 +37,9 @@ function getHumanReadableDuration(milliseconds) {
 }
 
 const pollingFrequencyEnum = properties.scheduleFrequencyList
-  .sort(function(a, b) {
-    return a - b
-  })
+  .sort((a, b) => a - b)
   .reduce(
-    function(options, option) {
+    (options, option) => {
       const durationInMilliseconds = option * 1000
       options.push({
         label: getHumanReadableDuration(durationInMilliseconds),
@@ -98,14 +96,14 @@ module.exports = Marionette.LayoutView.extend({
   },
   turnOnEditing() {
     this.$el.addClass('is-editing')
-    this.regionManager.forEach(function(region) {
+    this.regionManager.forEach(region => {
       if (region.currentView) {
         region.currentView.turnOnEditing()
       }
     })
   },
   turnOffEditing() {
-    this.regionManager.forEach(function(region) {
+    this.regionManager.forEach(region => {
       if (region.currentView) {
         region.currentView.turnOffEditing()
       }

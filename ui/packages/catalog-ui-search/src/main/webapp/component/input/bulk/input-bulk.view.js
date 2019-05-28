@@ -99,33 +99,33 @@ module.exports = InputView.extend({
     modelJSON.isThumbnail = type === 'thumbnail'
     switch (type) {
       case 'date':
-        modelJSON.values = _.map(modelJSON.values, function(valueInfo) {
+        modelJSON.values = _.map(modelJSON.values, valueInfo => {
           if (valueInfo.hasNoValue) {
             valueInfo.value[0] = 'No Value'
           } else {
-            valueInfo.value = valueInfo.value.map(function(value) {
-              return user.getUserReadableDateTime(value)
-            })
+            valueInfo.value = valueInfo.value.map(value =>
+              user.getUserReadableDateTime(value)
+            )
             return valueInfo
           }
           return valueInfo
         })
         break
       case 'thumbnail':
-        modelJSON.values = _.map(modelJSON.values, function(valueInfo) {
+        modelJSON.values = _.map(modelJSON.values, valueInfo => {
           if (valueInfo.hasNoValue) {
             valueInfo.value[0] = 'No Value'
           } else {
-            valueInfo.value = valueInfo.value.map(function(value) {
-              return Common.getImageSrc(value)
-            })
+            valueInfo.value = valueInfo.value.map(value =>
+              Common.getImageSrc(value)
+            )
             return valueInfo
           }
           return valueInfo
         })
         break
       default:
-        modelJSON.values = _.map(modelJSON.values, function(valueInfo) {
+        modelJSON.values = _.map(modelJSON.values, valueInfo => {
           if (valueInfo.hasNoValue) {
             valueInfo.value[0] = 'No Value'
           }
@@ -151,37 +151,30 @@ module.exports = InputView.extend({
       },
     ]
     const type = this.model.getCalculatedType()
-    _.forEach(
-      this.model.get('values'),
-      function(valueInfo) {
-        let value = valueInfo.value
-        let label = valueInfo.hasNoValue ? 'No Value' : value
-        const type = this.model.getCalculatedType()
-        if (!valueInfo.hasNoValue) {
-          switch (type) {
-            case 'date':
-              label = label.map(function(text) {
-                return user.getUserReadableDateTime(text)
-              })
-              value = value.map(function(text) {
-                return moment(text)
-              })
-              break
-            default:
-              break
-          }
+    _.forEach(this.model.get('values'), valueInfo => {
+      let value = valueInfo.value
+      let label = valueInfo.hasNoValue ? 'No Value' : value
+      const type = this.model.getCalculatedType()
+      if (!valueInfo.hasNoValue) {
+        switch (type) {
+          case 'date':
+            label = label.map(text => user.getUserReadableDateTime(text))
+            value = value.map(text => moment(text))
+            break
+          default:
+            break
         }
-        if (type !== 'thumbnail' || valueInfo.hasNoValue) {
-          enumValues.push({
-            label,
-            value,
-            hits: valueInfo.hits,
-            hasNoValue: valueInfo.hasNoValue,
-            isThumbnail: type === 'thumbnail',
-          })
-        }
-      }.bind(this)
-    )
+      }
+      if (type !== 'thumbnail' || valueInfo.hasNoValue) {
+        enumValues.push({
+          label,
+          value,
+          hits: valueInfo.hits,
+          hasNoValue: valueInfo.hasNoValue,
+          isThumbnail: type === 'thumbnail',
+        })
+      }
+    })
     enumValues.sort(sortNoValueToTop)
     this.enumRegion.show(
       DropdownView.createSimpleDropdown({
@@ -197,16 +190,12 @@ module.exports = InputView.extend({
         model: this.model.isHomogeneous() ? this.model : this.model.clone(), // in most cases this view is the real input, except for the heterogenous case
       })
     )
-    this.otherInput.currentView.listenTo(
-      this.model,
-      'change:isEditing',
-      function() {
-        this.otherInput.currentView.model.set(
-          'isEditing',
-          this.model.get('isEditing')
-        )
-      }.bind(this)
-    )
+    this.otherInput.currentView.listenTo(this.model, 'change:isEditing', () => {
+      this.otherInput.currentView.model.set(
+        'isEditing',
+        this.model.get('isEditing')
+      )
+    })
     if (!this.model.isHomogeneous() && this.model.isMultivalued()) {
       this.otherInput.currentView.addNewValue()
     }

@@ -29,10 +29,10 @@ module.exports = Marionette.ItemView.extend({
         opacity: 0.6,
       },
       500,
-      function() {
+      () => {
         this.shown = true
         this.$el.trigger('shown.' + this.cid)
-      }.bind(this)
+      }
     )
   },
   shown: false,
@@ -43,18 +43,15 @@ module.exports = Marionette.ItemView.extend({
           opacity: 0,
         },
         500,
-        function() {
+        () => {
           this.destroy()
           this.$el.remove()
-        }.bind(this)
+        }
       )
     } else {
-      this.$el.one(
-        'shown.' + this.cid,
-        function() {
-          this.remove()
-        }.bind(this)
-      )
+      this.$el.one('shown.' + this.cid, () => {
+        this.remove()
+      })
     }
   },
 })

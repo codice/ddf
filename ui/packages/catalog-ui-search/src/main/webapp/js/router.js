@@ -77,14 +77,11 @@ const Router = Backbone.Router.extend({
                 until after initialize is done.  SetTimeout (with timeout of 0) pushes this
                 navigate onto the end of the current execution queue
             */
-    setTimeout(
-      function() {
-        const currentFragment = location.hash
-        Backbone.history.fragment = undefined
-        this.navigate(currentFragment, { trigger: true })
-      }.bind(this),
-      0
-    )
+    setTimeout(() => {
+      const currentFragment = location.hash
+      Backbone.history.fragment = undefined
+      this.navigate(currentFragment, { trigger: true })
+    }, 0)
   },
   handlePreload({ fragment }) {
     this.preloadFragment(fragment)

@@ -255,51 +255,39 @@ module.exports = Marionette.LayoutView.extend(
       this.options.linkedView.$el.focus()
     },
     listenForReposition() {
-      this.$el.on(
-        'repositionDropdown.' + CustomElements.getNamespace(),
-        function(e) {
-          this.updateWidth()
-          this.updatePosition()
-        }.bind(this)
-      )
+      this.$el.on('repositionDropdown.' + CustomElements.getNamespace(), e => {
+        this.updateWidth()
+        this.updatePosition()
+      })
     },
     stopListeningForReposition() {
       this.$el.off('repositionDropdown.' + CustomElements.getNamespace())
     },
     listenForClose() {
-      this.$el.on(
-        'closeDropdown.' + CustomElements.getNamespace(),
-        function(e) {
-          // stop from closing dropdowns higher in the dom
-          e.stopPropagation()
-          // close
-          this.close()
-          this.options.linkedView.$el.focus()
-        }.bind(this)
-      )
+      this.$el.on('closeDropdown.' + CustomElements.getNamespace(), e => {
+        // stop from closing dropdowns higher in the dom
+        e.stopPropagation()
+        // close
+        this.close()
+        this.options.linkedView.$el.focus()
+      })
     },
     stopListeningForClose() {
       this.$el.off('closeDropdown.' + CustomElements.getNamespace())
     },
     listenForOutsideClick() {
-      $('body').on(
-        'mousedown.' + this.cid,
-        function(event) {
-          if (!DropdownBehaviorUtility.drawing(event)) {
-            if (!DropdownBehaviorUtility.withinAnyDropdown(event.target)) {
-              this.close()
-            }
-            if (
-              DropdownBehaviorUtility.withinParentDropdown(
-                this.$el,
-                event.target
-              )
-            ) {
-              this.close()
-            }
+      $('body').on('mousedown.' + this.cid, event => {
+        if (!DropdownBehaviorUtility.drawing(event)) {
+          if (!DropdownBehaviorUtility.withinAnyDropdown(event.target)) {
+            this.close()
           }
-        }.bind(this)
-      )
+          if (
+            DropdownBehaviorUtility.withinParentDropdown(this.$el, event.target)
+          ) {
+            this.close()
+          }
+        }
+      })
     },
     stopListeningForOutsideClick() {
       $('body').off('mousedown.' + this.cid)
@@ -313,13 +301,10 @@ module.exports = Marionette.LayoutView.extend(
     listenForResize() {
       $(window).on(
         'resize.' + this.cid,
-        _.throttle(
-          function(event) {
-            this.updatePosition()
-            this.updateWidth()
-          }.bind(this),
-          16
-        )
+        _.throttle(event => {
+          this.updatePosition()
+          this.updateWidth()
+        }, 16)
       )
     },
     stopListeningForResize() {

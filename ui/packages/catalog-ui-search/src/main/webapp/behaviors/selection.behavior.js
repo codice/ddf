@@ -19,17 +19,19 @@ const Marionette = require('marionette')
 function getMaxIndex(selectionInterface) {
   const selectedResults = selectionInterface.getSelectedResults()
   const completeResults = selectionInterface.getActiveSearchResults()
-  return selectedResults.reduce(function(maxIndex, result) {
-    return Math.max(maxIndex, completeResults.indexOf(result))
-  }, -1)
+  return selectedResults.reduce(
+    (maxIndex, result) => Math.max(maxIndex, completeResults.indexOf(result)),
+    -1
+  )
 }
 
 function getMinIndex(selectionInterface) {
   const selectedResults = selectionInterface.getSelectedResults()
   const completeResults = selectionInterface.getActiveSearchResults()
-  return selectedResults.reduce(function(minIndex, result) {
-    return Math.min(minIndex, completeResults.indexOf(result))
-  }, completeResults.length)
+  return selectedResults.reduce(
+    (minIndex, result) => Math.min(minIndex, completeResults.indexOf(result)),
+    completeResults.length
+  )
 }
 
 const doubleClickTime = 500 // how soon a user has to click for it to be a double click

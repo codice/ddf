@@ -61,7 +61,7 @@ module.exports = Marionette.ItemView.extend({
   },
   updateSelectionInterface() {
     this.options.selectionInterface.setActiveSearchResults(
-      this.model.reduce(function(results, result) {
+      this.model.reduce((results, result) => {
         results.push(result)
         if (result.duplicates) {
           results = results.concat(result.duplicates)

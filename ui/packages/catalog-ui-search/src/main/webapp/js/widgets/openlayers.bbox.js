@@ -201,14 +201,14 @@ Draw.BboxView = Marionette.View.extend({
     })
 
     this.map.addInteraction(this.primitive)
-    this.primitive.on('boxend', function() {
+    this.primitive.on('boxend', () => {
       that.handleRegionStop()
       that.map.removeInteraction(that.primitive)
     })
-    this.primitive.on('boxstart', function(sketchFeature) {
+    this.primitive.on('boxstart', sketchFeature => {
       that.startCoordinate = sketchFeature.coordinate
     })
-    this.primitive.on('boxdrag', function(sketchFeature) {
+    this.primitive.on('boxdrag', sketchFeature => {
       const geometryRepresentation = new ol.geom.LineString([
         that.startCoordinate,
         [that.startCoordinate[0], sketchFeature.coordinate[1]],

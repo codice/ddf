@@ -43,26 +43,24 @@ module.exports = Marionette.LayoutView.extend({
   },
   handleTypes() {
     const types = {}
-    this.options.selectionInterface
-      .getSelectedResults()
-      .forEach(function(result) {
-        const tags = result
-          .get('metacard')
-          .get('properties')
-          .get('metacard-tags')
-        if (result.isWorkspace()) {
-          types.workspace = true
-        } else if (result.isResource()) {
-          types.resource = true
-        } else if (result.isRevision()) {
-          types.revision = true
-        } else if (result.isDeleted()) {
-          types.deleted = true
-        }
-        if (result.isRemote()) {
-          types.remote = true
-        }
-      })
+    this.options.selectionInterface.getSelectedResults().forEach(result => {
+      const tags = result
+        .get('metacard')
+        .get('properties')
+        .get('metacard-tags')
+      if (result.isWorkspace()) {
+        types.workspace = true
+      } else if (result.isResource()) {
+        types.resource = true
+      } else if (result.isRevision()) {
+        types.revision = true
+      } else if (result.isDeleted()) {
+        types.deleted = true
+      }
+      if (result.isRemote()) {
+        types.remote = true
+      }
+    })
     this.$el.toggleClass('is-mixed', Object.keys(types).length > 1)
     this.$el.toggleClass('is-workspace', types.workspace !== undefined)
     this.$el.toggleClass('is-resource', types.resource !== undefined)

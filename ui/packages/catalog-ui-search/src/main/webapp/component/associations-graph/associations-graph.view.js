@@ -25,37 +25,29 @@ const Vis = require('vis')
 function determineNodes(view) {
   const currentMetacard = view.options.currentMetacard
   let nodes = view.options.knownMetacards
-    .map(function(metacard) {
-      return {
-        id: metacard.id,
-        label: metacard.get('title'),
-      }
-    })
+    .map(metacard => ({
+      id: metacard.id,
+      label: metacard.get('title'),
+    }))
     .concat(
-      view.options.selectionInterface
-        .getActiveSearchResults()
-        .map(function(result) {
-          return {
-            id: result.get('metacard').id,
-            label: result
-              .get('metacard')
-              .get('properties')
-              .get('title'),
-          }
-        })
+      view.options.selectionInterface.getActiveSearchResults().map(result => ({
+        id: result.get('metacard').id,
+
+        label: result
+          .get('metacard')
+          .get('properties')
+          .get('title'),
+      }))
     )
-  nodes = _.uniq(nodes, false, function(node) {
-    return node.id
-  })
-  return nodes.map(function(node) {
-    return {
-      id: node.id,
-      label:
-        node.id === currentMetacard.get('metacard').id
-          ? 'Current Metacard'
-          : node.label,
-    }
-  })
+  nodes = _.uniq(nodes, false, node => node.id)
+  return nodes.map(node => ({
+    id: node.id,
+
+    label:
+      node.id === currentMetacard.get('metacard').id
+        ? 'Current Metacard'
+        : node.label,
+  }))
 }
 
 // Visjs throws an error if the edge can't be find.  We don't care.
@@ -134,18 +126,11 @@ module.exports = Marionette.LayoutView.extend({
       'reset add remove update change',
       this.showGraphView
     )
-    this.listenTo(
-      this.collection,
-      'add',
-      function() {
-        setTimeout(
-          function() {
-            this.fitGraph()
-          }.bind(this),
-          1000
-        )
-      }.bind(this)
-    )
+    this.listenTo(this.collection, 'add', () => {
+      setTimeout(() => {
+        this.fitGraph()
+      }, 1000)
+    })
   },
   onBeforeShow() {
     this.showGraphView()
@@ -161,12 +146,9 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('filter-by-parent', filter === 'parent')
     this.$el.toggleClass('filter-by-child', filter === 'child')
     this.showGraphInspector()
-    setTimeout(
-      function() {
-        this.fitGraph()
-      }.bind(this),
-      1000
-    )
+    setTimeout(() => {
+      this.fitGraph()
+    }, 1000)
   },
   handleSelection() {
     const graphInspector = this.graphInspector.currentView
@@ -181,36 +163,34 @@ module.exports = Marionette.LayoutView.extend({
 
     // create an array with edges
     const edges = this.collection
-      .map(function(association) {
-        return {
-          arrows: {
-            to: {
-              enabled: true,
-            },
+      .map(association => ({
+        arrows: {
+          to: {
+            enabled: true,
           },
-          id: association.cid,
-          from: association.get('parent'),
-          to: association.get('child'),
-          label:
-            association.get('relationship') === 'related'
-              ? 'related'
-              : '\n\n\nderived',
-          font: fontStyles,
-          smooth: {
-            type: 'cubicBezier',
-            forceDirection: 'vertical',
-          },
-        }
-      })
-      .filter(function(edge) {
-        return edge.to === currentMetacard.get('metacard').id
-      })
+        },
 
-    nodes = nodes.filter(function(node) {
-      return edges.some(function(edge) {
-        return edge.from === node.id || edge.to === node.id
-      })
-    })
+        id: association.cid,
+        from: association.get('parent'),
+        to: association.get('child'),
+
+        label:
+          association.get('relationship') === 'related'
+            ? 'related'
+            : '\n\n\nderived',
+
+        font: fontStyles,
+
+        smooth: {
+          type: 'cubicBezier',
+          forceDirection: 'vertical',
+        },
+      }))
+      .filter(edge => edge.to === currentMetacard.get('metacard').id)
+
+    nodes = nodes.filter(node =>
+      edges.some(edge => edge.from === node.id || edge.to === node.id)
+    )
     this.$el.toggleClass('has-no-parent', nodes.length === 0)
     if (nodes.length === 0) {
       return
@@ -248,36 +228,34 @@ module.exports = Marionette.LayoutView.extend({
 
     // create an array with edges
     const edges = this.collection
-      .map(function(association) {
-        return {
-          arrows: {
-            to: {
-              enabled: true,
-            },
+      .map(association => ({
+        arrows: {
+          to: {
+            enabled: true,
           },
-          id: association.cid,
-          from: association.get('parent'),
-          to: association.get('child'),
-          label:
-            association.get('relationship') === 'related'
-              ? 'related'
-              : '\n\n\nderived',
-          font: fontStyles,
-          smooth: {
-            type: 'cubicBezier',
-            forceDirection: 'vertical',
-          },
-        }
-      })
-      .filter(function(edge) {
-        return edge.from === currentMetacard.get('metacard').id
-      })
+        },
 
-    nodes = nodes.filter(function(node) {
-      return edges.some(function(edge) {
-        return edge.from === node.id || edge.to === node.id
-      })
-    })
+        id: association.cid,
+        from: association.get('parent'),
+        to: association.get('child'),
+
+        label:
+          association.get('relationship') === 'related'
+            ? 'related'
+            : '\n\n\nderived',
+
+        font: fontStyles,
+
+        smooth: {
+          type: 'cubicBezier',
+          forceDirection: 'vertical',
+        },
+      }))
+      .filter(edge => edge.from === currentMetacard.get('metacard').id)
+
+    nodes = nodes.filter(node =>
+      edges.some(edge => edge.from === node.id || edge.to === node.id)
+    )
     this.$el.toggleClass('has-no-child', nodes.length === 0)
     if (nodes.length === 0) {
       return

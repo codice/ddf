@@ -144,9 +144,9 @@ module.exports = Marionette.LayoutView.extend({
     return serialize(this.model)
   },
   deleteInvalidFilters() {
-    const collection = this.collection.filter(function(model) {
-      return model.get('isValid') !== false
-    })
+    const collection = this.collection.filter(
+      model => model.get('isValid') !== false
+    )
 
     this.collection.reset(collection, { silent: true })
 

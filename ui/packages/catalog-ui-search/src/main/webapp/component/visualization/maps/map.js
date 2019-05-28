@@ -44,14 +44,13 @@ const exposedMethods = [
   'destroy',
 ]
 
-const interfaceImplementation = exposedMethods.reduce(function(
-  implementations,
-  methodName
-) {
-  implementations[methodName] = throwUnimplementedException
-  return implementations
-},
-{})
+const interfaceImplementation = exposedMethods.reduce(
+  (implementations, methodName) => {
+    implementations[methodName] = throwUnimplementedException
+    return implementations
+  },
+  {}
+)
 
 module.exports = function MapCommunication() {
   return _.extend({}, interfaceImplementation)

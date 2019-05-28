@@ -19,7 +19,7 @@
     window.requestAnimationFrame = function(callback, element) {
       const currTime = new Date().getTime()
       const timeToCall = Math.max(0, 16 - (currTime - lastTime))
-      const id = window.setTimeout(function() {
+      const id = window.setTimeout(() => {
         callback(currTime + timeToCall)
       }, timeToCall)
       lastTime = currTime + timeToCall

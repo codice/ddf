@@ -51,15 +51,15 @@ function attemptToStart() {
   if (workspaces.fetched && user.fetched && !hasEmptyHashAndNoWorkspaces()) {
     app.App.start({})
   } else if (!user.fetched) {
-    user.once('sync', function() {
+    user.once('sync', () => {
       attemptToStart()
     })
   } else if (!workspaces.fetched) {
-    workspaces.once('sync', function() {
+    workspaces.once('sync', () => {
       attemptToStart()
     })
   } else if (hasEmptyHashAndNoWorkspaces()) {
-    workspaces.once('sync', function(workspace, resp, options) {
+    workspaces.once('sync', (workspace, resp, options) => {
       location.hash = '#workspaces/' + workspace.id
       attemptToStart()
     })
@@ -68,7 +68,7 @@ function attemptToStart() {
 }
 
 //$(window).trigger('resize');
-$(window.document).ready(function() {
+$(window.document).ready(() => {
   window.document.title = properties.branding + ' ' + properties.product
 })
 attemptToStart()

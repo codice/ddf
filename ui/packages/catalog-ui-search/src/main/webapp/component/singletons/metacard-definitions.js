@@ -18,10 +18,10 @@ const moment = require('moment')
 function transformEnumResponse(metacardTypes, response) {
   return _.reduce(
     response,
-    function(result, value, key) {
+    (result, value, key) => {
       switch (metacardTypes[key].type) {
         case 'DATE':
-          result[key] = value.map(function(subval) {
+          result[key] = value.map(subval => {
             if (subval) {
               return moment(subval).toISOString()
             }
@@ -33,9 +33,9 @@ function transformEnumResponse(metacardTypes, response) {
         case 'FLOAT':
         case 'INTEGER':
         case 'SHORT': //needed until enum response correctly returns numbers as numbers
-          result[key] = value.map(function(subval) {
-            return Number(subval) //handle cases of unnecessary number padding -> 22.0000
-          })
+          result[key] = value.map((
+            subval //handle cases of unnecessary number padding -> 22.0000
+          ) => Number(subval))
           break
         default:
           result[key] = value
@@ -113,20 +113,18 @@ module.exports = new (Backbone.Model.extend({
     )
   },
   getDatatypeEnum() {
-    $.get('./internal/enumerations/attribute/datatype').then(
-      function(response) {
-        _.extend(this.enums, response)
-      }.bind(this)
-    )
+    $.get('./internal/enumerations/attribute/datatype').then(response => {
+      _.extend(this.enums, response)
+    })
   },
   getEnumForMetacardDefinition(metacardDefinition) {
     $.get('./internal/enumerations/metacardtype/' + metacardDefinition).then(
-      function(response) {
+      response => {
         _.extend(
           this.enums,
           transformEnumResponse(this.metacardTypes, response)
         )
-      }.bind(this)
+      }
     )
   },
   addMetacardDefinition(metacardDefinitionName, metacardDefinition) {
@@ -171,11 +169,9 @@ module.exports = new (Backbone.Model.extend({
     }
   },
   getMetacardTypes() {
-    $.get('./internal/metacardtype').then(
-      function(metacardDefinitions) {
-        this.addMetacardDefinitions(metacardDefinitions)
-      }.bind(this)
-    )
+    $.get('./internal/metacardtype').then(metacardDefinitions => {
+      this.addMetacardDefinitions(metacardDefinitions)
+    })
   },
   attributeComparator(a, b) {
     const attrToCompareA = this.getLabel(a).toLowerCase()
@@ -189,7 +185,7 @@ module.exports = new (Backbone.Model.extend({
     return 0
   },
   sortMetacardTypes(metacardTypes) {
-    return metacardTypes.sort(function(a, b) {
+    return metacardTypes.sort((a, b) => {
       const attrToCompareA = (a.alias || a.id).toLowerCase()
       const attrToCompareB = (b.alias || b.id).toLowerCase()
       if (attrToCompareA < attrToCompareB) {

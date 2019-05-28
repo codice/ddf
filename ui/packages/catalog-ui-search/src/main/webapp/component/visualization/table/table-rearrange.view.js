@@ -54,17 +54,16 @@ module.exports = Marionette.ItemView.extend({
       .get('columnHide')
     const availableAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes()
 
-    return preferredHeader.map(function(property) {
-      return {
-        label: properties.attributeAliases[property],
-        id: property,
-        hidden: hiddenColumns.indexOf(property) >= 0,
-        notCurrentlyAvailable:
-          availableAttributes.indexOf(property) === -1 ||
-          properties.isHidden(property) ||
-          metacardDefinitions.isHiddenTypeExceptThumbnail(property),
-      }
-    })
+    return preferredHeader.map(property => ({
+      label: properties.attributeAliases[property],
+      id: property,
+      hidden: hiddenColumns.indexOf(property) >= 0,
+
+      notCurrentlyAvailable:
+        availableAttributes.indexOf(property) === -1 ||
+        properties.isHidden(property) ||
+        metacardDefinitions.isHiddenTypeExceptThumbnail(property),
+    }))
   },
   onRender() {
     Sortable.create(this.el.querySelector('.rearrange-columns'))
@@ -73,9 +72,9 @@ module.exports = Marionette.ItemView.extend({
     const prefs = user.get('user').get('preferences')
     prefs.set(
       'columnOrder',
-      _.map(this.$el.find('.column'), function(element) {
-        return element.getAttribute('data-propertyid')
-      })
+      _.map(this.$el.find('.column'), element =>
+        element.getAttribute('data-propertyid')
+      )
     )
     prefs.savePreferences()
     this.destroy()

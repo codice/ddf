@@ -33,9 +33,9 @@ module.exports = EditorView.extend({
   },
   onBeforeShow() {
     const results = this.selectionInterface.getSelectedResults()
-    const metacards = results.map(function(result) {
-      return result.get('metacard>properties').toJSON()
-    })
+    const metacards = results.map(result =>
+      result.get('metacard>properties').toJSON()
+    )
     this.editorProperties.show(
       PropertyCollectionView.generatePropertyCollectionView(metacards)
     )
@@ -52,30 +52,26 @@ module.exports = EditorView.extend({
     const results = this.selectionInterface.getSelectedResults()
     const self = this
     self.editorProperties.currentView.clearValidation()
-    results
-      .filter(function(result) {
-        return !result.isRemote()
-      })
-      .forEach(function(result) {
-        ;(function(id) {
-          $.get({
-            url: './internal/metacard/' + id + '/attribute/validation',
-            customErrorHandling: true,
-          }).then(function(response) {
-            if (!self.isDestroyed && self.editorProperties.currentView) {
-              response.forEach(function(issue) {
-                issue.id = id
-              })
-              self.editorProperties.currentView.updateValidation(response)
-            }
-          })
-        })(
-          result
-            .get('metacard')
-            .get('properties')
-            .get('id')
-        )
-      })
+    results.filter(result => !result.isRemote()).forEach(result => {
+      ;(function(id) {
+        $.get({
+          url: './internal/metacard/' + id + '/attribute/validation',
+          customErrorHandling: true,
+        }).then(response => {
+          if (!self.isDestroyed && self.editorProperties.currentView) {
+            response.forEach(issue => {
+              issue.id = id
+            })
+            self.editorProperties.currentView.updateValidation(response)
+          }
+        })
+      })(
+        result
+          .get('metacard')
+          .get('properties')
+          .get('id')
+      )
+    })
   },
   afterCancel() {
     //this.getValidation();
@@ -84,26 +80,24 @@ module.exports = EditorView.extend({
     if (editorJSON.length > 0) {
       const payload = [
         {
-          ids: this.model.map(function(metacard) {
-            return metacard.get('metacard').get('id')
-          }),
+          ids: this.model.map(metacard => metacard.get('metacard').get('id')),
           attributes: editorJSON,
         },
       ]
       LoadingCompanionView.beginLoading(this)
       const self = this
-      setTimeout(function() {
+      setTimeout(() => {
         $.ajax({
           url: './internal/metacards',
           type: 'PATCH',
           data: JSON.stringify(payload),
           contentType: 'application/json',
         })
-          .then(function(response) {
+          .then(response => {
             ResultUtils.updateResults(self.model, response)
           })
-          .always(function() {
-            setTimeout(function() {
+          .always(() => {
+            setTimeout(() => {
               //let solr flush
               LoadingCompanionView.endLoading(self)
               if (!self.isDestroyed) {

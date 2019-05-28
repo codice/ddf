@@ -78,25 +78,23 @@ module.exports = Marionette.LayoutView.extend({
   },
   getNotesForMetacard() {
     LoadingCompanionView.beginLoading(this)
-    $.get('./internal/notes/' + this._metacardId).then(
-      function(response) {
-        const resp = response.response
-        if (response.responseType === 'success') {
-          if (this.isValidResponse(resp)) {
-            this._notes = JSON.parse(resp)
-            this.parseNotes()
-          } else {
-            announcement.announce({
-              title: 'Error!',
-              message: 'There was an error retrieving the notes for this item!',
-              type: 'error',
-            })
-          }
+    $.get('./internal/notes/' + this._metacardId).then(response => {
+      const resp = response.response
+      if (response.responseType === 'success') {
+        if (this.isValidResponse(resp)) {
+          this._notes = JSON.parse(resp)
+          this.parseNotes()
+        } else {
+          announcement.announce({
+            title: 'Error!',
+            message: 'There was an error retrieving the notes for this item!',
+            type: 'error',
+          })
         }
-        LoadingCompanionView.endLoading(this)
-        this.checkHasNotes()
-      }.bind(this)
-    )
+      }
+      LoadingCompanionView.endLoading(this)
+      this.checkHasNotes()
+    })
   },
   handleRefresh() {
     this.getNotesForMetacard()
@@ -115,18 +113,16 @@ module.exports = Marionette.LayoutView.extend({
   },
   parseNotes() {
     this.clearNotes()
-    this._notes.forEach(
-      function(note) {
-        this._notesCollection.add({
-          id: note.id,
-          parent: note.parent.id,
-          created: note.created,
-          modified: note.modified,
-          note: note.note,
-          owner: note.owner,
-        })
-      }.bind(this)
-    )
+    this._notes.forEach(note => {
+      this._notesCollection.add({
+        id: note.id,
+        parent: note.parent.id,
+        created: note.created,
+        modified: note.modified,
+        note: note.note,
+        owner: note.owner,
+      })
+    })
   },
   clearNotes() {
     if (!this._notesCollection) {
@@ -153,37 +149,32 @@ module.exports = Marionette.LayoutView.extend({
         data: JSON.stringify(noteObj),
         method: 'POST',
         contentType: 'application/json',
-      }).always(
-        function(response) {
-          const resp = response.response
-          setTimeout(
-            function() {
-              if (response.responseType === 'success') {
-                if (this.isValidResponse(resp)) {
-                  this.handlePostResponse(resp)
-                  announcement.announce({
-                    title: 'Created!',
-                    message: 'New note has been created.',
-                    type: 'success',
-                  })
-                  if (!this.isDestroyed) {
-                    this.addNoteField.currentView.revert()
-                  }
-                }
-              } else {
-                announcement.announce({
-                  title: 'Error!',
-                  message: resp,
-                  type: 'error',
-                })
+      }).always(response => {
+        const resp = response.response
+        setTimeout(() => {
+          if (response.responseType === 'success') {
+            if (this.isValidResponse(resp)) {
+              this.handlePostResponse(resp)
+              announcement.announce({
+                title: 'Created!',
+                message: 'New note has been created.',
+                type: 'success',
+              })
+              if (!this.isDestroyed) {
+                this.addNoteField.currentView.revert()
               }
-              LoadingCompanionView.endLoading(this)
-              this.checkHasNotes()
-            }.bind(this),
-            1000
-          )
-        }.bind(this)
-      )
+            }
+          } else {
+            announcement.announce({
+              title: 'Error!',
+              message: resp,
+              type: 'error',
+            })
+          }
+          LoadingCompanionView.endLoading(this)
+          this.checkHasNotes()
+        }, 1000)
+      })
     } else {
       announcement.announce({
         title: 'Error!',

@@ -42,9 +42,7 @@ const ClusterView = Marionette.ItemView.extend({
     )
     this.geometry.push(
       this.options.map.addPointWithText(center, {
-        id: this.model.get('results').map(function(result) {
-          return result.id
-        }),
+        id: this.model.get('results').map(result => result.id),
         color: this.model
           .get('results')
           .first()
@@ -55,26 +53,23 @@ const ClusterView = Marionette.ItemView.extend({
     )
   },
   addConvexHull() {
-    const points = this.model.get('results').map(function(result) {
-      return result
+    const points = this.model.get('results').map(result =>
+      result
         .get('metacard')
         .get('properties')
         .getPoints()
-    })
-    const data = _.flatten(points, true).map(function(coord) {
-      return {
-        longitude: coord[0],
-        latitude: coord[1],
-      }
-    })
-    const convexHull = calculateConvexHull(data).map(function(coord) {
-      return [coord.longitude, coord.latitude]
-    })
+    )
+    const data = _.flatten(points, true).map(coord => ({
+      longitude: coord[0],
+      latitude: coord[1],
+    }))
+    const convexHull = calculateConvexHull(data).map(coord => [
+      coord.longitude,
+      coord.latitude,
+    ])
     convexHull.push(convexHull[0])
     const geometry = this.options.map.addLine(convexHull, {
-      id: this.model.get('results').map(function(result) {
-        return result.id
-      }),
+      id: this.model.get('results').map(result => result.id),
       color: this.model
         .get('results')
         .first()
@@ -90,9 +85,7 @@ const ClusterView = Marionette.ItemView.extend({
       id &&
       this.model
         .get('results')
-        .map(function(result) {
-          return result.id
-        })
+        .map(result => result.id)
         .toString() === id.toString()
     ) {
       this.options.map.showGeometry(this.geometry[1])
@@ -106,22 +99,18 @@ const ClusterView = Marionette.ItemView.extend({
     const results = this.model.get('results')
     // if there are less selected results, loop over those instead of this model's results
     if (selectedResults.length < results.length) {
-      selectedResults.some(
-        function(result) {
-          if (results.get(result.id)) {
-            selected++
-          }
-          return selected === results.length
-        }.bind(this)
-      )
+      selectedResults.some(result => {
+        if (results.get(result.id)) {
+          selected++
+        }
+        return selected === results.length
+      })
     } else {
-      results.forEach(
-        function(result) {
-          if (selectedResults.get(result.id)) {
-            selected++
-          }
-        }.bind(this)
-      )
+      results.forEach(result => {
+        if (selectedResults.get(result.id)) {
+          selected++
+        }
+      })
     }
     if (selected === results.length) {
       this.updateDisplay('fullySelected')
@@ -188,11 +177,9 @@ const ClusterView = Marionette.ItemView.extend({
   },
   onDestroy() {
     if (this.geometry) {
-      this.geometry.forEach(
-        function(geometry) {
-          this.options.map.removeGeometry(geometry)
-        }.bind(this)
-      )
+      this.geometry.forEach(geometry => {
+        this.options.map.removeGeometry(geometry)
+      })
     }
   },
 })

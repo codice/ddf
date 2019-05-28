@@ -222,28 +222,26 @@ module.exports = Marionette.LayoutView.extend({
       this.listenTo(
         QueryConfirmationView.generateConfirmation({}),
         'change:choice',
-        function(confirmation) {
+        confirmation => {
           const choice = confirmation.get('choice')
           if (choice === true) {
             const loadingview = new LoadingView()
-            store
-              .get('workspaces')
-              .once('sync', function(workspace, resp, options) {
-                loadingview.remove()
-                wreqr.vent.trigger('router:navigate', {
-                  fragment: 'workspaces/' + workspace.id,
-                  options: {
-                    trigger: true,
-                  },
-                })
+            store.get('workspaces').once('sync', (workspace, resp, options) => {
+              loadingview.remove()
+              wreqr.vent.trigger('router:navigate', {
+                fragment: 'workspaces/' + workspace.id,
+                options: {
+                  trigger: true,
+                },
               })
+            })
             store.get('workspaces').createWorkspaceWithQuery(this.model)
           } else if (choice !== false) {
             store.getCurrentQueries().remove(choice)
             store.getCurrentQueries().add(this.model)
             this.endSave()
           }
-        }.bind(this)
+        }
       )
     }
   },
@@ -255,12 +253,11 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   listenForSave() {
-    this.$el.off('saveQuery.' + CustomElements.getNamespace()).on(
-      'saveQuery.' + CustomElements.getNamespace(),
-      function(e) {
+    this.$el
+      .off('saveQuery.' + CustomElements.getNamespace())
+      .on('saveQuery.' + CustomElements.getNamespace(), e => {
         this.saveRun()
-      }.bind(this)
-    )
+      })
   },
   closeDropdown() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())

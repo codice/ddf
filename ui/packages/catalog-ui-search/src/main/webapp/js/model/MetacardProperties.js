@@ -25,33 +25,35 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   hasGeometry(attribute) {
     return (
-      _.filter(this.toJSON(), function(value, key) {
-        return (
+      _.filter(
+        this.toJSON(),
+        (value, key) =>
           (attribute === undefined || attribute === key) &&
           metacardDefinitions.metacardTypes[key] &&
           metacardDefinitions.metacardTypes[key].type === 'GEOMETRY'
-        )
-      }).length > 0
+      ).length > 0
     )
   },
   getCombinedGeoJSON() {
     return
   },
   getPoints(attribute) {
-    return this.getGeometries(attribute).reduce(function(pointArray, wkt) {
-      return pointArray.concat(
-        TurfMeta.coordAll(wkx.Geometry.parse(wkt).toGeoJSON())
-      )
-    }, [])
+    return this.getGeometries(attribute).reduce(
+      (pointArray, wkt) =>
+        pointArray.concat(
+          TurfMeta.coordAll(wkx.Geometry.parse(wkt).toGeoJSON())
+        ),
+      []
+    )
   },
   getGeometries(attribute) {
-    return _.filter(this.toJSON(), function(value, key) {
-      return (
+    return _.filter(
+      this.toJSON(),
+      (value, key) =>
         !properties.isHidden(key) &&
         (attribute === undefined || attribute === key) &&
         metacardDefinitions.metacardTypes[key] &&
         metacardDefinitions.metacardTypes[key].type === 'GEOMETRY'
-      )
-    })
+    )
   },
 })

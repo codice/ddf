@@ -33,15 +33,13 @@ const GeometryView = Marionette.ItemView.extend({
   updateGeometry(propertiesModel) {
     if (
       propertiesModel &&
-      _.find(Object.keys(propertiesModel.changedAttributes()), function(
-        attribute
-      ) {
-        return (
+      _.find(
+        Object.keys(propertiesModel.changedAttributes()),
+        attribute =>
           (metacardDefinitions.metacardTypes[attribute] &&
             metacardDefinitions.metacardTypes[attribute].type === 'GEOMETRY') ||
           attribute === 'id'
-        )
-      }) === undefined
+      ) === undefined
     ) {
       return
     }
@@ -51,12 +49,9 @@ const GeometryView = Marionette.ItemView.extend({
     const geometry = this.model.getGeometries()
     if (geometry.length > 0) {
       this.geometry = []
-      _.forEach(
-        geometry,
-        function(property) {
-          this.handleGeometry(wkx.Geometry.parse(property).toGeoJSON())
-        }.bind(this)
-      )
+      _.forEach(geometry, property => {
+        this.handleGeometry(wkx.Geometry.parse(property).toGeoJSON())
+      })
       this.updateSelected = _debounce(this.updateSelected, 100, {
         trailing: true,
         leading: true,
@@ -86,52 +81,40 @@ const GeometryView = Marionette.ItemView.extend({
         this.handlePoint(geometry.coordinates)
         break
       case 'Polygon':
-        geometry.coordinates.forEach(
-          function(polygon) {
-            this.handlePoint(polygon[0])
-            this.handleLine(polygon)
-            //this.handlePolygon(polygon);
-          }.bind(this)
-        )
+        geometry.coordinates.forEach(polygon => {
+          this.handlePoint(polygon[0])
+          this.handleLine(polygon)
+          //this.handlePolygon(polygon);
+        })
         break
       case 'LineString':
         this.handlePoint(geometry.coordinates[0])
         this.handleLine(geometry.coordinates)
         break
       case 'MultiLineString':
-        geometry.coordinates.forEach(
-          function(line) {
-            this.handlePoint(line[0])
-            this.handleLine(line)
-          }.bind(this)
-        )
+        geometry.coordinates.forEach(line => {
+          this.handlePoint(line[0])
+          this.handleLine(line)
+        })
         break
       case 'MultiPoint':
-        geometry.coordinates.forEach(
-          function(point) {
-            this.handlePoint(point)
-          }.bind(this)
-        )
+        geometry.coordinates.forEach(point => {
+          this.handlePoint(point)
+        })
         break
       case 'MultiPolygon':
-        geometry.coordinates.forEach(
-          function(multipolygon) {
-            multipolygon.forEach(
-              function(polygon) {
-                this.handlePoint(polygon[0])
-                this.handleLine(polygon)
-                //this.handlePolygon(polygon);
-              }.bind(this)
-            )
-          }.bind(this)
-        )
+        geometry.coordinates.forEach(multipolygon => {
+          multipolygon.forEach(polygon => {
+            this.handlePoint(polygon[0])
+            this.handleLine(polygon)
+            //this.handlePolygon(polygon);
+          })
+        })
         break
       case 'GeometryCollection':
-        geometry.geometries.forEach(
-          function(subgeometry) {
-            this.handleGeometry(subgeometry)
-          }.bind(this)
-        )
+        geometry.geometries.forEach(subgeometry => {
+          this.handleGeometry(subgeometry)
+        })
         break
     }
   },
@@ -190,15 +173,13 @@ const GeometryView = Marionette.ItemView.extend({
   updateDisplay(isSelected) {
     if (!this.isClustered && this.isSelected !== isSelected) {
       this.isSelected = isSelected
-      this.geometry.forEach(
-        function(geometry) {
-          this.options.map.updateGeometry(geometry, {
-            color: this.model.get('metacard').get('color'),
-            icon: iconHelper.getFull(this.model),
-            isSelected,
-          })
-        }.bind(this)
-      )
+      this.geometry.forEach(geometry => {
+        this.options.map.updateGeometry(geometry, {
+          color: this.model.get('metacard').get('color'),
+          icon: iconHelper.getFull(this.model),
+          isSelected,
+        })
+      })
     }
   },
   checkIfClustered() {
@@ -214,26 +195,20 @@ const GeometryView = Marionette.ItemView.extend({
     }
   },
   showGeometry() {
-    this.geometry.forEach(
-      function(geometry) {
-        this.options.map.showGeometry(geometry)
-      }.bind(this)
-    )
+    this.geometry.forEach(geometry => {
+      this.options.map.showGeometry(geometry)
+    })
   },
   hideGeometry() {
-    this.geometry.forEach(
-      function(geometry) {
-        this.options.map.hideGeometry(geometry)
-      }.bind(this)
-    )
+    this.geometry.forEach(geometry => {
+      this.options.map.hideGeometry(geometry)
+    })
   },
   onDestroy() {
     if (this.geometry) {
-      this.geometry.forEach(
-        function(geometry) {
-          this.options.map.removeGeometry(geometry)
-        }.bind(this)
-      )
+      this.geometry.forEach(geometry => {
+        this.options.map.removeGeometry(geometry)
+      })
     }
   },
 })

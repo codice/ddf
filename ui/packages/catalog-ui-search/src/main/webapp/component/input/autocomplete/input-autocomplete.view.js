@@ -43,9 +43,10 @@ module.exports = InputView.extend({
         if (!Array.isArray(items)) {
           items = []
         }
-        return items.map(function(item) {
-          return { name: item.name, id: item.id }
-        })
+        return items.map(item => ({
+          name: item.name,
+          id: item.id,
+        }))
       },
     }
     _.extend(options, this.model.get('property').attributes)

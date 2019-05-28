@@ -86,9 +86,7 @@ DrawCircle.CircleView = Marionette.View.extend({
 
   isModelReset(modelProp) {
     if (
-      _.every(defaultAttrs, function(val) {
-        return _.isUndefined(modelProp[val])
-      }) ||
+      _.every(defaultAttrs, val => _.isUndefined(modelProp[val])) ||
       _.isEmpty(modelProp)
     ) {
       return true
@@ -201,10 +199,10 @@ DrawCircle.CircleView = Marionette.View.extend({
       this.click1 = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(
         cartesian
       )
-      this.mouseHandler.setInputAction(function() {
+      this.mouseHandler.setInputAction(() => {
         that.handleRegionStop()
       }, Cesium.ScreenSpaceEventType.LEFT_UP)
-      this.mouseHandler.setInputAction(function(movement) {
+      this.mouseHandler.setInputAction(movement => {
         that.handleRegionInter(movement)
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
     }
@@ -215,7 +213,7 @@ DrawCircle.CircleView = Marionette.View.extend({
     const that = this
 
     // Now wait for start
-    this.mouseHandler.setInputAction(function(movement) {
+    this.mouseHandler.setInputAction(movement => {
       that.handleRegionStart(movement)
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN)
   },

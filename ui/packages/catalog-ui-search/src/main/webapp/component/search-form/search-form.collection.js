@@ -85,28 +85,26 @@ module.exports = Backbone.AssociatedModel.extend({
   ],
   addAllForms() {
     if (!this.isDestroyed) {
-      cachedTemplates.forEach(
-        function(value, index) {
-          this.addSearchForm(
-            new SearchForm({
-              createdOn: value.created,
-              id: value.id,
-              title: value.title,
-              description: value.description,
-              type: 'custom',
-              filterTemplate: value.filterTemplate,
-              accessIndividuals: value.accessIndividuals,
-              accessIndividualsRead: value.accessIndividualsRead,
-              accessAdministrators: value.accessAdministrators,
-              accessGroups: value.accessGroups,
-              accessGroupsRead: value.accessGroupsRead,
-              createdBy: value.creator,
-              owner: value.owner,
-              querySettings: value.querySettings,
-            })
-          )
-        }.bind(this)
-      )
+      cachedTemplates.forEach((value, index) => {
+        this.addSearchForm(
+          new SearchForm({
+            createdOn: value.created,
+            id: value.id,
+            title: value.title,
+            description: value.description,
+            type: 'custom',
+            filterTemplate: value.filterTemplate,
+            accessIndividuals: value.accessIndividuals,
+            accessIndividualsRead: value.accessIndividualsRead,
+            accessAdministrators: value.accessAdministrators,
+            accessGroups: value.accessGroups,
+            accessGroupsRead: value.accessGroupsRead,
+            createdBy: value.creator,
+            owner: value.owner,
+            querySettings: value.querySettings,
+          })
+        )
+      })
     }
     this.get('searchForms').sort()
   },
@@ -123,8 +121,6 @@ module.exports = Backbone.AssociatedModel.extend({
     this.set('doneLoading', true)
   },
   deleteCachedTemplateById(id) {
-    cachedTemplates = _.filter(cachedTemplates, function(template) {
-      return template.id !== id
-    })
+    cachedTemplates = _.filter(cachedTemplates, template => template.id !== id)
   },
 })

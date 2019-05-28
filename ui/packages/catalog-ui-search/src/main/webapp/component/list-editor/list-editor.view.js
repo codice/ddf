@@ -145,16 +145,14 @@ module.exports = Marionette.LayoutView.extend({
   },
   edit() {
     this.$el.addClass('is-editing')
-    this.regionManager.forEach(function(region) {
+    this.regionManager.forEach(region => {
       if (region.currentView && region.currentView.turnOnEditing) {
         region.currentView.turnOnEditing()
       }
     })
     const tabbable = _.filter(
       this.$el.find('[tabindex], input, button'),
-      function(element) {
-        return element.offsetParent !== null
-      }
+      element => element.offsetParent !== null
     )
     if (tabbable.length > 0) {
       $(tabbable[0]).focus()

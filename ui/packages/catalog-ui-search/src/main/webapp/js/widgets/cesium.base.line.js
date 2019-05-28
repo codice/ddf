@@ -105,14 +105,12 @@ class GeometryRenderView extends Marionette.View {
   }
 
   handleCameraMoveStart = () => {
-    this.animationFrameId = window.requestAnimationFrame(
-      function() {
-        if (needsRedraw(this)) {
-          this.updatePrimitive()
-        }
-        this.handleCameraMoveStart()
-      }.bind(this)
-    )
+    this.animationFrameId = window.requestAnimationFrame(() => {
+      if (needsRedraw(this)) {
+        this.updatePrimitive()
+      }
+      this.handleCameraMoveStart()
+    })
   }
 
   handleCameraMoveEnd = () => {
@@ -188,7 +186,7 @@ class GeometryController extends DrawingController {
         if (controller.notificationView) {
           controller.notificationView.destroy()
         }
-        const latLonRadPoints = _.map(positions, function(cartPos) {
+        const latLonRadPoints = _.map(positions, cartPos => {
           const latLon = controller.map.scene.globe.ellipsoid.cartesianToCartographic(
             cartPos
           )

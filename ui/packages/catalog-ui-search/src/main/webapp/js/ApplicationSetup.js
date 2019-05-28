@@ -112,7 +112,7 @@ let getErrorResponse = function(event, jqxhr, settings, throwError) {
   }
 }
 
-$(window.document).ajaxError(function(event, jqxhr, settings, throwError) {
+$(window.document).ajaxError((event, jqxhr, settings, throwError) => {
   if (settings.customErrorHandling) {
     // Do nothing if caller is handling their own error
     return
@@ -141,7 +141,7 @@ Backbone.Model.prototype.toJSON = function(options) {
   const originalJSON = toJSON.call(this, options)
   if (options && options.additionalProperties !== undefined) {
     const backboneModel = this
-    options.additionalProperties.forEach(function(property) {
+    options.additionalProperties.forEach(property => {
       originalJSON[property] = backboneModel[property]
     })
   }

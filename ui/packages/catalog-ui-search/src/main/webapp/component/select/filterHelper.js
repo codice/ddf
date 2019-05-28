@@ -37,9 +37,7 @@ function getWords(str, matchcase) {
   return str.split(/[-\.\s]+/)
 }
 function wordStartsWithFilter(words, filter) {
-  return words.find(function(word) {
-    return word.indexOf(filter) === 0
-  })
+  return words.find(word => word.indexOf(filter) === 0)
 }
 
 export { matchesFilter, getAppropriateString }

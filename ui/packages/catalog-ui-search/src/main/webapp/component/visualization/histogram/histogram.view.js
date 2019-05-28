@@ -39,7 +39,7 @@ function getPlotlyDate(date) {
 
 function calculateAvailableAttributes(results) {
   let availableAttributes = []
-  results.forEach(function(result) {
+  results.forEach(result => {
     availableAttributes = _.union(
       availableAttributes,
       Object.keys(
@@ -51,33 +51,27 @@ function calculateAvailableAttributes(results) {
     )
   })
   return availableAttributes
-    .filter(function(attribute) {
-      return metacardDefinitions.metacardTypes[attribute] !== undefined
-    })
-    .filter(function(attribute) {
-      return !metacardDefinitions.isHiddenType(attribute)
-    })
-    .filter(function(attribute) {
-      return !properties.isHidden(attribute)
-    })
-    .map(function(attribute) {
-      return {
-        label: metacardDefinitions.metacardTypes[attribute].alias || attribute,
-        value: attribute,
-      }
-    })
+    .filter(
+      attribute => metacardDefinitions.metacardTypes[attribute] !== undefined
+    )
+    .filter(attribute => !metacardDefinitions.isHiddenType(attribute))
+    .filter(attribute => !properties.isHidden(attribute))
+    .map(attribute => ({
+      label: metacardDefinitions.metacardTypes[attribute].alias || attribute,
+      value: attribute,
+    }))
 }
 
 function calculateAttributeArray(results, attribute) {
   const attributes = []
-  results.forEach(function(result) {
+  results.forEach(result => {
     if (metacardDefinitions.metacardTypes[attribute].multivalued) {
       const resultValues = result
         .get('metacard')
         .get('properties')
         .get(attribute)
       if (resultValues && resultValues.forEach) {
-        resultValues.forEach(function(value) {
+        resultValues.forEach(value => {
           addValueForAttributeToArray(attributes, attribute, value)
         })
       } else {
@@ -98,7 +92,7 @@ function calculateAttributeArray(results, attribute) {
 }
 
 function findMatchesForAttributeValues(results, attribute, values) {
-  return results.filter(function(result) {
+  return results.filter(result => {
     if (metacardDefinitions.metacardTypes[attribute].multivalued) {
       const resultValues = result
         .get('metacard')
@@ -162,12 +156,7 @@ function addValueForAttributeToArray(valueArray, attribute, value) {
 }
 
 function getIndexClicked(data) {
-  return Math.max.apply(
-    this,
-    data.points.map(function(point) {
-      return point.pointNumber
-    })
-  )
+  return Math.max.apply(this, data.points.map(point => point.pointNumber))
 }
 
 function getValueFromClick(data, categories) {
@@ -276,20 +265,18 @@ module.exports = Marionette.LayoutView.extend({
         this.$el.removeClass('no-matching-data')
         Plotly.newPlot(histogramElement, initialData, getLayout(), {
           displayModeBar: false,
-        }).then(
-          function(plot) {
-            Plotly.newPlot(
-              histogramElement,
-              this.determineData(plot),
-              getLayout(plot),
-              {
-                displayModeBar: false,
-              }
-            )
-            this.handleResize()
-            this.listenToHistogram()
-          }.bind(this)
-        )
+        }).then(plot => {
+          Plotly.newPlot(
+            histogramElement,
+            this.determineData(plot),
+            getLayout(plot),
+            {
+              displayModeBar: false,
+            }
+          )
+          this.handleResize()
+          this.listenToHistogram()
+        })
       }
     } else {
       this.el.querySelector('.histogram-container').innerHTML = ''
@@ -446,14 +433,11 @@ module.exports = Marionette.LayoutView.extend({
     if (histogramElement._context) {
       Plotly.Plots.resize(histogramElement)
     }
-    this.$el.find('rect.drag').on(
-      'mousedown',
-      function(event) {
-        this.shiftKey = event.shiftKey
-        this.metaKey = event.metaKey
-        this.ctrlKey = event.ctrlKey
-      }.bind(this)
-    )
+    this.$el.find('rect.drag').on('mousedown', event => {
+      this.shiftKey = event.shiftKey
+      this.metaKey = event.metaKey
+      this.ctrlKey = event.ctrlKey
+    })
   },
   addResizeHandler() {
     this.listenTo(wreqr.vent, 'resize', this.handleResize)
@@ -555,15 +539,17 @@ module.exports = Marionette.LayoutView.extend({
     const firstIndex =
       this.pointsSelected.length === 0
         ? -1
-        : this.pointsSelected.reduce(function(currentMin, point) {
-            return Math.min(currentMin, point)
-          }, this.pointsSelected[0])
+        : this.pointsSelected.reduce(
+            (currentMin, point) => Math.min(currentMin, point),
+            this.pointsSelected[0]
+          )
     const lastIndex =
       this.pointsSelected.length === 0
         ? -1
-        : this.pointsSelected.reduce(function(currentMin, point) {
-            return Math.max(currentMin, point)
-          }, this.pointsSelected[0])
+        : this.pointsSelected.reduce(
+            (currentMin, point) => Math.max(currentMin, point),
+            this.pointsSelected[0]
+          )
     if (firstIndex === -1 && lastIndex === -1) {
       this.options.selectionInterface.clearSelectedResults()
       this.handleControlClick(data, alreadySelected)
@@ -586,7 +572,7 @@ module.exports = Marionette.LayoutView.extend({
     const validCategories = categories.slice(firstIndex, lastIndex)
     const activeSearchResults = this.options.selectionInterface.getActiveSearchResults()
     this.options.selectionInterface.addSelectedResult(
-      validCategories.reduce(function(results, category) {
+      validCategories.reduce((results, category) => {
         results = results.concat(
           findMatchesForAttributeValues(
             activeSearchResults,

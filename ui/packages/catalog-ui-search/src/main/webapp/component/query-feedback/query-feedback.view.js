@@ -50,7 +50,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   edit() {
     this.$el.addClass('is-editing')
-    this.regionManager.forEach(function(region) {
+    this.regionManager.forEach(region => {
       if (region.currentView && region.currentView.turnOnEditing) {
         region.currentView.turnOnEditing()
       }

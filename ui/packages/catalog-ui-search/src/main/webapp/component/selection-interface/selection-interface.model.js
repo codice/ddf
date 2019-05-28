@@ -80,7 +80,7 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   updateActiveSearchResultsAttributes() {
     const availableAttributes = this.get('activeSearchResults')
-      .reduce(function(currentAvailable, result) {
+      .reduce((currentAvailable, result) => {
         currentAvailable = _.union(
           currentAvailable,
           Object.keys(

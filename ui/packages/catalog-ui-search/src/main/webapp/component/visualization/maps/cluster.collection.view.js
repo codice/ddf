@@ -42,7 +42,7 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
   },
   onRender() {},
   handleMapHover(event, mapEvent) {
-    this.children.forEach(function(clusterView) {
+    this.children.forEach(clusterView => {
       clusterView.handleHover(mapEvent.mapTarget)
     })
   },
@@ -98,12 +98,10 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
   clusteringAnimationFrameId: undefined,
   startClusterAnimating() {
     if (this.isActive) {
-      this.clusteringAnimationFrameId = window.requestAnimationFrame(
-        function() {
-          this.calculateClusters()
-          this.startClusterAnimating()
-        }.bind(this)
-      )
+      this.clusteringAnimationFrameId = window.requestAnimationFrame(() => {
+        this.calculateClusters()
+        this.startClusterAnimating()
+      })
     }
   },
   calculateClusters() {
@@ -113,17 +111,14 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
         this.options.map
       )
       this.collection.set(
-        clusters.map(function(cluster) {
-          return {
-            results: cluster,
-            id: cluster
-              .map(function(result) {
-                return result.id
-              })
-              .sort()
-              .toString(),
-          }
-        }),
+        clusters.map(cluster => ({
+          results: cluster,
+
+          id: cluster
+            .map(result => result.id)
+            .sort()
+            .toString(),
+        })),
         { merge: false }
       )
     } else {
@@ -133,9 +128,7 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
   getResultsWithGeometry() {
     return this.selectionInterface
       .getActiveSearchResults()
-      .filter(function(result) {
-        return result.hasGeometry()
-      })
+      .filter(result => result.hasGeometry())
   },
   listenForResultsChange() {
     this.listenTo(
@@ -151,14 +144,12 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
   },
   handleMetacardUpdate(propertiesModel) {
     if (
-      _.find(Object.keys(propertiesModel.changedAttributes()), function(
-        attribute
-      ) {
-        return (
+      _.find(
+        Object.keys(propertiesModel.changedAttributes()),
+        attribute =>
           metacardDefinitions.metacardTypes[attribute] &&
           metacardDefinitions.metacardTypes[attribute].type === 'GEOMETRY'
-        )
-      }) !== undefined
+      ) !== undefined
     ) {
       this.handleResultsChange()
     }

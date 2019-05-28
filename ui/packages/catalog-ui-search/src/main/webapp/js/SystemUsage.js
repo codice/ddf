@@ -60,7 +60,7 @@ function attemptToDisplayMessage() {
   if (user.fetched) {
     displayMessage()
   } else {
-    user.once('sync', function() {
+    user.once('sync', () => {
       attemptToDisplayMessage()
     })
   }

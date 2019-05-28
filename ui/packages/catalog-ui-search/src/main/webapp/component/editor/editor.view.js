@@ -104,7 +104,7 @@ module.exports = Marionette.LayoutView.extend({
     const username = user.get('user').get('userid')
     let isOwner = true
     const types = {}
-    this.model.forEach(function(result) {
+    this.model.forEach(result => {
       const tags = result
         .get('metacard')
         .get('properties')

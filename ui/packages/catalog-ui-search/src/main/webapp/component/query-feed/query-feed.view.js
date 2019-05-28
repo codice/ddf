@@ -21,12 +21,11 @@ const QueryStatusView = require('../query-status/query-status.view.js')
 const moment = require('moment')
 
 function getResultsFound(total, data) {
-  const hits = data.reduce(function(hits, status) {
-    return status.hits ? hits + status.hits : hits
-  }, 0)
-  const searching = _.every(data, function(status) {
-    return _.isUndefined(status.successful)
-  })
+  const hits = data.reduce(
+    (hits, status) => (status.hits ? hits + status.hits : hits),
+    0
+  )
+  const searching = _.every(data, status => _.isUndefined(status.successful))
   if (searching && data.length > 0) {
     return 'Searching...'
   } else if (total >= hits) {
@@ -37,9 +36,7 @@ function getResultsFound(total, data) {
 }
 
 function getSomeStatusSuccess(status, value) {
-  return _.some(status, function(s) {
-    return s.successful === value
-  })
+  return _.some(status, s => s.successful === value)
 }
 
 function getPending(status) {
@@ -138,9 +135,7 @@ module.exports = Marionette.LayoutView.extend({
           .get('result')
           .get('status')
           .toJSON(),
-        function(status) {
-          return status.id !== 'cache'
-        }
+        status => status.id !== 'cache'
       )
       return {
         resultCount: getResultsFound(

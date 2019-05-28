@@ -23,16 +23,14 @@ module.exports = function(state, action) {
     case 'ADD_ANNOUNCEMENT':
       return state.concat(action.announcement)
     case 'START_REMOVE_ANNOUNCEMENT':
-      return state.map(function(announcement) {
+      return state.map(announcement => {
         if (announcement.id === action.id) {
           return _.extend({}, announcement, { removing: true })
         }
         return announcement
       })
     case 'REMOVE_ANNOUNCEMENT':
-      return state.filter(function(announcement) {
-        return announcement.id !== action.id
-      })
+      return state.filter(announcement => announcement.id !== action.id)
     case 'DEDUPE_ANNOUNCEMENT':
       return
     default:

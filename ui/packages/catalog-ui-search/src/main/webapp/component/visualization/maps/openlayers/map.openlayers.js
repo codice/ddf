@@ -65,7 +65,7 @@ function createMap(insertionElement) {
 
 function determineIdFromPosition(position, map) {
   const features = []
-  map.forEachFeatureAtPixel(position, function(feature) {
+  map.forEachFeatureAtPixel(position, feature => {
     features.push(feature)
   })
   if (features.length > 0) {
@@ -105,7 +105,7 @@ module.exports = function OpenlayersMap(
   const drawingTools = setupDrawingTools(map)
 
   function setupTooltip(map) {
-    map.on('pointermove', function(e) {
+    map.on('pointermove', e => {
       const point = unconvertPointCoordinate(e.coordinate)
       if (!offMap(point)) {
         mapModel.updateMouseCoordinates({
@@ -171,7 +171,7 @@ module.exports = function OpenlayersMap(
       drawingTools.bbox.destroy()
     },
     onLeftClick(callback) {
-      $(map.getTargetElement()).on('click', function(e) {
+      $(map.getTargetElement()).on('click', e => {
         const boundingRect = map.getTargetElement().getBoundingClientRect()
         callback(e, {
           mapTarget: determineIdFromPosition(
@@ -182,13 +182,13 @@ module.exports = function OpenlayersMap(
       })
     },
     onRightClick(callback) {
-      $(map.getTargetElement()).on('contextmenu', function(e) {
+      $(map.getTargetElement()).on('contextmenu', e => {
         const boundingRect = map.getTargetElement().getBoundingClientRect()
         callback(e)
       })
     },
     onMouseMove(callback) {
-      $(map.getTargetElement()).on('mousemove', function(e) {
+      $(map.getTargetElement()).on('mousemove', e => {
         const boundingRect = map.getTargetElement().getBoundingClientRect()
         callback(e, {
           mapTarget: determineIdFromPosition(
@@ -222,18 +222,16 @@ module.exports = function OpenlayersMap(
     },
     panToResults(results) {
       const coordinates = _.flatten(
-        results.map(function(result) {
-          return result.getPoints()
-        }),
+        results.map(result => result.getPoints()),
         true
       )
       this.panToExtent(coordinates)
     },
     panToExtent(coords) {
       if (coords.constructor === Array && coords.length > 0) {
-        const lineObject = coords.map(function(coordinate) {
-          return convertPointCoordinate(coordinate)
-        })
+        const lineObject = coords.map(coordinate =>
+          convertPointCoordinate(coordinate)
+        )
 
         const extent = Openlayers.extent.boundingExtent(lineObject)
 
@@ -245,9 +243,9 @@ module.exports = function OpenlayersMap(
       }
     },
     zoomToExtent(coords, opts = {}) {
-      const lineObject = coords.map(function(coordinate) {
-        return convertPointCoordinate(coordinate)
-      })
+      const lineObject = coords.map(coordinate =>
+        convertPointCoordinate(coordinate)
+      )
 
       const extent = Openlayers.extent.boundingExtent(lineObject)
 
@@ -283,9 +281,7 @@ module.exports = function OpenlayersMap(
       this.removeOverlay(metacardId)
 
       const coords = model.getPoints('location')
-      const array = _.map(coords, function(coord) {
-        return convertPointCoordinate(coord)
-      })
+      const array = _.map(coords, coord => convertPointCoordinate(coord))
 
       const polygon = new Openlayers.geom.Polygon([array])
       const extent = polygon.getExtent()
@@ -318,13 +314,11 @@ module.exports = function OpenlayersMap(
     },
     getCartographicCenterOfClusterInDegrees(cluster) {
       return utility.calculateCartographicCenterOfGeometriesInDegrees(
-        cluster.get('results').map(function(result) {
-          return result
-        })
+        cluster.get('results').map(result => result)
       )
     },
     getWindowLocationsOfResults(results) {
-      return results.map(function(result) {
+      return results.map(result => {
         const openlayersCenterOfGeometry = utility.calculateOpenlayersCenterOfGeometry(
           result
         )
@@ -424,9 +418,9 @@ module.exports = function OpenlayersMap(
           Options are a view to relate to, and an id, and a color.
         */
     addLine(line, options) {
-      const lineObject = line.map(function(coordinate) {
-        return convertPointCoordinate(coordinate)
-      })
+      const lineObject = line.map(coordinate =>
+        convertPointCoordinate(coordinate)
+      )
 
       const feature = new Openlayers.Feature({
         geometry: new Openlayers.geom.LineString(lineObject),
@@ -474,11 +468,9 @@ module.exports = function OpenlayersMap(
          */
     updateCluster(geometry, options) {
       if (geometry.constructor === Array) {
-        geometry.forEach(
-          function(innerGeometry) {
-            this.updateCluster(innerGeometry, options)
-          }.bind(this)
-        )
+        geometry.forEach(innerGeometry => {
+          this.updateCluster(innerGeometry, options)
+        })
       } else {
         const feature = geometry.getSource().getFeatures()[0]
         const geometryInstance = feature.getGeometry()
@@ -524,11 +516,9 @@ module.exports = function OpenlayersMap(
         */
     updateGeometry(geometry, options) {
       if (geometry.constructor === Array) {
-        geometry.forEach(
-          function(innerGeometry) {
-            this.updateGeometry(innerGeometry, options)
-          }.bind(this)
-        )
+        geometry.forEach(innerGeometry => {
+          this.updateGeometry(innerGeometry, options)
+        })
       } else {
         const feature = geometry.getSource().getFeatures()[0]
         const geometryInstance = feature.getGeometry()
@@ -659,7 +649,7 @@ module.exports = function OpenlayersMap(
       }
     },
     destroyShapes() {
-      shapes.forEach(function(shape) {
+      shapes.forEach(shape => {
         shape.destroy()
       })
       shapes = []

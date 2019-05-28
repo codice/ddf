@@ -32,7 +32,7 @@ const QueryTimeView = require('../query-time/query-time.view.js')
 
 function isNested(filter) {
   let nested = false
-  filter.filters.forEach(function(subfilter) {
+  filter.filters.forEach(subfilter => {
     nested = nested || subfilter.filters
   })
   return nested
@@ -46,7 +46,7 @@ function getMatchTypeAttribute() {
 
 function isTypeLimiter(filter) {
   let typesFound = {}
-  filter.filters.forEach(function(subfilter) {
+  filter.filters.forEach(subfilter => {
     typesFound[CQLUtils.getProperty(subfilter)] = true
   })
   typesFound = Object.keys(typesFound)
@@ -71,7 +71,7 @@ function isAnyDate(filter) {
   }
   let typesFound = {}
   let valuesFound = {}
-  filter.filters.forEach(function(subfilter) {
+  filter.filters.forEach(subfilter => {
     typesFound[subfilter.type] = true
     valuesFound[subfilter.value] = true
   })
@@ -90,14 +90,11 @@ function isAnyDate(filter) {
 
 function handleAnyDateFilter(propertyValueMap, filter) {
   propertyValueMap['anyDate'] = propertyValueMap['anyDate'] || []
-  let existingFilter = propertyValueMap['anyDate'].filter(function(
-    anyDateFilter
-  ) {
-    return (
+  let existingFilter = propertyValueMap['anyDate'].filter(
+    anyDateFilter =>
       anyDateFilter.type ===
       (filter.filters ? filter.filters[0].type : filter.type)
-    )
-  })[0]
+  )[0]
   if (!existingFilter) {
     existingFilter = {
       property: [],
@@ -127,18 +124,16 @@ function translateFilterToBasicMap(filter) {
   }
 
   if (filter.filters) {
-    filter.filters.forEach(function(filter) {
+    filter.filters.forEach(filter => {
       if (!filter.filters && isAnyDate(filter)) {
         handleAnyDateFilter(propertyValueMap, filter)
       } else if (!filter.filters) {
         propertyValueMap[CQLUtils.getProperty(filter)] =
           propertyValueMap[CQLUtils.getProperty(filter)] || []
         if (
-          propertyValueMap[CQLUtils.getProperty(filter)].filter(function(
-            existingFilter
-          ) {
-            return existingFilter.type === filter.type
-          }).length === 0
+          propertyValueMap[CQLUtils.getProperty(filter)].filter(
+            existingFilter => existingFilter.type === filter.type
+          ).length === 0
         ) {
           propertyValueMap[CQLUtils.getProperty(filter)].push(filter)
         }
@@ -147,7 +142,7 @@ function translateFilterToBasicMap(filter) {
       } else if (!isNested(filter) && isTypeLimiter(filter)) {
         propertyValueMap[CQLUtils.getProperty(filter.filters[0])] =
           propertyValueMap[CQLUtils.getProperty(filter.filters[0])] || []
-        filter.filters.forEach(function(subfilter) {
+        filter.filters.forEach(subfilter => {
           propertyValueMap[CQLUtils.getProperty(filter.filters[0])].push(
             subfilter
           )
@@ -247,9 +242,7 @@ module.exports = Marionette.LayoutView.extend({
     let currentValue = []
     if (this.filter['metadata-content-type']) {
       currentValue = _.uniq(
-        this.filter['metadata-content-type'].map(function(subfilter) {
-          return subfilter.value
-        })
+        this.filter['metadata-content-type'].map(subfilter => subfilter.value)
       )
     }
     this.basicTypeSpecific.show(
@@ -259,13 +252,12 @@ module.exports = Marionette.LayoutView.extend({
           showValidationIssues: false,
           enumMulti: true,
           enum: sources.toJSON().reduce(
-            function(enumArray, source) {
-              source.contentTypes.forEach(function(contentType) {
+            (enumArray, source) => {
+              source.contentTypes.forEach(contentType => {
                 if (
                   contentType.value &&
-                  enumArray.filter(function(option) {
-                    return option.value === contentType.value
-                  }).length === 0
+                  enumArray.filter(option => option.value === contentType.value)
+                    .length === 0
                 ) {
                   enumArray.push({
                     label: contentType.name,
@@ -278,13 +270,11 @@ module.exports = Marionette.LayoutView.extend({
               return enumArray
             },
             metacardDefinitions.enums.datatype
-              ? metacardDefinitions.enums.datatype.map(function(value) {
-                  return {
-                    label: value,
-                    value,
-                    class: 'icon ' + IconHelper.getClassByName(value),
-                  }
-                })
+              ? metacardDefinitions.enums.datatype.map(value => ({
+                  label: value,
+                  value,
+                  class: 'icon ' + IconHelper.getClassByName(value),
+                }))
               : []
           ),
           value: [currentValue],
@@ -403,7 +393,7 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   turnOffEdit() {
-    this.regionManager.forEach(function(region) {
+    this.regionManager.forEach(region => {
       if (region.currentView && region.currentView.turnOffEditing) {
         region.currentView.turnOffEditing()
       }
@@ -411,16 +401,14 @@ module.exports = Marionette.LayoutView.extend({
   },
   edit() {
     this.$el.addClass('is-editing')
-    this.regionManager.forEach(function(region) {
+    this.regionManager.forEach(region => {
       if (region.currentView && region.currentView.turnOnEditing) {
         region.currentView.turnOnEditing()
       }
     })
     const tabbable = _.filter(
       this.$el.find('[tabindex], input, button'),
-      function(element) {
-        return element.offsetParent !== null
-      }
+      element => element.offsetParent !== null
     )
     if (tabbable.length > 0) {
       $(tabbable[0]).focus()
@@ -480,21 +468,21 @@ module.exports = Marionette.LayoutView.extend({
       const typeFilter = {
         type: 'OR',
         filters: typesSpecific
-          .map(function(specificType) {
-            return CQLUtils.generateFilter(
+          .map(specificType =>
+            CQLUtils.generateFilter(
               'ILIKE',
               'metadata-content-type',
               specificType
             )
-          })
+          )
           .concat(
-            typesSpecific.map(function(specificType) {
-              return CQLUtils.generateFilter(
+            typesSpecific.map(specificType =>
+              CQLUtils.generateFilter(
                 'ILIKE',
                 getMatchTypeAttribute(),
                 specificType
               )
-            })
+            )
           ),
       }
       filters.push(typeFilter)

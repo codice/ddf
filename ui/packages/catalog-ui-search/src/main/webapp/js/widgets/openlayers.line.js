@@ -23,7 +23,7 @@ const DistanceUtils = require('../DistanceUtils.js')
 
 function translateFromOpenlayersCoordinates(coords) {
   const coordinates = []
-  _.each(coords, function(point) {
+  _.each(coords, point => {
     point = ol.proj.transform(
       [
         DistanceUtils.coordinateRound(point[0]),
@@ -44,7 +44,7 @@ function translateFromOpenlayersCoordinates(coords) {
 
 function translateToOpenlayersCoordinates(coords) {
   const coordinates = []
-  _.each(coords, function(item) {
+  _.each(coords, item => {
     if (item[0].constructor === Array) {
       coordinates.push(translateToOpenlayersCoordinates(item))
     } else {
@@ -182,23 +182,21 @@ Draw.LineView = Marionette.View.extend({
     })
 
     this.map.addInteraction(this.primitive)
-    this.primitive.on('drawend', function(sketchFeature) {
+    this.primitive.on('drawend', sketchFeature => {
       window.cancelAnimationFrame(that.accurateLineId)
       that.handleRegionStop(sketchFeature)
       that.map.removeInteraction(that.primitive)
     })
-    this.primitive.on('drawstart', function(sketchFeature) {
+    this.primitive.on('drawstart', sketchFeature => {
       that.showAccurateLine(sketchFeature)
     })
   },
   accurateLineId: undefined,
   showAccurateLine(sketchFeature) {
-    this.accurateLineId = window.requestAnimationFrame(
-      function() {
-        this.drawBorderedPolygon(sketchFeature.feature.getGeometry())
-        this.showAccurateLine(sketchFeature)
-      }.bind(this)
-    )
+    this.accurateLineId = window.requestAnimationFrame(() => {
+      this.drawBorderedPolygon(sketchFeature.feature.getGeometry())
+      this.showAccurateLine(sketchFeature)
+    })
   },
 
   stop() {

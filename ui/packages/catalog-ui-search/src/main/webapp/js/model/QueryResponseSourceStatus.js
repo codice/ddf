@@ -58,21 +58,19 @@ module.exports = Backbone.AssociatedModel.extend({
   updateStatus(results) {
     let top = 0
     let fromcache = 0
-    results.forEach(
-      function(result) {
-        if (
-          result
-            .get('metacard')
-            .get('properties')
-            .get('source-id') === this.id
-        ) {
-          top++
-          if (!result.get('uncached')) {
-            fromcache++
-          }
+    results.forEach(result => {
+      if (
+        result
+          .get('metacard')
+          .get('properties')
+          .get('source-id') === this.id
+      ) {
+        top++
+        if (!result.get('uncached')) {
+          fromcache++
         }
-      }.bind(this)
-    )
+      }
+    })
     this.set({
       top,
       fromcache,

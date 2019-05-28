@@ -34,7 +34,7 @@ module.exports = Marionette.CollectionView.extend({
       animation: 250,
       draggable: '>*',
       disabled: this.options.isForm && !this.options.isFormBuilder,
-      onEnd: function() {
+      onEnd: () => {
         _.forEach(
           this.$el.children(
             `${CustomElements.getNamespace()}filter-builder` +
@@ -47,7 +47,7 @@ module.exports = Marionette.CollectionView.extend({
               .set('sortableOrder', index)
           }
         )
-      }.bind(this),
+      },
     })
   },
   childViewOptions() {
@@ -65,12 +65,12 @@ module.exports = Marionette.CollectionView.extend({
     this.handleMinusButton()
   },
   turnOnEditing() {
-    this.children.forEach(function(childView) {
+    this.children.forEach(childView => {
       childView.turnOnEditing()
     })
   },
   turnOffEditing() {
-    this.children.forEach(function(childView) {
+    this.children.forEach(childView => {
       childView.turnOffEditing()
     })
   },

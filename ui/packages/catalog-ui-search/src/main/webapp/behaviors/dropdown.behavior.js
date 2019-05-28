@@ -216,18 +216,15 @@ Behaviors.addBehavior(
     listenForOutsideInteraction() {
       $('body')
         .off(`mousedown.${this.view.cid}`)
-        .on(
-          `mousedown.${this.view.cid}`,
-          function(event) {
-            if (!DropdownBehaviorUtility.drawing(event)) {
-              this.options.dropdowns
-                .filter(dropdown => this.isOpen(dropdown))
-                .forEach(dropdown =>
-                  this.checkOutsideClick(dropdown, event.target)
-                )
-            }
-          }.bind(this)
-        )
+        .on(`mousedown.${this.view.cid}`, event => {
+          if (!DropdownBehaviorUtility.drawing(event)) {
+            this.options.dropdowns
+              .filter(dropdown => this.isOpen(dropdown))
+              .forEach(dropdown =>
+                this.checkOutsideClick(dropdown, event.target)
+              )
+          }
+        })
     },
     withinDropdown(dropdown, element) {
       return (
@@ -269,14 +266,11 @@ Behaviors.addBehavior(
         .off(`resize.${this.view.cid}`)
         .on(
           `resize.${this.view.cid}`,
-          _.throttle(
-            function() {
-              this.options.dropdowns
-                .filter(dropdown => this.isOpen(dropdown))
-                .forEach(dropdown => this.updateRendering(dropdown))
-            }.bind(this),
-            16
-          )
+          _.throttle(() => {
+            this.options.dropdowns
+              .filter(dropdown => this.isOpen(dropdown))
+              .forEach(dropdown => this.updateRendering(dropdown))
+          }, 16)
         )
     },
     listenForReposition(dropdown) {
