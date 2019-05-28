@@ -19,10 +19,10 @@ const ComponentView = require('../../alerts/alerts.view.js')
 const user = require('../../singletons/user-instance.js')
 
 module.exports = DropdownView.extend({
-  template: template,
+  template,
   className: 'is-alerts is-button',
   componentToShow: ComponentView,
-  initializeComponentModel: function() {
+  initializeComponentModel() {
     //override if you need more functionality
     this.modelForComponent = user
       .get('user')
@@ -30,17 +30,17 @@ module.exports = DropdownView.extend({
       .get('alerts')
     this.handleAlerts()
   },
-  listenToComponent: function() {
+  listenToComponent() {
     this.listenTo(this.modelForComponent, 'add remove reset', this.handleAlerts)
   },
-  handleAlerts: function() {
+  handleAlerts() {
     this.$el.toggleClass('has-alerts', this.modelForComponent.length > 0)
   },
-  serializeData: function() {
+  serializeData() {
     return this.modelForComponent.toJSON()
   },
   isCentered: true,
-  getCenteringElement: function() {
+  getCenteringElement() {
     return this.el.querySelector('.notification-icon')
   },
   hasTail: true,

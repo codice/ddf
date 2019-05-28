@@ -19,10 +19,10 @@ const store = require('../../../js/store.js')
 
 const QueryTabsView = TabsView.extend({
   className: 'is-query',
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = new QueryTabsModel()
   },
-  initialize: function(options) {
+  initialize(options) {
     if (options.model === undefined) {
       this.setDefaultModel()
     }
@@ -30,11 +30,11 @@ const QueryTabsView = TabsView.extend({
     this.determineAvailableContent()
     TabsView.prototype.initialize.call(this)
   },
-  handleQuery: function() {
+  handleQuery() {
     this.determineAvailableContent()
     this.determineContent()
   },
-  determineTabForExistingQuery: function() {
+  determineTabForExistingQuery() {
     const activeTab = this.model.getActiveView()
     this.tabsContent.show(
       new activeTab({
@@ -42,14 +42,14 @@ const QueryTabsView = TabsView.extend({
       })
     )
   },
-  determineTabForNewQuery: function() {
+  determineTabForNewQuery() {
     const activeTabName = this.model.get('activeTab')
     if (activeTabName !== 'Search') {
       this.model.set('activeTab', 'Search')
     }
     this.determineTabForExistingQuery()
   },
-  determineContent: function() {
+  determineContent() {
     const currentQuery = store.get('content').get('query')
     if (currentQuery) {
       if (currentQuery._cloneOf) {
@@ -59,7 +59,7 @@ const QueryTabsView = TabsView.extend({
       }
     }
   },
-  determineAvailableContent: function() {
+  determineAvailableContent() {
     const currentQuery = store.get('content').get('query')
     this.$el.toggleClass('is-new', currentQuery && !currentQuery._cloneOf)
   },

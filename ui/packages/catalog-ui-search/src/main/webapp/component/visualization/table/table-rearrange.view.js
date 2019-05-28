@@ -23,13 +23,13 @@ const Sortable = require('sortablejs')
 const metacardDefinitions = require('../../singletons/metacard-definitions.js')
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('table-rearrange'),
   events: {
     'click .footer-cancel': 'destroy',
     'click .footer-save': 'handleSave',
   },
-  initialize: function(options) {
+  initialize(options) {
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }
@@ -39,7 +39,7 @@ module.exports = Marionette.ItemView.extend({
       this.render
     )
   },
-  serializeData: function() {
+  serializeData() {
     const prefs = user.get('user').get('preferences')
     const results = this.options.selectionInterface
       .getActiveSearchResults()
@@ -66,10 +66,10 @@ module.exports = Marionette.ItemView.extend({
       }
     })
   },
-  onRender: function() {
+  onRender() {
     Sortable.create(this.el.querySelector('.rearrange-columns'))
   },
-  handleSave: function() {
+  handleSave() {
     const prefs = user.get('user').get('preferences')
     prefs.set(
       'columnOrder',

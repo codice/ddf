@@ -39,14 +39,14 @@ function getValue(model) {
 }
 
 module.exports = InputView.extend({
-  template: template,
+  template,
   events: {
     'click .input-revert': 'revert',
   },
   regions: {
     enumRegion: '.enum-region',
   },
-  listenForChange: function() {
+  listenForChange() {
     this.listenTo(
       this.enumRegion.currentView.model,
       'change:value',
@@ -56,7 +56,7 @@ module.exports = InputView.extend({
       }
     )
   },
-  serializeData: function() {
+  serializeData() {
     const value = getValue(this.model)
     const choice = this.model
       .get('property')
@@ -75,14 +75,14 @@ module.exports = InputView.extend({
       label: choice.length > 0 ? choice : value,
     }
   },
-  onRender: function() {
+  onRender() {
     this.initializeEnum()
     InputView.prototype.onRender.call(this)
   },
-  initializeEnum: function() {
+  initializeEnum() {
     const value = getValue(this.model)
     const dropdownModel = new DropdownModel({
-      value: value,
+      value,
     })
     const list = this.model
       .get('property')
@@ -97,7 +97,7 @@ module.exports = InputView.extend({
         } else {
           return {
             label: value,
-            value: value,
+            value,
             class: value,
           }
         }
@@ -111,7 +111,7 @@ module.exports = InputView.extend({
     }
     this.enumRegion.show(
       DropdownView.createSimpleDropdown({
-        list: list,
+        list,
         model: dropdownModel,
         defaultSelection: value,
         isMultiSelect: this.model.get('property').get('enumMulti'),
@@ -121,13 +121,13 @@ module.exports = InputView.extend({
       })
     )
   },
-  handleReadOnly: function() {
+  handleReadOnly() {
     this.$el.toggleClass('is-readOnly', this.model.isReadOnly())
   },
-  handleValue: function() {
+  handleValue() {
     this.enumRegion.currentView.model.set('value', getValue(this.model))
   },
-  getCurrentValue: function() {
+  getCurrentValue() {
     const currentValue = this.model.get('property').get('enumMulti')
       ? this.enumRegion.currentView.model.get('value')
       : this.enumRegion.currentView.model.get('value')[0]
@@ -142,7 +142,7 @@ module.exports = InputView.extend({
         return currentValue
     }
   },
-  isValid: function() {
+  isValid() {
     const value = getValue(this.model)
     const choice = this.model
       .get('property')

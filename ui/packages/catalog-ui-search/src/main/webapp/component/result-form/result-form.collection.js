@@ -26,7 +26,7 @@ const resultTemplatePromise = () =>
     context: this,
     url: './internal/forms/result',
     contentType: 'application/json',
-    success: function(data) {
+    success(data) {
       resultTemplates = data
       promiseIsResolved = true
     },
@@ -40,7 +40,7 @@ module.exports = Backbone.AssociatedModel.extend({
     added: false,
     resultForms: [],
   },
-  initialize: function() {
+  initialize() {
     if (promiseIsResolved === true) {
       this.addResultForms()
       promiseIsResolved = false
@@ -58,8 +58,8 @@ module.exports = Backbone.AssociatedModel.extend({
       collectionType: Backbone.Collection.extend({
         model: ResultForm,
         url: './internal/forms/result',
-        initialize: function() {},
-        comparator: function(a, b) {
+        initialize() {},
+        comparator(a, b) {
           const titleA = a.get('title') || ''
           const titleB = b.get('title') || ''
           return titleA.toLowerCase().localeCompare(titleB.toLowerCase())
@@ -67,7 +67,7 @@ module.exports = Backbone.AssociatedModel.extend({
       }),
     },
   ],
-  addResultForms: function() {
+  addResultForms() {
     if (!this.isDestroyed) {
       this.filteredList = _.map(resultTemplates, function(resultForm) {
         return {
@@ -108,25 +108,25 @@ module.exports = Backbone.AssociatedModel.extend({
       this.get('resultForms').sort()
     }
   },
-  addResultForm: function(newForm) {
+  addResultForm(newForm) {
     this.get('resultForms').add(newForm)
   },
-  resetResultForm: function() {
+  resetResultForm() {
     this.get('resultForms').reset()
   },
-  getDoneLoading: function() {
+  getDoneLoading() {
     return this.get('doneLoading')
   },
-  toggleUpdate: function() {
+  toggleUpdate() {
     this.set('added', !this.get('added'))
   },
-  doneLoading: function() {
+  doneLoading() {
     this.set('doneLoading', true)
   },
-  getCollection: function() {
+  getCollection() {
     return this.get('resultForms')
   },
-  deleteCachedTemplateById: function(id) {
+  deleteCachedTemplateById(id) {
     if (this.filteredList) {
       this.filteredList = _.filter(this.filteredList, function(template) {
         return template.id !== id

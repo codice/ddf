@@ -64,7 +64,7 @@ const computeTypes = function(sources) {
 module.exports = Backbone.Collection.extend({
   url: './internal/catalog/sources',
   useAjaxSync: true,
-  comparator: function(a, b) {
+  comparator(a, b) {
     const aName = a.id.toLowerCase()
     const bName = b.id.toLowerCase()
     const aAvailable = a.get('available')
@@ -83,21 +83,21 @@ module.exports = Backbone.Collection.extend({
       return 1
     }
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(this, 'change', this.sort)
     this._types = new Types()
     this.determineLocalCatalog()
     this.listenTo(this, 'sync', this.updateLocalCatalog)
   },
-  types: function() {
+  types() {
     return this._types
   },
-  parse: function(response) {
+  parse(response) {
     response = removeLocalCatalogIfNeeded(response, this.localCatalog)
     this._types.set(computeTypes(response))
     return response
   },
-  determineLocalCatalog: function() {
+  determineLocalCatalog() {
     $.get('./internal/localcatalogid').then(
       function(data) {
         this.localCatalog = data['local-catalog-id']
@@ -114,7 +114,7 @@ module.exports = Backbone.Collection.extend({
       }.bind(this)
     )
   },
-  updateLocalCatalog: function() {
+  updateLocalCatalog() {
     if (this.get(this.localCatalog)) {
       this.get(this.localCatalog).set('local', true)
     }

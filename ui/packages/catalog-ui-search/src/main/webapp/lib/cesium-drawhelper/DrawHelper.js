@@ -170,7 +170,7 @@ const DrawHelper = (module.exports = (function() {
     appearance: new Cesium.EllipsoidSurfaceAppearance({
       aboveGround: false,
     }),
-    material: material,
+    material,
     granularity: Math.PI / 180.0,
   })
 
@@ -188,7 +188,7 @@ const DrawHelper = (module.exports = (function() {
     appearance: new Cesium.PolylineMaterialAppearance({
       aboveGround: false,
     }),
-    material: material,
+    material,
   })
 
   //    Cesium.Polygon.prototype.setStrokeStyle = setStrokeStyle;
@@ -274,7 +274,7 @@ const DrawHelper = (module.exports = (function() {
 
         this._primitive = new Cesium.Primitive({
           geometryInstances: new Cesium.GeometryInstance({
-            geometry: geometry,
+            geometry,
             id: this.id,
             pickPrimitive: this,
           }),
@@ -673,7 +673,7 @@ const DrawHelper = (module.exports = (function() {
   _.BillboardGroup.prototype.createBillboard = function(position, callbacks) {
     const billboard = this._billboards.add({
       show: true,
-      position: position,
+      position,
       pixelOffset: new Cesium.Cartesian2(
         this._options.shiftX,
         this._options.shiftY
@@ -1311,17 +1311,17 @@ const DrawHelper = (module.exports = (function() {
           }
           const handleMarkerChanges = {
             dragHandlers: {
-              onDrag: function(index, position) {
+              onDrag(index, position) {
                 _self.positions[index] = position
                 updateHalfMarkers(index, _self.positions)
                 _self._createPrimitive = true
               },
-              onDragEnd: function(index, position) {
+              onDragEnd(index, position) {
                 _self._createPrimitive = true
                 onEdited()
               },
             },
-            onDoubleClick: function(index) {
+            onDoubleClick(index) {
               if (_self.positions.length < 4) {
                 return
               }
@@ -1333,7 +1333,7 @@ const DrawHelper = (module.exports = (function() {
               updateHalfMarkers(index, _self.positions)
               onEdited()
             },
-            tooltip: function() {
+            tooltip() {
               if (_self.positions.length > 3) {
                 return 'Double click to remove this point'
               }
@@ -1361,17 +1361,17 @@ const DrawHelper = (module.exports = (function() {
           }
           const handleEditMarkerChanges = {
             dragHandlers: {
-              onDragStart: function(index, position) {
+              onDragStart(index, position) {
                 // add a new position to the polygon but not a new marker yet
                 this.index = index + 1
                 _self.positions.splice(this.index, 0, position)
                 _self._createPrimitive = true
               },
-              onDrag: function(index, position) {
+              onDrag(index, position) {
                 _self.positions[this.index] = position
                 _self._createPrimitive = true
               },
-              onDragEnd: function(index, position) {
+              onDragEnd(index, position) {
                 // create new sets of makers for editing
                 markers.insertBillboard(
                   this.index,
@@ -1390,7 +1390,7 @@ const DrawHelper = (module.exports = (function() {
                 onEdited()
               },
             },
-            tooltip: function() {
+            tooltip() {
               return 'Drag to create a new point'
             },
           }
@@ -1512,7 +1512,7 @@ const DrawHelper = (module.exports = (function() {
             }
             const handleMarkerChanges = {
               dragHandlers: {
-                onDrag: function(index, position) {
+                onDrag(index, position) {
                   const corner = markers.getBillboard((index + 2) % 4).position
                   extent.setExtent(
                     getExtent(
@@ -1524,11 +1524,11 @@ const DrawHelper = (module.exports = (function() {
                     getExtentCorners(extent.extent)
                   )
                 },
-                onDragEnd: function(index, position) {
+                onDragEnd(index, position) {
                   onEdited()
                 },
               },
-              tooltip: function() {
+              tooltip() {
                 return 'Drag to change the corners of this extent'
               },
             }
@@ -1623,7 +1623,7 @@ const DrawHelper = (module.exports = (function() {
             }
             const handleMarkerChanges = {
               dragHandlers: {
-                onDrag: function(index, position) {
+                onDrag(index, position) {
                   const distance = Cesium.Cartesian3.distance(
                     ellipse.getCenter(),
                     position
@@ -1635,11 +1635,11 @@ const DrawHelper = (module.exports = (function() {
                   }
                   markers.updateBillboardsPositions(getMarkerPositions())
                 },
-                onDragEnd: function(index, position) {
+                onDragEnd(index, position) {
                   onEdited()
                 },
               },
-              tooltip: function() {
+              tooltip() {
                 return 'Drag to change the excentricity and radius'
               },
             }
@@ -1682,10 +1682,10 @@ const DrawHelper = (module.exports = (function() {
     ) {
       const geometry = Cesium.CircleOutlineGeometry.createGeometry(
         new Cesium.CircleOutlineGeometry({
-          ellipsoid: ellipsoid,
+          ellipsoid,
           center: this.getCenter(),
           radius: this.getRadius(),
-          granularity: granularity,
+          granularity,
         })
       )
       let count = 0,
@@ -1744,17 +1744,17 @@ const DrawHelper = (module.exports = (function() {
             }
             const handleMarkerChanges = {
               dragHandlers: {
-                onDrag: function(index, position) {
+                onDrag(index, position) {
                   circle.setRadius(
                     Cesium.Cartesian3.distance(circle.getCenter(), position)
                   )
                   markers.updateBillboardsPositions(getMarkerPositions())
                 },
-                onDragEnd: function(index, position) {
+                onDragEnd(index, position) {
                   onEdited()
                 },
               },
-              tooltip: function() {
+              tooltip() {
                 return 'Drag to change the radius'
               },
             }
@@ -1844,10 +1844,10 @@ const DrawHelper = (module.exports = (function() {
         'Click to start drawing a 2D marker',
         function() {
           drawHelper.startDrawingMarker({
-            callback: function(position) {
+            callback(position) {
               _self.executeListeners({
                 name: 'markerCreated',
-                position: position,
+                position,
               })
             },
           })
@@ -1860,10 +1860,10 @@ const DrawHelper = (module.exports = (function() {
         'Click to start drawing a 2D polyline',
         function() {
           drawHelper.startDrawingPolyline({
-            callback: function(positions) {
+            callback(positions) {
               _self.executeListeners({
                 name: 'polylineCreated',
-                positions: positions,
+                positions,
               })
             },
           })
@@ -1876,10 +1876,10 @@ const DrawHelper = (module.exports = (function() {
         'Click to start drawing a 2D polygon',
         function() {
           drawHelper.startDrawingPolygon({
-            callback: function(positions) {
+            callback(positions) {
               _self.executeListeners({
                 name: 'polygonCreated',
-                positions: positions,
+                positions,
               })
             },
           })
@@ -1892,8 +1892,8 @@ const DrawHelper = (module.exports = (function() {
         'Click to start drawing an Extent',
         function() {
           drawHelper.startDrawingExtent({
-            callback: function(extent) {
-              _self.executeListeners({ name: 'extentCreated', extent: extent })
+            callback(extent) {
+              _self.executeListeners({ name: 'extentCreated', extent })
             },
           })
         }
@@ -1905,11 +1905,11 @@ const DrawHelper = (module.exports = (function() {
         'Click to start drawing a Circle',
         function() {
           drawHelper.startDrawingCircle({
-            callback: function(center, radius) {
+            callback(center, radius) {
               _self.executeListeners({
                 name: 'circleCreated',
-                center: center,
-                radius: radius,
+                center,
+                radius,
               })
             },
           })
@@ -1932,7 +1932,7 @@ const DrawHelper = (module.exports = (function() {
   })()
 
   _.prototype.addToolbar = function(container, options) {
-    options = copyOptions(options, { container: container })
+    options = copyOptions(options, { container })
     return new _.DrawHelperWidget(this, options)
   }
 

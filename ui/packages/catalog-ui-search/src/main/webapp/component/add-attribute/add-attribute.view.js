@@ -60,17 +60,17 @@ function determineMissingAttributes(selectionInterface) {
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('add-attribute'),
-  template: template,
+  template,
   regions: {
     attributeSelector: '> .attribute-selector',
   },
-  addAttribute: function() {
+  addAttribute() {
     this.model.set(
       'value',
       this.attributeSelector.currentView.model.get('value')
     )
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     const missingAttributes = determineMissingAttributes(
       this.options.selectionInterface
     )

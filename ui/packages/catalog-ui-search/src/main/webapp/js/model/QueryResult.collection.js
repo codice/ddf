@@ -18,13 +18,13 @@ require('backbone-associations')
 module.exports = Backbone.Collection.extend({
   model: QueryResultModel,
   amountFiltered: 0,
-  generateFilteredVersion: function(filter) {
+  generateFilteredVersion(filter) {
     const filteredCollection = new this.constructor()
     filteredCollection.set(this.updateFilteredVersion(filter))
     filteredCollection.amountFiltered = this.amountFiltered
     return filteredCollection
   },
-  updateFilteredVersion: function(filter) {
+  updateFilteredVersion(filter) {
     this.amountFiltered = 0
     if (filter) {
       return this.filter(
@@ -43,12 +43,12 @@ module.exports = Backbone.Collection.extend({
       return this.models
     }
   },
-  updateSorting: function(sorting) {
+  updateSorting(sorting) {
     if (sorting) {
       resultSort.sortResults(sorting, this)
     }
   },
-  collapseDuplicates: function() {
+  collapseDuplicates() {
     const collapsedCollection = new this.constructor()
     collapsedCollection.set(this.models)
     collapsedCollection.amountFiltered = this.amountFiltered
@@ -89,7 +89,7 @@ module.exports = Backbone.Collection.extend({
     }
     return collapsedCollection
   },
-  selectBetween: function(startIndex, endIndex) {
+  selectBetween(startIndex, endIndex) {
     const allModels = []
     this.forEach(function(model) {
       allModels.push(model)

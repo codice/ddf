@@ -18,11 +18,11 @@ const $ = require('jquery')
 
 module.exports = SlideoutView.extend({
   className: 'is-left',
-  open: function() {
+  open() {
     $('html').toggleClass('has-slideout-left', true)
     SlideoutView.prototype.open.call(this)
   },
-  close: function() {
+  close() {
     $('html').toggleClass('has-slideout-left', false)
     SlideoutView.prototype.close.call(this)
   },

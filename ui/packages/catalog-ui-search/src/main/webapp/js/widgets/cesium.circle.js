@@ -32,7 +32,7 @@ DrawCircle.CircleModel = Backbone.Model.extend({
 })
 const defaultAttrs = ['lat', 'lon', 'radius']
 DrawCircle.CircleView = Marionette.View.extend({
-  initialize: function() {
+  initialize() {
     this.mouseHandler = new Cesium.ScreenSpaceEventHandler(
       this.options.map.scene.canvas
     )
@@ -44,7 +44,7 @@ DrawCircle.CircleView = Marionette.View.extend({
     )
     this.updatePrimitive(this.model)
   },
-  enableInput: function() {
+  enableInput() {
     const controller = this.options.map.scene.screenSpaceCameraController
     controller.enableTranslate = true
     controller.enableZoom = true
@@ -52,7 +52,7 @@ DrawCircle.CircleView = Marionette.View.extend({
     controller.enableTilt = true
     controller.enableLook = true
   },
-  disableInput: function() {
+  disableInput() {
     const controller = this.options.map.scene.screenSpaceCameraController
     controller.enableTranslate = false
     controller.enableZoom = false
@@ -61,7 +61,7 @@ DrawCircle.CircleView = Marionette.View.extend({
     controller.enableLook = false
   },
 
-  setCircleRadius: function(mn, mx) {
+  setCircleRadius(mn, mx) {
     const startCartographic = this.options.map.scene.globe.ellipsoid.cartographicToCartesian(
         mn
       ),
@@ -84,7 +84,7 @@ DrawCircle.CircleView = Marionette.View.extend({
     this.model.set(modelProp)
   },
 
-  isModelReset: function(modelProp) {
+  isModelReset(modelProp) {
     if (
       _.every(defaultAttrs, function(val) {
         return _.isUndefined(modelProp[val])
@@ -96,7 +96,7 @@ DrawCircle.CircleView = Marionette.View.extend({
     return false
   },
 
-  updatePrimitive: function(model) {
+  updatePrimitive(model) {
     const modelProp = model.toJSON()
     if (this.isModelReset(modelProp)) {
       this.options.map.scene.primitives.remove(this.primitive)
@@ -110,7 +110,7 @@ DrawCircle.CircleView = Marionette.View.extend({
 
     this.drawBorderedCircle(model)
   },
-  drawBorderedCircle: function(model) {
+  drawBorderedCircle(model) {
     // if model has been reset
 
     const modelProp = model.toJSON()
@@ -159,7 +159,7 @@ DrawCircle.CircleView = Marionette.View.extend({
 
     this.options.map.scene.primitives.add(this.primitive)
   },
-  handleRegionStop: function() {
+  handleRegionStop() {
     this.enableInput()
     if (!this.mouseHandler.isDestroyed()) {
       this.mouseHandler.destroy()
@@ -178,7 +178,7 @@ DrawCircle.CircleView = Marionette.View.extend({
     this.model.trigger('EndExtent', this.model)
     wreqr.vent.trigger('search:circledisplay', this.model)
   },
-  handleRegionInter: function(movement) {
+  handleRegionInter(movement) {
     let cartesian = this.options.map.scene.camera.pickEllipsoid(
         movement.endPosition,
         this.options.map.scene.globe.ellipsoid
@@ -191,7 +191,7 @@ DrawCircle.CircleView = Marionette.View.extend({
       this.setCircleRadius(this.click1, cartographic)
     }
   },
-  handleRegionStart: function(movement) {
+  handleRegionStart(movement) {
     const cartesian = this.options.map.scene.camera.pickEllipsoid(
         movement.position,
         this.options.map.scene.globe.ellipsoid
@@ -209,7 +209,7 @@ DrawCircle.CircleView = Marionette.View.extend({
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
     }
   },
-  start: function() {
+  start() {
     this.disableInput()
 
     const that = this
@@ -219,17 +219,17 @@ DrawCircle.CircleView = Marionette.View.extend({
       that.handleRegionStart(movement)
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN)
   },
-  stop: function() {
+  stop() {
     this.stopListening()
     this.enableInput()
   },
 
-  drawStop: function() {
+  drawStop() {
     this.enableInput()
     this.mouseHandler.destroy()
   },
 
-  destroyPrimitive: function() {
+  destroyPrimitive() {
     if (!this.mouseHandler.isDestroyed()) {
       this.mouseHandler.destroy()
     }
@@ -237,7 +237,7 @@ DrawCircle.CircleView = Marionette.View.extend({
       this.options.map.scene.primitives.remove(this.primitive)
     }
   },
-  destroy: function() {
+  destroy() {
     this.destroyPrimitive()
     this.remove() // backbone cleanup.
   },
@@ -245,7 +245,7 @@ DrawCircle.CircleView = Marionette.View.extend({
 
 DrawCircle.Controller = DrawingController.extend({
   drawingType: 'circle',
-  show: function(model) {
+  show(model) {
     if (this.enabled) {
       const circleModel = model || new DrawCircle.CircleModel()
 
@@ -266,7 +266,7 @@ DrawCircle.Controller = DrawingController.extend({
       return circleModel
     }
   },
-  draw: function(model) {
+  draw(model) {
     if (this.enabled) {
       const circleModel = model || new DrawCircle.CircleModel()
       const view = new DrawCircle.CircleView({

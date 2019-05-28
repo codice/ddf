@@ -20,14 +20,14 @@ const Query = require('../../../js/model/Query.js')
 
 module.exports = TabsView.extend({
   selectionInterface: store,
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = new SearchFormTabsModel()
   },
-  initialize: function() {
+  initialize() {
     this.setDefaultModel()
     TabsView.prototype.initialize.call(this)
   },
-  determineContent: function() {
+  determineContent() {
     const activeTab = this.model.getActiveView()
     this.tabsContent.show(
       new activeTab({

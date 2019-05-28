@@ -17,19 +17,19 @@ const GeometryView = require('./geometry.view')
 
 const GeometryCollectionView = Marionette.CollectionView.extend({
   childView: GeometryView,
-  childViewOptions: function() {
+  childViewOptions() {
     return {
       map: this.options.map,
       selectionInterface: this.options.selectionInterface,
       clusterCollection: this.options.clusterCollection,
     }
   },
-  initialize: function(options) {
+  initialize(options) {
     this.render = _.throttle(this.render, 200)
     this.options.map.onLeftClick(this.onMapLeftClick.bind(this))
     this.render()
   },
-  onMapLeftClick: function(event, mapEvent) {
+  onMapLeftClick(event, mapEvent) {
     if (
       mapEvent.mapTarget &&
       mapEvent.mapTarget !== 'userDrawing' &&
@@ -44,18 +44,18 @@ const GeometryCollectionView = Marionette.CollectionView.extend({
       }
     }
   },
-  handleClick: function(id) {
+  handleClick(id) {
     if (id.constructor === String) {
       this.options.selectionInterface.clearSelectedResults()
       this.options.selectionInterface.addSelectedResult(this.collection.get(id))
     }
   },
-  handleCtrlClick: function(id) {
+  handleCtrlClick(id) {
     if (id.constructor === String) {
       this.options.selectionInterface.addSelectedResult(this.collection.get(id))
     }
   },
-  handleShiftClick: function(id) {
+  handleShiftClick(id) {
     if (id.constructor === String) {
       this.options.selectionInterface.addSelectedResult(this.collection.get(id))
     }

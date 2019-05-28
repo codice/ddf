@@ -19,7 +19,7 @@ const CustomElements = require('../../js/CustomElements.js')
 const ValueCollection = require('../value/value.collection.view.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('multivalue'),
   events: {
     'click .multivalue-add': 'addNewValue',
@@ -30,28 +30,28 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     values: '.multivalue-values',
   },
-  initialize: function() {
+  initialize() {
     this.handleMultivalue()
     this.handleEdit()
   },
-  handleEdit: function() {
+  handleEdit() {
     this.$el.toggleClass('is-editing', this.model.get('isEditing'))
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.values.show(ValueCollection.generateValueCollectionView(this.model))
   },
-  handleMultivalue: function() {
+  handleMultivalue() {
     this.$el.toggleClass('is-multivalued', this.model.get('multivalued'))
   },
-  serializeData: function() {
+  serializeData() {
     return {
       numberOfValues: Object.keys(this.model.get('value')).length,
     }
   },
-  addNewValue: function() {
+  addNewValue() {
     this.values.currentView.addNewValue(this.model)
   },
-  isValid: function() {
+  isValid() {
     if (this.model.get('enumCustom')) {
       return true
     }

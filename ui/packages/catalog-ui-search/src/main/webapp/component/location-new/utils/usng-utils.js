@@ -159,7 +159,7 @@ function validateUsng(usng) {
       }
       break
   }
-  return { valid: valid, error: error }
+  return { valid, error }
 }
 
 module.exports = {

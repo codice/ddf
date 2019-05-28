@@ -22,11 +22,11 @@ const ResultUtils = require('../../../js/ResultUtils.js')
 
 module.exports = EditorView.extend({
   className: 'is-metacard-basic',
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = this.selectionInterface.getSelectedResults()
   },
   selectionInterface: store,
-  initialize: function(options) {
+  initialize(options) {
     this.selectionInterface =
       options.selectionInterface || this.selectionInterface
     EditorView.prototype.initialize.call(this, options)
@@ -39,7 +39,7 @@ module.exports = EditorView.extend({
       this.onBeforeShow
     )
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.editorProperties.show(
       PropertyCollectionView.generateSummaryPropertyCollectionView([
         this.model
@@ -52,7 +52,7 @@ module.exports = EditorView.extend({
     this.getValidation()
     EditorView.prototype.onBeforeShow.call(this)
   },
-  getValidation: function() {
+  getValidation() {
     if (!this.model.first().isRemote()) {
       const self = this
       self.editorProperties.currentView.clearValidation()
@@ -69,8 +69,8 @@ module.exports = EditorView.extend({
       })
     }
   },
-  afterCancel: function() {},
-  afterSave: function(editorJSON) {
+  afterCancel() {},
+  afterSave(editorJSON) {
     if (editorJSON.length > 0) {
       const payload = [
         {

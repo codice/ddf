@@ -53,10 +53,10 @@ const user = require('../singletons/user-instance.js')
 const properties = require('../../js/properties.js')
 
 module.exports = Marionette.LayoutView.extend({
-  setDefaultModel: function() {
+  setDefaultModel() {
     //override
   },
-  template: template,
+  template,
   tagName: CustomElements.register('editor'),
   modelEvents: {},
   events: {
@@ -73,7 +73,7 @@ module.exports = Marionette.LayoutView.extend({
   attributesRemoved: undefined,
   attributesMocked: undefined,
   attributesToKeep: undefined,
-  initialize: function(options) {
+  initialize(options) {
     if (options.model === undefined) {
       this.setDefaultModel()
     }
@@ -100,7 +100,7 @@ module.exports = Marionette.LayoutView.extend({
       this.handleFilterValue
     )
   },
-  handleTypes: function() {
+  handleTypes() {
     const username = user.get('user').get('userid')
     let isOwner = true
     const types = {}
@@ -136,12 +136,12 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-remote', types.remote !== undefined)
     this.$el.toggleClass('is-owner', isOwner)
   },
-  getEditorActionsOptions: function() {
+  getEditorActionsOptions() {
     return {
       summary: true,
     }
   },
-  generateEditorActions: function() {
+  generateEditorActions() {
     this.editorActions.show(
       PopoutView.createSimpleDropdown(
         _.extend({
@@ -172,7 +172,7 @@ module.exports = Marionette.LayoutView.extend({
       this.handleAttributeRemove
     )
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.editorFilter.show(
       new DetailsFilterView({
         model: new DropdownModel({
@@ -188,7 +188,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleFilterValue()
     this.generateEditorActions()
   },
-  handleAttributesToRemoveReset: function(collection, options) {
+  handleAttributesToRemoveReset(collection, options) {
     this.handleAttributesToRemove()
     const ephemeralAttributesToUnRemove = this.attributesMocked
       .map(model => model.id)
@@ -198,13 +198,13 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.generateEditorActions()
   },
-  handleEphemeralReset: function(collection, options) {
+  handleEphemeralReset(collection, options) {
     this.attributesToKeep.add(options.previousModels)
     const ephemeralAttributes = options.previousModels.map(model => model.id)
     this.editorProperties.currentView.removeProperties(ephemeralAttributes)
     this.generateEditorActions()
   },
-  handleAttributeRemove: function() {
+  handleAttributeRemove() {
     sync(
       this.attributesRemoved,
       this.editorActions.currentView.model.get('attributesToRemove')[0]
@@ -219,7 +219,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleNewProperties()
     this.handleAttributesToRemove()
   },
-  handleAttributesToRemove: function() {
+  handleAttributesToRemove() {
     this.editorProperties.currentView.children.forEach(propertyView => {
       const id = propertyView.model.id
       propertyView.$el.toggleClass(
@@ -229,7 +229,7 @@ module.exports = Marionette.LayoutView.extend({
     })
     this.handleFilterValue()
   },
-  handleAttributesToAdd: function() {
+  handleAttributesToAdd() {
     this.editorProperties.currentView.children.forEach(propertyView => {
       const id = propertyView.model.id
       propertyView.$el.toggleClass(
@@ -238,7 +238,7 @@ module.exports = Marionette.LayoutView.extend({
       )
     })
   },
-  handleAttributeAdd: function() {
+  handleAttributeAdd() {
     const difference = sync(
       this.attributesAdded,
       this.editorActions.currentView.model.get('attributesToAdd')[0]
@@ -251,7 +251,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleAttributesToAdd()
     this.handleFilterValue()
   },
-  isSupposedToBeShown: function(attribute) {
+  isSupposedToBeShown(attribute) {
     const ephemeralAttributes = this.attributesAdded.map(model => model.id)
     const attributesToRemove = this.attributesRemoved.map(model => model.id)
     const attributesToKeep = this.attributesToKeep.map(model => model.id)
@@ -282,7 +282,7 @@ module.exports = Marionette.LayoutView.extend({
       )
     }
   },
-  handleFilterValue: function() {
+  handleFilterValue() {
     filter = this.editorFilter.currentView.model.get('value')
     this.editorProperties.currentView.children.forEach(propertyView => {
       const identifier =
@@ -297,16 +297,16 @@ module.exports = Marionette.LayoutView.extend({
       }
     })
   },
-  handleNewProperties: function() {
+  handleNewProperties() {
     this.$el.addClass('is-editing')
     this.editorProperties.currentView.turnOnEditing()
   },
-  edit: function() {
+  edit() {
     this.$el.addClass('is-editing')
     this.editorProperties.currentView.turnOnEditing()
     this.editorProperties.currentView.focus()
   },
-  cancel: function() {
+  cancel() {
     this.$el.removeClass('is-editing')
     this.attributesAdded.reset()
     this.attributesRemoved.reset()
@@ -314,7 +314,7 @@ module.exports = Marionette.LayoutView.extend({
     this.editorProperties.currentView.turnOffEditing()
     this.afterCancel()
   },
-  save: function() {
+  save() {
     this.$el.removeClass('is-editing')
     const ephemeralAttributes = this.attributesAdded.map(model => model.id)
     const attributesToRemove = this.attributesRemoved.map(model => model.id)
@@ -329,13 +329,13 @@ module.exports = Marionette.LayoutView.extend({
     this.editorProperties.currentView.revert()
     this.editorProperties.currentView.turnOffEditing()
   },
-  afterCancel: function() {
+  afterCancel() {
     //override
   },
-  afterSave: function() {
+  afterSave() {
     //override
   },
-  toJSON: function() {
+  toJSON() {
     return this.editorProperties.currentView.toJSON()
   },
 })

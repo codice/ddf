@@ -15,7 +15,7 @@
 const Marionette = require('marionette')
 
 const Controller = Marionette.Object.extend({
-  initialize: function(options) {
+  initialize(options) {
     this.collection = options.collection
     this.layerForCid = {}
 

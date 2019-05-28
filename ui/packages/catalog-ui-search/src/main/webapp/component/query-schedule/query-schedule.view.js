@@ -58,7 +58,7 @@ const pollingFrequencyEnum = properties.scheduleFrequencyList
   )
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('query-schedule'),
   modelEvents: {},
   events: {
@@ -70,7 +70,7 @@ module.exports = Marionette.LayoutView.extend({
     propertyInterval: '.property-interval',
   },
   ui: {},
-  initialize: function() {
+  initialize() {
     this.model = this.model._cloneOf
       ? store.getQueryById(this.model._cloneOf)
       : this.model
@@ -80,11 +80,11 @@ module.exports = Marionette.LayoutView.extend({
       Common.safeCallback(this.onBeforeShow)
     )
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.setupInterval()
     this.turnOnEditing()
   },
-  setupInterval: function() {
+  setupInterval() {
     this.propertyInterval.show(
       new PropertyView({
         model: new Property({
@@ -96,7 +96,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.propertyInterval.currentView.turnOffEditing()
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.$el.addClass('is-editing')
     this.regionManager.forEach(function(region) {
       if (region.currentView) {
@@ -104,19 +104,19 @@ module.exports = Marionette.LayoutView.extend({
       }
     })
   },
-  turnOffEditing: function() {
+  turnOffEditing() {
     this.regionManager.forEach(function(region) {
       if (region.currentView) {
         region.currentView.turnOffEditing()
       }
     })
   },
-  cancel: function() {
+  cancel() {
     this.$el.removeClass('is-editing')
     this.onBeforeShow()
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  save: function() {
+  save() {
     const value = this.propertyInterval.currentView.model.getValue()[0]
     if (value === false) {
       this.model.unset('polling')

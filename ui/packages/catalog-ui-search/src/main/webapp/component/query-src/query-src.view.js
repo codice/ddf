@@ -72,11 +72,11 @@ module.exports = Marionette.ItemView.extend({
     'click .choice.is-all': 'handleChoiceAll',
   },
   ui: {},
-  initialize: function() {},
-  onRender: function() {
+  initialize() {},
+  onRender() {
     this.handleValue()
   },
-  handleValue: function() {
+  handleValue() {
     switch (this.model.get('federation')) {
       case 'enterprise':
         this.$el.find('.choice.is-all').addClass('is-selected')
@@ -93,7 +93,7 @@ module.exports = Marionette.ItemView.extend({
         break
     }
   },
-  handleChoiceAll: function(e) {
+  handleChoiceAll(e) {
     $(e.currentTarget).toggleClass('is-selected')
     this.model.set({
       federation:
@@ -102,11 +102,11 @@ module.exports = Marionette.ItemView.extend({
           : 'enterprise',
     })
   },
-  handleChoice: function(e) {
+  handleChoice(e) {
     $(e.currentTarget).toggleClass('is-selected')
     this.updateValue()
   },
-  updateValue: function() {
+  updateValue() {
     const srcs = _.map(this.$el.find('.is-specific.is-selected'), function(
       choice
     ) {
@@ -117,7 +117,7 @@ module.exports = Marionette.ItemView.extend({
       federation: 'selected',
     })
   },
-  serializeData: function() {
+  serializeData() {
     return {
       sources: sources.toJSON(),
     }

@@ -19,14 +19,14 @@ const store = require('../../../js/store.js')
 
 module.exports = TabsView.extend({
   selectionInterface: store,
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = new ResultFormModel()
   },
-  initialize: function() {
+  initialize() {
     this.setDefaultModel()
     TabsView.prototype.initialize.call(this)
   },
-  determineContent: function() {
+  determineContent() {
     const ActiveTab = this.model.getActiveView()
     this.tabsContent.show(
       new ActiveTab({

@@ -18,8 +18,8 @@ const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.CollectionView.extend({
-  childView: childView,
-  childViewOptions: function() {
+  childView,
+  childViewOptions() {
     return {
       selectionInterface: this.options.selectionInterface,
       knownMetacards: this.options.knownMetacards,
@@ -27,20 +27,20 @@ module.exports = Marionette.CollectionView.extend({
     }
   },
   tagName: CustomElements.register('association-collection'),
-  onAddChild: function(childView) {
+  onAddChild(childView) {
     if (this.$el.hasClass('is-editing')) {
       childView.turnOnEditing()
     } else {
       childView.turnOffEditing()
     }
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.$el.toggleClass('is-editing', true)
     this.children.forEach(function(childView) {
       childView.turnOnEditing()
     })
   },
-  turnOffEditing: function() {
+  turnOffEditing() {
     this.$el.toggleClass('is-editing', false)
     this.children.forEach(function(childView) {
       childView.turnOffEditing()

@@ -26,12 +26,12 @@ function getOriginalEvent(e) {
 
 module.exports = TableView.extend({
   className: 'is-results',
-  getHeaderView: function() {
+  getHeaderView() {
     return new HeaderView({
       selectionInterface: this.options.selectionInterface,
     })
   },
-  getBodyView: function() {
+  getBodyView() {
     return new BodyView({
       selectionInterface: this.options.selectionInterface,
       collection: this.options.selectionInterface.getActiveSearchResults(),
@@ -40,7 +40,7 @@ module.exports = TableView.extend({
   events: {
     resize: 'resize',
   },
-  resize: function(e) {
+  resize(e) {
     e = getOriginalEvent(e)
     const newWidth = this.$el.find('table').width() + e.movementX
     this.$el.find('table').css('width', newWidth)

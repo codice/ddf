@@ -68,7 +68,7 @@ const Router = Backbone.Router.extend({
     patterns.forEach(pattern => (routesBlob[pattern] = key))
     return routesBlob
   }, {}),
-  initialize: function() {
+  initialize() {
     this.listenTo(wreqr.vent, 'router:preload', this.handlePreload)
     this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate)
     this.on('route', this.onRoute, this)
@@ -89,17 +89,17 @@ const Router = Backbone.Router.extend({
   handlePreload({ fragment }) {
     this.preloadFragment(fragment)
   },
-  handleNavigate: function(args) {
+  handleNavigate(args) {
     this.navigate(args.fragment, args.options)
   },
-  onRoute: function(name, args) {
+  onRoute(name, args) {
     this.updateRoute(name, _.invert(this.routes)[name], args)
   },
-  updateRoute: function(name, path, args) {
+  updateRoute(name, path, args) {
     router.set({
-      name: name,
-      path: path,
-      args: args,
+      name,
+      path,
+      args,
     })
     $(window).trigger('resize')
     wreqr.vent.trigger('resize')

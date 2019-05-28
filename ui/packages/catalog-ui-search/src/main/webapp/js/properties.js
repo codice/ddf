@@ -57,7 +57,7 @@ const properties = {
     numberTypes: ['float', 'short', 'long', 'double', 'integer'],
   },
 
-  init: function() {
+  init() {
     // use this function to initialize variables that rely on others
     let props = this
     $.ajax({
@@ -121,58 +121,58 @@ const properties = {
       this.listTemplates = []
     }
   },
-  handleEditing: function() {
+  handleEditing() {
     $('html').toggleClass('is-editing-restricted', this.isEditingRestricted())
   },
-  handleFeedback: function() {
+  handleFeedback() {
     $('html').toggleClass('is-feedback-restricted', this.isFeedbackRestricted())
   },
-  handleExperimental: function() {
+  handleExperimental() {
     $('html').toggleClass('is-experimental', this.hasExperimentalEnabled())
   },
-  handleUpload: function() {
+  handleUpload() {
     $('html').toggleClass('is-upload-enabled', this.isUploadEnabled())
   },
-  isHidden: function(attribute) {
+  isHidden(attribute) {
     return match(this.hiddenAttributes, attribute)
   },
-  isReadOnly: function(attribute) {
+  isReadOnly(attribute) {
     return match(this.readOnly, attribute)
   },
-  isEditingRestricted: function() {
+  isEditingRestricted() {
     return !this.isEditingAllowed
   },
-  hasExperimentalEnabled: function() {
+  hasExperimentalEnabled() {
     return this.isExperimental
   },
-  getAutoMergeTime: function() {
+  getAutoMergeTime() {
     return this.autoMergeTime || DEFAULT_AUTO_MERGE_TIME
   },
-  isFeedbackRestricted: function() {
+  isFeedbackRestricted() {
     return !this.queryFeedbackEnabled
   },
-  isDisableLocalCatalog: function() {
+  isDisableLocalCatalog() {
     return this.disableLocalCatalog
   },
-  isHistoricalSearchEnabled: function() {
+  isHistoricalSearchEnabled() {
     return !this.isHistoricalSearchDisabled
   },
-  isArchiveSearchEnabled: function() {
+  isArchiveSearchEnabled() {
     return !this.isArchiveSearchDisabled
   },
-  isUploadEnabled: function() {
+  isUploadEnabled() {
     return this.showIngest
   },
   isDevelopment() {
     return process.env.NODE_ENV !== 'production'
   },
-  isSpellcheckEnabled: function() {
+  isSpellcheckEnabled() {
     return this.isSpellcheckEnabled
   },
-  isPhoneticsEnabled: function() {
+  isPhoneticsEnabled() {
     return this.isPhoneticsEnabled
   },
-  isMetacardPreviewEnabled: function() {
+  isMetacardPreviewEnabled() {
     return !this.isMetacardPreviewDisabled
   },
 }

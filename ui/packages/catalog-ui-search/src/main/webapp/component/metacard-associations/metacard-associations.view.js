@@ -26,7 +26,7 @@ const AssociationCollection = require('../association/association.collection.js'
 const AssociationGraphView = require('../associations-graph/associations-graph.view.js')
 
 module.exports = Marionette.LayoutView.extend({
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = this.selectionInterface.getSelectedResults().first()
   },
   regions: {
@@ -34,7 +34,7 @@ module.exports = Marionette.LayoutView.extend({
     associationsList: '> .editor-content',
     associationsGraph: '> .content-graph',
   },
-  template: template,
+  template,
   tagName: CustomElements.register('metacard-associations'),
   selectionInterface: store,
   events: {
@@ -45,7 +45,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   _associationCollection: undefined,
   _knownMetacards: undefined,
-  initialize: function(options) {
+  initialize(options) {
     this.selectionInterface =
       options.selectionInterface || this.selectionInterface
     if (!options.model) {
@@ -55,14 +55,14 @@ module.exports = Marionette.LayoutView.extend({
     this.getAssociations()
     this.setupListeners()
   },
-  setupListeners: function() {
+  setupListeners() {
     this.listenTo(
       this._associationCollection,
       'reset add remove update change',
       this.handleFooter
     )
   },
-  getAssociations: function() {
+  getAssociations() {
     this.clearAssociations()
     LoadingCompanionView.beginLoading(this)
     $.get('./internal/associations/' + this.model.get('metacard').get('id'))
@@ -82,7 +82,7 @@ module.exports = Marionette.LayoutView.extend({
         }.bind(this)
       )
   },
-  clearAssociations: function() {
+  clearAssociations() {
     if (!this._knownMetacards) {
       this._knownMetacards = new Backbone.Collection()
     }
@@ -91,7 +91,7 @@ module.exports = Marionette.LayoutView.extend({
     }
     this._associationCollection.reset()
   },
-  parseAssociations: function() {
+  parseAssociations() {
     this.clearAssociations()
     this._associations.forEach(
       function(association) {
@@ -107,7 +107,7 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.showAssociationsMenuView()
     this.showAssociationsListView()
     this.showGraphView()
@@ -116,7 +116,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleFilter()
     this.handleDisplay()
   },
-  showGraphView: function() {
+  showGraphView() {
     this.associationsGraph.show(
       new AssociationGraphView({
         collection: this._associationCollection,
@@ -126,10 +126,10 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  showAssociationsMenuView: function() {
+  showAssociationsMenuView() {
     this.associationsMenu.show(new AssociationsMenuView())
   },
-  showAssociationsListView: function() {
+  showAssociationsListView() {
     this.associationsList.show(
       new AssociationCollectionView({
         collection: this._associationCollection,
@@ -140,7 +140,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.associationsList.currentView.turnOffEditing()
   },
-  setupMenuListeners: function() {
+  setupMenuListeners() {
     this.listenTo(
       this.associationsMenu.currentView.getFilterMenuModel(),
       'change:value',
@@ -152,7 +152,7 @@ module.exports = Marionette.LayoutView.extend({
       this.handleDisplay
     )
   },
-  handleFilter: function() {
+  handleFilter() {
     const filter = this.associationsMenu.currentView
       .getFilterMenuModel()
       .get('value')[0]
@@ -160,7 +160,7 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('filter-by-child', filter === 'child')
     this.associationsGraph.currentView.handleFilter(filter)
   },
-  handleDisplay: function() {
+  handleDisplay() {
     const filter = this.associationsMenu.currentView
       .getDisplayMenuModel()
       .get('value')[0]
@@ -168,26 +168,26 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('show-graph', filter === 'graph')
     this.associationsGraph.currentView.fitGraph()
   },
-  handleEdit: function() {
+  handleEdit() {
     this.turnOnEditing()
   },
-  handleCancel: function() {
+  handleCancel() {
     this._associations = JSON.parse(JSON.stringify(this._originalAssociations))
     this.parseAssociations()
     this.onBeforeShow()
     this.turnOffEditing()
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.$el.toggleClass('is-editing', true)
     this.associationsList.currentView.turnOnEditing()
     this.associationsGraph.currentView.turnOnEditing()
   },
-  turnOffEditing: function() {
+  turnOffEditing() {
     this.$el.toggleClass('is-editing', false)
     this.associationsList.currentView.turnOffEditing()
     this.associationsGraph.currentView.turnOffEditing()
   },
-  handleSave: function() {
+  handleSave() {
     LoadingCompanionView.beginLoading(this)
     const data = this._associationCollection.toJSON()
     data.forEach(function(association) {
@@ -221,18 +221,18 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  handleFooter: function() {
+  handleFooter() {
     this.$el
       .find('> .list-footer .footer-text')
       .html(this._associationCollection.length + ' association(s)')
   },
-  handleAdd: function() {
+  handleAdd() {
     this.associationsList.currentView.collection.add({
       parent: this.model.get('metacard').id,
       child: this.model.get('metacard').id,
     })
   },
-  handleType: function() {
+  handleType() {
     this.$el.toggleClass('is-workspace', this.model.isWorkspace())
     this.$el.toggleClass('is-resource', this.model.isResource())
     this.$el.toggleClass('is-revision', this.model.isRevision())

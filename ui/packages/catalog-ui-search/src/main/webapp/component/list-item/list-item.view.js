@@ -29,8 +29,8 @@ const user = require('../../component/singletons/user-instance')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('list-item'),
-  template: template,
-  attributes: function() {
+  template,
+  attributes() {
     return {
       'data-listid': this.model.id,
     }
@@ -74,7 +74,7 @@ module.exports = Marionette.LayoutView.extend({
       },
     }
   },
-  initialize: function() {
+  initialize() {
     if (this.model.get('query').has('result')) {
       this.startListeningToStatus()
     } else {
@@ -91,23 +91,23 @@ module.exports = Marionette.LayoutView.extend({
       this.handleDefault
     )
   },
-  handleOutOfDate: function() {
+  handleOutOfDate() {
     this.$el.toggleClass('is-out-of-date', this.model.get('query>isOutdated'))
   },
-  handleEmptyList: function() {
+  handleEmptyList() {
     this.$el.toggleClass('is-empty', this.model.isEmpty())
   },
-  onRender: function() {
+  onRender() {
     this.setupFeed()
   },
-  setupFeed: function() {
+  setupFeed() {
     this.queryFeed.show(
       new QueryFeedView({
         model: this.model.get('query'),
       })
     )
   },
-  resultAdded: function(model) {
+  resultAdded(model) {
     if (
       this.model.get('query').has('result') &&
       _.isUndefined(this.model.get('query').previous('result'))
@@ -115,7 +115,7 @@ module.exports = Marionette.LayoutView.extend({
       this.startListeningToStatus()
     }
   },
-  startListeningToStatus: function() {
+  startListeningToStatus() {
     this.handleStatus()
     this.listenTo(
       this.model.get('query').get('result'),
@@ -123,7 +123,7 @@ module.exports = Marionette.LayoutView.extend({
       this.handleStatus
     )
   },
-  handleStatus: function() {
+  handleStatus() {
     this.$el.toggleClass(
       'is-searching',
       this.model
@@ -132,16 +132,16 @@ module.exports = Marionette.LayoutView.extend({
         .isSearching()
     )
   },
-  triggerRun: function(e) {
+  triggerRun(e) {
     const ids = this.model.get('list.bookmarks')
     this.model.get('query').startTieredSearch(ids)
     e.stopPropagation()
   },
-  triggerStop: function(e) {
+  triggerStop(e) {
     this.model.get('query').cancelCurrentSearches()
     e.stopPropagation()
   },
-  triggerDelete: function(e) {
+  triggerDelete(e) {
     this.model.get('query').cancelCurrentSearches()
     this.model.collection.remove(this.model)
     e.stopPropagation()
@@ -180,7 +180,7 @@ module.exports = Marionette.LayoutView.extend({
         .startTieredSearchIfOutdated(this.model.get('list.bookmarks'))
     }
   },
-  serializeData: function() {
+  serializeData() {
     return _merge(
       this.model.toJSON({
         additionalProperties: ['cid', 'color'],

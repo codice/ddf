@@ -52,7 +52,7 @@ module.exports = Backbone.AssociatedModel.extend({
     activeSearchResults: [],
     activeSearchResultsAttributes: [],
   },
-  initialize: function() {
+  initialize() {
     this.set('currentResult', new QueryResponse())
     this.listenTo(this, 'change:currentMetacard', this.handleUpdate)
     this.listenTo(this, 'change:currentMetacard', this.handleCurrentMetacard)
@@ -63,14 +63,14 @@ module.exports = Backbone.AssociatedModel.extend({
       this.updateActiveSearchResultsAttributes
     )
   },
-  handleResultChange: function() {
+  handleResultChange() {
     this.listenTo(
       this.get('currentResult'),
       'sync reset:results',
       this.handleResults
     )
   },
-  handleResults: function() {
+  handleResults() {
     this.set(
       'currentMetacard',
       this.get('currentResult')
@@ -78,7 +78,7 @@ module.exports = Backbone.AssociatedModel.extend({
         .first()
     )
   },
-  updateActiveSearchResultsAttributes: function() {
+  updateActiveSearchResultsAttributes() {
     const availableAttributes = this.get('activeSearchResults')
       .reduce(function(currentAvailable, result) {
         currentAvailable = _.union(
@@ -95,44 +95,44 @@ module.exports = Backbone.AssociatedModel.extend({
       .sort()
     this.set('activeSearchResultsAttributes', availableAttributes)
   },
-  getActiveSearchResultsAttributes: function() {
+  getActiveSearchResultsAttributes() {
     return this.get('activeSearchResultsAttributes')
   },
-  handleUpdate: function() {
+  handleUpdate() {
     this.clearSelectedResults()
     this.setActiveSearchResults(this.get('currentResult').get('results'))
     this.addSelectedResult(this.get('currentMetacard'))
   },
-  handleCurrentMetacard: function() {
+  handleCurrentMetacard() {
     if (this.get('currentMetacard') !== undefined) {
       this.get('currentQuery').cancelCurrentSearches()
     }
   },
-  getActiveSearchResults: function() {
+  getActiveSearchResults() {
     return this.get('activeSearchResults')
   },
-  setActiveSearchResults: function(results) {
+  setActiveSearchResults(results) {
     this.get('activeSearchResults').reset(results.models || results)
   },
-  addToActiveSearchResults: function(results) {
+  addToActiveSearchResults(results) {
     this.get('activeSearchResults').add(results.models || results)
   },
-  getSelectedResults: function() {
+  getSelectedResults() {
     return this.get('selectedResults')
   },
-  clearSelectedResults: function() {
+  clearSelectedResults() {
     this.getSelectedResults().reset()
   },
-  addSelectedResult: function(metacard) {
+  addSelectedResult(metacard) {
     this.getSelectedResults().add(metacard)
   },
-  removeSelectedResult: function(metacard) {
+  removeSelectedResult(metacard) {
     this.getSelectedResults().remove(metacard)
   },
-  setCurrentQuery: function(query) {
+  setCurrentQuery(query) {
     this.set('currentQuery', query)
   },
-  getCurrentQuery: function() {
+  getCurrentQuery() {
     return this.get('currentQuery')
   },
 })

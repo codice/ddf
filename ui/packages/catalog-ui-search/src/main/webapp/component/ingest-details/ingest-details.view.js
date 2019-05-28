@@ -46,7 +46,7 @@ function updateDropzoneHeight(view) {
 }
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('ingest-details'),
   events: {
     'click > .details-footer .footer-clear': 'newUpload',
@@ -76,14 +76,14 @@ module.exports = Marionette.LayoutView.extend({
   onFirstRender() {
     this.setupDropzone()
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.setupBatchModel()
     this.showFiles()
     this.showSummary()
     this.$el.removeClass()
     this.handleUploadUpdate()
   },
-  setupBatchModel: function() {
+  setupBatchModel() {
     this.uploadBatchModel = new UploadBatchModel(
       {},
       {
@@ -92,7 +92,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.setupBatchModelListeners()
   },
-  setupBatchModelListeners: function() {
+  setupBatchModelListeners() {
     this.listenTo(
       this.uploadBatchModel,
       'add:uploads remove:uploads reset:uploads',
@@ -101,13 +101,13 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(this.uploadBatchModel, 'change:sending', this.handleSending)
     this.listenTo(this.uploadBatchModel, 'change:finished', this.handleFinished)
   },
-  handleFinished: function() {
+  handleFinished() {
     this.$el.toggleClass('is-finished', this.uploadBatchModel.get('finished'))
   },
-  handleSending: function() {
+  handleSending() {
     this.$el.toggleClass('is-sending', this.uploadBatchModel.get('sending'))
   },
-  handleUploadUpdate: function() {
+  handleUploadUpdate() {
     if (
       this.uploadBatchModel.get('uploads').length === 0 &&
       !this.uploadBatchModel.get('sending')
@@ -130,7 +130,7 @@ module.exports = Marionette.LayoutView.extend({
       method: 'post',
       autoProcessQueue: false,
       headers: this.options.extraHeaders,
-      sending: function(file, xhr, formData) {
+      sending(file, xhr, formData) {
         _.each(_this.overrides, function(values, attribute) {
           _.each(values, function(value) {
             formData.append('parse.' + attribute, value)
@@ -142,27 +142,27 @@ module.exports = Marionette.LayoutView.extend({
       this.dropzone.on('success', this.options.handleUploadSuccess)
     }
   },
-  addFiles: function() {
+  addFiles() {
     this.$el.find('.details-dropzone').click()
   },
-  showFiles: function() {
+  showFiles() {
     this.files.show(
       new UploadItemCollectionView({
         collection: this.uploadBatchModel.get('uploads'),
       })
     )
   },
-  showSummary: function() {
+  showSummary() {
     this.summary.show(
       new UploadSummary({
         model: this.uploadBatchModel,
       })
     )
   },
-  clearUploads: function() {
+  clearUploads() {
     this.uploadBatchModel.clear()
   },
-  startUpload: function() {
+  startUpload() {
     if (this.options.preIngestValidator) {
       this.options.preIngestValidator(
         _.bind(this.uploadBatchModel.start, this.uploadBatchModel)
@@ -171,10 +171,10 @@ module.exports = Marionette.LayoutView.extend({
       this.uploadBatchModel.start()
     }
   },
-  cancelUpload: function() {
+  cancelUpload() {
     this.uploadBatchModel.cancel()
   },
-  newUpload: function() {
+  newUpload() {
     this.$el.addClass('starting-new')
     setTimeout(
       function() {
@@ -183,7 +183,7 @@ module.exports = Marionette.LayoutView.extend({
       250
     )
   },
-  expandUpload: function() {
+  expandUpload() {
     wreqr.vent.trigger('router:navigate', {
       fragment: 'uploads/' + this.uploadBatchModel.id,
       options: {
@@ -191,7 +191,7 @@ module.exports = Marionette.LayoutView.extend({
       },
     })
   },
-  updateDropzoneHeight: function() {
+  updateDropzoneHeight() {
     updateDropzoneHeight(this)
     this.listenToResize()
     Common.cancelRepaintForTimeframe(this.dropzoneAnimationRequestDetails)
@@ -200,19 +200,19 @@ module.exports = Marionette.LayoutView.extend({
       updateDropzoneHeight.bind(this, this)
     )
   },
-  listenToResize: function() {
+  listenToResize() {
     $(window)
       .off(namespacedEvent('resize', this))
       .on(namespacedEvent('resize', this), this.updateDropzoneHeight.bind(this))
   },
-  unlistenToResize: function() {
+  unlistenToResize() {
     $(window).off(namespacedEvent('resize', this))
   },
-  onBeforeDestroy: function() {
+  onBeforeDestroy() {
     this.stopListening(this.uploadBatchModel)
     this.unlistenToResize()
   },
-  setOverrides: function(json) {
+  setOverrides(json) {
     this.overrides = json
   },
 })

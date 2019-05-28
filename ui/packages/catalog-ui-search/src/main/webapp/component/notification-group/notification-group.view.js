@@ -30,7 +30,7 @@ function getNotifications(filter) {
 }
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('notification-group'),
   regions: {
     groupItems: '> .group-items',
@@ -39,18 +39,18 @@ module.exports = Marionette.LayoutView.extend({
     'click > .group-header .header-clear': 'handleClear',
     'click > .group-header .header-confirm': 'handleConfirm',
   },
-  initialize: function() {
+  initialize() {
     this.handleEmpty()
     this.listenTo(userNotifications, 'add remove update', this.handleEmpty)
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.groupItems.show(
       new NotificationListView({
         filter: this.options.filter,
       })
     )
   },
-  handleEmpty: function() {
+  handleEmpty() {
     const empty = isEmpty(this.options.filter)
     if (empty) {
       this.$el.css('height', this.$el.height())
@@ -63,7 +63,7 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  handleClear: function(e) {
+  handleClear(e) {
     this.$el.toggleClass('wait-for-confirmation', true)
     setTimeout(
       function() {
@@ -72,7 +72,7 @@ module.exports = Marionette.LayoutView.extend({
       0
     )
   },
-  listenForClick: function() {
+  listenForClick() {
     $(window).on(
       'click.notification-group',
       function(e) {
@@ -81,20 +81,20 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  unlistenForClick: function() {
+  unlistenForClick() {
     $(window).off('click.notification-group')
   },
-  handleConfirm: function() {
+  handleConfirm() {
     this.groupItems.currentView.children.forEach(function(childView) {
       childView.removeModel()
     })
   },
-  serializeData: function() {
+  serializeData() {
     return {
       date: this.options.date,
     }
   },
-  onDestroy: function() {
+  onDestroy() {
     this.unlistenForClick()
   },
 })

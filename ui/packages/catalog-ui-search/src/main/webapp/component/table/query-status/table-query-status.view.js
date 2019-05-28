@@ -19,21 +19,21 @@ const BodyView = require('../../query-status/query-status-body.view.js')
 
 module.exports = TableView.extend({
   className: 'is-query-status',
-  initialize: function() {
+  initialize() {
     const result = this.model.get('result')
     if (!result) {
       this.startListeningToSearch()
     }
   },
-  startListeningToSearch: function() {
+  startListeningToSearch() {
     this.listenToOnce(this.model, 'change:result', this.render)
   },
-  getHeaderView: function() {
+  getHeaderView() {
     return new HeaderView({
       model: this.model,
     })
   },
-  getBodyView: function() {
+  getBodyView() {
     const result = this.model.get('result')
     const bodyView = new BodyView()
     if (result) {

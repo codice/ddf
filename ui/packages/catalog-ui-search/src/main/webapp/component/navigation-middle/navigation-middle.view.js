@@ -33,7 +33,7 @@ module.exports = Marionette.LayoutView.extend({
     return <div className={props.menuClass}>{this.getLabel()}</div>
   },
   tagName: CustomElements.register('navigation-middle'),
-  serializeData: function() {
+  serializeData() {
     return {
       menuClass: this.options.classes,
     }

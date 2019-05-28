@@ -21,29 +21,29 @@ const user = require('../singletons/user-instance.js')
 const UnsavedIndicatorView = require('../unsaved-indicator/workspace/workspace-unsaved-indicator.view.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('workspace-details'),
   regions: {
     unsavedIndicator: '.title-indicator',
   },
-  initialize: function(options) {
+  initialize(options) {
     this.listenTo(
       user.get('user').get('preferences'),
       'change:homeDisplay',
       this.handleDisplayPref
     )
   },
-  onRender: function() {
+  onRender() {
     this.handleDisplayPref()
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.unsavedIndicator.show(
       new UnsavedIndicatorView({
         model: this.model,
       })
     )
   },
-  handleDisplayPref: function() {
+  handleDisplayPref() {
     this.$el.toggleClass(
       'as-list',
       user
@@ -52,7 +52,7 @@ module.exports = Marionette.LayoutView.extend({
         .get('homeDisplay') === 'List'
     )
   },
-  serializeData: function() {
+  serializeData() {
     const workspacesJSON = this.model.toJSON()
     workspacesJSON.niceDate = moment(
       workspacesJSON['metacard.modified']

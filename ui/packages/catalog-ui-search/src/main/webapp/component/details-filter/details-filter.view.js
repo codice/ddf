@@ -20,7 +20,7 @@ const PropertyView = require('../property/property.view.js')
 const Property = require('../property/property.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('details-filter'),
   events: {
     'click > .editor-footer .footer-remove': 'removeFilter',
@@ -30,8 +30,8 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     editorProperties: '.editor-properties',
   },
-  initialize: function() {},
-  onRender: function() {
+  initialize() {},
+  onRender() {
     this.editorProperties.show(
       new PropertyView({
         model: new Property({
@@ -51,27 +51,27 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.handleFilterValue()
   },
-  handleEnter: function(e) {
+  handleEnter(e) {
     if (e && e.keyCode === 13) {
       this.closeDropdown()
     }
   },
-  handleFilterValue: function() {
+  handleFilterValue() {
     this.model.set(
       'value',
       this.editorProperties.currentView.model.getValue()[0]
     )
     this.$el.toggleClass('has-filter', this.model.get('value') !== '')
   },
-  closeDropdown: function() {
+  closeDropdown() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  removeFilter: function() {
+  removeFilter() {
     this.model.set('value', '')
     this.render()
     this.closeDropdown()
   },
-  focus: function() {
+  focus() {
     this.$el.find('input').focus()
   },
 })

@@ -36,12 +36,12 @@ function getTimeZone() {
 }
 
 module.exports = InputView.extend({
-  template: template,
+  template,
   events: {
     'dp.show .input-group.date': 'handleOpen',
     'dp.hide .input-group.date': 'removeResizeHandler',
   },
-  serializeData: function() {
+  serializeData() {
     const propertyJSON = _.extend(this.model.toJSON(), {
       cid: this.cid,
       humanReadableDate: this.model.getValue()
@@ -53,7 +53,7 @@ module.exports = InputView.extend({
     }
     return propertyJSON
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(
       user.get('user').get('preferences'),
       'change:timeZone change:dateTimeFormat',
@@ -61,7 +61,7 @@ module.exports = InputView.extend({
     )
     InputView.prototype.initialize.call(this)
   },
-  hasSameTime: function(newDate, oldDate) {
+  hasSameTime(newDate, oldDate) {
     const timeOnlyFormat = 'HH:mm:ss.SSS'
     if (oldDate == null || newDate == null) {
       return false
@@ -73,11 +73,11 @@ module.exports = InputView.extend({
     }
     return false
   },
-  onRender: function() {
+  onRender() {
     this.initializeDatepicker()
     InputView.prototype.onRender.call(this)
   },
-  initializeDatepicker: function() {
+  initializeDatepicker() {
     this.onDestroy()
     this.$el.find('.input-group.date').datetimepicker({
       format: getDateFormat(),
@@ -86,23 +86,23 @@ module.exports = InputView.extend({
       keyBinds: null,
     })
   },
-  handleReadOnly: function() {
+  handleReadOnly() {
     this.$el.toggleClass('is-readOnly', this.model.isReadOnly())
   },
-  handleValue: function() {
+  handleValue() {
     this.$el
       .find('.input-group.date')
       .data('DateTimePicker')
       .date(user.getUserReadableDateTime(this.model.getValue()))
   },
-  focus: function() {
+  focus() {
     this.$el.find('input').select()
   },
-  handleOpen: function() {
+  handleOpen() {
     this.updatePosition()
     this.addResizeHandler()
   },
-  updatePosition: function() {
+  updatePosition() {
     let datepicker = $('body').find('.bootstrap-datetimepicker-widget:last')
     let inputCoordinates = this.$el
       .find('.input-group.date')[0]
@@ -117,13 +117,13 @@ module.exports = InputView.extend({
       width: inputCoordinates.width + 'px',
     })
   },
-  addResizeHandler: function() {
+  addResizeHandler() {
     $(window).on('resize.datePicker', this.updatePosition.bind(this))
   },
-  removeResizeHandler: function() {
+  removeResizeHandler() {
     $(window).off('resize.datePicker')
   },
-  getCurrentValue: function() {
+  getCurrentValue() {
     const currentValue = this.$el.find('input').val()
     if (currentValue) {
       return moment
@@ -133,7 +133,7 @@ module.exports = InputView.extend({
       return null
     }
   },
-  listenForChange: function() {
+  listenForChange() {
     this.$el.on(
       'dp.change',
       function(e) {
@@ -165,11 +165,11 @@ module.exports = InputView.extend({
       }.bind(this)
     )
   },
-  isValid: function() {
+  isValid() {
     const currentValue = this.$el.find('input').val()
     return currentValue != null && currentValue !== ''
   },
-  onDestroy: function() {
+  onDestroy() {
     const datetimepicker = this.$el
       .find('.input-group.date')
       .data('DateTimePicker')

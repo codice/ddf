@@ -68,7 +68,7 @@ module.exports = DropdownView.extend({
   imageLoadError: false,
   className: 'is-hover-preview',
   componentToShow: ComponentView,
-  initialize: function() {
+  initialize() {
     DropdownView.prototype.initialize.call(this)
   },
 })

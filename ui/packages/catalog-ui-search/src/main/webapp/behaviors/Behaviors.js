@@ -20,7 +20,7 @@ Marionette.Behaviors.behaviorsLookup = function() {
 }
 
 module.exports = {
-  addBehavior: function(name, behavior) {
+  addBehavior(name, behavior) {
     if (behaviors[name]) {
       throw 'Behavior with name ' + name + ' already exists.'
     }

@@ -11,7 +11,7 @@
  **/
 
 module.exports = {
-  isArray3D: function(values) {
+  isArray3D(values) {
     return values && values[0] && values[0][0] instanceof Array
   },
 }

@@ -234,7 +234,7 @@ function validateDd(dd) {
       }
       break
   }
-  return { valid: valid, error: error }
+  return { valid, error }
 }
 
 module.exports = {

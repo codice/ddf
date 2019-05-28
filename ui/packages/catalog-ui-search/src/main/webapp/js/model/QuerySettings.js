@@ -13,7 +13,7 @@
 const Backbone = require('backbone')
 
 module.exports = Backbone.Model.extend({
-  defaults: function() {
+  defaults() {
     return {
       type: 'text',
       src: undefined,
@@ -29,7 +29,7 @@ module.exports = Backbone.Model.extend({
       phonetics: false,
     }
   },
-  isTemplate: function(template) {
+  isTemplate(template) {
     if (this.get('template') !== undefined) {
       return this.get('template').id === template.id
     } else {

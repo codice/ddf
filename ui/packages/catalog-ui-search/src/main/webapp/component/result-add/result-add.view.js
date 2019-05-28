@@ -26,7 +26,7 @@ const _ = require('lodash')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('result-add'),
-  template: template,
+  template,
   events: {
     'click .is-existing-list.matches-filter:not(.already-contains)':
       'addToList',
@@ -35,7 +35,7 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     newList: '.create-new-list',
   },
-  removeFromList: function(e) {
+  removeFromList(e) {
     const listId = $(e.currentTarget).data('id')
     store
       .getCurrentWorkspace()
@@ -47,7 +47,7 @@ module.exports = Marionette.LayoutView.extend({
         })
       )
   },
-  addToList: function(e) {
+  addToList(e) {
     const listId = $(e.currentTarget).data('id')
     store
       .getCurrentWorkspace()
@@ -59,15 +59,15 @@ module.exports = Marionette.LayoutView.extend({
         })
       )
   },
-  onRender: function() {
+  onRender() {
     this.setupCreateList()
   },
-  safeRender: function() {
+  safeRender() {
     if (!this.isDestroyed) {
       this.render()
     }
   },
-  setupCreateList: function() {
+  setupCreateList() {
     this.newList.show(
       PopoutView.createSimpleDropdown({
         componentToShow: ListCreate,
@@ -80,14 +80,14 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(
       store.getCurrentWorkspace().get('lists'),
       'add remove update change',
       this.safeRender
     )
   },
-  serializeData: function() {
+  serializeData() {
     let listJSON = store
       .getCurrentWorkspace()
       .get('lists')

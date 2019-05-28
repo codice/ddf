@@ -20,14 +20,14 @@ const metacardDefinitions = require('../../singletons/metacard-definitions.js')
 const ClusterCollectionView = Marionette.CollectionView.extend({
   childView: ClusterView,
   selectionInterface: store,
-  childViewOptions: function() {
+  childViewOptions() {
     return {
       map: this.options.map,
       selectionInterface: this.selectionInterface,
     }
   },
   isActive: false,
-  initialize: function(options) {
+  initialize(options) {
     this.isActive = Boolean(options.isActive) || this.isActive
     this.render = _.throttle(this.render, 200)
     this.options.map.onLeftClick = _.debounce(this.options.map.onLeftClick, 30)
@@ -40,13 +40,13 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
     this.calculateClusters = _.throttle(this.calculateClusters, 200)
     this.render()
   },
-  onRender: function() {},
-  handleMapHover: function(event, mapEvent) {
+  onRender() {},
+  handleMapHover(event, mapEvent) {
     this.children.forEach(function(clusterView) {
       clusterView.handleHover(mapEvent.mapTarget)
     })
   },
-  onMapLeftClick: function(event, mapEvent) {
+  onMapLeftClick(event, mapEvent) {
     if (
       mapEvent.mapTarget &&
       mapEvent.mapTarget !== 'userDrawing' &&
@@ -61,42 +61,42 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
       }
     }
   },
-  getModelsForId: function(id) {
+  getModelsForId(id) {
     return this.collection.get(id.sort().toString()).get('results').models
   },
-  handleClick: function(id) {
+  handleClick(id) {
     if (id.constructor === Array) {
       this.options.selectionInterface.clearSelectedResults()
       this.options.selectionInterface.addSelectedResult(this.getModelsForId(id))
     }
   },
-  handleCtrlClick: function(id) {
+  handleCtrlClick(id) {
     if (id.constructor === Array) {
       this.options.selectionInterface.addSelectedResult(this.getModelsForId(id))
     }
   },
-  handleShiftClick: function(id) {
+  handleShiftClick(id) {
     if (id.constructor === Array) {
       this.options.selectionInterface.addSelectedResult(this.getModelsForId(id))
     }
   },
-  handleCameraMoveStart: function() {
+  handleCameraMoveStart() {
     if (!this.isDestroyed) {
       this.startClusterAnimating()
     }
   },
-  handleCameraMoveEnd: function() {
+  handleCameraMoveEnd() {
     if (!this.isDestroyed) {
       window.cancelAnimationFrame(this.clusteringAnimationFrameId)
       this.calculateClusters()
     }
   },
-  listenForCameraChange: function() {
+  listenForCameraChange() {
     this.options.map.onCameraMoveStart(this.handleCameraMoveStart.bind(this))
     this.options.map.onCameraMoveEnd(this.handleCameraMoveEnd.bind(this))
   },
   clusteringAnimationFrameId: undefined,
-  startClusterAnimating: function() {
+  startClusterAnimating() {
     if (this.isActive) {
       this.clusteringAnimationFrameId = window.requestAnimationFrame(
         function() {
@@ -106,7 +106,7 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
       )
     }
   },
-  calculateClusters: function() {
+  calculateClusters() {
     if (this.isActive) {
       const clusters = Clustering.calculateClusters(
         this.getResultsWithGeometry(),
@@ -130,14 +130,14 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
       this.collection.set([])
     }
   },
-  getResultsWithGeometry: function() {
+  getResultsWithGeometry() {
     return this.selectionInterface
       .getActiveSearchResults()
       .filter(function(result) {
         return result.hasGeometry()
       })
   },
-  listenForResultsChange: function() {
+  listenForResultsChange() {
     this.listenTo(
       this.selectionInterface.getActiveSearchResults(),
       'reset',
@@ -149,7 +149,7 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
       this.handleMetacardUpdate
     )
   },
-  handleMetacardUpdate: function(propertiesModel) {
+  handleMetacardUpdate(propertiesModel) {
     if (
       _.find(Object.keys(propertiesModel.changedAttributes()), function(
         attribute
@@ -163,14 +163,14 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
       this.handleResultsChange()
     }
   },
-  handleResultsChange: function() {
+  handleResultsChange() {
     this.collection.set([])
     this.calculateClusters()
   },
-  onDestroy: function() {
+  onDestroy() {
     window.cancelAnimationFrame(this.clusteringAnimationFrameId)
   },
-  toggleActive: function() {
+  toggleActive() {
     this.isActive = !this.isActive
     this.calculateClusters()
   },

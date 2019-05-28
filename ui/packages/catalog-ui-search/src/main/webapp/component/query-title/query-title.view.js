@@ -49,22 +49,22 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   tagName: CustomElements.register('query-title'),
-  initialize: function(options) {
+  initialize(options) {
     this.updateQueryName = _.throttle(this.updateQueryName, 200)
     this.listenTo(this.model, 'change:title', this.handleTitleUpdate)
   },
-  onDomRefresh: function() {
+  onDomRefresh() {
     if (!this.model._cloneOf) {
       this.$el.find('input').select()
     }
   },
-  onRender: function() {
+  onRender() {
     this.updateQueryName()
     if (this.options.isSearchFormEditor !== true) {
       this.showSearchInteractions()
     }
   },
-  showSearchInteractions: function() {
+  showSearchInteractions() {
     this.searchInteractions.show(
       new SearchInteractionsDropdownView({
         model: new DropdownModel(),
@@ -75,22 +75,22 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  focus: function() {
+  focus() {
     this.$el.find('input').focus()
   },
-  getSearchTitle: function() {
+  getSearchTitle() {
     const title = this.$el.find('input').val()
     return title !== '' ? title : 'Search Name'
   },
-  handleTitleUpdate: function() {
+  handleTitleUpdate() {
     this.$el.find('input').val(this.model.get('title'))
     this.updateQueryName()
   },
-  updateQueryName: function(e) {
+  updateQueryName(e) {
     this.$el.find('.button-title').html(this.getSearchTitle() + zeroWidthSpace)
     this.save()
   },
-  save: function() {
+  save() {
     this.model.set('title', this.$el.find('input').val())
   },
 })

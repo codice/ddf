@@ -28,7 +28,7 @@ const WorkspaceContentTabs = Tabs.extend({
       Annotations: QueryAnnotationsView,
     },
   },
-  getAssociatedQuery: function() {
+  getAssociatedQuery() {
     return store.getQuery()
   },
 })

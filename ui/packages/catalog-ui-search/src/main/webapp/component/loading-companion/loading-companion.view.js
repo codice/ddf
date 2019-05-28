@@ -34,9 +34,9 @@ function getElementLoadingCompanion(element) {
 }
 
 const LoadingCompanionView = Marionette.ItemView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('loading-companion'),
-  initialize: function() {
+  initialize() {
     this.render()
     if (this.options.appendTo) {
       this.options.appendTo.append(this.el)
@@ -59,7 +59,7 @@ const LoadingCompanionView = Marionette.ItemView.extend({
     }
   },
   shown: false,
-  stop: function() {
+  stop() {
     this.$el.stop().animate(
       {
         opacity: 0,
@@ -70,10 +70,10 @@ const LoadingCompanionView = Marionette.ItemView.extend({
       }.bind(this)
     )
   },
-  onDestroy: function() {
+  onDestroy() {
     this.$el.remove()
   },
-  updatePosition: function() {
+  updatePosition() {
     window.requestAnimationFrame(
       function() {
         if (this.isDestroyed) {
@@ -119,7 +119,7 @@ module.exports = {
       loadingCompanions.splice(loadingCompanions.indexOf(loadingCompanion), 1)
     }
   },
-  beginLoading: function(linkedView, appendTo) {
+  beginLoading(linkedView, appendTo) {
     if (!linkedView) {
       throw "Must pass the view you're calling the loader from."
     }
@@ -128,15 +128,15 @@ module.exports = {
       if (!getLoadingCompanion(linkedView)) {
         loadingCompanions.push(
           new LoadingCompanionView({
-            linkedView: linkedView,
+            linkedView,
             element: linkedView.el,
-            appendTo: appendTo,
+            appendTo,
           })
         )
       }
     }
   },
-  endLoading: function(linkedView) {
+  endLoading(linkedView) {
     if (!linkedView) {
       throw "Must pass the view you're called the loader from."
     }

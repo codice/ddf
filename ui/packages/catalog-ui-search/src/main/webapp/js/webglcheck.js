@@ -16,7 +16,7 @@ const _ = require('underscore')
 
 module.exports = {
   isWebglAvailable: undefined,
-  isAvailable: function() {
+  isAvailable() {
     if (_.isUndefined(this.isWebglAvailable)) {
       this.isWebglAvailable = false
 

@@ -19,18 +19,18 @@ const CustomElements = require('../../js/CustomElements.js')
 
 // Base View, meant to be extended for whatever needs an unsaved indicator
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('unsaved-indicator'),
-  initialize: function() {
+  initialize() {
     // overwrite with listeners
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.handleSaved()
   },
-  isSaved: function() {
+  isSaved() {
     // overwrite with save check
   },
-  handleSaved: function() {
+  handleSaved() {
     this.$el.toggleClass('is-saved', this.isSaved())
   },
 })

@@ -21,12 +21,12 @@ const CustomElements = require('../../js/CustomElements.js')
 const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('result-form-collection'),
   regions: {
     collectionView: '.collection',
   },
-  initialize: function() {
+  initialize() {
     this.resultFormCollection = ResultFormCollection
     this.listenTo(
       this.resultFormCollection,
@@ -34,7 +34,7 @@ module.exports = Marionette.LayoutView.extend({
       this.handleLoadingSpinner
     )
   },
-  onRender: function() {
+  onRender() {
     ResultFormCollection.initialize()
     this.collectionView.show(
       new ResultFormCollectionView({
@@ -46,7 +46,7 @@ module.exports = Marionette.LayoutView.extend({
     LoadingCompanionView.beginLoading(this, this.$el)
     this.handleLoadingSpinner()
   },
-  handleLoadingSpinner: function() {
+  handleLoadingSpinner() {
     if (this.resultFormCollection.getDoneLoading()) {
       LoadingCompanionView.endLoading(this)
     }

@@ -22,7 +22,7 @@ const updatePreferences = _.throttle(function() {
 
 module.exports = Backbone.AssociatedModel.extend({
   options: undefined,
-  defaults: function() {
+  defaults() {
     return {
       unseen: true,
       uploads: [],
@@ -54,7 +54,7 @@ module.exports = Backbone.AssociatedModel.extend({
     this.handleError = this.handleError.bind(this)
     this.handleComplete = this.handleComplete.bind(this)
   },
-  initialize: function(attributes, options) {
+  initialize(attributes, options) {
     this.bindCallbacks()
     this.options = options
     if (!this.id) {
@@ -72,7 +72,7 @@ module.exports = Backbone.AssociatedModel.extend({
     )
     this.listenToDropzone()
   },
-  listenToDropzone: function() {
+  listenToDropzone() {
     if (this.options.dropzone) {
       this.options.dropzone.on('addedfile', this.handleAddFile)
       this.options.dropzone.on(
@@ -89,38 +89,38 @@ module.exports = Backbone.AssociatedModel.extend({
       this.set('finished', true)
     }
   },
-  handleAddFile: function(file) {
+  handleAddFile(file) {
     this.get('uploads').add(
       {
-        file: file,
+        file,
       },
       {
         dropzone: this.options.dropzone,
       }
     )
   },
-  handleSuccess: function(file) {
+  handleSuccess(file) {
     if (file.status !== 'canceled') {
       this.set('successes', this.get('successes') + 1)
     }
   },
-  handleError: function(file) {
+  handleError(file) {
     if (file.status !== 'canceled') {
       this.set('errors', this.get('errors') + 1)
     }
   },
-  handleComplete: function(file) {
+  handleComplete(file) {
     if (file.status === 'success') {
       this.set('complete', this.get('complete') + 1)
     }
     updatePreferences()
   },
-  handleSending: function() {
+  handleSending() {
     this.set({
       sending: true,
     })
   },
-  handleTotalUploadProgress: function() {
+  handleTotalUploadProgress() {
     this.set({
       percentage: this.calculatePercentageDone(),
     })
@@ -149,12 +149,12 @@ module.exports = Backbone.AssociatedModel.extend({
     })
     updatePreferences()
   },
-  handleUploadUpdate: function() {
+  handleUploadUpdate() {
     this.set({
       amount: this.get('uploads').length,
     })
   },
-  handleIssuesUpdates: function() {
+  handleIssuesUpdates() {
     this.set({
       issues: this.get('uploads').reduce(function(issues, upload) {
         issues += upload.get('issues') ? 1 : 0
@@ -162,16 +162,16 @@ module.exports = Backbone.AssociatedModel.extend({
       }, 0),
     })
   },
-  clear: function() {
+  clear() {
     this.cancel()
     this.get('uploads').reset()
   },
-  cancel: function() {
+  cancel() {
     if (this.options.dropzone) {
       this.options.dropzone.removeAllFiles(true)
     }
   },
-  start: function() {
+  start() {
     if (this.options.dropzone) {
       this.set({
         sending: true,
@@ -183,10 +183,10 @@ module.exports = Backbone.AssociatedModel.extend({
       this.options.dropzone.processQueue()
     }
   },
-  getTimeComparator: function() {
+  getTimeComparator() {
     return this.get('sentAt')
   },
-  calculatePercentageDone: function() {
+  calculatePercentageDone() {
     const files = this.options.dropzone.files
     if (files.length === 0) {
       return 100

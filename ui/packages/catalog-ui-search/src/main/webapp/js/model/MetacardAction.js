@@ -16,7 +16,7 @@ const DECODED_QUERY_ID_TEMPLATE = '{&queryId}'
 const ENCODED_QUERY_ID_TEMPLATE = encodeURIComponent(DECODED_QUERY_ID_TEMPLATE)
 
 module.exports = Backbone.AssociatedModel.extend({
-  defaults: function() {
+  defaults() {
     return {
       url: undefined,
       title: undefined,
@@ -26,14 +26,14 @@ module.exports = Backbone.AssociatedModel.extend({
       displayName: undefined,
     }
   },
-  getExportType: function() {
+  getExportType() {
     return this.get('displayName')
   },
-  initialize: function() {
+  initialize() {
     this.handleQueryId()
     this.listenTo(this, 'change:queryId', this.handleQueryId)
   },
-  handleQueryId: function() {
+  handleQueryId() {
     if (this.get('queryId') !== undefined) {
       // This is the story:
       // An action provider can include {&queryId} as a template in the url if it needs the queryId

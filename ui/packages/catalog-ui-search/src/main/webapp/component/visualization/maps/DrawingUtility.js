@@ -17,7 +17,7 @@ const _ = require('underscore')
 const defaultColor = '#3c6dd5'
 
 module.exports = {
-  getCircle: function(options) {
+  getCircle(options) {
     _.defaults(options, {
       diameter: 22,
       fillColor: defaultColor,
@@ -45,7 +45,7 @@ module.exports = {
     ctx.stroke()
     return canvas
   },
-  getCircleWithText: function(options) {
+  getCircleWithText(options) {
     _.defaults(options, {
       diameter: 44,
       fillColor: defaultColor,
@@ -63,7 +63,7 @@ module.exports = {
     ctx.fillText(options.text, options.diameter / 2, options.diameter / 2)
     return canvas
   },
-  getCircleWithIcon: function(options) {
+  getCircleWithIcon(options) {
     _.defaults(options, {
       diameter: 24,
       fillColor: defaultColor,
@@ -87,7 +87,7 @@ module.exports = {
     }
     return canvas
   },
-  getPin: function(options) {
+  getPin(options) {
     _.defaults(options, {
       width: 39,
       height: 40,

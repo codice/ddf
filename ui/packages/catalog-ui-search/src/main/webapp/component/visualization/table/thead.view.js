@@ -28,7 +28,7 @@ const {
 } = require('../../selection-checkbox/selection-checkbox.view.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   className: 'is-thead',
   tagName: CustomElements.register('result-thead'),
   events: {
@@ -40,7 +40,7 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     checkboxContainer: '.checkbox-container',
   },
-  initialize: function(options) {
+  initialize(options) {
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }
@@ -61,21 +61,21 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.updateSorting = _.debounce(this.updateSorting, 500)
   },
-  onRender: function() {
+  onRender() {
     this.handleSorting()
     this.$el.find('.resizer').resizable({
       handles: 'e',
     })
     this.showCheckbox()
   },
-  showCheckbox: function() {
+  showCheckbox() {
     this.checkboxContainer.show(
       new SelectAllToggle({
         selectionInterface: this.options.selectionInterface,
       })
     )
   },
-  updateSorting: function(e) {
+  updateSorting(e) {
     const attribute = e.currentTarget.getAttribute('data-propertyid')
     const $currentTarget = $(e.currentTarget)
     const direction = $currentTarget.hasClass('is-sorted-asc')
@@ -83,15 +83,15 @@ module.exports = Marionette.LayoutView.extend({
       : 'ascending'
     const sort = [
       {
-        attribute: attribute,
-        direction: direction,
+        attribute,
+        direction,
       },
     ]
     const prefs = user.get('user').get('preferences')
     prefs.set('resultSort', sort)
     prefs.savePreferences()
   },
-  handleSorting: function() {
+  handleSorting() {
     const resultSort = user
       .get('user')
       .get('preferences')
@@ -119,7 +119,7 @@ module.exports = Marionette.LayoutView.extend({
       )
     }
   },
-  serializeData: function() {
+  serializeData() {
     const sortAttributes = _.filter(
       metacardDefinitions.sortedMetacardTypes,
       function(type) {
@@ -163,18 +163,18 @@ module.exports = Marionette.LayoutView.extend({
         }
       })
   },
-  updateColumnWidth: function(e) {
+  updateColumnWidth(e) {
     $(e.currentTarget).css('width', $(e.target).width())
   },
-  startResize: function(e) {
+  startResize(e) {
     isResizing = true
   },
-  stopResize: function(e) {
+  stopResize(e) {
     setTimeout(function() {
       isResizing = false
     }, 500)
   },
-  checkIfResizing: function(e) {
+  checkIfResizing(e) {
     if (!isResizing) {
       this.updateSorting(e)
     }

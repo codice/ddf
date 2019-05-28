@@ -27,7 +27,7 @@ const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
 const wreqr = require('../../exports/wreqr.js')
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('search-form-interactions'),
   className: 'composed-menu',
   modelEvents: {
@@ -42,7 +42,7 @@ module.exports = Marionette.ItemView.extend({
     click: 'handleClick',
   },
   ui: {},
-  initialize: function() {
+  initialize() {
     this.listenTo(user.getQuerySettings(), 'change', function() {
       this.$el.toggleClass(
         'is-current-template',
@@ -50,7 +50,7 @@ module.exports = Marionette.ItemView.extend({
       )
     })
   },
-  onRender: function() {
+  onRender() {
     this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')))
     this.$el.toggleClass(
       'is-current-template',
@@ -70,7 +70,7 @@ module.exports = Marionette.ItemView.extend({
     )
     this.$el.toggleClass('is-not-editable-template', !user.canWrite(this.model))
   },
-  handleTrash: function() {
+  handleTrash() {
     this.listenTo(
       ConfirmationView.generateConfirmation({
         prompt: 'This will permanently delete the search form. Are you sure?',
@@ -139,7 +139,7 @@ module.exports = Marionette.ItemView.extend({
     )
     this.trigger('doneLoading')
   },
-  handleMakeDefault: function() {
+  handleMakeDefault() {
     user.getQuerySettings().set({
       type: 'custom',
       template: this.model.toJSON(),
@@ -151,7 +151,7 @@ module.exports = Marionette.ItemView.extend({
       'success'
     )
   },
-  handleClearDefault: function() {
+  handleClearDefault() {
     user.getQuerySettings().set({
       template: undefined,
       type: 'text',
@@ -159,14 +159,14 @@ module.exports = Marionette.ItemView.extend({
     user.savePreferences()
     this.messageNotifier('Success', `Default Query Form Cleared`, 'success')
   },
-  messageNotifier: function(title, message, type) {
+  messageNotifier(title, message, type) {
     announcement.announce({
-      title: title,
-      message: message,
-      type: type,
+      title,
+      message,
+      type,
     })
   },
-  handleShare: function() {
+  handleShare() {
     lightboxInstance.model.updateTitle(this.options.sharingLightboxTitle)
     lightboxInstance.model.open()
     lightboxInstance.showContent(
@@ -178,7 +178,7 @@ module.exports = Marionette.ItemView.extend({
     )
     this.handleClick()
   },
-  handleEdit: function() {
+  handleEdit() {
     if (this.model.get('type') === 'custom') {
       this.model.set({
         title: this.model.get('title'),
@@ -210,7 +210,7 @@ module.exports = Marionette.ItemView.extend({
       this.model.trigger('change:type')
     }
   },
-  handleClick: function() {
+  handleClick() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
 })

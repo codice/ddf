@@ -34,7 +34,7 @@ const InputWithParamView = require('../input/with-param/input-with-param.view.js
 const InputPasswordView = require('../input/password/input-password.view.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('value'),
   events: {
     'click .value-delete': 'delete',
@@ -42,18 +42,18 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     input: '.value-input',
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(
       this.model.get('property'),
       'change:isEditing',
       this.handleEdit
     )
   },
-  onRender: function() {
+  onRender() {
     this.handleEdit()
     this.handleMultivalue()
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     if (this.model.get('property').get('enum')) {
       this.input.show(
         new InputEnumView({
@@ -169,16 +169,16 @@ module.exports = Marionette.LayoutView.extend({
       }
     }
   },
-  handleEdit: function() {
+  handleEdit() {
     this.$el.toggleClass('is-editing', this.model.isEditing())
   },
-  handleMultivalue: function() {
+  handleMultivalue() {
     this.$el.toggleClass('is-multivalued', this.model.isMultivalued())
   },
-  focus: function() {
+  focus() {
     this.input.currentView.focus()
   },
-  delete: function() {
+  delete() {
     this.model.destroy()
   },
 })

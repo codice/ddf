@@ -44,11 +44,11 @@ function getTypes(results) {
 
 const MetacardsTabsView = TabsView.extend({
   className: 'is-metacards',
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = new MetacardsTabsModel()
   },
   selectionInterface: store,
-  initialize: function(options) {
+  initialize(options) {
     this.selectionInterface = options.selectionInterface || store
     if (options.model === undefined) {
       this.setDefaultModel()
@@ -82,11 +82,11 @@ const MetacardsTabsView = TabsView.extend({
       debounceDetermineContent
     )
   },
-  handleMetacardChange: function() {
+  handleMetacardChange() {
     this.determineAvailableContent()
     this.determineContent()
   },
-  determineContentFromType: function() {
+  determineContentFromType() {
     const activeTabName = this.model.get('activeTab')
     const types = getTypes(this.selectionInterface.getSelectedResults())
     if (
@@ -120,12 +120,12 @@ const MetacardsTabsView = TabsView.extend({
       })
     )
   },
-  determineContent: function() {
+  determineContent() {
     if (this.selectionInterface.getSelectedResults().length > 1) {
       this.determineContentFromType()
     }
   },
-  determineAvailableContent: function() {
+  determineAvailableContent() {
     if (this.selectionInterface.getSelectedResults().length > 1) {
       const types = getTypes(this.selectionInterface.getSelectedResults())
       this.$el.toggleClass('is-mixed', types.length > 1)

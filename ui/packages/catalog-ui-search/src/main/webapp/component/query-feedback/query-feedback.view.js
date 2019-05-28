@@ -24,7 +24,7 @@ const user = require('../singletons/user-instance.js')
 const $ = require('jquery')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('query-feedback'),
   events: {
     'click .editor-cancel': 'handleCancel',
@@ -33,10 +33,10 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     comments: '.properties-comments',
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(router, 'change', this.handleCancel)
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.comments.show(
       new PropertyView({
         model: new PropertyModel({
@@ -48,7 +48,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.edit()
   },
-  edit: function() {
+  edit() {
     this.$el.addClass('is-editing')
     this.regionManager.forEach(function(region) {
       if (region.currentView && region.currentView.turnOnEditing) {
@@ -56,10 +56,10 @@ module.exports = Marionette.LayoutView.extend({
       }
     })
   },
-  handleCancel: function() {
+  handleCancel() {
     this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox')
   },
-  handleSend: function() {
+  handleSend() {
     const payload = {
       user: {
         email: user.get('user').get('email'),

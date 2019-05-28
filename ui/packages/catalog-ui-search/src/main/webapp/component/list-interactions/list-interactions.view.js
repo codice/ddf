@@ -24,7 +24,7 @@ import saveFile, {
 } from '../../react-component/utils/save-file'
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('list-interactions'),
   className: 'composed-menu',
   events: {

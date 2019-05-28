@@ -18,12 +18,12 @@ const properties = require('../properties.js')
 require('backbone-associations')
 
 module.exports = Backbone.AssociatedModel.extend({
-  defaults: function() {
+  defaults() {
     return {
       'metacard-tags': ['resource'],
     }
   },
-  hasGeometry: function(attribute) {
+  hasGeometry(attribute) {
     return (
       _.filter(this.toJSON(), function(value, key) {
         return (
@@ -34,17 +34,17 @@ module.exports = Backbone.AssociatedModel.extend({
       }).length > 0
     )
   },
-  getCombinedGeoJSON: function() {
+  getCombinedGeoJSON() {
     return
   },
-  getPoints: function(attribute) {
+  getPoints(attribute) {
     return this.getGeometries(attribute).reduce(function(pointArray, wkt) {
       return pointArray.concat(
         TurfMeta.coordAll(wkx.Geometry.parse(wkt).toGeoJSON())
       )
     }, [])
   },
-  getGeometries: function(attribute) {
+  getGeometries(attribute) {
     return _.filter(this.toJSON(), function(value, key) {
       return (
         !properties.isHidden(key) &&

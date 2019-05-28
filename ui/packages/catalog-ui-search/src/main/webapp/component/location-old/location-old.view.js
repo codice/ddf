@@ -85,7 +85,7 @@ const filterToLocationOldModel = filter => {
 }
 
 module.exports = Marionette.LayoutView.extend({
-  template: function() {
+  template() {
     const props = {
       model: this.model,
       options: {
@@ -100,7 +100,7 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     location: '.location-input',
   },
-  initialize: function(options) {
+  initialize(options) {
     this.propertyModel = this.model
     this.model = new LocationOldModel()
     _.bindAll.apply(_, [this].concat(_.functions(this))) // underscore bindAll does not take array arg
@@ -117,7 +117,7 @@ module.exports = Marionette.LayoutView.extend({
     })
   },
   // Updates the map with a drawing whenever the user is entering coordinates manually
-  updateMap: function() {
+  updateMap() {
     if (!this.isDestroyed) {
       const mode = this.model.get('mode')
       if (mode !== undefined && store.get('content').get('drawing') !== true) {
@@ -125,17 +125,17 @@ module.exports = Marionette.LayoutView.extend({
       }
     }
   },
-  setupListeners: function() {
+  setupListeners() {
     this.listenTo(
       this.model,
       'change:mapNorth change:mapSouth change:mapEast change:mapWest',
       this.updateMaxAndMin
     )
   },
-  updateMaxAndMin: function() {
+  updateMaxAndMin() {
     this.model.setLatLon()
   },
-  isFilterUndefinedOrNull: function(filter) {
+  isFilterUndefinedOrNull(filter) {
     if (
       filter === null ||
       filter.value === undefined ||
@@ -145,7 +145,7 @@ module.exports = Marionette.LayoutView.extend({
     }
     return false
   },
-  deserialize: function() {
+  deserialize() {
     if (this.propertyModel) {
       const filter = this.propertyModel.get('value')
       if (this.isFilterUndefinedOrNull(filter)) {
@@ -186,7 +186,7 @@ module.exports = Marionette.LayoutView.extend({
         break
     }
   },
-  clearLocation: function() {
+  clearLocation() {
     this.model.set({
       north: undefined,
       east: undefined,
@@ -230,7 +230,7 @@ module.exports = Marionette.LayoutView.extend({
     wreqr.vent.trigger('search:drawend', this.model)
     this.$el.trigger('change')
   },
-  getCurrentValue: function() {
+  getCurrentValue() {
     const modelJSON = this.model.toJSON()
     let type
     if (modelJSON.polygon !== undefined) {
@@ -258,15 +258,15 @@ module.exports = Marionette.LayoutView.extend({
     }
 
     return _.extend(modelJSON, {
-      type: type,
+      type,
       lineWidth: Math.max(modelJSON.lineWidth, minimumBuffer),
       radius: Math.max(modelJSON.radius, minimumBuffer),
     })
   },
-  onDestroy: function() {
+  onDestroy() {
     wreqr.vent.trigger('search:drawend', this.model)
   },
-  isValid: function() {
+  isValid() {
     return this.getCurrentValue().type != undefined
   },
 })

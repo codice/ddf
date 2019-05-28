@@ -22,7 +22,7 @@ const Query = require('../../js/model/Query.js')
 const $ = require('jquery')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('search-select'),
   regions: {
     searchResults: '> .select-list',
@@ -32,44 +32,44 @@ module.exports = Marionette.LayoutView.extend({
     'click > button.select-add': 'addQuery',
     'click > .select-one .quick-add': 'triggerQuery',
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(store.getCurrentQueries(), 'add', this.handleUpdate)
     this.listenTo(store.getCurrentQueries(), 'remove', this.handleUpdate)
     this.listenTo(store.getCurrentQueries(), 'update', this.handleUpdate)
     this.handleUpdate()
     this.handleHideActions()
   },
-  handleHideActions: function() {
+  handleHideActions() {
     this.$el.toggleClass('hide-actions', this.options.hideActions === true)
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     if (store.getCurrentWorkspace()) {
       this.setupSearchResults()
     }
   },
-  onRender: function() {
+  onRender() {
     this.handleUpdate()
   },
-  setupSearchResults: function() {
+  setupSearchResults() {
     this.searchResults.show(
       new QuerySelectView({
         model: this.model,
       })
     )
   },
-  addQuery: function() {
+  addQuery() {
     if (store.getCurrentWorkspace().canAddQuery()) {
       const newQuery = new Query.Model()
       store.setQueryByReference(newQuery)
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     }
   },
-  handleUpdate: function() {
+  handleUpdate() {
     this.handleMaxQueries()
     this.handleEmptyQueries()
     this.handleOneQuery()
   },
-  handleMaxQueries: function() {
+  handleMaxQueries() {
     this.$el.toggleClass(
       'is-limited',
       !store.getCurrentWorkspace().canAddQuery()
@@ -78,13 +78,13 @@ module.exports = Marionette.LayoutView.extend({
       .find('.select-add')
       .toggleClass('is-disabled', !store.getCurrentWorkspace().canAddQuery())
   },
-  handleEmptyQueries: function() {
+  handleEmptyQueries() {
     this.$el.toggleClass('is-empty', store.getCurrentQueries().isEmpty())
   },
-  handleOneQuery: function() {
+  handleOneQuery() {
     this.$el.toggleClass('has-one', store.getCurrentQueries().length === 1)
   },
-  triggerQuery: function() {
+  triggerQuery() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     $('.content-adhoc')
       .mousedown()

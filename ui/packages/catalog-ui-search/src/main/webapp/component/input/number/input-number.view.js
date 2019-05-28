@@ -17,8 +17,8 @@ const template = require('./input-number.hbs')
 const InputView = require('../input.view')
 
 module.exports = InputView.extend({
-  template: template,
-  getCurrentValue: function() {
+  template,
+  getCurrentValue() {
     const value = this.$el.find('input').val()
     if (value !== '') {
       return Number(value)
@@ -26,7 +26,7 @@ module.exports = InputView.extend({
       return value
     }
   },
-  isValid: function() {
+  isValid() {
     return this.getCurrentValue() !== ''
   },
 })

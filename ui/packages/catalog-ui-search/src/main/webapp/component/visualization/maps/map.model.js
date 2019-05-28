@@ -44,22 +44,22 @@ module.exports = Backbone.AssociatedModel.extend({
     target: undefined,
     targetMetacard: undefined,
   },
-  isOffMap: function() {
+  isOffMap() {
     return this.get('mouseLat') === undefined
   },
-  clearMouseCoordinates: function() {
+  clearMouseCoordinates() {
     this.set({
       mouseLat: undefined,
       mouseLon: undefined,
     })
   },
-  updateMouseCoordinates: function(coordinates) {
+  updateMouseCoordinates(coordinates) {
     this.set({
       mouseLat: Number(coordinates.lat.toFixed(6)), // wrap in Number to chop off trailing zero
       mouseLon: Number(wrapNum(coordinates.lon, -180, 180).toFixed(6)),
     })
   },
-  updateClickCoordinates: function() {
+  updateClickCoordinates() {
     const lat = this.get('mouseLat')
     const lon = this.get('mouseLon')
     const dms = `${mtgeo.toLat(lat)} ${mtgeo.toLon(lon)}`

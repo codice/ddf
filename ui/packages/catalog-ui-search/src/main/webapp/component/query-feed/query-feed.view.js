@@ -75,7 +75,7 @@ module.exports = Marionette.LayoutView.extend({
       },
     }
   },
-  initialize: function(options) {
+  initialize(options) {
     this.updateQuery = _.throttle(this.updateQuery, 200)
     this.listenTo(this.model, 'change', this.updateQuery)
     if (this.model.has('result')) {
@@ -111,24 +111,24 @@ module.exports = Marionette.LayoutView.extend({
       </React.Fragment>
     )
   },
-  updateQuery: function() {
+  updateQuery() {
     if (!this.isDestroyed) {
       this.render()
     }
   },
-  resultAdded: function(model) {
+  resultAdded(model) {
     if (model.has('result') && _.isUndefined(model.previous('result'))) {
       this.listenToStatus(model)
     }
   },
-  listenToStatus: function(model) {
+  listenToStatus(model) {
     this.$el.toggleClass('has-been-run')
     this.listenTo(model.get('result>results'), 'reset', this.updateQuery)
     this.listenTo(model.get('result>results'), 'add', this.updateQuery)
     this.listenTo(model.get('result'), 'sync', this.updateQuery)
     this.listenTo(model.get('result>status'), 'change', this.updateQuery)
   },
-  serializeData: function() {
+  serializeData() {
     const query = this.model.toJSON({
       additionalProperties: ['cid', 'color'],
     })

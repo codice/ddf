@@ -42,7 +42,7 @@ class Keyword extends React.Component {
           this.props.setState({
             hasKeyword: true,
             locationType: 'latlon',
-            polygon: polygon,
+            polygon,
             polyType: 'polygon',
             value: this.state.value,
           })
@@ -55,7 +55,7 @@ class Keyword extends React.Component {
           this.props.setState({
             hasKeyword: true,
             locationType: 'latlon',
-            polygon: polygon,
+            polygon,
             polyType: 'multipolygon',
             value: this.state.value,
           })

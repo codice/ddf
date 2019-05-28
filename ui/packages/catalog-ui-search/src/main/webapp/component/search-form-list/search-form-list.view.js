@@ -123,10 +123,10 @@ module.exports = Marionette.ItemView.extend({
       />
     )
   },
-  serializeData: function() {
+  serializeData() {
     return this.model.get('searchForms').toJSON()
   },
-  changeView: function(selectedForm, currentQuery) {
+  changeView(selectedForm, currentQuery) {
     const sharedAttributes = selectedForm.transformToQueryStructure()
     currentQuery.set({
       type: 'custom',
@@ -139,7 +139,7 @@ module.exports = Marionette.ItemView.extend({
     user.savePreferences()
     this.triggerCloseDropdown()
   },
-  triggerCloseDropdown: function() {
+  triggerCloseDropdown() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
 })

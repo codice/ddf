@@ -22,21 +22,21 @@ const NotificationEmpty = Marionette.ItemView.extend({
 })
 
 const NotificationItem = Marionette.ItemView.extend({
-  template: template,
+  template,
   className: 'notification',
   events: {
     'click .remove-notification': 'removeNotification',
   },
-  initialize: function() {
+  initialize() {
     this.interval = setInterval(this.render.bind(this), 60000)
   },
-  onDestroy: function() {
+  onDestroy() {
     clearInterval(this.interval)
   },
   modelEvents: {
     change: 'render',
   },
-  removeNotification: function() {
+  removeNotification() {
     this.model.destroy()
   },
 })
@@ -45,7 +45,7 @@ module.exports = Marionette.CollectionView.extend({
   tagName: CustomElements.register('notifications-list'),
   childView: NotificationItem,
   emptyView: NotificationEmpty,
-  initialize: function() {
+  initialize() {
     this.collection = this.model
   },
 })

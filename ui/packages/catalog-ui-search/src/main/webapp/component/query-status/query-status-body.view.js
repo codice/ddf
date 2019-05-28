@@ -21,7 +21,7 @@ module.exports = Marionette.CollectionView.extend({
   tagName: CustomElements.register('query-status-tbody'),
   className: 'is-tbody is-list has-list-highlighting',
   childView: RowView,
-  filter: function(childModel) {
+  filter(childModel) {
     return childModel.get('id') !== 'cache'
   },
 })

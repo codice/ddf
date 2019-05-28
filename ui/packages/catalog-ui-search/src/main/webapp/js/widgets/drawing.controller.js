@@ -19,7 +19,7 @@ const wreqr = require('../wreqr.js')
 module.exports = Marionette.Controller.extend({
   enabled: true,
   drawingType: undefined,
-  initialize: function() {
+  initialize() {
     if (typeof this.drawingType === 'undefined') {
       throw 'drawingType needs to be overwritten'
     }
@@ -44,37 +44,37 @@ module.exports = Marionette.Controller.extend({
     })
   },
   views: [],
-  destroyAll: function() {
+  destroyAll() {
     for (let i = this.views.length - 1; i >= 0; i -= 1) {
       this.destroyView(this.views[i])
     }
   },
-  getViewForModel: function(model) {
+  getViewForModel(model) {
     return this.views.filter(
       function(view) {
         return view.model === model && view.options.map === this.options.map
       }.bind(this)
     )[0]
   },
-  removeViewForModel: function(model) {
+  removeViewForModel(model) {
     const view = this.getViewForModel(model)
     if (view) {
       this.views.splice(this.views.indexOf(view), 1)
     }
   },
-  removeView: function(view) {
+  removeView(view) {
     this.views.splice(this.views.indexOf(view), 1)
   },
-  addView: function(view) {
+  addView(view) {
     this.views.push(view)
   },
-  show: function() {
+  show() {
     throw 'show needs to be overwritten'
   },
-  draw: function() {
+  draw() {
     throw 'draw needs to be overwritten'
   },
-  stop: function(model) {
+  stop(model) {
     const view = this.getViewForModel(model)
     if (view && view.stop) {
       view.stop()
@@ -86,7 +86,7 @@ module.exports = Marionette.Controller.extend({
       this.notificationView.destroy()
     }
   },
-  destroyView: function(view) {
+  destroyView(view) {
     if (view.stop) {
       view.stop()
     }
@@ -98,7 +98,7 @@ module.exports = Marionette.Controller.extend({
     }
     this.removeView(view)
   },
-  destroyByModel: function(model) {
+  destroyByModel(model) {
     this.stop(model)
     const view = this.getViewForModel(model)
     if (view) {
@@ -108,7 +108,7 @@ module.exports = Marionette.Controller.extend({
       }
     }
   },
-  onBeforeDestroy: function() {
+  onBeforeDestroy() {
     this.destroyAll()
   },
 })

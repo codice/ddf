@@ -47,7 +47,7 @@ const RestoreItemView = Marionette.ItemView.extend({
     change: 'render',
   },
   template: itemTemplate,
-  serializeData: function() {
+  serializeData() {
     const properties = this.model
       .get('metacard')
       .get('properties')
@@ -60,7 +60,7 @@ const RestoreItemView = Marionette.ItemView.extend({
       deleted: properties['metacard.version.versioned'],
     }
   },
-  restore: function() {
+  restore() {
     const model = this.model
 
     const historyId = model
@@ -97,7 +97,7 @@ const RestoreCollectionView = Marionette.CollectionView.extend({
 })
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('metacard-restore'),
   modelEvents: {
     change: 'render',
@@ -106,11 +106,11 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     table: '.metacard-restore-table',
   },
-  initialize: function() {
+  initialize() {
     this.model = getDeletedMetacards()
     this.model.startSearch()
   },
-  onRender: function() {
+  onRender() {
     this.table.show(
       new RestoreCollectionView({
         collection: this.model.get('result').get('results'),

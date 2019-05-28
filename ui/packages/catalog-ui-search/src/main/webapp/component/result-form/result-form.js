@@ -16,8 +16,8 @@
 const Backbone = require('backbone')
 const resultFormCollection = require('./result-form-collection-instance.js')
 module.exports = new (Backbone.Model.extend({
-  initialize: function() {},
-  getResultCollection: function() {
+  initialize() {},
+  getResultCollection() {
     return resultFormCollection
   },
 }))()

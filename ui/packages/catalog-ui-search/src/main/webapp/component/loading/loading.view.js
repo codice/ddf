@@ -19,9 +19,9 @@ const template = require('./loading.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('loading'),
-  initialize: function() {
+  initialize() {
     this.render()
     $('body').append(this.el)
     this.$el.animate(
@@ -36,7 +36,7 @@ module.exports = Marionette.ItemView.extend({
     )
   },
   shown: false,
-  remove: function() {
+  remove() {
     if (this.shown) {
       this.$el.animate(
         {

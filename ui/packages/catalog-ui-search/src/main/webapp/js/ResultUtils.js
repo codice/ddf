@@ -16,7 +16,7 @@ const _ = require('underscore')
 const metacardDefinitions = require('../component/singletons/metacard-definitions.js')
 
 module.exports = {
-  refreshResult: function(result) {
+  refreshResult(result) {
     const id = result.get('metacard').id
     result.refreshData()
     store.get('workspaces').forEach(function(workspace) {
@@ -52,7 +52,7 @@ module.exports = {
         }
       })
   },
-  updateResults: function(results, response) {
+  updateResults(results, response) {
     const attributeMap = response.reduce(function(attributeMap, changes) {
       return changes.attributes.reduce(function(attrMap, chnges) {
         attrMap[chnges.attribute] = metacardDefinitions.metacardTypes[

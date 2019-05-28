@@ -99,7 +99,7 @@ const ResultItemView = Marionette.LayoutView.extend({
           <MarionetteRegionContainer
             className="container-indicator"
             view={ResultIndicatorView}
-            viewOptions={{ model: model }}
+            viewOptions={{ model }}
           />
           <div className="container-content">
             <div className="content-header">
@@ -265,13 +265,13 @@ const ResultItemView = Marionette.LayoutView.extend({
       })
     )
   },
-  getExtensions: function() {
+  getExtensions() {
     return null
   },
-  getButtonExtensions: function() {
+  getButtonExtensions() {
     return null
   },
-  attributes: function() {
+  attributes() {
     return {
       'data-resultid': this.model.id,
     }
@@ -301,7 +301,7 @@ const ResultItemView = Marionette.LayoutView.extend({
       },
     }
   },
-  initialize: function(options) {
+  initialize(options) {
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }
@@ -336,12 +336,12 @@ const ResultItemView = Marionette.LayoutView.extend({
     )
     this.handleSelectionChange()
   },
-  handleSelectionChange: function() {
+  handleSelectionChange() {
     const selectedResults = this.options.selectionInterface.getSelectedResults()
     const isSelected = selectedResults.get(this.model.id)
     this.$el.toggleClass('is-selected', Boolean(isSelected))
   },
-  handleMetacardUpdate: function() {
+  handleMetacardUpdate() {
     this.$el.attr(this.attributes())
     this.render()
     this.checkDisplayType()
@@ -351,7 +351,7 @@ const ResultItemView = Marionette.LayoutView.extend({
     this.checkIfDownloadable()
     this.checkIfLinks()
   },
-  addConfiguredResultProperties: function(result) {
+  addConfiguredResultProperties(result) {
     result.showSource = false
     result.customDetail = []
     if (properties.resultShow) {
@@ -375,14 +375,14 @@ const ResultItemView = Marionette.LayoutView.extend({
           }
           result.customDetail.push({
             label: additionProperty,
-            value: value,
+            value,
           })
         }
       })
     }
     return result
   },
-  massageResult: function(result) {
+  massageResult(result) {
     //make a nice date
     result.local = Boolean(
       result.metacard.properties['source-id'] === sources.localCatalog
@@ -416,12 +416,12 @@ const ResultItemView = Marionette.LayoutView.extend({
 
     return result
   },
-  serializeData: function() {
+  serializeData() {
     return this.addConfiguredResultProperties(
       this.massageResult(this.model.toJSON())
     )
   },
-  checkIfBlacklisted: function() {
+  checkIfBlacklisted() {
     const pref = user.get('user').get('preferences')
     const blacklist = pref.get('resultBlacklist')
     const id = this.model
@@ -431,11 +431,11 @@ const ResultItemView = Marionette.LayoutView.extend({
     const isBlacklisted = blacklist.get(id) !== undefined
     this.$el.toggleClass('is-blacklisted', isBlacklisted)
   },
-  checkIsInWorkspace: function() {
+  checkIsInWorkspace() {
     const currentWorkspace = store.getCurrentWorkspace()
     this.$el.toggleClass('in-workspace', Boolean(currentWorkspace))
   },
-  checkIfDownloadable: function() {
+  checkIfDownloadable() {
     this.$el.toggleClass(
       'is-downloadable',
       this.model
@@ -444,7 +444,7 @@ const ResultItemView = Marionette.LayoutView.extend({
         .get('resource-download-url') !== undefined
     )
   },
-  checkIfLinks: function() {
+  checkIfLinks() {
     this.$el.toggleClass(
       'is-link',
       this.model
@@ -464,14 +464,14 @@ const ResultItemView = Marionette.LayoutView.extend({
         break
     }
   },
-  checkTags: function() {
+  checkTags() {
     this.$el.toggleClass('is-workspace', this.model.isWorkspace())
     this.$el.toggleClass('is-resource', this.model.isResource())
     this.$el.toggleClass('is-revision', this.model.isRevision())
     this.$el.toggleClass('is-deleted', this.model.isDeleted())
     this.$el.toggleClass('is-remote', this.model.isRemote())
   },
-  triggerDownload: function(e) {
+  triggerDownload(e) {
     e.stopPropagation()
     window.open(
       this.model

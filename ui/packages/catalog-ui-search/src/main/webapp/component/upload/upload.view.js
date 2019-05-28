@@ -20,20 +20,20 @@ const uploadContentView = require('../content/upload/content.upload.view.js')
 const uploadInstance = require('./upload.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('upload'),
   regions: {
     uploadDetails: '.upload-details',
   },
-  onFirstRender: function() {
+  onFirstRender() {
     this.listenTo(uploadInstance, 'change:currentUpload', this.onBeforeShow)
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     if (uploadInstance.get('currentUpload')) {
       this.showSubViews()
     }
   },
-  showSubViews: function() {
+  showSubViews() {
     this.uploadDetails.show(new uploadContentView())
   },
 })

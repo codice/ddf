@@ -18,9 +18,9 @@ const template = require('./input-with-param.hbs')
 const InputView = require('../input.view')
 
 module.exports = InputView.extend({
-  template: template,
+  template,
   className: 'is-with-param',
-  getCurrentValue: function() {
+  getCurrentValue() {
     const text = this.$el.find('[type=text]').val()
     const param = parseInt(this.$el.find('[type=number]').val())
     return {
@@ -36,7 +36,7 @@ module.exports = InputView.extend({
     this.$el.find('.text, .param').css('width', `calc(50% - ${width / 2}px)`)
     InputView.prototype.onAttach.call(this)
   },
-  handleValue: function() {
+  handleValue() {
     const value = this.model.getValue() || {
       value: undefined,
       distance: 2,
@@ -44,7 +44,7 @@ module.exports = InputView.extend({
     this.$el.find('[type=text]').val(value.value)
     this.$el.find('[type=number]').val(value.distance)
   },
-  serializeData: function() {
+  serializeData() {
     const value = this.model.getValue() || {
       value: undefined,
       distance: 2,

@@ -35,7 +35,7 @@ module.exports = Marionette.ItemView.extend({
     )
   },
   tagName: CustomElements.register('metacard-title'),
-  initialize: function() {
+  initialize() {
     if (this.model.length === 1) {
       this.listenTo(
         this.model
@@ -48,11 +48,11 @@ module.exports = Marionette.ItemView.extend({
     }
     this.checkTags()
   },
-  handleModelUpdates: function() {
+  handleModelUpdates() {
     this.render()
     this.checkTags()
   },
-  serializeData: function() {
+  serializeData() {
     let title, icon
     if (this.model.length === 1) {
       icon = IconHelper.getClass(this.model.first())
@@ -65,11 +65,11 @@ module.exports = Marionette.ItemView.extend({
       title = this.model.length + ' Items'
     }
     return {
-      title: title,
-      icon: icon,
+      title,
+      icon,
     }
   },
-  checkTags: function() {
+  checkTags() {
     const types = {}
     this.model.forEach(function(result) {
       if (result.isWorkspace()) {

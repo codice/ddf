@@ -30,7 +30,7 @@ import { FormattedMessage } from 'react-intl'
 
 const visitFragment = fragment =>
   wreqr.vent.trigger('router:navigate', {
-    fragment: fragment,
+    fragment,
     options: {
       trigger: true,
     },
@@ -165,7 +165,7 @@ module.exports = plugin(
     events: {
       'click .navigation-choice': 'handleChoice',
     },
-    initialize: function() {
+    initialize() {
       this.listenTo(
         store.get('workspaces'),
         'change:saved update add remove',
@@ -175,7 +175,7 @@ module.exports = plugin(
       this.handleSaved()
       this.handleSourcesChange()
     },
-    onBeforeShow: function() {
+    onBeforeShow() {
       this.workspacesSave.show(new SaveView())
       this.workspacesIndicator.show(new UnsavedIndicatorView())
       const extensions = this.getExtensions()
@@ -183,14 +183,14 @@ module.exports = plugin(
         this.extensions.show(extensions)
       }
     },
-    getExtensions: function() {},
-    handleSaved: function() {
+    getExtensions() {},
+    handleSaved() {
       const hasUnsaved = store.get('workspaces').find(function(workspace) {
         return !workspace.isSaved()
       })
       this.$el.toggleClass('is-saved', !hasUnsaved)
     },
-    handleSourcesChange: function() {
+    handleSourcesChange() {
       const hasDown = sources.some(function(source) {
         return !source.get('available')
       })
@@ -205,10 +205,10 @@ module.exports = plugin(
         this.closeSlideout()
       }
     },
-    closeSlideout: function() {
+    closeSlideout() {
       this.$el.trigger('closeSlideout.' + CustomElements.getNamespace())
     },
-    serializeData: function() {
+    serializeData() {
       const currentWorkspace = store.getCurrentWorkspace()
       let workspaceJSON
       if (currentWorkspace) {
@@ -220,7 +220,7 @@ module.exports = plugin(
         metacardJSON = currentMetacard.toJSON()
       }
       return {
-        properties: properties,
+        properties,
         workspace: workspaceJSON,
         metacard: metacardJSON,
         recent: workspaceJSON || metacardJSON,

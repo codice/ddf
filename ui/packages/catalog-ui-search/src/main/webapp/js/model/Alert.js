@@ -21,12 +21,12 @@ module.exports = Backbone.AssociatedModel.extend({
     when: undefined,
     metacardIds: [],
   },
-  initialize: function() {
+  initialize() {
     if (!this.id) {
       this.set('id', Common.generateUUID())
     }
   },
-  getTimeComparator: function() {
+  getTimeComparator() {
     return this.get('when')
   },
 })

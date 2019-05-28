@@ -13,7 +13,7 @@
 const Backbone = require('backbone')
 
 module.exports = Backbone.Model.extend({
-  defaults: function() {
+  defaults() {
     return {
       id: undefined,
       parent: undefined,

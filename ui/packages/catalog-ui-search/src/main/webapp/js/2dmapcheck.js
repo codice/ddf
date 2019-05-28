@@ -14,7 +14,7 @@ const _ = require('underscore')
 
 module.exports = {
   is2dAvailable: undefined,
-  isAvailable: function() {
+  isAvailable() {
     if (_.isUndefined(this.is2dAvailable)) {
       this.is2dAvailable = false
 

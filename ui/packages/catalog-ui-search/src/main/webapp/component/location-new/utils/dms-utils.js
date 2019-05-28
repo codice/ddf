@@ -75,7 +75,7 @@ function parseDmsCoordinate(coordinate) {
   return {
     degrees: parseInt(matches[1]),
     minutes: parseInt(matches[2]),
-    seconds: seconds,
+    seconds,
     direction: coordinate.direction,
   }
 }
@@ -320,7 +320,7 @@ function validateDms(dms) {
       }
       break
   }
-  return { valid: valid, error: error }
+  return { valid, error }
 }
 
 /*

@@ -57,7 +57,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
     activeSearchResults: [],
     activeSearchResultsAttributes: [],
   },
-  initialize: function() {
+  initialize() {
     this.set('currentResult', new QueryResponse())
     this.listenTo(this, 'change:currentAlert', this.clearSelectedResults)
     this.listenTo(
@@ -113,7 +113,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
       }
     }
   },
-  updateActiveSearchResultsAttributes: function() {
+  updateActiveSearchResultsAttributes() {
     const availableAttributes = this.get('activeSearchResults')
       .reduce(function(currentAvailable, result) {
         currentAvailable = _.union(
@@ -130,34 +130,34 @@ module.exports = new (Backbone.AssociatedModel.extend({
       .sort()
     this.set('activeSearchResultsAttributes', availableAttributes)
   },
-  getActiveSearchResultsAttributes: function() {
+  getActiveSearchResultsAttributes() {
     return this.get('activeSearchResultsAttributes')
   },
-  getActiveSearchResults: function() {
+  getActiveSearchResults() {
     return this.get('activeSearchResults')
   },
-  setActiveSearchResults: function(results) {
+  setActiveSearchResults(results) {
     this.get('activeSearchResults').reset(results.models || results)
   },
-  addToActiveSearchResults: function(results) {
+  addToActiveSearchResults(results) {
     this.get('activeSearchResults').add(results.models || results)
   },
-  getSelectedResults: function() {
+  getSelectedResults() {
     return this.get('selectedResults')
   },
-  clearSelectedResults: function() {
+  clearSelectedResults() {
     this.getSelectedResults().reset()
   },
-  addSelectedResult: function(metacard) {
+  addSelectedResult(metacard) {
     this.getSelectedResults().add(metacard)
   },
-  removeSelectedResult: function(metacard) {
+  removeSelectedResult(metacard) {
     this.getSelectedResults().remove(metacard)
   },
-  setCurrentQuery: function(query) {
+  setCurrentQuery(query) {
     this.set('currentQuery', query)
   },
-  getCurrentQuery: function() {
+  getCurrentQuery() {
     return this.get('currentQuery')
   },
 }))()

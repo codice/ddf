@@ -19,12 +19,12 @@ const CustomElements = require('../../js/CustomElements.js')
 const TableView = require('../table/query-status/table-query-status.view.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('query-status'),
   regions: {
     table: '.table-container',
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.table.show(
       new TableView({
         model: this.model,

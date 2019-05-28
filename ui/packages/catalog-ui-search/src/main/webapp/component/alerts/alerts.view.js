@@ -19,7 +19,7 @@ const CustomElements = require('../../js/CustomElements.js')
 const AlertItemCollectionView = require('../alert-item/alert-item.collection.view.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('alerts'),
   modelEvents: {},
   events: {},
@@ -27,7 +27,7 @@ module.exports = Marionette.LayoutView.extend({
     alertList: '.alerts-list',
   },
   ui: {},
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.alertList.show(new AlertItemCollectionView())
   },
 })

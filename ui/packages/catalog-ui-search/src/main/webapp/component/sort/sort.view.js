@@ -19,7 +19,7 @@ const SortItemCollectionView = require('../sort-item/sort-item.collection.view.j
 const template = require('./sort.hbs')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('sort'),
   regions: {
     sorts: '.sorts',
@@ -27,13 +27,13 @@ module.exports = Marionette.LayoutView.extend({
   events: {
     'click .sort-add': 'handleAdd',
   },
-  handleAdd: function() {
+  handleAdd() {
     this.childView.collection.add({
       attribute: this.getNextAttribute(),
       direction: 'descending',
     })
   },
-  getNextAttribute: function() {
+  getNextAttribute() {
     let filtered = this.childView.children
       .findByModel(this.collection.models[0])
       .sortAttributes.filter(type => {
@@ -44,13 +44,13 @@ module.exports = Marionette.LayoutView.extend({
       })
     return filtered[0].value
   },
-  initialize: function() {
+  initialize() {
     this.childView = new SortItemCollectionView({
       collection: this.collection,
       showBestTextOption: this.options.showBestTextOption,
     })
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.showChildView('sorts', this.childView)
   },
 })

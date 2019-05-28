@@ -74,18 +74,18 @@ module.exports = DropdownView.extend({
   },
   className: 'is-querySrc',
   componentToShow: ComponentView,
-  initializeComponentModel: function() {
+  initializeComponentModel() {
     //override if you need more functionality
     this.modelForComponent = this.model
     this.listenTo(this.model, 'change:federation', this.render)
   },
   isCentered: true,
-  getCenteringElement: function() {
+  getCenteringElement() {
     return this.el.querySelector('.dropdown-container')
   },
   hasTail: true,
   hasLimitedWidth: true,
-  serializeData: function() {
+  serializeData() {
     const srcs = this.model.get('value')
     return {
       sources: sources.toJSON().filter(function(src) {

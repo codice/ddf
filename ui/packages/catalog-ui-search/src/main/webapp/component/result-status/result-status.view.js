@@ -19,17 +19,17 @@ const template = require('./result-status.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('result-status'),
-  initialize: function() {
+  initialize() {
     this.render = _.throttle(this.render, 250)
   },
-  serializeData: function() {
+  serializeData() {
     return {
       amountFiltered: this.model.amountFiltered,
     }
   },
-  onRender: function() {
+  onRender() {
     this.$el.toggleClass('has-filtered', this.model.amountFiltered !== 0)
   },
 })

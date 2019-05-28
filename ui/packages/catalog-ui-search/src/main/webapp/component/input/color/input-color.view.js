@@ -57,18 +57,18 @@ function sanitizeIncomingValue(color) {
 }
 
 module.exports = InputView.extend({
-  template: template,
+  template,
   events: {},
-  serializeData: function() {
+  serializeData() {
     return _.extend(this.model.toJSON(), {
       cid: this.cid,
     })
   },
-  onRender: function() {
+  onRender() {
     this.initializeColorpicker()
     InputView.prototype.onRender.call(this)
   },
-  initializeColorpicker: function() {
+  initializeColorpicker() {
     this.$el.find('input').spectrum({
       showInput: true,
       showInitial: true,
@@ -80,18 +80,18 @@ module.exports = InputView.extend({
         '<button class="is-primary"><span class="fa fa-caret-down"></span></button>'
       )
   },
-  handleReadOnly: function() {
+  handleReadOnly() {
     this.$el.toggleClass('is-readOnly', this.model.isReadOnly())
   },
-  handleValue: function() {
+  handleValue() {
     this.$el
       .find('input')
       .spectrum('set', sanitizeIncomingValue(this.model.getValue()))
   },
-  focus: function() {
+  focus() {
     this.$el.find('input').select()
   },
-  getCurrentValue: function() {
+  getCurrentValue() {
     const currentValue = this.$el
       .find('input')
       .spectrum('get')
@@ -102,7 +102,7 @@ module.exports = InputView.extend({
       return 'white'
     }
   },
-  listenForChange: function() {
+  listenForChange() {
     this.$el.on(
       'input change keyup',
       function() {
@@ -111,7 +111,7 @@ module.exports = InputView.extend({
       }.bind(this)
     )
   },
-  onDestroy: function() {
+  onDestroy() {
     const colorpicker = this.$el.find('input')
     if (colorpicker) {
       colorpicker.spectrum('destroy')

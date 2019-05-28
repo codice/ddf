@@ -27,40 +27,40 @@ module.exports = Backbone.AssociatedModel.extend({
       relatedModel: PropertyModel,
     },
   ],
-  setValue: function(value) {
+  setValue(value) {
     this.set('value', value)
   },
-  getValue: function() {
+  getValue() {
     return this.get('value')
   },
-  setIsValid: function(isValid) {
+  setIsValid(isValid) {
     this.set('isValid', isValid)
   },
   isValid() {
     return this.get('isValid')
   },
-  getCalculatedType: function() {
+  getCalculatedType() {
     return this.get('property').getCalculatedType()
   },
-  getId: function() {
+  getId() {
     return this.get('property').getId()
   },
-  isReadOnly: function() {
+  isReadOnly() {
     return this.get('property').isReadOnly()
   },
-  isEditing: function() {
+  isEditing() {
     return this.get('property').isEditing()
   },
-  isMultivalued: function() {
+  isMultivalued() {
     return this.get('property').isMultivalued()
   },
-  onlyEditing: function() {
+  onlyEditing() {
     return this.get('property').onlyEditing()
   },
-  showLabel: function() {
+  showLabel() {
     return this.get('property').showLabel()
   },
-  showValidationIssues: function() {
+  showValidationIssues() {
     return this.get('property').showValidationIssues()
   },
 })

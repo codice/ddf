@@ -76,7 +76,7 @@ module.exports = {
 
     return `${prefix}-${middle}-${suffix}`
   },
-  cqlToHumanReadable: function(cql) {
+  cqlToHumanReadable(cql) {
     if (cql === undefined) {
       return cql
     }
@@ -86,7 +86,7 @@ module.exports = {
     cql = cql.replace(new RegExp('DURING', 'g'), 'BETWEEN')
     return cql
   },
-  setupPopOver: function($component) {
+  setupPopOver($component) {
     $component.find('[title]').each(function() {
       const $element = $(this)
       $element.popover({
@@ -98,7 +98,7 @@ module.exports = {
       })
     })
   },
-  getFileSize: function(item) {
+  getFileSize(item) {
     if (_.isUndefined(item)) {
       return 'Unknown Size'
     }
@@ -170,7 +170,7 @@ module.exports = {
       }
     }
   },
-  getFileSizeGuaranteedInt: function(item) {
+  getFileSizeGuaranteedInt(item) {
     if (_.isUndefined(item)) {
       return 'Unknown Size'
     }
@@ -193,7 +193,7 @@ module.exports = {
     return size + ' ' + type[index]
   },
   //can be deleted once histogram changes are merged
-  getHumanReadableDateTime: function(date) {
+  getHumanReadableDateTime(date) {
     return moment(date).format(dateTimeFormats['24']['datetimefmt'])
   },
   getDateTimeFormats() {
@@ -202,10 +202,10 @@ module.exports = {
   getTimeZones() {
     return timeZones
   },
-  getMomentDate: function(date) {
+  getMomentDate(date) {
     return moment(date).fromNow()
   },
-  getImageSrc: function(img) {
+  getImageSrc(img) {
     if (
       typeof img === 'string' &&
       (img === '' || img.substring(0, 4) === 'http')
@@ -214,15 +214,15 @@ module.exports = {
 
     return 'data:image/png;base64,' + img
   },
-  getResourceUrlFromThumbUrl: function(url) {
+  getResourceUrlFromThumbUrl(url) {
     return url.replace(/=thumbnail[_=&\d\w\s;]+/, '=resource')
   },
-  cancelRepaintForTimeframe: function(requestDetails) {
+  cancelRepaintForTimeframe(requestDetails) {
     if (requestDetails) {
       window.cancelAnimationFrame(requestDetails.requestId)
     }
   },
-  repaintForTimeframe: function(time, callback) {
+  repaintForTimeframe(time, callback) {
     const requestDetails = {
       requestId: undefined,
     }
@@ -240,34 +240,34 @@ module.exports = {
     })
     return requestDetails
   },
-  executeAfterRepaint: function(callback) {
+  executeAfterRepaint(callback) {
     return window.requestAnimationFrame(function() {
       window.requestAnimationFrame(callback)
     })
   },
-  queueExecution: function(callback) {
+  queueExecution(callback) {
     return setTimeout(callback, 0)
   },
-  escapeHTML: function(value) {
+  escapeHTML(value) {
     return $('<div>')
       .text(value)
       .html()
   },
-  duplicate: function(reference) {
+  duplicate(reference) {
     return JSON.parse(JSON.stringify(reference))
   },
-  safeCallback: function(callback) {
+  safeCallback(callback) {
     return function() {
       if (!this.isDestroyed) {
         callback.apply(this, arguments)
       }
     }
   },
-  wrapMapCoordinates: function(x, [min, max]) {
+  wrapMapCoordinates(x, [min, max]) {
     const d = max - min
     return ((((x - min) % d) + d) % d) + min
   },
-  wrapMapCoordinatesArray: function(coordinates) {
+  wrapMapCoordinatesArray(coordinates) {
     return coordinates.map(([lon, lat]) => [
       this.wrapMapCoordinates(lon, [-180, 180]),
       this.wrapMapCoordinates(lat, [-90, 90]),

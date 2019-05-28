@@ -27,7 +27,7 @@ const ResultFormsCollection = require('../result-form/result-form-collection-ins
 const properties = require('../../js/properties.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('result-form'),
   modelEvents: {},
   events: {
@@ -42,7 +42,7 @@ module.exports = Marionette.LayoutView.extend({
     basicAttributeSpecific: '.basic-type-specific',
   },
   filter: undefined,
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.model = this.model._cloneOf
       ? store.getQueryById(this.model._cloneOf)
       : this.model
@@ -51,7 +51,7 @@ module.exports = Marionette.LayoutView.extend({
     this.setupAttributeSpecific()
     this.edit()
   },
-  setupAttributeSpecific: function() {
+  setupAttributeSpecific() {
     let excludedList = metacardDefinitions.getMetacardStartingTypes()
     this.basicAttributeSpecific.show(
       new PropertyView({
@@ -83,7 +83,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupTitleInput: function() {
+  setupTitleInput() {
     this.basicTitle.show(
       new PropertyView({
         model: new Property({
@@ -94,7 +94,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupDescription: function() {
+  setupDescription() {
     this.basicDescription.show(
       new PropertyView({
         model: new Property({
@@ -105,7 +105,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  edit: function() {
+  edit() {
     this.$el.addClass('is-editing')
     this.regionManager.forEach(function(region) {
       if (region.currentView && region.currentView.turnOnEditing) {
@@ -113,10 +113,10 @@ module.exports = Marionette.LayoutView.extend({
       }
     })
   },
-  cancel: function() {
+  cancel() {
     this.cleanup()
   },
-  save: function() {
+  save() {
     let view = this
     Loading.beginLoading(view)
     let descriptors = this.basicAttributeSpecific.currentView.model.get(
@@ -158,20 +158,20 @@ module.exports = Marionette.LayoutView.extend({
 
     this.model.set({
       descriptors: descriptors.flatten(),
-      title: title,
-      description: description,
+      title,
+      description,
     })
 
     this.updateResults()
   },
-  showWarningSymbol: function($validationElement, message) {
+  showWarningSymbol($validationElement, message) {
     $validationElement
       .removeClass('is-hidden')
       .removeClass('is-warning')
       .addClass('is-error')
     $validationElement.attr('title', message)
   },
-  updateResults: function() {
+  updateResults() {
     const collection = ResultFormsCollection.getCollection()
     const options = {
       success: () => {
@@ -187,21 +187,21 @@ module.exports = Marionette.LayoutView.extend({
       : collection.create(this.model, options)
     this.cleanup()
   },
-  successMessage: function() {
+  successMessage() {
     announcement.announce({
       title: 'Success',
       message: 'Result form successfully saved',
       type: 'success',
     })
   },
-  errorMessage: function() {
+  errorMessage() {
     announcement.announce({
       title: 'Error',
       message: 'Result form failed to save',
       type: 'error',
     })
   },
-  cleanup: function() {
+  cleanup() {
     this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox')
     Loading.endLoading(this)
   },

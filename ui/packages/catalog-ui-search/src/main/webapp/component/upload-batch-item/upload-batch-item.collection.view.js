@@ -24,15 +24,15 @@ module.exports = Marionette.CollectionView.extend({
     template: 'No Recent Uploads',
   }),
   className: 'is-list has-list-highlighting',
-  setDefaultCollection: function() {
+  setDefaultCollection() {
     this.collection = user
       .get('user')
       .get('preferences')
       .get('uploads')
   },
-  childView: childView,
+  childView,
   tagName: CustomElements.register('upload-batch-item-collection'),
-  initialize: function(options) {
+  initialize(options) {
     if (!options.collection) {
       this.setDefaultCollection()
     }

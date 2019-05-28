@@ -18,7 +18,7 @@ const $ = require('jquery')
 
 module.exports = MapView.extend({
   className: 'is-openlayers',
-  loadMap: function() {
+  loadMap() {
     const deferred = new $.Deferred()
     require(['./map.openlayers'], function(OpenlayersMap) {
       deferred.resolve(OpenlayersMap)

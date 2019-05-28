@@ -16,15 +16,15 @@
 const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.result-display.hbs')
 module.exports = DropdownView.extend({
-  template: template,
+  template,
   className: 'is-resultDisplay',
-  serializeData: function() {
+  serializeData() {
     const values = this.model.get('value')
     const selection = this.options.list.filter(function(item) {
       return values.indexOf(item.value) !== -1
     })[0]
     return {
-      selection: selection,
+      selection,
       icon: selection.value === 'List' ? 'fa-bars' : 'fa-picture-o',
     }
   },

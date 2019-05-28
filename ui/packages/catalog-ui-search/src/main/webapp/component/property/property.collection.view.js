@@ -40,10 +40,10 @@ module.exports = Marionette.CollectionView.extend(
   {
     tagName: CustomElements.register('property-collection'),
     childView: PropertyView,
-    updateSort: function() {
+    updateSort() {
       this.collection.sort()
     },
-    addProperties: function(attributes) {
+    addProperties(attributes) {
       const newAttributes = attributes.filter(
         attribute => !this.collection.get(attribute)
       )
@@ -71,32 +71,32 @@ module.exports = Marionette.CollectionView.extend(
       }
       return newAttributes
     },
-    removeProperties: function(attributes) {
+    removeProperties(attributes) {
       this.collection.remove(attributes)
     },
-    turnOnEditing: function() {
+    turnOnEditing() {
       this.children.forEach(function(childView) {
         childView.turnOnEditing()
       })
     },
-    turnOffEditing: function() {
+    turnOffEditing() {
       this.children.forEach(function(childView) {
         childView.turnOffEditing()
       })
     },
-    revert: function() {
+    revert() {
       this.children.forEach(function(childView) {
         if (childView.hasChanged()) {
           childView.revert()
         }
       })
     },
-    save: function() {
+    save() {
       this.children.forEach(function(childView) {
         childView.save()
       })
     },
-    toJSON: function() {
+    toJSON() {
       return this.children.reduce(function(attributeToVal, childView) {
         return _.extend(attributeToVal, childView.toJSON())
       }, {})
@@ -112,7 +112,7 @@ module.exports = Marionette.CollectionView.extend(
         }, {}),
       }
     },
-    toPatchJSON: function(addedAttributes, removedAttributes) {
+    toPatchJSON(addedAttributes, removedAttributes) {
       const attributeArray = []
       this.children.forEach(function(childView) {
         const isNew = addedAttributes.indexOf(childView.model.id) >= 0
@@ -123,13 +123,13 @@ module.exports = Marionette.CollectionView.extend(
       })
       removedAttributes.forEach(function(attribute) {
         attributeArray.push({
-          attribute: attribute,
+          attribute,
           values: [],
         })
       })
       return attributeArray
     },
-    toPatchPropertyJSON: function() {
+    toPatchPropertyJSON() {
       return {
         properties: this.children.reduce(function(attributeToVal, childView) {
           const json = childView.toPatchJSON()
@@ -144,12 +144,12 @@ module.exports = Marionette.CollectionView.extend(
         }, {}),
       }
     },
-    clearValidation: function() {
+    clearValidation() {
       this.children.forEach(function(childView) {
         childView.clearValidation()
       })
     },
-    updateValidation: function(validationReport) {
+    updateValidation(validationReport) {
       const self = this
       validationReport.forEach(function(attributeValidationReport) {
         self.children
@@ -163,7 +163,7 @@ module.exports = Marionette.CollectionView.extend(
           })
       })
     },
-    focus: function() {
+    focus() {
       if (this.children.length > 0) {
         this.children.first().focus()
       }
@@ -191,7 +191,7 @@ module.exports = Marionette.CollectionView.extend(
   },
   {
     //contains methods for generating property collection views from service responses
-    generateSummaryPropertyCollectionView: function(metacards) {
+    generateSummaryPropertyCollectionView(metacards) {
       const PropertyCollectionView = this.generateCollectionView(metacards)
       PropertyCollectionView.collection.comparator = function(a, b) {
         let preferredHeader = user
@@ -228,7 +228,7 @@ module.exports = Marionette.CollectionView.extend(
       )
       return PropertyCollectionView
     },
-    generatePropertyCollectionView: function(metacards) {
+    generatePropertyCollectionView(metacards) {
       const PropertyCollectionView = this.generateCollectionView(metacards)
       PropertyCollectionView.collection.comparator = function(a, b) {
         const preferredHeader = user
@@ -262,11 +262,7 @@ module.exports = Marionette.CollectionView.extend(
       )
       return PropertyCollectionView
     },
-    generateFilteredPropertyCollectionView: function(
-      propertyNames,
-      metacards,
-      options
-    ) {
+    generateFilteredPropertyCollectionView(propertyNames, metacards, options) {
       const propertyArray = []
       propertyNames.forEach(function(property) {
         if (metacardDefinitions.metacardTypes.hasOwnProperty(property)) {
@@ -290,7 +286,7 @@ module.exports = Marionette.CollectionView.extend(
       return this.generateFilteredCollectionView(propertyArray, metacards)
     },
     /* Generates a collection view containing all properties from the metacard intersection */
-    generateCollectionView: function(metacards) {
+    generateCollectionView(metacards) {
       const propertyIntersection = this.determinePropertyIntersection(metacards)
 
       const propertyArray = propertyIntersection.map(prop => ({
@@ -309,7 +305,7 @@ module.exports = Marionette.CollectionView.extend(
       return this.generateFilteredCollectionView(propertyArray, metacards)
     },
     /* Generates a collection view containing only properties in the propertyArray */
-    generateFilteredCollectionView: function(propertyArray, metacards) {
+    generateFilteredCollectionView(propertyArray, metacards) {
       propertyArray.forEach(function(property) {
         metacards.forEach(function(metacard) {
           let value = metacard[property.id]
@@ -354,7 +350,7 @@ module.exports = Marionette.CollectionView.extend(
         reorderOnSort: true,
       })
     },
-    determinePropertyIntersection: function(metacards) {
+    determinePropertyIntersection(metacards) {
       const metacardTypes = metacards.reduce((types, metacard) => {
         if (types.indexOf(metacard['metacard-type']) === -1) {
           types.push(metacard['metacard-type'])

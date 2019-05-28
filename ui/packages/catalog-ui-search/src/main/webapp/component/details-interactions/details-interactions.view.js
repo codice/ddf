@@ -24,7 +24,7 @@ const ShowAttributeView = require('../dropdown/show-attribute/dropdown.show-attr
 const HideAttributeView = require('../dropdown/hide-attribute/dropdown.hide-attribute.view.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('details-interactions'),
   className: 'composed-menu',
   regions: {
@@ -34,14 +34,14 @@ module.exports = Marionette.LayoutView.extend({
     detailsShow: '.interaction-show',
     detailsHide: '.interaction-hide',
   },
-  initialize: function() {
+  initialize() {
     this.handleTypes()
     this.handleSummary()
   },
-  handleSummary: function() {
+  handleSummary() {
     this.$el.toggleClass('is-summary', this.options.summary)
   },
-  handleTypes: function() {
+  handleTypes() {
     const types = {}
     this.options.selectionInterface
       .getSelectedResults()
@@ -70,7 +70,7 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-deleted', types.deleted !== undefined)
     this.$el.toggleClass('is-remote', types.remote !== undefined)
   },
-  generateDetailsAdd: function() {
+  generateDetailsAdd() {
     this.detailsAdd.show(
       new AddAttributeView({
         model: new DropdownModel(),
@@ -86,7 +86,7 @@ module.exports = Marionette.LayoutView.extend({
       this.handleAddAttribute
     )
   },
-  generateDetailsRemove: function() {
+  generateDetailsRemove() {
     this.detailsRemove.show(
       new RemoveAttributeView({
         model: new DropdownModel(),
@@ -102,7 +102,7 @@ module.exports = Marionette.LayoutView.extend({
       this.handleRemoveAttribute
     )
   },
-  generateDetailsShow: function() {
+  generateDetailsShow() {
     this.detailsShow.show(
       new ShowAttributeView({
         model: new DropdownModel(),
@@ -118,7 +118,7 @@ module.exports = Marionette.LayoutView.extend({
       this.handleShowAttribute
     )
   },
-  generateDetailsHide: function() {
+  generateDetailsHide() {
     this.detailsHide.show(
       new HideAttributeView({
         model: new DropdownModel(),
@@ -134,7 +134,7 @@ module.exports = Marionette.LayoutView.extend({
       this.handleHideAttribute
     )
   },
-  generateDetailsRearrange: function() {
+  generateDetailsRearrange() {
     this.detailsRearrange.show(
       new AttributesRearrangeView({
         model: new DropdownModel(),
@@ -146,20 +146,20 @@ module.exports = Marionette.LayoutView.extend({
       }
     )
   },
-  onRender: function() {
+  onRender() {
     this.generateDetailsAdd()
     this.generateDetailsRemove()
     this.generateDetailsRearrange()
     this.generateDetailsShow()
     this.generateDetailsHide()
   },
-  handleRemoveAttribute: function() {
+  handleRemoveAttribute() {
     this.model.set(
       'attributesToRemove',
       this.detailsRemove.currentView.model.get('value')
     )
   },
-  handleAddAttribute: function() {
+  handleAddAttribute() {
     this.model.set(
       'attributesToAdd',
       this.detailsAdd.currentView.model.get('value')

@@ -21,7 +21,7 @@ const VisualizationView = require('../../golden-layout/golden-layout.view.js')
 module.exports = ContentView.extend({
   className: 'is-alert',
   selectionInterface: alertInstance,
-  initialize: function() {
+  initialize() {
     this._mapView = new VisualizationView({
       selectionInterface: alertInstance,
       configName: 'goldenLayoutAlert',
@@ -30,13 +30,13 @@ module.exports = ContentView.extend({
   onFirstRender() {
     this.listenTo(alertInstance, 'change:currentAlert', this.updateContentLeft)
   },
-  onRender: function() {
+  onRender() {
     this.updateContentLeft()
     if (this._mapView) {
       this.contentRight.show(this._mapView)
     }
   },
-  updateContentLeft: function() {
+  updateContentLeft() {
     this.contentLeft.show(
       new ResultSelectorView({
         model: alertInstance.get('currentQuery'),
@@ -44,7 +44,7 @@ module.exports = ContentView.extend({
       })
     )
   },
-  unselectQueriesAndResults: function() {
+  unselectQueriesAndResults() {
     alertInstance.clearSelectedResults()
   },
 })

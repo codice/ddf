@@ -23,7 +23,7 @@ require('../../behaviors/button.behavior.js')
 
 module.exports = Marionette.LayoutView.extend(
   {
-    template: template,
+    template,
     className: 'is-simpleDropdown',
     tagName: CustomElements.register('dropdown'),
     events: {
@@ -34,31 +34,31 @@ module.exports = Marionette.LayoutView.extend(
       button: {},
     },
     wasOpen: false,
-    handleMouseDown: function(e) {
+    handleMouseDown(e) {
       this.wasOpen = this.model.get('isOpen')
     },
-    handleClick: function(e) {
+    handleClick(e) {
       e.preventDefault()
       e.stopPropagation()
       if (this.model.get('isEditing') && !this.wasOpen) {
         this.model.toggleOpen()
       }
     },
-    handleEditing: function() {
+    handleEditing() {
       this.$el.toggleClass('is-editing', this.model.get('isEditing'))
     },
     hasTail: false,
     componentToShow: undefined,
     modelForComponent: undefined,
     dropdownCompanion: undefined,
-    initializeComponentModel: function() {
+    initializeComponentModel() {
       //override if you need more functionality
       this.modelForComponent = this.options.modelForComponent || this.model
     },
-    getTargetElement: function() {
+    getTargetElement() {
       //override with where you want the dropdown to center
     },
-    listenToComponent: function() {
+    listenToComponent() {
       //override if you need more functionality
       this.listenTo(
         this.modelForComponent,
@@ -68,40 +68,40 @@ module.exports = Marionette.LayoutView.extend(
         }.bind(this)
       )
     },
-    initialize: function() {
+    initialize() {
       this.initializeComponentModel()
       this.listenTo(this.model, 'change:value', this.render)
       this.listenTo(this.model, 'change:isEditing', this.handleEditing)
       this.listenToComponent()
       this.handleEditing()
     },
-    initializeDropdown: function() {
+    initializeDropdown() {
       this.dropdownCompanion = DropdownCompanionView.getNewCompanionView(this)
     },
     firstRender: true,
-    onRender: function() {
+    onRender() {
       if (this.firstRender) {
         this.firstRender = false
         this.initializeDropdown()
       }
     },
-    turnOnEditing: function() {
+    turnOnEditing() {
       this.model.set('isEditing', true)
     },
-    turnOffEditing: function() {
+    turnOffEditing() {
       this.model.set('isEditing', false)
     },
-    onDestroy: function() {
+    onDestroy() {
       //ensure that if a dropdown goes away, it's companion does too
       if (!this.dropdownCompanion.isDestroyed) {
         this.dropdownCompanion.destroy()
       }
     },
     isCentered: true,
-    getCenteringElement: function() {
+    getCenteringElement() {
       return this.el
     },
-    determineSelections: function() {
+    determineSelections() {
       const values = this.model.get('value')
       if (
         this.options.isMultiSelect === undefined &&
@@ -118,14 +118,14 @@ module.exports = Marionette.LayoutView.extend(
             return selection[0]
           } else {
             return {
-              value: value,
+              value,
               label: value,
             }
           }
         }.bind(this)
       )
     },
-    serializeData: function() {
+    serializeData() {
       if (this.options.list) {
         const selections = this.determineSelections()
         return {
@@ -144,7 +144,7 @@ module.exports = Marionette.LayoutView.extend(
     },
   },
   {
-    createSimpleDropdown: function(options) {
+    createSimpleDropdown(options) {
       return new this({
         model:
           options.model ||

@@ -22,18 +22,18 @@ const sessionAutoRenewModel = new (Backbone.Model.extend({
   defaults: {
     sessionRenewDate: undefined,
   },
-  initialize: function() {
+  initialize() {
     this.initializeSessionRenewDate()
     this.listenTo(this, 'change:sessionRenewDate', this.handleSessionRenewDate)
   },
-  initializeSessionRenewDate: function() {
+  initializeSessionRenewDate() {
     $.get(sessionExpiryUrl)
       .done(this.handleExpiryTimeResponse.bind(this))
       .fail(() => {
         console.log('what do we do on failure')
       })
   },
-  handleExpiryTimeResponse: function(response) {
+  handleExpiryTimeResponse(response) {
     const msUntilTimeout = parseInt(response)
     const msUntilAutoRenew = Math.max(
       msUntilTimeout * 0.7,
@@ -41,20 +41,20 @@ const sessionAutoRenewModel = new (Backbone.Model.extend({
     ) // 70% or at least one minute before
     this.set('sessionRenewDate', Date.now() + msUntilAutoRenew)
   },
-  handleSessionRenewDate: function() {
+  handleSessionRenewDate() {
     this.clearSessionRenewTimer()
     this.setSessionRenewTimer()
   },
-  setSessionRenewTimer: function() {
+  setSessionRenewTimer() {
     this.sessionRenewTimer = setTimeout(
       this.renewSession.bind(this),
       this.get('sessionRenewDate') - Date.now()
     )
   },
-  clearSessionRenewTimer: function() {
+  clearSessionRenewTimer() {
     clearTimeout(this.sessionRenewTimer)
   },
-  renewSession: function() {
+  renewSession() {
     $.get(sessionRenewUrl)
       .done(this.handleExpiryTimeResponse.bind(this))
       .fail(() => {

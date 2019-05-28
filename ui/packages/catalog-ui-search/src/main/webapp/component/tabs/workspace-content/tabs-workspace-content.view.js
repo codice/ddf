@@ -17,7 +17,7 @@ const TabsView = require('../tabs.view')
 const store = require('../../../js/store.js')
 
 const WorkspaceContentTabsView = TabsView.extend({
-  initialize: function() {
+  initialize() {
     TabsView.prototype.initialize.call(this)
     this.listenTo(
       this.options.selectionInterface,
@@ -25,7 +25,7 @@ const WorkspaceContentTabsView = TabsView.extend({
       this.handleQuery
     )
   },
-  closePanelTwo: function() {
+  closePanelTwo() {
     switch (this.model.get('activeTab')) {
       case 'Searches':
         this.options.selectionInterface.setCurrentQuery(undefined)
@@ -39,7 +39,7 @@ const WorkspaceContentTabsView = TabsView.extend({
         this.options.selectionInterface.clearSelectedResults()
     }
   },
-  determineContent: function() {
+  determineContent() {
     const activeTab = this.model.getActiveView()
     this.tabsContent.show(
       new activeTab({
@@ -47,10 +47,10 @@ const WorkspaceContentTabsView = TabsView.extend({
       })
     )
   },
-  onDestroy: function() {
+  onDestroy() {
     this.closePanelTwo()
   },
-  handleQuery: function() {
+  handleQuery() {
     if (
       store.getCurrentQuery() !== undefined &&
       store.getCurrentQueries().get(store.getCurrentQuery()) !== undefined

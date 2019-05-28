@@ -19,7 +19,7 @@ const ListItemView = require('./list-item.view')
 const user = require('../../component/singletons/user-instance')
 
 module.exports = Marionette.CollectionView.extend({
-  setDefaultCollection: function() {
+  setDefaultCollection() {
     this.collection = this.options.workspaceLists
   },
   viewComparator(list1, list2) {
@@ -39,7 +39,7 @@ module.exports = Marionette.CollectionView.extend({
   },
   tagName: CustomElements.register('list-item-collection'),
   childView: ListItemView,
-  initialize: function(options) {
+  initialize(options) {
     if (!options.collection) {
       this.setDefaultCollection()
     }

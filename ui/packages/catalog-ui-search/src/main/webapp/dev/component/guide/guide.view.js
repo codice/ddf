@@ -30,7 +30,7 @@ import MarionetteRegionContainer from '../../../react-component/container/marion
 import React from 'react'
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('dev-guide'),
   className: 'pad-bottom',
   initialize() {

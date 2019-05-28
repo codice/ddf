@@ -31,7 +31,7 @@ Draw.BboxModel = Backbone.Model.extend({
 })
 const defaultAttrs = ['north', 'east', 'west', 'south']
 Draw.BboxView = Marionette.View.extend({
-  initialize: function() {
+  initialize() {
     this.mouseHandler = new Cesium.ScreenSpaceEventHandler(
       this.options.map.scene.canvas
     )
@@ -41,7 +41,7 @@ Draw.BboxView = Marionette.View.extend({
       this.updatePrimitive
     )
   },
-  enableInput: function() {
+  enableInput() {
     const controller = this.options.map.scene.screenSpaceCameraController
     controller.enableTranslate = true
     controller.enableZoom = true
@@ -49,7 +49,7 @@ Draw.BboxView = Marionette.View.extend({
     controller.enableTilt = true
     controller.enableLook = true
   },
-  disableInput: function() {
+  disableInput() {
     const controller = this.options.map.scene.screenSpaceCameraController
     controller.enableTranslate = false
     controller.enableZoom = false
@@ -57,7 +57,7 @@ Draw.BboxView = Marionette.View.extend({
     controller.enableTilt = false
     controller.enableLook = false
   },
-  setModelFromClicks: function(mn, mx) {
+  setModelFromClicks(mn, mx) {
     let e = new Cesium.Rectangle(),
       epsilon = Cesium.Math.EPSILON14,
       modelProps
@@ -175,7 +175,7 @@ Draw.BboxView = Marionette.View.extend({
     return e
   },
 
-  modelToRectangle: function(model) {
+  modelToRectangle(model) {
     const toRad = Cesium.Math.toRadians
     const obj = model.toJSON()
     if (
@@ -214,7 +214,7 @@ Draw.BboxView = Marionette.View.extend({
     return rectangle
   },
 
-  updatePrimitive: function(model) {
+  updatePrimitive(model) {
     const rectangle = this.modelToRectangle(model)
     // make sure the current model has width and height before drawing
     if (
@@ -231,7 +231,7 @@ Draw.BboxView = Marionette.View.extend({
     }
   },
 
-  updateGeometry: function(model) {
+  updateGeometry(model) {
     const rectangle = this.modelToRectangle(model)
     if (
       rectangle &&
@@ -242,14 +242,14 @@ Draw.BboxView = Marionette.View.extend({
     }
   },
 
-  destroyOldPrimitive: function() {
+  destroyOldPrimitive() {
     // first destroy old one
     if (this.primitive && !this.primitive.isDestroyed()) {
       this.options.map.scene.primitives.remove(this.primitive)
     }
   },
 
-  drawBorderedRectangle: function(rectangle) {
+  drawBorderedRectangle(rectangle) {
     if (!rectangle) {
       // handles case where model changes to empty vars and we don't want to draw anymore
 
@@ -297,7 +297,7 @@ Draw.BboxView = Marionette.View.extend({
     this.options.map.scene.primitives.add(this.primitive)
   },
 
-  handleRegionStop: function() {
+  handleRegionStop() {
     this.enableInput()
     this.mouseHandler.destroy()
     if (this.primitive) {
@@ -320,7 +320,7 @@ Draw.BboxView = Marionette.View.extend({
     this.crossDateLine = undefined
     wreqr.vent.trigger('search:bboxdisplay', this.model)
   },
-  handleRegionInter: function(movement) {
+  handleRegionInter(movement) {
     let cartesian = this.options.map.scene.camera.pickEllipsoid(
         movement.endPosition,
         this.options.map.scene.globe.ellipsoid
@@ -333,7 +333,7 @@ Draw.BboxView = Marionette.View.extend({
       this.setModelFromClicks(this.click1, cartographic)
     }
   },
-  handleRegionStart: function(movement) {
+  handleRegionStart(movement) {
     const cartesian = this.options.map.scene.camera.pickEllipsoid(
         movement.position,
         this.options.map.scene.globe.ellipsoid
@@ -354,7 +354,7 @@ Draw.BboxView = Marionette.View.extend({
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
     }
   },
-  start: function() {
+  start() {
     this.disableInput()
 
     const that = this
@@ -365,17 +365,17 @@ Draw.BboxView = Marionette.View.extend({
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN)
   },
 
-  stop: function() {
+  stop() {
     this.stopListening()
     this.enableInput()
   },
 
-  drawStop: function() {
+  drawStop() {
     this.enableInput()
     this.mouseHandler.destroy()
   },
 
-  destroyPrimitive: function() {
+  destroyPrimitive() {
     if (!this.mouseHandler.isDestroyed()) {
       this.mouseHandler.destroy()
     }
@@ -387,7 +387,7 @@ Draw.BboxView = Marionette.View.extend({
 
 Draw.Controller = DrawingController.extend({
   drawingType: 'bbox',
-  show: function(model) {
+  show(model) {
     if (this.enabled) {
       const bboxModel = model || new Draw.BboxModel()
 
@@ -408,7 +408,7 @@ Draw.Controller = DrawingController.extend({
       return bboxModel
     }
   },
-  draw: function(model) {
+  draw(model) {
     if (this.enabled) {
       const bboxModel = model || new Draw.BboxModel()
       const view = new Draw.BboxView({

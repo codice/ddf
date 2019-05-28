@@ -43,7 +43,7 @@ const comparisonClass = 'Comparison',
     RELATIVE: /^'RELATIVE\([A-Za-z0-9.]*\)'/i,
     TIME: new RegExp('^' + timePatter.source),
     TIME_PERIOD: new RegExp('^' + timePatter.source + '/' + timePatter.source),
-    GEOMETRY: function(text) {
+    GEOMETRY(text) {
       const type = /^(POINT|LINESTRING|POLYGON|MULTIPOINT|MULTILINESTRING|MULTIPOLYGON|GEOMETRYCOLLECTION)/.exec(
         text
       )
@@ -184,7 +184,7 @@ function nextToken(text, tokens) {
       return {
         type: token,
         text: match,
-        remainder: remainder,
+        remainder,
       }
     }
   }
@@ -348,7 +348,7 @@ function buildAst(tokens) {
         min = buildTree()
         property = buildTree()
         return {
-          property: property,
+          property,
           lowerBoundary: min,
           upperBoundary: max,
           type: tok.type,
@@ -358,7 +358,7 @@ function buildAst(tokens) {
         value = buildTree()
         property = buildTree()
         return {
-          property: property,
+          property,
           value: moment(value).toISOString(),
           type: tok.text.toUpperCase(),
         }
@@ -366,7 +366,7 @@ function buildAst(tokens) {
         const dates = buildTree().split('/')
         property = buildTree()
         return {
-          property: property,
+          property,
           from: dates[0],
           to: dates[1],
           type: tok.text.toUpperCase(),
@@ -375,14 +375,14 @@ function buildAst(tokens) {
         value = buildTree()
         property = buildTree()
         return {
-          property: property,
-          value: value,
+          property,
+          value,
           type: tok.text.toUpperCase(),
         }
       case 'IS_NULL':
         property = buildTree()
         return {
-          property: property,
+          property,
           type: tok.text.toUpperCase(),
         }
       case 'VALUE':
@@ -418,24 +418,24 @@ function buildAst(tokens) {
             property = buildTree()
             return {
               type: tok.text.toUpperCase(),
-              property: property,
-              value: value,
+              property,
+              value,
             }
           case 'WITHIN':
             value = buildTree()
             property = buildTree()
             return {
               type: tok.text.toUpperCase(),
-              property: property,
-              value: value,
+              property,
+              value,
             }
           case 'CONTAINS':
             value = buildTree()
             property = buildTree()
             return {
               type: tok.text.toUpperCase(),
-              property: property,
-              value: value,
+              property,
+              value,
             }
           case 'DWITHIN':
             const distance = buildTree()
@@ -443,8 +443,8 @@ function buildAst(tokens) {
             property = buildTree()
             return {
               type: tok.text.toUpperCase(),
-              value: value,
-              property: property,
+              value,
+              property,
               distance: Number(distance),
             }
         }
@@ -729,7 +729,7 @@ function iterativelySimplify(cqlAst) {
 }
 
 module.exports = {
-  read: function(cql) {
+  read(cql) {
     if (cql === undefined || cql.length === 0) {
       return {
         type: 'AND',
@@ -738,11 +738,11 @@ module.exports = {
     }
     return buildAst(tokenize(cql))
   },
-  write: function(filter) {
+  write(filter) {
     uncollapseNOTs(filter)
     return write(filter)
   },
-  simplify: function(cqlAst) {
+  simplify(cqlAst) {
     iterativelySimplify(cqlAst)
     collapseNOTs(cqlAst)
     iterativelySimplify(cqlAst)

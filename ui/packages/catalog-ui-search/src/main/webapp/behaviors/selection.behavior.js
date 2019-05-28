@@ -38,7 +38,7 @@ const textSelectionTime = 500 // how long a user has to hold down mousebutton fo
 Behaviors.addBehavior(
   'selection',
   Marionette.Behavior.extend({
-    events: function() {
+    events() {
       return {
         [`click ${this.options.selectionSelector}`]: 'handleClick',
         [`mousedown ${this.options.selectionSelector}`]: 'handleMouseDown',
@@ -47,18 +47,18 @@ Behaviors.addBehavior(
     lastTarget: undefined,
     lastMouseDown: Date.now(),
     lastClick: Date.now(),
-    onRender: function() {
+    onRender() {
       this.view.$el.addClass('has-selection-behavior')
     },
-    updateStateOnClick: function(event) {
+    updateStateOnClick(event) {
       this.lastTarget = event.currentTarget
       this.lastClick = Date.now()
     },
-    handleClick: function(event) {
+    handleClick(event) {
       this.interpretClick(event)
       this.updateStateOnClick(event)
     },
-    interpretClick: function(event) {
+    interpretClick(event) {
       if (event.altKey || this.isTextSelection() || this.isDoubleClick(event)) {
         return
       }
@@ -76,7 +76,7 @@ Behaviors.addBehavior(
         this.handleControlClick(resultid, alreadySelected && onlySelected)
       }
     },
-    handleShiftClick: function(resultid, alreadySelected) {
+    handleShiftClick(resultid, alreadySelected) {
       const selectedResults = this.options.selectionInterface.getSelectedResults()
       const indexClicked = this.options.selectionInterface
         .getActiveSearchResults()
@@ -93,14 +93,14 @@ Behaviors.addBehavior(
         this.selectBetween(firstIndex, indexClicked + 1)
       }
     },
-    selectBetween: function(startIndex, endIndex) {
+    selectBetween(startIndex, endIndex) {
       this.options.selectionInterface.addSelectedResult(
         this.options.selectionInterface
           .getActiveSearchResults()
           .slice(startIndex, endIndex)
       )
     },
-    handleControlClick: function(resultid, alreadySelected) {
+    handleControlClick(resultid, alreadySelected) {
       if (alreadySelected) {
         this.options.selectionInterface.removeSelectedResult(
           this.options.selectionInterface.getActiveSearchResults().get(resultid)
@@ -111,23 +111,23 @@ Behaviors.addBehavior(
         )
       }
     },
-    isDoubleClick: function(event) {
+    isDoubleClick(event) {
       return (
         this.lastTarget === event.currentTarget &&
         Date.now() - this.lastClick < doubleClickTime
       )
     },
-    isTextSelection: function() {
+    isTextSelection() {
       return Date.now() - this.lastMouseDown > textSelectionTime
     },
-    updateStateOnMouseDown: function() {
+    updateStateOnMouseDown() {
       this.lastMouseDown = Date.now()
     },
-    handleMouseDown: function(event) {
+    handleMouseDown(event) {
       this.interpretMouseDown(event)
       this.updateStateOnMouseDown()
     },
-    interpretMouseDown: function(event) {
+    interpretMouseDown(event) {
       if (event.altKey) {
         return
       }

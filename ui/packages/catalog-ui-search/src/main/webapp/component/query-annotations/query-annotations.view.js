@@ -26,10 +26,10 @@ const LoadingCompanionView = require('../loading-companion/loading-companion.vie
 const announcement = require('../announcement/index.jsx')
 
 module.exports = Marionette.LayoutView.extend({
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = this.selectionInterface.getSelectedResults().first()
   },
-  template: template,
+  template,
   tagName: CustomElements.register('query-annotations'),
   events: {
     'click .add-annotation-btn ': 'handleCreate',
@@ -44,14 +44,14 @@ module.exports = Marionette.LayoutView.extend({
   },
   _annotationsCollection: undefined,
   _annotations: undefined,
-  initialize: function(options) {
+  initialize(options) {
     this.selectionInterface =
       options.selectionInterface || this.selectionInterface
     if (!options.model) {
       this.setDefaultModel()
     }
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.clearAnnotations()
     this.showAddAnnotationView()
     this.getAnnotationsForQuery()
@@ -59,13 +59,13 @@ module.exports = Marionette.LayoutView.extend({
     this.turnOnEditing()
     this.setupListeners()
   },
-  clearAnnotations: function() {
+  clearAnnotations() {
     if (!this._annotationsCollection) {
       this._annotationsCollection = new AnnotationCollection()
     }
     this._annotationsCollection.reset()
   },
-  showAddAnnotationView: function() {
+  showAddAnnotationView() {
     this.addAnnotationField.show(
       new PropertyView({
         model: new Property({
@@ -77,7 +77,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  getAnnotationsForQuery: function() {
+  getAnnotationsForQuery() {
     LoadingCompanionView.beginLoading(this)
     $.get('./internal/annotations/' + this.model.get('id')).then(
       function(response) {
@@ -100,7 +100,7 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  showAnnotationsListView: function() {
+  showAnnotationsListView() {
     this.annotationsList.show(
       new AnnotationCollectionView({
         collection: this._annotationsCollection,
@@ -110,12 +110,12 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.annotationsList.currentView.$el.addClass('is-list')
   },
-  setupListeners: function() {
+  setupListeners() {
     this.listenTo(this._annotationsCollection, 'remove', function() {
       this.checkHasAnnotations()
     })
   },
-  handleRefresh: function() {
+  handleRefresh() {
     this.getAnnotationsForQuery()
     announcement.announce({
       title: 'Success!',
@@ -123,17 +123,17 @@ module.exports = Marionette.LayoutView.extend({
       type: 'success',
     })
   },
-  checkHasAnnotations: function() {
+  checkHasAnnotations() {
     if (this._annotationsCollection.length > 0) {
       this.$el.toggleClass('has-no-annotations', false)
     } else {
       this.$el.toggleClass('has-no-annotations', true)
     }
   },
-  isValidResponse: function(response) {
+  isValidResponse(response) {
     return response !== ''
   },
-  parseAnnotations: function() {
+  parseAnnotations() {
     this.clearAnnotations()
     this._annotations.forEach(
       function(annotation) {
@@ -148,13 +148,13 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  clearAnnotations: function() {
+  clearAnnotations() {
     if (!this._annotationsCollection) {
       this._annotationsCollection = new AnnotationCollection()
     }
     this._annotationsCollection.reset()
   },
-  handleCreate: function() {
+  handleCreate() {
     const annotation = this.addAnnotationField.currentView.model.get('value')[0]
     const annotationObj = {}
     annotationObj.parent = this.model.get('id')
@@ -205,7 +205,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     }
   },
-  handlePostResponse: function(response) {
+  handlePostResponse(response) {
     const annotation = JSON.parse(response)
 
     this._annotationsCollection.add({
@@ -217,10 +217,10 @@ module.exports = Marionette.LayoutView.extend({
       owner: annotation.owner,
     })
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.addAnnotationField.currentView.turnOnEditing()
   },
-  turnOffEditing: function() {
+  turnOffEditing() {
     this.$el.toggleClass('is-editing', false)
   },
 })

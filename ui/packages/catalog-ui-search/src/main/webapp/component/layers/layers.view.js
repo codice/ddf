@@ -32,58 +32,58 @@ const FocusModel = Backbone.Model.extend({
     up: 'up',
     down: 'down',
   },
-  clear: function() {
+  clear() {
     this.set({
       id: undefined,
       direction: undefined,
     })
   },
-  setUp: function(id) {
+  setUp(id) {
     this.set({
-      id: id,
+      id,
       direction: this.directions.up,
     })
   },
-  setDown: function(id) {
+  setDown(id) {
     this.set({
-      id: id,
+      id,
       direction: this.directions.down,
     })
   },
-  getDirection: function() {
+  getDirection() {
     return this.get('direction')
   },
-  isUp: function() {
+  isUp() {
     return this.getDirection() === this.directions.up
   },
-  isDown: function() {
+  isDown() {
     return this.getDirection() === this.directions.down
   },
 })
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('layers'),
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = user.get('user>preferences')
   },
   events: {
     'click > .footer button': 'resetDefaults',
   },
-  template: template,
+  template,
   regions: {
     layers: '> .layers',
   },
-  initialize: function(options) {
+  initialize(options) {
     if (options.model === undefined) {
       this.setDefaultModel()
     }
     this.listenToModel()
     this.setupFocusModel()
   },
-  setupFocusModel: function() {
+  setupFocusModel() {
     this.focusModel = new FocusModel()
   },
-  onRender: function() {
+  onRender() {
     this.layers.show(
       new LayerItemCollectionView({
         collection: this.model.get('mapLayers'),
@@ -92,7 +92,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  listenToModel: function() {
+  listenToModel() {
     this.stopListeningToModel()
     this.listenTo(
       this.model.get('mapLayers'),
@@ -100,14 +100,14 @@ module.exports = Marionette.LayoutView.extend({
       this.save
     )
   },
-  stopListeningToModel: function() {
+  stopListeningToModel() {
     this.stopListening(
       this.model.get('mapLayers'),
       'change:alpha change:show',
       this.save
     )
   },
-  resetDefaults: function() {
+  resetDefaults() {
     this.focusModel.clear()
     this.stopListeningToModel()
     this.model.get('mapLayers').forEach(function(viewLayer) {
@@ -123,7 +123,7 @@ module.exports = Marionette.LayoutView.extend({
     this.save()
     this.listenToModel()
   },
-  updateOrdering: function() {
+  updateOrdering() {
     _.forEach(
       this.$el.find(`${CustomElements.getNamespace()}layer-item`),
       (element, index) => {
@@ -136,7 +136,7 @@ module.exports = Marionette.LayoutView.extend({
     this.model.get('mapLayers').sort()
     this.save()
   },
-  save: function() {
+  save() {
     this.model.savePreferences()
   },
 })

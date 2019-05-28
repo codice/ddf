@@ -167,7 +167,7 @@ function isBlocked(element, boundingRect) {
 }
 
 module.exports = new (Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('help'),
   events: {
     mousedown: 'preventPropagation',
@@ -175,13 +175,13 @@ module.exports = new (Marionette.LayoutView.extend({
   regions: {
     hints: '.help-hints',
   },
-  initialize: function() {
+  initialize() {
     $('body').append(this.el)
   },
-  onRender: function() {},
+  onRender() {},
   hintOn: false,
   animationFrameId: undefined,
-  toggleHints: function() {
+  toggleHints() {
     if (this.hintOn) {
       this.hideHints()
       this.stopListeningForResize()
@@ -194,15 +194,15 @@ module.exports = new (Marionette.LayoutView.extend({
       this.listenForClick()
     }
   },
-  removeOldHints: function() {
+  removeOldHints() {
     this.stopPaintingHints()
     this.el.innerHTML = ''
     $(CustomElements.getNamespace() + 'dropdown-companion.is-hint').remove()
   },
-  stopPaintingHints: function() {
+  stopPaintingHints() {
     window.cancelAnimationFrame(this.animationFrameId)
   },
-  paintHint: function(element) {
+  paintHint(element) {
     if (isEffectivelyHidden(element)) {
       return
     }
@@ -221,10 +221,10 @@ module.exports = new (Marionette.LayoutView.extend({
       height > 0 &&
       width > 0 &&
       !isBlocked(element, {
-        top: top,
-        bottom: bottom,
-        left: left,
-        right: right,
+        top,
+        bottom,
+        left,
+        right,
       })
     ) {
       const dropdownHintView = new DropdownHintView({
@@ -242,7 +242,7 @@ module.exports = new (Marionette.LayoutView.extend({
         .css('left', left)
     }
   },
-  paintHints: function($elementsWithHints) {
+  paintHints($elementsWithHints) {
     this.animationFrameId = window.requestAnimationFrame(
       function() {
         const elements = $elementsWithHints.splice(0, 4)
@@ -257,7 +257,7 @@ module.exports = new (Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  showHints: function() {
+  showHints() {
     this.removeOldHints()
     this.hintOn = true
     this.$el.addClass('is-shown')
@@ -267,12 +267,12 @@ module.exports = new (Marionette.LayoutView.extend({
     this.paintHints($elementsWithHints)
   },
 
-  hideHints: function() {
+  hideHints() {
     this.stopPaintingHints()
     this.hintOn = false
     this.$el.removeClass('is-shown')
   },
-  addUntoggleElement: function() {
+  addUntoggleElement() {
     const $untoggleElement = $('.navigation-item.item-help')
     _.forEach(
       $untoggleElement,
@@ -293,10 +293,10 @@ module.exports = new (Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  preventPropagation: function(e) {
+  preventPropagation(e) {
     e.stopPropagation()
   },
-  listenForResize: function() {
+  listenForResize() {
     $(window).on(
       'resize.' + this.cid,
       _.debounce(
@@ -307,10 +307,10 @@ module.exports = new (Marionette.LayoutView.extend({
       )
     )
   },
-  stopListeningForResize: function() {
+  stopListeningForResize() {
     $(window).off('resize.' + this.cid)
   },
-  listenForTyping: function() {
+  listenForTyping() {
     $(window).on(
       'keydown.' + this.cid,
       function(event) {
@@ -327,10 +327,10 @@ module.exports = new (Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  stopListeningForTyping: function() {
+  stopListeningForTyping() {
     $(window).off('keydown.' + this.cid)
   },
-  listenForClick: function() {
+  listenForClick() {
     this.$el.on(
       'click.' + this.cid,
       function() {
@@ -338,7 +338,7 @@ module.exports = new (Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  stopListeningForClick: function() {
+  stopListeningForClick() {
     this.$el.off('click.' + this.cid)
   },
 }))()

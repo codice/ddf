@@ -51,7 +51,7 @@ let helper,
        * Copyright (c) 2013, Upstage
        * Licensed under the MIT license.
        */
-    momentHelp: function(context, block) {
+    momentHelp(context, block) {
       let momentObj, date, i
       if (context && context.hash) {
         block = _.cloneDeep(context)
@@ -72,7 +72,7 @@ let helper,
       }
       return date
     },
-    duration: function(context, block) {
+    duration(context, block) {
       if (context && context.hash) {
         block = _.cloneDeep(context)
         context = 0
@@ -89,34 +89,34 @@ let helper,
       }
       return duration
     },
-    fileSize: function(item) {
+    fileSize(item) {
       return Common.getFileSize(item)
     },
-    fileSizeGuaranteedInt: function(item) {
+    fileSizeGuaranteedInt(item) {
       return Common.getFileSizeGuaranteedInt(item)
     },
-    isNotBlank: function(context, block) {
+    isNotBlank(context, block) {
       if (context && context !== '') {
         return block.fn(this)
       } else {
         return block.inverse(this)
       }
     },
-    is: function(value, test, options) {
+    is(value, test, options) {
       if (value === test) {
         return options.fn(this)
       } else {
         return options.inverse(this)
       }
     },
-    isnt: function(value, test, options) {
+    isnt(value, test, options) {
       if (value !== test) {
         return options.fn(this)
       } else {
         return options.inverse(this)
       }
     },
-    isAnd: function() {
+    isAnd() {
       const args = _.flatten(arguments)
       const items = _.initial(args)
       let result = true
@@ -134,7 +134,7 @@ let helper,
         return block.inverse(this)
       }
     },
-    isUrl: function(value, options) {
+    isUrl(value, options) {
       if (value !== null && value !== '' && _.isString(value)) {
         const protocol = value.toLowerCase().split('/')[0]
         if (protocol && (protocol === 'http:' || protocol === 'https:')) {
@@ -143,35 +143,35 @@ let helper,
       }
       return options.inverse(this)
     },
-    gt: function(value, test, options) {
+    gt(value, test, options) {
       if (value > test) {
         return options.fn(this)
       } else {
         return options.inverse(this)
       }
     },
-    gte: function(value, test, options) {
+    gte(value, test, options) {
       if (value >= test) {
         return options.fn(this)
       } else {
         return options.inverse(this)
       }
     },
-    lt: function(value, test, options) {
+    lt(value, test, options) {
       if (value < test) {
         return options.fn(this)
       } else {
         return options.inverse(this)
       }
     },
-    lte: function(value, test, options) {
+    lte(value, test, options) {
       if (value <= test) {
         return options.fn(this)
       } else {
         return options.inverse(this)
       }
     },
-    ifAnd: function() {
+    ifAnd() {
       const args = _.flatten(arguments)
       const items = _.initial(args)
       let result = true
@@ -187,7 +187,7 @@ let helper,
         return block.inverse(this)
       }
     },
-    ifOr: function() {
+    ifOr() {
       const args = _.flatten(arguments)
       const items = _.initial(args)
       let result = false
@@ -203,7 +203,7 @@ let helper,
         return block.inverse(this)
       }
     },
-    ifNotAnd: function() {
+    ifNotAnd() {
       const args = _.flatten(arguments)
       const items = _.initial(args)
       let result = true
@@ -219,7 +219,7 @@ let helper,
         return block.fn(this)
       }
     },
-    ifNotOr: function() {
+    ifNotOr() {
       const args = _.flatten(arguments)
       const items = _.initial(args)
       let result = false
@@ -235,7 +235,7 @@ let helper,
         return block.fn(this)
       }
     },
-    propertyTitle: function(str) {
+    propertyTitle(str) {
       if (_.isString(str)) {
         return _.chain(str)
           .words()
@@ -246,28 +246,28 @@ let helper,
       }
       return str
     },
-    safeString: function(str) {
+    safeString(str) {
       if (_.isString(str)) {
         return new Handlebars.SafeString(str)
       }
       return str
     },
-    splitDashes: function(str) {
+    splitDashes(str) {
       return str.split('-').join(' ')
     },
-    encodeString: function(str) {
+    encodeString(str) {
       if (_.isString(str)) {
         return encodeURIComponent(str)
       }
       return str
     },
-    getImageSrc: function(img) {
+    getImageSrc(img) {
       return Common.getImageSrc(img)
     },
-    getResourceUrlFromThumbUrl: function(img) {
+    getResourceUrlFromThumbUrl(img) {
       return Common.getResourceUrlFromThumbUrl(img)
     },
-    getAlias: function(field) {
+    getAlias(field) {
       const definition = metacardDefinitions.metacardTypes[field]
       if (definition) {
         return definition.alias || definition.id
@@ -275,17 +275,17 @@ let helper,
         return field
       }
     },
-    json: function(obj) {
+    json(obj) {
       return JSON.stringify(obj)
     },
-    ifUrl: function(value, options) {
+    ifUrl(value, options) {
       if (value && value.toString().substring(0, 4) === 'http') {
         return options.fn(this)
       } else {
         return options.inverse(this)
       }
     },
-    bindInput: function(options) {
+    bindInput(options) {
       const callback = function() {
         const $target = this.$el.find(options.hash.selector)
         const value = _get(this.serializeData(), options.hash.key)
@@ -297,7 +297,7 @@ let helper,
       }
       return bind(options, callback)
     },
-    bindAttr: function(options) {
+    bindAttr(options) {
       const callback = function() {
         const $target = this.$el.find(options.hash.selector)
         const value = _get(this.serializeData(), options.hash.key)
@@ -305,7 +305,7 @@ let helper,
       }
       return bind(options, callback)
     },
-    bind: function(options) {
+    bind(options) {
       const callback = function() {
         const $target = this.$el.find(options.hash.selector)
         const value = _get(this.serializeData(), options.hash.key)
@@ -313,7 +313,7 @@ let helper,
       }
       return bind(options, callback)
     },
-    path: function() {
+    path() {
       const outArray = []
       for (let arg = 0; arg < arguments.length; arg++) {
         if (typeof arguments[arg] === 'object') {

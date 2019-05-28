@@ -22,14 +22,14 @@ const Common = require('../../js/Common.js')
 const user = require('../singletons/user-instance.js')
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('alert-item'),
   modelEvents: {},
   events: {
     'click .alert-details': 'expandAlert',
     'click .alert-delete': 'removeModel',
   },
-  initialize: function() {
+  initialize() {
     const modelJSON = this.model.toJSON()
     this.listenTo(store.get('workspaces'), 'remove', this.render)
     const workspace = store.get('workspaces').filter(function(workspace) {
@@ -45,7 +45,7 @@ module.exports = Marionette.ItemView.extend({
       this.listenTo(query, 'change', this.render)
     }
   },
-  removeModel: function() {
+  removeModel() {
     this.$el.toggleClass('is-destroyed', true)
     setTimeout(
       function() {
@@ -58,7 +58,7 @@ module.exports = Marionette.ItemView.extend({
       250
     )
   },
-  expandAlert: function() {
+  expandAlert() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     this.$el.trigger('closeSlideout.' + CustomElements.getNamespace())
     wreqr.vent.trigger('router:navigate', {
@@ -68,7 +68,7 @@ module.exports = Marionette.ItemView.extend({
       },
     })
   },
-  serializeData: function() {
+  serializeData() {
     const modelJSON = this.model.toJSON()
     const workspace = store.get('workspaces').filter(function(workspace) {
       return workspace.get('queries').get(modelJSON.queryId)

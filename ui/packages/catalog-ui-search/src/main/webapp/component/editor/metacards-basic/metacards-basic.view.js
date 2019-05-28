@@ -22,16 +22,16 @@ const ResultUtils = require('../../../js/ResultUtils.js')
 
 module.exports = EditorView.extend({
   className: 'is-metacards-basic',
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = this.selectionInterface.getSelectedResults()
   },
   selectionInterface: store,
-  initialize: function(options) {
+  initialize(options) {
     this.selectionInterface =
       options.selectionInterface || this.selectionInterface
     EditorView.prototype.initialize.call(this, options)
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     const results = this.selectionInterface.getSelectedResults()
     const metacards = results.map(function(result) {
       return result.get('metacard>properties').toJSON()
@@ -43,12 +43,12 @@ module.exports = EditorView.extend({
     this.getValidation()
     EditorView.prototype.onBeforeShow.call(this)
   },
-  getEditorActionsOptions: function() {
+  getEditorActionsOptions() {
     return {
       summary: false,
     }
   },
-  getValidation: function() {
+  getValidation() {
     const results = this.selectionInterface.getSelectedResults()
     const self = this
     self.editorProperties.currentView.clearValidation()
@@ -77,10 +77,10 @@ module.exports = EditorView.extend({
         )
       })
   },
-  afterCancel: function() {
+  afterCancel() {
     //this.getValidation();
   },
-  afterSave: function(editorJSON) {
+  afterSave(editorJSON) {
     if (editorJSON.length > 0) {
       const payload = [
         {

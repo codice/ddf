@@ -96,7 +96,7 @@ module.exports = Marionette.LayoutView.extend({
       renderAce({
         where: element,
         mode: 'javascript',
-        value: value,
+        value,
         view: this,
       })
     })

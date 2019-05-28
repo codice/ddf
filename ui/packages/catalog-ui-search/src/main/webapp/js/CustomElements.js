@@ -15,7 +15,7 @@ const namespace = 'intrigue-'
 const registry = {}
 
 module.exports = {
-  register: function(name) {
+  register(name) {
     if (registry[name]) {
       throw Error(
         'Multiple custom elements registered under the same name: ' + name
@@ -24,7 +24,7 @@ module.exports = {
     registry[name] = true
     return namespace + name
   },
-  getNamespace: function() {
+  getNamespace() {
     return namespace
   },
   registerReact(name) {

@@ -20,10 +20,10 @@ module.exports = SaveView.extend({
     'data-help': 'Indicates the workspace is unsaved.',
     title: 'Indicates the workspace is unsaved.',
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(this.model, 'change', this.handleSaved)
   },
-  isSaved: function() {
+  isSaved() {
     return this.model.isSaved()
   },
 })

@@ -18,11 +18,11 @@ const $ = require('jquery')
 
 module.exports = SlideoutView.extend({
   className: 'is-right',
-  open: function() {
+  open() {
     $('html').toggleClass('has-slideout-right', true)
     SlideoutView.prototype.open.call(this)
   },
-  close: function() {
+  close() {
     $('html').toggleClass('has-slideout-right', false)
     SlideoutView.prototype.close.call(this)
   },

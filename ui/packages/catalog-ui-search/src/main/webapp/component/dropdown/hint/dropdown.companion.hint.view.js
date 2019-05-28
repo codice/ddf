@@ -21,7 +21,7 @@ const namespace = CustomElements.getNamespace()
 
 module.exports = DropdownCompanionView.extend({
   className: 'is-hint',
-  listenForOutsideClick: function() {
+  listenForOutsideClick() {
     DropdownCompanionView.prototype.listenForOutsideClick.call(this)
     $(namespace + 'help').on(
       'mousedown.' + this.cid,

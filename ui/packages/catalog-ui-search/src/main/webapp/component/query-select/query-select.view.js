@@ -28,15 +28,15 @@ eventsHash[queryItemClickEvent] = 'handleQueryItemClick'
 module.exports = QueryItemCollectionView.extend({
   className: 'is-query-select composed-menu',
   events: eventsHash,
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.handleValue()
   },
-  handleQueryItemClick: function(event) {
+  handleQueryItemClick(event) {
     this.model.set('value', $(event.currentTarget).attr('data-queryid'))
     this.handleValue()
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  handleValue: function() {
+  handleValue() {
     const queryId = this.model.get('value')
     this.$el.find(namespace + 'query-item').removeClass('is-selected')
     if (queryId) {

@@ -18,28 +18,28 @@ const InputView = require('../input.view')
 const $ = require('jquery')
 
 module.exports = InputView.extend({
-  template: template,
+  template,
   events: {
     'click .ta-expand': 'expand',
     'click .ta-contract': 'contract',
   },
-  handleValue: function() {
+  handleValue() {
     this.$el.find('textarea').text(this.model.getValue())
     this.hasOverflowed()
   },
-  onRender: function() {
+  onRender() {
     InputView.prototype.onRender.call(this)
     this.hasOverflowed()
     this.addResizeHandler()
   },
-  onAttach: function() {
+  onAttach() {
     InputView.prototype.onAttach.call(this)
     this.hasOverflowed()
   },
-  getCurrentValue: function() {
+  getCurrentValue() {
     return this.$el.find('textarea').val()
   },
-  hasOverflowed: function() {
+  hasOverflowed() {
     const textarea = this.$el.find('.ta-disabled')
     const scrollableHeight = textarea.prop('scrollHeight')
     const currViewableHeight = parseInt(textarea.css('max-height'), 10)
@@ -48,7 +48,7 @@ module.exports = InputView.extend({
       scrollableHeight > currViewableHeight + 10
     )
   },
-  expand: function() {
+  expand() {
     const textarea = this.$el.find('.ta-disabled')
     const scrollableHeight = textarea.prop('scrollHeight')
     const currViewableHeight = parseInt(textarea.css('max-height'), 10)
@@ -56,7 +56,7 @@ module.exports = InputView.extend({
     textarea.css('height', scrollableHeight + 15)
     textarea.css('max-height', scrollableHeight + 15)
   },
-  contract: function() {
+  contract() {
     const textarea = this.$el.find('.ta-disabled')
     const scrollableHeight = textarea.prop('scrollHeight')
     const currViewableHeight = parseInt(textarea.css('max-height'), 10)
@@ -64,14 +64,14 @@ module.exports = InputView.extend({
     textarea.css('height', '75px')
     textarea.css('max-height', '75px')
   },
-  addResizeHandler: function() {
+  addResizeHandler() {
     this.removeResizeHandler()
     $(window).on('resize.datePicker' + this.cid, this.hasOverflowed.bind(this))
   },
-  removeResizeHandler: function() {
+  removeResizeHandler() {
     $(window).off('resize.datePicker' + this.cid)
   },
-  onDestroy: function() {
+  onDestroy() {
     this.removeResizeHandler()
   },
 })

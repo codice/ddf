@@ -53,16 +53,16 @@ module.exports = {
     }
   })(),
 
-  is3d: function() {
+  is3d() {
     return getActiveVisualization() === '3dmap'
   },
-  is2d: function() {
+  is2d() {
     return getActiveVisualization() === '2dmap'
   },
-  isNone: function() {
+  isNone() {
     return this.type === MapTypeEnum.NONE
   },
-  isMap: function() {
+  isMap() {
     return this.is3d() || this.is2d()
   },
 }

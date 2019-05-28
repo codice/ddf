@@ -20,7 +20,7 @@ const QuerySelectorView = require('../query-selector/query-selector.view.js')
 const store = require('../../js/store.js')
 
 const WorkspaceExplore = Marionette.LayoutView.extend({
-  setDefaultModel: function() {
+  setDefaultModel() {
     this.model = store.getCurrentWorkspace()
   },
   template: workspaceExploreTemplate,
@@ -32,12 +32,12 @@ const WorkspaceExplore = Marionette.LayoutView.extend({
   regions: {
     workspaceExploreQueries: '.workspaceExplore-queries',
   },
-  initialize: function(options) {
+  initialize(options) {
     if (options.model === undefined) {
       this.setDefaultModel()
     }
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     if (this.model) {
       this.workspaceExploreQueries.show(new QuerySelectorView())
     }

@@ -15,13 +15,13 @@ require('backbone-associations')
 const MetacardPropertiesModel = require('./MetacardProperties.js')
 
 module.exports = Backbone.AssociatedModel.extend({
-  hasGeometry: function(attribute) {
+  hasGeometry(attribute) {
     return this.get('properties').hasGeometry(attribute)
   },
-  getPoints: function(attribute) {
+  getPoints(attribute) {
     return this.get('properties').getPoints(attribute)
   },
-  getGeometries: function(attribute) {
+  getGeometries(attribute) {
     return this.get('properties').getGeometries(attribute)
   },
   relations: [

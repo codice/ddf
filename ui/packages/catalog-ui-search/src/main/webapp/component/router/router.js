@@ -20,13 +20,13 @@ module.exports = new (Backbone.Model.extend({
     args: undefined,
     lowBandwidth: window.location.search.indexOf('lowBandwidth') !== -1,
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(this, 'change:name', this.handleChangeName)
   },
-  notFound: function() {
+  notFound() {
     this.set('name', 'notFound')
   },
-  handleChangeName: function() {
+  handleChangeName() {
     $('html').attr('data-route', this.get('name'))
   },
 }))()

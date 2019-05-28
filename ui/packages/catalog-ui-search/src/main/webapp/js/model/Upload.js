@@ -51,7 +51,7 @@ function checkValidation(model) {
 
 module.exports = Backbone.Model.extend({
   options: undefined,
-  defaults: function() {
+  defaults() {
     return {
       id: undefined,
       children: undefined,
@@ -74,12 +74,12 @@ module.exports = Backbone.Model.extend({
     this.handleComplete = this.handleComplete.bind(this)
     this.handleQueueComplete = this.handleQueueComplete.bind(this)
   },
-  initialize: function(attributes, options) {
+  initialize(attributes, options) {
     this.bindCallbacks()
     this.options = options
     this.setupDropzoneListeners()
   },
-  setupDropzoneListeners: function() {
+  setupDropzoneListeners() {
     if (this.options.dropzone) {
       this.options.dropzone.on('sending', this.handleSending)
       this.options.dropzone.on('uploadprogress', this.handleUploadProgress)
@@ -89,24 +89,24 @@ module.exports = Backbone.Model.extend({
       this.options.dropzone.on('queuecomplete', this.handleQueueComplete)
     }
   },
-  handleSending: function(file) {
+  handleSending(file) {
     if (fileMatches(file, this)) {
       this.set({
         sending: true,
       })
     }
   },
-  handleUploadProgress: function(file, percentage) {
+  handleUploadProgress(file, percentage) {
     if (fileMatches(file, this)) {
       this.set('percentage', percentage)
     }
   },
-  handleError: function(file) {
+  handleError(file) {
     if (fileMatches(file, this)) {
       const message = file.name + ' could not be uploaded successfully.'
       this.set({
         error: true,
-        message: message,
+        message,
       })
     }
   },
@@ -128,7 +128,7 @@ module.exports = Backbone.Model.extend({
     this.options.dropzone.off('error', this.handleError)
     this.options.dropzone.off('complete', this.handleComplete)
   },
-  handleSuccess: function(file) {
+  handleSuccess(file) {
     if (fileMatches(file, this)) {
       let message = `${file.name} uploaded successfully.`
       const addedIdsHeader = file.xhr.getResponseHeader('added-ids')
@@ -140,21 +140,21 @@ module.exports = Backbone.Model.extend({
         id: file.xhr.getResponseHeader('id'),
         children,
         success: true,
-        message: message,
+        message,
       })
 
       checkValidation(this)
     }
   },
-  handleComplete: function(file) {
+  handleComplete(file) {
     if (fileMatches(file, this) && file.status === 'canceled') {
       this.collection.remove(this)
     }
   },
-  checkValidation: function() {
+  checkValidation() {
     checkValidation(this)
   },
-  cancel: function() {
+  cancel() {
     if (this.options.dropzone) {
       this.options.dropzone.removeFile(this.get('file'))
       if (this.collection) {

@@ -23,7 +23,7 @@ const user = require('../singletons/user-instance.js')
 const properties = require('../../js/properties.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('search-interactions'),
   className: 'composed-menu',
   regions: {

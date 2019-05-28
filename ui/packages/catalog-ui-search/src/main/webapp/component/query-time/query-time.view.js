@@ -25,7 +25,7 @@ const RelativeTimeView = require('../relative-time/relative-time.view.js')
 const BetweenTimeView = require('../between-time/between-time.view.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('query-time'),
   regions: {
     basicTime: '.basic-time',
@@ -36,7 +36,7 @@ module.exports = Marionette.LayoutView.extend({
     basicTimeBetween: '.basic-time-between',
     basicTimeRelative: '.basic-time-relative',
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.turnOnEditing()
     this.setupTimeInput()
     this.setupTemporalSelections()
@@ -51,7 +51,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.handleTimeRangeValue()
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.$el.addClass('is-editing')
     this.regionManager.forEach(function(region) {
       if (region.currentView && region.currentView.turnOnEditing) {
@@ -59,7 +59,7 @@ module.exports = Marionette.LayoutView.extend({
       }
     })
   },
-  constructFilter: function() {
+  constructFilter() {
     const filters = []
     const timeRange = this.basicTime.currentView.model.getValue()[0]
     let timeSelection = this.basicTemporalSelections.currentView.model.getValue()[0]
@@ -117,7 +117,7 @@ module.exports = Marionette.LayoutView.extend({
     }
     return filters
   },
-  handleTimeRangeValue: function() {
+  handleTimeRangeValue() {
     const timeRange = this.basicTime.currentView.model.getValue()[0]
     this.$el.toggleClass('is-timeRange-any', timeRange === 'any')
     this.$el.toggleClass('is-timeRange-before', timeRange === 'before')
@@ -125,7 +125,7 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-timeRange-between', timeRange === 'between')
     this.$el.toggleClass('is-timeRange-relative', timeRange === 'relative')
   },
-  setupTemporalSelections: function() {
+  setupTemporalSelections() {
     const definitions = metacardDefinitions.sortedMetacardTypes
       .filter(definition => !definition.hidden && definition.type === 'DATE')
       .map(definition => ({
@@ -154,13 +154,13 @@ module.exports = Marionette.LayoutView.extend({
           enumMulti: true,
           enum: definitions,
           isEditing: true,
-          value: value,
+          value,
           id: 'Apply Time Range To',
         }),
       })
     )
   },
-  setupTimeBefore: function() {
+  setupTimeBefore() {
     let currentBefore = ''
     if (this.options.filter.anyDate) {
       this.options.filter.anyDate.forEach(function(subfilter) {
@@ -181,7 +181,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupTimeAfter: function() {
+  setupTimeAfter() {
     let currentAfter = ''
 
     if (this.options.filter.anyDate) {
@@ -203,7 +203,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupTimeBetween: function() {
+  setupTimeBetween() {
     let value = ''
 
     // Pre-fill the last edited value or the load value from query
@@ -221,7 +221,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupTimeInput: function() {
+  setupTimeInput() {
     let currentValue = 'any'
     if (this.options.filter.anyDate) {
       if (this.options.filter.anyDate[0].type === 'DURING') {
@@ -265,7 +265,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupTimeRelative: function() {
+  setupTimeRelative() {
     let currentValue
     if (this.options.filter.anyDate) {
       this.options.filter.anyDate.forEach(function(subfilter) {

@@ -15,7 +15,7 @@ const Backbone = require('backbone')
 
 module.exports = new (Backbone.Collection.extend({
   model: OverwriteModel,
-  removeIfUnused: function(id) {
+  removeIfUnused(id) {
     if (!this.get(id).get('sending')) {
       this.remove(id)
     }

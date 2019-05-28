@@ -35,7 +35,7 @@ module.exports = Marionette.ItemView.extend({
       />
     )
   },
-  initialize: function(options) {
+  initialize(options) {
     const safeRender = () => {
       setTimeout(() => {
         if (!this.isDestroyed) {
@@ -59,7 +59,7 @@ module.exports = Marionette.ItemView.extend({
       { leading: true, trailing: true }
     )
   },
-  updateSelectionInterface: function() {
+  updateSelectionInterface() {
     this.options.selectionInterface.setActiveSearchResults(
       this.model.reduce(function(results, result) {
         results.push(result)
@@ -70,19 +70,19 @@ module.exports = Marionette.ItemView.extend({
       }, [])
     )
   },
-  previousServerPage: function() {
+  previousServerPage() {
     this.getQuery().getPreviousServerPage()
   },
-  nextServerPage: function() {
+  nextServerPage() {
     this.getQuery().getNextServerPage()
   },
-  onRender: function() {
+  onRender() {
     this.updateSelectionInterface()
   },
-  serializeData: function() {
+  serializeData() {
     return {}
   },
-  getQuery: function() {
+  getQuery() {
     return this.options.selectionInterface.getCurrentQuery()
   },
 })

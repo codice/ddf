@@ -21,7 +21,7 @@ const PropertyCollectionView = require('../property/property.collection.view.js'
 const properties = require('../../js/properties.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('ingest-editor'),
   events: {
     'click .ingest-editor-clear': 'clear',
@@ -29,7 +29,7 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     editorProperties: '.ingest-editor-properties',
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.editorProperties.show(
       PropertyCollectionView.generateFilteredPropertyCollectionView(
         properties.editorAttributes,
@@ -42,18 +42,18 @@ module.exports = Marionette.LayoutView.extend({
     this.editorProperties.currentView.$el.addClass('is-list')
     this.editorProperties.currentView.turnOnEditing()
   },
-  clear: function() {
+  clear() {
     this.editorProperties.currentView.revert()
     this.editorProperties.currentView.hideRequiredWarnings()
   },
-  getPropertyCollectionView: function() {
+  getPropertyCollectionView() {
     return this.editorProperties.currentView
   },
   /*
         Return a map of attributes to their corresponding value arrays. Blank values are
         filtered, and only attributes with at least one non-blank value are returned.
      */
-  getAttributeOverrides: function() {
+  getAttributeOverrides() {
     return _.chain(
       this.editorProperties.currentView.toPropertyJSON().properties
     )

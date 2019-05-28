@@ -32,15 +32,15 @@ eventsHash[listItemClickEvent] = 'handleListItemClick'
 let ListSelectingView = ListItemCollectionView.extend({
   className: 'is-list-select composed-menu',
   events: eventsHash,
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.handleValue()
   },
-  handleListItemClick: function(event) {
+  handleListItemClick(event) {
     this.model.set('value', $(event.currentTarget).attr('data-listid'))
     this.handleValue()
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  handleValue: function() {
+  handleValue() {
     const listId = this.model.get('value')
     this.$el.find(namespace + 'list-item').removeClass('is-selected')
     if (listId) {
@@ -53,18 +53,18 @@ let ListSelectingView = ListItemCollectionView.extend({
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('list-select'),
-  template: template,
+  template,
   className: 'composed-menu',
   regions: {
     listCollection: '> .list-collection',
     listCreate: '> .list-create',
   },
-  initialize: function() {},
-  onBeforeShow: function() {
+  initialize() {},
+  onBeforeShow() {
     this.showListCollection()
     this.setupCreateList()
   },
-  setupCreateList: function() {
+  setupCreateList() {
     this.listCreate.show(
       PopoutView.createSimpleDropdown({
         componentToShow: ListCreate,
@@ -77,7 +77,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  showListCollection: function() {
+  showListCollection() {
     this.listCollection.show(
       new ListSelectingView({
         model: this.model,

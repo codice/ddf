@@ -26,7 +26,7 @@ _.extend(Marionette.Region.prototype, {
   // the old view being destroyed on show.
   // The `forceShow` option can be used to force a view to be
   // re-rendered if it's already shown in the region.
-  show: function(view, options) {
+  show(view, options) {
     if (!this._ensureElement()) {
       return
     }
@@ -143,7 +143,7 @@ _.extend(Marionette.Region.prototype, {
   },
 
   // Replace the region's DOM element with the view's DOM element.
-  _replaceEl: function(view) {
+  _replaceEl(view) {
     // empty el so we don't save any non-destroyed views
     this.$el.contents().detach()
 
@@ -158,7 +158,7 @@ _.extend(Marionette.Region.prototype, {
   },
 
   // Restore the region's element in the DOM.
-  _restoreEl: function() {
+  _restoreEl() {
     if (!this.currentView) {
       return
     }
@@ -176,7 +176,7 @@ _.extend(Marionette.Region.prototype, {
 
   // Override this method to change how the new view is
   // appended to the `$el` that the region is managing
-  attachHtml: function(view, shouldReplace) {
+  attachHtml(view, shouldReplace) {
     if (shouldReplace) {
       // replace the region's node with the view's node
       this._replaceEl(view)
@@ -190,7 +190,7 @@ _.extend(Marionette.Region.prototype, {
 
   // Destroy the current view, if there is one. If there is no
   // current view, it does nothing and returns immediately.
-  empty: function(options) {
+  empty(options) {
     const view = this.currentView
 
     const emptyOptions = options || {}

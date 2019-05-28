@@ -25,7 +25,7 @@ const announcement = require('../announcement/index.jsx')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('annotation'),
-  template: template,
+  template,
   regions: {
     annotationContent: '> .annotation-content',
   },
@@ -36,11 +36,11 @@ module.exports = Marionette.LayoutView.extend({
     'click .footer-save': 'handleEdit',
     'click .footer-delete': 'handleDelete',
   },
-  initialize: function(options) {
+  initialize(options) {
     this._useremail = userInstance.get('user').get('email')
     this._parent = options.parent
   },
-  handleDelete: function() {
+  handleDelete() {
     LoadingCompanionView.beginLoading(this)
     $.ajax({
       url: './internal/annotations/' + this.model.id,
@@ -58,7 +58,7 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  handleDeleteResponse: function(response) {
+  handleDeleteResponse(response) {
     if (response.responseType === 'success') {
       this.model.collection.remove(this.model)
       announcement.announce({
@@ -74,7 +74,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     }
   },
-  handleCancel: function() {
+  handleCancel() {
     if (this.$el.hasClass('is-editing')) {
       this.turnOffEditing()
     }
@@ -82,48 +82,48 @@ module.exports = Marionette.LayoutView.extend({
       this.turnOffDeleting()
     }
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.showannotationContent()
     this.turnOffEditing()
     this.canModify()
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.turnOffDeleting()
     this.annotationContent.currentView.turnOnEditing()
     this.$el.toggleClass('is-editing', true)
   },
-  turnOnDeleting: function() {
+  turnOnDeleting() {
     this.turnOffEditing()
     this.$el.toggleClass('is-deleting', true)
   },
-  turnOffEditing: function() {
+  turnOffEditing() {
     this.annotationContent.currentView.turnOffEditing()
     this.$el.toggleClass('is-editing', false)
   },
-  toggleEditing: function() {
+  toggleEditing() {
     if (this.$el.hasClass('is-editing')) {
       this.turnOffEditing()
     } else {
       this.turnOnEditing()
     }
   },
-  canModify: function() {
+  canModify() {
     this.$el.toggleClass(
       'is-modifiable',
       this._useremail === this.model.attributes.owner
     )
   },
-  toggleDeleting: function() {
+  toggleDeleting() {
     if (this.$el.hasClass('is-deleting')) {
       this.turnOffDeleting()
     } else {
       this.turnOnDeleting()
     }
   },
-  turnOffDeleting: function() {
+  turnOffDeleting() {
     this.$el.toggleClass('is-deleting', false)
   },
-  handleEdit: function() {
+  handleEdit() {
     const requestData = {}
     requestData.note = this.annotationContent.currentView.model.get('value')[0]
     LoadingCompanionView.beginLoading(this)
@@ -146,7 +146,7 @@ module.exports = Marionette.LayoutView.extend({
     LoadingCompanionView.endLoading(this)
     this.turnOffEditing()
   },
-  handleEditResponse: function(response) {
+  handleEditResponse(response) {
     if (response.responseType === 'success') {
       const annotation = JSON.parse(response.response)
       this.model.attributes.annotation = annotation.note
@@ -165,7 +165,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     }
   },
-  showannotationContent: function() {
+  showannotationContent() {
     this.annotationContent.show(
       new PropertyView({
         model: new Property({

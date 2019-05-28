@@ -92,19 +92,19 @@ properties.basicSearchTemporalSelectionDefault.forEach(proposedType => {
 })
 
 module.exports = new (Backbone.Model.extend({
-  initialize: function() {
+  initialize() {
     this.updateSortedMetacardTypes()
     this.getMetacardTypes()
     this.getDatatypeEnum()
   },
-  isHiddenTypeExceptThumbnail: function(id) {
+  isHiddenTypeExceptThumbnail(id) {
     if (id === 'thumbnail') {
       return false
     } else {
       return this.isHiddenType(id)
     }
   },
-  isHiddenType: function(id) {
+  isHiddenType(id) {
     return (
       this.metacardTypes[id] === undefined ||
       this.metacardTypes[id].type === 'XML' ||
@@ -112,14 +112,14 @@ module.exports = new (Backbone.Model.extend({
       this.metacardTypes[id].type === 'OBJECT'
     )
   },
-  getDatatypeEnum: function() {
+  getDatatypeEnum() {
     $.get('./internal/enumerations/attribute/datatype').then(
       function(response) {
         _.extend(this.enums, response)
       }.bind(this)
     )
   },
-  getEnumForMetacardDefinition: function(metacardDefinition) {
+  getEnumForMetacardDefinition(metacardDefinition) {
     $.get('./internal/enumerations/metacardtype/' + metacardDefinition).then(
       function(response) {
         _.extend(
@@ -129,7 +129,7 @@ module.exports = new (Backbone.Model.extend({
       }.bind(this)
     )
   },
-  addMetacardDefinition: function(metacardDefinitionName, metacardDefinition) {
+  addMetacardDefinition(metacardDefinitionName, metacardDefinition) {
     if (
       Object.keys(this.metacardDefinitions).indexOf(metacardDefinitionName) ===
       -1
@@ -155,7 +155,7 @@ module.exports = new (Backbone.Model.extend({
     }
     return false
   },
-  addMetacardDefinitions: function(metacardDefinitions) {
+  addMetacardDefinitions(metacardDefinitions) {
     let updated = false
     for (const metacardDefinition in metacardDefinitions) {
       if (metacardDefinitions.hasOwnProperty(metacardDefinition)) {
@@ -170,14 +170,14 @@ module.exports = new (Backbone.Model.extend({
       this.updateSortedMetacardTypes()
     }
   },
-  getMetacardTypes: function() {
+  getMetacardTypes() {
     $.get('./internal/metacardtype').then(
       function(metacardDefinitions) {
         this.addMetacardDefinitions(metacardDefinitions)
       }.bind(this)
     )
   },
-  attributeComparator: function(a, b) {
+  attributeComparator(a, b) {
     const attrToCompareA = this.getLabel(a).toLowerCase()
     const attrToCompareB = this.getLabel(b).toLowerCase()
     if (attrToCompareA < attrToCompareB) {
@@ -188,7 +188,7 @@ module.exports = new (Backbone.Model.extend({
     }
     return 0
   },
-  sortMetacardTypes: function(metacardTypes) {
+  sortMetacardTypes(metacardTypes) {
     return metacardTypes.sort(function(a, b) {
       const attrToCompareA = (a.alias || a.id).toLowerCase()
       const attrToCompareB = (b.alias || b.id).toLowerCase()
@@ -201,7 +201,7 @@ module.exports = new (Backbone.Model.extend({
       return 0
     })
   },
-  updateSortedMetacardTypes: function() {
+  updateSortedMetacardTypes() {
     this.sortedMetacardTypes = []
     for (const propertyType in this.metacardTypes) {
       if (this.metacardTypes.hasOwnProperty(propertyType)) {
@@ -210,11 +210,11 @@ module.exports = new (Backbone.Model.extend({
     }
     this.sortMetacardTypes(this.sortedMetacardTypes)
   },
-  getLabel: function(id) {
+  getLabel(id) {
     const definition = this.metacardTypes[id]
     return definition ? definition.alias || id : id
   },
-  getMetacardStartingTypes: function() {
+  getMetacardStartingTypes() {
     return metacardStartingTypes
   },
   metacardDefinitions: [],

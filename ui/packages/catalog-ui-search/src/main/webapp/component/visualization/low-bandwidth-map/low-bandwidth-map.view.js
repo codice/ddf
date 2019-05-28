@@ -23,7 +23,7 @@ const router = require('../../router/router.js')
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('low-bandwidth-map'),
-  template: template,
+  template,
   regions: {
     mapContainer: ' .map-container',
   },
@@ -33,19 +33,19 @@ module.exports = Marionette.LayoutView.extend({
     'click .low-bandwidth-button-close': 'closeMap',
   },
 
-  initialize: function(options) {
+  initialize(options) {
     this.options = _.extend({}, options, {
       lowBandwidth: router.get('lowBandwidth'),
     })
   },
 
-  onRender: function() {
+  onRender() {
     if (!this.options.lowBandwidth) {
       this.continueLoading()
     }
   },
 
-  continueLoading: function() {
+  continueLoading() {
     this.$el.find('.low-bandwidth-confirmation').addClass('is-hidden')
     if (this.options.desiredContainer === 'cesium') {
       this.mapContainer.show(new CombinedMapView(this.options))
@@ -54,7 +54,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
 
-  closeMap: function() {
+  closeMap() {
     this.options.container.close()
   },
 })

@@ -61,7 +61,7 @@ module.exports = Marionette.LayoutView.extend({
         break
     }
   },
-  initialize: function() {
+  initialize() {
     this.debounceUpdateSelectionInterface()
     this.selectionInterface = new SelectionInterfaceModel()
     this.listenTo(
@@ -85,35 +85,35 @@ module.exports = Marionette.LayoutView.extend({
       this.updateSelectionInterface
     )
   },
-  debounceUpdateSelectionInterface: function() {
+  debounceUpdateSelectionInterface() {
     this.updateSelectionInterface = _.debounce(
       this.updateSelectionInterface,
       200,
       { leading: false, trailing: true }
     )
   },
-  updateSelectionInterface: function() {
+  updateSelectionInterface() {
     this.options.selectionInterface.clearSelectedResults()
     this.options.selectionInterface.addSelectedResult(
       this.selectionInterface.getSelectedResults().models
     )
   },
-  handleResultsChange: function() {
+  handleResultsChange() {
     this.$el.toggleClass(
       'has-results',
       this.options.selectionInterface.getActiveSearchResults().length > 0
     )
   },
-  handleSelectionChange: function() {
+  handleSelectionChange() {
     this.$el.toggleClass(
       'has-selection',
       this.options.selectionInterface.getSelectedResults().length > 0
     )
   },
-  triggerClick: function() {
+  triggerClick() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  triggerHistogram: function() {
+  triggerHistogram() {
     this.triggerClick()
     lightboxInstance.model.updateTitle('Histogram')
     lightboxInstance.model.open()
@@ -123,7 +123,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  triggerHistogramSelection: function() {
+  triggerHistogramSelection() {
     this.triggerClick()
     this.stopListening(
       this.selectionInterface.getSelectedResults(),
@@ -146,7 +146,7 @@ module.exports = Marionette.LayoutView.extend({
       this.updateSelectionInterface
     )
   },
-  triggerViewDetailsSelection: function() {
+  triggerViewDetailsSelection() {
     this.triggerClick()
     lightboxInstance.model.updateTitle('Inspector')
     lightboxInstance.model.open()
@@ -156,7 +156,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  triggerViewDetails: function() {
+  triggerViewDetails() {
     this.triggerClick()
     this.stopListening(
       this.selectionInterface.getSelectedResults(),
@@ -176,7 +176,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  onRender: function() {
+  onRender() {
     this.repositionDropdown()
     this.handleTarget()
     this.handleSelectionChange()
@@ -184,25 +184,25 @@ module.exports = Marionette.LayoutView.extend({
     this.keepHoverMetacardAround()
     this.handleOffMap()
   },
-  handleOffMap: function() {
+  handleOffMap() {
     this.$el.toggleClass('is-off-map', this.options.mapModel.isOffMap())
   },
-  keepHoverMetacardAround: function() {
+  keepHoverMetacardAround() {
     this.previousHoverModel =
       this.options.mapModel.get('targetMetacard') || this.previousHoverModel // save in case they hover elsewhere and it's lost, then the user clicks view details
   },
-  handleTarget: function() {
+  handleTarget() {
     this.$el.toggleClass(
       'has-target',
       this.options.mapModel.get('target') !== undefined
     )
   },
-  serializeData: function() {
+  serializeData() {
     const mapModelJSON = this.options.mapModel.toJSON()
     mapModelJSON.selectionCount = this.options.selectionInterface.getSelectedResults().length
     return mapModelJSON
   },
-  repositionDropdown: function() {
+  repositionDropdown() {
     this.$el.trigger('repositionDropdown.' + CustomElements.getNamespace())
   },
 })

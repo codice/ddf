@@ -25,7 +25,7 @@ require('../../behaviors/navigation.behavior.js')
 
 module.exports = Marionette.LayoutView.extend(
   {
-    template: template,
+    template,
     tagName: CustomElements.register('dropdown-companion'),
     regions: {
       componentToShow: '.dropdown-companion-component',
@@ -38,10 +38,10 @@ module.exports = Marionette.LayoutView.extend(
     attributes: {
       tabindex: 0,
     },
-    behaviors: function() {
+    behaviors() {
       return this.options.linkedView.options.dropdownCompanionBehaviors
     },
-    initialize: function() {
+    initialize() {
       this.listenTo(
         this.options.linkedView.model,
         'change:isOpen',
@@ -50,19 +50,19 @@ module.exports = Marionette.LayoutView.extend(
       this.listenForRoute()
       this.listenForClose()
     },
-    hasFiltering: function() {
+    hasFiltering() {
       return Boolean(
         this.options.linkedView.hasFiltering ||
           this.options.linkedView.options.hasFiltering
       )
     },
-    isMultiSelect: function() {
+    isMultiSelect() {
       return Boolean(
         this.options.linkedView.isMultiSelect ||
           this.options.linkedView.options.isMultiSelect
       )
     },
-    updateWidth: function() {
+    updateWidth() {
       const clientRect = this.options.linkedView
         .getCenteringElement()
         .getBoundingClientRect()
@@ -78,7 +78,7 @@ module.exports = Marionette.LayoutView.extend(
         )
       }
     },
-    updateFilterMaxHeight: function(bottomRoom) {
+    updateFilterMaxHeight(bottomRoom) {
       let extraRoom = '0rem'
       if (this.isMultiSelect()) {
         extraRoom = '2.75rem'
@@ -94,17 +94,17 @@ module.exports = Marionette.LayoutView.extend(
         )
       }
     },
-    updatePosition: function() {
+    updatePosition() {
       const bottomRoom = DropdownBehaviorUtility.updatePosition(
         this.$el,
         this.options.linkedView.getCenteringElement()
       )
       this.updateFilterMaxHeight(bottomRoom)
     },
-    handleTail: function() {
+    handleTail() {
       this.$el.toggleClass('has-tail', this.options.linkedView.hasTail)
     },
-    handleOpenChange: function() {
+    handleOpenChange() {
       const isOpen = this.options.linkedView.model.get('isOpen')
       if (isOpen) {
         this.onOpen()
@@ -112,7 +112,7 @@ module.exports = Marionette.LayoutView.extend(
         this.onClose()
       }
     },
-    onOpen: function() {
+    onOpen() {
       if (!this.el.parentElement) {
         $('body').append(this.el)
         this.render()
@@ -142,7 +142,7 @@ module.exports = Marionette.LayoutView.extend(
       this.handleFiltering()
       this.handleToggleAll()
     },
-    focusOnFilter: function() {
+    focusOnFilter() {
       if (this.hasFiltering()) {
         Common.queueExecution(() => {
           this.$el.children('input').focus()
@@ -157,16 +157,16 @@ module.exports = Marionette.LayoutView.extend(
         }
       }
     },
-    handleFiltering: function() {
+    handleFiltering() {
       this.$el.toggleClass('has-filtering', this.hasFiltering())
     },
-    handleToggleAll: function() {
+    handleToggleAll() {
       this.$el.toggleClass('is-multiselect', this.isMultiSelect())
     },
-    triggerToggleAll: function(event) {
+    triggerToggleAll(event) {
       this.componentToShow.currentView.handleToggleAll()
     },
-    handleFilterUpdate: function(event) {
+    handleFilterUpdate(event) {
       if (this.isDestroyed) {
         return
       }
@@ -194,7 +194,7 @@ module.exports = Marionette.LayoutView.extend(
           break
       }
     },
-    handleSpecialKeys: function(event) {
+    handleSpecialKeys(event) {
       if (this.isDestroyed) {
         return
       }
@@ -240,21 +240,21 @@ module.exports = Marionette.LayoutView.extend(
           }
       }
     },
-    onClose: function() {
+    onClose() {
       if (this.el.parentElement) {
         this.$el.removeClass('is-open')
       }
       this.stopListeningForOutsideClick()
       this.stopListeningForResize()
     },
-    close: function() {
+    close() {
       this.options.linkedView.model.close()
     },
-    handleEscape: function() {
+    handleEscape() {
       this.close()
       this.options.linkedView.$el.focus()
     },
-    listenForReposition: function() {
+    listenForReposition() {
       this.$el.on(
         'repositionDropdown.' + CustomElements.getNamespace(),
         function(e) {
@@ -263,10 +263,10 @@ module.exports = Marionette.LayoutView.extend(
         }.bind(this)
       )
     },
-    stopListeningForReposition: function() {
+    stopListeningForReposition() {
       this.$el.off('repositionDropdown.' + CustomElements.getNamespace())
     },
-    listenForClose: function() {
+    listenForClose() {
       this.$el.on(
         'closeDropdown.' + CustomElements.getNamespace(),
         function(e) {
@@ -278,10 +278,10 @@ module.exports = Marionette.LayoutView.extend(
         }.bind(this)
       )
     },
-    stopListeningForClose: function() {
+    stopListeningForClose() {
       this.$el.off('closeDropdown.' + CustomElements.getNamespace())
     },
-    listenForOutsideClick: function() {
+    listenForOutsideClick() {
       $('body').on(
         'mousedown.' + this.cid,
         function(event) {
@@ -301,16 +301,16 @@ module.exports = Marionette.LayoutView.extend(
         }.bind(this)
       )
     },
-    stopListeningForOutsideClick: function() {
+    stopListeningForOutsideClick() {
       $('body').off('mousedown.' + this.cid)
     },
-    listenForRoute: function() {
+    listenForRoute() {
       this.listenTo(router, 'change', this.handleRouteChange)
     },
-    handleRouteChange: function() {
+    handleRouteChange() {
       this.close()
     },
-    listenForResize: function() {
+    listenForResize() {
       $(window).on(
         'resize.' + this.cid,
         _.throttle(
@@ -322,10 +322,10 @@ module.exports = Marionette.LayoutView.extend(
         )
       )
     },
-    stopListeningForResize: function() {
+    stopListeningForResize() {
       $(window).off('resize.' + this.cid)
     },
-    onDestroy: function() {
+    onDestroy() {
       this.stopListeningForClose()
       this.stopListeningForOutsideClick()
       this.stopListeningForResize()
@@ -333,9 +333,9 @@ module.exports = Marionette.LayoutView.extend(
     },
   },
   {
-    getNewCompanionView: function(linkedView) {
+    getNewCompanionView(linkedView) {
       return new this({
-        linkedView: linkedView,
+        linkedView,
       })
     },
   }

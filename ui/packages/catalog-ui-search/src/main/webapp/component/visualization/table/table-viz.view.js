@@ -81,7 +81,7 @@ module.exports = Marionette.LayoutView.extend({
       replaceElement: true,
     },
   },
-  initialize: function(options) {
+  initialize(options) {
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }
@@ -91,13 +91,13 @@ module.exports = Marionette.LayoutView.extend({
       this.handleEmpty
     )
   },
-  handleEmpty: function() {
+  handleEmpty() {
     this.$el.toggleClass(
       'is-empty',
       this.options.selectionInterface.getActiveSearchResults().length === 0
     )
   },
-  onRender: function() {
+  onRender() {
     this.handleEmpty()
     this.table.show(
       new ResultsTableView({
@@ -105,7 +105,7 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  startRearrange: function() {
+  startRearrange() {
     this.$el.toggleClass('is-rearranging')
     this.tableRearrange.show(
       new TableRearrange({
@@ -116,7 +116,7 @@ module.exports = Marionette.LayoutView.extend({
       }
     )
   },
-  startVisibility: function() {
+  startVisibility() {
     this.$el.toggleClass('is-visibilitying')
     this.tableVisibility.show(
       new TableVisibility({

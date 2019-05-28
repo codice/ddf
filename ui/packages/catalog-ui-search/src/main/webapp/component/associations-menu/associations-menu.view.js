@@ -26,13 +26,13 @@ let filterType = ['all']
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('associations-menu'),
-  template: template,
+  template,
   regions: {
     filterMenu: '> .menu-filter',
     displayMenu: '> .menu-display',
   },
-  initialize: function() {},
-  onBeforeShow: function() {
+  initialize() {},
+  onBeforeShow() {
     this.filterMenu.show(
       FilterDropdownView.createSimpleDropdown({
         list: [
@@ -78,16 +78,16 @@ module.exports = Marionette.LayoutView.extend({
       this.updateDisplayType
     )
   },
-  updateFilterType: function() {
+  updateFilterType() {
     filterType = this.getFilterMenuModel().get('value')
   },
-  updateDisplayType: function() {
+  updateDisplayType() {
     displayType = this.getDisplayMenuModel().get('value')
   },
-  getFilterMenuModel: function() {
+  getFilterMenuModel() {
     return this.filterMenu.currentView.model
   },
-  getDisplayMenuModel: function() {
+  getDisplayMenuModel() {
     return this.displayMenu.currentView.model
   },
 })

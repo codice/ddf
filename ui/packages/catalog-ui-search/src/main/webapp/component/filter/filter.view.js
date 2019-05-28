@@ -39,7 +39,7 @@ import ExtensionPoints from '../../extension-points'
 
 const generatePropertyJSON = (value, type, comparator) => {
   const propertyJSON = _.extend({}, metacardDefinitions.metacardTypes[type], {
-    value: value,
+    value,
     multivalued: false,
     enumFiltering: true,
     enumCustom: true,
@@ -138,7 +138,7 @@ the provided value."
     )
   },
   tagName: CustomElements.register('filter'),
-  attributes: function() {
+  attributes() {
     return { 'data-id': this.model.cid }
   },
   events: {
@@ -151,13 +151,13 @@ the provided value."
     filterComparator: '.filter-comparator',
     filterInput: '.filter-input',
   },
-  initialize: function() {
+  initialize() {
     this.listenTo(this.model, 'change:type', this.updateTypeDropdown)
     this.listenTo(this.model, 'change:type', this.determineInput)
     this.listenTo(this.model, 'change:value', this.determineInput)
     this.listenTo(this.model, 'change:comparator', this.determineInput)
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.$el.toggleClass('is-sortable', this.options.isSortable || true)
     this.filterAttribute.show(
       DropdownView.createSimpleDropdown({
@@ -197,7 +197,7 @@ the provided value."
     )
     this.determineInput()
   },
-  transformValue: function(value, comparator) {
+  transformValue(value, comparator) {
     switch (comparator) {
       case 'NEAR':
         if (value[0].constructor !== Object) {
@@ -223,7 +223,7 @@ the provided value."
     return value
   },
   // With the relative date comparator being the same as =, we need to try and differentiate them this way
-  updateTypeDropdown: function() {
+  updateTypeDropdown() {
     const attribute = this.model.get('type')
     if (attribute === 'anyGeo') {
       this.model.set('comparator', [geometryComparators[1]])
@@ -232,7 +232,7 @@ the provided value."
     }
     this.filterAttribute.currentView.model.set('value', [attribute])
   },
-  handleAttributeUpdate: function() {
+  handleAttributeUpdate() {
     const previousAttributeType =
       metacardDefinitions.metacardTypes[this.model.get('type')].type
     this.model.set(
@@ -245,16 +245,16 @@ the provided value."
       this.model.set('value', [''])
     }
   },
-  delete: function() {
+  delete() {
     this.model.destroy()
   },
-  toggleLocationClass: function(toggle) {
+  toggleLocationClass(toggle) {
     this.$el.toggleClass('is-location', toggle)
   },
-  toggleDateClass: function(toggle) {
+  toggleDateClass(toggle) {
     this.$el.toggleClass('is-date', toggle)
   },
-  setDefaultComparator: function(propertyJSON) {
+  setDefaultComparator(propertyJSON) {
     this.toggleLocationClass(false)
     this.toggleDateClass(false)
     const currentComparator = this.model.get('comparator')
@@ -292,7 +292,7 @@ the provided value."
         break
     }
   },
-  updateValueFromInput: function() {
+  updateValueFromInput() {
     if (this.filterInput.currentView) {
       const value = Common.duplicate(
         this.filterInput.currentView.model.getValue()
@@ -301,7 +301,7 @@ the provided value."
       this.model.set({ value, isValid }, { silent: true })
     }
   },
-  determineInput: function() {
+  determineInput() {
     this.updateValueFromInput()
     let value = Common.duplicate(this.model.get('value'))
     const currentComparator = this.model.get('comparator')
@@ -330,7 +330,7 @@ the provided value."
     this.listenTo(model, 'change:value', this.updateValueFromInput)
     this.filterInput.show(
       new ViewToUse({
-        model: model,
+        model,
       })
     )
 
@@ -346,7 +346,7 @@ the provided value."
     )
     this.setDefaultComparator(propertyJSON)
   },
-  getValue: function() {
+  getValue() {
     let text = '('
     text += this.model.get('type') + ' '
     text += comparatorToCQL()[this.model.get('comparator')] + ' '
@@ -354,10 +354,10 @@ the provided value."
     text += ')'
     return text
   },
-  onDestroy: function() {
+  onDestroy() {
     this._filterDropdownModel.destroy()
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.$el.addClass('is-editing')
     this.filterAttribute.currentView.turnOnEditing()
     this.filterComparator.currentView.turnOnEditing()
@@ -368,7 +368,7 @@ the provided value."
         : this.filterInput.currentView.model
     property.set('isEditing', true)
   },
-  turnOffEditing: function() {
+  turnOffEditing() {
     this.$el.removeClass('is-editing')
     this.filterAttribute.currentView.turnOffEditing()
     this.filterComparator.currentView.turnOffEditing()

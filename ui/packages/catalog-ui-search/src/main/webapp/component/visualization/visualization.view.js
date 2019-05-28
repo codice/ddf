@@ -36,15 +36,15 @@ function getPreferences() {
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('visualization'),
-  template: template,
+  template,
   regions: {
     activeVisualization: '.visualization-container',
   },
   events: {},
-  initialize: function() {
+  initialize() {
     this.listenTo(getPreferences(), 'change:visualization', this.onBeforeShow)
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     const id = getActiveVisualization()
     const viz = ExtensionPoints.visualizations.find(viz => viz.id === id)
     if (viz !== undefined) {
@@ -55,28 +55,28 @@ module.exports = Marionette.LayoutView.extend({
       )
     }
   },
-  showOpenlayers: function() {
+  showOpenlayers() {
     this.activeVisualization.show(
       new OpenlayersView({
         selectionInterface: this.options.selectionInterface,
       })
     )
   },
-  showCesium: function() {
+  showCesium() {
     this.activeVisualization.show(
       new CombinedMapView({
         selectionInterface: this.options.selectionInterface,
       })
     )
   },
-  showHistogram: function() {
+  showHistogram() {
     this.activeVisualization.show(
       new HistogramView({
         selectionInterface: this.options.selectionInterface,
       })
     )
   },
-  showTable: function() {
+  showTable() {
     this.activeVisualization.show(
       new TableView({
         selectionInterface: this.options.selectionInterface,

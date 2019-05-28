@@ -19,9 +19,9 @@ const CustomElements = require('../../js/CustomElements.js')
 const properties = require('../../js/properties.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('workspaces-menu'),
-  serializeData: function() {
+  serializeData() {
     return properties
   },
 })

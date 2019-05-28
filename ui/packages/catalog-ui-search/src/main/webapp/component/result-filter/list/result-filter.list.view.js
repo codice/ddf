@@ -18,14 +18,14 @@ const CustomElements = require('../../../js/CustomElements.js')
 
 module.exports = ResultFilter.extend({
   className: 'is-list',
-  getResultFilter: function() {
+  getResultFilter() {
     return this.model.get('value')
   },
-  removeFilter: function() {
+  removeFilter() {
     this.model.set('value', '')
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  saveFilter: function() {
+  saveFilter() {
     this.model.set('value', this.getFilter())
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },

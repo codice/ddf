@@ -82,11 +82,11 @@ function calculateDetailsAttributes() {
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('hide-attribute'),
-  template: template,
+  template,
   regions: {
     attributeSelector: '> .attribute-selector',
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     const attributes = calculateAvailableAttributesFromSelection(
       this.options.selectionInterface
     )
@@ -122,7 +122,7 @@ module.exports = Marionette.LayoutView.extend({
       this.handleSave
     )
   },
-  handleSave: function() {
+  handleSave() {
     const prefs = user.get('user').get('preferences')
     prefs.set(
       'inspector-detailsHidden',

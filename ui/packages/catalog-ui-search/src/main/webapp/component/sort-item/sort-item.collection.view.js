@@ -20,7 +20,7 @@ const queryItemView = require('./sort-item.view')
 module.exports = Marionette.CollectionView.extend({
   childView: queryItemView,
   tagName: CustomElements.register('sort-item-collection'),
-  initialize: function(options) {
+  initialize(options) {
     if (this.collection.length === 0) {
       this.collection.add({
         attribute: 'title',
@@ -28,7 +28,7 @@ module.exports = Marionette.CollectionView.extend({
       })
     }
   },
-  childViewOptions: function(model, index) {
+  childViewOptions(model, index) {
     return {
       collection: this.collection,
       childIndex: index,

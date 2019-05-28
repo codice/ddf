@@ -97,7 +97,7 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     graphInspector: '> .graph-inspector > .inspector-association',
   },
-  template: template,
+  template,
   tagName: CustomElements.register('associations-graph'),
   events: {
     'click .inspector-action > .action-add': 'addEdge',
@@ -105,7 +105,7 @@ module.exports = Marionette.LayoutView.extend({
     'mouseup > .graph-network': 'handleMouseup',
     'keyup > .graph-network': 'handleKeyup',
   },
-  handleKeyup: function(e) {
+  handleKeyup(e) {
     if (
       this.$el.hasClass('is-editing') &&
       this.$el.hasClass('has-association-selected')
@@ -117,7 +117,7 @@ module.exports = Marionette.LayoutView.extend({
       }
     }
   },
-  handleMouseup: function() {
+  handleMouseup() {
     this.$el.toggleClass('has-association-selected', false)
     handleSelection(this._childNetwork)
     handleSelection(this._parentNetwork)
@@ -125,10 +125,10 @@ module.exports = Marionette.LayoutView.extend({
   },
   _parentNetwork: undefined,
   _childNetwork: undefined,
-  initialize: function(options) {
+  initialize(options) {
     this.setupListeners()
   },
-  setupListeners: function() {
+  setupListeners() {
     this.listenTo(
       this.collection,
       'reset add remove update change',
@@ -147,17 +147,17 @@ module.exports = Marionette.LayoutView.extend({
       }.bind(this)
     )
   },
-  onBeforeShow: function() {
+  onBeforeShow() {
     this.showGraphView()
     this.showGraphInspector()
   },
-  showGraphView: function() {
+  showGraphView() {
     this.showParentGraph()
     this.showChildGraph()
     this.handleSelection()
     this.$el.find('canvas').attr('tab-index', -1)
   },
-  handleFilter: function(filter) {
+  handleFilter(filter) {
     this.$el.toggleClass('filter-by-parent', filter === 'parent')
     this.$el.toggleClass('filter-by-child', filter === 'child')
     this.showGraphInspector()
@@ -168,14 +168,14 @@ module.exports = Marionette.LayoutView.extend({
       1000
     )
   },
-  handleSelection: function() {
+  handleSelection() {
     const graphInspector = this.graphInspector.currentView
     if (graphInspector) {
       handleSelection(this._parentNetwork, [graphInspector.model.cid])
       handleSelection(this._childNetwork, [graphInspector.model.cid])
     }
   },
-  showParentGraph: function() {
+  showParentGraph() {
     const currentMetacard = this.options.currentMetacard
     let nodes = determineNodes(this)
 
@@ -242,7 +242,7 @@ module.exports = Marionette.LayoutView.extend({
       this._parentNetwork.setData(data)
     }
   },
-  showChildGraph: function() {
+  showChildGraph() {
     const currentMetacard = this.options.currentMetacard
     let nodes = determineNodes(this)
 
@@ -309,7 +309,7 @@ module.exports = Marionette.LayoutView.extend({
       this._childNetwork.setData(data)
     }
   },
-  listenToNetwork: function(network) {
+  listenToNetwork(network) {
     network.on('selectEdge', this.handleEdgeSelection.bind(this))
     network.on('deselectEdge', this.showGraphInspector.bind(this))
     network.on('hoverEdge', this.handleHover.bind(this))
@@ -318,7 +318,7 @@ module.exports = Marionette.LayoutView.extend({
     network.on('blurNode', this.handleUnhover.bind(this))
     network.on('selectNode', this.handleNodeSelection.bind(this))
   },
-  handleNodeSelection: function(params) {
+  handleNodeSelection(params) {
     if (!this.$el.hasClass('is-editing')) {
       wreqr.vent.trigger('router:navigate', {
         fragment: 'metacards/' + params.nodes[0],
@@ -328,13 +328,13 @@ module.exports = Marionette.LayoutView.extend({
       })
     }
   },
-  handleHover: function() {
+  handleHover() {
     this.$el.find('> .graph-network').addClass('is-hovering')
   },
-  handleUnhover: function() {
+  handleUnhover() {
     this.$el.find('> .graph-network').removeClass('is-hovering')
   },
-  handleEdgeSelection: function(params) {
+  handleEdgeSelection(params) {
     if (params.edges[0]) {
       this.$el.toggleClass('has-association-selected', true)
       this.graphInspector.show(
@@ -348,11 +348,11 @@ module.exports = Marionette.LayoutView.extend({
       this.handleSelection()
     }
   },
-  fitGraph: function() {
+  fitGraph() {
     fitGraph(this._childNetwork)
     fitGraph(this._parentNetwork)
   },
-  showGraphInspector: function() {
+  showGraphInspector() {
     this.$el.toggleClass('has-association-selected', false)
     this.graphInspector.show(
       new AssociationView({
@@ -364,7 +364,7 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.handleSelection()
   },
-  addEdge: function() {
+  addEdge() {
     this.graphInspector.show(
       new AssociationView({
         model: new Association(),
@@ -376,17 +376,17 @@ module.exports = Marionette.LayoutView.extend({
     this.collection.add(this.graphInspector.currentView.model)
     this.$el.toggleClass('has-association-selected', true)
   },
-  removeSelectedEdge: function() {
+  removeSelectedEdge() {
     this.collection.remove(this.graphInspector.currentView.model)
     this.showGraphInspector()
   },
-  turnOnEditing: function() {
+  turnOnEditing() {
     this.$el.toggleClass('is-editing', true)
   },
-  turnOffEditing: function() {
+  turnOffEditing() {
     this.$el.toggleClass('is-editing', false)
   },
-  onDestroy: function() {
+  onDestroy() {
     if (this._parentNetwork) {
       this._parentNetwork.destroy()
     }

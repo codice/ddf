@@ -30,7 +30,7 @@ import {
 } from '../filter/comparators'
 
 module.exports = Marionette.ItemView.extend({
-  template: template,
+  template,
   tagName: CustomElements.register('filter-comparator'),
   className: 'is-action-list',
   modelEvents: {
@@ -40,22 +40,22 @@ module.exports = Marionette.ItemView.extend({
     'click .choice': 'handleChoice',
   },
   ui: {},
-  initialize: function() {},
-  onRender: function() {
+  initialize() {},
+  onRender() {
     this.handleValue()
   },
-  handleValue: function() {
+  handleValue() {
     this.$el.find('[data-value]').removeClass('is-selected')
     this.$el
       .find('[data-value="' + this.model.get('comparator') + '"]')
       .addClass('is-selected')
   },
-  handleChoice: function(e) {
+  handleChoice(e) {
     const value = $(e.currentTarget).attr('data-value')
     this.model.set('comparator', value)
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
-  serializeData: function() {
+  serializeData() {
     let comparators
     switch (metacardDefinitions.metacardTypes[this.model.get('type')].type) {
       case 'LOCATION':
