@@ -155,11 +155,11 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
    * will be updated on disk if necessary.
    */
   private void doHandleStore(ConfigurationContext context) throws IOException {
-    final String pid = context.getServicePid();
-    final File fileFromConfigAdmin = context.getConfigFile();
+    String pid = context.getServicePid();
+    File fileFromConfigAdmin = context.getConfigFile();
 
-    final CachedConfigData cachedConfigData = pidDataMap.get(pid);
-    final File fileFromCache = (cachedConfigData != null) ? cachedConfigData.getFelixFile() : null;
+    CachedConfigData cachedConfigData = pidDataMap.get(pid);
+    File fileFromCache = (cachedConfigData != null) ? cachedConfigData.getFelixFile() : null;
 
     if (fileFromCache == null && fileFromConfigAdmin == null) {
       // This config doesn't have an etc file, so we ignore this case (1)
@@ -167,26 +167,16 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       return;
     }
 
-    final String appropriatePid =
+    String appropriatePid =
         (context.getFactoryPid() == null) ? context.getServicePid() : context.getFactoryPid();
 
     if (fileFromCache == null) {
       // An etc config file was just dropped and we're seeing it for the first time (2)
-      final CachedConfigData createdConfigData = new CachedConfigData(context);
+      LOGGER.debug("Tracking pid {}", pid);
+      CachedConfigData createdConfigData = new CachedConfigData(context);
+      pidDataMap.put(pid, createdConfigData);
       processUpdate(
           appropriatePid, fileFromConfigAdmin, context.getSanitizedProperties(), createdConfigData);
-      if (fileFromConfigAdmin.exists()) {
-        LOGGER.debug(
-            "Tracking pid [{}] for installed configuration [{}]",
-            pid,
-            fileFromConfigAdmin.getAbsolutePath());
-        pidDataMap.put(pid, createdConfigData);
-      } else {
-        LOGGER.debug(
-            "Associated file [{}] for pid [{}] did not exist, will not track",
-            fileFromConfigAdmin.getAbsolutePath(),
-            pid);
-      }
       return;
     }
 
@@ -201,11 +191,9 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       }
       if (fileFromCache.exists()) {
         // The felix file prop was removed, which we can revert if the file exists (3)
-        // Should revert to URI form since Felix's ConfigInstaller uses that as a key
-        final String revertedFilename = fileFromCache.getAbsoluteFile().toURI().toString();
-        LOGGER.debug(
-            "{} has been illegally removed, reverting to [{}]", FELIX_FILENAME, revertedFilename);
-        context.setProperty(FELIX_FILENAME, revertedFilename);
+        LOGGER.info(
+            "{} has been illegally removed, reverting to [{}]", FELIX_FILENAME, fileFromCache);
+        context.setProperty(FELIX_FILENAME, fileFromCache.getAbsolutePath());
         processUpdate(
             appropriatePid, fileFromCache, context.getSanitizedProperties(), cachedConfigData);
         return;

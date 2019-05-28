@@ -15,7 +15,6 @@ package org.codice.felix.cm.file;
 
 import static java.lang.String.format;
 import static org.osgi.framework.Constants.SERVICE_PID;
-import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_BUNDLELOCATION;
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
 import java.io.File;
@@ -72,7 +71,6 @@ public class ConfigurationContextImpl implements ConfigurationContext {
           Arrays.asList(
               SERVICE_PID,
               SERVICE_FACTORYPID,
-              SERVICE_BUNDLELOCATION,
               FELIX_FILENAME,
               FELIX_NEW_CONFIG,
               SERVICE_FACTORY_PIDLIST,
@@ -103,14 +101,9 @@ public class ConfigurationContextImpl implements ConfigurationContext {
 
     Dictionary<String, Object> propsCopy = copyDictionary(props);
 
-    // No guarantee these are in the props dictionary so do not assign from the removal, just parse
-    // from the pid argument
+    // No guarantee these are in the props dictionary so do not assign from the removal
     propsCopy.remove(SERVICE_PID);
     propsCopy.remove(SERVICE_FACTORYPID);
-
-    // Props we don't need to keep around for any particular reason, but don't want in the sanitized
-    // data
-    propsCopy.remove(SERVICE_BUNDLELOCATION);
     propsCopy.remove(PROPERTY_REVISION);
 
     this.servicePid = pid;
@@ -172,7 +165,7 @@ public class ConfigurationContextImpl implements ConfigurationContext {
 
     ConfigurationContextImpl context = (ConfigurationContextImpl) o;
 
-    return Objects.equals(servicePid, context.servicePid);
+    return servicePid != null ? servicePid.equals(context.servicePid) : context.servicePid == null;
   }
 
   // Contexts can be used in a set

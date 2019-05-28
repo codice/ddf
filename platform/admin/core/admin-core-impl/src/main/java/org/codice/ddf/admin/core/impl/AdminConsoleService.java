@@ -88,8 +88,6 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
 
   private static final String ILLEGAL_PID_MESSAGE = "Argument pid cannot be null or empty";
 
-  private static final String ILLEGAL_TABLE_MESSAGE = "Argument configurationTable cannot be null";
-
   /**
    * Constructor for use in unit tests. Needed for testing listServices() and getService().
    *
@@ -384,37 +382,40 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       throw loggedException(ILLEGAL_PID_MESSAGE);
     }
     if (configurationTable == null) {
-      throw loggedException(ILLEGAL_TABLE_MESSAGE);
+      throw loggedException("Argument configurationTable cannot be null");
     }
 
-    final Configuration config = configurationAdmin.getConfiguration(pid, location);
+    Configuration config = configurationAdmin.getConfiguration(pid, location);
+
     if (isPermittedToViewService(config.getPid())) {
       final Metatype metatype = configurationAdminImpl.findMetatypeForConfig(config);
+      List<Map.Entry<String, Object>> configEntries = new ArrayList<>();
+
+      CollectionUtils.addAll(configEntries, configurationTable.entrySet().iterator());
+
       if (metatype == null) {
         throw loggedException("Could not find metatype for " + pid);
       }
-
-      final List<Map.Entry<String, Object>> configEntries = new ArrayList<>();
-      CollectionUtils.addAll(configEntries, configurationTable.entrySet().iterator());
+      // now we have to filter each property based on its cardinality
       CollectionUtils.transform(
           configEntries, new CardinalityTransformer(metatype.getAttributeDefinitions(), pid));
 
-      final Dictionary<String, Object> configProperties = config.getProperties();
-      final Dictionary<String, Object> newConfigProperties =
-          (configProperties != null) ? configProperties : new Hashtable<>();
+      Dictionary<String, Object> newConfigProperties = new Hashtable<>();
 
       // If the configuration entry is a password, and its updated configuration value is
       // "password", do not update the password.
       for (Map.Entry<String, Object> configEntry : configEntries) {
-        final String configEntryKey = configEntry.getKey();
+        String configEntryKey = configEntry.getKey();
         Object configEntryValue =
             sanitizeUIConfiguration(pid, configEntryKey, configEntry.getValue());
         if (configEntryValue.equals("password")) {
           for (Map<String, Object> metatypeProperties : metatype.getAttributeDefinitions()) {
             if (metatypeProperties.get("id").equals(configEntry.getKey())
-                && AttributeDefinition.PASSWORD == (Integer) metatypeProperties.get("type")
-                && configProperties != null) {
-              configEntryValue = configProperties.get(configEntryKey);
+                && AttributeDefinition.PASSWORD == (Integer) metatypeProperties.get("type")) {
+              Dictionary<String, Object> configProperties = config.getProperties();
+              if (configProperties != null) {
+                configEntryValue = configProperties.get(configEntryKey);
+              }
               break;
             }
           }
