@@ -45,9 +45,9 @@ IF "%COMMAND%"=="start" (
 
 
 IF "%COMMAND%"=="stop" (
-   SET /P STOP_KEY=<%STOPKEY_FILE%
+   IF EXIST %STOPKEY_FILE% SET /P STOP_KEY=<%STOPKEY_FILE%
    CALL %SOLR_EXEC% stop -p !solr.http.port!
-   DEL %STOPKEY_FILE%
+   IF EXIST %STOPKEY_FILE% DEL %STOPKEY_FILE%
 )
 
 EXIT /B
