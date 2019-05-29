@@ -22,12 +22,17 @@ For a development system:
 . Set the `JAVA_HOME` environment variable to the location where the JDK is installed.
 
 
-.*NIX Unlinking JAVA_HOME if Previously Set
-[WARNING]
+[NOTE]
 ====
-Unlink `JAVA_HOME` if it is already linked to a previous version of the JRE:
+Prior to installing ${branding}, ensure the system time is accurate to prevent federation issues.
+====
 
-`unlink JAVA_HOME`
+.*NIX Unset JAVA_HOME if Previously Set
+[NOTE]
+====
+Unset `JAVA_HOME` if it is already linked to a previous version of the JRE:
+
+`unset JAVA_HOME`
 ====
 
 If JDK was installed:
@@ -70,23 +75,19 @@ setx JAVA_HOME "<PATH_TO_JAVA><JAVA_VERSION>"
 setx PATH "%PATH%;%JAVA_HOME%\bin"
 ----
 +
-. Restart Terminal (shell) or Command Prompt.
-
-* Verify that the `JAVA_HOME` was set correctly.
-====
-
-====
-
+. Restart or open up a new Terminal (shell) or Command Prompt to verify `JAVA_HOME` was set correctly. It is not necessary to restart the system for the changes to take effect.
++
 .*NIX
 ----
 echo $JAVA_HOME
 ----
-
++
 .Windows
 ----
 echo %JAVA_HOME%
 ----
 ====
+
 
 If JRE was installed:
 ====
@@ -128,9 +129,17 @@ setx JRE_HOME "<PATH_TO_JAVA><JAVA_VERSION>"
 setx PATH "%PATH%;%JRE_HOME%\bin"
 ----
 +
-. Restart Terminal (shell) or Command Prompt.
-
-* Verify that the `JRE_HOME` was set correctly.
+. Restart or open up a new Terminal (shell) or Command Prompt to verify `JRE_HOME` was set correctly. It is not necessary to restart the system for the changes to take effect.
++
+.*NIX
+----
+echo $JRE_HOME
+----
++
+.Windows
+----
+echo %JRE_HOME%
+----
 ====
 
 .File Descriptor Limit on Linux

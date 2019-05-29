@@ -22,125 +22,8 @@ For security reasons, ${branding} cannot be started from a user's home directory
 ** This amount can be increased to support memory-intensive applications. See <<{managing-prefix}jvm_memory_configuration, Memory Considerations>>.
 
 .Java Requirements (Quick Install)
-Set up Java to run ${branding}.
 
-* For a runtime system:
-** Install https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html[Oracle JRE 8 x64] {external-link} or https://openjdk.java.net/install[OpenJDK 8 JRE] {external-link}
-* For a development system:
-** Install/Upgrade to Java 8 x64 http://www.oracle.com/technetwork/java/javase/downloads/index.html[J2SE 8 SDK] {external-link}
-*** The recommended version is http://www.oracle.com/technetwork/java/javase/8u60-relnotes-2620227.html[8u60] {external-link} or later.
-*** Java Version and Build numbers must contain only number values.
-* Microsoft Windows and Linux are supported. For more information about supported versions, see <<{managing-prefix}installation_prerequisites,Installation Prerequisites>>
-* https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html[JRE 8 x64] {external-link} or https://openjdk.java.net/install[OpenJDK 8 JRE] {external-link} must be installed.
-* If the JRE was installed, the `JRE_HOME` environment variable must be set to the location where the JRE is installed.
-* If the JDK was installed, the `JAVA_HOME` environment variable must be set to the location where the JDK is installed.
-
-.Setting JAVA_HOME variable (Replace `<JAVA_VERSION>` with the version and build number installed.)
-====
-
-. Determine Java Installation Directory (This varies between operating system versions).
-
-.Find Java Path in Windows
-----
-for %i in (java.exe) do @echo. %~$PATH:i
-----
-
-.Find Java Path in *nix
-----
-which java
-----
-
-. Copy path to Java installation. (example: `/usr/java/<JAVA_VERSION>`)
-. Set `JAVA_HOME` or `JRE_HOME` by replacing <PATH_TO_JAVA> with the copied path in this command:
-====
-
-If JDK was installed:
-
-====
-.Setting `JAVA_HOME` on Windows
-----
-set JAVA_HOME=<PATH_TO_JAVA><JAVA_VERSION>
-----
-
-.Adding `JAVA_HOME` to `PATH` Environment Variable on Windows
-----
-setx PATH "%PATH%;%JAVA_HOME%\bin"
-----
-
-.Setting `JAVA_HOME` on *nix
-----
-export JAVA_HOME=<PATH_TO_JAVA><JAVA_VERSION>
-----
-
-.Adding `JAVA_HOME` to `PATH` Environment Variable on *nix
-----
-export PATH=$JAVA_HOME/bin\:$PATH
-----
-====
-
-IF JRE was installed:
-
-====
-.Setting `JRE_HOME` on Windows
-----
-set JRE_HOME=<PATH_TO_JAVA><JAVA_VERSION>
-----
-
-.Adding `JRE_HOME` to `PATH` Environment Variable on Windows
-----
-setx PATH "%PATH%;%JRE_HOME%\bin"
-----
-
-.Setting `JRE_HOME` on *nix
-----
-export JRE_HOME=<PATH_TO_JAVA><JAVA_VERSION>
-----
-
-.Adding `JRE_HOME` to `PATH` Environment Variable on *nix
-----
-export PATH=$JRE_HOME/bin\:$PATH
-----
-====
-
-.*nix
-[WARNING]
-====
-Unlink `JAVA_HOME` if it is already linked to a previous version of the JRE:
-`unlink JAVA_HOME`
-====
-
-.Verify that the `JAVA_HOME` was set correctly.
-[TIP]
-====
-
-.Windows
-----
-echo %JAVA_HOME%
-----
-
-.*nix
-----
-echo $JAVA_HOME
-----
-====
-
-.File Descriptor Limit on Linux
-[NOTE]
-====
-* For Linux systems, increase the file descriptor limit by editing `/etc/sysctl.conf` to include:
-
-----
-fs.file-max = 6815744
-----
-
-* (This file may need permissions changed to allow write access).
-* For the change to take effect, a restart is required.
-
-. *nix Restart Command
-----
-init 6
-----
-====
+Follow the instructions outlined here: <<{managing-prefix}java_requirements, Java Requirements>>.
 
 .Check System Time
 [WARNING]
@@ -208,3 +91,22 @@ Do not replace _all_ instances of `localhost`, only those specified.
 .. *NIX: `sh CertNew.sh -cn <IP> -san "IP:<IP>"`.
 .. Windows: `CertNew -cn <IP> -san "IP:<IP>"`.
 . Proceed with starting the system and continue as usual.
+
+
+.File Descriptor Limit on Linux
+[NOTE]
+====
+* For Linux systems, increase the file descriptor limit by editing `/etc/sysctl.conf` to include:
+
+----
+fs.file-max = 6815744
+----
+
+* (This file may need permissions changed to allow write access).
+* For the change to take effect, a restart is required.
+
+. *nix Restart Command
+----
+init 6
+----
+====
