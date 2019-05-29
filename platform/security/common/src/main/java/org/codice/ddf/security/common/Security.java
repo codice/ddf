@@ -181,6 +181,7 @@ public class Security {
       SecurityLogger.auditWarn("Elevating current user permissions to use System subject");
       return subject.execute(codeToRun);
     } catch (ExecutionException e) {
+      SecurityLogger.auditWarn("Failed to execute code as System subject", e.getCause());
       throw new InvocationTargetException(e.getCause());
     }
   }
@@ -197,6 +198,7 @@ public class Security {
    */
   @Nullable
   public final synchronized Subject getSystemSubject() {
+    SecurityLogger.audit("Attempting to get System Subject");
     final java.lang.SecurityManager security = System.getSecurityManager();
 
     if (security != null) {

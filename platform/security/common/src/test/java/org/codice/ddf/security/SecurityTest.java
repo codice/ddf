@@ -171,6 +171,8 @@ public class SecurityTest {
           assertThat(security.getSystemSubject(), not(equalTo(null)));
           return null;
         });
+    verifyStatic();
+    SecurityLogger.audit("Attempting to get System Subject");
   }
 
   @Test
@@ -256,6 +258,8 @@ public class SecurityTest {
     } catch (SecurityServiceException e) {
       throw e;
     } catch (InvocationTargetException e) {
+      verifyStatic();
+      SecurityLogger.auditWarn("Failed to execute code as System subject", e.getCause());
       assertThat(e.getCause(), is(instanceOf(UnsupportedOperationException.class)));
     }
   }
