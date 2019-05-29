@@ -18,7 +18,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>ddf.catalog.core</groupId>
-        <version>2.15.0-SNAPSHOT</version>
+        <version>2.16.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>catalog-core-downloadaction</artifactId>

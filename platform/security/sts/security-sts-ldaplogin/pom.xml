@@ -19,7 +19,7 @@
     <parent>
         <artifactId>security-sts-pom</artifactId>
         <groupId>ddf.security.sts</groupId>
-        <version>2.15.0-SNAPSHOT</version>
+        <version>2.16.0-SNAPSHOT</version>
     </parent>
     <artifactId>security-sts-ldaplogin</artifactId>
     <name>DDF :: Security :: STS :: LDAP Login</name>
