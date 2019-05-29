@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.13.8. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.15.0. Copyright (c) Codice Foundation">
 <title>Distributed Data Framework: Quick Start Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,7 +520,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>Distributed Data Framework: Quick Start Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.13.8. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.15.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -889,7 +889,7 @@ For complete installation and configuration steps, see <a href="managing.html#_i
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Download the DDF <a href="https://github.com/codice/ddf/releases">zip file</a>.</p>
+<p>Download the DDF <a href="https://github.com/codice/ddf/releases">zip file</a> <span class="image"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Installing (Quick Start)"></span>.</p>
 </li>
 <li>
 <p>Install DDF by unzipping the zip file.</p>
@@ -912,7 +912,7 @@ Instead, use the java jar command line utility to unzip the distribution (see ex
 <div class="listingblock">
 <div class="title">Use Java to Unzip in Windows(Replace <code>&lt;PATH_TO_JAVA&gt;</code> with correct path <code>and &lt;JAVA_VERSION&gt;</code> with current version.)</div>
 <div class="content">
-<pre>"&lt;PATH_TO_JAVA&gt;\jdk&lt;JAVA_VERSION&gt;\bin\jar.exe" xf ddf-2.13.8.zip</pre>
+<pre>"&lt;PATH_TO_JAVA&gt;\jdk&lt;JAVA_VERSION&gt;\bin\jar.exe" xf ddf-2.15.0.zip</pre>
 </div>
 </div>
 </td>
@@ -953,35 +953,73 @@ This installation directory will be referred to as <code>&lt;DDF_HOME&gt;</code>
 <div class="sect3">
 <h4 id="_quick_install_of_ddf_on_a_remote_headless_server"><a class="anchor" href="#_quick_install_of_ddf_on_a_remote_headless_server"></a><a class="link" href="#_quick_install_of_ddf_on_a_remote_headless_server">1.1.3. Quick Install of DDF on a remote headless server</a></h4>
 <div class="paragraph">
-<p>If DDF is being installed on a remote server that has no user interface some additional steps must be taken prior to starting the system.</p>
+<p>If DDF is being installed on a remote server that has no user interface, the hostname will need to be updated in the configuration files and certificates.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Do not replace <em>all</em> instances of <code>localhost</code>, only those specified.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="olist arabic">
+<div class="title">Configuring with a new hostname</div>
 <ol class="arabic">
 <li>
-<p>Update any references to localhost in the following files. These references to localhost should be updated to match either the hostname or IP of the system.</p>
-<div class="ulist">
-<ul>
-<li>
-<p><code>&lt;DDF_HOME&gt;/etc/custom.system.properties</code></p>
+<p>Update the &lt;DDF_HOME&gt;/etc/custom.system.properties file. The entry <code>org.codice.ddf.system.hostname=localhost</code> should be updated to <code>org.codice.ddf.system.hostname=&lt;HOSTNAME&gt;</code>.</p>
 </li>
 <li>
-<p><code>&lt;DDF_HOME&gt;/etc/users.properties</code></p>
+<p>Update the &lt;DDF_HOME&gt;/etc/users.properties file. Change the <code>localhost=localhost[&#8230;&#8203;]</code> entry to &lt;HOSTNAME&gt;=&lt;HOSTNAME&gt;. (Keep the rest of the line as is.)</p>
 </li>
 <li>
-<p><code>&lt;DDF_HOME&gt;/etc/users.attributes</code></p>
-</li>
-</ul>
-</div>
+<p>Update the &lt;DDF_HOME&gt;/etc/users.attributes file. Change the "localhost" entry to "&lt;HOSTNAME&gt;".</p>
 </li>
 <li>
-<p>From the console go to &lt;DDF_HOME&gt;/etc/certs.</p>
+<p>From the console go to &lt;DDF_HOME&gt;/etc/certs and run the appropriate script.</p>
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
-<p>If using a hostname run: <code>sh CertNew.sh -cn &lt;hostname&gt; -san "DNS:&lt;hostname&gt;"</code> (or <code>CertNew -cn &lt;hostname&gt; -san "DNS:&lt;hostname&gt;"</code> on windows).</p>
+<p>*NIX: <code>sh CertNew.sh -cn &lt;hostname&gt; -san "DNS:&lt;hostname&gt;"</code>.</p>
 </li>
 <li>
-<p>If using an IP address run: <code>sh CertNew.sh -cn &lt;IP&gt; -san "IP:&lt;IP&gt;"</code> (or <code>CertNew -cn &lt;IP&gt; -san "IP:&lt;IP&gt;"</code> on windows).</p>
+<p>Windows: <code>CertNew -cn &lt;hostname&gt; -san "DNS:&lt;hostname&gt;"</code>.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Proceed with starting the system and continue as usual.</p>
+</li>
+</ol>
+</div>
+<div class="olist arabic">
+<div class="title">Configuring with an IP address</div>
+<ol class="arabic">
+<li>
+<p>Update the &lt;DDF_HOME&gt;/etc/custom.system.properties file. The entry <code>org.codice.ddf.system.hostname=localhost</code> should be updated to <code>org.codice.ddf.system.hostname=&lt;IP&gt;</code>.</p>
+</li>
+<li>
+<p>Update the &lt;DDF_HOME&gt;/etc/users.properties file. Change the <code>localhost=localhost[&#8230;&#8203;]</code> entry to &lt;IP&gt;=&lt;IP&gt;. (Keep the rest of the line as is.)</p>
+</li>
+<li>
+<p>Update the &lt;DDF_HOME&gt;/etc/users.attributes file. Change the "localhost" entry to "&lt;IP&gt;".</p>
+</li>
+<li>
+<p>From the console go to &lt;DDF_HOME&gt;/etc/certs and run the appropriate script.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>*NIX: <code>sh CertNew.sh -cn &lt;IP&gt; -san "IP:&lt;IP&gt;"</code>.</p>
+</li>
+<li>
+<p>Windows: <code>CertNew -cn &lt;IP&gt; -san "IP:&lt;IP&gt;"</code>.</p>
 </li>
 </ol>
 </div>
@@ -1401,7 +1439,7 @@ This includes commands and tools that can be used to perform these operations.</
 <p>Download a sample valid <a href="https://codice.atlassian.net/wiki/download/attachments/1179756/geojson_valid.json?version=1&amp;modificationDate=1368249436010&amp;api=v2">GeoJson file here</a> <span class="image"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Ingesting (Quick Start)"></span>.</p>
 </li>
 <li>
-<p>Navigate in the browser to Intrigue at https://{FQDN}:{PORT}/search.</p>
+<p>Navigate in the browser to Intrigue at https://{FQDN}:{PORT}/search/catalog.</p>
 </li>
 <li>
 <p>Select the Menu icon (<span class="image"><img src="data:image/png;base64,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" alt="navigator icon" title="Ingesting (Quick Start)"></span>) in the upper left corner</p>
@@ -1432,7 +1470,7 @@ This includes commands and tools that can be used to perform these operations.</
 </table>
 </div>
 <div class="paragraph">
-<p>Querying from the Search UI (https://{FQDN}:{PORT}/search) will return the record for the file ingested:</p>
+<p>Querying from Intrigue (https://{FQDN}:{PORT}/search/catalog) will return the record for the file ingested:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -1550,7 +1588,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-04-09 18:39:14 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-05-29 02:02:39 UTC
 </div>
 </div>
 </body>

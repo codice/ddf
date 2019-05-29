@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.13.8. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.15.0. Copyright (c) Codice Foundation">
 <title>DDF Reference Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,136 +520,137 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>DDF Reference Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.13.8. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.15.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_application_reference">1. Application Reference</a>
+<li><a href="#_application_reference">Application Reference</a>
 <ul class="sectlevel2">
-<li><a href="#_admin_application_reference">1.1. Admin Application Reference</a>
+<li><a href="#_admin_application_reference">Admin Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_admin_application_prerequisites">1.1.1. Admin Application Prerequisites</a></li>
-<li><a href="#_installing_the_admin_application">1.1.2. Installing the Admin Application</a></li>
-<li><a href="#_configuring_the_admin_application">1.1.3. Configuring the Admin Application</a></li>
+<li><a href="#_admin_application_prerequisites">Admin Application Prerequisites</a></li>
+<li><a href="#_installing_the_admin_application">Installing the Admin Application</a></li>
+<li><a href="#_configuring_the_admin_application">Configuring the Admin Application</a></li>
 </ul>
 </li>
-<li><a href="#_message_broker_application_reference">1.2. Message Broker Application Reference</a>
+<li><a href="#_message_broker_application_reference">Message Broker Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_prerequisites_for_message_broker_application">1.2.1. Prerequisites for Message Broker Application</a></li>
-<li><a href="#_installing_message_broker_application">1.2.2. Installing Message Broker Application</a></li>
-<li><a href="#_configuring_the_message_broker_application">1.2.3. Configuring the Message Broker Application</a>
+<li><a href="#_prerequisites_for_message_broker_application">Prerequisites for Message Broker Application</a></li>
+<li><a href="#_installing_message_broker_application">Installing Message Broker Application</a></li>
+<li><a href="#_configuring_the_message_broker_application">Configuring the Message Broker Application</a>
 <ul class="sectlevel4">
-<li><a href="#_configuring_the_message_broker_for_a_highly_available_cluster">1.2.3.1. Configuring the Message Broker for a Highly Available Cluster</a></li>
-<li><a href="#_securing_the_message_broker_application">1.2.3.2. Securing the Message Broker Application</a></li>
-<li><a href="#_artemis_broker_connection_configuration">1.2.3.3. Artemis Broker Connection Configuration</a></li>
+<li><a href="#_configuring_the_message_broker_for_a_highly_available_cluster">Configuring the Message Broker for a Highly Available Cluster</a></li>
+<li><a href="#_securing_the_message_broker_application">Securing the Message Broker Application</a></li>
+<li><a href="#_artemis_broker_connection_configuration">Artemis Broker Connection Configuration</a></li>
 </ul>
 </li>
-<li><a href="#_using_the_message_broker_application">1.2.4. Using the Message Broker Application</a>
+<li><a href="#_using_the_message_broker_application">Using the Message Broker Application</a>
 <ul class="sectlevel4">
-<li><a href="#_undelivered_messages_ui">1.2.4.1. Undelivered Messages UI</a></li>
-<li><a href="#_route_manager">1.2.4.2. Route Manager</a></li>
+<li><a href="#_undelivered_messages_ui">Undelivered Messages UI</a></li>
+<li><a href="#_route_manager">Route Manager</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#_catalog_application_reference">1.3. Catalog Application Reference</a>
+<li><a href="#_catalog_application_reference">Catalog Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_catalog_application_prerequisites">1.3.1. Catalog Application Prerequisites</a></li>
-<li><a href="#_installing_the_catalog_application">1.3.2. Installing the Catalog Application</a></li>
-<li><a href="#_configuring_the_catalog_application">1.3.3. Configuring the Catalog Application</a></li>
+<li><a href="#_catalog_application_prerequisites">Catalog Application Prerequisites</a></li>
+<li><a href="#_installing_the_catalog_application">Installing the Catalog Application</a></li>
+<li><a href="#_configuring_the_catalog_application">Configuring the Catalog Application</a></li>
 </ul>
 </li>
-<li><a href="#_geowebcache_application_reference">1.4. GeoWebCache Application Reference</a>
+<li><a href="#_geowebcache_application_reference">GeoWebCache Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_geowebcache_application_prerequisites">1.4.1. GeoWebCache Application Prerequisites</a></li>
-<li><a href="#_installing_geowebcache">1.4.2. Installing GeoWebCache</a></li>
-<li><a href="#_configuring_geowebcache">1.4.3. Configuring GeoWebCache</a>
+<li><a href="#_geowebcache_application_prerequisites">GeoWebCache Application Prerequisites</a></li>
+<li><a href="#_installing_geowebcache">Installing GeoWebCache</a></li>
+<li><a href="#_configuring_geowebcache">Configuring GeoWebCache</a>
 <ul class="sectlevel4">
-<li><a href="#_adding_geowebcache_layers">1.4.3.1. Adding GeoWebCache Layers</a></li>
-<li><a href="#_editing_geowebcache_layers">1.4.3.2. Editing GeoWebCache Layers</a></li>
-<li><a href="#_removing_geowebcache_layers">1.4.3.3. Removing GeoWebCache Layers</a></li>
-<li><a href="#_configuring_gwc_disk_quota">1.4.3.4. Configuring GWC Disk Quota</a></li>
+<li><a href="#_adding_geowebcache_layers">Adding GeoWebCache Layers</a></li>
+<li><a href="#_editing_geowebcache_layers">Editing GeoWebCache Layers</a></li>
+<li><a href="#_removing_geowebcache_layers">Removing GeoWebCache Layers</a></li>
+<li><a href="#_configuring_gwc_disk_quota">Configuring GWC Disk Quota</a></li>
 </ul>
 </li>
-<li><a href="#_configuring_the_standard_search_ui_for_geowebcache">1.4.4. Configuring the Standard Search UI for GeoWebCache</a></li>
+<li><a href="#_configuring_the_standard_search_ui_for_geowebcache">Configuring the Standard Search UI for GeoWebCache</a></li>
 </ul>
 </li>
-<li><a href="#_platform_application_reference">1.5. Platform Application Reference</a>
+<li><a href="#_platform_application_reference">Platform Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_platform_application_prerequisites">1.5.1. Platform Application Prerequisites</a></li>
-<li><a href="#_installing_platform">1.5.2. Installing Platform</a></li>
-<li><a href="#_configuring_the_platform_application">1.5.3. Configuring the Platform Application</a></li>
+<li><a href="#_platform_application_prerequisites">Platform Application Prerequisites</a></li>
+<li><a href="#_installing_platform">Installing Platform</a></li>
+<li><a href="#_configuring_the_platform_application">Configuring the Platform Application</a></li>
 </ul>
 </li>
-<li><a href="#_registry_application_reference">1.6. Registry Application Reference</a>
+<li><a href="#_registry_application_reference">Registry Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_registry_prerequisites">1.6.1. Registry Prerequisites</a></li>
-<li><a href="#_installing_registry">1.6.2. Installing Registry</a></li>
-<li><a href="#_customizing_registry_fields">1.6.3. Customizing Registry Fields</a></li>
-<li><a href="#_configuring_the_registry_application">1.6.4. Configuring the Registry Application</a></li>
+<li><a href="#_registry_prerequisites">Registry Prerequisites</a></li>
+<li><a href="#_installing_registry">Installing Registry</a></li>
+<li><a href="#_customizing_registry_fields">Customizing Registry Fields</a></li>
+<li><a href="#_configuring_the_registry_application">Configuring the Registry Application</a></li>
 </ul>
 </li>
-<li><a href="#_resource_management_application_reference">1.7. Resource Management Application Reference</a>
+<li><a href="#_resource_management_application_reference">Resource Management Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_resource_management_prerequisites">1.7.1. Resource Management Prerequisites</a></li>
-<li><a href="#_installing_resource_management">1.7.2. Installing Resource Management</a></li>
-<li><a href="#_configuring_the_resource_management_application">1.7.3. Configuring the Resource Management Application</a></li>
+<li><a href="#_resource_management_prerequisites">Resource Management Prerequisites</a></li>
+<li><a href="#_installing_resource_management">Installing Resource Management</a></li>
+<li><a href="#_configuring_the_resource_management_application">Configuring the Resource Management Application</a></li>
 </ul>
 </li>
-<li><a href="#_security_application_reference">1.8. Security Application Reference</a>
+<li><a href="#_security_application_reference">Security Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_security_prerequisites">1.8.1. Security Prerequisites</a></li>
-<li><a href="#_installing_security">1.8.2. Installing Security</a></li>
-<li><a href="#_configuring_the_security_application">1.8.3. Configuring the Security Application</a></li>
+<li><a href="#_security_prerequisites">Security Prerequisites</a></li>
+<li><a href="#_installing_security">Installing Security</a></li>
+<li><a href="#_configuring_the_security_application">Configuring the Security Application</a></li>
 </ul>
 </li>
-<li><a href="#_solr_catalog_application_reference">1.9. Solr Catalog Application Reference</a>
+<li><a href="#_solr_catalog_application_reference">Solr Catalog Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_solr_catalog_prerequisites">1.9.1. Solr Catalog Prerequisites</a></li>
-<li><a href="#_installing_solr_catalog">1.9.2. Installing Solr Catalog</a></li>
-<li><a href="#_configuring_the_solr_catalog_application">1.9.3. Configuring the Solr Catalog Application</a></li>
+<li><a href="#_solr_catalog_prerequisites">Solr Catalog Prerequisites</a></li>
+<li><a href="#_installing_solr_catalog">Installing Solr Catalog</a></li>
+<li><a href="#_configuring_the_solr_catalog_application">Configuring the Solr Catalog Application</a></li>
 </ul>
 </li>
-<li><a href="#_spatial_application_reference">1.10. Spatial Application Reference</a>
+<li><a href="#_spatial_application_reference">Spatial Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_offline_gazetteer_service">1.10.1. Offline Gazetteer Service</a>
+<li><a href="#_offline_gazetteer_service">Offline Gazetteer Service</a>
 <ul class="sectlevel4">
-<li><a href="#_spatial_gazetteer_console_commands">1.10.1.1. Spatial Gazetteer Console Commands</a></li>
+<li><a href="#_spatial_gazetteer_console_commands">Spatial Gazetteer Console Commands</a></li>
 </ul>
 </li>
-<li><a href="#_spatial_prerequisites">1.10.2. Spatial Prerequisites</a></li>
-<li><a href="#_installing_spatial">1.10.3. Installing Spatial</a></li>
-<li><a href="#_configuring_the_spatial_application">1.10.4. Configuring the Spatial Application</a></li>
+<li><a href="#_spatial_prerequisites">Spatial Prerequisites</a></li>
+<li><a href="#_installing_spatial">Installing Spatial</a></li>
+<li><a href="#_configuring_the_spatial_application">Configuring the Spatial Application</a></li>
 </ul>
 </li>
-<li><a href="#_search_ui_application_reference">1.11. Search UI Application Reference</a>
+<li><a href="#_search_ui_application_reference">Search UI Application Reference</a>
 <ul class="sectlevel3">
-<li><a href="#_search_ui_prerequisites">1.11.1. Search UI Prerequisites</a></li>
-<li><a href="#_installing_search_ui">1.11.2. Installing Search UI</a></li>
-<li><a href="#_configuring_the_search_ui_application">1.11.3. Configuring the Search UI Application</a></li>
+<li><a href="#_search_ui_prerequisites">Search UI Prerequisites</a></li>
+<li><a href="#_installing_search_ui">Installing Search UI</a></li>
+<li><a href="#_configuring_the_search_ui_application">Configuring the Search UI Application</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#_application_whitelists">2. Application Whitelists</a>
+<li><a href="#_application_whitelists">Application Whitelists</a>
 <ul class="sectlevel2">
-<li><a href="#_packages_removed_from_whitelist">2.1. Packages Removed From Whitelist</a></li>
-<li><a href="#_catalog_whitelist">2.2. Catalog Whitelist</a></li>
-<li><a href="#_platform_whitelist">2.3. Platform Whitelist</a></li>
-<li><a href="#_registry_whitelist">2.4. Registry Whitelist</a></li>
-<li><a href="#_security_whitelist">2.5. Security Whitelist</a></li>
-<li><a href="#_solr_catalog_whitelist">2.6. Solr Catalog Whitelist</a></li>
-<li><a href="#_search_ui_whitelist">2.7. Search UI Whitelist</a></li>
+<li><a href="#_packages_removed_from_whitelist">Packages Removed From Whitelist</a></li>
+<li><a href="#_catalog_whitelist">Catalog Whitelist</a></li>
+<li><a href="#_platform_whitelist">Platform Whitelist</a></li>
+<li><a href="#_registry_whitelist">Registry Whitelist</a></li>
+<li><a href="#_security_whitelist">Security Whitelist</a></li>
+<li><a href="#_solr_catalog_whitelist">Solr Catalog Whitelist</a></li>
+<li><a href="#_search_ui_whitelist">Search UI Whitelist</a></li>
 </ul>
 </li>
 <li><a href="#_ddf_dependency_list">DDF Dependency List</a></li>
+<li><a href="#_hardening_checklist">Hardening Checklist</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_application_reference"><a class="anchor" href="#_application_reference"></a><a class="link" href="#_application_reference">1. Application Reference</a></h2>
+<h2 id="_application_reference"><a class="anchor" href="#_application_reference"></a><a class="link" href="#_application_reference">Application Reference</a></h2>
 <div class="sectionbody">
 <div class="exampleblock">
 <div class="content">
@@ -659,18 +660,18 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 </div>
 <div class="sect2">
-<h3 id="_admin_application_reference"><a class="anchor" href="#_admin_application_reference"></a><a class="link" href="#_admin_application_reference">1.1. Admin Application Reference</a></h3>
+<h3 id="_admin_application_reference"><a class="anchor" href="#_admin_application_reference"></a><a class="link" href="#_admin_application_reference">Admin Application Reference</a></h3>
 <div class="paragraph">
 <p>The Admin Application contains components that are integral for the configuration of DDF applications. It contains various services and interfaces that allow administrators control over their systems and enhances administrative capabilities.</p>
 </div>
 <div class="sect3">
-<h4 id="_admin_application_prerequisites"><a class="anchor" href="#_admin_application_prerequisites"></a><a class="link" href="#_admin_application_prerequisites">1.1.1. Admin Application Prerequisites</a></h4>
+<h4 id="_admin_application_prerequisites"><a class="anchor" href="#_admin_application_prerequisites"></a><a class="link" href="#_admin_application_prerequisites">Admin Application Prerequisites</a></h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_the_admin_application"><a class="anchor" href="#_installing_the_admin_application"></a><a class="link" href="#_installing_the_admin_application">1.1.2. Installing the Admin Application</a></h4>
+<h4 id="_installing_the_admin_application"><a class="anchor" href="#_installing_the_admin_application"></a><a class="link" href="#_installing_the_admin_application">Installing the Admin Application</a></h4>
 <div class="paragraph">
 <p>Install the Admin application through the Admin Console.</p>
 </div>
@@ -692,7 +693,7 @@ table.CodeRay td.code>pre{padding:0}
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_admin_application"><a class="anchor" href="#_configuring_the_admin_application"></a><a class="link" href="#_configuring_the_admin_application">1.1.3. Configuring the Admin Application</a></h4>
+<h4 id="_configuring_the_admin_application"><a class="anchor" href="#_configuring_the_admin_application"></a><a class="link" href="#_configuring_the_admin_application">Configuring the Admin Application</a></h4>
 <div class="paragraph">
 <p>To configure the Admin Application:</p>
 </div>
@@ -843,19 +844,19 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 </div>
 </div>
 <div class="sect2">
-<h3 id="_message_broker_application_reference"><a class="anchor" href="#_message_broker_application_reference"></a><a class="link" href="#_message_broker_application_reference">1.2. Message Broker Application Reference</a></h3>
+<h3 id="_message_broker_application_reference"><a class="anchor" href="#_message_broker_application_reference"></a><a class="link" href="#_message_broker_application_reference">Message Broker Application Reference</a></h3>
 <div class="paragraph">
 <p>The Message Broker application gives an administrator the ability to configure and control the behavior of the Message Broker.
 These configurations will include aspects like the graceful shutdown period of components, names of queues and topics, and routing of messages.</p>
 </div>
 <div class="sect3">
-<h4 id="_prerequisites_for_message_broker_application"><a class="anchor" href="#_prerequisites_for_message_broker_application"></a><a class="link" href="#_prerequisites_for_message_broker_application">1.2.1. Prerequisites for Message Broker Application</a></h4>
+<h4 id="_prerequisites_for_message_broker_application"><a class="anchor" href="#_prerequisites_for_message_broker_application"></a><a class="link" href="#_prerequisites_for_message_broker_application">Prerequisites for Message Broker Application</a></h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_message_broker_application"><a class="anchor" href="#_installing_message_broker_application"></a><a class="link" href="#_installing_message_broker_application">1.2.2. Installing Message Broker Application</a></h4>
+<h4 id="_installing_message_broker_application"><a class="anchor" href="#_installing_message_broker_application"></a><a class="link" href="#_installing_message_broker_application">Installing Message Broker Application</a></h4>
 <div class="paragraph">
 <p>Install the Message Broker application through the Admin Console.</p>
 </div>
@@ -877,12 +878,12 @@ These configurations will include aspects like the graceful shutdown period of c
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_message_broker_application"><a class="anchor" href="#_configuring_the_message_broker_application"></a><a class="link" href="#_configuring_the_message_broker_application">1.2.3. Configuring the Message Broker Application</a></h4>
+<h4 id="_configuring_the_message_broker_application"><a class="anchor" href="#_configuring_the_message_broker_application"></a><a class="link" href="#_configuring_the_message_broker_application">Configuring the Message Broker Application</a></h4>
 <div class="paragraph">
 <p>The standard installation of the Message Broker application has no configurable properties.</p>
 </div>
 <div class="sect4">
-<h5 id="_configuring_the_message_broker_for_a_highly_available_cluster"><a class="anchor" href="#_configuring_the_message_broker_for_a_highly_available_cluster"></a><a class="link" href="#_configuring_the_message_broker_for_a_highly_available_cluster">1.2.3.1. Configuring the Message Broker for a Highly Available Cluster</a></h5>
+<h5 id="_configuring_the_message_broker_for_a_highly_available_cluster"><a class="anchor" href="#_configuring_the_message_broker_for_a_highly_available_cluster"></a><a class="link" href="#_configuring_the_message_broker_for_a_highly_available_cluster">Configuring the Message Broker for a Highly Available Cluster</a></h5>
 <div class="paragraph">
 <p>Prior to making these configuration changes, follow the instructions in <a href="managing.html#_installing">Installing DDF</a> to install DDF on two physically-separate hosts.</p>
 </div>
@@ -929,7 +930,20 @@ The installation that is going to be used as the backup needs to have an additio
 </li>
 <li>
 <p>Restart Servers:<br>
-If the DDF instances are currently running, stop and restart the backup and then the live server. Making sure the backup starts first ensures that the live server doesn&#8217;t have any issues establishing the backup due to the backup being busy initializing. See <a href="managing.html#_starting">Starting DDF</a> for detailed steps.</p>
+The DDF instances should be restarted in the following order:</p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Live server</p>
+</li>
+<li>
+<p>Backup server</p>
+<div class="paragraph">
+<p>In order to maintain connectivity to the broker during a restart, only stop and start a single server at a time. See <a href="managing.html#_starting">Starting DDF</a> for detailed steps.</p>
+</div>
+</li>
+</ol>
+</div>
 </li>
 <li>
 <p>Verify Cluster Replication:<br>
@@ -1017,7 +1031,7 @@ curl https://{FQDN}:{PORT}/admin/jolokia/read/org.apache.activemq.artemis:broker
 </div>
 </div>
 <div class="sect4">
-<h5 id="_securing_the_message_broker_application"><a class="anchor" href="#_securing_the_message_broker_application"></a><a class="link" href="#_securing_the_message_broker_application">1.2.3.2. Securing the Message Broker Application</a></h5>
+<h5 id="_securing_the_message_broker_application"><a class="anchor" href="#_securing_the_message_broker_application"></a><a class="link" href="#_securing_the_message_broker_application">Securing the Message Broker Application</a></h5>
 <div class="paragraph">
 <p>DDF can be configured to use Artemis to perform authentication and authorization against an LDAP server.</p>
 </div>
@@ -1085,7 +1099,7 @@ If you wish to use different roles, just replace <code>manager</code> and/or <co
 </div>
 </div>
 <div class="sect4">
-<h5 id="_artemis_broker_connection_configuration"><a class="anchor" href="#_artemis_broker_connection_configuration"></a><a class="link" href="#_artemis_broker_connection_configuration">1.2.3.3. Artemis Broker Connection Configuration</a></h5>
+<h5 id="_artemis_broker_connection_configuration"><a class="anchor" href="#_artemis_broker_connection_configuration"></a><a class="link" href="#_artemis_broker_connection_configuration">Artemis Broker Connection Configuration</a></h5>
 <div class="paragraph">
 <p>The <code>Artemis Broker Connection Configuration</code> manages the parameters for DDF&#8217;s connection to
 Artemis. The username and password in the <code>Artemis Broker Connection Configuration</code> need to be updated
@@ -1117,13 +1131,13 @@ so that they correspond to a user in your LDAP. If possible, this user should ha
 </div>
 </div>
 <div class="sect3">
-<h4 id="_using_the_message_broker_application"><a class="anchor" href="#_using_the_message_broker_application"></a><a class="link" href="#_using_the_message_broker_application">1.2.4. Using the Message Broker Application</a></h4>
+<h4 id="_using_the_message_broker_application"><a class="anchor" href="#_using_the_message_broker_application"></a><a class="link" href="#_using_the_message_broker_application">Using the Message Broker Application</a></h4>
 <div class="paragraph">
 <p>The Message Broker app can be used through the Admin Console.
 See the <a href="#_route_manager">Route Manager</a> and the <a href="#_undelivered_messages_ui">Undelivered Messages UI</a> for more information.</p>
 </div>
 <div class="sect4">
-<h5 id="_undelivered_messages_ui"><a class="anchor" href="#_undelivered_messages_ui"></a><a class="link" href="#_undelivered_messages_ui">1.2.4.1. Undelivered Messages UI</a></h5>
+<h5 id="_undelivered_messages_ui"><a class="anchor" href="#_undelivered_messages_ui"></a><a class="link" href="#_undelivered_messages_ui">Undelivered Messages UI</a></h5>
 <div class="paragraph">
 <p>The Undeliverable Messages tab gives an administrator the ability to view undeliverable messages and then decide whether to resend or delete those messages.</p>
 </div>
@@ -1172,7 +1186,7 @@ Currently, there is no way to identify if a message was successfully redelivered
 </div>
 </div>
 <div class="sect4">
-<h5 id="_route_manager"><a class="anchor" href="#_route_manager"></a><a class="link" href="#_route_manager">1.2.4.2. Route Manager</a></h5>
+<h5 id="_route_manager"><a class="anchor" href="#_route_manager"></a><a class="link" href="#_route_manager">Route Manager</a></h5>
 <div class="paragraph">
 <p>The Route Manager gives an administrator the ability to configure and deploy Camel routes, queues, and topics dynamically. The <code>sjms</code> component is available by default. If a need arises for a new route, an administrator can easily develop a new route and deploy it to satisfy the requirement, rather than spending the time to develop, compile, and test new code.</p>
 </div>
@@ -1192,7 +1206,7 @@ Currently, there is no way to identify if a message was successfully redelivered
 </div>
 </div>
 <div class="sect2">
-<h3 id="_catalog_application_reference"><a class="anchor" href="#_catalog_application_reference"></a><a class="link" href="#_catalog_application_reference">1.3. Catalog Application Reference</a></h3>
+<h3 id="_catalog_application_reference"><a class="anchor" href="#_catalog_application_reference"></a><a class="link" href="#_catalog_application_reference">Catalog Application Reference</a></h3>
 <div class="paragraph">
 <p>The Catalog provides a framework for storing, searching, processing, and transforming information.</p>
 </div>
@@ -1203,7 +1217,7 @@ Currently, there is no way to identify if a message was successfully redelivered
 <p>At the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.</p>
 </div>
 <div class="sect3">
-<h4 id="_catalog_application_prerequisites"><a class="anchor" href="#_catalog_application_prerequisites"></a><a class="link" href="#_catalog_application_prerequisites">1.3.1. Catalog Application Prerequisites</a></h4>
+<h4 id="_catalog_application_prerequisites"><a class="anchor" href="#_catalog_application_prerequisites"></a><a class="link" href="#_catalog_application_prerequisites">Catalog Application Prerequisites</a></h4>
 <div class="paragraph">
 <p>To use the Catalog Application, the following applications/features must be installed:</p>
 </div>
@@ -1216,7 +1230,7 @@ Currently, there is no way to identify if a message was successfully redelivered
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_the_catalog_application"><a class="anchor" href="#_installing_the_catalog_application"></a><a class="link" href="#_installing_the_catalog_application">1.3.2. Installing the Catalog Application</a></h4>
+<h4 id="_installing_the_catalog_application"><a class="anchor" href="#_installing_the_catalog_application"></a><a class="link" href="#_installing_the_catalog_application">Installing the Catalog Application</a></h4>
 <div class="paragraph">
 <p>Install the Catalog application through the Admin Console.</p>
 </div>
@@ -1238,7 +1252,7 @@ Currently, there is no way to identify if a message was successfully redelivered
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_catalog_application"><a class="anchor" href="#_configuring_the_catalog_application"></a><a class="link" href="#_configuring_the_catalog_application">1.3.3. Configuring the Catalog Application</a></h4>
+<h4 id="_configuring_the_catalog_application"><a class="anchor" href="#_configuring_the_catalog_application"></a><a class="link" href="#_configuring_the_catalog_application">Configuring the Catalog Application</a></h4>
 <div class="paragraph">
 <p>To configure the Catalog Application:</p>
 </div>
@@ -1411,9 +1425,9 @@ Currently, there is no way to identify if a message was successfully redelivered
 <td class="tableblock halign-left valign-top"><p class="tableblock">Resource URI Policy Plugin.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_ddf.catalog.util.impl.StatusSourcePollerRunner">Status Source Poller Runner</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ddf.catalog.util.impl.StatusSourcePollerRunner</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Source Poller configurations.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner">Status Source Poller Runner</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Status Source Poller Runner.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2462,15 +2476,39 @@ Currently, there is no way to identify if a message was successfully redelivered
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Convert to BBox</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a id="_shouldConvertToBBox"></a>shouldConvertToBBox</code></p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><a id="_shouldConvertToBBox"></a>shouldConvertToBBox</p>
+</div></div></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Converts Polygon and Point-Radius searches to a Bounding Box for compatibility with older interfaces. Generated bounding box is a very rough representation of the input geometry.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Multi Point-Radius polygon approximation vertices</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><a id="_numMultiPointRadiusVertices"></a>numMultiPointRadiusVertices</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">When performing a multi point-radius search, increase this value for more accurate polygon approximation. Minimum value is 4, maximum value is 32.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Point radius polygon simplification distance tolerance</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><a id="_distanceTolerance"></a>distanceTolerance</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum distance (in meters) from the original vertices a reduced vertex may lie on a simplified circular polygon.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Disable CN Check</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a id="_disableCnCheck"></a>disableCnCheck</code></p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><a id="_disableCnCheck"></a>disableCnCheck</p>
+</div></div></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Disable CN check for the server certificate. This should only be used when testing.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
@@ -2478,7 +2516,9 @@ Currently, there is no way to identify if a message was successfully redelivered
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Connection Timeout</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a id="_connectionTimeout"></a>connectionTimeout</code></p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><a id="_connectionTimeout"></a>connectionTimeout</p>
+</div></div></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Amount of time to attempt to establish a connection before timing out, in milliseconds.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">30000</p></td>
@@ -2486,7 +2526,9 @@ Currently, there is no way to identify if a message was successfully redelivered
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Receive Timeout</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a id="_receiveTimeout"></a>receiveTimeout</code></p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><a id="_receiveTimeout"></a>receiveTimeout</p>
+</div></div></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Amount of time to wait for a response before timing out, in milliseconds.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">60000</p></td>
@@ -2494,7 +2536,9 @@ Currently, there is no way to identify if a message was successfully redelivered
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Entry XML Element</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a id="_markUpSet"></a>markUpSet</code></p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><a id="_markUpSet"></a>markUpSet</p>
+</div></div></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">XML Element from the Response Entry to transform into a Metacard.</p></td>
 <td class="tableblock halign-left valign-top"></td>
@@ -2974,7 +3018,7 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 33. <a id="_ddf.catalog.util.impl.StatusSourcePollerRunner"></a>Status Source Poller Runner</caption>
+<caption class="title">Table 33. <a id="_org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner"></a>Status Source Poller Runner</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3011,7 +3055,7 @@ The <code>pollIntervalMinutes</code> should not be set to value a which results 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_geowebcache_application_reference"><a class="anchor" href="#_geowebcache_application_reference"></a><a class="link" href="#_geowebcache_application_reference">1.4. GeoWebCache Application Reference</a></h3>
+<h3 id="_geowebcache_application_reference"><a class="anchor" href="#_geowebcache_application_reference"></a><a class="link" href="#_geowebcache_application_reference">GeoWebCache Application Reference</a></h3>
 <div class="paragraph">
 <p>GeoWebCache enables a server providing a map tile cache and tile service aggregation.</p>
 </div>
@@ -3036,15 +3080,15 @@ This application also provides an administrative plugin for the management of Ge
 GeoWebCache also provides a user interface for previewing, truncating, or seeding layers at https://{FQDN}:{PORT}/geowebcache/.</p>
 </div>
 <div class="sect3">
-<h4 id="_geowebcache_application_prerequisites"><a class="anchor" href="#_geowebcache_application_prerequisites"></a><a class="link" href="#_geowebcache_application_prerequisites">1.4.1. GeoWebCache Application Prerequisites</a></h4>
+<h4 id="_geowebcache_application_prerequisites"><a class="anchor" href="#_geowebcache_application_prerequisites"></a><a class="link" href="#_geowebcache_application_prerequisites">GeoWebCache Application Prerequisites</a></h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_geowebcache"><a class="anchor" href="#_installing_geowebcache"></a><a class="link" href="#_installing_geowebcache">1.4.2. Installing GeoWebCache</a></h4>
+<h4 id="_installing_geowebcache"><a class="anchor" href="#_installing_geowebcache"></a><a class="link" href="#_installing_geowebcache">Installing GeoWebCache</a></h4>
 <div class="paragraph">
-<p>Install the GeoWebCache application from the Admin Console.</p>
+<p>Install the GeoWebCache application through the Admin Console.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -3064,12 +3108,12 @@ GeoWebCache also provides a user interface for previewing, truncating, or seedin
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_geowebcache"><a class="anchor" href="#_configuring_geowebcache"></a><a class="link" href="#_configuring_geowebcache">1.4.3. Configuring GeoWebCache</a></h4>
+<h4 id="_configuring_geowebcache"><a class="anchor" href="#_configuring_geowebcache"></a><a class="link" href="#_configuring_geowebcache">Configuring GeoWebCache</a></h4>
 <div class="paragraph">
 <p>GeoWebCache can be configured to cache layers locally, using the following procedures.</p>
 </div>
 <div class="sect4">
-<h5 id="_adding_geowebcache_layers"><a class="anchor" href="#_adding_geowebcache_layers"></a><a class="link" href="#_adding_geowebcache_layers">1.4.3.1. Adding GeoWebCache Layers</a></h5>
+<h5 id="_adding_geowebcache_layers"><a class="anchor" href="#_adding_geowebcache_layers"></a><a class="link" href="#_adding_geowebcache_layers">Adding GeoWebCache Layers</a></h5>
 <div class="paragraph">
 <p>Add layers to the local cache:</p>
 </div>
@@ -3149,7 +3193,7 @@ GeoWebCache also provides a user interface for previewing, truncating, or seedin
 </table>
 </div>
 <div class="sect4">
-<h5 id="_editing_geowebcache_layers"><a class="anchor" href="#_editing_geowebcache_layers"></a><a class="link" href="#_editing_geowebcache_layers">1.4.3.2. Editing GeoWebCache Layers</a></h5>
+<h5 id="_editing_geowebcache_layers"><a class="anchor" href="#_editing_geowebcache_layers"></a><a class="link" href="#_editing_geowebcache_layers">Editing GeoWebCache Layers</a></h5>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -3168,7 +3212,7 @@ GeoWebCache also provides a user interface for previewing, truncating, or seedin
 </div>
 </div>
 <div class="sect4">
-<h5 id="_removing_geowebcache_layers"><a class="anchor" href="#_removing_geowebcache_layers"></a><a class="link" href="#_removing_geowebcache_layers">1.4.3.3. Removing GeoWebCache Layers</a></h5>
+<h5 id="_removing_geowebcache_layers"><a class="anchor" href="#_removing_geowebcache_layers"></a><a class="link" href="#_removing_geowebcache_layers">Removing GeoWebCache Layers</a></h5>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -3178,7 +3222,7 @@ GeoWebCache also provides a user interface for previewing, truncating, or seedin
 </div>
 </div>
 <div class="sect4">
-<h5 id="_configuring_gwc_disk_quota"><a class="anchor" href="#_configuring_gwc_disk_quota"></a><a class="link" href="#_configuring_gwc_disk_quota">1.4.3.4. Configuring GWC Disk Quota</a></h5>
+<h5 id="_configuring_gwc_disk_quota"><a class="anchor" href="#_configuring_gwc_disk_quota"></a><a class="link" href="#_configuring_gwc_disk_quota">Configuring GWC Disk Quota</a></h5>
 <div class="paragraph">
 <p>Storage usage for a GeoWebCache server is managed by a <code>diskquota.xml</code> file with configuration details to prevent image-intensive data from filling the available storage.</p>
 </div>
@@ -3228,7 +3272,7 @@ GeoWebCache also provides a user interface for previewing, truncating, or seedin
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_standard_search_ui_for_geowebcache"><a class="anchor" href="#_configuring_the_standard_search_ui_for_geowebcache"></a><a class="link" href="#_configuring_the_standard_search_ui_for_geowebcache">1.4.4. Configuring the Standard Search UI for GeoWebCache</a></h4>
+<h4 id="_configuring_the_standard_search_ui_for_geowebcache"><a class="anchor" href="#_configuring_the_standard_search_ui_for_geowebcache"></a><a class="link" href="#_configuring_the_standard_search_ui_for_geowebcache">Configuring the Standard Search UI for GeoWebCache</a></h4>
 <div class="paragraph">
 <p>Add a new Imagery Provider in the Admin Console:</p>
 </div>
@@ -3277,7 +3321,7 @@ GeoWebCache also provides a user interface for previewing, truncating, or seedin
 </div>
 </div>
 <div class="sect2">
-<h3 id="_platform_application_reference"><a class="anchor" href="#_platform_application_reference"></a><a class="link" href="#_platform_application_reference">1.5. Platform Application Reference</a></h3>
+<h3 id="_platform_application_reference"><a class="anchor" href="#_platform_application_reference"></a><a class="link" href="#_platform_application_reference">Platform Application Reference</a></h3>
 <div class="paragraph">
 <p>The Platform application is considered to be a core application of the distribution.
 The Platform application provides the fundamental building blocks that the distribution needs to run.
@@ -3300,13 +3344,13 @@ These building blocks include subsets of:</p>
 <p>A <a href="managing.html#_command_scheduler">Command Scheduler</a> is also included as part of the Platform application to allow users to schedule Command Line Shell Commands.</p>
 </div>
 <div class="sect3">
-<h4 id="_platform_application_prerequisites"><a class="anchor" href="#_platform_application_prerequisites"></a><a class="link" href="#_platform_application_prerequisites">1.5.1. Platform Application Prerequisites</a></h4>
+<h4 id="_platform_application_prerequisites"><a class="anchor" href="#_platform_application_prerequisites"></a><a class="link" href="#_platform_application_prerequisites">Platform Application Prerequisites</a></h4>
 <div class="paragraph">
 <p>None.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_platform"><a class="anchor" href="#_installing_platform"></a><a class="link" href="#_installing_platform">1.5.2. Installing Platform</a></h4>
+<h4 id="_installing_platform"><a class="anchor" href="#_installing_platform"></a><a class="link" href="#_installing_platform">Installing Platform</a></h4>
 <div class="paragraph">
 <p>Install the Platform application through the Admin Console.</p>
 </div>
@@ -3328,7 +3372,7 @@ These building blocks include subsets of:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_platform_application"><a class="anchor" href="#_configuring_the_platform_application"></a><a class="link" href="#_configuring_the_platform_application">1.5.3. Configuring the Platform Application</a></h4>
+<h4 id="_configuring_the_platform_application"><a class="anchor" href="#_configuring_the_platform_application"></a><a class="link" href="#_configuring_the_platform_application">Configuring the Platform Application</a></h4>
 <div class="paragraph">
 <p>To configure the Platform Application:</p>
 </div>
@@ -3853,12 +3897,12 @@ These building blocks include subsets of:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_registry_application_reference"><a class="anchor" href="#_registry_application_reference"></a><a class="link" href="#_registry_application_reference">1.6. Registry Application Reference</a></h3>
+<h3 id="_registry_application_reference"><a class="anchor" href="#_registry_application_reference"></a><a class="link" href="#_registry_application_reference">Registry Application Reference</a></h3>
 <div class="paragraph">
 <p>Registry contains the base registry components, plugins, sources, and interfaces needed for DDF to function as a registry connecting multiple nodes.</p>
 </div>
 <div class="sect3">
-<h4 id="_registry_prerequisites"><a class="anchor" href="#_registry_prerequisites"></a><a class="link" href="#_registry_prerequisites">1.6.1. Registry Prerequisites</a></h4>
+<h4 id="_registry_prerequisites"><a class="anchor" href="#_registry_prerequisites"></a><a class="link" href="#_registry_prerequisites">Registry Prerequisites</a></h4>
 <div class="paragraph">
 <p>To use the Registry, the following apps/features must be installed:</p>
 </div>
@@ -3883,7 +3927,7 @@ These building blocks include subsets of:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_registry"><a class="anchor" href="#_installing_registry"></a><a class="link" href="#_installing_registry">1.6.2. Installing Registry</a></h4>
+<h4 id="_installing_registry"><a class="anchor" href="#_installing_registry"></a><a class="link" href="#_installing_registry">Installing Registry</a></h4>
 <div class="paragraph">
 <p>Install the Registry application through the Admin Console.</p>
 </div>
@@ -3905,7 +3949,7 @@ These building blocks include subsets of:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_customizing_registry_fields"><a class="anchor" href="#_customizing_registry_fields"></a><a class="link" href="#_customizing_registry_fields">1.6.3. Customizing Registry Fields</a></h4>
+<h4 id="_customizing_registry_fields"><a class="anchor" href="#_customizing_registry_fields"></a><a class="link" href="#_customizing_registry_fields">Customizing Registry Fields</a></h4>
 <div class="paragraph">
 <p>All the fields that appear in a registry node are customizable. This is done through a JSON configuration file located at <code>&lt;DDF_HOME&gt;/etc/registry/registry-custom-slots.json</code> that defines the registry fields. In this file there are JSON objects that relate to each part of the edit registry modal.
 These objects are</p>
@@ -4023,7 +4067,7 @@ These objects are</p>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_registry_application"><a class="anchor" href="#_configuring_the_registry_application"></a><a class="link" href="#_configuring_the_registry_application">1.6.4. Configuring the Registry Application</a></h4>
+<h4 id="_configuring_the_registry_application"><a class="anchor" href="#_configuring_the_registry_application"></a><a class="link" href="#_configuring_the_registry_application">Configuring the Registry Application</a></h4>
 <div class="paragraph">
 <p>To configure the Registry Application:</p>
 </div>
@@ -4312,7 +4356,7 @@ These objects are</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_resource_management_application_reference"><a class="anchor" href="#_resource_management_application_reference"></a><a class="link" href="#_resource_management_application_reference">1.7. Resource Management Application Reference</a></h3>
+<h3 id="_resource_management_application_reference"><a class="anchor" href="#_resource_management_application_reference"></a><a class="link" href="#_resource_management_application_reference">Resource Management Application Reference</a></h3>
 <div class="paragraph">
 <p>The Resource Management Application provides administrative functionality to monitor and manage data usage on the system.
 This application allows an administrator to:</p>
@@ -4346,7 +4390,7 @@ This application allows an administrator to:</p>
 </dl>
 </div>
 <div class="sect3">
-<h4 id="_resource_management_prerequisites"><a class="anchor" href="#_resource_management_prerequisites"></a><a class="link" href="#_resource_management_prerequisites">1.7.1. Resource Management Prerequisites</a></h4>
+<h4 id="_resource_management_prerequisites"><a class="anchor" href="#_resource_management_prerequisites"></a><a class="link" href="#_resource_management_prerequisites">Resource Management Prerequisites</a></h4>
 <div class="paragraph">
 <p>To use the Resource Management Application, the following apps/features must be installed:</p>
 </div>
@@ -4368,7 +4412,7 @@ This application allows an administrator to:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_resource_management"><a class="anchor" href="#_installing_resource_management"></a><a class="link" href="#_installing_resource_management">1.7.2. Installing Resource Management</a></h4>
+<h4 id="_installing_resource_management"><a class="anchor" href="#_installing_resource_management"></a><a class="link" href="#_installing_resource_management">Installing Resource Management</a></h4>
 <div class="paragraph">
 <p>Install the Resource Management application through the Admin Console.</p>
 </div>
@@ -4390,7 +4434,7 @@ This application allows an administrator to:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_resource_management_application"><a class="anchor" href="#_configuring_the_resource_management_application"></a><a class="link" href="#_configuring_the_resource_management_application">1.7.3. Configuring the Resource Management Application</a></h4>
+<h4 id="_configuring_the_resource_management_application"><a class="anchor" href="#_configuring_the_resource_management_application"></a><a class="link" href="#_configuring_the_resource_management_application">Configuring the Resource Management Application</a></h4>
 <div class="paragraph">
 <p>To configure the Resource Management Application:</p>
 </div>
@@ -4463,7 +4507,7 @@ This application allows an administrator to:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_security_application_reference"><a class="anchor" href="#_security_application_reference"></a><a class="link" href="#_security_application_reference">1.8. Security Application Reference</a></h3>
+<h3 id="_security_application_reference"><a class="anchor" href="#_security_application_reference"></a><a class="link" href="#_security_application_reference">Security Application Reference</a></h3>
 <div class="paragraph">
 <p>The Security application provides authentication, authorization, and auditing services for the DDF.
 These services comprise both a framework that developers and integrators can extend as well as a reference implementation that meets security requirements.</p>
@@ -4474,9 +4518,6 @@ These services comprise both a framework that developers and integrators can ext
 <div class="ulist">
 <div class="title">Applications Included in Security</div>
 <ul>
-<li>
-<p>Security CAS</p>
-</li>
 <li>
 <p>Security Core</p>
 </li>
@@ -4498,7 +4539,7 @@ These services comprise both a framework that developers and integrators can ext
 </ul>
 </div>
 <div class="sect3">
-<h4 id="_security_prerequisites"><a class="anchor" href="#_security_prerequisites"></a><a class="link" href="#_security_prerequisites">1.8.1. Security Prerequisites</a></h4>
+<h4 id="_security_prerequisites"><a class="anchor" href="#_security_prerequisites"></a><a class="link" href="#_security_prerequisites">Security Prerequisites</a></h4>
 <div class="paragraph">
 <p>To use the Security application, the following applications/features must be installed:</p>
 </div>
@@ -4511,7 +4552,7 @@ These services comprise both a framework that developers and integrators can ext
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_security"><a class="anchor" href="#_installing_security"></a><a class="link" href="#_installing_security">1.8.2. Installing Security</a></h4>
+<h4 id="_installing_security"><a class="anchor" href="#_installing_security"></a><a class="link" href="#_installing_security">Installing Security</a></h4>
 <div class="paragraph">
 <p>Install the Security application through the Admin Console.</p>
 </div>
@@ -4533,7 +4574,7 @@ These services comprise both a framework that developers and integrators can ext
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_security_application"><a class="anchor" href="#_configuring_the_security_application"></a><a class="link" href="#_configuring_the_security_application">1.8.3. Configuring the Security Application</a></h4>
+<h4 id="_configuring_the_security_application"><a class="anchor" href="#_configuring_the_security_application"></a><a class="link" href="#_configuring_the_security_application">Configuring the Security Application</a></h4>
 <div class="paragraph">
 <p>To configure the Security Application:</p>
 </div>
@@ -4616,11 +4657,6 @@ These services comprise both a framework that developers and integrators can ext
 <td class="tableblock halign-left valign-top"><p class="tableblock">SAML NameID Policy.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_ddf.security.sts.address.provider">Security STS Address Provider</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ddf.security.sts.address.provider</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">STS Address Provider.</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_ddf.security.sts">Security STS Server</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">ddf.security.sts</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">STS configurations.</p></td>
@@ -4639,11 +4675,6 @@ These services comprise both a framework that developers and integrators can ext
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_ddf.security.sts.guestvalidator">Guest Validator</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">ddf.security.sts.guestvalidator</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Security STS Guest Validator configurations.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_ddf.security.sts.wss.configuration">Security STS WSS</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ddf.security.sts.wss.configuration</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">STS WSS configurations.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.security.validator.pki">Security STS PKI Token Validator</a></p></td>
@@ -4895,14 +4926,6 @@ These services comprise both a framework that developers and integrators can ext
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Context Realms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>realms</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of realms supporting each context. Karaf is provided by default. Example: /=karaf</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">/=karaf</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Types</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationTypes</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
@@ -4912,19 +4935,19 @@ These services comprise both a framework that developers and integrators can ext
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/=IDP</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GUEST</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GUEST,/admin=IDP</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">basic</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Required Attributes</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">requiredAttributes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes required for each Web Context. Example: /context={role=role1;type=type1}</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>List of attributes required for each Web Context. Example: /context={role=role1;type=type1}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">White Listed Contexts</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">whiteListContexts</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 </tr>
 </tbody>
 </table>
@@ -5123,38 +5146,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 62. <a id="_ddf.security.sts.address.provider"></a>Security STS Address Provider</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Use WSS STS</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>useWss</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If you have a WSS STS configured, you may prefer to use it for services that need the STS address, such as SOAP sources.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 63. <a id="_ddf.security.sts"></a>Security STS Server</caption>
+<caption class="title">Table 62. <a id="_ddf.security.sts"></a>Security STS Server</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5209,7 +5201,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 64. <a id="_ddf.security.sts.client.configuration"></a>Security STS Client</caption>
+<caption class="title">Table 63. <a id="_ddf.security.sts.client.configuration"></a>Security STS Client</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5320,7 +5312,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 65. <a id="_ddf.security.sts.guestclaims"></a>Security STS Guest Claims Handler</caption>
+<caption class="title">Table 64. <a id="_ddf.security.sts.guestclaims"></a>Security STS Guest Claims Handler</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5351,7 +5343,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 66. <a id="_ddf.security.sts.guestvalidator"></a>Guest Validator</caption>
+<caption class="title">Table 65. <a id="_ddf.security.sts.guestvalidator"></a>Guest Validator</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5382,118 +5374,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 67. <a id="_ddf.security.sts.wss.configuration"></a>Security STS WSS</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">SAML Assertion Type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>assertionType</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The version of SAML to use. Most services require SAML v2.0. Changing this value from the default could cause services to stop responding.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0" class="bare">http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">SAML Key Type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>keyType</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The key type to use with SAML. Most services require Bearer. Changing this value from the default could cause services to stop responding.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer" class="bare">http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">SAML Key Size</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>keySize</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The key size to use with SAML. The default key size is 256 and this is fine for most applications. Changing this value from the default could cause services to stop responding.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">256</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Use Key</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>useKey</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Signals whether or not the STS Client should supply a public key to embed as the proof key. Changing this value from the default could cause services to stop responding.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">STS WSDL Address</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>address</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">STS WSDL Address</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.httpsPort}${org.codice.ddf.system.rootContext}/SecurityTokenService?wsdl</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">STS Endpoint Name</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>endpointName</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">STS Endpoint Name.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">STS Service Name</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>serviceName</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">STS Service Name.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Signature Properties</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>signatureProperties</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Path to Signature crypto properties. This path can be part of the classpath, relative to &lt;DDF_HOME&gt;, or an absolute path on the system.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">etc/ws-security/server/signature.properties</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Encryption Properties</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>encryptionProperties</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Path to Encryption crypto properties file. This path can be part of the classpath, relative to &lt;DDF_HOME&gt;, or an absolute path on the system.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">etc/ws-security/server/encryption.properties</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">STS Properties</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>tokenProperties</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Path to STS crypto properties file. This path can be part of the classpath, relative to &lt;DDF_HOME&gt;, or an absolute path on the system.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">etc/ws-security/server/signature.properties</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Claims</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>claims</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Comma-delimited list of claims that should be requested by the STS.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" class="bare">http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 68. <a id="_org.codice.ddf.security.validator.pki"></a>Security STS PKI Token Validator</caption>
+<caption class="title">Table 66. <a id="_org.codice.ddf.security.validator.pki"></a>Security STS PKI Token Validator</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5534,12 +5415,12 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_solr_catalog_application_reference"><a class="anchor" href="#_solr_catalog_application_reference"></a><a class="link" href="#_solr_catalog_application_reference">1.9. Solr Catalog Application Reference</a></h3>
+<h3 id="_solr_catalog_application_reference"><a class="anchor" href="#_solr_catalog_application_reference"></a><a class="link" href="#_solr_catalog_application_reference">Solr Catalog Application Reference</a></h3>
 <div class="paragraph">
 <p>DDF uses <a href="http://lucene.apache.org/solr/">Solr</a> for data storage, by default.</p>
 </div>
 <div class="sect3">
-<h4 id="_solr_catalog_prerequisites"><a class="anchor" href="#_solr_catalog_prerequisites"></a><a class="link" href="#_solr_catalog_prerequisites">1.9.1. Solr Catalog Prerequisites</a></h4>
+<h4 id="_solr_catalog_prerequisites"><a class="anchor" href="#_solr_catalog_prerequisites"></a><a class="link" href="#_solr_catalog_prerequisites">Solr Catalog Prerequisites</a></h4>
 <div class="paragraph">
 <p>To use the Solr Catalog Application, the following apps/features must be installed:</p>
 </div>
@@ -5555,7 +5436,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_solr_catalog"><a class="anchor" href="#_installing_solr_catalog"></a><a class="link" href="#_installing_solr_catalog">1.9.2. Installing Solr Catalog</a></h4>
+<h4 id="_installing_solr_catalog"><a class="anchor" href="#_installing_solr_catalog"></a><a class="link" href="#_installing_solr_catalog">Installing Solr Catalog</a></h4>
 <div class="paragraph">
 <p>Install the Solr Catalog application through the Admin Console.</p>
 </div>
@@ -5577,7 +5458,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_solr_catalog_application"><a class="anchor" href="#_configuring_the_solr_catalog_application"></a><a class="link" href="#_configuring_the_solr_catalog_application">1.9.3. Configuring the Solr Catalog Application</a></h4>
+<h4 id="_configuring_the_solr_catalog_application"><a class="anchor" href="#_configuring_the_solr_catalog_application"></a><a class="link" href="#_configuring_the_solr_catalog_application">Configuring the Solr Catalog Application</a></h4>
 <div class="paragraph">
 <p>To configure the Solr Catalog Application:</p>
 </div>
@@ -5595,7 +5476,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 69. Solr Catalog Available Configurations</caption>
+<caption class="title">Table 67. Solr Catalog Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -5617,7 +5498,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 70. <a id="_ddf.catalog.solr.provider.SolrCatalogProvider"></a>Solr Catalog Provider</caption>
+<caption class="title">Table 68. <a id="_ddf.catalog.solr.provider.SolrCatalogProvider"></a>Solr Catalog Provider</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5658,12 +5539,12 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_spatial_application_reference"><a class="anchor" href="#_spatial_application_reference"></a><a class="link" href="#_spatial_application_reference">1.10. Spatial Application Reference</a></h3>
+<h3 id="_spatial_application_reference"><a class="anchor" href="#_spatial_application_reference"></a><a class="link" href="#_spatial_application_reference">Spatial Application Reference</a></h3>
 <div class="paragraph">
 <p>The Spatial Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.</p>
 </div>
 <div class="sect3">
-<h4 id="_offline_gazetteer_service"><a class="anchor" href="#_offline_gazetteer_service"></a><a class="link" href="#_offline_gazetteer_service">1.10.1. Offline Gazetteer Service</a></h4>
+<h4 id="_offline_gazetteer_service"><a class="anchor" href="#_offline_gazetteer_service"></a><a class="link" href="#_offline_gazetteer_service">Offline Gazetteer Service</a></h4>
 <div class="paragraph">
 <p>In the Spatial Application, the <code>offline-gazetteer</code> is installed by default.
 This feature enables you to use an offline source of GeoNames data (as an alternative to the GeoNames Web service enabled by the <code>webservice-gazetteer</code> feature) to perform searches via the gazetteer search box in the Search UI.</p>
@@ -5672,12 +5553,12 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <p>By default a small set of GeoNames data is included with the offline gazetteer. The GeoNames data is stored as metacards in the core catalog and are tagged with <code>geonames</code> and <code>gazetteer</code>. This collection of GeoNames metacards can be expanded or updated by using the <code>gazetteer:update</code> command.</p>
 </div>
 <div class="sect4">
-<h5 id="_spatial_gazetteer_console_commands"><a class="anchor" href="#_spatial_gazetteer_console_commands"></a><a class="link" href="#_spatial_gazetteer_console_commands">1.10.1.1. Spatial Gazetteer Console Commands</a></h5>
+<h5 id="_spatial_gazetteer_console_commands"><a class="anchor" href="#_spatial_gazetteer_console_commands"></a><a class="link" href="#_spatial_gazetteer_console_commands">Spatial Gazetteer Console Commands</a></h5>
 <div class="paragraph">
 <p>The <code>gazetteer</code> commands provide the ability to interact with the local GeoNames metacard collection in the core catalog. These GeoNames metacards are used by the <code>offline-gazetteer</code> feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the <code>offline-gazetteer</code> feature is installed.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 71. Gazetteer Command Descriptions</caption>
+<caption class="title">Table 69. Gazetteer Command Descriptions</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 80%;">
@@ -5727,12 +5608,21 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <p>The <code>-c</code> or <code>--create</code> flag can be used to clear out the existing gazetteer metacards before adding new entries.</p>
 </div></div></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>build-suggester-index</code></p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Builds the Solr suggester index used for placename autocompletion in Intrigue when using the
+offline gazetteer. This index is built automatically whenever gazetteer metacards are created,
+updated, or deleted, but if those builds fail then this command can be used to attempt to build the
+index again.</p>
+</div></div></td>
+</tr>
 </tbody>
 </table>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_spatial_prerequisites"><a class="anchor" href="#_spatial_prerequisites"></a><a class="link" href="#_spatial_prerequisites">1.10.2. Spatial Prerequisites</a></h4>
+<h4 id="_spatial_prerequisites"><a class="anchor" href="#_spatial_prerequisites"></a><a class="link" href="#_spatial_prerequisites">Spatial Prerequisites</a></h4>
 <div class="paragraph">
 <p>To use the Spatial Application, the following apps/features must be installed:</p>
 </div>
@@ -5748,7 +5638,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_spatial"><a class="anchor" href="#_installing_spatial"></a><a class="link" href="#_installing_spatial">1.10.3. Installing Spatial</a></h4>
+<h4 id="_installing_spatial"><a class="anchor" href="#_installing_spatial"></a><a class="link" href="#_installing_spatial">Installing Spatial</a></h4>
 <div class="paragraph">
 <p>Install the Spatial application through the Admin Console.</p>
 </div>
@@ -5770,7 +5660,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_spatial_application"><a class="anchor" href="#_configuring_the_spatial_application"></a><a class="link" href="#_configuring_the_spatial_application">1.10.4. Configuring the Spatial Application</a></h4>
+<h4 id="_configuring_the_spatial_application"><a class="anchor" href="#_configuring_the_spatial_application"></a><a class="link" href="#_configuring_the_spatial_application">Configuring the Spatial Application</a></h4>
 <div class="paragraph">
 <p>To configure the Spatial Application:</p>
 </div>
@@ -5788,7 +5678,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 72. Spatial Available Configurations</caption>
+<caption class="title">Table 70. Spatial Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -5870,7 +5760,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 73. <a id="_Csw_Federated_Source"></a>CSW Specification Profile Federated Source</caption>
+<caption class="title">Table 71. <a id="_Csw_Federated_Source"></a>CSW Specification Profile Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6045,7 +5935,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 74. <a id="_Csw_Federation_Profile_Source"></a>CSW Federation Profile Source</caption>
+<caption class="title">Table 72. <a id="_Csw_Federation_Profile_Source"></a>CSW Federation Profile Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6132,7 +6022,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 75. <a id="_Csw_Transactional_Federated_Source"></a>CSW Transactional Profile Federated Source</caption>
+<caption class="title">Table 73. <a id="_Csw_Transactional_Federated_Source"></a>CSW Transactional Profile Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6307,7 +6197,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 76. <a id="_org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin"></a>GeoCoder Plugin</caption>
+<caption class="title">Table 74. <a id="_org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin"></a>GeoCoder Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6337,7 +6227,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 77. <a id="_Gmd_Csw_Federated_Source"></a>GMD CSW ISO Federated Source</caption>
+<caption class="title">Table 75. <a id="_Gmd_Csw_Federated_Source"></a>GMD CSW ISO Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6496,7 +6386,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 78. <a id="_org.codice.ddf.spatial.kml.endpoint.KmlEndpoint"></a>Spatial KML Endpoint</caption>
+<caption class="title">Table 76. <a id="_org.codice.ddf.spatial.kml.endpoint.KmlEndpoint"></a>Spatial KML Endpoint</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6575,7 +6465,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 79. <a id="_org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"></a>Metacard to WFS Feature Map</caption>
+<caption class="title">Table 77. <a id="_org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"></a>Metacard to WFS Feature Map</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6710,7 +6600,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 80. <a id="_Wfs_v1_0_0_Connected_Source"></a>WFS v1.0.0 Connected Source</caption>
+<caption class="title">Table 78. <a id="_Wfs_v1_0_0_Connected_Source"></a>WFS v1.0.0 Connected Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6813,7 +6703,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 81. <a id="_Wfs_v1_0_0_Federated_Source"></a>WFS v1.0.0 Federated Source</caption>
+<caption class="title">Table 79. <a id="_Wfs_v1_0_0_Federated_Source"></a>WFS v1.0.0 Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6924,7 +6814,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 82. <a id="_Wfs_v1_1_0_Federated_Source"></a>WFS v1.1.0 Federated Source</caption>
+<caption class="title">Table 80. <a id="_Wfs_v1_1_0_Federated_Source"></a>WFS v1.1.0 Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7051,7 +6941,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 83. <a id="_Wfs_v2_0_0_Connected_Source"></a>WFS 2.0.0 Connected Source</caption>
+<caption class="title">Table 81. <a id="_Wfs_v2_0_0_Connected_Source"></a>WFS 2.0.0 Connected Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7170,7 +7060,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 84. <a id="_Wfs_v2_0_0_Federated_Source"></a>WFS 2.0.0 Federated Source</caption>
+<caption class="title">Table 82. <a id="_Wfs_v2_0_0_Federated_Source"></a>WFS 2.0.0 Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7297,7 +7187,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 85. <a id="_org.codice.ddf.spatial.kml.style"></a>Spatial KML Style Map Entry</caption>
+<caption class="title">Table 83. <a id="_org.codice.ddf.spatial.kml.style"></a>Spatial KML Style Map Entry</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7346,26 +7236,12 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </div>
 </div>
 <div class="sect2">
-<h3 id="_search_ui_application_reference"><a class="anchor" href="#_search_ui_application_reference"></a><a class="link" href="#_search_ui_application_reference">1.11. Search UI Application Reference</a></h3>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Important</div>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>This Feature has been <strong>DEPRECATED</strong> and will be removed in a future version.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
+<h3 id="_search_ui_application_reference"><a class="anchor" href="#_search_ui_application_reference"></a><a class="link" href="#_search_ui_application_reference">Search UI Application Reference</a></h3>
 <div class="paragraph">
 <p>The Search UI is a user interface that enables users to search a catalog and associated sites for content and metadata.</p>
 </div>
 <div class="sect3">
-<h4 id="_search_ui_prerequisites"><a class="anchor" href="#_search_ui_prerequisites"></a><a class="link" href="#_search_ui_prerequisites">1.11.1. Search UI Prerequisites</a></h4>
+<h4 id="_search_ui_prerequisites"><a class="anchor" href="#_search_ui_prerequisites"></a><a class="link" href="#_search_ui_prerequisites">Search UI Prerequisites</a></h4>
 <div class="paragraph">
 <p>To use the Search UI application, the following applications/features must be installed:</p>
 </div>
@@ -7381,7 +7257,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </div>
 </div>
 <div class="sect3">
-<h4 id="_installing_search_ui"><a class="anchor" href="#_installing_search_ui"></a><a class="link" href="#_installing_search_ui">1.11.2. Installing Search UI</a></h4>
+<h4 id="_installing_search_ui"><a class="anchor" href="#_installing_search_ui"></a><a class="link" href="#_installing_search_ui">Installing Search UI</a></h4>
 <div class="paragraph">
 <p>Install the Search UI application through the Admin Console.</p>
 </div>
@@ -7403,7 +7279,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </div>
 </div>
 <div class="sect3">
-<h4 id="_configuring_the_search_ui_application"><a class="anchor" href="#_configuring_the_search_ui_application"></a><a class="link" href="#_configuring_the_search_ui_application">1.11.3. Configuring the Search UI Application</a></h4>
+<h4 id="_configuring_the_search_ui_application"><a class="anchor" href="#_configuring_the_search_ui_application"></a><a class="link" href="#_configuring_the_search_ui_application">Configuring the Search UI Application</a></h4>
 <div class="paragraph">
 <p>To configure the Search UI Application:</p>
 </div>
@@ -7421,7 +7297,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 86. Search UI Available Configurations</caption>
+<caption class="title">Table 84. Search UI Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -7436,6 +7312,11 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 </thead>
 <tbody>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.security.facetwhitelist">Catalog UI Search Attribute Suggestion Whitelist</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.security.facetwhitelist</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Attribute Suggestion Whitelist</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier">Email Notifier</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Email Notifier.</p></td>
@@ -7446,34 +7327,91 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <td class="tableblock halign-left valign-top"><p class="tableblock">Search UI redirect.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService">Workspace Query Monitor</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Workspace Query Monitor.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.transformer.TransformerDescriptors">Catalog UI Search Transformer Blacklists</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.transformer.TransformerDescriptors</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Transformer Blacklists.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.config">Catalog UI Search</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.config</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService">Catalog UI Search Workspace Query Monitor</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Workspace Query Monitor.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl">Catalog UI Search Workspace Service</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Workspace Service.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui">Catalog UI Search</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.ui.search.standard.endpoint">Search UI Endpoint</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.ui.search.standard.endpoint</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Search UI Endpoint.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.attribute.aliases">Catalog UI Search Attribute Aliases</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.attribute.aliases</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Attribute Aliases.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.ui.search.standard.properties">Standard Search UI</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.ui.search.standard.properties</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Standard Search UI.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.attribute.descriptions">Catalog UI Search Attribute Descriptions</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.attribute.descriptions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Attribute Descriptions.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.security">Workspace Security</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.attribute.hidden">Catalog UI Search Hidden Attributes</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.attribute.hidden</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Hidden Attributes.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.theme">Catalog UI Search Theme</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.theme</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Theme.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.whitelist">Catalog UI Search Metacard Type Whitelist</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.whitelist</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Metacard Type Whitelist.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.security">Catalog UI Search Workspace Security</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.security</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Workspace Security.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Workspace Security.</p></td>
 </tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 87. <a id="_org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier"></a>Email Notifier</caption>
+<caption class="title">Table 85. <a id="_org.codice.ddf.catalog.ui.security.facetwhitelist"></a>Catalog UI Search Attribute Suggestion Whitelist</caption>
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 37.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Id</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default Value</th>
+<th class="tableblock halign-left valign-top">Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attribute Suggestion Whitelist</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>facetAttributeWhitelist</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes that should provide autocomplete suggestions. Suggestions are typically popular values for the attribute in data storage.
+Caution: Suggestion values are not protected by any security. Only choose attributes whose values will be safe for all users to view.</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 86. <a id="_org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier"></a>Catalog UI Search Email Notifier</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7498,7 +7436,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>subjectTemplate</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Set the subject line template.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Workspace '%[attribute=title]' notification</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Workspace '%[attribute=title]' notification</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
@@ -7506,15 +7444,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>bodyTemplate</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Set the body template.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results https://{FQDN}:{PORT}/search/catalog/#workspaces/% [attribute=id].</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Mail Server</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mailHost</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Set the hostname of the mail server.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">localhost</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results https://{FQDN}:{PORT}/search/catalog/#workspaces/%attribute=id.</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
@@ -7522,13 +7452,13 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>fromEmail</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Set the 'from' email address.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="mailto:donotreply@test.com">donotreply@test.com</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="mailto:donotreply@example.com">donotreply@example.com</a></code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 88. <a id="_org.codice.ddf.ui.searchui.filter.RedirectServlet"></a>Search UI Redirect</caption>
+<caption class="title">Table 87. <a id="_org.codice.ddf.ui.searchui.filter.RedirectServlet"></a>Search UI Redirect</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7553,13 +7483,52 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultUri</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the redirect URI to use when accessing the /search URI.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">/search/catalog</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${org.codice.ddf.external.context}/search/catalog/</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 89. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"></a>Workspace Query Monitor</caption>
+<caption class="title">Table 88. <a id="_org.codice.ddf.catalog.ui.transformer.TransformerDescriptors"></a>Catalog UI Search Transformer Blacklists</caption>
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 37.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Id</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default Value</th>
+<th class="tableblock halign-left valign-top">Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Metacard Transformer Blacklist</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>blackListedMetacardTransformerIds</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The IDs of all Metacard Transformers services that will not show up as export actions in the UI. Every ID in this set will remove that transformer as an export option in the UI.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Query Response Transformer Blacklist</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>blackListedQueryResponseTransformerIds</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The IDs of all Query Response Transformers services that will not show up as export actions in the UI. Every ID in this set will remove that transformer as an export option in the UI.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[<code>zipCompression</code>]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 89. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"></a>Catalog UI Search Workspace Query Monitor</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7584,7 +7553,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>queryTimeoutMinutes</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Long</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Set the number of minutes to wait for query to complete.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>5</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
@@ -7592,22 +7561,45 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>queryTimeInterval</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Set the Relative Time Search (past X minutes up to 24 hours).
-Note:  This will query for results from the interval to the time the query is sent out.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">1440</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Email Subscription Interval</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cronString</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Email Subscription Interval (Cron Expression)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">0 0 0 * * ?</p></td>
+Note: This will query for results from the interval to the time the query is sent out.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>1440</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 90. <a id="_org.codice.ddf.catalog.ui.config"></a>Catalog UI Search</caption>
+<caption class="title">Table 90. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl"></a>Catalog UI Search Workspace Service</caption>
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 37.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Id</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default Value</th>
+<th class="tableblock halign-left valign-top">Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum Subscriptions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maxSubscriptions</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the maximum number of workspace subscriptions that may be queried for email notifications.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>100</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 91. <a id="_org.codice.ddf.catalog.ui"></a>Catalog UI Search</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7636,18 +7628,68 @@ Note:  This will query for results from the interval to the time the query is se
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Export Result Limit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>exportResultLimit</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the max number of results that can be exported.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>1000</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Imagery Providers</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>imageryProviders</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of imagery providers to use. Valid types are: <strong>OSM</strong> (OpenStreetMap), <strong>AGM</strong> (ArcGisMap), <strong>BM</strong> (BingMap), <strong>WMS</strong> (WebMapService), <strong>WMT</strong> (WebMapTile), <strong>TMS</strong> (TileMapService), and <strong>GE</strong> (GoogleEarth).</p>
-<p class="tableblock"><strong>WMS example</strong>: <code>{"name": "Example WMS", "show": true, "type": "WMS", "url": "http://suite.opengeo.org/geoserver/gwc/service/wms", "layers" : ["opengeo:countries"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "order": 0, "alpha":1, "proxyEnabled": false}</code></p>
-<p class="tableblock"><strong>OSM example</strong>: <code>{"name": "Example OSM", "show": true, "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "order": 0, "alpha": 1, "proxyEnabled": false}</code></p>
-<p class="tableblock"><strong>AGM example</strong>: <code>{"name": "Example AGM", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", "order": 0, "proxyEnabled": false, "alpha": 1}</code></p>
-<p class="tableblock"><strong>Multiple layer example</strong>:<br>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>List of imagery providers to use.</p>
+</div>
+<div class="paragraph">
+<p>The valid types are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>OSM</strong> (OpenStreetMap)</p>
+</li>
+<li>
+<p><strong>AGM</strong> (ArcGisMap)</p>
+</li>
+<li>
+<p><strong>BM</strong> (BingMap)</p>
+</li>
+<li>
+<p><strong>WMS</strong> (WebMapService)</p>
+</li>
+<li>
+<p><strong>WMT</strong> (WebMapTile)</p>
+</li>
+<li>
+<p><strong>TMS</strong> (TileMapService)</p>
+</li>
+<li>
+<p><strong>GE</strong> (GoogleEarth)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>OSM example</strong>: <code>{"name": "Example OSM", "show": true, "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "order": 0, "alpha": 1, "proxyEnabled": false}</code></p>
+</div>
+<div class="paragraph">
+<p><strong>AGM example</strong>: <code>{"name": "Example AGM", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", "order": 0, "proxyEnabled": false, "alpha": 1}</code></p>
+</div>
+<div class="paragraph">
+<p><strong>WMS example</strong>: <code>{"name": "Example WMS", "show": true, "type": "WMS", "url": "http://suite.opengeo.org/geoserver/gwc/service/wms", "layers" : ["opengeo:countries"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "order": 0, "alpha":1, "proxyEnabled": false}</code></p>
+</div>
+<div class="paragraph">
+<p><strong>WMT example</strong>: <code>{ "parameters": { "transparent": false, "format": "image/jpeg" }, "name": "Example WMT", "tileMatrixLabels": [ "EPSG:4326:0", "EPSG:4326:1", "EPSG:4326:2", "EPSG:4326:3", "EPSG:4326:4", "EPSG:4326:5", "EPSG:4326:6", "EPSG:4326:7", "EPSG:4326:8", "EPSG:4326:9", "EPSG:4326:10", "EPSG:4326:11", "EPSG:4326:12", "EPSG:4326:13", "EPSG:4326:14", "EPSG:4326:15", "EPSG:4326:16", "EPSG:4326:17", "EPSG:4326:18", "EPSG:4326:19", "EPSG:4326:20", "EPSG:4326:21" ], "tileMatrixSetID": "EPSG:4326", "order": 0, "url": "http://suite.opengeo.org/geoserver/gwc/service/wmts", "layer": "opengeo:countries", "style": "", "proxyEnabled": false, "type": "WMT", "show": true, "alpha": 1}</code></p>
+</div>
+<div class="paragraph">
+<p><strong>TMS example</strong> (3d map support only): <code>{ "name": "Example TMS", "show": true, "type": "TMS", "order": 0, "url": "https://cesiumjs.org/tilesets/imagery/blackmarble", "proxyEnabled": false, "alpha": 1}</code></p>
+</div>
+<div class="paragraph">
+<p><strong>Multiple layer example</strong>:<br>
 <em>Topmost Layer</em>: <code>{ "name": "Example AGM", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", "order": 0, "proxyEnabled": false, "alpha": 1}</code><br>
 <em>Bottommost Layer</em>: <code>{ "name": "Example AGM 2", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer", "order": 1, "proxyEnabled": false, "alpha": 1}</code></p>
-<p class="tableblock"><strong>WMT example</strong>: <code>{ "parameters": { "transparent": false, "format": "image/jpeg" }, "name": "Example WMT", "tileMatrixLabels": [ "EPSG:4326:0", "EPSG:4326:1", "EPSG:4326:2", "EPSG:4326:3", "EPSG:4326:4", "EPSG:4326:5", "EPSG:4326:6", "EPSG:4326:7", "EPSG:4326:8", "EPSG:4326:9", "EPSG:4326:10", "EPSG:4326:11", "EPSG:4326:12", "EPSG:4326:13", "EPSG:4326:14", "EPSG:4326:15", "EPSG:4326:16", "EPSG:4326:17", "EPSG:4326:18", "EPSG:4326:19", "EPSG:4326:20", "EPSG:4326:21" ], "tileMatrixSetID": "EPSG:4326", "order": 0, "url": "http://suite.opengeo.org/geoserver/gwc/service/wmts", "layer": "opengeo:countries", "style": "", "proxyEnabled": false, "type": "WMT", "show": true, "alpha": 1}</code></p>
-<p class="tableblock"><strong>TMS example</strong> (3d map support only): <code>{ "name": "Example TMS", "show": true, "type": "TMS", "order": 0, "url": "https://cesiumjs.org/tilesets/imagery/blackmarble", "proxyEnabled": false, "alpha": 1}</code></p></td>
+</div></div></td>
 <td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -7670,6 +7712,14 @@ Note:  This will query for results from the interval to the time the query is se
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List Templates</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>listTemplates</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Templates for users to quickly create lists that already specify an icon and a filter. Example: {"id":"Pizza Deliveries", "list.icon": "tasks", "list.cql": "(\"anyText\"ILIKE &apos;pizza&apos;)"}</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Map Projection</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>projection</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
@@ -7684,22 +7734,6 @@ Note:  This will query for results from the interval to the time the query is se
 <td class="tableblock halign-left valign-top"><p class="tableblock">Bing Maps API key. This should only be set if you are using Bing Maps Imagery or Terrain Providers.</p></td>
 <td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Theme Spacing Mode</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>spacingMode</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the default theme spacing mode.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Comfortable</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Theme Zoom</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>zoomPercentage</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the default theme zoom percentage.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>100</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Connection Timeout</p></td>
@@ -7771,7 +7805,7 @@ Note:  This will query for results from the interval to the time the query is se
 <td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Locally cached results will be returned in search results.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Allow Editing</p></td>
@@ -7785,7 +7819,7 @@ Note:  This will query for results from the interval to the time the query is se
 <td class="tableblock halign-left valign-top"><p class="tableblock">Enable Web Sockets</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>webSocketsEnabled</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Web Sockets.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enables use of Web Sockets</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -7838,6 +7872,14 @@ Note:  This will query for results from the interval to the time the query is se
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Relevance Score Precision</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>relevancePrecision</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Set the number of digits to display in for each relevance score. The default is 5 (i.e. 12.345).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>5</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Show Logo in Title Bar</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>logoEnabled</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
@@ -7854,6 +7896,64 @@ Note:  This will query for results from the interval to the time the query is se
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Metacard Preview</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>metacardPreviewEnabled</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Metacard Preview in the Inspector.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Spellcheck</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>spellcheckEnabled</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable spellcheck for searches.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Similar Word Matching</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>phoneticsEnabled</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable phonetic and synonym matching for searches.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Basic Search Temporal Selections</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>basicSearchTemporalSelectionDefault</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Basic Search Temporal Selections.</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="ulist">
+<ul>
+<li>
+<p><code>created</code></p>
+</li>
+<li>
+<p><code>effective</code></p>
+</li>
+<li>
+<p><code>modified</code></p>
+</li>
+<li>
+<p><code>metacard.created</code></p>
+</li>
+<li>
+<p><code>metacard.modified</code></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Basic Search Match Type Metacard Attribute</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>basicSearchMatchType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Metacard attribute used for Basic Search Type Match.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>datatype</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Type Name Mapping</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>typeNameMapping</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
@@ -7866,22 +7966,58 @@ Note:  This will query for results from the interval to the time the query is se
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>readOnly</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List of metacard attributes that are read-only. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>^checksum$,<br>
-^checksum-algorithm$,<br>
-^id$,<br>
-^resource-download-url$,<br>
-^resource-uri$,<br>
-^resource.derived-uri$,<br>
-^resource.derived-download-url$,<br>
-^modified$,<br>
-^metacard-tags$,<br>
-^metadata$,<br>
-^metacard-type$,<br>
-^source-id$,<br>
-^point-of-contact$,<br>
-^metacard\.,<br>
-^version\.,<br>
-^validation\.</code></p></td>
+<td class="tableblock halign-left valign-top"><div><div class="ulist">
+<ul>
+<li>
+<p><code>^checksum$</code></p>
+</li>
+<li>
+<p><code>^checksum-algorithm$</code></p>
+</li>
+<li>
+<p><code>^id$</code></p>
+</li>
+<li>
+<p><code>^resource-download-url$</code></p>
+</li>
+<li>
+<p><code>^resource-uri$</code></p>
+</li>
+<li>
+<p><code>^resource.derived-uri$</code></p>
+</li>
+<li>
+<p><code>^resource.derived-download-url$</code></p>
+</li>
+<li>
+<p><code>^modified$</code></p>
+</li>
+<li>
+<p><code>^metacard-tags$</code></p>
+</li>
+<li>
+<p><code>^metadata$</code></p>
+</li>
+<li>
+<p><code>^metacard-type$</code></p>
+</li>
+<li>
+<p><code>^source-id$</code></p>
+</li>
+<li>
+<p><code>^point-of-contact$</code></p>
+</li>
+<li>
+<p><code>^metacard.</code></p>
+</li>
+<li>
+<p><code>^version.</code></p>
+</li>
+<li>
+<p><code>^validation.</code></p>
+</li>
+</ul>
+</div></div></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
@@ -7889,9 +8025,19 @@ Note:  This will query for results from the interval to the time the query is se
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>summaryShow</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List of metacard attributes to display in the summary view.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>created,<br>
-modified,<br>
-thumbnail</code></p></td>
+<td class="tableblock halign-left valign-top"><div><div class="ulist">
+<ul>
+<li>
+<p><code>created</code></p>
+</li>
+<li>
+<p><code>modified</code></p>
+</li>
+<li>
+<p><code>thumbnail</code></p>
+</li>
+</ul>
+</div></div></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
@@ -7903,44 +8049,35 @@ thumbnail</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Attribute Aliases</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>attributeAliases</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of attribute aliases. Separate the attribute name and alias with an equals (=) sign. Example: <code>title=Title</code>.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Hidden Attributes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>hiddenAttributes</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>^sorts$,<br>
-^cql$,<br>
-^polling$,<br>
-^cached$</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Attribute Descriptions</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>attributeDescriptions</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of friendly attribute descriptions. Separate the attribute name and description with an equals (=) sign. Example: <code>checksum-algorithm=Method for generating a small-sized datum from a block of digital data for the purpose of detecting errors</code>.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Query Schedule Frequencies</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>scheduleFrequencyList</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Long</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Custom list of schedule frequencies in seconds. This will override the frequency list in the query schedule tab. Leave this empty to use the frequency list on the Catalog UI.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>1800,<br>
-3600,<br>
-7200,<br>
-14400,<br>
-28800,<br>
-57600,<br>
-86400</code></p></td>
+<td class="tableblock halign-left valign-top"><div><div class="ulist">
+<ul>
+<li>
+<p><code>1800</code></p>
+</li>
+<li>
+<p><code>3600</code></p>
+</li>
+<li>
+<p><code>7200</code></p>
+</li>
+<li>
+<p><code>14400</code></p>
+</li>
+<li>
+<p><code>28800</code></p>
+</li>
+<li>
+<p><code>57600</code></p>
+</li>
+<li>
+<p><code>86400</code></p>
+</li>
+</ul>
+</div></div></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
@@ -7949,14 +8086,6 @@ thumbnail</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the interval during which new results can be merged automatically. This is the time allowed since last merge (in milliseconds).</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>1000</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Result Page Size</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>resultPageSize</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the number of results allowed per page on the client-side.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>25</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
@@ -8006,7 +8135,7 @@ thumbnail</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Map Home</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>mapHome</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the default home view for the map by bounding box. The format is: "West, South, East, North" where North, East, South, and West are coordinates in degrees. An example is: <code>-124, 60, -100, 40</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the default home view for the map by bounding box. The format is "West, South, East, North", where North, East, South, and West are coordinates in degrees. An example is: <code>-124, 60, -100, 40</code>.</p></td>
 <td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -8019,18 +8148,184 @@ thumbnail</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Relevance Score Precision</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>relevancePrecision</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Set the number of digits to display in for each relevance score. The default is <code>5</code> (i.e. 12.345).</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>5</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Upload Editor: Attribute Configuration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>attributeEnumMap</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes to show in the upload editor. See <a href="metadata.html#_catalog_taxonomy_definitions">Catalog Taxonomy</a>
+for a list of supported attributes.</p>
+<p class="tableblock">Supported entry syntax:<br>
+1. <code>attribute</code><br>
+2. <code>attribute=value1,value2,&#8230;&#8203;</code></p>
+<p class="tableblock">Using the first syntax, the editor will attempt to determine the appropriate control to display
+based on the attribute datatype.
+The second syntax will force the editor to use a dropdown selector populated with the provided
+values. This is intended for use with String datatypes, which by default may be assigned any value.</p></td>
+<td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Upload Editor: Required Attributes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>requiredAttributes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes which must be set before an upload is permitted. If an attribute is
+listed as required but not shown in the editor, it will be ignored.</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 92. <a id="_org.codice.ddf.catalog.ui.attribute.aliases"></a>Catalog UI Search Attribute Aliases</caption>
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 37.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Id</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default Value</th>
+<th class="tableblock halign-left valign-top">Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attribute Aliases</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>attributeAliases</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of attribute aliases. Separate the attribute name and alias with an equals (=) sign. Example: <code>title=Title</code>.</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 93. <a id="_org.codice.ddf.catalog.ui.attribute.descriptions"></a>Catalog UI Search Attribute Descriptions</caption>
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 37.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Id</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default Value</th>
+<th class="tableblock halign-left valign-top">Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attribute Descriptions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>attributeDescriptions</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of friendly attribute descriptions. Separate the attribute name and description with an equals (=) sign. Example: <code>checksum-algorithm=Method for generating a small-sized datum from a block of digital data for the purpose of detecting errors</code>.</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 94. <a id="_org.codice.ddf.catalog.ui.attribute.hidden"></a>Catalog UI Search Hidden Attributes</caption>
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 37.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Id</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default Value</th>
+<th class="tableblock halign-left valign-top">Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hidden Attributes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>hiddenAttributes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes.</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="ulist">
+<ul>
+<li>
+<p><code>^sorts$</code></p>
+</li>
+<li>
+<p><code>^cql$</code></p>
+</li>
+<li>
+<p><code>^polling$</code></p>
+</li>
+<li>
+<p><code>^cached$</code></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 95. <a id="_org.codice.ddf.catalog.ui.theme"></a>Catalog UI Search Theme</caption>
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 37.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Id</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default Value</th>
+<th class="tableblock halign-left valign-top">Required</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Theme</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>theme</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the default theme. <code>Custom</code> consists of the colors below.</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Specifies the default theme:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Dark</code></p>
+</li>
+<li>
+<p><code>Light</code></p>
+</li>
+<li>
+<p><code>Sea</code></p>
+</li>
+<li>
+<p><code>Custom</code>, which consists of the colors below</p>
+</li>
+</ul>
+</div></div></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Dark</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
@@ -8123,204 +8418,71 @@ thumbnail</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Upload Editor: Attribute Configuration</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>attributeEnumMap</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Theme Spacing Mode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>spacingMode</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes to show in the upload editor. See <a href="metadata.html#_catalog_taxonomy_definitions">Catalog Taxonomy</a>
-for a list of supported attributes.</p>
-<p class="tableblock">Supported entry syntax:<br>
-1. <code>attribute</code><br>
-2. <code>attribute=value1,value2,&#8230;&#8203;</code></p>
-<p class="tableblock">Using the first syntax, the editor will attempt to determine the appropriate control to display
-based on the attribute datatype.
-The second syntax will force the editor to use a dropdown selector populated with the provided
-values. This is intended for use with String datatypes, which by default may be assigned any value.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Upload Editor: Required Attributes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>requiredAttributes</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes which must be set before an upload is permitted. If an attribute is
-listed as required but not shown in the editor, it will be ignored.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 91. <a id="_org.codice.ddf.ui.search.standard.endpoint"></a>Search UI Endpoint</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Disable Cache</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cacheDisabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Disables use of cache.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Disable Normalization</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>normalizationDisabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Disables relevance and distance normalization.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 92. <a id="_org.codice.ddf.ui.search.standard.properties"></a>Standard Search UI</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Result Count</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>resultCount</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the number of results to request from each source (Max 1000).</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>250</code></p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Specifies the default theme spacing mode:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Comfortable</code></p>
+</li>
+<li>
+<p><code>Cozy</code></p>
+</li>
+<li>
+<p><code>Compact</code></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Comfortable</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Imagery Providers</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>imageryProviders</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of imagery providers to use. Valid types are: <strong>OSM</strong> (OpenStreetMap), <strong>AGM</strong> (ArcGisMap), <strong>BM</strong> (BingMap), <strong>WMS</strong> (WebMapService), <strong>WMT</strong> (WebMapTile), <strong>TMS</strong> (TileMapService), and <strong>GE</strong> (GoogleEarth).</p>
-<p class="tableblock">Example:
-<code>{"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}</code></p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Terrain Provider</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>terrainProvider</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Terrain provider to use for height data. Valid types are: <strong>CT</strong> (CesiumTerrain), <strong>AGS</strong> (ArcGisImageServer), and <strong>VRW</strong> (VRTheWorld).</p>
-<p class="tableblock">Example:
-<code>{"type": "CT" "url" "http://example.com"}</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{"type" "CT" "url" "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Map Projection</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>projection</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Projection of imagery providers (e.g. <code>EPSG:3857</code>, <code>EPSG:4326</code>).</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>EPSG:4326</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Bing Maps Key</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bingKey</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Bing Maps API key. This should only be set if you are using Bing Maps Imagery or Terrain Providers.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Connection Timeout</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>timeout</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Theme Zoom</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>zoomPercentage</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client-side connection timeout in milliseconds.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>15000</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the default theme zoom percentage.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>100</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 96. <a id="_org.codice.ddf.catalog.ui.whitelist"></a>Catalog UI Search Metacard Type Whitelist</caption>
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 37.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Help Location</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>helpUrl</code></p></td>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Id</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default Value</th>
+<th class="tableblock halign-left valign-top">Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Metacard Type Whitelist</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>whiteListedMetacardTypes</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL to help documentation.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>help.html</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show Sign In</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>signIn</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show Tasks</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>task</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show task menu area for long running actions.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show Gazetteer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>gazetteer</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show gazetteer for searching place names.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show Uploader</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ingest</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show upload menu for adding new record.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Use External Authentication</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>externalAuthentication</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Use an external authentication point, such as IdP.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Type Name Mapping</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>typeNameMapping</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Mapping of display names to content types in the form name=type.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of metacard types that are whitelisted and not filtered. NOTE: This will directly filter out metacard types rendered from metacard application. An empty list will whitelist everything.</p></td>
 <td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 93. <a id="_org.codice.ddf.catalog.ui.security"></a>Workspace Security</caption>
+<caption class="title">Table 97. <a id="_org.codice.ddf.catalog.ui.security"></a>Catalog UI Search Workspace Security</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -8345,7 +8507,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>systemUserAttribute</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The name of the attribute to determine the system user.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" class="bare">http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code><a href="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role" class="bare">http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role</a></code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
@@ -8353,7 +8515,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>systemUserAttributeValue</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The value of the attribute to determine the system user.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">admin</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>system-user</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 </tbody>
@@ -8363,13 +8525,13 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_application_whitelists"><a class="anchor" href="#_application_whitelists"></a><a class="link" href="#_application_whitelists">2. Application Whitelists</a></h2>
+<h2 id="_application_whitelists"><a class="anchor" href="#_application_whitelists"></a><a class="link" href="#_application_whitelists">Application Whitelists</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Within each DDF application, certain packages are exported for use by third parties.</p>
 </div>
 <div class="sect2">
-<h3 id="_packages_removed_from_whitelist"><a class="anchor" href="#_packages_removed_from_whitelist"></a><a class="link" href="#_packages_removed_from_whitelist">2.1. Packages Removed From Whitelist</a></h3>
+<h3 id="_packages_removed_from_whitelist"><a class="anchor" href="#_packages_removed_from_whitelist"></a><a class="link" href="#_packages_removed_from_whitelist">Packages Removed From Whitelist</a></h3>
 <div class="paragraph">
 <p>In the transition of the whitelist from the ambiguous package listing to the new class listing several errors were found. The packages originally listed that were removed either did not exist, contained experimental interfaces, or contained only internal implementations and should have never been included in the whitelist. The following is a list of packages that were listed in error and have been removed from the whitelist.</p>
 </div>
@@ -8613,7 +8775,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_catalog_whitelist"><a class="anchor" href="#_catalog_whitelist"></a><a class="link" href="#_catalog_whitelist">2.2. Catalog Whitelist</a></h3>
+<h3 id="_catalog_whitelist"><a class="anchor" href="#_catalog_whitelist"></a><a class="link" href="#_catalog_whitelist">Catalog Whitelist</a></h3>
 <div class="paragraph">
 <p>The following classes have been exported by the Catalog application and are approved for use by third parties:</p>
 </div>
@@ -9117,7 +9279,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_platform_whitelist"><a class="anchor" href="#_platform_whitelist"></a><a class="link" href="#_platform_whitelist">2.3. Platform Whitelist</a></h3>
+<h3 id="_platform_whitelist"><a class="anchor" href="#_platform_whitelist"></a><a class="link" href="#_platform_whitelist">Platform Whitelist</a></h3>
 <div class="paragraph">
 <p>The following classes have been exported by the Platform application and are approved for use by third parties:</p>
 </div>
@@ -9162,7 +9324,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_registry_whitelist"><a class="anchor" href="#_registry_whitelist"></a><a class="link" href="#_registry_whitelist">2.4. Registry Whitelist</a></h3>
+<h3 id="_registry_whitelist"><a class="anchor" href="#_registry_whitelist"></a><a class="link" href="#_registry_whitelist">Registry Whitelist</a></h3>
 <div class="paragraph">
 <p>The following classes have been exported by the Registry Application and are approved for use by third parties:</p>
 </div>
@@ -9171,7 +9333,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_security_whitelist"><a class="anchor" href="#_security_whitelist"></a><a class="link" href="#_security_whitelist">2.5. Security Whitelist</a></h3>
+<h3 id="_security_whitelist"><a class="anchor" href="#_security_whitelist"></a><a class="link" href="#_security_whitelist">Security Whitelist</a></h3>
 <div class="paragraph">
 <p>The following classes have been exported by the Security application and are approved for use by third parties:</p>
 </div>
@@ -9331,7 +9493,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_solr_catalog_whitelist"><a class="anchor" href="#_solr_catalog_whitelist"></a><a class="link" href="#_solr_catalog_whitelist">2.6. Solr Catalog Whitelist</a></h3>
+<h3 id="_solr_catalog_whitelist"><a class="anchor" href="#_solr_catalog_whitelist"></a><a class="link" href="#_solr_catalog_whitelist">Solr Catalog Whitelist</a></h3>
 <div class="paragraph">
 <p>The following classes have been exported by the Solr Catalog application and are approved for use by third parties:</p>
 </div>
@@ -9340,7 +9502,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_search_ui_whitelist"><a class="anchor" href="#_search_ui_whitelist"></a><a class="link" href="#_search_ui_whitelist">2.7. Search UI Whitelist</a></h3>
+<h3 id="_search_ui_whitelist"><a class="anchor" href="#_search_ui_whitelist"></a><a class="link" href="#_search_ui_whitelist">Search UI Whitelist</a></h3>
 <div class="paragraph">
 <p>The following classes have been exported by the Search UI application and are approved for use by third parties:</p>
 </div>
@@ -9357,7 +9519,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>This list of DDF dependencies is automatically generated:</p>
 </div>
 <div class="ulist">
-<div class="title">DDF 2.13.8 Dependency List.</div>
+<div class="title">DDF 2.15.0 Dependency List.</div>
 <ul>
 <li>
 <p>c3p0:c3p0:jar:0.9.1.1</p>
@@ -9426,6 +9588,9 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>com.google.code.gson:gson:jar:2.8.5</p>
 </li>
 <li>
+<p>com.google.crypto.tink:tink:jar:1.2.2</p>
+</li>
+<li>
 <p>com.google.guava:guava:jar:20.0</p>
 </li>
 <li>
@@ -9456,7 +9621,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>com.sparkjava:spark-core:jar:2.5.5</p>
 </li>
 <li>
-<p>com.sun.mail:javax.mail:jar:1.5.5</p>
+<p>com.sun.mail:javax.mail:jar:1.5.6</p>
 </li>
 <li>
 <p>com.sun.xml.bind:jaxb-core:jar:2.2.11</p>
@@ -9544,9 +9709,6 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </li>
 <li>
 <p>io.dropwizard.metrics:metrics-jvm:jar:3.2.6</p>
-</li>
-<li>
-<p>io.fastjson:boon:jar:0.34</p>
 </li>
 <li>
 <p>io.netty:netty-buffer:jar:4.1.16.Final</p>
@@ -9837,40 +9999,40 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.apache.httpcomponents:httpmime:jar:4.5.5</p>
 </li>
 <li>
-<p>org.apache.karaf.bundle:org.apache.karaf.bundle.core:jar:4.2.1</p>
+<p>org.apache.karaf.bundle:org.apache.karaf.bundle.core:jar:4.2.2</p>
 </li>
 <li>
-<p>org.apache.karaf.features:org.apache.karaf.features.core:jar:4.2.1</p>
+<p>org.apache.karaf.features:org.apache.karaf.features.core:jar:4.2.2</p>
 </li>
 <li>
-<p>org.apache.karaf.features:standard:xml:features:4.2.1</p>
+<p>org.apache.karaf.features:standard:xml:features:4.2.2</p>
 </li>
 <li>
-<p>org.apache.karaf.jaas:org.apache.karaf.jaas.boot:jar:4.2.1</p>
+<p>org.apache.karaf.jaas:org.apache.karaf.jaas.boot:jar:4.2.2</p>
 </li>
 <li>
-<p>org.apache.karaf.jaas:org.apache.karaf.jaas.config:jar:4.2.1</p>
+<p>org.apache.karaf.jaas:org.apache.karaf.jaas.config:jar:4.2.2</p>
 </li>
 <li>
-<p>org.apache.karaf.jaas:org.apache.karaf.jaas.modules:jar:4.2.1</p>
+<p>org.apache.karaf.jaas:org.apache.karaf.jaas.modules:jar:4.2.2</p>
 </li>
 <li>
-<p>org.apache.karaf.shell:org.apache.karaf.shell.console:jar:4.2.1</p>
+<p>org.apache.karaf.shell:org.apache.karaf.shell.console:jar:4.2.2</p>
 </li>
 <li>
-<p>org.apache.karaf.shell:org.apache.karaf.shell.core:jar:4.2.1</p>
+<p>org.apache.karaf.shell:org.apache.karaf.shell.core:jar:4.2.2</p>
 </li>
 <li>
-<p>org.apache.karaf.system:org.apache.karaf.system.core:jar:4.2.1</p>
+<p>org.apache.karaf.system:org.apache.karaf.system.core:jar:4.2.2</p>
 </li>
 <li>
-<p>org.apache.karaf:apache-karaf:tar.gz:4.2.1</p>
+<p>org.apache.karaf:apache-karaf:tar.gz:4.2.2</p>
 </li>
 <li>
-<p>org.apache.karaf:apache-karaf:zip:4.2.1</p>
+<p>org.apache.karaf:apache-karaf:zip:4.2.2</p>
 </li>
 <li>
-<p>org.apache.karaf:org.apache.karaf.util:jar:4.2.1</p>
+<p>org.apache.karaf:org.apache.karaf.util:jar:4.2.2</p>
 </li>
 <li>
 <p>org.apache.logging.log4j:log4j-1.2-api:jar:2.11.0</p>
@@ -9921,13 +10083,13 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.apache.mina:mina-core:jar:2.0.6</p>
 </li>
 <li>
-<p>org.apache.pdfbox:fontbox:jar:2.0.2</p>
+<p>org.apache.pdfbox:fontbox:jar:2.0.11</p>
 </li>
 <li>
-<p>org.apache.pdfbox:pdfbox-tools:jar:2.0.2</p>
+<p>org.apache.pdfbox:pdfbox-tools:jar:2.0.11</p>
 </li>
 <li>
-<p>org.apache.pdfbox:pdfbox:jar:2.0.2</p>
+<p>org.apache.pdfbox:pdfbox:jar:2.0.11</p>
 </li>
 <li>
 <p>org.apache.poi:poi-ooxml:jar:3.17</p>
@@ -10071,24 +10233,6 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.codice:lux:jar:1.2</p>
 </li>
 <li>
-<p>org.cometd.java:bayeux-api:jar:3.0.9</p>
-</li>
-<li>
-<p>org.cometd.java:cometd-java-annotations:jar:3.0.9</p>
-</li>
-<li>
-<p>org.cometd.java:cometd-java-client:jar:3.0.7</p>
-</li>
-<li>
-<p>org.cometd.java:cometd-java-client:jar:3.0.9</p>
-</li>
-<li>
-<p>org.cometd.java:cometd-java-common:jar:3.0.9</p>
-</li>
-<li>
-<p>org.cometd.java:cometd-java-server:jar:3.0.9</p>
-</li>
-<li>
 <p>org.eclipse.jetty:jetty-http:jar:9.4.11.v20180605</p>
 </li>
 <li>
@@ -10168,9 +10312,6 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </li>
 <li>
 <p>org.imgscalr:imgscalr-lib:jar:4.2</p>
-</li>
-<li>
-<p>org.jasig.cas.client:cas-client-core:jar:3.4.1</p>
 </li>
 <li>
 <p>org.jasypt:jasypt:jar:1.9.0</p>
@@ -10255,9 +10396,6 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </li>
 <li>
 <p>org.jvnet.ogc:wps-v_2_0:jar:2.6.1</p>
-</li>
-<li>
-<p>com.google.crypto.tink:tink:jar:1.2.2</p>
 </li>
 <li>
 <p>org.la4j:la4j:jar:0.6.0</p>
@@ -10450,6 +10588,74 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </li>
 </ul>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_hardening_checklist"><a class="anchor" href="#_hardening_checklist"></a><a class="link" href="#_hardening_checklist">Hardening Checklist</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following list enumerates the required mitigations needed for hardening. It is not intended to be a step-by-step procedure.
+To harden a new system, perform configuration as <a href="managing.html#_configuring">documented</a>.</p>
+</div>
+<div class="ulist checklist">
+<ul class="checklist">
+<li>
+<p>&#10063; <a href="managing.html#_auditing">Configure Auditing</a></p>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_setting_directory_permissions">Set Directory Permissions</a></p>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_managing_keystores_and_certificates">Configure Keystore and Certificates</a></p>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_disallowing_login_without_certificates">Disallow Login Without Certificates</a></p>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_managing_certificate_revocation">Configure Certificate Revocation</a></p>
+<div class="ulist checklist">
+<ul class="checklist">
+<li>
+<p>&#10063; <a href="managing.html#_denying_guest_user_access">Deny Guest User Access</a> (if denying Guest users)</p>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_allowing_guest_user_access">Allow Guest User Access</a> (if allowing Guest users)</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_configuring_guest_claim_attributes">Configure Guest Claim Attributes</a> (if allowing Guest users)</p>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_configuring_guest_access">Configure Guest User Authentication</a></p>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_hiding_errors_and_warnings_from_users_based_on_role">Create unique user role</a></p>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_limiting_access_to_the_sts">Limit Access to the STS</a></p>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_restricting_access_to_admin_console">Restricting Access to Admin Console</a></p>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_restricting_feature_app_service_and_configuration_access">Restrict Feature, App, Service, and Configuration Access</a></p>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_removing_default_users">Remove Default Users</a></p>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_hardening_solr">Harden Solr</a></p>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_environment_hardening">Environment Hardening</a></p>
+</li>
+<li>
+<p>&#10063; <a href="managing.html#_isolating_solr_cloud_and_zookeeper">Isolate Solr Cloud and Zookeeper</a>. (If using)</p>
+</li>
+</ul>
+</div>
 <script type="text/javascript" src="../../webjars/iframe-resizer/2.6.2/js/iframeResizer.contentWindow.min.js"></script>
 <script type="text/javascript" >
 "use strict";
@@ -10539,7 +10745,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-04-09 18:39:43 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-05-29 02:03:01 UTC
 </div>
 </div>
 </body>
