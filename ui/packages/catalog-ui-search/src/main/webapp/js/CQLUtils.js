@@ -237,6 +237,9 @@ function generateFilter(type, property, value, metacardDefinitions) {
   if (!metacardDefinitions) {
     metacardDefinitions = require('../component/singletons/metacard-definitions.js')
   }
+  if (metacardDefinitions.metacardTypes[property] === undefined) {
+    return null
+  }
   switch (metacardDefinitions.metacardTypes[property].type) {
     case 'LOCATION':
     case 'GEOMETRY':
