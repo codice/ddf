@@ -16,7 +16,7 @@
     <parent>
         <artifactId>catalog-security-pom</artifactId>
         <groupId>ddf.catalog.security</groupId>
-        <version>2.15.0-SNAPSHOT</version>
+        <version>2.15.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>catalog-security-filter</artifactId>
@@ -76,7 +76,7 @@
                             platform-util,
                             platform-util-unavailableurls
                         </Embed-Dependency>
-                        <Export-Package/>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>
