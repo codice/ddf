@@ -34,6 +34,7 @@ export type EntryParameters = {
   filterActions?: ExtensionPointsType['filterActions']
   providers?: ExtensionPointsType['providers']
   visualizations?: ExtensionPointsType['visualizations']
+  queryForms?: ExtensionPointsType['queryForms']
 }
 
 const entry = (extensionPoints: EntryParameters = {}) => {
@@ -43,6 +44,7 @@ const entry = (extensionPoints: EntryParameters = {}) => {
     filterActions,
     providers,
     visualizations,
+    queryForms,
   } = extensionPoints
   if (routes) {
     ExtensionPoints.routes = routes
@@ -58,6 +60,9 @@ const entry = (extensionPoints: EntryParameters = {}) => {
   }
   if (visualizations) {
     ExtensionPoints.visualizations = visualizations
+  }
+  if (queryForms) {
+    ExtensionPoints.queryForms = queryForms
   }
   require('../js/ApplicationStart')
 }
