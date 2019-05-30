@@ -24,13 +24,38 @@ export type ResultSet = {
   args?: Object
 }
 
+export const getExportResults = (results: any[]) => {
+  return results.map(result => getExportResult(result))
+}
+
+const getResultId = (result: any) => {
+  return result
+    .get('metacard')
+    .get('properties')
+    .get('id')
+}
+
+const getResultSourceId = (result: any) => {
+  return result
+    .get('metacard')
+    .get('properties')
+    .get('source-id')
+}
+
+export const getExportResult = (result: any) => {
+  return {
+    id: getResultId(result),
+    source: getResultSourceId(result),
+  }
+}
+
 export const getExportOptions = async (type: Transformer) => {
   return await fetch(`./internal/transformers/${type}`)
 }
 
 export const exportResult = async (
   source: string,
-  id: number,
+  id: string,
   transformer: string
 ) => {
   return await fetch(
