@@ -86,6 +86,7 @@
         <spring-version-range>[4.3,6)</spring-version-range>
         <!--END versions for camel features in platform-app-->
 
+        <!-- Ignore this change -->
         <!--START versions for enterprise features in platform-app features
         Copied from karaf-4.1.2-src/pom.xml
 
