@@ -30,6 +30,9 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -352,8 +355,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
   }
 
   private DefaultExecuteResultHandler executeFFmpeg(
-      final CommandLine command, final int timeoutSeconds, final PumpStreamHandler streamHandler)
-      throws IOException {
+      final CommandLine command, final int timeoutSeconds, final PumpStreamHandler streamHandler) {
     final ExecuteWatchdog watchdog = new ExecuteWatchdog(timeoutSeconds * 1000);
     final Executor executor = new DefaultExecutor();
     executor.setWatchdog(watchdog);
@@ -363,7 +365,19 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
     }
 
     final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
-    executor.execute(command, resultHandler);
+
+    try {
+      AccessController.doPrivileged(
+          (PrivilegedExceptionAction<Void>)
+              () -> {
+                executor.execute(command, resultHandler);
+                return null;
+              });
+    } catch (PrivilegedActionException e) {
+      String msg = "Video thumbnail plugin failed to execute ffmepg";
+      LOGGER.info(msg);
+      LOGGER.debug(msg, e);
+    }
 
     return resultHandler;
   }
