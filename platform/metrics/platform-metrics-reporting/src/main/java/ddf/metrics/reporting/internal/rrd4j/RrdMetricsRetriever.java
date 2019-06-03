@@ -590,7 +590,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
   }
 
   private double cumulativeRunningAverage(List<Double> values) {
-    if (values.size() == 0) {
+    if (values.isEmpty()) {
       return 0;
     }
     SummaryStatistics summaryStatistics = new SummaryStatistics();

@@ -775,7 +775,7 @@ public class CswEndpoint implements Csw {
       }
     }
 
-    if (updatedMetacardIdsList.size() > 0) {
+    if (!updatedMetacardIdsList.isEmpty()) {
       String[] updatedMetacardIds = updatedMetacardIdsList.toArray(new String[0]);
       UpdateRequest updateRequest = new UpdateRequestImpl(updatedMetacardIds, updatedMetacards);
 

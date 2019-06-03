@@ -55,7 +55,7 @@ public class TransformerManager {
   public String getTransformerIdForSchema(String schema) {
 
     List<Map<String, Object>> properties = getRelatedTransformerProperties(SCHEMA, schema);
-    if (properties.size() > 0) {
+    if (!properties.isEmpty()) {
       return (String) properties.get(0).get(ID);
     }
     return "";
@@ -63,7 +63,7 @@ public class TransformerManager {
 
   public String getTransformerSchemaForId(String id) {
     List<Map<String, Object>> properties = getRelatedTransformerProperties(ID, id);
-    if (properties.size() > 0) {
+    if (!properties.isEmpty()) {
       return (String) properties.get(0).get(SCHEMA);
     }
     return "";

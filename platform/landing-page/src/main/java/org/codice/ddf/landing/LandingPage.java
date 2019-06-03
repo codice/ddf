@@ -369,7 +369,7 @@ public class LandingPage extends HttpServlet {
 
   // A helper function used in the Handlebars template (index.handlebars).
   public String noAnnouncements(List<String> announcements) {
-    if (announcements.size() == 0) {
+    if (announcements.isEmpty()) {
       return "No announcements";
     } else {
       return "";

@@ -96,7 +96,7 @@ public class ReportingMetacardValidatorImpl
       }
     }
 
-    if (violations.size() > 0) {
+    if (!violations.isEmpty()) {
       return getReport(violations);
     }
 

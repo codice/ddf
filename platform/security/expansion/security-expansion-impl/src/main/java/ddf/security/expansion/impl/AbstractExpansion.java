@@ -254,7 +254,7 @@ public abstract class AbstractExpansion implements Expansion {
     List<String[]> list = expansionTable.get(key);
     if (list != null) {
       result = list.remove(rule);
-      if (list.size() == 0) {
+      if (list.isEmpty()) {
         expansionTable.remove(key);
       }
     }
@@ -269,7 +269,7 @@ public abstract class AbstractExpansion implements Expansion {
    * @param list the list of rules to be added to the corresponding attribute
    */
   public void addExpansionList(String key, List<String[]> list) {
-    if ((key == null) || (key.isEmpty()) || (list == null) || (list.size() == 0)) {
+    if ((key == null) || (key.isEmpty()) || (list == null) || (list.isEmpty())) {
       LOGGER.warn("Attempt to add list of expansion rules with null/empty key or null/empty list.");
       return;
     }

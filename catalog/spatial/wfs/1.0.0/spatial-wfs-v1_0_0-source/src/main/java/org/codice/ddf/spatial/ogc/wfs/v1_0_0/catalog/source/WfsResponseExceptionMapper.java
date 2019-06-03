@@ -89,7 +89,7 @@ public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsEx
     List<ServiceExceptionType> list =
         new ArrayList<ServiceExceptionType>(report.getServiceException());
 
-    if (list.size() > 0) {
+    if (!list.isEmpty()) {
       Collections.reverse(list);
       StringBuilder exceptionMsg = new StringBuilder();
       for (ServiceExceptionType serviceException : list) {
