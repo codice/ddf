@@ -44,6 +44,7 @@ import javax.activation.MimeType;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
 import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.PumpStreamHandler;
@@ -355,17 +356,23 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
   }
 
   private DefaultExecuteResultHandler executeFFmpeg(
-      final CommandLine command, final int timeoutSeconds, final PumpStreamHandler streamHandler) {
+      final CommandLine command, final int timeoutSeconds, final PumpStreamHandler streamHandler)
+      throws IOException {
     final ExecuteWatchdog watchdog = new ExecuteWatchdog(timeoutSeconds * 1000);
     final Executor executor = new DefaultExecutor();
-    executor.setWatchdog(watchdog);
+    final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
 
     if (streamHandler != null) {
       executor.setStreamHandler(streamHandler);
     }
+    executor.setWatchdog(watchdog);
+    executeWithPrivilege(command, executor, resultHandler);
+    return resultHandler;
+  }
 
-    final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
-
+  private void executeWithPrivilege(
+      CommandLine command, Executor executor, DefaultExecuteResultHandler resultHandler)
+      throws IOException {
     try {
       AccessController.doPrivileged(
           (PrivilegedExceptionAction<Void>)
@@ -377,9 +384,16 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
       String msg = "Video thumbnail plugin failed to execute ffmepg";
       LOGGER.info(msg);
       LOGGER.debug(msg, e);
+      Throwable cause = e.getCause();
+      // org.apache.commons.exe.Executor's execute() method's signature includes both the
+      // ExecuteException and IOException
+      if (cause instanceof ExecuteException) {
+        throw (ExecuteException) cause;
+      }
+      if (cause instanceof IOException) {
+        throw (IOException) cause;
+      }
     }
-
-    return resultHandler;
   }
 
   private CommandLine getFFmpegCreateThumbnailCommand(
