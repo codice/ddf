@@ -65,6 +65,7 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   reshow() {
+    this.queryView = undefined
     const formType = this.model.get('type')
     this.$el.toggleClass('is-form-builder', formType === 'new-form')
     switch (formType) {
@@ -141,7 +142,11 @@ module.exports = Marionette.LayoutView.extend({
     const queryFormView = form.reactView
       ? new (Marionette.LayoutView.extend({
           template: () => (
-            <form.reactView model={this.model} options={options} />
+            <form.reactView
+              model={this.model}
+              options={options}
+              onRef={ref => (this.queryView = ref)}
+            />
           ),
         }))({})
       : new form.view({
@@ -166,18 +171,24 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   focus() {
-    this.queryContent.currentView.focus()
+    this.queryView
+      ? this.queryView.focus()
+      : this.queryContent.currentView.focus()
   },
   edit() {
     this.$el.addClass('is-editing')
-    this.queryContent.currentView.edit()
+    this.queryView
+      ? this.queryView.edit()
+      : this.queryContent.currentView.edit()
   },
   cancel() {
     this.$el.removeClass('is-editing')
     this.onBeforeShow()
   },
   save() {
-    this.queryContent.currentView.save()
+    this.queryView
+      ? this.queryView.save()
+      : this.queryContent.currentView.save()
     this.queryTitle.currentView.save()
     if (this.$el.hasClass('is-form-builder')) {
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
@@ -190,14 +201,19 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
   },
   setDefaultTitle() {
-    this.queryContent.currentView.setDefaultTitle()
+    this.queryView
+      ? this.queryView.setDefaultTitle()
+      : this.queryContent.currentView.setDefaultTitle()
   },
   saveRun() {
-    if (!this.queryContent.currentView.isValid()) {
+    const queryContentView = this.queryView
+      ? this.queryView
+      : this.queryContent.currentView
+    if (!queryContentView.isValid()) {
       announcement.announce(InvalidSearchFormMessage)
       return
     }
-    this.queryContent.currentView.save()
+    queryContentView.save()
     this.queryTitle.currentView.save()
     if (this.model.get('title') === '') {
       this.setDefaultTitle()
