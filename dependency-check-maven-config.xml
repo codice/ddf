@@ -604,6 +604,6 @@
             management application for Hadoop. DDF only include Hadoop JAR files to support Solr
             dependencies. DDF does not make use of YARN.
         </notes>
-        <CVE>CVE-2018-8029</CVE>
+        <cve>CVE-2018-8029</cve>
     </suppress>
 </suppressions>
