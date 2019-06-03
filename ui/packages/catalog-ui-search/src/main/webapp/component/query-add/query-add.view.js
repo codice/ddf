@@ -13,6 +13,7 @@
  *
  **/
 
+import * as React from 'react'
 const Marionette = require('marionette')
 const template = require('./query-add.hbs')
 const CustomElements = require('../../js/CustomElements.js')
@@ -137,12 +138,18 @@ module.exports = Marionette.LayoutView.extend({
   },
   showQueryForm(form) {
     const options = form.options || {}
-    this.queryContent.show(
-      new form.view({
-        model: this.model,
-        ...options,
-      })
-    )
+    const queryFormView = form.reactView
+      ? new (Marionette.LayoutView.extend({
+          template: () => (
+            <form.reactView model={this.model} options={options} />
+          ),
+        }))({})
+      : new form.view({
+          model: this.model,
+          ...options,
+        })
+
+    this.queryContent.show(queryFormView)
   },
   handleEditOnShow() {
     if (this.$el.hasClass('is-editing')) {
