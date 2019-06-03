@@ -26,9 +26,7 @@ function removeInvalidCenters(results, centers) {
 }
 
 function convertIndicesToResults(results, cluster) {
-  return cluster.map(function(index) {
-    return results[index]
-  })
+  return cluster.map(index => results[index])
 }
 
 module.exports = {
@@ -38,8 +36,8 @@ module.exports = {
   calculateClusters(results, map) {
     const centers = map.getWindowLocationsOfResults(results)
     removeInvalidCenters(results, centers)
-    return dbscan.run(centers, 44, 2).map(function(cluster) {
-      return convertIndicesToResults(results, cluster)
-    })
+    return dbscan
+      .run(centers, 44, 2)
+      .map(cluster => convertIndicesToResults(results, cluster))
   },
 }

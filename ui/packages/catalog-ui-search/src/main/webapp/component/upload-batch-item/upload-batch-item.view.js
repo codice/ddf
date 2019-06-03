@@ -52,16 +52,13 @@ module.exports = Marionette.LayoutView.extend({
   },
   removeModel() {
     this.$el.toggleClass('is-destroyed', true)
-    setTimeout(
-      function() {
-        this.model.collection.remove(this.model)
-        user
-          .get('user')
-          .get('preferences')
-          .savePreferences()
-      }.bind(this),
-      250
-    )
+    setTimeout(() => {
+      this.model.collection.remove(this.model)
+      user
+        .get('user')
+        .get('preferences')
+        .savePreferences()
+    }, 250)
   },
   stopUpload() {
     this.model.cancel()

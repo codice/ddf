@@ -79,26 +79,24 @@ module.exports = Marionette.LayoutView.extend({
   },
   getAnnotationsForQuery() {
     LoadingCompanionView.beginLoading(this)
-    $.get('./internal/annotations/' + this.model.get('id')).then(
-      function(response) {
-        const resp = response.response
-        if (response.responseType === 'success') {
-          if (this.isValidResponse(resp)) {
-            this._annotations = JSON.parse(resp)
-            this.parseAnnotations()
-          } else {
-            announcement.announce({
-              title: 'Error!',
-              message:
-                'There was an error retrieving the annotations for this item!',
-              type: 'error',
-            })
-          }
+    $.get('./internal/annotations/' + this.model.get('id')).then(response => {
+      const resp = response.response
+      if (response.responseType === 'success') {
+        if (this.isValidResponse(resp)) {
+          this._annotations = JSON.parse(resp)
+          this.parseAnnotations()
+        } else {
+          announcement.announce({
+            title: 'Error!',
+            message:
+              'There was an error retrieving the annotations for this item!',
+            type: 'error',
+          })
         }
-        LoadingCompanionView.endLoading(this)
-        this.checkHasAnnotations()
-      }.bind(this)
-    )
+      }
+      LoadingCompanionView.endLoading(this)
+      this.checkHasAnnotations()
+    })
   },
   showAnnotationsListView() {
     this.annotationsList.show(
@@ -135,18 +133,16 @@ module.exports = Marionette.LayoutView.extend({
   },
   parseAnnotations() {
     this.clearAnnotations()
-    this._annotations.forEach(
-      function(annotation) {
-        this._annotationsCollection.add({
-          id: annotation.id,
-          parent: annotation.parent,
-          created: annotation.created,
-          modified: annotation.modified,
-          annotation: annotation.note,
-          owner: annotation.owner,
-        })
-      }.bind(this)
-    )
+    this._annotations.forEach(annotation => {
+      this._annotationsCollection.add({
+        id: annotation.id,
+        parent: annotation.parent,
+        created: annotation.created,
+        modified: annotation.modified,
+        annotation: annotation.note,
+        owner: annotation.owner,
+      })
+    })
   },
   clearAnnotations() {
     if (!this._annotationsCollection) {
@@ -168,35 +164,30 @@ module.exports = Marionette.LayoutView.extend({
         data: JSON.stringify(annotationObj),
         method: 'POST',
         contentType: 'application/json',
-      }).always(
-        function(response) {
-          const resp = response.response
-          setTimeout(
-            function() {
-              if (response.responseType === 'success') {
-                if (this.isValidResponse(resp)) {
-                  this.handlePostResponse(resp)
-                  announcement.announce({
-                    title: 'Created!',
-                    message: 'New annotation has been created.',
-                    type: 'success',
-                  })
-                  this.addAnnotationField.currentView.revert()
-                }
-              } else {
-                announcement.announce({
-                  title: 'Error!',
-                  message: resp,
-                  type: 'error',
-                })
-              }
-              LoadingCompanionView.endLoading(this)
-              this.checkHasAnnotations()
-            }.bind(this),
-            1000
-          )
-        }.bind(this)
-      )
+      }).always(response => {
+        const resp = response.response
+        setTimeout(() => {
+          if (response.responseType === 'success') {
+            if (this.isValidResponse(resp)) {
+              this.handlePostResponse(resp)
+              announcement.announce({
+                title: 'Created!',
+                message: 'New annotation has been created.',
+                type: 'success',
+              })
+              this.addAnnotationField.currentView.revert()
+            }
+          } else {
+            announcement.announce({
+              title: 'Error!',
+              message: resp,
+              type: 'error',
+            })
+          }
+          LoadingCompanionView.endLoading(this)
+          this.checkHasAnnotations()
+        }, 1000)
+      })
     } else {
       announcement.announce({
         title: 'Error!',

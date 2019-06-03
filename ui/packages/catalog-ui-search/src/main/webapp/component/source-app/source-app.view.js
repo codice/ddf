@@ -35,11 +35,8 @@ module.exports = Marionette.LayoutView.extend({
   onRender() {
     LoadingCompanionView.beginLoading(this)
 
-    this.$el.find('iframe').on(
-      'load',
-      function() {
-        LoadingCompanionView.endLoading(this)
-      }.bind(this)
-    )
+    this.$el.find('iframe').on('load', () => {
+      LoadingCompanionView.endLoading(this)
+    })
   },
 })

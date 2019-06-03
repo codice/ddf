@@ -36,13 +36,9 @@ module.exports = DropdownView.extend({
     this.model.set('value', getName(this.modelForComponent.get('user')))
   },
   listenToComponent() {
-    this.listenTo(
-      this.modelForComponent,
-      'change',
-      function() {
-        this.model.set('value', getName(this.modelForComponent.get('user')))
-      }.bind(this)
-    )
+    this.listenTo(this.modelForComponent, 'change', () => {
+      this.model.set('value', getName(this.modelForComponent.get('user')))
+    })
   },
   isCentered: true,
   getCenteringElement() {

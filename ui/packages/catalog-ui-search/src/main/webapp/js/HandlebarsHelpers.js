@@ -27,7 +27,7 @@ function bind(options, callback) {
   options.data.root._view.listenToOnce(
     options.data.root._view,
     'before:render',
-    function() {
+    () => {
       options.data.root._view.stopListening(
         options.data.root._view.model,
         options.hash.event || 'change',
@@ -121,7 +121,7 @@ let helper,
       const items = _.initial(args)
       let result = true
       const block = _.last(args)
-      _.each(items, function(item, i) {
+      _.each(items, (item, i) => {
         if (i % 2 === 0) {
           if (item !== items[i + 1]) {
             result = false
@@ -176,7 +176,7 @@ let helper,
       const items = _.initial(args)
       let result = true
       const block = _.last(args)
-      _.each(items, function(item) {
+      _.each(items, item => {
         if (!item) {
           result = false
         }
@@ -192,7 +192,7 @@ let helper,
       const items = _.initial(args)
       let result = false
       const block = _.last(args)
-      _.each(items, function(item) {
+      _.each(items, item => {
         if (item) {
           result = true
         }
@@ -208,7 +208,7 @@ let helper,
       const items = _.initial(args)
       let result = true
       const block = _.last(args)
-      _.each(items, function(item) {
+      _.each(items, item => {
         if (!item) {
           result = false
         }
@@ -224,7 +224,7 @@ let helper,
       const items = _.initial(args)
       let result = false
       const block = _.last(args)
-      _.each(items, function(item) {
+      _.each(items, item => {
         if (item) {
           result = true
         }
@@ -239,9 +239,7 @@ let helper,
       if (_.isString(str)) {
         return _.chain(str)
           .words()
-          .map(function(word) {
-            return _.capitalize(word)
-          })
+          .map(word => _.capitalize(word))
           .join(' ')
       }
       return str

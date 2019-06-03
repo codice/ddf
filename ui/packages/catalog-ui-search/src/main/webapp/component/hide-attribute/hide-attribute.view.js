@@ -24,7 +24,7 @@ const user = require('../singletons/user-instance.js')
 
 function filterAndSort(attributes) {
   return attributes
-    .filter(function(property) {
+    .filter(property => {
       if (metacardDefinitions.metacardTypes[property]) {
         return !metacardDefinitions.metacardTypes[property].hidden
       } else {
@@ -57,7 +57,7 @@ function calculateAvailableAttributesFromSelection(selectionInterface) {
   )
   return selectionInterface
     .getSelectedResults()
-    .reduce(function(currentAvailable, result) {
+    .reduce((currentAvailable, result) => {
       currentAvailable = _.union(
         currentAvailable,
         Object.keys(

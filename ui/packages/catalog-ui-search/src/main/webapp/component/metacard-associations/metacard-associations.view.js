@@ -66,21 +66,17 @@ module.exports = Marionette.LayoutView.extend({
     this.clearAssociations()
     LoadingCompanionView.beginLoading(this)
     $.get('./internal/associations/' + this.model.get('metacard').get('id'))
-      .then(
-        function(response) {
-          if (!this.isDestroyed && this.associationsMenu !== undefined) {
-            this._originalAssociations = JSON.parse(JSON.stringify(response))
-            this._associations = response
-            this.parseAssociations()
-            this.onBeforeShow()
-          }
-        }.bind(this)
-      )
-      .always(
-        function() {
-          LoadingCompanionView.endLoading(this)
-        }.bind(this)
-      )
+      .then(response => {
+        if (!this.isDestroyed && this.associationsMenu !== undefined) {
+          this._originalAssociations = JSON.parse(JSON.stringify(response))
+          this._associations = response
+          this.parseAssociations()
+          this.onBeforeShow()
+        }
+      })
+      .always(() => {
+        LoadingCompanionView.endLoading(this)
+      })
   },
   clearAssociations() {
     if (!this._knownMetacards) {
@@ -93,19 +89,17 @@ module.exports = Marionette.LayoutView.extend({
   },
   parseAssociations() {
     this.clearAssociations()
-    this._associations.forEach(
-      function(association) {
-        this._knownMetacards.add([association.parent, association.child])
-        this._associationCollection.add({
-          parent: association.parent.id,
-          child: association.child.id,
-          relationship:
-            association.relation === 'metacard.associations.derived'
-              ? 'derived'
-              : 'related',
-        })
-      }.bind(this)
-    )
+    this._associations.forEach(association => {
+      this._knownMetacards.add([association.parent, association.child])
+      this._associationCollection.add({
+        parent: association.parent.id,
+        child: association.child.id,
+        relationship:
+          association.relation === 'metacard.associations.derived'
+            ? 'derived'
+            : 'related',
+      })
+    })
   },
   onBeforeShow() {
     this.showAssociationsMenuView()
@@ -190,7 +184,7 @@ module.exports = Marionette.LayoutView.extend({
   handleSave() {
     LoadingCompanionView.beginLoading(this)
     const data = this._associationCollection.toJSON()
-    data.forEach(function(association) {
+    data.forEach(association => {
       association.parent = {
         id: association.parent,
       }
@@ -207,19 +201,14 @@ module.exports = Marionette.LayoutView.extend({
       data: JSON.stringify(data),
       method: 'PUT',
       contentType: 'application/json',
-    }).always(
-      function(response) {
-        setTimeout(
-          function() {
-            if (!this.isDestroyed) {
-              this.getAssociations()
-              this.turnOffEditing()
-            }
-          }.bind(this),
-          1000
-        )
-      }.bind(this)
-    )
+    }).always(response => {
+      setTimeout(() => {
+        if (!this.isDestroyed) {
+          this.getAssociations()
+          this.turnOffEditing()
+        }
+      }, 1000)
+    })
   },
   handleFooter() {
     this.$el

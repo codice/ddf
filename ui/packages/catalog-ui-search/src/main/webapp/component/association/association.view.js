@@ -38,19 +38,20 @@ function determineChoices(view) {
     .getCurrentQuery()
     .get('result')
     .get('results')
-    .filter(function(result) {
-      return result.get('metacard').id !== currentMetacard.get('metacard').id
-    })
-    .filter(function(result) {
-      return !(
-        result.isWorkspace() ||
-        result.isRevision() ||
-        result.isRemote() ||
-        result.isDeleted()
-      )
-    })
+    .filter(
+      result => result.get('metacard').id !== currentMetacard.get('metacard').id
+    )
+    .filter(
+      result =>
+        !(
+          result.isWorkspace() ||
+          result.isRevision() ||
+          result.isRemote() ||
+          result.isDeleted()
+        )
+    )
     .reduce(
-      function(options, result) {
+      (options, result) => {
         options.push({
           label: result
             .get('metacard')
@@ -67,20 +68,16 @@ function determineChoices(view) {
         },
       ].concat(
         view.options.knownMetacards
-          .filter(function(metacard) {
-            return metacard.id !== currentMetacard.get('metacard').id
-          })
-          .map(function(metacard) {
-            return {
-              label: metacard.get('title'),
-              value: metacard.id,
-            }
-          })
+          .filter(
+            metacard => metacard.id !== currentMetacard.get('metacard').id
+          )
+          .map(metacard => ({
+            label: metacard.get('title'),
+            value: metacard.id,
+          }))
       )
     )
-  choices = _.uniq(choices, false, function(choice) {
-    return choice.value
-  })
+  choices = _.uniq(choices, false, choice => choice.value)
   return choices
 }
 
@@ -121,7 +118,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   turnOnEditing() {
     this.$el.toggleClass('is-editing', true)
-    this.regionManager.forEach(function(region) {
+    this.regionManager.forEach(region => {
       if (region.currentView && region.currentView.turnOnEditing) {
         region.currentView.turnOnEditing()
       }
@@ -129,7 +126,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   turnOffEditing() {
     this.$el.toggleClass('is-editing', false)
-    this.regionManager.forEach(function(region) {
+    this.regionManager.forEach(region => {
       if (region.currentView && region.currentView.turnOffEditing) {
         region.currentView.turnOffEditing()
       }
@@ -304,8 +301,6 @@ module.exports = Marionette.LayoutView.extend({
     this.updateRelationshipReadOnly()
   },
   getChoiceById(id) {
-    return this.choices.filter(function(choice) {
-      return choice.value === id
-    })[0]
+    return this.choices.filter(choice => choice.value === id)[0]
   },
 })

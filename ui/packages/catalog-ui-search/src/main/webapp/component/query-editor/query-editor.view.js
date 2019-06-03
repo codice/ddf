@@ -28,7 +28,7 @@ import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
 
 function isNested(filter) {
   let nested = false
-  filter.filters.forEach(function(subfilter) {
+  filter.filters.forEach(subfilter => {
     nested = nested || subfilter.filters
   })
   return nested
@@ -36,7 +36,7 @@ function isNested(filter) {
 
 function isTypeLimiter(filter) {
   let typesFound = {}
-  filter.filters.forEach(function(subfilter) {
+  filter.filters.forEach(subfilter => {
     typesFound[CQLUtils.getProperty(subfilter)] = true
   })
   typesFound = Object.keys(typesFound)
@@ -58,7 +58,7 @@ function isAnyDate(filter) {
   const typesFound = {}
   const valuesFound = {}
   if (filter.filters.length === propertiesToCheck.length) {
-    filter.filters.forEach(function(subfilter) {
+    filter.filters.forEach(subfilter => {
       typesFound[subfilter.type] = true
       valuesFound[subfilter.value] = true
       const indexOfType = propertiesToCheck.indexOf(
@@ -81,32 +81,30 @@ function translateFilterToBasicMap(filter) {
   const propertyValueMap = {}
   let downConversion = false
   if (filter.filters) {
-    filter.filters.forEach(function(filter) {
+    filter.filters.forEach(filter => {
       if (!filter.filters) {
         propertyValueMap[CQLUtils.getProperty(filter)] =
           propertyValueMap[CQLUtils.getProperty(filter)] || []
         if (
-          propertyValueMap[CQLUtils.getProperty(filter)].filter(function(
-            existingFilter
-          ) {
-            return existingFilter.type === filter.type
-          }).length === 0
+          propertyValueMap[CQLUtils.getProperty(filter)].filter(
+            existingFilter => existingFilter.type === filter.type
+          ).length === 0
         ) {
           propertyValueMap[CQLUtils.getProperty(filter)].push(filter)
         }
       } else if (!isNested(filter) && isAnyDate(filter)) {
         propertyValueMap['anyDate'] = propertyValueMap['anyDate'] || []
         if (
-          propertyValueMap['anyDate'].filter(function(existingFilter) {
-            return existingFilter.type === filter.filters[0].type
-          }).length === 0
+          propertyValueMap['anyDate'].filter(
+            existingFilter => existingFilter.type === filter.filters[0].type
+          ).length === 0
         ) {
           propertyValueMap['anyDate'].push(filter.filters[0])
         }
       } else if (!isNested(filter) && isTypeLimiter(filter)) {
         propertyValueMap[CQLUtils.getProperty(filter.filters[0])] =
           propertyValueMap[CQLUtils.getProperty(filter.filters[0])] || []
-        filter.filters.forEach(function(subfilter) {
+        filter.filters.forEach(subfilter => {
           propertyValueMap[CQLUtils.getProperty(filter.filters[0])].push(
             subfilter
           )

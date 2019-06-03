@@ -16,7 +16,7 @@ const Common = require('../Common.js')
 const wreqr = require('../wreqr.js')
 const _ = require('underscore')
 
-const updatePreferences = _.throttle(function() {
+const updatePreferences = _.throttle(() => {
   wreqr.vent.trigger('preferences:save')
 }, 1000)
 
@@ -156,7 +156,7 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   handleIssuesUpdates() {
     this.set({
-      issues: this.get('uploads').reduce(function(issues, upload) {
+      issues: this.get('uploads').reduce((issues, upload) => {
         issues += upload.get('issues') ? 1 : 0
         return issues
       }, 0),
@@ -191,11 +191,11 @@ module.exports = Backbone.AssociatedModel.extend({
     if (files.length === 0) {
       return 100
     }
-    const totalBytes = files.reduce(function(total, file) {
+    const totalBytes = files.reduce((total, file) => {
       total += file.upload.total
       return total
     }, 0)
-    const bytesSent = files.reduce(function(total, file) {
+    const bytesSent = files.reduce((total, file) => {
       total += file.upload.bytesSent
       return total
     }, 0)

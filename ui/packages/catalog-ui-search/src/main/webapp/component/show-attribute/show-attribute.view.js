@@ -25,7 +25,7 @@ const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
 function filterAndSort(attributes) {
   return attributes
-    .filter(function(property) {
+    .filter(property => {
       if (metacardDefinitions.metacardTypes[property]) {
         return !metacardDefinitions.metacardTypes[property].hidden
       } else {
@@ -46,7 +46,7 @@ function filterAndSort(attributes) {
 function calculateAvailableAttributesFromSelection(selectionInterface) {
   return selectionInterface
     .getSelectedResults()
-    .reduce(function(currentAvailable, result) {
+    .reduce((currentAvailable, result) => {
       currentAvailable = _.union(
         currentAvailable,
         Object.keys(
@@ -63,7 +63,7 @@ function calculateAvailableAttributesFromSelection(selectionInterface) {
 function calculateAvailableAttributesFromActive(selectionInterface) {
   return selectionInterface
     .getActiveSearchResults()
-    .reduce(function(currentAvailable, result) {
+    .reduce((currentAvailable, result) => {
       currentAvailable = _.union(
         currentAvailable,
         Object.keys(

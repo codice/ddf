@@ -31,9 +31,9 @@ module.exports = {
       Calculates the center of given a geometry (WKT)
     */
   calculateOpenlayersCenterOfGeometry(propertyModel) {
-    const lineObject = propertyModel.getPoints().map(function(coordinate) {
-      return convertPointCoordinate(coordinate)
-    })
+    const lineObject = propertyModel
+      .getPoints()
+      .map(coordinate => convertPointCoordinate(coordinate))
     const extent = Openlayers.extent.boundingExtent(lineObject)
     return Openlayers.extent.getCenter(extent)
   },
@@ -51,13 +51,9 @@ module.exports = {
     */
   calculateOpenlayersCenterOfGeometries(propertyModels) {
     const allPoints = _.flatten(
-      propertyModels.map(function(propertyModel) {
-        return propertyModel.getPoints()
-      }),
+      propertyModels.map(propertyModel => propertyModel.getPoints()),
       true
-    ).map(function(coordinate) {
-      return convertPointCoordinate(coordinate)
-    })
+    ).map(coordinate => convertPointCoordinate(coordinate))
     const extent = Openlayers.extent.boundingExtent(allPoints)
     return Openlayers.extent.getCenter(extent)
   },

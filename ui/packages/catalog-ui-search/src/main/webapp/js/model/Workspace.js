@@ -49,11 +49,11 @@ const WorkspaceQueryCollection = Backbone.Collection.extend({
   initialize() {
     const searchList = this
     this._colorGenerator = ColorGenerator.getNewGenerator()
-    this.listenTo(this, 'add', function(query) {
+    this.listenTo(this, 'add', query => {
       query.setColor(searchList._colorGenerator.getColor(query.getId()))
       QueryPolling.handleAddingQuery(query)
     })
-    this.listenTo(this, 'remove', function(query) {
+    this.listenTo(this, 'remove', query => {
       searchList._colorGenerator.removeColor(query.getId())
       QueryPolling.handleRemovingQuery(query)
     })
@@ -190,7 +190,7 @@ module.exports = PartialAssociatedModel.extend({
     return this.get('saved')
   },
   destroy(options) {
-    this.get('queries').forEach(function(query) {
+    this.get('queries').forEach(query => {
       QueryPolling.handleRemovingQuery(query)
     })
     if (this.get('localStorage')) {
@@ -203,24 +203,20 @@ module.exports = PartialAssociatedModel.extend({
     $.ajax({
       type: 'post',
       url: './internal/subscribe/' + this.get('id'),
-    }).then(
-      function() {
-        this.set('subscribed', true)
-      }.bind(this)
-    )
+    }).then(() => {
+      this.set('subscribed', true)
+    })
   },
   unsubscribe() {
     $.ajax({
       type: 'post',
       url: './internal/unsubscribe/' + this.get('id'),
-    }).then(
-      function() {
-        this.set('subscribed', false)
-      }.bind(this)
-    )
+    }).then(() => {
+      this.set('subscribed', false)
+    })
   },
   clearResults() {
-    this.get('queries').forEach(function(queryModel) {
+    this.get('queries').forEach(queryModel => {
       queryModel.clearResults()
     })
   },

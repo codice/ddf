@@ -147,11 +147,9 @@ module.exports = Backbone.AssociatedModel.extend({
     }
     convertToValid(key, this)
     Backbone.AssociatedModel.prototype.set.call(this, key, value, options)
-    Common.queueExecution(
-      function() {
-        this.trigger('change', Object.keys(key))
-      }.bind(this)
-    )
+    Common.queueExecution(() => {
+      this.trigger('change', Object.keys(key))
+    })
   },
 
   initialize() {
@@ -272,35 +270,23 @@ module.exports = Backbone.AssociatedModel.extend({
     }
 
     this.repositionLatLonUtmUps(
-      function(_this) {
-        return _this.isUtmUpsUpperLeftDefined()
-      },
-      function(_this) {
-        return _this.parseUtmUpsUpperLeft()
-      },
-      function(newResult, lat, lon) {
+      _this => _this.isUtmUpsUpperLeftDefined(),
+      _this => _this.parseUtmUpsUpperLeft(),
+      (newResult, lat, lon) => {
         newResult.mapNorth = lat
         newResult.mapWest = lon
       },
-      function(_this) {
-        return _this.clearUtmUpsUpperLeft(true)
-      }
+      _this => _this.clearUtmUpsUpperLeft(true)
     )
 
     this.repositionLatLonUtmUps(
-      function(_this) {
-        return _this.isUtmUpsLowerRightDefined()
-      },
-      function(_this) {
-        return _this.parseUtmUpsLowerRight()
-      },
-      function(newResult, lat, lon) {
+      _this => _this.isUtmUpsLowerRightDefined(),
+      _this => _this.parseUtmUpsLowerRight(),
+      (newResult, lat, lon) => {
         newResult.mapSouth = lat
         newResult.mapEast = lon
       },
-      function(_this) {
-        return _this.clearUtmUpsLowerRight(true)
-      }
+      _this => _this.clearUtmUpsLowerRight(true)
     )
   },
 
@@ -350,34 +336,26 @@ module.exports = Backbone.AssociatedModel.extend({
 
       this.setLatLonUtmUps(
         result,
-        function(_this) {
-          return _this.isUtmUpsUpperLeftDefined()
-        },
-        function(_this) {
-          return _this.parseUtmUpsUpperLeft()
-        },
-        function(result, lat, lon) {
+        _this => _this.isUtmUpsUpperLeftDefined(),
+        _this => _this.parseUtmUpsUpperLeft(),
+        (result, lat, lon) => {
           result.north = lat
           result.west = lon
         },
-        function(_this) {
+        _this => {
           _this.clearUtmUpsUpperLeft(true)
         }
       )
 
       this.setLatLonUtmUps(
         result,
-        function(_this) {
-          return _this.isUtmUpsLowerRightDefined()
-        },
-        function(_this) {
-          return _this.parseUtmUpsLowerRight()
-        },
-        function(result, lat, lon) {
+        _this => _this.isUtmUpsLowerRightDefined(),
+        _this => _this.parseUtmUpsLowerRight(),
+        (result, lat, lon) => {
           result.south = lat
           result.east = lon
         },
-        function(_this) {
+        _this => {
           _this.clearUtmUpsLowerRight(true)
         }
       )

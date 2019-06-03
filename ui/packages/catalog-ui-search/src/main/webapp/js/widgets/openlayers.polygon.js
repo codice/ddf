@@ -80,7 +80,7 @@ Draw.PolygonView = Marionette.View.extend({
     if (setArr.length < 3) {
       return
     }
-    _.each(setArr, function(item) {
+    _.each(setArr, item => {
       coords.push(
         ol.proj.transform(
           [item[0], item[1]],
@@ -107,12 +107,9 @@ Draw.PolygonView = Marionette.View.extend({
 
     const polygons = []
 
-    _.each(
-      multiPolygon,
-      function(polygon) {
-        polygons.push(this.coordsToLineString(polygon))
-      }.bind(this)
-    )
+    _.each(multiPolygon, polygon => {
+      polygons.push(this.coordsToLineString(polygon))
+    })
 
     return polygons
   },
@@ -253,23 +250,21 @@ Draw.PolygonView = Marionette.View.extend({
     })
 
     this.map.addInteraction(this.primitive)
-    this.primitive.on('drawend', function(sketchFeature) {
+    this.primitive.on('drawend', sketchFeature => {
       window.cancelAnimationFrame(that.accuratePolygonId)
       that.handleRegionStop(sketchFeature)
       that.map.removeInteraction(that.primitive)
     })
-    this.primitive.on('drawstart', function(sketchFeature) {
+    this.primitive.on('drawstart', sketchFeature => {
       that.showAccuratePolygon(sketchFeature)
     })
   },
   accuratePolygonId: undefined,
   showAccuratePolygon(sketchFeature) {
-    this.accuratePolygonId = window.requestAnimationFrame(
-      function() {
-        this.drawBorderedPolygon(sketchFeature.feature.getGeometry())
-        this.showAccuratePolygon(sketchFeature)
-      }.bind(this)
-    )
+    this.accuratePolygonId = window.requestAnimationFrame(() => {
+      this.drawBorderedPolygon(sketchFeature.feature.getGeometry())
+      this.showAccuratePolygon(sketchFeature)
+    })
   },
 
   stop() {

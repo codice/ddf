@@ -85,13 +85,11 @@ module.exports = new (Backbone.AssociatedModel.extend({
             type: 'OR',
             filters: alert
               .get('metacardIds')
-              .map(function(metacardId) {
-                return {
-                  type: '=',
-                  value: metacardId,
-                  property: '"id"',
-                }
-              })
+              .map(metacardId => ({
+                type: '=',
+                value: metacardId,
+                property: '"id"',
+              }))
               .concat({
                 type: '=',
                 value: '-1',
@@ -115,7 +113,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
   },
   updateActiveSearchResultsAttributes() {
     const availableAttributes = this.get('activeSearchResults')
-      .reduce(function(currentAvailable, result) {
+      .reduce((currentAvailable, result) => {
         currentAvailable = _.union(
           currentAvailable,
           Object.keys(

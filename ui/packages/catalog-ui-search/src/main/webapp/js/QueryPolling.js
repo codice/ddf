@@ -132,7 +132,7 @@ function removeExistingFailures(queryId) {
 
 function removeImpertinentFailures(queryId) {
   if (failedQueries[queryId]) {
-    _.forEach(failedQueries[queryId].failures, function(timeRanges, srcId) {
+    _.forEach(failedQueries[queryId].failures, (timeRanges, srcId) => {
       if (
         failedQueries[queryId].originalQuery.get('src').indexOf(srcId) === -1
       ) {
@@ -162,7 +162,7 @@ addFailure = function(srcId, originalQuery, timeRange) {
 }
 
 checkForFailures = function(responses, originalQuery, timeRange) {
-  _.forEach(responses, function(response) {
+  _.forEach(responses, response => {
     if (response[1] === 'error' || !response[0].status.successful) {
       const srcId = JSON.parse(response[0].options.data).src
       addFailure(srcId, originalQuery, timeRange)
@@ -183,12 +183,12 @@ startSearch = function(originalQuery, timeRange, queryToRun) {
         const metacardIds = queryToRun
           .get('result')
           .get('results')
-          .map(function(result) {
-            return result
+          .map(result =>
+            result
               .get('metacard')
               .get('properties')
               .get('id')
-          })
+          )
         const when = Date.now()
         if (metacardIds.length > 0) {
           wreqr.vent.trigger('alerts:add', {
@@ -204,8 +204,8 @@ startSearch = function(originalQuery, timeRange, queryToRun) {
 }
 
 handleReattempts = function() {
-  _.forEach(failedQueries, function(subset) {
-    _.forEach(subset.failures, function(timeRanges, srcId) {
+  _.forEach(failedQueries, subset => {
+    _.forEach(subset.failures, (timeRanges, srcId) => {
       if (sources.get(srcId) && sources.get(srcId).get('available')) {
         const timeRange = {
           after: timeRanges[0].after,
@@ -225,7 +225,7 @@ handleReattempts = function() {
   })
 }
 
-sources.on('sync', function() {
+sources.on('sync', () => {
   handleReattempts()
 })
 
@@ -237,7 +237,7 @@ module.exports = {
     query.listenTo(query, 'change:federation', this.handleSrcUpdate.bind(this))
     const polling = query.get('polling')
     if (polling) {
-      const intervalId = setInterval(function() {
+      const intervalId = setInterval(() => {
         const timeRange = getTimeRange(polling)
         startSearch(query, timeRange)
       }, polling)

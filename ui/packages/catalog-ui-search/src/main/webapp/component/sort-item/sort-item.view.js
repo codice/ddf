@@ -89,21 +89,13 @@ module.exports = Marionette.LayoutView.extend({
   },
   onBeforeShow() {
     this.sortAttributes = metacardDefinitions.sortedMetacardTypes
-      .filter(function(type) {
-        return !properties.isHidden(type.id)
-      })
-      .filter(function(type) {
-        return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
-      })
-      .filter(function(type) {
-        return blacklist.indexOf(type.id) === -1
-      })
-      .map(function(metacardType) {
-        return {
-          label: metacardType.alias || metacardType.id,
-          value: metacardType.id,
-        }
-      })
+      .filter(type => !properties.isHidden(type.id))
+      .filter(type => !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id))
+      .filter(type => blacklist.indexOf(type.id) === -1)
+      .map(metacardType => ({
+        label: metacardType.alias || metacardType.id,
+        value: metacardType.id,
+      }))
 
     if (this.options.showBestTextOption) {
       this.sortAttributes.unshift({

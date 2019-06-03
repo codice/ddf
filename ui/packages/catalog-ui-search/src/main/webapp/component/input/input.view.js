@@ -60,13 +60,10 @@ const InputView = Marionette.LayoutView.extend({
     this.listenForChange()
   },
   listenForChange() {
-    this.$el.on(
-      'change keyup input',
-      function() {
-        this.model.set('value', this.getCurrentValue())
-        this.validate()
-      }.bind(this)
-    )
+    this.$el.on('change keyup input', () => {
+      this.model.set('value', this.getCurrentValue())
+      this.validate()
+    })
   },
   validate() {
     if (this.model.get('property')) {

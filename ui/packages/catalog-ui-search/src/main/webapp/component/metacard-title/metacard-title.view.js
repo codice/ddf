@@ -71,7 +71,7 @@ module.exports = Marionette.ItemView.extend({
   },
   checkTags() {
     const types = {}
-    this.model.forEach(function(result) {
+    this.model.forEach(result => {
       if (result.isWorkspace()) {
         types.workspace = true
       } else if (result.isResource()) {

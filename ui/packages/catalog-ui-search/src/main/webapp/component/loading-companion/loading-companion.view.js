@@ -22,15 +22,15 @@ const Positioning = require('../../js/Positioning.js')
 const loadingCompanions = []
 
 function getLoadingCompanion(linkedView) {
-  return loadingCompanions.filter(function(loadingCompanion) {
-    return loadingCompanion.options.element === linkedView.el
-  })[0]
+  return loadingCompanions.filter(
+    loadingCompanion => loadingCompanion.options.element === linkedView.el
+  )[0]
 }
 
 function getElementLoadingCompanion(element) {
-  return loadingCompanions.filter(function(loadingCompanion) {
-    return loadingCompanion.options.element === element
-  })[0]
+  return loadingCompanions.filter(
+    loadingCompanion => loadingCompanion.options.element === element
+  )[0]
 }
 
 const LoadingCompanionView = Marionette.ItemView.extend({
@@ -49,10 +49,10 @@ const LoadingCompanionView = Marionette.ItemView.extend({
         opacity: 0.6,
       },
       500,
-      function() {
+      () => {
         this.shown = true
         this.$el.trigger('shown.' + this.cid)
-      }.bind(this)
+      }
     )
     if (this.options.linkedView) {
       this.listenTo(this.options.linkedView, 'destroy', this.destroy)
@@ -65,36 +65,34 @@ const LoadingCompanionView = Marionette.ItemView.extend({
         opacity: 0,
       },
       500,
-      function() {
+      () => {
         this.destroy()
-      }.bind(this)
+      }
     )
   },
   onDestroy() {
     this.$el.remove()
   },
   updatePosition() {
-    window.requestAnimationFrame(
-      function() {
-        if (this.isDestroyed) {
-          return
-        }
-        if (this.options.linkedView && this.options.linkedView.isDestroyed) {
-          return
-        }
-        const boundingBox = this.options.element.getBoundingClientRect()
-        this.$el
-          .css('left', boundingBox.left)
-          .css('top', boundingBox.top)
-          .css('width', boundingBox.width)
-          .css('height', boundingBox.height)
-        this.$el.toggleClass(
-          'is-hidden',
-          Positioning.isEffectivelyHidden(this.options.element)
-        )
-        this.updatePosition()
-      }.bind(this)
-    )
+    window.requestAnimationFrame(() => {
+      if (this.isDestroyed) {
+        return
+      }
+      if (this.options.linkedView && this.options.linkedView.isDestroyed) {
+        return
+      }
+      const boundingBox = this.options.element.getBoundingClientRect()
+      this.$el
+        .css('left', boundingBox.left)
+        .css('top', boundingBox.top)
+        .css('width', boundingBox.width)
+        .css('height', boundingBox.height)
+      this.$el.toggleClass(
+        'is-hidden',
+        Positioning.isEffectivelyHidden(this.options.element)
+      )
+      this.updatePosition()
+    })
   },
 })
 

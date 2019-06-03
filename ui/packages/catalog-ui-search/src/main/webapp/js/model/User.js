@@ -87,9 +87,10 @@ User.MapLayer = Backbone.AssociatedModel.extend({
 User.MapLayers = Backbone.Collection.extend({
   model: User.MapLayer,
   defaults() {
-    return _.map(_.values(properties.imageryProviders), function(layerConfig) {
-      return new User.MapLayer(layerConfig, { parse: true })
-    })
+    return _.map(
+      _.values(properties.imageryProviders),
+      layerConfig => new User.MapLayer(layerConfig, { parse: true })
+    )
   },
   initialize(models) {
     if (!models || models.length === 0) {
@@ -221,17 +222,17 @@ User.Preferences = Backbone.AssociatedModel.extend({
         drop: true,
         withoutSet: true,
         customErrorHandling: true,
-        success: function() {
+        success: () => {
           this.lastSaved = currentPrefs
-        }.bind(this),
-        error: function() {
+        },
+        error: () => {
           announcement.announce({
             title: 'Issue Authorizing Request',
             message:
               'You appear to have been logged out.  Please sign in again.',
             type: 'error',
           })
-        }.bind(this),
+        },
       })
     }
   },
@@ -255,14 +256,14 @@ User.Preferences = Backbone.AssociatedModel.extend({
     }
   },
   removeExpiredAlerts(expiration) {
-    const expiredAlerts = this.get('alerts').filter(function(alert) {
+    const expiredAlerts = this.get('alerts').filter(alert => {
       const recievedAt = alert.getTimeComparator()
       return Date.now() - recievedAt > expiration
     })
     this.get('alerts').remove(expiredAlerts)
   },
   removeExpiredUploads(expiration) {
-    const expiredUploads = this.get('uploads').filter(function(upload) {
+    const expiredUploads = this.get('uploads').filter(upload => {
       const recievedAt = upload.getTimeComparator()
       return Date.now() - recievedAt > expiration
     })

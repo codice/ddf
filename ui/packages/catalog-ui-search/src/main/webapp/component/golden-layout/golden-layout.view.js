@@ -117,36 +117,36 @@ function registerComponent(
   componentOptions
 ) {
   const options = _.extend({}, marionetteView.options, componentOptions)
-  marionetteView.goldenLayout.registerComponent(name, function(
-    container,
-    componentState
-  ) {
-    container.on('open', () => {
-      setTimeout(function() {
-        const componentView = new ComponentView(
-          _.extend({}, options, componentState, {
-            container,
+  marionetteView.goldenLayout.registerComponent(
+    name,
+    (container, componentState) => {
+      container.on('open', () => {
+        setTimeout(() => {
+          const componentView = new ComponentView(
+            _.extend({}, options, componentState, {
+              container,
+            })
+          )
+          container.getElement().append(componentView.el)
+          componentView.render()
+          container.on('destroy', () => {
+            componentView.destroy()
           })
-        )
-        container.getElement().append(componentView.el)
-        componentView.render()
-        container.on('destroy', () => {
-          componentView.destroy()
-        })
-      }, 0)
-    })
-    container.on('tab', tab => {
-      tab.closeElement.off('click').on('click', event => {
-        if (
-          tab.header.parent.isMaximised &&
-          tab.header.parent.contentItems.length === 1
-        ) {
-          tab.header.parent.toggleMaximise()
-        }
-        tab._onCloseClickFn(event)
+        }, 0)
       })
-    })
-  })
+      container.on('tab', tab => {
+        tab.closeElement.off('click').on('click', event => {
+          if (
+            tab.header.parent.isMaximised &&
+            tab.header.parent.contentItems.length === 1
+          ) {
+            tab.header.parent.toggleMaximise()
+          }
+          tab._onCloseClickFn(event)
+        })
+      })
+    }
+  )
 }
 
 function unMaximize(contentItem) {

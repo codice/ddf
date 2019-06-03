@@ -99,35 +99,29 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.children('.is-sorted-asc').removeClass('is-sorted-asc')
     this.$el.children('.is-sorted-desc').removeClass('is-sorted-desc')
     if (resultSort) {
-      resultSort.forEach(
-        function(sort) {
-          switch (sort.direction) {
-            case 'ascending':
-              this.$el
-                .children('[data-propertyid="' + sort.attribute + '"]')
-                .addClass('is-sorted-asc')
-              break
-            case 'descending':
-              this.$el
-                .children('[data-propertyid="' + sort.attribute + '"]')
-                .addClass('is-sorted-desc')
-              break
-            default:
-              break
-          }
-        }.bind(this)
-      )
+      resultSort.forEach(sort => {
+        switch (sort.direction) {
+          case 'ascending':
+            this.$el
+              .children('[data-propertyid="' + sort.attribute + '"]')
+              .addClass('is-sorted-asc')
+            break
+          case 'descending':
+            this.$el
+              .children('[data-propertyid="' + sort.attribute + '"]')
+              .addClass('is-sorted-desc')
+            break
+          default:
+            break
+        }
+      })
     }
   },
   serializeData() {
     const sortAttributes = _.filter(
       metacardDefinitions.sortedMetacardTypes,
-      function(type) {
-        return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
-      }
-    ).map(function(type) {
-      return type.id
-    })
+      type => !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
+    ).map(type => type.id)
     const prefs = user.get('user').get('preferences')
     const results = this.options.selectionInterface
       .getActiveSearchResults()
@@ -148,20 +142,18 @@ module.exports = Marionette.LayoutView.extend({
     prefs.savePreferences()
 
     return preferredHeader
-      .filter(function(property) {
-        return availableAttributes.indexOf(property) !== -1
-      })
-      .map(function(property) {
-        return {
-          label: properties.attributeAliases[property],
-          id: property,
-          hidden:
-            hiddenColumns.indexOf(property) >= 0 ||
-            properties.isHidden(property) ||
-            metacardDefinitions.isHiddenTypeExceptThumbnail(property),
-          sortable: sortAttributes.indexOf(property) >= 0,
-        }
-      })
+      .filter(property => availableAttributes.indexOf(property) !== -1)
+      .map(property => ({
+        label: properties.attributeAliases[property],
+        id: property,
+
+        hidden:
+          hiddenColumns.indexOf(property) >= 0 ||
+          properties.isHidden(property) ||
+          metacardDefinitions.isHiddenTypeExceptThumbnail(property),
+
+        sortable: sortAttributes.indexOf(property) >= 0,
+      }))
   },
   updateColumnWidth(e) {
     $(e.currentTarget).css('width', $(e.target).width())
@@ -170,7 +162,7 @@ module.exports = Marionette.LayoutView.extend({
     isResizing = true
   },
   stopResize(e) {
-    setTimeout(function() {
+    setTimeout(() => {
       isResizing = false
     }, 500)
   },

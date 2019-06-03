@@ -59,23 +59,16 @@ module.exports = Marionette.LayoutView.extend({
           enumFiltering: true,
           showValidationIssues: true,
           enumMulti: true,
-          enum: _.filter(metacardDefinitions.sortedMetacardTypes, function(
-            type
-          ) {
-            return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
-          })
-            .filter(function(type) {
-              return !properties.isHidden(type.id)
-            })
-            .filter(function(type) {
-              return !excludedList.hasOwnProperty(type.id)
-            })
-            .map(function(metacardType) {
-              return {
-                label: metacardType.alias || metacardType.id,
-                value: metacardType.id,
-              }
-            }),
+          enum: _.filter(
+            metacardDefinitions.sortedMetacardTypes,
+            type => !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
+          )
+            .filter(type => !properties.isHidden(type.id))
+            .filter(type => !excludedList.hasOwnProperty(type.id))
+            .map(metacardType => ({
+              label: metacardType.alias || metacardType.id,
+              value: metacardType.id,
+            })),
           values: this.model.get('descriptors'),
           value: [this.model.get('descriptors')],
           id: 'Attributes',
@@ -107,7 +100,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   edit() {
     this.$el.addClass('is-editing')
-    this.regionManager.forEach(function(region) {
+    this.regionManager.forEach(region => {
       if (region.currentView && region.currentView.turnOnEditing) {
         region.currentView.turnOnEditing()
       }

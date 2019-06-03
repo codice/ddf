@@ -60,32 +60,26 @@ module.exports = Marionette.ItemView.extend({
       dataType: 'html',
       customErrorHandling: true,
     })
-      .then(
-        function(previewHtml) {
-          this.previewHtml = previewHtml
-        }.bind(this)
-      )
-      .always(
-        function() {
-          LoadingCompanionView.endLoading(this)
-        }.bind(this)
-      )
+      .then(previewHtml => {
+        this.previewHtml = previewHtml
+      })
+      .always(() => {
+        LoadingCompanionView.endLoading(this)
+      })
   },
   onAttach() {
     this.textColor = window.getComputedStyle(this.el).color
-    this.previewRequest.then(
-      function() {
-        if (!this.isDestroyed) {
-          this.populateIframe()
-          this.listenTo(
-            user.get('user').get('preferences'),
-            'change:fontSize',
-            this.populateIframe
-          )
-          this.listenTo(wreqr.vent, 'resize', this.populateIframeIfNecessary)
-        }
-      }.bind(this)
-    )
+    this.previewRequest.then(() => {
+      if (!this.isDestroyed) {
+        this.populateIframe()
+        this.listenTo(
+          user.get('user').get('preferences'),
+          'change:fontSize',
+          this.populateIframe
+        )
+        this.listenTo(wreqr.vent, 'resize', this.populateIframeIfNecessary)
+      }
+    })
   },
   // golden layout destroys and recreates elements in such a way as to empty iframes: https://github.com/deepstreamIO/golden-layout/issues/154
   populateIframeIfNecessary() {
@@ -100,13 +94,11 @@ module.exports = Marionette.ItemView.extend({
   },
   populateIframe() {
     const $iframe = this.$el.find('iframe')
-    $iframe.ready(
-      function() {
-        $iframe.contents()[0].open()
-        $iframe.contents()[0].write(getSrc(this.previewHtml, this.textColor))
-        $iframe.contents()[0].close()
-      }.bind(this)
-    )
+    $iframe.ready(() => {
+      $iframe.contents()[0].open()
+      $iframe.contents()[0].write(getSrc(this.previewHtml, this.textColor))
+      $iframe.contents()[0].close()
+    })
   },
   onDestroy() {},
 })

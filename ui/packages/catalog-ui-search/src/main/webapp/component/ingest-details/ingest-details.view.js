@@ -131,8 +131,8 @@ module.exports = Marionette.LayoutView.extend({
       autoProcessQueue: false,
       headers: this.options.extraHeaders,
       sending(file, xhr, formData) {
-        _.each(_this.overrides, function(values, attribute) {
-          _.each(values, function(value) {
+        _.each(_this.overrides, (values, attribute) => {
+          _.each(values, value => {
             formData.append('parse.' + attribute, value)
           })
         })
@@ -176,12 +176,9 @@ module.exports = Marionette.LayoutView.extend({
   },
   newUpload() {
     this.$el.addClass('starting-new')
-    setTimeout(
-      function() {
-        this.triggerNewUpload()
-      }.bind(this),
-      250
-    )
+    setTimeout(() => {
+      this.triggerNewUpload()
+    }, 250)
   },
   expandUpload() {
     wreqr.vent.trigger('router:navigate', {

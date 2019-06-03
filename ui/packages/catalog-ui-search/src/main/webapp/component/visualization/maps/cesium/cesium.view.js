@@ -34,7 +34,7 @@ module.exports = MapView.extend({
   },
   loadMap() {
     const deferred = new $.Deferred()
-    require(['./map.cesium'], function(CesiumMap) {
+    require(['./map.cesium'], CesiumMap => {
       deferred.resolve(CesiumMap)
     })
     return deferred
@@ -45,12 +45,9 @@ module.exports = MapView.extend({
     } catch (err) {
       console.error(err)
       this.$el.addClass('not-supported')
-      setTimeout(
-        function() {
-          this.switchTo2DMap()
-        }.bind(this),
-        10000
-      )
+      setTimeout(() => {
+        this.switchTo2DMap()
+      }, 10000)
       this.endLoading()
     }
   },

@@ -25,7 +25,7 @@ function convertUserValueToWKT(val) {
     .join(',')
   val = val
     .split('MULTIPOINT')
-    .map(function(value, index) {
+    .map((value, index) => {
       if (value.indexOf('((') === 0) {
         const endOfMultiPoint = value.indexOf('))') + 2
         let multipointStr = value.substring(0, endOfMultiPoint)
@@ -64,28 +64,24 @@ function checkGeometryCoordinateOrdering(geometry) {
       return checkCoordinateOrder(geometry.coordinates)
     case 'LineString':
     case 'MultiPoint':
-      return geometry.coordinates.every(function(coordinate) {
-        return checkCoordinateOrder(coordinate)
-      })
+      return geometry.coordinates.every(coordinate =>
+        checkCoordinateOrder(coordinate)
+      )
     case 'Polygon':
     case 'MultiLineString':
-      return geometry.coordinates.every(function(line) {
-        return line.every(function(coordinate) {
-          return checkCoordinateOrder(coordinate)
-        })
-      })
+      return geometry.coordinates.every(line =>
+        line.every(coordinate => checkCoordinateOrder(coordinate))
+      )
     case 'MultiPolygon':
-      return geometry.coordinates.every(function(multipolygon) {
-        return multipolygon.every(function(polygon) {
-          return polygon.every(function(coordinate) {
-            return checkCoordinateOrder(coordinate)
-          })
-        })
-      })
+      return geometry.coordinates.every(multipolygon =>
+        multipolygon.every(polygon =>
+          polygon.every(coordinate => checkCoordinateOrder(coordinate))
+        )
+      )
     case 'GeometryCollection':
-      return geometry.geometries.every(function(subgeometry) {
-        return checkGeometryCoordinateOrdering(subgeometry)
-      })
+      return geometry.geometries.every(subgeometry =>
+        checkGeometryCoordinateOrdering(subgeometry)
+      )
   }
 }
 

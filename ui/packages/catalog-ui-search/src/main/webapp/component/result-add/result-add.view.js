@@ -41,11 +41,7 @@ module.exports = Marionette.LayoutView.extend({
       .getCurrentWorkspace()
       .get('lists')
       .get(listId)
-      .removeBookmarks(
-        this.model.map(function(result) {
-          return result.get('metacard').id
-        })
-      )
+      .removeBookmarks(this.model.map(result => result.get('metacard').id))
   },
   addToList(e) {
     const listId = $(e.currentTarget).data('id')
@@ -53,11 +49,7 @@ module.exports = Marionette.LayoutView.extend({
       .getCurrentWorkspace()
       .get('lists')
       .get(listId)
-      .addBookmarks(
-        this.model.map(function(result) {
-          return result.get('metacard').id
-        })
-      )
+      .addBookmarks(this.model.map(result => result.get('metacard').id))
   },
   onRender() {
     this.setupCreateList()
@@ -95,17 +87,15 @@ module.exports = Marionette.LayoutView.extend({
     listJSON = listJSON.map(list => {
       list.matchesFilter = true
       if (list['list.cql'] !== '') {
-        list.matchesFilter = this.model.every(function(result) {
-          return result.matchesCql(list['list.cql'])
-        })
+        list.matchesFilter = this.model.every(result =>
+          result.matchesCql(list['list.cql'])
+        )
       }
       list.alreadyContains = false
       if (
         _.intersection(
           list['list.bookmarks'],
-          this.model.map(function(result) {
-            return result.get('metacard').id
-          })
+          this.model.map(result => result.get('metacard').id)
         ).length === this.model.length
       ) {
         list.alreadyContains = true

@@ -25,9 +25,7 @@ function getValue(model) {
   let value = model.get('value')
   if (value !== undefined && model.get('property').get('type') === 'DATE') {
     if (multivalued && value.map) {
-      value = value.map(function(subvalue) {
-        return user.getUserReadableDateTime(subvalue)
-      })
+      value = value.map(subvalue => user.getUserReadableDateTime(subvalue))
     } else {
       value = user.getUserReadableDateTime(value)
     }
@@ -61,16 +59,14 @@ module.exports = InputView.extend({
     const choice = this.model
       .get('property')
       .get('enum')
-      .filter(function(choice) {
-        return (
-          value.filter(function(subvalue) {
-            return (
+      .filter(
+        choice =>
+          value.filter(
+            subvalue =>
               JSON.stringify(choice.value) === JSON.stringify(subvalue) ||
               JSON.stringify(choice) === JSON.stringify(subvalue)
-            )
-          }).length > 0
-        )
-      })
+          ).length > 0
+      )
     return {
       label: choice.length > 0 ? choice : value,
     }
@@ -87,7 +83,7 @@ module.exports = InputView.extend({
     const list = this.model
       .get('property')
       .get('enum')
-      .map(function(value) {
+      .map(value => {
         if (value.label) {
           return {
             label: value.label,
@@ -147,16 +143,14 @@ module.exports = InputView.extend({
     const choice = this.model
       .get('property')
       .get('enum')
-      .filter(function(choice) {
-        return (
-          value.filter(function(subvalue) {
-            return (
+      .filter(
+        choice =>
+          value.filter(
+            subvalue =>
               JSON.stringify(choice.value) === JSON.stringify(subvalue) ||
               JSON.stringify(choice) === JSON.stringify(subvalue)
-            )
-          }).length > 0
-        )
-      })
+          ).length > 0
+      )
     return choice.length > 0
   },
 })

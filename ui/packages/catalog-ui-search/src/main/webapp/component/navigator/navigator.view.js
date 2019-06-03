@@ -185,15 +185,13 @@ module.exports = plugin(
     },
     getExtensions() {},
     handleSaved() {
-      const hasUnsaved = store.get('workspaces').find(function(workspace) {
-        return !workspace.isSaved()
-      })
+      const hasUnsaved = store
+        .get('workspaces')
+        .find(workspace => !workspace.isSaved())
       this.$el.toggleClass('is-saved', !hasUnsaved)
     },
     handleSourcesChange() {
-      const hasDown = sources.some(function(source) {
-        return !source.get('available')
-      })
+      const hasDown = sources.some(source => !source.get('available'))
       this.$el.toggleClass('has-unavailable', hasDown)
     },
     handleChoice(e) {

@@ -64,7 +64,7 @@ module.exports = Backbone.Model.extend({
       case 'date':
         currentValue.sort()
         this.setValue(
-          currentValue.map(function(dateValue) {
+          currentValue.map(dateValue => {
             if (dateValue) {
               return moment(dateValue).toISOString()
             } else {
@@ -76,9 +76,9 @@ module.exports = Backbone.Model.extend({
       case 'number':
         currentValue.sort()
         this.setValue(
-          currentValue.map(function(value) {
-            return Number(value) //handle cases of unnecessary number padding -> 22.0000
-          })
+          currentValue.map((
+            value //handle cases of unnecessary number padding -> 22.0000
+          ) => Number(value))
         )
         break
       default:
@@ -109,12 +109,10 @@ module.exports = Backbone.Model.extend({
           JSON.stringify(this.getInitialValue()) !==
             JSON.stringify(currentValue) &&
           JSON.stringify(
-            this.getInitialValue().map(function(val) {
-              return _.omit(val, ['property'])
-            })
+            this.getInitialValue().map(val => _.omit(val, ['property']))
           ) !==
             JSON.stringify(
-              currentValue.map(function(val) {
+              currentValue.map(val => {
                 val = CQLUtils.generateFilter(undefined, 'anyGeo', val)
                 if (val === undefined) {
                   return val
@@ -173,9 +171,7 @@ module.exports = Backbone.Model.extend({
   },
   isValid() {
     if (this.parents) {
-      return this.parents.every(function(value) {
-        return value.isValid()
-      })
+      return this.parents.every(value => value.isValid())
     } else {
       return true
     }
@@ -187,9 +183,9 @@ module.exports = Backbone.Model.extend({
     this.set('showRequiredWarning', false)
   },
   isBlank() {
-    return this.getValue().every(function(value) {
-      return value == null || value.trim().length === 0
-    })
+    return this.getValue().every(
+      value => value == null || value.trim().length === 0
+    )
   },
   onlyEditing() {
     return this.get('onlyEditing')

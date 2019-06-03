@@ -31,8 +31,8 @@ module.exports = Backbone.Collection.extend({
     this.handleUserChange()
     this.listenTo(user, 'change', this.handleUserChange)
     const collection = this
-    collection.on('add', function(workspace) {
-      workspace.on('change:lastModifiedDate', function() {
+    collection.on('add', workspace => {
+      workspace.on('change:lastModifiedDate', () => {
         collection.sort()
       })
     })
@@ -172,7 +172,7 @@ module.exports = Backbone.Collection.extend({
     this.create(duplicateWorkspace)
   },
   saveAll() {
-    this.forEach(function(workspace) {
+    this.forEach(workspace => {
       if (!workspace.isSaved()) {
         workspace.save()
       }
@@ -180,10 +180,8 @@ module.exports = Backbone.Collection.extend({
   },
   saveLocalWorkspaces() {
     const localWorkspaces = this.chain()
-      .filter(function(workspace) {
-        return workspace.get('localStorage')
-      })
-      .reduce(function(blob, workspace) {
+      .filter(workspace => workspace.get('localStorage'))
+      .reduce((blob, workspace) => {
         blob[workspace.get('id')] = workspace.toJSON()
         return blob
       }, {})
@@ -193,7 +191,7 @@ module.exports = Backbone.Collection.extend({
   },
   convert2_10Format(localWorkspaceJSON) {
     if (localWorkspaceJSON.constructor === Array) {
-      return localWorkspaceJSON.reduce(function(blob, workspace) {
+      return localWorkspaceJSON.reduce((blob, workspace) => {
         blob[workspace.id] = workspace
         return blob
       }, {})

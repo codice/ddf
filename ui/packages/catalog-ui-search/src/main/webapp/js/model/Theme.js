@@ -158,7 +158,7 @@ module.exports = Backbone.Model.extend({
 })
 
 if (module.hot) {
-  module.hot.accept('js/uncompiled-less.unless', function() {
+  module.hot.accept('js/uncompiled-less.unless', () => {
     lessStyles = require('js/uncompiled-less.unless')
   })
 }

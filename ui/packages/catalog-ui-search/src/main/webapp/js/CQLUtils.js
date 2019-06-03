@@ -28,16 +28,12 @@ function sanitizeForCql(text) {
 }
 
 function lineToCQLLine(model) {
-  const cqlLINE = model.map(function(point) {
-    return point[0] + ' ' + point[1]
-  })
+  const cqlLINE = model.map(point => point[0] + ' ' + point[1])
   return cqlLINE
 }
 
 function polygonToCQLPolygon(model) {
-  const cqlPolygon = model.map(function(point) {
-    return point[0] + ' ' + point[1]
-  })
+  const cqlPolygon = model.map(point => point[0] + ' ' + point[1])
   if (cqlPolygon[0] !== cqlPolygon[cqlPolygon.length - 1]) {
     cqlPolygon.push(cqlPolygon[0])
   }
@@ -45,9 +41,7 @@ function polygonToCQLPolygon(model) {
 }
 
 function polygonToCQLMultiPolygon(model) {
-  return model.map(function(polygon) {
-    return polygonToCQLPolygon(polygon)
-  })
+  return model.map(polygon => polygonToCQLPolygon(polygon))
 }
 
 function bboxToCQLPolygon(model) {
@@ -151,16 +145,13 @@ function generateAnyGeoFilter(property, model) {
 
 function buildIntersectOrCQL(shapes) {
   let locationFilter = ''
-  $.each(
-    shapes,
-    function(i, shape) {
-      locationFilter += this.buildIntersectCQL(shape)
+  $.each(shapes, (i, shape) => {
+    locationFilter += this.buildIntersectCQL(shape)
 
-      if (i !== shapes.length - 1) {
-        locationFilter += ' OR '
-      }
-    }.bind(this)
-  )
+    if (i !== shapes.length - 1) {
+      locationFilter += ' OR '
+    }
+  })
 
   return locationFilter
 }
@@ -319,18 +310,15 @@ function buildIntersectCQL(locationGeometry) {
       if (/,\(/.test(locationWkt)) {
         shapes = locationWkt.split(',(')
 
-        $.each(
-          shapes,
-          function(i, polygon) {
-            locationWkt = polygon.replace(/POLYGON|[()]/g, '')
-            locationWkt = 'POLYGON((' + locationWkt + '))'
-            locationFilter += '(INTERSECTS(anyGeo, ' + locationWkt + '))'
+        $.each(shapes, (i, polygon) => {
+          locationWkt = polygon.replace(/POLYGON|[()]/g, '')
+          locationWkt = 'POLYGON((' + locationWkt + '))'
+          locationFilter += '(INTERSECTS(anyGeo, ' + locationWkt + '))'
 
-            if (i !== shapes.length - 1) {
-              locationFilter += ' OR '
-            }
-          }.bind(this)
-        )
+          if (i !== shapes.length - 1) {
+            locationFilter += ' OR '
+          }
+        })
       } else {
         locationFilter = '(INTERSECTS(anyGeo, ' + locationWkt + '))'
       }
@@ -369,11 +357,7 @@ function arrayFromPolygonWkt(wkt) {
   // Handle MULTIPOLYGON with no internal rings (i.e. holes)
   let polygons = wkt.match(/\(\([^\(\)]+\)\)/g)
   if (polygons) {
-    return polygons.map(
-      function(polygon) {
-        return arrayFromPartialWkt(polygon)
-      }.bind(this)
-    )
+    return polygons.map(polygon => arrayFromPartialWkt(polygon))
   }
   return []
 }

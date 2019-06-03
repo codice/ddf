@@ -101,13 +101,13 @@ function createMap(insertionElement) {
     Cesium.CameraEventType.PINCH,
   ]
 
-  viewer.screenSpaceEventHandler.setInputAction(function() {
+  viewer.screenSpaceEventHandler.setInputAction(() => {
     if (!store.get('content').get('drawing')) {
       $('body').mousedown()
     }
   }, Cesium.ScreenSpaceEventType.LEFT_DOWN)
 
-  viewer.screenSpaceEventHandler.setInputAction(function() {
+  viewer.screenSpaceEventHandler.setInputAction(() => {
     if (!store.get('content').get('drawing')) {
       $('body').mousedown()
     }
@@ -213,7 +213,7 @@ module.exports = function CesiumMap(
 
   function setupTooltip(map, selectionInterface) {
     const handler = new Cesium.ScreenSpaceEventHandler(map.scene.canvas)
-    handler.setInputAction(function(movement) {
+    handler.setInputAction(movement => {
       $(componentElement).removeClass('has-feature')
       if (map.scene.mode === Cesium.SceneMode.MORPHING) {
         return
@@ -271,7 +271,7 @@ module.exports = function CesiumMap(
       drawingTools.bbox.destroy()
     },
     onLeftClick(callback) {
-      $(map.scene.canvas).on('click', function(e) {
+      $(map.scene.canvas).on('click', e => {
         const boundingRect = map.scene.canvas.getBoundingClientRect()
         callback(e, {
           mapTarget: determineIdFromPosition(
@@ -285,13 +285,13 @@ module.exports = function CesiumMap(
       })
     },
     onRightClick(callback) {
-      $(map.scene.canvas).on('contextmenu', function(e) {
+      $(map.scene.canvas).on('contextmenu', e => {
         const boundingRect = map.scene.canvas.getBoundingClientRect()
         callback(e)
       })
     },
     onMouseMove(callback) {
-      $(map.scene.canvas).on('mousemove', function(e) {
+      $(map.scene.canvas).on('mousemove', e => {
         const boundingRect = map.scene.canvas.getBoundingClientRect()
         callback(e, {
           mapTarget: determineIdFromPosition(
@@ -311,13 +311,13 @@ module.exports = function CesiumMap(
       map.scene.camera.moveEnd.addEventListener(callback)
     },
     doPanZoom(coords) {
-      const cartArray = coords.map(function(coord) {
-        return Cesium.Cartographic.fromDegrees(
+      const cartArray = coords.map(coord =>
+        Cesium.Cartographic.fromDegrees(
           coord[0],
           coord[1],
           map.camera._positionCartographic.height
         )
-      })
+      )
       if (cartArray.length === 1) {
         const point = Cesium.Ellipsoid.WGS84.cartographicToCartesian(
           cartArray[0]
@@ -341,18 +341,18 @@ module.exports = function CesiumMap(
 
       cartArray = _.flatten(
         results
-          .filter(function(result) {
-            return result.hasGeometry()
-          })
-          .map(function(result) {
-            return _.map(result.getPoints(), function(coordinate) {
-              return Cesium.Cartographic.fromDegrees(
-                coordinate[0],
-                coordinate[1],
-                map.camera._positionCartographic.height
-              )
-            })
-          }, true)
+          .filter(result => result.hasGeometry())
+          .map(
+            result =>
+              _.map(result.getPoints(), coordinate =>
+                Cesium.Cartographic.fromDegrees(
+                  coordinate[0],
+                  coordinate[1],
+                  map.camera._positionCartographic.height
+                )
+              ),
+            true
+          )
       )
 
       if (cartArray.length > 0) {
@@ -408,7 +408,7 @@ module.exports = function CesiumMap(
       this.removeOverlay(metacardId)
 
       const coords = model.getPoints('location')
-      const cartographics = _.map(coords, function(coord) {
+      const cartographics = _.map(coords, coord => {
         coord = convertPointCoordinate(coord)
         return Cesium.Cartographic.fromDegrees(
           coord.longitude,
@@ -444,9 +444,7 @@ module.exports = function CesiumMap(
     },
     getCartographicCenterOfClusterInDegrees(cluster) {
       return utility.calculateCartographicCenterOfGeometriesInDegrees(
-        cluster.get('results').map(function(result) {
-          return result
-        })
+        cluster.get('results').map(result => result)
       )
     },
     getWindowLocationsOfResults(results) {
@@ -457,7 +455,7 @@ module.exports = function CesiumMap(
           map.scene.camera.position
         )
       }
-      return results.map(function(result) {
+      return results.map(result => {
         const cartesian3CenterOfGeometry = utility.calculateCartesian3CenterOfGeometry(
           result
         )
@@ -503,7 +501,7 @@ module.exports = function CesiumMap(
         const promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [
           cartographicPosition,
         ])
-        Cesium.when(promise, function(updatedCartographic) {
+        Cesium.when(promise, updatedCartographic => {
           if (updatedCartographic[0].height && !options.view.isDestroyed) {
             cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
               updatedCartographic[0]
@@ -545,7 +543,7 @@ module.exports = function CesiumMap(
         const promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [
           cartographicPosition,
         ])
-        Cesium.when(promise, function(updatedCartographic) {
+        Cesium.when(promise, updatedCartographic => {
           if (updatedCartographic[0].height && !options.view.isDestroyed) {
             billboardRef.position = map.scene.globe.ellipsoid.cartographicToCartesian(
               updatedCartographic[0]
@@ -561,16 +559,16 @@ module.exports = function CesiumMap(
           Options are a view to relate to, and an id, and a color.
         */
     addLine(line, options) {
-      const lineObject = line.map(function(coordinate) {
-        return convertPointCoordinate(coordinate)
-      })
-      const cartPoints = _.map(lineObject, function(point) {
-        return Cesium.Cartographic.fromDegrees(
+      const lineObject = line.map(coordinate =>
+        convertPointCoordinate(coordinate)
+      )
+      const cartPoints = _.map(lineObject, point =>
+        Cesium.Cartographic.fromDegrees(
           point.longitude,
           point.latitude,
           point.altitude
         )
-      })
+      )
       const cartesian = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(
         cartPoints
       )
@@ -593,7 +591,7 @@ module.exports = function CesiumMap(
           5,
           cartPoints
         )
-        Cesium.when(promise, function(updatedCartographic) {
+        Cesium.when(promise, updatedCartographic => {
           const positions = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(
             updatedCartographic
           )
@@ -611,16 +609,16 @@ module.exports = function CesiumMap(
           Options are a view to relate to, and an id.
         */
     addPolygon(polygon, options) {
-      const polygonObject = polygon.map(function(coordinate) {
-        return convertPointCoordinate(coordinate)
-      })
-      const cartPoints = _.map(polygonObject, function(point) {
-        return Cesium.Cartographic.fromDegrees(
+      const polygonObject = polygon.map(coordinate =>
+        convertPointCoordinate(coordinate)
+      )
+      const cartPoints = _.map(polygonObject, point =>
+        Cesium.Cartographic.fromDegrees(
           point.longitude,
           point.latitude,
           point.altitude
         )
-      })
+      )
       let cartesian = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(
         cartPoints
       )
@@ -665,7 +663,7 @@ module.exports = function CesiumMap(
           5,
           cartPoints
         )
-        Cesium.when(promise, function(updatedCartographic) {
+        Cesium.when(promise, updatedCartographic => {
           cartesian = map.scene.globe.ellipsoid.cartographicArrayToCartesianArray(
             updatedCartographic
           )
@@ -684,11 +682,9 @@ module.exports = function CesiumMap(
         */
     updateCluster(geometry, options) {
       if (geometry.constructor === Array) {
-        geometry.forEach(
-          function(innerGeometry) {
-            this.updateCluster(innerGeometry, options)
-          }.bind(this)
-        )
+        geometry.forEach(innerGeometry => {
+          this.updateCluster(innerGeometry, options)
+        })
       }
       if (geometry.constructor === Cesium.Billboard) {
         geometry.image = DrawingUtility.getCircleWithText({
@@ -703,7 +699,7 @@ module.exports = function CesiumMap(
           options.isSelected ? -1 : 0
         )
       } else if (geometry.constructor === Cesium.PolylineCollection) {
-        geometry._polylines.forEach(function(polyline) {
+        geometry._polylines.forEach(polyline => {
           polyline.material = Cesium.Material.fromType('PolylineOutline', {
             color: determineCesiumColor('rgba(0,0,0, .1)'),
             outlineColor: determineCesiumColor('rgba(255,255,255, .1)'),
@@ -722,11 +718,9 @@ module.exports = function CesiumMap(
           */
     updateGeometry(geometry, options) {
       if (geometry.constructor === Array) {
-        geometry.forEach(
-          function(innerGeometry) {
-            this.updateGeometry(innerGeometry, options)
-          }.bind(this)
-        )
+        geometry.forEach(innerGeometry => {
+          this.updateGeometry(innerGeometry, options)
+        })
       }
       if (geometry.constructor === Cesium.Billboard) {
         geometry.image = DrawingUtility.getPin({
@@ -740,7 +734,7 @@ module.exports = function CesiumMap(
           options.isSelected ? -1 : 0
         )
       } else if (geometry.constructor === Cesium.PolylineCollection) {
-        geometry._polylines.forEach(function(polyline) {
+        geometry._polylines.forEach(polyline => {
           polyline.material = Cesium.Material.fromType('PolylineOutline', {
             color: determineCesiumColor(options.color),
             outlineColor: options.isSelected
@@ -762,7 +756,7 @@ module.exports = function CesiumMap(
       if (geometry.constructor === Cesium.Billboard) {
         geometry.show = false
       } else if (geometry.constructor === Cesium.PolylineCollection) {
-        geometry._polylines.forEach(function(polyline) {
+        geometry._polylines.forEach(polyline => {
           polyline.show = false
         })
       }
@@ -774,7 +768,7 @@ module.exports = function CesiumMap(
       if (geometry.constructor === Cesium.Billboard) {
         geometry.show = true
       } else if (geometry.constructor === Cesium.PolylineCollection) {
-        geometry._polylines.forEach(function(polyline) {
+        geometry._polylines.forEach(polyline => {
           polyline.show = true
         })
       }
@@ -809,7 +803,7 @@ module.exports = function CesiumMap(
       shapes.push(line)
     },
     destroyShapes() {
-      shapes.forEach(function(shape) {
+      shapes.forEach(shape => {
         shape.destroy()
       })
       shapes = []

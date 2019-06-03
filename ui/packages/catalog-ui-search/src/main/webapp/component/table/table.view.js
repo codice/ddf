@@ -58,12 +58,10 @@ module.exports = Marionette.LayoutView.extend({
     this.startUpdatingHeaders()
   },
   startUpdatingHeaders() {
-    window.requestAnimationFrame(
-      function() {
-        moveHeaders.call(this)
-        this.startUpdatingHeaders()
-      }.bind(this)
-    )
+    window.requestAnimationFrame(() => {
+      moveHeaders.call(this)
+      this.startUpdatingHeaders()
+    })
   },
   onDestroy() {
     window.cancelAnimationFrame(this.headerAnimationFrameId)

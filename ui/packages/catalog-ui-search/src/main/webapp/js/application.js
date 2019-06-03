@@ -62,7 +62,7 @@ const BannerView = Marionette.ItemView.extend({
 })
 
 //setup the header
-Application.App.addInitializer(function() {
+Application.App.addInitializer(() => {
   Application.App.header.show(new BannerView({ tagName: 'header' }), {
     replaceElement: true,
   })
@@ -75,7 +75,7 @@ Application.App.addInitializer(function() {
   }
 })
 //setup the footer
-Application.App.addInitializer(function() {
+Application.App.addInitializer(() => {
   Application.App.footer.show(new BannerView({ tagName: 'footer' }), {
     replaceElement: true,
   })
@@ -94,9 +94,9 @@ $loadingElement.find('.welcome-branding-name').text(properties.product)
 $loadingElement.addClass('show-welcome')
 
 //load all modules
-Application.App.addInitializer(function() {
-  require(['../js/router'], function() {
-    setTimeout(function() {
+Application.App.addInitializer(() => {
+  require(['../js/router'], () => {
+    setTimeout(() => {
       $loadingElement.removeClass('is-open')
     }, 0)
   })
@@ -104,7 +104,7 @@ Application.App.addInitializer(function() {
 
 // Once the application has been initialized (i.e. all initializers have completed), start up
 // Backbone.history.
-Application.App.on('start', function() {
+Application.App.on('start', () => {
   Backbone.history.start()
 })
 

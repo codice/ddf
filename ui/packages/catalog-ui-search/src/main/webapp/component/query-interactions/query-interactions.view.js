@@ -214,28 +214,26 @@ module.exports = Marionette.ItemView.extend({
       this.listenTo(
         QueryConfirmationView.generateConfirmation({}),
         'change:choice',
-        function(confirmation) {
+        confirmation => {
           const choice = confirmation.get('choice')
           if (choice === true) {
             const loadingview = new LoadingView()
-            store
-              .get('workspaces')
-              .once('sync', function(workspace, resp, options) {
-                loadingview.remove()
-                wreqr.vent.trigger('router:navigate', {
-                  fragment: 'workspaces/' + workspace.id,
-                  options: {
-                    trigger: true,
-                  },
-                })
+            store.get('workspaces').once('sync', (workspace, resp, options) => {
+              loadingview.remove()
+              wreqr.vent.trigger('router:navigate', {
+                fragment: 'workspaces/' + workspace.id,
+                options: {
+                  trigger: true,
+                },
               })
+            })
             store.get('workspaces').createWorkspaceWithQuery(newQuery)
           } else if (choice !== false) {
             store.getCurrentQueries().remove(choice)
             store.getCurrentQueries().add(newQuery)
             store.setCurrentQuery(newQuery)
           }
-        }.bind(this)
+        }
       )
     }
   },

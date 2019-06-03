@@ -71,13 +71,13 @@ const RestoreItemView = Marionette.ItemView.extend({
     const revert = './internal/history/revert/' + historyId + '/' + metacardId
 
     $.get(revert).then(
-      function() {
+      () => {
         model.set({
           message: 'Successfully restored item',
           messageClass: 'is-positive',
         })
       },
-      function() {
+      () => {
         model.set({
           message: 'Failed to restore item.',
           messageClass: 'is-negative',

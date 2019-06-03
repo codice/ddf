@@ -59,9 +59,7 @@ module.exports = {
     if (window.performance && typeof window.performance.now === 'function') {
       d += performance.now() //use high-precision timer if available
     }
-    const uuid = 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function(
-      c
-    ) {
+    const uuid = 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, c => {
       const r = (d + Math.random() * 16) % 16 | 0
       d = Math.floor(d / 16)
       return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
@@ -230,18 +228,18 @@ module.exports = {
     const repaint = function() {
       callback()
       if (Date.now() < timeEnd) {
-        requestDetails.requestId = window.requestAnimationFrame(function() {
+        requestDetails.requestId = window.requestAnimationFrame(() => {
           repaint()
         })
       }
     }
-    requestDetails.requestId = window.requestAnimationFrame(function() {
+    requestDetails.requestId = window.requestAnimationFrame(() => {
       repaint()
     })
     return requestDetails
   },
   executeAfterRepaint(callback) {
-    return window.requestAnimationFrame(function() {
+    return window.requestAnimationFrame(() => {
       window.requestAnimationFrame(callback)
     })
   },

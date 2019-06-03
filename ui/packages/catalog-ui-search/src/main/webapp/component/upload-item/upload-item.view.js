@@ -89,12 +89,9 @@ module.exports = Marionette.LayoutView.extend({
   cancelUpload() {
     this.cancelUpload = $.noop
     this.$el.toggleClass('is-removed', true)
-    setTimeout(
-      function() {
-        this.model.cancel()
-      }.bind(this),
-      250
-    )
+    setTimeout(() => {
+      this.model.cancel()
+    }, 250)
   },
   expandUpload() {
     wreqr.vent.trigger('router:navigate', {

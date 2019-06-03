@@ -45,13 +45,11 @@ function generateCql(bookmarks) {
     filters: [
       {
         type: 'OR',
-        filters: bookmarks.map(function(id) {
-          return {
-            type: '=',
-            value: id,
-            property: '"id"',
-          }
-        }),
+        filters: bookmarks.map(id => ({
+          type: '=',
+          value: id,
+          property: '"id"',
+        })),
       },
       {
         type: 'ILIKE',

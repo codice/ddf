@@ -78,7 +78,7 @@ module.exports = Marionette.ItemView.extend({
         yes: 'Delete',
       }),
       'change:choice',
-      function(confirmation) {
+      confirmation => {
         if (confirmation.get('choice')) {
           let loadingview = new LoadingView()
           this.model.url = './internal/forms/' + this.model.get('id')
@@ -89,7 +89,7 @@ module.exports = Marionette.ItemView.extend({
             }),
             contentType: 'application/json',
             wait: true,
-            error: function(model, xhr, options) {
+            error: (model, xhr, options) => {
               announcement.announce(
                 {
                   title: 'Error',
@@ -99,12 +99,12 @@ module.exports = Marionette.ItemView.extend({
                 2500
               )
               throw new Error('Error Deleting Template: ' + xhr.responseText)
-            }.bind(this),
-            success: function(model, xhr, options) {
+            },
+            success: (model, xhr, options) => {
               this.options.collectionWrapperModel.deleteCachedTemplateById(
                 this.model.id
               )
-            }.bind(this),
+            },
           })
           loadingview.remove()
           const template = user.getQuerySettings().get('template')
@@ -135,7 +135,7 @@ module.exports = Marionette.ItemView.extend({
             this.options.queryModel.resetToDefaults(defaults)
           }
         }
-      }.bind(this)
+      }
     )
     this.trigger('doneLoading')
   },

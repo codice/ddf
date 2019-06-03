@@ -73,7 +73,7 @@ module.exports = Marionette.CollectionView.extend({
   },
   handleValueForChildView(childView) {
     const values = this.model.get('value')
-    values.forEach(function(value) {
+    values.forEach(value => {
       if (childView.$el.attr('data-value') === JSON.stringify(value)) {
         childView.$el.addClass('is-selected')
       }
@@ -104,9 +104,7 @@ module.exports = Marionette.CollectionView.extend({
     const availableChoices = this.$el.children()
     const selectAll = availableChoices.filter(':not(.is-selected)').length > 0
     const values = availableChoices
-      .map(function(index, element) {
-        return JSON.parse(element.getAttribute('data-value'))
-      })
+      .map((index, element) => JSON.parse(element.getAttribute('data-value')))
       .get()
     if (selectAll) {
       availableChoices.addClass('is-selected')
@@ -197,7 +195,7 @@ module.exports = Marionette.CollectionView.extend({
   },
   addValues(values) {
     const currentValues = this.model.get('value').slice()
-    values.forEach(function(value) {
+    values.forEach(value => {
       const index = currentValues.indexOf(value)
       if (index === -1) {
         currentValues.push(value)
@@ -209,7 +207,7 @@ module.exports = Marionette.CollectionView.extend({
   },
   removeValues(values) {
     const currentValues = this.model.get('value').slice()
-    values.forEach(function(value) {
+    values.forEach(value => {
       const index = currentValues.indexOf(value)
       if (index >= 0) {
         currentValues.splice(index, 1)

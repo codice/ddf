@@ -415,13 +415,11 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   initializeMap() {
-    this.loadMap().then(
-      function(Map) {
-        this.createMap(Map)
-        this.hasLoadedMap = true
-        this.onMapLoaded(this.map.getOpenLayersMap())
-      }.bind(this)
-    )
+    this.loadMap().then(Map => {
+      this.createMap(Map)
+      this.hasLoadedMap = true
+      this.onMapLoaded(this.map.getOpenLayersMap())
+    })
   },
   startLoading() {
     LoadingCompanionView.beginLoading(this)
@@ -431,12 +429,9 @@ module.exports = Marionette.LayoutView.extend({
   },
   onRender() {
     this.startLoading()
-    setTimeout(
-      function() {
-        this.initializeMap()
-      }.bind(this),
-      1000
-    )
+    setTimeout(() => {
+      this.initializeMap()
+    }, 1000)
   },
   toggleClustering() {
     this.$el.toggleClass('is-clustering')
@@ -464,11 +459,9 @@ module.exports = Marionette.LayoutView.extend({
   },
   handleFilter(filter, color) {
     if (filter.filters) {
-      filter.filters.forEach(
-        function(subfilter) {
-          this.handleFilter(subfilter, color)
-        }.bind(this)
-      )
+      filter.filters.forEach(subfilter => {
+        this.handleFilter(subfilter, color)
+      })
     } else {
       let pointText
       let locationModel
@@ -494,11 +487,11 @@ module.exports = Marionette.LayoutView.extend({
             pointText = pointText.substring(0, pointText.length - 1)
             locationModel = new LocationModel({
               lineWidth: filter.distance,
-              line: pointText.split(',').map(function(coordinate) {
-                return coordinate.split(' ').map(function(value) {
-                  return Number(value)
-                })
-              }),
+              line: pointText
+                .split(',')
+                .map(coordinate =>
+                  coordinate.split(' ').map(value => Number(value))
+                ),
               color,
             })
             this.map.showLineShape(locationModel)

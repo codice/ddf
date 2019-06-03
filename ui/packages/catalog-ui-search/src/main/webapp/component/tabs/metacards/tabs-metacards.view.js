@@ -21,7 +21,7 @@ const properties = require('../../../js/properties.js')
 
 function getTypes(results) {
   const types = {}
-  results.forEach(function(result) {
+  results.forEach(result => {
     const tags = result
       .get('metacard')
       .get('properties')

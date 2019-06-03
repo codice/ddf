@@ -355,7 +355,7 @@ const ResultItemView = Marionette.LayoutView.extend({
     result.showSource = false
     result.customDetail = []
     if (properties.resultShow) {
-      properties.resultShow.forEach(function(additionProperty) {
+      properties.resultShow.forEach(additionProperty => {
         if (additionProperty === 'source-id') {
           result.showSource = true
           return
@@ -365,9 +365,7 @@ const ResultItemView = Marionette.LayoutView.extend({
           switch (metacardDefinitions.metacardTypes[additionProperty].type) {
             case 'DATE':
               if (value.constructor === Array) {
-                value = value.map(function(val) {
-                  return Common.getMomentDate(val)
-                })
+                value = value.map(val => Common.getMomentDate(val))
               } else {
                 value = Common.getMomentDate(value)
               }

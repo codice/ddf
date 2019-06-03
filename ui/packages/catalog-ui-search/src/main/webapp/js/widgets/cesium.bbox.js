@@ -167,7 +167,7 @@ Draw.BboxView = Marionette.View.extend({
     }
 
     modelProps = _.pick(e, 'north', 'east', 'west', 'south')
-    _.each(modelProps, function(val, key) {
+    _.each(modelProps, (val, key) => {
       modelProps[key] = DistanceUtils.coordinateRound((val * 180) / Math.PI)
     })
     this.model.set(modelProps)
@@ -179,9 +179,7 @@ Draw.BboxView = Marionette.View.extend({
     const toRad = Cesium.Math.toRadians
     const obj = model.toJSON()
     if (
-      _.every(defaultAttrs, function(val) {
-        return _.isUndefined(obj[val])
-      }) ||
+      _.every(defaultAttrs, val => _.isUndefined(obj[val])) ||
       _.isEmpty(obj)
     ) {
       if (this.options.map.scene && this.options.map.scene.primitives) {
@@ -190,7 +188,7 @@ Draw.BboxView = Marionette.View.extend({
       this.stopListening()
       return
     }
-    _.each(obj, function(val, key) {
+    _.each(obj, (val, key) => {
       obj[key] = toRad(val)
     })
     const rectangle = new Cesium.Rectangle()
@@ -344,11 +342,11 @@ Draw.BboxView = Marionette.View.extend({
       this.click1 = this.options.map.scene.globe.ellipsoid.cartesianToCartographic(
         cartesian
       )
-      this.mouseHandler.setInputAction(function() {
+      this.mouseHandler.setInputAction(() => {
         that.buttonPressed = false
         that.handleRegionStop()
       }, Cesium.ScreenSpaceEventType.LEFT_UP)
-      this.mouseHandler.setInputAction(function(movement) {
+      this.mouseHandler.setInputAction(movement => {
         that.buttonPressed = true
         that.handleRegionInter(movement)
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
@@ -360,7 +358,7 @@ Draw.BboxView = Marionette.View.extend({
     const that = this
 
     // Now wait for start
-    this.mouseHandler.setInputAction(function(movement) {
+    this.mouseHandler.setInputAction(movement => {
       that.handleRegionStart(movement)
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN)
   },

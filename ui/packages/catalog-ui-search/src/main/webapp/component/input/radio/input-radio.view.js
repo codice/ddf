@@ -26,24 +26,20 @@ module.exports = InputView.extend({
     radioRegion: '.radio-region',
   },
   listenForChange() {
-    this.$el.on(
-      'click',
-      function() {
-        this.model.set('value', this.getCurrentValue())
-      }.bind(this)
-    )
+    this.$el.on('click', () => {
+      this.model.set('value', this.getCurrentValue())
+    })
   },
   serializeData() {
     const value = this.model.get('value')
     const choice = this.model
       .get('property')
       .get('radio')
-      .filter(function(choice) {
-        return (
+      .filter(
+        choice =>
           JSON.stringify(choice.value) === JSON.stringify(value) ||
           JSON.stringify(choice) === JSON.stringify(value)
-        )
-      })[0]
+      )[0]
     return {
       label: choice ? choice.label : value,
     }
@@ -58,7 +54,7 @@ module.exports = InputView.extend({
         options: this.model
           .get('property')
           .get('radio')
-          .map(function(value) {
+          .map(value => {
             if (value.label) {
               return {
                 label: value.label,

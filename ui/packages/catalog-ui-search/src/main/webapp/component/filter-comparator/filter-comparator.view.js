@@ -99,9 +99,7 @@ module.exports = Marionette.ItemView.extend({
           // if this view is being used as an ad hoc search results filter
           // (as opposed to a filter saved on a search), don't include
           // complex comparators like NEAR
-          comparators = comparators.filter(function(comparator) {
-            return comparator !== 'NEAR'
-          })
+          comparators = comparators.filter(comparator => comparator !== 'NEAR')
         }
         return comparators
     }

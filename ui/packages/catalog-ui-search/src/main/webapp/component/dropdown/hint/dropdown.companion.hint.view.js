@@ -23,13 +23,10 @@ module.exports = DropdownCompanionView.extend({
   className: 'is-hint',
   listenForOutsideClick() {
     DropdownCompanionView.prototype.listenForOutsideClick.call(this)
-    $(namespace + 'help').on(
-      'mousedown.' + this.cid,
-      function(event) {
-        if (this.$el.find(event.target).length === 0) {
-          this.close()
-        }
-      }.bind(this)
-    )
+    $(namespace + 'help').on('mousedown.' + this.cid, event => {
+      if (this.$el.find(event.target).length === 0) {
+        this.close()
+      }
+    })
   },
 })

@@ -40,11 +40,11 @@ describe('filter attrs', () => {
     const positiveTestStrings = ['text', 'any', 'anytext', 'ANYTEXT', 'aNyTeXt']
     const negativeTestStrings = ['test', 'anyG', 'any text', 'anyText ', 'az']
 
-    positiveTestStrings.forEach(function(string) {
+    positiveTestStrings.forEach(string => {
       testAllSubstrings(string, str, matchcase, true)
     })
 
-    negativeTestStrings.forEach(function(string) {
+    negativeTestStrings.forEach(string => {
       testWholeStrings(string, str, matchcase, false)
     })
   })
@@ -66,10 +66,10 @@ describe('filter attrs', () => {
     ]
     const negativeTestStrings = ['az', 'thdo', 'ndDash', 'aString-']
 
-    positiveTestStrings.forEach(function(string) {
+    positiveTestStrings.forEach(string => {
       testAllSubstrings(string, str, matchcase, true)
     })
-    negativeTestStrings.forEach(function(string) {
+    negativeTestStrings.forEach(string => {
       testWholeStrings(string, str, matchcase, false)
     })
   })
@@ -81,10 +81,10 @@ describe('filter attrs', () => {
     const positiveTestStrings = ['ALLCAPSSTRING', 'allcapsstring']
     const negativeTestStrings = ['z', 'CA', 'STR', 'ING']
 
-    positiveTestStrings.forEach(function(string) {
+    positiveTestStrings.forEach(string => {
       testAllSubstrings(string, str, matchcase, true)
     })
-    negativeTestStrings.forEach(function(string) {
+    negativeTestStrings.forEach(string => {
       testWholeStrings(string, str, matchcase, false)
     })
   })
@@ -108,10 +108,10 @@ describe('filter attrs', () => {
       'acamelcasedstring',
     ]
 
-    positiveTestStrings.forEach(function(string) {
+    positiveTestStrings.forEach(string => {
       testAllSubstrings(string, str, matchcase, true)
     })
-    negativeTestStrings.forEach(function(string) {
+    negativeTestStrings.forEach(string => {
       testWholeStrings(string, str, matchcase, false)
     })
   })
@@ -135,10 +135,10 @@ describe('filter attrs', () => {
       'rings',
     ]
 
-    positiveTestStrings.forEach(function(string) {
+    positiveTestStrings.forEach(string => {
       testAllSubstrings(string, str, matchcase, true)
     })
-    negativeTestStrings.forEach(function(string) {
+    negativeTestStrings.forEach(string => {
       testWholeStrings(string, str, matchcase, false)
     })
   })

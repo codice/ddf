@@ -88,9 +88,7 @@ module.exports = DropdownView.extend({
   serializeData() {
     const srcs = this.model.get('value')
     return {
-      sources: sources.toJSON().filter(function(src) {
-        return srcs.indexOf(src.id) !== -1
-      }),
+      sources: sources.toJSON().filter(src => srcs.indexOf(src.id) !== -1),
       enterprise: this.model.get('federation') === 'enterprise',
       localCatalog: sources.localCatalog,
       isLocalCatalogEnabled: !properties.isDisableLocalCatalog(),

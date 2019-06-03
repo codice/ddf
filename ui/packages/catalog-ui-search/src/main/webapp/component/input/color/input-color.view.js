@@ -103,13 +103,10 @@ module.exports = InputView.extend({
     }
   },
   listenForChange() {
-    this.$el.on(
-      'input change keyup',
-      function() {
-        this.model.set('value', this.getCurrentValue())
-        this.handleValue()
-      }.bind(this)
-    )
+    this.$el.on('input change keyup', () => {
+      this.model.set('value', this.getCurrentValue())
+      this.handleValue()
+    })
   },
   onDestroy() {
     const colorpicker = this.$el.find('input')

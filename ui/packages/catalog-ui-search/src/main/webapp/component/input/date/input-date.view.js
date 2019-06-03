@@ -134,36 +134,30 @@ module.exports = InputView.extend({
     }
   },
   listenForChange() {
-    this.$el.on(
-      'dp.change',
-      function(e) {
-        if (e.oldDate === null) {
-          return
-        }
+    this.$el.on('dp.change', e => {
+      if (e.oldDate === null) {
+        return
+      }
 
-        let datetimepicker = this.$el
-          .find('.input-group.date')
-          .data('DateTimePicker')
+      let datetimepicker = this.$el
+        .find('.input-group.date')
+        .data('DateTimePicker')
 
-        let newValue = this.hasSameTime(e.date, e.oldDate)
-          ? e.date.startOf('day')
-          : e.date
+      let newValue = this.hasSameTime(e.date, e.oldDate)
+        ? e.date.startOf('day')
+        : e.date
 
-        newValue = moment
-          .tz(newValue, getDateFormat(), getTimeZone())
-          .format(getDateFormat())
+      newValue = moment
+        .tz(newValue, getDateFormat(), getTimeZone())
+        .format(getDateFormat())
 
-        datetimepicker.viewDate(newValue)
-        this.$el.find('input').val(newValue)
-      }.bind(this)
-    )
-    this.$el.on(
-      'dp.change click input change keyup',
-      function(e) {
-        this.model.set('value', this.getCurrentValue())
-        this.validate()
-      }.bind(this)
-    )
+      datetimepicker.viewDate(newValue)
+      this.$el.find('input').val(newValue)
+    })
+    this.$el.on('dp.change click input change keyup', e => {
+      this.model.set('value', this.getCurrentValue())
+      this.validate()
+    })
   },
   isValid() {
     const currentValue = this.$el.find('input').val()

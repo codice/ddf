@@ -19,14 +19,14 @@
 const $ = require('jquery')
 
 function waitForInitialAttachLoad($iframe) {
-  $iframe.on('load', function() {
+  $iframe.on('load', () => {
     $iframe.off('load')
     attachSubmitListener($iframe)
   })
 }
 
 function attachSubmitListener($iframe) {
-  $iframe.on('load', function() {
+  $iframe.on('load', () => {
     $iframe.off('load')
     $iframe.detach()
     waitForInitialAttachLoad($iframe)

@@ -101,9 +101,9 @@ module.exports = Marionette.LayoutView.extend(
     listenForClose() {
       this.$el.on(
         CustomElements.getNamespace() + 'close-' + componentName,
-        function() {
+        () => {
           this.close()
-        }.bind(this)
+        }
       )
     },
     handleOpen() {

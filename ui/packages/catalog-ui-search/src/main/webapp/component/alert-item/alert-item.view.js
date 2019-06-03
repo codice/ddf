@@ -32,9 +32,9 @@ module.exports = Marionette.ItemView.extend({
   initialize() {
     const modelJSON = this.model.toJSON()
     this.listenTo(store.get('workspaces'), 'remove', this.render)
-    const workspace = store.get('workspaces').filter(function(workspace) {
-      return workspace.get('queries').get(modelJSON.queryId)
-    })[0]
+    const workspace = store
+      .get('workspaces')
+      .filter(workspace => workspace.get('queries').get(modelJSON.queryId))[0]
     let query
     if (workspace) {
       query = workspace.get('queries').get(modelJSON.queryId)
@@ -47,16 +47,13 @@ module.exports = Marionette.ItemView.extend({
   },
   removeModel() {
     this.$el.toggleClass('is-destroyed', true)
-    setTimeout(
-      function() {
-        this.model.collection.remove(this.model)
-        user
-          .get('user')
-          .get('preferences')
-          .savePreferences()
-      }.bind(this),
-      250
-    )
+    setTimeout(() => {
+      this.model.collection.remove(this.model)
+      user
+        .get('user')
+        .get('preferences')
+        .savePreferences()
+    }, 250)
   },
   expandAlert() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
@@ -70,9 +67,9 @@ module.exports = Marionette.ItemView.extend({
   },
   serializeData() {
     const modelJSON = this.model.toJSON()
-    const workspace = store.get('workspaces').filter(function(workspace) {
-      return workspace.get('queries').get(modelJSON.queryId)
-    })[0]
+    const workspace = store
+      .get('workspaces')
+      .filter(workspace => workspace.get('queries').get(modelJSON.queryId))[0]
     let query
     if (workspace) {
       query = workspace.get('queries').get(modelJSON.queryId)

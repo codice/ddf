@@ -53,7 +53,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   turnOnEditing() {
     this.$el.addClass('is-editing')
-    this.regionManager.forEach(function(region) {
+    this.regionManager.forEach(region => {
       if (region.currentView && region.currentView.turnOnEditing) {
         region.currentView.turnOnEditing()
       }
@@ -163,7 +163,7 @@ module.exports = Marionette.LayoutView.extend({
   setupTimeBefore() {
     let currentBefore = ''
     if (this.options.filter.anyDate) {
-      this.options.filter.anyDate.forEach(function(subfilter) {
+      this.options.filter.anyDate.forEach(subfilter => {
         if (subfilter.type === 'BEFORE') {
           currentBefore = subfilter.value
         }
@@ -185,7 +185,7 @@ module.exports = Marionette.LayoutView.extend({
     let currentAfter = ''
 
     if (this.options.filter.anyDate) {
-      this.options.filter.anyDate.forEach(function(subfilter) {
+      this.options.filter.anyDate.forEach(subfilter => {
         if (subfilter.type === 'AFTER') {
           currentAfter = subfilter.value
         }
@@ -208,7 +208,7 @@ module.exports = Marionette.LayoutView.extend({
 
     // Pre-fill the last edited value or the load value from query
     if (this.options.filter.anyDate) {
-      this.options.filter.anyDate.forEach(function(subfilter) {
+      this.options.filter.anyDate.forEach(subfilter => {
         if (subfilter.type === 'DURING') {
           value = `${subfilter.from}/${subfilter.to}`
         }
@@ -268,7 +268,7 @@ module.exports = Marionette.LayoutView.extend({
   setupTimeRelative() {
     let currentValue
     if (this.options.filter.anyDate) {
-      this.options.filter.anyDate.forEach(function(subfilter) {
+      this.options.filter.anyDate.forEach(subfilter => {
         if (subfilter.type === '=') {
           currentValue = subfilter.value
         }

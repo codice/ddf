@@ -116,13 +116,10 @@ module.exports = InputView.extend({
     }
   },
   listenForChange() {
-    this.$el.on(
-      'dp.change click input change keyup',
-      function() {
-        this.model.set('value', this.getCurrentValue())
-        this.validate()
-      }.bind(this)
-    )
+    this.$el.on('dp.change click input change keyup', () => {
+      this.model.set('value', this.getCurrentValue())
+      this.validate()
+    })
   },
   isValid() {
     const currentValue = this.$el.find('input').val()

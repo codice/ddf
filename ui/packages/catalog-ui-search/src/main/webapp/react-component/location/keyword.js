@@ -49,9 +49,11 @@ class Keyword extends React.Component {
           break
         }
         case 'MultiPolygon': {
-          const polygon = geometry.coordinates.map(function(ring) {
-            return ring[0] // outer ring only
-          })
+          const polygon = geometry.coordinates.map(
+            (
+              ring // outer ring only
+            ) => ring[0]
+          )
           this.props.setState({
             hasKeyword: true,
             locationType: 'latlon',

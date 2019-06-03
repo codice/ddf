@@ -128,14 +128,11 @@ module.exports = plugin(
       }
     },
     handleChangeDetailLevel(model, values) {
-      $.each(
-        model.get('enum'),
-        function(index, value) {
-          if (values[0] === value.value) {
-            this.model.set('detail-level', value)
-          }
-        }.bind(this)
-      )
+      $.each(model.get('enum'), (index, value) => {
+        if (values[0] === value.value) {
+          this.model.set('detail-level', value)
+        }
+      })
     },
     onRender() {
       this.setupSrcDropdown()
@@ -222,7 +219,7 @@ module.exports = plugin(
     },
     turnOffEditing() {
       this.$el.removeClass('is-editing')
-      this.regionManager.forEach(function(region) {
+      this.regionManager.forEach(region => {
         if (region.currentView && region.currentView.turnOffEditing) {
           region.currentView.turnOffEditing()
         }
@@ -230,7 +227,7 @@ module.exports = plugin(
     },
     turnOnEditing() {
       this.$el.addClass('is-editing')
-      this.regionManager.forEach(function(region) {
+      this.regionManager.forEach(region => {
         if (region.currentView && region.currentView.turnOnEditing) {
           region.currentView.turnOnEditing()
         }

@@ -464,9 +464,7 @@ function buildAst(tokens) {
         }
 
         const params = Array.apply(null, Array(paramCount))
-          .map(function() {
-            return buildTree()
-          })
+          .map(() => buildTree())
           .reverse()
 
         return {
@@ -630,11 +628,7 @@ function write(filter) {
         return (
           filter.filterFunctionName +
           '(' +
-          filter.params
-            .map(function(param) {
-              return write(param)
-            })
-            .join(',') +
+          filter.params.map(param => write(param)).join(',') +
           ')'
         )
       } else if (typeof filter === 'string') {
@@ -654,7 +648,7 @@ function simplifyFilters(cqlAst) {
   for (let i = 0; i < cqlAst.filters.length; i++) {
     if (simplifyAst(cqlAst.filters[i], cqlAst)) {
       const filtersToMerge = cqlAst.filters.splice(i, 1)[0]
-      filtersToMerge.filters.forEach(function(filter) {
+      filtersToMerge.filters.forEach(filter => {
         cqlAst.filters.push(filter)
       })
     }
@@ -681,7 +675,7 @@ function simplifyAst(cqlAst, parentNode) {
 
 function collapseNOTs(cqlAst, parentNode) {
   if (cqlAst.filters) {
-    cqlAst.filters.forEach(function(filter) {
+    cqlAst.filters.forEach(filter => {
       collapseNOTs(filter, cqlAst)
     })
     if (cqlAst.type === 'NOT') {
@@ -696,7 +690,7 @@ function collapseNOTs(cqlAst, parentNode) {
 
 function uncollapseNOTs(cqlAst, parentNode) {
   if (cqlAst.filters) {
-    cqlAst.filters.forEach(function(filter) {
+    cqlAst.filters.forEach(filter => {
       uncollapseNOTs(filter, cqlAst)
     })
     if (cqlAst.type === 'NOT OR') {

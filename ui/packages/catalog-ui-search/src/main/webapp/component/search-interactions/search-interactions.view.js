@@ -69,7 +69,7 @@ module.exports = Marionette.LayoutView.extend({
         yes: 'Reset',
       }),
       'change:choice',
-      function(confirmation) {
+      confirmation => {
         if (confirmation.get('choice')) {
           const defaults =
             this.model.get('type') === 'custom'
@@ -78,7 +78,7 @@ module.exports = Marionette.LayoutView.extend({
           this.model.resetToDefaults(defaults)
           this.triggerCloseDropdown()
         }
-      }.bind(this)
+      }
     )
   },
   triggerTypeAdvanced() {

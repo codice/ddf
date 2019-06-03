@@ -60,13 +60,9 @@ module.exports = Marionette.LayoutView.extend(
     },
     listenToComponent() {
       //override if you need more functionality
-      this.listenTo(
-        this.modelForComponent,
-        'change:value',
-        function() {
-          this.model.set('value', this.modelForComponent.get('value'))
-        }.bind(this)
-      )
+      this.listenTo(this.modelForComponent, 'change:value', () => {
+        this.model.set('value', this.modelForComponent.get('value'))
+      })
     },
     initialize() {
       this.initializeComponentModel()
@@ -109,21 +105,19 @@ module.exports = Marionette.LayoutView.extend(
       ) {
         return values[0] // otherwise placeholder (click here to select) won't appear
       }
-      return values.map(
-        function(value) {
-          const selection = this.options.list.filter(function(item) {
-            return JSON.stringify(item.value) === JSON.stringify(value)
-          })
-          if (selection.length > 0) {
-            return selection[0]
-          } else {
-            return {
-              value,
-              label: value,
-            }
+      return values.map(value => {
+        const selection = this.options.list.filter(
+          item => JSON.stringify(item.value) === JSON.stringify(value)
+        )
+        if (selection.length > 0) {
+          return selection[0]
+        } else {
+          return {
+            value,
+            label: value,
           }
-        }.bind(this)
-      )
+        }
+      })
     },
     serializeData() {
       if (this.options.list) {
@@ -132,9 +126,9 @@ module.exports = Marionette.LayoutView.extend(
           value: selections,
           concatenatedLabel: selections
             ? selections
-                .map(function(selection) {
-                  return selection.label || selection.value || selection
-                })
+                .map(
+                  selection => selection.label || selection.value || selection
+                )
                 .join(' | ')
             : selections,
         }

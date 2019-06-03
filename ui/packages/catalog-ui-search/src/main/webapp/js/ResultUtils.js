@@ -19,13 +19,13 @@ module.exports = {
   refreshResult(result) {
     const id = result.get('metacard').id
     result.refreshData()
-    store.get('workspaces').forEach(function(workspace) {
-      workspace.get('queries').forEach(function(query) {
+    store.get('workspaces').forEach(workspace => {
+      workspace.get('queries').forEach(query => {
         if (query.get('result')) {
           query
             .get('result')
             .get('results')
-            .forEach(function(result) {
+            .forEach(result => {
               if (
                 result
                   .get('metacard')
@@ -41,7 +41,7 @@ module.exports = {
     alert
       .get('currentResult')
       .get('results')
-      .forEach(function(result) {
+      .forEach(result => {
         if (
           result
             .get('metacard')
@@ -53,25 +53,27 @@ module.exports = {
       })
   },
   updateResults(results, response) {
-    const attributeMap = response.reduce(function(attributeMap, changes) {
-      return changes.attributes.reduce(function(attrMap, chnges) {
-        attrMap[chnges.attribute] = metacardDefinitions.metacardTypes[
-          chnges.attribute
-        ].multivalued
-          ? chnges.values
-          : chnges.values[0]
-        if (
-          attrMap[chnges.attribute] &&
-          attrMap[chnges.attribute].constructor === Array &&
-          attrMap[chnges.attribute].length === 0
-        ) {
-          attrMap[chnges.attribute] = undefined
-        }
-        return attrMap
-      }, attributeMap)
-    }, {})
+    const attributeMap = response.reduce(
+      (attributeMap, changes) =>
+        changes.attributes.reduce((attrMap, chnges) => {
+          attrMap[chnges.attribute] = metacardDefinitions.metacardTypes[
+            chnges.attribute
+          ].multivalued
+            ? chnges.values
+            : chnges.values[0]
+          if (
+            attrMap[chnges.attribute] &&
+            attrMap[chnges.attribute].constructor === Array &&
+            attrMap[chnges.attribute].length === 0
+          ) {
+            attrMap[chnges.attribute] = undefined
+          }
+          return attrMap
+        }, attributeMap),
+      {}
+    )
     const unsetAttributes = []
-    _.forEach(attributeMap, function(value, key) {
+    _.forEach(attributeMap, (value, key) => {
       if (
         value === undefined ||
         (value.constructor === Array && value.length === 0)
@@ -83,28 +85,26 @@ module.exports = {
     if (results.length === undefined) {
       results = [results]
     }
-    const ids = results.map(function(result) {
-      return result.get('metacard').id
-    })
-    results.forEach(function(metacard) {
+    const ids = results.map(result => result.get('metacard').id)
+    results.forEach(metacard => {
       metacard
         .get('metacard')
         .get('properties')
         .set(attributeMap)
-      unsetAttributes.forEach(function(attribute) {
+      unsetAttributes.forEach(attribute => {
         metacard
           .get('metacard')
           .get('properties')
           .unset(attribute)
       })
     })
-    store.get('workspaces').forEach(function(workspace) {
-      workspace.get('queries').forEach(function(query) {
+    store.get('workspaces').forEach(workspace => {
+      workspace.get('queries').forEach(query => {
         if (query.get('result')) {
           query
             .get('result')
             .get('results')
-            .forEach(function(result) {
+            .forEach(result => {
               if (
                 ids.indexOf(
                   result
@@ -117,7 +117,7 @@ module.exports = {
                   .get('metacard')
                   .get('properties')
                   .set(attributeMap)
-                unsetAttributes.forEach(function(attribute) {
+                unsetAttributes.forEach(attribute => {
                   result
                     .get('metacard')
                     .get('properties')
@@ -131,7 +131,7 @@ module.exports = {
     alert
       .get('currentResult')
       .get('results')
-      .forEach(function(result) {
+      .forEach(result => {
         if (
           ids.indexOf(
             result
@@ -144,7 +144,7 @@ module.exports = {
             .get('metacard')
             .get('properties')
             .set(attributeMap)
-          unsetAttributes.forEach(function(attribute) {
+          unsetAttributes.forEach(attribute => {
             result
               .get('metacard')
               .get('properties')

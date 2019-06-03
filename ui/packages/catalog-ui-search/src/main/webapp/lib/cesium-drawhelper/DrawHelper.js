@@ -40,14 +40,14 @@ const DrawHelper = (module.exports = (function() {
         pickedObject.primitive[name](position)
       }
     }
-    handler.setInputAction(function(movement) {
+    handler.setInputAction(movement => {
       callPrimitiveCallback('leftClick', movement.position)
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
-    handler.setInputAction(function(movement) {
+    handler.setInputAction(movement => {
       callPrimitiveCallback('leftDoubleClick', movement.position)
     }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK)
     let mouseOutObject
-    handler.setInputAction(function(movement) {
+    handler.setInputAction(movement => {
       if (_self._handlersMuted == true) return
       let pickedObject = scene.pick(movement.endPosition)
       if (
@@ -68,10 +68,10 @@ const DrawHelper = (module.exports = (function() {
         }
       }
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
-    handler.setInputAction(function(movement) {
+    handler.setInputAction(movement => {
       callPrimitiveCallback('leftUp', movement.position)
     }, Cesium.ScreenSpaceEventType.LEFT_UP)
-    handler.setInputAction(function(movement) {
+    handler.setInputAction(movement => {
       callPrimitiveCallback('leftDown', movement.position)
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN)
   }
@@ -91,18 +91,18 @@ const DrawHelper = (module.exports = (function() {
 
     // handlers for interactions
     // highlight polygon when mouse is entering
-    setListener(surface, 'mouseMove', function(position) {
+    setListener(surface, 'mouseMove', position => {
       surface.setHighlighted(true)
       if (!surface._editMode) {
         _self._tooltip.showAt(position, 'Click to edit this shape')
       }
     })
     // hide the highlighting when mouse is leaving the polygon
-    setListener(surface, 'mouseOut', function(position) {
+    setListener(surface, 'mouseOut', position => {
       surface.setHighlighted(false)
       _self._tooltip.setVisible(false)
     })
-    setListener(surface, 'leftClick', function(position) {
+    setListener(surface, 'leftClick', position => {
       surface.setEditMode(true)
     })
   }
@@ -705,7 +705,7 @@ const DrawHelper = (module.exports = (function() {
       }
       if (callbacks.dragHandlers) {
         var _self = this
-        setListener(billboard, 'leftDown', function(position) {
+        setListener(billboard, 'leftDown', position => {
           // TODO - start the drag handlers here
           // create handlers for mouseOut and leftUp for the billboard and a mouseMove
           function onDrag(position) {
@@ -728,7 +728,7 @@ const DrawHelper = (module.exports = (function() {
 
           var handler = new Cesium.ScreenSpaceEventHandler(_self._scene.canvas)
 
-          handler.setInputAction(function(movement) {
+          handler.setInputAction(movement => {
             const cartesian = _self._scene.camera.pickEllipsoid(
               movement.endPosition,
               ellipsoid
@@ -740,7 +740,7 @@ const DrawHelper = (module.exports = (function() {
             }
           }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
 
-          handler.setInputAction(function(movement) {
+          handler.setInputAction(movement => {
             onDragEnd(
               _self._scene.camera.pickEllipsoid(movement.position, ellipsoid)
             )
@@ -756,20 +756,20 @@ const DrawHelper = (module.exports = (function() {
         })
       }
       if (callbacks.onDoubleClick) {
-        setListener(billboard, 'leftDoubleClick', function(position) {
+        setListener(billboard, 'leftDoubleClick', position => {
           callbacks.onDoubleClick(getIndex())
         })
       }
       if (callbacks.onClick) {
-        setListener(billboard, 'leftClick', function(position) {
+        setListener(billboard, 'leftClick', position => {
           callbacks.onClick(getIndex())
         })
       }
       if (callbacks.tooltip) {
-        setListener(billboard, 'mouseMove', function(position) {
+        setListener(billboard, 'mouseMove', position => {
           _self._drawHelper._tooltip.showAt(position, callbacks.tooltip())
         })
-        setListener(billboard, 'mouseOut', function(position) {
+        setListener(billboard, 'mouseOut', position => {
           _self._drawHelper._tooltip.setVisible(false)
         })
       }
@@ -835,7 +835,7 @@ const DrawHelper = (module.exports = (function() {
   _.prototype.startDrawingMarker = function(options) {
     var options = copyOptions(options, defaultBillboard)
 
-    this.startDrawing(function() {
+    this.startDrawing(() => {
       markers.remove()
       mouseHandler.destroy()
       tooltip.setVisible(false)
@@ -851,7 +851,7 @@ const DrawHelper = (module.exports = (function() {
     const mouseHandler = new Cesium.ScreenSpaceEventHandler(scene.canvas)
 
     // Now wait for start
-    mouseHandler.setInputAction(function(movement) {
+    mouseHandler.setInputAction(movement => {
       if (movement.position != null) {
         const cartesian = scene.camera.pickEllipsoid(
           movement.position,
@@ -865,7 +865,7 @@ const DrawHelper = (module.exports = (function() {
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
 
-    mouseHandler.setInputAction(function(movement) {
+    mouseHandler.setInputAction(movement => {
       const position = movement.endPosition
       if (position != null) {
         const cartesian = scene.camera.pickEllipsoid(position, ellipsoid)
@@ -898,7 +898,7 @@ const DrawHelper = (module.exports = (function() {
   }
 
   _.prototype.startDrawingPolyshape = function(isPolygon, options) {
-    this.startDrawing(function() {
+    this.startDrawing(() => {
       primitives.remove(poly)
       markers.remove()
       mouseHandler.destroy()
@@ -926,7 +926,7 @@ const DrawHelper = (module.exports = (function() {
     const mouseHandler = new Cesium.ScreenSpaceEventHandler(scene.canvas)
 
     // Now wait for start
-    mouseHandler.setInputAction(function(movement) {
+    mouseHandler.setInputAction(movement => {
       if (movement.position != null) {
         const cartesian = scene.camera.pickEllipsoid(
           movement.position,
@@ -951,7 +951,7 @@ const DrawHelper = (module.exports = (function() {
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
 
-    mouseHandler.setInputAction(function(movement) {
+    mouseHandler.setInputAction(movement => {
       const position = movement.endPosition
       if (position != null) {
         if (positions.length == 0) {
@@ -984,7 +984,7 @@ const DrawHelper = (module.exports = (function() {
       }
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
 
-    mouseHandler.setInputAction(function(movement) {
+    mouseHandler.setInputAction(movement => {
       const position = movement.position
       if (position != null) {
         if (positions.length < minPoints + 2) {
@@ -1016,7 +1016,7 @@ const DrawHelper = (module.exports = (function() {
   _.prototype.startDrawingExtent = function(options) {
     var options = copyOptions(options, defaultSurfaceOptions)
 
-    this.startDrawing(function() {
+    this.startDrawing(() => {
       if (extent != null) {
         primitives.remove(extent)
       }
@@ -1055,7 +1055,7 @@ const DrawHelper = (module.exports = (function() {
     }
 
     // Now wait for start
-    mouseHandler.setInputAction(function(movement) {
+    mouseHandler.setInputAction(movement => {
       if (movement.position != null) {
         const cartesian = scene.camera.pickEllipsoid(
           movement.position,
@@ -1082,7 +1082,7 @@ const DrawHelper = (module.exports = (function() {
       }
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN)
 
-    mouseHandler.setInputAction(function(movement) {
+    mouseHandler.setInputAction(movement => {
       const position = movement.endPosition
       if (position != null) {
         if (extent == null) {
@@ -1128,7 +1128,7 @@ const DrawHelper = (module.exports = (function() {
     const mouseHandler = new Cesium.ScreenSpaceEventHandler(scene.canvas)
 
     // Now wait for start
-    mouseHandler.setInputAction(function(movement) {
+    mouseHandler.setInputAction(movement => {
       if (movement.position != null) {
         const cartesian = scene.camera.pickEllipsoid(
           movement.position,
@@ -1156,7 +1156,7 @@ const DrawHelper = (module.exports = (function() {
       }
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN)
 
-    mouseHandler.setInputAction(function(movement) {
+    mouseHandler.setInputAction(movement => {
       const position = movement.endPosition
       if (position != null) {
         if (circle == null) {
@@ -1196,7 +1196,7 @@ const DrawHelper = (module.exports = (function() {
         drawHelper._scene.screenSpaceCameraController.enableRotate = enable
       }
 
-      setListener(billboard, 'leftDown', function(position) {
+      setListener(billboard, 'leftDown', position => {
         // TODO - start the drag handlers here
         // create handlers for mouseOut and leftUp for the billboard and a mouseMove
         function onDrag(position) {
@@ -1213,7 +1213,7 @@ const DrawHelper = (module.exports = (function() {
           drawHelper._scene.canvas
         )
 
-        handler.setInputAction(function(movement) {
+        handler.setInputAction(movement => {
           const cartesian = drawHelper._scene.camera.pickEllipsoid(
             movement.endPosition,
             ellipsoid
@@ -1225,7 +1225,7 @@ const DrawHelper = (module.exports = (function() {
           }
         }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
 
-        handler.setInputAction(function(movement) {
+        handler.setInputAction(movement => {
           onDragEnd(
             drawHelper._scene.camera.pickEllipsoid(movement.position, ellipsoid)
           )
@@ -1400,7 +1400,7 @@ const DrawHelper = (module.exports = (function() {
           this._globeClickhandler = new Cesium.ScreenSpaceEventHandler(
             scene.canvas
           )
-          this._globeClickhandler.setInputAction(function(movement) {
+          this._globeClickhandler.setInputAction(movement => {
             const pickedObject = scene.pick(movement.position)
             if (!(pickedObject && pickedObject.primitive)) {
               _self.setEditMode(false)
@@ -1541,7 +1541,7 @@ const DrawHelper = (module.exports = (function() {
             this._globeClickhandler = new Cesium.ScreenSpaceEventHandler(
               scene.canvas
             )
-            this._globeClickhandler.setInputAction(function(movement) {
+            this._globeClickhandler.setInputAction(movement => {
               const pickedObject = scene.pick(movement.position)
               // disable edit if pickedobject is different or not an object
               if (
@@ -1649,7 +1649,7 @@ const DrawHelper = (module.exports = (function() {
             this._globeClickhandler = new Cesium.ScreenSpaceEventHandler(
               scene.canvas
             )
-            this._globeClickhandler.setInputAction(function(movement) {
+            this._globeClickhandler.setInputAction(movement => {
               const pickedObject = scene.pick(movement.position)
               if (!(pickedObject && pickedObject.primitive)) {
                 _self.setEditMode(false)
@@ -1764,7 +1764,7 @@ const DrawHelper = (module.exports = (function() {
             this._globeClickhandler = new Cesium.ScreenSpaceEventHandler(
               scene.canvas
             )
-            this._globeClickhandler.setInputAction(function(movement) {
+            this._globeClickhandler.setInputAction(movement => {
               const pickedObject = scene.pick(movement.position)
               if (!(pickedObject && pickedObject.primitive)) {
                 _self.setEditMode(false)
@@ -1842,7 +1842,7 @@ const DrawHelper = (module.exports = (function() {
         'marker',
         options.markerIcon,
         'Click to start drawing a 2D marker',
-        function() {
+        () => {
           drawHelper.startDrawingMarker({
             callback(position) {
               _self.executeListeners({
@@ -1858,7 +1858,7 @@ const DrawHelper = (module.exports = (function() {
         'polyline',
         options.polylineIcon,
         'Click to start drawing a 2D polyline',
-        function() {
+        () => {
           drawHelper.startDrawingPolyline({
             callback(positions) {
               _self.executeListeners({
@@ -1874,7 +1874,7 @@ const DrawHelper = (module.exports = (function() {
         'polygon',
         options.polygonIcon,
         'Click to start drawing a 2D polygon',
-        function() {
+        () => {
           drawHelper.startDrawingPolygon({
             callback(positions) {
               _self.executeListeners({
@@ -1890,7 +1890,7 @@ const DrawHelper = (module.exports = (function() {
         'extent',
         options.extentIcon,
         'Click to start drawing an Extent',
-        function() {
+        () => {
           drawHelper.startDrawingExtent({
             callback(extent) {
               _self.executeListeners({ name: 'extentCreated', extent })
@@ -1903,7 +1903,7 @@ const DrawHelper = (module.exports = (function() {
         'circle',
         options.circleIcon,
         'Click to start drawing a Circle',
-        function() {
+        () => {
           drawHelper.startDrawingCircle({
             callback(center, radius) {
               _self.executeListeners({
@@ -1921,7 +1921,7 @@ const DrawHelper = (module.exports = (function() {
       var div = document.createElement('DIV')
       div.className = 'divider'
       toolbar.appendChild(div)
-      addIcon('clear', options.clearIcon, 'Remove all primitives', function() {
+      addIcon('clear', options.clearIcon, 'Remove all primitives', () => {
         scene.primitives.removeAll()
       })
 

@@ -65,7 +65,7 @@ function handleResultFormFields(result, selectedResultTemplate) {
       newProperties['metacard-tags'] =
         result.metacard.properties['metacard-tags']
       newProperties['source-id'] = result.metacard.properties['source-id']
-      _.each(resultAttributes, function(value, index) {
+      _.each(resultAttributes, (value, index) => {
         if (result.metacard.properties[value]) {
           newProperties[value] = result.metacard.properties[value]
         }
@@ -239,7 +239,7 @@ module.exports = Backbone.AssociatedModel.extend({
           form.value === this.get('selectedResultTemplate')
       )[0]
       const color = this.getColor()
-      _.forEach(resp.results, function(result) {
+      _.forEach(resp.results, result => {
         result.propertyTypes =
           resp.types[result.metacard.properties['metacard-type']]
         result.metacardType = result.metacard.properties['metacard-type']
@@ -310,14 +310,8 @@ module.exports = Backbone.AssociatedModel.extend({
       this.lastMerge = Date.now()
 
       const resultsIncludingDuplicates = this.get('results')
-        .map(function(m) {
-          return m.pick('id', 'src')
-        })
-        .concat(
-          this.get('queuedResults').map(function(m) {
-            return m.pick('id', 'src')
-          })
-        )
+        .map(m => m.pick('id', 'src'))
+        .concat(this.get('queuedResults').map(m => m.pick('id', 'src')))
       const metacardIdToSourcesIndex = this.createIndexOfMetacardToSources(
         resultsIncludingDuplicates
       )
@@ -365,7 +359,7 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   // create an index of metacard id -> list of sources it appears in
   createIndexOfMetacardToSources(models) {
-    return models.reduce(function(index, metacard) {
+    return models.reduce((index, metacard) => {
       index[metacard.id] = index[metacard.id] || []
       index[metacard.id].push(metacard.src)
       return index
@@ -373,7 +367,7 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   // create an index of source -> last number of results from server
   createIndexOfSourceToResultCount(metacardIdToSourcesIndex, models) {
-    return models.reduce(function(index, metacard) {
+    return models.reduce((index, metacard) => {
       const sourcesForMetacard = metacardIdToSourcesIndex[metacard.id]
       sourcesForMetacard.forEach(src => {
         index[src] = index[src] || 0
@@ -384,36 +378,30 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   cacheHasReturned() {
     return this.get('status')
-      .filter(function(statusModel) {
-        return statusModel.id === 'cache'
-      })
-      .reduce(function(hasReturned, statusModel) {
-        return statusModel.get('successful') !== undefined
-      }, false)
+      .filter(statusModel => statusModel.id === 'cache')
+      .reduce(
+        (hasReturned, statusModel) =>
+          statusModel.get('successful') !== undefined,
+        false
+      )
   },
   setCacheChecked() {
     if (this.cacheHasReturned()) {
-      this.get('status').forEach(
-        function(statusModel) {
-          statusModel.setCacheHasReturned()
-        }.bind(this)
-      )
+      this.get('status').forEach(statusModel => {
+        statusModel.setCacheHasReturned()
+      })
     }
   },
   updateMessages(message, id, status) {
-    this.get('status').forEach(
-      function(statusModel) {
-        statusModel.updateMessages(message, id, status)
-      }.bind(this)
-    )
+    this.get('status').forEach(statusModel => {
+      statusModel.updateMessages(message, id, status)
+    })
   },
   updateStatus() {
     this.setCacheChecked()
-    this.get('status').forEach(
-      function(statusModel) {
-        statusModel.updateStatus(this.get('results'))
-      }.bind(this)
-    )
+    this.get('status').forEach(statusModel => {
+      statusModel.updateStatus(this.get('results'))
+    })
   },
   updateMerged() {
     this.set('merged', this.get('queuedResults').length === 0)
@@ -431,9 +419,9 @@ module.exports = Backbone.AssociatedModel.extend({
     }
   },
   isSearching() {
-    return this.get('status').some(function(status) {
-      return status.get('successful') === undefined
-    })
+    return this.get('status').some(
+      status => status.get('successful') === undefined
+    )
   },
   setQueryId(queryId) {
     this.set('queryId', queryId)
@@ -451,7 +439,7 @@ module.exports = Backbone.AssociatedModel.extend({
     this.unsubscribe()
     if (this.has('status')) {
       const statuses = this.get('status')
-      statuses.forEach(function(status) {
+      statuses.forEach(status => {
         if (status.get('state') === 'ACTIVE') {
           status.set({
             canceled: true,

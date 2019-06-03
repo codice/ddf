@@ -46,17 +46,12 @@ module.exports = Marionette.LayoutView.extend({
       url: './internal/annotations/' + this.model.id,
       method: 'DELETE',
       contentType: 'application/json',
-    }).always(
-      function(response) {
-        setTimeout(
-          function() {
-            this.handleDeleteResponse(response)
-            LoadingCompanionView.endLoading(this)
-          }.bind(this),
-          1000
-        )
-      }.bind(this)
-    )
+    }).always(response => {
+      setTimeout(() => {
+        this.handleDeleteResponse(response)
+        LoadingCompanionView.endLoading(this)
+      }, 1000)
+    })
   },
   handleDeleteResponse(response) {
     if (response.responseType === 'success') {
@@ -132,17 +127,12 @@ module.exports = Marionette.LayoutView.extend({
       method: 'PUT',
       data: JSON.stringify(requestData),
       contentType: 'application/json',
-    }).always(
-      function(response) {
-        setTimeout(
-          function() {
-            this.handleEditResponse(response)
-            LoadingCompanionView.endLoading(this)
-          }.bind(this),
-          1000
-        )
-      }.bind(this)
-    )
+    }).always(response => {
+      setTimeout(() => {
+        this.handleEditResponse(response)
+        LoadingCompanionView.endLoading(this)
+      }, 1000)
+    })
     LoadingCompanionView.endLoading(this)
     this.turnOffEditing()
   },

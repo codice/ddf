@@ -16,20 +16,20 @@ const apply = function(fns) {
   }
 }
 
-describe('Announcement reducer', function() {
-  it('should start empty', function() {
+describe('Announcement reducer', () => {
+  it('should start empty', () => {
     const store = configureStore()
     expect(store.getState()).to.deep.equal([])
   })
 
-  it('should add a new announcement', function() {
+  it('should add a new announcement', () => {
     const store = configureStore()
     store.dispatch(actions.announce(mock()))
     const state = store.getState()
     expect(state).to.have.lengthOf(1)
   })
 
-  it('should dissmiss if not error', function(done) {
+  it('should dissmiss if not error', done => {
     const store = configureStore()
 
     const events = [
@@ -49,7 +49,7 @@ describe('Announcement reducer', function() {
     store.dispatch(actions.announce(mock('warn'), 1))
   })
 
-  it('should remove an announcement', function(done) {
+  it('should remove an announcement', done => {
     const store = configureStore([mock()])
 
     const events = [

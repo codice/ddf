@@ -35,9 +35,7 @@ module.exports = SaveView.extend({
     )
   },
   isSaved() {
-    return !this.model.get('workspaces').find(function(workspace) {
-      return !workspace.isSaved()
-    })
+    return !this.model.get('workspaces').find(workspace => !workspace.isSaved())
   },
   triggerSave() {
     this.model.get('workspaces').saveAll()

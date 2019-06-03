@@ -23,7 +23,7 @@ const remove = (exports.remove = function(id, timeout) {
       id,
     })
 
-    setTimeout(function() {
+    setTimeout(() => {
       dispatch({
         type: 'REMOVE_ANNOUNCEMENT',
         id,
@@ -37,17 +37,14 @@ exports.announce = function(announcement, timeout) {
 
   return function(dispatch, getState) {
     getState()
-      .filter(function(a) {
-        return (
+      .filter(
+        a =>
           a.title === announcement.title &&
           a.message === announcement.message &&
           a.type === announcement.type
-        )
-      })
-      .map(function(a) {
-        return a.id
-      })
-      .forEach(function(id) {
+      )
+      .map(a => a.id)
+      .forEach(id => {
         dispatch(remove(id))
       })
 
@@ -57,7 +54,7 @@ exports.announce = function(announcement, timeout) {
     })
 
     if (announcement.type !== 'error') {
-      setTimeout(function() {
+      setTimeout(() => {
         dispatch(remove(id, timeout))
       }, timeout || 5000)
     }

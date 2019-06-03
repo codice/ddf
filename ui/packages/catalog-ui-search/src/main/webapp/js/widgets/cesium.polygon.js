@@ -68,42 +68,40 @@ class PolygonRenderView extends GeometryRenderView {
 
     this.primitive = new Cesium.PolylineCollection()
     this.cameraMagnitude = this.map.camera.getMagnitude()
-    ;(polygons || []).forEach(
-      function(polygonPoints) {
-        if (!polygonPoints || polygonPoints.length < 3) {
-          return
-        }
-        if (
-          polygonPoints[0].toString() !==
-          polygonPoints[polygonPoints.length - 1].toString()
-        ) {
-          polygonPoints.push(polygonPoints[0])
-        }
-        polygonPoints.forEach(point => {
-          point[0] = DistanceUtils.coordinateRound(point[0])
-          point[1] = DistanceUtils.coordinateRound(point[1])
-        })
+    ;(polygons || []).forEach(polygonPoints => {
+      if (!polygonPoints || polygonPoints.length < 3) {
+        return
+      }
+      if (
+        polygonPoints[0].toString() !==
+        polygonPoints[polygonPoints.length - 1].toString()
+      ) {
+        polygonPoints.push(polygonPoints[0])
+      }
+      polygonPoints.forEach(point => {
+        point[0] = DistanceUtils.coordinateRound(point[0])
+        point[1] = DistanceUtils.coordinateRound(point[1])
+      })
 
-        const drawnPolygonPoints = createBufferedPolygonPoints(polygonPoints, 1)
+      const drawnPolygonPoints = createBufferedPolygonPoints(polygonPoints, 1)
 
-        const bufferedPolygonPoints = createBufferedPolygonPointsFromModel(
-          polygonPoints,
-          this.model
-        )
-        const bufferedPolygons = bufferedPolygonPoints.geometry.coordinates.map(
-          set => Turf.polygon([set])
-        )
-        const bufferedPolygon = Turf.union(...bufferedPolygons)
+      const bufferedPolygonPoints = createBufferedPolygonPointsFromModel(
+        polygonPoints,
+        this.model
+      )
+      const bufferedPolygons = bufferedPolygonPoints.geometry.coordinates.map(
+        set => Turf.polygon([set])
+      )
+      const bufferedPolygon = Turf.union(...bufferedPolygons)
 
-        const primitive = this.primitive
-        bufferedPolygon.geometry.coordinates.forEach(set =>
-          primitive.add(this.constructLinePrimitive(set))
-        )
-        drawnPolygonPoints.geometry.coordinates.forEach(set =>
-          primitive.add(this.constructDottedLinePrimitive(set))
-        )
-      }.bind(this)
-    )
+      const primitive = this.primitive
+      bufferedPolygon.geometry.coordinates.forEach(set =>
+        primitive.add(this.constructLinePrimitive(set))
+      )
+      drawnPolygonPoints.geometry.coordinates.forEach(set =>
+        primitive.add(this.constructDottedLinePrimitive(set))
+      )
+    })
 
     this.map.scene.primitives.add(this.primitive)
   }

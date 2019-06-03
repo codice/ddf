@@ -13,13 +13,13 @@ const inputs = new Map([
   [{ last: 123.45678, unit: 'm' }, 'RELATIVE(PT123.45678M)'],
 ])
 
-describe('Parse relative time', function() {
-  it('serialize', function() {
+describe('Parse relative time', () => {
+  it('serialize', () => {
     for (let [input, expected] of inputs) {
       expect(serialize(input)).to.deep.equal(expected)
     }
   })
-  it('deserialize', function() {
+  it('deserialize', () => {
     for (let [expected, input] of inputs) {
       expect(deserialize(input)).to.deep.equal(expected)
     }

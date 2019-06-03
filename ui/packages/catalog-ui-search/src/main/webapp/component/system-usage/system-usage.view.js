@@ -35,7 +35,7 @@ function getSrc() {
 
 function populateIframe(view) {
   const $iframe = view.$el.find('iframe')
-  $iframe.ready(function() {
+  $iframe.ready(() => {
     $iframe.contents()[0].open()
     $iframe.contents()[0].write(getSrc())
     $iframe.contents()[0].close()
@@ -72,12 +72,9 @@ module.exports = Marionette.LayoutView.extend({
     if (user.fetched) {
       populateIframe(this)
     } else {
-      user.once(
-        'sync',
-        function() {
-          populateIframe(this)
-        }.bind(this)
-      )
+      user.once('sync', () => {
+        populateIframe(this)
+      })
     }
   },
 })

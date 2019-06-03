@@ -67,7 +67,7 @@ module.exports = EditorView.extend({
           this.model.first().get('metacard').id +
           '/attribute/validation',
         customErrorHandling: true,
-      }).then(function(response) {
+      }).then(response => {
         if (!self.isDestroyed && self.editorProperties.currentView) {
           self.editorProperties.currentView.updateValidation(response)
         }
@@ -90,18 +90,18 @@ module.exports = EditorView.extend({
       ]
       LoadingCompanionView.beginLoading(this)
       const self = this
-      setTimeout(function() {
+      setTimeout(() => {
         $.ajax({
           url: './internal/metacards',
           type: 'PATCH',
           data: JSON.stringify(payload),
           contentType: 'application/json',
         })
-          .then(function(response) {
+          .then(response => {
             ResultUtils.updateResults(self.model, response)
           })
-          .always(function() {
-            setTimeout(function() {
+          .always(() => {
+            setTimeout(() => {
               //let solr flush
               LoadingCompanionView.endLoading(self)
               if (!self.isDestroyed) {

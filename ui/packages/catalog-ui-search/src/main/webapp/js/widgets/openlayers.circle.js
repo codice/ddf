@@ -40,7 +40,7 @@ function translateToOpenlayersCoordinate(coord) {
 
 function translateToOpenlayersCoordinates(coords) {
   const coordinates = []
-  _.each(coords, function(item) {
+  _.each(coords, item => {
     coordinates.push(translateToOpenlayersCoordinate(item))
   })
   return coordinates
@@ -198,24 +198,22 @@ Draw.CircleView = Marionette.View.extend({
     })
 
     this.map.addInteraction(this.primitive)
-    this.primitive.on('drawend', function(sketchFeature) {
+    this.primitive.on('drawend', sketchFeature => {
       window.cancelAnimationFrame(that.accurateCircleId)
       that.handleRegionStop(sketchFeature)
       that.map.removeInteraction(that.primitive)
     })
-    this.primitive.on('drawstart', function(sketchFeature) {
+    this.primitive.on('drawstart', sketchFeature => {
       that.showAccurateCircle(sketchFeature)
     })
   },
   accurateCircleId: undefined,
   showAccurateCircle(sketchFeature) {
-    this.accurateCircleId = window.requestAnimationFrame(
-      function() {
-        this.drawBorderedPolygon(sketchFeature.feature.getGeometry())
-        this.showAccurateCircle(sketchFeature)
-        this.setModelFromGeometry(sketchFeature.feature.getGeometry())
-      }.bind(this)
-    )
+    this.accurateCircleId = window.requestAnimationFrame(() => {
+      this.drawBorderedPolygon(sketchFeature.feature.getGeometry())
+      this.showAccurateCircle(sketchFeature)
+      this.setModelFromGeometry(sketchFeature.feature.getGeometry())
+    })
   },
 
   stop() {

@@ -327,11 +327,9 @@ Query.Model = PartialAssociatedModel.extend({
       data.count = 0
     }
     const sources = data.src
-    const initialStatus = sources.map(function(src) {
-      return {
-        id: src,
-      }
-    })
+    const initialStatus = sources.map(src => ({
+      id: src,
+    }))
     let result
     if (this.get('result') && this.get('result').get('results')) {
       result = this.get('result')
@@ -447,7 +445,7 @@ Query.Model = PartialAssociatedModel.extend({
   },
   setSources(sources) {
     const sourceArr = []
-    sources.each(function(src) {
+    sources.each(src => {
       if (src.get('available') === true) {
         sourceArr.push(src.get('id'))
       }
