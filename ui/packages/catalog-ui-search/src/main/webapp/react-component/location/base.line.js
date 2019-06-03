@@ -13,17 +13,18 @@ const Invalid = styled.div`
 `
 
 class BaseLine extends React.Component {
-  isValid = true
   invalidMessage = ''
   constructor(props) {
     super(props)
     const { geometryKey } = props
     const value = JSON.stringify(props[geometryKey])
-    this.state = { value }
+    this.state = { value, isValid: true }
+    this.state.isValid = true
     this.is2DArray = this.is2DArray.bind(this)
     this.validateListOfPoints = this.validateListOfPoints.bind(this)
     this.isValidPolygon = this.isValidPolygon.bind(this)
     this.isValidInput = this.isValidInput.bind(this)
+    this.removeErrorBox = this.removeErrorBox.bind(this)
   }
   componentWillReceiveProps(props) {
     if (document.activeElement !== this.ref) {
@@ -50,8 +51,7 @@ class BaseLine extends React.Component {
             }}
             onBlur={() => this.isValidInput(this.state.value)}
             onFocus={value => {
-              this.isValid = true
-              this.setState()
+              this.setState({ isValid: true })
             }}
           />
           <Units value={props[unitKey]} onChange={cursor(unitKey)}>
@@ -64,22 +64,25 @@ class BaseLine extends React.Component {
             />
           </Units>
         </div>
-        {this.isValid ? (
+        {this.state.isValid ? (
           ''
         ) : (
           <Invalid>
             &nbsp;
             <span className="fa fa-exclamation-triangle" />
-            &nbsp; {this.invalidMessage}
+            &nbsp; {this.invalidMessage} &nbsp; &nbsp;
+            <span className="fa fa-times" onClick={this.removeErrorBox} />
           </Invalid>
         )}
       </React.Fragment>
     )
   }
+  removeErrorBox() {
+    this.setState({ isValid: true })
+  }
   isValidInput(value) {
     this.invalidMessage = ''
-    this.isValid = this.isValidPolygon(value)
-    this.setState({ value })
+    this.setState({ value, isValid: this.isValidPolygon(value) })
   }
   is2DArray(coordinates) {
     try {

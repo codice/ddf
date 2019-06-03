@@ -110,6 +110,9 @@ const LocationInput = props => {
   const { mode, setState, cursor } = props
   const input = inputs[mode] || {}
   const { Component: Input = null } = input
+  const removeErrorBox = () => {
+    setState((errors = false))
+  }
   return (
     <Component>
       <Json value={props} onChange={value => setState(value)} />
@@ -131,7 +134,8 @@ const LocationInput = props => {
             &nbsp;
             <span className="fa fa-exclamation-triangle" />
             &nbsp; {inValidInput} is not an acceptable {inValidKey} value.
-            Defaulting to {defaultCoord}.
+            Defaulting to {defaultCoord}. &nbsp; &nbsp;
+            <span className="fa fa-times" onClick={removeErrorBox} />
           </Invalid>
         ) : (
           ''
