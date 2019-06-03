@@ -1,80 +1,136 @@
 priority "grant";
-// Double forward slashes "//" indicate comments and have no effect on policies.
-//
-// This policy file's intended usage is to contain appropriate sections for adding permissions
-// related to configurations. For example, the Content Directory Monitor requires read/write
-// permissions to the directory being monitored, and has an appropriate section below. Sections
-// should contain sufficient details about adding permissions required for the given configuration.
-//
-// Instructions in this file should be duplicated in the Documentation. The Documentation provides
-// better formatting and readability and also prevents these directions from being modified.
-//
-// When adding permissions for directories, trailing slashes have no effect on the permissions
-// granted. For example, adding a permission for "${/}test${/}path" and "${/}test${/}path${/}" are
-// equivalent. The recursive forms "${/}test${/}path${/}-" and "${/}test${/}path${/}-${/}" are also
-// equivalent.
-//
-// IMPORTANT! - Adding new permissions requires a system restart to take affect.
 
-//                        Content Directory Monitor (CDM) Permissions
-// Adding required permissions for a new Content Directory Monitor.
+// This file allows administrators to add permissions
+// necessary for their particular configuration. This file is organized into sections with one
+// section for each configuration that an administrator might need to change.
 //
-// If monitoring a WebDav server, then adding these permissions is not required and these instructions can be ignored.
+// The Java Security Manager restricts the application from accessing most files. The Java Security
+// Manager works INDEPENDENTLY of the applications configuration. For example, the Content
+// Directory Monitor might be configured to monitor a directory, but the Java Security Manager
+// will prevent it from reading and writing files to that directory. This file must
+// updated to permit the Content Directory Monitor to read files outside of the DDF_HOME
+// directory.
 //
-// Configuring CDM requires adding read and write permissions to the directory being monitored. For
-// each configured CDM, the following 2 permissions are required:
-//   1. permission java.io.FilePermission "<DIRECTORY_PATH>", "read";
-//   2. permission java.io.FilePermission "<DIRECTORY_PATH>${/}-", "read, write";
-// Replacing <DIRECTORY_PATH> with the path of the directory being monitored.
+// ************************************  NOTES AND WARNINGS  ***************************************
 //
-// Line 1 gives the CDM the permissions to read from the monitored directory path. Line 2 gives the
-// CDM the permissions to recursively read and write from the monitored directory path, specified
-// by the directory path's suffix "${/}-".
+// * CHANGES TO THIS FILE REQUIRE THE SYSTEM TO BE RESTARTED
+//   This file is read when the system is started. Changes to this file are only picked up when
+//   the system is started.
 //
-// If a CDM configuration is deleted, then the corresponding permissions that were added should be
-// deleted to avoid granting unnecessary permissions to parts of the system.
+// * PLATFORM INDEPENDENT FILE PATHS
+//   Use the special notation of "${/}", which is a shortcut for "${file.separator}".
+//   It inserts the property separator for the current platform (Windows or *nix).
 //
+// * WINDOWS DRIVE LETTERS
+//   Window drive letters are specified at the beginning of the file path.
+//   For example, the path:
+//       "D:\my\files"
+//   would be entered as
+//       "D:${/}my${/}files"
+//
+// * TRAILING FILE SEPARATORS ARE IGNORED
+//   The paths "${/}test" and "${/}test${/}" are equivalent.
+//
+// * GRANTING PERMISSIONS RECURSIVELY
+//   A file path with a trailing "${/}-" (a slash and a dash) matches all files in the directory
+//   and recursively all files in subdirectories contained in that directory.
+//
+// * COMMENTS
+//   Lines that begin with double forward slashes "//" indicate comments
+//   and have no effect on policies.
+//
+// * DOUBLE QUOTES
+//   File paths and URLs should be surrounded in double quotes.
+//
+// *************************************************************************************************
+
+
+
+// ***********************  BEGIN CONTENT DIRECTORY MONITOR SECTION  *******************************
+// * Configuring the CDM requires adding read and write permissions to the directory being monitored.
+// * If monitoring a WebDav server, then adding these permissions is not required and
+//   these instructions can be ignored.
+// * If a CDM configuration is deleted, then the corresponding permissions that were added should be
+//   removed from this file to avoid granting unnecessary permissions to parts of the system.
+// * NOTE: If the Content Directory Monitor uses the "in-place" option, then the directories
+//   to be monitored must ALSO be added to the URL Resource Reader section of this file.
+//
+// DO NOT MODIFY THE NEXT LINE. It specifies which  modules are granted permission.
 grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/org.apache.camel.camel-blueprint/catalog-core-camelcomponent/catalog-core-urlresourcereader/com.google.guava/catalog-core-standardframework/org.apache.tika.core" {
-    // Add required CDM permissions here.
 
-    // Example:
-    // permission java.io.FilePermission "${/}test${/}some${/}monitored${/}directory", "read";
-    // permission java.io.FilePermission "${/}test${/}some${/}monitored${/}directory${/}-", "read, write";
+
+    // EXAMPLE. The two lines that begin with "permission" enable the Content Directory
+    // Monitor to monitor the directory "/example/files", as well as all files in all subdirectories
+    // of "/example/files".
+
+    // TO ADD PERMISSIONS
+    //  1. Copy and paste the "permission" lines below.
+    //  2. Change the file paths.
+    //  3. Uncomment the lines (remove the leading "//").
+
+    // permission java.io.FilePermission "${/}example${/}files", "read";
+    // permission java.io.FilePermission "${/}example${/}files${/}-", "read, write";
+
+    // ---------- ADD PERMISSIONS BELOW THIS LINE -----------
+
+
 }
+// ***********************  END CONTENT DIRECTORY MONITOR SECTION  *********************************
 
-//                        URL Resource Reader Permissions
-// Adding required permissions for the URL Resource Reader to retrieve file resources.
+
+
+// **************************  BEGIN URL RESOURCE READER SECTION  **********************************
+// * Configuring the URL Resource Reader requires adding read and write permissions to the
+//   directory being monitored.
 //
-// Configuring the URL Resource Reader requires adding read permissions to the directory being read
-// from. For the following 2 permissions are required:
-//   1. permission java.io.FilePermission "<DIRECTORY_PATH>", "read";
-//   2. permission java.io.FilePermission "<DIRECTORY_PATH>${/}-", "read";
-// Replacing <DIRECTORY_PATH> with the path of the directory containing file resources.
-//
-// Line 1 gives the URL Resource Reader the permissions to read from the directory. Line 2 gives the
-// Resource Reader the permissions to recursively read from the directory path, specified by the
-// directory path's suffix "${/}-".
-//
+// DO NOT MODIFY THE NEXT LINE. It specifies which  modules are granted permission.
 grant codeBase "file:/org.apache.tika.core/catalog-core-urlresourcereader" {
-    // Add required URL Resource Reader permissions here.
 
-    // Example:
-    // permission java.io.FilePermission "${/}test${/}some${/}directory", "read";
-    // permission java.io.FilePermission "${/}test${/}some${/}directory${/}-", "read";
+
+     // EXAMPLE. The two lines that begin with "permission" enable the URL Resource Reader to
+     // read files from the directory "/example/files", as well as all files in all subdirectories
+     // of "/example/files".
+
+     // TO ADD PERMISSIONS
+     //  1. Copy and paste the "permission" lines below.
+     //  2. Change the paths.
+     //  3. Uncomment the lines (remove the leading "//").
+
+     // permission java.io.FilePermission "${/}example${/}files", "read";
+     // permission java.io.FilePermission "${/}example${/}files${/}-", "read, write";
+
+    // ---------- ADD PERMISSIONS BELOW THIS LINE -----------
+
+
 }
+// **************************  END URL RESOURCE READER SECTION  ************************************
 
-//                       Security-Hardening: Backup Log File Permissions
-// Adding required permissions to the logger for read and write access to modified backup log files.
+
+
+// ****************************  BEGIN BACKUP LOG FILE SECTION  ************************************
+// * If you want to change the default location of the backup security log files, add new permissions
+//   allowing the logger to read and modify the files within the desired directory for log files.
+// * If you haven't already done so, follow the Enabling Fallback Audit Logging steps in the
+//   security hardening checklist to finish configuring backup logging.
 //
-// If you want to change the default location of the backup security log files, add new permissions
-// allowing the logger to read and modify the files within the new directory. If you haven't
-// already done so, follow the Enabling Fallback Audit Logging steps in the security hardening
-// checklist to finish configuring backup logging.
-//
+// DO NOT MODIFY THE NEXT LINE. It specifies which  modules are granted permission.
 grant codeBase "file:/pax-logging-log4j2" {
-    //  Add required permissions here.
 
-    //  Example:
-    //  permission java.io.FilePermission "${/}the${/}new${/}log${/}directory${/}-", "read, write";
-    //  permission java.io.FilePermission "${/}the${/}new${/}log${/}directory", "read, write";
+
+     // EXAMPLE. The two lines that begin with "permission" enable the logger to
+     // read files from the directory "/example/files", as well as all files in all subdirectories
+     // of "/example/files".
+
+     // TO ADD PERMISSIONS
+     //  1. Copy and paste the "permission" lines below.
+     //  2. Change the path.
+     //  3. Uncomment the lines (remove the leading "//").
+
+     // permission java.io.FilePermission "${/}example${/}files", "read";
+     // permission java.io.FilePermission "${/}example${/}files${/}-", "read, write";
+
+     // ---------- ADD PERMISSIONS BELOW THIS LINE -----------
+
+
 }
+// *****************************  END BACKUP LOG FILE SECTION  *************************************
