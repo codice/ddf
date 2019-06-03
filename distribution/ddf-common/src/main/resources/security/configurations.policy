@@ -1,13 +1,15 @@
 priority "grant";
 
 // This file allows administrators to add permissions
-// necessary for their particular configuration. This file is organized into sections, one
+// necessary for their particular configuration. This file is organized into sections with one
 // section for each configuration that an administrator might need to change.
 //
 // The Java Security Manager restricts the application from accessing most files. The Java Security
 // Manager works INDEPENDENTLY of the applications configuration. For example, the Content
 // Directory Monitor might be configured to monitor a directory, but the Java Security Manager
-// will, by default, prevent it from reading and writing files to that directory. Therefore a
+// will prevent it from reading and writing files to that directory. This file must
+// updated to permit the Content Directory Monitor to read files outside of the DDF_HOME
+// directory.
 //
 // ************************************  NOTES AND WARNINGS  ***************************************
 //
@@ -28,7 +30,7 @@ priority "grant";
 //
 //
 // * TRAILING FILE SEPARATORS ARE IGNORED
-//   The paths "${/}test" and "${/}test${/}" are equivalent
+//   The paths "${/}test" and "${/}test${/}" are equivalent.
 //
 // * GRANTING PERMISSIONS RECURSIVELY
 //   A file path with a trailing "${/}-" (a slash and a dash) matches all files in the directory
@@ -51,9 +53,12 @@ priority "grant";
 //   these instructions can be ignored.
 // * If a CDM configuration is deleted, then the corresponding permissions that were added should be
 //   removed from this file to avoid granting unnecessary permissions to parts of the system.
-
+// * NOTE: If the Content Directory Monitor uses the "in-place" option, then the directories
+//   to be monitored must ALSO be added to the URL Resource Reader section of this file.
+//
 // DO NOT MODIFY THE NEXT LINE. It specifies which  modules are granted permission.
 grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/org.apache.camel.camel-blueprint/catalog-core-camelcomponent/catalog-core-urlresourcereader/com.google.guava/catalog-core-standardframework/org.apache.tika.core" {
+
 
     // EXAMPLE. The two lines that begin with "permission" enable the Content Directory
     // Monitor to monitor the directory "/example/files", as well as all files in all subdirectories
@@ -68,7 +73,6 @@ grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/
     // permission java.io.FilePermission "${/}example${/}files${/}-", "read, write";
 
     // ---------- ADD PERMISSIONS BELOW THIS LINE -----------
-
 
 
 }
@@ -106,7 +110,7 @@ grant codeBase "file:/org.apache.tika.core/catalog-core-urlresourcereader" {
 
 // ****************************  BEGIN BACKUP LOG FILE SECTION  ************************************
 // * If you want to change the default location of the backup security log files, add new permissions
-// allowing the logger to read and modify the files within the desired directory for log files.
+//   allowing the logger to read and modify the files within the desired directory for log files.
 // * If you haven't already done so, follow the Enabling Fallback Audit Logging steps in the
 //   security hardening checklist to finish configuring backup logging.
 //
