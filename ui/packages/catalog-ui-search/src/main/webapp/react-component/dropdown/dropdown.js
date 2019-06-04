@@ -2,6 +2,7 @@ const React = require('react')
 const { createPortal } = require('react-dom')
 
 import styled from '../styles/styled-components'
+import isEqual from 'lodash/isEqual'
 
 class Poller extends React.Component {
   constructor(props) {
@@ -17,7 +18,10 @@ class Poller extends React.Component {
     window.cancelAnimationFrame(this.id)
   }
   loop = () => {
-    this.setState(this.props.fn())
+    const state = this.props.fn()
+    if (!isEqual(state, this.state)) {
+      this.setState(state)
+    }
     this.id = window.requestAnimationFrame(this.loop)
   }
   render() {
@@ -160,8 +164,9 @@ class Dropdown extends React.Component {
     }
   }
   getRect = () => {
-    const rect = this.ref !== undefined ? this.ref.getBoundingClientRect() : {}
-    return { rect }
+    const { x, y, width, height } =
+      this.ref !== undefined ? this.ref.getBoundingClientRect() : {}
+    return { rect: { x, y, width, height } }
   }
   componentDidMount() {
     document.addEventListener('mousedown', this.onMouseDown)
