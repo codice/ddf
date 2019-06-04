@@ -75,6 +75,13 @@ module.exports = Marionette.LayoutView.extend({
       case 'custom':
         this.showCustom()
         break
+      case 'text':
+      case 'basic':
+      case 'advanced':
+        this.showForm(
+          ExtensionPoints.queryForms.find(form => form.id === formType)
+        )
+        break
       default:
         const queryForm = ExtensionPoints.queryForms.find(
           form => form.id === formType
@@ -137,24 +144,27 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
+  showForm(form) {
+    const options = form.options || {}
+    this.queryContent.show(
+      new form.view({
+        model: this.model,
+        ...options,
+      })
+    )
+  },
   showQueryForm(form) {
     const options = form.options || {}
-    const queryFormView = form.reactView
-      ? new (Marionette.LayoutView.extend({
-          template: () => (
-            <form.reactView
-              model={this.model}
-              options={options}
-              onRef={ref => (this.queryView = ref)}
-            />
-          ),
-        }))({})
-      : new form.view({
-          model: this.model,
-          ...options,
-        })
-
-    this.queryContent.show(queryFormView)
+    const queryFormView = Marionette.LayoutView.extend({
+      template: () => (
+        <form.view
+          model={this.model}
+          options={options}
+          onRef={ref => (this.queryView = ref)}
+        />
+      ),
+    })
+    this.queryContent.show(new queryFormView({}))
   },
   handleEditOnShow() {
     if (this.$el.hasClass('is-editing')) {
