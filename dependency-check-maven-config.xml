@@ -164,6 +164,7 @@
         <cve>CVE-2016-5007</cve>
         <cve>CVE-2016-3674</cve>
         <cve>CVE-2016-7048</cve>
+        <cve>CVE-2019-8457</cve>
     </suppress>
     <suppress>
         <notes>
