@@ -7,6 +7,8 @@
  * www.metaaps.com
  *
  */
+/* eslint-disable no-var */
+
 const Cesium = require('cesium')
 
 const DrawHelper = (module.exports = (function() {

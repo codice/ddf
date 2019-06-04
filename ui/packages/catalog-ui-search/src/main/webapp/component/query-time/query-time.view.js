@@ -12,6 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/* eslint-disable no-var */
 
 const Marionette = require('marionette')
 const template = require('./query-time.hbs')

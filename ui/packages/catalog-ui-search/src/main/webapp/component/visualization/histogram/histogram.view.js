@@ -12,6 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/* eslint-disable no-var */
 
 import * as React from 'react'
 import { HistogramContainer } from '../../../react-component/container/histogram'
