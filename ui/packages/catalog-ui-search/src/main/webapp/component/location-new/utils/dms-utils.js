@@ -264,8 +264,8 @@ function validateDms(dms) {
     return { valid: true, error: null }
   }
 
-  var valid = true
-  var error = null
+  let valid = true
+  let error = null
   switch (dms.shape) {
     case 'point':
       if (!validateDmsPoint(dms.point)) {

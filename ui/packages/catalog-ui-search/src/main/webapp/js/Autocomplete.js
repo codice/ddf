@@ -34,5 +34,5 @@ function attachSubmitListener($iframe) {
   })
 }
 
-var $iframe = $('iframe[name=autocomplete]')
+let $iframe = $('iframe[name=autocomplete]')
 attachSubmitListener($iframe)

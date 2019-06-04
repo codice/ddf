@@ -166,7 +166,7 @@ const DrawHelper = (module.exports = (function() {
     debugShowBoundingVolume: false,
   }
 
-  var defaultSurfaceOptions = copyOptions(defaultShapeOptions, {
+  let defaultSurfaceOptions = copyOptions(defaultShapeOptions, {
     appearance: new Cesium.EllipsoidSurfaceAppearance({
       aboveGround: false,
     }),
@@ -174,14 +174,14 @@ const DrawHelper = (module.exports = (function() {
     granularity: Math.PI / 180.0,
   })
 
-  var defaultPolygonOptions = copyOptions(defaultShapeOptions, {})
-  var defaultExtentOptions = copyOptions(defaultShapeOptions, {})
-  var defaultCircleOptions = copyOptions(defaultShapeOptions, {})
-  var defaultEllipseOptions = copyOptions(defaultSurfaceOptions, {
+  let defaultPolygonOptions = copyOptions(defaultShapeOptions, {})
+  let defaultExtentOptions = copyOptions(defaultShapeOptions, {})
+  let defaultCircleOptions = copyOptions(defaultShapeOptions, {})
+  let defaultEllipseOptions = copyOptions(defaultSurfaceOptions, {
     rotation: 0,
   })
 
-  var defaultPolylineOptions = copyOptions(defaultShapeOptions, {
+  let defaultPolylineOptions = copyOptions(defaultShapeOptions, {
     width: 5,
     geodesic: true,
     granularity: 10000,
@@ -638,13 +638,13 @@ const DrawHelper = (module.exports = (function() {
     shiftY: 0,
   }
 
-  var dragBillboard = {
+  let dragBillboard = {
     iconUrl: './img/dragIcon.png',
     shiftX: 0,
     shiftY: 0,
   }
 
-  var dragHalfBillboard = {
+  let dragHalfBillboard = {
     iconUrl: './img/dragIconLight.png',
     shiftX: 0,
     shiftY: 0,
@@ -1354,8 +1354,8 @@ const DrawHelper = (module.exports = (function() {
             )
           }
           const halfPositions = []
-          var index = 0
-          var length = _self.positions.length + (this.isPolygon ? 0 : -1)
+          let index = 0
+          let length = _self.positions.length + (this.isPolygon ? 0 : -1)
           for (; index < length; index++) {
             halfPositions.push(calculateHalfMarkerPosition(index))
           }
@@ -1918,7 +1918,7 @@ const DrawHelper = (module.exports = (function() {
 
       // add a clear button at the end
       // add a divider first
-      var div = document.createElement('DIV')
+      let div = document.createElement('DIV')
       div.className = 'divider'
       toolbar.appendChild(div)
       addIcon('clear', options.clearIcon, 'Remove all primitives', () => {

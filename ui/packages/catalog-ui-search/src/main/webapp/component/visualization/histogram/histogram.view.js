@@ -614,7 +614,7 @@ module.exports = Marionette.LayoutView.extend({
     const xbins = histogramElement._fullData[0].xbins
     const min = xbins.start
     const max = xbins.end
-    var start = min
+    let start = min
     const inMonths = xbins.size.constructor === String
     const binSize = inMonths ? parseInt(xbins.size.substring(1)) : xbins.size
     while (start < max) {

@@ -200,7 +200,7 @@ module.exports = Marionette.LayoutView.extend({
       nodes: new Vis.DataSet(nodes),
       edges: new Vis.DataSet(edges),
     }
-    var options = {
+    let options = {
       layout: {
         hierarchical: {
           sortMethod: 'directed',
@@ -265,7 +265,7 @@ module.exports = Marionette.LayoutView.extend({
       nodes: new Vis.DataSet(nodes),
       edges: new Vis.DataSet(edges),
     }
-    var options = {
+    let options = {
       layout: {
         hierarchical: {
           sortMethod: 'directed',
