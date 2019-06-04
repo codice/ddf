@@ -308,15 +308,21 @@ the provided value."
     const propertyJSON = generatePropertyJSON(value, type, currentComparator)
     if (this.options.suggester && propertyJSON.enum === undefined) {
       this.options.suggester(propertyJSON).then(suggestions => {
+        if (this.filterInput === undefined) {
+          return
+        }
+
         if (suggestions.length > 0) {
           propertyJSON.enum = suggestions.map(label => ({
             label,
             value: label,
           }))
           const ViewToUse = determineView(currentComparator)
+          const model = new PropertyModel(propertyJSON)
+          this.listenTo(model, 'change:value', this.updateValueFromInput)
           this.filterInput.show(
             new ViewToUse({
-              model: new PropertyModel(propertyJSON),
+              model,
             })
           )
           this.turnOnEditing()
