@@ -422,16 +422,28 @@ const lon = {
 }
 
 const validateDmsLatInput = input => {
-  if (
-    input.slice(lat.degreesBegin, lat.degreesEnd) > 90 ||
-    input.slice(lat.minutesBegin, lat.minutesEnd) > 60 ||
-    input.slice(lat.secondsBegin, lat.secondsEnd) > 60
-  ) {
-    return false
-  } else if (input.slice(lat.minutesBegin, lat.minutesEnd) === '60') {
-    return input.slice(lat.degreesBegin, lat.degreesEnd) + '°60\'00"'
-  } else if (input.slice(lat.degreesBegin, lat.degreesEnd) === '90') {
-    return '90°00\'00"'
+  const degrees = input.slice(lat.degreesBegin, lat.degreesEnd)
+  const minutes = input.slice(lat.minutesBegin, lat.minutesEnd)
+  const seconds = input.slice(lat.secondsBegin, lat.secondsEnd)
+  const maxDmsLat = '90°00\'00"'
+  if (degrees > 90) {
+    return maxDmsLat
+  } else if (minutes >= 60) {
+    if (degrees < 90) {
+      return (Number.parseInt(degrees) + 1).toString() + '°00\'00"'
+    } else {
+      return maxDmsLat
+    }
+  } else if (seconds >= 60) {
+    if (minutes < 59) {
+      return degrees + '°' + (Number.parseInt(minutes) + 1).toString() + '\'00"'
+    } else {
+      if (degrees >= '90') {
+        return maxDmsLat
+      } else {
+        return (Number.parseInt(degrees) + 1).toString() + '°00\'00"'
+      }
+    }
   } else if (
     input.slice(lat.degreesBegin, lat.degreesEnd) === '9_' &&
     input.slice(lat.degreesEnd) === '°00\'00"'
@@ -448,16 +460,28 @@ const validateDmsLatInput = input => {
 }
 
 const validateDmsLonInput = input => {
-  if (
-    input.slice(lon.degreesBegin, lon.degreesEnd) > 180 ||
-    input.slice(lon.minutesBegin, lon.minutesEnd) > 60 ||
-    input.slice(lon.secondsBegin, lon.secondsEnd) > 60
-  ) {
-    return false
-  } else if (input.slice(lon.minutesBegin, lon.minutesEnd) === '60') {
-    return input.slice(lon.degreesBegin, lon.degreesEnd) + '°60\'00"'
-  } else if (input.slice(lon.degreesBegin, lon.degreesEnd) === '180') {
-    return '180°00\'00"'
+  const degrees = input.slice(lon.degreesBegin, lon.degreesEnd)
+  const minutes = input.slice(lon.minutesBegin, lon.minutesEnd)
+  const seconds = input.slice(lon.secondsBegin, lon.secondsEnd)
+  const maxDmsLon = '180°00\'00"'
+  if (degrees > 180) {
+    return maxDmsLon
+  } else if (minutes >= 60) {
+    if (degrees < 180) {
+      return (Number.parseInt(degrees) + 1).toString() + '°00\'00"'
+    } else {
+      return maxDmsLon
+    }
+  } else if (seconds > 60) {
+    if (minutes < 59) {
+      return degrees + '°' + (Number.parseInt(minutes) + 1).toString() + '\'00"'
+    } else {
+      if (degrees >= '180') {
+        return maxDmsLon
+      } else {
+        return (Number.parseInt(degrees) + 1).toString() + '°00\'00"'
+      }
+    }
   } else if (
     input.slice(lon.degreesBegin, lon.degreesEnd) === '18_' &&
     input.slice(lon.degreesEnd) === '°00\'00"'

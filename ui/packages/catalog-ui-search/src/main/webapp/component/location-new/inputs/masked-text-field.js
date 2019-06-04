@@ -22,9 +22,6 @@ class MaskedTextField extends React.Component {
           <MaskedInput
             value={value}
             keepCharPositions
-            pipe={value => {
-              return validateInput(value, args.placeholder)
-            }}
             onChange={e => {
               this.props.onChange(e.target.value)
             }}
