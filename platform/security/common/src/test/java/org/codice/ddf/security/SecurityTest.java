@@ -30,6 +30,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
+import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
@@ -89,6 +90,11 @@ public class SecurityTest {
     System.setProperty("ddf.home", "/ddf/home");
     System.setProperty("org.codice.ddf.system.hostname", "localhost");
 
+    System.setProperty(SecurityConstants.TRUSTSTORE_TYPE, "JKS");
+    System.setProperty(
+        SecurityConstants.TRUSTSTORE_PATH,
+        getClass().getResource("/serverTruststore.jks").toURI().getPath());
+    System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, "changeit");
     security = Security.getInstance();
   }
 
