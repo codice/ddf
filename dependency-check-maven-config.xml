@@ -154,6 +154,7 @@
         <cve>CVE-2016-5007</cve>
         <cve>CVE-2016-3674</cve>
         <cve>CVE-2016-7048</cve>
+        <cve>CVE-2019-8457</cve>
     </suppress>
     <suppress>
         <notes>
@@ -597,5 +598,13 @@
             not utilize or expose that capability so this is not an issue.
         </notes>
         <cve>CVE-2019-0232</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            This vulnerability is related to the use of Apache Hadoop YARN. YARN is a resource
+            management application for Hadoop. DDF only include Hadoop JAR files to support Solr
+            dependencies. DDF does not make use of YARN.
+        </notes>
+        <cve>CVE-2018-8029</cve>
     </suppress>
 </suppressions>
