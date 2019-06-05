@@ -188,6 +188,15 @@
     </suppress>
     <suppress>
         <notes>
+            DDF version was changed to 2.16.0 and OWASP thinks a custom bundle with the word “camel”
+            This CVE applies to Camel versions 2.16.0 through 2.18.1. At the time of this writing,
+            DDF uses Camel version camel 2.22.1 (see root POM file), which is not subject to this
+            vulnerability.
+        </notes>
+        <cve>CVE-2016-8749</cve>
+    </suppress>
+    <suppress>
+        <notes>
             These CVEs are all related to asciidoc and jruby vulnerabilities which are only used
             when the documentation is building.
         </notes>
