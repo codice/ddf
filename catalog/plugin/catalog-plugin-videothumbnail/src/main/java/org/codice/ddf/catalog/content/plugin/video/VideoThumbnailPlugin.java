@@ -30,6 +30,9 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -360,16 +363,37 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
       throws IOException {
     final ExecuteWatchdog watchdog = new ExecuteWatchdog(timeoutSeconds * 1000L);
     final Executor executor = new DefaultExecutor();
-    executor.setWatchdog(watchdog);
+    final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
 
     if (streamHandler != null) {
       executor.setStreamHandler(streamHandler);
     }
-
-    final DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
-    executor.execute(command, resultHandler);
-
+    executor.setWatchdog(watchdog);
+    executeWithPrivilege(command, executor, resultHandler);
     return resultHandler;
+  }
+
+  private void executeWithPrivilege(
+      CommandLine command, Executor executor, DefaultExecuteResultHandler resultHandler)
+      throws IOException {
+    try {
+      AccessController.doPrivileged(
+          (PrivilegedExceptionAction<Void>)
+              () -> {
+                executor.execute(command, resultHandler);
+                return null;
+              });
+    } catch (PrivilegedActionException e) {
+      String msg = "Video thumbnail plugin failed to execute ffmepg";
+      LOGGER.info(msg);
+      LOGGER.debug(msg, e);
+      Throwable cause = e.getCause();
+      // org.apache.commons.exe.Executor's execute() method's signature includes a throws clause
+      // for ExecuteException and IOException. ExecuteException is a subclass of IOException.
+      if (cause instanceof IOException) {
+        throw (IOException) cause;
+      }
+    }
   }
 
   private CommandLine getFFmpegCreateThumbnailCommand(
