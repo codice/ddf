@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.migration;
 
+import java.util.Optional;
+
 /**
  * The migration context is defined as a base interface for all migration contexts.
  *
@@ -33,4 +35,11 @@ public interface MigrationContext {
    * @return the current migratable identifier
    */
   public String getId();
+
+  /**
+   * Gets the current migratable version.
+   *
+   * @return the current migratable version
+   */
+  public Optional<String> getMigratableVersion();
 }

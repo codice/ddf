@@ -15,6 +15,7 @@ package org.codice.ddf.platform.migratable.impl;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -22,10 +23,9 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.apache.felix.utils.properties.Properties;
 import org.codice.ddf.configuration.migration.util.AccessUtils;
 import org.codice.ddf.configuration.migration.util.VersionUtils;
@@ -48,7 +48,7 @@ public class PlatformMigratable implements Migratable {
    *
    * <p>1.0 - initial version
    */
-  private static final String CURRENT_VERSION = "2.0";
+  private static final String CURRENT_VERSION = "1.0";
 
   private static final String CUSTOM_SYSTEM_PROPERTIES_ERROR =
       "Failed to upgrade custom.system.properties; %s";
@@ -63,6 +63,9 @@ public class PlatformMigratable implements Migratable {
 
   private static final Path CUSTOM_SYSTEM_PROPERTIES_PATH =
       Paths.get("etc", "custom.system.properties");
+
+  private static final Set<String> CUSTOM_SYSTEM_PROPERTIES_TO_PRESERVE =
+      ImmutableSet.of("solr.password");
 
   private static final List<Path> UPGRADEABLE_SYSTEM_PATHS =
       ImmutableList.of( //
@@ -167,17 +170,14 @@ public class PlatformMigratable implements Migratable {
   }
 
   @Override
-  public void doVersionUpgradeImport(
-      ImportMigrationContext context,
-      java.util.Properties migrationProperties,
-      String migratableVersion) {
-    if (!VersionUtils.isValidMigratableVersion(context, migratableVersion, getVersion(), getId())) {
+  public void doVersionUpgradeImport(ImportMigrationContext context) {
+    if (!VersionUtils.isValidMigratableFloatVersion(context, getVersion(), getId())) {
       return;
     }
 
     LOGGER.debug("Upgrading system properties...");
     try {
-      AccessUtils.doPrivileged(() -> upgradeCustomSystemProperties(context, migrationProperties));
+      AccessUtils.doPrivileged(() -> upgradeCustomSystemProperties(context));
     } catch (IOException e) {
       context.getReport().record(new MigrationException(CUSTOM_SYSTEM_PROPERTIES_ERROR, e));
     }
@@ -192,8 +192,7 @@ public class PlatformMigratable implements Migratable {
   }
 
   @VisibleForTesting
-  void upgradeCustomSystemProperties(
-      ImportMigrationContext context, java.util.Properties migrationProperties) throws IOException {
+  void upgradeCustomSystemProperties(ImportMigrationContext context) throws IOException {
     Properties importedProps = new Properties();
     Properties currentProps;
 
@@ -210,28 +209,19 @@ public class PlatformMigratable implements Migratable {
             .getInputStream()
             .orElseThrow(IOException::new));
 
-    List<String> systemPropertiesToPreserve =
-        migrationProperties.getProperty("system.properties.to.preserve") != null
-            ? parseStringsIntoList(migrationProperties.getProperty("system.properties.to.preserve"))
-            : Collections.emptyList();
-
     currentProps
         .entrySet()
         .stream()
-        .filter(
-            e ->
-                !importedProps.containsKey(e.getKey())
-                    || systemPropertiesToPreserve.contains(e.getKey()))
+        .filter(e -> propertyShouldNotBeOverwritten(e, importedProps))
         .forEach(e -> importedProps.put(e.getKey(), e.getValue()));
 
     importedProps.save(fileOnSystem);
   }
 
-  private List<String> parseStringsIntoList(String commaDelimitedList) {
-    return Arrays.asList(commaDelimitedList.split(","))
-        .stream()
-        .map(String::trim)
-        .collect(Collectors.toList());
+  private boolean propertyShouldNotBeOverwritten(
+      Entry<String, String> entry, Properties importedProps) {
+    return !importedProps.containsKey(entry.getKey())
+        || CUSTOM_SYSTEM_PROPERTIES_TO_PRESERVE.contains(entry.getKey());
   }
 
   private void importKeystores(ImportMigrationContext context) {

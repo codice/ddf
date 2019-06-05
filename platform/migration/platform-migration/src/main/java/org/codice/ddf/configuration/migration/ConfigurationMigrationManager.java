@@ -24,6 +24,7 @@ import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
@@ -89,6 +90,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   private final String productVersion;
 
+  private final Properties migrationProps;
+
   /**
    * Constructor.
    *
@@ -137,6 +140,17 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
           e);
       throw new IOError(e);
     }
+    try {
+      this.migrationProps =
+          AccessUtils.doPrivileged(ConfigurationMigrationManager::loadMigrationProperties);
+    } catch (SecurityException | IOException e) {
+      LOGGER.error(
+          String.format(
+              "unable to load migration properties from '%s'; ",
+              ConfigurationMigrationManager.MIGRATION_PROPERTIES_FILENAME),
+          e);
+      throw new IOError(e);
+    }
   }
 
   public static <T> BinaryOperator<T> throwingMerger() {
@@ -153,6 +167,21 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
           .filter(s -> !s.isEmpty())
           .orElseThrow(
               () -> new IOException(String.format("missing product %s information", type)));
+    }
+  }
+
+  @VisibleForTesting
+  private static Properties loadMigrationProperties() throws IOException {
+    try (InputStream inputStream =
+        new FileInputStream(
+            Paths.get(
+                    System.getProperty(ConfigurationMigrationManager.DDF_HOME_KEY),
+                    "etc",
+                    ConfigurationMigrationManager.MIGRATION_PROPERTIES_FILENAME)
+                .toString())) {
+      Properties props = new Properties();
+      props.load(inputStream);
+      return props;
     }
   }
 
@@ -217,10 +246,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   @VisibleForTesting
   void delegateToImportMigrationManager(
-      MigrationReportImpl report,
-      MigrationZipFile zip,
-      Set<String> mandatoryMigratables,
-      Properties migrationProps) {
+      MigrationReportImpl report, MigrationZipFile zip, Set<String> mandatoryMigratables) {
     final ImportMigrationManagerImpl mgr =
         new ImportMigrationManagerImpl(
             report,
@@ -262,16 +288,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     Validate.notNull(exportDirectory, "invalid null export file");
     try {
       List<Path> exportFilePaths =
-          Files.find(
-                  exportDirectory,
-                  1,
-                  (path, basicFileAttributes) ->
-                      path.toFile()
-                          .getName()
-                          .matches(
-                              productBranding
-                                  + "-.*"
-                                  + ConfigurationMigrationManager.EXPORT_EXTENSION))
+          Files.find(exportDirectory, 1, this::exportFileWithBrandingName)
               .collect(Collectors.toList());
 
       switch (exportFilePaths.size()) {
@@ -289,31 +306,10 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     }
   }
 
-  @VisibleForTesting
-  Properties loadMigrationProperties() {
-    try {
-      return AccessUtils.doPrivileged(
-          () -> {
-            try (InputStream inputStream =
-                new FileInputStream(
-                    Paths.get(
-                            System.getProperty(ConfigurationMigrationManager.DDF_HOME_KEY),
-                            "etc",
-                            ConfigurationMigrationManager.MIGRATION_PROPERTIES_FILENAME)
-                        .toString())) {
-              Properties props = new Properties();
-              props.load(inputStream);
-              return props;
-            }
-          });
-    } catch (IOException e) {
-      LOGGER.error(
-          String.format(
-              "unable to load migration properties from '%s'; ",
-              ConfigurationMigrationManager.MIGRATION_PROPERTIES_FILENAME),
-          e);
-      throw new IOError(e);
-    }
+  private boolean exportFileWithBrandingName(Path path, BasicFileAttributes basicFileAttributes) {
+    return path.toFile()
+        .getName()
+        .matches(productBranding + "-.*" + ConfigurationMigrationManager.EXPORT_EXTENSION);
   }
 
   private MigrationReportImpl doExport(
@@ -389,8 +385,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
         throw new MigrationException(Messages.IMPORT_ZIP_CHECKSUM_INVALID, zip.getZipPath());
       }
 
-      delegateToImportMigrationManager(
-          report, zip, mandatoryMigratables, loadMigrationProperties());
+      delegateToImportMigrationManager(report, zip, mandatoryMigratables);
     } catch (MigrationException e) {
       report.record(e);
     } catch (SecurityException e) {

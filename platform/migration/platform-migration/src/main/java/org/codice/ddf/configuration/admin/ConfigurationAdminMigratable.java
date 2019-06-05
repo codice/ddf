@@ -16,11 +16,9 @@ package org.codice.ddf.configuration.admin;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Properties;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.Validate;
-import org.codice.ddf.configuration.migration.util.VersionUtils;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ImportMigrationContext;
@@ -46,7 +44,7 @@ public class ConfigurationAdminMigratable implements Migratable {
    *
    * <p>1.0 - initial version
    */
-  private static final String CURRENT_VERSION = "1.1";
+  private static final String CURRENT_VERSION = "1.0";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminMigratable.class);
 
@@ -121,15 +119,6 @@ public class ConfigurationAdminMigratable implements Migratable {
             context, this, configurationAdmin, getConfigurations(context));
 
     adminContext.memoryEntries().forEach(ImportMigrationConfigurationAdminEntry::restore);
-  }
-
-  @Override
-  public void doVersionUpgradeImport(
-      ImportMigrationContext context, Properties migrationProps, String migratableVersion) {
-    if (!VersionUtils.isValidMigratableVersion(context, migratableVersion, getVersion(), getId())) {
-      return;
-    }
-    // Do nothing since config admin configurations are not currently migrated in version upgrades.
   }
 
   @SuppressWarnings(

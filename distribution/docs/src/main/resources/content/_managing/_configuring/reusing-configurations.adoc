@@ -66,4 +66,4 @@ The same step-by-step process above can be followed when migrating configuration
 ** Keystores
 ** Truststores
 ** Service wrapper `*.conf` files, if the ${branding} is installed as a service
-* There is a list of specific ${branding} versions that have been tested that can be found in `etc/custom.system.properties` under the property `migration.supported.versions`, as a comma-delimited list. The system will only allow importing configurations from those versions.
+* There is a list of specific ${branding} versions that have been tested that can be found in `etc/migration.properties` under the property `supported.versions`, as a comma-delimited list. The system will only allow importing configurations from those versions.

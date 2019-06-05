@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -113,6 +112,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     doNothing().when(mockWrapperManager).restart();
     createBrandingFile();
     createVersionFile();
+    createMigrationPropsFile();
     this.configurationMigrationManager =
         mock(
             ConfigurationMigrationManager.class,
@@ -260,7 +260,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         .when(configurationMigrationManager)
         .delegateToExportMigrationManager(
             any(MigrationReportImpl.class), any(Path.class), any(CipherUtils.class));
-    expectLoadMigrationPropertiesIsSuccessful();
 
     MigrationReport report = configurationMigrationManager.doExport(path);
 
@@ -276,7 +275,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         .when(configurationMigrationManager)
         .delegateToExportMigrationManager(
             any(MigrationReportImpl.class), any(Path.class), any(CipherUtils.class));
-    expectLoadMigrationPropertiesIsSuccessful();
 
     MigrationReport report = configurationMigrationManager.doExport(path);
 
@@ -294,7 +292,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         .when(configurationMigrationManager)
         .delegateToExportMigrationManager(
             any(MigrationReportImpl.class), any(Path.class), any(CipherUtils.class));
-    expectLoadMigrationPropertiesIsSuccessful();
 
     MigrationReport report = configurationMigrationManager.doExport(path);
 
@@ -313,7 +310,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
   public void doImportSucceedsWithKarafRestart() throws Exception {
     expectZipWithChecksum(true);
     expectImportDelegationIsSuccessful();
-    expectLoadMigrationPropertiesIsSuccessful();
 
     MigrationReport report = configurationMigrationManager.doImport(path);
 
@@ -331,8 +327,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         .delegateToImportMigrationManager(
             any(MigrationReportImpl.class),
             any(MigrationZipFile.class),
-            Mockito.same(Collections.emptySet()),
-            any(Properties.class));
+            Mockito.same(Collections.emptySet()));
   }
 
   @Test
@@ -341,7 +336,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
 
     expectZipWithChecksum(true);
     expectImportDelegationIsSuccessful();
-    expectLoadMigrationPropertiesIsSuccessful();
 
     // Need to actually generate a zip with a valid checksum so calling export
     configurationMigrationManager.doExport(path);
@@ -364,8 +358,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         .delegateToImportMigrationManager(
             any(MigrationReportImpl.class),
             any(MigrationZipFile.class),
-            Mockito.same(Collections.emptySet()),
-            any(Properties.class));
+            Mockito.same(Collections.emptySet()));
   }
 
   @Test
@@ -374,7 +367,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
 
     expectZipWithChecksum(true);
     expectImportDelegationIsSuccessful();
-    expectLoadMigrationPropertiesIsSuccessful();
 
     MigrationReport report = configurationMigrationManager.doImport(path, consumer);
 
@@ -391,8 +383,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         .delegateToImportMigrationManager(
             any(MigrationReportImpl.class),
             any(MigrationZipFile.class),
-            Mockito.same(Collections.emptySet()),
-            any(Properties.class));
+            Mockito.same(Collections.emptySet()));
     verify(mockWrapperManager, Mockito.never()).restart();
     verify(consumer, Mockito.atLeastOnce()).accept(Mockito.notNull());
   }
@@ -407,7 +398,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     configurationMigrationManager.doExport(path);
 
     expectImportDelegationIsSuccessful();
-    expectLoadMigrationPropertiesIsSuccessful();
 
     MigrationReport report =
         configurationMigrationManager.doImport(path, mandatoryMgiratables, consumer);
@@ -431,8 +421,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         .delegateToImportMigrationManager(
             any(MigrationReportImpl.class),
             any(MigrationZipFile.class),
-            Mockito.same(mandatoryMgiratables),
-            any(Properties.class));
+            Mockito.same(mandatoryMgiratables));
     verify(mockWrapperManager, Mockito.never()).restart();
     verify(consumer, Mockito.atLeastOnce()).accept(Mockito.notNull());
   }
@@ -440,7 +429,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
   @Test
   public void doImportSucceedsWithWarnings() throws Exception {
     expectZipWithChecksum(true);
-    expectLoadMigrationPropertiesIsSuccessful();
 
     doAnswer(
             invocation -> {
@@ -450,10 +438,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
             })
         .when(configurationMigrationManager)
         .delegateToImportMigrationManager(
-            any(MigrationReportImpl.class),
-            any(MigrationZipFile.class),
-            any(Set.class),
-            any(Properties.class));
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Set.class));
 
     MigrationReport report = configurationMigrationManager.doImport(path);
 
@@ -468,10 +453,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     verify(mockWrapperManager, Mockito.never()).restart();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(
-            any(MigrationReportImpl.class),
-            any(MigrationZipFile.class),
-            any(Set.class),
-            any(Properties.class));
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Set.class));
   }
 
   @Test
@@ -479,7 +461,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     expectZipWithChecksum(true);
     expectImportDelegationIsSuccessful();
     doThrow(Exception.class).when(mockSystemService).halt();
-    expectLoadMigrationPropertiesIsSuccessful();
 
     MigrationReport report = configurationMigrationManager.doImport(path);
 
@@ -495,10 +476,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     verify(mockWrapperManager, Mockito.never()).restart();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(
-            any(MigrationReportImpl.class),
-            any(MigrationZipFile.class),
-            any(Set.class),
-            any(Properties.class));
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Set.class));
   }
 
   @Test
@@ -508,7 +486,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     doThrow(new MBeanException(null)).when(mockWrapperManager).restart();
     expectZipWithChecksum(true);
     expectImportDelegationIsSuccessful();
-    expectLoadMigrationPropertiesIsSuccessful();
 
     MigrationReport report = configurationMigrationManager.doImport(path);
 
@@ -526,10 +503,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     verify(mockWrapperManager).restart();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(
-            any(MigrationReportImpl.class),
-            any(MigrationZipFile.class),
-            any(Set.class),
-            any(Properties.class));
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Set.class));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -545,24 +519,17 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
   @Test
   public void doImportRecordsErrorForMigrationException() throws Exception {
     expectZipWithChecksum(true);
-    expectLoadMigrationPropertiesIsSuccessful();
     doThrow(new MigrationException(TEST_MESSAGE))
         .when(configurationMigrationManager)
         .delegateToImportMigrationManager(
-            any(MigrationReportImpl.class),
-            any(MigrationZipFile.class),
-            any(Set.class),
-            any(Properties.class));
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Set.class));
 
     MigrationReport report = configurationMigrationManager.doImport(path);
 
     reportHasErrorMessage(report.errors(), equalTo(TEST_MESSAGE));
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(
-            any(MigrationReportImpl.class),
-            any(MigrationZipFile.class),
-            any(Set.class),
-            any(Properties.class));
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Set.class));
     verify(mockWrapperManager, Mockito.never()).restart();
     verifyZeroInteractions(mockSystemService);
   }
@@ -570,14 +537,10 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
   @Test
   public void doImportRecordsErrorForRuntimeException() throws Exception {
     expectZipWithChecksum(true);
-    expectLoadMigrationPropertiesIsSuccessful();
     doThrow(new RuntimeException("testing"))
         .when(configurationMigrationManager)
         .delegateToImportMigrationManager(
-            any(MigrationReportImpl.class),
-            any(MigrationZipFile.class),
-            any(Set.class),
-            any(Properties.class));
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Set.class));
 
     MigrationReport report = configurationMigrationManager.doImport(path);
 
@@ -589,10 +552,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
                 + "]; testing."));
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(
-            any(MigrationReportImpl.class),
-            any(MigrationZipFile.class),
-            any(Set.class),
-            any(Properties.class));
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Set.class));
     verify(mockWrapperManager, Mockito.never()).restart();
     verifyZeroInteractions(mockSystemService);
   }
@@ -825,14 +785,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     doNothing()
         .when(configurationMigrationManager)
         .delegateToImportMigrationManager(
-            any(MigrationReportImpl.class),
-            any(MigrationZipFile.class),
-            any(Set.class),
-            any(Properties.class));
-  }
-
-  private void expectLoadMigrationPropertiesIsSuccessful() {
-    doReturn(new Properties()).when(configurationMigrationManager).loadMigrationProperties();
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Set.class));
   }
 
   private void expectDecryptDelegationIsSuccessful() throws IOException {
@@ -943,6 +896,21 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
 
   private void createVersionFile() throws IOException {
     createVersionFile(TEST_VERSION);
+  }
+
+  private void createMigrationPropsFile(String contents) throws IOException {
+    Path migrationPropsPath = ddfHome.resolve(Paths.get("etc", "migration.properties"));
+    Files.createDirectories(migrationPropsPath.getParent());
+    Files.createFile(migrationPropsPath);
+    Files.write(
+        migrationPropsPath,
+        contents.getBytes(),
+        StandardOpenOption.CREATE,
+        StandardOpenOption.TRUNCATE_EXISTING);
+  }
+
+  private void createMigrationPropsFile() throws IOException {
+    createMigrationPropsFile("supported.versions=" + TEST_VERSION);
   }
 
   private void deleteVersionFile() {

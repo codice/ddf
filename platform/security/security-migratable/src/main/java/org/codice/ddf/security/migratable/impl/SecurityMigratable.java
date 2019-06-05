@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import org.codice.ddf.configuration.migration.util.VersionUtils;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ExportMigrationEntry;
@@ -40,7 +39,7 @@ public class SecurityMigratable implements Migratable {
    *
    * <p>1.0 - initial version
    */
-  private static final String CURRENT_VERSION = "2.0";
+  private static final String CURRENT_VERSION = "1.0";
 
   private static final Path PDP_POLICIES_DIR = Paths.get("etc", "pdp");
 
@@ -119,9 +118,8 @@ public class SecurityMigratable implements Migratable {
   }
 
   @Override
-  public void doVersionUpgradeImport(
-      ImportMigrationContext context, Properties migrationProps, String migratableVersion) {
-    if (!VersionUtils.isValidMigratableVersion(context, migratableVersion, getVersion(), getId())) {
+  public void doVersionUpgradeImport(ImportMigrationContext context) {
+    if (!VersionUtils.isValidMigratableFloatVersion(context, getVersion(), getId())) {
       return;
     }
 

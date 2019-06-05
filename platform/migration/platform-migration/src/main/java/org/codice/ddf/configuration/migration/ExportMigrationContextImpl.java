@@ -187,7 +187,9 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
       "PMD.DefaultPackage" /* designed to be called from ExportMigrationManagerImpl within this package */)
   Map<String, Map<String, Object>> doExport() {
     LOGGER.debug(
-        "Exporting [{}] with version [{}]...", id, getVersion()); // version will never be empty
+        "Exporting [{}] with version [{}]...",
+        id,
+        getMigratableVersion()); // version will never be empty
     Stopwatch stopwatch = null;
 
     if (LOGGER.isDebugEnabled()) {

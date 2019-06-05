@@ -17,8 +17,8 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -35,6 +35,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -85,6 +86,8 @@ public class SecurityMigratableTest {
   private static final String SUPPORTED_BRANDING = "test";
 
   private static final String SUPPORTED_PRODUCT_VERSION = "2.0";
+
+  private static final String IMPORTING_PRODUCT_VERSION = "3.0";
 
   private static final String UNSUPPORTED_VERSION = "666.0";
 
@@ -138,7 +141,7 @@ public class SecurityMigratableTest {
     // got copied on import (ie. read the tags in files in the imported system and
     // verify that they are the ones from the exported system).
     String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME);
-    setup(DDF_EXPORTED_HOME, tag);
+    setup(DDF_EXPORTED_HOME, tag, SUPPORTED_PRODUCT_VERSION);
   }
 
   /**
@@ -149,15 +152,17 @@ public class SecurityMigratableTest {
   public void testDoImportUnsupportedMigratedVersion() {
     // Setup
     when(mockImportMigrationContext.getReport()).thenReturn(mockMigrationReport);
+    when(mockImportMigrationContext.getMigratableVersion())
+        .thenReturn(Optional.of(UNSUPPORTED_VERSION));
     SecurityMigratable securityMigratable = new SecurityMigratable();
 
     // Perform Test
-    securityMigratable.doVersionUpgradeImport(
-        mockImportMigrationContext, new Properties(), UNSUPPORTED_VERSION);
+    securityMigratable.doVersionUpgradeImport(mockImportMigrationContext);
 
     // Verify
     verify(mockImportMigrationContext).getReport();
     verify(mockMigrationReport).record(any(MigrationException.class));
+    verify(mockImportMigrationContext, times(3)).getMigratableVersion();
     verifyNoMoreInteractions(mockImportMigrationContext);
   }
 
@@ -185,7 +190,7 @@ public class SecurityMigratableTest {
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, SUPPORTED_PRODUCT_VERSION);
 
     SecurityMigratable iSecurityMigratable = new SecurityMigratable();
     List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
@@ -216,7 +221,7 @@ public class SecurityMigratableTest {
     doExport(exportDir);
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, IMPORTING_PRODUCT_VERSION);
 
     SecurityMigratable iSecurityMigratable = spy(new SecurityMigratable());
     when(iSecurityMigratable.getVersion()).thenReturn("3.0");
@@ -227,9 +232,7 @@ public class SecurityMigratableTest {
     MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
 
     // Verify import
-    verify(iSecurityMigratable)
-        .doVersionUpgradeImport(
-            any(ImportMigrationContext.class), any(Properties.class), anyString());
+    verify(iSecurityMigratable).doVersionUpgradeImport(any(ImportMigrationContext.class));
     assertThat("The import report has errors.", importReport.hasErrors(), is(false));
     assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
     assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
@@ -270,7 +273,7 @@ public class SecurityMigratableTest {
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, SUPPORTED_PRODUCT_VERSION);
 
     SecurityMigratable iSecurityMigratable = new SecurityMigratable();
     List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
@@ -306,7 +309,7 @@ public class SecurityMigratableTest {
     doExport(exportDir);
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, IMPORTING_PRODUCT_VERSION);
 
     SecurityMigratable iSecurityMigratable = spy(new SecurityMigratable());
     when(iSecurityMigratable.getVersion()).thenReturn("3.0");
@@ -317,9 +320,7 @@ public class SecurityMigratableTest {
     MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
 
     // Verify import
-    verify(iSecurityMigratable)
-        .doVersionUpgradeImport(
-            any(ImportMigrationContext.class), any(Properties.class), anyString());
+    verify(iSecurityMigratable).doVersionUpgradeImport(any(ImportMigrationContext.class));
     assertThat("The import report has errors.", importReport.hasErrors(), is(false));
     assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
     assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
@@ -354,7 +355,7 @@ public class SecurityMigratableTest {
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, SUPPORTED_PRODUCT_VERSION);
 
     SecurityMigratable iSecurityMigratable = new SecurityMigratable();
     List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
@@ -385,7 +386,7 @@ public class SecurityMigratableTest {
     doExport(exportDir);
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, IMPORTING_PRODUCT_VERSION);
 
     SecurityMigratable iSecurityMigratable = spy(new SecurityMigratable());
     when(iSecurityMigratable.getVersion()).thenReturn("3.0");
@@ -396,9 +397,7 @@ public class SecurityMigratableTest {
     MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
 
     // Verify import
-    verify(iSecurityMigratable)
-        .doVersionUpgradeImport(
-            any(ImportMigrationContext.class), any(Properties.class), anyString());
+    verify(iSecurityMigratable).doVersionUpgradeImport(any(ImportMigrationContext.class));
     assertThat("The import report has errors.", importReport.hasErrors(), is(false));
     assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
     assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
@@ -435,7 +434,7 @@ public class SecurityMigratableTest {
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, SUPPORTED_PRODUCT_VERSION);
 
     SecurityMigratable iSecurityMigratable = new SecurityMigratable();
     List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
@@ -468,7 +467,7 @@ public class SecurityMigratableTest {
     doExport(exportDir);
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, IMPORTING_PRODUCT_VERSION);
 
     SecurityMigratable iSecurityMigratable = spy(new SecurityMigratable());
     when(iSecurityMigratable.getVersion()).thenReturn("3.0");
@@ -479,9 +478,7 @@ public class SecurityMigratableTest {
     MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
 
     // Verify import
-    verify(iSecurityMigratable)
-        .doVersionUpgradeImport(
-            any(ImportMigrationContext.class), any(Properties.class), anyString());
+    verify(iSecurityMigratable).doVersionUpgradeImport(any(ImportMigrationContext.class));
     assertThat("The import report has errors.", importReport.hasErrors(), is(false));
     assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
     assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
@@ -538,7 +535,7 @@ public class SecurityMigratableTest {
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, SUPPORTED_PRODUCT_VERSION);
 
     SecurityMigratable iSecurityMigratable = new SecurityMigratable();
     List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
@@ -587,7 +584,7 @@ public class SecurityMigratableTest {
     doExport(exportDir);
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, IMPORTING_PRODUCT_VERSION);
 
     SecurityMigratable iSecurityMigratable = spy(new SecurityMigratable());
     when(iSecurityMigratable.getVersion()).thenReturn("3.0");
@@ -598,9 +595,7 @@ public class SecurityMigratableTest {
     MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
 
     // Verify import
-    verify(iSecurityMigratable)
-        .doVersionUpgradeImport(
-            any(ImportMigrationContext.class), any(Properties.class), anyString());
+    verify(iSecurityMigratable).doVersionUpgradeImport(any(ImportMigrationContext.class));
     assertThat("The import report has errors.", importReport.hasErrors(), is(false));
     assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
     assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
@@ -626,13 +621,13 @@ public class SecurityMigratableTest {
     }
   }
 
-  private void setup(String ddfHomeStr, String tag) throws IOException {
+  private void setup(String ddfHomeStr, String tag, String productVersion) throws IOException {
     ddfHome = tempDir.newFolder(ddfHomeStr).toPath().toRealPath();
     Path binDir = ddfHome.resolve("bin");
     Files.createDirectory(binDir);
     System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
     setupBrandingFile(SUPPORTED_BRANDING);
-    setupVersionFile(SUPPORTED_PRODUCT_VERSION);
+    setupVersionFile(productVersion);
     setupMigrationProperties(SUPPORTED_PRODUCT_VERSION);
     for (Path path : PROPERTIES_FILES) {
       Path p = ddfHome.resolve(path);

@@ -24,12 +24,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
@@ -168,23 +168,24 @@ public class ImportMigrationManagerImpl implements Closeable {
           Messages.IMPORT_MISMATCH_PRODUCT_ERROR, this.productBranding, currentProductBranding);
     }
 
-    // TODO: Remove once version upgrades are officially supported. This will keep the system from
-    // trying to upgrade from a version of the product that is migratable version 1 but too old.
-    List<String> supportedVersions =
-        getSupportedVersions(migrationProps.getProperty("supported.versions"));
-    if (this.currentProductVersion != this.productVersion
-        && !supportedVersions.contains(this.productVersion)) {
-      throw new MigrationException(
-          Messages.IMPORT_UNSUPPORTED_PRODUCT_VERSION_ERROR,
-          this.productVersion,
-          supportedVersions);
-    }
     LOGGER.debug(
         "Importing {} product [{}] from version [{}]...",
         currentProductBranding,
         currentProductVersion,
         version);
-    contexts.values().forEach(c -> c.doImport(migrationProps));
+    if (this.currentProductVersion.equals(this.productVersion)) {
+      contexts.values().forEach(ImportMigrationContextImpl::doImport);
+    } else {
+      Set<String> supportedVersions =
+          getSupportedVersions(migrationProps.getProperty("supported.versions"));
+      if (!supportedVersions.contains(this.productVersion)) {
+        throw new MigrationException(
+            Messages.IMPORT_UNSUPPORTED_PRODUCT_VERSION_ERROR,
+            this.productVersion,
+            supportedVersions);
+      }
+      contexts.values().forEach(ImportMigrationContextImpl::doVersionUpgradeImport);
+    }
   }
 
   @Override
@@ -205,14 +206,14 @@ public class ImportMigrationManagerImpl implements Closeable {
     return contexts.values();
   }
 
-  private List<String> getSupportedVersions(String commaDelimitedVersions) {
+  private Set<String> getSupportedVersions(@Nullable String commaDelimitedVersions) {
     if (commaDelimitedVersions == null) {
-      return Collections.emptyList();
+      return Collections.emptySet();
     } else {
       return Arrays.asList(commaDelimitedVersions.split(","))
           .stream()
           .map(String::trim)
-          .collect(Collectors.toList());
+          .collect(Collectors.toSet());
     }
   }
 

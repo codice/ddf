@@ -18,6 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.MigrationReport;
 import org.junit.Test;
@@ -26,7 +27,10 @@ public class VersionUtilsTest {
 
   @Test
   public void testIsValidMigratableVersionWithValidVersions() {
-    assertThat(VersionUtils.isValidMigratableVersion(null, "1.9", "2.0", null), equalTo(true));
+    ImportMigrationContext mockContext = mock(ImportMigrationContext.class);
+    when(mockContext.getMigratableVersion()).thenReturn(Optional.of("1.9"));
+
+    assertThat(VersionUtils.isValidMigratableFloatVersion(mockContext, "2.0", null), equalTo(true));
   }
 
   @Test
@@ -34,9 +38,10 @@ public class VersionUtilsTest {
     ImportMigrationContext mockContext = mock(ImportMigrationContext.class);
     MigrationReport mockReport = mock(MigrationReport.class);
     when(mockContext.getReport()).thenReturn(mockReport);
+    when(mockContext.getMigratableVersion()).thenReturn(Optional.of("2.1"));
 
     assertThat(
-        VersionUtils.isValidMigratableVersion(mockContext, "2.1", "2.0", null), equalTo(false));
+        VersionUtils.isValidMigratableFloatVersion(mockContext, "2.0", null), equalTo(false));
   }
 
   @Test
@@ -44,8 +49,9 @@ public class VersionUtilsTest {
     ImportMigrationContext mockContext = mock(ImportMigrationContext.class);
     MigrationReport mockReport = mock(MigrationReport.class);
     when(mockContext.getReport()).thenReturn(mockReport);
+    when(mockContext.getMigratableVersion()).thenReturn(Optional.of("asdf"));
 
     assertThat(
-        VersionUtils.isValidMigratableVersion(mockContext, "asdf", "2.0", null), equalTo(false));
+        VersionUtils.isValidMigratableFloatVersion(mockContext, "2.0", null), equalTo(false));
   }
 }

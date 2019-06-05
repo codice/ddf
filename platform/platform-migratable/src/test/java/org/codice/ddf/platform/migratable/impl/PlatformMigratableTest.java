@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -38,6 +39,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
@@ -165,6 +167,8 @@ public class PlatformMigratableTest {
 
   private static final String SUPPORTED_VERSION = "2.0";
 
+  private static final String IMPORTING_PRODUCT_VERSION = "3.0";
+
   private static final String UNSUPPORTED_VERSION = "666.0";
 
   private static final String DDF_EXPORTED_HOME = "ddfExport";
@@ -207,7 +211,7 @@ public class PlatformMigratableTest {
     // got copied on import (ie. read the tags in files in the imported system and
     // verify that they are the ones from the exported system).
     String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME);
-    setup(DDF_EXPORTED_HOME, tag);
+    setup(DDF_EXPORTED_HOME, tag, SUPPORTED_VERSION);
   }
 
   /**
@@ -218,15 +222,17 @@ public class PlatformMigratableTest {
   public void testDoImportUnsupportedMigratedVersion() {
     // Setup
     when(mockImportMigrationContext.getReport()).thenReturn(mockMigrationReport);
+    when(mockImportMigrationContext.getMigratableVersion())
+        .thenReturn(Optional.of(UNSUPPORTED_VERSION));
     PlatformMigratable platformMigratable = new PlatformMigratable();
 
     // Perform Test
-    platformMigratable.doVersionUpgradeImport(
-        mockImportMigrationContext, new Properties(), UNSUPPORTED_VERSION);
+    platformMigratable.doVersionUpgradeImport(mockImportMigrationContext);
 
     // Verify
     verify(mockImportMigrationContext).getReport();
     verify(mockMigrationReport).record(any(MigrationException.class));
+    verify(mockImportMigrationContext, times(3)).getMigratableVersion();
     verifyNoMoreInteractions(mockImportMigrationContext);
   }
 
@@ -252,7 +258,7 @@ public class PlatformMigratableTest {
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, SUPPORTED_VERSION);
 
     PlatformMigratable iPlatformMigratable = new PlatformMigratable();
     List<Migratable> iMigratables = Arrays.asList(iPlatformMigratable);
@@ -284,7 +290,7 @@ public class PlatformMigratableTest {
     MigrationReport exportReport = doExport(exportDir);
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, IMPORTING_PRODUCT_VERSION);
 
     PlatformMigratable iPlatformMigratable = spy(new PlatformMigratable());
     when(iPlatformMigratable.getVersion()).thenReturn("3.0");
@@ -330,7 +336,7 @@ public class PlatformMigratableTest {
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, SUPPORTED_VERSION);
 
     PlatformMigratable iPlatformMigratable = new PlatformMigratable();
     List<Migratable> iMigratables = Arrays.asList(iPlatformMigratable);
@@ -368,7 +374,7 @@ public class PlatformMigratableTest {
     doExport(exportDir);
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, IMPORTING_PRODUCT_VERSION);
 
     PlatformMigratable iPlatformMigratable = spy(new PlatformMigratable());
     when(iPlatformMigratable.getVersion()).thenReturn("3.0");
@@ -467,7 +473,7 @@ public class PlatformMigratableTest {
         greaterThan(0L));
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, SUPPORTED_VERSION);
     // For import, delete keystore and truststore since they are already in tempDir and reset system
     // properties.
     // Since these are outside of ddf.home, they should not be imported. A checksum should be
@@ -554,7 +560,7 @@ public class PlatformMigratableTest {
     MigrationReport exportReport = doExport(exportDir);
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, IMPORTING_PRODUCT_VERSION);
     // For import, delete keystore and truststore since they are already in tempDir and reset system
     // properties.
     // Since these are outside of ddf.home, they should not be imported. A checksum should be
@@ -625,7 +631,7 @@ public class PlatformMigratableTest {
     doExport(exportDir);
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, IMPORTING_PRODUCT_VERSION);
 
     Path importingSystemProps = ddfHome.resolve(CUSTOM_SYSTEM_PROPERTIES_PATH);
     props = new Properties();
@@ -681,7 +687,7 @@ public class PlatformMigratableTest {
     doExport(exportDir);
 
     // Setup import
-    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
+    setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG, IMPORTING_PRODUCT_VERSION);
 
     // Effectively remove the system.properties.to.preserve property
     Path migrationPropsPath = ddfHome.resolve(MIGRATION_PROPERTIES_PATH);
@@ -727,13 +733,13 @@ public class PlatformMigratableTest {
     }
   }
 
-  private void setup(String ddfHomeStr, String tag) throws IOException {
+  private void setup(String ddfHomeStr, String tag, String productVersion) throws IOException {
     ddfHome = tempDir.newFolder(ddfHomeStr).toPath().toRealPath();
     Path binDir = ddfHome.resolve("bin");
     Files.createDirectory(binDir);
     System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
     setupBrandingFile(SUPPORTED_BRANDING);
-    setupVersionFile(SUPPORTED_VERSION);
+    setupVersionFile(productVersion);
     setupMigrationProperties(SUPPORTED_VERSION);
     setupKeystores(tag);
     for (Path path : REQUIRED_SYSTEM_FILES) {

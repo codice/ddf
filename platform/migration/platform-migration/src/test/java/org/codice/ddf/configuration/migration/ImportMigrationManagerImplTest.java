@@ -454,6 +454,15 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
   @Test
   public void testDoImportWithUnsupportedProductVersion() throws Exception {
+    mgr =
+        new ImportMigrationManagerImpl(
+            report,
+            mockMigrationZipFile,
+            Collections.emptySet(),
+            Stream.of(migratables),
+            PRODUCT_BRANDING,
+            PRODUCT_VERSION + "2");
+
     thrown.expect(MigrationException.class);
     thrown.expectMessage(Matchers.containsString("unsupported product version"));
 
