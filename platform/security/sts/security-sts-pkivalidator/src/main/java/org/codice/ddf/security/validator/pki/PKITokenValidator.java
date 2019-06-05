@@ -26,9 +26,17 @@
  */
 package org.codice.ddf.security.validator.pki;
 
-import ddf.security.PropertiesLoader;
+import ddf.security.SecurityConstants;
 import ddf.security.SubjectUtils;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -74,21 +82,27 @@ public class PKITokenValidator implements TokenValidator {
 
   private Merlin merlin;
 
-  private String signaturePropertiesPath;
-
   private List<String> realms = new ArrayList<>();
 
   private boolean doPathValidation = true;
 
   /** Initialize Merlin crypto object. */
   public void init() {
-    try {
-      merlin =
-          new Merlin(
-              PropertiesLoader.loadProperties(signaturePropertiesPath),
-              PKITokenValidator.class.getClassLoader(),
-              null);
-    } catch (WSSecurityException | IOException e) {
+    // NOTE: THE TRUSTSTORE SHOULD BE USED FOR CERTIFICATE VALIDATION!!!!
+    Path trustStorePath = Paths.get(SecurityConstants.getTruststorePath());
+
+    if (!trustStorePath.isAbsolute()) {
+      Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+      trustStorePath = Paths.get(ddfHomePath.toString(), trustStorePath.toString());
+    }
+
+    try (InputStream inputStream = Files.newInputStream(trustStorePath)) {
+      KeyStore trustStore = SecurityConstants.newTruststore();
+      trustStore.load(inputStream, SecurityConstants.getTruststorePassword().toCharArray());
+
+      merlin = new Merlin();
+      merlin.setKeyStore(trustStore);
+    } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
       LOGGER.warn("Unable to read merlin properties file. Unable to validate certificates.", e);
     }
   }
@@ -279,14 +293,6 @@ public class PKITokenValidator implements TokenValidator {
       }
     }
     return Optional.empty();
-  }
-
-  public String getSignaturePropertiesPath() {
-    return signaturePropertiesPath;
-  }
-
-  public void setSignaturePropertiesPath(String signaturePropertiesPath) {
-    this.signaturePropertiesPath = signaturePropertiesPath;
   }
 
   public void setPathValidation(boolean value) {

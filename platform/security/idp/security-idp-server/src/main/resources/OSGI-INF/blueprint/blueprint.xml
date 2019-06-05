@@ -43,10 +43,7 @@
 
     <bean id="tokenFactory"
           class="org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory"
-          init-method="init">
-        <property name="signaturePropertiesPath"
-                  value="${ddf.etc}/ws-security/issuer/signature.properties"/>
-    </bean>
+          init-method="init"/>
 
     <bean id="logoutStates" class="ddf.security.samlp.impl.RelayStates" />
 
