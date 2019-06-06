@@ -85,7 +85,9 @@
     </feature>
 
     <feature name="guava" version="${project.version}">
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
+<!--        <bundle dependency="true">mvn:com.google.guava/failureaccess/1.0.1</bundle>-->
+<!--        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>-->
+        <bundle>mvn:ddf.lib/guava-wrapped/${project.version}</bundle>
     </feature>
 
     <feature name="jodah-failsafe" version="${project.version}">

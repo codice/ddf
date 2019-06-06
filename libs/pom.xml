@@ -42,5 +42,6 @@
         <module>tlmatcher</module>
         <module>alerts</module>
         <module>test-common</module>
+        <module>guava-wrapped</module>
     </modules>
 </project>

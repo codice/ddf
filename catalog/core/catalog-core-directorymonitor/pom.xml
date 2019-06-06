@@ -141,7 +141,14 @@
             <artifactId>bootflag-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <!-- Component test dependencies -->
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>guava-wrapped</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-camelcomponent</artifactId>
@@ -438,6 +445,9 @@
                             !org.eclipse.jetty.server.ssl,
                             !org.apache.tools.ant,
                             !org.apache.tools.ant.types,
+                            !com.google.common.base,
+                            !com.google.common.annotations,
+                            !javax.annotation,
                             org.apache.commons.io.comparator,
                             *
                         </Import-Package>

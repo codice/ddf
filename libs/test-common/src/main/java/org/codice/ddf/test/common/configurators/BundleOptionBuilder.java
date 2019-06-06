@@ -51,6 +51,11 @@ public class BundleOptionBuilder {
       return this;
     }
 
+    public BundleOption add(String groupId, String artifactId, String version) {
+      options = composite(options, mavenBundle(groupId, artifactId).version(version).start());
+      return this;
+    }
+
     /**
      * Builds the Pax Exam {@link Option} from the list of OSGi bundles added using {@link
      * #add(String, String)}.

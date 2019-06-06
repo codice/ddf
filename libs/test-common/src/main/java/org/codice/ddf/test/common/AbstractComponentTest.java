@@ -105,6 +105,9 @@ public abstract class AbstractComponentTest {
         .add("commons-io", "commons-io")
         .add("org.apache.commons", "commons-collections4")
         .add("org.apache.commons", "commons-lang3")
+        //        .add("com.google.code.findbugs", "jsr305")
+        //        .add("com.google.guava", "failureaccess", "1.0.1")
+        //        .add("com.google.guava", "guava", "27.0.1-jre")
         .add("ddf.lib", "test-common")
         .add("ddf.lib", "common-system");
   }

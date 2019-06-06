@@ -18,8 +18,15 @@ public class BundleInfo {
 
   public final String artifactId;
 
+  public final String version;
+
   public BundleInfo(String groupId, String artifactId) {
+    this(groupId, artifactId, null);
+  }
+
+  public BundleInfo(String groupId, String artifactId, String version) {
     this.groupId = groupId;
     this.artifactId = artifactId;
+    this.version = version;
   }
 }

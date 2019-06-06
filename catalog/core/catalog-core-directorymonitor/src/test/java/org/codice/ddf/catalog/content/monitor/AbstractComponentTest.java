@@ -66,6 +66,9 @@ public abstract class AbstractComponentTest {
   protected abstract List<BundleInfo> bundlesToStart();
 
   private Option startBundle(BundleInfo bundle) {
+    if (bundle.version != null) {
+      return mavenBundle(bundle.groupId, bundle.artifactId).version(bundle.version).start();
+    }
     return mavenBundle(bundle.groupId, bundle.artifactId).versionAsInProject().start();
   }
 

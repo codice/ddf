@@ -279,11 +279,11 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
 
   private List<BundleInfo> testDependencies() {
     return Arrays.asList(
-        new BundleInfo("ddf.lib", "test-common"),
-        new BundleInfo("ddf.lib", "common-system"),
         new BundleInfo("org.awaitility", "awaitility"),
         new BundleInfo("org.mockito", "mockito-core"),
-        new BundleInfo("org.objenesis", "objenesis"));
+        new BundleInfo("org.objenesis", "objenesis"),
+        new BundleInfo("ddf.lib", "test-common"),
+        new BundleInfo("ddf.lib", "common-system"));
   }
 
   private Option keystoreAndTruststoreConfig() {
@@ -314,7 +314,11 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("commons-configuration", "commons-configuration"),
         new BundleInfo("org.apache.commons", "commons-configuration2"),
         new BundleInfo("joda-time", "joda-time"),
-        new BundleInfo("com.google.guava", "guava"),
+        //        new BundleInfo("com.google.code.findbugs", "jsr305"),
+        //        new BundleInfo("com.google.guava", "failureaccess", "1.0.1"),
+        //        new BundleInfo("com.google.guava", "guava", "27.0.1-jre"),
+        new BundleInfo("ddf.lib", "guava-wrapped"),
+        //        new BundleInfo("com.google.guava", "guava"),
         new BundleInfo("org.apache.tika", "tika-core"),
         new BundleInfo("org.apache.shiro", "shiro-core"),
         new BundleInfo("javax.servlet", "javax.servlet-api"),

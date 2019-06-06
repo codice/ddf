@@ -137,6 +137,7 @@
                         </Private-Package>
                         <Import-Package>
                             !sun.security.action,
+                            !javax.annotation,
                             *
                         </Import-Package>
                         <Export-Package/>
