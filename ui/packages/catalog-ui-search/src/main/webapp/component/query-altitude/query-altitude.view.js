@@ -12,6 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/* eslint-disable no-var */
 
 const Marionette = require('marionette')
 const template = require('./query-altitude.hbs')
@@ -146,7 +147,7 @@ module.exports = Marionette.LayoutView.extend({
     if (altFilters !== undefined) {
       // Search for the Above value
       for (let i = 0; i < altFilters.length; i++) {
-        var value = altFilters[i].value
+        let value = altFilters[i].value
         if (altFilters[i].type === '>=') {
           if (value > currentAbove || currentAbove === 0) {
             currentAbove = value
@@ -173,7 +174,7 @@ module.exports = Marionette.LayoutView.extend({
     if (altFilters !== undefined) {
       // Search for the Before value
       for (let i = 0; i < altFilters.length; i++) {
-        var value = altFilters[i].value
+        let value = altFilters[i].value
         if (altFilters[i].type === '<=') {
           if (value < currentBelow || currentBelow === 0) {
             currentBelow = value
@@ -201,8 +202,8 @@ module.exports = Marionette.LayoutView.extend({
     if (altFilters !== undefined) {
       // Search for the Before/Above values
       for (let i = 0; i < altFilters.length; i++) {
-        var type = altFilters[i].type
-        var value = altFilters[i].value
+        let type = altFilters[i].type
+        let value = altFilters[i].value
 
         if (type === '<=') {
           if (value < currentBelow || currentBelow === 0) {

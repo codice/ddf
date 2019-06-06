@@ -9,6 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/* eslint-disable no-var */
 
 const _ = require('underscore')
 const Backbone = require('backbone')

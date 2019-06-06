@@ -178,8 +178,8 @@ function validateDd(dd) {
     return { valid: true, error: null }
   }
 
-  var valid = true
-  var error = null
+  let valid = true
+  let error = null
   switch (dd.shape) {
     case 'point':
       if (!validateDdPoint(dd.point)) {

@@ -162,7 +162,7 @@ Draw.CircleView = Marionette.View.extend({
       features: [this.billboard],
     })
 
-    var vectorLayer = new ol.layer.Vector({
+    let vectorLayer = new ol.layer.Vector({
       source: vectorSource,
     })
 

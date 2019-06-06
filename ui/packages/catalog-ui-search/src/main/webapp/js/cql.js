@@ -591,7 +591,7 @@ function write(filter) {
           write(filter.upperBoundary)
         )
       } else {
-        var property =
+        let property =
           typeof filter.property === 'object'
             ? write(filter.property)
             : wrap(filter.property)

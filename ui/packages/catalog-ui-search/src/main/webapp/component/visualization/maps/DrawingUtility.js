@@ -82,7 +82,7 @@ module.exports = {
     ctx.textBaseline = 'middle'
 
     if (style.code) {
-      var icon = String.fromCharCode(parseInt(style.code, 16))
+      let icon = String.fromCharCode(parseInt(style.code, 16))
       ctx.fillText(icon, options.diameter / 2, options.diameter / 2)
     }
     return canvas
@@ -125,7 +125,7 @@ module.exports = {
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
 
-      var icon = String.fromCharCode(parseInt(style.code, 16))
+      let icon = String.fromCharCode(parseInt(style.code, 16))
       ctx.fillText(icon, options.width / 2, options.height / 2 - 5)
     }
 

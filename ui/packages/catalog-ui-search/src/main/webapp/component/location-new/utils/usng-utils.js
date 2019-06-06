@@ -111,8 +111,8 @@ function validateUsng(usng) {
     return { valid: true, error: null }
   }
 
-  var valid = true
-  var error = null
+  let valid = true
+  let error = null
   switch (usng.shape) {
     case 'point':
       if (!validateUsngGrid(usng.point)) {

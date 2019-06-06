@@ -112,8 +112,8 @@ function validateWkt(wkt) {
     return { valid: true, error: null }
   }
 
-  var valid = true
-  var error = null
+  let valid = true
+  let error = null
   if (!checkForm(wkt)) {
     valid = false
     error = errorMessages.malformedWkt

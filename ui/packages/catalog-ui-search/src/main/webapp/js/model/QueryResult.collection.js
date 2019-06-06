@@ -9,6 +9,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/* eslint-disable no-var */
+
 const Backbone = require('backbone')
 const resultSort = require('./ResultSort.js')
 const filterUtility = require('../filter.js')
