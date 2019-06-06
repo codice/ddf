@@ -164,6 +164,7 @@
         <cve>CVE-2016-5007</cve>
         <cve>CVE-2016-3674</cve>
         <cve>CVE-2016-7048</cve>
+        <cve>CVE-2019-8457</cve>
     </suppress>
     <suppress>
         <notes>
@@ -184,6 +185,16 @@
         <cve>CVE-2017-5653</cve>
         <cve>CVE-2017-3156</cve>
         <cve>CVE-2016-6812</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            This CVE applies to Camel versions 2.16.0 through 2.18.1.
+            DDF version was changed to 2.16.0 and OWASP thinks a custom bundle with the word “camel”
+            means DDF uses version 2.16.0 of Camel. This is not true. At the time of this writing,
+            DDF uses Camel version camel 2.22.1 (see root POM file), which is not subject to this
+            vulnerability.
+        </notes>
+        <cve>CVE-2016-8749</cve>
     </suppress>
     <suppress>
         <notes>
@@ -596,6 +607,14 @@
             The CVE applies to the Windows command-line, which has no impact on DDF as it is used.
         </notes>
         <cve>CVE-2019-0232</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            This vulnerability is related to the use of Apache Hadoop YARN. YARN is a resource
+            management application for Hadoop. DDF only include Hadoop JAR files to support Solr
+            dependencies. DDF does not make use of YARN.
+        </notes>
+        <cve>CVE-2018-8029</cve>
     </suppress>
 
 </suppressions>
