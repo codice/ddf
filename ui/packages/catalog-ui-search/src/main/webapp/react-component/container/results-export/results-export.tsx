@@ -174,7 +174,12 @@ class ResultsExport extends React.Component<Props, State> {
       const uriEncodedSource = encodeURIComponent(source)
       const metacardId: any = this.state.selectedResults[0].id
       const uriEncodedMetacardId: any = encodeURIComponent(metacardId)
-      response = await exportResult(uriEncodedSource, uriEncodedMetacardId, transformerId)
+      const uriEncodedTransformerId = encodeURIComponent(transformerId)
+      response = await exportResult(
+        uriEncodedSource,
+        uriEncodedMetacardId,
+        uriEncodedTransformerId
+      )
     }
 
     if (response.status === 200) {
