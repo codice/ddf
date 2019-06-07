@@ -29,6 +29,8 @@
     <feature name="platform-migration-utils" version="${project.version}"
       description="Platform Migration Utils">
         <feature>platform-api</feature>
+        <feature>platform-migratable-api</feature>
+        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>mvn:ddf.platform.migration/platform-migration-utils/${project.version}</bundle>
     </feature>
 

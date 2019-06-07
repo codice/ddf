@@ -80,6 +80,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>org.apache.felix.utils</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

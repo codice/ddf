@@ -51,6 +51,11 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${commons-collections4.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -62,7 +67,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             commons-lang,
-                            gson-support
+                            gson-support,
+                            commons-collections4
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
