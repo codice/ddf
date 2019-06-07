@@ -120,7 +120,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            cxf-services-sts-core,
                             security-sts-x509delegationhandler,
                             security-sts-bstdelegationhandler,
                             httpclient,httpcore,
@@ -141,22 +140,6 @@
                             org.codice.ddf.security.sts.crl
                         </Private-Package>
                         <Export-Package>
-                            org.apache.cxf.sts;version=${cxf.version},
-                            org.apache.cxf.sts.cache;version=${cxf.version},
-                            org.apache.cxf.sts.claims;version=${cxf.version},
-                            org.apache.cxf.sts.event;version=${cxf.version},
-                            org.apache.cxf.sts.event.map;version=${cxf.version},
-                            org.apache.cxf.sts.interceptor;version=${cxf.version},
-                            org.apache.cxf.sts.operation;version=${cxf.version},
-                            org.apache.cxf.sts.provider;version=${cxf.version},
-                            org.apache.cxf.sts.request;version=${cxf.version},
-                            org.apache.cxf.sts.service;version=${cxf.version},
-                            org.apache.cxf.sts.token.canceller;version=${cxf.version},
-                            org.apache.cxf.sts.token.delegation;version=${cxf.version},
-                            org.apache.cxf.sts.token.provider;version=${cxf.version},
-                            org.apache.cxf.sts.token.realm;version=${cxf.version},
-                            org.apache.cxf.sts.token.renewer;version=${cxf.version},
-                            org.apache.cxf.sts.token.validator;version=${cxf.version},
                             org.codice.ddf.security.common;version=${project.version},
                             ddf.security.sts;version=${project.version}
                         </Export-Package>
@@ -202,19 +185,18 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>0.08</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>0.10</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0</minimum>
+                                            <minimum>0.06</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>
