@@ -351,9 +351,9 @@ public class GetRecordsRequest extends CswRequest {
         propertyName.setContent(Arrays.asList((Object) propName));
         SortOrderType sortOrder;
 
-        if (direction.equals("A")) {
+        if ("A".equals(direction)) {
           sortOrder = SortOrderType.ASC;
-        } else if (direction.equals("D")) {
+        } else if ("D".equals(direction)) {
           sortOrder = SortOrderType.DESC;
         } else {
           throw new CswException("Invalid Sort Order format: " + getSortBy());

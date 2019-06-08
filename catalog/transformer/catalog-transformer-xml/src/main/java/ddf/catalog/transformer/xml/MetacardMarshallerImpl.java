@@ -160,7 +160,7 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
 
     for (AttributeDescriptor attributeDescriptor : attributeDescriptors) {
       String attributeName = attributeDescriptor.getName();
-      if (attributeName.equals("id")) {
+      if ("id".equals(attributeName)) {
         continue;
       }
 

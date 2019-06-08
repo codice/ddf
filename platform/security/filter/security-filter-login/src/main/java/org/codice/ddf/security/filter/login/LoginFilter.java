@@ -465,7 +465,7 @@ public class LoginFilter implements SecurityFilter {
             Node dataText = dataNode.getFirstChild();
 
             X509Certificate tlsCertificate = x509Certs[0];
-            if (dataNode.getLocalName().equals("X509Certificate")) {
+            if ("X509Certificate".equals(dataNode.getLocalName())) {
               String textContent = dataText.getTextContent();
               byte[] byteValue = Base64.getMimeDecoder().decode(textContent);
               try {
@@ -494,7 +494,7 @@ public class LoginFilter implements SecurityFilter {
                     "Unable to validate Holder of Key assertion with certificate.");
               }
 
-            } else if (dataNode.getLocalName().equals("X509SubjectName")) {
+            } else if ("X509SubjectName".equals(dataNode.getLocalName())) {
               String textContent = dataText.getTextContent();
               // HoK spec section 2.5:
               // relying party MUST ensure that the subject distinguished name (DN) bound to the
@@ -507,11 +507,11 @@ public class LoginFilter implements SecurityFilter {
                     "Unable to validate Holder of Key assertion with subject DN.");
               }
 
-            } else if (dataNode.getLocalName().equals("X509IssuerSerial")) {
+            } else if ("X509IssuerSerial".equals(dataNode.getLocalName())) {
               // we have no way to support this confirmation type so we have to throw an error
               throw new SecurityServiceException(
                   "Unable to validate Holder of Key assertion with issuer serial. NOT SUPPORTED");
-            } else if (dataNode.getLocalName().equals("X509SKI")) {
+            } else if ("X509SKI".equals(dataNode.getLocalName())) {
               String textContent = dataText.getTextContent();
               byte[] tlsSKI = tlsCertificate.getExtensionValue("2.5.29.14");
               byte[] assertionSKI = Base64.getMimeDecoder().decode(textContent);

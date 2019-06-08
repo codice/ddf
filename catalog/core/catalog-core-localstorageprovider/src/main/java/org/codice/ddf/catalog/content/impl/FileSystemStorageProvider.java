@@ -467,7 +467,7 @@ public class FileSystemStorageProvider implements StorageProvider {
     Path newPath = null;
     if (reference.getScheme() == null) {
       newPath = Paths.get(reference.toASCIIString());
-    } else if (reference.getScheme().equalsIgnoreCase("file")) {
+    } else if ("file".equalsIgnoreCase(reference.getScheme())) {
       newPath = Paths.get(reference);
     }
 

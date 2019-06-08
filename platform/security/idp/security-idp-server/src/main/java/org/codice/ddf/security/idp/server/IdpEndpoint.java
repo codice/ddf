@@ -522,22 +522,22 @@ public class IdpEndpoint implements Idp, SessionHandler {
           soapMessageContent.getEnvelope().getHeader().examineAllHeaderElements();
       while (soapHeaderElements.hasNext()) {
         SOAPHeaderElement soapHeaderElement = (SOAPHeaderElement) soapHeaderElements.next();
-        if (soapHeaderElement.getLocalName().equals("Security")) {
+        if ("Security".equals(soapHeaderElement.getLocalName())) {
           Iterator childElements = soapHeaderElement.getChildElements();
           while (childElements.hasNext()) {
             Object nextElement = childElements.next();
             if (nextElement instanceof SOAPElement) {
               SOAPElement element = (SOAPElement) nextElement;
-              if (element.getLocalName().equals("UsernameToken")) {
+              if ("UsernameToken".equals(element.getLocalName())) {
                 Iterator usernameTokenElements = element.getChildElements();
                 Object next;
                 while (usernameTokenElements.hasNext()) {
                   next = usernameTokenElements.next();
                   if (next instanceof Element) {
                     Element nextEl = (Element) next;
-                    if (nextEl.getLocalName().equals("Username")) {
+                    if ("Username".equals(nextEl.getLocalName())) {
                       authObj.username = nextEl.getTextContent();
-                    } else if (nextEl.getLocalName().equals("Password")) {
+                    } else if ("Password".equals(nextEl.getLocalName())) {
                       authObj.password = nextEl.getTextContent();
                     }
                   }
@@ -546,8 +546,8 @@ public class IdpEndpoint implements Idp, SessionHandler {
                   authObj.method = USER_PASS;
                   break;
                 }
-              } else if (element.getLocalName().equals("Assertion")
-                  && element.getNamespaceURI().equals("urn:oasis:names:tc:SAML:2.0:assertion")) {
+              } else if ("Assertion".equals(element.getLocalName())
+                  && "urn:oasis:names:tc:SAML:2.0:assertion".equals(element.getNamespaceURI())) {
                 authObj.assertion =
                     new SecurityToken(element.getAttribute("ID"), element, null, null);
                 authObj.method = SAML;
@@ -1004,7 +1004,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
       String authType = parts[0];
       String authInfo = parts[1];
 
-      if (authType.equalsIgnoreCase("Basic")) {
+      if ("Basic".equalsIgnoreCase(authType)) {
         byte[] decode = Base64.getDecoder().decode(authInfo);
         if (decode != null) {
           String userPass = new String(decode, StandardCharsets.UTF_8);

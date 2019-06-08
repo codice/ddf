@@ -120,7 +120,7 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
     // raw product data
     String productRetrievalHeader =
         httpHeaders.getFirst(CswConstants.PRODUCT_RETRIEVAL_HTTP_HEADER);
-    if (productRetrievalHeader != null && productRetrievalHeader.equalsIgnoreCase("TRUE")) {
+    if ("TRUE".equalsIgnoreCase(productRetrievalHeader)) {
       String fileName = handleContentDispositionHeader(httpHeaders);
       cswRecords = new CswRecordCollection();
       cswRecords.setResource(new ResourceImpl(inStream, mediaType.toString(), fileName));

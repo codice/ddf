@@ -66,7 +66,7 @@ class ConfigValidator {
     }
 
     String fileExtension = Files.getFileExtension(configFile.toString());
-    if (!(fileExtension.equalsIgnoreCase("cfg") || fileExtension.equalsIgnoreCase("config"))) {
+    if (!("cfg".equalsIgnoreCase(fileExtension) || "config".equalsIgnoreCase(fileExtension))) {
       throw new IllegalArgumentException(
           String.format("%s is not a configuration file", configFile.toString()));
     }
@@ -80,8 +80,8 @@ class ConfigValidator {
     }
 
     String fileExtension = Files.getFileExtension(propFile.toString());
-    if (!(fileExtension.equalsIgnoreCase("props")
-        || fileExtension.equalsIgnoreCase("properties"))) {
+    if (!("props".equalsIgnoreCase(fileExtension)
+        || "properties".equalsIgnoreCase(fileExtension))) {
       throw new IllegalArgumentException(
           String.format("%s is not a properties file", propFile.toString()));
     }

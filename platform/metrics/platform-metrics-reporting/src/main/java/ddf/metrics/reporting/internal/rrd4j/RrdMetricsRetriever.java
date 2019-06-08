@@ -814,7 +814,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
           // have been set to NaN as a placeholder when the RRD file was created)
           if (timestamp >= startTime
               && timestamp <= endTime
-              && !Double.toString(values[i]).equals("NaN")) {
+              && !"NaN".equals(Double.toString(values[i]))) {
             // RRD averages the collected samples over the step interval.
             // To "undo" this averaging and get the actual count, need to
             // multiply the sampled data value by the RRD step interval.
@@ -833,7 +833,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
           // have been set to NaN as a placeholder when the RRD file was created)
           if (timestamp >= startTime
               && timestamp <= endTime
-              && !Double.toString(values[i]).equals("NaN")) {
+              && !"NaN".equals(Double.toString(values[i]))) {
             validTimestamps.add(timestamp);
             validValues.add(values[i]);
           }

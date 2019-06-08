@@ -260,9 +260,9 @@ public class RemoveAllCommand extends CatalogCommands {
         return true;
       }
       final String noActionTakenMessage = "No action taken.";
-      if (response.equalsIgnoreCase("yes")) {
+      if ("yes".equalsIgnoreCase(response)) {
         return false;
-      } else if (response.equalsIgnoreCase("no")) {
+      } else if ("no".equalsIgnoreCase(response)) {
         console.println(noActionTakenMessage);
         return true;
       } else {

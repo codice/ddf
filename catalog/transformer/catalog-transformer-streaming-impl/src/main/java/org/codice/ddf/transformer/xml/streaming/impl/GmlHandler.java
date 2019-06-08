@@ -128,7 +128,7 @@ public class GmlHandler extends AbstractSaxEventHandler {
    */
   @Override
   public void startElement(String uri, String localName, String qName, Attributes attributes) {
-    if (readingGml || uri.equalsIgnoreCase("http://www.opengis.net/gml")) {
+    if (readingGml || "http://www.opengis.net/gml".equalsIgnoreCase(uri)) {
       state.push(localName);
       readingGml = true;
       try {
@@ -136,7 +136,7 @@ public class GmlHandler extends AbstractSaxEventHandler {
       } catch (XMLStreamException e) {
         LOGGER.debug("Error writing toElement in SaxEventToXmlConverter()", e);
       }
-      if (localName.equalsIgnoreCase("pos")) {
+      if ("pos".equalsIgnoreCase(localName)) {
         readingGml3 = true;
       }
       if (!readingGml3) {

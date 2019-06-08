@@ -387,10 +387,10 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
       for (int i = 0; i < attributeCount; i++) {
         String attrLocalName = xmlStreamReader.getAttributeLocalName(i);
         String attributeValue = xmlStreamReader.getAttributeValue(i);
-        if (attrLocalName.equalsIgnoreCase("Optional")) {
+        if ("Optional".equalsIgnoreCase(attrLocalName)) {
           isOptional = Boolean.parseBoolean(attributeValue);
         }
-        if (attrLocalName.equalsIgnoreCase("Uri")) {
+        if ("Uri".equalsIgnoreCase(attrLocalName)) {
           uri = attributeValue;
         }
       }

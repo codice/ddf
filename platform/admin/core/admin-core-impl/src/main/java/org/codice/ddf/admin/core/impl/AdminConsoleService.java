@@ -409,7 +409,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
         final String configEntryKey = configEntry.getKey();
         Object configEntryValue =
             sanitizeUIConfiguration(pid, configEntryKey, configEntry.getValue());
-        if (configEntryValue.equals("password")) {
+        if ("password".equals(configEntryValue)) {
           for (Map<String, Object> metatypeProperties : metatype.getAttributeDefinitions()) {
             if (metatypeProperties.get("id").equals(configEntry.getKey())
                 && AttributeDefinition.PASSWORD == (Integer) metatypeProperties.get("type")

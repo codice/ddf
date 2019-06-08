@@ -138,9 +138,9 @@ public class FilterPlugin implements AccessPlugin {
       Metacard newMetacard = entry.getValue();
       Attribute attr = newMetacard.getAttribute(Metacard.SECURITY);
       String id = null;
-      if (entry.getKey() != null && !entry.getKey().equals("null")) {
+      if (!"null".equals(entry.getKey())) {
         id = (String) entry.getKey();
-      } else if (newMetacard.getId() != null && !newMetacard.getId().equals("null")) {
+      } else if (!"null".equals(newMetacard.getId())) {
         id = newMetacard.getId();
       }
       Metacard oldMetacard = metacards.get(id);

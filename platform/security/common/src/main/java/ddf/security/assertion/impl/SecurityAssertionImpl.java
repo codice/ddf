@@ -436,7 +436,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
             || StringUtils.containsIgnoreCase(nameIDFormat, SAML2Constants.NAMEID_FORMAT_KERBEROS)
             || StringUtils.containsIgnoreCase(
                 nameIDFormat, SAML2Constants.NAMEID_FORMAT_UNSPECIFIED))
-        && !name.equals(""))) {
+        && !"".equals(name))) {
       for (AttributeStatement attributeStatementList : getAttributeStatements()) {
         List<Attribute> attributeList = attributeStatementList.getAttributes();
         for (Attribute attribute : attributeList) {

@@ -197,7 +197,7 @@ public class UserManagerImpl implements UserManager {
     if (StringUtils.isEmpty(this.admin)) {
       Subject subject = ((FtpUser) user).getSubject();
       for (String role : karafLocalRoles.split(",")) {
-        if (role.equalsIgnoreCase("admin") && subject.hasRole(role)) {
+        if ("admin".equalsIgnoreCase(role) && subject.hasRole(role)) {
           this.admin = user.getName();
         }
       }

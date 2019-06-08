@@ -224,7 +224,7 @@ public class IdpHandler implements AuthenticationHandler {
       throws AuthenticationFailureException {
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
-    if (httpRequest.getMethod().equals("HEAD")) {
+    if ("HEAD".equals(httpRequest.getMethod())) {
       ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_OK);
       try {
         response.flushBuffer();

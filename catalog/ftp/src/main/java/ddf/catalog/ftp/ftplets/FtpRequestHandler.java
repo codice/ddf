@@ -360,7 +360,7 @@ public class FtpRequestHandler extends DefaultFtplet {
 
     if (mimeTypeMapper != null) {
       try (InputStream inputStream = outputStream.asByteSource().openBufferedStream()) {
-        if (fileExtension.equals("xml")) {
+        if ("xml".equals(fileExtension)) {
           mimeType = mimeTypeMapper.guessMimeType(inputStream, fileExtension);
         } else {
           mimeType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);

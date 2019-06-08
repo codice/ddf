@@ -39,6 +39,6 @@ public class LoggingSynchronization implements Synchronization {
         "[{}] failed to be properly updated during a [{}] call. CDM will be {}out of sync.",
         file.getName(),
         task,
-        task.equals("MODIFY") ? "temporarily " : "");
+        "MODIFY".equals(task) ? "temporarily " : "");
   }
 }

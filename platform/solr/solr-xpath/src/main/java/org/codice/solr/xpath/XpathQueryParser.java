@@ -30,10 +30,10 @@ public class XpathQueryParser extends SolrQueryParser {
   @Override
   protected Query getFieldQuery(String field, String queryText, int slop) throws SyntaxError {
 
-    if (field.equals("xpath")) {
+    if ("xpath".equals(field)) {
       // post-filter with Saxon
       return new XpathFilterQuery(queryText);
-    } else if (field.equals("xpath_index")) {
+    } else if ("xpath_index".equals(field)) {
       // pre-filter with xpath index
       return getLuceneQuery(queryText);
     } else {

@@ -82,7 +82,7 @@ public class UndeliveredMessages implements UndeliveredMessagesMBean {
         for (int i = 0; i < messageKeysArray.length; i++) {
           String messageKey = messageKeysArray[i];
           itemDescription[i] = messageCompositeType.getDescription(messageKey);
-          if (messageKeysArray[i].equals("body")) {
+          if ("body".equals(messageKeysArray[i])) {
             byte[] messageBodyBytes = (byte[]) message.get("body");
             // Remove unprintable characters from the beginning of the string
             messageValues[i] =

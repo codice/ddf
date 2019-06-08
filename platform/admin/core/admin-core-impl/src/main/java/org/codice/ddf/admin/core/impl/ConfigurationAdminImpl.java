@@ -347,7 +347,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
     String passwordProperty = metatype.getId();
     if (propertiesTable.get(passwordProperty) == null) {
       propertiesTable.put(passwordProperty, "");
-    } else if (!(propertiesTable.get(passwordProperty).toString().equals(""))) {
+    } else if (!("".equals(propertiesTable.get(passwordProperty).toString()))) {
       propertiesTable.put(passwordProperty, "password");
     }
   }

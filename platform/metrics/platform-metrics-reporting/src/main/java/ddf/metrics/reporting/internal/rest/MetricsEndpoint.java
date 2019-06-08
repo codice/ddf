@@ -261,7 +261,7 @@ public class MetricsEndpoint {
         throw new MetricsEndpointException(
             "Cannot create metrics graph for specified metric.", Response.Status.BAD_REQUEST);
       }
-    } else if (outputFormat.equalsIgnoreCase("csv")) {
+    } else if ("csv".equalsIgnoreCase(outputFormat)) {
       try {
         String csv = metricsRetriever.createCsvData(rrdFilename, startTime, endTime);
         ResponseBuilder responseBuilder = Response.ok(csv);
@@ -272,7 +272,7 @@ public class MetricsEndpoint {
         throw new MetricsEndpointException(
             "Cannot create CSV data for specified metric.", Response.Status.BAD_REQUEST);
       }
-    } else if (outputFormat.equalsIgnoreCase("xls")) {
+    } else if ("xls".equalsIgnoreCase(outputFormat)) {
       LOGGER.trace("Retrieving XLS-formatted data for metric {}", metricName);
       try (OutputStream os =
           metricsRetriever.createXlsData(metricName, rrdFilename, startTime, endTime)) {
@@ -285,7 +285,7 @@ public class MetricsEndpoint {
         throw new MetricsEndpointException(
             "Cannot create XLS data for specified metric.", Response.Status.BAD_REQUEST);
       }
-    } else if (outputFormat.equalsIgnoreCase("xml")) {
+    } else if ("xml".equalsIgnoreCase(outputFormat)) {
       LOGGER.trace("Retrieving XML-formatted data for metric {}", metricName);
       try {
         String xmlData =
@@ -298,7 +298,7 @@ public class MetricsEndpoint {
         throw new MetricsEndpointException(
             "Cannot create XML data for specified metric.", Response.Status.BAD_REQUEST);
       }
-    } else if (outputFormat.equalsIgnoreCase("json")) {
+    } else if ("json".equalsIgnoreCase(outputFormat)) {
       LOGGER.trace("Retrieving JSON-formatted data for metric {}", metricName);
       try {
         String jsonData =
@@ -465,7 +465,7 @@ public class MetricsEndpoint {
             + outputFormat;
 
     try {
-      if (outputFormat.equalsIgnoreCase("xls")) {
+      if ("xls".equalsIgnoreCase(outputFormat)) {
         try (OutputStream os =
             metricsRetriever.createXlsReport(
                 metricNames, metricsDir, startTime, endTime, summaryInterval)) {

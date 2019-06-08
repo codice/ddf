@@ -248,7 +248,7 @@ public class CsrfFilter implements Filter {
     // Allow GETs to wsdl urls
     String queryString = httpRequest.getQueryString();
     if (queryString != null
-        && queryString.equalsIgnoreCase("wsdl")
+        && "wsdl".equalsIgnoreCase(queryString)
         && requestMethod.equals(HttpMethod.GET.asString())) {
       return false;
     }
@@ -300,7 +300,7 @@ public class CsrfFilter implements Filter {
         // if no port is specified, assume default http/https ports
         if (url.getPort() == -1) {
           sourceAuthority =
-              url.getHost() + ":" + (url.getProtocol().equals("https") ? "443" : "80");
+              url.getHost() + ":" + ("https".equals(url.getProtocol()) ? "443" : "80");
         } else {
           sourceAuthority = url.getAuthority();
         }

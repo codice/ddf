@@ -60,7 +60,7 @@ public class InputTransformerIds {
     boolean malformed = false;
 
     for (File transformerFile : transformerFiles) {
-      if (!FilenameUtils.getExtension(transformerFile.toString()).equalsIgnoreCase("json")) {
+      if (!"json".equalsIgnoreCase(FilenameUtils.getExtension(transformerFile.toString()))) {
         LOGGER.warn(
             "Skipping non-json file {}. If this is supposed to be a json file, make sure it has the json extension.",
             transformerFile);

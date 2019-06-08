@@ -240,7 +240,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
     if (StringUtils.isBlank(id)) {
       for (Iterator i = startElement.getAttributes(); i.hasNext(); ) {
         idAttribute = (javax.xml.stream.events.Attribute) i.next();
-        if (idAttribute != null && idAttribute.getName().getLocalPart().equals("id")) {
+        if (idAttribute != null && "id".equals(idAttribute.getName().getLocalPart())) {
           id = idAttribute.getValue();
         }
       }

@@ -53,11 +53,11 @@ public class CertificateCommand {
     int cnDnPosition = 0;
 
     if (args.length == 4) {
-      if (args[0].trim().equalsIgnoreCase("-san")) {
+      if ("-san".equalsIgnoreCase(args[0].trim())) {
         sans = Arrays.stream(args[1].split("[,]")).map(String::trim).toArray(String[]::new);
         cnDnPosition = 2;
         expected = 4;
-      } else if (args[2].trim().equalsIgnoreCase("-san")) {
+      } else if ("-san".equalsIgnoreCase(args[2].trim())) {
         sans = Arrays.stream(args[3].split("[,]")).map(String::trim).toArray(String[]::new);
         expected = 4;
       }
@@ -82,7 +82,7 @@ public class CertificateCommand {
               CertificateCommand.class.getCanonicalName()));
     }
 
-    if (args[cnDnPosition].trim().equalsIgnoreCase("-cn")) {
+    if ("-cn".equalsIgnoreCase(args[cnDnPosition].trim())) {
       configureDemoCert(args[cnDnPosition + 1].trim(), sans);
     } else {
       String[] dn =

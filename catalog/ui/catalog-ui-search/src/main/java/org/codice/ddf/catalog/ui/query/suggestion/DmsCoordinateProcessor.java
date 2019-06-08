@@ -99,8 +99,8 @@ public class DmsCoordinateProcessor {
 
     final DMSComponent dmsLat = dmsCoordinates.lat;
     final DMSComponent dmsLon = dmsCoordinates.lon;
-    final int latModifier = dmsLat.direction.equalsIgnoreCase("N") ? 1 : -1;
-    final int lonModifier = dmsLon.direction.equalsIgnoreCase("E") ? 1 : -1;
+    final int latModifier = "N".equalsIgnoreCase(dmsLat.direction) ? 1 : -1;
+    final int lonModifier = "E".equalsIgnoreCase(dmsLon.direction) ? 1 : -1;
     final Double lat = dmsLat.toDecimalDegrees() * latModifier;
     final Double lon = dmsLon.toDecimalDegrees() * lonModifier;
 

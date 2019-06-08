@@ -67,7 +67,7 @@ public class GeospatialPredicate implements Predicate {
 
     while (it.hasNext()) {
       Object item = it.next();
-      if (item != null && !item.toString().equals("")) {
+      if (item != null && !"".equals(item.toString())) {
         hasCriteria = true;
       }
     }

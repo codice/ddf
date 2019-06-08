@@ -115,10 +115,10 @@ public class RemoveSearchAfterCompleteCommand implements Action {
       LOGGER.debug("QueryMonitor not yet instantiated.");
       return null;
     }
-    if (!removeSearchAfterComplete.equals("")) {
+    if (!"".equals(removeSearchAfterComplete)) {
       if (Boolean.valueOf(removeSearchAfterComplete)) {
         queryMonitor.setRemoveSearchAfterComplete(true);
-      } else if (removeSearchAfterComplete.equalsIgnoreCase("false")) {
+      } else if ("false".equalsIgnoreCase(removeSearchAfterComplete)) {
         queryMonitor.setRemoveSearchAfterComplete(false);
       } else {
         console.println(

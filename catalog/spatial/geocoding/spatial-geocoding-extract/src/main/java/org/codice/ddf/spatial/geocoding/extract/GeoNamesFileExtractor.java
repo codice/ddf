@@ -170,13 +170,13 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
       }
 
       // Support the "all" keyword
-      if (resource.equalsIgnoreCase("all")) {
+      if ("all".equalsIgnoreCase(resource)) {
         resource = "allCountries";
         // Support case insensitive "cities" keyword
       } else if (resource.matches("((?i)cities[0-9]+)")) {
         resource = resource.toLowerCase();
         // Support case insensitive country codes
-      } else if (!resource.equalsIgnoreCase("allCountries") && !resourceIsValidUrl) {
+      } else if (!"allCountries".equalsIgnoreCase(resource) && !resourceIsValidUrl) {
         resource = resource.toUpperCase();
       }
 
@@ -330,7 +330,7 @@ public class GeoNamesFileExtractor implements GeoEntryExtractor {
       while ((zipEntry = zipInputStream.getNextEntry()) != null) {
 
         // GeoNames <filename>.zip files will contain <filename>.txt and readme.txt
-        if (!zipEntry.getName().equals("readme.txt")) {
+        if (!"readme.txt".equals(zipEntry.getName())) {
 
           byte data[] = new byte[BUFFER_SIZE];
           int bytesRead;

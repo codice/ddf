@@ -252,7 +252,7 @@ public class OperationsMetacardSupport {
           LOGGER.debug("Unable to guess mime type for file.", e);
         }
       }
-      if (mimeTypeRaw.equals("text/plain")) {
+      if ("text/plain".equals(mimeTypeRaw)) {
         try (InputStream inputStreamMessageCopy =
                 com.google.common.io.Files.asByteSource(tmpContentPath.toFile()).openStream();
             BufferedReader bufferedReader =

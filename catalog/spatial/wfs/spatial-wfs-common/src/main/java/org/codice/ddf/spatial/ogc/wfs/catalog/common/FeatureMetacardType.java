@@ -339,8 +339,8 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     if (qName != null
         && StringUtils.isNotEmpty(name)
         && qName.getNamespaceURI().equals(gmlNamespace)
-        && (qName.getLocalPart().equals("TimeInstantType")
-            || qName.getLocalPart().equals("TimePeriodType"))) {
+        && ("TimeInstantType".equals(qName.getLocalPart())
+            || "TimePeriodType".equals(qName.getLocalPart()))) {
       LOGGER.debug("Adding temporal property: {}{}", propertyPrefix, name);
       temporalProperties.add(propertyPrefix + name);
 

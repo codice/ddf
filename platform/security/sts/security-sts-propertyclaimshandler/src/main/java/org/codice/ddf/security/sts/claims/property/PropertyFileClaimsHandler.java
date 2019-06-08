@@ -130,7 +130,7 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
         // state
         // country
         String[] strArr = st.nextToken().split("=");
-        if (strArr.length > 1 && strArr[0].equalsIgnoreCase("cn")) {
+        if (strArr.length > 1 && "cn".equalsIgnoreCase(strArr[0])) {
           user = strArr[1];
           break;
         }

@@ -293,7 +293,7 @@ public class AssertionConsumerService {
       }
       // this avoids the user ever being redirected to the built in login page if they've already
       // logged in via the IDP.
-      if ((relayUri.getPath().equals("/login") || relayUri.getPath().equals("/login/"))
+      if (("/login".equals(relayUri.getPath()) || "/login/".equals(relayUri.getPath()))
           && (relayUri.getQuery() != null && relayUri.getQuery().contains("prevurl"))) {
         relayUri =
             new URI(

@@ -70,7 +70,7 @@ public class ContextualPredicate implements Predicate {
    */
   public static String normalizePhrase(String inputPhrase, boolean isFuzzy) {
     String phrase = "";
-    if (inputPhrase != null && !inputPhrase.equals("")) {
+    if (!"".equals(inputPhrase)) {
       phrase = inputPhrase.trim();
       String parts[] = phrase.split("\"");
       LOGGER.debug("phrase = [{}]    parts.length = {}", phrase, parts.length);

@@ -724,7 +724,7 @@ public class DynamicSchemaResolver {
 
       fieldsCache.add(ad.getName() + schemaFields.getFieldSuffix(format));
 
-      if (!getSpecialIndexSuffix(format).equals("")) {
+      if (!"".equals(getSpecialIndexSuffix(format))) {
         fieldsCache.add(
             ad.getName() + schemaFields.getFieldSuffix(format) + getSpecialIndexSuffix(format));
       }

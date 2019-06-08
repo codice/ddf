@@ -77,7 +77,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
     // check for full SAML assertions coming in (federated requests, etc.)
     if (authHeader != null) {
       String[] tokenizedAuthHeader = authHeader.split(" ");
-      if (tokenizedAuthHeader.length == 2 && tokenizedAuthHeader[0].equals("SAML")) {
+      if (tokenizedAuthHeader.length == 2 && "SAML".equals(tokenizedAuthHeader[0])) {
         String encodedSamlAssertion = tokenizedAuthHeader[1];
         LOGGER.trace("Header retrieved");
         try {

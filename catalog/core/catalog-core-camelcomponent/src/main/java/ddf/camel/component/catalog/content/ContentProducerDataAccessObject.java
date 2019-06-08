@@ -120,7 +120,7 @@ public class ContentProducerDataAccessObject {
     MimeTypeMapper mimeTypeMapper = endpoint.getComponent().getMimeTypeMapper();
     if (mimeTypeMapper != null && ingestedFile.exists()) {
       try (InputStream inputStream = Files.asByteSource(ingestedFile).openStream()) {
-        if (fileExtension.equalsIgnoreCase("xml")) {
+        if ("xml".equalsIgnoreCase(fileExtension)) {
           mimeType = mimeTypeMapper.guessMimeType(inputStream, fileExtension);
         } else {
           mimeType = mimeTypeMapper.getMimeTypeForFileExtension(fileExtension);

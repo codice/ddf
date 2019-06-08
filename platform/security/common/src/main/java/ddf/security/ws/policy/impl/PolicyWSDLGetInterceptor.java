@@ -144,7 +144,7 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
   private String getFullAddress() {
     String proto = addressProvider.getProtocol();
     String host = addressProvider.getHost();
-    String port = addressProvider.getPort().equals("") ? "" : ":" + addressProvider.getPort();
+    String port = "".equals(addressProvider.getPort()) ? "" : ":" + addressProvider.getPort();
     return String.format("%s://%s%s", proto, host, port);
   }
 

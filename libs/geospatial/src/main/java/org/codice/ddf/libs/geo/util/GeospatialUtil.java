@@ -65,13 +65,13 @@ public class GeospatialUtil {
       dmsLat = dmsLat.trim();
       String hemi = dmsLat.substring(dmsLat.length() - 1);
 
-      if (!(hemi.equalsIgnoreCase("N") || hemi.equalsIgnoreCase("S"))) {
+      if (!("N".equalsIgnoreCase(hemi) || "S".equalsIgnoreCase(hemi))) {
         throw new GeoFormatException(
             String.format("Unrecognized hemisphere, %s, should be 'N' or 'S'", hemi));
       }
 
       int hemisphereMult = 1;
-      if (hemi.equalsIgnoreCase("s")) {
+      if ("s".equalsIgnoreCase(hemi)) {
         hemisphereMult = -1;
       }
 
@@ -138,12 +138,12 @@ public class GeospatialUtil {
       String hemi = dmsLon.substring(dmsLon.length() - 1);
       int hemisphereMult = 1;
 
-      if (!(hemi.equalsIgnoreCase("W") || hemi.equalsIgnoreCase("E"))) {
+      if (!("W".equalsIgnoreCase(hemi) || "E".equalsIgnoreCase(hemi))) {
         throw new GeoFormatException(
             String.format("Unrecognized hemisphere, %s, should be 'E' or 'W'", hemi));
       }
 
-      if (hemi.equalsIgnoreCase("w")) {
+      if ("w".equalsIgnoreCase(hemi)) {
         hemisphereMult = -1;
       }
 

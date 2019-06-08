@@ -568,7 +568,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       totalResults = entries.size();
       foreignMarkup = syndFeed.getForeignMarkup();
       for (Element element : foreignMarkup) {
-        if (element.getName().equals("totalResults")) {
+        if ("totalResults".equals(element.getName())) {
           try {
             totalResults = Long.parseLong(element.getContent(0).getValue());
           } catch (NumberFormatException | IndexOutOfBoundsException e) {
@@ -609,7 +609,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     String relevance = "";
 
     for (Element element : foreignMarkup) {
-      if (element.getName().equals("score")) {
+      if ("score".equals(element.getName())) {
         relevance = element.getContent(0).getValue();
       }
       metacards.addAll(processAdditionalForeignMarkups(element, id));

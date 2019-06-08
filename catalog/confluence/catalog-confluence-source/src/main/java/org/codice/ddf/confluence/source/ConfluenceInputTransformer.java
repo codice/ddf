@@ -253,7 +253,7 @@ public class ConfluenceInputTransformer implements InputTransformer {
         metacard.setAttribute(Confluence.BODY_TEXT, xmlSafeString);
       }
     }
-    if (confluenceType.equals("attachment")) {
+    if ("attachment".equals(confluenceType)) {
       Object comment = getJsonElement(json, METADATA, "comment");
       if (comment != null) {
         metacard.setAttribute(Metacard.DESCRIPTION, comment.toString());
@@ -353,7 +353,7 @@ public class ConfluenceInputTransformer implements InputTransformer {
   }
 
   private void addContributor(List<String> contributors, Object user) {
-    if (getStringOrDefault(user, "", "type").equals("anonymous")) {
+    if ("anonymous".equals(getStringOrDefault(user, "", "type"))) {
       contributors.add("anonymous");
     } else {
       contributors.add(getStringOrDefault(user, null, USERNAME));

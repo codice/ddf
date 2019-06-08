@@ -20,7 +20,7 @@ import org.osgi.service.event.EventHandler;
 public class CommandAuditer implements EventHandler {
   @Override
   public void handleEvent(Event event) {
-    if (event.getTopic().equals("org/apache/karaf/shell/console/EXECUTING")) {
+    if ("org/apache/karaf/shell/console/EXECUTING".equals(event.getTopic())) {
       String command = (String) event.getProperty("command");
       writeAudit(command);
     }
