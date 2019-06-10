@@ -222,9 +222,9 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@connexta/ace@*", "@connexta/ace@git://github.com/connexta/ace.git#eaebb0fcbd5d4d9f97ced0ff9c3611ce1497fab6":
+"@connexta/ace@*", "@connexta/ace@git://github.com/connexta/ace.git#9bc2542ccbcc2b8d9bb03ceaca4fd237ecac1693":
   version "1.0.0"
-  resolved "git://github.com/connexta/ace.git#eaebb0fcbd5d4d9f97ced0ff9c3611ce1497fab6"
+  resolved "git://github.com/connexta/ace.git#9bc2542ccbcc2b8d9bb03ceaca4fd237ecac1693"
   dependencies:
     "@connexta/eslint-plugin-connexta" "git://github.com/connexta/eslint-plugin-connexta.git#v0.0.2"
     "@ljharb/eslint-config" "12.2.1"
