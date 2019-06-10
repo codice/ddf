@@ -20,6 +20,105 @@ const store = require('../../js/store.js')
 const PropertyView = require('../property/property.view.js')
 const properties = require('../../js/properties.js')
 const CQLUtils = require('../../js/CQLUtils.js')
+const cql = require('../../js/cql.js')
+
+function isNested(filter) {
+  let nested = false
+  filter.filters.forEach(subfilter => {
+    nested = nested || subfilter.filters
+  })
+  return nested
+}
+
+function isTypeLimiter(filter) {
+  let typesFound = {}
+  filter.filters.forEach(subfilter => {
+    typesFound[CQLUtils.getProperty(subfilter)] = true
+  })
+  typesFound = Object.keys(typesFound)
+  return (
+    typesFound.length === 2 &&
+    typesFound.indexOf('metadata-content-type') >= 0 &&
+    typesFound.indexOf('datatype') >= 0
+  )
+}
+
+function isAnyDate(filter) {
+  const propertiesToCheck = [
+    'created',
+    'modified',
+    'effective',
+    'metacard.created',
+    'metacard.modified',
+  ]
+  const typesFound = {}
+  const valuesFound = {}
+  if (filter.filters.length === propertiesToCheck.length) {
+    filter.filters.forEach(subfilter => {
+      typesFound[subfilter.type] = true
+      valuesFound[subfilter.value] = true
+      const indexOfType = propertiesToCheck.indexOf(
+        CQLUtils.getProperty(subfilter)
+      )
+      if (indexOfType >= 0) {
+        propertiesToCheck.splice(indexOfType, 1)
+      }
+    })
+    return (
+      propertiesToCheck.length === 0 &&
+      Object.keys(typesFound).length === 1 &&
+      Object.keys(valuesFound).length === 1
+    )
+  }
+  return false
+}
+
+function translateFilterToBasicMap(filter) {
+  const propertyValueMap = {}
+  let downConversion = false
+  if (filter.filters) {
+    filter.filters.forEach(filter => {
+      if (!filter.filters) {
+        propertyValueMap[CQLUtils.getProperty(filter)] =
+          propertyValueMap[CQLUtils.getProperty(filter)] || []
+        if (
+          propertyValueMap[CQLUtils.getProperty(filter)].filter(
+            existingFilter => existingFilter.type === filter.type
+          ).length === 0
+        ) {
+          propertyValueMap[CQLUtils.getProperty(filter)].push(filter)
+        }
+      } else if (!isNested(filter) && isAnyDate(filter)) {
+        propertyValueMap['anyDate'] = propertyValueMap['anyDate'] || []
+        if (
+          propertyValueMap['anyDate'].filter(
+            existingFilter => existingFilter.type === filter.filters[0].type
+          ).length === 0
+        ) {
+          propertyValueMap['anyDate'].push(filter.filters[0])
+        }
+      } else if (!isNested(filter) && isTypeLimiter(filter)) {
+        propertyValueMap[CQLUtils.getProperty(filter.filters[0])] =
+          propertyValueMap[CQLUtils.getProperty(filter.filters[0])] || []
+        filter.filters.forEach(subfilter => {
+          propertyValueMap[CQLUtils.getProperty(filter.filters[0])].push(
+            subfilter
+          )
+        })
+      } else {
+        downConversion = true
+      }
+    })
+  } else {
+    propertyValueMap[CQLUtils.getProperty(filter)] =
+      propertyValueMap[CQLUtils.getProperty(filter)] || []
+    propertyValueMap[CQLUtils.getProperty(filter)].push(filter)
+  }
+  return {
+    propertyValueMap,
+    downConversion,
+  }
+}
 
 module.exports = Marionette.LayoutView.extend({
   template,
@@ -47,10 +146,17 @@ module.exports = Marionette.LayoutView.extend({
     this.turnOnEditing()
   },
   setupTextField() {
+    const translationToBasicMap = translateFilterToBasicMap(
+      cql.simplify(cql.read(this.model.get('cql')))
+    )
     this.textField.show(
       PropertyView.getPropertyView({
         id: 'Text',
-        value: [this.options.text !== undefined ? this.options.text : ''],
+        value: [
+          translationToBasicMap.propertyValueMap.anyText
+            ? translationToBasicMap.propertyValueMap.anyText[0].value
+            : '',
+        ],
         label: '',
         type: 'STRING',
         showValidationIssues: false,

@@ -16,6 +16,7 @@ import filterActions from './filter-actions'
 import { SFC } from '../react-component/hoc/utils'
 import { providers, Props as ProviderProps } from './providers'
 import visualizations from './visualizations'
+import queryForms from './query-forms'
 
 export type ExtensionPointsType = {
   routes: {}
@@ -23,6 +24,7 @@ export type ExtensionPointsType = {
   filterActions: React.ReactNode
   providers: SFC<ProviderProps>
   visualizations: any[]
+  queryForms: any[]
 }
 
 const ExtensionPoints: ExtensionPointsType = {
@@ -31,6 +33,7 @@ const ExtensionPoints: ExtensionPointsType = {
   filterActions: filterActions,
   providers: providers,
   visualizations: visualizations,
+  queryForms: queryForms,
 }
 
 export default ExtensionPoints
