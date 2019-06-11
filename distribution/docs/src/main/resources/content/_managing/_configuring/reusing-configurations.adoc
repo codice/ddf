@@ -62,7 +62,7 @@ The same step-by-step process above can be followed when migrating configuration
 ** Files under `etc/pdp`
 ** `etc/users.attributes` and `etc/users.properties`
 ** `security/configurations.policy`
-** `etc/custom.system.properties`
+** `etc/custom.system.properties` (the `solr.password` property will be preserved)
 ** Keystores
 ** Truststores
 ** Service wrapper `*.conf` files, if the ${branding} is installed as a service

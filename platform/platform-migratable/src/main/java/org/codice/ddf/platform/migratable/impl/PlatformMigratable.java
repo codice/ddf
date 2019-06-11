@@ -65,18 +65,7 @@ public class PlatformMigratable implements Migratable {
       Paths.get("etc", "custom.system.properties");
 
   private static final Set<String> CUSTOM_SYSTEM_PROPERTIES_TO_PRESERVE =
-      ImmutableSet.of(
-          "org.codice.ddf.system.version",
-          "solr.attemptAutoPasswordChange",
-          "solr.client",
-          "solr.data.dir",
-          "solr.http.port",
-          "solr.http.protocol",
-          "solr.http.url",
-          "solr.mem",
-          "solr.useBasicAuth",
-          "solr.username",
-          "solr.password");
+      ImmutableSet.of("org.codice.ddf.system.version", "solr.password");
 
   private static final List<Path> UPGRADEABLE_SYSTEM_PATHS =
       ImmutableList.of( //
