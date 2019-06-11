@@ -281,7 +281,7 @@ export class Sharing extends React.Component<Props, State> {
   }
 
   handleChangeInput = (i: number, value: string) => {
-    this.state.items[i].value = value
+    this.state.items[i].value = value.toLowerCase()
     this.setState({
       items: this.state.items,
     })
