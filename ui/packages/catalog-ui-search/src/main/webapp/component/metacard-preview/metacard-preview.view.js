@@ -22,22 +22,18 @@ const store = require('../../js/store.js')
 const user = require('../singletons/user-instance.js')
 const preferences = user.get('user').get('preferences')
 const wreqr = require('../../js/wreqr.js')
+import React from 'react'
+import { renderToString } from 'react-dom/server'
 
 function getSrc(previewHtml, textColor) {
-  return (
-    '<html class="is-iframe is-preview" style="font-size: ' +
-    preferences.get('fontSize') +
-    'px; color: ' +
-    textColor +
-    ';">' +
-    '<link href="css/styles.' +
-    document
-      .querySelector('link[href*="css/styles."]')
-      .href.split('css/styles.')[1] +
-    '" rel="stylesheet">' +
-    previewHtml +
-    document.querySelector('[data-theme]').cloneNode(true).outerHTML +
-    '</html>'
+  const fontSize = preferences.get('fontSize')
+
+  return renderToString(
+    <html
+      dangerouslySetInnerHTML={{ __html: previewHtml }}
+      className="is-iframe is-preview"
+      style={{ fontSize, color: textColor, fontFamily: 'sans-serif' }}
+    />
   )
 }
 
