@@ -256,7 +256,7 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
   }
 
   /** Creates a dynamic service from the provided wsdl location. */
-  protected Service createService() {
+  protected final Service createService() {
     Service service = null;
     URL wsdlURL;
     if (StringUtils.isNotBlank(wsdlLocation) && StringUtils.isNotBlank(serviceName)) {
