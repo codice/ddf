@@ -210,7 +210,7 @@ public class DumpCommand extends CqlCommands {
   }
 
   @Override
-  protected Object executeWithSubject() throws Exception {
+  protected final Object executeWithSubject() throws Exception {
     if (FilenameUtils.getExtension(dirPath).equals("") && !dirPath.endsWith(File.separator)) {
       dirPath += File.separator;
     }

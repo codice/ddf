@@ -163,7 +163,7 @@ public abstract class SolrCommands implements Action {
     return getBackupUrl() + "/" + coreName;
   }
 
-  protected String getBackupUrl() {
+  protected final String getBackupUrl() {
     return AccessController.doPrivileged(
         (PrivilegedAction<String>) () -> System.getProperty(SOLR_URL_PROP));
   }

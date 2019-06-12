@@ -38,7 +38,7 @@ public class ResourceBundleLocatorImpl implements ResourceBundleLocator {
   }
 
   @Override
-  public ResourceBundle getBundle(String baseName, Locale locale) throws IOException {
+  public final ResourceBundle getBundle(String baseName, Locale locale) throws IOException {
     File resourceBundleDir = Paths.get(resourceBundleBaseDir.toString(), baseName).toFile();
     URL[] urls = {resourceBundleDir.toURI().toURL()};
 

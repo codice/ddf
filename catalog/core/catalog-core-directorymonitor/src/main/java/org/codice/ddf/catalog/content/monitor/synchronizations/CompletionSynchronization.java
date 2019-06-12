@@ -42,7 +42,7 @@ public class CompletionSynchronization implements Synchronization {
   }
 
   @Override
-  public void onFailure(Exchange exchange) {
+  public final void onFailure(Exchange exchange) {
     boolean connected =
         AccessController.doPrivileged((PrivilegedAction<Boolean>) asyncFileEntry::checkNetwork);
 

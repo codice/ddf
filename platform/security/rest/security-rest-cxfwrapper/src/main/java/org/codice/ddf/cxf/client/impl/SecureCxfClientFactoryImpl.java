@@ -373,7 +373,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
    * <p>The returned client should NOT be reused between requests! This method should be called for
    * each new request in order to ensure that the security token is up-to-date each time.
    */
-  public T getClientForSubject(Subject subject) {
+  public final T getClientForSubject(Subject subject) {
     final java.lang.SecurityManager security = System.getSecurityManager();
 
     if (security != null) {

@@ -70,7 +70,7 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
   private static final Logger LOGGER = LoggerFactory.getLogger(ProfileInstallCommand.class);
 
   @Override
-  protected void doExecute(
+  protected final void doExecute(
       ApplicationService applicationService,
       FeaturesService featuresService,
       BundleService bundleService)
