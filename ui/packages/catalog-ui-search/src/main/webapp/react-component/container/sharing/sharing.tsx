@@ -128,14 +128,14 @@ export class Sharing extends React.Component<Props, State> {
     const loadingView = new LoadingView()
     this.attemptSave(attributes, usersToUnsubscribe)
       .then(() => {
-        this.showSaveSuccessful()
+        Sharing.showSaveSuccessful()
         this.props.lightbox.close()
       })
       .catch(err => {
         if (err.message === 'Need to refresh') {
-          this.showNeedToRefresh()
+          Sharing.showNeedToRefresh()
         } else {
-          this.showSaveFailed()
+          Sharing.showSaveFailed()
         }
       })
       .then(() => {
@@ -210,7 +210,7 @@ export class Sharing extends React.Component<Props, State> {
     return await res.json()
   }
 
-  showSaveFailed() {
+  static showSaveFailed() {
     announcement.announce(
       {
         title: 'Error',
@@ -221,7 +221,7 @@ export class Sharing extends React.Component<Props, State> {
     )
   }
 
-  showNeedToRefresh() {
+  static showNeedToRefresh() {
     announcement.announce(
       {
         title: 'The workspace settings could not be updated',
@@ -233,7 +233,7 @@ export class Sharing extends React.Component<Props, State> {
     )
   }
 
-  showSaveSuccessful() {
+  static showSaveSuccessful() {
     announcement.announce(
       {
         title: 'Success!',
