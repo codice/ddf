@@ -32,7 +32,7 @@ type Props = {
 
 type State = {
   items: Item[]
-  previousWorkspace: any
+  modified: string
   isWorkspace: boolean
 }
 
@@ -55,7 +55,7 @@ export class Sharing extends React.Component<Props, State> {
     super(props)
     this.state = {
       items: [],
-      previousWorkspace: undefined,
+      modified: '',
       isWorkspace: false,
     }
   }
@@ -82,7 +82,7 @@ export class Sharing extends React.Component<Props, State> {
       })
       this.setState({
         items: groups.concat(individuals),
-        previousWorkspace: metacard,
+        modified: metacard['metacard.modified'],
         isWorkspace: data['metacard-tags'].includes('workspace'),
       })
       this.add()
@@ -143,21 +143,21 @@ export class Sharing extends React.Component<Props, State> {
       })
   }
 
-  // NOTE: Fetching the latest workspace and checking the modified dates is a temporary solution
+  // NOTE: Fetching the latest metacard and checking the modified dates is a temporary solution
   // and should be removed when support for optimistic concurrency is added
   // https://github.com/codice/ddf/issues/4467
   attemptSave = async (attributes: any, usersToUnsubscribe: String[]) => {
     const currWorkspace = await this.fetchWorkspace(this.props.id)
     if (
       currWorkspace['metacard.modified'] ===
-      this.state.previousWorkspace['metacard.modified']
+      this.state.modified
     ) {
       await this.doSave(attributes)
       await this.unsubscribeUsers(usersToUnsubscribe)
       const newWorkspace = await this.fetchWorkspace(this.props.id)
       this.setState({
         items: [...this.state.items],
-        previousWorkspace: newWorkspace,
+        modified: newWorkspace['metacard.modified'],
       })
     } else {
       throw new Error('Need to refresh')
