@@ -141,6 +141,7 @@ class ResultsExport extends React.Component<Props, State> {
       return
     }
 
+    const uriEncodedTransformerId = encodeURIComponent(transformerId)
     let response = null
     const count = this.state.selectedResults.length
 
@@ -149,8 +150,11 @@ class ResultsExport extends React.Component<Props, State> {
         this.state.selectedResults.map((result: Result) => result.id)
       )
       const srcs = Array.from(this.getResultSources())
+      const uriEncodedTransformerIdProp = encodeURIComponent(
+        this.props.transformer
+      )
 
-      response = await exportResultSet(this.props.transformer, {
+      response = await exportResultSet(uriEncodedTransformerIdProp, {
         cql,
         srcs,
         count,
@@ -164,7 +168,7 @@ class ResultsExport extends React.Component<Props, State> {
       )
       const srcs = Array.from(this.getResultSources())
 
-      response = await exportResultSet(transformerId, {
+      response = await exportResultSet(uriEncodedTransformerId, {
         count,
         cql,
         srcs,
@@ -174,7 +178,6 @@ class ResultsExport extends React.Component<Props, State> {
       const uriEncodedSource = encodeURIComponent(source)
       const metacardId: any = this.state.selectedResults[0].id
       const uriEncodedMetacardId: any = encodeURIComponent(metacardId)
-      const uriEncodedTransformerId = encodeURIComponent(transformerId)
       response = await exportResult(
         uriEncodedSource,
         uriEncodedMetacardId,
