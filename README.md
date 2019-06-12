@@ -132,13 +132,13 @@ For additional information about building DDF, see [Building DDF](https://codice
 * Run the executable at <distribution_home>/bin/ddf.bat or <distribution_home>/bin/ddf
 
 ## Additional information
-The [wiki](https://codice.atlassian.net/wiki/display/DDF) is the right place to find any documentation about DDF.
+Find documentation about DDF at [codice.org](http://codice.org/ddf/Documentation-versions.html).
 
 Discussions can be found on the [Announcements forum](http://groups.google.com/group/ddf-announcements),  [Users forum](http://groups.google.com/group/ddf-users), and  [Developers forum](http://groups.google.com/group/ddf-developers).
 
-For a DDF binary distribution, please read  the release notes on the wiki for a list of supported and unsupported features.
+For changes between versions and known issues, please read the [release notes](https://codice.atlassian.net/wiki/spaces/DDF/pages/71275152/Release+Notes).
 
-If you find any issues with DDF, please submit reports with [JIRA](https://codice.atlassian.net/projects/DDF).
+If you find any issues with DDF, please submit an [issue](https://github.com/codice/ddf/issues).
 
 For information on contributing to DDF see [Contributing to Codice](http://www.codice.org/contributing).
 
