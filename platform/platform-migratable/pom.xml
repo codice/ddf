@@ -57,6 +57,20 @@
             <version>${karaf.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.migration</groupId>
+            <artifactId>platform-migration-utils</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -66,6 +80,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>org.apache.felix.utils</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

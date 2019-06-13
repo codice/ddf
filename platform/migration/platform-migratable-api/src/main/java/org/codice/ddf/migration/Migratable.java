@@ -30,18 +30,24 @@ import org.codice.ddf.platform.services.common.Describable;
  * OSGI service. All other interfaces will be implemented by the framework that provides support for
  * migratables.</b>
  *
- * <p>During an import operation, only one of {@link #doImport}, {@link #doIncompatibleImport}, or
- * {@link #doMissingImport} methods will be called by the framework.
+ * <p>During an import operation, only one of {@link #doImport}, {@link #doIncompatibleImport},
+ * {@link #doVersionUpgradeImport}, or {@link #doMissingImport} methods will be called by the
+ * framework.
  *
  * <p><b> This code is experimental. While this interface is functional and tested, it may change or
  * be removed in a future version of the library. </b>
  */
 public interface Migratable extends Describable {
+  String IMPORT_UNSUPPORTED_MIGRATABLE_VERSION_ERROR =
+      "Import error: unsupported exported version [%s] for migratable [%s]; currently supporting [%s].";
+  String IMPORT_IGNORING_MIGRATABLE =
+      "Ignoring migratable [%s] because it does not implement upgrade import logic.";
+
   /**
    * Gets the current export version handled by this migratable.
    *
    * <p>When exporting data, the migration framework will export this version information and
-   * provide it back to the {@link #doIncompatibleImport} method if the exported version string
+   * provide it back to the {@link #doVersionUpgradeImport} method if the exported version string
    * doesn't match the one provided by this method when importing the data for this migratable.
    *
    * <p>The format of the version string is migratable-dependent.
@@ -85,16 +91,34 @@ public interface Migratable extends Describable {
    * with the context's report.
    *
    * @param context a migration context to import all exported migratable data from
-   * @param version the exported version for the data to re-import
    * @throws MigrationException to stop the import operation
    */
-  public default void doIncompatibleImport(ImportMigrationContext context, String version) {
+  public default void doIncompatibleImport(ImportMigrationContext context) {
     context
         .getReport()
         .record(
             new MigrationException(
-                "Incompatibility error: unsupported exported migrated version [%s] for migratable [%s]; currently supporting [%s].",
-                version, getId(), getVersion()));
+                IMPORT_UNSUPPORTED_MIGRATABLE_VERSION_ERROR,
+                context.getMigratableVersion().orElse(null),
+                getId(),
+                getVersion()));
+  }
+
+  /**
+   * Imports all exported migratable data provided by the specified context when the current version
+   * of this migratable (see {@link #getVersion}) is different than the exported version.
+   *
+   * <p>Errors, warnings, and/or information messages can be recorded along with the context's
+   * report. Doing so will not abort the operation.
+   *
+   * <p><i>Note:</i> The default implementation provided here will record an incompatibility error
+   * with the context's report.
+   *
+   * @param context a migration context to import all exported migratable data from
+   * @throws MigrationException to stop the import operation
+   */
+  public default void doVersionUpgradeImport(ImportMigrationContext context) {
+    context.getReport().record(new MigrationInformation(IMPORT_IGNORING_MIGRATABLE, getId()));
   }
 
   /**

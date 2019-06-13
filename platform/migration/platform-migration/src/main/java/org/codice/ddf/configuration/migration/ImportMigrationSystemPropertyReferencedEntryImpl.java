@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.LinkOption;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.migration.util.AccessUtils;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.slf4j.Logger;

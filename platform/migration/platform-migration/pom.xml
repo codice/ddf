@@ -97,6 +97,10 @@
             <artifactId>platform-migratable-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.migration</groupId>
+            <artifactId>platform-migration-utils</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${commons-io.version}</version>

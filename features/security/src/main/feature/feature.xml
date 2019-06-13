@@ -148,6 +148,8 @@
     <feature name="security-migratable" version="${project.version}"
              description="Exports security configurations and system files">
         <feature>guava</feature>
+        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
+        <bundle>mvn:ddf.platform.migration/platform-migration-utils/${project.version}</bundle>
         <bundle>mvn:ddf.platform.migration/platform-migratable-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.migration/security-migratable/${project.version}</bundle>

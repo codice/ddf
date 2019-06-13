@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.migration;
 
+import java.util.Optional;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,7 +26,7 @@ public class MigratableTest {
 
   private static final String VERSION = "1.0";
 
-  private static final String INCOMPATIBLE_VERSION = "1.1";
+  private static final String UNSUPPORTED_VERSION = "1.1";
 
   private final Migratable migratable = Mockito.mock(Migratable.class, Mockito.CALLS_REAL_METHODS);
 
@@ -44,8 +45,9 @@ public class MigratableTest {
   public void testDoIncompatibleImport() throws Exception {
     Mockito.when(report.record(Mockito.any(MigrationMessage.class))).thenReturn(report);
     Mockito.when(report.record(Mockito.any(MigrationException.class))).thenReturn(report);
+    Mockito.when(context.getMigratableVersion()).thenReturn(Optional.of(UNSUPPORTED_VERSION));
 
-    migratable.doIncompatibleImport(context, INCOMPATIBLE_VERSION);
+    migratable.doIncompatibleImport(context);
 
     final ArgumentCaptor<MigrationException> capture =
         ArgumentCaptor.forClass(MigrationException.class);
@@ -56,13 +58,34 @@ public class MigratableTest {
     Assert.assertThat(
         capture.getValue().getMessage(),
         Matchers.equalTo(
-            "Incompatibility error: unsupported exported migrated version ["
-                + INCOMPATIBLE_VERSION
+            "Import error: unsupported exported version ["
+                + UNSUPPORTED_VERSION
                 + "] for migratable ["
                 + MIGRATABLE_ID
                 + "]; currently supporting ["
                 + VERSION
                 + "]."));
+  }
+
+  @Test
+  public void testDoVersionUpgradeImport() throws Exception {
+    Mockito.when(report.record(Mockito.any(MigrationMessage.class))).thenReturn(report);
+    Mockito.when(report.record(Mockito.any(MigrationException.class))).thenReturn(report);
+
+    migratable.doVersionUpgradeImport(context);
+
+    final ArgumentCaptor<MigrationInformation> capture =
+        ArgumentCaptor.forClass(MigrationInformation.class);
+
+    Mockito.verify(report).record(capture.capture());
+
+    Assert.assertThat(capture.getValue(), Matchers.instanceOf(MigrationInformation.class));
+    Assert.assertThat(
+        capture.getValue().getMessage(),
+        Matchers.equalTo(
+            "Ignoring migratable ["
+                + migratable.getId()
+                + "] because it does not implement upgrade import logic."));
   }
 
   @Test

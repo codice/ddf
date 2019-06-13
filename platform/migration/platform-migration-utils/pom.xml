@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -11,58 +11,50 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
--->
+
+ -->
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>platform-security</artifactId>
-        <groupId>ddf.platform.security</groupId>
+        <groupId>ddf.platform</groupId>
+        <artifactId>platform-migration-pom</artifactId>
         <version>2.16.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>ddf.security.migration</groupId>
-    <artifactId>security-migratable</artifactId>
+    <groupId>ddf.platform.migration</groupId>
+    <artifactId>platform-migration-utils</artifactId>
+    <name>DDF :: Platform :: Migration :: Utils</name>
     <packaging>bundle</packaging>
-
-    <name>DDF :: Security :: Migratable :: Impl</name>
 
     <dependencies>
         <dependency>
-            <groupId>ddf.platform.migration</groupId>
-            <artifactId>platform-migratable-api</artifactId>
+          <groupId>commons-lang</groupId>
+          <artifactId>commons-lang</artifactId>
+          <version>${commons-lang.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>gson-support</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+          <groupId>ddf.platform.migration</groupId>
+          <artifactId>platform-migratable-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.migration</groupId>
-            <artifactId>platform-migration</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.migration</groupId>
-            <artifactId>platform-migration-utils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.karaf.system</groupId>
-            <artifactId>org.apache.karaf.system.core</artifactId>
-            <version>${karaf.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <scope>test</scope>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${commons-collections4.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -73,6 +65,11 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            commons-lang,
+                            gson-support,
+                            commons-collections4
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>
@@ -94,19 +91,18 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.97</minimum>
+                                            <minimum>0.85</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.97</minimum>
+                                            <minimum>0.73</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.97</minimum>
+                                            <minimum>0.81</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>

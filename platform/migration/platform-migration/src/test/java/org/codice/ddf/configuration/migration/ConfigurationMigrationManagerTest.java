@@ -20,6 +20,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -111,6 +112,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     doNothing().when(mockWrapperManager).restart();
     createBrandingFile();
     createVersionFile();
+    createMigrationPropsFile();
     this.configurationMigrationManager =
         mock(
             ConfigurationMigrationManager.class,
@@ -796,12 +798,13 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
   private void expectZipWithChecksum(boolean valid) {
     final MigrationZipFile zip = mock(MigrationZipFile.class);
 
-    Mockito.doReturn(zip).when(configurationMigrationManager).newZipFileFor(Mockito.notNull());
-    Mockito.doReturn(valid).when(zip).isValidChecksum();
+    doReturn(zip).when(configurationMigrationManager).newZipFileFor(Mockito.notNull());
+    doReturn(valid).when(zip).isValidChecksum();
+    doReturn(Paths.get(encryptedFileName)).when(zip).getZipPath();
   }
 
   private void verifyZipEncryptedFile() {
-    verify(configurationMigrationManager).newZipFileFor(Paths.get(encryptedFileName));
+    verify(configurationMigrationManager).newZipFileFor(path);
   }
 
   private void reportHasInfoMessage(Stream<MigrationInformation> infos, Matcher<String> matcher) {
@@ -893,6 +896,21 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
 
   private void createVersionFile() throws IOException {
     createVersionFile(TEST_VERSION);
+  }
+
+  private void createMigrationPropsFile(String contents) throws IOException {
+    Path migrationPropsPath = ddfHome.resolve(Paths.get("etc", "migration.properties"));
+    Files.createDirectories(migrationPropsPath.getParent());
+    Files.createFile(migrationPropsPath);
+    Files.write(
+        migrationPropsPath,
+        contents.getBytes(),
+        StandardOpenOption.CREATE,
+        StandardOpenOption.TRUNCATE_EXISTING);
+  }
+
+  private void createMigrationPropsFile() throws IOException {
+    createMigrationPropsFile("supported.versions=" + TEST_VERSION);
   }
 
   private void deleteVersionFile() {

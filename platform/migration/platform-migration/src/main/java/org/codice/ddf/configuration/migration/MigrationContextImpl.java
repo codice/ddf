@@ -291,7 +291,8 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
     return id;
   }
 
-  public Optional<String> getVersion() {
+  @Override
+  public Optional<String> getMigratableVersion() {
     return version;
   }
 

@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.Validate;
+import org.codice.ddf.configuration.migration.util.AccessUtils;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationOperation;
