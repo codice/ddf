@@ -48,14 +48,17 @@ const StyledDropdown = styled(Dropdown)`
 const Icon = styled.span`
   display: inline-block;
   text-align: right;
-  width: ${props => props.theme.minimumButtonSize};
+  width: ${({ theme }) => theme.minimumButtonSize};
 `
 
-const Root = styled<{ saved: boolean }, 'div'>('div')`
+const Root = styled.div`
   padding: ${({ theme }) => theme.minimumSpacing};
   line-height: calc(
-    2 * ${({ theme }) => theme.minimumLineSize} - 2 *
-      ${({ theme }) => theme.minimumSpacing}
+    2 *
+      (
+        ${({ theme }) => theme.minimumLineSize} -
+          ${({ theme }) => theme.minimumSpacing}
+      )
   );
   width: 100%;
   overflow: hidden;
@@ -66,7 +69,7 @@ const Root = styled<{ saved: boolean }, 'div'>('div')`
   justify-content: flex-start;
   > .content-adhoc {
     flex-shrink: 20;
-    min-width: ${props => props.theme.minimumButtonSize};
+    min-width: ${({ theme }) => theme.minimumButtonSize};
     height: 100%;
     text-align: center;
   }
@@ -77,33 +80,30 @@ const Root = styled<{ saved: boolean }, 'div'>('div')`
 
 const Grouping = styled.div`
   height: 100%;
-  border: 1px solid ${props => props.theme.primaryColor};
+  border: 1px solid ${({ theme }) => theme.primaryColor};
   white-space: nowrap;
   display: flex;
   justify-content: flex-start;
   position: relative;
   max-width: calc(
-    100% - ${props => props.theme.minimumButtonSize} -
-      ${props => props.theme.largeSpacing}
+    100% - ${({ theme }) => theme.minimumButtonSize} -
+      ${({ theme }) => theme.largeSpacing}
   );
-  margin-right: ${props => props.theme.largeSpacing};
+  margin-right: ${({ theme }) => theme.largeSpacing};
   input {
     background: inherit;
   }
-
   > .content-interactions {
-    min-width: ${props => props.theme.minimumButtonSize};
+    min-width: ${({ theme }) => theme.minimumButtonSize};
     height: 100%;
     text-align: center;
   }
-
   > .content-interactions,
   > ${StyledWorkspaceTitle /* sc-selector*/}, > .content-adhoc,
   > ${StyledSaveButton /* sc-selector*/} {
     overflow: hidden;
     height: 100%;
   }
-
   > .content-interactions,
   > ${StyledSaveButton /* sc-selector */} {
     flex-shrink: 0;
@@ -112,7 +112,7 @@ const Grouping = styled.div`
 
 const AdhocButton = styled(Button)`
   height: 100%;
-  padding-right: ${props => props.theme.minimumSpacing};
+  padding-right: ${({ theme }) => theme.minimumSpacing};
   min-height: 0px;
   line-height: inherit;
 `
@@ -120,7 +120,7 @@ const AdhocButton = styled(Button)`
 const render = (props: Props) => {
   const { currentWorkspace, saved, branding, product } = props
   return (
-    <Root saved={saved}>
+    <Root>
       <Grouping className="grouping">
         <StyledWorkspaceTitle>
           <WorkspaceTitle
