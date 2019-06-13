@@ -25,6 +25,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.encryption.EncryptionService;
@@ -37,6 +38,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -192,7 +194,8 @@ public class IdpEndpointTest {
 
   @Before
   public void setup()
-      throws IOException, SecurityServiceException, ParserConfigurationException, SAXException {
+      throws IOException, SecurityServiceException, ParserConfigurationException, SAXException,
+          URISyntaxException {
     System.setProperty("org.codice.ddf.system.hostname", "localhost");
     System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
     File jksFile = temporaryFolder.newFile("serverKeystore.jks");
@@ -236,6 +239,13 @@ public class IdpEndpointTest {
     when(securityManager.getSubject(anyObject())).thenReturn(subject);
 
     System.setProperty("javax.net.ssl.keyStore", jksFile.getAbsolutePath());
+
+    System.setProperty(SecurityConstants.TRUSTSTORE_TYPE, "JKS");
+    System.setProperty(
+        SecurityConstants.TRUSTSTORE_PATH,
+        getClass().getResource("/serverTruststore.jks").toURI().getPath());
+    System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, "changeit");
+
     idpEndpoint =
         new IdpEndpoint(
             signatureFile.getAbsolutePath(), encryptionFile.getAbsolutePath(), encryptionService);
@@ -246,7 +256,6 @@ public class IdpEndpointTest {
     idpEndpoint.setLogoutStates(new RelayStates<>());
     BaseAuthenticationTokenFactory baseAuthenticationTokenFactory =
         new BaseAuthenticationTokenFactory();
-    baseAuthenticationTokenFactory.setSignaturePropertiesPath(signatureFile.getAbsolutePath());
     baseAuthenticationTokenFactory.init();
     idpEndpoint.setTokenFactory(baseAuthenticationTokenFactory);
     OcspService ocspService = mock(OcspService.class);
