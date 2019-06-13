@@ -256,26 +256,41 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         originalQueryResultsSize = docs.size();
         totalHits = docs.getNumFound();
         addDocsToResults(docs, results);
+
+        if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
+          query.set("q", findQueryToResend(query, solrResponse));
+          QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
+          docs = solrResponseRequery.getResults();
+          if (docs != null && docs.size() > originalQueryResultsSize) {
+            results = new ArrayList<>();
+            totalHits = docs.getNumFound();
+            addDocsToResults(docs, results);
+
+            responseProps.put(
+                    DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
+            responseProps.put(
+                    SHOWING_RESULTS_FOR_KEY,
+                    (Serializable) getSearchTermFieldValues(solrResponseRequery));
+          }
+        }
       }
 
       if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
         query.set("q", findQueryToResend(query, solrResponse));
         QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
         docs = solrResponseRequery.getResults();
-        int requeryResultsSize = 0;
-        if (docs != null) {
-          requeryResultsSize = docs.size();
+        if (docs.size() > originalQueryResultsSize) {
           results = new ArrayList<>();
-          totalHits = docs.getNumFound();
-          addDocsToResults(docs, results);
-        }
+          if (docs != null) {
+            totalHits = docs.getNumFound();
+            addDocsToResults(docs, results);
+          }
 
-        if (requeryResultsSize > originalQueryResultsSize) {
           responseProps.put(
-              DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
+                  DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
           responseProps.put(
-              SHOWING_RESULTS_FOR_KEY,
-              (Serializable) getSearchTermFieldValues(solrResponseRequery));
+                  SHOWING_RESULTS_FOR_KEY,
+                  (Serializable) getSearchTermFieldValues(solrResponseRequery));
         }
       }
 
