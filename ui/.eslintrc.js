@@ -1,7 +1,8 @@
 module.exports = {
     "extends": ["eslint:recommended", "plugin:react/recommended"],
     rules: {
-        // TODO turn these recommended rules back on
+        // TODO rules we don't already follow have been turned off. 
+        //  this is a reminder to some day fix all the violations and turn the rules on
 
         // eslint:recommended
         "no-extra-semi" : "off",
