@@ -262,13 +262,15 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         query.set("q", findQueryToResend(query, solrResponse));
         QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
         docs = solrResponseRequery.getResults();
-        if (docs.size() > originalQueryResultsSize) {
+        int requeryResultsSize = 0;
+        if (docs != null) {
+          requeryResultsSize = docs.size();
           results = new ArrayList<>();
-          if (docs != null) {
-            totalHits = docs.getNumFound();
-            addDocsToResults(docs, results);
-          }
+          totalHits = docs.getNumFound();
+          addDocsToResults(docs, results);
+        }
 
+        if (requeryResultsSize > originalQueryResultsSize) {
           responseProps.put(
               DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
           responseProps.put(
