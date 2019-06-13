@@ -3,39 +3,44 @@
 :status: published
 :link: _ftp_endpoint
 :operations: ingest
-:url: \ftp://<FQDN>:8021/
 :summary: Ingests files directly into the ${branding} catalog using the FTP protocol.
-:implements: https://tools.ietf.org/html/rfc959[FTP] {external-link}
 
 == {title}
 
-The FTP Endpoint provides a method for ingesting files directly into the ${branding} catalog using the FTP protocol.
+The FTP endpoint provides a method for ingesting files directly into the ${branding} catalog using the FTP protocol.
 
 The FTP endpoint can be accessed from any FTP client of choice.
 Some common clients are FileZilla, PuTTY, or the FTP client provided in the terminal.
-The default port number is *8021*. If FTPS is enabled with 2-way TLS, a client that supports client authentication is required.
+The default port number is *8021*.
+If FTPS is enabled with 2-way TLS, a client that supports client authentication is required.
 
-Custom Ftplets can be implemented by extending the `DefaultFtplet` class provided by Apache FTP Server.
-Doing this will allow custom handling of various FTP commands by overriding the methods of the `DefaultFtplet`.
-Refer to https://mina.apache.org/ftpserver-project/ftplet.html {external-link} for available methods that can be overridden.
-After creating a custom Ftplet, it needs to be added to the FTP server’s Ftplets before the server is started. Any Ftplets that are registered to the FTP server will execute the FTP command in the order that they were registered.
+=== FTP Endpoint Create Examples
 
-.Operations
-[cols="2,1m,2,5m", options="header"]
-|===
+To ingest files into ${branding} send an FTP `PUT` request to the ${branding} server.
 
-|Operation
-|FTP Request Type
-|Details
-|Example URL
+.FTP Endpoint URL
+[source,ftp]
+----
+ftp://<FQDN>:<PORT>
+----
 
-|ingest
-|PUT
-|
-|{url}
+=== FTP Endpoint Rename Command
 
-|===
+The FTP endpoint also supports renaming files as they are ingested with the FTP `RNTO` operation.
 
-The FTP endpoint supports the `PUT`, `MPUT DELE`, `RETR`, `RMD`, `APPE`, `RNTO`, `STOU`, and `SITE` operations.
+Files named with a leading `.`, such as `.<FILENAME>`,  are held by ${branding} without being ingested until the `rename` command is sent.
 
-The FTP endpoint supports files being uploaded as a dot-file (e.g., `.foo`) and then being renamed to the final filename (e.g., `some-file.pdf`). The endpoint will complete the ingest process when the rename command is sent.
+.PUT Command Example
+[source,ftp]
+----
+PUT .<FILENAME>.txt
+----
+
+.Rename Command Example
+[source,ftp]
+----
+rename .<NEW_FILENAME>.txt
+----
+
+The endpoint will complete the ingest process when the rename command is sent.
+The filename on the original file system will NOT be changed.

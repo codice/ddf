@@ -15,7 +15,7 @@ The OpenSearch specification defines a file format to describe an OpenSearch end
 This file is XML-based and is used to programatically retrieve a site's endpoint, as well as the different parameter options a site holds.
 The parameters are defined via the http://www.opensearch.org/Specifications/OpenSearch/1.1[OpenSearch] {external-link} and https://www.dni.gov/index.php/about/organization/chief-information-officer/cdr-search[CDR IPT] {external-link} Specifications.
 
-==== OpenSearch Contextual Queries
+=== OpenSearch Contextual Queries
 
 To use the OpenSearch endpoint for a query, send a `GET` request with the query options as parameters
 
@@ -70,7 +70,24 @@ default: `atom`
 https://<FQDN>:<PORT>/services/catalog/query?q="Aliquam"&count=20
 ----
 
-==== OpenSearch Temporal Queries
+==== Complex OpenSearch Contextual Query Format
+
+The OpenSearch Endpoint supports the following operators: `AND`, `OR`, and `NOT`.
+These operators are case sensitive.
+Implicit `ANDs` are also supported.
+
+Use parentheses to change the order of operations.
+Use quotes to group keywords into literal expressions.
+
+See the http://www.opensearch.org/Specifications/OpenSearch/1.1[OpenSearch] specification for more syntax specifics.
+
+.OpenSearch Endpoint Complex Query Example
+[source,https]
+----
+https://<FQDN>:<PORT>/services/catalog/query?q='cat OR dog'
+----
+
+=== OpenSearch Temporal Queries
 Queries can also specify a start and end time to narrow results.
 
 .OpenSearch Temporal Parameters
@@ -111,7 +128,7 @@ The start and end temporal criteria must be of the format specified above. Other
 *The start and end temporal elements are based on <<{metadata-prefix}modified,modified>> timestamps for a metacard.*
 ====
 
-==== OpenSearch Geospatial Queries
+=== OpenSearch Geospatial Queries
 Query by location.
 
 Use geospatial query parameters to create a geospatial `INTERSECTS` query, where `INTERSECTS` means geometries that are not `DISJOINT` to the given geospatial parameters. 
@@ -177,7 +194,7 @@ Examples:
 https://localhost:8993/services/catalog/query?q='*'&lon=44.792&lat=-6.171
 ----
 
-==== Additional OpenSearch Query Parameters
+=== Additional OpenSearch Query Parameters
 The OpenSearch Endpoint can also use these additional parameters to refine queries
 
 .OpenSearch Query Extensions
@@ -254,20 +271,3 @@ default: `300000` (5 minutes)
 |If `src` is not provided, the default behavior is to execute an enterprise search to the entire federation.
 
 |===
-
-=== Complex Contextual Query Format
-
-The OpenSearch Endpoint supports the following operators: `AND`, `OR`, and `NOT`.
-These operators are case sensitive.
-Implicit `ANDs` are also supported.
-
-Use parentheses to change the order of operations.
-Use quotes to group keywords into literal expressions.
-
-See the http://www.opensearch.org/Specifications/OpenSearch/1.1[OpenSearch] specification for more syntax specifics.
-
-.OpenSearch Endpoint Complex Query Example
-[source,https]
-----
-https://<FQDN>:<PORT>/services/catalog/query?q='cat OR dog'
-----
