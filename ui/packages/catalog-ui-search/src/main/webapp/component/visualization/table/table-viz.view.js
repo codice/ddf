@@ -38,19 +38,26 @@ module.exports = Marionette.LayoutView.extend({
         <div className="table-visibility" />
         <div className="table-rearrange" />
         <div className="table-options">
-          <button className="options-rearrange is-button">
-            Rearrange Columns
-            <span className="fa fa-columns" />
-          </button>
-          <button className="options-visibility is-button">
-            Hide/Show Columns
-            <span className="fa fa-eye" />
-          </button>
+          <Button
+            buttonType={buttonTypeEnum.neutral}
+            fadeUntilHover
+            onClick={this.startRearrange.bind(this)}
+            text="Rearrange Column"
+            icon="fa fa-columns"
+          />
+          <Button
+            buttonType={buttonTypeEnum.neutral}
+            fadeUntilHover
+            onClick={this.startVisibility.bind(this)}
+            text="Hide/Show Columns"
+            icon="fa fa-eye"
+          />
           <Button
             buttonType={buttonTypeEnum.neutral}
             text="Export"
             fadeUntilHover
             onClick={this.openExportModal.bind(this)}
+            icon="fa fa-share"
           />
         </div>
         <div className="tables-container" />
@@ -63,10 +70,6 @@ module.exports = Marionette.LayoutView.extend({
     lightboxInstance.showContent(
       <ExportResults selectionInterface={this.options.selectionInterface} />
     )
-  },
-  events: {
-    'click .options-rearrange': 'startRearrange',
-    'click .options-visibility': 'startVisibility',
   },
   regions: {
     table: {
