@@ -275,25 +275,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         }
       }
 
-      if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
-        query.set("q", findQueryToResend(query, solrResponse));
-        QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
-        docs = solrResponseRequery.getResults();
-        if (docs.size() > originalQueryResultsSize) {
-          results = new ArrayList<>();
-          if (docs != null) {
-            totalHits = docs.getNumFound();
-            addDocsToResults(docs, results);
-          }
-
-          responseProps.put(
-              DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
-          responseProps.put(
-              SHOWING_RESULTS_FOR_KEY,
-              (Serializable) getSearchTermFieldValues(solrResponseRequery));
-        }
-      }
-
       if (isFacetedQuery) {
         List<FacetField> facetFields = solrResponse.getFacetFields();
         if (CollectionUtils.isNotEmpty(facetFields)) {
