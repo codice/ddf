@@ -19,6 +19,10 @@ import SaveButton from '../save-button'
 import WorkspaceTitle from '../workspace-title'
 import Dropdown from '../dropdown'
 import NavigationBehavior from '../navigation-behavior'
+import {
+  buttonTypeEnum,
+  Button,
+} from '../../../react-component/presentation/button'
 
 type Props = {
   currentWorkspace: Backbone.Model
@@ -38,6 +42,7 @@ const StyledWorkspaceTitle = styled.div`
 const StyledDropdown = styled(Dropdown)`
   height: 100%;
   line-height: inherit;
+  min-height: 0px;
 `
 
 const Icon = styled.span`
@@ -47,6 +52,11 @@ const Icon = styled.span`
 `
 
 const Root = styled<{ saved: boolean }, 'div'>('div')`
+  padding: ${({ theme }) => theme.minimumSpacing};
+  line-height: calc(
+    2 * ${({ theme }) => theme.minimumLineSize} - 2 *
+      ${({ theme }) => theme.minimumSpacing}
+  );
   width: 100%;
   overflow: hidden;
   position: relative;
@@ -54,66 +64,92 @@ const Root = styled<{ saved: boolean }, 'div'>('div')`
   white-space: nowrap;
   display: flex;
   justify-content: flex-start;
+  > .content-adhoc {
+    flex-shrink: 20;
+    min-width: ${props => props.theme.minimumButtonSize};
+    height: 100%;
+    text-align: center;
+  }
+  > ${StyledWorkspaceTitle /* sc-selector*/} {
+    text-overflow: ellipsis;
+  }
+`
 
-  > ${StyledWorkspaceTitle /* sc-selector*/}, > .content-adhoc,
+const Grouping = styled.div`
+  height: 100%;
+  border: 1px solid ${props => props.theme.primaryColor};
+  white-space: nowrap;
+  display: flex;
+  justify-content: flex-start;
+  position: relative;
+  max-width: calc(
+    100% - ${props => props.theme.minimumButtonSize} -
+      ${props => props.theme.largeSpacing}
+  );
+  margin-right: ${props => props.theme.largeSpacing};
+  input {
+    background: inherit;
+  }
+
+  > .content-interactions {
+    min-width: ${props => props.theme.minimumButtonSize};
+    height: 100%;
+    text-align: center;
+  }
+
   > .content-interactions,
+  > ${StyledWorkspaceTitle /* sc-selector*/}, > .content-adhoc,
   > ${StyledSaveButton /* sc-selector*/} {
     overflow: hidden;
     height: 100%;
-  }
-
-  > ${StyledWorkspaceTitle /* sc-selector*/} {
-    text-overflow: ellipsis;
   }
 
   > .content-interactions,
   > ${StyledSaveButton /* sc-selector */} {
     flex-shrink: 0;
   }
+`
 
-  > .content-interactions,
-  > .content-adhoc {
-    min-width: ${props => props.theme.minimumButtonSize};
-    height: 100%;
-    text-align: center;
-  }
-
-  > .content-adhoc {
-    flex-shrink: 20;
-  }
+const AdhocButton = styled(Button)`
+  height: 100%;
+  padding-right: ${props => props.theme.minimumSpacing};
+  min-height: 0px;
+  line-height: inherit;
 `
 
 const render = (props: Props) => {
   const { currentWorkspace, saved, branding, product } = props
   return (
     <Root saved={saved}>
-      <StyledWorkspaceTitle>
-        <WorkspaceTitle
-          title={currentWorkspace.get('title')}
-          saved={saved}
-          onChange={(title: string) => {
-            currentWorkspace.set('title', title)
-          }}
-        />
-      </StyledWorkspaceTitle>
-      <StyledSaveButton>
-        <SaveButton
-          isSaved={saved}
-          onClick={() => {
-            currentWorkspace.save()
-          }}
-        />
-      </StyledSaveButton>
-      <StyledDropdown
-        className="content-interactions"
-        content={() => (
-          <NavigationBehavior>
-            <WorkspaceInteractions workspace={currentWorkspace} />
-          </NavigationBehavior>
-        )}
-      >
-        <span className="fa fa-ellipsis-v" />
-      </StyledDropdown>
+      <Grouping className="grouping">
+        <StyledWorkspaceTitle>
+          <WorkspaceTitle
+            title={currentWorkspace.get('title')}
+            saved={saved}
+            onChange={(title: string) => {
+              currentWorkspace.set('title', title)
+            }}
+          />
+        </StyledWorkspaceTitle>
+        <StyledSaveButton>
+          <SaveButton
+            isSaved={saved}
+            onClick={() => {
+              currentWorkspace.save()
+            }}
+          />
+        </StyledSaveButton>
+        <StyledDropdown
+          className="content-interactions"
+          content={() => (
+            <NavigationBehavior>
+              <WorkspaceInteractions workspace={currentWorkspace} />
+            </NavigationBehavior>
+          )}
+        >
+          <span className="fa fa-ellipsis-v" />
+        </StyledDropdown>
+      </Grouping>
       <StyledDropdown
         className="content-adhoc"
         content={() => (
@@ -127,7 +163,9 @@ const render = (props: Props) => {
           />
         )}
       >
-        <Icon className="fa fa-search" /> Search {branding} {product}
+        <AdhocButton buttonType={buttonTypeEnum.primary}>
+          <Icon className="fa fa-search" /> Search {branding} {product}
+        </AdhocButton>
       </StyledDropdown>
     </Root>
   )
