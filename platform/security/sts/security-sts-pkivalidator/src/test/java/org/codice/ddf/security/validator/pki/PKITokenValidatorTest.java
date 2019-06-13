@@ -22,10 +22,12 @@ import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import ddf.security.PropertiesLoader;
 import ddf.security.SecurityConstants;
 import ddf.security.SubjectUtils;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -66,6 +68,7 @@ public class PKITokenValidatorTest {
   public static void setUpBeforeClass() {
     properties = System.getProperties();
     System.setProperty(SecurityConstants.KEYSTORE_TYPE, "jks");
+    System.setProperty(SecurityConstants.TRUSTSTORE_TYPE, "jks");
   }
 
   @AfterClass
@@ -74,49 +77,55 @@ public class PKITokenValidatorTest {
   }
 
   @Before
-  public void setup() {
+  public void setup() throws URISyntaxException {
+    System.setProperty(
+        SecurityConstants.TRUSTSTORE_PATH,
+        getClass().getResource("/serverTruststore.jks").toURI().getPath());
+    System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, "changeit");
+
     pkiTokenValidator = new PKITokenValidator();
-    pkiTokenValidator.setSignaturePropertiesPath(
-        PKITokenValidatorTest.class.getResource("/signature.properties").getPath());
     pkiTokenValidator.setRealms(Arrays.asList("karaf"));
     pkiTokenValidator.init();
 
     try {
-      KeyStore trustStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
+      KeyStore keyStore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType"));
       InputStream trustFIS = PKITokenValidatorTest.class.getResourceAsStream("/serverKeystore.jks");
       try {
-        trustStore.load(trustFIS, "changeit".toCharArray());
+        keyStore.load(trustFIS, "changeit".toCharArray());
       } catch (CertificateException e) {
         fail(e.getMessage());
       } finally {
         IOUtils.closeQuietly(trustFIS);
       }
-      Certificate[] certs = trustStore.getCertificateChain("localhost");
+      Certificate[] certs = keyStore.getCertificateChain("localhost");
       certificates = new X509Certificate[certs.length];
       for (int i = 0; i < certs.length; i++) {
         certificates[i] = (X509Certificate) certs[i];
       }
 
-      trustStore = KeyStore.getInstance(System.getProperty(SecurityConstants.KEYSTORE_TYPE));
+      keyStore = KeyStore.getInstance(System.getProperty(SecurityConstants.KEYSTORE_TYPE));
       trustFIS = PKITokenValidatorTest.class.getResourceAsStream("/badKeystore.jks");
       try {
-        trustStore.load(trustFIS, "changeit".toCharArray());
+        keyStore.load(trustFIS, "changeit".toCharArray());
       } catch (CertificateException e) {
         fail(e.getMessage());
       } finally {
         IOUtils.closeQuietly(trustFIS);
       }
-      certs = trustStore.getCertificateChain("badhost");
+      certs = keyStore.getCertificateChain("badhost");
       badCertificates = new X509Certificate[certs.length];
       for (int i = 0; i < certs.length; i++) {
         badCertificates[i] = (X509Certificate) certs[i];
       }
-      merlin =
-          new Merlin(
-              PropertiesLoader.loadProperties(
-                  PKITokenValidatorTest.class.getResource("/signature.properties").getPath()),
-              PKITokenValidator.class.getClassLoader(),
-              null);
+
+      try (InputStream inputStream =
+          Files.newInputStream(Paths.get(System.getProperty(SecurityConstants.TRUSTSTORE_PATH)))) {
+        KeyStore trustStore = SecurityConstants.newTruststore();
+        trustStore.load(inputStream, SecurityConstants.getTruststorePassword().toCharArray());
+
+        merlin = new Merlin();
+        merlin.setKeyStore(trustStore);
+      }
 
       KeyStore keystore = KeyStore.getInstance(System.getProperty(SecurityConstants.KEYSTORE_TYPE));
       try (InputStream keystoreIS =
@@ -138,8 +147,6 @@ public class PKITokenValidatorTest {
     binarySecurityTokenType.setValueType(PKIAuthenticationToken.PKI_TOKEN_VALUE_TYPE);
     PKIAuthenticationTokenFactory pkiAuthenticationTokenFactory =
         new PKIAuthenticationTokenFactory();
-    pkiAuthenticationTokenFactory.setSignaturePropertiesPath(
-        PKITokenValidatorTest.class.getResource("/signature.properties").getPath());
     pkiAuthenticationTokenFactory.init();
     PKIAuthenticationToken pkiAuthenticationToken =
         pkiAuthenticationTokenFactory.getTokenFromCerts(certificates, "karaf");
@@ -158,8 +165,6 @@ public class PKITokenValidatorTest {
     binarySecurityTokenType.setValueType(PKIAuthenticationToken.PKI_TOKEN_VALUE_TYPE);
     PKIAuthenticationTokenFactory pkiAuthenticationTokenFactory =
         new PKIAuthenticationTokenFactory();
-    pkiAuthenticationTokenFactory.setSignaturePropertiesPath(
-        PKITokenValidatorTest.class.getResource("/signature.properties").getPath());
     pkiAuthenticationTokenFactory.init();
     PKIAuthenticationToken pkiAuthenticationToken =
         pkiAuthenticationTokenFactory.getTokenFromCerts(certificates, "*");
@@ -178,8 +183,6 @@ public class PKITokenValidatorTest {
     binarySecurityTokenType.setValueType("randomvaluetype");
     PKIAuthenticationTokenFactory pkiAuthenticationTokenFactory =
         new PKIAuthenticationTokenFactory();
-    pkiAuthenticationTokenFactory.setSignaturePropertiesPath(
-        PKITokenValidatorTest.class.getResource("/signature.properties").getPath());
     pkiAuthenticationTokenFactory.init();
     PKIAuthenticationToken pkiAuthenticationToken =
         pkiAuthenticationTokenFactory.getTokenFromCerts(certificates, "karaf");
@@ -198,8 +201,6 @@ public class PKITokenValidatorTest {
     binarySecurityTokenType.setValueType(PKIAuthenticationToken.PKI_TOKEN_VALUE_TYPE);
     PKIAuthenticationTokenFactory pkiAuthenticationTokenFactory =
         new PKIAuthenticationTokenFactory();
-    pkiAuthenticationTokenFactory.setSignaturePropertiesPath(
-        PKITokenValidatorTest.class.getResource("/signature.properties").getPath());
     pkiAuthenticationTokenFactory.init();
     PKIAuthenticationToken pkiAuthenticationToken =
         pkiAuthenticationTokenFactory.getTokenFromCerts(certificates, "karaf");
@@ -261,8 +262,6 @@ public class PKITokenValidatorTest {
     binarySecurityTokenType.setValueType(PKIAuthenticationToken.PKI_TOKEN_VALUE_TYPE);
     PKIAuthenticationTokenFactory pkiAuthenticationTokenFactory =
         new PKIAuthenticationTokenFactory();
-    pkiAuthenticationTokenFactory.setSignaturePropertiesPath(
-        PKITokenValidatorTest.class.getResource("/signature.properties").getPath());
     pkiAuthenticationTokenFactory.init();
     PKIAuthenticationToken pkiAuthenticationToken =
         pkiAuthenticationTokenFactory.getTokenFromCerts(certificates, "*");
@@ -294,8 +293,6 @@ public class PKITokenValidatorTest {
     binarySecurityTokenType.setValueType(PKIAuthenticationToken.PKI_TOKEN_VALUE_TYPE);
     PKIAuthenticationTokenFactory pkiAuthenticationTokenFactory =
         new PKIAuthenticationTokenFactory();
-    pkiAuthenticationTokenFactory.setSignaturePropertiesPath(
-        PKITokenValidatorTest.class.getResource("/badSignature.properties").getPath());
     pkiAuthenticationTokenFactory.init();
     PKIAuthenticationToken pkiAuthenticationToken =
         pkiAuthenticationTokenFactory.getTokenFromCerts(badCertificates, "karaf");

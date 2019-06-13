@@ -22,13 +22,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.security.SecurityConstants;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.FilterChain;
@@ -43,9 +44,8 @@ public class WssPKIHandlerTest {
    * given a valid HTTPServletRequest.
    */
   @Test
-  public void testGetNormalizedTokenSuccessNoCrlPki()
-      throws java.security.cert.CertificateException, ServletException {
-    WssPKIHandler handler = getWssHandlerWithMockedCrl("signature.properties", true);
+  public void testGetNormalizedTokenSuccessNoCrlPki() throws Exception {
+    WssPKIHandler handler = getWssHandlerWithMockedCrl(true);
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -70,11 +70,16 @@ public class WssPKIHandlerTest {
    * @param returnedValue Boolean value that the mocked CrlChecker will always return
    * @return A WssPKIHandler with a mocked CrlChecker
    */
-  private WssPKIHandler getWssHandlerWithMockedCrl(
-      String signatureProperties, boolean returnedValue) {
+  private WssPKIHandler getWssHandlerWithMockedCrl(boolean returnedValue)
+      throws URISyntaxException {
+    System.setProperty(SecurityConstants.TRUSTSTORE_TYPE, "JKS");
+    System.setProperty(
+        SecurityConstants.TRUSTSTORE_PATH,
+        getClass().getResource("/serverTruststore.jks").toURI().getPath());
+    System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, "changeit");
+
     WssPKIHandler handler = new WssPKIHandler();
     PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
-    tokenFactory.setSignaturePropertiesPath(signatureProperties);
     tokenFactory.init();
     handler.setTokenFactory(tokenFactory);
 

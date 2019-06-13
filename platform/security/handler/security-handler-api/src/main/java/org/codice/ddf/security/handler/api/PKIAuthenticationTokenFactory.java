@@ -13,9 +13,17 @@
  */
 package org.codice.ddf.security.handler.api;
 
-import ddf.security.PropertiesLoader;
+import ddf.security.SecurityConstants;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import org.apache.wss4j.common.crypto.Merlin;
@@ -29,17 +37,23 @@ public class PKIAuthenticationTokenFactory {
 
   private Merlin merlin;
 
-  private String signaturePropertiesPath;
-
   /** Initializes Merlin crypto object. */
   public void init() {
-    try {
-      merlin =
-          new Merlin(
-              PropertiesLoader.loadProperties(signaturePropertiesPath),
-              PKIAuthenticationTokenFactory.class.getClassLoader(),
-              null);
-    } catch (WSSecurityException | IOException e) {
+    // NOTE: THE TRUSTSTORE SHOULD BE USED FOR CERTIFICATE VALIDATION!!!!
+    Path trustStorePath = Paths.get(SecurityConstants.getTruststorePath());
+
+    if (!trustStorePath.isAbsolute()) {
+      Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+      trustStorePath = Paths.get(ddfHomePath.toString(), trustStorePath.toString());
+    }
+
+    try (InputStream inputStream = Files.newInputStream(trustStorePath)) {
+      KeyStore trustStore = SecurityConstants.newTruststore();
+      trustStore.load(inputStream, SecurityConstants.getTruststorePassword().toCharArray());
+
+      merlin = new Merlin();
+      merlin.setKeyStore(trustStore);
+    } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
       LOGGER.warn("Unable to read merlin properties file. Unable to validate certificates.", e);
     }
     Init.init();
@@ -100,13 +114,5 @@ public class PKIAuthenticationTokenFactory {
       certBytes = merlin.getBytesFromCertificates(certs);
     }
     return certBytes;
-  }
-
-  public String getSignaturePropertiesPath() {
-    return signaturePropertiesPath;
-  }
-
-  public void setSignaturePropertiesPath(String path) {
-    this.signaturePropertiesPath = path;
   }
 }
