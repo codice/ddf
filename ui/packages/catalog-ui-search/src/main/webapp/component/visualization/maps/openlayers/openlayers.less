@@ -1,3 +1,31 @@
+.ol-control button {
+  display: block;
+  margin: 1px;
+  padding: 0;
+  color: white;
+  font-size: 1.14em;
+  font-weight: bold;
+  text-decoration: none;
+  text-align: center;
+  height: 1.75em;
+  width: 1.75em;
+  line-height: 0.4em;
+  background-color: fade(@backgroundNavigation, 60%);
+  border: none;
+  border-radius: 2px;
+}
+
+.ol-zoom-in:hover {
+  background-color: @backgroundNavigation;
+}
+.ol-zoom-out:hover {
+  background-color: @backgroundNavigation;
+}
+.ol-zoom {
+  bottom: 3em;
+  right: 0.5em;
+  position: absolute;
+}
 @{customElementNamespace}map.is-openlayers {
   .customElement;
   font-size: 16px;
