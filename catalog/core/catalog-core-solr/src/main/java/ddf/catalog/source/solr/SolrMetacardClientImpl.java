@@ -267,10 +267,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             addDocsToResults(docs, results);
 
             responseProps.put(
-                    DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
+                DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
             responseProps.put(
-                    SHOWING_RESULTS_FOR_KEY,
-                    (Serializable) getSearchTermFieldValues(solrResponseRequery));
+                SHOWING_RESULTS_FOR_KEY,
+                (Serializable) getSearchTermFieldValues(solrResponseRequery));
           }
         }
       }
@@ -287,10 +287,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
           }
 
           responseProps.put(
-                  DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
+              DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
           responseProps.put(
-                  SHOWING_RESULTS_FOR_KEY,
-                  (Serializable) getSearchTermFieldValues(solrResponseRequery));
+              SHOWING_RESULTS_FOR_KEY,
+              (Serializable) getSearchTermFieldValues(solrResponseRequery));
         }
       }
 
