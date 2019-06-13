@@ -149,7 +149,6 @@ class ResultItems extends React.Component<Props, State> {
     const {
       results,
       className,
-      userSpellcheckIsOn,
       selectionInterface,
       showingResultsForFields,
       didYouMeanFields,
@@ -161,7 +160,7 @@ class ResultItems extends React.Component<Props, State> {
           <div className="result-item-collection-empty">No Results Found</div>
         </ResultItemCollection>
       )
-    } else if (userSpellcheckIsOn) {
+    } else if (model.get('spellcheck')) {
       const showingResultsFor = this.createShowResultText(
         showingResultsForFields
       )

@@ -251,8 +251,9 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       }
 
       SolrDocumentList docs = solrResponse.getResults();
-      int originalQueryResultsSize = docs.size();
+      int originalQueryResultsSize = 0;
       if (docs != null) {
+        originalQueryResultsSize = docs.size();
         totalHits = docs.getNumFound();
         addDocsToResults(docs, results);
       }
