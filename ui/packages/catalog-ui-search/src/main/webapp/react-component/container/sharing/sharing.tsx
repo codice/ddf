@@ -12,7 +12,7 @@
 import * as React from 'react'
 import SharingPresentation from '../../presentation/sharing'
 import fetch from '../../utils/fetch/index'
-import { Restrictions, Access, Security, Entry } from '../../utils/security'
+import { Access, Entry, Restrictions, Security } from '../../utils/security'
 
 const user = require('component/singletons/user-instance')
 const common = require('js/Common')
@@ -128,14 +128,36 @@ export class Sharing extends React.Component<Props, State> {
     const loadingView = new LoadingView()
     this.attemptSave(attributes, usersToUnsubscribe)
       .then(() => {
-        Sharing.showSaveSuccessful()
+        announcement.announce(
+          {
+            title: 'Success',
+            message: 'Sharing saved',
+            type: 'success',
+          },
+          1500
+        )
         this.props.lightbox.close()
       })
       .catch(err => {
-        if (err.message === 'Need to refresh') {
-          Sharing.showNeedToRefresh()
+        if (err.message === 'concurrent-modification') {
+          announcement.announce(
+            {
+              title: 'The workspace settings could not be updated',
+              message:
+                'The workspace has been modified by another user. Please refresh the page and reattempt your changes.',
+              type: 'error',
+            },
+            1500
+          )
         } else {
-          Sharing.showSaveFailed()
+          announcement.announce(
+            {
+              title: 'Error',
+              message: 'Save failed',
+              type: 'error',
+            },
+            1500
+          )
         }
       })
       .then(() => {
@@ -148,10 +170,7 @@ export class Sharing extends React.Component<Props, State> {
   // https://github.com/codice/ddf/issues/4467
   attemptSave = async (attributes: any, usersToUnsubscribe: String[]) => {
     const currWorkspace = await this.fetchWorkspace(this.props.id)
-    if (
-      currWorkspace['metacard.modified'] ===
-      this.state.modified
-    ) {
+    if (currWorkspace['metacard.modified'] === this.state.modified) {
       await this.doSave(attributes)
       await this.unsubscribeUsers(usersToUnsubscribe)
       const newWorkspace = await this.fetchWorkspace(this.props.id)
@@ -160,7 +179,7 @@ export class Sharing extends React.Component<Props, State> {
         modified: newWorkspace['metacard.modified'],
       })
     } else {
-      throw new Error('Need to refresh')
+      throw new Error('concurrent-modification')
     }
   }
 
@@ -208,40 +227,6 @@ export class Sharing extends React.Component<Props, State> {
       }
     )
     return await res.json()
-  }
-
-  static showSaveFailed() {
-    announcement.announce(
-      {
-        title: 'Error',
-        message: 'Save failed',
-        type: 'error',
-      },
-      1500
-    )
-  }
-
-  static showNeedToRefresh() {
-    announcement.announce(
-      {
-        title: 'The workspace settings could not be updated',
-        message:
-          'The workspace has been modified by another user. Please refresh the page and reattempt your changes.',
-        type: 'error',
-      },
-      1500
-    )
-  }
-
-  static showSaveSuccessful() {
-    announcement.announce(
-      {
-        title: 'Success!',
-        message: 'Sharing saved',
-        type: 'success',
-      },
-      1500
-    )
   }
 
   getUsersToUnsubscribe(users: Item[]) {
