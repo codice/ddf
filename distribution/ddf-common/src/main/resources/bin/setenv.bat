@@ -60,7 +60,7 @@ rem SET KARAF_BASE
 rem Additional available Karaf options
 rem SET KARAF_OPTS=
 rem Uncomment out the line below to enable cxf logging interceptors
-rem set EXTRA_JAVA_OPTS="-Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true"
+rem set EXTRA_JAVA_OPTS="%EXTRA_JAVA_OPTS% -Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true"
 
 set DDF_HOME_PERM=%DDF_HOME:/=\%
 set DDF_HOME_PERM=%DDF_HOME_PERM:\bin\..=\%
