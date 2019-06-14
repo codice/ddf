@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.platform</groupId>
         <artifactId>parser</artifactId>
-        <version>2.13.10-SNAPSHOT</version>
+        <version>2.13.10</version>
     </parent>
     <artifactId>platform-parser-api</artifactId>
     <name>DDF :: Platform :: Parser :: API</name>
