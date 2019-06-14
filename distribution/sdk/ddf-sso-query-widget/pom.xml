@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.distribution</groupId>
         <artifactId>sdk</artifactId>
-        <version>2.13.10</version>
+        <version>2.13.11-SNAPSHOT</version>
     </parent>
     <groupId>org.codice.ddf.ui</groupId>
     <artifactId>ddf-sso-query-widget</artifactId>
