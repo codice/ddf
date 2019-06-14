@@ -484,8 +484,6 @@
         <feature>cxf-jaxrs</feature>
         <feature>security-handler-api</feature>
         <feature>security-core</feature>
-        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/4.4.10</bundle>
-        <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/4.5.6</bundle>
         <bundle>mvn:ddf.security.servlet/security-servlet-logout-service/${project.version}</bundle>
         <bundle>mvn:ddf.security.servlet/security-servlet-default-logout/${project.version}</bundle>
         <bundle>mvn:ddf.security.servlet/security-servlet-logout/${project.version}</bundle>
