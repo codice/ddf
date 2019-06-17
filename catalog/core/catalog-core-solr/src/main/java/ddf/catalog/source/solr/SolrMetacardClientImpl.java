@@ -228,6 +228,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
         solrResponse = client.query(realTimeQuery, METHOD.POST);
       } else {
+        query.setParam("spellcheck", userSpellcheckIsOn);
         solrResponse = client.query(query, METHOD.POST);
       }
 
