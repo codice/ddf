@@ -23,8 +23,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.security.SecurityConstants;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -43,8 +45,8 @@ public class PKIHandlerTest {
    * given a valid HTTPServletRequest.
    */
   @Test
-  public void testGetNormalizedTokenSuccessNoCrlPki() throws CertificateException {
-    PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", true);
+  public void testGetNormalizedTokenSuccessNoCrlPki() throws Exception {
+    PKIHandler handler = getPKIHandlerWithMockedCrl(true);
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -68,9 +70,8 @@ public class PKIHandlerTest {
    * given a valid HTTPServletRequest and resolve is set to false.
    */
   @Test
-  public void testGetNormalizedTokenSuccessNoCrlPkiNoResolveNoResponse()
-      throws CertificateException {
-    PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", true);
+  public void testGetNormalizedTokenSuccessNoCrlPkiNoResolveNoResponse() throws Exception {
+    PKIHandler handler = getPKIHandlerWithMockedCrl(true);
 
     HttpServletRequest request = mock(HttpServletRequest.class);
 
@@ -92,8 +93,8 @@ public class PKIHandlerTest {
    * given an invalid HTTPServletRequest.
    */
   @Test
-  public void testGetNormalizedTokenFailureNoCerts() throws CertificateException {
-    PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", false);
+  public void testGetNormalizedTokenFailureNoCerts() throws Exception {
+    PKIHandler handler = getPKIHandlerWithMockedCrl(false);
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -113,8 +114,8 @@ public class PKIHandlerTest {
 
   /** Tests that the PKIHandler returns REDIRECTED when the cert fails to pass the CRL check */
   @Test
-  public void testGetNormalizedTokenFailsWhenCrlFails() throws CertificateException {
-    PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", false);
+  public void testGetNormalizedTokenFailsWhenCrlFails() throws Exception {
+    PKIHandler handler = getPKIHandlerWithMockedCrl(false);
 
     HttpServletRequest request = mock(HttpServletRequest.class);
     HttpServletResponse response = mock(HttpServletResponse.class);
@@ -135,9 +136,9 @@ public class PKIHandlerTest {
    * @throws java.security.cert.CertificateException
    */
   @Test
-  public void testNoActionWhenHttpResponseIsNull() throws CertificateException {
+  public void testNoActionWhenHttpResponseIsNull() throws Exception {
 
-    PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", true);
+    PKIHandler handler = getPKIHandlerWithMockedCrl(true);
 
     HttpServletResponse httpResponse = null;
     HttpServletRequest httpRequest = mock(HttpServletRequest.class);
@@ -155,9 +156,9 @@ public class PKIHandlerTest {
    * @throws java.security.cert.CertificateException
    */
   @Test
-  public void testErrorHandling() throws CertificateException {
+  public void testErrorHandling() throws Exception {
 
-    PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", true);
+    PKIHandler handler = getPKIHandlerWithMockedCrl(true);
 
     HttpServletResponse httpResponse = mock(HttpServletResponse.class);
     HttpServletRequest httpRequest = mock(HttpServletRequest.class);
@@ -174,10 +175,15 @@ public class PKIHandlerTest {
    * @param returnedValue Boolean value that the mocked CrlChecker will always return
    * @return A PKIHandler with a mocked CrlChecker
    */
-  private PKIHandler getPKIHandlerWithMockedCrl(String signatureProperties, boolean returnedValue) {
+  private PKIHandler getPKIHandlerWithMockedCrl(boolean returnedValue) throws URISyntaxException {
+    System.setProperty(SecurityConstants.TRUSTSTORE_TYPE, "JKS");
+    System.setProperty(
+        SecurityConstants.TRUSTSTORE_PATH,
+        getClass().getResource("/serverTruststore.jks").toURI().getPath());
+    System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, "changeit");
+
     PKIHandler handler = new PKIHandler();
     PKIAuthenticationTokenFactory tokenFactory = new PKIAuthenticationTokenFactory();
-    tokenFactory.setSignaturePropertiesPath(signatureProperties);
     tokenFactory.init();
     handler.setTokenFactory(tokenFactory);
 

@@ -28,10 +28,18 @@
  */
 package org.codice.ddf.security.validator.x509;
 
-import ddf.security.PropertiesLoader;
+import ddf.security.SecurityConstants;
 import ddf.security.SubjectUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.List;
@@ -84,19 +92,25 @@ public class X509PathTokenValidator implements TokenValidator {
 
   private Validator validator = new SignatureTrustValidator();
 
-  private String signaturePropertiesPath;
-
   private CertConstraintsParser certConstraints = new CertConstraintsParser();
 
   /** Initialize Merlin crypto object. */
   public void init() {
-    try {
-      merlin =
-          new Merlin(
-              PropertiesLoader.loadProperties(signaturePropertiesPath),
-              X509PathTokenValidator.class.getClassLoader(),
-              null);
-    } catch (WSSecurityException | IOException e) {
+    // NOTE: THE TRUSTSTORE SHOULD BE USED FOR CERTIFICATE VALIDATION!!!!
+    Path trustStorePath = Paths.get(SecurityConstants.getTruststorePath());
+
+    if (!trustStorePath.isAbsolute()) {
+      Path ddfHomePath = Paths.get(System.getProperty("ddf.home"));
+      trustStorePath = Paths.get(ddfHomePath.toString(), trustStorePath.toString());
+    }
+
+    try (InputStream inputStream = Files.newInputStream(trustStorePath)) {
+      KeyStore trustStore = SecurityConstants.newTruststore();
+      trustStore.load(inputStream, SecurityConstants.getTruststorePassword().toCharArray());
+
+      merlin = new Merlin();
+      merlin.setKeyStore(trustStore);
+    } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
       LOGGER.warn("Unable to read merlin properties file. Unable to validate certificates.", e);
     }
   }
@@ -273,13 +287,5 @@ public class X509PathTokenValidator implements TokenValidator {
       LOGGER.debug("Unable to validate credentials.", ex);
     }
     return response;
-  }
-
-  public String getSignaturePropertiesPath() {
-    return signaturePropertiesPath;
-  }
-
-  public void setSignaturePropertiesPath(String signaturePropertiesPath) {
-    this.signaturePropertiesPath = signaturePropertiesPath;
   }
 }
