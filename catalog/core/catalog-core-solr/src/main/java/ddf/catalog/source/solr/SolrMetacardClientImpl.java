@@ -188,8 +188,9 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     try {
       QueryResponse solrResponse;
+      Boolean doRealTimeGet = filterAdapter.adapt(request.getQuery(), new RealTimeGetDelegate());
 
-      if (solrFilterDelegate.isIdQuery()) {
+      if (doRealTimeGet) {
         LOGGER.debug("Performing real time query");
         SolrQuery realTimeQuery = getRealTimeQuery(query, solrFilterDelegate.getIds());
         solrResponse = client.query(realTimeQuery, METHOD.POST);
