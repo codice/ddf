@@ -60,7 +60,7 @@ export class Sharing extends React.Component<Props, State> {
     }
   }
   componentDidMount = () => {
-    this.fetchWorkspace(this.props.id).then(data => {
+    this.fetchMetacard(this.props.id).then(data => {
       const metacard = data
       const res = Restrictions.from(metacard)
       const security = new Security(res)
@@ -169,14 +169,14 @@ export class Sharing extends React.Component<Props, State> {
   // and should be removed when support for optimistic concurrency is added
   // https://github.com/codice/ddf/issues/4467
   attemptSave = async (attributes: any, usersToUnsubscribe: String[]) => {
-    const currWorkspace = await this.fetchWorkspace(this.props.id)
-    if (currWorkspace['metacard.modified'] === this.state.modified) {
+    const currMetacard = await this.fetchMetacard(this.props.id)
+    if (currMetacard['metacard.modified'] === this.state.modified) {
       await this.doSave(attributes)
       await this.unsubscribeUsers(usersToUnsubscribe)
-      const newWorkspace = await this.fetchWorkspace(this.props.id)
+      const newMetacard = await this.fetchMetacard(this.props.id)
       this.setState({
         items: [...this.state.items],
-        modified: newWorkspace['metacard.modified'],
+        modified: newMetacard['metacard.modified'],
       })
     } else {
       throw new Error('concurrent-modification')
@@ -205,10 +205,10 @@ export class Sharing extends React.Component<Props, State> {
     return await res.json()
   }
 
-  fetchWorkspace = async (id: number) => {
+  fetchMetacard = async (id: number) => {
     const res = await fetch('/search/catalog/internal/metacard/' + id)
-    const workspace = await res.json()
-    return workspace.metacards[0]
+    const metacard = await res.json()
+    return metacard.metacards[0]
   }
 
   unsubscribeUsers = async (usersToUnsubscribe: String[]) => {
