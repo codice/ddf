@@ -707,17 +707,8 @@
   <requestHandler name="/select" class="solr.SearchHandler">
     <lst name="defaults">
       <str name="echoParams">explicit</str>
-      <str name="spellcheck">true</str>
+      <str name="spellcheck">false</str>
       <str name="spellcheck.dictionary">filebased</str>
-      <!-- Uncomment the lines below to enable the data index based dictionary and then comment
-           out the filebased dictionary lines above. WARNING: Doing so may expose sensitive data
-           if not every user is allowed to see all of the suggestion words from the data index.
-           Additionally, the data index will not correct words that are misspelled within the data
-           already. In fact, it will assume that all of the data is a correct spelling. In essence,
-           changing this configuration makes it work more as a data suggester rather than a
-           spellchecking capability. -->
-      <!--       <str name="spellcheck.dictionary">indexbased</str>
-            <str name="spellcheck.dictionary">wordbreak</str> -->
       <str name="spellcheck.extendedResults">true</str>
       <str name="spellcheck.count">10</str>
       <str name="spellcheck.alternativeTermCount">5</str>
@@ -840,31 +831,6 @@
       <str name="sourceLocation">dictionary.txt</str>
       <str name="spellcheckIndexDir">./spellcheckerFile</str>
       <str name="characterEncoding">UTF-8</str>
-    </lst>
-    <lst name="spellchecker">
-      <str name="name">indexbased</str>
-      <str name="field">spellcheckfield</str>
-      <str name="classname">solr.IndexBasedSpellChecker</str>
-      <str name="distanceMeasure">org.apache.lucene.search.spell.LevenshteinDistance</str>
-      <str name="accuracy">0.5</str>
-      <int name="maxEdits">1</int>
-      <int name="minPrefix">1</int>
-      <int name="maxInspections">5</int>
-      <int name="minQueryLength">4</int>
-      <str name="maxQueryFrequency">0.01</str>
-      <str name="buildOnCommit">true</str>
-    </lst>
-    <lst name="spellchecker">
-      <str name="name">wordbreak</str>
-      <str name="classname">solr.WordBreakSolrSpellChecker</str>
-      <str name="field">spellcheckfield</str>
-      <!-- should multiple words from the query be combined in a dictionary search -->
-      <str name="combineWords">true</str>
-      <!-- should words from the query be broken in a dictionary search -->
-      <str name="breakWords">true</str>
-      <int name="maxChanges">5</int>
-      <int name="minBreakLength">3</int>
-      <str name="buildOnCommit">true</str>
     </lst>
   </searchComponent>
 
