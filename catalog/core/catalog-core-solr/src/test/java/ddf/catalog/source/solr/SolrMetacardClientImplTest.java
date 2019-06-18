@@ -58,6 +58,8 @@ import org.apache.solr.common.SolrDocumentList;
 import org.codice.solr.client.solrj.SolrClient;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
 
@@ -102,7 +104,19 @@ public class SolrMetacardClientImplTest {
             dynamicSchemaResolver, Collections.singletonMap("spellcheck", new Boolean("true"))))
         .thenReturn(mock(SolrFilterDelegate.class));
 
-    when(catalogFilterAdapter.adapt(any(), any())).thenReturn(solrQuery);
+    when(catalogFilterAdapter.adapt(any(), any()))
+        .thenAnswer(
+            new Answer() {
+              public Object answer(InvocationOnMock invocation) {
+                Object[] args = invocation.getArguments();
+                Object filterDelegate = args[1];
+                if (filterDelegate instanceof RealTimeGetDelegate) {
+                  return false;
+                } else {
+                  return solrQuery;
+                }
+              }
+            });
     when(client.query(solrQuery, SolrRequest.METHOD.POST)).thenReturn(queryResponse);
   }
 
