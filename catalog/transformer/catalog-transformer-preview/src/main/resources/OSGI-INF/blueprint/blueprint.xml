@@ -29,12 +29,12 @@
 
     <bean id="previewActionProvider"
           class="org.codice.ddf.transformer.preview.actions.PreviewActionProvider">
-        <argument value="catalog.data.metacard.preview"/>
+        <argument value="catalog.data.metacard.html.preview"/>
     </bean>
 
     <service ref="previewActionProvider" interface="ddf.action.ActionProvider">
         <service-properties>
-            <entry key="id" value="catalog.data.metacard.preview"/>
+            <entry key="id" value="catalog.data.metacard.html.preview"/>
         </service-properties>
     </service>
 </blueprint>

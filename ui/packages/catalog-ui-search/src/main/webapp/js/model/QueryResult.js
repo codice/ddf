@@ -67,14 +67,17 @@ module.exports = Backbone.AssociatedModel.extend({
     this.refreshData = _.throttle(this.refreshData, 200)
   },
   getPreview() {
-    return this.get('actions').filter(
-      action => action.title === 'Text Preview'
-    )[0].url
+    return this.get('actions')
+      .filter(
+        action => action.get('id') === 'catalog.data.metacard.html.preview'
+      )[0]
+      .get('url')
   },
   hasPreview() {
     return (
-      this.get('actions').filter(action => action.title === 'Text Preview')
-        .length > 0
+      this.get('actions').filter(
+        action => action.get('id') === 'catalog.data.metacard.html.preview'
+      ).length > 0
     )
   },
   matchesFilters(filters) {
