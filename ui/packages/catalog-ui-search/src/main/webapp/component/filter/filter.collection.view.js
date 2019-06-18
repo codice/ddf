@@ -28,7 +28,7 @@ module.exports = Marionette.CollectionView.extend({
     }
   },
   tagName: CustomElements.register('filter-collection'),
-  onBeforeRenderCollection() {
+  onBeforeRender() {
     this.sortable = Sortable.create(this.el, {
       handle: 'div.filter-rearrange',
       animation: 250,
@@ -57,6 +57,7 @@ module.exports = Marionette.CollectionView.extend({
       isFormBuilder: this.options.isFormBuilder || false,
       isSortable: !this.sortable.options.disabled,
       suggester: this.options.suggester,
+      includedAttributes: this.options.includedAttributes,
     }
   },
   initialize() {

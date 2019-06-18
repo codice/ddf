@@ -181,15 +181,15 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   focus() {
-    this.queryView
-      ? this.queryView.focus()
-      : this.queryContent.currentView.focus()
+    if (!this.queryView) {
+      this.queryContent.currentView.focus()
+    }
   },
   edit() {
     this.$el.addClass('is-editing')
-    this.queryView
-      ? this.queryView.edit()
-      : this.queryContent.currentView.edit()
+    if (!this.queryView) {
+      this.queryContent.currentView.edit()
+    }
   },
   cancel() {
     this.$el.removeClass('is-editing')

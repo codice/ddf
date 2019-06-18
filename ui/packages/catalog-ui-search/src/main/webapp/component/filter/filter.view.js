@@ -159,23 +159,35 @@ the provided value."
   },
   onBeforeShow() {
     this.$el.toggleClass('is-sortable', this.options.isSortable || true)
+    let filteredAttributeList = metacardDefinitions.sortedMetacardTypes
+      .filter(metacardType => !properties.isHidden(metacardType.id))
+      .filter(
+        metacardType => !metacardDefinitions.isHiddenType(metacardType.id)
+      )
+    filteredAttributeList = this.options.includedAttributes
+      ? filteredAttributeList.filter(metacardType =>
+          this.options.includedAttributes.includes(metacardType.id)
+        )
+      : filteredAttributeList
+
+    filteredAttributeList = filteredAttributeList.map(metacardType => ({
+      label: metacardType.alias || metacardType.id,
+
+      description: (properties.attributeDescriptions || {})[metacardType.id],
+
+      value: metacardType.id,
+    }))
+
+    let defaultSelection = this.model.get('type') || 'anyText'
+    if (defaultSelection === 'anyText' && this.options.includedAttributes) {
+      if (!this.options.includedAttributes.includes('anyText')) {
+        defaultSelection = this.options.includedAttributes[0]
+      }
+    }
     this.filterAttribute.show(
       DropdownView.createSimpleDropdown({
-        list: metacardDefinitions.sortedMetacardTypes
-          .filter(metacardType => !properties.isHidden(metacardType.id))
-          .filter(
-            metacardType => !metacardDefinitions.isHiddenType(metacardType.id)
-          )
-          .map(metacardType => ({
-            label: metacardType.alias || metacardType.id,
-
-            description: (properties.attributeDescriptions || {})[
-              metacardType.id
-            ],
-
-            value: metacardType.id,
-          })),
-        defaultSelection: [this.model.get('type') || 'anyText'],
+        list: filteredAttributeList,
+        defaultSelection: [defaultSelection],
         hasFiltering: true,
       })
     )
@@ -193,6 +205,7 @@ the provided value."
         modelForComponent: this.model,
       })
     )
+    this.model.set('type', defaultSelection)
     this.determineInput()
   },
   transformValue(value, comparator) {
