@@ -27,7 +27,9 @@
         <maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
         <packaging>pom</packaging>
         <module>docs</module>
-    </properties>
+        <dependency-target-file>distribution/docs/src/main/resources/content/_reference/_dependencyList/maven-dependency-list.txt</dependency-target-file>
+        <dependency-ignored-lines>["", "none", "The following files have been resolved:"]</dependency-ignored-lines>
+        <dependency-ignored-packages>["org.codice.ddf", "ddf"]</dependency-ignored-packages>    </properties>
     <dependencies>
         <dependency>
             <groupId>org.asciidoctor</groupId>
@@ -119,6 +121,42 @@
     </profiles>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+                <version>2.1</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>aggregate-deps</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                                def lines = []
+                                new File('${highest-basedir}').traverse(type: groovy.io.FileType.FILES, nameFilter: ~/maven-deps.txt/) { file ->
+                                    for (line in file.readLines())
+                                        lines.add(line.trim())
+                                }
+                                def output = ""
+                                Outer:
+                                for (line in lines.unique().sort()) {
+                                    if (!(line in ${dependency-ignored-lines})) {
+                                        for (ignoredPackage in ${dependency-ignored-packages}) {
+                                            if (line.startsWith(ignoredPackage))
+                                                continue Outer
+                                        }
+                                        output += "* " + line + System.getProperty("line.separator")
+                                    }
+                                }
+                                new File('${highest-basedir}/${dependency-target-file}').write(output)
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Disable vulnerability checks since this project only contains documentation -->
             <plugin>
                 <groupId>org.owasp</groupId>
