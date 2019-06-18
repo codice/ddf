@@ -74,7 +74,7 @@ const renderHistogramMenu = () => (
 const renderHistogramSelectionMenu = ({ selectionCount }: Props) => (
   <MenuItem value="HistogramSelection">
     <Icon className="interaction-icon fa fa-bar-chart" />
-    <Title>View Histogram</Title>
+    <Title>View Histogram (selected results)</Title>
     <Description>({selectionCount} selected)</Description>
   </MenuItem>
 )
@@ -94,7 +94,7 @@ const renderMenu = ({ onChange }: Props, menuItems: any[]) => (
 const renderInspectorSelectionMenu = ({ selectionCount }: Props) => (
   <MenuItem value="InspectorSelection">
     <Icon className="interaction-icon fa fa-info" />
-    <Title>View Inspector</Title>
+    <Title>View Inspector (selected results)</Title>
     <Description>({selectionCount} selected)</Description>
   </MenuItem>
 )

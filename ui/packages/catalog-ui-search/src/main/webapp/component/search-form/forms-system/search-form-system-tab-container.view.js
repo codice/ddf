@@ -15,6 +15,7 @@
 /* global require */
 import React from 'react'
 import styled from '../../../react-component/styles/styled-components'
+import { TabMessage } from '../search-form-presentation'
 const Marionette = require('marionette')
 const SearchFormCollectionView = require('../search-form.collection.view')
 const SearchFormCollection = require('../search-form-collection-instance')
@@ -22,11 +23,6 @@ const LoadingCompanionView = require('../../loading-companion/loading-companion.
 const Router = require('../../router/router.js')
 
 const Root = styled.div`
-  > .title {
-    text-align: center;
-    font-size: 20px;
-    padding: 15px;
-  }
   > .collection {
     margin: auto;
     max-width: 1020px;
@@ -52,11 +48,12 @@ module.exports = Marionette.LayoutView.extend({
       <Root>
         {Router.attributes.path === 'forms(/)' ? (
           <React.Fragment>
-            <div className="title">
-              {' '}
-              These are system search forms and <b>cannot be changed</b>{' '}
-            </div>
-            <div className="collection" />{' '}
+            {this.searchFormCollection.attributes.searchForms.length !== 0 && (
+              <TabMessage>
+                These are system search forms and <b>cannot be changed</b>{' '}
+              </TabMessage>
+            )}
+            <div className="collection" />
           </React.Fragment>
         ) : (
           <div className="collection" />
@@ -69,11 +66,12 @@ module.exports = Marionette.LayoutView.extend({
       new SearchFormCollectionView({
         collection: this.searchFormCollection.getCollection(),
         model: this.model,
+        type: 'System',
         hideInteractionMenu: this.options.hideInteractionMenu,
         filter: child => child.get('createdBy') === 'system',
       })
     )
-    LoadingCompanionView.beginLoading(this, this.$el)
+    LoadingCompanionView.beginLoading(this)
     this.handleLoadingSpinner()
   },
   handleLoadingSpinner() {

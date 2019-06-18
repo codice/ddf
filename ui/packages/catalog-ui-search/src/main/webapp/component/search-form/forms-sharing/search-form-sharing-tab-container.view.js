@@ -40,13 +40,14 @@ module.exports = Marionette.LayoutView.extend({
       new SearchFormCollectionView({
         collection: this.searchFormCollection.getCollection(),
         model: this.model,
+        type: 'Shared',
         filter: child =>
           child.get('createdBy') !== user.getEmail() &&
           user.canRead(child) &&
           child.get('createdBy') !== 'system',
       })
     )
-    LoadingCompanionView.beginLoading(this, this.$el)
+    LoadingCompanionView.beginLoading(this)
     this.handleLoadingSpinner()
   },
   handleLoadingSpinner() {

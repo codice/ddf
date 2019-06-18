@@ -45,7 +45,7 @@ module.exports = Marionette.LayoutView.extend({
         showNewForm: true,
       })
     )
-    LoadingCompanionView.beginLoading(this, this.$el)
+    LoadingCompanionView.beginLoading(this)
     this.handleLoadingSpinner()
   },
   handleLoadingSpinner() {

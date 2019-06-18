@@ -43,7 +43,7 @@ module.exports = Marionette.LayoutView.extend({
         queryModel: this.model,
       })
     )
-    LoadingCompanionView.beginLoading(this, this.$el)
+    LoadingCompanionView.beginLoading(this)
     this.handleLoadingSpinner()
   },
   handleLoadingSpinner() {
