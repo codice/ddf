@@ -13,44 +13,48 @@
  *
  **/
 
+import React from 'react'
 const Marionette = require('marionette')
-const template = require('./search-form.collection.hbs')
 const SearchFormCollectionView = require('./search-form.collection.view')
 const SearchFormCollection = require('./search-form-collection-instance')
-const CustomElements = require('../../js/CustomElements.js')
 const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
-const user = require('../singletons/user-instance')
 
-module.exports = Marionette.LayoutView.extend({
-  template,
-  tagName: CustomElements.register('search-form-collection'),
-  regions: {
-    collectionView: '.collection',
-  },
-  initialize() {
-    this.searchFormCollection = SearchFormCollection
-    this.listenTo(
-      this.searchFormCollection,
-      'change:doneLoading',
-      this.handleLoadingSpinner
-    )
-  },
-  onRender() {
-    this.collectionView.show(
-      new SearchFormCollectionView({
-        collection: this.searchFormCollection.getCollection(),
-        collectionWrapperModel: this.searchFormCollection,
-        queryModel: this.model,
-        filter: child => child.get('createdBy') === user.getEmail(),
-        showNewForm: true,
-      })
-    )
-    LoadingCompanionView.beginLoading(this)
-    this.handleLoadingSpinner()
-  },
-  handleLoadingSpinner() {
-    if (this.searchFormCollection.getDoneLoading()) {
-      LoadingCompanionView.endLoading(this)
-    }
-  },
-})
+module.exports = things =>
+  Marionette.LayoutView.extend({
+    template() {
+      return (
+        <React.Fragment>
+          {this.options.children}
+          <div className="collection" />
+        </React.Fragment>
+      )
+    },
+    regions: {
+      collectionView: '.collection',
+    },
+    initialize() {
+      this.searchFormCollection = SearchFormCollection
+      this.listenTo(
+        this.searchFormCollection,
+        'change:doneLoading',
+        this.handleLoadingSpinner
+      )
+    },
+    onRender() {
+      this.collectionView.show(
+        new SearchFormCollectionView({
+          collection: this.searchFormCollection.getCollection(),
+          collectionWrapperModel: this.searchFormCollection,
+          model: this.model,
+          ...things,
+        })
+      )
+      LoadingCompanionView.beginLoading(this)
+      this.handleLoadingSpinner()
+    },
+    handleLoadingSpinner() {
+      if (this.searchFormCollection.getDoneLoading()) {
+        LoadingCompanionView.endLoading(this)
+      }
+    },
+  })

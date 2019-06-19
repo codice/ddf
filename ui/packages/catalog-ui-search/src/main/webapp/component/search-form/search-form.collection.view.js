@@ -13,13 +13,13 @@
  *
  **/
 
-const Marionette = require('marionette')
 import SearchFormView, { Item, NewForm } from './search-form.view'
-const CustomElements = require('../../js/CustomElements')
-const wreqr = require('../../exports/wreqr.js')
 import React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import { TabMessage } from './search-form-presentation'
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements')
+const wreqr = require('../../exports/wreqr.js')
 
 module.exports = Marionette.ItemView.extend({
   tagName: CustomElements.register('my-search-forms'),
@@ -30,19 +30,17 @@ module.exports = Marionette.ItemView.extend({
     this.listenTo(this.model, 'add remove', this.render)
   },
   template() {
+    const forms = this.model.filter(child => this.doFilter(child))
     return (
       <React.Fragment>
-        {this.options.showNewForm ? (
-          <NewForm
-            label="New Search Form"
-            onClick={this.handleNewForm.bind(this)}
-          />
-        ) : null}
-        {this.model.length == 0 &&
+        {this.options.showNewForm && (
+          <NewForm label="New Search Form" onClick={this.handleNewForm} />
+        )}
+        {forms.length == 0 &&
           !this.options.showNewForm && (
             <TabMessage>No {this.options.type} Search Forms Found</TabMessage>
           )}
-        {this.model.filter(child => this.doFilter(child)).map(child => {
+        {forms.map(child => {
           return (
             <Item key={child.get('id')}>
               <MarionetteRegionContainer

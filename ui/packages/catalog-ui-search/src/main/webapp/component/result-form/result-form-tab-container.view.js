@@ -13,15 +13,22 @@
  *
  **/
 /* global require */
+import React from 'react'
 const Marionette = require('marionette')
-const template = require('component/search-form/search-form.collection.hbs')
 const ResultFormCollectionView = require('./result-form.collection.view')
 const ResultFormCollection = require('./result-form-collection-instance.js')
 const CustomElements = require('../../js/CustomElements.js')
 const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
 
 module.exports = Marionette.LayoutView.extend({
-  template,
+  template() {
+    return (
+      <React.Fragment>
+        {this.options.children}
+        <div className="collection" />
+      </React.Fragment>
+    )
+  },
   tagName: CustomElements.register('result-form-collection'),
   regions: {
     collectionView: '.collection',
