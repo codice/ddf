@@ -28,6 +28,7 @@ module.exports = Marionette.ItemView.extend({
     this.model = this.options.collection
     this.filter = this.options.filter
     this.listenTo(this.model, 'add remove', this.render)
+    this.handleNewForm = this.handleNewForm.bind(this)
   },
   template() {
     const forms = this.model.filter(child => this.doFilter(child))
@@ -58,7 +59,7 @@ module.exports = Marionette.ItemView.extend({
     )
   },
   handleNewForm() {
-    this.options.queryModel.set({
+    this.options.model.set({
       type: 'new-form',
       associatedFormModel: this.model,
     })
