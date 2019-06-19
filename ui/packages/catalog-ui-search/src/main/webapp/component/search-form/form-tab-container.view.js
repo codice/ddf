@@ -15,11 +15,9 @@
 
 import React from 'react'
 const Marionette = require('marionette')
-const SearchFormCollectionView = require('./search-form.collection.view')
-const SearchFormCollection = require('./search-form-collection-instance')
 const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
 
-module.exports = things =>
+module.exports = ({ collection, childView, childViewOptions }) =>
   Marionette.LayoutView.extend({
     template() {
       return (
@@ -33,7 +31,7 @@ module.exports = things =>
       collectionView: '.collection',
     },
     initialize() {
-      this.searchFormCollection = SearchFormCollection
+      this.searchFormCollection = collection
       this.listenTo(
         this.searchFormCollection,
         'change:doneLoading',
@@ -42,11 +40,11 @@ module.exports = things =>
     },
     onRender() {
       this.collectionView.show(
-        new SearchFormCollectionView({
+        new childView({
           collection: this.searchFormCollection.getCollection(),
           collectionWrapperModel: this.searchFormCollection,
           model: this.model,
-          ...things,
+          ...childViewOptions,
         })
       )
       LoadingCompanionView.beginLoading(this)

@@ -42,7 +42,7 @@ module.exports = Marionette.ItemView.extend({
                 view={ResultFormView}
                 viewOptions={{
                   model: child,
-                  queryModel: this.options.queryModel,
+                  queryModel: this.options.model,
                   collectionWrapperModel: this.options.collectionWrapperModel,
                 }}
               />

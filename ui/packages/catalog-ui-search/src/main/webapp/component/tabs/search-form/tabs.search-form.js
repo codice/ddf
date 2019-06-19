@@ -14,9 +14,11 @@ import React from 'react'
 import { TabMessage } from '../../search-form/search-form-presentation'
 const Tabs = require('../tabs.js')
 const user = require('../../singletons/user-instance')
-const SearchFormContainer = require('../../search-form/search-form-tab-container.view')
+const SearchFormCollectionView = require('../../search-form/search-form.collection.view')
+const SearchFormCollection = require('../../search-form/search-form-collection-instance')
+const FormContainer = require('../../search-form/form-tab-container.view')
 
-const data = {
+const tabChildViewOptions = {
   'My Search Forms': {
     filter: child => child.get('createdBy') === user.getEmail(),
     showNewForm: true,
@@ -39,8 +41,12 @@ const data = {
   },
 }
 
-const tabs = Object.keys(data).reduce((tabs, title) => {
-  tabs[title] = SearchFormContainer(data[title])
+const tabs = Object.keys(tabChildViewOptions).reduce((tabs, title) => {
+  tabs[title] = FormContainer({
+    collection: SearchFormCollection,
+    childView: SearchFormCollectionView,
+    childViewOptions: tabChildViewOptions[title],
+  })
   return tabs
 }, {})
 
