@@ -51,7 +51,13 @@ const cqlToComparator = Object.keys(comparatorToCQL).reduce((mapping, key) => {
 
 const transformFilter = filter => {
   if (CQLUtils.isGeoFilter(filter.type)) {
-    filter.value = _.clone(filter)
+    const nestedFilter = _.omit(filter, 'value')
+    if (typeof filter.value === 'string') {
+      nestedFilter.value = filter.value
+    } else {
+      nestedFilter.value = filter.value.value
+    }
+    filter.value = nestedFilter
   }
 
   const { type, value, property } = filter

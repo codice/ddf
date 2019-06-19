@@ -280,18 +280,18 @@ function transformCQLToFilter(cqlString) {
   return cql.simplify(cql.read(cqlString))
 }
 
-const isPolygonFilter = filter => {
-  return (
-    filter.value &&
-    filter.value.value &&
-    filter.value.value.indexOf('POLYGON') >= 0
-  )
+function isPolygonFilter(filter) {
+  return geometryFilterContainsString(filter, 'POLYGON')
 }
 
 function isPointRadiusFilter(filter) {
+  return geometryFilterContainsString(filter, 'POINT')
+}
+
+function geometryFilterContainsString(filter, filterSearchString) {
   const filterValue =
     typeof filter.value === 'object' ? filter.value.value : filter.value
-  return filterValue && filterValue.indexOf('POINT') >= 0
+  return filterValue && filterValue.indexOf(filterSearchString) >= 0
 }
 
 function buildIntersectCQL(locationGeometry) {
