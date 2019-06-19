@@ -33,7 +33,7 @@ const tabChildViewOptions = {
   'System Search Forms': {
     type: 'System',
     filter: child => child.get('createdBy') === 'system',
-    children: (
+    message: (
       <TabMessage>
         These are system search forms and <b>cannot be changed</b>
       </TabMessage>

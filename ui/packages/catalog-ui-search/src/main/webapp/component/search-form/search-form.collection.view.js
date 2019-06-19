@@ -34,13 +34,8 @@ module.exports = Marionette.ItemView.extend({
     const forms = this.model.filter(child => this.doFilter(child))
     return (
       <React.Fragment>
-        {this.options.showNewForm && (
-          <NewForm label="New Search Form" onClick={this.handleNewForm} />
-        )}
-        {forms.length == 0 &&
-          !this.options.showNewForm && (
-            <TabMessage>No {this.options.type} Search Forms Found</TabMessage>
-          )}
+        {this.getMessage(forms)}
+        {this.getButtons()}
         {forms.map(child => {
           return (
             <Item key={child.get('id')}>
@@ -57,6 +52,22 @@ module.exports = Marionette.ItemView.extend({
         })}
       </React.Fragment>
     )
+  },
+  getMessage(forms) {
+    if (this.options.showNewForm) {
+      return null
+    }
+
+    if (forms.length === 0) {
+      return <TabMessage>No {this.options.type} Search Forms Found</TabMessage>
+    } else {
+      return <TabMessage>{this.options.message}</TabMessage>
+    }
+  },
+  getButtons() {
+    return this.options.showNewForm ? (
+      <NewForm label="New Search Form" onClick={this.handleNewForm} />
+    ) : null
   },
   handleNewForm() {
     this.options.model.set({

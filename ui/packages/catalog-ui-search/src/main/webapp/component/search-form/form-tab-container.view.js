@@ -22,7 +22,6 @@ module.exports = ({ collection, childView, childViewOptions }) =>
     template() {
       return (
         <React.Fragment>
-          {this.options.children}
           <div className="collection" />
         </React.Fragment>
       )
