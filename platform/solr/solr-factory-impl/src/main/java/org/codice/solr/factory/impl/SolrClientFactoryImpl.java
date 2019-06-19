@@ -54,9 +54,7 @@ public final class SolrClientFactoryImpl implements SolrClientFactory {
             (PrivilegedAction<String>) () -> System.getProperty("solr.client", "HttpSolrClient"));
     SolrClientFactory factory;
 
-    if ("EmbeddedSolrServer".equals(clientType)) {
-      factory = new EmbeddedSolrFactory();
-    } else if ("CloudSolrClient".equals(clientType)) {
+    if ("CloudSolrClient".equals(clientType)) {
       factory = new SolrCloudClientFactory();
     } else { // Use HttpSolrClient by default
       factory = httpSolrClientFactory;

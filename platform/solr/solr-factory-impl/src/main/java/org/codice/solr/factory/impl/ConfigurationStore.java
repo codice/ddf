@@ -13,6 +13,7 @@
  */
 package org.codice.solr.factory.impl;
 
+import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +43,7 @@ public class ConfigurationStore {
    *
    * <p>To circumvent the bug that this one place creates when it starts re-configuring the store to
    * use an in-memory Solr server, we were forced to make this constructor public. The {@link
-   * EmbeddedSolrFactory}Solr factory class was properly modified to rely on the passed in
+   * SolrClientFactory}Solr factory class was properly modified to rely on the passed in
    * configuration store to extract its properties instead of relying on the singleton; thus
    * allowing a mixture of settings in the system.
    */
