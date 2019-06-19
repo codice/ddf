@@ -49,7 +49,7 @@ public class InputTransformerBootServiceFlag implements BootServiceFlag {
 
   private static final long DEFAULT_TRANSFORMER_WAIT_TIMEOUT_MILLIS = TimeUnit.MINUTES.toMillis(5);
 
-  private static final long DEFAULT_TRANSFORMER_CHECK_PERIOD_MILLIS = TimeUnit.MILLISECONDS.toMillis(500);
+  private static final long DEFAULT_TRANSFORMER_CHECK_PERIOD_MILLIS = 500;
 
   private static final String TRANSFORMER_ID_PROPERTY = "id";
 
