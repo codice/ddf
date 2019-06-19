@@ -21,6 +21,7 @@ import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.Query;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -148,6 +149,23 @@ public class OpenSearchQuery implements Query {
     this.filters = new ArrayList<>();
     this.spatialFilters = new ArrayList<>();
     this.siteIds = new HashSet<>();
+  }
+
+  public OpenSearchQuery(
+      Integer startIndex,
+      Integer count,
+      SortBy sortBy,
+      long maxTimeout,
+      Set<String> siteIds,
+      FilterBuilder filterBuilder) {
+    this.startIndex = startIndex;
+    this.count = count;
+    this.filterBuilder = filterBuilder;
+    this.sortBy = sortBy;
+    this.maxTimeout = maxTimeout;
+    this.filters = new ArrayList<>();
+    this.spatialFilters = new ArrayList<>();
+    this.siteIds = siteIds;
   }
 
   public void addContextualFilter(String searchTerms, String selectors) throws ParsingException {
@@ -406,6 +424,19 @@ public class OpenSearchQuery implements Query {
     }
 
     return filter != null && filter.evaluate(object);
+  }
+
+  public Query newInstanceWithFilter(Filter newFilter) {
+    OpenSearchQuery newQuery =
+        new OpenSearchQuery(
+            this.startIndex,
+            this.count,
+            this.sortBy,
+            this.maxTimeout,
+            this.siteIds,
+            this.filterBuilder);
+    newQuery.filters = Arrays.asList(newFilter);
+    return newQuery;
   }
 
   @Override

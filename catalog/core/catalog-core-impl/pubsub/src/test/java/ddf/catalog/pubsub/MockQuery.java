@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -97,6 +98,15 @@ public class MockQuery implements FederatedSource, Query {
       this.sortBy = FILTER_FACTORY.sort(sortField.toUpperCase(), sortOrder); // RELEVANCE or
       // TEMPORAL
     }
+    this.maxTimeout = maxTimeout;
+    this.filters = new ArrayList<Filter>();
+  }
+
+  public MockQuery(Subject user, int startIndex, int count, SortBy sortBy, long maxTimeout) {
+    this.user = user;
+    this.startIndex = startIndex;
+    this.count = count;
+    this.sortBy = sortBy;
     this.maxTimeout = maxTimeout;
     this.filters = new ArrayList<Filter>();
   }
@@ -304,6 +314,13 @@ public class MockQuery implements FederatedSource, Query {
   @Override
   public boolean evaluate(Object object) {
     return filter.evaluate(object);
+  }
+
+  public Query newInstanceWithFilter(Filter newFilter) {
+    MockQuery newQuery =
+        new MockQuery(this.user, this.startIndex, this.count, this.sortBy, this.maxTimeout);
+    newQuery.filters = Arrays.asList(newFilter);
+    return newQuery;
   }
 
   @Override

@@ -87,6 +87,16 @@ public class QueryImpl implements Query {
     return filter.evaluate(obj);
   }
 
+  public Query newInstanceWithFilter(Filter newFilter) {
+    return new QueryImpl(
+        newFilter,
+        this.startIndex,
+        this.pageSize,
+        this.sortBy,
+        this.requestsTotalResultsCount,
+        this.timeoutMillis);
+  }
+
   /** @return filter */
   public Filter getFilter() {
     return filter;

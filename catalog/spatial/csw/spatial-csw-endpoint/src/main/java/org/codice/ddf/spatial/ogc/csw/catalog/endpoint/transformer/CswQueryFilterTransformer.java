@@ -17,7 +17,6 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.transform.QueryFilterTransformer;
 import java.io.Serializable;
@@ -37,14 +36,7 @@ public class CswQueryFilterTransformer implements QueryFilterTransformer {
   public QueryRequest transform(QueryRequest queryRequest, Map<String, Serializable> properties) {
     Query query = queryRequest.getQuery();
     Filter filter = (Filter) query.accept(filterVisitor, new FilterFactoryImpl());
-    Query transformedQuery =
-        new QueryImpl(
-            filter,
-            query.getStartIndex(),
-            query.getPageSize(),
-            query.getSortBy(),
-            query.requestsTotalResultsCount(),
-            query.getTimeoutMillis());
+    Query transformedQuery = query.newInstanceWithFilter(filter);
 
     return new QueryRequestImpl(
         transformedQuery,

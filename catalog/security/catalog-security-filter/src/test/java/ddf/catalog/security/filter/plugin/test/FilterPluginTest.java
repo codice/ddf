@@ -69,6 +69,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.opengis.filter.Filter;
 import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
@@ -455,6 +456,11 @@ public class FilterPluginTest {
 
           @Override
           public Object accept(FilterVisitor filterVisitor, Object o) {
+            return null;
+          }
+
+          @Override
+          public Query newInstanceWithFilter(Filter newFilter) {
             return null;
           }
         });

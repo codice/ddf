@@ -665,13 +665,7 @@ public class ResourceOperations extends DescribableImpl {
             .like()
             .text(FilterDelegate.WILDCARD_CHAR);
     Filter filter = frameworkProperties.getFilterBuilder().allOf(anyTag, query);
-    return new QueryImpl(
-        filter,
-        query.getStartIndex(),
-        query.getPageSize(),
-        query.getSortBy(),
-        query.requestsTotalResultsCount(),
-        query.getTimeoutMillis());
+    return query.newInstanceWithFilter(filter);
   }
 
   protected static class ResourceInfo {

@@ -23,7 +23,6 @@ import ddf.catalog.data.types.Security;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.security.Subject;
@@ -160,7 +159,10 @@ public class AccessControlPreQueryPlugin implements PreQueryPlugin {
 
     final Filter combined = filterBuilder.allOf(query, policyBranch);
     return new QueryRequestImpl(
-        new QueryImpl(combined), input.isEnterprise(), input.getSourceIds(), input.getProperties());
+        query.newInstanceWithFilter(combined),
+        input.isEnterprise(),
+        input.getSourceIds(),
+        input.getProperties());
   }
 
   @VisibleForTesting

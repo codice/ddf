@@ -22,7 +22,6 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.Request;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
@@ -161,14 +160,9 @@ public class MetacardValidityFilterPlugin extends PreFederatedLocalProviderQuery
       if (!filters.isEmpty()) {
         // Create a new QueryRequest using the modified filter and the attributes from
         // the original query
-        QueryImpl newQuery =
-            new QueryImpl(
-                filterBuilder.allOf(query, filterBuilder.allOf(filters)),
-                query.getStartIndex(),
-                query.getPageSize(),
-                query.getSortBy(),
-                query.requestsTotalResultsCount(),
-                query.getTimeoutMillis());
+        Query newQuery =
+            query.newInstanceWithFilter(filterBuilder.allOf(query, filterBuilder.allOf(filters)));
+
         return new QueryRequestImpl(
             newQuery, input.isEnterprise(), input.getSourceIds(), input.getProperties());
       }

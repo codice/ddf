@@ -20,7 +20,6 @@ import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.filter.delegate.CopyFilterDelegate;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreQueryPlugin;
@@ -88,14 +87,7 @@ public class DummyPreQueryPlugin implements PreQueryPlugin {
 
           // Create a new QueryRequest using the modified filter and the attributes from
           // the original query
-          QueryImpl newQuery =
-              new QueryImpl(
-                  modifiedFilter,
-                  query.getStartIndex(),
-                  query.getPageSize(),
-                  query.getSortBy(),
-                  query.requestsTotalResultsCount(),
-                  query.getTimeoutMillis());
+          Query newQuery = query.newInstanceWithFilter(modifiedFilter);
           newQueryRequest =
               new QueryRequestImpl(
                   newQuery, input.isEnterprise(), input.getSourceIds(), input.getProperties());

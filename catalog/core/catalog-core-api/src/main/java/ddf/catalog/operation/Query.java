@@ -72,4 +72,12 @@ public interface Query extends Filter {
    * @return max time to wait for query results in milliseconds, 0 if no timeout should occur.
    */
   public long getTimeoutMillis();
+
+  /**
+   * Creates a new instance of the query with the same properties but a new filter
+   *
+   * @param newFilter Filter to be associated with the new query
+   * @return the new query object
+   */
+  public Query newInstanceWithFilter(Filter newFilter);
 }
