@@ -13,17 +13,28 @@
  */
 package org.codice.ddf.platform.migratable.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+import org.apache.felix.utils.properties.Properties;
+import org.codice.ddf.configuration.migration.util.AccessUtils;
+import org.codice.ddf.configuration.migration.util.VersionUtils;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
+import org.codice.ddf.migration.MigrationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +50,9 @@ public class PlatformMigratable implements Migratable {
    */
   private static final String CURRENT_VERSION = "1.0";
 
+  private static final String CUSTOM_SYSTEM_PROPERTIES_ERROR =
+      "Failed to upgrade custom.system.properties; %s";
+
   private static final String KEYSTORE_SYSTEM_PROP = "javax.net.ssl.keyStore";
 
   private static final String TRUSTSTORE_SYSTEM_PROP = "javax.net.ssl.trustStore";
@@ -47,6 +61,19 @@ public class PlatformMigratable implements Migratable {
 
   private static final Path BIN_DIR = Paths.get("bin");
 
+  private static final Path CUSTOM_SYSTEM_PROPERTIES_PATH =
+      Paths.get("etc", "custom.system.properties");
+
+  private static final Set<String> CUSTOM_SYSTEM_PROPERTIES_TO_PRESERVE =
+      ImmutableSet.of("org.codice.ddf.system.version", "solr.password");
+
+  private static final List<Path> UPGRADEABLE_SYSTEM_PATHS =
+      ImmutableList.of( //
+          Paths.get("etc", "users.properties"), Paths.get("etc", "users.attributes"));
+
+  /*
+   Files below are included under export and import operations within the same product version.
+  */
   private static final List<Path> REQUIRED_SYSTEM_PATHS =
       ImmutableList.of( //
           Paths.get("etc", "ws-security"),
@@ -138,6 +165,66 @@ public class PlatformMigratable implements Migratable {
         .stream()
         .map(context::getEntry)
         .forEach(me -> me.restore(false));
+    importKeystores(context);
+    importServiceWrapperFiles(context);
+  }
+
+  @Override
+  public void doVersionUpgradeImport(ImportMigrationContext context) {
+    if (!VersionUtils.isValidMigratableFloatVersion(context, getVersion(), getId())) {
+      return;
+    }
+
+    LOGGER.debug("Upgrading system properties...");
+    try {
+      AccessUtils.doPrivileged(() -> upgradeCustomSystemProperties(context));
+    } catch (IOException e) {
+      context.getReport().record(new MigrationException(CUSTOM_SYSTEM_PROPERTIES_ERROR, e));
+    }
+
+    LOGGER.debug("Importing remaining system files...");
+    PlatformMigratable.UPGRADEABLE_SYSTEM_PATHS
+        .stream()
+        .map(context::getEntry)
+        .forEach(me -> me.restore(false));
+    importKeystores(context);
+    importServiceWrapperFiles(context);
+  }
+
+  @VisibleForTesting
+  void upgradeCustomSystemProperties(ImportMigrationContext context) throws IOException {
+    Properties importedProps = new Properties();
+    Properties currentProps;
+
+    File fileOnSystem =
+        Paths.get(System.getProperty("ddf.home"))
+            .toRealPath(LinkOption.NOFOLLOW_LINKS)
+            .resolve(Paths.get("etc", "custom.system.properties"))
+            .toFile();
+    currentProps = new Properties(fileOnSystem);
+
+    importedProps.load(
+        context
+            .getEntry(PlatformMigratable.CUSTOM_SYSTEM_PROPERTIES_PATH)
+            .getInputStream()
+            .orElseThrow(IOException::new));
+
+    currentProps
+        .entrySet()
+        .stream()
+        .filter(e -> propertyShouldNotBeOverwritten(e, importedProps))
+        .forEach(e -> importedProps.put(e.getKey(), e.getValue()));
+
+    importedProps.save(fileOnSystem);
+  }
+
+  private boolean propertyShouldNotBeOverwritten(
+      Entry<String, String> entry, Properties importedProps) {
+    return !importedProps.containsKey(entry.getKey())
+        || CUSTOM_SYSTEM_PROPERTIES_TO_PRESERVE.contains(entry.getKey());
+  }
+
+  private void importKeystores(ImportMigrationContext context) {
     LOGGER.debug("Importing keystore and truststore...");
     context
         .getSystemPropertyReferencedEntry(PlatformMigratable.KEYSTORE_SYSTEM_PROP)
@@ -145,7 +232,10 @@ public class PlatformMigratable implements Migratable {
     context
         .getSystemPropertyReferencedEntry(PlatformMigratable.TRUSTSTORE_SYSTEM_PROP)
         .ifPresent(ImportMigrationEntry::restore);
-    LOGGER.debug("Importing service wrapper config file");
+  }
+
+  private void importServiceWrapperFiles(ImportMigrationContext context) {
+    LOGGER.debug("Importing service wrapper config files");
     context
         .entries(PlatformMigratable.ETC_DIR, PlatformMigratable.SERVICE_WRAPPER_CONF_FILTER)
         .forEach(me -> me.restore(false));

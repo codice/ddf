@@ -9,6 +9,11 @@
 
 The Migration Export/Import capability allows administrators to export the current ${branding} configuration and use it to restore the same state for either a brand new installation or a second node for a Highly Available Cluster.
 
+[IMPORTANT]
+====
+There are some key limitations when following this process to reuse configurations for a different versions of ${branding}. See <<{managing-prefix}reusing_configurations_across_different_versions, Reusing Configurations Across Different Versions>> below.
+====
+
 To export the current configuration settings:
 
 . Run the command migration:export from the ${command-console}.
@@ -41,10 +46,24 @@ This file represents the decrypted version of the `.dar` file.
 [IMPORTANT]
 ====
 * The following is currently not supported when importing configuration files:
-** importing from a different ${branding} version
 ** importing from a system installed on a different OS
 ** importing from a system installed in a different directory location
 * To keep the export/import process simple and consistent, all system configuration files are required to be under the `${home_directory}` directory and not be softlinks. Presence of external files or symbolic links during export will not fail the export; they will yield warnings. It will be up to the administrator to manually copy these files over to the new system before proceeding with the import. The import process will verify their presence and consistency and yield warnings if they don't match the original files.
 * The import process will restore all configurations done on the original system as part of the <<{reference-prefix}hardening_checklist,hardening process>> including changes to starting scripts and certificates.
 * The import process can also restore the profile from the original system by restoring all applications, features, and/or bundles to the same state (i.e., installed, uninstalled, started, stopped, ...) they were in originally. Doing so is currently experimental and was tested only with the standard and HA profiles.
 ====
+
+=== Reusing Configurations Across Different Versions
+
+The same step-by-step process above can be followed when migrating configurations between ${branding} instances of different versions, with a few key constraints:
+
+* Only a subset of configuration files are currently imported:
+** Files under `etc/ws-security`
+** Files under `etc/pdp`
+** `etc/users.attributes` and `etc/users.properties`
+** `security/configurations.policy`
+** `etc/custom.system.properties` (the `solr.password` property will be preserved)
+** Keystores
+** Truststores
+** Service wrapper `*.conf` files, if the ${branding} is installed as a service
+* There is a list of specific ${branding} versions that have been tested that can be found in `etc/migration.properties` under the property `supported.versions`, as a comma-delimited list. The system will only allow importing configurations from those versions.

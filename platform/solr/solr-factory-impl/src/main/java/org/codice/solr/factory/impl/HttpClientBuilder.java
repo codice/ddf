@@ -58,7 +58,7 @@ public class HttpClientBuilder implements Supplier<org.apache.http.impl.client.H
 
   public org.apache.http.impl.client.HttpClientBuilder get() {
 
-    org.apache.http.impl.client.HttpClientBuilder httpClientBuilder =
+    final org.apache.http.impl.client.HttpClientBuilder httpClientBuilder =
         HttpClients.custom()
             .setDefaultCookieStore(new BasicCookieStore())
             .setMaxConnTotal(128)

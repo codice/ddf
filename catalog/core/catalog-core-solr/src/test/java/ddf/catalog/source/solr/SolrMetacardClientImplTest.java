@@ -17,6 +17,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.AttributeDescriptor;
@@ -49,6 +51,8 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.client.solrj.response.SpellCheckResponse;
+import org.apache.solr.client.solrj.response.SpellCheckResponse.Collation;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.codice.solr.client.solrj.SolrClient;
@@ -94,6 +98,10 @@ public class SolrMetacardClientImplTest {
 
     when(solrFilterDelegateFactory.newInstance(dynamicSchemaResolver, Collections.EMPTY_MAP))
         .thenReturn(mock(SolrFilterDelegate.class));
+    when(solrFilterDelegateFactory.newInstance(
+            dynamicSchemaResolver, Collections.singletonMap("spellcheck", new Boolean("true"))))
+        .thenReturn(mock(SolrFilterDelegate.class));
+
     when(catalogFilterAdapter.adapt(any(), any())).thenReturn(solrQuery);
     when(client.query(solrQuery, SolrRequest.METHOD.POST)).thenReturn(queryResponse);
   }
@@ -147,6 +155,39 @@ public class SolrMetacardClientImplTest {
 
     List<Result> results = clientImpl.query(request).getResults();
     assertThat(results.size(), is(0));
+  }
+
+  @Test
+  public void testQueryNullResults() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    when(queryResponse.getResults()).thenReturn(null);
+    List<Result> results = clientImpl.query(request).getResults();
+    assertThat(results, is(Collections.EMPTY_LIST));
+  }
+
+  @Test
+  public void testQuerySpellCheckOn() throws Exception {
+    QueryRequest request = createQuery(builder.attribute("anyText").is().like().text("normal"));
+    request.getProperties().put("spellcheck", new Boolean("true"));
+    List<String> names = Collections.singletonList("title");
+    List<String> values = Collections.singletonList("normal");
+    SpellCheckResponse spellCheckResponse = mock(SpellCheckResponse.class);
+
+    List<Collation> collations = new ArrayList<>();
+    Collation collation = new Collation();
+    collation.setCollationQueryString("real");
+    collation.setNumberOfHits(2);
+    collations.add(collation);
+
+    Map<String, String> attributes = createAttributes(names, values);
+    mockDynamicSchemsolverCalls(createAttributeDescriptor(names), attributes);
+    when(queryResponse.getSpellCheckResponse()).thenReturn(spellCheckResponse);
+    when(queryResponse.getSpellCheckResponse().getCollatedResults()).thenReturn(collations);
+    when(queryResponse.getResults()).thenReturn(createSolrDocumentList(attributes));
+
+    List<Result> results = clientImpl.query(request).getResults();
+    assertThat(results.size(), is(1));
+    verify(queryResponse, times(2)).getResults();
   }
 
   private void mockDynamicSchemsolverCalls(

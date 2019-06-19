@@ -3,7 +3,7 @@
 :status: published
 :children:
 :order: 07
-:summary: Introduction to the Migration API.
+:summary: Introduction to Pub/Sub.
 
 .Eventing Architecture
 [ditaa, catalog_architecture_eventing, png, ${image-width}]

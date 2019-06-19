@@ -653,8 +653,9 @@ public class FileSystemStorageProvider implements StorageProvider {
           new ByteSource() {
             @Override
             public InputStream openStream() throws IOException {
-              InputStream fileInputStream = new FileInputStream(contentItemPath.toFile());
-              return crypter.decrypt(fileInputStream);
+              try (InputStream fileInputStream = new FileInputStream(contentItemPath.toFile())) {
+                return crypter.decrypt(fileInputStream);
+              }
             }
           };
 

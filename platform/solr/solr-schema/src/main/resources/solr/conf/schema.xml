@@ -133,10 +133,6 @@
             <filter class="solr.LowerCaseFilterFactory"/>
         </analyzer>
     </fieldType>
-    <field name="spellcheckfield" type="text_suggest" multiValued="true" indexed="true" stored="false" omitNorms="true"/>
-    <!-- Copy each field that should contribute to the spellcheck dictionary -->
-    <copyField source="title_txt" dest="spellcheckfield"/>
-    <copyField source="description_txt" dest="spellcheckfield"/>
 
     <fieldType name="text_phonetics" class="solr.TextField" positionIncrementGap="100">
         <analyzer type="index">

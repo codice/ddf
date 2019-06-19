@@ -28,10 +28,13 @@ that are implementing `Migratable` and call their `doExport()` method. As part o
 interface will be included. In particular the version string returned will help the migration API identify the version of the exported data from the corresponding migratable and must
 be provided as a non-blank string.
 
-When an import operation is processed, the migration API will do another look-up for all registered OSGi services that are implementing `Migratable` and call their `doImport()`
-or `doIncompatibleImport()` methods based on whether the recorded version string at export time is equal to the version string currently provided by the migratable or not. The
-`doMissingImport()` method will be called instead of one of the other two methods when the migration API detects that the corresponding migratable data is missing from the exported data.
-Any migratables that are tagged using the `OptionalMigratable` tag interface will automatically be skipped unless otherwise specified when the import phase is initiated.
+When an import operation is processed when the current ${branding} version matches the exported @{branding} version, the migration API will do another look-up for all registered OSGi services that are
+implementing `Migratable` and call their `doImport()` or `doIncompatibleImport()` methods based on whether the recorded version string at export time is equal to the version string currently provided
+by the migratable or not. The `doMissingImport()` method will be called instead of one of the other two methods when the migration API detects that the corresponding migratable data is missing from the
+exported data. Any migratables that are tagged using the `OptionalMigratable` tag interface will automatically be skipped unless otherwise specified when the import phase is initiated.
+
+When an import operation is processed when the current ${branding} version does not the exported @{branding} version, the migration API will do a look-up for all registered OSGi services that are
+implementing `Migratable` and call their `doVersionUpgradeImport()` method.
 
 The services that implement the migratable interface will be called one at a time based on their service ranking order, and do not need to be thread safe.
 A bundle or a feature can have as many services implementing the interfaces as needed.
@@ -68,6 +71,7 @@ The `org.codice.ddf.migration.Migratable` interface defines these methods:
 - `void doExport(ExportMigrationContext context)`
 - `void doImport(ImportMigrationContext context)`
 - `void doIncompatibleImport(ImportMigrationContext context)`
+- `void doVersionUpgradeImport(ImportMigrationContext context)`
 - `void doMissingImport(ImportMigrationContext context)`
 
 The `getId()` method returns a unique identifier for this migratable that must remain constant between the export and the import operations in order for the migration API to correlate the exported data with the migratable during the import operation. It
@@ -82,6 +86,7 @@ The `doExport()` method is called by the migration API along with a context for 
 The `doImport()` method is called by the migration API along with a context for the current import operation when
 the version of exported data matches the current version reported by the migratable. This method can be used to restore previously exported data. +
 The `doIncompatibleImport()` method is called to restore incompatible data which might require transformation. It is provided a context for the current import operation and the previously exported version. It can then proceed with restoring incompatible data which might require transformation. +
+The `doVersionUpgradeImport()` method is called to restore data from a different ${branding} version which might require transformation. It is provided a context for the current import operation and the previously exported version. +
 Finally, the `doMissingImport()` method will be called along with the context for the current import operation when data had not been exported for the corresponding migratable.
 This will be the case when a migratable is later introduced in the software distribution.
 
@@ -96,9 +101,11 @@ The `org.codice.ddf.migration.MigrationContext` provides contextual information 
 
 - `MigrationReport getReport()`
 - `String getId()`
+- `Optional<String> getMigratableVersion()`
 
 The `getReport()` method returns a migration report that can be used to record messages while processing an export or an import operation. +
 The `getId()` method returns the identifier for the currently processing migratable.
+The `getMigratableVersion()` method returns the version for the currently processing migratable.
 
 ==== `ExportMigrationContext`
 The export migration context provides methods for creating new migration entries and system property referenced migration entries to track exported migration files for a given migratable

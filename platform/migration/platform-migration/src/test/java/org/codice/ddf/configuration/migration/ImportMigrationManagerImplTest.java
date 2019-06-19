@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import org.codice.ddf.migration.Migratable;
@@ -95,7 +96,12 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
     mgr =
         new ImportMigrationManagerImpl(
-            report, mockMigrationZipFile, Collections.emptySet(), Stream.of(migratables));
+            report,
+            mockMigrationZipFile,
+            Collections.emptySet(),
+            Stream.of(migratables),
+            PRODUCT_BRANDING,
+            PRODUCT_VERSION);
   }
 
   private MigrationZipEntry getMetadataZipEntry(
@@ -192,7 +198,9 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
             report,
             mockMigrationZipFile,
             Collections.emptySet(),
-            Stream.concat(Stream.of(migratables), Stream.of(migratable4)));
+            Stream.concat(Stream.of(migratables), Stream.of(migratable4)),
+            PRODUCT_BRANDING,
+            PRODUCT_VERSION);
 
     Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
@@ -216,7 +224,9 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
             report,
             mockMigrationZipFile,
             Collections.emptySet(),
-            Stream.of(migratable, migratable3));
+            Stream.of(migratable, migratable3),
+            PRODUCT_BRANDING,
+            PRODUCT_VERSION);
 
     Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
@@ -266,7 +276,12 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expectMessage(Matchers.containsString("null report"));
 
     new ImportMigrationManagerImpl(
-        null, mockMigrationZipFile, Collections.emptySet(), Stream.empty());
+        null,
+        mockMigrationZipFile,
+        Collections.emptySet(),
+        Stream.empty(),
+        PRODUCT_BRANDING,
+        PRODUCT_VERSION);
   }
 
   @Test
@@ -278,7 +293,12 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expectMessage(Matchers.containsString("invalid migration operation"));
 
     new ImportMigrationManagerImpl(
-        report, mockMigrationZipFile, Collections.emptySet(), Stream.empty());
+        report,
+        mockMigrationZipFile,
+        Collections.emptySet(),
+        Stream.empty(),
+        PRODUCT_BRANDING,
+        PRODUCT_VERSION);
   }
 
   @Test
@@ -286,7 +306,8 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null zip file"));
 
-    new ImportMigrationManagerImpl(report, null, Collections.emptySet(), Stream.empty());
+    new ImportMigrationManagerImpl(
+        report, null, Collections.emptySet(), Stream.empty(), PRODUCT_BRANDING, PRODUCT_VERSION);
   }
 
   @Test
@@ -294,7 +315,41 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null migratables"));
 
-    new ImportMigrationManagerImpl(report, mockMigrationZipFile, Collections.emptySet(), null);
+    new ImportMigrationManagerImpl(
+        report,
+        mockMigrationZipFile,
+        Collections.emptySet(),
+        null,
+        PRODUCT_BRANDING,
+        PRODUCT_VERSION);
+  }
+
+  @Test
+  public void testConstructorWithNullProductVersion() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("null product version"));
+
+    new ImportMigrationManagerImpl(
+        report,
+        mockMigrationZipFile,
+        Collections.emptySet(),
+        Stream.empty(),
+        PRODUCT_BRANDING,
+        null);
+  }
+
+  @Test
+  public void testConstructorWithNullProductBranding() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("null product branding"));
+
+    new ImportMigrationManagerImpl(
+        report,
+        mockMigrationZipFile,
+        Collections.emptySet(),
+        Stream.empty(),
+        null,
+        PRODUCT_VERSION);
   }
 
   @Test
@@ -307,12 +362,17 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expectMessage("unsupported exported version");
 
     new ImportMigrationManagerImpl(
-        report, mockMigrationZipFile, Collections.emptySet(), Stream.empty());
+        report,
+        mockMigrationZipFile,
+        Collections.emptySet(),
+        Stream.empty(),
+        PRODUCT_BRANDING,
+        PRODUCT_VERSION);
   }
 
   @Test
   public void testDoImport() throws Exception {
-    mgr.doImport(PRODUCT_BRANDING, PRODUCT_VERSION);
+    mgr.doImport(getMigrationPropsWithSupportedVersion(PRODUCT_VERSION));
 
     Mockito.verify(migratable).doImport(Mockito.notNull());
     Mockito.verify(migratable2).doImport(Mockito.notNull());
@@ -326,9 +386,11 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
             report,
             mockMigrationZipFile,
             Collections.singleton(MIGRATABLE_ID3),
-            Stream.of(migratables));
+            Stream.of(migratables),
+            PRODUCT_BRANDING,
+            PRODUCT_VERSION);
 
-    mgr.doImport(PRODUCT_BRANDING, PRODUCT_VERSION);
+    mgr.doImport(getMigrationPropsWithSupportedVersion(PRODUCT_VERSION));
 
     Mockito.verify(migratable).doImport(Mockito.notNull());
     Mockito.verify(migratable2).doImport(Mockito.notNull());
@@ -366,7 +428,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
     thrown.expect(Matchers.sameInstance(me));
 
-    mgr.doImport(PRODUCT_BRANDING, PRODUCT_VERSION);
+    mgr.doImport(getMigrationPropsWithSupportedVersion(PRODUCT_VERSION));
 
     Mockito.verify(migratable).doImport(Mockito.notNull());
     Mockito.verify(migratable2).doImport(Mockito.notNull());
@@ -374,34 +436,42 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   }
 
   @Test
-  public void testDoImportWithNullProductBranding() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(Matchers.containsString("null product branding"));
-
-    mgr.doImport(null, PRODUCT_VERSION);
-  }
-
-  @Test
-  public void testDoImportWithNullProductVersion() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(Matchers.containsString("null product version"));
-
-    mgr.doImport(PRODUCT_BRANDING, null);
-  }
-
-  @Test
   public void testDoImportWithInvalidProductBranding() throws Exception {
+    mgr =
+        new ImportMigrationManagerImpl(
+            report,
+            mockMigrationZipFile,
+            Collections.emptySet(),
+            Stream.of(migratables),
+            PRODUCT_BRANDING + "2",
+            PRODUCT_VERSION);
+
     thrown.expect(MigrationException.class);
     thrown.expectMessage(Matchers.containsString("mismatched product"));
 
-    mgr.doImport(PRODUCT_BRANDING + "2", PRODUCT_VERSION);
+    mgr.doImport(getMigrationPropsWithSupportedVersion(PRODUCT_VERSION));
   }
 
   @Test
-  public void testDoImportWithInvalidProductVersion() throws Exception {
-    thrown.expect(MigrationException.class);
-    thrown.expectMessage(Matchers.containsString("mismatched product version"));
+  public void testDoImportWithUnsupportedProductVersion() throws Exception {
+    mgr =
+        new ImportMigrationManagerImpl(
+            report,
+            mockMigrationZipFile,
+            Collections.emptySet(),
+            Stream.of(migratables),
+            PRODUCT_BRANDING,
+            PRODUCT_VERSION + "2");
 
-    mgr.doImport(PRODUCT_BRANDING, PRODUCT_VERSION + "2");
+    thrown.expect(MigrationException.class);
+    thrown.expectMessage(Matchers.containsString("unsupported product version"));
+
+    mgr.doImport(getMigrationPropsWithSupportedVersion(PRODUCT_VERSION + "2"));
+  }
+
+  private Properties getMigrationPropsWithSupportedVersion(String version) {
+    Properties migrationProps = new Properties();
+    migrationProps.setProperty("supported.versions", version);
+    return migrationProps;
   }
 }

@@ -24,6 +24,7 @@ import java.nio.file.PathMatcher;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang.Validate;
+import org.codice.ddf.configuration.migration.util.AccessUtils;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;

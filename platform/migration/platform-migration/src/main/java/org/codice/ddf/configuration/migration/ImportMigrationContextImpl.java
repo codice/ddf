@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
@@ -163,39 +164,32 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
   @SuppressWarnings(
       "PMD.DefaultPackage" /* designed to be called from ImportMigrationManagerImpl within this package */)
   void doImport() {
-    if (migratable != null) {
-      final String version = getVersion().orElse(null);
+    doImportGivenVersionLogic(
+        version -> {
+          if (version == null) {
+            migratable.doMissingImport(this);
+          } else if (version.equals(migratable.getVersion())) {
+            migratable.doImport(this);
+          } else {
+            migratable.doIncompatibleImport(this);
+          }
+        });
+  }
 
-      if (skip) {
-        LOGGER.debug("Skipping optional migratable [{}] with version [{}]", id, version);
-        return;
-      }
-      LOGGER.debug("Importing migratable [{}] from version [{}]...", id, version);
-      Stopwatch stopwatch = null;
-
-      if (LOGGER.isDebugEnabled()) {
-        stopwatch = Stopwatch.createStarted();
-      }
-      try {
-        if (version == null) {
-          migratable.doMissingImport(this);
-        } else if (version.equals(migratable.getVersion())) {
-          migratable.doImport(this);
-        } else {
-          migratable.doIncompatibleImport(this, version);
-        }
-      } finally {
-        inputStreams.forEach(IOUtils::closeQuietly); // we do not care if we failed to close them
-      }
-      if (LOGGER.isDebugEnabled() && (stopwatch != null)) {
-        LOGGER.debug("Imported time for {}: {}", id, stopwatch.stop());
-      }
-    } else if (id != null) { // not a system context
-      LOGGER.warn(
-          "unable to import migration data for migratable [{}]; migratable is no longer available",
-          id);
-      report.record(new MigrationException(Messages.IMPORT_UNKNOWN_DATA_FOUND_ERROR));
-    } // else - no errors and nothing to do for the system context
+  /**
+   * Performs an version upgrade import using the context's migratable.
+   *
+   * @throws org.codice.ddf.migration.MigrationException to stop the import operation
+   */
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ImportMigrationManagerImpl within this package */)
+  void doVersionUpgradeImport() {
+    doImportGivenVersionLogic(
+        version -> {
+          if (version != null) {
+            migratable.doVersionUpgradeImport(this);
+          }
+        });
   }
 
   @SuppressWarnings(
@@ -291,6 +285,36 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
         .map(JsonUtils::convertToMap)
         .map(m -> new ImportMigrationDirectoryEntryImpl(this, m))
         .forEach(me -> entries.put(me.getPath(), me));
+  }
+
+  private void doImportGivenVersionLogic(Consumer<String> importVersionLogic) {
+    if (migratable != null) {
+      final String version = getMigratableVersion().orElse(null);
+
+      if (skip) {
+        LOGGER.debug("Skipping optional migratable [{}] with version [{}]", id, version);
+        return;
+      }
+      LOGGER.debug("Importing migratable [{}] from version [{}]...", id, version);
+      Stopwatch stopwatch = null;
+
+      if (LOGGER.isDebugEnabled()) {
+        stopwatch = Stopwatch.createStarted();
+      }
+      try {
+        importVersionLogic.accept(version);
+      } finally {
+        inputStreams.forEach(IOUtils::closeQuietly); // we do not care if we failed to close them
+      }
+      if (LOGGER.isDebugEnabled() && (stopwatch != null)) {
+        LOGGER.debug("Imported time for {}: {}", id, stopwatch.stop());
+      }
+    } else if (id != null) { // not a system context
+      LOGGER.warn(
+          "unable to import migration data for migratable [{}]; migratable is no longer available",
+          id);
+      report.record(new MigrationException(Messages.IMPORT_UNKNOWN_DATA_FOUND_ERROR));
+    } // else - no errors and nothing to do for the system context
   }
 
   private void addToPropertyEntry(ImportMigrationJavaPropertyReferencedEntryImpl me) {

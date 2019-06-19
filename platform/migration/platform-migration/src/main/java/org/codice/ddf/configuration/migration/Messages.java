@@ -64,6 +64,9 @@ public final class Messages {
   public static final String IMPORT_FILE_MISSING_ERROR =
       "Import error: missing export file [%s]; %s.";
 
+  public static final String IMPORT_FILE_MULTIPLE_ERROR =
+      "Import error: more than one export file [%s].";
+
   public static final String IMPORT_FILE_OPEN_ERROR =
       "Import error: failed to open export file [%s]; %s.";
 
@@ -82,8 +85,8 @@ public final class Messages {
   public static final String IMPORT_MISMATCH_PRODUCT_ERROR =
       "Import error: mismatched product [%s]; expecting [%s].";
 
-  public static final String IMPORT_MISMATCH_PRODUCT_VERSION_ERROR =
-      "Import error: mismatched product version [%s]; expecting [%s].";
+  public static final String IMPORT_UNSUPPORTED_PRODUCT_VERSION_ERROR =
+      "Import error: unsupported product version [%s]; currently supporting %s.";
 
   public static final String IMPORT_MISMATCH_DDF_HOME_ERROR =
       "Import error: mismatched ddf.home [%s]; expecting local system to be installed under [%s].";

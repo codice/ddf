@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import org.apache.commons.io.FilenameUtils;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
@@ -90,7 +91,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     Assert.assertThat(context.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(context.getMigratable(), Matchers.nullValue());
     Assert.assertThat(context.getId(), Matchers.nullValue());
-    Assert.assertThat(context.getVersion(), OptionalMatchers.isEmpty());
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.isEmpty());
     Assert.assertThat(context.getZip(), Matchers.sameInstance(mockMigrationZipFile));
     Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.anEmptyMap());
@@ -112,7 +113,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     Assert.assertThat(context.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(context.getMigratable(), Matchers.nullValue());
     Assert.assertThat(context.getId(), Matchers.equalTo(MIGRATABLE_ID));
-    Assert.assertThat(context.getVersion(), OptionalMatchers.isEmpty());
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.isEmpty());
     Assert.assertThat(context.getZip(), Matchers.sameInstance(mockMigrationZipFile));
     Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.anEmptyMap());
@@ -142,7 +143,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     Assert.assertThat(context.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(context.getMigratable(), Matchers.sameInstance(migratable));
     Assert.assertThat(context.getId(), Matchers.equalTo(MIGRATABLE_ID));
-    Assert.assertThat(context.getVersion(), OptionalMatchers.isEmpty());
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.isEmpty());
     Assert.assertThat(context.getZip(), Matchers.sameInstance(mockMigrationZipFile));
     Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.anEmptyMap());
@@ -320,7 +321,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
 
     context.processMetadata(metadata);
 
-    Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.hasValue(VERSION));
     Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.entries().count(), Matchers.equalTo(0L));
     Assert.assertThat(context.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
@@ -353,7 +354,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
 
     context.processMetadata(metadata);
 
-    Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.hasValue(VERSION));
     Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(
         context.entries().toArray(ImportMigrationEntry[]::new),
@@ -396,7 +397,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
 
     context.processMetadata(metadata);
 
-    Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.hasValue(VERSION));
     Assert.assertThat(context.getFiles(), Matchers.contains(MIGRATABLE_NAME, MIGRATABLE_NAME2));
     Assert.assertThat(context.getEntries(), Matchers.anEmptyMap());
     Assert.assertThat(context.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
@@ -428,7 +429,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
 
     context.processMetadata(metadata);
 
-    Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.hasValue(VERSION));
     Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.aMapWithSize(4));
     Assert.assertThat(
@@ -499,7 +500,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
 
     context.processMetadata(metadata);
 
-    Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.hasValue(VERSION));
     Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.aMapWithSize(2));
     Assert.assertThat(
@@ -601,7 +602,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
 
     context.processMetadata(metadata);
 
-    Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.hasValue(VERSION));
     Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.aMapWithSize(3));
     Assert.assertThat(
@@ -667,7 +668,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
 
     context.processMetadata(metadata);
 
-    Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.hasValue(VERSION));
     Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.aMapWithSize(3));
     Assert.assertThat(
@@ -803,15 +804,16 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     Mockito.when(migratable.getVersion()).thenReturn(VERSION);
     Mockito.doNothing().when(migratable).doImport(Mockito.any());
 
+    Properties migrationProps = new Properties();
     context.doImport();
 
     Mockito.verify(migratable).doImport(context);
-    Mockito.verify(migratable, Mockito.never()).doIncompatibleImport(context, VERSION);
+    Mockito.verify(migratable, Mockito.never()).doVersionUpgradeImport(context);
     Mockito.verify(migratable, Mockito.never()).doMissingImport(context);
   }
 
   @Test
-  public void testDoImportWhenVersionIsIncompatible() throws Exception {
+  public void testDoImportWhenVersionIsUnsupported() throws Exception {
     final Map<String, Object> metadata =
         ImmutableMap.of(MigrationContextImpl.METADATA_VERSION, VERSION);
 
@@ -819,12 +821,12 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     context.processMetadata(metadata); // make sure context has a version
 
     Mockito.when(migratable.getVersion()).thenReturn(VERSION + "2");
-    Mockito.doNothing().when(migratable).doIncompatibleImport(Mockito.any(), Mockito.eq(VERSION));
+    Mockito.doNothing().when(migratable).doVersionUpgradeImport(Mockito.any());
 
     context.doImport();
 
     Mockito.verify(migratable, Mockito.never()).doImport(context);
-    Mockito.verify(migratable).doIncompatibleImport(context, VERSION);
+    Mockito.verify(migratable).doIncompatibleImport(context);
     Mockito.verify(migratable, Mockito.never()).doMissingImport(context);
   }
 
@@ -837,7 +839,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     context.doImport();
 
     Mockito.verify(migratable, Mockito.never()).doImport(context);
-    Mockito.verify(migratable, Mockito.never()).doIncompatibleImport(context, VERSION);
+    Mockito.verify(migratable, Mockito.never()).doVersionUpgradeImport(context);
     Mockito.verify(migratable).doMissingImport(context);
   }
 
@@ -855,7 +857,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     context.doImport();
 
     Mockito.verify(migratable, Mockito.never()).doImport(context);
-    Mockito.verify(migratable, Mockito.never()).doIncompatibleImport(context, VERSION);
+    Mockito.verify(migratable, Mockito.never()).doVersionUpgradeImport(context);
     Mockito.verify(migratable, Mockito.never()).doMissingImport(context);
   }
 }

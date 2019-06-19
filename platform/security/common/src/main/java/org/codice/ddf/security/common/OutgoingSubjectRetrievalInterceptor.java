@@ -50,8 +50,6 @@ public class OutgoingSubjectRetrievalInterceptor extends AbstractPhaseIntercepto
   public OutgoingSubjectRetrievalInterceptor() {
     super(Phase.PRE_STREAM);
     tokenFactory = new BaseAuthenticationTokenFactory();
-    tokenFactory.setSignaturePropertiesPath(
-        System.getProperty("ddf.etc") + "/ws-security/server/signature.properties");
     tokenFactory.init();
     securityManager = Security.getInstance().getSecurityManager();
   }

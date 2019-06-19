@@ -20,12 +20,16 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
@@ -62,6 +66,10 @@ public class ImportMigrationManagerImpl implements Closeable {
 
   private final String productVersion;
 
+  private final String currentProductBranding;
+
+  private final String currentProductVersion;
+
   private final Path exportFile;
 
   /**
@@ -81,12 +89,16 @@ public class ImportMigrationManagerImpl implements Closeable {
       MigrationReport report,
       MigrationZipFile zip,
       Set<String> mandatoryMigratables,
-      Stream<? extends Migratable> migratables) {
+      Stream<? extends Migratable> migratables,
+      String currentProductBranding,
+      String currentProductVersion) {
     Validate.notNull(report, "invalid null report");
     Validate.notNull(zip, "invalid null zip file");
     Validate.isTrue(
         report.getOperation() == MigrationOperation.IMPORT, "invalid migration operation");
     Validate.notNull(migratables, "invalid null migratables");
+    Validate.notNull(currentProductBranding, "invalid null product branding");
+    Validate.notNull(currentProductVersion, "invalid null product version");
     this.report = report;
     this.exportFile = zip.getZipPath();
     this.zip = zip;
@@ -126,6 +138,8 @@ public class ImportMigrationManagerImpl implements Closeable {
           JsonUtils.getStringFrom(metadata, MigrationContextImpl.METADATA_PRODUCT_BRANDING, true);
       this.productVersion =
           JsonUtils.getStringFrom(metadata, MigrationContextImpl.METADATA_PRODUCT_VERSION, true);
+      this.currentProductBranding = currentProductBranding;
+      this.currentProductVersion = currentProductVersion;
       // process migratables' metadata
       JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES)
           .forEach((id, o) -> getContextFor(id).processMetadata(JsonUtils.convertToMap(o)));
@@ -141,32 +155,37 @@ public class ImportMigrationManagerImpl implements Closeable {
   /**
    * Proceed with the import migration operation.
    *
-   * @param currentProductBranding the current product branding to compare against
-   * @param currentProductVersion the current product version to compare against
+   * @param migrationProps migration properties loaded from etc/migration.properties
    * @throws IllegalArgumentException if <code>currentProductBranding</code> or <code>
    *     currentProductVersion</code> is <code>null</code>
    * @throws MigrationException if the versions don't match or if a failure occurred that required
    *     interrupting the operation right away
    */
-  public void doImport(String currentProductBranding, String currentProductVersion) {
-    Validate.notNull(currentProductBranding, "invalid null product branding");
-    Validate.notNull(currentProductVersion, "invalid null product version");
+  public void doImport(Properties migrationProps) {
+    Validate.notNull(migrationProps, "invalid null migration properties");
     if (!currentProductBranding.equals(this.productBranding)) {
       throw new MigrationException(
           Messages.IMPORT_MISMATCH_PRODUCT_ERROR, this.productBranding, currentProductBranding);
     }
-    if (!currentProductVersion.equals(this.productVersion)) {
-      throw new MigrationException(
-          Messages.IMPORT_MISMATCH_PRODUCT_VERSION_ERROR,
-          this.productVersion,
-          currentProductVersion);
-    }
+
     LOGGER.debug(
         "Importing {} product [{}] from version [{}]...",
         currentProductBranding,
         currentProductVersion,
         version);
-    contexts.values().forEach(ImportMigrationContextImpl::doImport);
+    if (this.currentProductVersion.equals(this.productVersion)) {
+      contexts.values().forEach(ImportMigrationContextImpl::doImport);
+    } else {
+      Set<String> supportedVersions =
+          getSupportedVersions(migrationProps.getProperty("supported.versions"));
+      if (!supportedVersions.contains(this.productVersion)) {
+        throw new MigrationException(
+            Messages.IMPORT_UNSUPPORTED_PRODUCT_VERSION_ERROR,
+            this.productVersion,
+            supportedVersions);
+      }
+      contexts.values().forEach(ImportMigrationContextImpl::doVersionUpgradeImport);
+    }
   }
 
   @Override
@@ -185,6 +204,17 @@ public class ImportMigrationManagerImpl implements Closeable {
   @VisibleForTesting
   Collection<ImportMigrationContextImpl> getContexts() {
     return contexts.values();
+  }
+
+  private Set<String> getSupportedVersions(@Nullable String commaDelimitedVersions) {
+    if (commaDelimitedVersions == null) {
+      return Collections.emptySet();
+    } else {
+      return Arrays.asList(commaDelimitedVersions.split(","))
+          .stream()
+          .map(String::trim)
+          .collect(Collectors.toSet());
+    }
   }
 
   private ImportMigrationContextImpl getContextFor(String id) {

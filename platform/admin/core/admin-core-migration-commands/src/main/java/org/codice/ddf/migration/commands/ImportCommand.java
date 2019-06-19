@@ -44,7 +44,8 @@ public class ImportCommand extends MigrationCommand {
     name = "--profile",
     required = false,
     multiValued = false,
-    description = "Enables the installed profile from the original system to be restored."
+    description =
+        "Enables the installed profile from the original system to be restored. Cannot be used if upgrading from an older version."
   )
   private boolean profile = false;
 

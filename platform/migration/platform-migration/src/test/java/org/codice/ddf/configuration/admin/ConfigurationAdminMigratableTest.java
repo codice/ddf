@@ -381,6 +381,7 @@ public class ConfigurationAdminMigratableTest {
     Files.createDirectory(etcDir);
     setupBrandingFile(SUPPORTED_BRANDING);
     setupVersionFile(SUPPORTED_VERSION);
+    setupMigrationPropertiesFile(SUPPORTED_VERSION);
   }
 
   private void setupBrandingFile(String branding) throws IOException {
@@ -396,6 +397,16 @@ public class ConfigurationAdminMigratableTest {
     Files.createFile(versionFile);
     FileUtils.writeStringToFile(
         versionFile.toFile().getCanonicalFile(), version, StandardCharsets.UTF_8);
+  }
+
+  private void setupMigrationPropertiesFile(String version) throws IOException {
+    final Path migrationPropsFile = ddfHome.resolve(Paths.get("etc", "migration.properties"));
+
+    Files.createFile(migrationPropsFile);
+    FileUtils.writeStringToFile(
+        migrationPropsFile.toFile().getCanonicalFile(),
+        "supported.versions=" + version,
+        StandardCharsets.UTF_8);
   }
 
   private Path setupConfigFile(String tag) throws IOException {

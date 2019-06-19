@@ -26,10 +26,19 @@
         <bundle>mvn:ddf.platform.migration/platform-migratable-api/${project.version}</bundle>
     </feature>
 
+    <feature name="platform-migration-utils" version="${project.version}"
+      description="Platform Migration Utils">
+        <feature>platform-api</feature>
+        <feature>platform-migratable-api</feature>
+        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
+        <bundle>mvn:ddf.platform.migration/platform-migration-utils/${project.version}</bundle>
+    </feature>
+
     <feature name="platform-migratable" version="${project.version}"
              description="Exports Platform configurations and system files">
         <feature>guava</feature>
         <feature>platform-migratable-api</feature>
+        <feature>platform-migration-utils</feature>
         <bundle>mvn:ddf.platform/platform-migratable/${project.version}</bundle>
     </feature>
 
@@ -39,6 +48,7 @@
         <feature>guava</feature>
         <feature>security-core-api</feature>
         <feature>platform-migratable-api</feature>
+        <feature>platform-migration-utils</feature>
         <bundle>mvn:ddf.platform.migration/platform-migration/${project.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
     </feature>
@@ -50,6 +60,7 @@
 
     <feature name="platform-migrate-all" version="${project.version}">
         <feature>platform-migratable-api</feature>
+        <feature>platform-migration-utils</feature>
         <feature>platform-migration</feature>
         <feature>platform-migratable</feature>
     </feature>

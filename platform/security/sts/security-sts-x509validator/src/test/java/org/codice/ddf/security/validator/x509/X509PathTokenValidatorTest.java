@@ -19,8 +19,10 @@ import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.security.SecurityConstants;
 import ddf.security.SubjectUtils;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import javax.security.auth.x500.X500Principal;
 import org.apache.cxf.sts.STSPropertiesMBean;
@@ -60,6 +62,10 @@ public class X509PathTokenValidatorTest {
       // ignore
     }
     validator = mock(Validator.class);
+
+    System.setProperty(
+        SecurityConstants.TRUSTSTORE_PATH, Paths.get("/serverTruststore.jks").toString());
+    System.setProperty(SecurityConstants.TRUSTSTORE_PASSWORD, "changeit");
   }
 
   @Test

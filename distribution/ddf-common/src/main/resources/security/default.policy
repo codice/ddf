@@ -46,6 +46,7 @@ grant
   codeBase "file:/platform-migratable" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}bin${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "write";
 }
 
 grant
@@ -54,6 +55,7 @@ grant
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}signature.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}encryption.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}signature.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}security${/}configurations.policy", "read";
 }
 
 grant codeBase "file:/admin-core-appservice" {

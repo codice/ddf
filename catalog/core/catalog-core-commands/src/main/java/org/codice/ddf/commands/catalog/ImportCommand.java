@@ -117,7 +117,7 @@ public class ImportCommand extends CatalogCommands {
   String signatureFile;
 
   @Override
-  protected Object executeWithSubject() throws Exception {
+  protected final Object executeWithSubject() throws Exception {
     int metacards = 0;
     int content = 0;
     int derivedContent = 0;

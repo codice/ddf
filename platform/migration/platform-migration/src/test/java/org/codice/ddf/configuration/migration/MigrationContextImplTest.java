@@ -45,7 +45,7 @@ public class MigrationContextImplTest extends AbstractMigrationReportSupport {
   public void testConstructorWithReport() throws Exception {
     Assert.assertThat(context.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(context.getId(), Matchers.nullValue());
-    Assert.assertThat(context.getVersion(), OptionalMatchers.isEmpty());
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.isEmpty());
     Assert.assertThat(context.migratable, Matchers.nullValue());
   }
 
@@ -71,7 +71,7 @@ public class MigrationContextImplTest extends AbstractMigrationReportSupport {
 
     Assert.assertThat(context.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(context.getId(), Matchers.equalTo(MIGRATABLE_ID));
-    Assert.assertThat(context.getVersion(), OptionalMatchers.isEmpty());
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.isEmpty());
     Assert.assertThat(context.migratable, Matchers.nullValue());
   }
 
@@ -105,7 +105,7 @@ public class MigrationContextImplTest extends AbstractMigrationReportSupport {
 
     Assert.assertThat(context.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(context.getId(), Matchers.equalTo(MIGRATABLE_ID));
-    Assert.assertThat(context.getVersion(), OptionalMatchers.isEmpty());
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.isEmpty());
     Assert.assertThat(context.migratable, Matchers.sameInstance(migratable));
   }
 
@@ -139,7 +139,7 @@ public class MigrationContextImplTest extends AbstractMigrationReportSupport {
 
     Assert.assertThat(context.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(context.getId(), Matchers.equalTo(MIGRATABLE_ID));
-    Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.hasValue(VERSION));
     Assert.assertThat(context.migratable, Matchers.sameInstance(migratable));
   }
 
@@ -235,7 +235,7 @@ public class MigrationContextImplTest extends AbstractMigrationReportSupport {
 
     context.processMetadata(metadata);
 
-    Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getMigratableVersion(), OptionalMatchers.hasValue(VERSION));
   }
 
   @Test(expected = MigrationException.class)

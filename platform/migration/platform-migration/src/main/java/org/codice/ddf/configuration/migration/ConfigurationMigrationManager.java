@@ -15,20 +15,25 @@ package org.codice.ddf.configuration.migration;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.security.common.audit.SecurityLogger;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOError;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -40,6 +45,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.karaf.system.SystemService;
+import org.codice.ddf.configuration.migration.util.AccessUtils;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMessage;
@@ -62,6 +68,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   private static final String PRODUCT_VERSION_FILENAME = "Version.txt";
 
+  private static final String MIGRATION_PROPERTIES_FILENAME = "migration.properties";
+
   private static final String EXPORT_EXTENSION = ".dar";
 
   private static final String EXPORT_DIR = "exported";
@@ -72,6 +80,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   private static final String DDF_HOME_KEY = "ddf.home";
 
+  private static final String SUPPORTED_VERSIONS_KEY = "migration.supported.versions";
+
   private final List<Migratable> migratables;
 
   private final SystemService system;
@@ -79,6 +89,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
   private final String productBranding;
 
   private final String productVersion;
+
+  private final Properties migrationProps;
 
   /**
    * Constructor.
@@ -128,6 +140,17 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
           e);
       throw new IOError(e);
     }
+    try {
+      this.migrationProps =
+          AccessUtils.doPrivileged(ConfigurationMigrationManager::loadMigrationProperties);
+    } catch (SecurityException | IOException e) {
+      LOGGER.error(
+          String.format(
+              "unable to load migration properties from '%s'; ",
+              ConfigurationMigrationManager.MIGRATION_PROPERTIES_FILENAME),
+          e);
+      throw new IOError(e);
+    }
   }
 
   public static <T> BinaryOperator<T> throwingMerger() {
@@ -144,6 +167,21 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
           .filter(s -> !s.isEmpty())
           .orElseThrow(
               () -> new IOException(String.format("missing product %s information", type)));
+    }
+  }
+
+  @VisibleForTesting
+  private static Properties loadMigrationProperties() throws IOException {
+    try (InputStream inputStream =
+        new FileInputStream(
+            Paths.get(
+                    System.getProperty(ConfigurationMigrationManager.DDF_HOME_KEY),
+                    "etc",
+                    ConfigurationMigrationManager.MIGRATION_PROPERTIES_FILENAME)
+                .toString())) {
+      Properties props = new Properties();
+      props.load(inputStream);
+      return props;
     }
   }
 
@@ -210,10 +248,16 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
   void delegateToImportMigrationManager(
       MigrationReportImpl report, MigrationZipFile zip, Set<String> mandatoryMigratables) {
     final ImportMigrationManagerImpl mgr =
-        new ImportMigrationManagerImpl(report, zip, mandatoryMigratables, migratables.stream());
+        new ImportMigrationManagerImpl(
+            report,
+            zip,
+            mandatoryMigratables,
+            migratables.stream(),
+            productBranding,
+            productVersion);
     try {
       report.record(Messages.IMPORTING_DATA, productBranding, zip.getZipPath());
-      mgr.doImport(productBranding, productVersion);
+      mgr.doImport(migrationProps);
     } finally {
       IOUtils.closeQuietly(mgr); // do not care if we fail to close the mgr/zip file
     }
@@ -240,15 +284,32 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
   }
 
   @VisibleForTesting
-  MigrationZipFile newZipFileFor(Path exportFile) {
-    Validate.notNull(exportFile, "invalid null export file");
+  MigrationZipFile newZipFileFor(Path exportDirectory) {
+    Validate.notNull(exportDirectory, "invalid null export file");
     try {
-      return new MigrationZipFile(exportFile);
+      List<Path> exportFilePaths =
+          Files.find(exportDirectory, 1, this::exportFileWithBrandingName)
+              .collect(Collectors.toList());
+
+      switch (exportFilePaths.size()) {
+        case 1:
+          return new MigrationZipFile(exportFilePaths.get(0));
+        case 0:
+          throw new MigrationException(Messages.IMPORT_FILE_MISSING_ERROR, exportDirectory, "");
+        default:
+          throw new MigrationException(Messages.IMPORT_FILE_MULTIPLE_ERROR, exportDirectory);
+      }
     } catch (FileNotFoundException e) {
-      throw new MigrationException(Messages.IMPORT_FILE_MISSING_ERROR, exportFile, e);
+      throw new MigrationException(Messages.IMPORT_FILE_MISSING_ERROR, exportDirectory, e);
     } catch (SecurityException | IOException e) {
-      throw new MigrationException(Messages.IMPORT_FILE_OPEN_ERROR, exportFile, e);
+      throw new MigrationException(Messages.IMPORT_FILE_OPEN_ERROR, exportDirectory, e);
     }
+  }
+
+  private boolean exportFileWithBrandingName(Path path, BasicFileAttributes basicFileAttributes) {
+    return path.toFile()
+        .getName()
+        .matches(productBranding + "-.*" + ConfigurationMigrationManager.EXPORT_EXTENSION);
   }
 
   private MigrationReportImpl doExport(
@@ -316,42 +377,39 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       Optional<Consumer<MigrationMessage>> consumer) {
     Validate.notNull(exportDirectory, ConfigurationMigrationManager.INVALID_NULL_EXPORT_DIR);
     final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT, consumer);
-    final Path exportFile =
-        exportDirectory.resolve(
-            productBranding
-                + '-'
-                + productVersion
-                + ConfigurationMigrationManager.EXPORT_EXTENSION);
-    MigrationZipFile zip = null;
 
+    MigrationZipFile zip = null;
     try {
-      zip = newZipFileFor(exportFile);
+      zip = newZipFileFor(exportDirectory);
       if (!zip.isValidChecksum()) {
-        throw new MigrationException(Messages.IMPORT_ZIP_CHECKSUM_INVALID, exportFile);
+        throw new MigrationException(Messages.IMPORT_ZIP_CHECKSUM_INVALID, zip.getZipPath());
       }
+
       delegateToImportMigrationManager(report, zip, mandatoryMigratables);
     } catch (MigrationException e) {
       report.record(e);
     } catch (SecurityException e) {
-      report.record(new MigrationException(Messages.IMPORT_SECURITY_ERROR, exportFile, e));
+      report.record(new MigrationException(Messages.IMPORT_SECURITY_ERROR, zip.getZipPath(), e));
     } catch (RuntimeException e) {
-      report.record(new MigrationException(Messages.IMPORT_INTERNAL_ERROR, exportFile, e));
+      report.record(new MigrationException(Messages.IMPORT_INTERNAL_ERROR, zip.getZipPath(), e));
     }
     report.end();
     if ((zip == null) || report.hasErrors()) {
-      SecurityLogger.audit("Errors importing configuration settings from file {}", exportFile);
-      report.record(new MigrationException(Messages.IMPORT_FAILURE, exportFile));
+      SecurityLogger.audit(
+          "Errors importing configuration settings from file {}", zip.getZipPath());
+      report.record(new MigrationException(Messages.IMPORT_FAILURE, zip.getZipPath()));
     } else if (report.hasWarnings()) {
-      SecurityLogger.audit("Warnings importing configuration settings from file {}", exportFile);
+      SecurityLogger.audit(
+          "Warnings importing configuration settings from file {}", zip.getZipPath());
       // don't leave the zip file there if the import succeeded
       zip.deleteQuitetly();
-      report.record(new MigrationWarning(Messages.IMPORT_SUCCESS_WITH_WARNINGS, exportFile));
+      report.record(new MigrationWarning(Messages.IMPORT_SUCCESS_WITH_WARNINGS, zip.getZipPath()));
       report.record(new MigrationWarning(Messages.RESTART_SYSTEM_WHEN_WARNINGS));
     } else {
-      SecurityLogger.audit("Exported configuration settings from file {}", exportFile);
+      SecurityLogger.audit("Exported configuration settings from file {}", zip.getZipPath());
       // don't leave the zip file there if the import succeeded
       zip.deleteQuitetly();
-      report.record(new MigrationSuccessfulInformation(Messages.IMPORT_SUCCESS, exportFile));
+      report.record(new MigrationSuccessfulInformation(Messages.IMPORT_SUCCESS, zip.getZipPath()));
       // force a JVM restart
       restart(report);
     }
@@ -363,20 +421,15 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     Validate.notNull(exportDirectory, ConfigurationMigrationManager.INVALID_NULL_EXPORT_DIR);
     final MigrationReportImpl report =
         new MigrationReportImpl(MigrationOperation.DECRYPT, consumer);
-    final Path exportFile =
-        exportDirectory.resolve(
-            productBranding
-                + '-'
-                + productVersion
-                + ConfigurationMigrationManager.EXPORT_EXTENSION);
-    final Path decryptFile =
-        Paths.get(FilenameUtils.removeExtension(exportFile.toString()) + ".zip");
+
+    Path decryptFile = null;
     MigrationZipFile zip = null;
 
     try {
-      zip = newZipFileFor(exportFile);
+      zip = newZipFileFor(exportDirectory);
+      decryptFile = Paths.get(FilenameUtils.removeExtension(zip.getZipPath().toString()) + ".zip");
       if (!zip.isValidChecksum()) {
-        throw new MigrationException(Messages.DECRYPT_ZIP_CHECKSUM_INVALID, exportFile);
+        throw new MigrationException(Messages.DECRYPT_ZIP_CHECKSUM_INVALID, zip.getZipPath());
       }
       delegateToDecryptMigrationManager(report, zip, decryptFile);
     } catch (MigrationException e) {
@@ -384,24 +437,27 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     } catch (IOException e) {
       report.record(new MigrationException(Messages.DECRYPT_FILE_CLOSE_ERROR, decryptFile, e));
     } catch (SecurityException e) {
-      report.record(new MigrationException(Messages.DECRYPT_SECURITY_ERROR, exportFile, e));
+      report.record(new MigrationException(Messages.DECRYPT_SECURITY_ERROR, zip.getZipPath(), e));
     } catch (RuntimeException e) {
-      report.record(new MigrationException(Messages.DECRYPT_INTERNAL_ERROR, exportFile, e));
+      report.record(new MigrationException(Messages.DECRYPT_INTERNAL_ERROR, zip.getZipPath(), e));
     }
     report.end();
     if ((zip == null) || report.hasErrors()) {
-      SecurityLogger.audit("Errors decrypting configuration settings in file {}", exportFile);
-      report.record(new MigrationException(Messages.DECRYPT_FAILURE, exportFile));
+      SecurityLogger.audit("Errors decrypting configuration settings in file {}", zip.getZipPath());
+      report.record(new MigrationException(Messages.DECRYPT_FAILURE, zip.getZipPath()));
       FileUtils.deleteQuietly(decryptFile.toFile()); // delete the decrypted zip if any
     } else if (report.hasWarnings()) {
-      SecurityLogger.audit("Warnings decrypting configuration settings in file {}", exportFile);
+      SecurityLogger.audit(
+          "Warnings decrypting configuration settings in file {}", zip.getZipPath());
       report.record(
-          new MigrationWarning(Messages.DECRYPT_SUCCESS_WITH_WARNINGS, exportFile, decryptFile));
+          new MigrationWarning(
+              Messages.DECRYPT_SUCCESS_WITH_WARNINGS, zip.getZipPath(), decryptFile));
     } else {
       SecurityLogger.audit(
-          "Decrypted configuration settings from file {} to {}", exportFile, decryptFile);
+          "Decrypted configuration settings from file {} to {}", zip.getZipPath(), decryptFile);
       report.record(
-          new MigrationSuccessfulInformation(Messages.DECRYPT_SUCCESS, exportFile, decryptFile));
+          new MigrationSuccessfulInformation(
+              Messages.DECRYPT_SUCCESS, zip.getZipPath(), decryptFile));
     }
     return report;
   }
