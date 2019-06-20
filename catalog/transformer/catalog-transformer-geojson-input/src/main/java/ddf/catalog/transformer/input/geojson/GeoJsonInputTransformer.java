@@ -29,7 +29,6 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.catalog.util.impl.SortedServiceReferenceList;
 import ddf.geo.formatter.CompositeGeometry;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -49,8 +48,8 @@ import java.util.TimeZone;
 import java.util.function.Function;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
+import org.codice.ddf.platform.util.SortedServiceList;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +82,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
 
   private AttributeRegistry attributeRegistry;
 
-  private SortedServiceReferenceList inputTransformers;
+  private SortedServiceList inputTransformers;
 
   /** Transforms GeoJson (http://www.geojson.org/) into a {@link Metacard} */
   @Override
@@ -206,25 +205,7 @@ public class GeoJsonInputTransformer implements InputTransformer {
               ? Optional.of(new MetacardImpl())
               : inputTransformers
                   .stream()
-                  .map(
-                      serviceReference -> {
-                        try {
-                          InputTransformer inputTransformer =
-                              (InputTransformer)
-                                  FrameworkUtil.getBundle(this.getClass())
-                                      .getBundleContext()
-                                      .getService(serviceReference);
-                          return new MetacardImpl(
-                              inputTransformer.transform(
-                                  new ByteArrayInputStream(
-                                      ((String) properties.get("metadata")).getBytes())));
-                        } catch (Exception e) {
-                          LOGGER.debug(
-                              "Error calling transformer: " + serviceReference.getProperty("id"),
-                              e);
-                        }
-                        return null;
-                      })
+                  .map(service -> tryTransformers(properties, service))
                   .filter(Objects::nonNull)
                   .findFirst();
       return first.orElse(new MetacardImpl());
@@ -244,6 +225,19 @@ public class GeoJsonInputTransformer implements InputTransformer {
       LOGGER.debug("Found registered MetacardType: {}", propertyTypeName);
       return new MetacardImpl(metacardType);
     }
+  }
+
+  private MetacardImpl tryTransformers(Map<String, Object> properties, Object service) {
+    InputTransformer inputTransformer = null;
+    try {
+      inputTransformer = (InputTransformer) service;
+      return new MetacardImpl(
+          inputTransformer.transform(
+              new ByteArrayInputStream(((String) properties.get("metadata")).getBytes())));
+    } catch (Exception e) {
+      LOGGER.debug("Error calling transformer: " + inputTransformer.toString(), e);
+    }
+    return null;
   }
 
   private CompositeGeometry getCompositeGeometry(Map<String, Object> rootObject) {
@@ -338,11 +332,11 @@ public class GeoJsonInputTransformer implements InputTransformer {
     }
   }
 
-  public SortedServiceReferenceList getInputTransformers() {
+  public SortedServiceList getInputTransformers() {
     return inputTransformers;
   }
 
-  public void setInputTransformers(SortedServiceReferenceList inputTransformers) {
+  public void setInputTransformers(SortedServiceList inputTransformers) {
     this.inputTransformers = inputTransformers;
   }
 }

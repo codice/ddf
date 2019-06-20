@@ -15,10 +15,10 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
 
-    <bean id="inputTransformers" class="ddf.catalog.util.impl.SortedServiceReferenceList"/>
-    <reference-list id="inputTransformerList" member-type="service-reference"
+    <bean id="inputTransformers" class="ddf.catalog.util.impl.SortedServiceList"/>
+    <reference-list id="inputTransformerList"
                     interface="ddf.catalog.transform.InputTransformer">
-        <reference-listener bind-method="bindService" unbind-method="unbindService"
+        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin"
                             ref="inputTransformers"/>
     </reference-list>
 
