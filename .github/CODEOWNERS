@@ -93,6 +93,13 @@ platform/security/		                @codice/security @stustison
 
 platform/util/			                @stustison
 
+###############################
+# UI
+###############################
+
+ui/packages/catalog-ui-search/src/main/webapp/react-component/container/sharing/    @rymach
+ui/packages/catalog-ui-search/src/main/webapp/react-component/presentation/sharing/    @rymach
+ui/packages/catalog-ui-search/src/main/webapp/react-component/utils/security/    @rymach
 
 ###############################
 # CODICE WHITELIST ENTRIES -- leave at bottom of file
