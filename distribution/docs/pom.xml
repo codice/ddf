@@ -29,7 +29,8 @@
         <module>docs</module>
         <dependency-target-file>distribution/docs/src/main/resources/content/_reference/_dependencyList/maven-dependency-list.txt</dependency-target-file>
         <dependency-ignored-lines>["", "none", "The following files have been resolved:"]</dependency-ignored-lines>
-        <dependency-ignored-packages>["org.codice.ddf", "ddf"]</dependency-ignored-packages>    </properties>
+        <dependency-ignored-packages>["org.codice.ddf", "ddf"]</dependency-ignored-packages>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.asciidoctor</groupId>
