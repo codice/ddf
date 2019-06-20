@@ -159,30 +159,27 @@ the provided value."
   },
   onBeforeShow() {
     this.$el.toggleClass('is-sortable', this.options.isSortable || true)
-    let filteredAttributeList = metacardDefinitions.sortedMetacardTypes
-      .filter(metacardType => !properties.isHidden(metacardType.id))
+    const filteredAttributeList = metacardDefinitions.sortedMetacardTypes
+      .filter(({ id }) => !properties.isHidden(id))
+      .filter(({ id }) => !metacardDefinitions.isHiddenType(id))
       .filter(
-        metacardType => !metacardDefinitions.isHiddenType(metacardType.id)
+        ({ id }) =>
+          this.options.includedAttributes === undefined
+            ? true
+            : this.options.includedAttributes.includes(id)
       )
-    filteredAttributeList = this.options.includedAttributes
-      ? filteredAttributeList.filter(metacardType =>
-          this.options.includedAttributes.includes(metacardType.id)
-        )
-      : filteredAttributeList
-
-    filteredAttributeList = filteredAttributeList.map(metacardType => ({
-      label: metacardType.alias || metacardType.id,
-
-      description: (properties.attributeDescriptions || {})[metacardType.id],
-
-      value: metacardType.id,
-    }))
+      .map(({ alias, id }) => ({
+        label: alias || id,
+        value: id,
+        description: (properties.attributeDescriptions || {})[id],
+      }))
 
     let defaultSelection = this.model.get('type') || 'anyText'
-    if (defaultSelection === 'anyText' && this.options.includedAttributes) {
-      if (!this.options.includedAttributes.includes('anyText')) {
-        defaultSelection = this.options.includedAttributes[0]
-      }
+    if (
+      this.options.includedAttributes &&
+      !this.options.includedAttributes.includes(defaultSelection)
+    ) {
+      defaultSelection = this.options.includedAttributes[0]
     }
     this.filterAttribute.show(
       DropdownView.createSimpleDropdown({
