@@ -10,17 +10,46 @@
  *
  **/
 
+import React from 'react'
+import { TabMessage } from '../../search-form/search-form-presentation'
 const Tabs = require('../tabs.js')
-const MySearchFormCollectionView = require('../../search-form/search-form-tab-container.view.js')
-const MySearchSharingFormCollectionView = require('../../search-form/forms-sharing/search-form-sharing-tab-container.view.js')
-const MySearchSystemFormCollectionView = require('../../search-form/forms-system/search-form-system-tab-container.view.js')
+const user = require('../../singletons/user-instance')
+const SearchFormCollectionView = require('../../search-form/search-form.collection.view')
+const SearchFormCollection = require('../../search-form/search-form-collection-instance')
+const FormContainer = require('../../search-form/form-tab-container.view')
+
+const tabChildViewOptions = {
+  'My Search Forms': {
+    filter: child => child.get('createdBy') === user.getEmail(),
+    showNewForm: true,
+  },
+  'Shared Search Forms': {
+    type: 'Shared',
+    filter: child =>
+      child.get('createdBy') !== 'system' &&
+      child.get('createdBy') !== user.getEmail() &&
+      user.canRead(child),
+  },
+  'System Search Forms': {
+    type: 'System',
+    filter: child => child.get('createdBy') === 'system',
+    message: (
+      <TabMessage>
+        These are system search forms and <b>cannot be changed</b>
+      </TabMessage>
+    ),
+  },
+}
+
+const tabs = Object.keys(tabChildViewOptions).reduce((tabs, title) => {
+  tabs[title] = FormContainer({
+    collection: SearchFormCollection,
+    childView: SearchFormCollectionView,
+    childViewOptions: tabChildViewOptions[title],
+  })
+  return tabs
+}, {})
 
 module.exports = Tabs.extend({
-  defaults: {
-    tabs: {
-      'My Search Forms': MySearchFormCollectionView,
-      'Shared Search Forms': MySearchSharingFormCollectionView,
-      'System Search Forms': MySearchSystemFormCollectionView,
-    },
-  },
+  defaults: { tabs },
 })

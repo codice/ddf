@@ -11,12 +11,17 @@
  **/
 /* global require */
 const Tabs = require('../tabs.js')
-const ResultFormCollectionView = require('../../result-form/result-form-tab-container.view.js')
+const FormContainer = require('../../search-form/form-tab-container.view')
+const ResultFormCollectionView = require('../../result-form/result-form.collection.view')
+const ResultFormCollection = require('../../result-form/result-form-collection-instance.js')
+
+const tabs = {
+  'Result Forms': FormContainer({
+    collection: ResultFormCollection,
+    childView: ResultFormCollectionView,
+  }),
+}
 
 module.exports = Tabs.extend({
-  defaults: {
-    tabs: {
-      'Result Forms': ResultFormCollectionView,
-    },
-  },
+  defaults: { tabs },
 })

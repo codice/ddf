@@ -13,31 +13,30 @@
  *
  **/
 
-const Marionette = require('marionette')
 import SearchFormView, { Item, NewForm } from './search-form.view'
-const CustomElements = require('../../js/CustomElements')
-const wreqr = require('../../exports/wreqr.js')
 import React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+import { TabMessage } from './search-form-presentation'
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements')
+const wreqr = require('../../exports/wreqr.js')
 
 module.exports = Marionette.ItemView.extend({
   tagName: CustomElements.register('my-search-forms'),
   className: 'is-list is-inline has-list-highlighting',
-  initialize(options) {
+  initialize() {
     this.model = this.options.collection
     this.filter = this.options.filter
     this.listenTo(this.model, 'add remove', this.render)
+    this.handleNewForm = this.handleNewForm.bind(this)
   },
   template() {
+    const forms = this.model.filter(child => this.doFilter(child))
     return (
       <React.Fragment>
-        {this.options.showNewForm ? (
-          <NewForm
-            label="New Search Form"
-            onClick={this.handleNewForm.bind(this)}
-          />
-        ) : null}
-        {this.model.filter(child => this.doFilter(child)).map(child => {
+        {this.getMessage(forms)}
+        {this.getButtons()}
+        {forms.map(child => {
           return (
             <Item key={child.get('id')}>
               <MarionetteRegionContainer
@@ -54,8 +53,24 @@ module.exports = Marionette.ItemView.extend({
       </React.Fragment>
     )
   },
+  getMessage(forms) {
+    if (this.options.showNewForm) {
+      return null
+    }
+
+    if (forms.length === 0) {
+      return <TabMessage>No {this.options.type} Search Forms Found</TabMessage>
+    } else {
+      return <TabMessage>{this.options.message}</TabMessage>
+    }
+  },
+  getButtons() {
+    return this.options.showNewForm ? (
+      <NewForm label="New Search Form" onClick={this.handleNewForm} />
+    ) : null
+  },
   handleNewForm() {
-    this.options.queryModel.set({
+    this.options.model.set({
       type: 'new-form',
       associatedFormModel: this.model,
     })
