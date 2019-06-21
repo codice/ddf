@@ -93,6 +93,14 @@ platform/security/		                @codice/security @stustison
 
 platform/util/			                @stustison
 
+###############################
+# UI
+###############################
+
+ui/ @andrewkfiedler
+ui/packages/catalog-ui-search/src/main/webapp/react-component/container/sharing/    @andrewkfiedler @rymach
+ui/packages/catalog-ui-search/src/main/webapp/react-component/presentation/sharing/    @andrewkfiedler @rymach
+ui/packages/catalog-ui-search/src/main/webapp/react-component/utils/security/    @andrewkfiedler @rymach
 
 ###############################
 # CODICE WHITELIST ENTRIES -- leave at bottom of file

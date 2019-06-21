@@ -12,7 +12,7 @@
 import * as React from 'react'
 import SharingPresentation from '../../presentation/sharing'
 import fetch from '../../utils/fetch/index'
-import { Restrictions, Access, Security, Entry } from '../../utils/security'
+import { Access, Entry, Restrictions, Security } from '../../utils/security'
 
 const user = require('component/singletons/user-instance')
 const common = require('js/Common')
@@ -32,7 +32,7 @@ type Props = {
 
 type State = {
   items: Item[]
-  previousWorkspace: any
+  modified: string
   isWorkspace: boolean
 }
 
@@ -55,12 +55,12 @@ export class Sharing extends React.Component<Props, State> {
     super(props)
     this.state = {
       items: [],
-      previousWorkspace: undefined,
+      modified: '',
       isWorkspace: false,
     }
   }
   componentDidMount = () => {
-    this.fetchWorkspace(this.props.id).then(data => {
+    this.fetchMetacard(this.props.id).then(data => {
       const metacard = data
       const res = Restrictions.from(metacard)
       const security = new Security(res)
@@ -82,7 +82,7 @@ export class Sharing extends React.Component<Props, State> {
       })
       this.setState({
         items: groups.concat(individuals),
-        previousWorkspace: metacard,
+        modified: metacard['metacard.modified'],
         isWorkspace: data['metacard-tags'].includes('workspace'),
       })
       this.add()
@@ -128,14 +128,36 @@ export class Sharing extends React.Component<Props, State> {
     const loadingView = new LoadingView()
     this.attemptSave(attributes, usersToUnsubscribe)
       .then(() => {
-        this.showSaveSuccessful()
+        announcement.announce(
+          {
+            title: 'Success',
+            message: 'Sharing saved',
+            type: 'success',
+          },
+          1500
+        )
         this.props.lightbox.close()
       })
       .catch(err => {
-        if (err.message === 'Need to refresh') {
-          this.showNeedToRefresh()
+        if (err.message === 'concurrent-modification') {
+          announcement.announce(
+            {
+              title: 'The workspace settings could not be updated',
+              message:
+                'The workspace has been modified by another user. Please refresh the page and reattempt your changes.',
+              type: 'error',
+            },
+            1500
+          )
         } else {
-          this.showSaveFailed()
+          announcement.announce(
+            {
+              title: 'Error',
+              message: 'Save failed',
+              type: 'error',
+            },
+            1500
+          )
         }
       })
       .then(() => {
@@ -143,24 +165,21 @@ export class Sharing extends React.Component<Props, State> {
       })
   }
 
-  // NOTE: Fetching the latest workspace and checking the modified dates is a temporary solution
+  // NOTE: Fetching the latest metacard and checking the modified dates is a temporary solution
   // and should be removed when support for optimistic concurrency is added
   // https://github.com/codice/ddf/issues/4467
   attemptSave = async (attributes: any, usersToUnsubscribe: String[]) => {
-    const currWorkspace = await this.fetchWorkspace(this.props.id)
-    if (
-      currWorkspace['metacard.modified'] ===
-      this.state.previousWorkspace['metacard.modified']
-    ) {
+    const currMetacard = await this.fetchMetacard(this.props.id)
+    if (currMetacard['metacard.modified'] === this.state.modified) {
       await this.doSave(attributes)
       await this.unsubscribeUsers(usersToUnsubscribe)
-      const newWorkspace = await this.fetchWorkspace(this.props.id)
+      const newMetacard = await this.fetchMetacard(this.props.id)
       this.setState({
         items: [...this.state.items],
-        previousWorkspace: newWorkspace,
+        modified: newMetacard['metacard.modified'],
       })
     } else {
-      throw new Error('Need to refresh')
+      throw new Error('concurrent-modification')
     }
   }
 
@@ -186,10 +205,10 @@ export class Sharing extends React.Component<Props, State> {
     return await res.json()
   }
 
-  fetchWorkspace = async (id: number) => {
+  fetchMetacard = async (id: number) => {
     const res = await fetch('/search/catalog/internal/metacard/' + id)
-    const workspace = await res.json()
-    return workspace.metacards[0]
+    const metacard = await res.json()
+    return metacard.metacards[0]
   }
 
   unsubscribeUsers = async (usersToUnsubscribe: String[]) => {
@@ -208,40 +227,6 @@ export class Sharing extends React.Component<Props, State> {
       }
     )
     return await res.json()
-  }
-
-  showSaveFailed() {
-    announcement.announce(
-      {
-        title: 'Error',
-        message: 'Save failed',
-        type: 'error',
-      },
-      1500
-    )
-  }
-
-  showNeedToRefresh() {
-    announcement.announce(
-      {
-        title: 'The workspace settings could not be updated',
-        message:
-          'The workspace has been modified by another user. Please refresh the page and reattempt your changes.',
-        type: 'error',
-      },
-      1500
-    )
-  }
-
-  showSaveSuccessful() {
-    announcement.announce(
-      {
-        title: 'Success!',
-        message: 'Sharing saved',
-        type: 'success',
-      },
-      1500
-    )
   }
 
   getUsersToUnsubscribe(users: Item[]) {
@@ -281,7 +266,7 @@ export class Sharing extends React.Component<Props, State> {
   }
 
   handleChangeInput = (i: number, value: string) => {
-    this.state.items[i].value = value
+    this.state.items[i].value = value.toLowerCase()
     this.setState({
       items: this.state.items,
     })
