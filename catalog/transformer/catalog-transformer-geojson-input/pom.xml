@@ -69,7 +69,6 @@
                             gson-support
                         </Embed-Dependency>
                         <Import-Package>
-                            !org.codice.ddf.platform.util,
                             !com.sun.management,
                             *
                         </Import-Package>
