@@ -36,7 +36,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.shiro.SecurityUtils;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -161,13 +160,16 @@ public class AccessControlPreQueryPlugin implements PreQueryPlugin {
 
     final Filter combined = filterBuilder.allOf(query, policyBranch);
     return new QueryRequestImpl(
-        new QueryImpl(combined,
-    query.getStartIndex(),
-    query.getPageSize(),
-    query.getSortBy(),
-    query.requestsTotalResultsCount(),
-    query.getTimeoutMillis()),
-        input.isEnterprise(), input.getSourceIds(), input.getProperties());
+        new QueryImpl(
+            combined,
+            query.getStartIndex(),
+            query.getPageSize(),
+            query.getSortBy(),
+            query.requestsTotalResultsCount(),
+            query.getTimeoutMillis()),
+        input.isEnterprise(),
+        input.getSourceIds(),
+        input.getProperties());
   }
 
   @VisibleForTesting
