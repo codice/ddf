@@ -17,7 +17,6 @@ import { transparentize, readableColor } from 'polished'
 import plugin from 'plugins/multi-select-actions'
 
 type Props = {
-  handleExport: () => void
   isDisabled: boolean
 }
 
@@ -71,20 +70,13 @@ export const MultiSelectAction = (props: MultiSelectActionProps) => (
   </Root>
 )
 
-const Export = (props: Props) => (
-  <MultiSelectAction
-    isDisabled={props.isDisabled}
-    onClick={props.handleExport}
-    disabledTitle="Select one or more results to export."
-    enabledTitle="Export selected result(s)."
-    icon="fa fa-share"
-    text="Export"
-  />
-)
-
-const buttons = plugin([Export])
+const buttons = plugin([])
 
 const render = (props: Props) => {
+  if (buttons.length === 0) {
+    return null
+  }
+
   return (
     <ContextBar>
       {buttons.map((Component: any, i: number) => (
