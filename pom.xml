@@ -294,7 +294,7 @@
         <spatial4j.version>0.7</spatial4j.version>
         <spring.version>5.1.3.RELEASE</spring.version>
         <spring-osgi.version>1.2.1</spring-osgi.version>
-        <tika.thirdparty.bundle.version>1.18.0_3</tika.thirdparty.bundle.version>
+        <tika.thirdparty.bundle.version>1.18.0_5</tika.thirdparty.bundle.version>
         <tika.version>1.18</tika.version>
         <usng4j.version>0.4</usng4j.version>
         <validation.version>1.1.0.Final</validation.version>
