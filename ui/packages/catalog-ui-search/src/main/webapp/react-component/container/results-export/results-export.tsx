@@ -110,20 +110,19 @@ class ResultsExport extends React.Component<Props, State> {
     )
 
     if (format !== undefined) {
-      return format.id
+      return encodeURIComponent(format.id)
     }
 
     return undefined
   }
 
   async onDownloadClick() {
-    const transformerId = this.getSelectedExportFormatId()
+    const uriEncodedTransformerId = this.getSelectedExportFormatId()
 
-    if (transformerId === undefined) {
+    if (uriEncodedTransformerId === undefined) {
       return
     }
 
-    const uriEncodedTransformerId = encodeURIComponent(transformerId)
     let response = null
     const count = this.props.results.length
 
@@ -132,14 +131,13 @@ class ResultsExport extends React.Component<Props, State> {
         this.props.results.map((result: Result) => result.id)
       )
       const srcs = Array.from(this.getResultSources())
-      const uriEncodedTransformerId = encodeURIComponent('zipCompression')
 
-      response = await exportResultSet(uriEncodedTransformerId, {
+      response = await exportResultSet('zipCompression', {
         cql,
         srcs,
         count,
         args: {
-          transformerId,
+          transformerId: uriEncodedTransformerId,
         },
       })
     } else if (this.props.results.length > 1) {
@@ -156,13 +154,9 @@ class ResultsExport extends React.Component<Props, State> {
     } else {
       const result = this.props.results[0]
 
-      const uriEncodedSource = encodeURIComponent(result.source)
-      const uriEncodedMetacardId = encodeURIComponent(result.id)
-      const uriEncodedTransformerId = encodeURIComponent(transformerId)
-
       response = await exportResult(
-        uriEncodedSource,
-        uriEncodedMetacardId,
+        result.source,
+        result.id,
         uriEncodedTransformerId
       )
     }

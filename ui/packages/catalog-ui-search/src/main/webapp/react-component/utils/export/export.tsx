@@ -29,17 +29,21 @@ export const getExportResults = (results: any[]) => {
 }
 
 const getResultId = (result: any) => {
-  return result
+  const id = result
     .get('metacard')
     .get('properties')
     .get('id')
+
+  return encodeURIComponent(id)
 }
 
 const getResultSourceId = (result: any) => {
-  return result
+  const sourceId = result
     .get('metacard')
     .get('properties')
     .get('source-id')
+
+  return encodeURIComponent(sourceId)
 }
 
 export const getExportResult = (result: any) => {
