@@ -289,10 +289,7 @@ function isPointRadiusFilter(filter) {
 }
 
 function geometryFilterContainsString(filter, filterSearchString) {
-  return (
-    filter.value &&
-    filter.value.indexOf(filterSearchString) >= 0
-  )
+  return filter.value && filter.value.indexOf(filterSearchString) >= 0
 }
 
 function buildIntersectCQL(locationGeometry) {
