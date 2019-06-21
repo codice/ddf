@@ -13,9 +13,6 @@ import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import MultiSelectActionsPresentation from '../../presentation/multi-select-actions'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
-import ResultsExport from '../results-export'
-
-const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')
 
 type Props = {
   selectionInterface: any
@@ -40,14 +37,6 @@ class MultiSelectActions extends React.Component<Props, State> {
     })
   }
 
-  handleExport = () => {
-    lightboxInstance.model.updateTitle('Export Results')
-    lightboxInstance.model.open()
-    lightboxInstance.showContent(
-      <ResultsExport store={this.props.selectionInterface} />
-    )
-  }
-
   componentDidMount = () => {
     this.props.listenTo(
       this.props.selectionInterface.getSelectedResults(),
@@ -57,12 +46,7 @@ class MultiSelectActions extends React.Component<Props, State> {
   }
 
   render() {
-    return (
-      <MultiSelectActionsPresentation
-        handleExport={this.handleExport}
-        isDisabled={this.state.isDisabled}
-      />
-    )
+    return <MultiSelectActionsPresentation isDisabled={this.state.isDisabled} />
   }
 }
 

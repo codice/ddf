@@ -17,7 +17,6 @@ import { transparentize, readableColor } from 'polished'
 import plugin from 'plugins/multi-select-actions'
 
 type Props = {
-  handleExport: () => void
   isDisabled: boolean
 }
 
