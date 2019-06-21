@@ -304,6 +304,7 @@
 
     <feature name="catalog-transformer-json" version="${project.version}"
              description="GeoJSON Transformer translates metacards into GeoJSON.">
+        <feature>catalog-core-api</feature>
         <bundle>mvn:ddf.catalog.transformer/geojson-metacard-transformer/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/geojson-queryresponse-transformer/${project.version}
         </bundle>
