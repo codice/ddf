@@ -14,6 +14,14 @@
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+
+    <bean id="inputTransformers" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <reference-list id="inputTransformerList"
+                    interface="ddf.catalog.transform.InputTransformer">
+        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin"
+                            ref="inputTransformers"/>
+    </reference-list>
+
     <bean id="transformer"
           class="ddf.catalog.transformer.input.geojson.GeoJsonInputTransformer">
         <property name="metacardTypes">
@@ -22,6 +30,7 @@
         <property name="attributeRegistry">
             <reference interface="ddf.catalog.data.AttributeRegistry"/>
         </property>
+        <property name="inputTransformers" ref="inputTransformers"/>
     </bean>
 
     <service ref="transformer" interface="ddf.catalog.transform.InputTransformer">
