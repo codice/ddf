@@ -286,10 +286,9 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
   @VisibleForTesting
   MigrationZipFile newZipFileFor(Path exportDirectory) {
     Validate.notNull(exportDirectory, "invalid null export file");
-    try {
-      List<Path> exportFilePaths =
-          Files.find(exportDirectory, 1, this::exportFileWithBrandingName)
-              .collect(Collectors.toList());
+    try (Stream<Path> exportFilePathsStream =
+        Files.find(exportDirectory, 1, this::exportFileWithBrandingName)) {
+      List<Path> exportFilePaths = exportFilePathsStream.collect(Collectors.toList());
 
       switch (exportFilePaths.size()) {
         case 1:
@@ -389,15 +388,22 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     } catch (MigrationException e) {
       report.record(e);
     } catch (SecurityException e) {
-      report.record(new MigrationException(Messages.IMPORT_SECURITY_ERROR, zip.getZipPath(), e));
+      report.record(
+          new MigrationException(
+              Messages.IMPORT_SECURITY_ERROR, zip == null ? exportDirectory : zip.getZipPath(), e));
     } catch (RuntimeException e) {
-      report.record(new MigrationException(Messages.IMPORT_INTERNAL_ERROR, zip.getZipPath(), e));
+      report.record(
+          new MigrationException(
+              Messages.IMPORT_INTERNAL_ERROR, zip == null ? exportDirectory : zip.getZipPath(), e));
     }
     report.end();
     if ((zip == null) || report.hasErrors()) {
       SecurityLogger.audit(
-          "Errors importing configuration settings from file {}", zip.getZipPath());
-      report.record(new MigrationException(Messages.IMPORT_FAILURE, zip.getZipPath()));
+          "Errors importing configuration settings from file {}",
+          zip == null ? exportDirectory : zip.getZipPath());
+      report.record(
+          new MigrationException(
+              Messages.IMPORT_FAILURE, zip == null ? exportDirectory : zip.getZipPath()));
     } else if (report.hasWarnings()) {
       SecurityLogger.audit(
           "Warnings importing configuration settings from file {}", zip.getZipPath());
@@ -437,15 +443,29 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     } catch (IOException e) {
       report.record(new MigrationException(Messages.DECRYPT_FILE_CLOSE_ERROR, decryptFile, e));
     } catch (SecurityException e) {
-      report.record(new MigrationException(Messages.DECRYPT_SECURITY_ERROR, zip.getZipPath(), e));
+      report.record(
+          new MigrationException(
+              Messages.DECRYPT_SECURITY_ERROR,
+              zip == null ? exportDirectory : zip.getZipPath(),
+              e));
     } catch (RuntimeException e) {
-      report.record(new MigrationException(Messages.DECRYPT_INTERNAL_ERROR, zip.getZipPath(), e));
+      report.record(
+          new MigrationException(
+              Messages.DECRYPT_INTERNAL_ERROR,
+              zip == null ? exportDirectory : zip.getZipPath(),
+              e));
     }
     report.end();
     if ((zip == null) || report.hasErrors()) {
-      SecurityLogger.audit("Errors decrypting configuration settings in file {}", zip.getZipPath());
-      report.record(new MigrationException(Messages.DECRYPT_FAILURE, zip.getZipPath()));
-      FileUtils.deleteQuietly(decryptFile.toFile()); // delete the decrypted zip if any
+      SecurityLogger.audit(
+          "Errors decrypting configuration settings in file {}",
+          zip == null ? exportDirectory : zip.getZipPath());
+      report.record(
+          new MigrationException(
+              Messages.DECRYPT_FAILURE, zip == null ? exportDirectory : zip.getZipPath()));
+      if (decryptFile != null) {
+        FileUtils.deleteQuietly(decryptFile.toFile()); // delete the decrypted zip if any
+      }
     } else if (report.hasWarnings()) {
       SecurityLogger.audit(
           "Warnings decrypting configuration settings in file {}", zip.getZipPath());
