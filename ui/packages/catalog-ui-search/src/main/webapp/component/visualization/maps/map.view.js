@@ -467,11 +467,11 @@ module.exports = Marionette.LayoutView.extend({
       let locationModel
       switch (filter.type) {
         case 'DWITHIN':
-          if (CQLUtils.isPolygonFilter(filter)) {
+          if (CQLUtils.isPolygonFilter(filter.value)) {
             this.handleFilterAsPolygon(filter.value, color, filter.distance)
             break
           }
-          if (CQLUtils.isPointRadiusFilter(filter)) {
+          if (CQLUtils.isPointRadiusFilter(filter.value)) {
             pointText = filter.value.value.substring(6)
             pointText = pointText.substring(0, pointText.length - 1)
             const latLon = pointText.split(' ')
