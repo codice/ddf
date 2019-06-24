@@ -26,6 +26,7 @@ const LoadingView = require('../loading/loading.view.js')
 const QueryAnnotationsView = require('../query-annotations/query-annotations.view.js')
 const properties = require('../../js/properties.js')
 import ResultsExport from '../../react-component/container/results-export'
+import { getExportResults } from '../../react-component/utils/export/export'
 
 const NOT_CLONEABLE_ATTRIBUTES = ['id', 'result', 'hasBeenSaved']
 
@@ -261,15 +262,21 @@ module.exports = Marionette.ItemView.extend({
     )
   },
   handleExport() {
+    const selectedResults = store.getSelectedResults()
+    const exportResults = getExportResults(selectedResults.models)
+
     lightboxInstance.model.updateTitle('Export Results')
     lightboxInstance.model.open()
-    lightboxInstance.showContent(<ResultsExport store={store} />)
+    lightboxInstance.showContent(<ResultsExport results={exportResults} />)
   },
   handleZippedExport() {
+    const selectedResults = store.getSelectedResults()
+    const exportResults = getExportResults(selectedResults.models)
+
     lightboxInstance.model.updateTitle('Export Results (Compressed)')
     lightboxInstance.model.open()
     lightboxInstance.showContent(
-      <ResultsExport store={store} transformer={'zipCompression'} />
+      <ResultsExport results={exportResults} isZipped={true} />
     )
   },
   handleResult() {

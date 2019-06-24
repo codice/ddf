@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export const getResultSetCql = (ids: number[]) => {
+export const getResultSetCql = (ids: string[]) => {
   const queries = ids.map(id => `(("id" ILIKE '${id}'))`)
   return `(${queries.join(' OR ')})`
 }

@@ -20,26 +20,25 @@ import withListenTo, { WithBackboneProps } from '../backbone-container'
 
 const contentDisposition = require('content-disposition')
 
-type Result = {
-  id: number
-  source: string
-}
-
 type ExportFormat = {
   id: string
   displayName: string
 }
 
+type Result = {
+  id: string
+  source: string
+}
+
 type Props = {
-  store: any
-  transformer?: string
+  results: Result[]
+  isZipped?: boolean
 } & WithBackboneProps
 
 type State = {
   downloadDisabled: boolean
   selectedFormat: string
   exportFormats: ExportFormat[]
-  selectedResults: Result[]
 }
 
 class ResultsExport extends React.Component<Props, State> {
@@ -49,36 +48,13 @@ class ResultsExport extends React.Component<Props, State> {
       selectedFormat: 'Select an export option',
       exportFormats: [],
       downloadDisabled: true,
-      ...this.mapSelectionToState(),
     }
-    this.props.listenTo(
-      this.props.store.getSelectedResults(),
-      'update add remove reset',
-      this.handleSelectionChange
-    )
   }
 
-  handleSelectionChange = () => {
-    this.setState(this.mapSelectionToState())
-  }
-  mapSelectionToState = () => {
-    const selectedResults = this.props.store
-      .getSelectedResults()
-      .toJSON()
-      .map((result: any) => {
-        return {
-          id: result['metacard']['id'],
-          source: result['metacard']['properties']['source-id'],
-        }
-      })
-    return {
-      selectedResults,
-    }
-  }
-  componentDidUpdate(_prevProps: Props, prevState: State) {
+  componentDidUpdate(_prevProps: Props) {
     if (
-      prevState.selectedResults !== this.state.selectedResults ||
-      _prevProps.transformer !== this.props.transformer
+      _prevProps.results !== this.props.results ||
+      _prevProps.isZipped !== this.props.isZipped
     ) {
       this.fetchExportOptions()
       this.setState({
@@ -87,14 +63,17 @@ class ResultsExport extends React.Component<Props, State> {
       })
     }
   }
+
   getTransformerType = () => {
-    return !this.props.transformer && this.state.selectedResults.length > 1
+    return !this.props.isZipped && this.props.results.length > 1
       ? 'query'
       : 'metacard'
   }
+
   componentDidMount() {
     this.fetchExportOptions()
   }
+
   fetchExportOptions = () => {
     fetch(`./internal/transformers/${this.getTransformerType()}`)
       .then(response => response.json())
@@ -119,9 +98,11 @@ class ResultsExport extends React.Component<Props, State> {
         })
       )
   }
+
   getResultSources() {
-    return new Set(this.state.selectedResults.map(result => result.source))
+    return new Set(this.props.results.map((result: Result) => result.source))
   }
+
   getSelectedExportFormatId() {
     const selectedFormat = this.state.selectedFormat
     const format = this.state.exportFormats.find(
@@ -129,42 +110,39 @@ class ResultsExport extends React.Component<Props, State> {
     )
 
     if (format !== undefined) {
-      return format.id
+      return encodeURIComponent(format.id)
     }
 
     return undefined
   }
-  async onDownloadClick() {
-    const transformerId = this.getSelectedExportFormatId()
 
-    if (transformerId === undefined) {
+  async onDownloadClick() {
+    const uriEncodedTransformerId = this.getSelectedExportFormatId()
+
+    if (uriEncodedTransformerId === undefined) {
       return
     }
 
-    const uriEncodedTransformerId = encodeURIComponent(transformerId)
     let response = null
-    const count = this.state.selectedResults.length
+    const count = this.props.results.length
 
-    if (this.props.transformer) {
+    if (this.props.isZipped) {
       const cql = getResultSetCql(
-        this.state.selectedResults.map((result: Result) => result.id)
+        this.props.results.map((result: Result) => result.id)
       )
       const srcs = Array.from(this.getResultSources())
-      const uriEncodedTransformerIdProp = encodeURIComponent(
-        this.props.transformer
-      )
 
-      response = await exportResultSet(uriEncodedTransformerIdProp, {
+      response = await exportResultSet('zipCompression', {
         cql,
         srcs,
         count,
         args: {
-          transformerId,
+          transformerId: uriEncodedTransformerId,
         },
       })
-    } else if (this.state.selectedResults.length > 1) {
+    } else if (this.props.results.length > 1) {
       const cql = getResultSetCql(
-        this.state.selectedResults.map((result: Result) => result.id)
+        this.props.results.map((result: Result) => result.id)
       )
       const srcs = Array.from(this.getResultSources())
 
@@ -174,13 +152,11 @@ class ResultsExport extends React.Component<Props, State> {
         srcs,
       })
     } else {
-      const source = this.state.selectedResults[0].source
-      const uriEncodedSource = encodeURIComponent(source)
-      const metacardId: any = this.state.selectedResults[0].id
-      const uriEncodedMetacardId: any = encodeURIComponent(metacardId)
+      const result = this.props.results[0]
+
       response = await exportResult(
-        uriEncodedSource,
-        uriEncodedMetacardId,
+        result.source,
+        result.id,
         uriEncodedTransformerId
       )
     }
