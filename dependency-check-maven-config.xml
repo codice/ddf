@@ -409,6 +409,7 @@
             groovy-all-2.4.7.jar
         </notes>
         <cve>CVE-2016-6497</cve>
+        <cve>CVE-2016-6814</cve>
     </suppress>
     <suppress>
         <notes>

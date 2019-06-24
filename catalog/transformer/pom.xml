@@ -83,6 +83,11 @@
                         <groupId>org.apache.opennlp</groupId>
                        <artifactId>opennlp-tools</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <!-- excluding bzip2 due to CVE-2019-12900 https://nvd.nist.gov/vuln/detail/CVE-2019-12900 -->
+                        <groupId>org.itadaki</groupId>
+                        <artifactId>bzip2</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
         </dependencies>
