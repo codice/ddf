@@ -19,7 +19,7 @@
     <parent>
         <artifactId>measure</artifactId>
         <groupId>ddf.measure</groupId>
-        <version>2.16.0-SNAPSHOT</version>
+        <version>2.17.0-SNAPSHOT</version>
     </parent>
     <artifactId>measure-api</artifactId>
     <name>DDF :: Measure :: Measure API</name>
