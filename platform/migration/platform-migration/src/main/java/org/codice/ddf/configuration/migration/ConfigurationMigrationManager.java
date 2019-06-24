@@ -378,44 +378,37 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT, consumer);
 
     MigrationZipFile zip = null;
+    Path exportPath = exportDirectory;
     try {
       zip = newZipFileFor(exportDirectory);
+      exportPath = zip.getZipPath();
       if (!zip.isValidChecksum()) {
-        throw new MigrationException(Messages.IMPORT_ZIP_CHECKSUM_INVALID, zip.getZipPath());
+        throw new MigrationException(Messages.IMPORT_ZIP_CHECKSUM_INVALID, exportPath);
       }
 
       delegateToImportMigrationManager(report, zip, mandatoryMigratables);
     } catch (MigrationException e) {
       report.record(e);
     } catch (SecurityException e) {
-      report.record(
-          new MigrationException(
-              Messages.IMPORT_SECURITY_ERROR, zip == null ? exportDirectory : zip.getZipPath(), e));
+      report.record(new MigrationException(Messages.IMPORT_SECURITY_ERROR, exportPath, e));
     } catch (RuntimeException e) {
-      report.record(
-          new MigrationException(
-              Messages.IMPORT_INTERNAL_ERROR, zip == null ? exportDirectory : zip.getZipPath(), e));
+      report.record(new MigrationException(Messages.IMPORT_INTERNAL_ERROR, exportPath, e));
     }
     report.end();
     if ((zip == null) || report.hasErrors()) {
-      SecurityLogger.audit(
-          "Errors importing configuration settings from file {}",
-          zip == null ? exportDirectory : zip.getZipPath());
-      report.record(
-          new MigrationException(
-              Messages.IMPORT_FAILURE, zip == null ? exportDirectory : zip.getZipPath()));
+      SecurityLogger.audit("Errors importing configuration settings from file {}", exportPath);
+      report.record(new MigrationException(Messages.IMPORT_FAILURE, exportPath));
     } else if (report.hasWarnings()) {
-      SecurityLogger.audit(
-          "Warnings importing configuration settings from file {}", zip.getZipPath());
+      SecurityLogger.audit("Warnings importing configuration settings from file {}", exportPath);
       // don't leave the zip file there if the import succeeded
       zip.deleteQuitetly();
-      report.record(new MigrationWarning(Messages.IMPORT_SUCCESS_WITH_WARNINGS, zip.getZipPath()));
+      report.record(new MigrationWarning(Messages.IMPORT_SUCCESS_WITH_WARNINGS, exportPath));
       report.record(new MigrationWarning(Messages.RESTART_SYSTEM_WHEN_WARNINGS));
     } else {
-      SecurityLogger.audit("Exported configuration settings from file {}", zip.getZipPath());
+      SecurityLogger.audit("Exported configuration settings from file {}", exportPath);
       // don't leave the zip file there if the import succeeded
       zip.deleteQuitetly();
-      report.record(new MigrationSuccessfulInformation(Messages.IMPORT_SUCCESS, zip.getZipPath()));
+      report.record(new MigrationSuccessfulInformation(Messages.IMPORT_SUCCESS, exportPath));
       // force a JVM restart
       restart(report);
     }
@@ -430,12 +423,14 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
     Path decryptFile = null;
     MigrationZipFile zip = null;
+    Path exportPath = exportDirectory;
 
     try {
       zip = newZipFileFor(exportDirectory);
       decryptFile = Paths.get(FilenameUtils.removeExtension(zip.getZipPath().toString()) + ".zip");
+      exportPath = zip.getZipPath();
       if (!zip.isValidChecksum()) {
-        throw new MigrationException(Messages.DECRYPT_ZIP_CHECKSUM_INVALID, zip.getZipPath());
+        throw new MigrationException(Messages.DECRYPT_ZIP_CHECKSUM_INVALID, exportPath);
       }
       delegateToDecryptMigrationManager(report, zip, decryptFile);
     } catch (MigrationException e) {
@@ -445,39 +440,28 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     } catch (SecurityException e) {
       report.record(
           new MigrationException(
-              Messages.DECRYPT_SECURITY_ERROR,
-              zip == null ? exportDirectory : zip.getZipPath(),
-              e));
+              Messages.DECRYPT_SECURITY_ERROR, zip == null ? exportDirectory : exportPath, e));
     } catch (RuntimeException e) {
       report.record(
           new MigrationException(
-              Messages.DECRYPT_INTERNAL_ERROR,
-              zip == null ? exportDirectory : zip.getZipPath(),
-              e));
+              Messages.DECRYPT_INTERNAL_ERROR, zip == null ? exportDirectory : exportPath, e));
     }
     report.end();
     if ((zip == null) || report.hasErrors()) {
-      SecurityLogger.audit(
-          "Errors decrypting configuration settings in file {}",
-          zip == null ? exportDirectory : zip.getZipPath());
-      report.record(
-          new MigrationException(
-              Messages.DECRYPT_FAILURE, zip == null ? exportDirectory : zip.getZipPath()));
+      SecurityLogger.audit("Errors decrypting configuration settings in file {}", exportPath);
+      report.record(new MigrationException(Messages.DECRYPT_FAILURE, exportPath));
       if (decryptFile != null) {
         FileUtils.deleteQuietly(decryptFile.toFile()); // delete the decrypted zip if any
       }
     } else if (report.hasWarnings()) {
-      SecurityLogger.audit(
-          "Warnings decrypting configuration settings in file {}", zip.getZipPath());
+      SecurityLogger.audit("Warnings decrypting configuration settings in file {}", exportPath);
       report.record(
-          new MigrationWarning(
-              Messages.DECRYPT_SUCCESS_WITH_WARNINGS, zip.getZipPath(), decryptFile));
+          new MigrationWarning(Messages.DECRYPT_SUCCESS_WITH_WARNINGS, exportPath, decryptFile));
     } else {
       SecurityLogger.audit(
-          "Decrypted configuration settings from file {} to {}", zip.getZipPath(), decryptFile);
+          "Decrypted configuration settings from file {} to {}", exportPath, decryptFile);
       report.record(
-          new MigrationSuccessfulInformation(
-              Messages.DECRYPT_SUCCESS, zip.getZipPath(), decryptFile));
+          new MigrationSuccessfulInformation(Messages.DECRYPT_SUCCESS, exportPath, decryptFile));
     }
     return report;
   }
