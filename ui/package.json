@@ -10,8 +10,8 @@
     "test": "lerna run test",
     "format-fix": "yarn format -w -m",
     "format-fix-all": "yarn format -w",
-    "fmt": "ace format -w",
-    "format": "ace format",
+    "fmt": "ace format -w --license ../LICENSE.md",
+    "format": "ace format --license ../LICENSE.md",
     "posttest": "ace pom",
     "prebuild": "ace clean --workspaces",
     "build": "yarn format && ace set-env lerna run build",
@@ -29,7 +29,7 @@
     "react-dom": "16.4.2"
   },
   "devDependencies": {
-    "@connexta/ace": "git://github.com/connexta/ace.git#eaebb0fcbd5d4d9f97ced0ff9c3611ce1497fab6",
+    "@connexta/ace": "git://github.com/connexta/ace.git#9bc2542ccbcc2b8d9bb03ceaca4fd237ecac1693",
     "bootstrap-sass": "3.3.6",
     "bootswatch": "3.3.7",
     "compass-mixins": "0.12.10",
@@ -45,6 +45,6 @@
   ],
   "resolutions": {
     "admin-ui/@connexta/atlas/backbone.marionette": "1.8.8",
-    "@connexta/ace": "git://github.com/connexta/ace.git#eaebb0fcbd5d4d9f97ced0ff9c3611ce1497fab6"
+    "@connexta/ace": "git://github.com/connexta/ace.git#9bc2542ccbcc2b8d9bb03ceaca4fd237ecac1693"
   }
 }
