@@ -26,7 +26,7 @@ export type SettingsComponent = {
   text: string
   icon: string
   onClick?: () => void
-  children?: any
+  children?: React.ReactNode
 }
 
 export type withExtensions = {
