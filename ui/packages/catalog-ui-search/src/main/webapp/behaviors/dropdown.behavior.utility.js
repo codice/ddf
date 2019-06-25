@@ -127,21 +127,22 @@ module.exports = {
     const necessaryTop = Math.floor(clientRect.top + clientRect.height)
     const bottomRoom = this.getBottomRoom(necessaryTop, $dropdownEl[0])
     const topRoom = clientRect.top
-    if (bottomRoom > topRoom) {
-      $dropdownEl.addClass('is-bottom').removeClass('is-top')
-      $dropdownEl.css('left', necessaryLeft).css('top', necessaryTop)
-      $dropdownEl.css('max-height', bottomRoom - 10)
-    } else {
-      $dropdownEl.addClass('is-top').removeClass('is-bottom')
-      $dropdownEl.css('left', necessaryLeft).css('top', topRoom)
-      $dropdownEl.css('max-height', topRoom - 10)
-    }
     if (!this.hasRightRoom(necessaryLeft, $dropdownEl[0])) {
       $dropdownEl.css('left', window.innerWidth - menuWidth - 20)
     }
     if (!this.hasLeftRoom(necessaryLeft)) {
       $dropdownEl.css('left', 10)
     }
-    return bottomRoom
+    if (bottomRoom > topRoom) {
+      $dropdownEl.addClass('is-bottom').removeClass('is-top')
+      $dropdownEl.css('left', necessaryLeft).css('top', necessaryTop)
+      $dropdownEl.css('max-height', bottomRoom - 10)
+      return bottomRoom
+    } else {
+      $dropdownEl.addClass('is-top').removeClass('is-bottom')
+      $dropdownEl.css('left', necessaryLeft).css('top', topRoom)
+      $dropdownEl.css('max-height', topRoom - 10)
+      return topRoom
+    }
   },
 }
