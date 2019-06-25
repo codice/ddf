@@ -21,7 +21,7 @@
         <AD description="Base URL for Solr Endpoints"
             name="Solr Base URL"
             id="solrBaseUrl"
-            type="String" default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/solr" />
+            type="String" default="${solr.http.protocol}://${org.codice.ddf.system.hostname}:${solr.http.port}/solr"/>
 
         <AD description="This parameter controls how quickly an increase in term frequency results in term-frequency saturation. The default value is 1.2. Lower values result in quicker saturation, and higher values in slower saturation."
             name="k1" id="k1"

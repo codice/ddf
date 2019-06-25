@@ -15,8 +15,11 @@ package ddf.catalog.source.solr.rest;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import ddf.security.encryption.EncryptionService;
 import java.util.HashMap;
 import java.util.Map;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
@@ -29,7 +32,9 @@ public class SolrRestTest {
 
   @Before
   public void setUp() {
-    solrRest = new SolrRest(mock(ClientFactoryFactory.class));
+    EncryptionService encryptionService = mock(EncryptionService.class);
+    when(encryptionService.decrypt(anyString())).thenReturn("test");
+    solrRest = new SolrRest(mock(ClientFactoryFactory.class), encryptionService);
   }
 
   @Test
@@ -64,6 +69,28 @@ public class SolrRestTest {
     testProps.put("k1", testK1);
     testProps.put("b", testB);
     solrRest.refresh(testProps);
+
+    assertThat(solrRest.getSolrBaseUrl(), is(testUrl));
+    assertThat(solrRest.getB(), is(testB));
+    assertThat(solrRest.getK1(), is(testK1));
+  }
+
+  @Test
+  public void testNoProperties() {
+    System.setProperty("solr.username", "test");
+    System.setProperty("solr.password", "test");
+    String testUrl = "https://www.example.com/solr";
+    float testK1 = 1.25f;
+    float testB = 0.5f;
+
+    Map<String, Object> testProps = new HashMap<>();
+    testProps.put("solrBaseUrl", testUrl);
+    testProps.put("k1", testK1);
+    testProps.put("b", testB);
+    solrRest.refresh(testProps);
+
+    Map<String, Object> noProps = new HashMap<>();
+    solrRest.refresh(noProps);
 
     assertThat(solrRest.getSolrBaseUrl(), is(testUrl));
     assertThat(solrRest.getB(), is(testB));

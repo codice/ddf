@@ -26,14 +26,17 @@
 
     <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
 
+    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
+
     <bean class="ddf.catalog.source.solr.rest.SolrRest" id="solrRestClient" init-method="init">
         <cm:managed-properties persistent-id="ddf.catalog.source.solr.rest.SolrRest"
                                update-strategy="component-managed"
                                update-method="refresh"/>
         <argument ref="clientFactoryFactory"/>
+        <argument ref="encryptionService"/>
         <property name="k1" value="1.25"/>
         <property name="b" value="0.75" />
-        <property name="solrBaseUrl" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/solr"/>
+        <property name="solrBaseUrl" value="${solr.http.protocol}://${org.codice.ddf.system.hostname}:${solr.http.port}/solr"/>
     </bean>
 
 </blueprint>
