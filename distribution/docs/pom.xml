@@ -136,23 +136,23 @@
                         </goals>
                         <configuration>
                             <source>
-                                def lines = []
-                                new File('${highest-basedir}').traverse(type: groovy.io.FileType.FILES, nameFilter: ~/maven-deps.txt/) { file ->
+                                Set lines = []
+                                new File('${highest-basedir}').traverse(nameFilter: ~/maven-deps.txt/) { file ->
                                     for (line in file.readLines())
                                         lines.add(line.trim())
                                 }
-                                def output = ""
+                                StringBuilder output = new StringBuilder()
                                 Outer:
-                                for (line in lines.unique().sort()) {
+                                for (line in lines.sort()) {
                                     if (!(line in ${dependency-ignored-lines})) {
                                         for (ignoredPackage in ${dependency-ignored-packages}) {
                                             if (line.startsWith(ignoredPackage))
                                                 continue Outer
                                         }
-                                        output += "* " + line + System.getProperty("line.separator")
+                                        output.append("* ${line}${System.lineSeparator()}")
                                     }
                                 }
-                                new File('${highest-basedir}/${dependency-target-file}').write(output)
+                                new File('${highest-basedir}/${dependency-target-file}').write(output.toString())
                             </source>
                         </configuration>
                     </execution>

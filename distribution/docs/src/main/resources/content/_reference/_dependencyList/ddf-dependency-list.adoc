@@ -3,7 +3,7 @@
 :status: published
 :parent: ${ddf-branding} Dependency List
 :order: 00
-:summary: ${ddf-branding} ${project.version} Dependency List.
+:summary: ${ddf-branding} ${project.version} Direct Dependency List.
 
 .{summary}
 include::maven-dependency-list.txt[]
