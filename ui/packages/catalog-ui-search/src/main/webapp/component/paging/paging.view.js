@@ -48,11 +48,6 @@ module.exports = Marionette.ItemView.extend({
     this.listenTo(this.getQuery(), 'change:totalHits', safeRender)
     this.listenTo(this.model, 'reset', safeRender)
 
-    this.listenTo(
-      this.model,
-      'add remove update',
-      this.updateSelectionInterfaceComplete
-    )
     this.updateSelectionInterface = _debounce(
       this.updateSelectionInterface,
       200,
