@@ -14,6 +14,7 @@
 package ddf.catalog.transform.xml;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -188,5 +189,22 @@ public class XmlInputTransformerTest {
 
     assertEquals(DESCRIPTION, metacard.getAttribute("description").getValue());
     assertEquals(POINT_OF_CONTACT, metacard.getAttribute("point-of-contact").getValue());
+  }
+
+  @Test
+  public void testEmptyLineString()
+      throws IOException, CatalogTransformerException, ParseException {
+    Metacard metacard =
+        xit.transform(new FileInputStream("src/test/resources/metacard-emptygeo1.xml"));
+
+    assertThat(metacard.getAttribute(Metacard.GEOGRAPHY), nullValue());
+  }
+
+  @Test
+  public void testEmptyPolygon() throws IOException, CatalogTransformerException, ParseException {
+    Metacard metacard =
+        xit.transform(new FileInputStream("src/test/resources/metacard-emptygeo2.xml"));
+
+    assertThat(metacard.getAttribute(Metacard.GEOGRAPHY), nullValue());
   }
 }
