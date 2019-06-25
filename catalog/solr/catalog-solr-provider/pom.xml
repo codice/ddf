@@ -88,6 +88,44 @@
                         <Import-Package>
                             <!--excluded javax.xml.xquery package coming from lux -->
                             !javax.xml.xquery,
+                            !org.apache.lucene.*,
+                            !org.apache.solr.*,
+
+                            <!--packages required for solrj -->
+                            org.apache.jute;version=${solr.zookeeper.version},
+                            org.apache.solr.client.solrj;version=${solr.version},
+                            org.apache.solr.client.solrj.beans;version=${solr.version},
+                            org.apache.solr.client.solrj.cloud;version=${solr.version},
+                            org.apache.solr.client.solrj.cloud.autoscaling;version=${solr.version},
+                            org.apache.solr.client.solrj.impl;version=${solr.version},
+                            org.apache.solr.client.solrj.request;version=${solr.version},
+                            org.apache.solr.client.solrj.response;version=${solr.version},
+                            org.apache.solr.common;version=${solr.version},
+                            org.apache.solr.common.params;version=${solr.version},
+                            org.apache.solr.common.util;version=${solr.version},
+                            org.apache.zookeeper;version=${solr.zookeeper.version},
+                            org.apache.zookeeper.client;version=${solr.zookeeper.version},
+                            org.apache.zookeeper.data;version=${solr.zookeeper.version},
+                            org.apache.zookeeper.proto;version=${solr.zookeeper.version},
+                            org.noggit;version=${solr.noggit.version},
+
+                            <!-- used by  lux -->
+                            org.apache.lucene.analysis.charfilter;version=${solr.version},
+                            org.apache.lucene.analysis.core;version=${solr.version},
+                            org.apache.lucene.analysis.miscellaneous;version=${solr.version},
+                            org.apache.lucene.analysis.standard;version=${solr.version},
+                            org.apache.lucene.analysis.tokenattributes;version=${solr.version},
+                            org.apache.lucene.queryparser.classic;version=${solr.version},
+                            org.apache.lucene.queryparser.ext;version=${solr.version},
+                            org.apache.lucene.queryparser.xml;version=${solr.version},
+                            org.apache.lucene.search.spans;version=${solr.version},
+                            org.apache.lucene.store;version=${solr.version},
+                            org.apache.lucene.util;version=${solr.version},
+                            org.apache.solr.parser;version=${solr.version},
+
+                            <!-- dependencies used by catalog-core-solr-->
+                            org.locationtech.spatial4j.*;version=${solr.spatial4j.version},
+                            org.locationtech.jts.*;version=${jts.spatial4j.version},
                             *
                         </Import-Package>
                     </instructions>

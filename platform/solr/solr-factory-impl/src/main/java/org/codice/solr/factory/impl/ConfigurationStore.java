@@ -13,7 +13,6 @@
  */
 package org.codice.solr.factory.impl;
 
-import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,27 +31,6 @@ public class ConfigurationStore {
   private boolean inMemory;
 
   private Double nearestNeighborDistanceLimit;
-
-  /**
-   * Constructs a new configuration store.
-   *
-   * <p>Although this class was originally defined to be a singleton, its usage is now problematic
-   * as it is expected that settings stored here are for every possible usage of the configuration
-   * store. However, we have places in the product where we are hard-coded to use an in-memory
-   * embedded solr server and other places where we fallback to the one configured Solr server.
-   *
-   * <p>To circumvent the bug that this one place creates when it starts re-configuring the store to
-   * use an in-memory Solr server, we were forced to make this constructor public. The {@link
-   * SolrClientFactory}Solr factory class was properly modified to rely on the passed in
-   * configuration store to extract its properties instead of relying on the singleton; thus
-   * allowing a mixture of settings in the system.
-   */
-  @SuppressWarnings(
-      "PMD.UnnecessaryConstructor" /* Added to emphasize the fact tha we have a public default ctor
-                                   that should be used only in specific case as the majority of the system still relies on the
-                                   singleton for now */)
-  public ConfigurationStore() { // everything is already initialized
-  }
 
   /** @return a unique instance of {@link ConfigurationStore} */
   public static synchronized ConfigurationStore getInstance() {
