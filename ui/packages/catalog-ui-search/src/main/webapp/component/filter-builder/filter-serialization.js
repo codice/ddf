@@ -64,11 +64,9 @@ const cqlToComparator = Object.keys(comparatorToCQL).reduce((mapping, key) => {
 }, {})
 
 const transformFilter = filter => {
-  if (CQLUtils.isGeoFilter(filter.type)) {
-    filter.value = _.clone(filter)
-  }
+  const { type, property } = filter
 
-  const { type, value, property } = filter
+  const value = CQLUtils.isGeoFilter(filter.type) ? filter : filter.value
 
   if (_.isObject(property)) {
     // if the filter is something like NEAR (which maps to a CQL filter function such as 'proximity'),

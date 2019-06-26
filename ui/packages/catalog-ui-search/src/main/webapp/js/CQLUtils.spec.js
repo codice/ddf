@@ -385,9 +385,30 @@ describe('CQL Utils', () => {
 
     it('filter with a POINT is a point radius', () => {
       const isPointRadiusFilter = CQLUtils.isPointRadiusFilter({
-        value: { value: 'POINT(1 1)' },
+        value: 'POINT(1 1)',
       })
       expect(isPointRadiusFilter).to.be.true
+    })
+
+    it('filter with a POINT is not a polygon', () => {
+      const isPolygonFilter = CQLUtils.isPolygonFilter({
+        value: 'POINT(1 1)',
+      })
+      expect(isPolygonFilter).to.be.false
+    })
+
+    it('filter with a POLYGON is a polygon', () => {
+      const isPolygonFilter = CQLUtils.isPolygonFilter({
+        value: 'POLYGON((3 50, 4 49, 4 50, 3 50))',
+      })
+      expect(isPolygonFilter).to.be.true
+    })
+
+    it('filter with a POLYGON is not a point radius', () => {
+      const isPointRadiusFilter = CQLUtils.isPointRadiusFilter({
+        value: 'POLYGON((3 50, 4 49, 4 50, 3 50))',
+      })
+      expect(isPointRadiusFilter).to.be.false
     })
   })
 

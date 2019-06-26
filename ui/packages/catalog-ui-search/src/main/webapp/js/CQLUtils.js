@@ -284,17 +284,15 @@ function transformCQLToFilter(cqlString) {
 }
 
 const isPolygonFilter = filter => {
-  return (
-    filter.value &&
-    filter.value.value &&
-    filter.value.value.indexOf('POLYGON') >= 0
-  )
+  return geometryFilterContainsString(filter, 'POLYGON')
 }
 
 function isPointRadiusFilter(filter) {
-  const filterValue =
-    typeof filter.value === 'object' ? filter.value.value : filter.value
-  return filterValue && filterValue.indexOf('POINT') >= 0
+  return geometryFilterContainsString(filter, 'POINT')
+}
+
+function geometryFilterContainsString(filter, filterSearchString) {
+  return filter.value && filter.value.indexOf(filterSearchString) >= 0
 }
 
 function buildIntersectCQL(locationGeometry) {
