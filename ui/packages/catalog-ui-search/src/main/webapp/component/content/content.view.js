@@ -58,7 +58,7 @@ const Visualizations = styled.div`
   ${props => {
     return ChangeBackground(props.theme.backgroundContent)
   }};
-  flex-grow: 1;
+  flex: 1;
 `
 
 const Root = styled.div`
