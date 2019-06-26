@@ -29,7 +29,7 @@
     "react-dom": "16.4.2"
   },
   "devDependencies": {
-    "@connexta/ace": "git://github.com/connexta/ace.git#9bc2542ccbcc2b8d9bb03ceaca4fd237ecac1693",
+    "@connexta/ace": "git://github.com/connexta/ace.git#bf7a646d6ec5960d7dd97773ae882f93157db256",
     "bootstrap-sass": "3.3.6",
     "bootswatch": "3.3.7",
     "compass-mixins": "0.12.10",
@@ -45,6 +45,6 @@
   ],
   "resolutions": {
     "admin-ui/@connexta/atlas/backbone.marionette": "1.8.8",
-    "@connexta/ace": "git://github.com/connexta/ace.git#9bc2542ccbcc2b8d9bb03ceaca4fd237ecac1693"
+    "@connexta/ace": "git://github.com/connexta/ace.git#bf7a646d6ec5960d7dd97773ae882f93157db256"
   }
 }
