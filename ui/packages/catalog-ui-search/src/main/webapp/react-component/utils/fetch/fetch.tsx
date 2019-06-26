@@ -41,6 +41,7 @@ if (process.env.NODE_ENV !== 'production') {
 export default function(url: string, { headers, ...opts }: Options = {}) {
   return fetch(url, {
     credentials: 'same-origin',
+    cache: 'no-cache',
     ...opts,
     headers: {
       'X-Requested-With': 'XMLHttpRequest',
