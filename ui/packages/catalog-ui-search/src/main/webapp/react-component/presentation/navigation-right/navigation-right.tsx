@@ -14,6 +14,7 @@
  **/
 import * as React from 'react'
 import styled from '../../styles/styled-components'
+import { transparentize } from 'polished'
 import { keyframes } from '../../styles/styled-components'
 import { CustomElement } from '../../styles/mixins'
 import { Button, buttonTypeEnum } from '../button'
@@ -63,6 +64,7 @@ const Root = styled<Props, 'div'>('div')`
     width: auto;
     overflow: hidden;
     text-overflow: ellipsis;
+    border-left: solid 1px ${transparentize(0.8, '#ffffff')};
   }
 
   .alerts-badge {
@@ -88,22 +90,17 @@ const Root = styled<Props, 'div'>('div')`
 
   .user-unique span:first-of-type {
     display: inline-block;
-    overflow: hidden;
     text-overflow: ellipsis;
     vertical-align: top;
-    max-width: calc(9rem - ${navigationRightUserIcon});
-    padding-right: ${navigationRightUserIcon};
+    width: ${navigationRightUserIcon};
+    padding: 0 ${navigationRightUserIcon};
   }
 
   .user-unique span:nth-of-type(2) {
-    position: absolute;
-    right: 0px;
-    top: 50%;
     display: inline-block;
-    width: ${navigationRightUserIcon};
-    line-height: inherit !important;
-    vertical-align: top;
-    transform: translateY(-50%);
+    overflow: hidden;
+    max-width: calc(9rem - ${navigationRightUserIcon});
+    padding: 0 ${navigationRightUserIcon} 0 0;
   }
 
   .user-unique {
@@ -197,8 +194,8 @@ const User = () => (
     fadeUntilHover={true}
   >
     <div className="user-unique" title={`Logged in as ${user.getUserName()}`}>
-      <span className="">{user.getUserName()}</span>
       <span className="fa fa-user" />
+      <span className="">{user.getUserName()}</span>
     </div>
     <div className="user-guest" title="Logged in as guest.">
       <span className="">Sign In</span>
