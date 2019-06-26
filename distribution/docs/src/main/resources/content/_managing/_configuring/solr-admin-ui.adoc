@@ -7,31 +7,18 @@
 
 == {title}
 
-The Solr Admin UI for Solr server configurations is generally inaccessible through a web browser.
-A web browser can be configured to access the Solr Admin UI if required.
-
-
-=== Configuring a Browser to Access Solr Admin UI
-
-The Solr server configuration is secure by default. Solr server requires a TLS connection
-with client authentication. Solr only allows access to clients that present
-a trusted certificate.
-
-=== Using ${branding} Keystores
-
-Solr server uses the same keystores as ${branding}. A simple way to enable access to the
-Solr Admin UI is to install ${branding}'s own private key/certificate entry into a browser. The
-method to export ${branding}'s private key/certificate entry depend on
-the type of keystore being used. The method to import the private key/certificate entry
-into the browser depends on the operating system, and the browser itself. For more information
-consult the browser's documentation.
-
-If the browser is not correctly configured with a
-certificate that Solr trusts, the browser displays an error message about client authentication
-failing, or a message that the client certificate is invalid.
+The Solr Admin UI for Solr server configurations can be accessed from a web browser with
+a username and password.
 
 === Solr Admin UI's URL
 
 The Solr server's URL is configured in ${branding}'s `custom.system.properties` file. See
 <<{managing-prefix}solr_server_url,solr.http.url>> for more information.
 An _example_ of a typical URL for the Solr Admin UI is `https://hostname:8994`.
+
+=== Solr Admin UI's Username and Password
+The Solr admin username is configured in the `custom.system.properties` file. See
+<<{managing-prefix}solr_username,solr.username>>. The password is also stored in the
+`custom.system.properties` file, but the password is encrypted and not recoverable. See
+<<{managing-prefix}solr_server_password_management, Solr Server Password Management>>.
+
