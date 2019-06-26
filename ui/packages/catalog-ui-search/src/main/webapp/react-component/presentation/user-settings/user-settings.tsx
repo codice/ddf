@@ -28,6 +28,8 @@ export type SettingsComponent = {
   component: JSX.Element
   text: string
   icon: string
+  onClick?: () => void
+  children?: React.ReactNode
 }
 
 export type withExtensions = {
@@ -172,11 +174,17 @@ class UserSettings extends React.Component<Props, State> {
               buttonType={buttonTypeEnum.neutral}
               text={extension.text}
               icon={extension.icon}
-              onClick={() => {
-                this.updateComponent(extension.component)
-              }}
+              onClick={
+                typeof extension.onClick === 'function'
+                  ? extension.onClick
+                  : () => {
+                      this.updateComponent(extension.component)
+                    }
+              }
               disabled={Boolean(component)}
-            />
+            >
+              {extension.children}
+            </NavigationButton>
           ))}
         </div>
         <div className="user-settings-content">
