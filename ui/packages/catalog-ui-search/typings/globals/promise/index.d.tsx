@@ -12,4 +12,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-declare var Promise: any
+declare var Promise: PromiseConstructor

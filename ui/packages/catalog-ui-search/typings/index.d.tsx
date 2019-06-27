@@ -12,6 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/// <reference path="globals/webworkers/index.d.ts" />
+/// <reference path="globals/webworkers/index.d.tsx" />
 
-/// <reference path="globals/promise/index.d.ts" />
+/// <reference path="globals/promise/index.d.tsx" />
