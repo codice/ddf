@@ -267,7 +267,7 @@ to the end of the URL.
 Delete Request URL
 [source,http]
 ----
-https://<FQDN>:<PORT>/<metacardId>
+https://<FQDN>:<PORT>/services/catalog/<metacardId>
 ----
 
 .Delete Error Response Examples
