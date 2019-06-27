@@ -25,7 +25,6 @@
     <packaging>jar</packaging>
     <properties>
         <org.slf4j.version>1.7.24</org.slf4j.version>
-        <log4j.version>2.11.0</log4j.version>
     </properties>
     <dependencies>
         <dependency>
@@ -51,22 +50,22 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
-            <version>${log4j.version}</version>
+            <version>${apache-log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
+            <version>${apache-log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
+            <version>${apache-log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>${log4j.version}</version>
+            <version>${apache-log4j.version}</version>
         </dependency>
     </dependencies>
     <build>
