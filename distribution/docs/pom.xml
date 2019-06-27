@@ -141,14 +141,17 @@
                                     for (line in file.readLines())
                                         lines.add(line.trim())
                                 }
-                                StringBuilder output = new StringBuilder()
-                                Outer:
-                                for (line in lines.sort()) {
-                                    if (!(line in ${dependency-ignored-lines})) {
-                                        for (ignoredPackage in ${dependency-ignored-packages}) {
-                                            if (line.startsWith(ignoredPackage))
-                                                continue Outer
+                                def isIgnored(line){
+                                    for (ignoredPackage in ${dependency-ignored-packages}){
+                                        if (line.startsWith(ignoredPackage)){
+                                            return true
                                         }
+                                    }
+                                    return line in ${dependency-ignored-lines}
+                                }
+                                StringBuilder output = new StringBuilder()
+                                for (line in lines.sort()) {
+                                    if (!isIgnored(line)) {
                                         output.append("* ${line}${System.lineSeparator()}")
                                     }
                                 }

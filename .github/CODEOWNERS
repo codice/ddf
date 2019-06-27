@@ -34,7 +34,7 @@ distribution/ddf-common/    @stustison
 
 distribution/docs/          @ricklarsen
 
-distribution/docs/src/main/resources/content/_reference/_dependencyList/maven-dependency-list.txt          @bdeining
+distribution/docs/src/main/resources/content/_reference/_dependencyList/maven-dependency-list.txt          @rymach @bdeining
 
 distribution/test/          @codice/test
 
