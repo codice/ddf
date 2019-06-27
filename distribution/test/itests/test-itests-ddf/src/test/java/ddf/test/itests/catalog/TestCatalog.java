@@ -281,10 +281,24 @@ public class TestCatalog extends AbstractIntegrationTest {
   @Test
   public void testMetacardTransformersFromRest() {
     String id = ingestGeoJson(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"));
+    String title = "myTitle";
+    String geoCoordinates = "30.0 10.0";
+
+    String idXPath = "/metacard[@id='" + id + "']";
+    String titleXPath = "/metacard/string[@name='title'][value='" + title + "']";
+    String geoXPath = "/metacard/geometry";
+    String geoCoordsXPath = geoXPath + "//Point[pos='" + geoCoordinates + "']";
 
     String url = REST_PATH.getUrl() + id;
     LOGGER.info("Getting response to {}", url);
-    when().get(url).then().log().all().assertThat().body(hasXPath("/metacard[@id='" + id + "']"));
+
+    // tests that metacard properties are properly set
+    when().get(url).then().log().all().assertThat().body(hasXPath(idXPath));
+    when().get(url).then().log().all().assertThat().body(hasXPath(titleXPath));
+
+    // tests that the geometry coordinates are properly set
+    when().get(url).then().log().all().assertThat().body(hasXPath(geoXPath));
+    when().get(url).then().log().all().assertThat().body(hasXPath(geoCoordsXPath));
 
     delete(id);
   }

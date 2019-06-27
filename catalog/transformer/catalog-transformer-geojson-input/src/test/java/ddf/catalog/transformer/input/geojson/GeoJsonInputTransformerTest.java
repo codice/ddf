@@ -17,6 +17,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -24,11 +26,14 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.InputTransformer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+import java.util.stream.Stream;
+import org.codice.ddf.platform.util.SortedServiceList;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -339,6 +344,29 @@ public class GeoJsonInputTransformerTest {
     verifyBasics(metacard);
 
     assertEquals(SAMPLE_ID, metacard.getId());
+  }
+
+  @Test
+  public void testToString() {
+    assertEquals(
+        "InputTransformer {Impl=ddf.catalog.transformer.input.geojson.GeoJsonInputTransformer, id=geojson, mime-type=application/json}",
+        transformer.toString());
+  }
+
+  @Test
+  public void testGuessTransformer() throws IOException, CatalogTransformerException {
+    SortedServiceList mockSortedServiceList = mock(SortedServiceList.class);
+    InputTransformer mockInputTransformer = mock(InputTransformer.class);
+    when(mockInputTransformer.transform(mock(InputStream.class)))
+        .thenThrow(new CatalogTransformerException());
+    when(mockSortedServiceList.stream()).thenReturn(Stream.of(mockInputTransformer));
+
+    transformer.setInputTransformers(mockSortedServiceList);
+    Metacard metacard =
+        transformer.transform(new ByteArrayInputStream(samplePointJsonText().getBytes()));
+
+    assertEquals("ddf.metacard", metacard.getMetacardType().getName());
+    assertEquals("myTitle", metacard.getTitle());
   }
 
   protected void verifyBasics(Metacard metacard) {

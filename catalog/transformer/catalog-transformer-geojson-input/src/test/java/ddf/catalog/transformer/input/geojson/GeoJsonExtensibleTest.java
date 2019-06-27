@@ -39,10 +39,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+import org.codice.ddf.platform.util.SortedServiceList;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -479,6 +481,47 @@ public class GeoJsonExtensibleTest {
     Metacard metacard = transformer.transform(geoJsonInput);
 
     verifyBasics(metacard);
+  }
+
+  @Test
+  public void testTransformNoId() throws IOException, CatalogTransformerException {
+    Metacard metacard =
+        transformer.transform(new ByteArrayInputStream(sampleBasicMetacard().getBytes()));
+
+    assertEquals("ddf.metacard", metacard.getMetacardType().getName());
+    assertEquals("myId", metacard.getId());
+  }
+
+  @Test
+  public void testNonEmptyPropertyType() throws IOException, CatalogTransformerException {
+    Metacard metacard =
+        transformer.transform(new ByteArrayInputStream(sampleBasicMetacard().getBytes()), "myId");
+
+    assertEquals("ddf.metacard", metacard.getMetacardType().getName());
+  }
+
+  @Test
+  public void testEmptyPropertyTypeWithNonNullTransformers()
+      throws IOException, CatalogTransformerException {
+    transformer.setInputTransformers(new SortedServiceList());
+    Metacard metacard =
+        transformer.transform(
+            new ByteArrayInputStream(sampleBasicMetacardNoMetacardType().getBytes()), "myId");
+
+    assertEquals("ddf.metacard", metacard.getMetacardType().getName());
+    assertEquals("myTitle", metacard.getTitle());
+  }
+
+  @Test(expected = CatalogTransformerException.class)
+  public void testInvalidMetacardType() throws IOException, CatalogTransformerException {
+    MetacardType invalidMetacardType = new MetacardTypeImpl("invalid", new HashSet<>());
+    transformer.setMetacardTypes(Collections.singletonList(invalidMetacardType));
+    transformer.transform(new ByteArrayInputStream(sampleBasicMetacard().getBytes()), "myId");
+  }
+
+  @Test(expected = CatalogTransformerException.class)
+  public void testTransformNullInput() throws IOException, CatalogTransformerException {
+    transformer.transform(null);
   }
 
   private List<MetacardType> prepareMetacardTypes() {
