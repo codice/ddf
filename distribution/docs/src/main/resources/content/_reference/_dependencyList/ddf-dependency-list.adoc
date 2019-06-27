@@ -7,3 +7,5 @@
 
 .{summary}
 include::maven-dependency-list.txt[]
+
+include::yarn-dependency-list.txt[]

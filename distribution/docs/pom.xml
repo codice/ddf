@@ -28,6 +28,7 @@
         <packaging>pom</packaging>
         <module>docs</module>
         <dependency-target-file>distribution/docs/src/main/resources/content/_reference/_dependencyList/maven-dependency-list.txt</dependency-target-file>
+        <dependency-ui-target-file>distribution/docs/src/main/resources/content/_reference/_dependencyList/yarn-dependency-list.txt</dependency-ui-target-file>
         <dependency-ignored-lines>["", "none", "The following files have been resolved:"]</dependency-ignored-lines>
         <dependency-ignored-packages>["org.codice.ddf", "ddf"]</dependency-ignored-packages>
     </properties>
@@ -153,6 +154,30 @@
                                     }
                                 }
                                 new File('${highest-basedir}/${dependency-target-file}').write(output.toString())
+                            </source>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-yarn-deps</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                                // amazingly, `yarn list` has a bug where it won't list direct dependencies correctly.
+                                // we'll do the work in this groovy script instead
+                                import groovy.json.JsonSlurper
+                                Set lines = []
+                                new File('${highest-basedir}').traverse(nameFilter: ~/package\.json/, excludeFilter: ~/.*(node_modules|target).*/) { file ->
+                                    def json = new JsonSlurper().parseText(file.text)
+                                    json.dependencies.each{ k, v -> lines.add("${k}:${v}")}
+                                }
+                                StringBuilder output = new StringBuilder()
+                                for (line in lines.sort()) {
+                                    output.append("* ${line}${System.lineSeparator()}")
+                                }
+                                new File('${highest-basedir}/${dependency-ui-target-file}').write(output.toString())
                             </source>
                         </configuration>
                     </execution>
