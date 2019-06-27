@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<ns3:metacard xmlns:ns1="http://www.opengis.net/gml"
+              xmlns:ns3="urn:catalog:metacard"
+              ns1:id="1234567890987654321">
+    <ns3:type>ddf.metacard</ns3:type>
+    <ns3:source>foobar</ns3:source>
+    <ns3:string name="title">
+        <ns3:value>Title!</ns3:value>
+    </ns3:string>
+    <ns3:dateTime name="modified"/>
+    <ns3:string name="metadata-content-type-version"/>
+    <ns3:string name="description">
+        <ns3:value>Description!</ns3:value>
+    </ns3:string>
+    <ns3:string name="point-of-contact">
+        <ns3:value>POC!</ns3:value>
+    </ns3:string>
+    <ns3:base64Binary name="thumbnail">
+        <ns3:value>AAABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQEAAQAAAQEBAAEAAAEBAQABAAABAQE=</ns3:value>
+    </ns3:base64Binary>
+    <ns3:dateTime name="expiration">
+        <ns3:value>2012-12-27T16:31:01.641-07:00</ns3:value>
+    </ns3:dateTime>
+    <ns3:string name="metadata-target-namespace"/>
+    <ns3:dateTime name="created"/>
+    <ns3:stringxml name="metadata">
+        <ns3:value>
+            <foo xmlns="http://foo.com">
+                <bar/>
+            </foo>
+        </ns3:value>
+    </ns3:stringxml>
+    <ns3:string name="resource-size"/>
+    <ns3:string name="metadata-content-type"/>
+    <ns3:geometry name="location">
+        <ns3:value>
+          <ns1:Polygon/>
+        </ns3:value>
+    </ns3:geometry>
+    <ns3:string name="resource-uri"/>
+    <ns3:dateTime name="effective"/>
+</ns3:metacard>
