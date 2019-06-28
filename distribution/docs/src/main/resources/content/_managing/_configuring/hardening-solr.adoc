@@ -59,7 +59,7 @@ file `${home_directory}/etc/custom.system.properties`
 
 [NOTE]
 ====
-If ${branding} has generated a encrypted password, the password must be reset before
+If ${branding} has generated an encrypted password, the password must be reset before
 proceeding. Follow the procedure in <<_restore_the_default_password_in_solr,
 Restore the Default Password in Solr>> before proceeding.
 ====
