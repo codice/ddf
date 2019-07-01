@@ -13,6 +13,20 @@
  */
 package org.codice.ddf.catalog.ui.metacard.query.data.model;
 
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.DETAIL_LEVEL;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.FACETS;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.PHONETICS;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_CQL;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_ENTERPRISE;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_FEDERATION;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_FILTER_TREE;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_POLLING;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SORTS;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SOURCES;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_TYPE;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.SCHEDULES;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.SPELLCHECK;
+
 import com.google.gson.annotations.SerializedName;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -26,8 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardImpl;
-
-import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.*;
 
 public class QueryBasic {
 
