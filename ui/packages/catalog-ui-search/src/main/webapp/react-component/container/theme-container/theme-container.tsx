@@ -81,9 +81,9 @@ const transitions = {
 }
 
 const fontSizes = {
-  minimumFontSize: '1rem',
-  mediumFontSize: '1.2rem',
-  largeFontSize: '1.4rem',
+  minimumFontSize: '0.75rem',
+  mediumFontSize: '1rem',
+  largeFontSize: '1.25rem',
 }
 
 const spacing = (minSpacing: number) => {
