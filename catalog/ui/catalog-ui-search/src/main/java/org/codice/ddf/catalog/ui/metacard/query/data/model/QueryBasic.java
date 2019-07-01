@@ -13,18 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.metacard.query.data.model;
 
-import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.DETAIL_LEVEL;
-import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.FACETS;
-import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_CQL;
-import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_ENTERPRISE;
-import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_FEDERATION;
-import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_FILTER_TREE;
-import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_POLLING;
-import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SORTS;
-import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SOURCES;
-import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_TYPE;
-import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.SCHEDULES;
-
 import com.google.gson.annotations.SerializedName;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -38,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardImpl;
+
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.*;
 
 public class QueryBasic {
 
@@ -92,6 +82,12 @@ public class QueryBasic {
   @SerializedName("facets")
   private List<String> facets;
 
+  @SerializedName("spellcheck")
+  private Boolean spellcheck;
+
+  @SerializedName("phonetics")
+  private Boolean phonetics;
+
   public QueryBasic(Metacard metacard) {
     this.metacardId = getAttributeValue(metacard, Core.ID, String.class);
     this.title = getAttributeValue(metacard, Core.TITLE, String.class);
@@ -113,6 +109,8 @@ public class QueryBasic {
     this.detailLevel = getAttributeValue(metacard, DETAIL_LEVEL, String.class);
     this.schedules = getAttributeValues(metacard, SCHEDULES, String.class);
     this.facets = getAttributeValues(metacard, FACETS, String.class);
+    this.spellcheck = getAttributeValue(metacard, SPELLCHECK, Boolean.class);
+    this.phonetics = getAttributeValue(metacard, PHONETICS, Boolean.class);
   }
 
   public Metacard getMetacard() {
@@ -135,6 +133,8 @@ public class QueryBasic {
     metacard.setAttribute(new AttributeImpl(DETAIL_LEVEL, this.detailLevel));
     metacard.setAttribute(new AttributeImpl(SCHEDULES, (Serializable) this.schedules));
     metacard.setAttribute(new AttributeImpl(FACETS, (Serializable) this.facets));
+    metacard.setAttribute(new AttributeImpl(SPELLCHECK, this.spellcheck));
+    metacard.setAttribute(new AttributeImpl(PHONETICS, this.phonetics));
 
     return new QueryMetacardImpl(metacard);
   }
