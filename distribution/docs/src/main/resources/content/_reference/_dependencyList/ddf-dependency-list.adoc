@@ -6,6 +6,11 @@
 :summary: ${ddf-branding} ${project.version} Direct Dependency List.
 
 .{summary}
+
+Maven
+-----------------------
 include::maven-dependency-list.txt[]
 
+Yarn
+-----------------------
 include::yarn-dependency-list.txt[]
