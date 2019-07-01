@@ -76,6 +76,8 @@ const CheckIcon = styled<SaveButtonProps, 'span'>('span')`
 
 const ModifiedButton = styled(Button)`
   height: 100%;
+  min-height: 0px;
+  line-height: inherit;
 `
 
 export default hot(module)(function SaveButton({

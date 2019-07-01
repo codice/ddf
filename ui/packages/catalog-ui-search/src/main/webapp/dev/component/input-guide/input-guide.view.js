@@ -187,7 +187,7 @@ module.exports = BaseGuideView.extend({
       new PropertyView({
         model: new Property({
           label: 'Autocomplete',
-          placeholder: 'Enter a region, country, or city',
+          placeholder: 'Pan to a region, country, or city',
           value: [''],
           url: './internal/geofeature/suggestions',
           minimumInputLength: 2,

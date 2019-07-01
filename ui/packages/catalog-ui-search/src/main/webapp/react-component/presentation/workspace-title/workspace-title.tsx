@@ -90,9 +90,12 @@ const Root = styled<{}, 'div'>('div')`
     padding-right: 15px;
   }
 
+  input:hover{
+    text-decoration: underline;
+  }
+  
   input:focus {
     cursor: text;
-    text-decoration: none;
     padding-right: 25px;
     transition-delay: 0s;
   }
