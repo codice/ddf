@@ -57,6 +57,13 @@ file `${home_directory}/etc/custom.system.properties`
 
 ==== Change the Password to a Specific String
 
+[NOTE]
+====
+If ${branding} has generated an encrypted password, the password must be reset before
+proceeding. Follow the procedure in <<_restore_the_default_password_in_solr,
+Restore the Default Password in Solr>> before proceeding.
+====
+
 . To change the Solr password to a specific string, send Solr an HTTP POST request.
 This is covered in the official http://lucene.apache.org/solr/resources.html[Solr documentation]
  {external-link}. Here is an example that uses the
