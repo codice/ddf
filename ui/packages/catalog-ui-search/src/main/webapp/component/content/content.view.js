@@ -51,12 +51,14 @@ const ContentRight = styled.div`
   height: 100%;
   vertical-align: top;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 `
 const Visualizations = styled.div`
   ${props => {
     return ChangeBackground(props.theme.backgroundContent)
   }};
-  height: calc(100% - ${props => props.theme.minimumButtonSize});
+  flex: 1;
 `
 
 const Root = styled.div`
