@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import net.jodah.failsafe.Failsafe;
@@ -117,11 +118,23 @@ public class SolrCloudClientFactory implements SolrClientFactory {
   public void createCollection(String collection, CloudSolrClient client)
       throws SolrFactoryException {
     try {
+      CollectionAdminResponse aliasResponse =
+          new CollectionAdminRequest.ListAliases().process(client);
+      if (aliasResponse != null) {
+        Map<String, String> aliases = aliasResponse.getAliases();
+        if (aliases != null && aliases.containsKey(collection)) {
+          LOGGER.debug(
+              "Solr({}): Collection exists as an Alias, will not create collection", collection);
+          return;
+        }
+      }
+
       CollectionAdminResponse response = new CollectionAdminRequest.List().process(client);
 
       if (response.getResponse() == null) {
         throw new SolrFactoryException("Failed to get a list of existing collections");
       }
+
       List<String> collections = (List<String>) response.getResponse().get("collections");
 
       if (collections == null) {
