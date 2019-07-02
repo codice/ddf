@@ -31,42 +31,8 @@ require('./properties.js').init()
 require('../js/ApplicationSetup')
 import ExtensionPoints, { ExtensionPointsType } from '../extension-points'
 
-export type EntryParameters = {
-  routes?: ExtensionPointsType['routes']
-  navigator?: ExtensionPointsType['navigator']
-  filterActions?: ExtensionPointsType['filterActions']
-  providers?: ExtensionPointsType['providers']
-  visualizations?: ExtensionPointsType['visualizations']
-  queryForms?: ExtensionPointsType['queryForms']
-}
-
-const entry = (extensionPoints: EntryParameters = {}) => {
-  const {
-    routes,
-    navigator,
-    filterActions,
-    providers,
-    visualizations,
-    queryForms,
-  } = extensionPoints
-  if (routes) {
-    ExtensionPoints.routes = routes
-  }
-  if (navigator) {
-    ExtensionPoints.navigator = navigator
-  }
-  if (filterActions) {
-    ExtensionPoints.filterActions = filterActions
-  }
-  if (providers) {
-    ExtensionPoints.providers = providers
-  }
-  if (visualizations) {
-    ExtensionPoints.visualizations = visualizations
-  }
-  if (queryForms) {
-    ExtensionPoints.queryForms = queryForms
-  }
+const entry = (extensionPoints: Partial<ExtensionPointsType> = {}) => {
+  Object.assign(ExtensionPoints, extensionPoints)
   require('../js/ApplicationStart')
 }
 
