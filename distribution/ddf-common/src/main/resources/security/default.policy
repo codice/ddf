@@ -217,12 +217,14 @@ grant codeBase "file:/org.apache.karaf.jaas.command" {
 grant codeBase "file:/pax-logging-log4j2" {
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}-", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}log4j2.xml", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}log4j2.config.xml", "read";
     permission java.io.FilePermission "pax-logging.properties", "read";
     permission java.net.SocketPermission "*", "listen,resolve";
 }
 
 grant codebase "file:/org.apache.karaf.log.core" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}log4j2.xml", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}log4j2.config.xml", "read, write";
 }
 
 grant codeBase "file:/woodstox-core/broker-topic-logger/catalog-core-downloadaction/platform-http-proxy/platform-scheduler/catalog-validator-metacardduplication/org.apache.cxf.cxf-rt-bindings-soap" {
