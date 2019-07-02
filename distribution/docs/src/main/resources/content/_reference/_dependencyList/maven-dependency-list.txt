@@ -185,7 +185,7 @@
 * org.apache.karaf:org.apache.karaf.util:jar:4.2.2
 * org.apache.logging.log4j:log4j-1.2-api:jar:2.11.0
 * org.apache.logging.log4j:log4j-api:jar:2.11.0
-* org.apache.logging.log4j:log4j-api:jar:2.4.1
+* org.apache.logging.log4j:log4j-api:jar:2.8.2
 * org.apache.logging.log4j:log4j-core:jar:2.11.0
 * org.apache.logging.log4j:log4j-slf4j-impl:jar:2.11.0
 * org.apache.lucene:lucene-analyzers-common:jar:7.4.0
@@ -247,8 +247,8 @@
 * org.codice.countrycode:converter:jar:0.1.5
 * org.codice.geowebcache:geowebcache-server-standalone:war:0.7.0
 * org.codice.geowebcache:geowebcache-server-standalone:xml:geowebcache:0.7.0
-* org.codice.httpproxy:proxy-camel-route:jar:2.16.0-SNAPSHOT
-* org.codice.httpproxy:proxy-camel-servlet:jar:2.16.0-SNAPSHOT
+* org.codice.httpproxy:proxy-camel-route:jar:2.17.0-SNAPSHOT
+* org.codice.httpproxy:proxy-camel-servlet:jar:2.17.0-SNAPSHOT
 * org.codice.opendj.embedded:opendj-embedded-app:xml:features:1.3.3
 * org.codice.pro-grade:pro-grade:jar:1.1.3
 * org.codice.thirdparty:commons-httpclient:jar:3.1.0_1
@@ -259,7 +259,6 @@
 * org.codice.thirdparty:lucene-core:jar:3.0.2_1
 * org.codice.thirdparty:ogc-filter-v_1_1_0-schema:jar:1.1.0_5
 * org.codice.thirdparty:picocontainer:jar:1.3_1
-* org.codice.thirdparty:tika-bundle:jar:1.18.0_3
 * org.codice.thirdparty:tika-bundle:jar:1.18.0_5
 * org.codice.usng4j:usng4j-api:jar:0.4
 * org.codice.usng4j:usng4j-impl:jar:0.4
@@ -299,6 +298,7 @@
 * org.joda:joda-convert:jar:1.2
 * org.jolokia:jolokia-osgi:jar:1.2.3
 * org.jruby:jruby-complete:jar:9.0.4.0
+* org.jscience:jscience:jar:4.3.1
 * org.json:json:jar:20170516
 * org.jsoup:jsoup:jar:1.11.3
 * org.jvnet.jaxb2_commons:jaxb2-basics-runtime:jar:0.10.0
