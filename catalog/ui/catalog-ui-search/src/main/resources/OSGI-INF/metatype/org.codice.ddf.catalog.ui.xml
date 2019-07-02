@@ -322,6 +322,21 @@
             cardinality="100"
             required="false">
         </AD>
+
+        <AD id="hiddenSearchForms"
+            name="Hidden Search Forms"
+            description="List of hidden search forms"
+            type="String"
+            cardinality="100"
+            required="false"/>
+
+        <AD id="conditionalSearchForms"
+            name="Conditional Search Forms"
+            description="List of conditional search forms"
+            type="String"
+            cardinality="100"
+            required="false"/>
+
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui">

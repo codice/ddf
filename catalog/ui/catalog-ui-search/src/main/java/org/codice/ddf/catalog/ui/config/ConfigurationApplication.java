@@ -158,6 +158,10 @@ public class ConfigurationApplication implements SparkApplication {
 
   private String bingKey = "";
 
+  private List<String> hiddenSearchForms = Collections.emptyList();
+
+  private List<String> conditionalSearchForms = Collections.emptyList();
+
   private List<Long> scheduleFrequencyList;
 
   private Map<String, Set<String>> typeNameMapping = new HashMap<>();
@@ -571,6 +575,8 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("useHyphensInUuid", uuidGenerator.useHyphens());
     config.put("i18n", i18n);
     config.put("facetWhitelist", facetWhitelistConfiguration.getFacetAttributeWhitelist());
+    config.put("hiddenSearchForms", hiddenSearchForms);
+    config.put("conditionalSearchForms", conditionalSearchForms);
     return config;
   }
 
@@ -1241,6 +1247,22 @@ public class ConfigurationApplication implements SparkApplication {
   public void setBasicSearchTemporalSelectionDefault(
       List<String> basicSearchTemporalSelectionDefault) {
     this.basicSearchTemporalSelectionDefault = basicSearchTemporalSelectionDefault;
+  }
+
+  public void setHiddenSearchForms(List<String> hiddenSearchForms) {
+    this.hiddenSearchForms = hiddenSearchForms;
+  }
+
+  public void setConditionalSearchForms(List<String> conditionalSearchForms) {
+    this.conditionalSearchForms = conditionalSearchForms;
+  }
+
+  public List<String> getHiddenSearchForms() {
+    return hiddenSearchForms;
+  }
+
+  public List<String> getConditionalSearchForms() {
+    return conditionalSearchForms;
   }
 
   public List<String> getBasicSearchTemporalSelectionDefault() {
