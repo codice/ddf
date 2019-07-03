@@ -238,27 +238,25 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     // Update the config
     Configuration config = getAdminConfig().getConfiguration(pid, null);
-    // @formatter:off
+
     config.update(
         new Hashtable<String, Object>() {
           {
             put(param, value);
           }
         });
-    // @formatter:on
 
     // We have to make sure the config has been updated before we can use it
-    // @formatter:off
+
     expect("Configs to update")
         .within(2, TimeUnit.MINUTES)
         .until(() -> config.getProperties() != null && (config.getProperties().get(param) != null));
-    // @formatter:on
   }
 
   private ResponseHelper getSearchResponse(boolean isPassiveRequest, String url) throws Exception {
 
     // We should be redirected to the IdP when we first try to hit the search page
-    // @formatter:off
+
     Response searchResponse =
         given()
             .header("User-Agent", BROWSER_USER_AGENT)
@@ -268,14 +266,14 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .statusCode(302)
             .when()
             .get(url == null ? SEARCH_URL.getUrl() : url);
-    // @formatter:on
+
     // Because we get back a 302, we know the redirect location is in the header
     ResponseHelper searchHelper = new ResponseHelper(searchResponse);
     searchHelper.parseHeader();
 
     // We get bounced to a login page which has the parameters we need to pass to the IdP
     // embedded on the page in a JSON Object
-    // @formatter:off
+
     Response redirectResponse =
         given()
             .header("User-Agent", BROWSER_USER_AGENT)
@@ -284,7 +282,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .statusCode(200)
             .when()
             .get(searchHelper.redirectUrl);
-    // @formatter:on
 
     // The body has the parameters we passed it plus some extra, so we need to parse again
     ResponseHelper redirectHelper = new ResponseHelper(redirectResponse);
@@ -308,18 +305,16 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
   }
 
   private String getUserName() {
-    // @formatter:off
+
     Response response = get(WHO_AM_I_URL.getUrl()).then().extract().response();
     return response.jsonPath().get("karaf.name");
-    // @formatter:on
   }
 
   private String getUserName(Map<String, String> cookies) {
-    // @formatter:off
+
     Response response =
         given().cookies(cookies).when().get(WHO_AM_I_URL.getUrl()).then().extract().response();
     return response.jsonPath().get("idp.name");
-    // @formatter:on
   }
 
   private String setupHttpRequestUsingBinding(Binding requestBinding, Binding metadataBinding)
@@ -351,7 +346,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
   private ResponseHelper performHttpRequestUsingBinding(
       Binding binding, String relayState, String encodedRequest) throws Exception {
-    // @formatter:off
+
     Response idpResponse =
         given()
             .auth()
@@ -369,7 +364,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .statusCode(200)
             .when()
             .get(IDP_URL.getUrl() + "/sso");
-    // @formatter:on
+
     return new ResponseHelper(idpResponse);
   }
 
@@ -407,7 +402,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     String mockAuthnRequest = setupHttpRequestUsingBinding(Binding.REDIRECT, Binding.REDIRECT);
     String encodedRequest = RestSecurity.deflateAndBase64Encode(mockAuthnRequest);
 
-    // @formatter:off
     given()
         .auth()
         .preemptive()
@@ -420,7 +414,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         .statusCode(400)
         .when()
         .get(IDP_URL.getUrl() + "/sso");
-    // @formatter:on
   }
 
   @Test
@@ -428,7 +421,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     ResponseHelper searchHelper = getSearchResponse(false, null);
 
     // We're using an AJAX call, so anything other than 200 means not authenticated
-    // @formatter:off
+
     given()
         .auth()
         .preemptive()
@@ -439,7 +432,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         .statusCode(not(200))
         .when()
         .get(searchHelper.redirectUrl);
-    // @formatter:on
   }
 
   @Test
@@ -448,7 +440,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     // Note that PKI is passive (as opposed to username/password which is not)
     ResponseHelper searchHelper = getSearchResponse(true, null);
 
-    // @formatter:off
     given()
         .auth()
         .certificate(
@@ -462,14 +453,12 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         .statusCode(200)
         .when()
         .get(searchHelper.redirectUrl);
-    // @formatter:on
   }
 
   @Test
   public void testGuestAuth() throws Exception {
     ResponseHelper searchHelper = getSearchResponse(false, null);
 
-    // @formatter:off
     given()
         .param("AuthMethod", "guest")
         .params(searchHelper.params)
@@ -478,7 +467,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         .statusCode(200)
         .when()
         .get(searchHelper.redirectUrl);
-    // @formatter:on
   }
 
   @Test
@@ -493,7 +481,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     // Pass our credentials to the IDP, it should redirect us to the Assertion Consumer Service.
     // The redirect is currently done via javascript and not an HTTP redirect.
-    // @formatter:off
+
     Response idpResponse =
         given()
             .auth()
@@ -505,7 +493,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .statusCode(200)
             .when()
             .get(searchHelper.redirectUrl);
-    // @formatter:on
 
     ResponseHelper idpHelper = new ResponseHelper(idpResponse);
 
@@ -525,7 +512,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(80))));
 
     // After passing the SAML Assertion to the ACS, we should be redirected back to Search.
-    // @formatter:off
+
     String body =
         String.format(
             "SAMLResponse=%s&RelayState=%s",
@@ -542,7 +529,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .statusCode(anyOf(is(307), is(303)))
             .when()
             .post(searchHelper.params.get("ACSURL"));
-    // @formatter:on
 
     ResponseHelper acsHelper = new ResponseHelper(acsResponse);
     acsHelper.parseHeader();
@@ -568,7 +554,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     Response acsResponse = loginUser("admin", "admin");
 
     // Create logout request
-    // @formatter:off
+
     Response createLogoutRequest =
         given()
             .cookies(acsResponse.getCookies())
@@ -576,20 +562,18 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .statusCode(200)
             .when()
             .get(LOGOUT_REQUEST_URL.getUrl());
-    // @formatter:on
 
     ResponseHelper createLogoutHelper = new ResponseHelper(createLogoutRequest);
     createLogoutHelper.parseBody();
 
     // Logout via url returned in logout request
-    // @formatter:off
+
     given()
         .expect()
         .statusCode(200)
         .body(containsString("You are now signed out."))
         .when()
         .get(createLogoutHelper.get("url"));
-    // @formatter:on
 
     // Verify admin user is no longer logged in
     assertThat(getUserName(), not("admin"));
@@ -604,7 +588,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     // Pass our credentials to the IDP, it should redirect us to the Assertion Consumer Service.
     // The redirect is currently done via javascript and not an HTTP redirect.
-    // @formatter:off
+
     Response idpResponse =
         given()
             .auth()
@@ -616,13 +600,12 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .statusCode(200)
             .when()
             .get(searchHelper.redirectUrl);
-    // @formatter:on
 
     ResponseHelper idpHelper = new ResponseHelper(idpResponse);
     assertThat(idpHelper.parseBody(), is(Binding.POST));
 
     // After passing the SAML Assertion to the ACS, we should be redirected back to Search.
-    // @formatter:off
+
     String body =
         String.format(
             "SAMLResponse=%s&RelayState=%s",
@@ -638,7 +621,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .statusCode(anyOf(is(307), is(303)))
             .when()
             .post(searchHelper.params.get("ACSURL"));
-    // @formatter:on
 
     ResponseHelper acsHelper = new ResponseHelper(acsResponse);
     acsHelper.parseHeader();
@@ -667,7 +649,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     // Pass our credentials to the IDP, it should redirect us to the Assertion Consumer Service.
     // The redirect is currently done via javascript and not an HTTP redirect.
-    // @formatter:off
+
     Response idpResponse =
         given()
             .auth()
@@ -679,7 +661,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .statusCode(200)
             .when()
             .get(searchHelper.redirectUrl);
-    // @formatter:on
 
     ResponseHelper idpHelper = new ResponseHelper(idpResponse);
 
@@ -699,7 +680,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(80))));
 
     // After passing the SAML Assertion to the ACS, we should be redirected back to Search.
-    // @formatter:off
+
     String body =
         String.format(
             "SAMLResponse=%s&RelayState=%s",
@@ -716,7 +697,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             .statusCode(anyOf(is(307), is(303)))
             .when()
             .post(searchHelper.params.get("ACSURL"));
-    // @formatter:on
 
     ResponseHelper acsHelper = new ResponseHelper(acsResponse);
     acsHelper.parseHeader();
@@ -727,7 +707,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     // The federated query using username/password against the IDP auth type on all of /services
     // would fail without ECP
 
-    // @formatter:off
     response
         .then()
         .log()
@@ -741,7 +720,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
                     + RECORD_TITLE_1
                     + "']"),
             hasXPath("/metacards/metacard/geometry/value"));
-    // @formatter:on
   }
 
   @Test

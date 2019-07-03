@@ -1347,7 +1347,6 @@ public class TestCatalog extends AbstractIntegrationTest {
     String partialSampleData =
         new String(Arrays.copyOfRange(sampleDataByteArray, offset, sampleDataByteArray.length));
 
-    // @formatter:off
     given()
         .headers(
             HttpHeaders.CONTENT_TYPE,
@@ -1364,7 +1363,6 @@ public class TestCatalog extends AbstractIntegrationTest {
         .assertThat()
         .header(CswConstants.ACCEPT_RANGES_HEADER, is(equalTo(CswConstants.BYTES)))
         .body(is(partialSampleData));
-    // @formatter:on
 
     delete(metacardId);
   }
@@ -1384,7 +1382,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     String invalidRange = "100";
 
-    // @formatter:off
     given()
         .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_XML)
         .header(CswConstants.RANGE_HEADER, invalidRange)
@@ -1395,7 +1392,6 @@ public class TestCatalog extends AbstractIntegrationTest {
         .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(400));
-    // @formatter:on
 
     delete(metacardId);
   }
