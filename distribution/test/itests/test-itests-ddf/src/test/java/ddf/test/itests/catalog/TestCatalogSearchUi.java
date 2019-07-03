@@ -188,7 +188,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     getSecurityPolicy().configureRestForGuest();
     return given()
         .log()
-        .all()
+        .ifValidationFails()
         .header("Content-Type", "application/json")
         .header("X-Requested-With", "XMLHttpRequest");
   }
@@ -197,7 +197,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     getSecurityPolicy().configureRestForBasic();
     return given()
         .log()
-        .all()
+        .ifValidationFails()
         .header("Content-Type", "application/json")
         .auth()
         .preemptive()
@@ -209,7 +209,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     getSecurityPolicy().configureRestForBasic();
     return given()
         .log()
-        .all()
+        .ifValidationFails()
         .header("Content-Type", "application/json")
         .auth()
         .preemptive()

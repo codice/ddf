@@ -731,7 +731,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     response
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .body(
             hasXPath(
