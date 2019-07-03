@@ -25,8 +25,8 @@
     "mvn:install-file": "mvn org.apache.maven.plugins:maven-install-plugin:install-file -Dfile=target/packages-packages.zip -DpomFile=pom.xml -Dclassifier=packages -Dpackaging=zip"
   },
   "dependencies": {
-    "react": "16.4.2",
-    "react-dom": "16.4.2"
+    "react": "16.8.6",
+    "react-dom": "16.8.6"
   },
   "devDependencies": {
     "@connexta/ace": "git://github.com/connexta/ace.git#bf7a646d6ec5960d7dd97773ae882f93157db256",
