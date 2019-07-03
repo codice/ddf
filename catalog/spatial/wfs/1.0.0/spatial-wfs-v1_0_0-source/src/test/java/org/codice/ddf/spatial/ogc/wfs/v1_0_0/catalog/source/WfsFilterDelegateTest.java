@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.BasicTypes;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -42,7 +41,6 @@ import ogc.schema.opengis.filter.v_1_0_0.BinarySpatialOpType;
 import ogc.schema.opengis.filter.v_1_0_0.DistanceBufferType;
 import ogc.schema.opengis.filter.v_1_0_0.FilterType;
 import ogc.schema.opengis.filter.v_1_0_0.UnaryLogicOpType;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants.SPATIAL_OPERATORS;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -331,11 +329,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
-
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
@@ -349,10 +343,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
@@ -370,10 +361,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
@@ -387,10 +375,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
@@ -408,10 +393,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
@@ -426,11 +408,7 @@ public class WfsFilterDelegateTest {
     List<String> mockProps = new ArrayList<String>();
     mockProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
-
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -449,10 +427,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
@@ -464,7 +439,6 @@ public class WfsFilterDelegateTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testPropertyIsEqualToStringStringBooleanAnyTextNullMetacardType() {
-
     WfsFilterDelegate delegate = new WfsFilterDelegate(null, SUPPORTED_GEO, SRS_NAME);
     delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
   }
@@ -475,14 +449,8 @@ public class WfsFilterDelegateTest {
     mockTextProps.add(MOCK_PROPERTY);
     mockTextProps.add(MOCK_PROPERTY_2);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY_2))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY_2, MOCK_PROPERTY_2, true, true, true, true, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY_2)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
@@ -498,10 +466,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.DATE_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -519,10 +484,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.INTEGER_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, 1);
@@ -542,10 +504,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.SHORT_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     short literal = 1;
@@ -562,10 +521,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     long literal = 1L;
@@ -582,10 +538,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.FLOAT_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -602,10 +555,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.DOUBLE_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -622,10 +572,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.BOOLEAN_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -642,10 +589,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.BOOLEAN_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -662,10 +606,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.BOOLEAN_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -682,10 +623,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.INTEGER_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, 1);
@@ -703,10 +641,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.INTEGER_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     short literal = 1;
@@ -726,10 +661,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     long literal = 1L;
@@ -746,10 +678,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     float literal = 1.0F;
@@ -766,10 +695,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     double literal = 1.0;
@@ -786,10 +712,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -806,10 +729,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.BOOLEAN_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -826,10 +746,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.BOOLEAN_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -846,10 +763,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.INTEGER_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, 1);
@@ -867,10 +781,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.INTEGER_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     short literal = 1;
@@ -890,10 +801,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     long literal = 1L;
@@ -910,10 +818,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     float literal = 1.0F;
@@ -930,10 +835,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     double literal = 1.0;
@@ -951,10 +853,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.BOOLEAN_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -976,10 +875,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.BOOLEAN_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -997,10 +893,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.INTEGER_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, 1);
@@ -1019,10 +912,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.INTEGER_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     short literal = 1;
@@ -1043,10 +933,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     long literal = 1L;
@@ -1064,10 +951,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     float literal = 1.0F;
@@ -1085,10 +969,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     double literal = 1.0;
@@ -1105,10 +986,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.BOOLEAN_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -1125,10 +1003,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.BOOLEAN_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -1145,10 +1020,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.INTEGER_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, 1);
@@ -1166,10 +1038,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.INTEGER_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     short literal = 1;
@@ -1189,10 +1058,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     long literal = 1L;
@@ -1209,10 +1075,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     float literal = 1.0F;
@@ -1229,10 +1092,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     double literal = 1.0;
@@ -1250,10 +1110,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.BOOLEAN_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -1271,10 +1128,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.BOOLEAN_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -1291,10 +1145,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.INTEGER_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, 1);
@@ -1313,10 +1164,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.INTEGER_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     short literal = 1;
@@ -1337,10 +1185,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     long literal = 1L;
@@ -1358,10 +1203,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     float literal = 1.0F;
@@ -1379,10 +1221,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     double literal = 1.0;
@@ -1399,10 +1238,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.BOOLEAN_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -1419,10 +1255,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.BOOLEAN_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -1439,10 +1272,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.INTEGER_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsBetween(MOCK_PROPERTY, 1, 10);
@@ -1460,10 +1290,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.INTEGER_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     short lower = 1;
@@ -1484,10 +1311,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     long lower = 1L;
@@ -1506,10 +1330,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     float lower = 1.0F;
@@ -1527,10 +1348,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     double lower = 1.0;
@@ -1576,10 +1394,7 @@ public class WfsFilterDelegateTest {
     List<String> mockTextProps = new ArrayList<String>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
@@ -1595,14 +1410,8 @@ public class WfsFilterDelegateTest {
     mockTextProps.add(MOCK_PROPERTY);
     mockTextProps.add(MOCK_PROPERTY_2);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY_2))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY_2, MOCK_PROPERTY_2, true, true, true, true, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY_2)).thenReturn(true);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
@@ -1666,10 +1475,7 @@ public class WfsFilterDelegateTest {
     mockTextProps.add(MOCK_PROPERTY);
 
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, false, false, false, false, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(false);
 
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
@@ -1684,20 +1490,8 @@ public class WfsFilterDelegateTest {
     mockTextProps.add(MOCK_PROPERTY_2);
 
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, false, false, false, false, BasicTypes.STRING_TYPE));
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY_2))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY_2,
-                MOCK_PROPERTY_2,
-                false,
-                false,
-                false,
-                false,
-                BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(false);
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY_2)).thenReturn(false);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
 
@@ -1711,10 +1505,7 @@ public class WfsFilterDelegateTest {
     mockProps.add(MOCK_PROPERTY);
 
     when(featureMetacardType.getProperties()).thenReturn(mockProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, false, false, false, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
 
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
@@ -1728,10 +1519,7 @@ public class WfsFilterDelegateTest {
     mockProps.add(MOCK_PROPERTY);
 
     when(featureMetacardType.getProperties()).thenReturn(mockProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, false, false, false, BasicTypes.LONG_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
 
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
@@ -1751,10 +1539,7 @@ public class WfsFilterDelegateTest {
     gmlProps.add(MOCK_GEOM);
 
     when(featureMetacardType.getGmlProperties()).thenReturn(gmlProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, true, false, false, false, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_GEOM)).thenReturn(true);
 
     List<String> supportedGeo = Arrays.asList(spatialOpType);
     return new WfsFilterDelegate(featureMetacardType, supportedGeo, SRS_NAME);
@@ -1763,11 +1548,7 @@ public class WfsFilterDelegateTest {
   @Test(expected = IllegalArgumentException.class)
   public void testBlacklistedGeoProperty() {
     WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.BBOX.toString());
-
-    when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, false, false, false, false, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_GEOM)).thenReturn(false);
     delegate.intersects(MOCK_GEOM, POLYGON);
   }
 
@@ -2014,15 +1795,8 @@ public class WfsFilterDelegateTest {
     gmlProps.add(MOCK_GEOM);
     gmlProps.add(MOCK_GEOM2);
     when(featureMetacardType.getGmlProperties()).thenReturn(gmlProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, true, false, false, false, BasicTypes.STRING_TYPE));
-
-    when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM2))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM2, MOCK_GEOM2, true, false, false, false, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_GEOM)).thenReturn(true);
+    when(featureMetacardType.isQueryable(MOCK_GEOM2)).thenReturn(true);
 
     List<String> supportedGeo = Arrays.asList(SPATIAL_OPERATORS.Intersect.toString());
     WfsFilterDelegate delegate = new WfsFilterDelegate(featureMetacardType, supportedGeo, SRS_NAME);
@@ -2033,32 +1807,15 @@ public class WfsFilterDelegateTest {
     assertNotNull(filter.getLogicOps());
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testSingleGmlPropertyBlacklisted() {
-    WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Contains.toString());
-    when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, false, false, false, false, BasicTypes.STRING_TYPE));
-
-    delegate.contains(MOCK_GEOM, POLYGON);
-  }
-
   @Test
   public void testAllGmlPropertiesBlacklisted() {
     List<String> gmlProps = new ArrayList<String>();
     gmlProps.add(MOCK_GEOM);
     gmlProps.add(MOCK_GEOM2);
     when(featureMetacardType.getGmlProperties()).thenReturn(gmlProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, false, false, false, false, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_GEOM)).thenReturn(false);
+    when(featureMetacardType.isQueryable(MOCK_GEOM2)).thenReturn(false);
 
-    when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, false, false, false, false, BasicTypes.STRING_TYPE));
     List<String> supportedGeo = Arrays.asList(SPATIAL_OPERATORS.Intersect.toString());
     WfsFilterDelegate delegate = new WfsFilterDelegate(featureMetacardType, supportedGeo, SRS_NAME);
 

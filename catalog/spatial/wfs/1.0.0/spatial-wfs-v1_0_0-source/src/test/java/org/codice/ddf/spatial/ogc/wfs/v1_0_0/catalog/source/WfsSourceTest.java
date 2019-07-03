@@ -194,8 +194,6 @@ public class WfsSourceTest {
 
   private static final String LITERAL = "literal";
 
-  private static final String EXT_PREFIX = "ext.";
-
   private static final Comparator<QueryType> QUERY_TYPE_COMPARATOR =
       (queryType1, queryType2) -> {
         String typeName1 = queryType1.getTypeName().getLocalPart();
@@ -207,7 +205,7 @@ public class WfsSourceTest {
 
   private Wfs mockWfs = mock(Wfs.class);
 
-  private WFSCapabilitiesType mockCapabilites = new WFSCapabilitiesType();
+  private WFSCapabilitiesType mockCapabilities = new WFSCapabilitiesType();
 
   private WfsFeatureCollection mockFeatureCollection = mock(WfsFeatureCollection.class);
 
@@ -218,8 +216,6 @@ public class WfsSourceTest {
   private WfsUriResolver wfsUriResolver = new WfsUriResolver();
 
   private WfsSource source;
-
-  private SecureCxfClientFactory mockFactory;
 
   private ClientFactoryFactory mockClientFactory = mock(ClientFactoryFactory.class);
 
@@ -235,7 +231,7 @@ public class WfsSourceTest {
       final Integer numResults)
       throws WfsException, SecurityServiceException {
 
-    mockFactory = mock(SecureCxfClientFactory.class);
+    SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
     when(mockFactory.getClient()).thenReturn(mockWfs);
 
     when(mockClientFactory.getSecureCxfClientFactory(any(), any())).thenReturn(mockFactory);
@@ -275,15 +271,15 @@ public class WfsSourceTest {
         .thenReturn(mockFactory);
 
     // GetCapabilities Response
-    when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilites);
-    mockCapabilites.setFilterCapabilities(new FilterCapabilities());
-    mockCapabilites.getFilterCapabilities().setSpatialCapabilities(new SpatialCapabilitiesType());
-    mockCapabilites
+    when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilities);
+    mockCapabilities.setFilterCapabilities(new FilterCapabilities());
+    mockCapabilities.getFilterCapabilities().setSpatialCapabilities(new SpatialCapabilitiesType());
+    mockCapabilities
         .getFilterCapabilities()
         .getSpatialCapabilities()
         .setSpatialOperators(new SpatialOperatorsType());
     if (null != supportedGeos && !supportedGeos.isEmpty()) {
-      mockCapabilites
+      mockCapabilities
           .getFilterCapabilities()
           .getSpatialCapabilities()
           .getSpatialOperators()
@@ -305,7 +301,7 @@ public class WfsSourceTest {
     when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class))).thenReturn(xmlSchema);
 
     sampleFeatures = new ArrayList<>();
-    mockCapabilites.setFeatureTypeList(new FeatureTypeListType());
+    mockCapabilities.setFeatureTypeList(new FeatureTypeListType());
     if (numFeatures != null) {
       for (int ii = 0; ii < numFeatures; ii++) {
 
@@ -322,7 +318,7 @@ public class WfsSourceTest {
         if (null != srsName) {
           feature.setSRS(srsName);
         }
-        mockCapabilites.getFeatureTypeList().getFeatureType().add(feature);
+        mockCapabilities.getFeatureTypeList().getFeatureType().add(feature);
       }
     }
 
@@ -971,27 +967,22 @@ public class WfsSourceTest {
   public void testQueryTwoFeaturesOneInvalid()
       throws UnsupportedQueryException, WfsException, SecurityServiceException {
     setUp(TWO_TEXT_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
-    Filter orderPersonFilter =
-        builder
-            .attribute(EXT_PREFIX + sampleFeatures.get(0) + "." + ORDER_PERSON)
-            .is()
-            .like()
-            .text(LITERAL);
-    Filter mctFeature1Fitler =
+    Filter orderPersonFilter = builder.attribute(ORDER_PERSON).is().like().text(LITERAL);
+    Filter mctFeature1Filter =
         builder
             .attribute(Metacard.CONTENT_TYPE)
             .is()
             .like()
             .text(sampleFeatures.get(0).getLocalPart());
-    Filter feature1Filter = builder.allOf(Arrays.asList(orderPersonFilter, mctFeature1Fitler));
+    Filter feature1Filter = builder.allOf(Arrays.asList(orderPersonFilter, mctFeature1Filter));
     Filter orderDogFilter = builder.attribute("FAKE").is().like().text(LITERAL);
-    Filter mctFeature2Fitler =
+    Filter mctFeature2Filter =
         builder
             .attribute(Metacard.CONTENT_TYPE)
             .is()
             .like()
             .text(sampleFeatures.get(1).getLocalPart());
-    Filter feature2Filter = builder.allOf(Arrays.asList(orderDogFilter, mctFeature2Fitler));
+    Filter feature2Filter = builder.allOf(Arrays.asList(orderDogFilter, mctFeature2Filter));
     Filter totalFilter = builder.anyOf(Arrays.asList(feature1Filter, feature2Filter));
 
     QueryImpl inQuery = new QueryImpl(totalFilter);
@@ -1017,32 +1008,22 @@ public class WfsSourceTest {
   public void testQueryTwoFeaturesWithMixedPropertyNames()
       throws UnsupportedQueryException, WfsException, SecurityServiceException {
     setUp(TWO_TEXT_PROPERTY_SCHEMA, null, null, TWO_FEATURES, null);
-    Filter orderPersonFilter =
-        builder
-            .attribute(EXT_PREFIX + sampleFeatures.get(0).getLocalPart() + "." + ORDER_PERSON)
-            .is()
-            .like()
-            .text(LITERAL);
-    Filter mctFeature1Fitler =
+    Filter orderPersonFilter = builder.attribute(ORDER_PERSON).is().like().text(LITERAL);
+    Filter mctFeature1Filter =
         builder
             .attribute(Metacard.CONTENT_TYPE)
             .is()
             .like()
             .text(sampleFeatures.get(0).getLocalPart());
-    Filter feature1Filter = builder.allOf(Arrays.asList(orderPersonFilter, mctFeature1Fitler));
-    Filter orderDogFilter =
-        builder
-            .attribute(EXT_PREFIX + sampleFeatures.get(1).getLocalPart() + "." + ORDER_DOG)
-            .is()
-            .like()
-            .text(LITERAL);
-    Filter mctFeature2Fitler =
+    Filter feature1Filter = builder.allOf(Arrays.asList(orderPersonFilter, mctFeature1Filter));
+    Filter orderDogFilter = builder.attribute(ORDER_DOG).is().like().text(LITERAL);
+    Filter mctFeature2Filter =
         builder
             .attribute(Metacard.CONTENT_TYPE)
             .is()
             .like()
             .text(sampleFeatures.get(1).getLocalPart());
-    Filter feature2Filter = builder.allOf(Arrays.asList(orderDogFilter, mctFeature2Fitler));
+    Filter feature2Filter = builder.allOf(Arrays.asList(orderDogFilter, mctFeature2Filter));
     Filter totalFilter = builder.anyOf(Arrays.asList(feature1Filter, feature2Filter));
 
     QueryImpl inQuery = new QueryImpl(totalFilter);

@@ -33,7 +33,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ObjectArrays;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.BasicTypes;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -82,7 +81,6 @@ import net.opengis.ows.v_1_1_0.DomainType;
 import net.opengis.ows.v_1_1_0.ValueType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
@@ -335,7 +333,7 @@ public class WfsFilterDelegateTest {
    * <ns4:endPosition>2014-07-22T16:29:45.430-07:00</ns4:endPosition> </ns4:TimePeriod> </During>
    * </Filter>
    */
-  public void testDuringPropertyIsOfTemporalType() throws Exception {
+  public void testDuringPropertyIsOfTemporalType() {
     SequentialTestMockHolder sequentialTestMockHolder = new SequentialTestMockHolder().invoke();
     WfsFilterDelegate delegate = sequentialTestMockHolder.getDelegate();
     String mockMetacardAttribute = sequentialTestMockHolder.getMockMetacardAttribute();
@@ -392,7 +390,7 @@ public class WfsFilterDelegateTest {
    * <ns4:endPosition>2014-07-22T16:29:45.430-07:00</ns4:endPosition> </ns4:TimePeriod> </During>
    * </Filter>
    */
-  public void testRelativePropertyIsOfTemporalType() throws Exception {
+  public void testRelativePropertyIsOfTemporalType() {
     // Setup
     SequentialTestMockHolder sequentialTestMockHolder = new SequentialTestMockHolder().invoke();
     WfsFilterDelegate delegate = sequentialTestMockHolder.getDelegate();
@@ -544,12 +542,7 @@ public class WfsFilterDelegateTest {
     when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
     List<String> mockTemporalProperties = Collections.emptyList();
     when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockTemporalProperties);
-    FeatureAttributeDescriptor mockFeatureAttributeDescriptor =
-        mock(FeatureAttributeDescriptor.class);
-    when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
-    when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
-    when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty))
-        .thenReturn(mockFeatureAttributeDescriptor);
+    when(mockFeatureMetacardType.isQueryable(mockFeatureProperty)).thenReturn(true);
     MetacardMapper mockMapper = mock(MetacardMapper.class);
     when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
     WfsFilterDelegate delegate =
@@ -584,7 +577,7 @@ public class WfsFilterDelegateTest {
   }
 
   @Test
-  public void testLogicalNotOfComparison() throws Exception {
+  public void testLogicalNotOfComparison() {
 
     String mockProperty = "myPropertyName";
     String mockType = "myType";
@@ -648,7 +641,7 @@ public class WfsFilterDelegateTest {
   }
 
   @Test
-  public void testLogicalNotOfSpatial() throws Exception {
+  public void testLogicalNotOfSpatial() {
 
     String mockProperty = "myPropertyName";
     String mockType = "myType";
@@ -716,13 +709,9 @@ public class WfsFilterDelegateTest {
         is(Double.valueOf(1500).toString()));
   }
 
-  /**
-   * Verifies that a temporal criteria can be AND'ed to other criteria.
-   *
-   * @throws Exception
-   */
+  /** Verifies that a temporal criteria can be AND'ed to other criteria. */
   @Test
-  public void testLogicalAndOfSpatialTemporal() throws Exception {
+  public void testLogicalAndOfSpatialTemporal() {
 
     String mockProperty = "myPropertyName";
     String mockType = "myType";
@@ -841,7 +830,7 @@ public class WfsFilterDelegateTest {
   }
 
   @Test
-  public void testLogicalNotOfLogicals() throws Exception {
+  public void testLogicalNotOfLogicals() {
     String mockProperty = "myPropertyName";
     String mockType = "myType";
     WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
@@ -912,7 +901,7 @@ public class WfsFilterDelegateTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void testLogicalWithNullOrEmpty() throws Exception {
+  public void testLogicalWithNullOrEmpty() {
     String mockProperty = "myPropertyName";
     String mockType = "myType";
     WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
@@ -937,7 +926,7 @@ public class WfsFilterDelegateTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void testLogicalAndNoLogicalSupport() throws Exception {
+  public void testLogicalAndNoLogicalSupport() {
     WfsFilterDelegate delegate = makeDelegateForLogicalSupportTests();
 
     FilterType compFilter1 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
@@ -951,7 +940,7 @@ public class WfsFilterDelegateTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void testLogicalOrNoLogicalSupport() throws Exception {
+  public void testLogicalOrNoLogicalSupport() {
     WfsFilterDelegate delegate = makeDelegateForLogicalSupportTests();
 
     FilterType compFilter1 = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
@@ -965,7 +954,7 @@ public class WfsFilterDelegateTest {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void testLogicalNotNoLogicalSupport() throws Exception {
+  public void testLogicalNotNoLogicalSupport() {
     WfsFilterDelegate delegate = makeDelegateForLogicalSupportTests();
     FilterType filterToBeNoted = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
 
@@ -983,12 +972,7 @@ public class WfsFilterDelegateTest {
     when(mockFeatureMetacardType.getTextualProperties()).thenReturn(mockProperties);
     when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockProperties);
     when(mockFeatureMetacardType.getName()).thenReturn(mockType);
-    FeatureAttributeDescriptor mockFeatureAttributeDescriptor =
-        mock(FeatureAttributeDescriptor.class);
-    when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
-    when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockProperty);
-    when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty))
-        .thenReturn(mockFeatureAttributeDescriptor);
+    when(mockFeatureMetacardType.isQueryable(mockProperty)).thenReturn(true);
 
     FilterCapabilities filterCap = MockWfsServer.getFilterCapabilities();
 
@@ -1011,7 +995,7 @@ public class WfsFilterDelegateTest {
   }
 
   @Test
-  public void testFeatureID() throws Exception {
+  public void testFeatureID() {
     String mockProperty = "myPropertyName";
     String mockType = "myType";
     WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
@@ -1025,7 +1009,7 @@ public class WfsFilterDelegateTest {
   }
 
   @Test
-  public void testFeatureTypeFeatureID() throws Exception {
+  public void testFeatureTypeFeatureID() {
     String mockProperty = "myPropertyName";
     String mockType = "myType";
     WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
@@ -1042,7 +1026,7 @@ public class WfsFilterDelegateTest {
   }
 
   @Test
-  public void testInvalidFeatureTypeFeatureID() throws Exception {
+  public void testInvalidFeatureTypeFeatureID() {
     String mockProperty = "myPropertyName";
     String mockType = "myType";
     WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
@@ -1060,10 +1044,7 @@ public class WfsFilterDelegateTest {
     gmlProps.add(MOCK_GEOM);
 
     when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
-    when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, true, false, false, false, BasicTypes.STRING_TYPE));
+    when(mockFeatureMetacardType.isQueryable(MOCK_GEOM)).thenReturn(true);
 
     SpatialOperatorType operator = new SpatialOperatorType();
     operator.setName(spatialOpType);
@@ -1239,10 +1220,7 @@ public class WfsFilterDelegateTest {
     gmlProps.add(MOCK_GEOM);
 
     when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
-    when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, true, false, false, false, BasicTypes.STRING_TYPE));
+    when(mockFeatureMetacardType.isQueryable(MOCK_GEOM)).thenReturn(true);
 
     SpatialOperatorType operator = new SpatialOperatorType();
     operator.setName(SPATIAL_OPERATORS.Intersects.toString());
@@ -1279,10 +1257,7 @@ public class WfsFilterDelegateTest {
     gmlProps.add(MOCK_GEOM);
 
     when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
-    when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, true, false, false, false, BasicTypes.STRING_TYPE));
+    when(mockFeatureMetacardType.isQueryable(MOCK_GEOM)).thenReturn(true);
 
     SpatialOperatorType operator = new SpatialOperatorType();
     operator.setName(SPATIAL_OPERATORS.Intersects.toString());
@@ -1310,10 +1285,7 @@ public class WfsFilterDelegateTest {
     gmlProps.add(MOCK_GEOM);
 
     when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
-    when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, true, false, false, false, BasicTypes.STRING_TYPE));
+    when(mockFeatureMetacardType.isQueryable(MOCK_GEOM)).thenReturn(true);
 
     SpatialOperatorType operator = new SpatialOperatorType();
     operator.setName(SPATIAL_OPERATORS.Intersects.toString());
@@ -1454,10 +1426,7 @@ public class WfsFilterDelegateTest {
   @Test(expected = IllegalArgumentException.class)
   public void testSingleGmlPropertyBlacklisted() {
     WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.Contains.toString());
-    when(mockFeatureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, false, false, false, false, BasicTypes.STRING_TYPE));
+    when(mockFeatureMetacardType.isQueryable(MOCK_GEOM)).thenReturn(false);
 
     delegate.contains(MOCK_GEOM, POLYGON);
   }
@@ -1479,10 +1448,7 @@ public class WfsFilterDelegateTest {
     when(mockFeatureMetacardType.getGmlProperties()).thenReturn(gmlProps);
 
     for (String gmlProp : gmlProps) {
-      when(mockFeatureMetacardType.getAttributeDescriptor(gmlProp))
-          .thenReturn(
-              new FeatureAttributeDescriptor(
-                  gmlProp, gmlProp, indexed, false, false, false, BasicTypes.STRING_TYPE));
+      when(mockFeatureMetacardType.isQueryable(gmlProp)).thenReturn(indexed);
     }
 
     SpatialOperatorType operator = new SpatialOperatorType();
@@ -1578,12 +1544,7 @@ public class WfsFilterDelegateTest {
     when(mockFeatureMetacardType.getTextualProperties()).thenReturn(mockProperties);
     when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockProperties);
     when(mockFeatureMetacardType.getName()).thenReturn(mockType);
-    FeatureAttributeDescriptor mockFeatureAttributeDescriptor =
-        mock(FeatureAttributeDescriptor.class);
-    when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
-    when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockProperty);
-    when(mockFeatureMetacardType.getAttributeDescriptor(mockProperty))
-        .thenReturn(mockFeatureAttributeDescriptor);
+    when(mockFeatureMetacardType.isQueryable(mockProperty)).thenReturn(true);
 
     return new WfsFilterDelegate(
         mockFeatureMetacardType,
@@ -1615,7 +1576,7 @@ public class WfsFilterDelegateTest {
   }
 
   @Test
-  public void testDuringTemporalFallback() throws Exception {
+  public void testDuringTemporalFallback() {
     setupMockMetacardType();
     FilterType afterFilter = setupAfterFilterType();
     FilterType beforeFilter = setupBeforeFilterType();
@@ -1677,7 +1638,7 @@ public class WfsFilterDelegateTest {
   }
 
   @Test
-  public void testDuringFilterTypeDates() throws Exception {
+  public void testDuringFilterTypeDates() {
     setupMockMetacardType();
     FilterType duringFilter = setupDuringFilterType();
     BinaryTemporalOpType binaryTemporalOpType =
@@ -1696,7 +1657,7 @@ public class WfsFilterDelegateTest {
   }
 
   @Test
-  public void testIsInFilterSequenceType() throws Exception {
+  public void testIsInFilterSequenceType() {
     setupMockMetacardType();
     FilterType beforeFilter = setupBeforeFilterType();
     FilterType afterFilter = setupAfterFilterType();
@@ -1935,22 +1896,14 @@ public class WfsFilterDelegateTest {
   private void setupMockMetacardType() {
     mockMetacardAttribute = "modified";
     mockFeatureType = "myFeatureType";
-    mockFeatureProperty = "localpart.EXACT_COLLECT_DATE";
+    mockFeatureProperty = "EXACT_COLLECT_DATE";
     List<String> mockProperties = new ArrayList<>(1);
     mockProperties.add(mockFeatureProperty);
 
-    QName localName = new QName("EXACT_COLLECT_DATE", "localpart");
-    when(mockFeatureMetacardType.getFeatureType()).thenReturn(localName);
     when(mockFeatureMetacardType.getProperties()).thenReturn(mockProperties);
     when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
     when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockProperties);
-
-    FeatureAttributeDescriptor mockFeatureAttributeDescriptor =
-        mock(FeatureAttributeDescriptor.class);
-    when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
-    when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn("EXACT_COLLECT_DATE");
-    when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty))
-        .thenReturn(mockFeatureAttributeDescriptor);
+    when(mockFeatureMetacardType.isQueryable(mockFeatureProperty)).thenReturn(true);
 
     mockMapper = mock(MetacardMapper.class);
     when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
@@ -2063,12 +2016,7 @@ public class WfsFilterDelegateTest {
       when(mockFeatureMetacardType.getProperties()).thenReturn(mockProperties);
       when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
       when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockProperties);
-      FeatureAttributeDescriptor mockFeatureAttributeDescriptor =
-          mock(FeatureAttributeDescriptor.class);
-      when(mockFeatureAttributeDescriptor.isIndexed()).thenReturn(true);
-      when(mockFeatureAttributeDescriptor.getPropertyName()).thenReturn(mockFeatureProperty);
-      when(mockFeatureMetacardType.getAttributeDescriptor(mockFeatureProperty))
-          .thenReturn(mockFeatureAttributeDescriptor);
+      when(mockFeatureMetacardType.isQueryable(mockFeatureProperty)).thenReturn(true);
       MetacardMapper mockMapper = mock(MetacardMapper.class);
       when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
       delegate =

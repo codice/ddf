@@ -65,7 +65,6 @@ import net.opengis.gml.v_3_1_1.PointType;
 import net.opengis.gml.v_3_1_1.PolygonType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
@@ -466,14 +465,18 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     final String featurePropertyName =
         mapQueryPropertyToFeatureProperty(propertyName, this::isWfsFeatureProperty);
-    if (featurePropertyName != null) {
-      final FilterType filter = new FilterType();
-      filter.setComparisonOps(
-          createPropertyIsBetween(featurePropertyName, lowerBoundary, upperBoundary));
-      return filter;
+    if (featurePropertyName == null) {
+      LOGGER.debug(
+          "{} could not be mapped to a feature property. Its query clause will be dropped.",
+          propertyName);
+      return null;
     }
 
-    return null;
+    LOGGER.debug("{} maps to the feature property {}.", propertyName, featurePropertyName);
+    final FilterType filter = new FilterType();
+    filter.setComparisonOps(
+        createPropertyIsBetween(featurePropertyName, lowerBoundary, upperBoundary));
+    return filter;
   }
 
   private FilterType buildPropertyIsFilterType(
@@ -533,37 +536,55 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       boolean isCaseSensitive) {
     final String featurePropertyName =
         mapQueryPropertyToFeatureProperty(propertyName, this::isWfsFeatureProperty);
-    if (featurePropertyName != null) {
-      final FilterType filter = new FilterType();
-      filter.setComparisonOps(
-          createPropertyIsFilter(featurePropertyName, literal, propertyIsType, isCaseSensitive));
-      return filter;
+    if (featurePropertyName == null) {
+      LOGGER.debug(
+          "{} could not be mapped to a feature property. Its query clause will be dropped.",
+          propertyName);
+      return null;
     }
 
-    return null;
+    LOGGER.debug("{} maps to the feature property {}.", propertyName, featurePropertyName);
+    final FilterType filter = new FilterType();
+    filter.setComparisonOps(
+        createPropertyIsFilter(featurePropertyName, literal, propertyIsType, isCaseSensitive));
+    return filter;
   }
 
+  /**
+   * Attempts to map the incoming query property {@code queryProperty} (typically a metacard
+   * attribute) to a WFS feature property using the {@link MetacardMapper}, {@link #metacardMapper}.
+   *
+   * @param queryProperty the original property name from the query
+   * @param isWfsFeatureProperty tests whether the mapped query property (or {@code queryProperty}
+   *     if no mapping exists for {@code queryProperty}) is a valid WFS feature property. If the
+   *     test fails then this function will return {@code null} to indicate that the query clause
+   *     using this query property should be dropped. This test should be based on the feature
+   *     properties understood by the {@link FeatureMetacardType} ({@link #featureMetacardType})
+   *     such as {@link FeatureMetacardType#getProperties()}, {@link
+   *     FeatureMetacardType#getGmlProperties()}, {@link
+   *     FeatureMetacardType#getTemporalProperties()}, or {@link
+   *     FeatureMetacardType#getTextualProperties()}.
+   * @return The name of the valid and queryable WFS feature property corresponding to {@code
+   *     queryProperty}, or {@code null} if {@code queryProperty} cannot be mapped to a valid WFS
+   *     feature property.
+   * @throws IllegalArgumentException if {@code queryProperty} maps to a valid WFS feature property
+   *     but that feature property is not queryable
+   */
   private String mapQueryPropertyToFeatureProperty(
       final String queryProperty, final Predicate<String> isWfsFeatureProperty) {
     final String featurePropertyName =
         Optional.ofNullable(metacardMapper.getFeatureProperty(queryProperty)).orElse(queryProperty);
 
     if (!isWfsFeatureProperty.test(featurePropertyName)) {
-      throw new IllegalArgumentException(
-          String.format(
-              "'%s' was mapped to '%s', which is not a feature property of '%s'",
-              queryProperty, featurePropertyName, featureMetacardType.getFeatureType()));
+      return null;
     }
 
-    final FeatureAttributeDescriptor featureAttributeDescriptor =
-        (FeatureAttributeDescriptor)
-            featureMetacardType.getAttributeDescriptor(featurePropertyName);
-    if (!featureAttributeDescriptor.isIndexed()) {
+    if (!featureMetacardType.isQueryable(featurePropertyName)) {
       throw new IllegalArgumentException(
           String.format(PROPERTY_NOT_QUERYABLE, featurePropertyName));
     }
 
-    return featureAttributeDescriptor.getPropertyName();
+    return featurePropertyName;
   }
 
   private FilterType buildPropertyIsFilterTypeForAnyText(
@@ -575,7 +596,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     }
 
     if (featureMetacardType.getTextualProperties().size() == 1) {
-      return buildPropertyIsFilterForSingleProperty(literal, propertyIsType, isCaseSensitive);
+      final String featurePropertyName = featureMetacardType.getTextualProperties().get(0);
+      return buildPropertyIsFilterForSingleProperty(
+          featurePropertyName, literal, propertyIsType, isCaseSensitive);
     }
 
     return buildPropertyIsFilterForMultipleProperties(literal, propertyIsType, isCaseSensitive);
@@ -590,13 +613,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         .forEach(
             property -> {
               // only build filters for queryable properties
-              FeatureAttributeDescriptor attrDesc =
-                  (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(property);
-              if (attrDesc.isIndexed()) {
+              if (featureMetacardType.isQueryable(property)) {
                 FilterType filter = new FilterType();
                 filter.setComparisonOps(
-                    createPropertyIsFilter(
-                        attrDesc.getPropertyName(), literal, propertyIsType, isCaseSensitive));
+                    createPropertyIsFilter(property, literal, propertyIsType, isCaseSensitive));
                 binaryCompOpsToBeOred.add(filter);
               } else {
                 if (LOGGER.isDebugEnabled()) {
@@ -614,16 +634,14 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private FilterType buildPropertyIsFilterForSingleProperty(
-      Object literal, PROPERTY_IS_OPS propertyIsType, boolean isCaseSensitive) {
-    FeatureAttributeDescriptor attrDescriptor =
-        (FeatureAttributeDescriptor)
-            featureMetacardType.getAttributeDescriptor(
-                featureMetacardType.getTextualProperties().get(0));
-    if (attrDescriptor.isIndexed()) {
+      String featurePropertyName,
+      Object literal,
+      PROPERTY_IS_OPS propertyIsType,
+      boolean isCaseSensitive) {
+    if (featureMetacardType.isQueryable(featurePropertyName)) {
       FilterType returnFilter = new FilterType();
       returnFilter.setComparisonOps(
-          createPropertyIsFilter(
-              attrDescriptor.getPropertyName(), literal, propertyIsType, isCaseSensitive));
+          createPropertyIsFilter(featurePropertyName, literal, propertyIsType, isCaseSensitive));
       return returnFilter;
     }
     LOGGER.debug("All textual properties have been blacklisted. Removing from query.");
@@ -940,14 +958,17 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       String spatialOpType, String propertyName, String wkt, Double distance) {
     final String featurePropertyName =
         mapQueryPropertyToFeatureProperty(propertyName, this::isWfsGeospatialFeatureProperty);
-
-    if (featurePropertyName != null) {
-      final FilterType filter = new FilterType();
-      filter.setSpatialOps(createSpatialOpType(spatialOpType, featurePropertyName, wkt, distance));
-      return filter;
+    if (featurePropertyName == null) {
+      LOGGER.debug(
+          "{} could not be mapped to a feature property. Its query clause will be dropped.",
+          propertyName);
+      return null;
     }
 
-    return null;
+    LOGGER.debug("{} maps to the feature property {}.", propertyName, featurePropertyName);
+    final FilterType filter = new FilterType();
+    filter.setSpatialOps(createSpatialOpType(spatialOpType, featurePropertyName, wkt, distance));
+    return filter;
   }
 
   private FilterType buildGeospatialFilterForAnyGeo(
@@ -959,7 +980,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     }
 
     if (featureMetacardType.getGmlProperties().size() == 1) {
-      return buildSingleGeospatialFilter(spatialOpType, wkt, distance);
+      final String featurePropertyName = featureMetacardType.getGmlProperties().get(0);
+      return buildSingleGeospatialFilter(featurePropertyName, spatialOpType, wkt, distance);
     }
     return buildMultiGeospatialFilter(spatialOpType, wkt, distance);
   }
@@ -971,12 +993,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         .getGmlProperties()
         .forEach(
             property -> {
-              FeatureAttributeDescriptor attrDesc =
-                  (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(property);
-              if (attrDesc != null && attrDesc.isIndexed()) {
+              if (featureMetacardType.isQueryable(property)) {
                 FilterType filter = new FilterType();
-                filter.setSpatialOps(
-                    createSpatialOpType(spatialOpType, attrDesc.getPropertyName(), wkt, distance));
+                filter.setSpatialOps(createSpatialOpType(spatialOpType, property, wkt, distance));
                 filtersToBeOred.add(filter);
               } else if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(String.format(PROPERTY_NOT_QUERYABLE, property));
@@ -993,15 +1012,11 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private FilterType buildSingleGeospatialFilter(
-      String spatialOpType, String wkt, Double distance) {
+      String featurePropertyName, String spatialOpType, String wkt, Double distance) {
     FilterType returnFilter = new FilterType();
-    FeatureAttributeDescriptor attrDesc =
-        (FeatureAttributeDescriptor)
-            featureMetacardType.getAttributeDescriptor(
-                featureMetacardType.getGmlProperties().get(0));
-    if (attrDesc != null && attrDesc.isIndexed()) {
+    if (featureMetacardType.isQueryable(featurePropertyName)) {
       returnFilter.setSpatialOps(
-          createSpatialOpType(spatialOpType, attrDesc.getPropertyName(), wkt, distance));
+          createSpatialOpType(spatialOpType, featurePropertyName, wkt, distance));
     } else {
       LOGGER.debug("All GEO properties have been blacklisted. Removing from query");
       returnFilter = null;

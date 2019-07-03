@@ -28,9 +28,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.types.Core;
 import io.restassured.path.xml.XmlPath;
 import io.restassured.path.xml.config.XmlPathConfig;
@@ -60,7 +58,6 @@ import net.opengis.gml.v_3_1_1.LineStringType;
 import net.opengis.gml.v_3_1_1.LinearRingType;
 import net.opengis.gml.v_3_1_1.PointType;
 import net.opengis.gml.v_3_1_1.PolygonType;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants.SPATIAL_OPERATORS;
@@ -394,23 +391,13 @@ public class WfsFilterDelegateTest {
 
   private List<String> mockGmlProps = new ArrayList<>();
 
-  private List<String> mockProps;
+  private List<String> mockProps = new ArrayList<>();
 
-  private MetacardMapper metacardMapper;
+  private MetacardMapper metacardMapper = mock(MetacardMapper.class);
 
   @Before
   public void setUp() {
-    mockProps = new ArrayList<>();
     when(featureMetacardType.getGmlProperties()).thenReturn(mockGmlProps);
-
-    metacardMapper = mock(MetacardMapper.class);
-  }
-
-  @Test
-  public void testWFSFilterDelegate() {
-    WfsFilterDelegate delegate = createDelegate();
-
-    assertThat(delegate, notNullValue());
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -474,8 +461,7 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsEqualToStringStringBoolean()
       throws JAXBException, SAXException, IOException {
-
-    whenPropertiesStringType();
+    whenProperties();
 
     WfsFilterDelegate delegate = createDelegate();
 
@@ -487,8 +473,7 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsEqualToStringMatchCase()
       throws JAXBException, SAXException, IOException {
-
-    whenPropertiesStringType();
+    whenProperties();
 
     WfsFilterDelegate delegate = createDelegate();
 
@@ -524,15 +509,8 @@ public class WfsFilterDelegateTest {
     mockProps.add(MOCK_PROPERTY);
     mockProps.add(MOCK_PROPERTY_2);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
-
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY_2))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY_2, MOCK_PROPERTY_2, true, true, true, true, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY_2)).thenReturn(true);
 
     WfsFilterDelegate delegate = createDelegate();
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
@@ -545,7 +523,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsEqualToDate() throws JAXBException, SAXException, IOException {
-    whenPropertiesDateType();
+    whenProperties();
     WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, date);
@@ -555,7 +533,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsEqualToInt() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createIntegerDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, 1);
 
     assertXMLEqual(propertyIsEqualToXml, marshal(filter));
@@ -563,7 +542,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsEqualToShort() throws JAXBException, SAXException, IOException {
-    whenPropertiesShortType();
+    whenProperties();
     WfsFilterDelegate delegate = createDelegate();
     short literal = 1;
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, literal);
@@ -573,7 +552,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsEqualToLong() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     long literal = 1L;
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, literal);
 
@@ -584,10 +564,7 @@ public class WfsFilterDelegateTest {
   public void testPropertyIsEqualToFloat() throws JAXBException, SAXException, IOException {
     mockProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.FLOAT_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, 1.0F);
@@ -599,10 +576,7 @@ public class WfsFilterDelegateTest {
   public void testPropertyIsEqualToDouble() throws JAXBException, SAXException, IOException {
     mockProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.DOUBLE_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, 1.0);
@@ -612,7 +586,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsEqualToBoolean() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createBooleanDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, false);
 
@@ -621,7 +596,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsNotEqualToString() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createBooleanDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, LITERAL, true);
 
@@ -631,7 +607,8 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsNotEqualToStringMatchCase()
       throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createBooleanDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, LITERAL, true);
 
@@ -644,7 +621,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsNotEqualToDate() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createBooleanDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, date);
 
@@ -653,7 +631,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsNotEqualToInt() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createIntegerDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, 1);
 
     assertXMLEqual(propertyNotEqualToXml, marshal(filter));
@@ -661,7 +640,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsNotEqualToShort() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createIntegerDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     short literal = 1;
 
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, literal);
@@ -671,7 +651,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsNotEqualToLong() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     long literal = 1L;
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, literal);
 
@@ -680,7 +661,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsNotEqualToFloat() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     float literal = 1.0F;
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, literal);
 
@@ -689,7 +671,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsNotEqualToDouble() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     double literal = 1.0;
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, literal);
 
@@ -698,7 +681,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsNotEqualToBoolean() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, false);
 
@@ -707,7 +691,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsGreaterThanString() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createBooleanDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, LITERAL);
 
@@ -716,7 +701,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsGreaterThanDate() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createBooleanDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, date);
 
@@ -725,7 +711,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsGreaterThanInt() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createIntegerDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, 1);
 
     assertXMLEqual(propertyGreaterThanXml, marshal(filter));
@@ -733,7 +720,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsGreaterThanShort() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createIntegerDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     short literal = 1;
 
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, literal);
@@ -743,7 +731,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsGreaterThanLong() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     long literal = 1L;
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, literal);
 
@@ -752,7 +741,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsGreaterThanFloat() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     float literal = 1.0F;
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, literal);
 
@@ -761,7 +751,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsGreaterThanDouble() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     double literal = 1.0;
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, literal);
 
@@ -771,7 +762,8 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsGreaterThanOrEqualToString()
       throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createBooleanDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, LITERAL);
 
@@ -781,7 +773,8 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsGreaterThanOrEqualToDate()
       throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createBooleanDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, date);
     assertXMLEqual(propertyGreaterThanOrEqualToXmlDate, marshal(filter));
@@ -790,7 +783,8 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsGreaterThanOrEqualToInt()
       throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createIntegerDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, 1);
 
     assertXMLEqual(propertyGreaterThanOrEqualToXml, marshal(filter));
@@ -799,7 +793,8 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsGreaterThanOrEqualToShort()
       throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createIntegerDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     short literal = 1;
 
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, literal);
@@ -810,7 +805,8 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsGreaterThanOrEqualToLong()
       throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     long literal = 1L;
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, literal);
 
@@ -820,7 +816,8 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsGreaterThanOrEqualToFloat()
       throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     float literal = 1.0F;
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, literal);
 
@@ -830,7 +827,8 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsGreaterThanOrEqualToDouble()
       throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     double literal = 1.0;
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, literal);
 
@@ -839,7 +837,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsLessThanString() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createBooleanDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, LITERAL);
 
@@ -848,7 +847,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsLessThanDate() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createBooleanDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, date);
 
@@ -857,7 +857,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsLessThanInt() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createIntegerDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, 1);
 
     assertXMLEqual(propertyLessThanXml, marshal(filter));
@@ -865,7 +866,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsLessThanShort() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createIntegerDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     short literal = 1;
 
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, literal);
@@ -875,7 +877,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsLessThanLong() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     long literal = 1L;
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, literal);
 
@@ -884,7 +887,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsLessThanFloat() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     float literal = 1.0F;
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, literal);
 
@@ -893,7 +897,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsLessThanDouble() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     double literal = 1.0;
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, literal);
 
@@ -903,7 +908,8 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsLessThanOrEqualToString()
       throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createBooleanDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, LITERAL);
 
@@ -913,7 +919,8 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsLessThanOrEqualToDate()
       throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createBooleanDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, date);
 
@@ -922,7 +929,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsLessThanOrEqualToInt() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createIntegerDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, 1);
 
     assertXMLEqual(propertyLessThanOrEqualToXml, marshal(filter));
@@ -931,7 +939,8 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsLessThanOrEqualToShort()
       throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createIntegerDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     short literal = 1;
 
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, literal);
@@ -942,7 +951,8 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsLessThanOrEqualToLong()
       throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     long literal = 1L;
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, literal);
 
@@ -952,7 +962,8 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsLessThanOrEqualToFloat()
       throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     float literal = 1.0F;
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, literal);
 
@@ -962,7 +973,8 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsLessThanOrEqualToDouble()
       throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     double literal = 1.0;
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, literal);
 
@@ -971,7 +983,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsBetweenString() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createBooleanDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsBetween(MOCK_PROPERTY, LITERAL, UNLITERAL);
     assertXMLEqual(propertyBetweenXmlLiteral, marshal(filter));
@@ -979,7 +992,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsBetweenDate() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createBooleanDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsBetween(MOCK_PROPERTY, date, getEndDate());
 
@@ -988,7 +1002,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsBetweenInt() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createIntegerDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     FilterType filter = delegate.propertyIsBetween(MOCK_PROPERTY, 1, 10);
 
     assertXMLEqual(propertyBetweenXml, marshal(filter));
@@ -996,7 +1011,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsBetweenShort() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createIntegerDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     short lower = 1;
     short upper = 10;
 
@@ -1007,7 +1023,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsBetweenLong() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     long lower = 1L;
     long upper = 10L;
 
@@ -1018,7 +1035,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsBetweenFloat() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     float lower = 1.0F;
     float upper = 10.0F;
     FilterType filter = delegate.propertyIsBetween(MOCK_PROPERTY, lower, upper);
@@ -1028,7 +1046,8 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsBetweenDouble() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     double lower = 1.0;
     double upper = 10.0;
     FilterType filter = delegate.propertyIsBetween(MOCK_PROPERTY, lower, upper);
@@ -1048,12 +1067,16 @@ public class WfsFilterDelegateTest {
     delegate.propertyIsBetween(MOCK_PROPERTY, LITERAL, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testPropertyIsLikeStringStringBoolean() {
     mockProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockProps);
     WfsFilterDelegate delegate = createDelegate();
-    delegate.propertyIsLike(PROPERTY_NAME, LITERAL, true);
+    FilterType filter = delegate.propertyIsLike(PROPERTY_NAME, LITERAL, true);
+    assertThat(
+        "The filter should have been null because 'PropertyName' does not map to a WFS feature property.",
+        filter,
+        is(nullValue()));
   }
 
   @Test
@@ -1065,7 +1088,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsLikeMatchCase() throws Exception {
-    whenPropertiesStringType();
+    whenProperties();
     WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsLike(MOCK_PROPERTY, LITERAL, true);
@@ -1080,14 +1103,8 @@ public class WfsFilterDelegateTest {
     mockProps.add(MOCK_PROPERTY);
     mockProps.add(MOCK_PROPERTY_2);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY_2))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY_2, MOCK_PROPERTY_2, true, true, true, true, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY_2)).thenReturn(true);
     WfsFilterDelegate delegate = createDelegate();
     FilterType filter = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
     assertXMLEqual(propertyIsLikeXmlLiteralAnyText, marshal(filter));
@@ -1098,14 +1115,8 @@ public class WfsFilterDelegateTest {
     mockProps.add(MOCK_PROPERTY);
     mockProps.add(MOCK_PROPERTY_2);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY_2))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY_2, MOCK_PROPERTY_2, true, true, true, true, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY_2)).thenReturn(true);
     WfsFilterDelegate delegate = createDelegate();
     FilterType filter = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
     assertXMLEqual(propertyIsLikeXmlLiteralAnyText, marshal(filter));
@@ -1159,10 +1170,7 @@ public class WfsFilterDelegateTest {
     mockProps.add(MOCK_PROPERTY);
 
     when(featureMetacardType.getProperties()).thenReturn(mockProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, false, false, false, false, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(false);
 
     WfsFilterDelegate delegate = createDelegate();
 
@@ -1175,20 +1183,9 @@ public class WfsFilterDelegateTest {
     mockProps.add(MOCK_PROPERTY_2);
 
     when(featureMetacardType.getProperties()).thenReturn(mockProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, false, false, false, false, BasicTypes.STRING_TYPE));
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY_2))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY_2,
-                MOCK_PROPERTY_2,
-                false,
-                false,
-                false,
-                false,
-                BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(false);
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY_2)).thenReturn(false);
+
     WfsFilterDelegate delegate = createDelegate();
 
     FilterType filter = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, false);
@@ -1197,14 +1194,16 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testNonTextualPropertyIsLike() {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     FilterType filter = delegate.propertyIsLike(MOCK_PROPERTY, LITERAL, false);
     assertThat(filter, notNullValue());
   }
 
   @Test
   public void testNonTextualPropertyIsEqual() throws JAXBException, SAXException, IOException {
-    WfsFilterDelegate delegate = createLongDelegate();
+    whenProperties();
+    WfsFilterDelegate delegate = createDelegate();
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, false);
 
     assertXMLEqual(propertyIsEqualToXmlBoolean, marshal(filter));
@@ -1212,7 +1211,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsDuring() throws JAXBException, IOException, SAXException {
-    whenPropertiesDateType();
+    whenProperties();
     final WfsFilterDelegate delegate = createDelegate();
     final FilterType filter = delegate.during(MOCK_PROPERTY, date, endDate);
     assertXMLEqual(propertyBetweenXmlDate, marshal(filter));
@@ -1220,7 +1219,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsBefore() throws JAXBException, IOException, SAXException {
-    whenPropertiesDateType();
+    whenProperties();
     final WfsFilterDelegate delegate = createDelegate();
     final FilterType filter = delegate.before(MOCK_PROPERTY, date);
     assertXMLEqual(propertyLessThanXmlDate, marshal(filter));
@@ -1228,7 +1227,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsAfter() throws JAXBException, IOException, SAXException {
-    whenPropertiesDateType();
+    whenProperties();
     final WfsFilterDelegate delegate = createDelegate();
     final FilterType filter = delegate.after(MOCK_PROPERTY, date);
     assertXMLEqual(propertyGreaterThanXmlDate, marshal(filter));
@@ -1236,7 +1235,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsRelative() throws JAXBException {
-    whenPropertiesDateType();
+    whenProperties();
     final WfsFilterDelegate delegate = createDelegate();
     final FilterType filter = delegate.relative(MOCK_PROPERTY, 100_000L);
     final String xml = marshal(filter);
@@ -1268,11 +1267,7 @@ public class WfsFilterDelegateTest {
   public void testBlacklistedGeoProperty() {
     WfsFilterDelegate delegate =
         setupFilterDelegate(SPATIAL_OPERATORS.BBOX.getValue(), new LatLonCoordinateStrategy());
-
-    when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, false, false, false, false, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_GEOM)).thenReturn(false);
     delegate.intersects(MOCK_GEOM, POLYGON);
   }
 
@@ -1552,18 +1547,6 @@ public class WfsFilterDelegateTest {
     assertThat(filter.getLogicOps(), notNullValue());
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testSingleGmlPropertyBlacklisted() {
-    WfsFilterDelegate delegate =
-        setupFilterDelegate(SPATIAL_OPERATORS.CONTAINS.getValue(), new LatLonCoordinateStrategy());
-    when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, false, false, false, false, BasicTypes.STRING_TYPE));
-
-    delegate.contains(MOCK_GEOM, POLYGON);
-  }
-
   @Test
   public void testAllGmlPropertiesBlacklisted() {
     whenGeom(MOCK_GEOM, MOCK_GEOM2, false, false);
@@ -1611,8 +1594,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsFilterWithMetacardAttributeMappedToFeatureProperty() throws Exception {
-    whenPropertiesStringType();
-
+    whenProperties();
     doReturn(MOCK_PROPERTY).when(metacardMapper).getFeatureProperty(Core.TITLE);
 
     final WfsFilterDelegate delegate =
@@ -1623,26 +1605,23 @@ public class WfsFilterDelegateTest {
     assertXMLEqual(propertyIsEqualToXmlLiteral, marshal(filter));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testPropertyIsFilterCannotMapToFeatureProperty() {
-    whenPropertiesStringType();
-
     final WfsFilterDelegate delegate =
         new WfsFilterDelegate(
             featureMetacardType, metacardMapper, emptyList(), new LatLonCoordinateStrategy());
-    delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
+    final FilterType filter = delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
+    assertThat(
+        "The filter should have been null because 'title' does not map to a WFS feature property.",
+        filter,
+        is(nullValue()));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testPropertyIsFilterFeaturePropertyIsNotQueryable() {
-    whenPropertiesStringType();
-
+    whenProperties();
     doReturn(MOCK_PROPERTY).when(metacardMapper).getFeatureProperty(Core.TITLE);
-
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, false, true, true, true, BasicTypes.STRING_TYPE));
+    doReturn(false).when(featureMetacardType).isQueryable(MOCK_PROPERTY);
 
     final WfsFilterDelegate delegate =
         new WfsFilterDelegate(
@@ -1654,8 +1633,7 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsBetweenFilterWithMetacardAttributeMappedToFeatureProperty()
       throws Exception {
-    whenPropertiesDateType();
-
+    whenProperties();
     doReturn(MOCK_PROPERTY).when(metacardMapper).getFeatureProperty(Core.CREATED);
 
     final WfsFilterDelegate delegate =
@@ -1666,26 +1644,25 @@ public class WfsFilterDelegateTest {
     assertXMLEqual(propertyBetweenXmlDate, marshal(filter));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testPropertyIsBetweenFilterCannotMapToFeatureProperty() {
-    whenPropertiesDateType();
+    whenProperties();
 
     final WfsFilterDelegate delegate =
         new WfsFilterDelegate(
             featureMetacardType, metacardMapper, emptyList(), new LatLonCoordinateStrategy());
-    delegate.propertyIsBetween(Core.CREATED, date, endDate);
+    final FilterType filter = delegate.propertyIsBetween(Core.CREATED, date, endDate);
+    assertThat(
+        "The filter should have been null because 'created' does not map to a WFS feature property.",
+        filter,
+        is(nullValue()));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testPropertyIsBetweenFilterFeaturePropertyIsNotQueryable() {
-    whenPropertiesDateType();
-
+    whenProperties();
     doReturn(MOCK_PROPERTY).when(metacardMapper).getFeatureProperty(Core.CREATED);
-
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, false, true, true, true, BasicTypes.DATE_TYPE));
+    doReturn(false).when(featureMetacardType).isQueryable(MOCK_PROPERTY);
 
     final WfsFilterDelegate delegate =
         new WfsFilterDelegate(
@@ -1713,11 +1690,15 @@ public class WfsFilterDelegateTest {
         is(singletonList(MOCK_GEOM)));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testGeospatialFilterCannotMapToFeatureProperty() {
     final WfsFilterDelegate delegate =
         setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue(), new LatLonCoordinateStrategy());
-    delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
+    final FilterType filter = delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
+    assertThat(
+        "The filter should have been null because 'location' does not map to a WFS feature property.",
+        filter,
+        is(nullValue()));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -1726,16 +1707,7 @@ public class WfsFilterDelegateTest {
 
     final WfsFilterDelegate delegate =
         setupFilterDelegate(SPATIAL_OPERATORS.DWITHIN.getValue(), new LatLonCoordinateStrategy());
-
-    when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, false, false, false, false, BasicTypes.STRING_TYPE));
-
-    /*
-        WfsFilterDelegate delegate =
-            new WfsFilterDelegate(null, supportedGeo, new LatLonCoordinateStrategy());
-    */
+    when(featureMetacardType.isQueryable(MOCK_GEOM)).thenReturn(false);
 
     delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
   }
@@ -2049,35 +2021,13 @@ public class WfsFilterDelegateTest {
     gmlProps.add(geom1);
     gmlProps.add(geom2);
     when(featureMetacardType.getGmlProperties()).thenReturn(gmlProps);
-    when(featureMetacardType.getAttributeDescriptor(geom1))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                geom1, geom1, geom1Indexed, false, false, false, BasicTypes.STRING_TYPE));
-
-    when(featureMetacardType.getAttributeDescriptor(geom2))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                geom2, geom2, geom2Indexed, false, false, false, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(geom1)).thenReturn(geom1Indexed);
+    when(featureMetacardType.isQueryable(geom2)).thenReturn(geom2Indexed);
   }
 
   private WfsFilterDelegate createDelegate() {
     return new WfsFilterDelegate(
         featureMetacardType, metacardMapper, SUPPORTED_GEO, new LatLonCoordinateStrategy());
-  }
-
-  private WfsFilterDelegate createIntegerDelegate() {
-    whenPropertiesIntegerType();
-    return createDelegate();
-  }
-
-  private WfsFilterDelegate createLongDelegate() {
-    whenPropertiesLongType();
-    return createDelegate();
-  }
-
-  private WfsFilterDelegate createBooleanDelegate() {
-    whenPropertiesBooleanType();
-    return createDelegate();
   }
 
   private WfsFilterDelegate createTextualDelegate() {
@@ -2102,10 +2052,7 @@ public class WfsFilterDelegateTest {
     gmlProps.add(MOCK_GEOM);
 
     when(featureMetacardType.getGmlProperties()).thenReturn(gmlProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_GEOM))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_GEOM, MOCK_GEOM, true, false, false, false, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_GEOM)).thenReturn(true);
 
     List<String> supportedGeo = Collections.singletonList(spatialOpType);
     return new WfsFilterDelegate(
@@ -2115,42 +2062,12 @@ public class WfsFilterDelegateTest {
   private void whenTextualStringType() {
     mockProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, BasicTypes.STRING_TYPE));
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
   }
 
-  private void whenProperties(AttributeType<?> type) {
+  private void whenProperties() {
     mockProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockProps);
-    when(featureMetacardType.getAttributeDescriptor(MOCK_PROPERTY))
-        .thenReturn(
-            new FeatureAttributeDescriptor(
-                MOCK_PROPERTY, MOCK_PROPERTY, true, true, true, true, type));
-  }
-
-  private void whenPropertiesStringType() {
-    whenProperties(BasicTypes.STRING_TYPE);
-  }
-
-  private void whenPropertiesDateType() {
-    whenProperties(BasicTypes.DATE_TYPE);
-  }
-
-  private void whenPropertiesIntegerType() {
-    whenProperties(BasicTypes.INTEGER_TYPE);
-  }
-
-  private void whenPropertiesShortType() {
-    whenProperties(BasicTypes.SHORT_TYPE);
-  }
-
-  private void whenPropertiesLongType() {
-    whenProperties(BasicTypes.LONG_TYPE);
-  }
-
-  private void whenPropertiesBooleanType() {
-    whenProperties(BasicTypes.BOOLEAN_TYPE);
+    when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
   }
 }

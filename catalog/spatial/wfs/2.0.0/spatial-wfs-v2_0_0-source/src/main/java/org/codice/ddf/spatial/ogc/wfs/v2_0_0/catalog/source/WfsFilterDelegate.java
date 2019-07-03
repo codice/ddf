@@ -88,7 +88,6 @@ import net.opengis.ows.v_1_1_0.ValueType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureAttributeDescriptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
@@ -476,11 +475,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         endDate = convertDateToIso8601Format(new Date());
       }
 
-      FilterType duringFilter =
-          buildDuringFilterType(
-              featureMetacardType.getFeatureType().getLocalPart() + "." + property,
-              startDate,
-              endDate);
+      FilterType duringFilter = buildDuringFilterType(property, startDate, endDate);
       newFilters.add(duringFilter);
     } else if (isTemporalOpSupported(TEMPORAL_OPERATORS.During)
         && (StringUtils.isEmpty(startDate) && StringUtils.isNotEmpty(endDate))) {
@@ -792,12 +787,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     FilterType filter = new FilterType();
 
     if (featureMetacardType.getProperties().contains(propertyName)) {
-      FeatureAttributeDescriptor featureAttributeDescriptor =
-          (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(propertyName);
-      if (featureAttributeDescriptor.isIndexed()) {
+      if (featureMetacardType.isQueryable(propertyName)) {
         filter.setComparisonOps(
-            createPropertyIsBetween(
-                featureAttributeDescriptor.getPropertyName(), lowerBoundary, upperBoundary));
+            createPropertyIsBetween(propertyName, lowerBoundary, upperBoundary));
       } else {
         throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
       }
@@ -838,15 +830,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     FilterType filter = filterObjectFactory.createFilterType();
 
     if (featureMetacardType.getProperties().contains(propertyName)) {
-      FeatureAttributeDescriptor featureAttributeDescriptor =
-          (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(propertyName);
-      if (featureAttributeDescriptor.isIndexed()) {
+      if (featureMetacardType.isQueryable(propertyName)) {
         filter.setTemporalOps(
-            createDuring(
-                featureAttributeDescriptor.getPropertyName(),
-                featureMetacardType.getName(),
-                startDate,
-                endDate));
+            createDuring(propertyName, featureMetacardType.getName(), startDate, endDate));
       } else {
         throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
       }
@@ -882,12 +868,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     FilterType filter = filterObjectFactory.createFilterType();
 
     if (featureMetacardType.getProperties().contains(propertyName)) {
-      FeatureAttributeDescriptor featureAttributeDescriptor =
-          (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(propertyName);
-      if (featureAttributeDescriptor.isIndexed()) {
-        filter.setTemporalOps(
-            createAfter(
-                featureAttributeDescriptor.getPropertyName(), featureMetacardType.getName(), date));
+      if (featureMetacardType.isQueryable(propertyName)) {
+        filter.setTemporalOps(createAfter(propertyName, featureMetacardType.getName(), date));
       } else {
         throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
       }
@@ -930,12 +912,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     FilterType filter = filterObjectFactory.createFilterType();
 
     if (featureMetacardType.getProperties().contains(propertyName)) {
-      FeatureAttributeDescriptor featureAttributeDescriptor =
-          (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(propertyName);
-      if (featureAttributeDescriptor.isIndexed()) {
-        filter.setTemporalOps(
-            createBefore(
-                featureAttributeDescriptor.getPropertyName(), featureMetacardType.getName(), date));
+      if (featureMetacardType.isQueryable(propertyName)) {
+        filter.setTemporalOps(createBefore(propertyName, featureMetacardType.getName(), date));
       } else {
         throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
       }
@@ -964,13 +942,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       }
 
       if (featureMetacardType.getTextualProperties().size() == 1) {
-        FeatureAttributeDescriptor attrDescriptor =
-            (FeatureAttributeDescriptor)
-                featureMetacardType.getAttributeDescriptor(
-                    featureMetacardType.getTextualProperties().get(0));
-        if (attrDescriptor.isIndexed()) {
+        final String featurePropertyName = featureMetacardType.getTextualProperties().get(0);
+        if (featureMetacardType.isQueryable(featurePropertyName)) {
           returnFilter.setComparisonOps(
-              createPropertyIsFilter(attrDescriptor.getPropertyName(), literal, propertyIsType));
+              createPropertyIsFilter(featurePropertyName, literal, propertyIsType));
         } else {
           LOGGER.debug("All textual properties have been blacklisted.  Removing from query.");
           return null;
@@ -979,12 +954,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         List<FilterType> binaryCompOpsToBeOred = new ArrayList<FilterType>();
         for (String property : featureMetacardType.getTextualProperties()) {
           // only build filters for queryable properties
-          FeatureAttributeDescriptor attrDesc =
-              (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(property);
-          if (attrDesc.isIndexed()) {
+          if (featureMetacardType.isQueryable(property)) {
             FilterType filter = new FilterType();
-            filter.setComparisonOps(
-                createPropertyIsFilter(attrDesc.getPropertyName(), literal, propertyIsType));
+            filter.setComparisonOps(createPropertyIsFilter(property, literal, propertyIsType));
             binaryCompOpsToBeOred.add(filter);
           } else {
             LOGGER.debug(PROPERTY_NOT_QUERYABLE_ARG, property);
@@ -999,11 +971,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       }
       // filter is for a specific property; check to see if it is valid
     } else if (featureMetacardType.getProperties().contains(propertyName)) {
-      FeatureAttributeDescriptor attrDesc =
-          (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(propertyName);
-      if (attrDesc.isIndexed()) {
+      if (featureMetacardType.isQueryable(propertyName)) {
         returnFilter.setComparisonOps(
-            createPropertyIsFilter(attrDesc.getPropertyName(), literal, propertyIsType));
+            createPropertyIsFilter(propertyName, literal, propertyIsType));
       } else {
         // blacklisted property encountered
         throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
@@ -1444,13 +1414,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       }
 
       if (featureMetacardType.getGmlProperties().size() == 1) {
-        FeatureAttributeDescriptor attrDesc =
-            (FeatureAttributeDescriptor)
-                featureMetacardType.getAttributeDescriptor(
-                    featureMetacardType.getGmlProperties().get(0));
-        if (attrDesc != null && attrDesc.isIndexed()) {
+        final String featurePropertyName = featureMetacardType.getGmlProperties().get(0);
+        if (featureMetacardType.isQueryable(featurePropertyName)) {
           returnFilter.setSpatialOps(
-              createSpatialOpType(spatialOpType, attrDesc.getPropertyName(), wkt, distance));
+              createSpatialOpType(spatialOpType, featurePropertyName, wkt, distance));
         } else {
           LOGGER.debug("All GEO properties have been blacklisted. Removing from query");
           return null;
@@ -1459,12 +1426,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       } else {
         List<FilterType> filtersToBeOred = new ArrayList<FilterType>();
         for (String property : featureMetacardType.getGmlProperties()) {
-          FeatureAttributeDescriptor attrDesc =
-              (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(property);
-          if (attrDesc != null && attrDesc.isIndexed()) {
+          if (featureMetacardType.isQueryable(property)) {
             FilterType filter = new FilterType();
-            filter.setSpatialOps(
-                createSpatialOpType(spatialOpType, attrDesc.getPropertyName(), wkt, distance));
+            filter.setSpatialOps(createSpatialOpType(spatialOpType, property, wkt, distance));
             filtersToBeOred.add(filter);
           } else {
             LOGGER.debug(PROPERTY_NOT_QUERYABLE_ARG, property);
@@ -1478,12 +1442,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         }
       }
     } else if (featureMetacardType.getGmlProperties().contains(propertyName)) {
-      FeatureAttributeDescriptor attrDesc =
-          (FeatureAttributeDescriptor) featureMetacardType.getAttributeDescriptor(propertyName);
-      if (attrDesc != null && attrDesc.isIndexed()) {
+      if (featureMetacardType.isQueryable(propertyName)) {
         FilterType filter = new FilterType();
-        filter.setSpatialOps(
-            createSpatialOpType(spatialOpType, attrDesc.getPropertyName(), wkt, distance));
+        filter.setSpatialOps(createSpatialOpType(spatialOpType, propertyName, wkt, distance));
         return filter;
       } else {
         // blacklisted property encountered
