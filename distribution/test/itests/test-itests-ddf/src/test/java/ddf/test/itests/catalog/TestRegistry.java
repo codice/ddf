@@ -251,7 +251,7 @@ public class TestRegistry extends AbstractIntegrationTest {
             .header("Content-Type", "text/xml")
             .expect()
             .log()
-            .all()
+            .ifValidationFails()
             .statusCode(200)
             .when()
             .post(CSW_PATH.getUrl());
@@ -275,13 +275,13 @@ public class TestRegistry extends AbstractIntegrationTest {
         .basic(ADMIN, ADMIN)
         .body(getCswRegistryUpdate(regID, "New Node Name", "2014-02-26T17:16:34.996Z", id))
         .log()
-        .all()
+        .ifValidationFails()
         .header("Content-Type", "text/xml")
         .when()
         .post(CSW_PATH.getUrl())
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(400);
   }
@@ -304,7 +304,7 @@ public class TestRegistry extends AbstractIntegrationTest {
             .header("Content-Type", "text/xml")
             .expect()
             .log()
-            .all()
+            .ifValidationFails()
             .statusCode(200)
             .when()
             .post(CSW_PATH.getUrl());
@@ -537,7 +537,7 @@ public class TestRegistry extends AbstractIntegrationTest {
             .header("Content-Type", "text/xml")
             .expect()
             .log()
-            .all()
+            .ifValidationFails()
             .statusCode(200)
             .when()
             .post(CSW_PATH.getUrl());
@@ -598,7 +598,7 @@ public class TestRegistry extends AbstractIntegrationTest {
             .header("Content-Type", "text/xml")
             .expect()
             .log()
-            .all()
+            .ifValidationFails()
             .statusCode(200)
             .when()
             .post(CSW_PATH.getUrl());

@@ -300,7 +300,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .expect()
             .log()
-            .all()
+            .ifValidationFails()
             .statusCode(HttpStatus.SC_CREATED)
             .when()
             .post(REST_PATH.getUrl())
@@ -312,7 +312,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .get(url)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .body(hasXPath("/metacard[@id='" + id + "']"))
         .body(
@@ -336,7 +336,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             .header(HttpHeaders.CONTENT_TYPE, "application/json")
             .expect()
             .log()
-            .all()
+            .ifValidationFails()
             .statusCode(HttpStatus.SC_CREATED)
             .when()
             .post(REST_PATH.getUrl())
@@ -352,7 +352,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .body(getFileContent(JSON_RECORD_RESOURCE_PATH + "/UpdatedSimpleGeoJsonRecord"))
         .expect()
         .log()
-        .all()
+        .ifValidationFails()
         .statusCode(HttpStatus.SC_BAD_REQUEST)
         .when()
         .put(new DynamicUrl(REST_PATH, id).getUrl());
@@ -375,7 +375,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             .header(HttpHeaders.CONTENT_TYPE, "text/xml")
             .expect()
             .log()
-            .all()
+            .ifValidationFails()
             .statusCode(HttpStatus.SC_CREATED)
             .when()
             .post(REST_PATH.getUrl())
@@ -389,7 +389,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .body(writer.toString())
         .expect()
         .log()
-        .all()
+        .ifValidationFails()
         .statusCode(HttpStatus.SC_OK)
         .when()
         .put(new DynamicUrl(REST_PATH, id).getUrl());
@@ -400,7 +400,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .get(REST_PATH.getUrl() + id)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .body(hasXPath("/metacard[@id='" + id + "']"))
         .body(
@@ -850,7 +850,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .get(url)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .body(
             hasXPath("//metacard/dateTime[@name='modified']/value", startsWith("2015-08-10")),
@@ -935,7 +935,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .get(firstUrl)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         // Check that the updated attributes were changed.
         .body(
@@ -952,7 +952,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .get(secondUrl)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         // Check that the updated attributes were changed.
         .body(
@@ -1096,7 +1096,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .get(url)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         // Check that the attributes about to be removed in the update are present.
         .body(
@@ -1121,7 +1121,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .get(url)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         // Check that the updated attributes were removed.
         .body(
@@ -1259,7 +1259,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .body(getSimpleXml("foo:bar"))
         .expect()
         .log()
-        .all()
+        .ifValidationFails()
         .statusCode(HttpStatus.SC_BAD_REQUEST)
         .when()
         .put(new DynamicUrl(REST_PATH, metacardId).getUrl());
@@ -1321,7 +1321,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .post(CSW_PATH.getUrl())
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(200))
         .body(is(SAMPLE_DATA));
@@ -1358,7 +1358,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .post(CSW_PATH.getUrl())
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(200))
         .assertThat()
@@ -1392,7 +1392,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .post(CSW_PATH.getUrl())
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(400));
     // @formatter:on
@@ -1455,7 +1455,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .header(HttpHeaders.CONTENT_TYPE, "application/json")
         .expect()
         .log()
-        .all()
+        .ifValidationFails()
         .statusCode(400)
         .when()
         .post(REST_PATH.getUrl());
@@ -1577,7 +1577,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     return given()
         .expect()
         .log()
-        .all()
+        .ifValidationFails()
         .statusCode(HttpStatus.SC_OK)
         .when()
         .get(URI.create(format(metacardUrlFormat, source, metacardId)))
@@ -1590,7 +1590,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .header(HttpHeaders.CONTENT_TYPE, contentType)
         .expect()
         .log()
-        .all()
+        .ifValidationFails()
         .statusCode(HttpStatus.SC_CREATED)
         .when()
         .post(REST_PATH.getUrl())
@@ -1959,7 +1959,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
       getOpenSearch("xml", null, null, "q=*")
           .log()
-          .all()
+          .ifValidationFails()
           .assertThat()
           .body(hasXPath(newMetacardXpath + "/type", is(newMetacardTypeName)))
           .body(
@@ -2045,7 +2045,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
       getOpenSearch("xml", null, null, "q=*")
           .log()
-          .all()
+          .ifValidationFails()
           .assertThat()
           // The metacard had a title, so it should not have been set to the default
           .body(hasXPath(metacard3XPath + "/string[@name='title']/value", is("Metacard-3")))
@@ -2136,7 +2136,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
       getOpenSearch("xml", null, null, "q=*")
           .log()
-          .all()
+          .ifValidationFails()
           .assertThat()
           .body(hasXPath(metacard1XPath + "/string[@name='title']/value", is(updatedTitle1)))
           .body(
@@ -2194,7 +2194,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
       getOpenSearch("xml", null, null, "q=*")
           .log()
-          .all()
+          .ifValidationFails()
           .assertThat()
           .body(hasXPath(basicMetacardXpath + "/type", is(basicMetacardTypeName)))
           .body(hasXPath(basicMetacardXpath + "/int[@name='page-count']/value", is("55")))
@@ -2232,7 +2232,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
       getOpenSearch("xml", null, null, "q=*")
           .log()
-          .all()
+          .ifValidationFails()
           .assertThat()
           .body(hasXPath(basicMetacardXpath + "/type", is(basicMetacardTypeName)))
           .body(hasXPath(basicMetacardXpath + "/int[@name='page-count']/value", is("55")))
@@ -2336,7 +2336,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
       getOpenSearch("xml", null, null, "q=*")
           .log()
-          .all()
+          .ifValidationFails()
           .assertThat()
           .body(
               hasXPath(
@@ -2352,7 +2352,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
       getOpenSearch("xml", null, null, "q=*")
           .log()
-          .all()
+          .ifValidationFails()
           .assertThat()
           .body(
               hasXPath(
@@ -2509,7 +2509,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     // query - check if sanitized properly
     getOpenSearch("xml", null, null, "q=*")
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .body(
             hasXPath(format(METACARD_X_PATH, id) + "/string[@name='title']/value", is("file.bin")));
@@ -2541,7 +2541,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     // query - check if sanitized properly
     getOpenSearch("xml", null, null, "q=*")
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .body(
             hasXPath(
