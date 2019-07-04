@@ -300,7 +300,6 @@ the provided value."
     }
   },
   determineInput() {
-    this.updateValueFromInput()
     let value = Common.duplicate(this.model.get('value'))
     const currentComparator = this.model.get('comparator')
     value = this.transformValue(value, currentComparator)
@@ -337,7 +336,7 @@ the provided value."
         model,
       })
     )
-
+    this.updateValueFromInput()    
     const isEditing = this.$el.hasClass('is-editing')
     if (isEditing || this.options.editing) {
       this.turnOnEditing()
