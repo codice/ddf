@@ -18,6 +18,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -36,6 +37,7 @@ import java.util.stream.Stream;
 import org.codice.ddf.platform.util.SortedServiceList;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 public class GeoJsonInputTransformerTest {
   private GeoJsonInputTransformer transformer;
@@ -348,15 +350,16 @@ public class GeoJsonInputTransformerTest {
 
   @Test
   public void testToString() {
-    assertEquals(
+    assertThat(
         "InputTransformer {Impl=ddf.catalog.transformer.input.geojson.GeoJsonInputTransformer, id=geojson, mime-type=application/json}",
-        transformer.toString());
+        is(transformer.toString()));
   }
 
   @Test
   public void testGuessTransformer() throws IOException, CatalogTransformerException {
     SortedServiceList mockSortedServiceList = mock(SortedServiceList.class);
     InputTransformer mockInputTransformer = mock(InputTransformer.class);
+
     when(mockInputTransformer.transform(mock(InputStream.class)))
         .thenThrow(new CatalogTransformerException());
     when(mockSortedServiceList.stream()).thenReturn(Stream.of(mockInputTransformer));
@@ -365,8 +368,13 @@ public class GeoJsonInputTransformerTest {
     Metacard metacard =
         transformer.transform(new ByteArrayInputStream(samplePointJsonText().getBytes()));
 
-    assertEquals("ddf.metacard", metacard.getMetacardType().getName());
-    assertEquals("myTitle", metacard.getTitle());
+    ArgumentCaptor<ByteArrayInputStream> inputStreamCaptor =
+        ArgumentCaptor.forClass(ByteArrayInputStream.class);
+    verify(mockSortedServiceList).stream();
+    verify(mockInputTransformer).transform(inputStreamCaptor.capture());
+
+    assertThat("ddf.metacard", is(metacard.getMetacardType().getName()));
+    assertThat("myTitle", is(metacard.getTitle()));
   }
 
   protected void verifyBasics(Metacard metacard) {
