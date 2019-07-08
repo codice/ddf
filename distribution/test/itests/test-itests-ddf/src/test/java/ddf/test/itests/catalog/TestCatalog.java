@@ -35,6 +35,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
@@ -279,8 +280,10 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testMetacardTransformersFromRest() {
-    String id = ingestGeoJson(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"));
+  public void testGeoJsonMetacardTransformersFromRest() {
+    String id =
+        ingestGeoJson(
+            getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonWithMetadataRecord"));
     String title = "myTitle";
     String geoCoordinates = "30.0 10.0";
 
@@ -288,17 +291,28 @@ public class TestCatalog extends AbstractIntegrationTest {
     String titleXPath = "/metacard/string[@name='title'][value='" + title + "']";
     String geoXPath = "/metacard/geometry";
     String geoCoordsXPath = geoXPath + "//Point[pos='" + geoCoordinates + "']";
+    String metadataXPath = "/metacard/stringxml[@name='metadata']/value/metacard";
+    String metadataSourceXPath = metadataXPath + "[source='ddf.distribution']";
+    String metadataExtractedTextXPath =
+        metadataXPath + "/string[@name='ext.extracted.text'][value='sample extracted text']";
 
     String url = REST_PATH.getUrl() + id;
     LOGGER.info("Getting response to {}", url);
 
-    // tests that metacard properties are properly set
-    when().get(url).then().log().all().assertThat().body(hasXPath(idXPath));
-    when().get(url).then().log().all().assertThat().body(hasXPath(titleXPath));
-
-    // tests that the geometry coordinates are properly set
-    when().get(url).then().log().all().assertThat().body(hasXPath(geoXPath));
-    when().get(url).then().log().all().assertThat().body(hasXPath(geoCoordsXPath));
+    // tests all of the XPath to verify that metacard properties are properly set
+    when()
+        .get(url)
+        .then()
+        .assertThat()
+        .body(
+            allOf(
+                hasXPath(idXPath),
+                hasXPath(titleXPath),
+                hasXPath(geoXPath),
+                hasXPath(geoCoordsXPath),
+                hasXPath(metadataXPath),
+                hasXPath(metadataSourceXPath),
+                hasXPath(metadataExtractedTextXPath)));
 
     delete(id);
   }
