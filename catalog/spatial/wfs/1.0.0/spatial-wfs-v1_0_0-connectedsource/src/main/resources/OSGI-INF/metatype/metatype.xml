@@ -32,6 +32,8 @@
             required="false" type="String"/>
         <AD description="Password for WFS Service (optional)" name="Password" id="password"
             required="false" type="Password" default=""/>
+        <AD description="Force only a specific FeatureType to be queried instead of all featureTypes"
+          name="Forced Feature Type" id="forcedFeatureType" type="String" required="false"/>
         <AD name="Non Queryable Properties" id="nonQueryableProperties" required="false"
             type="String"
             cardinality="100"

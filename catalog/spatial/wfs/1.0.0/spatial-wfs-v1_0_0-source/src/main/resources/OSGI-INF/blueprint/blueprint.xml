@@ -30,14 +30,30 @@
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
     <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
 
+    <reference-list id="metacardMappers"
+        interface="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"
+        availability="optional"/>
+
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsFederatedSource.id"
             factory-pid="Wfs_v1_0_0_Federated_Source"
             interface="ddf.catalog.source.FederatedSource">
         <cm:managed-component class="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsSource"
                               init-method="init" destroy-method="destroy">
-            <argument ref="encryptionService"/>
             <argument ref="clientFactoryFactory"/>
+            <argument ref="encryptionService"/>
+            <argument>
+                <!-- Must be instantiated inline so sources don't share the same instance -->
+                <bean class="java.util.concurrent.Executors"
+                  factory-method="newSingleThreadScheduledExecutor">
+                    <argument>
+                        <bean class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+                          factory-method="newThreadFactory">
+                            <argument value="wfsSourceThread"/>
+                        </bean>
+                    </argument>
+                </bean>
+            </argument>
 
             <property name="context" ref="blueprintBundleContext"/>
             <property name="filterAdapter" ref="filterAdapter"/>
@@ -55,6 +71,7 @@
             <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
+            <property name="metacardMappers" ref="metacardMappers"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>
