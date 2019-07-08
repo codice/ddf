@@ -24,6 +24,11 @@ module.exports = Marionette.CollectionView.extend({
   },
   tagName: CustomElements.register('query-item-collection'),
   childView: queryItemView,
+  childViewOptions() {
+    return {
+      isMenuOption: true,
+    }
+  },
   initialize(options) {
     if (!options.collection) {
       this.setDefaultCollection()

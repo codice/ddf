@@ -98,13 +98,6 @@ module.exports = Marionette.LayoutView.extend({
             {data.queryStatus}
           </div>
         </div>
-        <button
-          className="details-view is-button"
-          title="Show the full status for the search."
-          data-help="Show the full status for the search."
-        >
-          <span className="fa fa-heartbeat" />
-        </button>
       </React.Fragment>
     )
   },

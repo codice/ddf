@@ -9,10 +9,17 @@
   }
 }
 
+@{customElementNamespace}query-item.is-menu-option {
+  .query-container {
+    background: fade(#ffffff, 7%);
+  }
+}
+
 @{customElementNamespace}query-item {
   display: block;
   cursor: pointer;
   position: relative;
+  padding: 0;
 
   .query-container {
     height: auto;
@@ -20,6 +27,11 @@
     overflow: visible;
     position: relative;
     cursor: pointer;
+    border: solid 1px fade(contrast(@backgroundAccentContent), 20%);
+  }
+
+  .fa {
+    line-height: 1;
   }
 
   .query-color,
@@ -30,27 +42,32 @@
   .query-edit {
     display: inline-block;
     vertical-align: middle;
+
+    .details-footer > button > span.fa {
+      font-size: @mediumFontSize;
+    }
   }
 
   .details-title {
     .is-bold();
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-top: @minimumSpacing;
   }
 
   .details-feed,
   .details-title {
-    padding: 0px @minimumSpacing;
+    padding: 0px @mediumSpacing;
   }
 
   .query-color {
-    width: @largeSpacing;
+    width: @minimumSpacing;
     height: 100%;
   }
 
   .query-details {
-    width: ~'calc(100% - @{largeSpacing})';
-    margin: 0px 0px 0px @largeSpacing;
+    width: ~'calc(100% - @{minimumSpacing})';
+    margin: 0px 0px 0px @minimumSpacing;
     line-height: @minimumLineSize;
     height: auto;
   }
@@ -66,19 +83,29 @@
   }
 
   .details-footer {
-    text-align: right;
+    padding-left: @minimumSpacing;
+    display: flex;
+    justify-content: space-between;
     line-height: @minimumButtonSize;
 
-    > button,
-    > .query-edit,
-    > .query-schedule,
-    > .query-settings,
-    > .query-actions {
+    button,
+    .query-edit,
+    .query-schedule,
+    .query-settings,
+    .query-actions,
+    .query-status {
       vertical-align: middle;
-      width: @minimumButtonSize;
-      height: @minimumButtonSize;
-      font-size: @largeFontSize;
+      padding: 0 @minimumSpacing;
+      font-size: @mediumFontSize;
     }
+  }
+
+  .details-footer-left {
+    text-align: left;
+  }
+
+  .details-footer-right {
+    text-align: right;
   }
 
   .query-stop {

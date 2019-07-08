@@ -1,10 +1,11 @@
 @{customElementNamespace}result-item {
   display: block;
-  width: 100%;
+  width: ~'calc(100% - @{minimumSpacing})';
   white-space: nowrap;
   cursor: pointer;
   position: relative;
   opacity: 1;
+  margin: 0 @minimumSpacing;
 
   .content-header {
     white-space: nowrap;
@@ -59,6 +60,7 @@
     width: ~'calc(100% - 0.5*@{minimumSpacing})';
     position: relative;
     left: 0.5 * @minimumSpacing;
+    background: fade(#ffffff, 7%);
   }
 
   .result-add {

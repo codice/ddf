@@ -22,6 +22,8 @@ const QueryFeedView = require('../query-feed/query-feed.view.js')
 const QueryScheduleView = require('../query-schedule/query-schedule.view.js')
 const QuerySettingsView = require('../query-settings/query-settings.view.js')
 const QueryEditorView = require('../query-editor/query-editor.view.js')
+const QueryStatusView = require('../query-status/query-status.view.js')
+
 require('../../behaviors/button.behavior.js')
 require('../../behaviors/dropdown.behavior.js')
 
@@ -69,6 +71,13 @@ module.exports = Marionette.LayoutView.extend({
               model: this.options.model,
             },
           },
+          {
+            selector: '.query-status',
+            view: QueryStatusView,
+            viewOptions: {
+              model: this.options.model,
+            },
+          },
         ],
       },
     }
@@ -93,6 +102,9 @@ module.exports = Marionette.LayoutView.extend({
     }
     this.listenTo(this.model, 'change:polling', this.handlePolling)
     this.handlePolling()
+    if (this.options.isMenuOption) {
+      this.$el.addClass('is-menu-option')
+    }
   },
   serializeData() {
     return this.model.toJSON({
@@ -100,6 +112,7 @@ module.exports = Marionette.LayoutView.extend({
     })
   },
   onRender() {
+    this.el.style.background = 'transparent'
     this.queryFeed.show(
       new QueryFeedView({
         model: this.model,
