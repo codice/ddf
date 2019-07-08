@@ -1,31 +1,16 @@
+
 <#list usingIntros as ui>
-<#if (ui.title == "Using Intro")>
+<#if (ui.status == "published")>
 include::${ui.file}[]
-</#if>
-</#list>
 
-<#assign count=0>
 <#list usings?sort_by("order") as userInterface>
-<#if (userInterface.status == "published" && userInterface.summary != "")>
-<<${userInterface.link?lower_case},${userInterface.title}>>:: ${userInterface.summary}
-</#if>
-</#list>
-<#if (count == 0)>
-None.
-</#if>
+<#if (userInterface.status == "published" && userInterface.parent == ui.title)>
 
-<#assign count=0>
-<#list usings?sort_by("order") as userInterface>
-<#if (userInterface.status == "published" && userInterface.summary != "")>
-<#assign count++>
-
-== ${userInterface.title}
-
-include::${userInterface.file}[]
+include::${userInterface.file}[leveloffset=+1]
 
 </#if>
 </#list>
-<#if (count == 0)>
-None.
 </#if>
+</#list>
+
 
