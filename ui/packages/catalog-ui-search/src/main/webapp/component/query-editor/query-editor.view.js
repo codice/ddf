@@ -133,9 +133,9 @@ module.exports = Marionette.LayoutView.extend({
   },
   edit() {
     this.$el.addClass('is-editing')
-    this.queryView
-      ? this.queryView.edit()
-      : this.queryContent.currentView.edit()
+    if (!this.queryView) {
+      this.queryContent.currentView.edit()
+    }
   },
   cancel() {
     this.$el.removeClass('is-editing')
