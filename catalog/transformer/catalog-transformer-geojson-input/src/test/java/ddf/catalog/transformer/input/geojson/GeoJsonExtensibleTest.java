@@ -488,20 +488,20 @@ public class GeoJsonExtensibleTest {
   @Test
   public void testTransformWithoutIdParam() throws IOException, CatalogTransformerException {
     Metacard metacard =
-        transformer.transform(new ByteArrayInputStream(sampleBasicMetacard().getBytes()));
+        transformer.transform(new ByteArrayInputStream(sampleJsonExtensibleA().getBytes()));
 
-    assertThat("ddf.metacard", is(metacard.getMetacardType().getName()));
-    assertThat("myId", is(metacard.getId()));
+    assertThat(metacard.getMetacardType().getName(), is("MetacardTypeA"));
+    assertThat(metacard.getId(), is(DEFAULT_ID));
   }
 
   @Test
   public void testNonEmptyPropertyType() throws IOException, CatalogTransformerException {
     Metacard metacard =
         transformer.transform(
-            new ByteArrayInputStream(sampleBasicMetacard().getBytes()), "customIdTest");
+            new ByteArrayInputStream(sampleJsonExtensibleB().getBytes()), "customIdTest");
 
-    assertThat("ddf.metacard", is(metacard.getMetacardType().getName()));
-    assertThat("customIdTest", is(metacard.getId()));
+    assertThat(metacard.getMetacardType().getName(), is("MetacardTypeB"));
+    assertThat(metacard.getId(), is("customIdTest"));
   }
 
   @Test
@@ -510,10 +510,10 @@ public class GeoJsonExtensibleTest {
     transformer.setInputTransformers(new SortedServiceList());
     Metacard metacard =
         transformer.transform(
-            new ByteArrayInputStream(sampleBasicMetacardNoMetacardType().getBytes()), "myId");
+            new ByteArrayInputStream(sampleBasicMetacardNoMetacardType().getBytes()), DEFAULT_ID);
 
-    assertThat("ddf.metacard", is(metacard.getMetacardType().getName()));
-    assertThat("myTitle", is(metacard.getTitle()));
+    assertThat(metacard.getMetacardType().getName(), is("ddf.metacard"));
+    assertThat(metacard.getTitle(), is(DEFAULT_TITLE));
   }
 
   @Test
@@ -524,18 +524,18 @@ public class GeoJsonExtensibleTest {
     transformer.setMetacardTypes(null);
     Metacard metacard1 =
         transformer.transform(
-            new ByteArrayInputStream(sampleBasicMetacardNoMetacardType().getBytes()), "myId");
+            new ByteArrayInputStream(sampleBasicMetacardNoMetacardType().getBytes()), DEFAULT_ID);
 
-    assertThat("ddf.metacard", is(metacard1.getMetacardType().getName()));
-    assertThat("myTitle", is(metacard1.getTitle()));
+    assertThat(metacard1.getMetacardType().getName(), is("ddf.metacard"));
+    assertThat(metacard1.getTitle(), is(DEFAULT_TITLE));
 
     transformer.setMetacardTypes(prepareMetacardTypes());
     Metacard metacard2 =
         transformer.transform(
-            new ByteArrayInputStream(sampleBasicMetacardNoMetacardType().getBytes()), "myId");
+            new ByteArrayInputStream(sampleBasicMetacardNoMetacardType().getBytes()), DEFAULT_ID);
 
     // tests that metacards created with null metacard types and empty property types are the same
-    assertThat(metacard1, is(metacard2));
+    assertThat(metacard2, is(metacard1));
   }
 
   @Rule public ExpectedException thrown = ExpectedException.none();
@@ -548,7 +548,7 @@ public class GeoJsonExtensibleTest {
 
     MetacardType invalidMetacardType = new MetacardTypeImpl("invalid", new HashSet<>());
     transformer.setMetacardTypes(Collections.singletonList(invalidMetacardType));
-    transformer.transform(new ByteArrayInputStream(sampleBasicMetacard().getBytes()), "myId");
+    transformer.transform(new ByteArrayInputStream(sampleBasicMetacard().getBytes()), DEFAULT_ID);
   }
 
   @Test

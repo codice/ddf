@@ -351,8 +351,9 @@ public class GeoJsonInputTransformerTest {
   @Test
   public void testToString() {
     assertThat(
-        "InputTransformer {Impl=ddf.catalog.transformer.input.geojson.GeoJsonInputTransformer, id=geojson, mime-type=application/json}",
-        is(transformer.toString()));
+        transformer.toString(),
+        is(
+            "InputTransformer {Impl=ddf.catalog.transformer.input.geojson.GeoJsonInputTransformer, id=geojson, mime-type=application/json}"));
   }
 
   @Test
@@ -373,8 +374,8 @@ public class GeoJsonInputTransformerTest {
     verify(mockSortedServiceList).stream();
     verify(mockInputTransformer).transform(inputStreamCaptor.capture());
 
-    assertThat("ddf.metacard", is(metacard.getMetacardType().getName()));
-    assertThat("myTitle", is(metacard.getTitle()));
+    assertThat(metacard.getMetacardType().getName(), is("ddf.metacard"));
+    assertThat(metacard.getTitle(), is(DEFAULT_TITLE));
   }
 
   protected void verifyBasics(Metacard metacard) {
