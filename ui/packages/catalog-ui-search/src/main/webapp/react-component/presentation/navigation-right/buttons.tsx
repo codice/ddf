@@ -98,4 +98,3 @@ export const User = () => (
     </div>
   </Button>
 )
-
