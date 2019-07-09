@@ -17,21 +17,9 @@
   white-space: nowrap;
   position: relative;
 
-  .details-text,
-  .details-view {
+  .details-text {
     display: inline-block;
     vertical-align: middle;
-  }
-  .details-view {
-    height: 2 * @minimumLineSize;
-    line-height: 2 * @minimumLineSize;
-    width: @minimumButtonSize;
-    font-size: @largeFontSize;
-    text-align: center;
-    display: none;
-    position: absolute;
-    right: 0px;
-    top: 0px;
   }
 }
 
@@ -42,10 +30,6 @@
       text-overflow: ellipsis;
       overflow: hidden;
     }
-  }
-
-  .details-view {
-    display: inline-block;
   }
 }
 

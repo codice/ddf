@@ -1,7 +1,6 @@
 @{customElementNamespace}result-selector {
   position: relative;
   .customElement;
-  padding: 0px;
 
   .resultSelector-status,
   .paging .status {
@@ -15,7 +14,7 @@
 
   .resultSelector-list {
     overflow: auto;
-    height: ~'calc(100% - 2.5*@{minimumButtonSize} - @{minimumLineSize})';
+    height: ~'calc(100% - 2*@{minimumButtonSize} - @{minimumLineSize} - 2*@{minimumSpacing})';
     position: relative;
   }
 

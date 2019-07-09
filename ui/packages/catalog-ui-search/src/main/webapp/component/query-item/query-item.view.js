@@ -112,7 +112,6 @@ module.exports = Marionette.LayoutView.extend({
     })
   },
   onRender() {
-    this.el.style.background = 'transparent'
     this.queryFeed.show(
       new QueryFeedView({
         model: this.model,

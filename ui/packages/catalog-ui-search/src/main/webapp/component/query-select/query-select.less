@@ -1,25 +1,15 @@
 @{customElementNamespace}query-item-collection.is-query-select {
   .customElement;
-  background: transparent;
-  outline: 0;
-  border: 0;
 
   @{customElementNamespace}query-item-collection {
     padding: 0px;
   }
 
-  @{customElementNamespace}query-item,
-  @{customElementNamespace}query-item.is-selected,
-  @{customElementNamespace}query-item.is-active {
-    background: pink;
-  }
-
   @{customElementNamespace}query-item {
     cursor: pointer;
-    //padding: @minimumSpacing @minimumSpacing;
 
     .query-details {
-      width: ~'calc(100% - @{mediumSpacing})';
+      width: ~'calc(100% - @{minimumSpacing})';
       margin: 0px 0px 0px @minimumSpacing;
     }
   }

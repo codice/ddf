@@ -3,7 +3,7 @@
   overflow: hidden;
 
   > .results-select > @{customElementNamespace}dropdown {
-    box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.24);
+    .minimumBoxShadow();
   }
 
   .results-select {
@@ -12,8 +12,6 @@
 
   .results-list {
     height: ~'calc(100% - 3*@{minimumLineSize} - @{minimumButtonSize} - 20px)';
-    // background: desaturate(mix(@backgroundAccentContent, @primary-color), 100%);
-    // background: darken(@backgroundAccentContent, 3%);
   }
 
   > .results-empty {

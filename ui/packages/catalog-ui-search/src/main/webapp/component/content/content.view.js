@@ -25,6 +25,7 @@ const LoadingCompanionView = require('../loading-companion/loading-companion.vie
 import { ChangeBackground } from '../../react-component/styles/mixins/change-background'
 import MultiSelectActions from '../../react-component/container/multi-select-actions'
 import styled from '../../react-component/styles/styled-components'
+import { transparentize, readableColor } from 'polished'
 
 const ContentLeft = styled.div`
   ${props => {
@@ -40,6 +41,9 @@ const ContentLeft = styled.div`
   height: 100%;
   vertical-align: top;
   overflow: hidden;
+  border-right: 1px solid
+    ${({ theme }) =>
+      transparentize(0.9, readableColor(theme.backgroundAccentContent))};
 `
 
 const ContentRight = styled.div`
