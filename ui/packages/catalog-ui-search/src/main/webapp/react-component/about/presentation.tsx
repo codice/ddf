@@ -14,8 +14,8 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import { CustomElement } from '../../styles/mixins'
-import { ChangeBackground } from '../../styles/mixins'
+import { CustomElement } from '../styles/mixins'
+import { ChangeBackground } from '../styles/mixins'
 import { hot } from 'react-hot-loader'
 
 interface Props {
