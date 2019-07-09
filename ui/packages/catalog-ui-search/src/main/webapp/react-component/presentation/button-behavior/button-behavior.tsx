@@ -66,6 +66,7 @@ const handleKeyUp = (event: any) => {
   }
 }
 
+// @ts-ignore
 const render: React.ComponentType<
   Props & Subtract<React.HTMLAttributes<HTMLDivElement>, Props>
 > = React.forwardRef(

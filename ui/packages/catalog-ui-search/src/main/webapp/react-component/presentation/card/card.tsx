@@ -64,7 +64,7 @@ interface Props {
 const Card = (props: Props) => {
   const { header, details, footer, className, style, onClick } = props
   return (
-    <Root className={className} style={style as any} onClick={onClick}>
+    <Root className={className} style={style as any} onClick={onClick as any}>
       <Header>{header}</Header>
       <Details>{details}</Details>
       <Footer>{footer}</Footer>

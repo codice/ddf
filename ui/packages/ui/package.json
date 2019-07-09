@@ -16,7 +16,7 @@
     "node": ">=0.10.5"
   },
   "devDependencies": {
-    "@types/react": "16.8.6",
+    "@types/react": "16.8.23",
     "@types/react-dom": "16.8.4",
     "@connexta/ace": "*"
   },
