@@ -17,7 +17,7 @@ import { hot } from 'react-hot-loader'
 import * as React from 'react'
 import styled, { keyframes, css } from 'styled-components'
 import { Button, buttonTypeEnum } from '../button'
-import BlacklistItemContainer from '../../container/blacklist-item'
+import BlacklistItemContainer from '../../blacklist-item'
 
 const expandAnimation = keyframes`
   from {

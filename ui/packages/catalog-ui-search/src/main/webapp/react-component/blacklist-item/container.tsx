@@ -14,10 +14,10 @@
  **/
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-import BlacklistItemPresentation from '../../presentation/blacklist-item'
-const user = require('../../../component/singletons/user-instance.js')
+import BlacklistItemPresentation from './presentation'
+const user = require('../../component/singletons/user-instance.js')
 
-const wreqr = require('../../../js/wreqr')
+const wreqr = require('../../js/wreqr')
 
 type Props = {
   item: Backbone.Model
