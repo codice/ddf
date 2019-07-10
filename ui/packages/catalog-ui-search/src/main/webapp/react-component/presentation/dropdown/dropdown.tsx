@@ -336,7 +336,12 @@ class Dropdown extends React.Component<Props, State> {
           className={className}
           style={style}
         >
-          {this.props.children}
+          {React.Children.map(this.props.children, (child: any) => {
+            if (React.isValidElement(child)) {
+              return React.cloneElement(child, { onClick: this.onClick } as any)
+            }
+            return child
+          })}
         </ButtonBehavior>
         {hasBeenOpen ? (
           <DropdownContext.Provider

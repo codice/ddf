@@ -27,6 +27,8 @@ import {
   Button,
 } from '../../../react-component/presentation/button'
 
+const { createAction } = require('imperio')
+
 type Props = {
   currentWorkspace: Backbone.Model
   saved: boolean
@@ -120,6 +122,45 @@ const AdhocButton = styled(Button)`
   line-height: inherit;
 `
 
+const { withAction: withSearch } = createAction({
+  type: 'workspace/query/TOGGLE-DROPDOWN',
+  docs: 'Start a new search in the current workspace.',
+})
+
+const StartSearch = withSearch({
+  fn: ({ props }: any) => {
+    props.onClick()
+  },
+})(({ branding, product }: any) => {
+  return (
+    <AdhocButton buttonType={buttonTypeEnum.primary}>
+      <Icon className="fa fa-search" /> Search {branding} {product}
+    </AdhocButton>
+  )
+})
+
+const { withAction: withToggle } = createAction({
+  type: 'workspace/interactions/TOGGLE-INTERACTIONS',
+  docs: 'Toggle the current workspace interactions.',
+})
+
+const Interactions = withToggle({
+  fn: ({ props }: any) => {
+    props.onClick()
+  },
+})(() => <span className="fa fa-ellipsis-v" />)
+
+const { withAction: withSave } = createAction({
+  type: 'workspace/SAVE-WORKSPACE',
+  docs: 'Save the current workspace.',
+})
+
+const Save = withSave({
+  fn: ({ props }: any) => {
+    props.onClick()
+  },
+})(SaveButton)
+
 const render = (props: Props) => {
   const { currentWorkspace, saved, branding, product } = props
   return (
@@ -135,7 +176,7 @@ const render = (props: Props) => {
           />
         </StyledWorkspaceTitle>
         <StyledSaveButton>
-          <SaveButton
+          <Save
             isSaved={saved}
             onClick={() => {
               currentWorkspace.save()
@@ -150,7 +191,7 @@ const render = (props: Props) => {
             </NavigationBehavior>
           )}
         >
-          <span className="fa fa-ellipsis-v" />
+          <Interactions />
         </StyledDropdown>
       </Grouping>
       <StyledDropdown
@@ -166,9 +207,7 @@ const render = (props: Props) => {
           />
         )}
       >
-        <AdhocButton buttonType={buttonTypeEnum.primary}>
-          <Icon className="fa fa-search" /> Search {branding} {product}
-        </AdhocButton>
+        <StartSearch branding={branding} product={product} />
       </StyledDropdown>
     </Root>
   )

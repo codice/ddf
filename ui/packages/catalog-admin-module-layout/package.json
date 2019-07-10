@@ -23,7 +23,7 @@
     "start": "ace start",
     "start:test": "ace start --env=test",
     "pretest": "ace bundle --env=test",
-    "test": "ace test target/test/index.html",
+    "test": "ace test",
     "posttest": "istanbul check-coverage",
     "coverage:report": "istanbul report html && opn ./target/coverage/index.html",
     "build": "ace bundle && ace package",

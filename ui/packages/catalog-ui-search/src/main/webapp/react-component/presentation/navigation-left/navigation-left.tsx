@@ -21,6 +21,8 @@ import { Button, buttonTypeEnum } from '../button'
 const HandlebarsHelpers = require('../../../js/HandlebarsHelpers')
 import { hot } from 'react-hot-loader'
 
+const { createAction } = require('imperio')
+
 const StyledUnsavedIndicator = styled(UnsavedIndicator)`
   position: absolute;
   left: ${props => {
@@ -173,9 +175,20 @@ const openNavigator = () => {
   SlideoutLeftViewInstance.open()
 }
 
+const { withAction } = createAction({
+  type: 'navigation/OPEN-NAVIGATOR',
+  docs: 'Open navigator to allow for navigation.',
+})
+
+const Action = withAction({
+  fn: ({ props }: any) => {
+    props.onClick()
+  },
+})(Root)
+
 function NavigationLeft(props: Props) {
   return (
-    <Root
+    <Action
       className={`${getClassesFromProps(props)}`}
       {...props}
       onClick={() => openNavigator()}
@@ -198,7 +211,7 @@ function NavigationLeft(props: Props) {
           />
         ) : null}
       </Button>
-    </Root>
+    </Action>
   )
 }
 

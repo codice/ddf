@@ -1,0 +1,35 @@
+[
+  {
+    "type": "navigation/OPEN-NAVIGATOR"
+  },
+  {
+    "type": "navigation/NAVIGATE",
+    "fragment": "about"
+  },
+  {
+    "type": "navigation/OPEN-NAVIGATOR"
+  },
+  {
+    "type": "navigation/NAVIGATE",
+    "fragment": "workspaces"
+  },
+  {
+    "type": "workspaces/NEW-WORKSPACE"
+  },
+  {
+    "type": "workspace/query/TOGGLE-DROPDOWN"
+  },
+  {
+    "type": "workspace/query/START-SEARCH"
+  },
+  {
+    "type": "workspace/SAVE-WORKSPACE"
+  },
+  {
+    "type": "navigation/OPEN-NAVIGATOR"
+  },
+  {
+    "type": "navigation/NAVIGATE",
+    "fragment": "workspaces"
+  }
+]

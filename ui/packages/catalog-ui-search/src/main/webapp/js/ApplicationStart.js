@@ -12,6 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+import { start } from 'imperio'
 
 const $ = require('jquery')
 const app = require('./application.js')
@@ -53,6 +54,7 @@ function attemptToStart() {
   checkForEmptyHashAndOneWorkspace()
   if (workspaces.fetched && user.fetched && !hasEmptyHashAndNoWorkspaces()) {
     app.App.start({})
+    start()
   } else if (!user.fetched) {
     user.once('sync', () => {
       attemptToStart()

@@ -222,9 +222,9 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@connexta/ace@*", "@connexta/ace@git://github.com/connexta/ace.git#bf7a646d6ec5960d7dd97773ae882f93157db256":
+"@connexta/ace@*", "@connexta/ace@git://github.com/connexta/ace.git#476ba5a6c09c4d9b0646acb55ef2ef4e290a4bbf":
   version "1.0.0"
-  resolved "git://github.com/connexta/ace.git#bf7a646d6ec5960d7dd97773ae882f93157db256"
+  resolved "git://github.com/connexta/ace.git#476ba5a6c09c4d9b0646acb55ef2ef4e290a4bbf"
   dependencies:
     "@connexta/eslint-plugin-connexta" "git://github.com/connexta/eslint-plugin-connexta.git#v0.0.2"
     "@ljharb/eslint-config" "12.2.1"
@@ -8847,7 +8847,7 @@ immutable@3.8.1:
   version "3.8.1"
   resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.1.tgz#200807f11ab0f72710ea485542de088075f68cd2"
 
-immutable@^3.8.1:
+immutable@3.8.2, immutable@^3.8.1:
   version "3.8.2"
   resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.2.tgz#c2439951455bb39913daf281376f1530e104adf3"
 

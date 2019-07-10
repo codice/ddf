@@ -393,6 +393,11 @@
                                     <classifier>sources-module</classifier>
                                 </artifact>
                                 <artifact>
+                                    <file>packages/catalog-ui-search-e2e/target/catalog-ui-search-e2e.jar</file>
+                                    <type>jar</type>
+                                    <classifier>catalog-ui-search-e2e</classifier>
+                                </artifact>
+                                <artifact>
                                     <file>packages/catalog-ui-search/target/catalog-ui-search.jar</file>
                                     <type>jar</type>
                                     <classifier>catalog-ui-search</classifier>
@@ -464,8 +469,7 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <ArtifactSizeEnforcerRule
-                                    implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
+                                <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
                                     <maxArtifactSize>48.4_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>

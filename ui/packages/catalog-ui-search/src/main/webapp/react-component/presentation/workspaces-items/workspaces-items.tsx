@@ -76,7 +76,18 @@ const WorkspaceItemRoot = styled.div`
   margin-right: ${props => props.theme.largeSpacing};
 `
 
-const ModifiedButton = WorkspaceItemRoot.withComponent(Button)
+const { createAction } = require('imperio')
+
+const { withAction } = createAction({
+  type: 'workspaces/NEW-WORKSPACE',
+  docs: 'Create a new workspace.',
+})
+
+const ModifiedButton = withAction({
+  fn: ({ props }: any) => {
+    props.onClick()
+  },
+})(WorkspaceItemRoot.withComponent(Button))
 
 const Icon = styled.div`
   margin-top: ${props => props.theme.mediumSpacing};

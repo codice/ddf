@@ -131,15 +131,38 @@ const Footer = (props: Props) => {
   )
 }
 
+const { createAction } = require('imperio')
+
+const { withAction } = createAction({
+  type: 'workspaces/OPEN-WORKSPACE',
+  docs: 'Open an existing workspace.',
+  selector: (actions: any, params: any) => {
+    return actions.find(({ meta }: any) => meta.title === params.title)
+  },
+})
+
+const Action = withAction({
+  meta: (props: any) => {
+    const { title, owner } = props
+    return { title, owner }
+  },
+  params: (props: any) => {
+    return [{ title: props.title }]
+  },
+  fn: ({ props }: any) => {
+    props.onClick()
+  },
+})(Root)
+
 const WorkspaceItem = (props: Props) => {
   return (
-    <Root onClick={props.openWorkspace} tabIndex={0}>
+    <Action onClick={props.openWorkspace} {...props} tabIndex={0}>
       <Card
         header={Header(props)}
         details={Details(props)}
         footer={Footer(props)}
       />
-    </Root>
+    </Action>
   )
 }
 

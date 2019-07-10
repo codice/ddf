@@ -30,6 +30,13 @@ const user = require('../singletons/user-instance.js')
 import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
 import ExtensionPoints from '../../extension-points'
 
+const { createAction } = require('imperio')
+
+const { register, unregister } = createAction({
+  type: 'workspace/query/START-SEARCH',
+  docs: 'Run a search',
+})
+
 module.exports = Marionette.LayoutView.extend({
   template,
   tagName: CustomElements.register('query-add'),
@@ -94,6 +101,16 @@ module.exports = Marionette.LayoutView.extend({
   onBeforeShow() {
     this.reshow()
     this.showTitle()
+
+    this.action = register({
+      el: this.el,
+      fn: () => {
+        this.saveRun()
+      },
+    })
+  },
+  onDestroy() {
+    unregister(this.action)
   },
   getDefaultQuery() {
     let userDefaultTemplate = user.getQuerySettings().get('template')
