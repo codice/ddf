@@ -15,8 +15,8 @@
 
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-const wreqr = require('../../../js/wreqr.js')
-import MapActionsPresentation from '../../presentation/map-actions'
+const wreqr = require('../../js/wreqr.js')
+import MapActionsPresentation from './presentation'
 
 type Props = {
   model: Backbone.Model
