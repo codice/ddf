@@ -21,14 +21,14 @@
  */
 import * as React from 'react'
 import styled from 'styled-components'
-import withListenTo from '../../container/backbone-container'
-import MarionetteRegionContainer from '../../container/marionette-region-container'
-import { buttonTypeEnum, Button } from '../button'
+import withListenTo from '../container/backbone-container'
+import MarionetteRegionContainer from '../container/marionette-region-container'
+import { buttonTypeEnum, Button } from '../presentation/button'
 
-const ListEditorView = require('../../../component/list-editor/list-editor.view.js')
-const List = require('../../../js/model/List.js')
-const store = require('../../../js/store.js')
-const ConfirmationView = require('../../../component/confirmation/confirmation.view.js')
+const ListEditorView = require('../../component/list-editor/list-editor.view.js')
+const List = require('../../js/model/List.js')
+const store = require('../../js/store.js')
+const ConfirmationView = require('../../component/confirmation/confirmation.view.js')
 
 const CreateContainer = styled.div`
   padding: ${props => props.theme.minimumSpacing};
