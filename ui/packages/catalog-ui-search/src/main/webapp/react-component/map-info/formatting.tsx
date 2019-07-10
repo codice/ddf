@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const metacardDefinitions = require('../../../component/singletons/metacard-definitions')
+const metacardDefinitions = require('../../component/singletons/metacard-definitions')
 const mtgeo = require('mt-geo')
 const usngs = require('usng.js')
 const Common = require('js/Common')
