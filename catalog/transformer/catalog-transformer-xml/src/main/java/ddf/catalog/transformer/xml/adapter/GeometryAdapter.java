@@ -31,9 +31,12 @@ import org.jvnet.jaxb2_commons.locator.DefaultRootObjectLocator;
 import org.jvnet.ogc.gml.v_3_1_1.jts.ConversionFailedException;
 import org.jvnet.ogc.gml.v_3_1_1.jts.GML311ToJTSGeometryConverter;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311GeometryConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GeometryAdapter extends XmlAdapter<GeometryElement, Attribute> {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(GeometryAdapter.class);
   private static GeometryFactory geometryFactory = new GeometryFactory();
 
   public static GeometryElement marshalFrom(Attribute attribute)
@@ -76,14 +79,24 @@ public class GeometryAdapter extends XmlAdapter<GeometryElement, Attribute> {
 
     for (Value xmlValue : element.getValue()) {
       JAXBElement<AbstractGeometryType> xmlGeometry = xmlValue.getGeometry();
-      Geometry geometry =
-          converter.createGeometry(new DefaultRootObjectLocator(xmlValue), xmlGeometry.getValue());
-      String wkt = wktWriter.write(geometry);
+      Geometry geometry = null;
+      if (xmlGeometry != null && xmlGeometry.getValue() != null) {
+        try {
+          geometry =
+              converter.createGeometry(
+                  new DefaultRootObjectLocator(xmlValue), xmlGeometry.getValue());
+        } catch (ConversionFailedException e) {
+          LOGGER.debug("Unable to adapt goemetry. ", e);
+        }
+      }
+      if (geometry != null && !geometry.isEmpty()) {
+        String wkt = wktWriter.write(geometry);
 
-      if (attribute == null) {
-        attribute = new AttributeImpl(element.getName(), wkt);
-      } else {
-        attribute.addValue(wkt);
+        if (attribute == null) {
+          attribute = new AttributeImpl(element.getName(), wkt);
+        } else {
+          attribute.addValue(wkt);
+        }
       }
     }
     return attribute;
