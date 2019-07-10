@@ -20,21 +20,17 @@
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
-
-    <!-- Get reference to Filter Adapter implementation -->
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
     <reference-list id="metacardToFeatureMappers"
                     interface="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"
                     availability="optional"/>
 
-
     <reference-list id="converterList"
                     interface="org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.FeatureConverterFactory"
                     availability="optional"/>
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
-
     <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
 
     <cm:managed-service-factory
@@ -50,19 +46,34 @@
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="disableCnCheck" value="false"/>
+            <property name="forcedFeatureType" value=""/>
             <property name="nonQueryableProperties">
                 <list></list>
             </property>
             <property name="featureConverterFactoryList" ref="converterList"/>
             <property name="pollInterval" value="5"/>
-            <property name="forceSpatialFilter" value=""/>
+            <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="metacardToFeatureMapper" ref="metacardToFeatureMappers"/>
             <property name="coordinateOrder" value="LAT_LON"/>
             <property name="disableSorting" value="false"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
-            <argument ref="encryptionService"/>
+            <property name="srsName" value=""/>
+
             <argument ref="clientFactoryFactory"/>
+            <argument ref="encryptionService"/>
+            <argument>
+                <!-- Must be instantiated inline so sources don't share the same instance -->
+                <bean class="java.util.concurrent.Executors"
+                  factory-method="newSingleThreadScheduledExecutor">
+                    <argument>
+                        <bean class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+                          factory-method="newThreadFactory">
+                            <argument value="wfsSourceThread"/>
+                        </bean>
+                    </argument>
+                </bean>
+            </argument>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>

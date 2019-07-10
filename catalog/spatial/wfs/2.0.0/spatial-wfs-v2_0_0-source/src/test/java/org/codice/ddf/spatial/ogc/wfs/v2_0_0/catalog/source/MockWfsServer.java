@@ -402,4 +402,29 @@ public class MockWfsServer {
         + "</Within>"
         + "</ns5:Filter>";
   }
+
+  static String getPropertyIsEqualToFilter() {
+    return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+        + "<ogc:Filter xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ogc=\"http://www.opengis.net/ogc\">"
+        + "<PropertyIsEqualTo>"
+        + "<ValueReference>mockFeatureProperty</ValueReference>"
+        + "<Literal>Literal</Literal>"
+        + "</PropertyIsEqualTo>"
+        + "</ogc:Filter>";
+  }
+
+  static String getPropertyIsBetweenFilter() {
+    return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+        + "<ogc:Filter xmlns=\"http://www.opengis.net/fes/2.0\" xmlns:ogc=\"http://www.opengis.net/ogc\">"
+        + "<PropertyIsBetween>"
+        + "<ValueReference>mockFeatureProperty</ValueReference>"
+        + "<LowerBoundary>"
+        + "<Literal>100</Literal>"
+        + "</LowerBoundary>"
+        + "<UpperBoundary>"
+        + "<Literal>200</Literal>"
+        + "</UpperBoundary>"
+        + "</PropertyIsBetween>"
+        + "</ogc:Filter>";
+  }
 }

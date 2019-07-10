@@ -23,6 +23,7 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -33,30 +34,38 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.xmlunit.matchers.HasXPathMatcher.hasXPath;
 
 import com.google.common.collect.ImmutableMap;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.security.encryption.EncryptionService;
-import ddf.security.service.SecurityServiceException;
 import java.io.ByteArrayInputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.stream.StreamSource;
 import net.opengis.filter.v_2_0_0.ConformanceType;
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
@@ -78,6 +87,7 @@ import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.impl.MetacardMapperImpl;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.WfsUriResolver;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.DescribeFeatureTypeRequest;
@@ -86,6 +96,7 @@ import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs20;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
@@ -96,6 +107,9 @@ import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
 
 public class WfsSourceTest {
+  private static final Map<String, String> NAMESPACE_CONTEXT =
+      ImmutableMap.of(
+          "wfs", "http://www.opengis.net/wfs/2.0", "ogc", "http://www.opengis.net/fes/2.0");
 
   private static final String ONE_TEXT_PROPERTY_SCHEMA =
       "<?xml version=\"1.0\"?>"
@@ -115,11 +129,13 @@ public class WfsSourceTest {
 
   private static final String LITERAL = "literal";
 
+  private static JAXBContext jaxbContext;
+
   private final GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
 
   private Wfs mockWfs = mock(Wfs.class);
 
-  private WFSCapabilitiesType mockCapabilites = new WFSCapabilitiesType();
+  private WFSCapabilitiesType mockCapabilities = new WFSCapabilitiesType();
 
   private BundleContext mockContext = mock(BundleContext.class);
 
@@ -136,23 +152,32 @@ public class WfsSourceTest {
 
   private EncryptionService encryptionService = mock(EncryptionService.class);
 
-  public WfsSource getWfsSource(
-      final String schema,
-      final FilterCapabilities filterCapabilities,
-      final String srsName,
-      final int numFeatures)
-      throws WfsException, SecurityServiceException {
+  private ScheduledExecutorService mockScheduler = mock(ScheduledExecutorService.class);
 
-    return getWfsSource(schema, filterCapabilities, srsName, numFeatures, false);
+  private List<MetacardMapper> metacardMappers = new ArrayList<>();
+
+  @BeforeClass
+  public static void setupClass() {
+    try {
+      jaxbContext = JAXBContext.newInstance("net.opengis.wfs.v_2_0_0");
+    } catch (JAXBException e) {
+      fail(e.getMessage());
+    }
   }
 
-  public WfsSource getWfsSource(
+  private WfsSource getWfsSource(
+      final String schema, final FilterCapabilities filterCapabilities, final int numFeatures)
+      throws WfsException {
+
+    return getWfsSource(schema, filterCapabilities, numFeatures, false);
+  }
+
+  private WfsSource getWfsSource(
       final String schema,
       final FilterCapabilities filterCapabilities,
-      final String srsName,
       final int numFeatures,
       final boolean throwExceptionOnDescribeFeatureType)
-      throws WfsException, SecurityServiceException {
+      throws WfsException {
     mockFactory = mock(SecureCxfClientFactory.class);
     when(mockFactory.getClient()).thenReturn(mockWfs);
 
@@ -193,13 +218,13 @@ public class WfsSourceTest {
         .thenReturn(mockFactory);
 
     // GetCapabilities Response
-    when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilites);
+    when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilities);
 
-    mockCapabilites.setFilterCapabilities(filterCapabilities);
+    mockCapabilities.setFilterCapabilities(filterCapabilities);
 
     when(mockAvailabilityTask.isAvailable()).thenReturn(true);
 
-    mockCapabilites.setFeatureTypeList(new FeatureTypeListType());
+    mockCapabilities.setFeatureTypeList(new FeatureTypeListType());
     for (int ii = 0; ii < numFeatures; ii++) {
       FeatureTypeType feature = new FeatureTypeType();
       QName qName;
@@ -210,7 +235,7 @@ public class WfsSourceTest {
       }
       feature.setName(qName);
       feature.setDefaultCRS(GeospatialUtil.EPSG_4326_URN);
-      mockCapabilites.getFeatureTypeList().getFeatureType().add(feature);
+      mockCapabilities.getFeatureTypeList().getFeatureType().add(feature);
     }
 
     XmlSchema xmlSchema = null;
@@ -245,10 +270,10 @@ public class WfsSourceTest {
               @Override
               public List<Metacard> answer(InvocationOnMock invocation) {
                 // Create as many metacards as there are features
-                List<Metacard> metacards = new ArrayList<Metacard>(numFeatures);
+                List<Metacard> metacards = new ArrayList<>(numFeatures);
                 for (int i = 0; i < numFeatures; i++) {
                   MetacardImpl mc = new MetacardImpl();
-                  mc.setId("ID_" + String.valueOf(i + 1));
+                  mc.setId("ID_" + (i + 1));
                   metacards.add(mc);
                 }
 
@@ -257,30 +282,31 @@ public class WfsSourceTest {
             });
 
     MetacardMapper mockMapper = mock(MetacardMapper.class);
-    List<MetacardMapper> mappers = new ArrayList<MetacardMapper>(1);
-    mappers.add(mockMapper);
+    doReturn(SAMPLE_FEATURE_NAME).when(mockMapper).getFeatureType();
+    metacardMappers.add(mockMapper);
 
-    WfsSource source =
-        new WfsSource(
-            new GeotoolsFilterAdapterImpl(),
-            mockContext,
-            mockAvailabilityTask,
-            mockClientFactory,
-            encryptionService);
+    final ScheduledFuture<?> mockAvailabilityPollFuture = mock(ScheduledFuture.class);
+    doReturn(mockAvailabilityPollFuture)
+        .when(mockScheduler)
+        .scheduleWithFixedDelay(any(), anyInt(), anyInt(), any());
 
-    source.setMetacardToFeatureMapper(mappers);
+    WfsSource source = new WfsSource(mockClientFactory, encryptionService, mockScheduler);
+    source.setContext(mockContext);
+    source.setFilterAdapter(new GeotoolsFilterAdapterImpl());
+    source.setMetacardToFeatureMapper(metacardMappers);
+    source.setPollInterval(10);
+    source.init();
     return source;
   }
 
-  public WfsSource getWfsSource(
+  private WfsSource getWfsSource(
       final String schema,
       final FilterCapabilities filterCapabilities,
-      final String srsName,
       final int numFeatures,
       final boolean throwExceptionOnDescribeFeatureType,
       boolean prefix,
       int numReturned)
-      throws WfsException, SecurityServiceException {
+      throws WfsException {
 
     mockFactory = mock(SecureCxfClientFactory.class);
     when(mockFactory.getClient()).thenReturn(mockWfs);
@@ -322,7 +348,7 @@ public class WfsSourceTest {
         .thenReturn(mockFactory);
 
     // GetCapabilities Response
-    when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilites);
+    when(mockWfs.getCapabilities(any(GetCapabilitiesRequest.class))).thenReturn(mockCapabilities);
 
     when(mockFeatureCollection.getMembers())
         .thenAnswer(
@@ -330,10 +356,10 @@ public class WfsSourceTest {
               @Override
               public List<Metacard> answer(InvocationOnMock invocation) {
                 // Create as many metacards as there are features
-                List<Metacard> metacards = new ArrayList<Metacard>(numFeatures);
+                List<Metacard> metacards = new ArrayList<>(numFeatures);
                 for (int i = 0; i < numFeatures; i++) {
                   MetacardImpl mc = new MetacardImpl();
-                  mc.setId("ID_" + String.valueOf(i + 1));
+                  mc.setId("ID_" + (i + 1));
                   metacards.add(mc);
                 }
 
@@ -348,11 +374,11 @@ public class WfsSourceTest {
     }
 
     when(mockWfs.getFeature(any(GetFeatureType.class))).thenReturn(mockFeatureCollection);
-    mockCapabilites.setFilterCapabilities(filterCapabilities);
+    mockCapabilities.setFilterCapabilities(filterCapabilities);
 
     when(mockAvailabilityTask.isAvailable()).thenReturn(true);
 
-    mockCapabilites.setFeatureTypeList(new FeatureTypeListType());
+    mockCapabilities.setFeatureTypeList(new FeatureTypeListType());
     for (int ii = 0; ii < numFeatures; ii++) {
       FeatureTypeType feature = new FeatureTypeType();
       QName qName;
@@ -363,7 +389,7 @@ public class WfsSourceTest {
       }
       feature.setName(qName);
       feature.setDefaultCRS(GeospatialUtil.EPSG_4326_URN);
-      mockCapabilites.getFeatureTypeList().getFeatureType().add(feature);
+      mockCapabilities.getFeatureTypeList().getFeatureType().add(feature);
     }
 
     XmlSchema xmlSchema = null;
@@ -386,38 +412,32 @@ public class WfsSourceTest {
           .thenReturn(xmlSchema);
     }
 
-    WfsSource wfsSource =
-        new WfsSource(
-            new GeotoolsFilterAdapterImpl(),
-            mockContext,
-            mockAvailabilityTask,
-            mockClientFactory,
-            encryptionService);
+    final ScheduledFuture<?> mockAvailabilityPollFuture = mock(ScheduledFuture.class);
+    doReturn(mockAvailabilityPollFuture)
+        .when(mockScheduler)
+        .scheduleWithFixedDelay(any(), anyInt(), anyInt(), any());
 
+    WfsSource wfsSource = new WfsSource(mockClientFactory, encryptionService, mockScheduler);
+    wfsSource.setContext(mockContext);
+    wfsSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
     wfsSource.setFeatureCollectionReader(mockReader);
-
+    wfsSource.setMetacardToFeatureMapper(metacardMappers);
+    wfsSource.setPollInterval(10);
+    wfsSource.init();
     return wfsSource;
   }
 
   @Test
-  public void testAvailability() throws WfsException, SecurityServiceException {
+  public void testAvailability() throws WfsException {
     WfsSource source =
-        getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            1);
+        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 1);
     assertTrue(source.isAvailable());
   }
 
   @Test
-  public void testParseCapabilities() throws WfsException, SecurityServiceException {
+  public void testParseCapabilities() throws WfsException {
     WfsSource source =
-        getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            1);
+        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 1);
 
     assertTrue(source.isAvailable());
     assertThat(source.featureTypeFilters.size(), is(1));
@@ -427,35 +447,40 @@ public class WfsSourceTest {
   }
 
   @Test
-  public void testParseCapabilitiesNoFeatures() throws WfsException, SecurityServiceException {
-    WfsSource source =
-        getWfsSource("", MockWfsServer.getFilterCapabilities(), GeospatialUtil.EPSG_4326_URN, 0);
+  public void testParseCapabilitiesNoFeatures() throws WfsException {
+    WfsSource source = getWfsSource("", MockWfsServer.getFilterCapabilities(), 0);
 
-    assertTrue(source.isAvailable());
-    assertThat(source.featureTypeFilters.size(), is(0));
+    assertThat(
+        "The source should not be available because the GetCapabilities response has no features.",
+        source.isAvailable(),
+        is(false));
+    assertThat(
+        "The source should not have any feature type filters because the GetCapabilities response has no features.",
+        source.featureTypeFilters.size(),
+        is(0));
   }
 
   @Test
-  public void testParseCapabilitiesNoFilterCapabilities()
-      throws WfsException, SecurityServiceException {
-    WfsSource source =
-        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, null, GeospatialUtil.EPSG_4326_URN, 1);
+  public void testParseCapabilitiesNoFilterCapabilities() throws WfsException {
+    WfsSource source = getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, null, 1);
 
-    assertTrue(source.isAvailable());
-    assertThat(source.featureTypeFilters.size(), is(0));
+    assertThat(
+        "The source should not be available because the GetCapabilities response has no filter capabilities.",
+        source.isAvailable(),
+        is(false));
+    assertThat(
+        "The source should not have any feature type filters because the GetCapabilities response has no filter capabilities.",
+        source.featureTypeFilters.size(),
+        is(0));
   }
 
   @Test
-  public void testConfigureFeatureTypes() throws WfsException, SecurityServiceException {
+  public void testConfigureFeatureTypes() throws WfsException {
     ArgumentCaptor<DescribeFeatureTypeRequest> captor =
         ArgumentCaptor.forClass(DescribeFeatureTypeRequest.class);
 
     WfsSource source =
-        getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            1);
+        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 1);
 
     final String SAMPLE_FEATURE_NAME0 = SAMPLE_FEATURE_NAME + "0";
 
@@ -473,25 +498,19 @@ public class WfsSourceTest {
 
     assertThat(source.getContentTypes().size(), is(1));
 
-    List<ContentType> types = new ArrayList<ContentType>();
+    List<ContentType> types = new ArrayList<>();
     types.addAll(source.getContentTypes());
 
     assertTrue(SAMPLE_FEATURE_NAME0.equals(types.get(0).getName()));
   }
 
   @Test
-  public void testConfigureFeatureTypesDescribeFeatureException()
-      throws WfsException, SecurityServiceException {
+  public void testConfigureFeatureTypesDescribeFeatureException() throws WfsException {
     ArgumentCaptor<DescribeFeatureTypeRequest> captor =
         ArgumentCaptor.forClass(DescribeFeatureTypeRequest.class);
 
     WfsSource source =
-        getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            1,
-            true);
+        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 1, true);
 
     final String SAMPLE_FEATURE_NAME0 = SAMPLE_FEATURE_NAME + "0";
 
@@ -508,8 +527,7 @@ public class WfsSourceTest {
   }
 
   @Test
-  public void testTypeNameHasPrefix()
-      throws WfsException, SecurityServiceException, UnsupportedQueryException {
+  public void testTypeNameHasPrefix() throws Exception {
 
     // Setup
     final String TITLE = "title";
@@ -518,13 +536,7 @@ public class WfsSourceTest {
 
     WfsSource source =
         getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            3,
-            false,
-            true,
-            3);
+            ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 3, false, true, 3);
 
     QueryImpl query =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
@@ -547,8 +559,7 @@ public class WfsSourceTest {
   }
 
   @Test
-  public void testTypeNameHasNoPrefix()
-      throws WfsException, SecurityServiceException, UnsupportedQueryException {
+  public void testTypeNameHasNoPrefix() throws Exception {
 
     // Setup
     final String TITLE = "title";
@@ -557,13 +568,7 @@ public class WfsSourceTest {
 
     WfsSource source =
         getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            3,
-            false,
-            false,
-            3);
+            ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 3, false, false, 3);
 
     QueryImpl query =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
@@ -588,27 +593,16 @@ public class WfsSourceTest {
   /**
    * Given 10 features (and metacards) exist that match search criteria, since page size=4 and
    * startIndex=0, should get 4 results back - metacards 1 thru 4.
-   *
-   * @throws WfsException, SecurityServiceException
-   * @throws TransformerConfigurationException
-   * @throws UnsupportedQueryException
    */
   @Test
-  public void testPagingStartIndexZero()
-      throws WfsException, SecurityServiceException, TransformerConfigurationException,
-          UnsupportedQueryException {
+  public void testPagingStartIndexZero() throws Exception {
 
     // Setup
     int pageSize = 4;
     int startIndex = 0;
 
     WfsSource source =
-        getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            10,
-            false);
+        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 10, false);
     Filter filter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
     Query query = new QueryImpl(filter, startIndex, pageSize, null, false, 0);
 
@@ -625,26 +619,15 @@ public class WfsSourceTest {
   /**
    * Verify that, per DDF Query API Javadoc, if the startIndex is negative, the WfsSource throws an
    * UnsupportedQueryException.
-   *
-   * @throws WfsException, SecurityServiceException
-   * @throws TransformerConfigurationException
-   * @throws UnsupportedQueryException
    */
   @Test(expected = UnsupportedQueryException.class)
-  public void testPagingStartIndexNegative()
-      throws WfsException, SecurityServiceException, TransformerConfigurationException,
-          UnsupportedQueryException {
+  public void testPagingStartIndexNegative() throws Exception {
     // Setup
     int pageSize = 4;
     int startIndex = -1;
 
     WfsSource source =
-        getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            10,
-            false);
+        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 10, false);
     Filter filter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
     Query query = new QueryImpl(filter, startIndex, pageSize, null, false, 0);
 
@@ -655,26 +638,15 @@ public class WfsSourceTest {
   /**
    * Verify that, per DDF Query API Javadoc, if the startIndex is negative, the WfsSource throws an
    * UnsupportedQueryException.
-   *
-   * @throws WfsException, SecurityServiceException
-   * @throws TransformerConfigurationException
-   * @throws UnsupportedQueryException
    */
   @Test(expected = UnsupportedQueryException.class)
-  public void testPagingPageSizeNegative()
-      throws WfsException, SecurityServiceException, TransformerConfigurationException,
-          UnsupportedQueryException {
+  public void testPagingPageSizeNegative() throws Exception {
     // Setup
     int pageSize = -4;
     int startIndex = 0;
 
     WfsSource source =
-        getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            10,
-            false);
+        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 10, false);
     Filter filter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
     Query query = new QueryImpl(filter, startIndex, pageSize, null, false, 0);
 
@@ -683,9 +655,7 @@ public class WfsSourceTest {
   }
 
   @Test
-  public void testResultNumReturnedNegative()
-      throws WfsException, SecurityServiceException, TransformerConfigurationException,
-          UnsupportedQueryException {
+  public void testResultNumReturnedNegative() throws Exception {
     // Setup
     final String TITLE = "title";
     final String searchPhrase = "*";
@@ -693,13 +663,7 @@ public class WfsSourceTest {
 
     WfsSource source =
         getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            3,
-            false,
-            true,
-            -1);
+            ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 3, false, true, -1);
 
     QueryImpl query =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
@@ -715,15 +679,9 @@ public class WfsSourceTest {
   /**
    * If numberReturned is null, then query should return back size equivalent to the number of
    * members in the feature collection.
-   *
-   * @throws WfsException, SecurityServiceException
-   * @throws TransformerConfigurationException
-   * @throws UnsupportedQueryException
    */
   @Test
-  public void testResultNumReturnedIsNull()
-      throws WfsException, SecurityServiceException, TransformerConfigurationException,
-          UnsupportedQueryException {
+  public void testResultNumReturnedIsNull() throws Exception {
     // Setup
     final String TITLE = "title";
     final String searchPhrase = "*";
@@ -733,7 +691,6 @@ public class WfsSourceTest {
         getWfsSource(
             ONE_TEXT_PROPERTY_SCHEMA,
             MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
             3,
             false,
             true,
@@ -754,15 +711,9 @@ public class WfsSourceTest {
   /**
    * If numberReturned is null, then query should return back size equivalent to the number of
    * members in the feature collection.
-   *
-   * @throws WfsException, SecurityServiceException
-   * @throws TransformerConfigurationException
-   * @throws UnsupportedQueryException
    */
   @Test
-  public void testResultNumReturnedIsWrong()
-      throws WfsException, SecurityServiceException, TransformerConfigurationException,
-          UnsupportedQueryException {
+  public void testResultNumReturnedIsWrong() throws Exception {
     // Setup
     final String TITLE = "title";
     final String searchPhrase = "*";
@@ -770,13 +721,7 @@ public class WfsSourceTest {
 
     WfsSource source =
         getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            3,
-            false,
-            true,
-            5);
+            ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 3, false, true, 5);
 
     QueryImpl query =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
@@ -791,9 +736,7 @@ public class WfsSourceTest {
   }
 
   @Test
-  public void testResultNumReturnedIsZero()
-      throws WfsException, SecurityServiceException, TransformerConfigurationException,
-          UnsupportedQueryException {
+  public void testResultNumReturnedIsZero() throws Exception {
     // Setup
     final String TITLE = "title";
     final String searchPhrase = "*";
@@ -801,13 +744,7 @@ public class WfsSourceTest {
 
     WfsSource source =
         getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            3,
-            false,
-            true,
-            0);
+            ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 3, false, true, 0);
 
     QueryImpl query =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
@@ -845,13 +782,7 @@ public class WfsSourceTest {
 
     WfsSource source =
         getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            1,
-            false,
-            false,
-            0);
+            ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 1, false, false, 0);
     MetacardMapper mockMetacardMapper = mock(MetacardMapper.class);
     when(mockMetacardMapper.getFeatureType()).thenReturn(mockFeatureType);
     when(mockMetacardMapper.getSortByTemporalFeatureProperty())
@@ -905,18 +836,12 @@ public class WfsSourceTest {
 
     WfsSource source =
         getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            mockCapabilitiesSortingNotSupported,
-            GeospatialUtil.EPSG_4326_URN,
-            1,
-            false,
-            false,
-            0);
+            ONE_TEXT_PROPERTY_SCHEMA, mockCapabilitiesSortingNotSupported, 1, false, false, 0);
     MetacardMapper mockMetacardMapper = mock(MetacardMapper.class);
     when(mockMetacardMapper.getFeatureType()).thenReturn(mockFeatureType);
     when(mockMetacardMapper.getSortByTemporalFeatureProperty())
         .thenReturn(mockTemporalFeatureProperty);
-    List<MetacardMapper> mappers = new ArrayList<MetacardMapper>(1);
+    List<MetacardMapper> mappers = new ArrayList<>(1);
     mappers.add(mockMetacardMapper);
     source.setMetacardToFeatureMapper(mappers);
 
@@ -955,17 +880,11 @@ public class WfsSourceTest {
 
     WfsSource source =
         getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            1,
-            false,
-            false,
-            0);
+            ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 1, false, false, 0);
     MetacardMapper mockMetacardMapper = mock(MetacardMapper.class);
     when(mockMetacardMapper.getFeatureType()).thenReturn(mockFeatureType);
 
-    List<MetacardMapper> mappers = new ArrayList<MetacardMapper>(1);
+    List<MetacardMapper> mappers = new ArrayList<>(1);
     mappers.add(mockMetacardMapper);
     source.setMetacardToFeatureMapper(mappers);
 
@@ -1007,18 +926,12 @@ public class WfsSourceTest {
 
     WfsSource source =
         getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            1,
-            false,
-            false,
-            0);
+            ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 1, false, false, 0);
     MetacardMapper mockMetacardMapper = mock(MetacardMapper.class);
     when(mockMetacardMapper.getFeatureType()).thenReturn(mockFeatureType);
     when(mockMetacardMapper.getSortByTemporalFeatureProperty())
         .thenReturn(mockTemporalFeatureProperty);
-    List<MetacardMapper> mappers = new ArrayList<MetacardMapper>(1);
+    List<MetacardMapper> mappers = new ArrayList<>(1);
     mappers.add(mockMetacardMapper);
     source.setMetacardToFeatureMapper(mappers);
 
@@ -1049,13 +962,7 @@ public class WfsSourceTest {
 
     WfsSource source =
         getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            1,
-            false,
-            false,
-            0);
+            ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 1, false, false, 0);
 
     QueryImpl query =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(searchPhrase));
@@ -1070,16 +977,10 @@ public class WfsSourceTest {
   }
 
   @Test
-  public void testTimeoutConfiguration() throws WfsException, SecurityServiceException {
+  public void testTimeoutConfiguration() throws WfsException {
     WfsSource source =
         getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            1,
-            false,
-            false,
-            0);
+            ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 1, false, false, 0);
 
     source.setConnectionTimeout(10000);
     source.setReceiveTimeout(10000);
@@ -1091,14 +992,9 @@ public class WfsSourceTest {
 
   @Test
   public void testClientFactoryIsCreatedCorrectlyWhenUsernameAndPasswordAreConfigured()
-      throws SecurityServiceException, WfsException {
+      throws WfsException {
     final WfsSource source =
-        getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            1,
-            false);
+        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 1, false);
 
     final String wfsUrl = "http://localhost/wfs";
     final String username = "test_user";
@@ -1141,14 +1037,9 @@ public class WfsSourceTest {
 
   @Test
   public void testClientFactoryIsCreatedCorrectlyWhenCertAliasAndKeystorePathAreConfigured()
-      throws SecurityServiceException, WfsException {
+      throws WfsException {
     final WfsSource source =
-        getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            1,
-            false);
+        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 1, false);
 
     final String wfsUrl = "http://localhost/wfs";
     final Boolean disableCnCheck = false;
@@ -1191,15 +1082,9 @@ public class WfsSourceTest {
   }
 
   @Test
-  public void testClientFactoryIsCreatedCorrectlyWhenNoAuthIsConfigured()
-      throws SecurityServiceException, WfsException {
+  public void testClientFactoryIsCreatedCorrectlyWhenNoAuthIsConfigured() throws WfsException {
     final WfsSource source =
-        getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            1,
-            false);
+        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 1, false);
 
     final String wfsUrl = "http://localhost/wfs";
     final Boolean disableCnCheck = false;
@@ -1237,12 +1122,7 @@ public class WfsSourceTest {
     // Setup
     int pageSize = 10;
     WfsSource source =
-        getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            10,
-            false);
+        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 10, false);
     Filter filter =
         builder.attribute(Metacard.CONTENT_TYPE).is().equalTo().text(SAMPLE_FEATURE_NAME + "0");
     QueryImpl query = new QueryImpl(filter);
@@ -1261,12 +1141,7 @@ public class WfsSourceTest {
     // Setup
     int pageSize = 10;
     WfsSource source =
-        getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            10,
-            false);
+        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 10, false);
     Filter filter0 =
         builder.attribute(Metacard.CONTENT_TYPE).is().equalTo().text(SAMPLE_FEATURE_NAME + "8");
     Filter filter1 =
@@ -1291,12 +1166,7 @@ public class WfsSourceTest {
 
     int pageSize = 10;
     WfsSource source =
-        getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            10,
-            false);
+        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 10, false);
     source.setSrsName(GeospatialUtil.EPSG_4326);
 
     Filter filter =
@@ -1316,12 +1186,7 @@ public class WfsSourceTest {
 
     int pageSize = 10;
     WfsSource source =
-        getWfsSource(
-            ONE_TEXT_PROPERTY_SCHEMA,
-            MockWfsServer.getFilterCapabilities(),
-            GeospatialUtil.EPSG_4326_URN,
-            10,
-            false);
+        getWfsSource(ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 10, false);
 
     Filter filter =
         builder.attribute(Metacard.CONTENT_TYPE).is().equalTo().text(SAMPLE_FEATURE_NAME + "0");
@@ -1333,5 +1198,50 @@ public class WfsSourceTest {
     QueryType queryType = (QueryType) featureType.getAbstractQueryExpression().get(0).getValue();
 
     assertThat(queryType.getSrsName(), nullValue());
+  }
+
+  @Test
+  public void testSourceUsesMetacardMapperToMapMetacardAttributesToFeatureProperties()
+      throws Exception {
+    final MetacardMapperImpl metacardMapper = new MetacardMapperImpl();
+    metacardMapper.setFeatureType("{http://example.com}SampleFeature0");
+    metacardMapper.setResourceUriMapping("title");
+    metacardMappers.add(metacardMapper);
+
+    final WfsSource source =
+        getWfsSource(
+            ONE_TEXT_PROPERTY_SCHEMA, MockWfsServer.getFilterCapabilities(), 1, false, false, 1);
+
+    final Filter filter = builder.attribute(Core.RESOURCE_URI).is().equalTo().text("anything");
+    final Query query = new QueryImpl(filter);
+    final QueryRequest queryRequest = new QueryRequestImpl(query);
+    source.query(queryRequest);
+
+    final ArgumentCaptor<GetFeatureType> getFeatureCaptor =
+        ArgumentCaptor.forClass(GetFeatureType.class);
+    verify(mockWfs).getFeature(getFeatureCaptor.capture());
+
+    final GetFeatureType getFeatureType = getFeatureCaptor.getValue();
+    final String getFeatureXml = marshal(getFeatureType);
+    assertThat(
+        getFeatureXml,
+        hasXPath(
+                "/wfs:GetFeature/wfs:Query/ogc:Filter/ogc:PropertyIsEqualTo[ogc:ValueReference='title' and ogc:Literal='anything']")
+            .withNamespaceContext(NAMESPACE_CONTEXT));
+  }
+
+  private String marshal(final GetFeatureType getFeatureType) throws JAXBException {
+    Writer writer = new StringWriter();
+    Marshaller marshaller = jaxbContext.createMarshaller();
+    marshaller.marshal(getGetFeatureTypeJaxbElement(getFeatureType), writer);
+    return writer.toString();
+  }
+
+  private JAXBElement<GetFeatureType> getGetFeatureTypeJaxbElement(
+      final GetFeatureType getFeatureType) {
+    return new JAXBElement<>(
+        new QName("http://www.opengis.net/wfs/2.0", "GetFeature"),
+        GetFeatureType.class,
+        getFeatureType);
   }
 }
