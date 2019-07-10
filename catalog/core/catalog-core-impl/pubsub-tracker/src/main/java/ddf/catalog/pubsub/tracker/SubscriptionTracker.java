@@ -63,16 +63,20 @@ public class SubscriptionTracker {
         SubscriptionTracker.class.getName(),
         serviceId);
 
-    try {
-      String subscriptionId = provider.createSubscription(subscription);
-      LOGGER.debug(
-          "{} Provider has created the subscription for request ({}): {}",
-          provider.getClass().getName(),
-          serviceId,
-          subscriptionId);
-      services.put(serviceId, subscriptionId);
-    } catch (EventException e) {
-      LOGGER.info("Error in creating subscription. {}", serviceId, e);
+    if (provider != null) {
+      try {
+        String subscriptionId = provider.createSubscription(subscription);
+        LOGGER.debug(
+            "{} Provider has created the subscription for request ({}): {}",
+            provider.getClass().getName(),
+            serviceId,
+            subscriptionId);
+        services.put(serviceId, subscriptionId);
+      } catch (EventException e) {
+        LOGGER.info("Error in creating subscription. {}", serviceId, e);
+      }
+    } else {
+      LOGGER.debug("EventProcessor was null.");
     }
 
     LOGGER.debug("EXITING: {}", methodName);
@@ -93,16 +97,20 @@ public class SubscriptionTracker {
             SubscriptionTracker.class.getName(),
             serviceId);
 
-        try {
-          provider.deleteSubscription(subscriptionId);
+        if (provider != null) {
+          try {
+            provider.deleteSubscription(subscriptionId);
 
-          LOGGER.debug("Subscription ({}) has been deleted.", serviceId);
+            LOGGER.debug("Subscription ({}) has been deleted.", serviceId);
 
-          // cleanup the reference in our map
-          services.remove(serviceId);
+            // cleanup the reference in our map
+            services.remove(serviceId);
 
-        } catch (EventException e) {
-          LOGGER.info("Error in deleting subscription. ", serviceId, e);
+          } catch (EventException e) {
+            LOGGER.info("Error in deleting subscription. ", serviceId, e);
+          }
+        } else {
+          LOGGER.debug("EventProcessor was null.");
         }
       }
     }
