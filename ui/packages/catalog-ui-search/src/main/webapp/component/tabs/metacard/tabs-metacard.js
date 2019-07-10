@@ -22,7 +22,7 @@ const MetacardPreviewView = require('../../metacard-preview/metacard-preview.vie
 import React from 'react'
 import MetacardOverwrite from '../../metacard-overwrite/metacard-overwrite.view.js'
 import MetacardArchive from '../../../react-component/container/metacard-archive'
-import MetacardActions from '../../../react-component/container/metacard-actions'
+import MetacardActions from '../../../react-component/metacard-actions'
 import MetacardQuality from '../../../react-component/container/metacard-quality'
 import MetacardHistory from '../../../react-component/container/metacard-history'
 

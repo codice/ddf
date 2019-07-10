@@ -16,8 +16,8 @@
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
 const _ = require('underscore')
-const store = require('../../../js/store.js')
-import MetacardActionsPresentation from '../../presentation/metacard-actions'
+const store = require('../../js/store.js')
+import MetacardActionsPresentation from './presentation'
 
 type Props = {
   selectionInterface: any
