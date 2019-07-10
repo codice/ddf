@@ -7,7 +7,7 @@
 
 == {title}
 
-Many console commands are available, including DFF commands and the core Karaf console commands. For more information about these core Karaf commands and using the console, see the Commands documentation for Karaf ${karaf.version} at https://karaf.apache.org/documentation.html[Karaf documentation] {external-link}.
+Many console commands are available, including DDF commands and the core Karaf console commands. For more information about these core Karaf commands and using the console, see the Commands documentation for Karaf ${karaf.version} at https://karaf.apache.org/documentation.html[Karaf documentation] {external-link}.
 
 For a complete list of all available commands, from the ${command-console}, press *TAB* and confirm when prompted.
 
