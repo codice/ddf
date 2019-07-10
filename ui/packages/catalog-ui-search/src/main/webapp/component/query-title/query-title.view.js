@@ -13,14 +13,20 @@
  *
  **/
 
+import * as React from 'react'
 const Marionette = require('marionette')
 const _ = require('underscore')
 const CustomElements = require('../../js/CustomElements.js')
-const SearchInteractionsDropdownView = require('../dropdown/search-interactions/dropdown.search-interactions.view.js')
-const DropdownModel = require('../dropdown/dropdown.js')
-const React = require('react')
+import Dropdown from '../../react-component/dropdown'
+import styled from '../../react-component/styles/styled-components'
+import ExtensionPoints from '../../extension-points'
 
 const zeroWidthSpace = '\u200B'
+
+const Icon = styled.span`
+  line-height: inherit;
+  width: 100%;
+`
 
 module.exports = Marionette.LayoutView.extend({
   events: {
@@ -43,7 +49,16 @@ module.exports = Marionette.LayoutView.extend({
         <div className="is-actions">
           <span className="button-title">{props.title}</span>
           <span className="is-button fa fa-pencil trigger-edit" />
-          <div className="is-button search-interactions" />
+          <div className=" search-interactions">
+            {this.options.isSearchFormEditor !== true && (
+              <Dropdown
+                anchor={<Icon className="is-button fa fa-ellipsis-v" />}
+                dropdownWidth="auto"
+              >
+                <ExtensionPoints.searchInteractions model={this.model} />
+              </Dropdown>
+            )}
+          </div>
         </div>
       </React.Fragment>
     )
@@ -60,20 +75,6 @@ module.exports = Marionette.LayoutView.extend({
   },
   onRender() {
     this.updateQueryName()
-    if (this.options.isSearchFormEditor !== true) {
-      this.showSearchInteractions()
-    }
-  },
-  showSearchInteractions() {
-    this.searchInteractions.show(
-      new SearchInteractionsDropdownView({
-        model: new DropdownModel(),
-        modelForComponent: this.model,
-        dropdownCompanionBehaviors: {
-          navigation: {},
-        },
-      })
-    )
   },
   focus() {
     this.$el.find('input').focus()

@@ -13,14 +13,14 @@
  *
  **/
 
-const CustomElements = require('../../js/CustomElements.js')
-const Marionette = require('marionette')
 const user = require('../singletons/user-instance')
 const SearchForm = require('../search-form/search-form')
 import { matchesFilter } from '../select/filterHelper'
 import React from 'react'
 import { lighten, readableColor, transparentize } from 'polished'
 import styled from '../../react-component/styles/styled-components'
+const Backbone = require('backbone')
+const SearchFormCollection = require('../search-form/search-form-collection-instance')
 
 const ListContainer = styled.div`
   max-height: 50vh;
@@ -71,13 +71,32 @@ const FilterPadding = styled.div`
 class SearchForms extends React.Component {
   constructor(props) {
     super(props)
+    this.model = new Backbone.Model({
+      currentQuery: props.model,
+      searchForms: SearchFormCollection.getCollection(),
+    })
     this.state = {
       filter: '',
     }
   }
+  changeView(selectedForm, currentQuery) {
+    const sharedAttributes = selectedForm.transformToQueryStructure()
+    currentQuery.set({
+      type: 'custom',
+      ...sharedAttributes,
+    })
+    if (currentQuery.get('type') === 'custom') {
+      currentQuery.trigger('change:type')
+    }
+    user.getQuerySettings().set('type', 'custom')
+    user.savePreferences()
+  }
+  handleClick = form => {
+    this.changeView(new SearchForm(form), this.model.get('currentQuery'))
+  }
   render() {
     const { filter } = this.state
-    const { forms, onClick } = this.props
+    const forms = this.model.get('searchForms').toJSON()
 
     const filteredForms = forms.filter(form =>
       matchesFilter(filter, form.title, false)
@@ -99,7 +118,7 @@ class SearchForms extends React.Component {
             <SearchFormItem
               title={form.title}
               key={form.id}
-              onClick={() => onClick(form)}
+              onClick={() => this.handleClick(form)}
             />
           ))}
           {forms.length !== 0 && filteredForms.length === 0 ? (
@@ -110,36 +129,4 @@ class SearchForms extends React.Component {
     )
   }
 }
-
-module.exports = Marionette.ItemView.extend({
-  className: 'composed-menu',
-  template(forms) {
-    return (
-      <SearchForms
-        forms={forms}
-        onClick={form =>
-          this.changeView(new SearchForm(form), this.model.get('currentQuery'))
-        }
-      />
-    )
-  },
-  serializeData() {
-    return this.model.get('searchForms').toJSON()
-  },
-  changeView(selectedForm, currentQuery) {
-    const sharedAttributes = selectedForm.transformToQueryStructure()
-    currentQuery.set({
-      type: 'custom',
-      ...sharedAttributes,
-    })
-    if (currentQuery.get('type') === 'custom') {
-      currentQuery.trigger('change:type')
-    }
-    user.getQuerySettings().set('type', 'custom')
-    user.savePreferences()
-    this.triggerCloseDropdown()
-  },
-  triggerCloseDropdown() {
-    this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
-  },
-})
+module.exports = SearchForms

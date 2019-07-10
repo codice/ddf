@@ -78,6 +78,7 @@ module.exports = Marionette.LayoutView.extend(
       this.listenForRoute()
       this.listenForEscape()
     },
+    onClose() {},
     listenForEscape() {
       $(window).on(
         'keydown.' + CustomElements.getNamespace() + componentName,
@@ -124,6 +125,7 @@ module.exports = Marionette.LayoutView.extend(
     close() {
       this.model.close()
       $('html').toggleClass('open-lightbox', false)
+      this.onClose()
     },
   },
   {
