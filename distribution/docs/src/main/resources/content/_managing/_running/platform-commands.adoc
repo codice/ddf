@@ -3,7 +3,7 @@
 :status: published
 :parent: Available Console Commands
 :summary: Platform commands available.
-:order: 03
+:order: 04
 
 == {title}
 
