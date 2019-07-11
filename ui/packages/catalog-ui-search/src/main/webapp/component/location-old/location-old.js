@@ -406,6 +406,7 @@ module.exports = Backbone.AssociatedModel.extend({
 
     utmUps = this.LLtoUtmUps(south, east)
     if (utmUps !== undefined) {
+      // eslint-disable-next-line no-redeclare
       var utmUpsParts = this.formatUtmUps(utmUps)
       this.setUtmUpsLowerRight(utmUpsParts, !this.isLocationTypeUtmUps())
     }
@@ -498,8 +499,10 @@ module.exports = Backbone.AssociatedModel.extend({
       this.setUtmUpsUpperLeft(utmUpsFormatted, true)
     }
 
+    // eslint-disable-next-line no-redeclare
     var utmUps = this.LLtoUtmUps(result.south, result.east)
     if (utmUps !== undefined) {
+      // eslint-disable-next-line no-redeclare
       var utmUpsFormatted = this.formatUtmUps(utmUps)
       this.setUtmUpsLowerRight(utmUpsFormatted, true)
     }

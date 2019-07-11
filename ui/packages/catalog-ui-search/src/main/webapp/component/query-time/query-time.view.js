@@ -99,6 +99,7 @@ module.exports = Marionette.LayoutView.extend({
       filters.push(timeFilter)
     }
     if (timeAfter && timeSelection) {
+      // eslint-disable-next-line no-redeclare
       var timeFilter = {
         type: 'OR',
         filters: timeSelection.map(selection =>

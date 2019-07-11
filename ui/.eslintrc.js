@@ -8,7 +8,7 @@ module.exports = {
         // "no-extra-semi" : "off",
         // "no-undef" : "off",
         "no-unused-vars" : "off",
-        "no-redeclare" : "off",
+        // "no-redeclare" : "off",
         "no-inner-declarations" : "off",
         "no-case-declarations" : "off",
         "no-empty" : "off",
