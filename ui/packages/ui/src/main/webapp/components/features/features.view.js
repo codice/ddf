@@ -67,8 +67,10 @@ define([
     },
     getFeatureView: function(options) {
       if (options.collection && options.collection.length) {
+        // eslint-disable-next-line no-undef
         return new FeaturesView(options)
       }
+      // eslint-disable-next-line no-undef
       return new EmptyView.view({
         message:
           'No features are available for the "' +

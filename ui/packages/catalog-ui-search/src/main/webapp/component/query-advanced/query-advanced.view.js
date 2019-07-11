@@ -143,6 +143,7 @@ module.exports = Marionette.LayoutView.extend({
     this.edit()
   },
   focus() {
+    // eslint-disable-next-line no-undef
     const tabbable = _.filter(
       this.$el.find('[tabindex], input, button'),
       element => element.offsetParent !== null

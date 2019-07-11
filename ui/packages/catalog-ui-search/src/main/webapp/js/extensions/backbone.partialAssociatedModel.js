@@ -76,6 +76,7 @@ export default Backbone.AssociatedModel.extend({
       this.isFetchingPartial = false
     })
     const { fetch } = this.options
+    // eslint-disable-next-line no-undef
     await Promise.all(
       [
         fetch(this.url())

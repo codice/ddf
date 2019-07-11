@@ -304,6 +304,7 @@ module.exports = Backbone.AssociatedModel.extend({
       ) &&
       isDefined(this)
     ) {
+      // eslint-disable-next-line no-undef
       const utmUpsParts = parse(_this)
       if (utmUpsParts !== undefined) {
         const utmUpsResult = this.utmUpstoLL(utmUpsParts)

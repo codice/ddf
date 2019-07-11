@@ -23,6 +23,7 @@
       var param = paramString.split('=')
 
       if (param[0] === 'msg') {
+        // eslint-disable-next-line no-undef
         $('#extramessage')
           .text(decodeURIComponent(param[1].split('+').join(' ')))
           .html()
@@ -31,6 +32,7 @@
     })
   }
 
+  // eslint-disable-next-line no-undef
   $('#landinglink').click(function() {
     window.location.href = window.location.href.replace(/logout\/.*/, '')
   })

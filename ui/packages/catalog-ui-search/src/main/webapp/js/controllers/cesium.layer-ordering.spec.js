@@ -118,6 +118,7 @@ describe('Cesium Layer Ordering', () => {
       })
       describe('Not all layers initialized', () => {
         const prev = ['b', 'c', 'e']
+        // eslint-disable-next-line no-undef
         const previousLayers = new Set(prev)
         describe('Returns correct layer order for shifts:', () => {
           testData.forEach(({ test, cur }) => {

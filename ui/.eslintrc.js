@@ -6,7 +6,7 @@ module.exports = {
 
         // eslint:recommended
         // "no-extra-semi" : "off",
-        "no-undef" : "off",
+        // "no-undef" : "off",
         "no-unused-vars" : "off",
         "no-redeclare" : "off",
         "no-inner-declarations" : "off",

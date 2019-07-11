@@ -29,6 +29,7 @@ function filterAndSort(attributes) {
       if (metacardDefinitions.metacardTypes[property]) {
         return !metacardDefinitions.metacardTypes[property].hidden
       } else {
+        // eslint-disable-next-line no-undef
         announcement.announce({
           title: 'Missing Attribute Definition',
           message:

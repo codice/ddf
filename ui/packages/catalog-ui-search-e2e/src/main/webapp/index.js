@@ -20,6 +20,7 @@ const randomItem = array => {
   return array[i]
 }
 
+// eslint-disable-next-line no-undef
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
 
 const login = url => {

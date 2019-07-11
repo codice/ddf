@@ -29,6 +29,7 @@ const routeDefinitions = ExtensionPoints.routes
 
 const initializeRoutes = function(routeDefinitions) {
   Application.App.router.show(
+    // eslint-disable-next-line no-undef
     new RouterView({
       routeDefinitions,
     }),

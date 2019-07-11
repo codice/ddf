@@ -20,6 +20,7 @@ const oldAjax = $.ajax
 
 const mock = () => {
   const httpRequest = ({ url }) => {
+    // eslint-disable-next-line no-undef
     return Promise.resolve(api(url))
   }
   $.get = url => httpRequest({ url })

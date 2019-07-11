@@ -19,6 +19,7 @@ export function addLayer({
   all: allLayerOrder,
   layer: layerId,
 }) {
+  // eslint-disable-next-line no-undef
   const initializedLayers = new Set(initializedLayerOrder)
   const filtered = allLayerOrder.filter(id => initializedLayers.has(id))
 
@@ -39,6 +40,7 @@ export function shiftLayers({
   prev: previousLayerOrder,
   cur: currentLayerOrder,
 }) {
+  // eslint-disable-next-line no-undef
   const previousLayers = new Set(previousLayerOrder)
   return currentLayerOrder.filter(id => previousLayers.has(id))
 }

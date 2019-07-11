@@ -28,8 +28,11 @@ function match(regexList, attribute) {
 }
 
 const properties = {
+  // eslint-disable-next-line no-undef
   commitHash: __COMMIT_HASH__,
+  // eslint-disable-next-line no-undef
   isDirty: __IS_DIRTY__,
+  // eslint-disable-next-line no-undef
   commitDate: __COMMIT_DATE__,
   canvasThumbnailScaleFactor: 10,
   slidingAnimationDuration: 150,

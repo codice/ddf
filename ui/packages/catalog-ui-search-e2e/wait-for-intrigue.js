@@ -16,6 +16,7 @@ const https = require('https')
 const { parse } = require('url')
 
 const ping = ({ auth, url }) =>
+  // eslint-disable-next-line no-undef
   new Promise((resolve, reject) => {
     const { path, hostname, port } = parse(url)
 
@@ -42,6 +43,7 @@ const ping = ({ auth, url }) =>
     req.end()
   })
 
+// eslint-disable-next-line no-undef
 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
 
 const waitFor = async url => {
@@ -69,6 +71,7 @@ const waitFor = async url => {
     }
   }
 
+  // eslint-disable-next-line no-undef
   throw new Exception(`Timeout waiting from ${url}`)
 }
 
@@ -83,6 +86,7 @@ const main = async () => {
   ]
 
   try {
+    // eslint-disable-next-line no-undef
     await Promise.all(urls.map(waitFor))
   } catch (e) {
     process.exit(1)
