@@ -3,7 +3,7 @@
 :status: published
 :parent: Available Console Commands
 :summary: Persistence Store commands available.
-:order: 04
+:order: 06
 
 == {title}
 

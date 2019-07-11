@@ -3,7 +3,7 @@
 :status: published
 :parent: Available Console Commands
 :summary: Data migration commands available.
-:order: 10
+:order: 05
 
 == {title}
 
