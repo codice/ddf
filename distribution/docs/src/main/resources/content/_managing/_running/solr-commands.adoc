@@ -3,7 +3,7 @@
 :status: published
 :parent: Available Console Commands
 :summary: Solr commands available.
-:order: 00
+:order: 02
 
 == {title}
 
