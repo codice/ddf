@@ -89,8 +89,7 @@ export default Backbone.AssociatedModel.extend({
         this.relations
           .filter(relation => isRelationPartial(this, relation))
           .map(relation => {
-            if (relation.makeSomethingUp) {
-            } else {
+            if (!relation.makeSomethingUp) {
               return fetch(`${this.url()}/${relation.key}`)
                 .then(response => response.json())
                 .then(data => {

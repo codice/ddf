@@ -61,7 +61,9 @@ class BaseLine extends React.Component {
               const fn = cursor(geometryKey)
               try {
                 fn(JSON.parse(value))
-              } catch (e) {}
+              } catch (e) {
+                // do nothing
+              }
             }}
             onBlur={() => this.isValidInput(this.state.value)}
             onFocus={value => {

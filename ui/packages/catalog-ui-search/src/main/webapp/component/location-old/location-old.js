@@ -270,7 +270,9 @@ module.exports = Backbone.AssociatedModel.extend({
         newResult.mapWest = result.west
 
         this.set(newResult)
-      } catch (err) {}
+      } catch (err) {
+        // do nothing
+      }
     }
 
     this.repositionLatLonUtmUps(
@@ -336,7 +338,9 @@ module.exports = Backbone.AssociatedModel.extend({
       ) {
         try {
           result = converter.USNGtoLL(this.get('usngbb'))
-        } catch (err) {}
+        } catch (err) {
+          // do nothing
+        }
       }
 
       this.setLatLonUtmUps(
@@ -479,7 +483,9 @@ module.exports = Backbone.AssociatedModel.extend({
     let result
     try {
       result = converter.USNGtoLL(this.get('usngbb'))
-    } catch (err) {}
+    } catch (err) {
+      // do nothing
+    }
 
     if (result === undefined) {
       return
@@ -548,7 +554,9 @@ module.exports = Backbone.AssociatedModel.extend({
     let result
     try {
       result = converter.USNGtoLL(usng, true)
-    } catch (err) {}
+    } catch (err) {
+      // do nothing
+    }
 
     if (!isNaN(result.lat) && !isNaN(result.lon)) {
       this.set(result)
