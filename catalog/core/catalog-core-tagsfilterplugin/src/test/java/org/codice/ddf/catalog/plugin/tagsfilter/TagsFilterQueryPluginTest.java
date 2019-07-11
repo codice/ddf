@@ -107,16 +107,12 @@ public class TagsFilterQueryPluginTest {
     ExpressionBuilder expressionBuilder = mock(ExpressionBuilder.class);
     ContextualExpressionBuilder contextualExpressionBuilder =
         mock(ContextualExpressionBuilder.class);
-    Filter emptyFilter = mock(Filter.class);
     Filter defaultTagFilter = mock(Filter.class);
 
-    when(attributeBuilder.empty()).thenReturn(emptyFilter);
     when(attributeBuilder.is()).thenReturn(expressionBuilder);
     when(expressionBuilder.like()).thenReturn(contextualExpressionBuilder);
     when(contextualExpressionBuilder.text(Metacard.DEFAULT_TAG)).thenReturn(defaultTagFilter);
-    Or anyOf = mock(Or.class);
-    when(filterBuilder.anyOf(ImmutableList.of(defaultTagFilter, emptyFilter))).thenReturn(anyOf);
-    when(filterBuilder.allOf(query, anyOf)).thenReturn(mock(And.class));
+      when(filterBuilder.allOf(query, defaultTagFilter)).thenReturn(mock(And.class));
 
     when(filterAdapter.adapt(any(), any())).thenReturn(false);
     when(filterBuilder.attribute(Metacard.TAGS)).thenReturn(attributeBuilder);
@@ -131,16 +127,12 @@ public class TagsFilterQueryPluginTest {
     ExpressionBuilder expressionBuilder = mock(ExpressionBuilder.class);
     ContextualExpressionBuilder contextualExpressionBuilder =
         mock(ContextualExpressionBuilder.class);
-    Filter emptyFilter = mock(Filter.class);
     Filter defaultTagFilter = mock(Filter.class);
 
-    when(attributeBuilder.empty()).thenReturn(emptyFilter);
     when(attributeBuilder.is()).thenReturn(expressionBuilder);
     when(expressionBuilder.like()).thenReturn(contextualExpressionBuilder);
     when(contextualExpressionBuilder.text(Metacard.DEFAULT_TAG)).thenReturn(defaultTagFilter);
-    Or anyOf = mock(Or.class);
-    when(filterBuilder.anyOf(ImmutableList.of(defaultTagFilter, emptyFilter))).thenReturn(anyOf);
-    when(filterBuilder.allOf(query, anyOf)).thenReturn(mock(And.class));
+    when(filterBuilder.allOf(query, defaultTagFilter)).thenReturn(mock(And.class));
 
     when(filterAdapter.adapt(any(), any())).thenReturn(false);
     when(filterBuilder.attribute(Metacard.TAGS)).thenReturn(attributeBuilder);
