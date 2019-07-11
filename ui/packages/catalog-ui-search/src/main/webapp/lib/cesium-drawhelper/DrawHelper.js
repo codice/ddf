@@ -21,7 +21,7 @@
  * www.metaaps.com
  *
  */
-/* eslint-disable no-var */
+/* eslint-disable */
 
 const Cesium = require('cesium')
 
