@@ -15,10 +15,10 @@
 
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-import fetch from '../../utils/fetch'
-const store = require('../../../js/store.js')
+import fetch from '../utils/fetch'
+const store = require('../../js/store.js')
 const announcement = require('component/announcement')
-import MetacardQualityPresentation from '../../presentation/metacard-quality'
+import MetacardQualityPresentation from './presentation'
 
 type Props = {
   selectionInterface: any

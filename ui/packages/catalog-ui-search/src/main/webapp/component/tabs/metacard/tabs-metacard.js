@@ -23,7 +23,7 @@ import React from 'react'
 import MetacardOverwrite from '../../metacard-overwrite/metacard-overwrite.view.js'
 import MetacardArchive from '../../../react-component/metacard-archive'
 import MetacardActions from '../../../react-component/metacard-actions'
-import MetacardQuality from '../../../react-component/container/metacard-quality'
+import MetacardQuality from '../../../react-component/metacard-quality'
 import MetacardHistory from '../../../react-component/metacard-history'
 
 const MetacardOverwriteView = Marionette.LayoutView.extend({
