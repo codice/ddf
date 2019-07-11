@@ -24,7 +24,7 @@ import MetacardOverwrite from '../../metacard-overwrite/metacard-overwrite.view.
 import MetacardArchive from '../../../react-component/metacard-archive'
 import MetacardActions from '../../../react-component/metacard-actions'
 import MetacardQuality from '../../../react-component/container/metacard-quality'
-import MetacardHistory from '../../../react-component/container/metacard-history'
+import MetacardHistory from '../../../react-component/metacard-history'
 
 const MetacardOverwriteView = Marionette.LayoutView.extend({
   template: () => <MetacardOverwrite />,

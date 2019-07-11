@@ -15,13 +15,13 @@
 
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-import fetch from '../../utils/fetch'
-const store = require('../../../js/store.js')
-const Common = require('../../../js/Common.js')
-const ResultUtils = require('../../../js/ResultUtils.js')
+import fetch from '../utils/fetch'
+const store = require('../../js/store.js')
+const Common = require('../../js/Common.js')
+const ResultUtils = require('../../js/ResultUtils.js')
 const moment = require('moment')
 const announcement = require('component/announcement')
-import MetacardHistoryPresentation from '../../presentation/metacard-history'
+import MetacardHistoryPresentation from './presentation'
 
 type Props = {
   selectionInterface: any
