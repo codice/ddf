@@ -5,7 +5,7 @@ module.exports = {
         //  this is a reminder to some day fix all the violations and turn the rules on
 
         // eslint:recommended
-        "no-extra-semi" : "off",
+        // "no-extra-semi" : "off",
         "no-undef" : "off",
         "no-unused-vars" : "off",
         "no-redeclare" : "off",

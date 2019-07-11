@@ -19,6 +19,7 @@
 
 // MIT license
 // jshint ignore: start
+// eslint-disable-next-line no-extra-semi
 ;(function() {
   let lastTime = 0
   const vendors = ['ms', 'moz', 'webkit', 'o']

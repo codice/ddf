@@ -13,6 +13,7 @@
  *
  **/
 
+// eslint-disable-next-line no-extra-semi
 ;(function() {
   'use strict'
 

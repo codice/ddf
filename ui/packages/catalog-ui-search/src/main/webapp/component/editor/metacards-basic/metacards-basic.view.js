@@ -53,6 +53,7 @@ module.exports = EditorView.extend({
     const self = this
     self.editorProperties.currentView.clearValidation()
     results.filter(result => !result.isRemote()).forEach(result => {
+      // eslint-disable-next-line no-extra-semi
       ;(function(id) {
         $.get({
           url: './internal/metacard/' + id + '/attribute/validation',
