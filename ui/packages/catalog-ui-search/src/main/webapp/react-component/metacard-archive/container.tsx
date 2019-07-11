@@ -14,13 +14,13 @@
  **/
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import withListenTo, { WithBackboneProps } from '../backbone-container'
-import fetch from '../../utils/fetch'
+import withListenTo, { WithBackboneProps } from '../container/backbone-container'
+import fetch from '../utils/fetch'
 const announcement = require('component/announcement')
-const store = require('../../../js/store.js')
-const ResultUtils = require('../../../js/ResultUtils.js')
-const ConfirmationView = require('../../../component/confirmation/confirmation.view.js')
-import MetacardArchivePresentation from '../../presentation/metacard-archive'
+const store = require('../../js/store.js')
+const ResultUtils = require('../../js/ResultUtils.js')
+const ConfirmationView = require('../../component/confirmation/confirmation.view.js')
+import MetacardArchivePresentation from './presentation'
 
 type Props = {
   selectionInterface: any

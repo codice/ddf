@@ -21,7 +21,7 @@ const MetacardAssociationsView = require('../../metacard-associations/metacard-a
 const MetacardPreviewView = require('../../metacard-preview/metacard-preview.view.js')
 import React from 'react'
 import MetacardOverwrite from '../../metacard-overwrite/metacard-overwrite.view.js'
-import MetacardArchive from '../../../react-component/container/metacard-archive'
+import MetacardArchive from '../../../react-component/metacard-archive'
 import MetacardActions from '../../../react-component/metacard-actions'
 import MetacardQuality from '../../../react-component/container/metacard-quality'
 import MetacardHistory from '../../../react-component/container/metacard-history'

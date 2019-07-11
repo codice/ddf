@@ -16,8 +16,8 @@
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
 import styled from 'styled-components'
-import { Button, buttonTypeEnum } from '../button'
-import LoadingCompanion from '../../container/loading-companion'
+import { Button, buttonTypeEnum } from '../presentation/button'
+import LoadingCompanion from '../loading-companion'
 
 type Props = {
   handleArchive: () => void
