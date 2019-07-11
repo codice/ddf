@@ -26,9 +26,9 @@ import { hot } from 'react-hot-loader'
 
 export type SettingsComponent = {
   component: JSX.Element
-  text: string
-  icon: string
-  onClick?: () => void
+  custom: boolean
+  text?: string
+  icon?: string
   children?: React.ReactNode
 }
 
@@ -107,6 +107,25 @@ class UserSettings extends React.Component<Props, State> {
   render() {
     const { extensions } = this.props
     const { component } = this.state
+    const extensionComponents = extensions.map((extension: SettingsComponent) => {
+      if(extension.custom) {
+        return extension.children
+      } else {
+        return (
+          <NavigationButton
+            key={extension.text}
+            buttonType={buttonTypeEnum.neutral}
+            text={extension.text}
+            icon={extension.icon}
+            onClick={() => {
+                this.updateComponent(extension.component)
+              }
+            }
+            disabled={Boolean(component)}
+          />
+        )
+      }
+    })
     return (
       <Root component={component}>
         <div className="user-settings-navigation">
@@ -168,24 +187,7 @@ class UserSettings extends React.Component<Props, State> {
             }}
             disabled={Boolean(component)}
           />
-          {extensions.map((extension: SettingsComponent) => (
-            <NavigationButton
-              key={extension.text}
-              buttonType={buttonTypeEnum.neutral}
-              text={extension.text}
-              icon={extension.icon}
-              onClick={
-                typeof extension.onClick === 'function'
-                  ? extension.onClick
-                  : () => {
-                      this.updateComponent(extension.component)
-                    }
-              }
-              disabled={Boolean(component)}
-            >
-              {extension.children}
-            </NavigationButton>
-          ))}
+          {extensionComponents}
         </div>
         <div className="user-settings-content">
           {component ? (
