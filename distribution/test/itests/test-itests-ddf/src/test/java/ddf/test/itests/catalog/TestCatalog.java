@@ -23,6 +23,7 @@ import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.delete;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestGeoJson;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.query;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.update;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswFunctionQuery;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswInsertRequest;
@@ -299,7 +300,8 @@ public class TestCatalog extends AbstractIntegrationTest {
     String url = REST_PATH.getUrl() + id;
     LOGGER.info("Getting response to {}", url);
 
-    // tests all of the XPath to verify that metacard properties are properly set
+    // tests all of the XPaths to verify that the resulting XML has the correct structure and the
+    // metadata attributes are properly parsed
     when()
         .get(url)
         .then()
