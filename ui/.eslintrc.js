@@ -14,7 +14,7 @@ module.exports = {
         // "no-empty" : "off",
         // "no-dupe-keys" : "off",
         // "no-useless-escape" : "off",
-        "no-unreachable" : "off",
+        // "no-unreachable" : "off",
         "no-fallthrough" : "off",
 
         // plugin:react/recommended
