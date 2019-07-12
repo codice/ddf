@@ -59,12 +59,6 @@ module.exports = Marionette.LayoutView.extend({
     this.turnOnEditing()
     this.setupListeners()
   },
-  clearAnnotations() {
-    if (!this._annotationsCollection) {
-      this._annotationsCollection = new AnnotationCollection()
-    }
-    this._annotationsCollection.reset()
-  },
   showAddAnnotationView() {
     this.addAnnotationField.show(
       new PropertyView({

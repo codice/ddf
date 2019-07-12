@@ -43,6 +43,7 @@ import Password from '../password'
 import MarionetteRegionContainer from '../../../react-component/container/marionette-region-container'
 import React from 'react'
 
+/* eslint-disable no-dupe-keys */
 module.exports = Marionette.LayoutView.extend({
   template,
   tagName: CustomElements.register('dev-guide'),

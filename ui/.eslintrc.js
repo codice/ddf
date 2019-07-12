@@ -12,7 +12,7 @@ module.exports = {
         // "no-inner-declarations" : "off",
         "no-case-declarations" : "off",
         // "no-empty" : "off",
-        "no-dupe-keys" : "off",
+        // "no-dupe-keys" : "off",
         "no-useless-escape" : "off",
         "no-unreachable" : "off",
         "no-fallthrough" : "off",
