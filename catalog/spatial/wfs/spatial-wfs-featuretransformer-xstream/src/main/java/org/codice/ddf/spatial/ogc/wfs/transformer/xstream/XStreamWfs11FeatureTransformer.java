@@ -118,8 +118,8 @@ public class XStreamWfs11FeatureTransformer implements FeatureTransformer<Featur
       featureConverter = getGenericFeatureConverter(metacardMapper);
     } else {
       featureConverter = getGenericFeatureConverter(featureType);
-      featureConverter.setCoordinateOrder(coordinateOrder);
     }
+    featureConverter.setCoordinateOrder(coordinateOrder);
 
     return featureConverter;
   }
