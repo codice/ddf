@@ -28,6 +28,7 @@
         <neverland:POCEmail>jdoe@example.com</neverland:POCEmail>
         <neverland:POCPhone>555-555-5555</neverland:POCPhone>
         <neverland:Created>2001-10-26T21:32:52</neverland:Created>
+        <neverland:ResourceSize>1</neverland:ResourceSize>
         <neverland:SpatialData>
             <gml:Point srsDimension="2" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
                 <gml:pos>49.39 -123.26</gml:pos>
