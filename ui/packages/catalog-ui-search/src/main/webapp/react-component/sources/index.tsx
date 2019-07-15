@@ -12,4 +12,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { default } from './sources'
+export { default } from './container'

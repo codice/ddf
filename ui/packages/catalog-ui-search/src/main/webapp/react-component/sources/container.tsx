@@ -13,9 +13,9 @@
  *
  **/
 import * as React from 'react'
-import withListenTo, { WithBackboneProps } from '../backbone-container'
-import Sources from '../../presentation/sources'
-const sources = require('../../../component/singletons/sources-instance.js')
+import withListenTo, { WithBackboneProps } from '../container/backbone-container'
+import Sources from './presentation'
+const sources = require('../../component/singletons/sources-instance.js')
 
 type Props = {} & WithBackboneProps
 
