@@ -15,10 +15,10 @@
 
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-import ResultSortPresentation from '../../presentation/result-sort'
+import ResultSortPresentation from './presentation'
 
 const Backbone = require('backbone')
-const user = require('../../../component/singletons/user-instance.js')
+const user = require('../../component/singletons/user-instance.js')
 
 type Props = {
   closeDropdown: () => void
