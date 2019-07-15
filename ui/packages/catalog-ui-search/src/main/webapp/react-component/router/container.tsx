@@ -13,32 +13,34 @@
  *
  **/
 import * as React from 'react'
-import styled from 'styled-components'
-import { CustomElement } from '../../styles/mixins'
-import Routes from '../../container/routes-container'
+import Router from './presentation'
 
-const Router = styled.div`
-  ${CustomElement} overflow: hidden;
+import Navigation from '../navigation'
+import ExtensionPoints from '../../extension-points'
 
-  > *:first-child {
-    height: calc(2 * ${props => props.theme.minimumLineSize});
-  }
-
-  > *:not(:first-child) {
-    height: calc(100% - 2 * ${props => props.theme.minimumLineSize});
-  }
-`
-
-interface Props {
-  nav: React.ReactNode
-  routeDefinitions: any
+type Props = {
+  navigation: React.ReactNode
+  routeDefinitions: object
 }
 
-export default function(props: Props) {
-  return (
-    <Router>
-      {props.nav}
-      <Routes isMenu={false} routeDefinitions={props.routeDefinitions} />
-    </Router>
-  )
+const Providers = ExtensionPoints.providers
+
+class RouterContainer extends React.Component<Props, {}> {
+  constructor(props: Props) {
+    super(props)
+  }
+  render() {
+    const navigation = <Navigation {...this.props} />
+    return (
+      <Providers>
+        <Router
+          nav={navigation}
+          routeDefinitions={this.props.routeDefinitions}
+          {...this.props}
+        />
+      </Providers>
+    )
+  }
 }
+
+export default RouterContainer
