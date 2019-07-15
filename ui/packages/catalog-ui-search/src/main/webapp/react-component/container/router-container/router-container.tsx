@@ -15,7 +15,7 @@
 import * as React from 'react'
 import Router from '../../presentation/router'
 
-import Navigation from '../navigation-container'
+import Navigation from '../../navigation'
 import ExtensionPoints from '../../../extension-points'
 
 type Props = {

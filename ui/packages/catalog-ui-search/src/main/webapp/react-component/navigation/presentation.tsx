@@ -14,13 +14,13 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import { CustomElement } from '../../styles/mixins'
-import { ChangeBackground } from '../../styles/mixins'
+import { CustomElement } from '../styles/mixins'
+import { ChangeBackground } from '../styles/mixins'
 import { transparentize, readableColor } from 'polished'
-import NavigationLeftComponent from '../navigation-left'
-import NavigationRightComponent from '../../container/navigation-right-container'
-import CancelDrawingContainer from '../../container/cancel-drawing-container'
-import Routes from '../../container/routes-container'
+import NavigationLeftComponent from '../presentation/navigation-left'
+import NavigationRightComponent from '../container/navigation-right-container'
+import CancelDrawingContainer from '../container/cancel-drawing-container'
+import Routes from '../container/routes-container'
 
 interface Props {
   isDrawing: boolean

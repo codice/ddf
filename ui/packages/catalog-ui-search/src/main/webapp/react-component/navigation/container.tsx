@@ -13,13 +13,13 @@
  *
  **/
 import * as React from 'react'
-import Navigation from '../../presentation/navigation'
-import withListenTo, { WithBackboneProps } from '../backbone-container'
+import Navigation from './presentation'
+import withListenTo, { WithBackboneProps } from '../container/backbone-container'
 
-const store = require('../../../js/store.js')
-const wreqr = require('../../../js/wreqr.js')
-const sources = require('../../../component/singletons/sources-instance.js')
-const properties = require('../../../js/properties.js')
+const store = require('../../js/store.js')
+const wreqr = require('../../js/wreqr.js')
+const sources = require('../../component/singletons/sources-instance.js')
+const properties = require('../../js/properties.js')
 
 const hasLogo = () => {
   return properties.showLogo && properties.ui.vendorImage !== ''
