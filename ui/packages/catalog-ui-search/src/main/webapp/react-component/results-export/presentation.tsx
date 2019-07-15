@@ -14,10 +14,10 @@
  **/
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import { Button, buttonTypeEnum } from '../../presentation/button'
+import { Button, buttonTypeEnum } from '../presentation/button'
 import styled from 'styled-components'
-const { Menu, MenuItem } = require('../../menu')
-const Dropdown = require('../../dropdown')
+const { Menu, MenuItem } = require('../menu')
+const Dropdown = require('../dropdown')
 
 const Root = styled.div`
   padding: ${props => props.theme.largeSpacing};

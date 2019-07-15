@@ -25,7 +25,7 @@ const QueryConfirmationView = require('../confirmation/query/confirmation.query.
 const LoadingView = require('../loading/loading.view.js')
 const QueryAnnotationsView = require('../query-annotations/query-annotations.view.js')
 const properties = require('../../js/properties.js')
-import ResultsExport from '../../react-component/container/results-export'
+import ResultsExport from '../../react-component/results-export'
 import { getExportResults } from '../../react-component/utils/export/export'
 
 const NOT_CLONEABLE_ATTRIBUTES = ['id', 'result', 'hasBeenSaved']

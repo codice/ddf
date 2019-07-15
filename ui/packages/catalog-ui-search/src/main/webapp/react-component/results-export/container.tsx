@@ -14,12 +14,12 @@
  **/
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import fetch from '../../utils/fetch'
-import ResultsExportComponent from '../../presentation/results-export'
-import { exportResult, exportResultSet } from '../../utils/export'
-import { getResultSetCql } from '../../utils/cql'
-import saveFile from '../../utils/save-file'
-import withListenTo, { WithBackboneProps } from '../backbone-container'
+import fetch from '../utils/fetch'
+import ResultsExportComponent from './presentation'
+import { exportResult, exportResultSet } from '../utils/export'
+import { getResultSetCql } from '../utils/cql'
+import saveFile from '../utils/save-file'
+import withListenTo, { WithBackboneProps } from '../container/backbone-container'
 
 const contentDisposition = require('content-disposition')
 

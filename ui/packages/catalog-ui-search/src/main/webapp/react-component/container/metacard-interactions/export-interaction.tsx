@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import ResultsExport from '../results-export'
+import ResultsExport from '../../results-export'
 import { Props } from '.'
 import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
 import { hot } from 'react-hot-loader'
