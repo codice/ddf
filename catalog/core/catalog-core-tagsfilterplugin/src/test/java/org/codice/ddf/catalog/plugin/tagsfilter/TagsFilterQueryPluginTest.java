@@ -39,7 +39,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
-import org.opengis.filter.Or;
 
 public class TagsFilterQueryPluginTest {
   private TagsFilterQueryPlugin plugin;
@@ -112,7 +111,7 @@ public class TagsFilterQueryPluginTest {
     when(attributeBuilder.is()).thenReturn(expressionBuilder);
     when(expressionBuilder.like()).thenReturn(contextualExpressionBuilder);
     when(contextualExpressionBuilder.text(Metacard.DEFAULT_TAG)).thenReturn(defaultTagFilter);
-      when(filterBuilder.allOf(query, defaultTagFilter)).thenReturn(mock(And.class));
+    when(filterBuilder.allOf(query, defaultTagFilter)).thenReturn(mock(And.class));
 
     when(filterAdapter.adapt(any(), any())).thenReturn(false);
     when(filterBuilder.attribute(Metacard.TAGS)).thenReturn(attributeBuilder);
