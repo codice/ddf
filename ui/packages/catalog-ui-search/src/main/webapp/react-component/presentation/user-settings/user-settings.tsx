@@ -15,7 +15,7 @@
 import * as React from 'react'
 import ThemeSettings from '../../container/theme-settings'
 import AlertSettings from '../../alert-settings'
-import SearchSettings from '../../../react-component/presentation/search-settings/search-settings'
+import SearchSettings from '../../search-settings'
 import HiddenSettings from '../../../react-component/container/user-blacklist/user-blacklist'
 const MapSettings = require('../../../component/layers/layers.view.js')
 import TimeSettings from '../../container/time-settings'
