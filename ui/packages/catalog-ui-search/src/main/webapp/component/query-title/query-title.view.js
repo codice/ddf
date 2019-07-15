@@ -49,7 +49,7 @@ module.exports = Marionette.LayoutView.extend({
         <div className="is-actions">
           <span className="button-title">{props.title}</span>
           <span className="is-button fa fa-pencil trigger-edit" />
-          <div className=" search-interactions">
+          <div className="search-interactions">
             {this.options.isSearchFormEditor !== true && (
               <Dropdown
                 anchor={<Icon className="is-button fa fa-ellipsis-v" />}
