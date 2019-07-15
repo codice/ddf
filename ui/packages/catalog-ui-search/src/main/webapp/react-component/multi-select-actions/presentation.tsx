@@ -14,10 +14,10 @@
  **/
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-import { Button, buttonTypeEnum } from '../button'
+import { Button, buttonTypeEnum } from '../presentation/button'
 import styled from 'styled-components'
 import { transparentize, readableColor } from 'polished'
-import plugin from 'plugins/multi-select-actions'
+import plugin from '../../plugins/multi-select-actions'
 
 type Props = {
   isDisabled: boolean

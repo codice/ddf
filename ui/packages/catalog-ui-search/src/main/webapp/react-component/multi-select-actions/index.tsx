@@ -12,4 +12,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { default } from './multi-select-actions'
+export { default } from './container'

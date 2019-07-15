@@ -14,8 +14,8 @@
  **/
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import MultiSelectActionsPresentation from '../../presentation/multi-select-actions'
-import withListenTo, { WithBackboneProps } from '../backbone-container'
+import MultiSelectActionsPresentation from './presentation'
+import withListenTo, { WithBackboneProps } from '../container/backbone-container'
 
 type Props = {
   selectionInterface: any
