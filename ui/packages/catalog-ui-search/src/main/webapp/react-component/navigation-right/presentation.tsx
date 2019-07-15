@@ -13,10 +13,9 @@
  *
  **/
 import * as React from 'react'
-import styled, { css } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 import { transparentize } from 'polished'
-import { keyframes } from 'styled-components'
-import { CustomElement } from '../../styles/mixins'
+import { CustomElement } from '../styles/mixins'
 
 export interface Props {
   username: string
@@ -110,12 +109,83 @@ const Root = styled<Props, 'div'>('div')`
   }};
 `
 
-import ExtensionPoints from '../../../extension-points'
+const toggleAlerts = () => {
+  SlideoutRightViewInstance.updateContent(UserNotifications)
+  SlideoutRightViewInstance.open()
+}
+
+const toggleHelp = () => {
+  HelpView.toggleHints()
+}
+
+const toggleUserSettings = () => {
+  SlideoutViewInstance.updateContent(UserSettings)
+  SlideoutViewInstance.open()
+}
+
+const toggleUser = () => {
+  SlideoutRightViewInstance.updateContent(UserView)
+  SlideoutRightViewInstance.open()
+}
+
+const Help = () => (
+  <Button
+    className="navigation-item"
+    icon="fa fa-question"
+    buttonType={buttonTypeEnum.neutral}
+    title="Shows helpful hints in the current context"
+    onClick={toggleHelp}
+    fadeUntilHover={true}
+  />
+)
+
+const Settings = () => (
+  <Button
+    className="navigation-item"
+    icon="fa fa-cog"
+    buttonType={buttonTypeEnum.neutral}
+    title="Shows settings for the application"
+    onClick={toggleUserSettings}
+    fadeUntilHover={true}
+  />
+)
+
+const Notifications = () => (
+  <Button
+    className="navigation-item item-alerts"
+    buttonType={buttonTypeEnum.neutral}
+    title="Shows notifications"
+    onClick={toggleAlerts}
+    fadeUntilHover={true}
+  >
+    <span className="fa fa-bell" />
+    <span className="alerts-badge fa fa-exclamation" />
+  </Button>
+)
+
+const User = () => (
+  <Button
+    className="navigation-item item-user"
+    buttonType={buttonTypeEnum.neutral}
+    onClick={toggleUser}
+    fadeUntilHover={true}
+  >
+    <div className="user-unique" title={`Logged in as ${user.getUserName()}`}>
+      <span className="fa fa-user" />
+      <span className="">{user.getUserName()}</span>
+    </div>
+    <div className="user-guest" title="Logged in as guest.">
+      <span className="">Sign In</span>
+    </div>
+  </Button>
+)
+
+const buttons = plugin([Help, Settings, Notifications, User])
 
 export default function NavigationRight(props: Props) {
   return (
     <Root {...props}>
-      {ExtensionPoints.navigationRight.map((Component: any, i: number) => (
+      {buttons.map((Component: any, i: number) => (
         <Component key={i} />
       ))}
     </Root>

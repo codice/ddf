@@ -13,10 +13,10 @@
  *
  **/
 import * as React from 'react'
-import NavigationRightComponent from '../../presentation/navigation-right'
-const user = require('../../../component/singletons/user-instance.js')
-const notifications = require('../../../component/singletons/user-notifications.js')
-import withListenTo, { WithBackboneProps } from '../backbone-container'
+import NavigationRightComponent from './presentation'
+const user = require('../../component/singletons/user-instance.js')
+const notifications = require('../../component/singletons/user-notifications.js')
+import withListenTo, { WithBackboneProps } from '../container/backbone-container'
 
 type Props = {} & WithBackboneProps
 

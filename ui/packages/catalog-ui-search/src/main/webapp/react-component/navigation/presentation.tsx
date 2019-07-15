@@ -18,7 +18,7 @@ import { CustomElement } from '../styles/mixins'
 import { ChangeBackground } from '../styles/mixins'
 import { transparentize, readableColor } from 'polished'
 import NavigationLeftComponent from '../navigation-left'
-import NavigationRightComponent from '../container/navigation-right-container'
+import NavigationRightComponent from '../navigation-right'
 import CancelDrawingContainer from '../container/cancel-drawing-container'
 import Routes from '../container/routes-container'
 
