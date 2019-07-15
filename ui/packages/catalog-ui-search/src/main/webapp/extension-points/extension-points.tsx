@@ -29,7 +29,7 @@ export type ExtensionPointsType = {
   providers: SFC<ProviderProps>
   visualizations: any[]
   queryForms: any[]
-  navigationRight: SFC<any>[]
+  navigationRight: any[]
 }
 
 const ExtensionPoints: ExtensionPointsType = {
