@@ -37,8 +37,6 @@ const inputs = {
   },
 }
 
-const drawTypes = ['wkt', 'dd', 'dms', 'usng']
-
 const Form = ({ children }) => (
   <div className="form-group clearfix">{children}</div>
 )

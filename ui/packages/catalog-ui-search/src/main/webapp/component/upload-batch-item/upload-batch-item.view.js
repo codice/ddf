@@ -35,9 +35,7 @@ module.exports = Marionette.LayoutView.extend({
   regions: {
     uploadDetails: '> .upload-details .details-summary',
   },
-  initialize() {
-    const modelJSON = this.model.toJSON()
-  },
+  initialize() {},
   onBeforeShow() {
     this.uploadDetails.show(
       new UploadSummaryView({

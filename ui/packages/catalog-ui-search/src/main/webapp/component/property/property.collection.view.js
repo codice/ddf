@@ -24,18 +24,6 @@ const announcement = require('../announcement/index.jsx')
 const Common = require('../../js/Common.js')
 const user = require('../singletons/user-instance.js')
 
-function fallbackComparator(a, b) {
-  a = metacardDefinitions.getLabel(a).toLowerCase()
-  b = metacardDefinitions.getLabel(b).toLowerCase()
-  if (a < b) {
-    return -1
-  }
-  if (a > b) {
-    return 1
-  }
-  return 0
-}
-
 module.exports = Marionette.CollectionView.extend(
   {
     tagName: CustomElements.register('property-collection'),
@@ -138,9 +126,6 @@ module.exports = Marionette.CollectionView.extend(
           if (typeof json === 'undefined') {
             return attributeToVal
           } else {
-            const values = json.values
-              .filter(n => n != null)
-              .filter(n => !Number.isNaN(n))
             return _.extend(attributeToVal, { [json.attribute]: json.values })
           }
         }, {}),

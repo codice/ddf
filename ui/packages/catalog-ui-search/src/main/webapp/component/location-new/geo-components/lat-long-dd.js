@@ -20,11 +20,8 @@ const TextField = require('../../../react-component/text-field/index.js')
 const { Units } = require('../../../react-component/location/common.js')
 const ListEditor = require('../inputs/list-editor')
 const { DdLatitude, DdLongitude } = require('./coordinates')
-const { validateDdPoint } = require('../utils')
 const { ddPoint } = require('../models')
 const DistanceUtils = require('../../../js/DistanceUtils')
-
-const minimumDifference = 0.0001
 
 const Point = props => {
   const { dd, setState } = props

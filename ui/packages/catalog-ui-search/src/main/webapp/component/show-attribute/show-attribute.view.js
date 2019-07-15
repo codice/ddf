@@ -61,25 +61,7 @@ function calculateAvailableAttributesFromSelection(selectionInterface) {
     }, [])
 }
 
-function calculateAvailableAttributesFromActive(selectionInterface) {
-  return selectionInterface
-    .getActiveSearchResults()
-    .reduce((currentAvailable, result) => {
-      currentAvailable = _.union(
-        currentAvailable,
-        Object.keys(
-          result
-            .get('metacard')
-            .get('properties')
-            .toJSON()
-        )
-      )
-      return currentAvailable
-    }, [])
-}
-
 function calculateSummaryAttributes() {
-  const propertiesToShow = []
   const userPropertyArray = user.getSummaryShown()
   const propertiesArray =
     userPropertyArray.length > 0 ? userPropertyArray : properties.summaryShow

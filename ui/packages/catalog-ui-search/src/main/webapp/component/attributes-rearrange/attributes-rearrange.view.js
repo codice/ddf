@@ -133,10 +133,6 @@ module.exports = Marionette.ItemView.extend({
   },
   getPreferredOrder() {
     if (this.options.summary) {
-      const usersShown = user
-        .get('user')
-        .get('preferences')
-        .get('inspector-summaryShown')
       const usersOrder = user
         .get('user')
         .get('preferences')

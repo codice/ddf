@@ -27,6 +27,7 @@ import ExtensionPoints from '../extension-points'
 // notfound route needs to come at the end otherwise no other routes will work
 const routeDefinitions = ExtensionPoints.routes
 
+// eslint-disable-next-line no-unused-vars
 const initializeRoutes = function(routeDefinitions) {
   Application.App.router.show(
     // eslint-disable-next-line no-undef
@@ -39,6 +40,7 @@ const initializeRoutes = function(routeDefinitions) {
   )
 }
 
+// eslint-disable-next-line no-unused-vars
 const onComponentResolution = function(deferred, component) {
   this.component = this.component || new component()
   deferred.resolve(this.component)

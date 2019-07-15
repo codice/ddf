@@ -27,7 +27,7 @@ const { shallow } = Enzyme
 
 describe('<Menu />', () => {
   it('should not throw an error with no children', () => {
-    const wrapper = shallow(<Menu />)
+    shallow(<Menu />)
   })
 
   it('should render the correct number of <MenuItem />s', () => {

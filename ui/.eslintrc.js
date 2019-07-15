@@ -1,23 +1,18 @@
 module.exports = {
     "extends": ["eslint:recommended", "plugin:react/recommended"],
     rules: {
-        // TODO rules we don't already follow have been turned off. 
-        //  this is a reminder to some day fix all the violations and turn the rules on
+        /* eslint:recommended */
 
-        // eslint:recommended
-        // "no-extra-semi" : "off",
-        // "no-undef" : "off",
-        "no-unused-vars" : "off",
-        // "no-redeclare" : "off",
-        // "no-inner-declarations" : "off",
         "no-case-declarations" : "off",
-        // "no-empty" : "off",
-        // "no-dupe-keys" : "off",
-        // "no-useless-escape" : "off",
-        // "no-unreachable" : "off",
         "no-fallthrough" : "off",
 
-        // plugin:react/recommended
+        // don't allow unused variables but do allow unused function arguments
+        // libraries like mocha and express change behaviour based on the
+        // number of arguments (unused or not) in the function signature
+        "no-unused-vars" : ["error", { "args": "none" }],
+
+        // TODO investigate whether the below rules should be enabled
+        /* plugin:react/recommended */
         "react/prop-types" : "off",
         "react/display-name" : "off",
         "react/no-unescaped-entities" : "off",

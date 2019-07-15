@@ -25,10 +25,6 @@ function isEmpty(filter) {
   return userNotifications.filter(filter).length === 0
 }
 
-function getNotifications(filter) {
-  return userNotifications.filter(filter)
-}
-
 module.exports = Marionette.LayoutView.extend({
   template,
   tagName: CustomElements.register('notification-group'),

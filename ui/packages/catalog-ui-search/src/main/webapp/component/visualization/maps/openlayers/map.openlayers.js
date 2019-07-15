@@ -81,10 +81,6 @@ function convertPointCoordinate(point) {
   return Openlayers.proj.transform(coords, 'EPSG:4326', properties.projection)
 }
 
-function convertExtent(extent) {
-  return Openlayers.proj.transform(extent, 'EPSG:4326', properties.projection)
-}
-
 function unconvertPointCoordinate(point) {
   return Openlayers.proj.transform(point, properties.projection, 'EPSG:4326')
 }
@@ -186,7 +182,6 @@ module.exports = function OpenlayersMap(
     },
     onRightClick(callback) {
       $(map.getTargetElement()).on('contextmenu', e => {
-        const boundingRect = map.getTargetElement().getBoundingClientRect()
         callback(e)
       })
     },

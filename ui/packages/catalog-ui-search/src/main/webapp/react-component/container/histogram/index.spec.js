@@ -13,13 +13,12 @@
  *
  **/
 import * as React from 'react'
-import { expect } from 'chai'
 import { shallow } from 'enzyme'
 
 import { HistogramContainer } from '.'
 
 describe('<HistogramContainer />', () => {
   it('renders without error', () => {
-    const wrapper = shallow(<HistogramContainer />)
+    shallow(<HistogramContainer />)
   })
 })

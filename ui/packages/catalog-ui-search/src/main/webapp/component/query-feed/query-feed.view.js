@@ -126,9 +126,6 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(model.get('result>status'), 'change', this.updateQuery)
   },
   serializeData() {
-    const query = this.model.toJSON({
-      additionalProperties: ['cid', 'color'],
-    })
     if (this.model.get('result')) {
       const status = _.filter(
         this.model
