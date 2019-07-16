@@ -336,7 +336,7 @@ the provided value."
         model,
       })
     )
-    this.updateValueFromInput()    
+    this.updateValueFromInput()
     const isEditing = this.$el.hasClass('is-editing')
     if (isEditing || this.options.editing) {
       this.turnOnEditing()
