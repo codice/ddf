@@ -23,6 +23,7 @@ import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.delete;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestGeoJson;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.query;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.update;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswFunctionQuery;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswInsertRequest;
@@ -35,6 +36,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
@@ -279,12 +281,40 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testMetacardTransformersFromRest() {
-    String id = ingestGeoJson(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"));
+  public void testGeoJsonMetacardTransformersFromRest() {
+    String id =
+        ingestGeoJson(
+            getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonWithMetadataRecord"));
+    String title = "myTitle";
+    String geoCoordinates = "30.0 10.0";
+
+    String idXPath = "/metacard[@id='" + id + "']";
+    String titleXPath = "/metacard/string[@name='title'][value='" + title + "']";
+    String geoXPath = "/metacard/geometry";
+    String geoCoordsXPath = geoXPath + "//Point[pos='" + geoCoordinates + "']";
+    String metadataXPath = "/metacard/stringxml[@name='metadata']/value/metacard";
+    String metadataSourceXPath = metadataXPath + "[source='ddf.distribution']";
+    String metadataExtractedTextXPath =
+        metadataXPath + "/string[@name='ext.extracted.text'][value='sample extracted text']";
 
     String url = REST_PATH.getUrl() + id;
     LOGGER.info("Getting response to {}", url);
-    when().get(url).then().log().all().assertThat().body(hasXPath("/metacard[@id='" + id + "']"));
+
+    // tests all of the XPaths to verify that the resulting XML has the correct structure and the
+    // metadata attributes are properly parsed
+    when()
+        .get(url)
+        .then()
+        .assertThat()
+        .body(
+            allOf(
+                hasXPath(idXPath),
+                hasXPath(titleXPath),
+                hasXPath(geoXPath),
+                hasXPath(geoCoordsXPath),
+                hasXPath(metadataXPath),
+                hasXPath(metadataSourceXPath),
+                hasXPath(metadataExtractedTextXPath)));
 
     delete(id);
   }

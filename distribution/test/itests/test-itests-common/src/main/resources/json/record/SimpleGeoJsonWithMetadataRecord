@@ -1,0 +1,81 @@
+{
+    "properties": {
+        "title": "myTitle",
+        "thumbnail": "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAALAAgDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAJBAAAAQFAwUAAAAAAAAAAAAAABETFAEDBBIVAgUGISJRYZP/xAAVAQEBAAAAAAAAAAAAAAAAAAADBf/EABkRAAMAAwAAAAAAAAAAAAAAAAABAwISIv/aAAwDAQACEQMRAD8A3fRvVTHmTS+RjkUfbolC+fUBDhR0zXMN5WUyibqyClrhMj8WdoAtynSGLfJ//9k=",
+        "created": "2012-09-01T00:09:19.368+0000",
+        "metadata-content-type-version": "myVersion",
+        "metadata-content-type": "myType",
+        "metadata": "
+                    <metacard
+                    	xmlns=\"urn:catalog:metacard\"
+                    	xmlns:gml=\"http://www.opengis.net/gml\"
+                    	xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n
+                    	xmlns:smil=\"http://www.w3.org/2001/SMIL20/\"
+                    	xmlns:smillang=\"http://www.w3.org/2001/SMIL20/Language\"\n gml:id=\"asdfasdfasdfasdfasdasdf\">\n
+                    	<source>ddf.distribution</source>\n
+                    	<string name=\"resource-size\">\n
+                    		<value>30</value>\n
+                    	</string>\n
+                    	<dateTime name=\"created\">\n
+                    		<value>2000-06-19T17:32:02.779+00:00</value>\n
+                    	</dateTime>\n
+                    	<string name=\"ext.extracted.text\">\n
+                    		<value>sample extracted text</value>\n
+                    	</string>\n
+                    	<dateTime name=\"modified\">\n
+                    		<value>2000-06-19T17:32:02.779+00:00</value>\n
+                    	</dateTime>\n
+                    	<dateTime name=\"metacard.created\">\n
+                    		<value>2000-06-19T17:32:02.779+00:00</value>\n
+                    	</dateTime>\n
+                    	<string name=\"media.type\">\n
+                    		<value>text/plain; charset=ISO-8859-1</value>\n
+                    	</string>\n
+                    	<dateTime name=\"effective\">\n
+                    		<value>2000-06-19T17:32:02.779+00:00</value>\n
+                    	</dateTime>\n
+                    	<dateTime name=\"metacard.modified\">\n
+                    		<value>2000-06-19T17:32:02.779+00:00</value>\n
+                    	</dateTime>\n
+                    	<string name=\"metacard-tags\">\n
+                    		<value>resource</value>\n
+                    		<value>VALID</value>\n
+                    	</string>\n
+                    	<string name=\"title\">\n
+                    		<value>my custom metacard</value>\n
+                    	</string>\n
+                    	<string name=\"datatype\">\n
+                    		<value>Text</value>\n
+                    	</string>\n
+                    	<stringxml name=\"metadata\">\n
+                    		<value>\n
+                    			<html
+                    				xmlns=\"http://www.w3.org/1999/xhtml\">\n
+                    				<head>\n
+                    					<meta name=\"X-Parsed-By\" content=\"org.apache.tika.parser.DefaultParser\"/>\n
+                    					<meta name=\"X-Parsed-By\" content=\"org.apache.tika.parser.DefaultParser\"/>\n
+                    					<meta name=\"X-Parsed-By\" content=\"org.apache.tika.parser.txt.TXTParser\"/>\n
+                    					<meta name=\"Content-Encoding\" content=\"ISO-8859-1\"/>\n
+                    					<meta name=\"Content-Type\" content=\"text/plain; charset=ISO-8859-1\"/>\n
+                    					<title></title>\n
+                    				</head>\n />\n
+                    			</html>\n
+                    		</value>\n
+                    	</stringxml>\n
+                    	<string name=\"point-of-contact\">\n
+                    		<value>system@localhost.local</value>\n
+                    	</string>\n
+                    </metacard>
+                    ",
+        "modified": "2012-09-01T00:09:19.368+0000",
+        "point-of-contact": "admin@local"
+    },
+    "type": "Feature",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            30.0,
+            10.0
+        ]
+    }
+}

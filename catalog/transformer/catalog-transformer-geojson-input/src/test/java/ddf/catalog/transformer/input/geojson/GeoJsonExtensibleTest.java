@@ -39,12 +39,16 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+import org.codice.ddf.platform.util.SortedServiceList;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class GeoJsonExtensibleTest {
 
@@ -479,6 +483,80 @@ public class GeoJsonExtensibleTest {
     Metacard metacard = transformer.transform(geoJsonInput);
 
     verifyBasics(metacard);
+  }
+
+  @Test
+  public void testTransformWithoutIdParam() throws IOException, CatalogTransformerException {
+    Metacard metacard =
+        transformer.transform(new ByteArrayInputStream(sampleJsonExtensibleA().getBytes()));
+
+    assertThat(metacard.getMetacardType().getName(), is("MetacardTypeA"));
+    assertThat(metacard.getId(), is(DEFAULT_ID));
+  }
+
+  @Test
+  public void testNonEmptyPropertyType() throws IOException, CatalogTransformerException {
+    Metacard metacard =
+        transformer.transform(
+            new ByteArrayInputStream(sampleJsonExtensibleB().getBytes()), "customIdTest");
+
+    assertThat(metacard.getMetacardType().getName(), is("MetacardTypeB"));
+    assertThat(metacard.getId(), is("customIdTest"));
+  }
+
+  @Test
+  public void testEmptyPropertyTypeWithNonNullTransformers()
+      throws IOException, CatalogTransformerException {
+    transformer.setInputTransformers(new SortedServiceList());
+    Metacard metacard =
+        transformer.transform(
+            new ByteArrayInputStream(sampleBasicMetacardNoMetacardType().getBytes()), DEFAULT_ID);
+
+    assertThat(metacard.getMetacardType().getName(), is("ddf.metacard"));
+    assertThat(metacard.getTitle(), is(DEFAULT_TITLE));
+  }
+
+  @Test
+  public void testNullMetacardTypesWithNonNullTransformers()
+      throws IOException, CatalogTransformerException {
+    transformer.setInputTransformers(new SortedServiceList());
+    // tests the branch conditional for null metacard types in the getMetacard() method
+    transformer.setMetacardTypes(null);
+    Metacard metacard1 =
+        transformer.transform(
+            new ByteArrayInputStream(sampleBasicMetacardNoMetacardType().getBytes()), DEFAULT_ID);
+
+    assertThat(metacard1.getMetacardType().getName(), is("ddf.metacard"));
+    assertThat(metacard1.getTitle(), is(DEFAULT_TITLE));
+
+    transformer.setMetacardTypes(prepareMetacardTypes());
+    Metacard metacard2 =
+        transformer.transform(
+            new ByteArrayInputStream(sampleBasicMetacardNoMetacardType().getBytes()), DEFAULT_ID);
+
+    // tests that metacards created with null metacard types and empty property types are the same
+    assertThat(metacard2, is(metacard1));
+  }
+
+  @Rule public ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void testInvalidMetacardType() throws IOException, CatalogTransformerException {
+    thrown.expect(CatalogTransformerException.class);
+    thrown.expectMessage(
+        "MetacardType specified in input has not been registered with the system. Cannot parse input. MetacardType name:");
+
+    MetacardType invalidMetacardType = new MetacardTypeImpl("invalid", new HashSet<>());
+    transformer.setMetacardTypes(Collections.singletonList(invalidMetacardType));
+    transformer.transform(new ByteArrayInputStream(sampleBasicMetacard().getBytes()), DEFAULT_ID);
+  }
+
+  @Test
+  public void testTransformNullInput() throws IOException, CatalogTransformerException {
+    thrown.expect(CatalogTransformerException.class);
+    thrown.expectMessage("Cannot transform null input.");
+
+    transformer.transform(null);
   }
 
   private List<MetacardType> prepareMetacardTypes() {
