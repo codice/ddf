@@ -15,7 +15,7 @@
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
     
-    <reference id="pubsubprovider" interface="ddf.catalog.event.EventProcessor"/>
+    <reference id="pubsubprovider" interface="ddf.catalog.event.EventProcessor" availability="optional"/>
     			
     <bean id="subscriptionTracker" class="ddf.catalog.pubsub.tracker.SubscriptionTracker"
           init-method="startUp" destroy-method="cleanUp">
