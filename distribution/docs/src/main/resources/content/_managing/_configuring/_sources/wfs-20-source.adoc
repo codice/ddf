@@ -70,8 +70,10 @@ The `MetacardMapper` is set by creating a feature file configuration which speci
 The WFS `MetacardMapper` is installed by default with a standard installation in the ${ddf-spatial} application.
 
 .Configuring the WFS `MetacardMapper`
-There are two ways to configure the `MetacardMapper`, one is to use the Configuration Admin available via the ${admin-console}.
-Additionally, a `feature.xml` file can be created and copied into the "deploy" directory.
+There are two ways to configure the `MetacardMapper`:
+
+. The Configuration Admin available in the ${admin-console}.
+. Placing a `feature.xml` file in the `deploy` directory.
 
 .Example WFS MetacardMapper Configuration
 The following shows how to configure the `MetacardMapper` to be used with the sample data provided with GeoServer.
