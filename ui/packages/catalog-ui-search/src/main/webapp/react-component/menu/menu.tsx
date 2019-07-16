@@ -13,6 +13,7 @@
  *
  **/
 import * as React from 'react'
+import { useEffect } from 'react'
 import styled from '../styles/styled-components'
 
 const CustomElements = require('../../js/CustomElements.js')
@@ -63,16 +64,14 @@ const ItemRoot = styled.div<{ active: boolean; selected: boolean }>`
   ${({ selected }) => (selected ? after : '')}
 `
 
-class DocumentListener extends React.Component<any, any> {
-  componentDidMount() {
-    document.addEventListener(this.props.event, this.props.listener)
-  }
-  componentWillUnmount() {
-    document.removeEventListener(this.props.event, this.props.listener)
-  }
-  render() {
-    return null
-  }
+const DocumentListener = (props: any) => {
+  useEffect(() => {
+    document.addEventListener(props.event, props.listener)
+    return () => {
+      document.removeEventListener(props.event, props.listener)
+    }
+  }, [])
+  return null
 }
 
 export class Menu extends React.Component<any, any> {
