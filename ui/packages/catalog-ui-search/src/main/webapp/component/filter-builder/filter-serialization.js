@@ -55,6 +55,7 @@ const comparatorToCQL = {
   '=': '=',
   '<=': '<=',
   '>=': '>=',
+  'NUMBER_RANGE': 'BETWEEN'
 }
 
 const cqlToComparator = Object.keys(comparatorToCQL).reduce((mapping, key) => {

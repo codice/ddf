@@ -253,6 +253,11 @@ function generateFilter(type, property, value, metacardDefinitions) {
         filter.to = dates[1]
       }
 
+      if (type === 'BETWEEN') {
+        filter.lowerBoundary = value.min
+        filter.upperBoundary = value.max
+      }
+
       return filter
   }
 }
