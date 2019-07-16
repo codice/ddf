@@ -16,9 +16,9 @@
 import wrapNum from '../../../react-component/utils/wrap-num/wrap-num.tsx'
 import * as React from 'react'
 import ZoomToHomeButton from '../../../react-component/button/split-button/zoomToHome.tsx'
+import styled from '../../../react-component/styles/styled-components'
 
 const wreqr = require('../../../js/wreqr.js')
-const template = require('./map.hbs')
 const Marionette = require('marionette')
 const CustomElements = require('../../../js/CustomElements.js')
 const LoadingCompanionView = require('../../loading-companion/loading-companion.view.js')
@@ -134,9 +134,32 @@ const defaultHomeBoundingBox = {
   north: 52,
 }
 
+const Root = styled.div`
+  background: ${props => props.theme.backgroundContent};
+`
+
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('map'),
-  template,
+  template() {
+    return (
+      <Root>
+        <div id="mapDrawingPopup" />
+        <div class="map-context-menu" />
+        <div id="mapTools" />
+        <div id="mapContainer" class="height-full" />
+        <div class="mapInfo">
+          <div class="info-feature" />
+          <div class="info-coordinates">
+            <span />
+            <span />
+          </div>
+        </div>
+        <div class="drawing-tools">
+          <button class="is-primary">Click here to start drawing</button>
+        </div>
+      </Root>
+    )
+  },
   regions: {
     mapDrawingPopup: '#mapDrawingPopup',
     mapContextMenu: '.map-context-menu',
