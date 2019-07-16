@@ -318,7 +318,8 @@ public class HandlebarsWfsFeatureTransformerTest {
         is(true));
 
     final Metacard metacard = metacardOptional.get();
-    assertThat(getAttributeValue(Core.RESOURCE_SIZE, metacard), is("1024.0"));
+    assertThat(
+        getAttributeValue(Core.RESOURCE_SIZE, metacard), is(WfsConstants.BYTES_PER_KB + ".0"));
   }
 
   @Test
@@ -335,7 +336,8 @@ public class HandlebarsWfsFeatureTransformerTest {
         is(true));
 
     final Metacard metacard = metacardOptional.get();
-    assertThat(getAttributeValue(Core.RESOURCE_SIZE, metacard), is("1048576.0"));
+    assertThat(
+        getAttributeValue(Core.RESOURCE_SIZE, metacard), is(WfsConstants.BYTES_PER_MB + ".0"));
   }
 
   @Test
@@ -352,7 +354,8 @@ public class HandlebarsWfsFeatureTransformerTest {
         is(true));
 
     final Metacard metacard = metacardOptional.get();
-    assertThat(getAttributeValue(Core.RESOURCE_SIZE, metacard), is("1073741824.0"));
+    assertThat(
+        getAttributeValue(Core.RESOURCE_SIZE, metacard), is(WfsConstants.BYTES_PER_GB + ".0"));
   }
 
   @Test
@@ -369,7 +372,8 @@ public class HandlebarsWfsFeatureTransformerTest {
         is(true));
 
     final Metacard metacard = metacardOptional.get();
-    assertThat(getAttributeValue(Core.RESOURCE_SIZE, metacard), is("1099511627776.0"));
+    assertThat(
+        getAttributeValue(Core.RESOURCE_SIZE, metacard), is(WfsConstants.BYTES_PER_TB + ".0"));
   }
 
   @Test
@@ -386,7 +390,8 @@ public class HandlebarsWfsFeatureTransformerTest {
         is(true));
 
     final Metacard metacard = metacardOptional.get();
-    assertThat(getAttributeValue(Core.RESOURCE_SIZE, metacard), is("1125899906842624.0"));
+    assertThat(
+        getAttributeValue(Core.RESOURCE_SIZE, metacard), is(WfsConstants.BYTES_PER_PB + ".0"));
   }
 
   private void assertDefaultAttributesExist(Metacard metacard) {
