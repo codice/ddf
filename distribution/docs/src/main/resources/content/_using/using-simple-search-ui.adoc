@@ -1,9 +1,11 @@
 :title: Using the Simple Search
-:type: using
+:type: usingIntro
 :status: published
+:parent: Using ${catalog-ui}
 :summary: Using the Simple Search user interface.
-:link: _using_the_simple_search
-:order: 03
+:order: 99
+
+== {title}
 
 The ${branding} Simple Search UI application provides a low-bandwidth option for searching records in the local Catalog (provider) and federated sources.
 Results are returned in HTML format.

@@ -1,0 +1,67 @@
+:title: Using Workspaces
+:type: using
+:status: published
+:parent: Using ${catalog-ui}
+:summary: Using workspaces within ${catalog-ui}
+:order: 03
+
+== {title}
+
+Within ${catalog-ui}, workspaces are collections of settings, searches, and bookmarks that can be shared between users and stored for repeated access.
+
+=== Creating a Workspace in ${catalog-ui}
+
+Before searching in ${branding}, at least one workspace must be created.
+
+.Start new workspace
+. From the *Workspaces* view, enter search terms into the *Start new workspace* search field and click the magnifying glass (image:magnifying-glass.png[magnifying glass icon]) icon. This will create a new workspace and perform a search based on the entered search terms.
+
+.Start new workspace
+image::start-new-workspace.png[start new workspace icon]
+
+=== Configuring a Workspace in ${catalog-ui}
+
+Configure each workspace with searches and share options.
+
+.Adding searches
+. From the default *Workspaces* view, select the workspace to add a search to.
+. Click *Search ${branding} Intrigue* in the upper left corner, enter search terms, and click *Search* to add a search. This step can be repeated to add additional searches. Each workspace can have up to ten searches.
+.. Select *Basic* Search to select simple search criteria, such as *text*, *time*, and *location*.
+.. Select *Advanced* Search to access a query builder for more complex queries.
+. Click the save (image:save-icon.png[save icon]) icon next to the workspace title in the upper left corner.
+
+.Navigation Menu Options
+* *Workspaces*: View all available workspaces.
+* *Upload*: Add new metadata and resources to the catalog.
+* *Sources*: Lists all sources and their statuses.
+* *Open Workspaces*: Lists open workspaces.
+
+.Workspace Menu Options
+* To view a workspace's options from the *Workspaces* view, press the *Options* button (image:options-icon.png[options icon]) for the workspace.
+** *Save*: Save changes to the workspace.
+** *Run All Searches*: Start all saved searches within this workspace.
+** *Cancel All Searches*: Cancel all running searches.
+** *Open in New Tab*: Opens this workspace in a separate tab.
+** *View Sharing*: View and edit settings for sharing this workspace. Users must be signed in to share workspaces or view shared workspaces.
+** *View Details*: View the current details for a cloud-based workspace Users must be signed in to view workspace details.
+** *Duplicate*: Create a copy of this workspace.
+** *Subscribe/Unsubscribe*: Selecting *Subscribe* will enable email notifications for search results on this workspace. Selecting *Unsubscribe* will disable email notifications for search results on this workspace.
+** *Move to Trash*: Delete (archive) this workspace.
+
+=== Sharing Workspaces
+
+Workspaces can be shared between users at different levels of access as needed.
+
+.Share a Workspace
+. From the *Workspaces* view, select the *Options* menu (image:options-icon.png[options icon]) for the workspace in which sharing will be modified.
+. Select *View Sharing*.
+.. To share by user role, set the drop-down menu to *Read* or *Read and Write* for each desired role. All users with that role will be able to view the workspace, but will be limited based on the permission assigned. No user will be granted the ability to share the workspace with additional users.
+.. To share with an individual user, add his/her email to the email list and set the drop-down menu to *Read*, *Read and Write*, or *Read, Write, and Share*.
+. Click *Apply*.
+
+.Remove Sharing on a Workspace
+. From the *Workspaces* view, select the *Options* menu (image:options-icon.png[options icon]) for the workspace in which sharing will be modified.
+. Select *View Sharing*.
+.. To remove the workspace from users with specific roles, set the drop-down menu to *No Access* for those roles.
+.. To remove individual users, remove the users' email addresses from the email list.
+. Click *Apply*.
