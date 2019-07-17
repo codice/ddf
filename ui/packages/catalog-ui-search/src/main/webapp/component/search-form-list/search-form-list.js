@@ -85,9 +85,7 @@ class SearchForms extends React.Component {
       type: 'custom',
       ...sharedAttributes,
     })
-    if (currentQuery.get('type') === 'custom') {
-      currentQuery.trigger('change:type')
-    }
+    currentQuery.trigger('change:type')
     user.getQuerySettings().set('type', 'custom')
     user.savePreferences()
   }

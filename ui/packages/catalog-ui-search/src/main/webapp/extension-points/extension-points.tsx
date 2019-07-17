@@ -44,7 +44,7 @@ const ExtensionPoints: ExtensionPointsType = {
   visualizations,
   queryForms,
   navigationRight,
-  searchInteractions: searchInteractions,
+  searchInteractions,
 }
 
 export default ExtensionPoints
