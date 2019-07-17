@@ -28,5 +28,13 @@ export const stringComparators = [
   'IS EMPTY',
 ]
 export const stringComparatorsAnyText = ['CONTAINS', 'MATCHCASE', '=', 'NEAR']
-export const numberComparators = ['>', '<', '=', '>=', '<=', 'NUMBER_RANGE', 'IS EMPTY']
+export const numberComparators = [
+  '>',
+  '<',
+  '=',
+  '>=',
+  '<=',
+  'RANGE',
+  'IS EMPTY',
+]
 export const booleanComparators = ['=', 'IS EMPTY']

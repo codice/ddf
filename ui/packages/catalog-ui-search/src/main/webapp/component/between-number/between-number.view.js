@@ -13,65 +13,66 @@
  *
  **/
 
-const _ = require('underscore')
-const InputView = require('../input/input.view')
+const Marionette = require('marionette')
+const CustomElements = require('../../js/CustomElements.js')
 import * as React from 'react'
 import NumberComponent from '../../react-component/container/input-wrappers/number'
-module.exports = InputView.extend({
-  template () {
-    const {min = '', max = ''} =  {} || {}
+import { isNumber } from 'util'
+
+module.exports = Marionette.LayoutView.extend({
+  template() {
+    const { min = '', max = '' } = this.getStartingValue() || {}
     this.minValue = min
     this.maxValue = max
     return (
-        <React.Fragment>
-            <NumberComponent
-                value={min}
-                onChange={this.handleMinUpdate.bind(this)}
-                placeholder='0'
-            />
-            <span className="label">TO</span>
-            <NumberComponent
-                value={max}
-                onChange={this.handleMaxUpdate.bind(this)}
-                placeholder='2'
-            />
-        </React.Fragment>
+      <React.Fragment>
+        <NumberComponent
+          value={min}
+          onChange={this.handleMinUpdate.bind(this)}
+          placeholder="0"
+        />
+        <span className="label">TO</span>
+        <NumberComponent
+          value={max}
+          onChange={this.handleMaxUpdate.bind(this)}
+          placeholder="2"
+        />
+      </React.Fragment>
     )
   },
-  className: 'between-numbers',
-  getCurrentValue() {
-    console.log( this.model.toJSON().value[0]);
-    return [this.model.toJSON.value[0]];
+  tagName: CustomElements.register('between-numbers'),
+  handleMinUpdate(value) {
+    this.minValue = value
+    this.updateModelValue()
   },
-  onAttach() {
-    const width = this.$el
-      .find('.label')
-      .last()
-      .outerWidth()
-    this.$el.find('.label').css('width', `calc(50% - ${width / 2}px)`)
-    InputView.prototype.onAttach.call(this)
+  handleMaxUpdate(value) {
+    this.maxValue = value    
+    this.updateModelValue()
+  },
+  getModelValue() {
+    return this.model.toJSON().value[0]
+  },
+  getViewValue() {
+    return {
+      min: this.minValue,
+      max: this.maxValue,
+    }
   },
   updateModelValue() {
     if (this.model !== undefined) {
-      this.model.setValue([this.getCurrentValue()])
+      this.model.setValue([this.getViewValue()])
     }
   },
-  handleMinUpdate(value){
-      this.minValue = value
-      this.updateModelValue
-  },
-  handleMaxUpdate(value){
-      this.maxValue = value
-      this.updateModelValue
-  },
-  serializeData() {
-    const value = this.model.getValue() || {
-      min: 0,
-      max: 2,
+  getStartingValue() {
+    if (this.model !== undefined) {
+      return this.getModelValue()
     }
-    return _.extend(this.model.toJSON(), {
-      min: value.min,
-      max: value.max,
-    })
+  },
+  isValid() {
+    const value = this.getModelValue()
+    if (value === undefined) {
+      return false
+    }
+    return isNumber(this.minValue) && isNumber(this.maxValue)
   },
 })
