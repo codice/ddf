@@ -18,10 +18,11 @@ import {
   BaseProps,
   withExtensions,
   SettingsComponent,
+  CustomComponent
 } from './index'
 import { Subtract } from '../../../typescript'
 
-const extendUserSettings = (extensions: SettingsComponent[]) => {
+const extendUserSettings = (extensions: (CustomComponent|SettingsComponent)[]) => {
   return class ExtensionContainer extends React.Component<
     Subtract<BaseProps, withExtensions>,
     {}

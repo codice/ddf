@@ -26,14 +26,16 @@ import { hot } from 'react-hot-loader'
 
 export type SettingsComponent = {
   component: JSX.Element
-  custom: boolean
-  text?: string
-  icon?: string
-  children?: React.ReactNode
+  text: string
+  icon: string
+}
+
+export type CustomComponent = {
+  component: React.ReactNode
 }
 
 export type withExtensions = {
-  extensions: SettingsComponent[]
+  extensions: (SettingsComponent|CustomComponent)[]
 }
 
 export type BaseProps = {}
@@ -107,23 +109,20 @@ class UserSettings extends React.Component<Props, State> {
   render() {
     const { extensions } = this.props
     const { component } = this.state
-    const extensionComponents = extensions.map((extension: SettingsComponent) => {
-      if(extension.custom) {
-        return extension.children
-      } else {
-        return (
+    const extensionComponents = extensions.map((extension: (SettingsComponent|CustomComponent)) => {
+      if((extension as SettingsComponent).text){
           <NavigationButton
-            key={extension.text}
+            key={(extension as SettingsComponent).text}
             buttonType={buttonTypeEnum.neutral}
-            text={extension.text}
-            icon={extension.icon}
+            text={(extension as SettingsComponent).text}
+            icon={(extension as SettingsComponent).icon}
             onClick={() => {
-                this.updateComponent(extension.component)
-              }
-            }
+              this.updateComponent(<HiddenSettings />)
+            }}
             disabled={Boolean(component)}
           />
-        )
+      } else {
+          {extension.component}
       }
     })
     return (

@@ -17,5 +17,6 @@ export {
   BaseProps,
   withExtensions,
   SettingsComponent,
+  CustomComponent,
 } from './user-settings'
 export { default } from './extensions'
