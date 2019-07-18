@@ -18,5 +18,6 @@ export {
   withExtensions,
   SettingsComponent,
   CustomComponent,
+  NavigationButton
 } from './user-settings'
 export { default } from './extensions'
