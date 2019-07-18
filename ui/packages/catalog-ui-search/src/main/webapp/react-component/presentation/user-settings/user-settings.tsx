@@ -80,7 +80,7 @@ const Header = styled.div`
   padding: 0px ${props => props.theme.mediumSpacing};
 `
 
-const NavigationButton = styled(Button)`
+export const NavigationButton = styled(Button)`
   width: 100%;
   display: block;
   text-align: left;
@@ -121,9 +121,8 @@ class UserSettings extends React.Component<Props, State> {
             }}
             disabled={Boolean(component)}
           />)
-      } else {
-          return extension.component
       }
+      return extension.component
     })
     return (
       <Root component={component}>
