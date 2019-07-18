@@ -222,9 +222,9 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@connexta/ace@*", "@connexta/ace@git://github.com/connexta/ace.git#476ba5a6c09c4d9b0646acb55ef2ef4e290a4bbf":
+"@connexta/ace@*", "@connexta/ace@git://github.com/connexta/ace.git#248c818959157e909bac68982e98b1332d5e31c8":
   version "1.0.0"
-  resolved "git://github.com/connexta/ace.git#476ba5a6c09c4d9b0646acb55ef2ef4e290a4bbf"
+  resolved "git://github.com/connexta/ace.git#248c818959157e909bac68982e98b1332d5e31c8"
   dependencies:
     "@connexta/eslint-plugin-connexta" "git://github.com/connexta/eslint-plugin-connexta.git#v0.0.2"
     "@ljharb/eslint-config" "12.2.1"
@@ -273,7 +273,7 @@
     puppeteer "1.5.0"
     raw-loader "0.5.1"
     react-dev-utils "5.0.2"
-    react-hot-loader "4.3.5"
+    react-hot-loader "4.12.6"
     rimraf "2.6.2"
     script-loader "0.7.2"
     simple-progress-webpack-plugin "1.1.2"
@@ -8510,7 +8510,7 @@ hoist-non-react-statics@^2.5.0:
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-2.5.0.tgz#d2ca2dfc19c5a91c5a6615ce8e564ef0347e2a40"
 
-hoist-non-react-statics@^3.2.1:
+hoist-non-react-statics@^3.2.1, hoist-non-react-statics@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.0.tgz#b09178f0122184fb95acf525daaecb4d8f45958b"
   dependencies:
@@ -13964,16 +13964,18 @@ react-fontawesome@1.6.1:
   dependencies:
     prop-types "^15.5.6"
 
-react-hot-loader@4.3.5:
-  version "4.3.5"
-  resolved "https://registry.yarnpkg.com/react-hot-loader/-/react-hot-loader-4.3.5.tgz#d8659839d8072d4b78938a776f29f5f1d2a40170"
+react-hot-loader@4.12.6:
+  version "4.12.6"
+  resolved "https://registry.yarnpkg.com/react-hot-loader/-/react-hot-loader-4.12.6.tgz#bd7a41501b02576638031482474a72bac453587d"
   dependencies:
     fast-levenshtein "^2.0.6"
     global "^4.3.0"
-    hoist-non-react-statics "^2.5.0"
+    hoist-non-react-statics "^3.3.0"
+    loader-utils "^1.1.0"
     prop-types "^15.6.1"
     react-lifecycles-compat "^3.0.4"
     shallowequal "^1.0.2"
+    source-map "^0.7.3"
 
 react-intl@2.7.2:
   version "2.7.2"
@@ -15877,6 +15879,10 @@ source-map@^0.5.0, source-map@^0.5.3, source-map@^0.5.6, source-map@^0.5.7, sour
 source-map@^0.6.1, source-map@~0.6.0, source-map@~0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
+
+source-map@^0.7.3:
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.7.3.tgz#5302f8169031735226544092e64981f751750383"
 
 source-map@~0.2.0:
   version "0.2.0"
