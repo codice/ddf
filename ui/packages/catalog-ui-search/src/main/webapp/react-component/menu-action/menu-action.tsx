@@ -14,10 +14,10 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import MenuItem from '../menu-item'
-import { withDropdown, withContext, ContextType } from '../dropdown'
+import MenuItem from '../presentation/menu-item'
+import { withDropdown, withContext, ContextType } from '../presentation/dropdown'
 import { hot } from 'react-hot-loader'
-import { Subtract } from '../../../typescript'
+import { Subtract } from '../../typescript'
 
 type Props = {
   className?: string

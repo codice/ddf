@@ -14,7 +14,7 @@
  **/
 
 import * as React from 'react'
-import MenuAction from '../menu-action'
+import MenuAction from '../../menu-action'
 import { withDropdown } from '../dropdown'
 import styled from 'styled-components'
 import { readableColor } from 'polished'

@@ -16,7 +16,7 @@ import * as React from 'react'
 import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
 import Dropdown from '../dropdown'
-import MenuAction from '../menu-action'
+import MenuAction from '../../menu-action'
 import NavigationBehavior from '../navigation-behavior'
 import { ContextType } from '../../../react-component/presentation/dropdown'
 
