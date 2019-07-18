@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import CopyCoordinates from '../../presentation/copy-coordinates'
+import CopyCoordinates from '../../copy-coordinates'
 import { Menu, MenuItem } from '../../menu'
 import styled from 'styled-components'
 

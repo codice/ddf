@@ -15,10 +15,10 @@
 import * as React from 'react'
 import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
-import Dropdown from '../dropdown'
-import MenuAction from '../../menu-action'
-import NavigationBehavior from '../navigation-behavior'
-import { ContextType } from '../../../react-component/presentation/dropdown'
+import Dropdown from '../presentation/dropdown'
+import MenuAction from '../menu-action'
+import NavigationBehavior from '../presentation/navigation-behavior'
+import { ContextType } from '../presentation/dropdown'
 
 const Clipboard = require('clipboard')
 const announcement = require('component/announcement')
