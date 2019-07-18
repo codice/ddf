@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import UnsavedIndicator from '../presentation/unsaved-indicator'
+import UnsavedIndicator from '../unsaved-indicator'
 const SlideoutLeftViewInstance = require('../../component/singletons/slideout.left.view-instance.js')
 import ExtensionPoints from '../../extension-points'
 import { Button, buttonTypeEnum } from '../presentation/button'
