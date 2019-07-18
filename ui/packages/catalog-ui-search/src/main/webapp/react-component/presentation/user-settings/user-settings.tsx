@@ -111,8 +111,7 @@ class UserSettings extends React.Component<Props, State> {
     const { component } = this.state
     const extensionComponents = extensions.map((extension: (SettingsComponent|CustomComponent)) => {
       if((extension as SettingsComponent).text){
-        return
-          <NavigationButton
+          return (<NavigationButton
             key={(extension as SettingsComponent).text}
             buttonType={buttonTypeEnum.neutral}
             text={(extension as SettingsComponent).text}
@@ -121,7 +120,7 @@ class UserSettings extends React.Component<Props, State> {
               this.updateComponent(<HiddenSettings />)
             }}
             disabled={Boolean(component)}
-          />
+          />)
       } else {
           return extension.component
       }
