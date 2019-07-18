@@ -14,10 +14,10 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import { Button, buttonTypeEnum } from '../button'
+import { Button, buttonTypeEnum } from '../presentation/button'
 import { hot } from 'react-hot-loader'
-const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')
-const SourceAppView = require('../../../component/source-app/source-app.view.js')
+const lightboxInstance = require('../../component/lightbox/lightbox.view.instance.js')
+const SourceAppView = require('../../component/source-app/source-app.view.js')
 
 type RootProps = {
   available: boolean
@@ -63,7 +63,7 @@ const Root = styled<RootProps, 'div'>('div')`
   }
 
   .source-available {
-    width: @minimumButtonSize;
+    width: ${({theme}) => theme.minimumButtonSize};
     text-align: center;
   }
 

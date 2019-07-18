@@ -15,7 +15,7 @@
 import * as React from 'react'
 import styled from 'styled-components'
 import { ChangeBackground } from '../styles/mixins/change-background'
-import SourceItem from '../presentation/source-item'
+import SourceItem from '../source-item'
 import SourcesSummary from '../presentation/sources-summary'
 import { hot } from 'react-hot-loader'
 
