@@ -13,14 +13,14 @@
  *
  **/
 import * as React from 'react'
-import SharingPresentation from '../../presentation/sharing'
-import fetch from '../../utils/fetch/index'
-import { Access, Entry, Restrictions, Security } from '../../utils/security'
+import SharingPresentation from './presentation'
+import fetch from '../utils/fetch/index'
+import { Access, Entry, Restrictions, Security } from '../utils/security'
 
 const user = require('component/singletons/user-instance')
 const common = require('js/Common')
 const announcement = require('component/announcement')
-const LoadingView = require('../../../component/loading/loading.view')
+const LoadingView = require('../../component/loading/loading.view')
 
 type Attribute = {
   attribute: string

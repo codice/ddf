@@ -12,4 +12,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { Sharing, Item, Category } from './sharing'
+export { Sharing, Item, Category } from './container'
