@@ -38,12 +38,10 @@ import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.ContentTypeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.types.CoreAttributes;
 import ddf.catalog.data.impl.types.TopicAttributes;
@@ -52,14 +50,9 @@ import ddf.catalog.data.types.Topic;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateRequest;
-import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.impl.CreateResponseImpl;
-import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
-import ddf.catalog.operation.impl.SourceInfoResponseImpl;
 import ddf.catalog.source.IngestException;
-import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeMapper;
@@ -73,11 +66,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import javax.activation.MimeType;
 import javax.servlet.ServletException;
@@ -85,9 +76,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
@@ -759,87 +747,6 @@ public class CatalogServiceImplTest {
     // Ensure that the metadata was not overriden because it was too large to be parsed
     assertThat(attachmentInfoAndMetacard.getValue().getMetadata(), equalTo("Some Text Again"));
     assertThat(attachmentInfoAndMetacard.getValue().getAttribute("foo"), equalTo(null));
-  }
-
-  /** Tests getting source information */
-  @Test
-  @SuppressWarnings({"unchecked"})
-  public void testGetDocumentSourcesSuccess() throws Exception {
-
-    final String localSourceId = "local";
-    final String fed1SourceId = "fed1";
-    final String fed2SourceId = "fed2";
-    final String version = "4.0";
-    final String jsonMimeTypeString = "application/json";
-
-    Set<ContentType> contentTypes = new HashSet<>();
-    contentTypes.add(new ContentTypeImpl("ct1", "v1"));
-    contentTypes.add(new ContentTypeImpl("ct2", "v2"));
-    contentTypes.add(new ContentTypeImpl("ct3", null));
-    JSONArray contentTypesInJSON = new JSONArray();
-    for (ContentType ct : contentTypes) {
-      JSONObject ob = new JSONObject();
-      ob.put("name", ct.getName());
-      ob.put("version", ct.getVersion() != null ? ct.getVersion() : "");
-      contentTypesInJSON.add(ob);
-    }
-
-    Set<SourceDescriptor> sourceDescriptors = new HashSet<>();
-    SourceDescriptorImpl localDescriptor =
-        new SourceDescriptorImpl(localSourceId, contentTypes, Collections.emptyList());
-    localDescriptor.setVersion(version);
-    localDescriptor.setAvailable(true);
-    SourceDescriptorImpl fed1Descriptor =
-        new SourceDescriptorImpl(fed1SourceId, contentTypes, Collections.emptyList());
-    fed1Descriptor.setVersion(version);
-    fed1Descriptor.setAvailable(true);
-    SourceDescriptorImpl fed2Descriptor =
-        new SourceDescriptorImpl(fed2SourceId, null, Collections.emptyList());
-    fed2Descriptor.setAvailable(true);
-
-    sourceDescriptors.add(localDescriptor);
-    sourceDescriptors.add(fed1Descriptor);
-    sourceDescriptors.add(fed2Descriptor);
-
-    SourceInfoResponse sourceInfoResponse =
-        new SourceInfoResponseImpl(null, null, sourceDescriptors);
-
-    CatalogFramework framework = mock(CatalogFramework.class);
-    when(framework.getSourceInfo(isA(SourceInfoRequestEnterprise.class)))
-        .thenReturn(sourceInfoResponse);
-
-    CatalogServiceImpl catalogService =
-        new CatalogServiceImpl(framework, attachmentParser, attributeRegistry);
-
-    BinaryContent content = catalogService.getSourcesInfo();
-    assertEquals(jsonMimeTypeString, content.getMimeTypeValue());
-
-    String responseMessage = IOUtils.toString(content.getInputStream());
-    JSONArray srcList = (JSONArray) new JSONParser().parse(responseMessage);
-
-    assertEquals(3, srcList.size());
-
-    for (Object o : srcList) {
-      JSONObject src = (JSONObject) o;
-      assertEquals(true, src.get("available"));
-      String id = (String) src.get("id");
-      if (id.equals(localSourceId)) {
-        assertThat(
-            (Iterable<Object>) src.get("contentTypes"), hasItems(contentTypesInJSON.toArray()));
-        assertEquals(contentTypes.size(), ((JSONArray) src.get("contentTypes")).size());
-        assertEquals(version, src.get("version"));
-      } else if (id.equals(fed1SourceId)) {
-        assertThat(
-            (Iterable<Object>) src.get("contentTypes"), hasItems(contentTypesInJSON.toArray()));
-        assertEquals(contentTypes.size(), ((JSONArray) src.get("contentTypes")).size());
-        assertEquals(version, src.get("version"));
-      } else if (id.equals(fed2SourceId)) {
-        assertEquals(0, ((JSONArray) src.get("contentTypes")).size());
-        assertEquals("", src.get("version"));
-      } else {
-        fail("Invalid ID returned");
-      }
-    }
   }
 
   /**

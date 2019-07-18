@@ -46,6 +46,10 @@
         <property name="uuidGenerator" ref="uuidGenerator" />
     </bean>
 
+    <reference-list interface="ddf.catalog.source.SourceAttributeRestriction">
+        <reference-listener ref="catalogService" bind-method="bindRestriction" unbind-method="unbindRestriction"/>
+    </reference-list>
+
     <service ref="catalogService" interface="org.codice.ddf.rest.service.CatalogService"/>
 
     <bean id="viewActionProvider"

@@ -55,6 +55,7 @@ import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.resource.DataUsageLimitExceededException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
+import ddf.catalog.source.SourceAttributeRestriction;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -156,6 +157,8 @@ public class CatalogServiceImpl implements CatalogService {
 
   private static MimeType jsonMimeType;
 
+  private Map<String, SourceAttributeRestriction> sourceAttributeRestrictions = new HashMap<>();
+
   static {
     MimeType mime = null;
     try {
@@ -192,6 +195,18 @@ public class CatalogServiceImpl implements CatalogService {
   BundleContext getBundleContext() {
     Bundle bundle = FrameworkUtil.getBundle(CatalogServiceImpl.class);
     return bundle == null ? null : bundle.getBundleContext();
+  }
+
+  public void bindRestriction(SourceAttributeRestriction restriction) {
+    if (sourceAttributeRestrictions.containsKey(restriction.getSource().getId())) {
+      throw new IllegalArgumentException(
+          "Should not have more than one attribute restriction per source");
+    }
+    sourceAttributeRestrictions.put(restriction.getSource().getId(), restriction);
+  }
+
+  public void unbindRestriction(SourceAttributeRestriction restriction) {
+    sourceAttributeRestrictions.remove(restriction.getSource().getId());
   }
 
   @Override
@@ -300,6 +315,15 @@ public class CatalogServiceImpl implements CatalogService {
         sourceObj.put("id", source.getSourceId());
         sourceObj.put("version", source.getVersion() != null ? source.getVersion() : "");
         sourceObj.put("available", Boolean.valueOf(source.isAvailable()));
+
+        final SourceAttributeRestriction restriction =
+            sourceAttributeRestrictions.get(source.getSourceId());
+        if (restriction != null) {
+          sourceObj.put("hasAttributeRestriction", true);
+          sourceObj.put("supportedAttributes", restriction.getSupportedAttributes());
+        } else {
+          sourceObj.put("hasAttributeRestriction", false);
+        }
 
         List<JSONObject> sourceActions =
             source.getActions().stream().map(this::sourceActionToJSON).collect(Collectors.toList());
