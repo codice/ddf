@@ -37,7 +37,7 @@ const Root = styled.div`
   }
 
   .home-items-header {
-    font-size: ${props => props.theme.minimumFontSize};
+    font-size: ${props => props.theme.mediumFontSize};
     font-weight: bolder;
     line-height: ${props => props.theme.minimumButtonSize};
   }

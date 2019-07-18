@@ -124,7 +124,7 @@ const Root = styled<RootProps, 'button'>('button')`
       props.inText ? `0px ${props.theme.minimumSpacing}` : `0px`};
     border-radius: ${props => props.theme.borderRadius};
     font-size: ${props =>
-      props.inText ? 'inherit !important' : props.theme.largeFontSize};
+      props.inText ? 'inherit !important' : props.theme.mediumFontSize};
     line-height: ${props =>
       props.inText ? 'inherit !important' : props.theme.minimumButtonSize};
     height: ${props => {
@@ -199,7 +199,7 @@ type TextProps = {
 
 const Text = styled<TextProps, 'span'>('span')`
   font-size: ${props =>
-    props.inText ? 'inherit !important' : props.theme.largeFontSize};
+    props.inText ? 'inherit !important' : props.theme.mediumFontSize};
 `
 
 type BaseButtonProps = {
