@@ -69,6 +69,15 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -133,6 +142,9 @@ import net.opengis.ows.v_1_0_0.ServiceIdentification;
 import net.opengis.ows.v_1_0_0.ServiceProvider;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
@@ -239,6 +251,10 @@ public class CswEndpoint implements Csw {
 
   private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
+  private static final int BLOCKING_Q_INITIAL_SIZE = 1024;
+
+  private static final String QUERY_POOL_NAME = "csw-endpoint-query-pool";
+
   private static Map<String, Element> documentElements = new HashMap<>();
 
   private final TransformerManager mimeTypeTransformerManager;
@@ -256,6 +272,8 @@ public class CswEndpoint implements Csw {
   private Validator validator;
 
   private CswQueryFactory queryFactory;
+
+  private ThreadPoolExecutor queryExecutor;
 
   @Context private UriInfo uri;
 
@@ -536,46 +554,104 @@ public class CswEndpoint implements Csw {
     response.setVersion(CswConstants.VERSION_2_0_2);
 
     int numInserted = 0;
+    final Subject subject = SecurityUtils.getSubject();
     for (InsertAction insertAction : request.getInsertActions()) {
-      insertAction = transformInsertAction(insertAction);
-      CreateRequest createRequest = new CreateRequestImpl(insertAction.getRecords());
-      try {
-        CreateResponse createResponse = framework.create(createRequest);
-        if (request.isVerbose()) {
-          response.getInsertResult().add(getInsertResultFromResponse(createResponse));
-        }
+      final InsertAction transformInsertAction = transformInsertAction(insertAction);
 
-        numInserted += createResponse.getCreatedMetacards().size();
-      } catch (IngestException | SourceUnavailableException e) {
-        LOGGER.debug("Unable to insert record(s)", e);
-        throw new CswException(
-            "Unable to insert record(s).",
-            CswConstants.TRANSACTION_FAILED,
-            insertAction.getHandle());
+      List<Metacard> metacards = transformInsertAction.getRecords();
+      CompletionService<CreateResponse> completionService =
+          new ExecutorCompletionService<>(queryExecutor);
+      Map<Future<CreateResponse>, Metacard> futures = new HashMap<>(metacards.size());
+
+      for (Metacard record : metacards) {
+        CreateRequest createRequest = new CreateRequestImpl(record);
+        Callable<CreateResponse> callable =
+            () -> {
+              try {
+                return framework.create(createRequest);
+              } catch (IngestException | SourceUnavailableException e) {
+                LOGGER.debug("Unable to insert record(s)", e);
+                throw new CswException(
+                    "Unable to insert record(s).",
+                    CswConstants.TRANSACTION_FAILED,
+                    transformInsertAction.getHandle());
+              }
+            };
+        Callable<CreateResponse> createCallable = subject.associateWith(callable);
+
+        futures.put(completionService.submit(createCallable), record);
+      }
+
+      while (!futures.isEmpty()) {
+        try {
+          Future<CreateResponse> completedFuture = completionService.take();
+
+          try {
+            CreateResponse futureResponse = completedFuture.get();
+            numInserted += futureResponse.getCreatedMetacards().size();
+            if (request.isVerbose()) {
+              response.getInsertResult().add(getInsertResultFromResponse(futureResponse));
+            }
+          } catch (ExecutionException | CancellationException | InterruptedException e) {
+            LOGGER.debug("Error ingesting Metacard", e);
+          } finally {
+            futures.remove(completedFuture);
+          }
+        } catch (InterruptedException e) {
+          LOGGER.debug("Metacard ingest interrupted", e);
+        }
       }
     }
     LOGGER.debug("{} records inserted.", numInserted);
     response.getTransactionSummary().setTotalInserted(BigInteger.valueOf(numInserted));
 
     int numUpdated = 0;
-    for (UpdateAction updateAction : request.getUpdateActions()) {
-      try {
-        numUpdated += updateRecords(updateAction);
-      } catch (CswException
-          | FederationException
-          | IngestException
-          | SourceUnavailableException
-          | UnsupportedQueryException
-          | CatalogQueryException e) {
-        LOGGER.debug("Unable to update record(s)", e);
-        throw new CswException(
-            "Unable to update record(s).",
-            CswConstants.TRANSACTION_FAILED,
-            updateAction.getHandle());
+    List<UpdateAction> updateActions = request.getUpdateActions();
+    CompletionService<Integer> updateCompletionService =
+        new ExecutorCompletionService<>(queryExecutor);
+    if (!updateActions.isEmpty()) {
+      Map<Future<Integer>, UpdateAction> futures = new HashMap<>(updateActions.size());
+      for (final UpdateAction updateAction : updateActions) {
+        Callable<Integer> callable =
+            () -> {
+              try {
+                return updateRecords(updateAction);
+              } catch (CswException
+                  | FederationException
+                  | IngestException
+                  | SourceUnavailableException
+                  | UnsupportedQueryException
+                  | CatalogQueryException e) {
+                LOGGER.debug("Unable to update record(s)", e);
+                throw new CswException(
+                    "Unable to update record(s).",
+                    CswConstants.TRANSACTION_FAILED,
+                    updateAction.getHandle());
+              }
+            };
+        Callable<Integer> updateCallable = subject.associateWith(callable);
+
+        futures.put(updateCompletionService.submit(updateCallable), updateAction);
       }
+      while (!futures.isEmpty()) {
+        try {
+          Future<Integer> completedFuture = updateCompletionService.take();
+
+          try {
+            numUpdated += completedFuture.get();
+          } catch (ExecutionException | CancellationException | InterruptedException e) {
+            LOGGER.debug("Error ingesting Metacard", e);
+          } finally {
+            futures.remove(completedFuture);
+          }
+        } catch (InterruptedException e) {
+          LOGGER.debug("Metacard ingest interrupted", e);
+        }
+      }
+
+      LOGGER.debug("{} records updated.", numUpdated);
+      response.getTransactionSummary().setTotalUpdated(BigInteger.valueOf(numUpdated));
     }
-    LOGGER.debug("{} records updated.", numUpdated);
-    response.getTransactionSummary().setTotalUpdated(BigInteger.valueOf(numUpdated));
 
     int numDeleted = 0;
     for (DeleteAction deleteAction : request.getDeleteActions()) {
@@ -649,27 +725,65 @@ public class CswEndpoint implements Csw {
       throws CswException, FederationException, IngestException, SourceUnavailableException,
           UnsupportedQueryException, InterruptedException, ParseException, CQLException {
 
-    deleteAction = transformDeleteAction(deleteAction);
+    final DeleteAction transformDeleteAction = transformDeleteAction(deleteAction);
 
     QueryRequest queryRequest =
-        queryFactory.getQuery(deleteAction.getConstraint(), deleteAction.getTypeName());
+        queryFactory.getQuery(
+            transformDeleteAction.getConstraint(), transformDeleteAction.getTypeName());
 
     queryRequest =
         queryFactory.updateQueryRequestTags(
             queryRequest,
-            schemaTransformerManager.getTransformerSchemaForId(deleteAction.getTypeName()));
+            schemaTransformerManager.getTransformerSchemaForId(
+                transformDeleteAction.getTypeName()));
 
     int batchCount = 1;
     int deletedCount = 0;
 
     String[] idsToDelete = getNextQueryBatch(queryRequest);
 
+    CompletionService<DeleteResponse> deleteCompletionService =
+        new ExecutorCompletionService<>(queryExecutor);
+    Map<Future<DeleteResponse>, String> futures = new HashMap<>();
+
     while (idsToDelete.length > 0) {
-      DeleteRequestImpl deleteRequest = new DeleteRequestImpl(idsToDelete);
       LOGGER.debug(
           "Attempting to delete {} metacards from batch {}.", idsToDelete.length, ++batchCount);
-      DeleteResponse deleteResponse = framework.delete(deleteRequest);
-      deletedCount += deleteResponse.getDeletedMetacards().size();
+      final Subject subject = SecurityUtils.getSubject();
+      for (final String id : idsToDelete) {
+        Callable<DeleteResponse> callable =
+            () -> {
+              try {
+                DeleteRequestImpl deleteRequest = new DeleteRequestImpl(id);
+                return framework.delete(deleteRequest);
+              } catch (IngestException | SourceUnavailableException | CatalogQueryException e) {
+                LOGGER.debug("Unable to delete record: {}", id, e);
+                throw new CswException(
+                    "Unable to update record(s).",
+                    CswConstants.TRANSACTION_FAILED,
+                    transformDeleteAction.getHandle());
+              }
+            };
+        Callable<DeleteResponse> deleteCallable = subject.associateWith(callable);
+
+        futures.put(deleteCompletionService.submit(deleteCallable), id);
+      }
+
+      while (!futures.isEmpty()) {
+        try {
+          Future<DeleteResponse> completedFuture = deleteCompletionService.take();
+
+          try {
+            deletedCount += completedFuture.get().getDeletedMetacards().size();
+          } catch (ExecutionException | CancellationException e) {
+            LOGGER.debug("Error deleting Metacard", e);
+          } finally {
+            futures.remove(completedFuture);
+          }
+        } catch (InterruptedException e) {
+          LOGGER.debug("Metacard delete interrupted", e);
+        }
+      }
 
       idsToDelete = getNextQueryBatch(queryRequest);
     }
@@ -775,7 +889,7 @@ public class CswEndpoint implements Csw {
       }
     }
 
-    if (updatedMetacardIdsList.size() > 0) {
+    if (!updatedMetacardIdsList.isEmpty()) {
       String[] updatedMetacardIds = updatedMetacardIdsList.toArray(new String[0]);
       UpdateRequest updateRequest = new UpdateRequestImpl(updatedMetacardIds, updatedMetacards);
 
@@ -1477,5 +1591,36 @@ public class CswEndpoint implements Csw {
 
   Bundle getBundle() {
     return FrameworkUtil.getBundle(this.getClass());
+  }
+
+  public void init() {
+    int numThreads = 2 * Runtime.getRuntime().availableProcessors();
+    LOGGER.debug("{} size: {}", QUERY_POOL_NAME, numThreads);
+
+    queryExecutor =
+        new ThreadPoolExecutor(
+            numThreads,
+            numThreads,
+            0L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingDeque<>(BLOCKING_Q_INITIAL_SIZE),
+            StandardThreadFactoryBuilder.newThreadFactory(QUERY_POOL_NAME),
+            new ThreadPoolExecutor.CallerRunsPolicy());
+
+    queryExecutor.prestartAllCoreThreads();
+  }
+
+  public void destroy() {
+    queryExecutor.shutdown();
+
+    try {
+      boolean shutdown = queryExecutor.awaitTermination(30L, TimeUnit.SECONDS);
+      if (!shutdown) {
+        queryExecutor.shutdownNow();
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException(QUERY_POOL_NAME + " graceful shutdown interrupted.", e);
+    }
   }
 }
