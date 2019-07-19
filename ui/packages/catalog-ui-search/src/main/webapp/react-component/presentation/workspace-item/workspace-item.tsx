@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import Card from '../card'
+import Card from '../../card'
 import SaveButton from '../../save-button'
 import { buttonTypeEnum, Button } from '../button'
 import Dropdown from '../dropdown'
