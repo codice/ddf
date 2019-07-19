@@ -15,7 +15,7 @@
 
 import ExportResults from '../../../react-component/container/table-export'
 import React from 'react'
-import { union } from 'lodash'
+import union from 'lodash/union'
 const lightboxInstance = require('../../lightbox/lightbox.view.instance.js')
 import {
   Button,
@@ -43,7 +43,7 @@ const filterAttributesWithResultForm = (
   const filteredAttributes = attributes.filter(attribute =>
     resultTemplateAttributes.includes(attribute)
   )
-  return _.union(filteredAttributes, defaultAttributes).sort()
+  return union(filteredAttributes, defaultAttributes).sort()
 }
 const filteredAttributesModel = Backbone.Model.extend({
   defaults: {
@@ -113,6 +113,7 @@ module.exports = Marionette.LayoutView.extend({
       throw 'Selection interface has not been provided'
     }
     this.filteredAttributes = new filteredAttributesModel()
+    this.filterActiveSearchResultsAttributes()
 
     this.listenTo(
       this.options.selectionInterface,
@@ -127,19 +128,17 @@ module.exports = Marionette.LayoutView.extend({
   },
   filterActiveSearchResultsAttributes() {
     const currentQuery = this.options.selectionInterface.getCurrentQuery()
-
     const resultFormName = currentQuery ? currentQuery.get('detail-level') : ''
     const selectedResultTemplate = ResultForm.getResultCollection().filteredList.filter(
       form => form.id === resultFormName || form.value === resultFormName
-    )[0]
-
+    )
     let filteredAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes()
 
-    if (selectedResultTemplate) {
+    if (selectedResultTemplate.length > 0) {
       const attrs = this.options.selectionInterface.getActiveSearchResultsAttributes()
       filteredAttributes = filterAttributesWithResultForm(
         attrs,
-        selectedResultTemplate.descriptors
+        selectedResultTemplate[0].descriptors
       )
     }
     this.filteredAttributes.set('filteredAttributes', filteredAttributes)
