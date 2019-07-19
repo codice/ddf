@@ -12,14 +12,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import plugin from 'plugins/navigation-right'
+import plugin from '../../plugins/navigation-right'
 
 import {
   Help,
   Settings,
   Notifications,
   User,
-} from '../../react-component/presentation/navigation-right/buttons'
+} from '../../react-component/navigation-right/buttons'
 
 const DefaultItems = [Help, Settings, Notifications, User]
 

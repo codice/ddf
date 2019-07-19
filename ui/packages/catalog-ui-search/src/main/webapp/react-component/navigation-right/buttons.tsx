@@ -13,15 +13,15 @@
  *
  **/
 import * as React from 'react'
-import { Button, buttonTypeEnum } from '../button'
-import UserNotifications from '../user-notifications/user-notifications'
-import UserView from '../../../react-component/container/user'
+import { Button, buttonTypeEnum } from '../presentation/button'
+import UserNotifications from '../presentation/user-notifications/user-notifications'
+import UserView from '../user'
 
-const HelpView = require('../../../component/help/help.view.js')
-const UserSettings = require('../../../component/user-settings/user-settings.view.js')
-const SlideoutViewInstance = require('../../../component/singletons/slideout.view-instance.js')
-const SlideoutRightViewInstance = require('../../../component/singletons/slideout.right.view-instance.js')
-const user = require('../../../component/singletons/user-instance.js')
+const HelpView = require('../../component/help/help.view.js')
+const UserSettings = require('../../component/user-settings/user-settings.view.js')
+const SlideoutViewInstance = require('../../component/singletons/slideout.view-instance.js')
+const SlideoutRightViewInstance = require('../../component/singletons/slideout.right.view-instance.js')
+const user = require('../../component/singletons/user-instance.js')
 export interface Props {
   username: string
   hasUnseenNotifications: boolean
