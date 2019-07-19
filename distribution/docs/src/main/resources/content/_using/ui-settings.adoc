@@ -1,0 +1,27 @@
+:title: Other Settings
+:type: using
+:status: published
+:parent: Using ${catalog-ui}
+:summary: Configuring User preferences and settings
+:order: 07
+
+== {title}
+
+=== ${catalog-ui} Settings
+
+Customize the look and feel of ${catalog-ui} using the *Settings* (image:gear-icon.png[settings]) menu on the navigation bar.
+
+.Settings Menu Options
+image::catalog-ui-settings-options.png[]
+
+* *Theme*: Visual options for page layout.
+* *Notifications*: Select if notifications persist across sessions.
+* *Map*: Select options for map layers.
+* *Query*: Customize the number of search results returned.
+* *Time*: Set the time format (ISO-8601, 24 Hour or 12 Hour), as well as the timezone (UTC-12:00 through UTC+12:00).
+* *Hidden*: View or edit a list of results that have been hidden from the current search results.
+
+=== ${catalog-ui} Low Bandwidth Mode
+
+Low bandwidth mode can be enabled by passing in a `?lowBandwidth` parameter along with any URL targeting the ${catalog-ui} endpoint.
+Ex: `${secure_url}/search/catalog/?lowBandwidth#workspaces`. Currently, enabling this parameter causes the system to prompt the user for confirmation before loading potentially bandwidth-intensive components like the 2D or 3D Maps.
