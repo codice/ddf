@@ -13,20 +13,20 @@
  *
  **/
 import * as React from 'react'
-import TableExportComponent from '../../presentation/table-export'
+import TableExportComponent from './presentation'
 import {
   exportResultSet,
   getExportOptions,
   Transformer,
-} from '../../utils/export'
-import LoadingCompanion from '../loading-companion'
-import saveFile from '../../utils/save-file'
+} from '../utils/export'
+import LoadingCompanion from '../container/loading-companion'
+import saveFile from '../utils/save-file'
 import { hot } from 'react-hot-loader'
 const _ = require('underscore')
-const user = require('../../../component/singletons/user-instance.js')
-const properties = require('../../../js/properties.js')
-const announcement = require('../../../component/announcement/index.jsx')
-const Sources = require('../../../component/singletons/sources-instance.js')
+const user = require('../../component/singletons/user-instance.js')
+const properties = require('../../js/properties.js')
+const announcement = require('../../component/announcement/index.jsx')
+const Sources = require('../../component/singletons/sources-instance.js')
 const contentDisposition = require('content-disposition')
 function buildCqlQueryFromMetacards(metacards: any) {
   const queryParts = metacards.map((metacard: any) => {

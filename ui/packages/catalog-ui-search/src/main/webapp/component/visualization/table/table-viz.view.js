@@ -13,7 +13,7 @@
  *
  **/
 
-import ExportResults from '../../../react-component/container/table-export'
+import ExportResults from '../../../react-component/table-export'
 import React from 'react'
 import union from 'lodash/union'
 const lightboxInstance = require('../../lightbox/lightbox.view.instance.js')

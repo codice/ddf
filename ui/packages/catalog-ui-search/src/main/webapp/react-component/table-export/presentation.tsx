@@ -14,11 +14,11 @@
  **/
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-import Enum from '../../container/enum'
-import { Button, buttonTypeEnum } from '../button'
+import Enum from '../container/enum'
+import { Button, buttonTypeEnum } from '../presentation/button'
 import styled from 'styled-components'
-import Number from '../../container/input-wrappers/number'
-const properties = require('../../../js/properties.js')
+import Number from '../container/input-wrappers/number'
+const properties = require('../../js/properties.js')
 
 const Root = styled<{}, 'div'>('div')`
   display: block;
