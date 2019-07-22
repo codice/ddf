@@ -12,33 +12,26 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+import * as React from 'react'
+import { storiesOf, action, array, text } from '../storybook'
+import { Radio, RadioItem } from '.'
 
-var $ = require('jquery')
-var React = require('react')
-var render = require('react-dom').render
-var Provider = require('react-redux').Provider
+const stories = storiesOf('Radio', module)
 
-var actions = require('./actions')
-var configureStore = require('./configureStore')
+stories.add('basic', () => {
+  const value = text('Radio Value', 'first option')
 
-var Announcments = require('./announcements')
+  const items = array('Radio Items', [
+    'first option',
+    'second option',
+    'third option',
+  ])
 
-var region = $('<div id="announcments">').get(0)
-$(window.document.body).append(region)
-
-var store = configureStore()
-
-render(
-  <Provider store={store}>
-    <Announcments />
-  </Provider>,
-  region
-)
-
-exports.announce = function(announcement, timeout) {
-  store.dispatch(actions.announce(announcement, timeout))
-}
-
-if (process.env.NODE_ENV !== 'production' && module.hot) {
-  module.hot.accept()
-}
+  return (
+    <Radio value={value} onChange={action('onChange')}>
+      {items.map(value => {
+        return <RadioItem value={value} />
+      })}
+    </Radio>
+  )
+})

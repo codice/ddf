@@ -17,7 +17,7 @@ const React = require('react')
 const { Radio, RadioItem } = require('../radio')
 const TextField = require('../text-field')
 
-const { Units, Zone, Hemisphere } = require('./common')
+const { Units, Zone, Hemisphere, MinimumSpacing } = require('./common')
 
 const {
   DmsLatitude,
@@ -171,6 +171,7 @@ const PointRadius = props => {
         <RadioItem value="usng">USNG / MGRS</RadioItem>
         <RadioItem value="utmUps">UTM / UPS</RadioItem>
       </Radio>
+      <MinimumSpacing />
       <div className="input-location">
         {Component !== null ? <Component {...props} /> : null}
       </div>

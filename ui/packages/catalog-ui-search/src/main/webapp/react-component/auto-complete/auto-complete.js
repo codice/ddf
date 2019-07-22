@@ -12,13 +12,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const React = require('react')
+import React from 'react'
+import PropTypes from 'prop-types'
 
-const _debounce = require('lodash/debounce')
+import _debounce from 'lodash/debounce'
 
-const Dropdown = require('../dropdown')
-const TextField = require('../text-field')
-const { Menu, MenuItem } = require('../menu')
+import Dropdown from '../dropdown'
+import TextField from '../text-field'
+import { Menu, MenuItem } from '../menu'
 
 class AutoComplete extends React.Component {
   constructor(props) {
@@ -97,6 +98,30 @@ class AutoComplete extends React.Component {
       </Dropdown>
     )
   }
+}
+
+AutoComplete.defaultProps = {
+  minimumInputLength: 3,
+}
+
+AutoComplete.propTypes = {
+  /** Default placeholder before user has selected an item. */
+  placeholder: PropTypes.node,
+
+  /** The current selected value. */
+  value: PropTypes.any,
+
+  /** Value change handler. */
+  onChange: PropTypes.func,
+
+  /** An async function that returns suggestions. [{ id: string, name: string }]*/
+  suggester: PropTypes.func,
+
+  /**
+   * The number of characters that must be entered before the suggester
+   * is used to get suggestions.
+   */
+  minimumInputLength: PropTypes.number,
 }
 
 module.exports = AutoComplete

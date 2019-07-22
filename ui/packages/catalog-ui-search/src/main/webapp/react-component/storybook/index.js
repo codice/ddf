@@ -12,33 +12,20 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+import { storiesOf as of } from '@connexta/ace/@storybook/react'
 
-var $ = require('jquery')
-var React = require('react')
-var render = require('react-dom').render
-var Provider = require('react-redux').Provider
+import withTheme from './withTheme'
 
-var actions = require('./actions')
-var configureStore = require('./configureStore')
-
-var Announcments = require('./announcements')
-
-var region = $('<div id="announcments">').get(0)
-$(window.document.body).append(region)
-
-var store = configureStore()
-
-render(
-  <Provider store={store}>
-    <Announcments />
-  </Provider>,
-  region
-)
-
-exports.announce = function(announcement, timeout) {
-  store.dispatch(actions.announce(announcement, timeout))
+export const storiesOf = (name, m) => {
+  const stories = of(name, m)
+  stories.addDecorator(withTheme)
+  return stories
 }
 
-if (process.env.NODE_ENV !== 'production' && module.hot) {
-  module.hot.accept()
-}
+export { action } from '@connexta/ace/@storybook/addon-actions'
+export {
+  array,
+  text,
+  number,
+  boolean,
+} from '@connexta/ace/@storybook/addon-knobs'

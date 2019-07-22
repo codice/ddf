@@ -12,4 +12,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-module.exports = require('./json')
+import * as React from 'react'
+
+import { storiesOf, action, text } from '../storybook'
+
+import TextField from '.'
+
+const stories = storiesOf('TextField', module)
+
+stories.add('basic', () => {
+  const value = text('TextField', 'value')
+
+  return <TextField value={value} onChange={action('onChange')} />
+})
