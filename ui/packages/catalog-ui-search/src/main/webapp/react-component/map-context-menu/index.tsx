@@ -13,8 +13,8 @@
  *
  **/
 import * as React from 'react'
-import CopyCoordinates from '../../copy-coordinates'
-import { Menu, MenuItem } from '../../menu'
+import CopyCoordinates from '../copy-coordinates'
+import { Menu, MenuItem } from '../menu'
 import styled from 'styled-components'
 
 const Icon = styled.div`
