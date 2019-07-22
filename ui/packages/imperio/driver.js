@@ -213,7 +213,6 @@ const withAction = ({
   class WithAction extends React.Component {
     constructor(props) {
       super(props)
-      this.ref = React.createRef()
     }
     componentWillMount() {
       this.action = register({
@@ -226,9 +225,7 @@ const withAction = ({
           return params
         },
         el: () => {
-          if (this.ref.current !== null) {
-            return findDOMNode(this.ref.current)
-          }
+          return findDOMNode(this)
         },
         meta: () => meta(this.props),
         fn: args =>
@@ -242,7 +239,7 @@ const withAction = ({
       unregister(this.action)
     }
     render() {
-      return <Component ref={this.ref} {...this.props} {...this.state} />
+      return <Component {...this.props} />
     }
   }
 
