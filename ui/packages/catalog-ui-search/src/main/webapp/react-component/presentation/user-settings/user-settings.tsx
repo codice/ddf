@@ -23,9 +23,14 @@ import TimeSettings from '../../container/time-settings'
 import styled from '../../styles/styled-components'
 import { Button, buttonTypeEnum } from '../button'
 import { hot } from 'react-hot-loader'
+import MarionetteRegionContainer from '../../container/marionette-region-container';
 
 export type Props = {
-  children: React.ReactNode
+  children: React.ReactNode[]
+}
+
+type ComponentProps = {
+  updateComponent: (component?: JSX.Element) => void;
 }
 
 type State = {
@@ -82,68 +87,82 @@ export const BackButton = styled(Button)`
   padding: 0px ${props => props.theme.mediumSpacing};
 `
 
-export const ThemeSettingsComponent = () => {
-  const component = <ThemeSettings/>
+export const ThemeSettingsComponent: React.FC<ComponentProps> = (props) => {
   return (
     <NavigationButton
       buttonType={buttonTypeEnum.neutral}
       text="Theme"
       icon="fa fa-paint-brush"
+      onClick={() => {
+        props.updateComponent(<ThemeSettings/>)
+      }}
     />
   )
 }
 
-export const AlertSettingsComponent = () => {
-  const component = <AlertSettings/>
+export const AlertSettingsComponent: React.FC<ComponentProps> = (props) => {
   return (
     <NavigationButton
       buttonType={buttonTypeEnum.neutral}
       text="Notifications"
       icon="fa fa-bell"
+      onClick={() => {
+        props.updateComponent(<AlertSettings/>)
+      }}
     />
   )
 }
 
-export const MapSettingsComponent = () => {
-  const component = MapSettings
+export const MapSettingsComponent: React.FC<ComponentProps> = (props) => {
   return (
     <NavigationButton
       buttonType={buttonTypeEnum.neutral}
       text="Map"
       icon="fa fa-globe"
+      onClick={() => {
+        props.updateComponent(
+          <MarionetteRegionContainer view={MapSettings}/>
+        )
+      }}
     />
   )
 }
 
-export const SearchSettingsComponent = () => {
-  const component = <SearchSettings showFooter={false} />
+export const SearchSettingsComponent: React.FC<ComponentProps> = (props) => {
   return (
     <NavigationButton
       buttonType={buttonTypeEnum.neutral}
       text="Search Options"
       icon="fa fa-search"
+      onClick={() => {
+        props.updateComponent(<SearchSettings showFooter={false}/>)
+      }}
     />
   )
 }
 
-export const TimeSettingsComponent = () => {
-  const component = <TimeSettings/>
+export const TimeSettingsComponent: React.FC<ComponentProps> = (props) => {
   return (
     <NavigationButton
       buttonType={buttonTypeEnum.neutral}
       text="Time"
       icon="fa fa-clock-o"
+      onClick={() => {
+        props.updateComponent(<TimeSettings/>)
+      }}
     />
   )
 }
 
-export const HiddenSettingsComponent = () => {
-  const component = <HiddenSettings/>
+export const HiddenSettingsComponent: React.FC<ComponentProps> = (props) => {
   return (
     <NavigationButton
       buttonType={buttonTypeEnum.neutral}
       text="Hidden"
       icon="fa fa-eye-slash"
+      onClick={() => {
+        props.updateComponent(<HiddenSettings/>)
+      }}
     />
   )
 }
@@ -159,8 +178,12 @@ class UserSettings extends React.Component<Props, State> {
     })
   }
   render() {
-    const { children } = this.props
     const { component } = this.state
+    const children = React.Children.map(this.props.children, child => {
+      return React.cloneElement(child as React.ReactElement<any>, {
+        updateComponent: this.updateComponent
+      });
+    });
     return (
       <Root component={component}>
         <div className="user-settings-navigation">
@@ -169,7 +192,7 @@ class UserSettings extends React.Component<Props, State> {
           { children }
         </div>
         <div className="user-settings-content">
-          {component ? (
+          { children ? (
             <>
               <div className="content-header">
                 <BackButton
