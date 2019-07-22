@@ -12,8 +12,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import UserSettings from '../react-component/presentation/user-settings'
+import UserSettings, { ThemeSettingsComponent,
+       AlertSettingsComponent,
+       MapSettingsComponent,
+       SearchSettingsComponent,
+       TimeSettingsComponent,
+       HiddenSettingsComponent } from '../react-component/presentation/user-settings'
+import * as React from 'react'
 
-const ExtendedUserSettings = UserSettings([])
+const ExtendedUserSettings =
+    <UserSettings>
+        <ThemeSettingsComponent/>
+        <AlertSettingsComponent/>
+        <MapSettingsComponent/>
+        <SearchSettingsComponent/>
+        <TimeSettingsComponent/>
+        <HiddenSettingsComponent/>
+    </UserSettings>
 
 export default ExtendedUserSettings

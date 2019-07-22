@@ -12,25 +12,32 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react'
-import {
-  BaseUserSettings,
-  BaseProps,
-  withExtensions,
-  SettingsComponent,
-  CustomComponent
-} from './index'
-import { Subtract } from '../../../typescript'
 
-const extendUserSettings = (extensions: (CustomComponent|SettingsComponent)[]) => {
-  return class ExtensionContainer extends React.Component<
-    Subtract<BaseProps, withExtensions>,
-    {}
-  > {
-    render() {
-      return <BaseUserSettings extensions={extensions} {...this.props} />
-    }
-  }
-}
-
-export default extendUserSettings
+/**
+ * import * as React from 'react'
+ * import {
+ *   BaseUserSettings,
+ *   Props,
+ *   SettingsComponent,
+ *   ThemeSettingsComponent,
+ *   AlertSettingsComponent,
+ *   MapSettingsComponent,
+ *   SearchOptionsComponent,
+ *   TimeSettingsComponent,
+ *   HiddenSettingsComponent,
+ * } from './index'
+ * import { Subtract } from '../../../typescript'
+ *
+ * const extendUserSettings = (extensions: SettingsComponent[]) => {
+ *   return class ExtensionContainer extends React.Component<
+ *     Subtract<BaseProps, withExtensions>,
+ *     {}
+ *   > {
+ *     render() {
+ *       return <BaseUserSettings extensions={extensions} {...this.props} />
+ *     }
+ *   }
+ * }
+ *
+ * export default extendUserSettings
+ **/
