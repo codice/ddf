@@ -15,8 +15,8 @@
 import * as React from 'react'
 import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
-import ButtonBehavior from '../button-behavior'
-import { Subtract } from '../../../typescript'
+import ButtonBehavior from '../presentation/button-behavior'
+import { Subtract } from '../../typescript'
 
 type Props = {
   className?: string
