@@ -561,7 +561,6 @@ public class CswEndpoint implements Csw {
       List<Metacard> metacards = transformInsertAction.getRecords();
       CompletionService<CreateResponse> completionService =
           new ExecutorCompletionService<>(queryExecutor);
-      Map<Future<CreateResponse>, Metacard> futures = new HashMap<>(metacards.size());
 
       for (Metacard record : metacards) {
         CreateRequest createRequest = new CreateRequestImpl(record);
@@ -578,11 +577,10 @@ public class CswEndpoint implements Csw {
               }
             };
         Callable<CreateResponse> createCallable = subject.associateWith(callable);
-
-        futures.put(completionService.submit(createCallable), record);
+        completionService.submit(createCallable);
       }
 
-      while (!futures.isEmpty()) {
+      for (int i = 0; i < metacards.size(); i++) {
         try {
           Future<CreateResponse> completedFuture = completionService.take();
 
@@ -592,13 +590,16 @@ public class CswEndpoint implements Csw {
             if (request.isVerbose()) {
               response.getInsertResult().add(getInsertResultFromResponse(futureResponse));
             }
-          } catch (ExecutionException | CancellationException | InterruptedException e) {
+          } catch (ExecutionException | CancellationException e) {
             LOGGER.debug("Error ingesting Metacard", e);
-          } finally {
-            futures.remove(completedFuture);
+            throw new CswException(
+                "Unable to insert record(s).",
+                CswConstants.TRANSACTION_FAILED,
+                insertAction.getHandle());
           }
         } catch (InterruptedException e) {
           LOGGER.debug("Metacard ingest interrupted", e);
+          Thread.currentThread().interrupt();
         }
       }
     }
@@ -610,7 +611,6 @@ public class CswEndpoint implements Csw {
     CompletionService<Integer> updateCompletionService =
         new ExecutorCompletionService<>(queryExecutor);
     if (!updateActions.isEmpty()) {
-      Map<Future<Integer>, UpdateAction> futures = new HashMap<>(updateActions.size());
       for (final UpdateAction updateAction : updateActions) {
         Callable<Integer> callable =
             () -> {
@@ -630,22 +630,21 @@ public class CswEndpoint implements Csw {
               }
             };
         Callable<Integer> updateCallable = subject.associateWith(callable);
-
-        futures.put(updateCompletionService.submit(updateCallable), updateAction);
+        updateCompletionService.submit(updateCallable);
       }
-      while (!futures.isEmpty()) {
+      for (int i = 0; i < updateActions.size(); i++) {
         try {
           Future<Integer> completedFuture = updateCompletionService.take();
-
           try {
             numUpdated += completedFuture.get();
-          } catch (ExecutionException | CancellationException | InterruptedException e) {
-            LOGGER.debug("Error ingesting Metacard", e);
-          } finally {
-            futures.remove(completedFuture);
+          } catch (ExecutionException | CancellationException e) {
+            LOGGER.debug("Error updating Metacard", e);
+            throw new CswException(
+                "Unable to insert record(s).", CswConstants.TRANSACTION_FAILED, "Update");
           }
         } catch (InterruptedException e) {
-          LOGGER.debug("Metacard ingest interrupted", e);
+          LOGGER.debug("Metacard update interrupted", e);
+          Thread.currentThread().interrupt();
         }
       }
 
@@ -744,7 +743,6 @@ public class CswEndpoint implements Csw {
 
     CompletionService<DeleteResponse> deleteCompletionService =
         new ExecutorCompletionService<>(queryExecutor);
-    Map<Future<DeleteResponse>, String> futures = new HashMap<>();
 
     while (idsToDelete.length > 0) {
       LOGGER.debug(
@@ -759,17 +757,16 @@ public class CswEndpoint implements Csw {
               } catch (IngestException | SourceUnavailableException | CatalogQueryException e) {
                 LOGGER.debug("Unable to delete record: {}", id, e);
                 throw new CswException(
-                    "Unable to update record(s).",
+                    "Unable to delete record(s).",
                     CswConstants.TRANSACTION_FAILED,
                     transformDeleteAction.getHandle());
               }
             };
         Callable<DeleteResponse> deleteCallable = subject.associateWith(callable);
-
-        futures.put(deleteCompletionService.submit(deleteCallable), id);
+        deleteCompletionService.submit(deleteCallable);
       }
 
-      while (!futures.isEmpty()) {
+      for (int i = 0; i < idsToDelete.length; i++) {
         try {
           Future<DeleteResponse> completedFuture = deleteCompletionService.take();
 
@@ -777,11 +774,14 @@ public class CswEndpoint implements Csw {
             deletedCount += completedFuture.get().getDeletedMetacards().size();
           } catch (ExecutionException | CancellationException e) {
             LOGGER.debug("Error deleting Metacard", e);
-          } finally {
-            futures.remove(completedFuture);
+            throw new CswException(
+                "Unable to delete record(s).",
+                CswConstants.TRANSACTION_FAILED,
+                deleteAction.getHandle());
           }
         } catch (InterruptedException e) {
           LOGGER.debug("Metacard delete interrupted", e);
+          Thread.currentThread().interrupt();
         }
       }
 
@@ -1597,6 +1597,10 @@ public class CswEndpoint implements Csw {
     int numThreads = 2 * Runtime.getRuntime().availableProcessors();
     LOGGER.debug("{} size: {}", QUERY_POOL_NAME, numThreads);
 
+    if (queryExecutor != null) {
+      destroy();
+    }
+
     queryExecutor =
         new ThreadPoolExecutor(
             numThreads,
@@ -1622,5 +1626,7 @@ public class CswEndpoint implements Csw {
       Thread.currentThread().interrupt();
       throw new IllegalStateException(QUERY_POOL_NAME + " graceful shutdown interrupted.", e);
     }
+
+    queryExecutor = null;
   }
 }
