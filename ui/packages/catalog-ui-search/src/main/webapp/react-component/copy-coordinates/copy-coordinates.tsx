@@ -17,7 +17,7 @@ import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
 import Dropdown from '../presentation/dropdown'
 import MenuAction from '../menu-action'
-import NavigationBehavior from '../presentation/navigation-behavior'
+import NavigationBehavior from '../navigation-behavior'
 import { ContextType } from '../presentation/dropdown'
 
 const Clipboard = require('clipboard')

@@ -21,7 +21,7 @@ import MarionetteRegionContainer from '../../container/marionette-region-contain
 import SaveButton from '../../save-button'
 import WorkspaceTitle from '../workspace-title'
 import Dropdown from '../dropdown'
-import NavigationBehavior from '../navigation-behavior'
+import NavigationBehavior from '../../navigation-behavior'
 import {
   buttonTypeEnum,
   Button,

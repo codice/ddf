@@ -18,7 +18,7 @@ import Card from '../../card'
 import SaveButton from '../../save-button'
 import { buttonTypeEnum, Button } from '../button'
 import Dropdown from '../dropdown'
-import NavigationBehavior from '../navigation-behavior'
+import NavigationBehavior from '../../navigation-behavior'
 import WorkspaceInteractions from '../../container/workspace-interactions'
 import { hot } from 'react-hot-loader'
 

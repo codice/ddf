@@ -18,7 +18,7 @@ import { sortBy } from 'lodash'
 import WorkspacesItems from '../../presentation/workspaces-items'
 import MarionetteRegionContainer from '../../container/marionette-region-container'
 import Dropdown from '../../presentation/dropdown'
-import NavigationBehavior from '../../presentation/navigation-behavior'
+import NavigationBehavior from '../../navigation-behavior'
 import MenuSelection from '../../menu-selection'
 import { hot } from 'react-hot-loader'
 

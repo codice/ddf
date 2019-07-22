@@ -53,6 +53,7 @@ interface Props {
   }
   selectionCount: number
   closeMenu: () => void
+  key: number
 }
 
 const renderCopyCoordinatesMenu = ({ coordinateValues, closeMenu }: Props) => (
@@ -87,8 +88,8 @@ const renderInspectorMenu = ({ target }: Props) => (
   </MenuItem>
 )
 
-const renderMenu = ({ onChange }: Props, menuItems: any[]) => (
-  <Menu onChange={onChange}>{menuItems}</Menu>
+const renderMenu = ({ onChange, key }: Props, menuItems: any[]) => (
+  <Menu key={key} onChange={onChange}>{menuItems}</Menu>
 )
 
 const renderInspectorSelectionMenu = ({ selectionCount }: Props) => (
