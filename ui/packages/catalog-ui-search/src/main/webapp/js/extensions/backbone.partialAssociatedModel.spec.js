@@ -17,7 +17,6 @@ import PartialAssociatedModel from './backbone.partialAssociatedModel'
 import * as Backbone from 'backbone-associations'
 import fetch from '../../react-component/utils/fetch'
 
-// eslint-disable-next-line no-undef
 const sleep = timeout => new Promise(resolve => setTimeout(resolve, timeout))
 const generateMockFetch = (data, options = { delay: 0, multi: false }) => {
   return async url => {

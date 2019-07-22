@@ -20,5 +20,6 @@ module.exports = {
         "react/no-render-return-value" : "off",
         "react/no-deprecated" : "off",
         "react/no-find-dom-node" : "off",
-    }
+    },
+    env: {es6: true}
 };

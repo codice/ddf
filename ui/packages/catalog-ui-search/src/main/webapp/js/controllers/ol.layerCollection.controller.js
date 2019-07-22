@@ -176,7 +176,6 @@ const Controller = CommonLayerController.extend({
     opts.show = model.shouldShowLayer()
 
     try {
-      // eslint-disable-next-line no-undef
       const layer = await Promise.resolve(createLayer(type, opts))
       this.map.addLayer(layer)
       this.layerForCid[id] = layer

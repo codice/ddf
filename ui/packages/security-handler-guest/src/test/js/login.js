@@ -15,14 +15,11 @@
 // NOTE: to enable debug uncomment the following 2 lines.
 //casper.options.verbose = true;
 //casper.options.logLevel = 'debug';
-// eslint-disable-next-line no-undef
+/* global casper */
 casper.test.begin('Login test', 1, function(test) {
-  // eslint-disable-next-line no-undef
   var url = casper.cli.get('url')
-  // eslint-disable-next-line no-undef
   casper.start(url)
 
-  // eslint-disable-next-line no-undef
   casper.waitFor(
     function() {
       // Make sure that we got the loginForm
@@ -38,7 +35,6 @@ casper.test.begin('Login test', 1, function(test) {
     }
   )
 
-  // eslint-disable-next-line no-undef
   casper.run(function() {
     test.done()
   })

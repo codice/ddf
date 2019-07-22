@@ -15,7 +15,6 @@
 const expect = require('chai').expect
 import { serialize, deserialize } from './serial'
 
-// eslint-disable-next-line no-undef
 const inputs = new Map([
   [undefined, undefined],
   [{ last: 1, unit: 'y' }, 'RELATIVE(P1Y)'],
