@@ -15,8 +15,8 @@
 
 import * as React from 'react'
 import styled from 'styled-components'
-const sessionTimeoutModel = require('../../../component/singletons/session-timeout')
-import { Button, buttonTypeEnum } from '../button'
+const sessionTimeoutModel = require('../../component/singletons/session-timeout')
+import { Button, buttonTypeEnum } from '../presentation/button'
 
 const SessionTimeoutRoot = styled.div`
   height: 100%;
