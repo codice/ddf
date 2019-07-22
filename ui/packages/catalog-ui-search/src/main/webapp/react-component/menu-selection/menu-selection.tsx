@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import MenuItem from '../../menu-item'
+import MenuItem from '../menu-item'
 import { hot } from 'react-hot-loader'
 
 type Props = {

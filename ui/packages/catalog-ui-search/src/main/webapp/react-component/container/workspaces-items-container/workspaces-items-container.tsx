@@ -19,7 +19,7 @@ import WorkspacesItems from '../../presentation/workspaces-items'
 import MarionetteRegionContainer from '../../container/marionette-region-container'
 import Dropdown from '../../presentation/dropdown'
 import NavigationBehavior from '../../presentation/navigation-behavior'
-import MenuSelection from '../../presentation/menu-selection'
+import MenuSelection from '../../menu-selection'
 import { hot } from 'react-hot-loader'
 
 const SortDropdownView = require('../../../component/dropdown/workspaces-filter/dropdown.workspaces-filter.view.js')
