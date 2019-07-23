@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 import { Button, buttonTypeEnum } from '../presentation/button'
-import UserNotifications from '../presentation/user-notifications/user-notifications'
+import UserNotifications from '../user-notifications'
 import UserView from '../user'
 
 const HelpView = require('../../component/help/help.view.js')

@@ -16,12 +16,12 @@ import * as React from 'react'
 import styled from 'styled-components'
 import withListenTo, {
   WithBackboneProps,
-} from '../../container/backbone-container'
-import MarionetteRegionContainer from '../../container/marionette-region-container'
-const NotificationGroupView = require('../../../component/notification-group/notification-group.view.js')
-const user = require('../../../component/singletons/user-instance.js')
+} from '../container/backbone-container'
+import MarionetteRegionContainer from '../container/marionette-region-container'
+const NotificationGroupView = require('../../component/notification-group/notification-group.view.js')
+const user = require('../../component/singletons/user-instance.js')
 const moment = require('moment')
-const userNotifications = require('../../../component/singletons/user-notifications.js')
+const userNotifications = require('../../component/singletons/user-notifications.js')
 
 type Props = WithBackboneProps
 
