@@ -25,8 +25,8 @@ import { Button, buttonTypeEnum } from '../button'
 import { hot } from 'react-hot-loader'
 import MarionetteRegionContainer from '../../container/marionette-region-container';
 
-export type Props = {
-  children: React.ReactNode[]
+export type SettingsProps = {
+  children: JSX.Element[]
 }
 
 type ComponentProps = {
@@ -169,8 +169,8 @@ export const HiddenSettingsComponent: React.FC<ComponentProps> = ({updateCompone
   )
 }
 
-class UserSettings extends React.Component<Props, State> {
-  constructor(props: Props) {
+class UserSettings extends React.Component<SettingsProps, State> {
+  constructor(props: SettingsProps) {
     super(props)
     this.state = {}
   }

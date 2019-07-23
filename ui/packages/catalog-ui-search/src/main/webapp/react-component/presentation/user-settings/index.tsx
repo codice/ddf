@@ -13,6 +13,8 @@
  *
  **/
 export {
+  default as BaseUserSettings,
+  SettingsProps,
   ThemeSettingsComponent,
   AlertSettingsComponent,
   MapSettingsComponent,
@@ -22,5 +24,4 @@ export {
   NavigationButton
 } from './user-settings'
 
-export { default } from './user-settings'
-
+export { default } from './extensions'
