@@ -14,8 +14,8 @@
  **/
 
 import * as React from 'react'
-import MenuAction from '../../menu-action'
-import { withDropdown } from '../dropdown'
+import MenuAction from '../menu-action'
+import { withDropdown } from '../presentation/dropdown'
 import styled from 'styled-components'
 import { readableColor } from 'polished'
 import { hot } from 'react-hot-loader'

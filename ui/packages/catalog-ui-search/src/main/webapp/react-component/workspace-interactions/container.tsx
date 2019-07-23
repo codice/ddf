@@ -13,17 +13,17 @@
  *
  **/
 import * as React from 'react'
-import WorkspaceInteractionsPresentation from '../../presentation/workspace-interactions'
+import WorkspaceInteractionsPresentation from './presentation'
 import { hot } from 'react-hot-loader'
-import withListenTo, { WithBackboneProps } from '../backbone-container'
-import { Sharing } from '../../sharing'
-import { Security, Restrictions } from '../../utils/security'
-const user = require('../../../component/singletons/user-instance.js')
-const store = require('../../../js/store.js')
-const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')
-const wreqr = require('../../../js/wreqr.js')
-const LoadingView = require('../../../component/loading/loading.view.js')
-const ConfirmationView = require('../../../component/confirmation/confirmation.view.js')
+import withListenTo, { WithBackboneProps } from '../container/backbone-container'
+import { Sharing } from '../sharing'
+import { Security, Restrictions } from '../utils/security'
+const user = require('../../component/singletons/user-instance.js')
+const store = require('../../js/store.js')
+const lightboxInstance = require('../../component/lightbox/lightbox.view.instance.js')
+const wreqr = require('../../js/wreqr.js')
+const LoadingView = require('../../component/loading/loading.view.js')
+const ConfirmationView = require('../../component/confirmation/confirmation.view.js')
 
 type Props = {
   workspace: any

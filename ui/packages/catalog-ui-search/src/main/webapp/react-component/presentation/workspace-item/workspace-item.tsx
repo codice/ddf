@@ -19,7 +19,7 @@ import SaveButton from '../../save-button'
 import { buttonTypeEnum, Button } from '../button'
 import Dropdown from '../dropdown'
 import NavigationBehavior from '../../navigation-behavior'
-import WorkspaceInteractions from '../../container/workspace-interactions'
+import WorkspaceInteractions from '../../workspace-interactions'
 import { hot } from 'react-hot-loader'
 
 const StyledDropdown = styled(Dropdown as any)`
