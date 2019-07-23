@@ -35,9 +35,7 @@ const withAdapter = Component =>
         <Component
           state={this.state}
           options={this.props.options}
-          setState={(...args) => {
-            this.props.model.set(...args)
-          }}
+          setState={(...args) => this.props.model.set(...args)}
         />
       )
     }
