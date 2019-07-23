@@ -14,7 +14,7 @@
  **/
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-import Enum from '../container/enum'
+import Enum from '../enum'
 import { Button, buttonTypeEnum } from '../presentation/button'
 import styled from 'styled-components'
 import Number from '../container/input-wrappers/number'
