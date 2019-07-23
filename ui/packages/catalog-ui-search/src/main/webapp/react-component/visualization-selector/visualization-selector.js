@@ -14,7 +14,7 @@
  **/
 import React from 'react'
 import styled from 'styled-components'
-import ExtensionPoints from '../../../extension-points'
+import ExtensionPoints from '../../extension-points'
 
 const CustomElement = styled.div`
   height: 100%;
@@ -38,7 +38,7 @@ const Visualization = styled.div`
 
 const VisualizationIcon = styled.div`
     text-align: center;
-    width: ${props => props.theme.minimumButtonSize}
+    width: ${props => props.theme.minimumButtonSize};
     display: inline-block;
     vertical-align: middle;
 `
