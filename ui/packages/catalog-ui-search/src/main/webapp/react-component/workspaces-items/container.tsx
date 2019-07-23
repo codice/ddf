@@ -13,22 +13,22 @@
  *
  **/
 import * as React from 'react'
-import withListenTo, { WithBackboneProps } from '../backbone-container'
+import withListenTo, { WithBackboneProps } from '../container/backbone-container'
 import { sortBy } from 'lodash'
-import WorkspacesItems from '../../presentation/workspaces-items'
-import MarionetteRegionContainer from '../../container/marionette-region-container'
-import Dropdown from '../../presentation/dropdown'
-import NavigationBehavior from '../../navigation-behavior'
-import MenuSelection from '../../menu-selection'
+import WorkspacesItems from './presentation'
+import MarionetteRegionContainer from '../container/marionette-region-container'
+import Dropdown from '../presentation/dropdown'
+import NavigationBehavior from '../navigation-behavior'
+import MenuSelection from '../menu-selection'
 import { hot } from 'react-hot-loader'
 
-const SortDropdownView = require('../../../component/dropdown/workspaces-filter/dropdown.workspaces-filter.view.js')
-const user = require('../../../component/singletons/user-instance.js')
-const store = require('../../../js/store.js')
+const SortDropdownView = require('../../component/dropdown/workspaces-filter/dropdown.workspaces-filter.view.js')
+const user = require('../../component/singletons/user-instance.js')
+const store = require('../../js/store.js')
 
 const preferences = user.get('user').get('preferences')
-const LoadingView = require('../../../component/loading/loading.view.js')
-const wreqr = require('../../../js/wreqr.js')
+const LoadingView = require('../../component/loading/loading.view.js')
+const wreqr = require('../../js/wreqr.js')
 
 interface State {
   sortDropdown: Marionette.View<any>

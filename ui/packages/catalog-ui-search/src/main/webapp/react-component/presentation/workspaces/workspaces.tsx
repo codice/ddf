@@ -17,7 +17,7 @@ import styled from 'styled-components'
 import { CustomElement } from '../../styles/mixins'
 import { ChangeBackground } from '../../styles/mixins'
 import WorkspacesTemplatesContainer from '../../container/workspaces-templates-container'
-import WorkspacesItemsContainer from '../../container/workspaces-items-container'
+import WorkspacesItemsContainer from '../../workspaces-items'
 import { Button, buttonTypeEnum } from '../button'
 
 type Props = {
