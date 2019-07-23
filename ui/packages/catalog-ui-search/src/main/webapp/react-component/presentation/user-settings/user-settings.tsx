@@ -182,7 +182,7 @@ class UserSettings extends React.Component<Props, State> {
   render() {
     const { component } = this.state
     const children = React.Children.map(this.props.children, child => {
-      return React.cloneElement(child as React.ReactElement<any>, {
+      return React.cloneElement(child as JSX.Element, {
         updateComponent: this.updateComponent
       });
     });
