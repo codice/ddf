@@ -15,17 +15,17 @@
 import * as React from 'react'
 import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
-import WorkspaceInteractions from '../../workspace-interactions'
-const QueryAddView = require('../../../component/query-add/query-add.view.js')
-import MarionetteRegionContainer from '../../container/marionette-region-container'
-import SaveButton from '../../save-button'
-import WorkspaceTitle from '../workspace-title'
-import Dropdown from '../dropdown'
-import NavigationBehavior from '../../navigation-behavior'
+import WorkspaceInteractions from '../workspace-interactions'
+const QueryAddView = require('../../component/query-add/query-add.view.js')
+import MarionetteRegionContainer from '../container/marionette-region-container'
+import SaveButton from '../save-button'
+import WorkspaceTitle from '../presentation/workspace-title'
+import Dropdown from '../presentation/dropdown'
+import NavigationBehavior from '../navigation-behavior'
 import {
   buttonTypeEnum,
   Button,
-} from '../../../react-component/presentation/button'
+} from '../../react-component/presentation/button'
 
 const { createAction } = require('imperio')
 

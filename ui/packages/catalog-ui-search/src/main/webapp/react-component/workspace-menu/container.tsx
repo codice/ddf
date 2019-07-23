@@ -13,11 +13,11 @@
  *
  **/
 import * as React from 'react'
-import WorkspaceMenuPresentation from '../../presentation/workspace-menu'
-import withListenTo, { WithBackboneProps } from '../backbone-container'
+import WorkspaceMenuPresentation from './presentation'
+import withListenTo, { WithBackboneProps } from '../container/backbone-container'
 import { hot } from 'react-hot-loader'
-const store = require('../../../js/store.js')
-const properties = require('../../../js/properties.js')
+const store = require('../../js/store.js')
+const properties = require('../../js/properties.js')
 
 type Props = WithBackboneProps
 type State = {
