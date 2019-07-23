@@ -16,14 +16,13 @@ import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import styled from 'styled-components'
 
-import MarionetteRegionContainer from '../../container/marionette-region-container'
+import MarionetteRegionContainer from '../container/marionette-region-container'
 
-const PropertyView = require('../../../component/property/property.view')
+const PropertyView = require('../../component/property/property.view')
 
 const Root = styled.div`
   overflow: auto;
-  padding: ${props => props.theme.minimumSpacing}
-    ${props => props.theme.minimumSpacing};
+  padding: ${props => props.theme.minimumSpacing};
 `
 
 const Time = styled.div`

@@ -18,7 +18,7 @@ import * as moment from 'moment'
 
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 
-import View from '../../presentation/time-settings'
+import View from '../../time-settings'
 
 const momentTimezone = require('moment-timezone')
 const Common = require('../../../js/Common')
