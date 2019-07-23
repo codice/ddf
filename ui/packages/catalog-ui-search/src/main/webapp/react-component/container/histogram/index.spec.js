@@ -18,7 +18,5 @@ import { shallow } from 'enzyme'
 import { HistogramContainer } from '.'
 
 describe('<HistogramContainer />', () => {
-  it('renders without error', () => {
-    shallow(<HistogramContainer />)
-  })
+  it('renders without error', () => shallow(<HistogramContainer />))
 })

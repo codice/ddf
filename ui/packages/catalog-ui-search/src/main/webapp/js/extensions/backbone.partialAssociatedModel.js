@@ -88,24 +88,25 @@ export default Backbone.AssociatedModel.extend({
         this.relations
           .filter(relation => isRelationPartial(this, relation))
           .map(relation => {
-            if (!relation.makeSomethingUp) {
-              return fetch(`${this.url()}/${relation.key}`)
-                .then(response => response.json())
-                .then(data => {
-                  if (relation.type === Backbone.Many) {
-                    data = data.map(model => {
-                      model[PARTIAL_KEY] = false
-                      return model
-                    })
-                  } else {
-                    data[PARTIAL_KEY] = false
-                  }
-                  this.set(relation.key, data, { silent: true })
-                })
-                .then(() => {
-                  this.get(relation.key).trigger('partialSync')
-                })
+            if (relation.makeSomethingUp) {
+              return
             }
+            return fetch(`${this.url()}/${relation.key}`)
+              .then(response => response.json())
+              .then(data => {
+                if (relation.type === Backbone.Many) {
+                  data = data.map(model => {
+                    model[PARTIAL_KEY] = false
+                    return model
+                  })
+                } else {
+                  data[PARTIAL_KEY] = false
+                }
+                this.set(relation.key, data, { silent: true })
+              })
+              .then(() => {
+                this.get(relation.key).trigger('partialSync')
+              })
           })
       )
     )

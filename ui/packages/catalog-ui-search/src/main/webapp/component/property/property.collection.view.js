@@ -125,9 +125,8 @@ module.exports = Marionette.CollectionView.extend(
           const json = childView.toPatchJSON()
           if (typeof json === 'undefined') {
             return attributeToVal
-          } else {
-            return _.extend(attributeToVal, { [json.attribute]: json.values })
           }
+          return _.extend(attributeToVal, { [json.attribute]: json.values })
         }, {}),
       }
     },

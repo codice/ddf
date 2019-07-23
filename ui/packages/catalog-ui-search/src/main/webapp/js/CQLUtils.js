@@ -357,7 +357,7 @@ function arrayFromPolygonWkt(wkt) {
   }
 
   // Handle MULTIPOLYGON with no internal rings (i.e. holes)
-  let polygons = wkt.match(/\(\([^()]+\)\)/g)
+  const polygons = wkt.match(/\(\([^()]+\)\)/g)
   if (polygons) {
     return polygons.map(polygon => arrayFromPartialWkt(polygon))
   }
