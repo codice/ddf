@@ -15,10 +15,10 @@
 
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-import UserBlackListPresentation from '../../presentation/user-blacklist'
-import withListenTo, { WithBackboneProps } from '../backbone-container'
+import UserBlackListPresentation from './presentation'
+import withListenTo, { WithBackboneProps } from '../container/backbone-container'
 
-const user = require('../../../component/singletons/user-instance.js')
+const user = require('../../component/singletons/user-instance.js')
 type State = {
   blacklist: Backbone.Collection<Backbone.Model>
   clearing: boolean
