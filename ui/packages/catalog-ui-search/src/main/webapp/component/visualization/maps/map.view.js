@@ -39,7 +39,7 @@ const announcement = require('../../announcement')
 
 const Gazetteer = require('../../../react-component/location/gazetteer.js')
 
-import MapSettings from '../../../react-component/container/map-settings/map-settings'
+import MapSettings from '../../../react-component/map-settings'
 import MapInfo from '../../../react-component/map-info'
 
 function findExtreme({ objArray, property, comparator }) {

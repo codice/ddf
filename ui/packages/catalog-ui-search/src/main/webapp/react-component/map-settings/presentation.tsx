@@ -15,7 +15,7 @@
 import * as React from 'react'
 import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
-import Enum from '../../container/enum'
+import Enum from '../container/enum'
 import ExampleCoordinates from './example-coordinates'
 
 type Props = {
@@ -26,8 +26,7 @@ type Props = {
 const Root = styled.div`
   overflow: auto;
   min-width: ${props => props.theme.minimumScreenSize};
-  padding: ${props => props.theme.minimumSpacing}
-    ${props => props.theme.minimumSpacing};
+  padding: ${props => props.theme.minimumSpacing};
 `
 
 const render = (props: Props) => {

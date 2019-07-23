@@ -18,11 +18,11 @@ import { mount } from 'enzyme'
 import {
   mock as mockJquery,
   unmock as unmockJquery,
-} from '../../../test/mock-api/mock-jquery'
+} from '../../test/mock-api/mock-jquery'
 import {
   mock as mockProperties,
   unmock as unmockProperties,
-} from '../../../test/mock-api/mock-properties'
+} from '../../test/mock-api/mock-properties'
 let MapSettings
 
 const checkDropdown = wrapper => {
@@ -37,7 +37,7 @@ describe('Test <MapSettings> container component', () => {
   before(() => {
     mockJquery()
     mockProperties()
-    MapSettings = require('./map-settings').testComponent
+    MapSettings = require('./presentation').testComponent
   })
   after(() => {
     unmockJquery()

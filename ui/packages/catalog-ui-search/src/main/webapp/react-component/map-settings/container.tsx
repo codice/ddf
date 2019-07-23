@@ -14,10 +14,10 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import MapSettingsPresentation from '../../presentation/map-settings'
-import Dropdown from '../../presentation/dropdown'
+import MapSettingsPresentation from './presentation'
+import Dropdown from '../presentation/dropdown'
 import { hot } from 'react-hot-loader'
-const user = require('../../../component/singletons/user-instance.js')
+const user = require('../../component/singletons/user-instance.js')
 
 const save = (newFormat: string) => {
   const preferences = user.get('user').get('preferences')
