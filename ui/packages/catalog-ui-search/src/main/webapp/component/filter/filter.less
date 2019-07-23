@@ -1,7 +1,10 @@
 @{customElementNamespace}filter {
-  .customElement;
+  width: auto;
+  height: 100%;
+  display: block;
   white-space: nowrap;
-  margin: @minimumSpacing;
+  margin: @minimumSpacing 0px @minimumSpacing @minimumSpacing;
+  padding: @minimumSpacing 1.5rem @minimumSpacing 0px;
 
   > .filter-remove,
   > .filter-attribute,
@@ -10,16 +13,12 @@
     display: inline-block;
     vertical-align: middle;
     margin-right: @minimumSpacing;
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
   }
 
   > .filter-rearrange {
     display: none;
-  }
-
-  > .filter-comparator,
-  > .filter-attribute {
-    height: @minimumButtonSize;
-    line-height: @minimumButtonSize;
   }
 
   > .filter-remove {
@@ -29,7 +28,8 @@
   }
 
   > .filter-input {
-    min-width: 12.5 * @minimumFontSize;
+    min-width: 13 * @minimumFontSize;
+    margin-right: 0px;
   }
 
   > .filter-input {
@@ -62,14 +62,18 @@
 
 @{customElementNamespace}filter.is-location {
   > .filter-input {
-    margin-top: @minimumSpacing;
     display: block;
+    padding: @minimumSpacing 1.5rem 0px @minimumSpacing + 0.75 *
+      @minimumButtonSize + @minimumButtonSize;
+    min-width: 19 * @minimumFontSize;
+    margin: 0px;
+    height: auto;
   }
 }
 
 @{customElementNamespace}filter.is-date {
   > .filter-input {
-    min-width: 19 * @minimumFontSize;
+    min-width: 24 * @minimumFontSize;
   }
 }
 
