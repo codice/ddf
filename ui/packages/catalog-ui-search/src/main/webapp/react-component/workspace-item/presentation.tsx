@@ -14,12 +14,12 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import Card from '../../card'
-import SaveButton from '../../save-button'
-import { buttonTypeEnum, Button } from '../button'
-import Dropdown from '../dropdown'
-import NavigationBehavior from '../../navigation-behavior'
-import WorkspaceInteractions from '../../workspace-interactions'
+import Card from '../card'
+import SaveButton from '../save-button'
+import { buttonTypeEnum, Button } from '../presentation/button'
+import Dropdown from '../presentation/dropdown'
+import NavigationBehavior from '../navigation-behavior'
+import WorkspaceInteractions from '../workspace-interactions'
 import { hot } from 'react-hot-loader'
 
 const StyledDropdown = styled(Dropdown as any)`
