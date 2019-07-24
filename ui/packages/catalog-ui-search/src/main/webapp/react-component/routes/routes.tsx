@@ -13,13 +13,13 @@
  *
  **/
 import * as React from 'react'
-import RouteContainer from '../../route'
+import RouteContainer from '../route'
 
-const router = require('../../../component/router/router.js')
+const router = require('../../component/router/router.js')
 
 import styled from 'styled-components'
-import { CustomElement } from '../../styles/mixins'
-import withListenTo, { WithBackboneProps } from '../../backbone-container'
+import { CustomElement } from '../styles/mixins'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 
 type RouteWrapperProps = {
   isCurrentRoute: boolean
@@ -31,13 +31,7 @@ type Props = {
 } & WithBackboneProps
 
 const RouteWrapper = styled.div`
-  ${CustomElement} ${(props: RouteWrapperProps) => {
-    if (props.isCurrentRoute) {
-      return `display: block;`
-    } else {
-      return `display: none;`
-    }
-  }};
+  ${CustomElement} display: ${(props: RouteWrapperProps) => props.isCurrentRoute ? `block;` : `none;` };
 `
 
 class RoutesContainer extends React.Component<

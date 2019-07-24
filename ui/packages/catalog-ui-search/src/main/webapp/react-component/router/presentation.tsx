@@ -15,7 +15,7 @@
 import * as React from 'react'
 import styled from 'styled-components'
 import { CustomElement } from '../styles/mixins'
-import Routes from '../container/routes-container'
+import Routes from '../routes'
 
 const Router = styled.div`
   ${CustomElement} overflow: hidden;

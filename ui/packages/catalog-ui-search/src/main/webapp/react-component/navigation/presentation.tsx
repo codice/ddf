@@ -20,7 +20,7 @@ import { transparentize, readableColor } from 'polished'
 import NavigationLeftComponent from '../navigation-left'
 import NavigationRightComponent from '../navigation-right'
 import CancelDrawingContainer from '../cancel-drawing'
-import Routes from '../container/routes-container'
+import Routes from '../routes'
 
 interface Props {
   isDrawing: boolean
