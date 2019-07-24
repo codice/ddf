@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import RouteContainer from '../route-container'
+import RouteContainer from '../../route'
 
 const router = require('../../../component/router/router.js')
 

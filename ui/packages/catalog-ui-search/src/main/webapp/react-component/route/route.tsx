@@ -13,11 +13,11 @@
  *
  **/
 import * as React from 'react'
-import MarionetteRegionContainer from '../../marionette-region-container'
+import MarionetteRegionContainer from '../marionette-region-container'
 
 const $ = require('jquery')
-const wreqr = require('../../../js/wreqr.js')
-import LoadingCompanion from '../../loading-companion'
+const wreqr = require('../../js/wreqr.js')
+import LoadingCompanion from '../loading-companion'
 
 interface Props {
   isMenu: boolean
