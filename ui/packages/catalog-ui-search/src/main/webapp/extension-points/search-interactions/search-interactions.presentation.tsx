@@ -19,7 +19,7 @@ const Dropdown = require('../../react-component/dropdown')
 const SearchFormList = require('../../component/search-form-list/search-form-list')
 
 export type Props = {
-  triggerQueryForm: (formId: any) => void
+  triggerQueryForm: (formId: string) => void
   triggerReset: () => void
   model: any
 }

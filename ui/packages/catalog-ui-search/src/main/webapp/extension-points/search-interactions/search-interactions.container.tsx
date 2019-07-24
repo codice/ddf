@@ -31,7 +31,7 @@ class SearchInteractions extends React.Component<Props> {
   componentDidMount() {
     this.props.listenTo(this.props.model, 'change:type', this.props.onClose)
   }
-  triggerQueryForm = (formId: any) => {
+  triggerQueryForm = (formId: string) => {
     this.props.model.set('type', formId)
     user.getQuerySettings().set('type', formId)
     user.savePreferences()
@@ -60,7 +60,7 @@ class SearchInteractions extends React.Component<Props> {
   render() {
     const { children, model } = this.props
     return children({
-      model: model,
+      model,
       triggerReset: this.triggerReset,
       triggerQueryForm: this.triggerQueryForm,
     })
