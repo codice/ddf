@@ -115,6 +115,7 @@ If multiple terms are used in the phrase, then the `within` amount specifies the
 **** *>=*: Search records with field entries greater than or equal to the specified value.
 **** *=*: Search records with field entries equal to the specified value.
 **** *\<=*: Search records with field entries less than or equal to the specified value.
+**** *RANGE*: Search records between the two specified values (inclusive).
 **** *<*: Search records with field entries less than the specified value.
 **** *EMPTY*: Search records when the attribute itself does not exist or when the attribute value is null.
 
