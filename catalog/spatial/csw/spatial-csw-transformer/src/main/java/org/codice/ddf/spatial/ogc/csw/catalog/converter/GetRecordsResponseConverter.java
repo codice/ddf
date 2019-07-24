@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
+import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -22,7 +23,6 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import java.util.List;
-import javax.measure.converter.ConversionException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.slf4j.Logger;
@@ -102,9 +102,17 @@ public class GetRecordsResponseConverter implements Converter {
           reader.moveDown(); // move down to the <csw:Record> tag
           String name = reader.getNodeName();
           LOGGER.debug("node name = {}", name);
-          Metacard metacard =
-              (Metacard) context.convertAnother(null, MetacardImpl.class, transformProvider);
-          metacards.add(metacard);
+
+          try {
+            Metacard metacard =
+                (Metacard) context.convertAnother(null, MetacardImpl.class, transformProvider);
+            metacards.add(metacard);
+          } catch (ConversionException e) {
+            LOGGER.warn(
+                "Failed to convert result to a metacard. Ignoring this resource. Set the log level to DEBUG for more information.");
+            LOGGER.debug("Failed to convert result to a metacard.", e);
+            cswRecords.setNumberOfRecordsMatched(cswRecords.getNumberOfRecordsMatched() - 1);
+          }
 
           // move back up to the <SearchResults> parent of the
           // <csw:Record> tags
