@@ -15,7 +15,7 @@
 import * as React from 'react'
 import Workspaces from './presentation'
 
-import withListenTo, { WithBackboneProps } from '../container/backbone-container'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 const store = require('../../js/store.js')
 
 function hasUnsaved() {

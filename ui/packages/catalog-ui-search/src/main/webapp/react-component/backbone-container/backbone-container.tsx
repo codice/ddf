@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import { Subtract } from '../../../typescript'
+import { Subtract } from '../../typescript'
 
 const Backbone = require('backbone')
 

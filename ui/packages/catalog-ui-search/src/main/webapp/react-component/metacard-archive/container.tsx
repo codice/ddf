@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import withListenTo, { WithBackboneProps } from '../container/backbone-container'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 import fetch from '../utils/fetch'
 const announcement = require('component/announcement')
 const store = require('../../js/store.js')

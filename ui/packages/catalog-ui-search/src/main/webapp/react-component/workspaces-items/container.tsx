@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import withListenTo, { WithBackboneProps } from '../container/backbone-container'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 import { sortBy } from 'lodash'
 import WorkspacesItems from './presentation'
 import MarionetteRegionContainer from '../container/marionette-region-container'

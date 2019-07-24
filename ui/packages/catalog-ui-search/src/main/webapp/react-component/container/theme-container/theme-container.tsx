@@ -21,7 +21,7 @@ import {
 } from '../../styles/styled-components'
 const user = require('../../../component/singletons/user-instance.js')
 const Common = require('../../../js/Common.js')
-import withListenTo, { WithBackboneProps } from '../backbone-container'
+import withListenTo, { WithBackboneProps } from '../../backbone-container'
 const $ = require('jquery')
 const _ = require('underscore')
 

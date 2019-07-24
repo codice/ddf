@@ -17,7 +17,7 @@ import { hot } from 'react-hot-loader'
 import { Order, Visibility } from '.'
 import withListenTo, {
   WithBackboneProps,
-} from '../container/backbone-container'
+} from '../backbone-container'
 import LayerItemPresentation from './presentation/layer-item'
 
 const CustomElements = require('../../js/CustomElements')

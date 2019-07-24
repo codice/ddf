@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import withListenTo, { WithBackboneProps } from '../container/backbone-container'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 import MapInfoPresentation from './presentation'
 import { hot } from 'react-hot-loader'
 import { Coordinates, Format, Attribute } from '.'

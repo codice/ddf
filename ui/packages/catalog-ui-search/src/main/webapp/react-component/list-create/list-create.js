@@ -21,7 +21,7 @@
  */
 import * as React from 'react'
 import styled from 'styled-components'
-import withListenTo from '../container/backbone-container'
+import withListenTo from '../backbone-container'
 import MarionetteRegionContainer from '../container/marionette-region-container'
 import { buttonTypeEnum, Button } from '../presentation/button'
 

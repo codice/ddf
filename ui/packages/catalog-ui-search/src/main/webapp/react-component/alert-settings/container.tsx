@@ -15,7 +15,7 @@
 import * as React from 'react'
 const user = require('../../component/singletons/user-instance.js')
 import AlertSettingsComponent from './presentation'
-import withListenTo, { WithBackboneProps } from '../container/backbone-container'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 import { hot } from 'react-hot-loader'
 
 type Props = {} & WithBackboneProps

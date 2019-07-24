@@ -19,7 +19,7 @@ import ResultsExportComponent from './presentation'
 import { exportResult, exportResultSet } from '../utils/export'
 import { getResultSetCql } from '../utils/cql'
 import saveFile from '../utils/save-file'
-import withListenTo, { WithBackboneProps } from '../container/backbone-container'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 
 const contentDisposition = require('content-disposition')
 

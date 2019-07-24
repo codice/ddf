@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 import Navigation from './presentation'
-import withListenTo, { WithBackboneProps } from '../container/backbone-container'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 
 const store = require('../../js/store.js')
 const wreqr = require('../../js/wreqr.js')

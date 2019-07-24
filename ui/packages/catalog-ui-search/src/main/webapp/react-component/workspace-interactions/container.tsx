@@ -15,7 +15,7 @@
 import * as React from 'react'
 import WorkspaceInteractionsPresentation from './presentation'
 import { hot } from 'react-hot-loader'
-import withListenTo, { WithBackboneProps } from '../container/backbone-container'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 import { Sharing } from '../sharing'
 import { Security, Restrictions } from '../utils/security'
 const user = require('../../component/singletons/user-instance.js')

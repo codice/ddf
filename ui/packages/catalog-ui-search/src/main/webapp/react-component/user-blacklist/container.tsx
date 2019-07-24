@@ -16,7 +16,7 @@
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
 import UserBlackListPresentation from './presentation'
-import withListenTo, { WithBackboneProps } from '../container/backbone-container'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 
 const user = require('../../component/singletons/user-instance.js')
 type State = {

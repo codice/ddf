@@ -19,7 +19,7 @@ const router = require('../../../component/router/router.js')
 
 import styled from 'styled-components'
 import { CustomElement } from '../../styles/mixins'
-import withListenTo, { WithBackboneProps } from '../backbone-container'
+import withListenTo, { WithBackboneProps } from '../../backbone-container'
 
 type RouteWrapperProps = {
   isCurrentRoute: boolean

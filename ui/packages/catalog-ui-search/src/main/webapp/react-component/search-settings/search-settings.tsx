@@ -15,7 +15,7 @@
 import * as React from 'react'
 import withListenTo, {
   WithBackboneProps,
-} from '../container/backbone-container'
+} from '../backbone-container'
 const user = require('../../component/singletons/user-instance.js')
 const properties = require('../../js/properties.js')
 const Property = require('../../component/property/property.js')
