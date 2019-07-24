@@ -19,7 +19,7 @@ import { ChangeBackground } from '../styles/mixins'
 import { transparentize, readableColor } from 'polished'
 import NavigationLeftComponent from '../navigation-left'
 import NavigationRightComponent from '../navigation-right'
-import CancelDrawingContainer from '../container/cancel-drawing-container'
+import CancelDrawingContainer from '../cancel-drawing'
 import Routes from '../container/routes-container'
 
 interface Props {
