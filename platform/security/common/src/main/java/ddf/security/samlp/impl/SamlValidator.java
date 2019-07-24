@@ -301,7 +301,7 @@ public abstract class SamlValidator {
      * A SAML LogoutRequest must include at least one SessionIndex, if the logout is initiated by
      * Session Participant. However, if the Session Authority initiates the logout, a SessionIndex
      * is optional. In that case, the absence of a SessionIndex means to logout of all sessions
-     * associated with the Principle. Because the SAMLValidator does not have enough information to
+     * associated with the Principal. Because the SAMLValidator does not have enough information to
      * determine who initiated the logout, this method does not throw a ValidationException.
      * Instead, it logs the condition.
      */

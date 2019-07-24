@@ -23,6 +23,7 @@
     </parent>
     <artifactId>security-core-impl</artifactId>
     <name>DDF :: Security :: Core :: Implementation</name>
+    <packaging>bundle</packaging>
     <dependencies>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -77,6 +78,11 @@
             <artifactId>opensaml-xmlsec-impl</artifactId>
             <version>${opensaml.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.pac4j</groupId>
+            <artifactId>pac4j-oidc</artifactId>
+            <version>${pac4j.version}</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -101,6 +107,22 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package>
+                            ddf.security.assertion.impl,
+                            ddf.security.assertion.jwt.impl,
+                            ddf.security.assertion.saml.impl,
+                            ddf.security.impl,
+                            ddf.security.liberty.paos.impl,
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

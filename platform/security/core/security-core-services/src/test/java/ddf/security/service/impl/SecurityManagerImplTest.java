@@ -94,26 +94,4 @@ public class SecurityManagerImplTest {
     Subject subject = manager.getSubject(authToken);
     assertNotNull(subject);
   }
-
-  /**
-   * Creates mock objects and uses those to pass through the system when a security token is used.
-   *
-   * @throws SecurityServiceException
-   */
-  @Test
-  public void testSecToken() throws SecurityServiceException {
-    // mock setup
-    SimplePrincipalCollection principals = new SimplePrincipalCollection();
-    SecurityToken secToken = new SecurityToken();
-    principals.add(secToken, REALM_NAME);
-
-    // realm
-    Realm realm = mock(Realm.class);
-    when(realm.getName()).thenReturn(REALM_NAME);
-
-    SecurityManagerImpl manager = new SecurityManagerImpl();
-    manager.setRealms(Arrays.asList(new Realm[] {realm}));
-    Subject subject = manager.getSubject(secToken);
-    assertNotNull(subject);
-  }
 }

@@ -34,6 +34,23 @@
         <argument value="${ddf.etc}/ws-security/issuer/signature.properties"/>
     </bean>
 
+    <jaxws:endpoint id="soapNoPolicyEndpoint" implementor="#soapImpl"
+                    wsdlLocation="classpath:META-INF/wsdl/sdk-no-policy.wsdl"
+                    address="/sdk/SoapService">
+        <jaxws:inInterceptors>
+            <bean class="org.codice.ddf.security.interceptor.GuestInterceptorWrapper">
+            </bean>
+            <bean class="ddf.security.pep.interceptor.PEPAuthorizingInterceptor">
+                <property name="securityManager" ref="securityManager"/>
+            </bean>
+        </jaxws:inInterceptors>
+        <jaxws:properties>
+            <entry key="ws-security.validate.audience-restriction" value="false" />
+            <entry key="ws-security.signature.properties" value-ref="signatureProps"/>
+            <entry key="ws-security.encryption.properties" value-ref="encryptionProps"/>
+        </jaxws:properties>
+    </jaxws:endpoint>
+
     <jaxws:endpoint id="soapEndpoint" implementor="#soapImpl"
                     wsdlLocation="classpath:META-INF/wsdl/sdk-transport.wsdl"
                     address="/sdk/SoapTransportService">

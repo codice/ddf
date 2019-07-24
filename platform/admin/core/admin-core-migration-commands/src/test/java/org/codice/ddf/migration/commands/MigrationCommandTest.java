@@ -97,7 +97,7 @@ public class MigrationCommandTest extends AbstractMigrationCommandSupport {
     command.execute();
 
     Mockito.verify(session).readLine(Mockito.anyString(), Mockito.anyChar());
-    Mockito.verify(security).getSubject(SUBJECT_NAME, PASSWORD);
+    Mockito.verify(security).getSubject(SUBJECT_NAME, PASSWORD, "127.0.0.1");
     Mockito.verify(subject).execute(Mockito.<Callable<Object>>notNull());
     Mockito.verify(command).executeWithSubject();
   }
@@ -115,7 +115,7 @@ public class MigrationCommandTest extends AbstractMigrationCommandSupport {
     command.execute();
 
     Mockito.verify(session).readLine(Mockito.anyString(), Mockito.anyChar());
-    Mockito.verify(security).getSubject(SUBJECT_NAME, PASSWORD);
+    Mockito.verify(security).getSubject(SUBJECT_NAME, PASSWORD, "127.0.0.1");
     Mockito.verify(subject).execute(Mockito.<Callable<Object>>notNull());
     verifyConsoleOutput(
         Matchers.equalTo("An error was encountered while executing this command; " + msg + "."),
@@ -134,7 +134,7 @@ public class MigrationCommandTest extends AbstractMigrationCommandSupport {
     command.execute();
 
     Mockito.verify(session).readLine(Mockito.anyString(), Mockito.anyChar());
-    Mockito.verify(security, Mockito.never()).getSubject(SUBJECT_NAME, PASSWORD);
+    Mockito.verify(security, Mockito.never()).getSubject(SUBJECT_NAME, PASSWORD, "127.0.0.1");
     Mockito.verify(subject, Mockito.never()).execute(Mockito.<Callable<Object>>notNull());
     verifyConsoleOutput(Matchers.equalTo("Failed to read password"), Ansi.Color.RED);
   }
@@ -143,12 +143,12 @@ public class MigrationCommandTest extends AbstractMigrationCommandSupport {
   public void testExecuteWithUserWhenSubjectNotFound() throws Exception {
     command.user = SUBJECT_NAME;
 
-    Mockito.doReturn(null).when(security).getSubject(SUBJECT_NAME, PASSWORD);
+    Mockito.doReturn(null).when(security).getSubject(SUBJECT_NAME, PASSWORD, "127.0.0.1");
 
     command.execute();
 
     Mockito.verify(session).readLine(Mockito.anyString(), Mockito.anyChar());
-    Mockito.verify(security).getSubject(SUBJECT_NAME, PASSWORD);
+    Mockito.verify(security).getSubject(SUBJECT_NAME, PASSWORD, "127.0.0.1");
     Mockito.verify(subject, Mockito.never()).execute(Mockito.<Callable<Object>>notNull());
     verifyConsoleOutput(Matchers.equalTo("Invalid username/password"), Ansi.Color.RED);
   }

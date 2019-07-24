@@ -60,6 +60,7 @@
 
 (java.lang.reflect.ReflectPermission "suppressAccessChecks")
 (java.lang.RuntimePermission "accessDeclaredMembers")
+(java.lang.RuntimePermission "accessClassInPackage.sun.misc")
 
 (org.osgi.framework.PackagePermission "org.codice.felix.cm.internal" "import")
 (org.osgi.framework.PackagePermission "javax.crypto" "import")

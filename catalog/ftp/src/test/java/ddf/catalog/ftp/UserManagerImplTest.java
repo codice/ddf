@@ -21,10 +21,14 @@ import static org.mockito.Mockito.when;
 import ddf.security.Subject;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import org.apache.ftpserver.ftplet.Authentication;
 import org.apache.ftpserver.ftplet.AuthenticationFailedException;
 import org.apache.ftpserver.usermanager.AnonymousAuthentication;
 import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
+import org.apache.ftpserver.usermanager.impl.UserMetadata;
+import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,10 +42,14 @@ public class UserManagerImplTest {
 
   private SecurityManager securityManager;
 
+  private ContextPolicyManager contextPolicyManager;
+
   @Before
   public void setUp() {
     securityManager = mock(SecurityManager.class);
-    userManager = new UserManagerImpl(securityManager);
+    contextPolicyManager = mock(ContextPolicyManager.class);
+    when(contextPolicyManager.getGuestAccess()).thenReturn(true);
+    userManager = new UserManagerImpl(securityManager, contextPolicyManager);
   }
 
   @Test(expected = AuthenticationFailedException.class)
@@ -52,32 +60,39 @@ public class UserManagerImplTest {
   }
 
   @Test(expected = AuthenticationFailedException.class)
-  public void nullShiroSubject() throws SecurityServiceException, AuthenticationFailedException {
+  public void nullShiroSubject()
+      throws SecurityServiceException, AuthenticationFailedException, UnknownHostException {
     UsernamePasswordAuthentication upa = mock(UsernamePasswordAuthentication.class);
 
     when(upa.getUsername()).thenReturn(USER);
     when(upa.getPassword()).thenReturn(PASSWORD);
     when(securityManager.getSubject(upa)).thenReturn(null);
+    UserMetadata userMetadata = new UserMetadata();
+    userMetadata.setInetAddress(InetAddress.getLocalHost());
+    when(upa.getUserMetadata()).thenReturn(userMetadata);
 
     userManager.authenticate(upa);
   }
 
   @Test(expected = AuthenticationFailedException.class)
   public void shiroUnsupportedAuthentication()
-      throws SecurityServiceException, AuthenticationFailedException {
+      throws SecurityServiceException, AuthenticationFailedException, UnknownHostException {
     UsernamePasswordAuthentication upa = mock(UsernamePasswordAuthentication.class);
 
     when(upa.getUsername()).thenReturn(USER);
     when(upa.getPassword()).thenReturn(PASSWORD);
     when(securityManager.getSubject(any(Authentication.class)))
         .thenThrow(SecurityServiceException.class);
+    UserMetadata userMetadata = new UserMetadata();
+    userMetadata.setInetAddress(InetAddress.getLocalHost());
+    when(upa.getUserMetadata()).thenReturn(userMetadata);
 
     userManager.authenticate(upa);
   }
 
   @Test
   public void authenticationSuccess()
-      throws SecurityServiceException, AuthenticationFailedException {
+      throws SecurityServiceException, AuthenticationFailedException, UnknownHostException {
     UsernamePasswordAuthentication upa = mock(UsernamePasswordAuthentication.class);
     Subject subject = mock(Subject.class);
 
@@ -85,6 +100,9 @@ public class UserManagerImplTest {
     when(upa.getPassword()).thenReturn(PASSWORD);
     when(securityManager.getSubject(any(Authentication.class))).thenReturn(subject);
     userManager.setKarafLocalRoles("admin,localhost");
+    UserMetadata userMetadata = new UserMetadata();
+    userMetadata.setInetAddress(InetAddress.getLocalHost());
+    when(upa.getUserMetadata()).thenReturn(userMetadata);
 
     assertEquals(userManager.createUser(USER, subject), userManager.authenticate(upa));
   }

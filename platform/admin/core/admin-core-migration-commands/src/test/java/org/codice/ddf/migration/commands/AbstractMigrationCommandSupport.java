@@ -84,7 +84,7 @@ public class AbstractMigrationCommandSupport {
     Mockito.doNothing().when(eventAdmin).postEvent(Mockito.notNull());
     Mockito.doReturn(PASSWORD).when(session).readLine(Mockito.anyString(), Mockito.anyChar());
 
-    Mockito.doReturn(subject).when(security).getSubject(SUBJECT_NAME, PASSWORD);
+    Mockito.doReturn(subject).when(security).getSubject(SUBJECT_NAME, PASSWORD, "127.0.0.1");
     Mockito.doAnswer(AdditionalAnswers.<Object, Callable<Object>>answer(code -> code.call()))
         .when(subject)
         .execute(Mockito.<Callable<Object>>notNull());

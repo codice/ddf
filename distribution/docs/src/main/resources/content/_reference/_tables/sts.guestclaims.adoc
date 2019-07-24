@@ -1,11 +1,11 @@
-:title: Security STS Guest Claims Handler
-:id: ddf.security.sts.guestclaims
+:title: Guest Claims Configuration
+:id: ddf.security.guest.realm
 :status: published
 :type: table
 :application: ${ddf-security}
-:summary: Guest Claims Handler configurations.
+:summary: Guest Claims configurations.
 
-.[[_ddf.security.sts.guestclaims]]Security STS Guest Claims Handler
+.[[_ddf.security.guest.realm]]Guest Claims Configuration
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 

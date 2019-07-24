@@ -66,7 +66,7 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.codice.ddf.itests.common.XmlSearch;
 import org.codice.ddf.security.OcspService;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
-import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
+import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -234,7 +234,7 @@ public class IdpEndpointTest {
     when(subject.getPrincipals()).thenReturn(principalCollection);
     when(principalCollection.asList()).thenReturn(Collections.singletonList(securityAssertion));
     when(principalCollection.getPrimaryPrincipal()).thenReturn("testuser");
-    when(securityAssertion.getSecurityToken()).thenReturn(securityToken);
+    when(securityAssertion.getToken()).thenReturn(securityToken);
     when(securityToken.getToken()).thenReturn(readDocument("/saml.xml").getDocumentElement());
     when(securityManager.getSubject(anyObject())).thenReturn(subject);
 
@@ -254,10 +254,10 @@ public class IdpEndpointTest {
     idpEndpoint.setSpMetadata(Collections.singletonList(spMetadata));
     idpEndpoint.setSecurityManager(securityManager);
     idpEndpoint.setLogoutStates(new RelayStates<>());
-    BaseAuthenticationTokenFactory baseAuthenticationTokenFactory =
-        new BaseAuthenticationTokenFactory();
-    baseAuthenticationTokenFactory.init();
-    idpEndpoint.setTokenFactory(baseAuthenticationTokenFactory);
+    STSAuthenticationTokenFactory stsAuthenticationTokenFactory =
+        new STSAuthenticationTokenFactory();
+    stsAuthenticationTokenFactory.init();
+    idpEndpoint.setTokenFactory(stsAuthenticationTokenFactory);
     OcspService ocspService = mock(OcspService.class);
     idpEndpoint.setOcspService(ocspService);
     idpEndpoint.cookieCache.cacheSamlAssertion("1", readDocument("/saml.xml").getDocumentElement());
@@ -802,7 +802,7 @@ public class IdpEndpointTest {
 
     when(subject.getPrincipals()).thenReturn(principalCollection);
     when(principalCollection.asList()).thenReturn(Collections.singletonList(securityAssertion));
-    when(securityAssertion.getSecurityToken()).thenReturn(securityToken);
+    when(securityAssertion.getToken()).thenReturn(securityToken);
     // this mock element is what will cause the signature error
     when(securityToken.getToken()).thenReturn(mock(Element.class));
     when(securityManager.getSubject(anyObject())).thenReturn(subject);
@@ -839,7 +839,7 @@ public class IdpEndpointTest {
     SecurityManager securityManager = mock(SecurityManager.class);
     when(subject.getPrincipals()).thenReturn(principalCollection);
     when(principalCollection.asList()).thenReturn(Collections.singletonList(securityAssertion));
-    when(securityAssertion.getSecurityToken()).thenReturn(securityToken);
+    when(securityAssertion.getToken()).thenReturn(securityToken);
     // this mock element is what will cause the signature error
     when(securityToken.getToken()).thenReturn(mock(Element.class));
     when(securityManager.getSubject(anyObject())).thenReturn(subject);
@@ -877,7 +877,7 @@ public class IdpEndpointTest {
     SecurityManager securityManager = mock(SecurityManager.class);
     when(subject.getPrincipals()).thenReturn(principalCollection);
     when(principalCollection.asList()).thenReturn(Collections.singletonList(securityAssertion));
-    when(securityAssertion.getSecurityToken()).thenReturn(securityToken);
+    when(securityAssertion.getToken()).thenReturn(securityToken);
     // this mock element is what will cause the signature error
     when(securityToken.getToken()).thenReturn(mock(Element.class));
     when(securityManager.getSubject(anyObject())).thenReturn(subject);

@@ -28,9 +28,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.Subject;
+import org.codice.ddf.security.handler.api.SessionToken;
 import org.codice.ddf.security.logout.service.LogoutService;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 
@@ -49,19 +50,27 @@ public class LogoutServiceImpl implements LogoutService {
   private SecurityManager securityManager;
 
   @Override
-  public String getActionProviders(HttpServletRequest request) throws SecurityServiceException {
+  public String getActionProviders(HttpServletRequest request, HttpServletResponse response)
+      throws SecurityServiceException {
 
     HttpSession session = httpSessionFactory.getOrCreateSession(request);
-    SecurityToken token =
-        ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION))
-            .getSecurityToken();
+    Object token =
+        ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
+            .getPrincipals();
+    SessionToken sessionToken = new SessionToken(token);
+    Subject subject = securityManager.getSubject(sessionToken);
 
-    Subject subject = securityManager.getSubject(token);
+    Map<String, Object> subjectMap = new HashMap<>();
+    subjectMap.put("http_request", request);
+    subjectMap.put("http_response", response);
+    subjectMap.put(SecurityConstants.SECURITY_SUBJECT, subject);
+
     List<Map<String, String>> actionPropertiesList = new ArrayList<>();
 
     for (ActionProvider actionProvider : logoutActionProviders) {
       Map<String, String> actionProperties = new HashMap<>();
-      Action action = actionProvider.getAction(subject);
+      Action action = actionProvider.getAction(subjectMap);
+
       if (action != null) {
         String displayName = SubjectUtils.getName(subject, "", true);
         actionProperties.put("title", action.getTitle());

@@ -13,7 +13,7 @@
  *
  **/
 
-var invalidateUrl = '../services/internal/session/invalidate?prevurl='
+var invalidateUrl = '../services/internal/session/invalidate?service='
 
 var idleNoticeDuration = 60000
 // Length of inactivity that will trigger user timeout (15 minutes in ms by default)
@@ -123,7 +123,7 @@ define(['backbone', 'jquery', 'underscore', 'properties'], function(
       $(document).off('keydown.sessionTimeout mousedown.sessionTimeout')
     },
     logout: function() {
-      window.location.replace(invalidateUrl + window.location.pathname)
+      window.location.replace(invalidateUrl + window.location.href)
     },
     renew: function() {
       this.hidePrompt()

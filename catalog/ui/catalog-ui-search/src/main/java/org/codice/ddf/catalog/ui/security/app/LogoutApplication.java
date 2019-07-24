@@ -32,7 +32,7 @@ public class LogoutApplication implements SparkApplication {
     get(
         "/logout/actions",
         (req, res) -> {
-          String jsonString = logoutService.getActionProviders(req.raw());
+          String jsonString = logoutService.getActionProviders(req.raw(), res.raw());
 
           res.status(HttpStatus.SC_OK);
           res.header("Cache-Control", "no-cache, no-store");

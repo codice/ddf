@@ -14,8 +14,10 @@
 package ddf.security.soap.impl;
 
 import ddf.security.Subject;
+import ddf.security.assertion.Attribute;
+import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.assertion.impl.SecurityAssertionImpl;
+import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 import ddf.security.ws.proxy.ProxyServiceFactory;
 import ddf.security.ws.proxy.WsdlSuffixRetriever;
@@ -56,8 +58,6 @@ import org.apache.wss4j.policy.model.IssuedToken;
 import org.codice.ddf.platform.util.http.UnavailableUrls;
 import org.codice.ddf.platform.util.properties.PropertiesLoader;
 import org.codice.ddf.security.common.HttpUtils;
-import org.opensaml.saml.saml2.core.Attribute;
-import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -129,15 +129,21 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
 
     SecurityToken securityToken = null;
     if (securityAssertion != null) {
-      if (securityAssertion instanceof SecurityAssertion) {
-        securityToken = ((SecurityAssertion) securityAssertion).getSecurityToken();
+      if (securityAssertion instanceof SecurityAssertion
+          && ((SecurityAssertion) securityAssertion).getToken() instanceof SecurityToken) {
+        securityToken = (SecurityToken) ((SecurityAssertion) securityAssertion).getToken();
       } else if (securityAssertion instanceof Subject) {
         PrincipalCollection principals = ((Subject) securityAssertion).getPrincipals();
         if (principals != null) {
-          SecurityAssertion assertion = principals.oneByType(SecurityAssertion.class);
-          if (assertion != null) {
-            securityToken = assertion.getSecurityToken();
-          }
+          Collection<SecurityAssertion> assertions = principals.byType(SecurityAssertion.class);
+          securityToken =
+              (SecurityToken)
+                  assertions
+                      .stream()
+                      .filter(assertion -> assertion.getToken() instanceof SecurityToken)
+                      .map(SecurityAssertion::getToken)
+                      .findFirst()
+                      .orElse(null);
         }
       }
     }
@@ -331,7 +337,7 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
         return;
       }
 
-      SecurityAssertion securityAssertion = new SecurityAssertionImpl(token);
+      SecurityAssertion securityAssertion = new SecurityAssertionSaml(token);
       Element requestSecurityTokenTemplate = itok.getRequestSecurityTokenTemplate();
       List<AttributeStatement> attributeStatements = securityAssertion.getAttributeStatements();
 

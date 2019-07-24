@@ -70,11 +70,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.handler</groupId>
-            <artifactId>security-handler-guest</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.idp</groupId>
             <artifactId>security-idp-plugin-api</artifactId>
             <version>${project.version}</version>
@@ -234,7 +229,6 @@
                             platform-util,
                             antlr4-runtime,
                             commons-lang3,
-                            security-core-impl,
                             gson-support,
                             httpcore,
                             httpclient

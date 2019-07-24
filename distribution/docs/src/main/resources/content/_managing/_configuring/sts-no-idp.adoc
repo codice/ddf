@@ -15,5 +15,5 @@ To configure ${branding} to use the included Security Token Service (STS) withou
 . Select the *${ddf-security}* application.
 . Select *Configuration*.
 . Select the *Web Context Policy Manager*.
-. Add any needed authentication types to the Authentication Types list, such as `PKI`, `Basic`, etc.
+. Add any needed authentication types to the Authentication Types list, such as `PKI`, `BASIC`, etc.
 

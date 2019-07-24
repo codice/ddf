@@ -27,7 +27,7 @@ public class HttpSessionFactory implements SessionFactory {
   /**
    * Synchronized method because of jettys getSession method is not thread safe. Additionally,
    * assures a SAML {@link SecurityTokenHolder} has been set on the {@link
-   * SecurityConstants#SAML_ASSERTION} attribute
+   * SecurityConstants#SECURITY_TOKEN_KEY} attribute
    *
    * @param httpRequest
    * @return
@@ -35,8 +35,8 @@ public class HttpSessionFactory implements SessionFactory {
   @Override
   public synchronized HttpSession getOrCreateSession(HttpServletRequest httpRequest) {
     HttpSession session = httpRequest.getSession(true);
-    if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
-      session.setAttribute(SecurityConstants.SAML_ASSERTION, new SecurityTokenHolder());
+    if (session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY) == null) {
+      session.setAttribute(SecurityConstants.SECURITY_TOKEN_KEY, new SecurityTokenHolder());
       SecurityLogger.audit(
           "Creating a new session with id {} for client {}.",
           Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString(),

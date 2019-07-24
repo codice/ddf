@@ -35,6 +35,8 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.SubjectIdentity;
 import ddf.security.SubjectUtils;
+import ddf.security.assertion.Attribute;
+import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.SecurityAssertion;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -49,10 +51,6 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ThreadContext;
 import org.junit.Before;
 import org.junit.Test;
-import org.opensaml.core.xml.XMLObject;
-import org.opensaml.core.xml.schema.XSString;
-import org.opensaml.saml.saml2.core.Attribute;
-import org.opensaml.saml.saml2.core.AttributeStatement;
 
 public class SecurityPluginTest {
 
@@ -252,14 +250,11 @@ public class SecurityPluginTest {
   }
 
   private Subject setupMockSubject() {
-    XSString mockAttributeValue = mock(XSString.class);
-    when(mockAttributeValue.getValue()).thenReturn(TEST_USER);
-
-    List<XMLObject> listOfAttributeValues = Arrays.asList(mockAttributeValue);
+    List<String> listOfAttributeValues = Arrays.asList(TEST_USER);
 
     Attribute mockAttribute = mock(Attribute.class);
     when(mockAttribute.getName()).thenReturn(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI);
-    when(mockAttribute.getAttributeValues()).thenReturn(listOfAttributeValues);
+    when(mockAttribute.getValues()).thenReturn(listOfAttributeValues);
 
     List<Attribute> listOfAttributes = Arrays.asList(mockAttribute);
 
@@ -273,7 +268,8 @@ public class SecurityPluginTest {
     SecurityAssertion mockSecurityAssertion = mock(SecurityAssertion.class);
 
     when(mockSecurityAssertion.getAttributeStatements()).thenReturn(listOfAttributeStatements);
-    when(mockPrincipals.oneByType(SecurityAssertion.class)).thenReturn(mockSecurityAssertion);
+    when(mockPrincipals.byType(SecurityAssertion.class))
+        .thenReturn(Collections.singletonList(mockSecurityAssertion));
     when(mockSubject.getPrincipals()).thenReturn(mockPrincipals);
     return mockSubject;
   }

@@ -26,8 +26,6 @@ public class GuestAuthenticationTokenTest {
     GuestAuthenticationToken token = new GuestAuthenticationToken("127.0.0.1");
     assertTrue(token.getPrincipal() instanceof GuestPrincipal);
     assertEquals(GuestAuthenticationToken.GUEST_CREDENTIALS, token.getCredentials());
-    assertEquals(GuestAuthenticationToken.GUEST_TOKEN_VALUE_TYPE, token.tokenValueType);
-    assertEquals(GuestAuthenticationToken.BST_GUEST_LN, token.tokenId);
     assertEquals(token.getIpAddress(), "127.0.0.1");
   }
 }

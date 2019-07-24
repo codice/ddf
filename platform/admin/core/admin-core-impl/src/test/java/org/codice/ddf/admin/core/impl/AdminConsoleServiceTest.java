@@ -76,7 +76,7 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 @RunWith(MockitoJUnitRunner.class)
 public class AdminConsoleServiceTest {
 
-  private static final String GUEST_CLAIMS_CONFIG_PID = "ddf.security.sts.guestclaims";
+  private static final String GUEST_CLAIMS_CONFIG_PID = "ddf.security.guest.realm";
 
   private static final String TEST_PID = "TestPID";
 

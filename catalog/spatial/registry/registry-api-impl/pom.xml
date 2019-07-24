@@ -205,11 +205,6 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>geospatial</artifactId>
             <version>${project.version}</version>
@@ -256,8 +251,7 @@
                             platform-util-unavailableurls,
                             jaxb2-basics-runtime,
                             commons-lang3,
-                            geospatial,
-                            security-core-impl
+                            geospatial
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

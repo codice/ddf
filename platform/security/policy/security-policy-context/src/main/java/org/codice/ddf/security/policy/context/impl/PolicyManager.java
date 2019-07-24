@@ -48,6 +48,10 @@ public class PolicyManager implements ContextPolicyManager {
 
   private static final String WHITE_LIST = "whiteListContexts";
 
+  private static final String GUEST_ACCESS = "guestAccess";
+
+  private static final String SESSION_ACCESS = "sessionAccess";
+
   private static final int MAX_TRAVERSAL_DEPTH = 500;
 
   private Map<String, ContextPolicy> policyStore = new HashMap<>();
@@ -59,6 +63,10 @@ public class PolicyManager implements ContextPolicyManager {
   private Map<String, Object> policyProperties = new HashMap<>();
 
   private int traversalDepth;
+
+  private boolean guestAccess;
+
+  private boolean sessionAccess;
 
   public PolicyManager() {
     policyStore.put("/", defaultPolicy);
@@ -170,6 +178,9 @@ public class PolicyManager implements ContextPolicyManager {
 
     LOGGER.debug("setPolicies called: {}", properties);
     Map<String, ContextPolicy> originalPolicyStore = getPolicyStore();
+
+    setGuestAccess((boolean) properties.get(GUEST_ACCESS));
+    setSessionAccess((boolean) properties.get(SESSION_ACCESS));
 
     String[] authContexts = (String[]) properties.get(AUTH_TYPES);
     String[] attrContexts = (String[]) properties.get(REQ_ATTRS);
@@ -424,6 +435,26 @@ public class PolicyManager implements ContextPolicyManager {
     if (this.traversalDepth > MAX_TRAVERSAL_DEPTH) {
       this.traversalDepth = MAX_TRAVERSAL_DEPTH;
     }
+  }
+
+  public void setGuestAccess(boolean guestAccess) {
+    policyProperties.put(GUEST_ACCESS, guestAccess);
+    this.guestAccess = guestAccess;
+  }
+
+  @Override
+  public boolean getGuestAccess() {
+    return guestAccess;
+  }
+
+  public void setSessionAccess(boolean sessionAccess) {
+    policyProperties.put(SESSION_ACCESS, sessionAccess);
+    this.sessionAccess = sessionAccess;
+  }
+
+  @Override
+  public boolean getSessionAccess() {
+    return sessionAccess;
   }
 
   /**

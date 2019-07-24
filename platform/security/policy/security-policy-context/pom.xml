@@ -78,7 +78,7 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.67</minimum>
+                                            <minimum>0.63</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

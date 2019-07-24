@@ -443,9 +443,9 @@
                                     <classifier>security-idp-server</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>packages/security-servlet-logout/target/security-servlet-logout.jar</file>
+                                    <file>packages/security-logout/target/security-logout.jar</file>
                                     <type>jar</type>
-                                    <classifier>security-servlet-logout</classifier>
+                                    <classifier>security-logout</classifier>
                                 </artifact>
                                 <artifact>
                                     <file>packages/ui/target/admin-ui.jar</file>

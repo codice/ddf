@@ -37,7 +37,7 @@ Configure the ${branding} to use this authentication scheme.
 . Select the *${ddf-catalog}* application.
 . Open the *Web Context Policy Manager* configuration.
 .. Under *Authentication Types*, make any desired authentication changes to contexts.
-... In order to use the SAML 2.0 Web SSO profile against a context, you must specify only the IdP authentication type.
+... In order to use the SAML 2.0 Web SSO profile against a context, you must specify only the SAML authentication type.
 
 .Security STS Client
 Configure the client connecting to the STS.

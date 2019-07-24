@@ -42,7 +42,7 @@
           class="org.codice.ddf.security.idp.server.IdpExceptionMapper"/>
 
     <bean id="tokenFactory"
-          class="org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory"
+          class="org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory"
           init-method="init"/>
 
     <bean id="logoutStates" class="ddf.security.samlp.impl.RelayStates" />
@@ -59,7 +59,7 @@
         <property name="tokenFactory" ref="tokenFactory" />
         <property name="strictSignature" value="true" />
         <property name="strictRelayState" value="true" />
-        <property name="guestAccess" value="true" />
+        <property name="guestAccess" value="false" />
         <property name="logoutMessage" ref="logoutMessage" />
         <property name="logoutStates" ref="logoutStates" />
         <property name="spMetadata">

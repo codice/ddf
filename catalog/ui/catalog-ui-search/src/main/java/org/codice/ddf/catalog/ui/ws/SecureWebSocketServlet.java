@@ -58,7 +58,7 @@ public class SecureWebSocketServlet extends WebSocketServlet {
                 executor,
                 ws,
                 (SecurityTokenHolder)
-                    req.getSession().getAttribute(SecurityConstants.SAML_ASSERTION)));
+                    req.getSession().getAttribute(SecurityConstants.SECURITY_TOKEN_KEY)));
   }
 
   @org.eclipse.jetty.websocket.api.annotations.WebSocket
@@ -124,7 +124,7 @@ public class SecureWebSocketServlet extends WebSocketServlet {
     }
 
     private boolean isUserLoggedIn() {
-      return securityTokenHolder.getSecurityToken() != null;
+      return securityTokenHolder.getPrincipals() != null;
     }
   }
 }

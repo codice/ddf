@@ -15,23 +15,23 @@ package ddf.security.service.impl;
 
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.impl.SubjectImpl;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
-import java.security.Principal;
 import java.util.Collection;
-import java.util.List;
+import java.util.Iterator;
 import java.util.UUID;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authz.Authorizer;
+import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.authc.pam.AbstractAuthenticationStrategy;
+import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.mgt.DefaultSecurityManager;
-import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SimpleSession;
-import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.codice.ddf.security.handler.api.SessionToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,37 +41,35 @@ public class SecurityManagerImpl implements SecurityManager {
 
   private DefaultSecurityManager internalManager;
 
-  private Collection<Realm> realms;
-
-  private List<String> usernameAttributeList;
-
   /** Creates a new security manager with the collection of given realms. */
   public SecurityManagerImpl() {
     // create the new security manager
     internalManager = new DefaultSecurityManager();
+    ((ModularRealmAuthenticator) internalManager.getAuthenticator())
+        .setAuthenticationStrategy(new AllSuccessfulStrategy());
   }
 
   /** @param realms The realms used for the backing authZ and authN operations. */
   public void setRealms(Collection<Realm> realms) {
-    this.realms = realms;
     // update the default manager with current realm list
     LOGGER.debug("Updating manager with {} realms.", realms.size());
     internalManager.setRealms(realms);
   }
 
-  public List<String> getUsernameAttributeList() {
-    return usernameAttributeList;
-  }
-
-  public void setUsernameAttributeList(List<String> usernameAttributeList) {
-    this.usernameAttributeList = usernameAttributeList;
-  }
-
   public Subject getSubject(Object token) throws SecurityServiceException {
-    if (token instanceof AuthenticationToken) {
-      return getSubject((AuthenticationToken) token);
-    } else if (token instanceof SecurityToken) {
-      return getSubject((SecurityToken) token);
+    AuthenticationToken authenticationToken = null;
+    if (token instanceof SessionToken) {
+      return new SubjectImpl(
+          ((PrincipalCollection) ((SessionToken) token).getCredentials()),
+          true,
+          new SimpleSession(UUID.randomUUID().toString()),
+          internalManager);
+    } else if (token instanceof AuthenticationToken) {
+      authenticationToken = (AuthenticationToken) token;
+    }
+
+    if (authenticationToken != null) {
+      return getSubject(authenticationToken);
     } else {
       throw new SecurityServiceException(
           "Incoming token object NOT supported by security manager implementation. Currently supported types are AuthenticationToken and SecurityToken");
@@ -93,10 +91,21 @@ public class SecurityManagerImpl implements SecurityManager {
               + "This is generally due to an error on the authentication server.");
     }
     AuthenticationInfo info = internalManager.authenticate(token);
+    Collection<SecurityAssertion> securityAssertions =
+        info.getPrincipals().byType(SecurityAssertion.class);
+    Iterator<SecurityAssertion> iterator = securityAssertions.iterator();
+    boolean userAuth = false;
+    while (iterator.hasNext()) {
+      SecurityAssertion assertion = iterator.next();
+      if (SecurityAssertion.IDP_AUTH_WEIGHT == assertion.getWeight()
+          || SecurityAssertion.LOCAL_AUTH_WEIGHT == assertion.getWeight()) {
+        userAuth = true;
+      }
+    }
     try {
       return new SubjectImpl(
           info.getPrincipals(),
-          true,
+          userAuth,
           new SimpleSession(UUID.randomUUID().toString()),
           internalManager);
     } catch (Exception e) {
@@ -104,61 +113,54 @@ public class SecurityManagerImpl implements SecurityManager {
     }
   }
 
-  /**
-   * Creates a new subject using an incoming SecurityToken.
-   *
-   * @param token Security token that the subject should be populated with
-   * @return new subject
-   * @throws SecurityServiceException
-   */
-  private Subject getSubject(SecurityToken token) throws SecurityServiceException {
-    try {
-      // return the newly created subject
-      return new SubjectImpl(
-          createPrincipalFromToken(token),
-          true,
-          new SimpleSession(UUID.randomUUID().toString()),
-          internalManager);
-    } catch (Exception e) {
-      throw new SecurityServiceException("Could not create a new subject", e);
-    }
-  }
+  private static class AllSuccessfulStrategy extends AbstractAuthenticationStrategy {
 
-  /**
-   * Creates a new principal object from an incoming security token.
-   *
-   * @param token SecurityToken that contains the principals.
-   * @return new SimplePrincipalCollection
-   */
-  private SimplePrincipalCollection createPrincipalFromToken(SecurityToken token) {
-    SimplePrincipalCollection principals = new SimplePrincipalCollection();
-    for (Realm curRealm : realms) {
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug(
-            "Configuring settings for realm name: {} type: {}",
-            curRealm.getName(),
-            curRealm.getClass().toString());
-        LOGGER.debug(
-            "Is authorizer: {}, is AuthorizingRealm: {}",
-            curRealm instanceof Authorizer,
-            curRealm instanceof AuthorizingRealm);
-      }
-      SecurityAssertion securityAssertion = null;
-      try {
-        securityAssertion = new SecurityAssertionImpl(token, usernameAttributeList);
-        Principal principal = securityAssertion.getPrincipal();
-        if (principal != null) {
-          principals.add(principal.getName(), curRealm.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(AllSuccessfulStrategy.class);
+
+    public AuthenticationInfo afterAttempt(
+        Realm realm,
+        AuthenticationToken token,
+        AuthenticationInfo info,
+        AuthenticationInfo aggregate,
+        Throwable t)
+        throws AuthenticationException {
+      if (t != null) {
+        if (t instanceof AuthenticationException) {
+          // propagate:
+          throw ((AuthenticationException) t);
+        } else {
+          String msg =
+              "Unable to acquire account data from realm ["
+                  + realm
+                  + "].  The ["
+                  + getClass().getName()
+                  + " implementation requires all configured realm(s) to operate successfully "
+                  + "for a successful authentication.";
+          throw new AuthenticationException(msg, t);
         }
-      } catch (Exception e) {
-        LOGGER.warn(
-            "Encountered error while trying to get the Principal for the SecurityToken. Security functions may not work properly.",
-            e);
       }
-      if (securityAssertion != null) {
-        principals.add(securityAssertion, curRealm.getName());
+      if (info == null) {
+        String msg =
+            "Realm ["
+                + realm
+                + "] could not find any associated account data for the submitted "
+                + "AuthenticationToken ["
+                + token
+                + "].  The ["
+                + getClass().getName()
+                + "] implementation requires "
+                + "all configured realm(s) to acquire valid account data for a submitted token during the "
+                + "log-in process.";
+        throw new UnknownAccountException(msg);
       }
+
+      LOGGER.debug("Account successfully authenticated using realm [{}]", realm);
+
+      // If non-null account is returned, then the realm was able to authenticate the
+      // user - so merge the account with any accumulated before:
+      merge(info, aggregate);
+
+      return aggregate;
     }
-    return principals;
   }
 }

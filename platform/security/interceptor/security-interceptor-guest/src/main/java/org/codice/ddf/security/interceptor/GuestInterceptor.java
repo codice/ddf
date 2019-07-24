@@ -13,330 +13,98 @@
  */
 package org.codice.ddf.security.interceptor;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.encryption.EncryptionService;
+import ddf.security.assertion.impl.SecurityAssertionPrincipalDefault;
 import ddf.security.service.SecurityManager;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
+import ddf.security.service.SecurityServiceException;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPFactory;
-import javax.xml.soap.SOAPMessage;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.binding.soap.SoapBindingConstants;
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.message.MessageUtils;
+import org.apache.cxf.interceptor.security.DefaultSecurityContext;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.security.SecurityContext;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
-import org.apache.cxf.ws.addressing.AddressingProperties;
-import org.apache.cxf.ws.addressing.AttributedURIType;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.apache.cxf.ws.addressing.policy.MetadataConstants;
-import org.apache.cxf.ws.policy.AssertionInfoMap;
-import org.apache.cxf.ws.security.SecurityConstants;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.wss4j.AbstractWSS4JInterceptor;
 import org.apache.cxf.ws.security.wss4j.PolicyBasedWSS4JInInterceptor;
-import org.apache.cxf.ws.security.wss4j.PolicyBasedWSS4JOutInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.apache.wss4j.common.ext.WSSecurityException;
-import org.apache.wss4j.dom.handler.WSHandlerConstants;
-import org.apache.wss4j.dom.util.WSSecurityUtil;
-import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.security.common.Security;
-import org.codice.ddf.security.policy.context.ContextPolicyManager;
+import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
 
 /** Interceptor for guest access to SOAP endpoints. */
 public class GuestInterceptor extends AbstractWSS4JInterceptor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GuestInterceptor.class);
 
-  private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
-
-  private EncryptionService encryptionService;
+  private static final String WSS4J_CHECK_STRING = WSS4JInInterceptor.class.getName() + ".DONE";
 
   private SecurityManager securityManager;
 
-  private STSClientConfiguration stsClientConfiguration;
+  private Map<String, Subject> cachedGuestSubjectMap = new HashMap<>();
 
-  private ContextPolicyManager contextPolicyManager;
-
-  private boolean guestAccessDenied = false;
-
-  private static final Cache<String, Subject> CACHED_GUEST_SUBJECT =
-      CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).maximumSize(1000).build();
-
-  private Security security;
-
-  private final PolicyBasedWSS4JOutInterceptor.PolicyBasedWSS4JOutInterceptorInternal
-      policyBasedWss4jOutInterceptor =
-          new PolicyBasedWSS4JOutInterceptor().createEndingInterceptor();
-
-  public GuestInterceptor(
-      SecurityManager securityManager,
-      ContextPolicyManager contextPolicyManager,
-      Security security) {
+  public GuestInterceptor(SecurityManager securityManager) {
     super();
-    LOGGER.trace("Constructing GuestInterceptor");
+    LOGGER.trace("Constructing Legacy Guest Interceptor.");
     this.securityManager = securityManager;
-    this.contextPolicyManager = contextPolicyManager;
-    this.security = security;
     setPhase(Phase.PRE_PROTOCOL);
     // make sure this interceptor runs before the WSS4J one in the same Phase, otherwise it won't
     // work
     Set<String> before = getBefore();
     before.add(WSS4JInInterceptor.class.getName());
     before.add(PolicyBasedWSS4JInInterceptor.class.getName());
-    LOGGER.trace("Exiting GuestInterceptor constructor.");
+    LOGGER.trace("Exiting Legacy Guest Interceptor constructor.");
   }
 
   @Override
   public void handleMessage(SoapMessage message) throws Fault {
-    if (guestAccessDenied) {
-      LOGGER.debug("Guest Access not enabled - no message checking performed.");
-      return;
-    }
 
-    if (message == null) {
-      LOGGER.debug("Incoming SOAP message is null - guest interceptor makes no sense.");
-      return;
-    }
+    if (message != null) {
 
-    SOAPMessage soapMessage = getSOAPMessage(message);
-    internalHandleMessage(message, soapMessage);
-    if (LOGGER.isTraceEnabled()) {
-      try {
-        LOGGER.trace(
-            "SOAP request after guest interceptor: {}",
-            XML_UTILS.prettyFormat(soapMessage.getSOAPHeader().getParentNode()));
-      } catch (SOAPException e) {
-        // ignore
-      }
-    }
-  }
+      HttpServletRequest request =
+          (HttpServletRequest) message.get(AbstractHTTPDestination.HTTP_REQUEST);
+      LOGGER.debug("Getting new Guest user token");
+      // synchronize the step of requesting the assertion, it is not thread safe
+      Principal principal = null;
 
-  private void internalHandleMessage(SoapMessage message, SOAPMessage soapMessage) throws Fault {
-
-    // Check if security header exists; if not, execute GuestInterceptor logic
-    String actor = (String) getOption(WSHandlerConstants.ACTOR);
-    if (actor == null) {
-      actor = (String) message.getContextualProperty(SecurityConstants.ACTOR);
-    }
-
-    Element existingSecurityHeader = null;
-    try {
-      LOGGER.debug("Checking for security header.");
-      existingSecurityHeader = WSSecurityUtil.getSecurityHeader(soapMessage.getSOAPPart(), actor);
-    } catch (WSSecurityException e1) {
-      LOGGER.debug("Issue with getting security header", e1);
-    }
-
-    if (existingSecurityHeader != null) {
-      LOGGER.debug(
-          "SOAP message contains security header, no action taken by the GuestInterceptor.");
-      return;
-    }
-
-    LOGGER.debug("Current request has no security header, continuing with GuestInterceptor");
-
-    AssertionInfoMap assertionInfoMap = message.get(AssertionInfoMap.class);
-
-    boolean hasAddressingAssertion =
-        assertionInfoMap
-            .entrySet()
-            .stream()
-            .flatMap(p -> p.getValue().stream())
-            .filter(
-                info ->
-                    MetadataConstants.ADDRESSING_ASSERTION_QNAME.equals(
-                        info.getAssertion().getName()))
-            .findFirst()
-            .isPresent();
-    if (hasAddressingAssertion) {
-      createAddressing(message, soapMessage);
-    }
-
-    LOGGER.debug("Creating guest security token.");
-    HttpServletRequest request =
-        (HttpServletRequest) message.get(AbstractHTTPDestination.HTTP_REQUEST);
-    SecurityToken securityToken = createSecurityToken(request.getRemoteAddr());
-    message.put(SecurityConstants.TOKEN, securityToken);
-    if (!MessageUtils.isRequestor(message)) {
-      try {
-        message.put(Message.REQUESTOR_ROLE, true);
-        policyBasedWss4jOutInterceptor.handleMessage(message);
-      } finally {
-        message.remove(Message.REQUESTOR_ROLE);
-      }
-    } else {
-      policyBasedWss4jOutInterceptor.handleMessage(message);
-    }
-  }
-
-  private SecurityToken createSecurityToken(String ipAddress) {
-    SecurityToken securityToken = null;
-    Subject subject = getSubject(ipAddress);
-
-    LOGGER.trace("Attempting to create Security token.");
-    if (subject != null) {
+      Subject subject = getSubject(request.getRemoteAddr());
       PrincipalCollection principals = subject.getPrincipals();
-      if (principals != null) {
-        SecurityAssertion securityAssertion = principals.oneByType(SecurityAssertion.class);
-        if (securityAssertion != null) {
-          securityToken = securityAssertion.getSecurityToken();
-        } else {
-          LOGGER.info(
-              "Subject did not contain a security assertion, could not add assertion to the security header.");
-        }
+      SecurityAssertion securityAssertion = principals.oneByType(SecurityAssertion.class);
+      if (securityAssertion != null) {
+        principal = new SecurityAssertionPrincipalDefault(securityAssertion);
       } else {
-        LOGGER.info("Subject did not contain any principals, could not create security token.");
+        LOGGER.debug("Subject did not contain a security assertion");
       }
+
+      message.put(SecurityContext.class, new DefaultSecurityContext(principal, null));
+      message.put(WSS4J_CHECK_STRING, Boolean.TRUE);
+
+    } else {
+      LOGGER.debug("Incoming SOAP message is null - guest interceptor makes no sense.");
     }
-    return securityToken;
   }
 
-  private Subject getSubject(String ipAddress) {
-    Subject subject = CACHED_GUEST_SUBJECT.getIfPresent(ipAddress);
-    if (security.tokenAboutToExpire(subject)) {
-      subject = security.getGuestSubject(ipAddress);
-      CACHED_GUEST_SUBJECT.put(ipAddress, subject);
+  private synchronized Subject getSubject(String ipAddress) {
+    Subject subject = cachedGuestSubjectMap.get(ipAddress);
+    if (Security.getInstance().tokenAboutToExpire(subject)) {
+      GuestAuthenticationToken token = new GuestAuthenticationToken(ipAddress);
+      LOGGER.debug("Getting new Guest user token for {}", ipAddress);
+      try {
+        subject = securityManager.getSubject(token);
+        cachedGuestSubjectMap.put(ipAddress, subject);
+      } catch (SecurityServiceException sse) {
+        LOGGER.info("Unable to request subject for guest user.", sse);
+      }
+
     } else {
       LOGGER.debug("Using cached Guest user token for {}", ipAddress);
     }
     return subject;
-  }
-
-  private void createAddressing(SoapMessage message, SOAPMessage soapMessage) {
-    SOAPFactory soapFactory;
-    try {
-      soapFactory = SOAPFactory.newInstance();
-    } catch (SOAPException e) {
-      LOGGER.debug("Could not create a SOAPFactory.", e);
-      return; // can't add anything if we can't create it
-    }
-
-    String addressingProperty =
-        org.apache.cxf.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_INBOUND;
-    AddressingProperties addressingProperties = new AddressingProperties();
-
-    try {
-      SOAPElement action =
-          soapFactory.createElement(
-              org.apache.cxf.ws.addressing.Names.WSA_ACTION_NAME,
-              org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
-              org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
-      action.addTextNode((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
-      AttributedURIType attributedString = new AttributedURIType();
-      String actionValue =
-          StringUtils.defaultIfEmpty((String) message.get(SoapBindingConstants.SOAP_ACTION), "");
-      attributedString.setValue(actionValue);
-      addressingProperties.setAction(attributedString);
-      soapMessage.getSOAPHeader().addChildElement(action);
-    } catch (SOAPException e) {
-      LOGGER.debug("Unable to add addressing action.", e);
-    }
-
-    try {
-      SOAPElement messageId =
-          soapFactory.createElement(
-              org.apache.cxf.ws.addressing.Names.WSA_MESSAGEID_NAME,
-              org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
-              org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
-      String uuid = "urn:uuid:" + UUID.randomUUID().toString();
-      messageId.addTextNode(uuid);
-      AttributedURIType attributedString = new AttributedURIType();
-      attributedString.setValue(uuid);
-      addressingProperties.setMessageID(attributedString);
-      soapMessage.getSOAPHeader().addChildElement(messageId);
-    } catch (SOAPException e) {
-      LOGGER.debug("Unable to add addressing messageId.", e);
-    }
-
-    try {
-      SOAPElement to =
-          soapFactory.createElement(
-              org.apache.cxf.ws.addressing.Names.WSA_TO_NAME,
-              org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
-              org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
-      to.addTextNode((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
-      EndpointReferenceType endpointReferenceType = new EndpointReferenceType();
-      AttributedURIType attributedString = new AttributedURIType();
-      attributedString.setValue((String) message.get(org.apache.cxf.message.Message.REQUEST_URL));
-      endpointReferenceType.setAddress(attributedString);
-      addressingProperties.setTo(endpointReferenceType);
-      soapMessage.getSOAPHeader().addChildElement(to);
-    } catch (SOAPException e) {
-      LOGGER.debug("Unable to add addressing to.", e);
-    }
-
-    try {
-      SOAPElement replyTo =
-          soapFactory.createElement(
-              org.apache.cxf.ws.addressing.Names.WSA_REPLYTO_NAME,
-              org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
-              org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
-      SOAPElement address =
-          soapFactory.createElement(
-              org.apache.cxf.ws.addressing.Names.WSA_ADDRESS_NAME,
-              org.apache.cxf.ws.addressing.JAXWSAConstants.WSA_PREFIX,
-              org.apache.cxf.ws.security.wss4j.DefaultCryptoCoverageChecker.WSA_NS);
-      address.addTextNode(org.apache.cxf.ws.addressing.Names.WSA_ANONYMOUS_ADDRESS);
-      replyTo.addChildElement(address);
-      soapMessage.getSOAPHeader().addChildElement(replyTo);
-
-    } catch (SOAPException e) {
-      LOGGER.debug("Unable to add addressing replyTo.", e);
-    }
-    message.put(addressingProperty, addressingProperties);
-  }
-
-  private SOAPMessage getSOAPMessage(SoapMessage msg) {
-    SAAJInInterceptor.INSTANCE.handleMessage(msg);
-    return msg.getContent(SOAPMessage.class);
-  }
-
-  public EncryptionService getEncryptionService() {
-    return encryptionService;
-  }
-
-  public void setEncryptionService(EncryptionService encryptionService) {
-    this.encryptionService = encryptionService;
-  }
-
-  public STSClientConfiguration getStsClientConfiguration() {
-    return stsClientConfiguration;
-  }
-
-  public void setStsClientConfiguration(STSClientConfiguration stsClientConfiguration) {
-    this.stsClientConfiguration = stsClientConfiguration;
-  }
-
-  public ContextPolicyManager getContextPolicyManager() {
-    return contextPolicyManager;
-  }
-
-  public void setContextPolicyManager(ContextPolicyManager contextPolicyManager) {
-    this.contextPolicyManager = contextPolicyManager;
-  }
-
-  public boolean isGuestAccessDenied() {
-    return guestAccessDenied;
-  }
-
-  public void setGuestAccessDenied(boolean deny) {
-    guestAccessDenied = deny;
   }
 }

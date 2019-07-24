@@ -883,6 +883,10 @@ public abstract class AbstractIntegrationTest {
     getSecurityPolicy().configureRestForBasic(whitelist);
   }
 
+  public void configureRestForSaml(String whitelist) throws Exception {
+    getSecurityPolicy().configureRestForSaml(whitelist);
+  }
+
   protected void configureBundle(
       String bundleName, String pid, Dictionary<String, Object> properties)
       throws IOException, BundleException, InterruptedException {

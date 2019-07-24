@@ -133,7 +133,7 @@ grant codeBase "file:/spatial-csw-source/spatial-csw-endpoint/org.apache.camel.c
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
 }
 
-grant codeBase "file:/org.apache.servicemix.bundles.commons-httpclient/org.apache.camel.camel-http/spatial-wfs-v1_0_0-source/spatial-wfs-v2_0_0-source/spatial-wfs-v1_1_0-source/org.apache.ws.xmlschema.core/security-rest-cxfwrapper/catalog-core-urlresourcereader/org.codice.thirdparty.commons-httpclient" {
+grant codeBase "file:/org.apache.servicemix.bundles.commons-httpclient/org.apache.camel.camel-http/spatial-wfs-v1_0_0-source/spatial-wfs-v2_0_0-source/spatial-wfs-v1_1_0-source/org.apache.ws.xmlschema.core/security-rest-cxfwrapper/catalog-core-urlresourcereader/org.codice.thirdparty.commons-httpclient/org.apache.cxf.services.sts.core" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
 }
 
@@ -141,7 +141,7 @@ grant codeBase "file:/org.apache.servicemix.bundles.wsdl4j/spatial-commands/spat
     permission java.io.FilePermission "<<ALL FILES>>", "read";
 }
 
-grant codeBase "file:/service-atom-transformer/spatial-commands/spatial-geocoding-feature/org.apache.karaf.shell.core/registry-federation-admin-service-impl/catalog-core-commands/spatial-geocoding-offline-catalog/spatial-geocoding-geocoder/spatial-geocoding-plugin/spatial-wfs-v1_0_0-source/spatial-wfs-v2_0_0-source/spatial-wfs-v1_1_0-source/spatial-wfs-featuretransformer/spatial-wfs-featuretransformer-xstream/resourcemanagement-usage-ui/catalog-rest-endpoint/catalog-core-camelcomponent/org.eclipse.jetty.websocket.server" {
+grant codeBase "file:/org.apache.felix.configadmin/service-atom-transformer/spatial-commands/spatial-geocoding-feature/org.apache.karaf.shell.core/registry-federation-admin-service-impl/catalog-core-commands/spatial-geocoding-offline-catalog/spatial-geocoding-geocoder/spatial-geocoding-plugin/spatial-wfs-v1_0_0-source/spatial-wfs-v2_0_0-source/spatial-wfs-v1_1_0-source/spatial-wfs-featuretransformer/spatial-wfs-featuretransformer-xstream/resourcemanagement-usage-ui/catalog-rest-endpoint/catalog-core-camelcomponent/org.eclipse.jetty.websocket.server" {
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
@@ -245,7 +245,7 @@ grant codeBase "file:/catalog-rest-impl/catalog-transformer-resource/ftp/org.apa
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
 }
 
-grant codeBase "file:/platform-osgi-configadmin/security-encryption-impl/catalog-core-localstorageprovider" {
+grant codeBase "file:/platform-osgi-configadmin/security-encryption-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}*", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keysets", "read,write";
@@ -253,7 +253,7 @@ grant codeBase "file:/platform-osgi-configadmin/security-encryption-impl/catalog
     permission java.lang.RuntimePermission "getClassLoader";
 }
 
-grant codeBase "file:/security-handler-pki/security-sts-x509validator/security-handler-guest" {
+grant codeBase "file:/security-handler-pki/security-sts-x509validator" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.lang.RuntimePermission "getClassLoader";
@@ -412,7 +412,7 @@ grant codeBase "file:/catalog-plugin-videothumbnail/catalog-rest-endpoint/catalo
     permission java.io.FilePermission "${ddf.home.perm}bin_third_party${/}ffmpeg${/}-", "read,write,execute";
 }
 
-grant codeBase "file:/catalog-transformer-zip/org.apache.commons.net/catalog-core-camelcomponent/org.apache.camel.camel-sjms/org.apache.commons.pool" {
+grant codeBase "file:/catalog-transformer-zip/org.apache.commons.net/catalog-core-camelcomponent/org.apache.camel.camel-sjms/org.apache.commons.pool/saml-assertion-validator-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
 }
@@ -434,6 +434,10 @@ grant codeBase "file:/platform-parser-xml" {
 grant codeBase "file:/catalog-core-localstorageprovider" {
     permission java.io.FilePermission "${ddf.home.perm}content", "write";
     permission java.io.FilePermission "${ddf.home.perm}content${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keysets${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keysets", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}associatedData.properties", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}associatedData.properties", "read, write";
 }
 
 grant codeBase "file:/platform-country-converter-local" {

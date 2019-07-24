@@ -16,6 +16,15 @@ It defines:
 
 See <<{reference-prefix}org.codice.ddf.security.policy.context.impl.PolicyManager, Web Context Policy Manager Configurations>> for detailed descriptions of all fields.
 
+=== Guest Access
+Guest access is a toggleable configuration.
+Enabling guest access will cause all users to be assigned a guest principal for use throughout the entire system.
+The guest principal will be used either by itself or along with any other principals acquired from configured authentication types.
+
+=== Session Storage
+Enabling session storage allows the system to persist the user login through the use of cookies.
+Note that the `SAML` and `OIDC` authentication types require session storage to be enabled.
+
 === Authentication Types
 
 As you add REST endpoints, you may need to add different types of authentication through the Web Context Policy Manager.
@@ -33,22 +42,43 @@ Any web context that allows or requires specific authentication types should be 
 |Authentication Type
 |Description
 
-|`saml`
-|Activates single-sign on (SSO) across all REST endpoints that use SAML.
-
-|`basic`
+|`BASIC`
 |Activates basic authentication.
 
 |`PKI`
 |Activates public key infrastructure authentication.
 
-|`IdP`
-|Activates SAML Web SSO authentication support. Additional configuration is necessary.
+|`SAML`
+|Activates single-sign on (SSO) across all REST endpoints that use SAML.
 
-|`guest`
-|provides guest access
+|`OIDC`
+|Activates single-sign on (SSO) across all REST endpoints that use OIDC.
 
 |===
+
+==== Terminating and Non-Terminating Authentication Types
+Terminating authentication types are authentication types where, once hit, must either allow or forbid access to the system.
+No other authentication types will be checked once a terminating authentication type is hit.
+
+Non-Terminating authentication types are authentication types where, once hit, must first verify that the client supports the authentication type's method of obtaining credentials.
+If the client supports the non-terminating authentication type's method of obtaining credentials, it either allows or forbids access to the system.
+However if the client does not support the non-terminating authentication type's method of obtaining credentials, the system will continue to the next configured authentication type.
+
+`BASIC` is the only terminating authentication type.
+Every other authentication type is non-terminating.
+
+For example: assume a context is protected by the non-terminating `SAML` authorization type.
+The system first checks to see if the client supports the acquisition of SAML credentials.
+
+- If the connecting client is a browser, the system can acquire SAML credentials.
+- If the connecting client is a machine that supports SAML ECP, the system can acquire SAML credentials.
+- If the connecting client is a machine that does not support SAML ECP, the system cannot acquire SAML credentials.
+
+If the system can acquire SAML credentials from the client, the system will attempt to acquire said credentials and either allow or forbid access.
+If the system cannot acquire SAML credentials from the client, the system will continue to the next configured authentication type.
+
+Contrarily, assume a context is protected by the terminating `BASIC` authentication type.
+Once this authentication type is hit, the system either allows or forbids access to the system, without checking if the client supports the acquisition of BASIC credentials.
 
 === Required Attributes
 

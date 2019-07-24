@@ -75,14 +75,14 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
     subjectCommands.user = USERNAME;
 
     when(session.readLine(anyString(), eq('*'))).thenReturn(PASSWORD);
-    when(security.getSubject(USERNAME, PASSWORD)).thenReturn(subject);
+    when(security.getSubject(USERNAME, PASSWORD, "127.0.0.1")).thenReturn(subject);
     when(subject.execute(any(Callable.class))).thenAnswer(this::executeCommand);
 
     Object result = subjectCommands.execute();
 
     assertThat(result, is(SUCCESS));
     verify(session).readLine("Password for " + USERNAME + ": ", '*');
-    verify(security).getSubject(USERNAME, PASSWORD);
+    verify(security).getSubject(USERNAME, PASSWORD, "127.0.0.1");
   }
 
   @Test
@@ -90,12 +90,12 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
     subjectCommands.user = USERNAME;
 
     when(session.readLine(anyString(), eq('*'))).thenReturn(PASSWORD);
-    when(security.getSubject(USERNAME, PASSWORD)).thenReturn(null);
+    when(security.getSubject(USERNAME, PASSWORD, "127.0.0.1")).thenReturn(null);
 
     subjectCommands.execute();
 
     assertThat(consoleOutput.getOutput(), containsString("Invalid username/password"));
-    verify(security).getSubject(USERNAME, PASSWORD);
+    verify(security).getSubject(USERNAME, PASSWORD, "127.0.0.1");
   }
 
   @Test
@@ -114,13 +114,13 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
     subjectCommands.user = USERNAME;
 
     when(session.readLine(anyString(), eq('*'))).thenReturn(PASSWORD);
-    when(security.getSubject(USERNAME, PASSWORD)).thenReturn(subject);
+    when(security.getSubject(USERNAME, PASSWORD, "127.0.0.1")).thenReturn(subject);
     when(subject.execute(any(Callable.class)))
         .thenThrow(new ExecutionException(new IllegalStateException(ERROR)));
 
     subjectCommands.execute();
 
-    verify(security).getSubject(USERNAME, PASSWORD);
+    verify(security).getSubject(USERNAME, PASSWORD, "127.0.0.1");
     assertThat(consoleOutput.getOutput(), containsString(ERROR));
   }
 

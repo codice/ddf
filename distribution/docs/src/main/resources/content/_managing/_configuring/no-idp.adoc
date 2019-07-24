@@ -19,4 +19,4 @@ To configure ${branding} to not use an Identity Provider (IdP),
 .. Select the *${ddf-security}* application.
 .. Select the *Configuration* tab.
 .. Select *Web Context Policy Manager*
-.. Under *Authentication Types*, remove the IdP authentication type from all context paths.
+.. Under *Authentication Types*, remove the SAML authentication type from all context paths.

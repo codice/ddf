@@ -15,17 +15,14 @@ package org.codice.ddf.security.servlet.whoami;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ddf.security.SecurityConstants;
-import ddf.security.common.SecurityTokenHolder;
-import ddf.security.http.SessionFactory;
-import ddf.security.service.SecurityManager;
-import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,10 +31,6 @@ public class WhoAmIServlet extends HttpServlet {
   private static final Logger LOGGER = LoggerFactory.getLogger(WhoAmIServlet.class);
 
   private static final long serialVersionUID = 5538001643612956658L;
-
-  private static SessionFactory httpSessionFactory;
-
-  private static SecurityManager securityManager;
 
   private static Gson gson =
       new GsonBuilder()
@@ -52,33 +45,17 @@ public class WhoAmIServlet extends HttpServlet {
     resp.setHeader("Cache-Control", "no-cache, no-store");
     resp.setHeader("Pragma", "no-cache");
 
-    HttpSession session = httpSessionFactory.getOrCreateSession(req);
-    SecurityToken token =
-        ((SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION))
-            .getSecurityToken();
+    Map<String, WhoAmI> realmToWhoMap = new HashMap<>();
 
-    String whoAmIJson = "";
-    try {
-      WhoAmI whoAmI = new WhoAmI(securityManager.getSubject(token));
-      whoAmIJson = gson.toJson(whoAmI);
-    } catch (SecurityServiceException e) {
-      LOGGER.debug("Unable to get subject from token.", e);
-    }
+    Subject subject = SecurityUtils.getSubject();
+    WhoAmI whoAmI = new WhoAmI(subject);
+    realmToWhoMap.put("default", whoAmI);
 
     resp.setContentType("application/json");
     try {
-      resp.getWriter().print(whoAmIJson);
+      resp.getWriter().print(gson.toJson(realmToWhoMap));
     } catch (IOException ex) {
       LOGGER.debug("Unable to write to response for /whoami", ex);
     }
-  }
-
-  public void setHttpSessionFactory(SessionFactory sessionFactory) {
-    httpSessionFactory = sessionFactory; // NOSONAR Blueprint cannot use a static setter but
-    // servlet field should be final and/or static.
-  }
-
-  public void setSecurityManager(SecurityManager manager) {
-    securityManager = manager; // NOSONAR
   }
 }
