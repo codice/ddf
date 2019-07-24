@@ -22,7 +22,7 @@ const QueryResult = require('./result-form.view.js')
 const SearchFormModel = require('../search-form/search-form.js')
 import React from 'react'
 import { Item, NewForm } from '../search-form/search-form.view'
-import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 
 module.exports = Marionette.ItemView.extend({
   initialize(options) {

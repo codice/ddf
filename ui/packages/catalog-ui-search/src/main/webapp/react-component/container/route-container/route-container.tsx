@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import MarionetteRegionContainer from '../marionette-region-container'
+import MarionetteRegionContainer from '../../marionette-region-container'
 
 const $ = require('jquery')
 const wreqr = require('../../../js/wreqr.js')

@@ -20,7 +20,7 @@ const user = require('../../component/singletons/user-instance.js')
 const properties = require('../../js/properties.js')
 const Property = require('../../component/property/property.js')
 const PropertyView = require('../../component/property/property.view.js')
-import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 const QuerySettingsView = require('../../component/query-settings/query-settings.view.js')
 const QueryModel = require('../../js/model/Query.js')
 const ConfirmationView = require('../../component/confirmation/confirmation.view.js')

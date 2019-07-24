@@ -14,8 +14,8 @@
  **/
 
 import React from 'react'
-import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import styled from 'styled-components'
+import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 import { readableColor } from 'polished'
 import MetacardInteractionsDropdown from '../../react-component/metacard-interactions/metacard-interactions-dropdown'
 const Backbone = require('backbone')

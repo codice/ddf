@@ -26,7 +26,7 @@ const ResultSortDropdownView = require('../dropdown/result-sort/dropdown.result-
 const user = require('../singletons/user-instance.js')
 const ResultStatusView = require('../result-status/result-status.view.js')
 require('../../behaviors/selection.behavior.js')
-import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 import ResultItemCollection from '../result-item/result-item.collection'
 
 const {

@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import MarionetteRegionContainer from '../container/marionette-region-container'
+import MarionetteRegionContainer from '../marionette-region-container'
 import MetacardInteractions from '.'
 import { hot } from 'react-hot-loader'
 import styled from 'styled-components'

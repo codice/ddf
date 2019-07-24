@@ -15,7 +15,7 @@
 /*global require*/
 import * as React from 'react'
 import styled from 'styled-components'
-import MarionetteRegionContainer from '../../container/marionette-region-container'
+import MarionetteRegionContainer from '../../marionette-region-container'
 const PropertyView = require('../../../component/property/property.view.js')
 const user = require('../../../component/singletons/user-instance.js')
 const Property = require('../../../component/property/property.js')

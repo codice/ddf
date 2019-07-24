@@ -13,17 +13,16 @@
  *
  **/
 import * as React from 'react'
-import ThemeSettings from '../../container/theme-settings'
-import AlertSettings from '../../alert-settings'
-import SearchSettings from '../../search-settings'
-import HiddenSettings from '../../user-blacklist/container'
-const MapSettings = require('../../../component/layers/layers.view.js')
-import TimeSettings from '../../container/time-settings'
-
+import ThemeSettings from '../container/theme-settings'
+import AlertSettings from '../alert-settings'
+import SearchSettings from '../search-settings'
+import HiddenSettings from '../user-blacklist/container'
+const MapSettings = require('../../component/layers/layers.view.js')
+import TimeSettings from '../container/time-settings'
+import MarionetteRegionContainer from '../marionette-region-container'
 import styled from 'styled-components'
-import { Button, buttonTypeEnum } from '../button'
+import { Button, buttonTypeEnum } from '../presentation/button'
 import { hot } from 'react-hot-loader'
-import MarionetteRegionContainer from '../../container/marionette-region-container'
 
 export type SettingsProps = {
   children: React.ReactNode[]
@@ -73,14 +72,14 @@ const Header = styled.div`
   padding: 0px ${props => props.theme.mediumSpacing};
 `
 
-export const NavigationButton = styled(Button)`
+const NavigationButton = styled(Button)`
   width: 100%;
   display: block;
   text-align: left;
   padding: 0px ${props => props.theme.mediumSpacing};
 `
 
-export const BackButton = styled(Button)`
+const BackButton = styled(Button)`
   margin-top: ${props => props.theme.minimumSpacing};
   font-weight: bolder;
   width: 100%;
@@ -89,98 +88,8 @@ export const BackButton = styled(Button)`
   padding: 0px ${props => props.theme.mediumSpacing};
 `
 
-export const ThemeSettingsComponent: React.FC<ComponentProps> = ({
-  updateComponent = noOp,
-}) => {
-  return (
-    <NavigationButton
-      buttonType={buttonTypeEnum.neutral}
-      text="Theme"
-      icon="fa fa-paint-brush"
-      onClick={() => {
-        updateComponent(<ThemeSettings />)
-      }}
-    />
-  )
-}
-
-export const AlertSettingsComponent: React.FC<ComponentProps> = ({
-  updateComponent = noOp,
-}) => {
-  return (
-    <NavigationButton
-      buttonType={buttonTypeEnum.neutral}
-      text="Notifications"
-      icon="fa fa-bell"
-      onClick={() => {
-        updateComponent(<AlertSettings />)
-      }}
-    />
-  )
-}
-
-export const MapSettingsComponent: React.FC<ComponentProps> = ({
-  updateComponent = noOp,
-}) => {
-  return (
-    <NavigationButton
-      buttonType={buttonTypeEnum.neutral}
-      text="Map"
-      icon="fa fa-globe"
-      onClick={() => {
-        updateComponent(<MarionetteRegionContainer view={MapSettings} />)
-      }}
-    />
-  )
-}
-
-export const SearchSettingsComponent: React.FC<ComponentProps> = ({
-  updateComponent = noOp,
-}) => {
-  return (
-    <NavigationButton
-      buttonType={buttonTypeEnum.neutral}
-      text="Search Options"
-      icon="fa fa-search"
-      onClick={() => {
-        updateComponent(<SearchSettings showFooter={false} />)
-      }}
-    />
-  )
-}
-
-export const TimeSettingsComponent: React.FC<ComponentProps> = ({
-  updateComponent = noOp,
-}) => {
-  return (
-    <NavigationButton
-      buttonType={buttonTypeEnum.neutral}
-      text="Time"
-      icon="fa fa-clock-o"
-      onClick={() => {
-        updateComponent(<TimeSettings />)
-      }}
-    />
-  )
-}
-
-export const HiddenSettingsComponent: React.FC<ComponentProps> = ({
-  updateComponent = noOp,
-}) => {
-  return (
-    <NavigationButton
-      buttonType={buttonTypeEnum.neutral}
-      text="Hidden"
-      icon="fa fa-eye-slash"
-      onClick={() => {
-        updateComponent(<HiddenSettings />)
-      }}
-    />
-  )
-}
-
-class UserSettings extends React.Component<SettingsProps, State> {
-  constructor(props: SettingsProps) {
+class UserSettings extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props)
     this.state = {}
   }
@@ -190,21 +99,90 @@ class UserSettings extends React.Component<SettingsProps, State> {
     })
   }
   render() {
+    const { extensions } = this.props
     const { component } = this.state
-    const children = React.Children.map(this.props.children, child => {
-      return React.cloneElement(child as JSX.Element, {
-        updateComponent: this.updateComponent,
-      })
-    })
     return (
       <Root component={component}>
         <div className="user-settings-navigation">
           <Header>Settings</Header>
           <div className="is-divider" />
-          {children}
+          <NavigationButton
+            buttonType={buttonTypeEnum.neutral}
+            text="Theme"
+            icon="fa fa-paint-brush"
+            onClick={() => {
+              this.updateComponent(<ThemeSettings />)
+            }}
+            disabled={Boolean(component)}
+          />
+          <NavigationButton
+            buttonType={buttonTypeEnum.neutral}
+            text="Notifications"
+            icon="fa fa-bell"
+            onClick={() => {
+              this.updateComponent(<AlertSettings />)
+            }}
+            disabled={Boolean(component)}
+          />
+          <NavigationButton
+            buttonType={buttonTypeEnum.neutral}
+            text="Map"
+            icon="fa fa-globe"
+            onClick={() => {
+              this.updateComponent(
+                <MarionetteRegionContainer view={MapSettings} />
+              )
+            }}
+            disabled={Boolean(component)}
+          />
+          <NavigationButton
+            buttonType={buttonTypeEnum.neutral}
+            text="Search Options"
+            icon="fa fa-search"
+            onClick={() => {
+              this.updateComponent(<SearchSettings showFooter={false} />)
+            }}
+            disabled={Boolean(component)}
+          />
+          <NavigationButton
+            buttonType={buttonTypeEnum.neutral}
+            text="Time"
+            icon="fa fa-clock-o"
+            onClick={() => {
+              this.updateComponent(<TimeSettings />)
+            }}
+            disabled={Boolean(component)}
+          />
+          <NavigationButton
+            buttonType={buttonTypeEnum.neutral}
+            text="Hidden"
+            icon="fa fa-eye-slash"
+            onClick={() => {
+              this.updateComponent(<HiddenSettings />)
+            }}
+            disabled={Boolean(component)}
+          />
+          {extensions.map((extension: SettingsComponent) => (
+            <NavigationButton
+              key={extension.text}
+              buttonType={buttonTypeEnum.neutral}
+              text={extension.text}
+              icon={extension.icon}
+              onClick={
+                typeof extension.onClick === 'function'
+                  ? extension.onClick
+                  : () => {
+                      this.updateComponent(extension.component)
+                    }
+              }
+              disabled={Boolean(component)}
+            >
+              {extension.children}
+            </NavigationButton>
+          ))}
         </div>
         <div className="user-settings-content">
-          {children ? (
+          {component ? (
             <>
               <div className="content-header">
                 <BackButton

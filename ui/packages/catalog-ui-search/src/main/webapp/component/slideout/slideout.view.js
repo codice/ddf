@@ -21,7 +21,7 @@ const router = require('../router/router.js')
 const Common = require('../../js/Common.js')
 
 const componentName = 'slideout'
-import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 
 module.exports = Marionette.ItemView.extend({
   template() {

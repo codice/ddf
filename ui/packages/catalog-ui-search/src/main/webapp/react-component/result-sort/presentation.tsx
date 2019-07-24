@@ -16,7 +16,7 @@
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
 import styled from 'styled-components'
-import MarionetteRegionContainer from '../container/marionette-region-container'
+import MarionetteRegionContainer from '../marionette-region-container'
 import { Button, buttonTypeEnum } from '../presentation/button'
 
 const SortItemCollectionView = require('../../component/sort/sort.view.js')

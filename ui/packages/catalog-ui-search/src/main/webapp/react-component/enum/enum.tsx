@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import MarionetteRegionContainer from '../container/marionette-region-container'
+import MarionetteRegionContainer from '../marionette-region-container'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 import { hot } from 'react-hot-loader'
 const PropertyView = require('../../component/property/property.view.js')

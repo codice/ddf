@@ -22,7 +22,7 @@
 import * as React from 'react'
 import styled from 'styled-components'
 import withListenTo from '../backbone-container'
-import MarionetteRegionContainer from '../container/marionette-region-container'
+import MarionetteRegionContainer from '../marionette-region-container'
 import { buttonTypeEnum, Button } from '../presentation/button'
 
 const ListEditorView = require('../../component/list-editor/list-editor.view.js')

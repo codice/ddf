@@ -14,7 +14,7 @@
  **/
 import React from 'react'
 import styled from 'styled-components'
-import MarionetteRegionContainer from '../../../react-component/container/marionette-region-container'
+import MarionetteRegionContainer from '../../../react-component/marionette-region-container'
 const TabsModel = require('../../../component/tabs/tabs.js')
 const TabsView = require('../../../component/tabs/tabs.view.js')
 const GuideView = require('../guide/guide.view.js')

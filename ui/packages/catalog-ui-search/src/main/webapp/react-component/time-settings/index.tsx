@@ -16,7 +16,7 @@ import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import styled from 'styled-components'
 
-import MarionetteRegionContainer from '../container/marionette-region-container'
+import MarionetteRegionContainer from '../marionette-region-container'
 
 const PropertyView = require('../../component/property/property.view')
 
