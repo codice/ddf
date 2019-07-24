@@ -19,7 +19,7 @@ import WorkspaceInteractions from '../workspace-interactions'
 const QueryAddView = require('../../component/query-add/query-add.view.js')
 import MarionetteRegionContainer from '../container/marionette-region-container'
 import SaveButton from '../save-button'
-import WorkspaceTitle from '../presentation/workspace-title'
+import WorkspaceTitle from '../workspace-title'
 import Dropdown from '../presentation/dropdown'
 import NavigationBehavior from '../navigation-behavior'
 import {

@@ -15,7 +15,7 @@
 import * as React from 'react'
 import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
-import UnsavedIndicator from '../../unsaved-indicator'
+import UnsavedIndicator from '../unsaved-indicator'
 
 const StyledUnsavedIndicator = styled.span`
   display: inline-block;
