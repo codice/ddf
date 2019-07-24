@@ -33,7 +33,7 @@ const NoData = styled.div`
 `
 const Container = styled.div`
   display: block;
-  height: ~'calc(100% - 135px)';
+  height: calc(100% - 135px);
   opacity: 1;
   transition: opacity ${props => props.theme.coreTransitionTime} linear;
   transform: translateX(0%);
