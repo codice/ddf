@@ -70,12 +70,14 @@ module.exports = Marionette.LayoutView.extend({
   },
   validateType(value) {
     let typeOfValues = this.model.attributes.typeOfValues
-    if(typeOfValues === 'INTEGER'
-    || typeOfValues === 'LONG'
-    || typeOfValues === 'SHORT') {
-        if(value%1 != 0) {
-          return false
-        }
+    if (
+      typeOfValues === 'INTEGER' ||
+      typeOfValues === 'LONG' ||
+      typeOfValues === 'SHORT'
+    ) {
+      if (value % 1 != 0) {
+        return false
+      }
     }
     return true
   },
