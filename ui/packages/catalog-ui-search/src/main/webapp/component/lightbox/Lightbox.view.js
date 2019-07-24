@@ -123,7 +123,6 @@ module.exports = Marionette.LayoutView.extend(
       }
     },
     close() {
-      console.log('here')
       this.model.close()
       $('html').toggleClass('open-lightbox', false)
       if (typeof this.onClose === 'function') {
