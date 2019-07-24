@@ -19,7 +19,7 @@ import {
   getExportOptions,
   Transformer,
 } from '../utils/export'
-import LoadingCompanion from '../container/loading-companion'
+import LoadingCompanion from '../loading-companion'
 import saveFile from '../utils/save-file'
 import { hot } from 'react-hot-loader'
 const _ = require('underscore')

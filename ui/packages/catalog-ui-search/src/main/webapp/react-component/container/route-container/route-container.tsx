@@ -17,7 +17,7 @@ import MarionetteRegionContainer from '../marionette-region-container'
 
 const $ = require('jquery')
 const wreqr = require('../../../js/wreqr.js')
-import LoadingCompanion from '../loading-companion'
+import LoadingCompanion from '../../loading-companion'
 
 interface Props {
   isMenu: boolean
