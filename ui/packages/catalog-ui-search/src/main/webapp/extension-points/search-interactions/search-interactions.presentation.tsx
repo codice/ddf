@@ -53,7 +53,6 @@ export const CustomSearchFormDropdown = ({ model }: { model: any }) => {
           Use Another Search Form
         </Text>
       }
-      dropdownWidth="auto"
     >
       <Menu onChange={() => {}}>
         <SearchFormList model={model} />

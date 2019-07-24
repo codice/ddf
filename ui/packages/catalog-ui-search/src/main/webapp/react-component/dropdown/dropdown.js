@@ -54,7 +54,13 @@ const getPosition = (viewport, rect) => {
   const top = y + height
   const bottom = viewport.height - y
   const pos = top > viewport.height / 2 ? { bottom } : { top }
-  return { width, left: x, ...pos }
+  return {
+    transform: `translateX(calc(-50% + ${width / 2}px))`,
+    width: 'auto',
+    minWidth: width,
+    left: x,
+    ...pos,
+  }
 }
 
 const Area = styled.div`
@@ -177,10 +183,9 @@ class Dropdown extends React.Component {
         break
     }
   }
-  getRect = dropdownWidth => {
-    let { x, y, width, height } =
+  getRect = () => {
+    const { x, y, width, height } =
       this.ref !== undefined ? this.ref.getBoundingClientRect() : {}
-    width = dropdownWidth || width
     return { rect: { x, y, width, height } }
   }
   componentDidMount() {
@@ -205,7 +210,6 @@ class Dropdown extends React.Component {
         <Icon className="fa fa-caret-down" />
       </div>
     )
-    const dropdownWidth = this.props.dropdownWidth
     return (
       <Component>
         <div tabIndex="0" ref={ref => (this.ref = ref)}>
@@ -213,7 +217,7 @@ class Dropdown extends React.Component {
           {this.isOpen() ? (
             <div>
               {createPortal(
-                <Poller fn={() => this.getRect(dropdownWidth)}>
+                <Poller fn={this.getRect}>
                   <DropdownArea
                     onClose={() => {
                       this.onToggle(false)

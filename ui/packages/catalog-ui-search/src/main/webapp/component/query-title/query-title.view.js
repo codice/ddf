@@ -53,7 +53,6 @@ module.exports = Marionette.LayoutView.extend({
             {this.options.isSearchFormEditor !== true && (
               <Dropdown
                 anchor={<Icon className="is-button fa fa-ellipsis-v" />}
-                dropdownWidth="auto"
               >
                 <ExtensionPoints.searchInteractions model={this.model} />
               </Dropdown>
