@@ -481,30 +481,37 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
   @Override
   public SolrQuery propertyIsBetween(
-          String propertyName, short lowerBoundary, short upperBoundary) {
-    return getBetweenQuery(propertyName, AttributeFormat.FLOAT, lowerBoundary, upperBoundary);
+      String propertyName, short lowerBoundary, short upperBoundary) {
+    return getBetweenQuery(propertyName, AttributeFormat.SHORT, lowerBoundary, upperBoundary);
   }
 
   @Override
   public SolrQuery propertyIsBetween(String propertyName, int lowerBoundary, int upperBoundary) {
-    return getBetweenQuery(propertyName, AttributeFormat.FLOAT, lowerBoundary, upperBoundary);
+    return getBetweenQuery(propertyName, AttributeFormat.INTEGER, lowerBoundary, upperBoundary);
   }
 
   @Override
   public SolrQuery propertyIsBetween(String propertyName, long lowerBoundary, long upperBoundary) {
-    return getBetweenQuery(propertyName, AttributeFormat.FLOAT, lowerBoundary, upperBoundary);
+    return getBetweenQuery(propertyName, AttributeFormat.LONG, lowerBoundary, upperBoundary);
   }
 
   @Override
   public SolrQuery propertyIsBetween(
-          String propertyName, float lowerBoundary, float upperBoundary) {
+      String propertyName, float lowerBoundary, float upperBoundary) {
     return getBetweenQuery(propertyName, AttributeFormat.FLOAT, lowerBoundary, upperBoundary);
   }
 
   @Override
   public SolrQuery propertyIsBetween(
       String propertyName, double lowerBoundary, double upperBoundary) {
-    return getBetweenQuery(propertyName, AttributeFormat.FLOAT, lowerBoundary, upperBoundary);
+    return getBetweenQuery(propertyName, AttributeFormat.DOUBLE, lowerBoundary, upperBoundary);
+  }
+
+  @Override
+  public SolrQuery propertyIsBetween(
+      String propertyName, Object lowerBoundary, Object upperBoundary) {
+    return getBetweenQuery(
+        propertyName, AttributeFormat.FLOAT, (Number) lowerBoundary, (Number) upperBoundary);
   }
 
   @Override

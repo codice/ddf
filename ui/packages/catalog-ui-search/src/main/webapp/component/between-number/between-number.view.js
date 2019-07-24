@@ -46,7 +46,7 @@ module.exports = Marionette.LayoutView.extend({
     this.updateModelValue()
   },
   handleMaxUpdate(value) {
-    this.maxValue = value    
+    this.maxValue = value
     this.updateModelValue()
   },
   getModelValue() {
@@ -68,11 +68,59 @@ module.exports = Marionette.LayoutView.extend({
       return this.getModelValue()
     }
   },
+  validateType(value) {
+    let typeOfValues = this.model.attributes.typeOfValues
+    if(typeOfValues === 'INTEGER'
+    || typeOfValues === 'LONG'
+    || typeOfValues === 'SHORT') {
+        if(value%1 != 0) {
+          return false
+        }
+    }
+    return true
+  },
   isValid() {
     const value = this.getModelValue()
+    let isValid = true
+
+    this.$el
+      .find('intrigue-input.is-number')
+      .toggleClass('has-validation-issues', false)
+
     if (value === undefined) {
-      return false
+      this.$el
+        .find('intrigue-input.is-number')
+        .toggleClass('has-validation-issues', true)
+      isValid = false
     }
-    return isNumber(this.minValue) && isNumber(this.maxValue)
+    if (!(this.validateType(value.min) && isNumber(value.min))) {
+      this.$el
+        .find('intrigue-input.is-number:eq(0)')
+        .toggleClass('has-validation-issues', true)
+      this.$el
+        .find('intrigue-input.is-number:eq(0)')
+        .find('.for-error')
+        .text(
+          'Incorrect input type. ' +
+            this.model.attributes.typeOfValues +
+            ' required.'
+        )
+      isValid = false
+    }
+    if (!(this.validateType(value.max) && isNumber(value.max))) {
+      this.$el
+        .find('intrigue-input.is-number:eq(1)')
+        .toggleClass('has-validation-issues', true)
+      this.$el
+        .find('intrigue-input.is-number:eq(1)')
+        .find('.for-error')
+        .text(
+          'Incorrect input type. ' +
+            this.model.attributes.typeOfValues +
+            ' required.'
+        )
+      isValid = false
+    }
+    return isValid
   },
 })

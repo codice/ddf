@@ -457,6 +457,50 @@ public class SolrFilterDelegateTest {
   }
 
   @Test
+  public void testNumberIsBetween() {
+    stub(mockResolver.getField("altitude", AttributeFormat.LONG, true, Collections.EMPTY_MAP))
+            .toReturn("altitude");
+
+    String expectedQuery =
+            " altitude:[ -100 TO 100] ";
+    Number lowerBoundary = -100;
+    Number upperBoundary = 100;
+    SolrQuery numberQuery =
+            toTest.propertyIsBetween(
+                    "altitude",  lowerBoundary.longValue(), upperBoundary.longValue());
+    assertThat(numberQuery.getQuery(), is(expectedQuery));
+
+
+    stub(mockResolver.getField("altitude", AttributeFormat.FLOAT, true, Collections.EMPTY_MAP))
+            .toReturn("altitude");
+
+    expectedQuery =
+            " altitude:[ -200.559 TO 0.0] ";
+
+    lowerBoundary = -200.559;
+    upperBoundary = 0;
+
+    numberQuery =
+            toTest.propertyIsBetween(
+                "altitude", lowerBoundary.floatValue(), upperBoundary.intValue());
+    assertThat(numberQuery.getQuery(), is(expectedQuery));
+
+  }
+
+  @Test(expected = java.lang.ClassCastException.class)
+  public void testBetweenCastException() {
+
+    String nonNumber = "Not A Number";
+    SolrQuery notANumberQuery =
+            toTest.propertyIsBetween(
+                    "altitude", (Object) nonNumber, (Object) nonNumber);
+
+    notANumberQuery.getQuery();
+  }
+
+
+
+  @Test
   public void testXpathExists() {
     String xpath = "//root/sub/@attribute";
     String expectedQuery = "{!xpath}xpath:\"" + xpath + "\"";
