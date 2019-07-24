@@ -14,9 +14,7 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import withListenTo, {
-  WithBackboneProps,
-} from '../backbone-container'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 import MarionetteRegionContainer from '../marionette-region-container'
 const NotificationGroupView = require('../../component/notification-group/notification-group.view.js')
 const user = require('../../component/singletons/user-instance.js')

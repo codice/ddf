@@ -37,10 +37,10 @@ const Visualization = styled.div`
 `
 
 const VisualizationIcon = styled.div`
-    text-align: center;
-    width: ${props => props.theme.minimumButtonSize};
-    display: inline-block;
-    vertical-align: middle;
+  text-align: center;
+  width: ${props => props.theme.minimumButtonSize};
+  display: inline-block;
+  vertical-align: middle;
 `
 const VisualizationText = styled.div`
   width: calc(100% - ${props => props.theme.minimumButtonSize});

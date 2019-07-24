@@ -65,7 +65,7 @@ const Root = styled.div`
   height: 100%;
   width: 100%;
   position: relative;
-  z-index: ${({theme}) => theme.zIndexContent};
+  z-index: ${({ theme }) => theme.zIndexContent};
 `
 
 const ContentView = Marionette.LayoutView.extend({

@@ -31,7 +31,8 @@ type Props = {
 } & WithBackboneProps
 
 const RouteWrapper = styled.div`
-  ${CustomElement} display: ${(props: RouteWrapperProps) => props.isCurrentRoute ? `block;` : `none;` };
+  ${CustomElement} display: ${(props: RouteWrapperProps) =>
+  props.isCurrentRoute ? `block;` : `none;`};
 `
 
 class RoutesContainer extends React.Component<

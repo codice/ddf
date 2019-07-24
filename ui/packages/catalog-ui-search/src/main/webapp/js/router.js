@@ -26,10 +26,7 @@ import { render } from 'react-dom'
 import { routes } from '../extension-points'
 
 // notfound route needs to come at the end otherwise no other routes will work
-render(
-  <ReactRouter routeDefinitions={routes} />,
-  Application.App.router.$el[0]
-)
+render(<ReactRouter routeDefinitions={routes} />, Application.App.router.$el[0])
 
 const Router = Backbone.Router.extend({
   preloadRoutes() {

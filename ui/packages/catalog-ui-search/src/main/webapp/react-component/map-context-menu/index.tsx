@@ -89,7 +89,9 @@ const renderInspectorMenu = ({ target }: Props) => (
 )
 
 const renderMenu = ({ onChange, key }: Props, menuItems: any[]) => (
-  <Menu key={key} onChange={onChange}>{menuItems}</Menu>
+  <Menu key={key} onChange={onChange}>
+    {menuItems}
+  </Menu>
 )
 
 const renderInspectorSelectionMenu = ({ selectionCount }: Props) => (

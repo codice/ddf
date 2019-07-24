@@ -63,7 +63,7 @@ const Root = styled<RootProps, 'div'>('div')`
   }
 
   .source-available {
-    width: ${({theme}) => theme.minimumButtonSize};
+    width: ${({ theme }) => theme.minimumButtonSize};
     text-align: center;
   }
 

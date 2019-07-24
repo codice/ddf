@@ -16,7 +16,7 @@ import * as React from 'react'
 import styled, { css, keyframes } from 'styled-components'
 import { transparentize } from 'polished'
 import { CustomElement } from '../styles/mixins'
-import ExtensionPoints from '../../extension-points';
+import ExtensionPoints from '../../extension-points'
 
 export interface Props {
   username: string

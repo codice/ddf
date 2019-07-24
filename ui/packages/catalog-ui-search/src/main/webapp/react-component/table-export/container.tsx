@@ -14,11 +14,7 @@
  **/
 import * as React from 'react'
 import TableExportComponent from './presentation'
-import {
-  exportResultSet,
-  getExportOptions,
-  Transformer,
-} from '../utils/export'
+import { exportResultSet, getExportOptions, Transformer } from '../utils/export'
 import LoadingCompanion from '../loading-companion'
 import saveFile from '../utils/save-file'
 import { hot } from 'react-hot-loader'
