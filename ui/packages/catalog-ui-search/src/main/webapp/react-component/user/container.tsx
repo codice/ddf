@@ -14,8 +14,6 @@
  **/
 import * as React from 'react'
 import UserComponent from './presentation'
-import fetch from '../utils/fetch'
-import processActions from '@connexta/atlas/atoms/logout'
 const user = require('../../component/singletons/user-instance.js')
 
 interface State {
