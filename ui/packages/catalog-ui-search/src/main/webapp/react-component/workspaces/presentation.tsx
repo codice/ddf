@@ -14,11 +14,11 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import { CustomElement } from '../../styles/mixins'
-import { ChangeBackground } from '../../styles/mixins'
-import WorkspacesTemplatesContainer from '../../container/workspaces-templates-container'
-import WorkspacesItemsContainer from '../../workspaces-items'
-import { Button, buttonTypeEnum } from '../button'
+import { CustomElement } from '../styles/mixins'
+import { ChangeBackground } from '../styles/mixins'
+import WorkspacesTemplatesContainer from '../container/workspaces-templates-container'
+import WorkspacesItemsContainer from '../workspaces-items'
+import { Button, buttonTypeEnum } from '../presentation/button'
 
 type Props = {
   saveAllWorkspaces: () => void
