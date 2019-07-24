@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import { Subtract } from '../../../typescript'
+import { Subtract } from '../../typescript'
 
 /**
  * This is a quick way to emulate button behavior in a div so you can do

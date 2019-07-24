@@ -19,7 +19,7 @@ import { ThemeInterface } from '../../styles/styled-components'
 import Portal from '../../portal'
 import { Dropshadow } from '../../styles/mixins'
 import ChangeBackground from '../../change-background'
-import ButtonBehavior from '../button-behavior'
+import ButtonBehavior from '../../button-behavior'
 import { SFC } from '../../hoc/utils'
 import { CSSProperties } from 'react'
 const CustomElements = require('../../../js/CustomElements.js')
