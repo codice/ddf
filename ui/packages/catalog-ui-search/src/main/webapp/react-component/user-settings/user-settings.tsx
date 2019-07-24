@@ -18,7 +18,7 @@ import AlertSettings from '../alert-settings'
 import SearchSettings from '../search-settings'
 import HiddenSettings from '../user-blacklist/container'
 const MapSettings = require('../../component/layers/layers.view.js')
-import TimeSettings from '../container/time-settings'
+import TimeSettings from '../time-settings'
 import MarionetteRegionContainer from '../marionette-region-container'
 import styled from 'styled-components'
 import { Button, buttonTypeEnum } from '../presentation/button'

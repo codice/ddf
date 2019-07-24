@@ -16,14 +16,14 @@ import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import * as moment from 'moment'
 
-import withListenTo, { WithBackboneProps } from '../../backbone-container'
+import withListenTo, { WithBackboneProps } from '../backbone-container'
 
-import View from '../../time-settings'
+import View from './presentation'
 
 const momentTimezone = require('moment-timezone')
-const Common = require('../../../js/Common')
-const Property = require('../../../component/property/property')
-const user = require('../../../component/singletons/user-instance')
+const Common = require('../../js/Common')
+const Property = require('../../component/property/property')
+const user = require('../../component/singletons/user-instance')
 
 const TimeFormat = [
   {
