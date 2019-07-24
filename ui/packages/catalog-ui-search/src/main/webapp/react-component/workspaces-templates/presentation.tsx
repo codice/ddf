@@ -14,10 +14,10 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import { CustomElement } from '../../styles/mixins'
-import { ChangeBackground } from '../../styles/mixins'
+import { CustomElement } from '../styles/mixins'
+import { ChangeBackground } from '../styles/mixins'
 import { transparentize, readableColor } from 'polished'
-import Text from '../../container/input-wrappers/text'
+import Text from '../container/input-wrappers/text'
 
 type Props = {
   startAdhocSearch: () => void

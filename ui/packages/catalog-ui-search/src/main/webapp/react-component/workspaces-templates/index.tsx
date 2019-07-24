@@ -12,4 +12,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { default } from './workspaces-templates-container'
+export { default } from './container'

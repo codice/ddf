@@ -16,7 +16,7 @@ import * as React from 'react'
 import styled from 'styled-components'
 import { CustomElement } from '../styles/mixins'
 import { ChangeBackground } from '../styles/mixins'
-import WorkspacesTemplatesContainer from '../container/workspaces-templates-container'
+import WorkspacesTemplatesContainer from '../workspaces-templates'
 import WorkspacesItemsContainer from '../workspaces-items'
 import { Button, buttonTypeEnum } from '../presentation/button'
 

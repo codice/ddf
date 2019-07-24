@@ -13,13 +13,13 @@
  *
  **/
 import * as React from 'react'
-import WorkspacesTemplates from '../../presentation/workspaces-templates'
+import WorkspacesTemplates from './presentation'
 import { hot } from 'react-hot-loader'
 
-const store = require('../../../js/store.js')
-const LoadingView = require('../../../component/loading/loading.view.js')
-const wreqr = require('../../../js/wreqr.js')
-const properties = require('../../../js/properties.js')
+const store = require('../../js/store.js')
+const LoadingView = require('../../component/loading/loading.view.js')
+const wreqr = require('../../js/wreqr.js')
+const properties = require('../../js/properties.js')
 
 interface Props {
   hasUnsaved: boolean
