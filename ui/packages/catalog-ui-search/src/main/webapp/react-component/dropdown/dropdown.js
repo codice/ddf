@@ -210,6 +210,7 @@ class Dropdown extends React.Component {
         <Icon className="fa fa-caret-down" />
       </div>
     )
+
     return (
       <Component>
         <div tabIndex="0" ref={ref => (this.ref = ref)}>
