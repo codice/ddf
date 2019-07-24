@@ -23,7 +23,7 @@ export {
   TimeSettingsComponent,
   HiddenSettingsComponent,
   NavigationButton,
-  noOp
+  noOp,
 } from './user-settings'
 
 export { default } from './extensions'

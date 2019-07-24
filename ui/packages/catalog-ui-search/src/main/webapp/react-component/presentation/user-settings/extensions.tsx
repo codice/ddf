@@ -14,10 +14,7 @@
  **/
 
 import * as React from 'react'
-import {
-  BaseUserSettings,
-  SettingsProps,
-} from './index'
+import { BaseUserSettings, SettingsProps } from './index'
 
 const extendUserSettings = (children: React.ReactNode[]) => {
   return class ExtensionContainer extends React.Component<SettingsProps, {}> {

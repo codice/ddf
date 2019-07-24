@@ -19,17 +19,17 @@ import {
   MapSettingsComponent,
   SearchSettingsComponent,
   TimeSettingsComponent,
-  HiddenSettingsComponent } from '../react-component/presentation/user-settings'
+  HiddenSettingsComponent,
+} from '../react-component/presentation/user-settings'
 import * as React from 'react'
 
-const ExtendedUserSettings =
-  UserSettings([
-    <ThemeSettingsComponent/>,
-    <AlertSettingsComponent/>,
-    <MapSettingsComponent/>,
-    <SearchSettingsComponent/>,
-    <TimeSettingsComponent/>,
-    <HiddenSettingsComponent/>
-  ])
+const ExtendedUserSettings = UserSettings([
+  <ThemeSettingsComponent />,
+  <AlertSettingsComponent />,
+  <MapSettingsComponent />,
+  <SearchSettingsComponent />,
+  <TimeSettingsComponent />,
+  <HiddenSettingsComponent />,
+])
 
 export default ExtendedUserSettings

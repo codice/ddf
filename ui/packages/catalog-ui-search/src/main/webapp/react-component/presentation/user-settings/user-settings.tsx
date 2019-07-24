@@ -23,14 +23,14 @@ import TimeSettings from '../../container/time-settings'
 import styled from '../../styles/styled-components'
 import { Button, buttonTypeEnum } from '../button'
 import { hot } from 'react-hot-loader'
-import MarionetteRegionContainer from '../../container/marionette-region-container';
+import MarionetteRegionContainer from '../../container/marionette-region-container'
 
 export type SettingsProps = {
   children: React.ReactNode[]
 }
 
 export type ComponentProps = {
-  updateComponent?: (component?: React.ReactNode) => void;
+  updateComponent?: (component?: React.ReactNode) => void
 }
 
 export const noOp = () => {}
@@ -89,81 +89,91 @@ export const BackButton = styled(Button)`
   padding: 0px ${props => props.theme.mediumSpacing};
 `
 
-export const ThemeSettingsComponent: React.FC<ComponentProps> = ({updateComponent=noOp}) => {
+export const ThemeSettingsComponent: React.FC<ComponentProps> = ({
+  updateComponent = noOp,
+}) => {
   return (
     <NavigationButton
       buttonType={buttonTypeEnum.neutral}
       text="Theme"
       icon="fa fa-paint-brush"
       onClick={() => {
-        updateComponent(<ThemeSettings/>)
+        updateComponent(<ThemeSettings />)
       }}
     />
   )
 }
 
-export const AlertSettingsComponent: React.FC<ComponentProps> = ({updateComponent=noOp}) => {
+export const AlertSettingsComponent: React.FC<ComponentProps> = ({
+  updateComponent = noOp,
+}) => {
   return (
     <NavigationButton
       buttonType={buttonTypeEnum.neutral}
       text="Notifications"
       icon="fa fa-bell"
       onClick={() => {
-        updateComponent(<AlertSettings/>)
+        updateComponent(<AlertSettings />)
       }}
     />
   )
 }
 
-export const MapSettingsComponent: React.FC<ComponentProps> = ({updateComponent=noOp}) => {
+export const MapSettingsComponent: React.FC<ComponentProps> = ({
+  updateComponent = noOp,
+}) => {
   return (
     <NavigationButton
       buttonType={buttonTypeEnum.neutral}
       text="Map"
       icon="fa fa-globe"
       onClick={() => {
-        updateComponent(
-          <MarionetteRegionContainer view={MapSettings}/>
-        )
+        updateComponent(<MarionetteRegionContainer view={MapSettings} />)
       }}
     />
   )
 }
 
-export const SearchSettingsComponent: React.FC<ComponentProps> = ({updateComponent=noOp}) => {
+export const SearchSettingsComponent: React.FC<ComponentProps> = ({
+  updateComponent = noOp,
+}) => {
   return (
     <NavigationButton
       buttonType={buttonTypeEnum.neutral}
       text="Search Options"
       icon="fa fa-search"
       onClick={() => {
-        updateComponent(<SearchSettings showFooter={false}/>)
+        updateComponent(<SearchSettings showFooter={false} />)
       }}
     />
   )
 }
 
-export const TimeSettingsComponent: React.FC<ComponentProps> = ({updateComponent=noOp}) => {
+export const TimeSettingsComponent: React.FC<ComponentProps> = ({
+  updateComponent = noOp,
+}) => {
   return (
     <NavigationButton
       buttonType={buttonTypeEnum.neutral}
       text="Time"
       icon="fa fa-clock-o"
       onClick={() => {
-        updateComponent(<TimeSettings/>)
+        updateComponent(<TimeSettings />)
       }}
     />
   )
 }
 
-export const HiddenSettingsComponent: React.FC<ComponentProps> = ({updateComponent=noOp}) => {
+export const HiddenSettingsComponent: React.FC<ComponentProps> = ({
+  updateComponent = noOp,
+}) => {
   return (
     <NavigationButton
       buttonType={buttonTypeEnum.neutral}
       text="Hidden"
       icon="fa fa-eye-slash"
       onClick={() => {
-        updateComponent(<HiddenSettings/>)
+        updateComponent(<HiddenSettings />)
       }}
     />
   )
@@ -183,18 +193,18 @@ class UserSettings extends React.Component<SettingsProps, State> {
     const { component } = this.state
     const children = React.Children.map(this.props.children, child => {
       return React.cloneElement(child as JSX.Element, {
-        updateComponent: this.updateComponent
-      });
-    });
+        updateComponent: this.updateComponent,
+      })
+    })
     return (
       <Root component={component}>
         <div className="user-settings-navigation">
           <Header>Settings</Header>
           <div className="is-divider" />
-          { children }
+          {children}
         </div>
         <div className="user-settings-content">
-          { children ? (
+          {children ? (
             <>
               <div className="content-header">
                 <BackButton
