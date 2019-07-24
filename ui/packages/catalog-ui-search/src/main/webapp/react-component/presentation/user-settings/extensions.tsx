@@ -19,7 +19,7 @@ import {
   SettingsProps,
 } from './index'
 
-const extendUserSettings = (children: JSX.Element[]) => {
+const extendUserSettings = (children: React.ReactNode[]) => {
   return class ExtensionContainer extends React.Component<SettingsProps, {}> {
     render() {
       return <BaseUserSettings children={children} {...this.props} />

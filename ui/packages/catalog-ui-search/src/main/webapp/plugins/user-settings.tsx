@@ -24,12 +24,12 @@ import * as React from 'react'
 
 const ExtendedUserSettings =
   UserSettings([
-      <ThemeSettingsComponent/>,
-      <AlertSettingsComponent/>,
-      <MapSettingsComponent/>,
-      <SearchSettingsComponent/>,
-      <TimeSettingsComponent/>,
-      <HiddenSettingsComponent/>
+    <ThemeSettingsComponent/>,
+    <AlertSettingsComponent/>,
+    <MapSettingsComponent/>,
+    <SearchSettingsComponent/>,
+    <TimeSettingsComponent/>,
+    <HiddenSettingsComponent/>
   ])
 
 export default ExtendedUserSettings

@@ -15,13 +15,15 @@
 export {
   default as BaseUserSettings,
   SettingsProps,
+  ComponentProps,
   ThemeSettingsComponent,
   AlertSettingsComponent,
   MapSettingsComponent,
   SearchSettingsComponent,
   TimeSettingsComponent,
   HiddenSettingsComponent,
-  NavigationButton
+  NavigationButton,
+  noOp
 } from './user-settings'
 
 export { default } from './extensions'

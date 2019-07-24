@@ -26,14 +26,14 @@ import { hot } from 'react-hot-loader'
 import MarionetteRegionContainer from '../../container/marionette-region-container';
 
 export type SettingsProps = {
-  children: JSX.Element[]
+  children: React.ReactNode[]
 }
 
-type ComponentProps = {
-  updateComponent?: (component?: JSX.Element) => void;
+export type ComponentProps = {
+  updateComponent?: (component?: React.ReactNode) => void;
 }
 
-const noOp = () => {}
+export const noOp = () => {}
 
 type State = {
   component?: JSX.Element
