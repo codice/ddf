@@ -13,9 +13,9 @@
  *
  **/
 import * as React from 'react'
-const sources = require('../../../component/singletons/sources-instance')
+const sources = require('../../component/singletons/sources-instance')
 import { Model, Result, Props } from '.'
-import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
+import { MetacardInteraction } from './metacard-interactions'
 import { hot } from 'react-hot-loader'
 
 const openValidUrl = (result: Result) => {

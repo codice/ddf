@@ -13,8 +13,8 @@
  *
  **/
 import * as React from 'react'
-import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
-const router = require('../../../component/router/router')
+import { MetacardInteraction } from './metacard-interactions'
+const router = require('../../component/router/router')
 import { Props } from '.'
 import { hot } from 'react-hot-loader'
 const wreqr = require('wreqr')

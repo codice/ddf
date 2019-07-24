@@ -13,9 +13,9 @@
  *
  **/
 import * as React from 'react'
-import withListenTo, { WithBackboneProps } from '../backbone-container'
+import withListenTo, { WithBackboneProps } from '../container/backbone-container'
 import { hot } from 'react-hot-loader'
-const user = require('../../../component/singletons/user-instance')
+const user = require('../../component/singletons/user-instance')
 
 import CreateLocationSearch from './location-interaction'
 import ExpandMetacard from './expand-interaction'
@@ -23,7 +23,7 @@ import BlacklistToggle, { isBlacklisted } from './hide-interaction'
 import DownloadProduct from './download-interaction'
 import ExportActions from './export-interaction'
 import AddToList from './add-to-list-interaction'
-import { Divider } from '../../presentation/metacard-interactions/metacard-interactions'
+import { Divider } from './metacard-interactions'
 
 const plugin = require('plugins/metacard-interactions')
 

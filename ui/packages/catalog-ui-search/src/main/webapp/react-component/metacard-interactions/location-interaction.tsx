@@ -14,19 +14,19 @@
  **/
 import * as React from 'react'
 
-const QueryConfirmationView = require('../../../component/confirmation/query/confirmation.query.view')
-const LoadingView = require('../../../component/loading/loading.view')
+const QueryConfirmationView = require('../../component/confirmation/query/confirmation.query.view')
+const LoadingView = require('../../component/loading/loading.view')
 
 import { Geometry } from 'wkx'
-const store = require('../../../js/store')
+const store = require('../../js/store')
 
-import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
-import { Props, Model, Result } from './'
+import { MetacardInteraction } from './metacard-interactions'
+import { Props, Model, Result } from '.'
 import { hot } from 'react-hot-loader'
 
-const CqlUtils = require('../../../js/CQLUtils')
+const CqlUtils = require('../../js/CQLUtils')
 const wreqr = require('wreqr')
-const Query = require('../../../js/model/Query')
+const Query = require('../../js/model/Query')
 
 const addFilter = (filterTree: any, filter: any) => {
   filter.value = filter.value.value

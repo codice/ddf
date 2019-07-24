@@ -13,13 +13,13 @@
  *
  **/
 import * as React from 'react'
-import MarionetteRegionContainer from '../marionette-region-container'
+import MarionetteRegionContainer from '../container/marionette-region-container'
 import MetacardInteractions from '.'
 import { hot } from 'react-hot-loader'
 import styled from 'styled-components'
 const Marionette = require('marionette')
-const CustomElements = require('../../../js/CustomElements.js')
-require('../../../behaviors/dropdown.behavior')
+const CustomElements = require('../../js/CustomElements.js')
+require('../../behaviors/dropdown.behavior')
 
 const Button = styled.button`
   display: 'inline-block';

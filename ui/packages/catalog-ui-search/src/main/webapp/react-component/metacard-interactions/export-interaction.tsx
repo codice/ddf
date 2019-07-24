@@ -13,13 +13,13 @@
  *
  **/
 import * as React from 'react'
-import ResultsExport from '../../results-export'
+import ResultsExport from '../results-export'
 import { Props } from '.'
-import { MetacardInteraction } from '../../presentation/metacard-interactions/metacard-interactions'
+import { MetacardInteraction } from './metacard-interactions'
 import { hot } from 'react-hot-loader'
-import { getExportResults } from '../../utils/export/export'
+import { getExportResults } from '../utils/export/export'
 
-const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')
+const lightboxInstance = require('../../component/lightbox/lightbox.view.instance.js')
 
 const onExport = (props: Props) => {
   props.onClose()

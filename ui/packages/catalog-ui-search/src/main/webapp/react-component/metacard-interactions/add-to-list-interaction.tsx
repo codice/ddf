@@ -13,11 +13,11 @@
  *
  **/
 import * as React from 'react'
-const PopoutView = require('../../../component/dropdown/popout/dropdown.popout.view')
-const ResultAddView = require('../../../component/result-add/result-add.view')
+const PopoutView = require('../../component/dropdown/popout/dropdown.popout.view')
+const ResultAddView = require('../../component/result-add/result-add.view')
 import { Model, Props } from '.'
-const store = require('../../../js/store')
-import MarionetteRegionContainer from '../marionette-region-container'
+const store = require('../../js/store')
+import MarionetteRegionContainer from '../container/marionette-region-container'
 import { hot } from 'react-hot-loader'
 
 const createAddRemoveRegion = (model: Model) =>
