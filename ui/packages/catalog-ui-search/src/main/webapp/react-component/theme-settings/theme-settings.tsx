@@ -15,11 +15,11 @@
 /*global require*/
 import * as React from 'react'
 import styled from 'styled-components'
-import MarionetteRegionContainer from '../../marionette-region-container'
-const PropertyView = require('../../../component/property/property.view.js')
-const user = require('../../../component/singletons/user-instance.js')
-const Property = require('../../../component/property/property.js')
-const ThemeUtils = require('../../../js/ThemeUtils.js')
+import MarionetteRegionContainer from '../marionette-region-container'
+const PropertyView = require('../../component/property/property.view.js')
+const user = require('../../component/singletons/user-instance.js')
+const Property = require('../../component/property/property.js')
+const ThemeUtils = require('../../js/ThemeUtils.js')
 
 const getFontSize = () => {
   return getPreferences().get('fontSize')

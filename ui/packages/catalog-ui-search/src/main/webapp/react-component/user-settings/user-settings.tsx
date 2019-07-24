@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import ThemeSettings from '../container/theme-settings'
+import ThemeSettings from '../theme-settings'
 import AlertSettings from '../alert-settings'
 import SearchSettings from '../search-settings'
 import HiddenSettings from '../user-blacklist/container'
