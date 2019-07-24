@@ -17,7 +17,7 @@ import * as React from 'react'
 import Enum from '../enum'
 import { Button, buttonTypeEnum } from '../presentation/button'
 import styled from 'styled-components'
-import Number from '../container/input-wrappers/number'
+import Number from '../input-wrappers/number'
 const properties = require('../../js/properties.js')
 
 const Root = styled<{}, 'div'>('div')`

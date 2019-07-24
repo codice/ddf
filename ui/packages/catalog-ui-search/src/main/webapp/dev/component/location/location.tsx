@@ -18,7 +18,7 @@ import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live'
 import { hot } from 'react-hot-loader'
 import alert from '../utils/alert'
 
-import Location from '../../../react-component/container/input-wrappers/location'
+import Location from '../../../react-component/input-wrappers/location'
 
 const Root = styled.div`
   height: 100%;

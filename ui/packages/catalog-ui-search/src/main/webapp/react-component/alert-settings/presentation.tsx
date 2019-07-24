@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import Enum from '../container/input-wrappers/enum'
+import Enum from '../input-wrappers/enum'
 import { hot } from 'react-hot-loader'
 
 type Value = {

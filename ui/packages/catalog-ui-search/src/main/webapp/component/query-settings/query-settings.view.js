@@ -32,7 +32,7 @@ const announcement = require('../announcement/index.jsx')
 const ResultForm = require('../result-form/result-form.js')
 import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
 import * as React from 'react'
-import RadioComponent from '../../react-component/container/input-wrappers/radio'
+import RadioComponent from '../../react-component/input-wrappers/radio'
 
 module.exports = plugin(
   Marionette.LayoutView.extend({

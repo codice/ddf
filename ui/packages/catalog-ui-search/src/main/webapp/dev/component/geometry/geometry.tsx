@@ -18,7 +18,7 @@ import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live'
 import { hot } from 'react-hot-loader'
 import alert from '../utils/alert'
 
-import Geometry from '../../../react-component/container/input-wrappers/geometry'
+import Geometry from '../../../react-component/input-wrappers/geometry'
 
 const Root = styled.div`
   height: 100%;
