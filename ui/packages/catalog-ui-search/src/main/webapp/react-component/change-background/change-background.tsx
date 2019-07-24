@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 import { ThemeContext, ThemeProvider } from 'styled-components'
-import { ThemeInterface } from '../../styles/styled-components'
+import { ThemeInterface } from '../styles/styled-components'
 import { hot } from 'react-hot-loader'
 
 type Props = {
