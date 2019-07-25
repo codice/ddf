@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.assertion.impl.SecurityAssertionImpl;
+import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.liberty.paos.Request;
@@ -116,6 +116,7 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.util.Strings;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
@@ -129,10 +130,11 @@ import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.Security;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
+import org.codice.ddf.security.handler.api.STSAuthenticationToken;
+import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.SessionHandler;
 import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
 import org.codice.ddf.security.handler.pki.PKIHandler;
@@ -201,7 +203,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
 
   private final ExecutorService asyncLogoutService;
   protected CookieCache cookieCache = new CookieCache();
-  private BaseAuthenticationTokenFactory tokenFactory;
+  private STSAuthenticationTokenFactory tokenFactory;
   private OcspService ocspService;
   private SecurityManager securityManager;
   private AtomicReference<Map<String, EntityInformation>> serviceProviders =
@@ -938,18 +940,26 @@ public class IdpEndpoint implements Idp, SessionHandler {
     } else if (USER_PASS.equals(authMethod)) {
       LOGGER.debug("Logging user in via BASIC auth.");
       if (authObj != null && authObj.username != null && authObj.password != null) {
-        token = tokenFactory.fromUsernamePassword(authObj.username, authObj.password);
+        token =
+            tokenFactory.fromUsernamePassword(
+                authObj.username, authObj.password, request.getRemoteAddr());
       } else {
-        token = getNormalizedBasicAuthenticationToken(request);
+        token = getNormalizedSTSAuthenticationToken(request);
       }
     } else if (SAML.equals(authMethod)) {
       LOGGER.debug("Logging user in via SAML assertion.");
-      token = new SAMLAuthenticationToken(null, authObj.assertion);
+      SimplePrincipalCollection principalCollection = new SimplePrincipalCollection();
+      principalCollection.add(new SecurityAssertionSaml(authObj.assertion), "default");
+      token = new SAMLAuthenticationToken(null, principalCollection, request.getRemoteAddr());
     } else if (GUEST.equals(authMethod) && guestAccess) {
       LOGGER.debug("Logging user in as Guest.");
       token = new GuestAuthenticationToken(request.getRemoteAddr());
     } else {
       throw new IllegalArgumentException("Auth method is not supported.");
+    }
+
+    if (token != null) {
+      token.setAllowGuest(guestAccess);
     }
 
     org.w3c.dom.Element samlToken = null;
@@ -962,8 +972,10 @@ public class IdpEndpoint implements Idp, SessionHandler {
         statusCode = StatusCode.AUTHN_FAILED;
         Subject subject = securityManager.getSubject(token);
         for (Object principal : subject.getPrincipals().asList()) {
-          if (principal instanceof SecurityAssertion) {
-            SecurityToken securityToken = ((SecurityAssertion) principal).getSecurityToken();
+          if (principal instanceof SecurityAssertion
+              && ((SecurityAssertion) principal).getToken() instanceof SecurityToken) {
+            SecurityToken securityToken =
+                (SecurityToken) ((SecurityAssertion) principal).getToken();
             samlToken = securityToken.getToken();
           }
         }
@@ -993,7 +1005,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
   }
 
   /** Allows us to get the headers without calling the {@link BasicAuthenticationHandler} */
-  private BaseAuthenticationToken getNormalizedBasicAuthenticationToken(ServletRequest request) {
+  private STSAuthenticationToken getNormalizedSTSAuthenticationToken(ServletRequest request) {
     String authHeader = ((HttpServletRequest) request).getHeader(HttpHeaders.AUTHORIZATION);
     if (StringUtils.isEmpty(authHeader)) {
       return null;
@@ -1010,9 +1022,11 @@ public class IdpEndpoint implements Idp, SessionHandler {
           String userPass = new String(decode, StandardCharsets.UTF_8);
           String[] authComponents = userPass.split(":");
           if (authComponents.length == 2) {
-            return tokenFactory.fromUsernamePassword(authComponents[0], authComponents[1]);
+            return tokenFactory.fromUsernamePassword(
+                authComponents[0], authComponents[1], request.getRemoteAddr());
           } else if ((authComponents.length == 1) && (userPass.endsWith(":"))) {
-            return tokenFactory.fromUsernamePassword(authComponents[0], "");
+            return tokenFactory.fromUsernamePassword(
+                authComponents[0], "", request.getRemoteAddr());
           }
         }
       }
@@ -1048,19 +1062,23 @@ public class IdpEndpoint implements Idp, SessionHandler {
       if (samlToken != null) {
         String assertionId = samlToken.getAttribute("ID");
         SecurityToken securityToken = new SecurityToken(assertionId, samlToken, null);
-        SecurityAssertionImpl assertion = new SecurityAssertionImpl(securityToken);
+        SecurityAssertionSaml assertion = new SecurityAssertionSaml(securityToken);
 
         if (forceAuthn) {
           cookieCache.removeSamlAssertion(key);
           return false;
         } else if (!assertion.isPresentlyValid()) {
+          SimplePrincipalCollection principalCollection = new SimplePrincipalCollection();
+          principalCollection.add(assertion, "default");
           SAMLAuthenticationToken samlAuthenticationToken =
-              new SAMLAuthenticationToken(null, securityToken);
+              new SAMLAuthenticationToken(null, principalCollection, request.getRemoteAddr());
           try {
             Subject subject = securityManager.getSubject(samlAuthenticationToken);
             for (Object principal : subject.getPrincipals().asList()) {
-              if (principal instanceof SecurityAssertion) {
-                SecurityToken newSecurityToken = ((SecurityAssertion) principal).getSecurityToken();
+              if (principal instanceof SecurityAssertion
+                  && ((SecurityAssertion) principal).getToken() instanceof SecurityToken) {
+                SecurityToken newSecurityToken =
+                    (SecurityToken) ((SecurityAssertion) principal).getToken();
                 samlToken = newSecurityToken.getToken();
                 cookieCache.cacheSamlAssertion(key, samlToken);
               }
@@ -1594,7 +1612,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     this.securityManager = securityManager;
   }
 
-  public void setTokenFactory(BaseAuthenticationTokenFactory tokenFactory) {
+  public void setTokenFactory(STSAuthenticationTokenFactory tokenFactory) {
     this.tokenFactory = tokenFactory;
   }
 

@@ -13,12 +13,16 @@
  */
 package ddf.security;
 
+import ddf.security.assertion.Attribute;
+import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.principal.GuestPrincipal;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -29,6 +33,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.x500.X500Principal;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
@@ -37,9 +42,6 @@ import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.opensaml.core.xml.schema.XSString;
-import org.opensaml.saml.saml2.core.Attribute;
-import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +54,8 @@ public final class SubjectUtils {
 
   public static final String EMAIL_ADDRESS_CLAIM_URI =
       "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
+
+  public static final String EMAIL_ADDRESS_CLAIM_ALTERNATE = "email";
 
   /** Street address */
   public static final String STREET_ADDRESS_CLAIM_URI =
@@ -72,6 +76,8 @@ public final class SubjectUtils {
   /** Username */
   public static final String NAME_IDENTIFIER_CLAIM_URI =
       "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+
+  public static final String NAME_IDENTIFIER_CLAIM_ALTERNATE = "name";
 
   /** Full name */
   public static final String NAME_CLAIM_URI =
@@ -155,21 +161,28 @@ public final class SubjectUtils {
     if (subject != null) {
       PrincipalCollection principals = subject.getPrincipals();
       if (principals != null) {
-        SecurityAssertion assertion = principals.oneByType(SecurityAssertion.class);
-        if (assertion != null) {
-          Principal principal = assertion.getPrincipal();
-          if (principal instanceof KerberosPrincipal) {
-            StringTokenizer st = new StringTokenizer(principal.getName(), "@");
-            st = new StringTokenizer(st.nextToken(), "/");
-            name = st.nextToken();
-          } else {
-            name = principal.getName();
-          }
+        Collection<SecurityAssertion> assertions = principals.byType(SecurityAssertion.class);
+        if (!assertions.isEmpty()) {
+          List<SecurityAssertion> assertionList = new ArrayList<>(assertions);
+          assertionList.sort(new SecurityAssertionComparator());
+          for (SecurityAssertion assertion : assertionList) {
+            Principal principal = assertion.getPrincipal();
+            if (principal instanceof KerberosPrincipal) {
+              StringTokenizer st = new StringTokenizer(principal.getName(), "@");
+              st = new StringTokenizer(st.nextToken(), "/");
+              name = st.nextToken();
+            } else {
+              name = principal.getName();
+            }
 
-          if (returnDisplayName) {
-            name = getDisplayName(principal, name);
-          }
+            if (returnDisplayName) {
+              name = getDisplayName(principal, name);
+            }
 
+            if (StringUtils.isNotEmpty(name)) {
+              break;
+            }
+          }
         } else {
           // send back the primary principal as a string
           name = principals.getPrimaryPrincipal().toString();
@@ -233,7 +246,10 @@ public final class SubjectUtils {
     List<String> values = getAttribute(subject, EMAIL_ADDRESS_CLAIM_URI);
 
     if (values.isEmpty()) {
-      return null;
+      values = getAttribute(subject, EMAIL_ADDRESS_CLAIM_ALTERNATE);
+      if (values.isEmpty()) {
+        return null;
+      }
     }
 
     return values.get(0);
@@ -260,21 +276,22 @@ public final class SubjectUtils {
       return Collections.emptyList();
     }
 
-    SecurityAssertion assertion = principals.oneByType(SecurityAssertion.class);
-    if (assertion == null) {
+    Collection<SecurityAssertion> assertions = principals.byType(SecurityAssertion.class);
+    if (assertions.isEmpty()) {
       LOGGER.debug("Could not find Security Assertion, cannot look up {}.", key);
       return Collections.emptyList();
     }
 
-    return assertion
-        .getAttributeStatements()
+    List<SecurityAssertion> assertionList = new ArrayList<>(assertions);
+    assertionList.sort(new SecurityAssertionComparator());
+
+    return assertionList
         .stream()
+        .map(SecurityAssertion::getAttributeStatements)
+        .flatMap(List::stream)
         .flatMap(as -> as.getAttributes().stream())
         .filter(a -> a.getName().equals(key))
-        .flatMap(a -> a.getAttributeValues().stream())
-        .filter(o -> o instanceof XSString)
-        .map(o -> (XSString) o)
-        .map(XSString::getValue)
+        .flatMap(a -> a.getValues().stream())
         .collect(Collectors.toList());
   }
 
@@ -327,24 +344,40 @@ public final class SubjectUtils {
       return null;
     }
 
-    SecurityAssertion assertion = principals.oneByType(SecurityAssertion.class);
-    if (assertion == null) {
+    Collection<SecurityAssertion> assertions = principals.byType(SecurityAssertion.class);
+    if (assertions == null || assertions.isEmpty()) {
       LOGGER.debug(
           "No principals located in the incoming subject, cannot look up security assertion type.");
       return null;
     }
 
-    return assertion.getTokenType();
+    List<SecurityAssertion> assertionList = new ArrayList<>(assertions);
+    assertionList.sort(new SecurityAssertionComparator());
+
+    return assertionList.get(0).getTokenType();
   }
 
-  private static SortedSet<String> getAttributeValues(
-      org.opensaml.saml.saml2.core.Attribute attribute) {
-    return attribute
-        .getAttributeValues()
-        .stream()
-        .filter(XSString.class::isInstance)
-        .map(XSString.class::cast)
-        .map(XSString::getValue)
-        .collect(Collectors.toCollection(TreeSet::new));
+  public static boolean isGuest(Subject subject) {
+    Collection<SecurityAssertion> securityAssertions =
+        subject.getPrincipals().byType(SecurityAssertion.class);
+    List<SecurityAssertion> assertionList = new ArrayList<>(securityAssertions);
+    assertionList.sort(SubjectUtils.getAssertionComparator());
+    return assertionList.get(0).getWeight() == SecurityAssertion.NO_AUTH_WEIGHT;
+  }
+
+  private static SortedSet<String> getAttributeValues(Attribute attribute) {
+    return new TreeSet<>(attribute.getValues());
+  }
+
+  public static Comparator<SecurityAssertion> getAssertionComparator() {
+    return new SecurityAssertionComparator();
+  }
+
+  private static class SecurityAssertionComparator implements Comparator<SecurityAssertion> {
+
+    @Override
+    public int compare(SecurityAssertion assertion1, SecurityAssertion assertion2) {
+      return Integer.compare(assertion1.getWeight(), assertion2.getWeight());
+    }
   }
 }

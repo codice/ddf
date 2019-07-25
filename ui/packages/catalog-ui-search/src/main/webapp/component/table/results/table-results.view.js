@@ -29,12 +29,14 @@ module.exports = TableView.extend({
   getHeaderView() {
     return new HeaderView({
       selectionInterface: this.options.selectionInterface,
+      filteredAttributes: this.options.filteredAttributes,
     })
   },
   getBodyView() {
     return new BodyView({
       selectionInterface: this.options.selectionInterface,
       collection: this.options.selectionInterface.getActiveSearchResults(),
+      filteredAttributes: this.options.filteredAttributes,
     })
   },
   events: {

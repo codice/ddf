@@ -15,21 +15,21 @@ package ddf.security.common;
 
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicReference;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.shiro.subject.PrincipalCollection;
 
 public class SecurityTokenHolder implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  private final AtomicReference<SecurityToken> securityTokenAtomicReference =
+  private final AtomicReference<PrincipalCollection> securityTokenAtomicReference =
       new AtomicReference<>();
 
-  public SecurityToken getSecurityToken() {
+  public PrincipalCollection getPrincipals() {
     return securityTokenAtomicReference.get();
   }
 
-  public void setSecurityToken(SecurityToken securityToken) {
-    securityTokenAtomicReference.set(securityToken);
+  public void setPrincipals(PrincipalCollection principals) {
+    securityTokenAtomicReference.set(principals);
   }
 
   public void remove() {

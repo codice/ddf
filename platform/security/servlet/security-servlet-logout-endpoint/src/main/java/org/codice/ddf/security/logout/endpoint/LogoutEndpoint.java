@@ -17,6 +17,7 @@ import ddf.security.service.SecurityServiceException;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
@@ -34,10 +35,11 @@ public class LogoutEndpoint {
 
   @GET
   @Path("/actions")
-  public Response getActionProviders(@Context HttpServletRequest request)
+  public Response getActionProviders(
+      @Context HttpServletRequest request, @Context HttpServletResponse response)
       throws SecurityServiceException {
 
-    String jsonString = logoutService.getActionProviders(request);
+    String jsonString = logoutService.getActionProviders(request, response);
 
     return Response.ok(new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)))
         .header("Cache-Control", "no-cache, no-store")

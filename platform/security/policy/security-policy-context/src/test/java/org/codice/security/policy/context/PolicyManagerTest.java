@@ -42,6 +42,10 @@ public class PolicyManagerTest {
 
   private static final String REQ_ATTRS = "requiredAttributes";
 
+  private static final String GUEST_ACCESS = "guestAccess";
+
+  private static final String SESSION_ACCESS = "sessionAccess";
+
   private static final List<String> DEFAULT_AUTH_TYPES = Arrays.asList("SAML", "GUEST");
 
   private PolicyManager manager;
@@ -101,6 +105,8 @@ public class PolicyManagerTest {
   public void setup() {
     manager = new PolicyManager();
     manager.setTraversalDepth(10);
+    manager.setGuestAccess(true);
+    manager.setSessionAccess(true);
     manager.setContextPolicy("/", new Policy("/", new ArrayList<>(), null));
     manager.setContextPolicy("/search", new Policy("/search", new ArrayList<>(), null));
     manager.setContextPolicy("/admin", new Policy("/admin", new ArrayList<>(), null));
@@ -134,6 +140,8 @@ public class PolicyManagerTest {
     Map<String, Object> contextPolicies = new HashMap<>();
     contextPolicies.put(AUTH_TYPES, rollBackAuthTypesValues);
     contextPolicies.put(REQ_ATTRS, rollBackReqAttrValues);
+    contextPolicies.put(GUEST_ACCESS, true);
+    contextPolicies.put(SESSION_ACCESS, true);
 
     rollBackTestManager = new PolicyManager();
     rollBackTestManager.setPolicies(contextPolicies);
@@ -317,7 +325,10 @@ public class PolicyManagerTest {
 
     properties.put("authenticationTypes", authTypes);
     properties.put("requiredAttributes", requiredAttributes);
+    properties.put(GUEST_ACCESS, true);
+    properties.put(SESSION_ACCESS, true);
     manager.setPolicies(properties);
+
     testAllPolicies();
   }
 
@@ -340,6 +351,8 @@ public class PolicyManagerTest {
         };
     manager.setAuthenticationTypes(Arrays.asList(authTypes));
     manager.setRequiredAttributes(Arrays.asList(requiredAttributes));
+    manager.setGuestAccess(true);
+    manager.setSessionAccess(true);
     manager.configure();
     manager.setPolicies(null);
     testAllPolicies();

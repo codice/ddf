@@ -221,7 +221,7 @@
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
         <javax.ws.rs.version>2.1</javax.ws.rs.version>
         <javax-el.version>3.0.0</javax-el.version>
-        <javax-mail.version>1.5.6</javax-mail.version>
+        <javax-mail.version>1.6.2</javax-mail.version>
         <jaxb.version>2.2.11</jaxb.version>
         <jvnet.jaxb2.version>0.10.0</jvnet.jaxb2.version>
         <jboss-logging.version>3.3.1.Final</jboss-logging.version>
@@ -264,6 +264,8 @@
         <opengis.bundle.version>${opengis.version}_1</opengis.bundle.version>
         <opengis.version>19.1</opengis.version>
         <opensaml.osgi.version>3.3.0_2</opensaml.osgi.version>
+        <nimbus.version>6.5</nimbus.version>
+        <nimbus.langtag.version>1.4.4</nimbus.langtag.version>
         <org.geotools.bundle.version>${org.geotools.version}_2</org.geotools.bundle.version>
         <org.geotools.version>19.1</org.geotools.version>
         <!-- Note: The swissbox version needs to match the version used by pax-exam . -->
@@ -274,6 +276,7 @@
         <owasp-html-sanitizer.version>20171016.1</owasp-html-sanitizer.version>
         <ows-v_1_0_0-schema.version>1.1.0</ows-v_1_0_0-schema.version>
         <ogc-filter-v_1_1_0-schema.thirdparty.version>1.1.0_5</ogc-filter-v_1_1_0-schema.thirdparty.version>
+        <pac4j.version>3.6.1</pac4j.version>
         <pdfbox.version>2.0.11</pdfbox.version>
         <poi.version>3.17</poi.version>
         <protobuf.version>3.6.1</protobuf.version>
@@ -366,7 +369,17 @@
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
-                <version>5.0.2</version>
+                <version>5.2</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache</artifactId>
+                <version>2.10.6</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -713,6 +726,7 @@
                             <rules>
                                 <ArtifactSizeEnforcerRule
                                     implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule"/>
+                                <banDuplicatePomDependencyVersions/>
                             </rules>
                         </configuration>
                     </execution>
@@ -941,25 +955,6 @@
                     </plugins>
                 </pluginManagement>
                 <plugins>
-                    <plugin>
-                        <groupId>ddf.support</groupId>
-                        <artifactId>version-validation-plugin</artifactId>
-                        <version>${ddf.support.version}</version>
-                        <executions>
-                            <execution>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>check-package-json</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <whitelistedValues>
-                                <param>-beta</param>
-                                <param>#</param>
-                            </whitelistedValues>
-                        </configuration>
-                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-checkstyle-plugin</artifactId>

@@ -42,7 +42,7 @@ class WhoAmISpec extends SubjectSpec {
 
     def 'returns subject name'() {
         when:
-        def name = whoami.getName()
+        def name = whoami.whoAmISubjects.get(0).getName()
 
         then:
         name == "Guest@127.0.0.1"
@@ -50,7 +50,7 @@ class WhoAmISpec extends SubjectSpec {
 
     def 'returns subject display name'() {
         when:
-        def displayName = whoami.getDisplayName()
+        def displayName = whoami.whoAmISubjects.get(0).getDisplayName()
 
         then:
         displayName == "Guest"
@@ -58,7 +58,7 @@ class WhoAmISpec extends SubjectSpec {
 
     def 'returns subject email'() {
         when:
-        def email = whoami.getEmail()
+        def email = whoami.whoAmISubjects.get(0).getEmail()
 
         then:
         email == "guest@localhost"
@@ -66,7 +66,7 @@ class WhoAmISpec extends SubjectSpec {
 
     def 'returns assertion claims'() {
         when:
-        def claims = whoami.getClaims()
+        def claims = whoami.whoAmISubjects.get(0).getClaims()
 
         then:
         claims.containsKey(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI)
@@ -74,7 +74,7 @@ class WhoAmISpec extends SubjectSpec {
 
     def 'returns guest status of subject'() {
         when:
-        def isGuest = whoami.isGuest()
+        def isGuest = whoami.whoAmISubjects.get(0).isGuest()
 
         then:
         isGuest
@@ -82,7 +82,7 @@ class WhoAmISpec extends SubjectSpec {
 
     def 'returns issuer of assertion'() {
         when:
-        def issuer = whoami.getIssuer()
+        def issuer = whoami.whoAmISubjects.get(0).getIssuer()
 
         then:
         issuer == 'TestIssuer'
@@ -90,7 +90,7 @@ class WhoAmISpec extends SubjectSpec {
 
     def 'return assertion notOnOrAfter'() {
         when:
-        def nooa = whoami.getNotOnOrAfter()
+        def nooa = whoami.whoAmISubjects.get(0).getNotOnOrAfter()
 
         then:
         nooa.equals(notOnOrAfter)
@@ -98,7 +98,7 @@ class WhoAmISpec extends SubjectSpec {
 
     def 'formats expiration duration of assertion'() {
         when:
-        def duration = whoami.getExpiresIn()
+        def duration = whoami.whoAmISubjects.get(0).getExpiresIn()
 
         then:
         duration.contains('days')

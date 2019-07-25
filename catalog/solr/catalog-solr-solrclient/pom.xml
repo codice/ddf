@@ -44,11 +44,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
@@ -88,7 +83,6 @@
                             gson,
                             ddf-security-common,
                             platform-util,
-                            security-core-impl,
                             platform-util-unavailableurls
                         </Embed-Dependency>
                     </instructions>

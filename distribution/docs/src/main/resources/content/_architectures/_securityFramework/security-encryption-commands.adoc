@@ -9,7 +9,8 @@
 
 The Security Encryption Commands bundle enhances the ${branding} system console by allowing administrators and integrators to encrypt and decrypt values directly from the console.
 
-The `security:encrypt` command allows plain text to be encrypted using HMAC + AES for encryption with a randomly generated key that is created when the system is installed.
+The `security:encrypt` command allows plain text to be encrypted using AES for encryption.
+It uses randomly generated keys and associated data that are created when the system is installed, and can be found in the `${home_directory}/etc/keysets` directory.
 This is useful when displaying password fields in a GUI.
 
 Below is an example of the security:encrypt command used to encrypt the plain text "myPasswordToEncrypt".

@@ -88,18 +88,24 @@ public class Crypter {
       File keysetFile = new File(keysetLocation);
       File streamingKeysetFile = new File(streamingKeysetLocation);
 
+      boolean keysetFileExists =
+          AccessController.doPrivileged((PrivilegedAction<Boolean>) keysetFile::exists);
+      boolean streamingKeysetFileExists =
+          AccessController.doPrivileged((PrivilegedAction<Boolean>) streamingKeysetFile::exists);
+
       try {
         AeadConfig.register();
         StreamingAeadConfig.register();
 
         // aead keyset
-        if (!keysetFile.exists()) {
+        if (!keysetFileExists) {
           keysetHandle = initKeysetHandle(keysetFile, AeadKeyTemplates.AES128_GCM);
         } else {
           keysetHandle = readKeysetHandle(keysetFile);
         }
+
         // streaming aead keyset
-        if (!streamingKeysetFile.exists()) {
+        if (!streamingKeysetFileExists) {
           streamingKeysetHandle =
               initKeysetHandle(streamingKeysetFile, StreamingAeadKeyTemplates.AES128_GCM_HKDF_4KB);
         } else {

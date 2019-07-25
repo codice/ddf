@@ -19,9 +19,12 @@
 
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
+    <reference id="sessionFactory" interface="ddf.security.http.SessionFactory"/>
+
     <bean id="sessionService"
           class="org.codice.ddf.security.session.management.impl.SessionManagementServiceImpl">
         <property name="securityManager" ref="securityManager"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
     <service ref="sessionService"

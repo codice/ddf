@@ -101,10 +101,6 @@
             <artifactId>httpclient</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>common-system</artifactId>
             <version>${project.version}</version>
@@ -128,9 +124,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>org.codice.ddf.cxf.client</Export-Package>
-                        <Embed-Dependency>
-                            security-core-impl
-                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

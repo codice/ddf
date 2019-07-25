@@ -167,6 +167,51 @@
             <artifactId>util-uuidgenerator-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.pac4j</groupId>
+            <artifactId>pac4j-oidc</artifactId>
+            <version>${pac4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.pac4j</groupId>
+            <artifactId>pac4j-core</artifactId>
+            <version>${pac4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>oauth2-oidc-sdk</artifactId>
+            <version>${nimbus.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.nimbusds</groupId>
+                    <artifactId>nimbus-jose-jwt</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>${nimbus.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>lang-tag</artifactId>
+            <version>${nimbus.langtag.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.cryptomator</groupId>
+            <artifactId>siv-mode</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -198,6 +243,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
+                            !org.springframework.security.crypto.password,
                             <!--
                             Needed because API versioned independently of
                             the project their code is in, hence the version
@@ -219,9 +265,13 @@
                             platform-util-unavailableurls,
                             ddf-security-common,
                             platform-util,
-                            security-core-impl
+                            siv-mode,
+                            jbcrypt
                         </Embed-Dependency>
                         <Export-Package>
+                            ddf.security.assertion.impl;version=${project.version},
+                            ddf.security.assertion.jwt.impl;version=${project.version},
+                            ddf.security.assertion.saml.impl;version=${project.version},
                             ddf.security.impl;version=${project.version},
                             ddf.security.service.impl;version=${project.version},
                             ddf.security.http.impl;version=${project.version},
@@ -244,7 +294,7 @@
                             <rules>
                                 <ArtifactSizeEnforcerRule
                                     implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>1.4_MB</maxArtifactSize>
+                                    <maxArtifactSize>2.4_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>
@@ -269,17 +319,17 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.21</minimum>
+                                            <minimum>0.20</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.14</minimum>
+                                            <minimum>0.10</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.22</minimum>
+                                            <minimum>0.18</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

@@ -25,7 +25,7 @@ import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SubjectIdentity;
-import ddf.security.principal.GuestPrincipal;
+import ddf.security.SubjectUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -86,7 +86,7 @@ public class AccessControlPreIngestPlugin implements PreIngestPlugin {
             .stream()
             .anyMatch(metacard -> StringUtils.isEmpty(AccessControlUtil.getOwner(metacard)));
 
-    if (missingOwner && isGuest(ownerSubject)) {
+    if (missingOwner && SubjectUtils.isGuest(ownerSubject)) {
       throw new StopProcessingException(
           "Guest user not allowed to create access-controlled resources");
     }
@@ -117,10 +117,6 @@ public class AccessControlPreIngestPlugin implements PreIngestPlugin {
 
   protected Subject getSubject() {
     return SecurityUtils.getSubject();
-  }
-
-  private boolean isGuest(Subject subject) {
-    return subject.getPrincipal() instanceof GuestPrincipal;
   }
 
   private static void setAccessAdministrator(Metacard metacard, String subjectIdentity) {

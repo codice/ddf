@@ -25,14 +25,14 @@ public interface ContextPolicyManager {
    * @param path - context path
    * @return policy associated with the given path
    */
-  public ContextPolicy getContextPolicy(String path);
+  ContextPolicy getContextPolicy(String path);
 
   /**
    * Returns a Collection of all {@link ContextPolicy} objects
    *
    * @return collection of policies <strong>The returned collection should be unmodifiable</strong>
    */
-  public Collection<ContextPolicy> getAllContextPolicies();
+  Collection<ContextPolicy> getAllContextPolicies();
 
   /**
    * Sets a policy for a particular path
@@ -40,7 +40,7 @@ public interface ContextPolicyManager {
    * @param path - context path
    * @param contextPolicy - context policy
    */
-  public void setContextPolicy(String path, ContextPolicy contextPolicy);
+  void setContextPolicy(String path, ContextPolicy contextPolicy);
 
   /**
    * Returns true if the policy is white listed.
@@ -48,5 +48,19 @@ public interface ContextPolicyManager {
    * @param path - - context path
    * @return true if the policy is white listed
    */
-  public boolean isWhiteListed(String path);
+  boolean isWhiteListed(String path);
+
+  /**
+   * Returns true if guest should be allowed for all context paths
+   *
+   * @return true if guest is access is on
+   */
+  boolean getGuestAccess();
+
+  /**
+   * Returns true if session information should be stored for all context paths
+   *
+   * @return true if session information should be stored
+   */
+  boolean getSessionAccess();
 }

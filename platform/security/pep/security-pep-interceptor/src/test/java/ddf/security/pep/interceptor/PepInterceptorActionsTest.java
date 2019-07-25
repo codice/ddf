@@ -62,7 +62,7 @@ public class PepInterceptorActionsTest {
     assertNotNull(mockSecurityAssertion);
 
     // SecurityLogger is already stubbed out
-    when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
+    when(mockSecurityAssertion.getToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
 
     when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);
@@ -105,7 +105,7 @@ public class PepInterceptorActionsTest {
     assertNotNull(mockSecurityAssertion);
 
     // SecurityLogger is already stubbed out
-    when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
+    when(mockSecurityAssertion.getToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
 
     when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);
@@ -148,7 +148,7 @@ public class PepInterceptorActionsTest {
     assertNotNull(mockSecurityAssertion);
 
     // SecurityLogger is already stubbed out
-    when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
+    when(mockSecurityAssertion.getToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
 
     when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);
@@ -186,7 +186,7 @@ public class PepInterceptorActionsTest {
     assertNotNull(mockSecurityAssertion);
 
     // SecurityLogger is already stubbed out
-    when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
+    when(mockSecurityAssertion.getToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
 
     when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);
@@ -226,7 +226,7 @@ public class PepInterceptorActionsTest {
     assertNotNull(mockSecurityAssertion);
 
     // SecurityLogger is already stubbed out
-    when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockSecurityToken);
+    when(mockSecurityAssertion.getToken()).thenReturn(mockSecurityToken);
     when(mockSecurityToken.getToken()).thenReturn(null);
 
     when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);

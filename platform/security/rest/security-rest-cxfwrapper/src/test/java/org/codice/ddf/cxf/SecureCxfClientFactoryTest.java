@@ -283,7 +283,7 @@ public class SecureCxfClientFactoryTest {
 
     when(mockSubject.getPrincipals()).thenReturn(mockPrincipals);
     when(mockPrincipals.asList()).thenReturn(Arrays.asList(mockSecurityAssertion));
-    when(mockSecurityAssertion.getSecurityToken()).thenReturn(mockToken);
+    when(mockSecurityAssertion.getToken()).thenReturn(mockToken);
     when(mockToken.getToken()).thenReturn(getAssertionElement());
 
     return mockSubject;

@@ -69,7 +69,7 @@ define([
         .fetchInstallProfiles()
         .then(function(profiles) {
           installerModel.set('showInstallProfileStep', true)
-          installerModel.setTotalSteps(4)
+          installerModel.setTotalSteps(5)
         })
         .fail(function(error) {
           // fallback: just don't show the install profile steps.

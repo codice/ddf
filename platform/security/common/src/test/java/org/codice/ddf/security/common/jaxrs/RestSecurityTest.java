@@ -77,7 +77,7 @@ public class RestSecurityTest {
     SecurityAssertion assertion = mock(SecurityAssertion.class);
     SecurityToken token =
         new SecurityToken(UUID.randomUUID().toString(), samlToken, Instant.now(), Instant.now());
-    when(assertion.getSecurityToken()).thenReturn(token);
+    when(assertion.getToken()).thenReturn(token);
     when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
     WebClient client = WebClient.create("https://example.org");
     RestSecurity.setSubjectOnClient(subject, client);
@@ -99,7 +99,7 @@ public class RestSecurityTest {
     SecurityAssertion assertion = mock(SecurityAssertion.class);
     SecurityToken token =
         new SecurityToken(UUID.randomUUID().toString(), samlToken, Instant.now(), Instant.now());
-    when(assertion.getSecurityToken()).thenReturn(token);
+    when(assertion.getToken()).thenReturn(token);
     when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
     WebClient client = WebClient.create("http://example.org");
     RestSecurity.setSubjectOnClient(subject, client);

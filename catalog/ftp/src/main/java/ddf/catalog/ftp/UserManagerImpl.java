@@ -33,7 +33,8 @@ import org.apache.ftpserver.usermanager.impl.ConcurrentLoginPermission;
 import org.apache.ftpserver.usermanager.impl.TransferRatePermission;
 import org.apache.ftpserver.usermanager.impl.WritePermission;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory;
+import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
+import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,8 @@ public class UserManagerImpl implements UserManager {
 
   private SecurityManager securityManager;
 
+  private ContextPolicyManager contextPolicyManager;
+
   private String karafLocalRoles;
 
   private String uploadDirectory;
@@ -54,10 +57,12 @@ public class UserManagerImpl implements UserManager {
 
   private Map<String, User> users;
 
-  public UserManagerImpl(SecurityManager securityManager) {
+  public UserManagerImpl(
+      SecurityManager securityManager, ContextPolicyManager contextPolicyManager) {
     notNull(securityManager, "securityManager");
 
     this.securityManager = securityManager;
+    this.contextPolicyManager = contextPolicyManager;
     users = new HashMap<>();
   }
 
@@ -98,9 +103,15 @@ public class UserManagerImpl implements UserManager {
     if (authentication instanceof UsernamePasswordAuthentication) {
       username = ((UsernamePasswordAuthentication) authentication).getUsername();
       authenticationToken =
-          new BaseAuthenticationTokenFactory()
+          new STSAuthenticationTokenFactory()
               .fromUsernamePassword(
-                  username, ((UsernamePasswordAuthentication) authentication).getPassword());
+                  username,
+                  ((UsernamePasswordAuthentication) authentication).getPassword(),
+                  ((UsernamePasswordAuthentication) authentication)
+                      .getUserMetadata()
+                      .getInetAddress()
+                      .getHostAddress());
+      authenticationToken.setAllowGuest(contextPolicyManager.getGuestAccess());
 
       try {
         Subject subject = securityManager.getSubject(authenticationToken);

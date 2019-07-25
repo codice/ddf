@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
+
+  <OCD name="OIDC Handler Configuration" id="org.codice.ddf.security.handler.api.OidcHandlerConfiguration">
+
+    <AD name="IdP Type" id="idpType" type="String" default="Keycloak"
+        description="IdP type to use.">
+        <Option label="Keycloak" value="Keycloak"/>
+        <Option label="Google" value="Google"/>
+        <Option label="Azure" value="Azure"/>
+        <Option label="Generic" value="Generic"/>
+    </AD>
+
+    <AD name="Client ID" id="clientId" type="String" default="ddf-client"
+        description="Unique ID for the client, this may be provided by the Identity Provider."/>
+
+    <AD name="Realm/Tenant" id="realm" type="String" default="master"
+        description="Realm to use for a multi-tenant environment. This is required for Keycloak or Azure."/>
+
+    <AD name="Secret" id="secret" type="String" default="secret"
+      description="This value must match the value set on the Identity Provider."/>
+
+    <AD name="Discovery URI" id="discoveryUri" type="String" default="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"
+        description="Discovery URI for fetching OP metadata (http://openid.net/specs/openid-connect-discovery-1_0.html)."/>
+
+    <AD name="Base URI" id="baseUri" type="String" default="https://localhost:8443/auth"
+        description="Base URI for IdP. Do not fill out both this and the Discovery URI. Only one is needed depending on the IdP in use."/>
+
+    <AD name="Logout URI" id="logoutUri" type="String" default="https://localhost:8443/auth/realms/master/protocol/openid-connect/logout"
+        description="URI directing to single logout service of the IdP in use."/>
+
+    <AD name="Scope" id="scope" type="String" default="openid profile email resource.read"
+        description="OIDC scopes."/>
+
+    <AD name="Use Nonce" id="useNonce" type="Boolean" default="true"
+        description="Whether or not to use nonce in JWT."/>
+
+    <AD name="Response Type" id="responseType" type="String" default="code"
+      description="Response type to use.">
+      <Option label="Authorization Code Flow - code" value="code"/>
+      <Option label="Implicit Flow - id_token" value="id_token" />
+      <Option label="Implicit Flow - id_token token" value="id_token token" />
+    </AD>
+
+    <AD name="Response Mode" id="responseMode" type="String" default="form_post"
+        description="Informs the Authorization Server of the mechanism to be used for returning parameters from the Authorization Endpoint.">
+        <Option label="unspecified" value=""/>
+        <Option label="form_post" value="form_post"/>
+    </AD>
+
+  </OCD>
+
+    <Designate pid="org.codice.ddf.security.handler.api.OidcHandlerConfiguration">
+        <Object ocdref="org.codice.ddf.security.handler.api.OidcHandlerConfiguration"/>
+    </Designate>
+
+</metatype:MetaData>

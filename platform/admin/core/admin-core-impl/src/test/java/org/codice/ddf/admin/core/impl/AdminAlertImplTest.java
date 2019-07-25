@@ -120,7 +120,7 @@ public class AdminAlertImplTest {
   public void testDismissAlert() throws Exception {
     ArgumentCaptor<Event> captor = ArgumentCaptor.forClass(Event.class);
     when(subject.getPrincipals()).thenReturn(principals);
-    when(principals.oneByType(any())).thenReturn(null);
+    when(principals.byType(any())).thenReturn(Collections.emptyList());
     when(principals.getPrimaryPrincipal()).thenReturn("user");
     ThreadContext.bind(subject);
     adminAlert.dismissAlert("myId");

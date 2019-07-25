@@ -154,7 +154,7 @@ public class BasicAuthenticationHandlerTest {
     BasicAuthenticationHandler handler = new BasicAuthenticationHandler();
     BaseAuthenticationToken result =
         handler.extractAuthInfo(
-            "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()));
+            "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()), "127.0.0.1");
     assertNotNull(result);
     assertEquals("admin", getXmlAttributeValue(result, USERNAME_ATTR));
     assertEquals("password", getXmlAttributeValue(result, PASSWORD_ATTR));
@@ -162,28 +162,31 @@ public class BasicAuthenticationHandlerTest {
     handler = new BasicAuthenticationHandler();
     result =
         handler.extractAuthInfo(
-            "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()));
+            "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()), "127.0.0.1");
     assertNotNull(result);
 
     result =
         handler.extractAuthInfo(
-            "Basic " + Base64.getEncoder().encodeToString(":password".getBytes()));
+            "Basic " + Base64.getEncoder().encodeToString(":password".getBytes()), "127.0.0.1");
     assertNotNull(result);
     assertEquals("", getXmlAttributeValue(result, USERNAME_ATTR));
     assertEquals("password", getXmlAttributeValue(result, PASSWORD_ATTR));
 
     result =
-        handler.extractAuthInfo("Basic " + Base64.getEncoder().encodeToString("user:".getBytes()));
+        handler.extractAuthInfo(
+            "Basic " + Base64.getEncoder().encodeToString("user:".getBytes()), "127.0.0.1");
     assertNotNull(result);
     assertEquals("user", getXmlAttributeValue(result, USERNAME_ATTR));
     assertEquals("", getXmlAttributeValue(result, PASSWORD_ATTR));
 
     result =
         handler.extractAuthInfo(
-            "Basic " + Base64.getEncoder().encodeToString("user/password".getBytes()));
+            "Basic " + Base64.getEncoder().encodeToString("user/password".getBytes()), "127.0.0.1");
     assertNull(result);
 
-    result = handler.extractAuthInfo("Basic " + Base64.getEncoder().encodeToString("".getBytes()));
+    result =
+        handler.extractAuthInfo(
+            "Basic " + Base64.getEncoder().encodeToString("".getBytes()), "127.0.0.1");
     assertNull(result);
   }
 
@@ -217,7 +220,7 @@ public class BasicAuthenticationHandlerTest {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     DocumentBuilder builder = factory.newDocumentBuilder();
     ByteArrayInputStream input =
-        new ByteArrayInputStream(token.getCredentialsAsXMLString().getBytes("UTF-8"));
+        new ByteArrayInputStream(token.getCredentialsAsString().getBytes("UTF-8"));
     Document doc = builder.parse(input);
     NodeList children = doc.getDocumentElement().getChildNodes();
 

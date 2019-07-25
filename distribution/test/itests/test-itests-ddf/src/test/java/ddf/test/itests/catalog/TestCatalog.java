@@ -424,7 +424,6 @@ public class TestCatalog extends AbstractIntegrationTest {
         .when()
         .put(new DynamicUrl(REST_PATH, id).getUrl());
 
-    // Must use SAML|GUEST to get guest access since basic is a terminating authentication type
     getSecurityPolicy().configureRestForGuest();
     when()
         .get(REST_PATH.getUrl() + id)

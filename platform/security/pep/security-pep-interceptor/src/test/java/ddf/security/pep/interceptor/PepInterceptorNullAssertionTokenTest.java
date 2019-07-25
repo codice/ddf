@@ -38,7 +38,7 @@ public class PepInterceptorNullAssertionTokenTest {
     PEPAuthorizingInterceptor interceptor =
         spy(new PEPAuthorizingInterceptor(m -> mockSecurityAssertion));
     // SecurityLogger is already stubbed out
-    when(mockSecurityAssertion.getSecurityToken()).thenReturn(null);
+    when(mockSecurityAssertion.getToken()).thenReturn(null);
     expectedExForNullMessage.expect(AccessDeniedException.class);
     expectedExForNullMessage.expectMessage("Unauthorized");
     interceptor.handleMessage(messageWithNullSecurityAssertion);

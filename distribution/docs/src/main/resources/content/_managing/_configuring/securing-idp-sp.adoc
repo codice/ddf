@@ -120,20 +120,20 @@ An internal Identity Provider solution.
 </md:EntityDescriptor>
 ----
 
-=== Configuring IdP Authentication Types
+=== Configuring Authentication Types for SAML IdP
 
-Set the authentication types that will be accepted by the IdP.
+Set the authentication types in the `WebContextPolicyManager` to SAML.
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-security}* application.
 . Select the *Configuration* tab.
 . Select *Web Context Policy Manager*
-. Under *Authentication Types*, set the _IDP authentication type_ as necessary. Note that it should _only_ be used on context paths that will be accessed by users via web browsers.
+. Under *Authentication Types*, set the SAML authentication type_ as necessary.
 For example:
-- `/search=IDP`
+- `/search=SAML`
 
-Other authentication types can also be used in conjunction with the IDP type.
-For example, if you wanted to secure the entire system with the IDP, but still allow legacy clients that don't understand the SAML ECP specification to connect, you could set `/=IDP|PKI`.
+Other authentication types can also be used in conjunction with the SAML type.
+For example, if you wanted to secure the entire system with the IDP, but still allow legacy clients that don't understand the SAML ECP specification to connect, you could set `/=SAML|PKI`.
 With that configuration, any clients that failed to connect using either the SAML 2.0 Web SSO Profile or the SAML ECP spec would fall back to 2-way TLS for authentication.
 
 [NOTE]

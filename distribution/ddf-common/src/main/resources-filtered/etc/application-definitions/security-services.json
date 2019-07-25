@@ -11,18 +11,19 @@
     "mvn:ddf.security.filter/security-filter-login/${project.version}",
     "mvn:ddf.security.idp/security-idp-client/${project.version}",
     "mvn:ddf.security.idp/security-idp-server/${project.version}",
-    "mvn:ddf.security.handler/security-handler-guest/${project.version}",
     "mvn:ddf.security.interceptor/security-interceptor-guest/${project.version}",
     "mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}",
     "mvn:ddf.security.policy/security-policy-context/${project.version}",
     "mvn:ddf.security.sts/security-sts-certificateclaimshandler/${project.version}",
-    "mvn:ddf.security.sts/security-sts-guestclaimshandler/${project.version}",
-    "mvn:ddf.security.sts/security-sts-guestvalidator/${project.version}",
     "mvn:ddf.security.sts/security-sts-ldaplogin/${project.version}",
     "mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}",
-    "mvn:ddf.security.sts/security-sts-pkivalidator/${project.version}",
     "mvn:ddf.security.sts/security-sts-propertyclaimshandler/${project.version}",
     "mvn:ddf.security.sts/security-sts-realm/${project.version}",
-    "mvn:ddf.security.sts/security-sts-server/${project.version}"
+    "mvn:ddf.security.sts/security-sts-server/${project.version}",
+    "mvn:ddf.security.handler/security-handler-oidc/${project.version}",
+    "mvn:ddf.platform.security/security-oidc-realm/${project.version}",
+    "mvn:ddf.platform.security/security-guest-realm/${project.version}",
+    "mvn:ddf.security.certificate/security-crl-generator/${project.version}",
+    "mvn:ddf.security.certificate/security-ocsp-checker/${project.version}"
   ]
 }
