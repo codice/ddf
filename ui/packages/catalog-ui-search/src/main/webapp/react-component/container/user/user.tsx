@@ -11,8 +11,6 @@
  **/
 import * as React from 'react'
 import UserComponent from '../../presentation/user'
-import fetch from '../../utils/fetch'
-import processActions from '@connexta/atlas/atoms/logout'
 const user = require('../../../component/singletons/user-instance.js')
 
 interface State {
@@ -29,9 +27,7 @@ class UserContainer extends React.Component<{}, State> {
     }
   }
   signOut() {
-    fetch('./internal/logout/actions')
-      .then(res => res.json())
-      .then(actions => processActions({ actions: actions }))
+    window.location.href = '../../logout?service=' + window.location.href
   }
   render() {
     const { username, email } = this.state

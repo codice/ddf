@@ -81,8 +81,8 @@ public class SessionManagementServiceImpl implements SessionManagementService {
     String requestQueryString = request.getQueryString();
     return URI.create(
         SystemBaseUrl.EXTERNAL
-            .constructUrl("/logout?noPrompt=true")
-            .concat(requestQueryString != null ? "&" + requestQueryString : ""));
+            .constructUrl("/logout")
+            .concat(requestQueryString != null ? "?" + requestQueryString : ""));
   }
 
   private long getTimeLeft(SecurityTokenHolder securityToken) {
