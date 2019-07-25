@@ -15,17 +15,41 @@
 
 import ExportResults from '../../../react-component/container/table-export'
 import React from 'react'
+import union from 'lodash/union'
 const lightboxInstance = require('../../lightbox/lightbox.view.instance.js')
 import {
   Button,
   buttonTypeEnum,
 } from '../../../react-component/presentation/button'
-
 const Marionette = require('marionette')
+const Backbone = require('backbone')
 const CustomElements = require('../../../js/CustomElements.js')
 const TableVisibility = require('./table-visibility.view')
 const TableRearrange = require('./table-rearrange.view')
 const ResultsTableView = require('../../table/results/table-results.view.js')
+const ResultForm = require('../../../component/result-form/result-form.js')
+
+const filterAttributesWithResultForm = (
+  attributes,
+  resultTemplateAttributes
+) => {
+  const defaultAttributes = [
+    'id',
+    'title',
+    'metacard-type',
+    'metacard-tags',
+    'source-id',
+  ]
+  const filteredAttributes = attributes.filter(attribute =>
+    resultTemplateAttributes.includes(attribute)
+  )
+  return union(filteredAttributes, defaultAttributes).sort()
+}
+const filteredAttributesModel = Backbone.Model.extend({
+  defaults: {
+    filteredAttributes: [],
+  },
+})
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('table-viz'),
@@ -88,11 +112,36 @@ module.exports = Marionette.LayoutView.extend({
     if (!options.selectionInterface) {
       throw 'Selection interface has not been provided'
     }
+    this.filteredAttributes = new filteredAttributesModel()
+    this.filterActiveSearchResultsAttributes()
+
     this.listenTo(
       this.options.selectionInterface,
       'reset:activeSearchResults add:activeSearchResults',
       this.handleEmpty
     )
+    this.listenTo(
+      this.options.selectionInterface,
+      'change:activeSearchResultsAttributes',
+      this.filterActiveSearchResultsAttributes
+    )
+  },
+  filterActiveSearchResultsAttributes() {
+    const currentQuery = this.options.selectionInterface.getCurrentQuery()
+    const resultFormName = currentQuery ? currentQuery.get('detail-level') : ''
+    const selectedResultTemplate = ResultForm.getResultCollection().filteredList.filter(
+      form => form.id === resultFormName || form.value === resultFormName
+    )
+    let filteredAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes()
+
+    if (selectedResultTemplate.length > 0) {
+      const attrs = this.options.selectionInterface.getActiveSearchResultsAttributes()
+      filteredAttributes = filterAttributesWithResultForm(
+        attrs,
+        selectedResultTemplate[0].descriptors
+      )
+    }
+    this.filteredAttributes.set('filteredAttributes', filteredAttributes)
   },
   handleEmpty() {
     this.$el.toggleClass(
@@ -105,6 +154,7 @@ module.exports = Marionette.LayoutView.extend({
     this.table.show(
       new ResultsTableView({
         selectionInterface: this.options.selectionInterface,
+        filteredAttributes: this.filteredAttributes,
       })
     )
   },
@@ -113,6 +163,7 @@ module.exports = Marionette.LayoutView.extend({
     this.tableRearrange.show(
       new TableRearrange({
         selectionInterface: this.options.selectionInterface,
+        filteredAttributes: this.filteredAttributes,
       }),
       {
         replaceElement: true,
@@ -124,6 +175,7 @@ module.exports = Marionette.LayoutView.extend({
     this.tableVisibility.show(
       new TableVisibility({
         selectionInterface: this.options.selectionInterface,
+        filteredAttributes: this.filteredAttributes,
       }),
       {
         replaceElement: true,

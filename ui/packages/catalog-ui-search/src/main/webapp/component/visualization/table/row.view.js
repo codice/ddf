@@ -65,6 +65,11 @@ module.exports = Marionette.LayoutView.extend({
       'update add remove reset',
       this.handleSelectionChange
     )
+    this.listenTo(
+      this.options.filteredAttributes,
+      'change:filteredAttributes',
+      this.render
+    )
     this.handleSelectionChange()
   },
   handleSelectionChange() {
@@ -139,7 +144,9 @@ module.exports = Marionette.LayoutView.extend({
       .get('user')
       .get('preferences')
       .get('columnOrder')
-    const availableAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes()
+    const availableAttributes = this.options.filteredAttributes.get(
+      'filteredAttributes'
+    )
     const result = this.model.toJSON()
     return {
       id: result.id,
