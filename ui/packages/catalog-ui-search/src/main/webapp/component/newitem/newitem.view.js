@@ -13,18 +13,23 @@
  *
  **/
 
-const Tabs = require('../tabs')
-const IngestView = require('../../ingest/ingest.view.js')
-const BuilderView = require('../../builder/builder.view.js')
-const NewItemView = require('../../newitem/newitem.view')
+const Marionette = require('marionette')
+const IngestView = require('../ingest/ingest.view')
+const BuilderView = require('../builder/builder.view')
+const template = require('./newitem.hbs')
+const CustomElements = require('../../js/CustomElements')
 
-module.exports = Tabs.extend({
-  defaults: {
-    tabs: {
-      Import: IngestView,
-      Manual: BuilderView,
-      Hybrid: NewItemView,
+
+
+module.exports = Marionette.LayoutView.extend({
+    template,
+    regions: {
+        upload: '.upload-menu',
+        manual: '.manual-menu'
     },
-  },
-  initialize(options) {},
+    tagName: CustomElements.register('newitem'),
+    initialize(options) {
+        this.getRegion('upload-menu').show(new IngestView());
+        this.getRegion('manual-menu').show(new BuilderView());
+    }
 })

@@ -15,6 +15,8 @@
 const TabsView = require('../tabs.view')
 const ListAddTabsModel = require('./tabs-list-add')
 
+//const template = require('./list-add-view.hbs')
+
 module.exports = TabsView.extend({
   className: 'is-list-add',
   setDefaultModel(options) {
@@ -26,7 +28,7 @@ module.exports = TabsView.extend({
     TabsView.prototype.initialize.call(this)
     this.model.set('activeTab', 'Import')
   },
-  determineContent() {
+  determineContent() {  
     const ActiveTab = this.model.getActiveView()
     if (this.model.attributes.activeTab === 'Import') {
       this.tabsContent.show(
@@ -48,3 +50,4 @@ module.exports = TabsView.extend({
     }
   },
 })
+
