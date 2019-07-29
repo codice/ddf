@@ -124,3 +124,5 @@ class MetacardInteractions extends React.Component<Props, State> {
 const Component = withListenTo(MetacardInteractions)
 
 export default hot(module)(Component)
+
+export { Divider }
