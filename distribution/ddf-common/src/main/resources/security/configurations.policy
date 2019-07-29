@@ -84,7 +84,7 @@ grant codeBase "file:/catalog-core-directorymonitor/org.apache.camel.camel-core/
 //   directory being monitored.
 //
 // DO NOT MODIFY THE NEXT LINE. It specifies which  modules are granted permission.
-grant codeBase "file:/org.apache.tika.core/catalog-core-urlresourcereader" {
+grant codeBase "file:/org.apache.tika.core/catalog-core-urlresourcereader/catalog-core-standardframework" {
 
 
      // EXAMPLE. The two lines that begin with "permission" enable the URL Resource Reader to
