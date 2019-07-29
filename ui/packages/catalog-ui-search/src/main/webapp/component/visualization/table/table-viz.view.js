@@ -13,7 +13,8 @@
  *
  **/
 
-import ExportResults from '../../../react-component/table-export'
+import ExportResults from '../../../react-component/container/table-export'
+import ExtensionPoint from '../../../extension-points'
 import React from 'react'
 import union from 'lodash/union'
 const lightboxInstance = require('../../lightbox/lightbox.view.instance.js')
@@ -92,7 +93,9 @@ module.exports = Marionette.LayoutView.extend({
     lightboxInstance.model.updateTitle('Export Results')
     lightboxInstance.model.open()
     lightboxInstance.showContent(
-      <ExportResults selectionInterface={this.options.selectionInterface} />
+      <ExtensionPoint.tableExport
+        selectionInterface={this.options.selectionInterface}
+      />
     )
   },
   regions: {

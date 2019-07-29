@@ -12,6 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+
 import * as React from 'react'
 import TableExportComponent from './presentation'
 import { exportResultSet, getExportOptions, Transformer } from '../utils/export'
@@ -22,7 +23,6 @@ const _ = require('underscore')
 const user = require('../../component/singletons/user-instance.js')
 const properties = require('../../js/properties.js')
 const announcement = require('../../component/announcement/index.jsx')
-const Sources = require('../../component/singletons/sources-instance.js')
 const contentDisposition = require('content-disposition')
 function buildCqlQueryFromMetacards(metacards: any) {
   const queryParts = metacards.map((metacard: any) => {
@@ -118,6 +118,7 @@ function getWarning(exportCountInfo: ExportCountInfo): string {
 }
 type Props = {
   selectionInterface: () => void
+  exportFormats: Option[]
 }
 type Option = {
   label: string
@@ -134,10 +135,6 @@ type Source = {
   id: string
   hits: number
 }
-type ExportResponse = {
-  displayName: string
-  id: string
-}
 interface ExportCountInfo {
   exportSize: string
   selectionInterface: any
@@ -148,7 +145,6 @@ export default hot(module)(
     constructor(props: Props) {
       super(props)
       this.state = {
-        exportFormats: [],
         exportSizes: [
           {
             label: 'Visible',
@@ -169,29 +165,6 @@ export default hot(module)(
       }
     }
     transformUrl = './internal/cql/transform/'
-    async componentDidMount() {
-      const response = await getExportOptions(Transformer.Query)
-      const exportFormats = await response.json()
-      const sortedExportFormats = exportFormats.sort(
-        (format1: ExportResponse, format2: ExportResponse) => {
-          if (format1.displayName > format2.displayName) {
-            return 1
-          }
-          if (format1.displayName < format2.displayName) {
-            return -1
-          }
-          return 0
-        }
-      )
-      this.setState({
-        exportFormats: sortedExportFormats.map(
-          (exportFormat: ExportResponse) => ({
-            label: exportFormat.displayName,
-            value: exportFormat.id,
-          })
-        ),
-      })
-    }
     handleExportFormatChange = (value: string) => {
       this.setState({
         exportFormat: value,
@@ -254,11 +227,11 @@ export default hot(module)(
       }
     }
     render() {
-      const { exportSize, customExportCount } = this.state
+      const { exportFormats, exportSize, customExportCount } = this.state
       const { selectionInterface } = this.props
       return (
-        <LoadingCompanion loading={this.state.exportFormats.length === 0}>
-          {this.state.exportFormats.length > 0 ? (
+        <LoadingCompanion loading={exportFormats.length === 0}>
+          {exportFormats.length > 0 ? (
             <TableExportComponent
               exportFormatOptions={this.state.exportFormats}
               exportFormat={this.state.exportFormat}

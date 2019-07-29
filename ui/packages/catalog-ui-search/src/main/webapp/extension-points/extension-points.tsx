@@ -24,6 +24,7 @@ import navigationRight from './navigation-right'
 import searchInteractions, {
   SearchInteractionProps,
 } from './search-interactions'
+import { tableExport, Props as TableExportProps } from './table-export'
 
 export type ExtensionPointsType = {
   routes: {}
@@ -34,6 +35,7 @@ export type ExtensionPointsType = {
   queryForms: any[]
   navigationRight: any[]
   searchInteractions: SFC<SearchInteractionProps>
+  tableExport: SFC<TableExportProps>
 }
 
 const ExtensionPoints: ExtensionPointsType = {
@@ -45,6 +47,7 @@ const ExtensionPoints: ExtensionPointsType = {
   queryForms,
   navigationRight,
   searchInteractions,
+  tableExport,
 }
 
 export default ExtensionPoints
