@@ -17,7 +17,6 @@ import ddf.security.SecurityConstants;
 import ddf.security.common.SecurityTokenHolder;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
