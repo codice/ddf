@@ -23,15 +23,6 @@
     <name>DDF :: Platform :: Solr :: Dependencies</name>
     <description>Contains Solr dependencies. Exports solr related packages required by DDF.</description>
     <packaging>bundle</packaging>
-    <properties>
-        <solr.zookeeper.version>3.4.11</solr.zookeeper.version>
-        <solr.metrics.version>3.2.6</solr.metrics.version>
-        <solr.zookeeper.version>3.4.11</solr.zookeeper.version>
-        <solr.noggit.version>0.8</solr.noggit.version>
-        <solr.spatial4j.version>0.7</solr.spatial4j.version>
-        <solr.rrd4j.version>3.3.1</solr.rrd4j.version>
-        <solr.hadoop.version>2.7.4</solr.hadoop.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -51,92 +42,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-kuromoji</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-phonetic</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-backward-codecs</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-classification</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-codecs</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
             <version>${solr.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-expressions</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-grouping</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-highlighter</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-join</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-memory</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-misc</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queries</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-sandbox</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-spatial-extras</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-spatial3d</artifactId>
-            <version>${solr.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-suggest</artifactId>
             <version>${solr.version}</version>
         </dependency>
         <dependency>
@@ -151,151 +62,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.carrotsearch</groupId>
-            <artifactId>hppc</artifactId>
-            <version>0.8.1</version>
-        </dependency>
-        <!--
-          DDF is no longer using the same version of jackson that the official Solr project uses
-          because of OWASP.
-        -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-smile</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
-            <version>2.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>20.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.tdunning</groupId>
-            <artifactId>t-digest</artifactId>
-            <version>3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-cli</groupId>
-            <artifactId>commons-cli</artifactId>
-            <version>1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.11</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-configuration</groupId>
-            <artifactId>commons-configuration</artifactId>
-            <version>1.6</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>1.3.3</version>
-        </dependency>
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.6</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
-        </dependency>
-        <dependency>
-            <groupId>dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>1.6.1</version>
-        </dependency>
-        <dependency>
-            <groupId>info.ganglia.gmetric4j</groupId>
-            <artifactId>gmetric4j</artifactId>
-            <version>1.0.7</version>
-        </dependency>
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>2.10</version>
-        </dependency>
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr4-runtime</artifactId>
-            <version>4.5.1-1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-exec</artifactId>
-            <version>1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-annotations</artifactId>
-            <version>2.7.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-auth</artifactId>
-            <version>2.7.4</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-common</artifactId>
-            <version>2.7.4</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-hdfs</artifactId>
-            <version>2.7.4</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-all</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -324,79 +93,19 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.13</version>
-        </dependency>
-        <dependency>
             <groupId>org.locationtech.spatial4j</groupId>
             <artifactId>spatial4j</artifactId>
             <version>0.7</version>
         </dependency>
         <dependency>
+            <groupId>org.locationtech.jts</groupId>
+            <artifactId>jts-core</artifactId>
+            <version>${jts.spatial4j.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.noggit</groupId>
             <artifactId>noggit</artifactId>
             <version>${solr.noggit.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>5.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-commons</artifactId>
-            <version>6.2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.restlet.jee</groupId>
-            <artifactId>org.restlet</artifactId>
-            <version>2.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.restlet.jee</groupId>
-            <artifactId>org.restlet.ext.servlet</artifactId>
-            <version>2.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.locationtech.jts</groupId>
-            <artifactId>jts-core</artifactId>
-            <version>1.15.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.rrd4j</groupId>
-            <artifactId>rrd4j</artifactId>
-            <version>${solr.rrd4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-jetty9</artifactId>
-            <version>${solr.metrics.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-graphite</artifactId>
-            <version>${solr.metrics.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-ganglia</artifactId>
-            <version>${solr.metrics.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-jvm</artifactId>
-            <version>${solr.metrics.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-            <version>${solr.metrics.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.sgr</groupId>
-            <artifactId>s2-geometry-library-java</artifactId>
-            <version>1.0.0</version>
         </dependency>
     </dependencies>
     <build>
@@ -409,70 +118,12 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Require-Capability>osgi.ee;filter:="(&amp;(osgi.ee=JavaSE)(version=1.8))"</Require-Capability>
                         <Export-Package>
-                            <!--packages required to implement solr-factory apis-->
-                            com.codahale.metrics;version=${solr.metrics.version},
-                            org.apache.hadoop.conf;version=${solr.hadoop.version},
-                            org.apache.hadoop.fs;version=${solr.hadoop.version},
-                            org.apache.hadoop.fs.permission;version=${solr.hadoop.version},
-                            org.apache.hadoop.io;version=${solr.hadoop.version},
-                            org.apache.hadoop.security;version=${solr.hadoop.version},
-                            org.apache.hadoop.security.token;version=${solr.hadoop.version},
-                            org.apache.hadoop.util;version=${solr.hadoop.version},
+                            <!--packages required for solrj -->
                             org.apache.jute;version=${solr.zookeeper.version},
-                            org.apache.lucene.analysis;version=${solr.version},
-                            org.apache.lucene.analysis.util;version=${solr.version},
-                            org.apache.lucene.codecs;version=${solr.version},
-                            org.apache.lucene.document;version=${solr.version},
-                            org.apache.lucene.index;version=${solr.version},
-                            org.apache.lucene.queries.function;version=${solr.version},
-                            org.apache.lucene.queries.payloads;version=${solr.version},
-                            org.apache.lucene.search;version=${solr.version},
-                            org.apache.lucene.search.similarities;version=${solr.version},
-                            org.apache.lucene.store;version=${solr.version},
-                            org.apache.lucene.util;version=${solr.version},
-                            org.apache.lucene.util.mutable;version=${solr.version},
-                            org.apache.solr.api;version=${solr.version},
-                            org.apache.solr.client.solrj;version=${solr.version},
-                            org.apache.solr.client.solrj.beans;version=${solr.version},
-                            org.apache.solr.client.solrj.cloud;version=${solr.version},
-                            org.apache.solr.client.solrj.cloud.autoscaling;version=${solr.version},
-                            org.apache.solr.client.solrj.impl;version=${solr.version},
-                            org.apache.solr.client.solrj.request;version=${solr.version},
-                            org.apache.solr.client.solrj.response;version=${solr.version},
-                            org.apache.solr.cloud;version=${solr.version},
-                            org.apache.solr.common;version=${solr.version},
-                            org.apache.solr.common.cloud;version=${solr.version},
-                            org.apache.solr.common.params;version=${solr.version},
-                            org.apache.solr.common.util;version=${solr.version},
-                            org.apache.solr.core;version=${solr.version},
-                            org.apache.solr.core.backup.repository;version=${solr.version},
-                            org.apache.solr.core.snapshots;version=${solr.version},
-                            org.apache.solr.handler;version=${solr.version},
-                            org.apache.solr.handler.admin;version=${solr.version},
-                            org.apache.solr.handler.component;version=${solr.version},
-                            org.apache.solr.logging;version=${solr.version},
-                            org.apache.solr.metrics;version=${solr.version},
-                            org.apache.solr.metrics.rrd;version=${solr.version},
-                            org.apache.solr.request;version=${solr.version},
-                            org.apache.solr.response;version=${solr.version},
-                            org.apache.solr.response.transform;version=${solr.version},
-                            org.apache.solr.rest;version=${solr.version},
-                            org.apache.solr.schema;version=${solr.version},
-                            org.apache.solr.search;version=${solr.version},
-                            org.apache.solr.search.stats;version=${solr.version},
-                            org.apache.solr.security;version=${solr.version},
-                            org.apache.solr.servlet;version=${solr.version},
-                            org.apache.solr.uninverting;version=${solr.version},
-                            org.apache.solr.update;version=${solr.version},
-                            org.apache.solr.update.processor;version=${solr.version},
-                            org.apache.solr.util;version=${solr.version},
-                            org.apache.solr.util.plugin;version=${solr.version},
-                            org.apache.zookeeper;version=${solr.zookeeper.version},
-                            org.apache.zookeeper.client;version=${solr.zookeeper.version},
-                            org.apache.zookeeper.data;version=${solr.zookeeper.version},
-                            org.apache.zookeeper.proto;version=${solr.zookeeper.version},
+                            org.apache.solr.client.solrj.*;version=${solr.version},
+                            org.apache.solr.common.*;version=${solr.version},
+                            org.apache.zookeeper.*;version=${solr.zookeeper.version},
                             org.noggit;version=${solr.noggit.version},
-                            org.rrd4j.core;version=${solr.rrd4j.version},
 
                             <!-- used by solr-factory implementation -->
                             org.apache.solr.client.solrj.embedded;version=${solr.version},
@@ -486,77 +137,28 @@
                             org.apache.lucene.queryparser.classic;version=${solr.version},
                             org.apache.lucene.queryparser.ext;version=${solr.version},
                             org.apache.lucene.queryparser.xml;version=${solr.version},
-                            org.apache.lucene.search.highlight;version=${solr.version},
                             org.apache.lucene.search.spans;version=${solr.version},
+                            org.apache.lucene.store;version=${solr.version},
+                            org.apache.lucene.util;version=${solr.version},
                             org.apache.solr.parser;version=${solr.version},
 
                             <!-- dependencies used by catalog-core-solr-->
-                            org.locationtech.*;version=${solr.spatial4j.version}
+                            org.locationtech.spatial4j.*;version=${solr.spatial4j.version},
+                            org.locationtech.jts.*;version=${jts.spatial4j.version}
                         </Export-Package>
                         <Embed-Dependency>
                             solr-core,
                             lucene-analyzers-common,
-                            lucene-analyzers-kuromoji,
-                            lucene-analyzers-phonetic,
-                            lucene-backward-codecs,
-                            lucene-classification,
-                            lucene-codecs,
                             lucene-core,
-                            lucene-expressions,
-                            lucene-grouping,
-                            lucene-highlighter,
-                            lucene-join,
-                            lucene-memory,
-                            lucene-misc,
-                            lucene-queries,
                             lucene-queryparser,
-                            lucene-sandbox,
-                            lucene-spatial-extras,
-                            lucene-spatial3d,
-                            lucene-suggest,
                             solr-solrj,
-                            hppc,
-                            jackson-annotations,
-                            jackson-core,
-                            jackson-databind,
-                            jackson-dataformat-smile,
-                            caffeine,
-                            guava,
-                            protobuf-java,
-                            t-digest,
-                            commons-cli,
-                            commons-codec,
-                            commons-collections,
-                            commons-configuration,
-                            commons-fileupload,
                             commons-io,
-                            commons-lang,
-                            dom4j,
-                            gmetric4j,
-                            joda-time,
-                            antlr4-runtime,
-                            commons-exec,
-                            hadoop-annotations,
-                            hadoop-auth,
-                            hadoop-common,
-                            hadoop-hdfs,
                             httpmime,
-                            zookeeper,
-                            jackson-mapper-asl,
-                            spatial4j,
                             noggit,
-                            asm,
-                            asm-commons,
-                            org.restlet,
-                            org.restlet.ext.servlet,
+                            zookeeper,
+                            spatial4j,
                             jts-core,
-                            rrd4j,
-                            metrics-jetty9,
-                            metrics-graphite,
-                            metrics-ganglia,
-                            metrics-jvm,
-                            metrics-core,
-                            s2-geometry-library-java
+                            lux
                         </Embed-Dependency>
                         <Import-Package>
                             org.slf4j;version=${org.slf4j.version},

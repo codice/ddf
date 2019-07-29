@@ -32,9 +32,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-core</artifactId>
-            <version>${solr.version}</version>
+            <groupId>ddf.platform.solr</groupId>
+            <artifactId>solr-dependencies</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform.solr</groupId>

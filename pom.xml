@@ -293,6 +293,9 @@
         <solr.version>7.4.0</solr.version>
         <solr.httpclient.version>4.5.6</solr.httpclient.version>
         <solr.httpcore.version>4.4.10</solr.httpcore.version>
+        <solr.zookeeper.version>3.4.11</solr.zookeeper.version>
+        <solr.noggit.version>0.8</solr.noggit.version>
+        <solr.spatial4j.version>0.7</solr.spatial4j.version>
 
         <spark.version>2.5.5</spark.version>
         <spatial4j.version>0.7</spatial4j.version>

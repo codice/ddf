@@ -30,8 +30,7 @@
  *
  * <p>The {@link org.codice.solr.factory.impl.SolrClientAdapter} will be returned right away by the
  * {@link org.codice.solr.factory.impl.HttpSolrClientFactory}, {@link
- * org.codice.solr.factory.impl.SolrCloudClientFactory}, and {@link
- * org.codice.solr.factory.impl.EmbeddedSolrFactory} before the actual SolrJ {@link
+ * org.codice.solr.factory.impl.SolrCloudClientFactory} before the actual SolrJ {@link
  * org.apache.solr.client.solrj.SolrClient} has been created and whether or not the Solr server is
  * reachable. At initialization time, it will redirect all API calls to an {@link
  * org.codice.solr.factory.impl.UnavailableSolrClient} that will fail all of them. During this time,
