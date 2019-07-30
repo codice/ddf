@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
 
-    <!-- False positive against Tika -->
     <suppress>
-        <notes>These CVEs are against versions less than 1.18 and we're on 1.18. False positives</notes>
+        <notes>
+            vorbis-java-tika-0.8.jar from tika-bundle-1.18.0_5.jar
+            tika-parsers uses vorbis 0.8. That version is not upgraded in the latest tika-parsers version.
+        </notes>
         <cve>CVE-2016-6809</cve>
         <cve>CVE-2018-1335</cve>
     </suppress>
@@ -15,18 +17,9 @@
             platform-metrics-reporting only creates them. The issue is resolved in version 3.16 but
             will require code refactoring.
             poi-3.12.jar (cpe:/a:apache:poi:3.12, org.apache.poi:poi:3.12) : CVE-2017-5644
+            ooxml-schemas-1.3.jar and ooxml-security-1.1.jar
         </notes>
         <cve>CVE-2017-5644</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            CVE-2004-0009 is an issue with Apache not-yet-commons-ssl. This jar has been stripped
-            from the distribution, the suppression is to prevent OWASP from complaining.
-
-            apache-karaf-4.1.2.tar.gz: apache-karaf-4.1.2.tar:
-            org.apache.servicemix.bundles.not-yet-commons-ssl-0.3.11_1.jar
-        </notes>
-        <cve>CVE-2004-0009</cve>
     </suppress>
     <suppress>
         <notes>
@@ -37,37 +30,23 @@
             if the Spring libraries are available in the classpath.
             We have upgraded to 2.9.4 which fixes the issue but version 2.6.3 is still being used by
             org.apache.cxf:cxf-rt-rs-security-sso-saml -> ehcache-2.10.4 -> jackson-databind-2.6.3.
+            solr-assembly.zip -> jackson-core-asl-1.9.13.jar
             This suppression can be removed when DDF-3593 has been completed.
         </notes>
         <cve>CVE-2016-3720</cve>
-        <cve>CVE-2016-7051</cve>
         <cve>CVE-2017-7525</cve>
         <cve>CVE-2017-15095</cve>
         <cve>CVE-2017-17485</cve>
-        <cve>CVE-2018-5968</cve>
         <cve>CVE-2018-7489</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            CVE-2008-0660 is a stack based buffer overflow vulnerability related to ActiveX and
-            several image uploaders. This is unrelated to presto-parser, so marking as a false
-            positive.
-        </notes>
-        <cve>CVE-2008-0660</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            CVE-2016-1000031: Applies to commons-fileupload-1.2.1, suppressing because the
-            vulnerable class DiskFileItem is not used in the project
-        </notes>
-        <cve>CVE-2016-1000031</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            False positive. This cve is not related to pax-url-aether.
-            pax-url-aether-2.4.7.jar
-        </notes>
-        <cve>CVE-2016-0749</cve>
+
+        <cve>CVE-2018-11307</cve>
+        <cve>CVE-2018-14719</cve>
+        <cve>CVE-2018-14718</cve>
+        <cve>CVE-2018-14721</cve>
+        <cve>CVE-2018-14720</cve>
+        <cve>CVE-2018-19362</cve>
+        <cve>CVE-2018-19361</cve>
+        <cve>CVE-2018-19360</cve>
     </suppress>
     <suppress>
         <notes>
@@ -75,33 +54,7 @@
             OWASP is getting confused by our version number being on a jar with solr in the name we
             are on solr 6.6+ which is not affected by this issue.
         </notes>
-        <cve>CVE-2017-3163</cve>
-        <cve>CVE-2015-8797</cve>
-        <cve>CVE-2015-8796</cve>
-        <cve>CVE-2015-8795</cve>
-        <cve>CVE-2013-6408</cve>
-        <cve>CVE-2013-6407</cve>
-        <cve>CVE-2013-6397</cve>
         <cve>CVE-2012-6612</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            file name: commons-beanutils-1.8.3.jar
-            shiro-core has a dependency on this but it doesn’t expose commons-beanutils to user
-            input so it wouldn't pose a risk like the struts library that is called out in the CVE
-        </notes>
-        <sha1>686EF3410BCF4AB8CE7FD0B899E832AABA5FACF7</sha1>
-        <cve>CVE-2014-0114</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            false positive CVE is unrelated. owasp is confusing the platform-filter-delegate with
-            the DeleGate library
-            file name: platform-filter-delegate-*.jar
-        </notes>
-        <cve>CVE-2005-0036</cve>
-        <cve>CVE-1999-1338</cve>
-        <cve>CVE-2005-0861</cve>
     </suppress>
 
     <!-- proxy-camel-servlet false positives - these are all because the proxy-camel-servlet is getting confused with the camel-servlet-->
@@ -110,6 +63,7 @@
             This is an issue with Camel version before 2.16.1 OWASP appears to have confused the
             internal proxy-camel-servlet version with the overall Camel version - marking as false
             positive.
+            ddf distribution -> org.apache.karaf.decanter.appender.camel-1.3.0.jar
         </notes>
         <cve>CVE-2014-0002</cve>
         <cve>CVE-2014-0003</cve>
@@ -117,54 +71,52 @@
         <cve>CVE-2017-3159</cve>
         <cve>CVE-2017-12633</cve>
         <cve>CVE-2017-12634</cve>
+        <cve>CVE-2016-8749</cve>
     </suppress>
     <suppress>
         <notes>
-            From security-core-api SecurityLogger. This is not an issue as we are not receiving
-            logging messages via TCP or UDP socket. This can be fixed by upgrading to version 2.8.2.
-            The version upgrade requires an update to karaf 4.1.1
-            log4j-api-2.4.1.jar (cpe:/a:apache:log4j:2.4.1,
-            org.apache.logging.log4j:log4j-api:2.4.1)
+            This is an issue with Camel version before 2.16.1 OWASP appears to have confused the
+            internal proxy-camel-servlet version with the overall Camel version - marking as false
+            positive.
+            org.apache.karaf.decanter.appender.camel-1.3.0.jar
+            org.apache.karaf.decanter.collector.camel-tracer-1.3.0.jar
+            org.apache.karaf.decanter.sla.camel-1.3.0.jar
         </notes>
-        <cve>CVE-2017-5645</cve>
+        <cve>CVE-2014-0002</cve>
+        <cve>CVE-2014-0003</cve>
+        <cve>CVE-2015-5344</cve>
     </suppress>
-
-    <!-- these are the geowebcache vulnerabilities it is not installed by default and it is only
-    experimental these security issues would need to be resolved before geowebcache can be
-    installed in a production environment-->
     <suppress>
         <notes>
+            <!-- these are the geowebcache vulnerabilities it is not installed by default and it is only
+            experimental these security issues would need to be resolved before geowebcache can be
+            installed in a production environment-->
             gwc-web-1.5.0.war: com.noelios.restlet-1.0.8.jar
             gwc-web-1.5.0.war: commons-beanutils-1.7.0.jar
             gwc-web-1.5.0.war: commons-collections-3.1.jar
             gwc-web-1.5.0.war: postgresql-8.4-701.jdbc3.jar
+            gwc-web-1.9.1.war: commons-fileupload-1.2.1.jar, suppressing because the vulnerable class DiskFileItem is not used in the project
+            gwc-web-1.9.1.war: gwc-sqlite-1.9.1.jar
             geowebcache-server-standalone-0.7.0.war: gwc-sqlite-1.9.1.jar
             geowebcache-server-standalone-0.7.0.war: sqlite-jdbc-3.8.6.jar
             geowebcache-server-standalone-0.7.0.war: commons-fileupload-1.2.1.jar
+            solr-dependencies -> commons-configuration -> commons-beanutils
+            org.codice:lux -> solr-core -> org.restlet-2.1.1.jar
         </notes>
         <cve>CVE-2016-3092</cve>
         <cve>CVE-2014-0050</cve>
         <cve>CVE-2013-4271</cve>
         <cve>CVE-2013-4221</cve>
-        <cve>CVE-2013-0248</cve>
         <cve>CVE-2014-0114</cve>
-        <cve>CVE-2015-6420</cve>
-        <cve>CVE-2016-0766</cve>
         <cve>CVE-2015-5895</cve>
         <cve>CVE-2015-3717</cve>
         <cve>CVE-2015-3416</cve>
         <cve>CVE-2015-3415</cve>
         <cve>CVE-2015-3414</cve>
         <cve>CVE-2017-10989</cve>
-        <cve>CVE-2005-2992</cve>
-        <cve>CVE-2005-2945</cve>
-        <cve>CVE-2016-6153</cve>
-        <cve>CVE-2015-6607</cve>
-        <cve>CVE-2016-9878</cve>
-        <cve>CVE-2016-5007</cve>
-        <cve>CVE-2016-3674</cve>
         <cve>CVE-2016-7048</cve>
         <cve>CVE-2019-8457</cve>
+        <cve>CVE-2016-1000031</cve>
     </suppress>
     <suppress>
         <notes>
@@ -172,34 +124,17 @@
             camel-cxf-2.19.0.jar.
             The CVEs are in CXF versions in this case the camel version is incorrectly being used
         </notes>
-        <cve>CVE-2017-5643</cve>
-        <cve>CVE-2017-3159</cve>
-        <cve>CVE-2015-5344</cve>
-        <cve>CVE-2015-5348</cve>
-        <cve>CVE-2015-0264</cve>
-        <cve>CVE-2015-0263</cve>
-        <cve>CVE-2014-0003</cve>
-        <cve>CVE-2014-0002</cve>
         <cve>CVE-2016-8739</cve>
-        <cve>CVE-2017-5656</cve>
-        <cve>CVE-2017-5653</cve>
-        <cve>CVE-2017-3156</cve>
-        <cve>CVE-2016-6812</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            This CVE applies to Camel versions 2.16.0 through 2.18.1.
-            DDF version was changed to 2.16.0 and OWASP thinks a custom bundle with the word “camel”
-            means DDF uses version 2.16.0 of Camel. This is not true. At the time of this writing,
-            DDF uses Camel version camel 2.22.1 (see root POM file), which is not subject to this
-            vulnerability.
-        </notes>
-        <cve>CVE-2016-8749</cve>
     </suppress>
     <suppress>
         <notes>
             These CVEs are all related to asciidoc and jruby vulnerabilities which are only used
             when the documentation is building.
+            asciidoctorj-1.5.6.jar: jruby_cache_backend.jar
+            jruby-complete-9.0.4.0.jar: jopenssl.jar
+            jruby-complete-9.0.4.0.jar: readline.jar
+            jruby-complete-9.0.4.0.jar: cparse-jruby.jar
+            jruby-complete-9.0.4.0.jar/META-INF/maven/com.boundary/high-scale-lib/pom.xml
         </notes>
         <cve>CVE-1999-0428</cve>
         <cve>CVE-2009-3245</cve>
@@ -225,127 +160,11 @@
     </suppress>
     <suppress>
         <notes>
-            This CVE affects jetty's Password.java class, which is not relied on in the running
-            system.
-            jetty-io-9.3.14.v20161028.jar
-            jetty-jmx-9.3.14.v20161028.jar
-            jetty-servlets-9.2.19.v20160908.jar
-            jetty-util-ajax-9.2.14.v20151106.jar
-            jetty-webapp-9.3.6.v20151106.jar
-            websocket-api-9.3.6.v20151106.jar
-            ehcache-2.10.3.jar/rest-management-private-classpath/META-INF/maven/org.eclipse.jetty/jetty-io/pom.xml
-        </notes>
-        <cve>CVE-2017-9735</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            This CVE has to do with a command that is not used in the running system.
-            aws-java-sdk-opsworkscm-1.11.108.jar
-        </notes>
-        <cve>CVE-2015-8559</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            This CVE is out of date. The vulnerability is fixed in 3.x versions of protobuf.
-            protobuf-java-3.1.0.jar
-            pnotify-1.3.1.jar: compiler.jar/META-INF/maven/com.google.protobuf/protobuf-java/pom.xml
-        </notes>
-        <cve>CVE-2015-5237</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            These CVEs only apply to the google android and google desktop libraries which do not
-            affect the running system.
-            google-http-client-1.22.0.jar
-        </notes>
-        <cve>CVE-2016-5696</cve>
-        <cve>CVE-2014-6060</cve>
-        <cve>CVE-2014-1939</cve>
-        <cve>CVE-2013-7372</cve>
-        <cve>CVE-2010-1807</cve>
-        <cve>CVE-2007-3150</cve>
-        <cve>CVE-2007-1085</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            This CVE is disputed by SUN, but the claim is that a denial of service attack can be
-            incurred.
-            This dependency is used for workspace email notifications and is limited by the cron
-            string configuration.
-            This cron string configuration mitigates the possibility of a denial of service attack.
-            javax.mail-1.5.5.jar
-            mail-1.4.5.jar
-        </notes>
-        <cve>CVE-2007-6059</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            This CVE applies to ganglia-web. OWASP is flagging this CVE on gmetric4j-1.0.7.jar (as a
-            direct transitive and as a transitive to metrics-ganglia-3.2.2.jar).
-            Though gmetric4j-1.0.7.jar has the same group id as ganglia-web, it does not depend on
-            ganglia-web.
-            gmetric4j-1.0.7.jar
-            metrics-ganglia-3.2.2.jar
-        </notes>
-        <cve>CVE-2007-6465</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            This CVE is at the OS level and does not apply to the running system.
-            jna-4.4.0.jar
-        </notes>
-        <cve>CVE-2012-0217</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            These CVEs apply to ActiveMQ, but OWASP is looking at the version of Artemis (2.1.0).
-            These CVEs do not apply to the version of ActiveMQ server that is used in the system
-            (currently 5.14.5).
-            artemis-core-client-2.1.0.jar
-        </notes>
-        <cve>CVE-2016-3088</cve>
-        <cve>CVE-2014-3576</cve>
-        <cve>CVE-2013-3060</cve>
-        <cve>CVE-2013-1880</cve>
-        <cve>CVE-2013-1879</cve>
-        <cve>CVE-2012-6551</cve>
-        <cve>CVE-2012-6092</cve>
-        <cve>CVE-2012-5784</cve>
-        <cve>CVE-2011-4905</cve>
-        <cve>CVE-2010-1244</cve>
-        <cve>CVE-2010-0684</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            This CVE is fixed in Artemis ActiveMQ for all released versions.
-            See
-            https://github.com/apache/activemq-artemis/commit/48d9951d879e0c8cbb59d4b64ab59d53ef88310d
-            artemis-core-client-2.1.0.jar
-        </notes>
-        <cve>CVE-2015-3208</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            This CVE applies to the Jolokia API provided by ActiveMQ which is secured by DDF
-            security, so the vulnerability is mitigated.
-        </notes>
-        <cve>CVE-2015-5182</cve>
-    </suppress>
-    <suppress>
-        <notes>
             These CVEs apply to the Hawtio console which is not exposed in this system.
-            artemis-core-client-2.1.0.jar
+            artemis-core-client-2.1.0.jar and activemq-client-5.14.5.jar
         </notes>
         <cve>CVE-2015-5184</cve>
         <cve>CVE-2015-5183</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            These CVEs apply to Apache Zookeeper which does not affect the running system.
-            curator-recipes-2.8.0.jar
-        </notes>
-        <cve>CVE-2016-5017</cve>
-        <cve>CVE-2014-0085</cve>
     </suppress>
     <suppress>
         <notes>
@@ -362,106 +181,26 @@
             org.apache.servicemix.specs.saaj-api-1.3-2.9.0.jar/META-INF/maven/org.apache.geronimo.specs/geronimo-saaj_1.3_spec/pom.xml
             apache-karaf-4.1.2.tar.gz: apache-karaf-4.1.2.tar:
             org.apache.servicemix.specs.jaxws-api-2.2-2.9.0.jar/META-INF/maven/org.apache.geronimo.specs/geronimo-jaxws_2.2_spec/pom.xml
+            geronimo-javamail_1.4_mail-1.8.4.jar: transitive dependency of wss4j-ws-security-dom
         </notes>
         <cve>CVE-2011-5034</cve>
-        <cve>CVE-2008-0732</cve>
-        <cve>CVE-2006-0254</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            This CVE applies to a frontend tool called jCore before 1.0pre2.
-            It does not apply to the artifact that OWASP is reporting.
-            apache-mime4j-core-0.7.2.jar
-        </notes>
-        <cve>CVE-2012-4231</cve>
-        <cve>CVE-2012-4232</cve>
     </suppress>
     <suppress>
         <notes>
             This CVE applies to Apache-SSL 1.3.28+1.52 and earlier. It does not apply to the
             artifact that OWASP is reporting.
-            apache-karaf-4.1.2.tar.gz: apache-karaf-4.1.2.tar:
+            apache-karaf-4.2.2.tar.gz: apache-karaf-4.2.2.tar:
             org.apache.servicemix.bundles.not-yet-commons-ssl-0.3.11_1.jar
         </notes>
         <cve>CVE-2004-0009</cve>
     </suppress>
     <suppress>
         <notes>
-            These CVEs apply to "Apache QPID 0.30" and previous versions. This particular maven
-            artifact is a new qpid artifact.
-            Its first release came after all of these CVEs.
-            qpid-jms-client-0.11.1.jar
+            Applies to an LDAP class that we do not use in the system.
+            - groovy-all-2.4.7.jar is only used in tests.
+            - rest-assured 2.9.0 uses groovy-2.4.4.jar and groovy-xml-2.4.4.jar
         </notes>
-        <cve>CVE-2015-0223</cve>
-        <cve>CVE-2015-0224</cve>
-        <cve>CVE-2013-1909</cve>
-        <cve>CVE-2012-4460</cve>
-        <cve>CVE-2012-4459</cve>
-        <cve>CVE-2012-4458</cve>
-        <cve>CVE-2012-4446</cve>
-        <cve>CVE-2012-3467</cve>
-        <cve>CVE-2012-2145</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            Applies to an LDAP class that we do not use in the system. Also, this jar is only used
-            in tests.
-            groovy-all-2.4.7.jar
-        </notes>
-        <cve>CVE-2016-6497</cve>
         <cve>CVE-2016-6814</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            These CVEs do not apply to this version of bzip2
-            bzip2-0.9.1.jar
-        </notes>
-        <cve>CVE-2011-4089</cve>
-        <cve>CVE-2010-0405</cve>
-        <cve>CVE-2005-1260</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            These CVEs apply to version 1.7.3 and earlier
-            pax-logging-api-1.10.1.jar
-        </notes>
-        <cve>CVE-2015-1194</cve>
-        <cve>CVE-2015-1193</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            The vulnerability applies to NPM's CLI which does not apply here
-            q-1.4.1.jar
-        </notes>
-        <cve>CVE-2016-3956</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            These CVEs apply to the Eclipse IDE. OWASP flagged it because eclipse is in the group
-            id.
-            pax-url-aether-2.5.2.jar/META-INF/maven/org.eclipse.aether/aether-spi/pom.xml
-        </notes>
-        <cve>CVE-2010-4647</cve>
-        <cve>CVE-2008-7271</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            These CVEs apply to the system-level project called spice. OWASP incorrectly labeled
-            this.
-            pax-url-aether-2.5.2.jar/META-INF/maven/org.sonatype.plexus/plexus-cipher/pom.xml:
-            pax-url-aether-2.5.2.jar/META-INF/maven/org.sonatype.plexus/plexus-sec-dispatcher/pom.xml
-        </notes>
-        <cve>CVE-2016-2150</cve>
-        <cve>CVE-2016-0749</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            These CVEs apply to Java or Sun application servers. Not applicable to this system.
-            servlet-api-2.5.jar
-        </notes>
-        <cve>CVE-2006-5654</cve>
-        <cve>CVE-2006-3225</cve>
-        <cve>CVE-2006-2501</cve>
     </suppress>
     <suppress>
         <notes>
@@ -471,17 +210,26 @@
             security-pdp-authzrealm-2.11.4-SNAPSHOT.jar (cpe:/a:apache:commons_beanutils:2.11.4,
             cpe:/a:apache:commons_collections:2.11.4,
             ddf.security.pdp:security-pdp-authzrealm:2.11.4-SNAPSHOT)
+            security-sts-attributequeryclaimshandler-2.17.0-SNAPSHOT.jar
         </notes>
         <cve>CVE-2017-15708</cve>
+        <cve>CVE-2015-6420</cve>
     </suppress>
     <suppress>
-        <notes>False positive. This CVE is for a Perl library</notes>
+        <notes>
+            False positive. This CVE is for a Perl library
+            Algorithmic complexity vulnerability in Address.pm in the Email-Address module 1.908 and earlier for Perl allows
+            remote attackers to cause a denial of service (CPU consumption) via a crafted string containing a list of e-mail
+            addresses in conjunction with parenthesis characters that can be associated with nested comments.
+            NOTE: the default configuration in 1.908 mitigates this vulnerability but misparses certain realistic comments.
+            platform-email-impl -> simple-java-mail-4.1.3.jar/META-INF/maven/com.github.bbottema/emailaddress-rfc2822/pom.xml
+            simple-java-mail could be upgraded.
+        </notes>
         <cve>CVE-2015-7686</cve>
     </suppress>
     <suppress>
         <notes>
-            Remove this supression when this PR is merged
-            https://github.com/codice/ddf/pull/3077
+            restito-0.8.2.jar: is still used in thirdparty/restito in DDF
         </notes>
         <cve>CVE-2015-1820</cve>
     </suppress>
@@ -493,6 +241,7 @@
         <notes>
             These CVEs are not an issue since the software is not exposing STOMP over WebSocket
             endpoints.
+            security-sts-ldapclaimshandler -> spring-ldap-core -> spring-tx-4.3.4.RELEASE.jar
         </notes>
         <cve>CVE-2018-1270</cve>
         <cve>CVE-2018-1275</cve>
@@ -502,59 +251,44 @@
         <notes>
             These CVEs affect Jetty 9.3.x up to 9.3.23 and 9.4.x up to 9.4.10. DDF is using a
             version of jetty that does not fall within those ranges.
+            However, org.apache.cxf:cxf-rt-ws-security:jar:3.2.6 uses ehcache:jar:2.10.5 which has a vulnerable jetty
+            ehcache-2.10.5.jar/rest-management-private-classpath/META-INF/maven/org.eclipse.jetty/jetty-http/pom.xml
         </notes>
         <cve>CVE-2017-7658</cve>
         <cve>CVE-2017-7657</cve>
     </suppress>
-
     <suppress>
         <notes>
             Nearly all of these are not an issue because either we are not using those features
             entirely or (and in addition to the fact) that solr is now running as an external
             process and completely locked down, so no one could access solr to take advantage of
             these vulnerabilities. All communication is controlled by DDF.
+
+            kernel -> solr-assembly.zip -> velocity-tools-2.0.jar
         </notes>
         <cve>CVE-2016-3081</cve>
-        <cve>CVE-2016-7415</cve>
-        <cve>CVE-2017-17484</cve>
-        <cve>CVE-2017-5637</cve>
-        <cve>CVE-2017-14868</cve>
         <cve>CVE-2013-4316</cve>
         <cve>CVE-2016-4436</cve>
-        <cve>CVE-2017-3162</cve>
         <cve>CVE-2013-2115</cve>
-        <cve>CVE-2014-1868</cve>
         <cve>CVE-2012-0391</cve>
-        <cve>CVE-2017-14952</cve>
-        <cve>CVE-2017-14949</cve>
         <cve>CVE-2016-3082</cve>
         <cve>CVE-2013-2135</cve>
         <cve>CVE-2014-0112</cve>
-        <cve>CVE-2016-5001</cve>
-        <cve>CVE-2017-3161</cve>
-        <cve>CVE-2012-0392</cve>
-        <cve>CVE-2014-3577</cve>
-        <cve>CVE-2014-3627</cve>
         <cve>CVE-2012-0838</cve>
         <cve>CVE-2013-1965</cve>
         <cve>CVE-2013-1966</cve>
-        <cve>CVE-2015-5262</cve>
         <cve>CVE-2014-0113</cve>
-        <cve>CVE-2014-0229</cve>
-        <cve>CVE-2017-15713</cve>
-        <cve>CVE-2016-6293</cve>
         <cve>CVE-2013-2134</cve>
-        <cve>CVE-2018-8012</cve>
         <cve>CVE-2013-2251</cve>
         <cve>CVE-2016-0785</cve>
-        <cve>CVE-2016-6811</cve>
         <cve>CVE-2016-4461</cve>
-        <cve>CVE-2018-11766</cve>
     </suppress>
     <suppress>
         <notes>
             Apache httpd vulnerabilities inaccurately associated with artemis-server-osgi-2.4.0.jar
             and cxf-rt-transports-http-netty-server-3.2.5.jar in the DDF distribution.
+            artemis-server-osgi-2.6.2.jar
+            cxf-rt-transports-http-netty-server-3.2.6.jar
         </notes>
         <cve>CVE-1999-0236</cve>
         <cve>CVE-1999-1237</cve>
@@ -563,22 +297,6 @@
         <cve>CVE-2007-4723</cve>
         <cve>CVE-2009-1955</cve>
         <cve>CVE-2009-3095</cve>
-        <cve>CVE-2013-2249</cve>
-        <cve>CVE-2017-7679</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            False positives against cxf
-        </notes>
-        <cve>CVE-2007-6423</cve>
-        <cve>CVE-2010-0425</cve>
-        <cve>CVE-2009-1890</cve>
-        <cve>CVE-2009-1891</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            False positives against artemis
-        </notes>
         <cve>CVE-2007-6423</cve>
         <cve>CVE-2010-0425</cve>
         <cve>CVE-2009-1890</cve>
@@ -592,19 +310,6 @@
     </suppress>
     <suppress>
         <notes>
-            These CVEs against jackson-databind only affect versions 2.9.7 and lower.
-        </notes>
-        <cve>CVE-2018-11307</cve>
-        <cve>CVE-2018-14719</cve>
-        <cve>CVE-2018-14718</cve>
-        <cve>CVE-2018-14721</cve>
-        <cve>CVE-2018-14720</cve>
-        <cve>CVE-2018-19362</cve>
-        <cve>CVE-2018-19361</cve>
-        <cve>CVE-2018-19360</cve>
-    </suppress>
-    <suppress>
-        <notes>
             A CVE against tomcat-embed-jasper, which is brought in transitively from pax-web-jsp.
             The CVE applies to the Windows command-line, which has no impact on DDF as it is used.
         </notes>
@@ -615,8 +320,14 @@
             This vulnerability is related to the use of Apache Hadoop YARN. YARN is a resource
             management application for Hadoop. DDF only include Hadoop JAR files to support Solr
             dependencies. DDF does not make use of YARN.
+
+            solr-dependencies -> hadoop-auth-2.7.4.jar (latest versions available)
+            org.codice:lux -> solr-core -> hadoop-auth-2.2.0.jar
         </notes>
         <cve>CVE-2018-8029</cve>
+        <cve>CVE-2018-11766</cve>
+        <cve>CVE-2016-6811</cve>
+        <cve>CVE-2017-3162</cve>
     </suppress>
 
 </suppressions>
