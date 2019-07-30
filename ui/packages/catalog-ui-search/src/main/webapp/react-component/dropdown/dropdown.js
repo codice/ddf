@@ -54,7 +54,13 @@ const getPosition = (viewport, rect) => {
   const top = y + height
   const bottom = viewport.height - y
   const pos = top > viewport.height / 2 ? { bottom } : { top }
-  return { width, left: x, ...pos }
+  return {
+    transform: `translateX(calc(-50% + ${width / 2}px))`,
+    width: 'auto',
+    minWidth: width,
+    left: x,
+    ...pos,
+  }
 }
 
 const Area = styled.div`
@@ -68,7 +74,7 @@ const Area = styled.div`
   box-shadow: 0px 0px 2px 1px rgba(255, 255, 255, 0.4),
     2px 2px 10px 2px rgba(0, 0, 0, 0.4);
   max-width: 90vw;
-  max-height: 25vh;
+  max-height: 28vh;
 `
 
 class DropdownArea extends React.Component {

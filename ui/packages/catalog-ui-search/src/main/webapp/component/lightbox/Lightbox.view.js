@@ -25,8 +25,9 @@ import MarionetteRegionContainer from '../../react-component/container/marionett
 
 module.exports = Marionette.LayoutView.extend(
   {
-    showContent(contentComponent) {
+    showContent(contentComponent, onClose) {
       this.contentComponent = contentComponent
+      this.onClose = onClose
       this.render()
     },
     template() {
@@ -124,6 +125,9 @@ module.exports = Marionette.LayoutView.extend(
     close() {
       this.model.close()
       $('html').toggleClass('open-lightbox', false)
+      if (typeof this.onClose === 'function') {
+        this.onClose()
+      }
     },
   },
   {

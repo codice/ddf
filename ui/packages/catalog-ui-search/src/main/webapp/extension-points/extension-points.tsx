@@ -21,6 +21,9 @@ import { providers, Props as ProviderProps } from './providers'
 import visualizations from './visualizations'
 import queryForms from './query-forms'
 import navigationRight from './navigation-right'
+import searchInteractions, {
+  SearchInteractionProps,
+} from './search-interactions'
 
 export type ExtensionPointsType = {
   routes: {}
@@ -30,6 +33,7 @@ export type ExtensionPointsType = {
   visualizations: any[]
   queryForms: any[]
   navigationRight: any[]
+  searchInteractions: SFC<SearchInteractionProps>
 }
 
 const ExtensionPoints: ExtensionPointsType = {
@@ -40,6 +44,7 @@ const ExtensionPoints: ExtensionPointsType = {
   visualizations,
   queryForms,
   navigationRight,
+  searchInteractions,
 }
 
 export default ExtensionPoints
