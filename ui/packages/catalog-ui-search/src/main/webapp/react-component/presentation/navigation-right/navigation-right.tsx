@@ -94,14 +94,6 @@ const Root = styled<Props, 'div'>('div')`
     padding: 0 ${navigationRightUserIcon} 0 0;
   }
 
-  .user-unique {
-    ${props => (props.isGuest ? 'display:none;' : '')};
-  }
-
-  .user-guest {
-    ${props => (!props.isGuest ? 'display:none;' : '')};
-  }
-
   ${props => {
     if (props.hasUnseenNotifications) {
       return `
