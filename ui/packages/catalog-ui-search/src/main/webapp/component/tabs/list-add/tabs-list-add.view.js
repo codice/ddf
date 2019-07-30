@@ -15,8 +15,6 @@
 const TabsView = require('../tabs.view')
 const ListAddTabsModel = require('./tabs-list-add')
 
-//const template = require('./list-add-view.hbs')
-
 module.exports = TabsView.extend({
   className: 'is-list-add',
   setDefaultModel(options) {

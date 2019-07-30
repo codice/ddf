@@ -17,19 +17,80 @@ const Marionette = require('marionette')
 const IngestView = require('../ingest/ingest.view')
 const BuilderView = require('../builder/builder.view')
 const template = require('./newitem.hbs')
-const CustomElements = require('../../js/CustomElements')
+
+import React from 'react'
+import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+import styled from '../../react-component/styles/styled-components'
 
 
+const ItemCreationView = styled.div`
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+    margin: ${props => props.theme.minimumSpacing};
+    height: calc(100% - 1.8rem);
+`
+
+const UploadView = styled.div`
+    width: 60%;
+`
+
+const OrContainer = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 6%;
+`
+
+const StyleLine = styled.div`
+    align-self: center;
+    width: 1px;
+    height: 75px;
+    box-shadow: 0px 0px 1px 1px;
+`
+
+const ManualView = styled.div`
+    overflow-y: scroll;
+    align-self: center;
+    width: 30%;
+    height: calc(100% - 3.5*1.8rem - 10px);
+`
 
 module.exports = Marionette.LayoutView.extend({
-    template,
-    regions: {
-        upload: '.upload-menu',
-        manual: '.manual-menu'
+    template() {
+        return (
+            <React.Fragment>
+                <ItemCreationView>
+                    <UploadView>
+                        <MarionetteRegionContainer
+                            className="upload-menu"
+                            view={IngestView}
+                        />
+                    </UploadView>
+                    <OrContainer>
+                        <StyleLine>
+                        </StyleLine>
+                        <div>OR</div>
+                        <StyleLine>
+                        </StyleLine>
+                    </OrContainer>
+
+                    <ManualView>
+                        <MarionetteRegionContainer
+                            className="manual-menu"
+                            view={new BuilderView({
+                                handleNewMetacard: this.options.handleNewMetacard,
+                                close: this.options.close,
+                                model: this.model
+                            })}
+                            
+                        />
+                    </ManualView>
+                </ItemCreationView>
+            </React.Fragment>
+        )
     },
-    tagName: CustomElements.register('newitem'),
-    initialize(options) {
-        this.getRegion('upload-menu').show(new IngestView());
-        this.getRegion('manual-menu').show(new BuilderView());
-    }
 })
+
