@@ -23,7 +23,7 @@ const comparisonClass = 'Comparison',
   logicalClass = 'Logical',
   spatialClass = 'Spatial',
   temporalClass = 'Temporal',
-  timePatter = /([0-9]{4})(-([0-9]{2})(-([0-9]{2})(T([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?/i,
+  timePatter = /((([0-9]{4})(-([0-9]{2})(-([0-9]{2})(T([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?)|^'')/i,
   patterns = {
     //Allows for non-standard single-quoted property names
     PROPERTY: /^([_a-zA-Z]\w*|"[^"]+"|'[^']+')/,
@@ -609,7 +609,7 @@ function write(filter) {
             ' ' +
             filter.type +
             ' ' +
-            filter.value.toString(dateTimeFormat)
+            (filter.value ? filter.value.toString(dateTimeFormat) : "''")
           )
         case 'DURING':
           return (
@@ -617,9 +617,9 @@ function write(filter) {
             ' ' +
             filter.type +
             ' ' +
-            filter.from.toString(dateTimeFormat) +
+            (filter.from ? filter.from.toString(dateTimeFormat) : "''") +
             '/' +
-            filter.to.toString(dateTimeFormat)
+            (filter.to ? filter.to.toString(dateTimeFormat) : "''")
           )
       }
       break
