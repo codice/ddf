@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.collections4.map.LinkedMap;
 
@@ -46,7 +47,8 @@ public class GsonTypeAdapters {
   public static class DateLongFormatTypeAdapter extends TypeAdapter<Date> {
     @Override
     public void write(JsonWriter out, Date date) throws IOException {
-      out.value(date.getTime());
+      Long time = Optional.ofNullable(date).map(Date::getTime).orElse(null);
+      out.value(time);
     }
 
     @Override
