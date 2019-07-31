@@ -509,9 +509,14 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
   @Override
   public SolrQuery propertyIsBetween(
-      String propertyName, Object lowerBoundary, Object upperBoundary) {
-    return getBetweenQuery(
-        propertyName, AttributeFormat.FLOAT, (Number) lowerBoundary, (Number) upperBoundary);
+      String propertyName, Object lowerBoundary, Object upperBoundary)
+      throws IllegalArgumentException {
+
+    if (lowerBoundary instanceof Number && upperBoundary instanceof Number) {
+      return getBetweenQuery(
+          propertyName, AttributeFormat.FLOAT, (Number) lowerBoundary, (Number) upperBoundary);
+    }
+    throw new IllegalArgumentException("Non Number Object values are not accepted.");
   }
 
   @Override

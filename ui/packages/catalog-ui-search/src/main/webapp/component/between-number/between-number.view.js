@@ -14,39 +14,55 @@
  **/
 
 const Marionette = require('marionette')
-const CustomElements = require('../../js/CustomElements.js')
 import * as React from 'react'
 import NumberComponent from '../../react-component/container/input-wrappers/number'
 import { isNumber } from 'util'
+import styled from '../../react-component/styles/styled-components'
+
+const InputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+const InputComponent = styled.div`
+  display: flex;
+`
+const Label = styled.div`
+  padding: 0px ${props => props.theme.minimumSpacing};
+`
 
 module.exports = Marionette.LayoutView.extend({
   template() {
-    const { min = '', max = '' } = this.getStartingValue() || {}
-    this.minValue = min
-    this.maxValue = max
+    const { lower = '', upper = '' } = this.getStartingValue() || {}
+    this.lowerValue = lower
+    this.upperValue = upper
     return (
       <React.Fragment>
-        <NumberComponent
-          value={min}
-          onChange={this.handleMinUpdate.bind(this)}
-          placeholder="0"
-        />
-        <span className="label">TO</span>
-        <NumberComponent
-          value={max}
-          onChange={this.handleMaxUpdate.bind(this)}
-          placeholder="2"
-        />
+        <InputContainer>
+          <InputComponent>
+            <NumberComponent
+              value={lower}
+              onChange={this.handleLowerUpdate.bind(this)}
+              placeholder="0"
+            />
+          </InputComponent>
+          <Label>TO</Label>
+          <InputComponent>
+            <NumberComponent
+              value={upper}
+              onChange={this.handleUpperUpdate.bind(this)}
+              placeholder="2"
+            />
+          </InputComponent>
+        </InputContainer>
       </React.Fragment>
     )
   },
-  tagName: CustomElements.register('between-numbers'),
-  handleMinUpdate(value) {
-    this.minValue = value
+  handleLowerUpdate(value) {
+    this.lowerValue = value
     this.updateModelValue()
   },
-  handleMaxUpdate(value) {
-    this.maxValue = value
+  handleUpperUpdate(value) {
+    this.upperValue = value
     this.updateModelValue()
   },
   getModelValue() {
@@ -54,8 +70,8 @@ module.exports = Marionette.LayoutView.extend({
   },
   getViewValue() {
     return {
-      min: this.minValue,
-      max: this.maxValue,
+      lower: this.lowerValue,
+      upper: this.upperValue,
     }
   },
   updateModelValue() {
@@ -95,7 +111,7 @@ module.exports = Marionette.LayoutView.extend({
         .toggleClass('has-validation-issues', true)
       isValid = false
     }
-    if (!(this.validateType(value.min) && isNumber(value.min))) {
+    if (!(this.validateType(value.lower) && isNumber(value.lower))) {
       this.$el
         .find('intrigue-input.is-number:eq(0)')
         .toggleClass('has-validation-issues', true)
@@ -109,7 +125,7 @@ module.exports = Marionette.LayoutView.extend({
         )
       isValid = false
     }
-    if (!(this.validateType(value.max) && isNumber(value.max))) {
+    if (!(this.validateType(value.upper) && isNumber(value.upper))) {
       this.$el
         .find('intrigue-input.is-number:eq(1)')
         .toggleClass('has-validation-issues', true)

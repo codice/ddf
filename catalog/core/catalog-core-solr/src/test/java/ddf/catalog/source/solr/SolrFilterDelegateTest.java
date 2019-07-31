@@ -457,48 +457,85 @@ public class SolrFilterDelegateTest {
   }
 
   @Test
-  public void testNumberIsBetween() {
+  public void testNumberIsBetweenLongs() {
     stub(mockResolver.getField("altitude", AttributeFormat.LONG, true, Collections.EMPTY_MAP))
-            .toReturn("altitude");
+        .toReturn("altitude");
 
-    String expectedQuery =
-            " altitude:[ -100 TO 100] ";
+    String expectedQuery = " altitude:[ -100 TO 100] ";
     Number lowerBoundary = -100;
     Number upperBoundary = 100;
     SolrQuery numberQuery =
-            toTest.propertyIsBetween(
-                    "altitude",  lowerBoundary.longValue(), upperBoundary.longValue());
+        toTest.propertyIsBetween("altitude", lowerBoundary.longValue(), upperBoundary.longValue());
     assertThat(numberQuery.getQuery(), is(expectedQuery));
-
-
-    stub(mockResolver.getField("altitude", AttributeFormat.FLOAT, true, Collections.EMPTY_MAP))
-            .toReturn("altitude");
-
-    expectedQuery =
-            " altitude:[ -200.559 TO 0.0] ";
-
-    lowerBoundary = -200.559;
-    upperBoundary = 0;
-
-    numberQuery =
-            toTest.propertyIsBetween(
-                "altitude", lowerBoundary.floatValue(), upperBoundary.intValue());
-    assertThat(numberQuery.getQuery(), is(expectedQuery));
-
   }
 
-  @Test(expected = java.lang.ClassCastException.class)
+  @Test
+  public void testNumberIsBetweenFloats() {
+
+    stub(mockResolver.getField("altitude", AttributeFormat.FLOAT, true, Collections.EMPTY_MAP))
+        .toReturn("altitude");
+
+    String expectedQuery = " altitude:[ -100.3 TO 0.4] ";
+    Number lowerBoundary = -100.3;
+    Number upperBoundary = 0.4;
+    SolrQuery numberQuery =
+        toTest.propertyIsBetween(
+            "altitude", lowerBoundary.floatValue(), upperBoundary.floatValue());
+    assertThat(numberQuery.getQuery(), is(expectedQuery));
+  }
+
+  @Test
+  public void testNumberIsBetweenInts() {
+
+    stub(mockResolver.getField("altitude", AttributeFormat.INTEGER, true, Collections.EMPTY_MAP))
+        .toReturn("altitude");
+
+    String expectedQuery = " altitude:[ -100 TO 0] ";
+    Number lowerBoundary = -100;
+    Number upperBoundary = 0;
+    SolrQuery numberQuery =
+        toTest.propertyIsBetween("altitude", lowerBoundary.intValue(), upperBoundary.intValue());
+    assertThat(numberQuery.getQuery(), is(expectedQuery));
+  }
+
+  @Test
+  public void testNumberIsBetweenShorts() {
+
+    stub(mockResolver.getField("altitude", AttributeFormat.SHORT, true, Collections.EMPTY_MAP))
+        .toReturn("altitude");
+
+    String expectedQuery = " altitude:[ 0 TO 50] ";
+    Number lowerBoundary = 0;
+    Number upperBoundary = 50;
+    SolrQuery numberQuery =
+        toTest.propertyIsBetween(
+            "altitude", lowerBoundary.shortValue(), upperBoundary.shortValue());
+    assertThat(numberQuery.getQuery(), is(expectedQuery));
+  }
+
+  @Test
+  public void testNumberIsBetweenFloatAndInt() {
+
+    stub(mockResolver.getField("altitude", AttributeFormat.FLOAT, true, Collections.EMPTY_MAP))
+        .toReturn("altitude");
+
+    String expectedQuery = " altitude:[ -100.567 TO 0.0] ";
+    Number lowerBoundary = -100.567;
+    Number upperBoundary = 0;
+    SolrQuery numberQuery =
+        toTest.propertyIsBetween("altitude", lowerBoundary.floatValue(), upperBoundary.intValue());
+    assertThat(numberQuery.getQuery(), is(expectedQuery));
+  }
+
+  @Test(expected = java.lang.IllegalArgumentException.class)
   public void testBetweenCastException() {
 
     String nonNumber = "Not A Number";
     SolrQuery notANumberQuery =
-            toTest.propertyIsBetween(
-                    "altitude", (Object) nonNumber, (Object) nonNumber);
+        toTest.propertyIsBetween("altitude", (Object) nonNumber, (Object) nonNumber);
 
     notANumberQuery.getQuery();
   }
-
-
 
   @Test
   public void testXpathExists() {
