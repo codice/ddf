@@ -594,7 +594,6 @@
         <notes>
             These CVEs against jackson-databind only affect versions 2.9.7 and lower.
         </notes>
-        <cve>CVE-2018-11307</cve>
         <cve>CVE-2018-14719</cve>
         <cve>CVE-2018-14718</cve>
         <cve>CVE-2018-14721</cve>
