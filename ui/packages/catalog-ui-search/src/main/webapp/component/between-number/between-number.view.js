@@ -20,12 +20,12 @@ import { isNumber } from 'util'
 import styled from '../../react-component/styles/styled-components'
 
 const InputContainer = styled.div`
+  vertical-align: top;
   display: flex;
   flex-direction: column;
+  max-width: 150px;
 `
-const InputComponent = styled.div`
-  display: flex;
-`
+
 const Label = styled.div`
   padding: 0px ${props => props.theme.minimumSpacing};
 `
@@ -38,21 +38,15 @@ module.exports = Marionette.LayoutView.extend({
     return (
       <React.Fragment>
         <InputContainer>
-          <InputComponent>
             <NumberComponent
               value={lower}
               onChange={this.handleLowerUpdate.bind(this)}
-              placeholder="0"
             />
-          </InputComponent>
           <Label>TO</Label>
-          <InputComponent>
             <NumberComponent
               value={upper}
               onChange={this.handleUpperUpdate.bind(this)}
-              placeholder="2"
             />
-          </InputComponent>
         </InputContainer>
       </React.Fragment>
     )
@@ -91,9 +85,7 @@ module.exports = Marionette.LayoutView.extend({
       typeOfValues === 'LONG' ||
       typeOfValues === 'SHORT'
     ) {
-      if (value % 1 != 0) {
-        return false
-      }
+      return (value % 1 === 0)
     }
     return true
   },

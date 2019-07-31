@@ -254,8 +254,8 @@ function generateFilter(type, property, value, metacardDefinitions) {
       }
 
       if (type === 'BETWEEN') {
-        filter.lowerBoundary = value.min
-        filter.upperBoundary = value.max
+        filter.lowerBoundary = value.lower
+        filter.upperBoundary = value.upper
       }
 
       return filter
