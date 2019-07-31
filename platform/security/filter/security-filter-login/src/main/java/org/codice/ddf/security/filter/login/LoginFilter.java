@@ -80,8 +80,6 @@ public class LoginFilter implements SecurityFilter {
 
   private ContextPolicyManager contextPolicyManager;
 
-  private int expirationTime;
-
   public LoginFilter() {
     super();
   }
@@ -235,16 +233,11 @@ public class LoginFilter implements SecurityFilter {
           "Added token for user [{}] to session [{}]",
           principals.getPrimaryPrincipal(),
           Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString());
-      session.setMaxInactiveInterval(expirationTime * 60);
     }
   }
 
   public void setSecurityManager(SecurityManager securityManager) {
     this.securityManager = securityManager;
-  }
-
-  public void setExpirationTime(int expirationTime) {
-    this.expirationTime = expirationTime;
   }
 
   public void setSessionFactory(SessionFactory sessionFactory) {
