@@ -38,15 +38,15 @@ module.exports = Marionette.LayoutView.extend({
     return (
       <React.Fragment>
         <InputContainer>
-            <NumberComponent
-              value={lower}
-              onChange={this.handleLowerUpdate.bind(this)}
-            />
+          <NumberComponent
+            value={lower}
+            onChange={this.handleLowerUpdate.bind(this)}
+          />
           <Label>TO</Label>
-            <NumberComponent
-              value={upper}
-              onChange={this.handleUpperUpdate.bind(this)}
-            />
+          <NumberComponent
+            value={upper}
+            onChange={this.handleUpperUpdate.bind(this)}
+          />
         </InputContainer>
       </React.Fragment>
     )
@@ -85,7 +85,7 @@ module.exports = Marionette.LayoutView.extend({
       typeOfValues === 'LONG' ||
       typeOfValues === 'SHORT'
     ) {
-      return (value % 1 === 0)
+      return value % 1 === 0
     }
     return true
   },
