@@ -26,7 +26,7 @@ module.exports = TabsView.extend({
     TabsView.prototype.initialize.call(this)
     this.model.set('activeTab', 'Import')
   },
-  determineContent() {  
+  determineContent() {
     const ActiveTab = this.model.getActiveView()
     if (this.model.attributes.activeTab === 'Import') {
       this.tabsContent.show(
@@ -48,4 +48,3 @@ module.exports = TabsView.extend({
     }
   },
 })
-

@@ -4,6 +4,17 @@
   padding: @minimumSpacing;
   .changeBackground(@backgroundContent);
 
+  .dropdown-icon {
+    color: contrast(@primary-color);
+    mix-blend-mode: difference;
+    display: inline-block;
+    width: @largeFontSize * 5;
+    height: @largeFontSize * 5;
+    line-height: @minimumButtonSize;
+    text-align: center;
+    font-size: @largeFontSize * 5;
+  }
+
   .details-files {
     display: none;
   }
@@ -15,6 +26,7 @@
     border: 2px dashed @primary-color;
     cursor: pointer;
     transition: height @coreTransitionTime ease-out;
+    background-color: @backgroundAccentContent;
   }
 
   .details-summary {

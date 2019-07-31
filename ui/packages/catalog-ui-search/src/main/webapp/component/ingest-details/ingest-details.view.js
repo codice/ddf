@@ -17,14 +17,14 @@ const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
 const _ = require('underscore')
 const $ = require('jquery')
-const template = require('./ingest-details.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const Dropzone = require('dropzone')
 const UploadItemCollectionView = require('../upload-item/upload-item.collection.view.js')
 const UploadBatchModel = require('../../js/model/UploadBatch.js')
 const Common = require('../../js/Common.js')
 const UploadSummary = require('../upload-summary/upload-summary.view.js')
-
+import React from 'react'
+import styled from 'styled-components'
 function namespacedEvent(event, view) {
   return event + '.' + view.cid
 }
@@ -46,7 +46,57 @@ function updateDropzoneHeight(view) {
 }
 
 module.exports = Marionette.LayoutView.extend({
-  template,
+  template() {
+    return (
+      <React.Fragment>
+      <div className="details-files">
+      </div>
+      <div className="details-dropzone">
+          <div className="dropzone-text">
+              <span class="dropdown-icon fa fa-upload"></span>
+              <div></div>
+              Drag files to upload.
+              <div></div>
+              Or click to browse.
+          </div>
+      </div>
+    <div className="details-summary">
+      </div>
+      <div className="details-footer">
+          <button className="footer-clear is-negative">
+              <span className="fa fa-times">
+              </span>
+              <span>
+                  Clear
+              </span>
+          </button>
+            <button className="footer-start is-positive">
+              <span className="fa fa-upload">
+                  
+              </span>
+              <span>
+                  Start
+              </span>
+          </button>
+            <button className="footer-cancel is-negative">
+              <span className="fa fa-stop">
+              </span>
+              <span>
+                  Stop
+              </span>
+          </button>
+             <button className="footer-new is-positive">
+              <span className="fa fa-upload">
+                  
+              </span>
+              <span>
+                  New
+              </span>
+          </button>
+      </div>
+      </React.Fragment>
+    )
+  },
   tagName: CustomElements.register('ingest-details'),
   events: {
     'click > .details-footer .footer-clear': 'newUpload',

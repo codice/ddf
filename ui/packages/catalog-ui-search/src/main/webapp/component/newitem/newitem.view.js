@@ -16,81 +16,77 @@
 const Marionette = require('marionette')
 const IngestView = require('../ingest/ingest.view')
 const BuilderView = require('../builder/builder.view')
-const template = require('./newitem.hbs')
 
 import React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import styled from '../../react-component/styles/styled-components'
 
-
 const ItemCreationView = styled.div`
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: stretch;
-    margin: ${props => props.theme.minimumSpacing};
-    height: calc(100% - 1.8rem);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin: ${props => props.theme.minimumSpacing};
+  height: calc(100% - 1.8rem);
 `
 
 const UploadView = styled.div`
-    width: 60%;
+  width: 60%;
+  height: calc(100% - 1.8rem);
 `
 
 const OrContainer = styled.div`
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 6%;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 6%;
 `
 
 const StyleLine = styled.div`
-    align-self: center;
-    width: 1px;
-    height: 75px;
-    box-shadow: 0px 0px 1px 1px;
+  align-self: center;
+  width: 1px;
+  height: 75px;
+  box-shadow: 0px 0px 1px 1px;
 `
 
 const ManualView = styled.div`
-    overflow-y: scroll;
-    align-self: center;
-    width: 30%;
-    height: calc(100% - 3.5*1.8rem - 10px);
+  align-self: center;
+  overflow-y: scroll;
+  width: 30%;
+  height: calc(100% - 3.5 * 1.8rem - 10px);
 `
 
 module.exports = Marionette.LayoutView.extend({
-    template() {
-        return (
-            <React.Fragment>
-                <ItemCreationView>
-                    <UploadView>
-                        <MarionetteRegionContainer
-                            className="upload-menu"
-                            view={IngestView}
-                        />
-                    </UploadView>
-                    <OrContainer>
-                        <StyleLine>
-                        </StyleLine>
-                        <div>OR</div>
-                        <StyleLine>
-                        </StyleLine>
-                    </OrContainer>
+  template() {
+    return (
+      <React.Fragment>
+        <ItemCreationView>
+          <UploadView>
+            <MarionetteRegionContainer
+              className="upload-menu"
+              view={IngestView}
+            />
+          </UploadView>
+          <OrContainer>
+            <StyleLine />
+            <div>OR</div>
+            <StyleLine />
+          </OrContainer>
 
-                    <ManualView>
-                        <MarionetteRegionContainer
-                            className="manual-menu"
-                            view={new BuilderView({
-                                handleNewMetacard: this.options.handleNewMetacard,
-                                close: this.options.close,
-                                model: this.model
-                            })}
-                            
-                        />
-                    </ManualView>
-                </ItemCreationView>
-            </React.Fragment>
-        )
-    },
+          <ManualView>
+            <MarionetteRegionContainer
+              className="manual-menu"
+              view={
+                new BuilderView({
+                  handleNewMetacard: this.options.handleNewMetacard,
+                  close: this.options.close,
+                  model: this.model,
+                })
+              }
+            />
+          </ManualView>
+        </ItemCreationView>
+      </React.Fragment>
+    )
+  },
 })
-
