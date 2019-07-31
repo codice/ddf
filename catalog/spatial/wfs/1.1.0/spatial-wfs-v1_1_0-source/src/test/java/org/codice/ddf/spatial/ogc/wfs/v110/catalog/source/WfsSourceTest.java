@@ -274,7 +274,7 @@ public class WfsSourceTest {
     }
   }
 
-  public void setUp(
+  private void setUpMocks(
       final List<String> supportedGeos,
       final String srsName,
       final Integer numFeatures,
@@ -414,14 +414,14 @@ public class WfsSourceTest {
   @Test
   public void testAvailability() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, null);
     assertThat(source.isAvailable(), is(true));
   }
 
   @Test(expected = UnsupportedQueryException.class)
   public void testQueryEmptyQueryList() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, null);
     QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
@@ -431,7 +431,7 @@ public class WfsSourceTest {
   @Test
   public void testPropertyIsLikeQuery() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, null);
     QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
@@ -454,7 +454,7 @@ public class WfsSourceTest {
   @Test
   public void testTwoPropertyQuery() throws Exception {
     mapSchemaToFeatures(TWO_TEXT_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, null);
     QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
@@ -476,7 +476,7 @@ public class WfsSourceTest {
   @Test
   public void testContentTypeQuery() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, null);
     Filter propertyIsLikeFilter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
     Filter contentTypeFilter =
         builder
@@ -505,7 +505,7 @@ public class WfsSourceTest {
   @Test
   public void testContentTypeAndNoPropertyQuery() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, null);
 
     Filter contentTypeFilter =
         builder
@@ -530,7 +530,7 @@ public class WfsSourceTest {
   @Test
   public void testTwoContentTypeAndNoPropertyQuery() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, TWO_FEATURES);
-    setUp(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, null);
 
     Filter contentTypeFilter =
         builder
@@ -563,7 +563,7 @@ public class WfsSourceTest {
   @Test
   public void testAndQuery() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, null);
     Filter propertyIsLikeFilter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
     Filter contentTypeFilter =
         builder.attribute(Metacard.ANY_TEXT).is().like().text(sampleFeatures.get(0).getLocalPart());
@@ -587,7 +587,7 @@ public class WfsSourceTest {
   @Test
   public void testIntersectQuery() throws Exception {
     mapSchemaToFeatures(ONE_GML_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUp(Arrays.asList("Intersects", "BBOX"), SRS_NAME, ONE_FEATURE, null);
+    setUpMocks(Arrays.asList("Intersects", "BBOX"), SRS_NAME, ONE_FEATURE, null);
     Filter intersectFilter =
         builder.attribute(Metacard.ANY_GEO).is().intersecting().wkt(POLYGON_WKT);
     QueryImpl intersectQuery = new QueryImpl(intersectFilter);
@@ -609,7 +609,7 @@ public class WfsSourceTest {
   @Test
   public void testTwoIntersectQuery() throws Exception {
     mapSchemaToFeatures(TWO_GML_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUp(Arrays.asList("Intersects", "BBOX"), SRS_NAME, ONE_FEATURE, null);
+    setUpMocks(Arrays.asList("Intersects", "BBOX"), SRS_NAME, ONE_FEATURE, null);
     Filter intersectFilter =
         builder.attribute(Metacard.ANY_GEO).is().intersecting().wkt(POLYGON_WKT);
     QueryImpl intersectQuery = new QueryImpl(intersectFilter);
@@ -633,7 +633,7 @@ public class WfsSourceTest {
   @Test
   public void testBboxQuery() throws Exception {
     mapSchemaToFeatures(ONE_GML_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUp(Collections.singletonList("BBOX"), SRS_NAME, ONE_FEATURE, null);
+    setUpMocks(Collections.singletonList("BBOX"), SRS_NAME, ONE_FEATURE, null);
     Filter intersectFilter =
         builder.attribute(Metacard.ANY_GEO).is().intersecting().wkt(POLYGON_WKT);
     QueryImpl intersectQuery = new QueryImpl(intersectFilter);
@@ -655,7 +655,7 @@ public class WfsSourceTest {
   @Test
   public void testGmlImport() throws Exception {
     mapSchemaToFeatures(GML_IMPORT_SCHEMA, ONE_FEATURE);
-    setUp(Collections.singletonList("BBOX"), SRS_NAME, ONE_FEATURE, null);
+    setUpMocks(Collections.singletonList("BBOX"), SRS_NAME, ONE_FEATURE, null);
     Filter intersectFilter =
         builder.attribute(Metacard.ANY_GEO).is().intersecting().wkt(POLYGON_WKT);
     QueryImpl intersectQuery = new QueryImpl(intersectFilter);
@@ -677,7 +677,7 @@ public class WfsSourceTest {
   @Test(expected = UnsupportedQueryException.class)
   public void testNoGeoAttributesQuery() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, null);
     Filter intersectFilter =
         builder.attribute(Metacard.ANY_GEO).is().intersecting().wkt(POLYGON_WKT);
     QueryImpl intersectQuery = new QueryImpl(intersectFilter);
@@ -689,7 +689,7 @@ public class WfsSourceTest {
   @Test
   public void testTwoFeatureTypesQuery() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, TWO_FEATURES);
-    setUp(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, null);
     QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
@@ -724,7 +724,7 @@ public class WfsSourceTest {
     int pageSize = 4;
     int startIndex = 1;
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
-    setUp(null, null, MAX_FEATURES, null);
+    setUpMocks(null, null, MAX_FEATURES, null);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -745,7 +745,7 @@ public class WfsSourceTest {
     int pageSize = 4;
     int startIndex = 2;
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
-    setUp(null, null, MAX_FEATURES, null);
+    setUpMocks(null, null, MAX_FEATURES, null);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -768,7 +768,7 @@ public class WfsSourceTest {
     int startIndex = 3;
     int numFeatures = 2;
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, numFeatures);
-    setUp(null, null, numFeatures, null);
+    setUpMocks(null, null, numFeatures, null);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -787,7 +787,7 @@ public class WfsSourceTest {
     int startIndex = 1;
     int numFeatures = 1;
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, numFeatures);
-    setUp(null, null, numFeatures, null);
+    setUpMocks(null, null, numFeatures, null);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -803,7 +803,7 @@ public class WfsSourceTest {
     int startIndex = 5;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
-    setUp(null, null, MAX_FEATURES, null);
+    setUpMocks(null, null, MAX_FEATURES, null);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -826,7 +826,7 @@ public class WfsSourceTest {
     int startIndex = 1;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
-    setUp(null, null, MAX_FEATURES, null);
+    setUpMocks(null, null, MAX_FEATURES, null);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -850,7 +850,7 @@ public class WfsSourceTest {
     int startIndex = 2;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
-    setUp(null, null, MAX_FEATURES, null);
+    setUpMocks(null, null, MAX_FEATURES, null);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -873,7 +873,7 @@ public class WfsSourceTest {
     int startIndex = -1;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
-    setUp(null, null, MAX_FEATURES, null);
+    setUpMocks(null, null, MAX_FEATURES, null);
 
     executeQuery(startIndex, pageSize);
   }
@@ -888,7 +888,7 @@ public class WfsSourceTest {
     int startIndex = 0;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
-    setUp(null, null, MAX_FEATURES, null);
+    setUpMocks(null, null, MAX_FEATURES, null);
 
     executeQuery(startIndex, pageSize);
   }
@@ -905,7 +905,7 @@ public class WfsSourceTest {
     int numResults = WfsSource.WFS_MAX_FEATURES_RETURNED + 10;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, numResults);
+    setUpMocks(null, null, ONE_FEATURE, numResults);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -926,7 +926,7 @@ public class WfsSourceTest {
     int numResults = WfsSource.WFS_MAX_FEATURES_RETURNED + 10;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, numResults);
+    setUpMocks(null, null, ONE_FEATURE, numResults);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -948,7 +948,7 @@ public class WfsSourceTest {
     int numResults = WfsSource.WFS_MAX_FEATURES_RETURNED + 10;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, numResults);
+    setUpMocks(null, null, ONE_FEATURE, numResults);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -960,7 +960,7 @@ public class WfsSourceTest {
   @Test
   public void testGetContentTypes() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, TWO_FEATURES);
-    setUp(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, null);
     Set<ContentType> contentTypes = source.getContentTypes();
     assertThat(contentTypes.size(), is(TWO_FEATURES));
     for (ContentType contentType : contentTypes) {
@@ -976,7 +976,7 @@ public class WfsSourceTest {
     mapSchemaToSingleFeature(TWO_TEXT_PROPERTY_SCHEMA, 0);
     mapSchemaToSingleFeature(ONE_TEXT_PROPERTY_SCHEMA_PERSON, 1);
 
-    setUp(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, null);
     Filter orderDogFilter = builder.attribute(ORDER_DOG).is().like().text(LITERAL);
     Filter mctFeature1Filter =
         builder
@@ -1027,7 +1027,7 @@ public class WfsSourceTest {
   public void testQueryTwoFeaturesWithMixedPropertyNames() throws Exception {
     mapSchemaToSingleFeature(ONE_TEXT_PROPERTY_SCHEMA_PERSON, 0);
     mapSchemaToSingleFeature(ONE_TEXT_PROPERTY_SCHEMA_DOG, 1);
-    setUp(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, null);
     Filter orderPersonFilter = builder.attribute(ORDER_PERSON).is().like().text(LITERAL);
     Filter mctFeature1Filter =
         builder
@@ -1082,7 +1082,7 @@ public class WfsSourceTest {
   @Test
   public void testIDQuery() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, TWO_FEATURES);
-    setUp(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, null);
 
     QueryImpl idQuery = new QueryImpl(builder.attribute(Core.ID).is().text(ORDER_PERSON));
 
@@ -1103,7 +1103,7 @@ public class WfsSourceTest {
   @Test
   public void testTwoIDQuery() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, TWO_FEATURES);
-    setUp(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, null);
 
     Filter idFilter1 = builder.attribute(Core.ID).is().text(ORDER_PERSON);
     Filter idFilter2 = builder.attribute(Core.ID).is().text(ORDER_DOG);
@@ -1143,7 +1143,7 @@ public class WfsSourceTest {
   @Test(expected = UnsupportedQueryException.class)
   public void testOneIDOnePropertyQuery() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, TWO_FEATURES);
-    setUp(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, null);
 
     Filter idFilter = builder.attribute(Core.ID).is().text(ORDER_PERSON);
     Filter propertyIsLikeFilter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
@@ -1157,7 +1157,7 @@ public class WfsSourceTest {
 
   @Test(expected = UnsupportedQueryException.class)
   public void testNoFeatures() throws Exception {
-    setUp(null, null, 0, null);
+    setUpMocks(null, null, 0, null);
     QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
@@ -1175,7 +1175,7 @@ public class WfsSourceTest {
     metacardMappers.add(metacardMapper);
 
     mapSchemaToFeatures(TWO_TEXT_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, null);
 
     final Filter filter =
         builder.allOf(
@@ -1206,7 +1206,7 @@ public class WfsSourceTest {
   @Test
   public void testTimeoutConfiguration() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, null);
 
     source.setConnectionTimeout(10000);
     source.setReceiveTimeout(10000);
@@ -1219,7 +1219,7 @@ public class WfsSourceTest {
   public void testClientFactoryIsCreatedCorrectlyWhenUsernameAndPasswordAreConfigured()
       throws WfsException {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, null);
 
     final String wfsUrl = "http://localhost/wfs";
     final String username = "test_user";
@@ -1264,7 +1264,7 @@ public class WfsSourceTest {
   public void testClientFactoryIsCreatedCorrectlyWhenCertAliasAndKeystorePathAreConfigured()
       throws WfsException {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, null);
 
     final String wfsUrl = "http://localhost/wfs";
     final Boolean disableCnCheck = false;
@@ -1309,7 +1309,7 @@ public class WfsSourceTest {
   @Test
   public void testClientFactoryIsCreatedCorrectlyWhenNoAuthIsConfigured() throws WfsException {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUp(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, null);
 
     final String wfsUrl = "http://localhost/wfs";
     final Boolean disableCnCheck = false;
@@ -1345,7 +1345,7 @@ public class WfsSourceTest {
   @Test
   public void testQueryLatLonCoordinateOrder() throws Exception {
     mapSchemaToFeatures(ONE_GML_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUp(Collections.singletonList("DWithin"), SRS_NAME, ONE_FEATURE, null);
+    setUpMocks(Collections.singletonList("DWithin"), SRS_NAME, ONE_FEATURE, null);
 
     source.setPollInterval(1);
 
@@ -1385,7 +1385,7 @@ public class WfsSourceTest {
   @Test
   public void testQueryLonLatCoordinateOrder() throws Exception {
     mapSchemaToFeatures(ONE_GML_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUp(Collections.singletonList("DWithin"), SRS_NAME, ONE_FEATURE, null);
+    setUpMocks(Collections.singletonList("DWithin"), SRS_NAME, ONE_FEATURE, null);
 
     source.setPollInterval(1);
 
