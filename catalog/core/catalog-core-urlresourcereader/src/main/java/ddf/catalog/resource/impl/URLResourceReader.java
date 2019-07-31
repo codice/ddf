@@ -33,7 +33,6 @@ import java.net.URI;
 import java.net.URLConnection;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
-import java.security.AccessControlException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
@@ -536,9 +535,11 @@ public class URLResourceReader implements ResourceReader {
   private boolean validateFilePath(File resourceFilePath) throws IOException {
     String resourceCanonicalPath;
     try {
-      resourceCanonicalPath = resourceFilePath.getCanonicalPath();
-    } catch (AccessControlException e) {
-      LOGGER.debug("Unable to read path [{}]", resourceFilePath, e);
+      resourceCanonicalPath =
+          AccessController.doPrivileged(
+              (PrivilegedExceptionAction<String>) () -> resourceFilePath.getCanonicalPath());
+    } catch (PrivilegedActionException e) {
+      LOGGER.debug("Unable to read path [{}]", resourceFilePath, e.getException());
       return false;
     }
     LOGGER.debug(
