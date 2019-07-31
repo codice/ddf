@@ -52,6 +52,18 @@
             </includes>
             <outputDirectory>/server/solr-webapp/webapp/WEB-INF/lib</outputDirectory>
         </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>com.fasterxml.jackson.core:jackson-databind</include>
+            </includes>
+            <outputDirectory>/contrib/clustering/lib</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>com.fasterxml.jackson.core:jackson-databind</include>
+            </includes>
+            <outputDirectory>/contrib/prometheus-exporter/lib</outputDirectory>
+        </dependencySet>
     </dependencySets>
     <fileSets>
         <!-- The order of the <fileSet> elements is important. The assumbly plugin will not
@@ -83,6 +95,8 @@
                 <exclude>/server/solr-webapp/webapp/WEB-INF/lib/jackson-databind-2.9.5.jar</exclude>
                 <exclude>/server/solr-webapp/webapp/WEB-INF/lib/jackson-core-2.9.5.jar</exclude>
                 <exclude>/server/solr-webapp/webapp/WEB-INF/lib/jackson-annotations-2.9.5.jar</exclude>
+                <exclude>/contrib/clustering/lib/jackson-databind-2.9.5.jar</exclude>
+                <exclude>/contrib/prometheus-exporter/lib/jackson-databind-2.9.5.jar</exclude>
             </excludes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
