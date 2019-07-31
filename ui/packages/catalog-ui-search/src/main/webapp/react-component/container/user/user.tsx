@@ -18,6 +18,7 @@ const user = require('../../../component/singletons/user-instance.js')
 
 interface State {
   username: string
+  isGuest: boolean
   email: string
 }
 
@@ -25,7 +26,8 @@ class UserContainer extends React.Component<{}, State> {
   constructor(props: {}) {
     super(props)
     this.state = {
-      username: user.getUserName(),
+      username: user.isGuest() ? 'Guest' : user.getUserName(),
+      isGuest: user.isGuest(),
       email: user.getEmail(),
     }
   }
@@ -33,10 +35,11 @@ class UserContainer extends React.Component<{}, State> {
     window.location.href = '../../logout?service=' + window.location.href
   }
   render() {
-    const { username, email } = this.state
+    const { username, isGuest, email } = this.state
     return (
       <UserComponent
         username={username}
+        isGuest={isGuest}
         email={email}
         signOut={this.signOut.bind(this)}
       />

@@ -91,10 +91,7 @@ export const User = () => (
   >
     <div className="user-unique" title={`Logged in as ${user.getUserName()}`}>
       <span className="fa fa-user" />
-      <span className="">{user.getUserName()}</span>
-    </div>
-    <div className="user-guest" title="Logged in as guest.">
-      <span className="">Sign In</span>
+      <span className="">{user.isGuest() ? 'Guest' : user.getUserName()}</span>
     </div>
   </Button>
 )
