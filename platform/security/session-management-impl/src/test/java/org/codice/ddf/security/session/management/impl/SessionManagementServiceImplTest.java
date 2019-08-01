@@ -145,8 +145,7 @@ public class SessionManagementServiceImplTest {
             new StringBuffer("https://localhost:8993/services/internal/session/invalidate"));
     when(request.getQueryString()).thenReturn(null);
     URI invalidateUri = sessionManagementServiceImpl.getInvalidate(request);
-    assertThat(
-        invalidateUri, is(equalTo(URI.create("https://localhost:8993/logout?noPrompt=true"))));
+    assertThat(invalidateUri, is(equalTo(URI.create("https://localhost:8993/logout"))));
   }
 
   @Test
@@ -154,12 +153,11 @@ public class SessionManagementServiceImplTest {
     when(request.getRequestURL())
         .thenReturn(
             new StringBuffer(
-                "https://localhost:8993/services/internal/session/invalidate?prevurl=/admin/"));
-    when(request.getQueryString()).thenReturn("prevurl=/admin/");
+                "https://localhost:8993/services/internal/session/invalidate?service=admin/"));
+    when(request.getQueryString()).thenReturn("service=admin/");
     URI invalidateUri = sessionManagementServiceImpl.getInvalidate(request);
     assertThat(
-        invalidateUri,
-        is(equalTo(URI.create("https://localhost:8993/logout?noPrompt=true&prevurl=/admin/"))));
+        invalidateUri, is(equalTo(URI.create("https://localhost:8993/logout?service=admin/"))));
   }
 
   private static Document readXml(InputStream is)
