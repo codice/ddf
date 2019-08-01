@@ -12,35 +12,91 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const React = require('react')
+import React from 'react'
+import PropTypes from 'prop-types'
 
-const CustomElements = require('../../js/CustomElements.js')
-const Component = CustomElements.registerReact('radio')
+import styled from '../styles/styled-components'
+import { readableColor, rgba } from 'polished'
+
+const foreground = props => {
+  if (props.theme.backgroundDropdown !== undefined) {
+    return readableColor(props.theme.backgroundDropdown)
+  }
+}
+
+const background = (props, alpha = 0.4) => {
+  if (props.theme.backgroundDropdown !== undefined) {
+    return rgba(readableColor(props.theme.backgroundDropdown), alpha)
+  }
+}
+
+const Root = styled.div`
+  border-radius: ${props => props.theme.borderRadius};
+  white-space: nowrap;
+  background-color: inherit;
+  border: 1px solid ${background};
+  display: inline-block;
+`
+
+const Button = styled.button`
+  vertical-align: top;
+  opacity: ${props => props.theme.minimumOpacity};
+  min-width: ${props => props.theme.minimumButtonSize};
+  min-height: ${props => props.theme.minimumButtonSize};
+  border: none;
+  border-left: ${props =>
+    !props.first ? '1px solid ' + background(props) : 'none'};
+  background-color: inherit;
+  padding: 0px 10px;
+  box-size: border-box;
+  cursor: pointer;
+  font-size: ${props => props.theme.minimumFontSize};
+  color: ${foreground};
+  ${props =>
+    props.selected
+      ? `
+    opacity: 1;
+    font-weight: bolder;
+    background: ${background(props, 0.1)};
+  `
+      : ''};
+`
 
 const Radio = props => {
   const { value, children, onChange } = props
 
   const childrenWithProps = React.Children.map(children, (child, i) => {
     return React.cloneElement(child, {
+      first: i === 0,
       selected: value === child.props.value,
       onClick: () => onChange(child.props.value),
     })
   })
 
-  return <Component className="input-radio">{childrenWithProps}</Component>
+  return <Root>{childrenWithProps}</Root>
+}
+
+Radio.propTypes = {
+  /** The currently selected RadioItem value. */
+  value: PropTypes.string,
+  /** Value change handler. */
+  onChange: PropTypes.func,
+  /** Instances of <RadioItem />. */
+  children: PropTypes.node,
 }
 
 const RadioItem = props => {
-  const { value, children, selected, onClick } = props
+  const { value, first, children, selected, onClick } = props
   return (
-    <button
-      className={'input-radio-item ' + (selected ? 'is-selected' : '')}
-      onClick={() => onClick(value)}
-    >
+    <Button first={first} selected={selected} onClick={() => onClick(value)}>
       {children || value}
-    </button>
+    </Button>
   )
 }
 
-exports.Radio = Radio
-exports.RadioItem = RadioItem
+RadioItem.propTypes = {
+  /** Value to identity the item. */
+  value: PropTypes.string,
+}
+
+export { Radio, RadioItem }

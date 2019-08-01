@@ -123,10 +123,10 @@
         <jknack.handlebars.version>2.0.0</jknack.handlebars.version>
         <marionette.version>2.4.5</marionette.version>
         <moment.version>2.20.1</moment.version>
-        <node.version>v8.9.4</node.version>
+        <node.version>v10.16.0</node.version>
         <picocontainer.version>1.3_1</picocontainer.version>
         <underscore.version>1.8.3</underscore.version>
-        <yarn.version>v1.5.1</yarn.version>
+        <yarn.version>v1.17.3</yarn.version>
 
         <!--Test properties-->
         <hamcrest-all.servicemix.version>1.3_1</hamcrest-all.servicemix.version>

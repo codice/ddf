@@ -18,7 +18,6 @@ const CustomElements = require('../../js/CustomElements.js')
 
 const Button = require('../button')
 const Dropdown = require('../dropdown')
-const Json = require('../json')
 const { Menu, MenuItem } = require('../menu')
 import styled from '../styles/styled-components/styled-components'
 const {
@@ -129,7 +128,6 @@ const LocationInput = props => {
   }
   return (
     <Component>
-      <Json value={props} onChange={value => setState(value)} />
       <DropdownPadding>
         <Dropdown label={input.label || 'Select Location Option'}>
           <Menu value={mode} onChange={cursor('mode')}>

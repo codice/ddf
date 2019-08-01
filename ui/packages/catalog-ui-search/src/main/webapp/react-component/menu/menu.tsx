@@ -15,13 +15,11 @@
 import * as React from 'react'
 import { useEffect } from 'react'
 import styled from '../styles/styled-components'
-
-const CustomElements = require('../../js/CustomElements.js')
-const Component = CustomElements.registerReact('menu')
+import { readableColor, rgba } from 'polished'
 
 const mod = (n: any, m: any) => ((n % m) + m) % m
 
-const MenuRoot = styled(Component)`
+const MenuRoot = styled.div`
   max-height: 25vh;
   position: relative;
 `
@@ -40,6 +38,18 @@ const after = `
     transform: translateY(-50%);
   }
 `
+
+const background = (props: any) => {
+  if (props.theme.backgroundDropdown !== undefined) {
+    return rgba(readableColor(props.theme.backgroundDropdown), 0.1)
+  }
+}
+
+const foreground = (props: any) => {
+  if (props.theme.backgroundDropdown !== undefined) {
+    return readableColor(props.theme.backgroundDropdown)
+  }
+}
 
 const ItemRoot = styled.div<{ active: boolean; selected: boolean }>`
   position: relative;
@@ -62,6 +72,8 @@ const ItemRoot = styled.div<{ active: boolean; selected: boolean }>`
     active ? `box-shadow: inset 0px 0px 0px 1px  ${theme.primaryColor};` : ''}
   ${({ selected }) => (selected ? 'font-weight: bold;' : '')}
   ${({ selected }) => (selected ? after : '')}
+  background: ${props => (props.active ? background(props) : 'inherit')};
+  color: ${foreground};
 `
 
 const DocumentListener = (props: any) => {
@@ -74,8 +86,33 @@ const DocumentListener = (props: any) => {
   return null
 }
 
-export class Menu extends React.Component<any, any> {
-  constructor(props: any) {
+interface MenuProps {
+  /** Currently selected value of the provided `<MenuItems />`. */
+  value?: any
+  /**
+   * Determines if multiple items can be selected
+   *
+   * @default false
+   */
+  multi?: boolean
+  /**
+   * MenuItems
+   */
+  children?: any
+  /** Optional value change handler. */
+  onChange: (value: any) => void
+  /** Optional className to style root menu element.  */
+  className?: string
+
+  onClose?: () => void
+}
+
+type MenuState = {
+  active: boolean
+}
+
+export class Menu extends React.Component<MenuProps, MenuState> {
+  constructor(props: MenuProps) {
     super(props)
     this.state = { active: this.chooseActive() }
     this.onKeyDown = this.onKeyDown.bind(this)
@@ -177,29 +214,40 @@ export class Menu extends React.Component<any, any> {
   }
 }
 
-export class MenuItem extends React.Component<any, any> {
-  render() {
-    const {
-      value,
-      children,
-      selected,
-      onClick,
-      active,
-      onHover,
-      style,
-    } = this.props
-    return (
-      <ItemRoot
-        selected={selected}
-        active={active}
-        style={style}
-        onMouseEnter={() => onHover(value)}
-        onFocus={() => onHover(value)}
-        tabIndex={0}
-        onClick={() => onClick(value)}
-      >
-        {children || value}
-      </ItemRoot>
-    )
-  }
+type MenuItemProps = {
+  /** A value to represent the current Item */
+  value?: any
+  /**
+   * Children to display for menu item.
+   *
+   * @default value
+   */
+  children?: any
+  /** Optional styles for root element. */
+  style?: object
+  onClick?: any
+  selected?: any
+  active?: any
+  onHover?: any
 }
+
+export const MenuItem = (props: MenuItemProps) => {
+  const { value, children, selected, onClick, active, onHover, style } = props
+
+  return (
+    <ItemRoot
+      selected={selected}
+      active={active}
+      style={style}
+      onMouseEnter={() => onHover(value)}
+      onFocus={() => onHover(value)}
+      tabIndex={0}
+      onClick={() => onClick(value)}
+    >
+      {children || value}
+    </ItemRoot>
+  )
+}
+
+// @ts-ignore
+MenuItem.displayName = 'MenuItem'
