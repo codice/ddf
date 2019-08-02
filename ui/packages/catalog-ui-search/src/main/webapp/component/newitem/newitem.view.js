@@ -22,6 +22,7 @@ import React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import styled from '../../react-component/styles/styled-components'
 
+
 const ItemCreationView = styled.div`
   display: flex;
   flex-direction: row;
@@ -29,7 +30,6 @@ const ItemCreationView = styled.div`
   margin: ${props => props.theme.minimumSpacing};
   height: calc(100% - 1.8rem);
 `
-
 const UploadView = styled.div`
   width: 60%;
   height: calc(100% - 1.8rem);
@@ -54,7 +54,6 @@ const ManualView = styled.div`
   align-self: center;
   overflow-y: scroll;
   width: 30%;
-  height: calc(100% - 3.5 * 1.8rem - 10px);
 `
 
 module.exports = Marionette.LayoutView.extend({
