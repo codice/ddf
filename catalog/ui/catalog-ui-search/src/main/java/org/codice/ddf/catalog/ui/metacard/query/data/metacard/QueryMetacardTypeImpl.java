@@ -33,6 +33,7 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
 import java.util.HashSet;
 import java.util.Set;
@@ -174,6 +175,8 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
             false /* tokenized */,
             false /* multivalued */,
             BasicTypes.BOOLEAN_TYPE));
+
+    QUERY_DESCRIPTORS.addAll(new SecurityAttributes().getAttributeDescriptors());
 
     QUERY_ATTRIBUTE_NAMES =
         QUERY_DESCRIPTORS.stream().map(AttributeDescriptor::getName).collect(Collectors.toSet());

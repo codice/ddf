@@ -33,6 +33,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Security;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -100,6 +101,15 @@ public class QueryBasic {
   @SerializedName("phonetics")
   private Boolean phonetics;
 
+  @SerializedName("accessAdministrators")
+  private List<String> accessAdministrators;
+
+  @SerializedName("accessIndividuals")
+  private List<String> accessIndividuals;
+
+  @SerializedName("accessIndividualsRead")
+  private List<String> accessIndividualsRead;
+
   public QueryBasic(Metacard metacard) {
     this.metacardId = getAttributeValue(metacard, Core.ID, String.class);
     this.title = getAttributeValue(metacard, Core.TITLE, String.class);
@@ -123,6 +133,13 @@ public class QueryBasic {
     this.facets = getAttributeValues(metacard, FACETS, String.class);
     this.spellcheck = getAttributeValue(metacard, SPELLCHECK, Boolean.class);
     this.phonetics = getAttributeValue(metacard, PHONETICS, Boolean.class);
+
+    this.accessAdministrators =
+        getAttributeValues(metacard, Security.ACCESS_ADMINISTRATORS, String.class);
+    this.accessIndividuals =
+        getAttributeValues(metacard, Security.ACCESS_INDIVIDUALS, String.class);
+    this.accessIndividualsRead =
+        getAttributeValues(metacard, Security.ACCESS_INDIVIDUALS_READ, String.class);
   }
 
   public Metacard getMetacard() {
@@ -147,6 +164,14 @@ public class QueryBasic {
     metacard.setAttribute(new AttributeImpl(FACETS, (Serializable) this.facets));
     metacard.setAttribute(new AttributeImpl(SPELLCHECK, this.spellcheck));
     metacard.setAttribute(new AttributeImpl(PHONETICS, this.phonetics));
+    metacard.setAttribute(
+        new AttributeImpl(
+            Security.ACCESS_ADMINISTRATORS, (Serializable) this.accessAdministrators));
+    metacard.setAttribute(
+        new AttributeImpl(Security.ACCESS_INDIVIDUALS, (Serializable) this.accessIndividuals));
+    metacard.setAttribute(
+        new AttributeImpl(
+            Security.ACCESS_INDIVIDUALS_READ, (Serializable) this.accessIndividualsRead));
 
     return new QueryMetacardImpl(metacard);
   }
