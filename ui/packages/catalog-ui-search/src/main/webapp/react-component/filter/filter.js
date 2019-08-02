@@ -106,9 +106,10 @@ const Filter = withListenTo(
             icon="fa fa-minus"
           />
           <FilterAttribute
-            {...this.props}
+            attribute={this.state.attribute}
+            includedAttributes={this.props.includedAttributes}
+            editing={this.state.editing}
             onChange={this.updateAttribute}
-            {...this.state}
           />
           <FilterComparator
             comparator={this.state.comparator}

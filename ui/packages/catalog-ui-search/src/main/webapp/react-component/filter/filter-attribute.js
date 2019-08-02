@@ -31,7 +31,11 @@ const Root = styled.div`
   }
 `
 
-const Component = props => {
+const areEqual = (prevProps, nextProps) => {
+  return prevProps.editing === nextProps.editing
+}
+
+const Component = React.memo(props => {
   const component = DropdownView.createSimpleDropdown({
     list: getFilteredAttributeList(props.includedAttributes),
     defaultSelection: [props.attribute],
@@ -50,6 +54,6 @@ const Component = props => {
       <MarionetteRegionContainer view={component} />
     </Root>
   )
-}
+}, areEqual)
 
 export default withListenTo(Component)
