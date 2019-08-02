@@ -13,7 +13,7 @@
  *
  **/
 import { readableColor } from 'polished'
-import { css } from '../styled-components'
+import { css } from 'styled-components'
 
 export const ChangeBackground = (newBackground: string) => {
   return css`

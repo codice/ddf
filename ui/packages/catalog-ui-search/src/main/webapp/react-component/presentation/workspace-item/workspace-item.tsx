@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import Card from '../card'
 import SaveButton from '../save-button'
 import { buttonTypeEnum, Button } from '../button'
@@ -22,7 +22,7 @@ import NavigationBehavior from '../navigation-behavior'
 import WorkspaceInteractions from '../../container/workspace-interactions'
 import { hot } from 'react-hot-loader'
 
-const StyledDropdown = styled(Dropdown)`
+const StyledDropdown = styled(Dropdown as any)`
   height: 100%;
   line-height: inherit;
 `

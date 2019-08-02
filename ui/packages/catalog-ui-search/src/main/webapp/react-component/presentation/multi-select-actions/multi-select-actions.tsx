@@ -15,7 +15,7 @@
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
 import { Button, buttonTypeEnum } from '../button'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import { transparentize, readableColor } from 'polished'
 import plugin from 'plugins/multi-select-actions'
 

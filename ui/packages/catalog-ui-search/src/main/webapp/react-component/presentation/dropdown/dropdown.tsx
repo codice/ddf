@@ -15,7 +15,8 @@
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import Portal from '../portal'
-import styled, { ThemeInterface } from '../../styles/styled-components'
+import styled from 'styled-components'
+import { ThemeInterface } from '../../styles/styled-components'
 import { Dropshadow } from '../../styles/mixins'
 import ChangeBackground from '../change-background'
 import ButtonBehavior from '../button-behavior'
@@ -100,10 +101,11 @@ export type withContext = {
   dropdownContext: Context
 }
 
-type Props = {
+export type Props = {
   /**
    * content - What is displayed in the dropdown
    */
+  children: React.ReactNode | React.ReactNode[]
   content: JSX.Element | ((context: Context) => JSX.Element)
   contentClassName?: string
   contentStyle?: CSSProperties
@@ -358,7 +360,7 @@ class Dropdown extends React.Component<Props, State> {
               <ChangeBackground color={theme => theme.backgroundDropdown}>
                 <DropdownWrapper
                   className={contentClassName}
-                  innerRef={this.dropdownRef as any}
+                  ref={this.dropdownRef as any}
                   open={open}
                   tabIndex={0}
                   style={contentStyle as any}

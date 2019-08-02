@@ -22,7 +22,7 @@ const wreqr = require('../../exports/wreqr.js')
 const announcement = require('../announcement')
 const Common = require('../../js/Common.js')
 import React from 'react'
-import styled from '../../react-component/styles/styled-components'
+import styled from 'styled-components'
 
 const Item = styled(({ className, ...props }) => {
   return <div className={className + ' is-button'} {...props} />

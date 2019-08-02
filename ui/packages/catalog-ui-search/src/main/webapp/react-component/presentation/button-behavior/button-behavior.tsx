@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import { Subtract } from '../../../typescript'
 
 /**
@@ -78,7 +78,7 @@ const render: React.ComponentType<
     const { children, onClick, className, style, ...otherAttr } = props
     return (
       <Root
-        innerRef={ref}
+        ref={ref}
         onKeyDown={handleKeyDown}
         onKeyUp={handleKeyUp}
         tabIndex={0}

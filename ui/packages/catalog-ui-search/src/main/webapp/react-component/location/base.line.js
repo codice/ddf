@@ -16,7 +16,7 @@ const React = require('react')
 
 const { Units } = require('./common')
 const TextField = require('../text-field')
-import styled from '../styles/styled-components'
+import styled from 'styled-components'
 
 const Invalid = styled.div`
   background-color: ${props => props.theme.negativeColor};
