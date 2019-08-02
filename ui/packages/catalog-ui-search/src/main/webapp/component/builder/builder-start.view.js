@@ -64,7 +64,7 @@ class BuilderStart extends React.Component {
                     <SpacingStyle>
                         <Button 
                         buttonType={buttonTypeEnum.primary}
-                        text="create item"
+                        text="Create item"
                         disabled={false}
                         icon=""
                         style={{width: '100%'}}

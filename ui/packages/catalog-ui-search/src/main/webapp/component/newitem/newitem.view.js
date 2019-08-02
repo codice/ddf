@@ -52,7 +52,6 @@ const StyleLine = styled.div`
 
 const ManualView = styled.div`
   align-self: center;
-  overflow-y: scroll;
   width: 30%;
 `
 
