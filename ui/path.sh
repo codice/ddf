@@ -1,16 +1,24 @@
 ddf-ui-path() {
   local NODE=$(pwd)/node
   local YARN=$(pwd)/node/yarn/dist/bin
+  local TEMPFILE=$(mktemp)
 
-  if [ ! -d $NODE ]; then
-    >&2 echo "Directory $NODE not found."
-    >&2 echo "You may need to run 'mvn install' before sourcing '$0'."
-    return
-  fi
+  # Ensure that the local copy of node and yarn are installed and that
+  # they are the correct versions. Avoid informing the user unless there
+  # is an error. The reason for a temp file instead of capturing output
+  # into a local variable is that we lose the status code.
+  mvn com.github.eirslett:frontend-maven-plugin:1.6.CODICE:install-node-and-yarn \
+    '-DnodeVersion=${node.version}' \
+    '-DyarnVersion=${yarn.version}' > $TEMPFILE
 
-  if [ ! -d $YARN ]; then
-    >&2 echo "Directory $YARN not found."
-    >&2 echo "You may need to run 'mvn install' before sourcing '$0'."
+  local MVN_STATUS=$?
+  local LOG=$(cat $TEMPFILE)
+  rm $TEMPFILE
+
+  if [ $MVN_STATUS -ne 0 ]; then
+    >&2 echo "Error running maven command to install local node/yarn."
+    >&2 echo ""
+    >&2 echo "Maven Log:\n$LOG"
     return
   fi
 
