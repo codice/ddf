@@ -119,7 +119,7 @@ const Filter = withListenTo(
 
           <FilterInput {...this.props} {...this.state} />
           <ExtensionPoints.filterActions
-            model={this.model}
+            model={this.props.model}
             metacardDefinitions={metacardDefinitions}
             options={this.props}
           />
