@@ -162,7 +162,6 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformerProvider;
-import org.geotools.filter.text.cql2.CQLException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -180,6 +179,9 @@ public class CswEndpoint implements Csw {
   protected static final String SERVICE_TITLE = "Catalog Service for the Web";
 
   protected static final String SERVICE_ABSTRACT = "DDF CSW Endpoint";
+
+  protected static final String ENDPOINT_THREADPOOL_COUNT =
+      "org.codice.ddf.spatial.ogc.csw.catalog.endpoint.threadpool";
 
   protected static final List<String> SERVICE_TYPE_VERSION =
       Collections.unmodifiableList(Arrays.asList(CswConstants.VERSION_2_0_2));
@@ -251,7 +253,7 @@ public class CswEndpoint implements Csw {
 
   private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
-  private static final int BLOCKING_Q_INITIAL_SIZE = 1024;
+  private static final int MAX_Q_SIZE = 1024;
 
   private static final String QUERY_POOL_NAME = "csw-endpoint-query-pool";
 
@@ -600,6 +602,7 @@ public class CswEndpoint implements Csw {
         } catch (InterruptedException e) {
           LOGGER.debug("Metacard ingest interrupted", e);
           Thread.currentThread().interrupt();
+          break;
         }
       }
     }
@@ -615,7 +618,7 @@ public class CswEndpoint implements Csw {
         Callable<Integer> callable =
             () -> {
               try {
-                return updateRecords(updateAction);
+                return updateRecords(subject, updateAction);
               } catch (CswException
                   | FederationException
                   | IngestException
@@ -640,11 +643,12 @@ public class CswEndpoint implements Csw {
           } catch (ExecutionException | CancellationException e) {
             LOGGER.debug("Error updating Metacard", e);
             throw new CswException(
-                "Unable to insert record(s).", CswConstants.TRANSACTION_FAILED, "Update");
+                "Unable to update record(s).", CswConstants.TRANSACTION_FAILED, "Update");
           }
         } catch (InterruptedException e) {
           LOGGER.debug("Metacard update interrupted", e);
           Thread.currentThread().interrupt();
+          break;
         }
       }
 
@@ -721,8 +725,7 @@ public class CswEndpoint implements Csw {
   }
 
   private int deleteRecords(DeleteAction deleteAction)
-      throws CswException, FederationException, IngestException, SourceUnavailableException,
-          UnsupportedQueryException, InterruptedException, ParseException, CQLException {
+      throws CswException, UnsupportedQueryException {
 
     final DeleteAction transformDeleteAction = transformDeleteAction(deleteAction);
 
@@ -782,6 +785,7 @@ public class CswEndpoint implements Csw {
         } catch (InterruptedException e) {
           LOGGER.debug("Metacard delete interrupted", e);
           Thread.currentThread().interrupt();
+          break;
         }
       }
 
@@ -823,7 +827,7 @@ public class CswEndpoint implements Csw {
         .orElse(updateAction);
   }
 
-  private int updateRecords(UpdateAction updateAction)
+  private int updateRecords(Subject subject, UpdateAction updateAction)
       throws CswException, FederationException, IngestException, SourceUnavailableException,
           UnsupportedQueryException {
 
@@ -859,8 +863,44 @@ public class CswEndpoint implements Csw {
       int batchCount = 1;
       int updatedCount = 0;
 
+      CompletionService<Integer> completionService = new ExecutorCompletionService<>(queryExecutor);
+      final UpdateAction callableUpdateAction = updateAction;
       for (List<Result> results : resultList) {
-        updatedCount += updateResultList(recordProperties, batchCount++, results);
+        final int batch = batchCount;
+        Callable<Integer> callable =
+            () -> {
+              try {
+                return updateResultList(recordProperties, batch, results);
+              } catch (IngestException | SourceUnavailableException e) {
+                LOGGER.debug("Unable to update record(s)", e);
+                throw new CswException(
+                    "Unable to update record(s).",
+                    CswConstants.TRANSACTION_FAILED,
+                    callableUpdateAction.getHandle());
+              }
+            };
+        batchCount++;
+        Callable<Integer> updateCallable = subject.associateWith(callable);
+        completionService.submit(updateCallable);
+      }
+
+      for (int i = 0; i < batchCount - 1; i++) {
+        try {
+          Future<Integer> completedFuture = completionService.take();
+          try {
+            updatedCount += completedFuture.get();
+          } catch (ExecutionException | CancellationException e) {
+            LOGGER.debug("Error updating", e);
+            throw new CswException(
+                "Unable to update record(s).",
+                CswConstants.TRANSACTION_FAILED,
+                updateAction.getHandle());
+          }
+        } catch (InterruptedException e) {
+          LOGGER.debug("Metacard update interrupted", e);
+          Thread.currentThread().interrupt();
+          break;
+        }
       }
 
       return updatedCount;
@@ -1594,7 +1634,22 @@ public class CswEndpoint implements Csw {
   }
 
   public void init() {
+
     int numThreads = 2 * Runtime.getRuntime().availableProcessors();
+    String threadProp = System.getProperty(ENDPOINT_THREADPOOL_COUNT);
+    if (threadProp != null) {
+      try {
+        numThreads = Integer.parseInt(threadProp);
+      } catch (NumberFormatException nfe) {
+        LOGGER.info(
+            "Unable to use configured {} pool size: {}, defaulting to: {}",
+            ENDPOINT_THREADPOOL_COUNT,
+            threadProp,
+            numThreads,
+            nfe);
+      }
+    }
+
     LOGGER.debug("{} size: {}", QUERY_POOL_NAME, numThreads);
 
     if (queryExecutor != null) {
@@ -1607,7 +1662,7 @@ public class CswEndpoint implements Csw {
             numThreads,
             0L,
             TimeUnit.MILLISECONDS,
-            new LinkedBlockingDeque<>(BLOCKING_Q_INITIAL_SIZE),
+            new LinkedBlockingDeque<>(MAX_Q_SIZE),
             StandardThreadFactoryBuilder.newThreadFactory(QUERY_POOL_NAME),
             new ThreadPoolExecutor.CallerRunsPolicy());
 
