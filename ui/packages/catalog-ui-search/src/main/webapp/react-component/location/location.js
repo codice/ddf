@@ -103,15 +103,16 @@ const DrawButton = ({ onDraw }) => (
   </Button>
 )
 
-const DropdownPadding = styled.div`
-  padding-bottom: ${props => props.theme.minimumSpacing};
-`
 const Invalid = styled.div`
   background-color: ${props => props.theme.negativeColor};
   height: 100%;
   display: block;
   overflow: hidden;
   color: white;
+`
+
+const Root = styled.div`
+  height: ${props => (props.open ? 'auto' : props.theme.minimumButtonSize)};
 `
 
 const Component = CustomElements.registerReact('location')
@@ -127,8 +128,8 @@ const LocationInput = props => {
     setState((errors = false))
   }
   return (
-    <Component>
-      <DropdownPadding>
+    <Root open={props.open}>
+      <Component>
         <Dropdown label={input.label || 'Select Location Option'}>
           <Menu value={mode} onChange={cursor('mode')}>
             {Object.keys(inputs).map(key => (
@@ -138,23 +139,25 @@ const LocationInput = props => {
             ))}
           </Menu>
         </Dropdown>
-      </DropdownPadding>
-      <Form>
-        {Input !== null ? <Input {...props} /> : null}
-        {errors ? (
-          <Invalid>
-            &nbsp;
-            <span className="fa fa-exclamation-triangle" />
-            &nbsp; {inValidInput} is not an acceptable {inValidKey} value.
-            Defaulting to {defaultCoord}. &nbsp; &nbsp;
-            <span className="fa fa-times" onClick={removeErrorBox} />
-          </Invalid>
-        ) : (
-          ''
-        )}
-        {drawTypes.includes(mode) ? <DrawButton onDraw={props.onDraw} /> : null}
-      </Form>
-    </Component>
+        <Form>
+          {Input !== null ? <Input {...props} /> : null}
+          {errors ? (
+            <Invalid>
+              &nbsp;
+              <span className="fa fa-exclamation-triangle" />
+              &nbsp; {inValidInput} is not an acceptable {inValidKey} value.
+              Defaulting to {defaultCoord}. &nbsp; &nbsp;
+              <span className="fa fa-times" onClick={removeErrorBox} />
+            </Invalid>
+          ) : (
+            ''
+          )}
+          {drawTypes.includes(mode) ? (
+            <DrawButton onDraw={props.onDraw} />
+          ) : null}
+        </Form>
+      </Component>
+    </Root>
   )
 }
 
@@ -223,6 +226,7 @@ module.exports = ({ state, setState, options }) => (
           return
         }
         setState(key, value, (errors = false))
+        setState('open', true)
       }
     }}
   />
