@@ -25,7 +25,6 @@
     "node": ">=0.10.5"
   },
   "devDependencies": {
-    "@types/styled-components": "4.0.3",
     "@connexta/ace": "*",
     "chai": "4.1.1",
     "enzyme": "3.3.0",
@@ -53,6 +52,7 @@
     "@types/react": "16.8.23",
     "@types/react-dom": "16.8.4",
     "@types/react-intl": "2.3.12",
+    "@types/styled-components": "4.0.3",
     "backbone": "1.1.2",
     "backbone-associations": "0.6.2",
     "backbone-poller": "1.1.3",
