@@ -26,7 +26,7 @@ const Root = styled.div`
   height: ${({ theme }) => theme.minimumButtonSize};
   line-height: ${({ theme }) => theme.minimumButtonSize};
   intrigue-dropdown.is-editing .dropdown-text {
-    width: auto;
+    width: auto !important;
     max-width: 300px;
   }
 `
