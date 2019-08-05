@@ -13,6 +13,9 @@
  *
  **/
 
+const url = require('url')
+const qs = require('querystring')
+
 type Options = {
   headers?: object
   [key: string]: unknown
@@ -39,8 +42,16 @@ if (process.env.NODE_ENV !== 'production') {
   }
 }
 
+const cacheBust = (urlString: string) => {
+  const { query, ...rest } = url.parse(urlString)
+  return url.format({
+    ...rest,
+    search: '?' + qs.stringify({ ...qs.parse(query), _: Date.now() }),
+  })
+}
+
 export default function(url: string, { headers, ...opts }: Options = {}) {
-  return fetch(url, {
+  return fetch(cacheBust(url), {
     credentials: 'same-origin',
     cache: 'no-cache',
     ...opts,
