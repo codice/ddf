@@ -13,27 +13,24 @@
  *
  **/
 import * as React from 'react'
-import {
-  ThemeInterface,
-  withTheme,
-  ThemeProvider,
-} from '../../styles/styled-components'
+import { ThemeContext, ThemeProvider } from 'styled-components'
+import { ThemeInterface } from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 
 type Props = {
   children?: any
-  theme: ThemeInterface
   color: (theme: ThemeInterface) => string
 }
 
 const render = (props: Props) => {
-  const { children, color, theme } = props
+  const themeContext = React.useContext(ThemeContext)
+  const { children, color } = props
   const modifiedTheme = {
-    ...theme,
-    background: theme ? color(theme) : '',
+    ...themeContext,
+    background: themeContext ? color(themeContext) : '',
   }
 
   return <ThemeProvider theme={modifiedTheme}>{children}</ThemeProvider>
 }
 
-export default hot(module)(withTheme(render))
+export default hot(module)(render)

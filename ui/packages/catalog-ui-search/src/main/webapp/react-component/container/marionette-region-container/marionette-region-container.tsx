@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 import * as Marionette from 'backbone.marionette'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 const intervalToCheck = 20
 import { hot } from 'react-hot-loader'
 
@@ -98,7 +98,7 @@ export default hot(module)(
           className={`marionette-region-container ${
             className ? className : ''
           }`}
-          innerRef={this.regionRef as any}
+          ref={this.regionRef as any}
           style={style as any}
           {...otherProps as JSX.IntrinsicAttributes}
         />

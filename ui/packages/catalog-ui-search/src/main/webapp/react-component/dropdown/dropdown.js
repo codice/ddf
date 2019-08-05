@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons/faCaretDown'
 import isEqual from 'lodash/isEqual'
-import styled from '../styles/styled-components'
+import styled from 'styled-components'
 import { readableColor, rgba } from 'polished'
 
 class Poller extends React.Component {
@@ -115,7 +115,7 @@ class DropdownArea extends React.Component {
     const viewport = document.body.getBoundingClientRect()
     const style = getPosition(viewport, rect)
     return (
-      <Area style={style} innerRef={ref => (this.ref = ref)}>
+      <Area style={style} ref={ref => (this.ref = ref)}>
         {React.Children.map(children, child => {
           if (!React.isValidElement(child)) {
             return child

@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
 import Enum from '../../container/enum'
 import ExampleCoordinates from './example-coordinates'

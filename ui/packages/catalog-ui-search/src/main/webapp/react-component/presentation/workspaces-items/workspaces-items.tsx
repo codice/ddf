@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import { CustomElement } from '../../styles/mixins'
 import WorkspaceItemContainer from '../../container/workspace-item-container'
 import { Button, buttonTypeEnum } from '../button'

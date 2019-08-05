@@ -24,7 +24,7 @@ import {
   Button,
   buttonTypeEnum,
 } from '../../react-component/presentation/button'
-import styled from '../../react-component/styles/styled-components'
+import styled from 'styled-components'
 
 const SearchButton = styled(Button)`
   line-height: ${props => props.theme.minimumButtonSize};

@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import { CustomElement } from '../../styles/mixins'
 import { ChangeBackground } from '../../styles/mixins'
 import WorkspacesTemplatesContainer from '../../container/workspaces-templates-container'

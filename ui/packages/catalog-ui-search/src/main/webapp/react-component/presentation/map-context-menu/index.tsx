@@ -15,7 +15,7 @@
 import * as React from 'react'
 import CopyCoordinates from '../../presentation/copy-coordinates'
 import { Menu, MenuItem } from '../../menu'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 
 const Icon = styled.div`
   display: inline-block;

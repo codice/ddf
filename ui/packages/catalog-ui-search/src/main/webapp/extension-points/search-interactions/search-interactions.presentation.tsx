@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../react-component/styles/styled-components'
+import styled from 'styled-components'
 const { Menu, MenuItem } = require('../../react-component/menu')
 const Dropdown = require('../../react-component/dropdown')
 const SearchFormList = require('../../component/search-form-list/search-form-list')

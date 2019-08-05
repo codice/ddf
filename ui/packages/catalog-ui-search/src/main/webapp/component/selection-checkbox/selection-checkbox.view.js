@@ -14,7 +14,7 @@
  **/
 const Marionette = require('marionette')
 import React from 'react'
-import styled from '../../react-component/styles/styled-components'
+import styled from 'styled-components'
 
 const Root = styled.div`
   display: inline-block;

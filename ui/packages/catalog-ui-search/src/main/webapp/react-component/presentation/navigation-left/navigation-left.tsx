@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import UnsavedIndicator from '../unsaved-indicator'
 const SlideoutLeftViewInstance = require('../../../component/singletons/slideout.left.view-instance.js')
 import ExtensionPoints from '../../../extension-points'

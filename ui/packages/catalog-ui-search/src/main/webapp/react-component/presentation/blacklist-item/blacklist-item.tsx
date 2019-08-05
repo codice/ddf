@@ -15,7 +15,7 @@
 
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-import styled, { keyframes } from '../../styles/styled-components'
+import styled, { keyframes, css } from 'styled-components'
 import { buttonTypeEnum, Button } from '../button'
 import { transparentize, readableColor } from 'polished'
 
@@ -57,8 +57,10 @@ const Root = styled<Props, 'div'>('div')`
   overflow: hidden;
   ${props =>
     props.clearing
-      ? `animation: ${collapseAnimation(props.theme.minimumButtonSize)} 
-      ${props.theme.coreTransitionTime} linear forwards;`
+      ? css`
+          animation: ${collapseAnimation(props.theme.minimumButtonSize)}
+            ${props.theme.coreTransitionTime} linear forwards;
+        `
       : ''};
 `
 

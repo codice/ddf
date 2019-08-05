@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
 import Dropdown from '../dropdown'
 import MenuAction from '../menu-action'
@@ -45,7 +45,7 @@ const Icon = styled.div`
   width: ${props => props.theme.minimumFontSize};
 `
 
-const CustomDropdown = styled(Dropdown)`
+const CustomDropdown = styled(Dropdown as any)`
   width: 100%;
 `
 
@@ -94,7 +94,7 @@ const render = (props: Props) => {
   const { closeParent } = props
   return (
     <CustomDropdown
-      content={context => (
+      content={(context: ContextType) => (
         <NavigationBehavior>
           <MenuAction
             icon="fa fa-clipboard"

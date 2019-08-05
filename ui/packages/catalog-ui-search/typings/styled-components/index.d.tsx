@@ -12,11 +12,20 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export {
-  default,
-  DropdownContext,
-  withDropdown,
-  withContext,
-  Props,
-  Context as ContextType,
-} from './dropdown'
+// import original module declarations
+import 'styled-components'
+import * as React from 'react'
+import { ThemeInterface } from '../../src/main/webapp/react-component/styles/styled-components'
+
+// and extend them!
+declare module 'styled-components' {
+  export interface DefaultTheme extends ThemeInterface {
+    main: string
+  }
+
+  export function keyframes(
+    strings: TemplateStringsArray,
+    ...interpolations: FlattenInterpolation<ThemeProps<ThemeInterface>>[]
+  ): Keyframes
+  export const ThemeContext: React.Context<DefaultTheme>
+}

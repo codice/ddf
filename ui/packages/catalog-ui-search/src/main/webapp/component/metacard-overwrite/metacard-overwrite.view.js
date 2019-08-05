@@ -18,7 +18,7 @@ const ConfirmationView = require('../confirmation/confirmation.view.js')
 const Dropzone = require('dropzone')
 const OverwritesInstance = require('../singletons/overwrites-instance.js')
 import React from 'react'
-import styled from '../../react-component/styles/styled-components'
+import styled from 'styled-components'
 import { readableColor } from 'polished'
 import {
   Button,
