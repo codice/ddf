@@ -13,3 +13,4 @@
  *
  **/
 export { default } from '../src/main/webapp/react-component/user-settings'
+export * from '../src/main/webapp/react-component/user-settings'
