@@ -25,30 +25,49 @@ import {
 } from './filterHelper'
 const Common = require('../../js/Common.js')
 
-const Root = styled.div`
+const BaseRoot = styled.div`
+  display: inline-block;
   vertical-align: middle;
-  margin-right: ${({ theme }) => theme.minimumSpacing};
-  display: ${({ type }) => (type === 'EMPTY' ? 'none' : 'inline-block')};
-  min-width: ${({ type, theme }) =>
-    type === 'DATE'
-      ? `calc(19 * ${theme.minimumFontSize})`
-      : `calc(12.5* ${theme.minimumFontSize})`};
-  ${({ type, theme }) =>
-    type === 'LOCATION' || type === 'GEOMETRY'
-      ? `margin-top: ${
-          theme.minimumSpacing
-        } !important; display: block !important;`
-      : null} intrigue-input.is-with-param {
-    min-width: ${({ theme }) => `calc(20* ${theme.minimumFontSize})`};
+  margin-right: 0px;
+  height: ${({ theme }) => theme.minimumButtonSize};
+  line-height: ${({ theme }) => theme.minimumButtonSize};
+  min-width: ${({ theme }) => `calc(13 * ${theme.minimumFontSize})`};
+  intrigue-input.is-with-param {
+    min-width: ${({ theme }) => `calc(20 * ${theme.minimumFontSize})`};
   }
 `
+const LocationRoot = styled(BaseRoot)`
+  padding: ${({ theme }) =>
+    `${theme.minimumSpacing}
+      1.5rem 0px calc(${theme.minimumSpacing} + 0.75*${theme.minimumButtonSize} + ${theme.minimumButtonSize})`};
+
+  min-width: ${({ theme }) => `calc(19*${theme.minimumFontSize})`};
+  margin: 0px !important;
+  display: block !important;
+  height: auto;
+`
+
+const DateRoot = styled(BaseRoot)`
+  min-width: ${({ theme }) => `calc(24*${theme.minimumFontSize})`};
+  height: auto;
+`
+
+const EmptyRoot = styled(BaseRoot)`
+  display: none;
+`
+
+const Roots = {
+  'LOCATION': LocationRoot,
+  'GEOMETRY': LocationRoot,
+  'DATE': DateRoot,
+  'EMPTY': EmptyRoot
+}
 
 const FilterInput = withListenTo(
   class FilterInput extends React.Component {
     component
     constructor(props) {
       super(props)
-
       this.state = this.propsToState(props)
     }
 
@@ -78,13 +97,10 @@ const FilterInput = withListenTo(
           this.props.isForm === true || this.props.isFormBuilder === true
         )
       }
-
+      const Root = Roots[this.state.comparator === 'IS EMPTY' ? 'EMPTY' : this.props.type] || BaseRoot
       return (
         <Root
           data-help="The value for the property to use during comparison."
-          type={
-            this.state.comparator === 'IS EMPTY' ? 'EMPTY' : this.props.type
-          }
           className="filter-input"
         >
           <MarionetteRegionContainer view={this.component} />

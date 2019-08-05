@@ -53,6 +53,7 @@ const FilterRemove = styled(Button)`
   margin-right: ${({ theme }) => theme.minimumSpacing};
   width: ${({ theme }) => theme.minimumButtonSize};
   height: ${({ theme }) => theme.minimumButtonSize};
+  line-height: ${({ theme }) => theme.minimumButtonSize};
   display: ${({ editing }) => (editing ? 'inline-block' : 'none')};
 `
 
@@ -73,7 +74,6 @@ const Filter = withListenTo(
         comparator,
         attribute,
         editing: props.editing,
-        type: metacardDefinitions.metacardTypes[attribute].type,
         suggestions: [],
       }
       props.model.set('type', attribute)
@@ -81,11 +81,7 @@ const Filter = withListenTo(
     }
 
     componentDidMount = () => {
-      this.props.listenTo(
-        this.props.model,
-        'change:comparator',
-        this.updateComparator
-      )
+      this.updateComparator()
       this.updateSuggestions()
     }
 
@@ -94,6 +90,7 @@ const Filter = withListenTo(
     }
 
     render() {
+      const type = metacardDefinitions.metacardTypes[this.state.attribute].type
       return (
         <React.Fragment>
           <FilterRearrange className="filter-rearrange">
@@ -113,11 +110,23 @@ const Filter = withListenTo(
           />
           <FilterComparator
             comparator={this.state.comparator}
-            modelForComponent={this.props.model}
             editing={this.state.editing}
+            type={type}
+            attribute={this.state.attribute}
+            onChange={comparator => {
+              this.setState({ comparator })
+              this.props.model.set('comparator', comparator)
+            }}
           />
 
-          <FilterInput {...this.props} {...this.state} />
+          <FilterInput
+            suggestions={this.state.suggestions}
+            attribute={this.state.attribute}
+            comparator={this.state.comparator}
+            editing={this.state.editing}
+            model={this.props.model}
+            type={type}
+          />
           <ExtensionPoints.filterActions
             model={this.props.model}
             metacardDefinitions={metacardDefinitions}
@@ -127,9 +136,8 @@ const Filter = withListenTo(
       )
     }
 
-    updateComparator = () => {
+    updateComparator = (attribute = this.state.attribute) => {
       const currentComparator = this.props.model.get('comparator')
-      const attribute = Common.duplicate(this.state.attribute)
       const value = Common.duplicate(this.props.model.get('value'))
       const propertyJSON = generatePropertyJSON(
         value,
@@ -181,6 +189,7 @@ const Filter = withListenTo(
       this.setState(
         {
           comparator: newComparator,
+          attribute,
         },
         this.updateSuggestions
       )
@@ -213,14 +222,7 @@ const Filter = withListenTo(
         value = ['']
         this.props.model.set('value', value)
       }
-      this.setState(
-        {
-          value,
-          attribute,
-          type: newAttributeType,
-        },
-        this.updateComparator
-      )
+      this.updateComparator(attribute)
     }
   }
 )

@@ -13,11 +13,17 @@
  *
  **/
 import * as React from 'react'
-import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
-const DropdownModel = require('../../component/dropdown/dropdown.js')
-
-const FilterComparatorDropdownView = require('../../component/dropdown/filter-comparator/dropdown.filter-comparator.view.js')
 import styled from 'styled-components'
+import Dropdown from '../dropdown'
+import { Menu, MenuItem } from '../menu'
+
+import {
+  geometryComparators,
+  dateComparators,
+  stringComparators,
+  numberComparators,
+  booleanComparators,
+} from '../../component/filter/comparators'
 
 const Root = styled.div`
   display: inline-block;
@@ -25,29 +31,71 @@ const Root = styled.div`
   margin-right: ${({ theme }) => theme.minimumSpacing};
   height: ${({ theme }) => theme.minimumButtonSize};
   line-height: ${({ theme }) => theme.minimumButtonSize};
+  *:focus {
+    outline: none;
+  }
 `
 
-const FilterComparator = ({ comparator, modelForComponent, editing }) => {
-  const filterDropdownModel = new DropdownModel({
-    value: comparator,
-  })
-  const component = new FilterComparatorDropdownView({
-    model: filterDropdownModel,
-    modelForComponent: modelForComponent,
-  })
-  if (editing) {
-    component.turnOnEditing()
-  } else {
-    component.turnOffEditing()
+const AnchorRoot = styled.div`
+  padding: 0 ${({ theme }) => theme.minimumSpacing};
+`
+
+const Anchor = props => (
+  <AnchorRoot onClick={props.onClick}>
+    <span style={{ display: 'inline-block' }}>{props.comparator}&nbsp;</span>
+    <span style={{ display: 'inline-block' }} className="fa fa-caret-down" />
+  </AnchorRoot>
+)
+
+const typeToComparators = {
+  STRING: stringComparators,
+  DATE: dateComparators,
+  LONG: numberComparators,
+  DOUBLE: numberComparators,
+  FLOAT: numberComparators,
+  INTEGER: numberComparators,
+  SHORT: numberComparators,
+  LOCATION: geometryComparators,
+  GEOMETRY: geometryComparators,
+  BOOLEAN: booleanComparators,
+}
+
+const ComparatorMenu = styled(Menu)`
+  max-height: 50vh;
+`
+
+class FilterComparator extends React.Component {
+  render() {
+    if (!this.props.editing) {
+      return <Root>{this.props.comparator}</Root>
+    }
+    let comparators = typeToComparators[this.props.type]
+    if (
+      this.props.attribute === 'anyGeo' ||
+      this.props.attribute === 'anyText'
+    ) {
+      comparators = comparators.filter(comparator => comparator !== 'IS EMPTY')
+    }
+
+    return (
+      <Root>
+        <Dropdown anchor={<Anchor comparator={this.props.comparator} />}>
+          <ComparatorMenu
+            value={this.props.comparator}
+            onChange={this.props.onChange}
+          >
+            {comparators.map(comparator => (
+              <MenuItem style={{paddingLeft: '2rem'}}
+                value={comparator}
+                key={comparator}
+                title={comparator}
+              />
+            ))}
+          </ComparatorMenu>
+        </Dropdown>
+      </Root>
+    )
   }
-  return (
-    <Root
-      data-help="How to compare the value for this property against
-        the provided value."
-    >
-      <MarionetteRegionContainer view={component} />
-    </Root>
-  )
 }
 
 export default FilterComparator

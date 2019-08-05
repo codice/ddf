@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export const geometryComparatorsAnyGeo = ['INTERSECTS']
 export const dateComparators = [
   'BEFORE',
   'AFTER',
@@ -28,6 +27,5 @@ export const stringComparators = [
   'NEAR',
   'IS EMPTY',
 ]
-export const stringComparatorsAnyText = ['CONTAINS', 'MATCHCASE', '=', 'NEAR']
 export const numberComparators = ['>', '<', '=', '>=', '<=', 'IS EMPTY']
 export const booleanComparators = ['=', 'IS EMPTY']
