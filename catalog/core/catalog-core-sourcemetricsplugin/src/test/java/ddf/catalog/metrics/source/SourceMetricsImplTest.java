@@ -14,7 +14,6 @@
 package ddf.catalog.metrics.source;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
@@ -203,42 +202,6 @@ public class SourceMetricsImplTest {
     key = sourceId + "." + metricName;
     sourceMetric = sourceMetrics.metrics.get(key);
     assertThat(sourceMetric, not(nullValue()));
-  }
-
-  @Test
-  public void testGetRrdFilename() throws Exception {
-    String sourceId = "cp1";
-    String collectorName = SourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE;
-
-    sourceMetrics = configureSourceMetrics(sourceId);
-
-    String rrdFilename = sourceMetrics.getRrdFilename(sourceId, collectorName);
-
-    assertThat(rrdFilename, equalTo("sourceCp1QueriesTotalResults"));
-  }
-
-  @Test
-  public void testGetRrdFilenameDashesNumbers() throws Exception {
-    String sourceId = "fedSrc30rhel-58";
-    String collectorName = SourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE;
-
-    sourceMetrics = configureSourceMetrics(sourceId);
-
-    String rrdFilename = sourceMetrics.getRrdFilename(sourceId, collectorName);
-
-    assertThat(rrdFilename, equalTo("sourceFedSrc30rhel58QueriesTotalResults"));
-  }
-
-  @Test
-  public void testGetRrdFilenameNonAlphanumerics() throws Exception {
-    String sourceId = "fedSrc30rh%^&*()$e#@!l-58";
-    String collectorName = SourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE;
-
-    sourceMetrics = configureSourceMetrics(sourceId);
-
-    String rrdFilename = sourceMetrics.getRrdFilename(sourceId, collectorName);
-
-    assertThat(rrdFilename, equalTo("sourceFedSrc30rhEL58QueriesTotalResults"));
   }
 
   /** ********************************************************************************* */

@@ -29,7 +29,6 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
-import ddf.metrics.collector.rrd4j.RrdJmxCollector;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,16 +47,8 @@ import org.slf4j.LoggerFactory;
  * {@link Source}s. These metrics currently include the count of queries, results per query, and
  * exceptions per {@link Source}.
  *
- * <p>The metrics and their associated {@link ddf.metrics.collector.JmxCollector}s are created when
- * the {@link Source} is created and deleted when the {@link Source} is deleted. (The associated RRD
- * file remains available indefinitely and accessible from the Metrics tab in the Web Admin console
- * unless an administrator manually deletes it).
- *
- * <p>If a {@link Source} is renamed, i.e., its ID changed, then the {@link Source}'s existing
- * metrics' MBeans and {@link ddf.metrics.collector.JmxCollector}s are deleted and new metrics
- * created using the new {@link Source} 's ID. However, the RRD file for the {@link Source}'s
- * previous source ID remains available and accessible from the Metrics tab in the Web Admin console
- * unless an administrator manually deletes it.
+ * <p>The metrics are created when the {@link Source} is created and deleted when the {@link Source}
+ * is deleted.
  *
  * @author rodgersh
  */
@@ -252,9 +243,6 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
           // Delete SourceMetrics for Source's "old" sourceId
           String oldSourceId = sourceToSourceIdMap.get(source);
           LOGGER.debug("CASE 2: source {} exists but has oldSourceId = {}", sourceId, oldSourceId);
-          deleteMetric(oldSourceId, QUERIES_TOTAL_RESULTS_SCOPE);
-          deleteMetric(oldSourceId, QUERIES_SCOPE);
-          deleteMetric(oldSourceId, EXCEPTIONS_SCOPE);
 
           // Create metrics for Source with new sourceId
           createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
@@ -336,10 +324,6 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
     LOGGER.debug("sourceId = {},    props = {}", sourceId, props);
 
-    deleteMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE);
-    deleteMetric(sourceId, QUERIES_SCOPE);
-    deleteMetric(sourceId, EXCEPTIONS_SCOPE);
-
     // Delete source from internal map used when updating metrics by sourceId
     sourceToSourceIdMap.remove(source);
 
@@ -379,135 +363,16 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     if (!metrics.containsKey(key)) {
       if (type == MetricType.HISTOGRAM) {
         Histogram histogram = metricsRegistry.histogram(MetricRegistry.name(sourceId, mbeanName));
-        RrdJmxCollector collector = createGaugeMetricsCollector(sourceId, mbeanName);
-        metrics.put(key, new SourceMetric(histogram, collector, true));
+        metrics.put(key, new SourceMetric(histogram, true));
       } else if (type == MetricType.METER) {
         Meter meter = metricsRegistry.meter(MetricRegistry.name(sourceId, mbeanName));
-        RrdJmxCollector collector = createCounterMetricsCollector(sourceId, mbeanName);
-        metrics.put(key, new SourceMetric(meter, collector));
+        metrics.put(key, new SourceMetric(meter));
       } else {
         LOGGER.debug("Metric {} not created because unknown metric type {} specified.", key, type);
       }
     } else {
       LOGGER.debug("Metric {} already exists - not creating again", key);
     }
-  }
-
-  /**
-   * Creates the Counter JMX Collector for an associated metric's JMX MBean.
-   *
-   * @param sourceId
-   * @param collectorName
-   * @return the ddf.metrics.collector.JmxCollector created
-   */
-  private RrdJmxCollector createCounterMetricsCollector(String sourceId, String collectorName) {
-    return createMetricsCollector(
-        sourceId, collectorName, COUNT_MBEAN_ATTRIBUTE_NAME, DERIVE_DATA_SOURCE_TYPE);
-  }
-
-  /**
-   * Creates the Gauge JMX Collector for an associated metric's JMX MBean.
-   *
-   * @param sourceId
-   * @param collectorName
-   * @return the ddf.metrics.collector.JmxCollector created
-   */
-  private RrdJmxCollector createGaugeMetricsCollector(String sourceId, String collectorName) {
-    return createMetricsCollector(
-        sourceId, collectorName, MEAN_MBEAN_ATTRIBUTE_NAME, GAUGE_DATA_SOURCE_TYPE);
-  }
-
-  /**
-   * Creates the JMX Collector for an associated metric's JMX MBean.
-   *
-   * @param sourceId
-   * @param collectorName
-   * @param mbeanAttributeName usually "Count" or "Mean"
-   * @param dataSourceType only "DERIVE", "COUNTER" or "GAUGE" are supported
-   * @return the ddf.metrics.collector.JmxCollector created
-   */
-  private RrdJmxCollector createMetricsCollector(
-      String sourceId, String collectorName, String mbeanAttributeName, String dataSourceType) {
-
-    LOGGER.trace(
-        "ENTERING: createMetricsCollector - sourceId = {},   collectorName = {},   mbeanAttributeName = {},   dataSourceType = {}",
-        sourceId,
-        collectorName,
-        mbeanAttributeName,
-        dataSourceType);
-
-    String rrdPath = getRrdFilename(sourceId, collectorName);
-
-    RrdJmxCollector collector =
-        new RrdJmxCollector(
-            MBEAN_PACKAGE_NAME + ":name=" + sourceId + "." + collectorName,
-            mbeanAttributeName,
-            rrdPath,
-            dataSourceType);
-    collector.init();
-
-    LOGGER.trace("EXITING: createMetricsCollector - sourceId = {}", sourceId);
-
-    return collector;
-  }
-
-  protected String getRrdFilename(String sourceId, String collectorName) {
-
-    // Based on the sourceId and collectorName, generate the name of the RRD file.
-    // This RRD file will be of the form "source<sourceId><collectorName>.rrd" with
-    // the non-alphanumeric characters stripped out and the next character after any
-    // non-alphanumeric capitalized.
-    // Example:
-    // Given sourceId = dib30rhel-58 and collectorName = Queries.TotalResults
-    // The resulting RRD filename would be: sourceDib30rhel58QueriesTotalResults
-    String[] sourceIdParts = sourceId.split(ALPHA_NUMERIC_REGEX);
-    StringBuilder newSourceIdBuilder = new StringBuilder("");
-    for (String part : sourceIdParts) {
-      newSourceIdBuilder.append(StringUtils.capitalize(part));
-    }
-    String rrdPath = "source" + newSourceIdBuilder.toString() + collectorName;
-    LOGGER.debug("BEFORE: rrdPath = {}", rrdPath);
-
-    // Sterilize RRD path name by removing any non-alphanumeric characters - this would confuse
-    // the
-    // URL being generated for this RRD path in the Metrics tab of Admin console.
-    rrdPath = rrdPath.replaceAll(ALPHA_NUMERIC_REGEX, "");
-    LOGGER.debug("AFTER: rrdPath = {}", rrdPath);
-
-    return rrdPath;
-  }
-
-  /**
-   * Delete the metric's MBean for the specified Source.
-   *
-   * @param sourceId
-   * @param mbeanName
-   */
-  private void deleteMetric(String sourceId, String mbeanName) {
-
-    String key = sourceId + "." + mbeanName;
-    if (metrics.containsKey(key)) {
-      metricsRegistry.remove(MetricRegistry.name(sourceId, mbeanName));
-      deleteCollector(sourceId, mbeanName);
-      metrics.remove(key);
-    } else {
-      LOGGER.debug("Did not remove metric {} because it was not in metrics map", key);
-    }
-  }
-
-  /**
-   * Delete the ddf.metrics.collector.JmxCollector for the specified Source and MBean.
-   *
-   * @param sourceId
-   * @param metricName
-   */
-  private void deleteCollector(String sourceId, String metricName) {
-    String mapKey = sourceId + "." + metricName;
-    SourceMetric sourceMetric = metrics.get(mapKey);
-    LOGGER.debug(
-        "Deleting {} ddf.metrics.collector.JmxCollector for source {}", metricName, sourceId);
-    sourceMetric.getCollector().destroy();
-    metrics.remove(mapKey);
   }
 
   // The types of Yammer Metrics supported
@@ -526,28 +391,20 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     // The Yammer Metric
     private Metric metric;
 
-    // The ddf.metrics.collector.JmxCollector polling this metric's MBean
-    private RrdJmxCollector collector;
-
     // Whether this metric is a Histogram or Meter
     private boolean isHistogram = false;
 
-    public SourceMetric(Metric metric, RrdJmxCollector collector) {
-      this(metric, collector, false);
+    public SourceMetric(Metric metric) {
+      this(metric, false);
     }
 
-    public SourceMetric(Metric metric, RrdJmxCollector collector, boolean isHistogram) {
+    public SourceMetric(Metric metric, boolean isHistogram) {
       this.metric = metric;
-      this.collector = collector;
       this.isHistogram = isHistogram;
     }
 
     public Metric getMetric() {
       return metric;
-    }
-
-    public RrdJmxCollector getCollector() {
-      return collector;
     }
 
     public boolean isHistogram() {

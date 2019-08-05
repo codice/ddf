@@ -27,19 +27,6 @@
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/migration/${project.version}/xml/features</repository>
 
-    <feature name="metrics-reporting" version="${project.version}"
-             description="Metrics reporting for the platform.">
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.poi/3.17_1</bundle>
-        <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
-        <feature>guava</feature>
-        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0.1/2.6.0
-        </bundle>
-        <feature>platform-configuration</feature>
-        <feature>spring</feature>
-        <feature>cxf-jaxrs</feature>
-        <bundle>mvn:ddf.metrics.reporting/metrics-reporting/${project.version}</bundle>
-    </feature>
-
     <feature name="metrics-services" version="${project.version}"
              description="cxf interceptors to capture metrics.">
         <feature>guava</feature>
@@ -165,7 +152,6 @@
         <feature>admin-modules-configuration</feature>
         <feature>admin-modules-application</feature>
         <feature>admin-modules-docs</feature>
-        <bundle>mvn:ddf.admin.modules/admin-metrics-ui/${project.version}</bundle>
         <bundle>mvn:ddf.admin.modules/admin-security-certificate-ui/${project.version}</bundle>
     </feature>
 

@@ -26,47 +26,5 @@
     advertise this bean as a PreQueryPlugin service 
     -->
     <service ref="sdkSampleMetrics" interface="ddf.catalog.plugin.PreQueryPlugin" />
-    
-    <!-- 
-    SDK Metrics: example of adding a more refined metric for spatial, 
-    here Point Radius queries count.
-    
-    WARNING: The JmxCollector interface is not final and may change in the future.
-    
-    metricName (third argument) should be a descriptive name of what metric is being collected; it
-    will be used with the .rrd file extension to create the RRD file the metrics data is stored in.
-    -->
-    <bean id="pointRadiusQueriesMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-        init-method="init" destroy-method="destroy">
-        <argument value="sdk.metrics.sample:name=Queries.PointRadius" />
-        <argument value="Count" />
-        <argument value="pointRadiusQueries" />
-    </bean>
-    
-     <!-- 
-    SDK Metrics: example of adding an existing metric, here the JVM uptime 
-    
-    WARNING: The JmxCollector interface is not final and may change in the future.
-    
-    metricType (fourth argument) can only be DERIVE or GAUGE. DERIVE is for metrics that
-    always increment (e.g., query count). GAUGE is for metrics that can wax and wane,
-    e.g., response time. 
-    
-    NOTE: DERIVE data source type is preferred over COUNTER because it does not rollover when the
-    underlying MBean counter's value is reset to zero, causing spikes in the
-    RRD graph (and the MBean value gets reset to zero after every system restart
-    since all JMX MBeans are recreated).
-    
-    dataSourceName (fifth argument) if name of the data source in the RRD file, usually
-    the same as the MBean attribute name (second argument), but all lower case.
-    -->
-    <bean id="jvmUptimeMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-        init-method="init" destroy-method="destroy">
-        <argument value="java.lang:type=Runtime" />
-        <argument value="Uptime" />
-        <argument value="jvmUptime" />
-        <argument value="DERIVE" />
-        <argument value="uptime" />
-    </bean>
 
 </blueprint>

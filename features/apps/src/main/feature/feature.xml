@@ -60,7 +60,6 @@
         <feature>mime-tika-resolver</feature>
         <feature>security-encryption</feature>
         <feature>security-core-api</feature>
-        <feature>metrics-reporting</feature>
         <feature>metrics-services</feature>
         <feature>security-logger</feature>
         <feature>persistence-core</feature>

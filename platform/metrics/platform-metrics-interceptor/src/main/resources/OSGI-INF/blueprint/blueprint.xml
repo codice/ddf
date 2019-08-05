@@ -17,14 +17,4 @@
     <bean id="MetricsFeature" class="ddf.metrics.interceptor.MetricsFeature"/>
 
     <service ref="MetricsFeature" interface="org.apache.cxf.feature.Feature"/>
-    
-            
-    <bean id="servicesLatencyMetric" class="ddf.metrics.collector.rrd4j.RrdJmxCollector"
-          init-method="init" destroy-method="destroy">
-        <argument value="ddf.metrics.services:name=Latency"/>
-        <argument value="Mean"/>
-        <argument value="servicesLatency"/>
-        <argument value="GAUGE"/>
-    </bean>
-
 </blueprint>

@@ -33,7 +33,7 @@ public abstract class AbstractMetricsInterceptor extends AbstractPhaseIntercepto
 
   private static final String HISTOGRAM_NAME = "Latency";
 
-  private static final MetricRegistry METRICS = new MetricRegistry();
+  private static final MetricRegistry METRICS;
 
   private static final JmxReporter REPORTER =
       JmxReporter.forRegistry(METRICS).inDomain(REGISTRY_NAME).build();
