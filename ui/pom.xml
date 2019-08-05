@@ -190,9 +190,9 @@
                             <version>2.1.4</version>
                         </artifactItem>
                         <artifactItem>
-                            <groupId>org.webjars.bower</groupId>
+                            <groupId>org.webjars.npm</groupId>
                             <artifactId>lodash</artifactId>
-                            <version>3.7.0</version>
+                            <version>4.17.15</version>
                         </artifactItem>
                         <artifactItem>
                             <groupId>org.webjars.bower</groupId>
