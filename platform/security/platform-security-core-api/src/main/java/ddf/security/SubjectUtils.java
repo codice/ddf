@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
@@ -314,6 +315,7 @@ public final class SubjectUtils {
         .flatMap(Collection::stream)
         .map(AttributeStatement::getAttributes)
         .flatMap(Collection::stream)
+        .filter(SubjectUtils::attributeValuesAreNonNull)
         .collect(
             Collectors.toMap(
                 Attribute::getName,
@@ -379,5 +381,9 @@ public final class SubjectUtils {
     public int compare(SecurityAssertion assertion1, SecurityAssertion assertion2) {
       return Integer.compare(assertion1.getWeight(), assertion2.getWeight());
     }
+  }
+
+  private static boolean attributeValuesAreNonNull(Attribute attribute) {
+    return !attribute.getValues().stream().allMatch(Objects::isNull);
   }
 }
