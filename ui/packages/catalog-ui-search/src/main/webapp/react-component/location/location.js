@@ -152,7 +152,9 @@ const LocationInput = props => {
           ) : (
             ''
           )}
-          {drawTypes.includes(mode) ? <DrawButton onDraw={props.onDraw} /> : null}
+          {drawTypes.includes(mode) ? (
+            <DrawButton onDraw={props.onDraw} />
+          ) : null}
         </Form>
       </Component>
     </Root>
