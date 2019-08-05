@@ -19,9 +19,7 @@ import { ThemeInterface } from '../../src/main/webapp/react-component/styles/sty
 
 // and extend them!
 declare module 'styled-components' {
-  export interface DefaultTheme extends ThemeInterface {
-    main: string
-  }
+  export interface DefaultTheme extends ThemeInterface {}
 
   export function keyframes(
     strings: TemplateStringsArray,
