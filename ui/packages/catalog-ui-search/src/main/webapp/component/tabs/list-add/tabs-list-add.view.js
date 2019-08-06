@@ -16,7 +16,8 @@
 // const ListAddTabsModel = require('./tabs-list-add')
 import * as React from 'react'
 import {NewItem} from '../../newitem/newitem.view'
-const userNotifications = require('../../../component/singletons/user-notifications.js')
+const user = require('../../../component/singletons/user-instance')
+
 
 class NewItemManager extends React.Component {
   constructor(props) {
@@ -27,7 +28,28 @@ class NewItemManager extends React.Component {
       files: []
     }
 
-    this.tempClick = this.tempClick.bind(this);
+    const uploads = user
+      .get('user')
+      .get('preferences')
+      .get('uploads')
+    
+  
+
+    // this.listenTo(uploads, 'add', this.add)
+    // this.listenTo(uploads, 'remove', this.remove)
+
+  }
+
+  uploadEvent() {
+    console.log("nice");
+  }
+
+  add() {
+    console.log("file added");
+  }
+
+  remove() {
+    console.log("file removed");
   }
 
   tempClick() {
@@ -46,9 +68,20 @@ class NewItemManager extends React.Component {
     })
   }
 
+  getCurrentView() {
+    const uploads = user
+      .get('user')
+      .get('preferences')
+      .get('uploads')
+    
+    console.log(uploads)
+    return (<NewItem/>)
+  }
+
   render() {
+    
     return( 
-      <NewItem onClick={this.tempClick}/>
+      this.getCurrentView() 
     )
   }
 }
