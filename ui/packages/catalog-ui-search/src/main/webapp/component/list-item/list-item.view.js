@@ -24,8 +24,11 @@ const ListEditorView = require('../list-editor/list-editor.view.js')
 const QueryFeedView = require('../query-feed/query-feed.view.js')
 const ListInteractionsView = require('../list-interactions/list-interactions.view.js')
 const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
-const ListAddTabsView = require('../tabs/list-add/tabs-list-add.view.js')
+//const ListAddTabsView = require('../tabs/list-add/tabs-list-add.view.js')
 const user = require('../../component/singletons/user-instance')
+import {NewItemManager} from '../tabs/list-add/tabs-list-add.view.js'
+import React from 'react'
+
 
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('list-item'),
@@ -150,16 +153,17 @@ module.exports = Marionette.LayoutView.extend({
     lightboxInstance.model.updateTitle('Add List Items')
     lightboxInstance.model.open()
     lightboxInstance.showContent(
-      new ListAddTabsView({
-        extraHeaders: {
-          'List-ID': this.model.attributes.id,
-          'List-Type': this.model.get('list.icon'),
-        },
-        url: './internal/list/import',
-        handleUploadSuccess: file => this.handleUploadSuccess(file),
-        handleNewMetacard: id => this.handleNewMetacard(id),
-        close: () => lightboxInstance.close(),
-      })
+      <NewItemManager/>
+      // new ListAddTabsView({
+      //   extraHeaders: {
+      //     'List-ID': this.model.attributes.id,
+      //     'List-Type': this.model.get('list.icon'),
+      //   },
+      //   url: './internal/list/import',
+      //   handleUploadSuccess: file => this.handleUploadSuccess(file),
+      //   handleNewMetacard: id => this.handleNewMetacard(id),
+      //   close: () => lightboxInstance.close(),
+      // })
     )
     e.stopPropagation()
   },

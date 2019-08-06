@@ -16,7 +16,7 @@
 const Marionette = require('marionette')
 const IngestView = require('../ingest/ingest.view')
 const BuilderView = require('../builder/builder.view')
-const BuilderStart = require('../builder/builder-start.view')
+import {BuilderStart} from '../builder/builder-start.view'
 
 import React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
@@ -55,8 +55,8 @@ const ManualView = styled.div`
   width: 30%;
 `
 
-module.exports = Marionette.LayoutView.extend({
-  template() {
+class NewItem extends React.Component {
+  render() {
     return (
       <React.Fragment>
         <ItemCreationView>
@@ -88,5 +88,7 @@ module.exports = Marionette.LayoutView.extend({
         </ItemCreationView>
       </React.Fragment>
     )
-  },
-})
+  }
+}
+
+export {NewItem}

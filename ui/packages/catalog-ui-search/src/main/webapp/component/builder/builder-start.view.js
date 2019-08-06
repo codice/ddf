@@ -27,6 +27,9 @@ class BuilderStart extends React.Component {
             entities: metacardTypes,
             selectedType: undefined
         };
+
+        this.getSelectedItem = this.getSelectedItem.bind(this);
+        this.startItemCreation = this.startItemCreation.bind(this);
     }
 
     componentDidMount() {
@@ -59,7 +62,7 @@ class BuilderStart extends React.Component {
                         value = {this.state.entities[0].value}
                         filtering = {true}
                         label = "Item Type"
-                        onChange = {this.getSelectedItem.bind(this)}
+                        onChange = {this.getSelectedItem}
                     />
                     <SpacingStyle>
                         <Button 
@@ -70,7 +73,7 @@ class BuilderStart extends React.Component {
                         style={{width: '100%'}}
                         inText={false}
                         fadeUntilHover={false}
-                        onClick={this.startItemCreation.bind(this)}/>
+                        onClick={this.startItemCreation}/>
                     </SpacingStyle>
                 </BuilderStartStyle>   
             </div>
@@ -79,4 +82,4 @@ class BuilderStart extends React.Component {
     }
 }
 
-module.exports = BuilderStart
+export {BuilderStart}

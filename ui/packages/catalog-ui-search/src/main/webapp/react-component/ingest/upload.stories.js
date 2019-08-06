@@ -12,19 +12,25 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+import  React, { useState } from 'react'
+import { storiesOf, number, text } from '../storybook'
 
-const Tabs = require('../tabs')
-const IngestView = require('../../ingest/ingest.view.js')
-const BuilderView = require('../../builder/builder.view.js')
-import {NewItem} from '../../newitem/newitem.view'
+import {UploadView} from './upload-or-create.view'
+import {EditItemView} from './edit-item.view'
 
-module.exports = Tabs.extend({
-  defaults: {
-    tabs: {
-      Import: IngestView,
-      Manual: BuilderView,
-      Hybrid: NewItem,
-    },
-  },
-  initialize(options) {},
+const stories = storiesOf('IngestUpload', module)
+
+stories.add('upload view', () => {
+    const progress = number('Progress Amount', 50)
+    return (
+        <UploadView/>
+    )
 })
+
+stories.add('edit item view', () => {
+    const progress = number('Progress Amount', 50)
+    return (
+        <EditItemView/>
+    )
+})
+
