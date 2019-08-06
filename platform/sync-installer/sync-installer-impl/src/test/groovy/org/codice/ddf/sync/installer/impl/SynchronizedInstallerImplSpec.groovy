@@ -327,7 +327,7 @@ class SynchronizedInstallerImplSpec extends Specification {
         syncInstaller.installFeatures("feature1", "feature2")
 
         then:
-        2 * featuresService.getFeature(_) >> feature
+        4 * featuresService.getFeature(_) >> feature
         2 * featuresService.isInstalled(_) >> false
         2 * feature.getName() >>> ["feature1", "feature2"]
         notThrown(SynchronizedInstallerException)
@@ -348,7 +348,7 @@ class SynchronizedInstallerImplSpec extends Specification {
 
 
         then:
-        1 * featuresService.getFeature("feature") >> feature
+        2 * featuresService.getFeature("feature") >> feature
         1 * featuresService.isInstalled(feature) >> true
 
         notThrown(SynchronizedInstallerException)
@@ -368,10 +368,10 @@ class SynchronizedInstallerImplSpec extends Specification {
         syncInstaller.installFeatures("feature1", "feature2")
 
         then:
-        1 * featuresService.getFeature("feature1") >> feature1
+        2 * featuresService.getFeature("feature1") >> feature1
         1 * featuresService.isInstalled(feature1) >> true
 
-        1 * featuresService.getFeature("feature2") >> feature2
+        2 * featuresService.getFeature("feature2") >> feature2
         1 * featuresService.isInstalled(feature2) >> false
 
         notThrown(SynchronizedInstallerException)
@@ -389,7 +389,7 @@ class SynchronizedInstallerImplSpec extends Specification {
         syncInstaller.installFeatures("feature")
 
         then:
-        1 * featuresService.getFeature("feature") >> feature
+        2 * featuresService.getFeature("feature") >> feature
         1 * featuresService.isInstalled(feature) >> false
 
         1 * featuresService.installFeatures(*_) >> { throw new Exception() }
