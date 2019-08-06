@@ -29,7 +29,7 @@
     "chai": "4.1.1",
     "enzyme": "3.3.0",
     "enzyme-adapter-react-16": "1.5.0",
-    "imperio": "*",
+    "imperio": "git://github.com/connexta/imperio.git#3b1044430b72a4dd48e766faedf86b8b0f4fadeb",
     "jsdom": "11.12.0",
     "loader-utils": "1.1.0",
     "sinon": "5.0.7",
