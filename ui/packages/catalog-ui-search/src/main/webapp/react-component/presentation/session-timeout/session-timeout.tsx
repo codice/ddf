@@ -14,7 +14,7 @@
  **/
 
 import * as React from 'react'
-import styled from 'styled-components'
+import styled from '../../styles/styled-components'
 const sessionTimeoutModel = require('../../../component/singletons/session-timeout')
 import { Button, buttonTypeEnum } from '../button'
 

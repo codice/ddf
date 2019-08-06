@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from 'styled-components'
+import styled from '../../styles/styled-components'
 import { CustomElement } from '../../styles/mixins'
 const LoadingCompanionView = require('../../../component/loading-companion/loading-companion.view.js')
 
@@ -32,7 +32,7 @@ export default class LoadingCompanionContainer extends React.Component<
   constructor(props: Props) {
     super(props)
   }
-  ref = React.createRef<HTMLDivElement>()
+  ref = React.createRef()
   componentDidUpdate(prevProps: Props) {
     if (prevProps.loading === this.props.loading) {
       return
@@ -50,6 +50,10 @@ export default class LoadingCompanionContainer extends React.Component<
     LoadingCompanionView.stopLoadingElement(this.ref.current)
   }
   render() {
-    return <Root ref={this.ref as any}>{this.props.children}</Root>
+    return (
+      <Root innerRef={this.ref as React.RefObject<HTMLDivElement>}>
+        {this.props.children}
+      </Root>
+    )
   }
 }

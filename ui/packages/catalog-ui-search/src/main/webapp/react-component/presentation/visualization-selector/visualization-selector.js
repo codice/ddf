@@ -13,7 +13,7 @@
  *
  **/
 import React from 'react'
-import styled from 'styled-components'
+import styled from '../../styles/styled-components'
 import ExtensionPoints from '../../../extension-points'
 
 const CustomElement = styled.div`
@@ -94,7 +94,7 @@ class VisualizationSelector extends React.Component {
           ({ title, icon, componentName }, index) => (
             <Visualization
               key={index.toString()}
-              ref={x => {
+              innerRef={x => {
                 this[componentName] = x
               }}
               onMouseDown={this.handleMouseDown.bind(this, componentName)}

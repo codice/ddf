@@ -12,8 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import { ThemeInterface } from '../styled-components'
-import { css } from 'styled-components'
+import { css, ThemeInterface } from '../styled-components'
 
 export const DisabledBehavior = (theme: ThemeInterface) => css`
   opacity: ${theme.minimumOpacity};

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import { css } from 'styled-components'
+import { css } from '../styled-components'
 
 export const GrabCursor = css`
   cursor: move;

@@ -29,28 +29,22 @@
     "react-dom": "16.8.6"
   },
   "devDependencies": {
-    "@connexta/ace": "git://github.com/connexta/ace.git#235d5b3885e1525e2f42bfbd64cd9715d85f498c",
+    "@connexta/ace": "git://github.com/connexta/ace.git#d48cdcd457289b66a310f2ab7ed4564ce5d8db93",
     "bootstrap-sass": "3.3.6",
     "bootswatch": "3.3.7",
     "compass-mixins": "0.12.10",
     "cpr": "3.0.1",
-    "lerna": "3.16.4",
+    "lerna": "2.8.0",
     "mkdirp": "0.5.1",
-    "node-sass": "4.12.0",
+    "node-sass": "4.9.4",
     "rimraf": "2.6.2",
     "sass-lint": "1.12.1"
   },
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ],
-    "nohoist": [
-      "**/styled-components"
-    ]
-  },
+  "workspaces": [
+    "packages/*"
+  ],
   "resolutions": {
     "admin-ui/@connexta/atlas/backbone.marionette": "1.8.8",
-    "@connexta/ace": "git://github.com/connexta/ace.git#235d5b3885e1525e2f42bfbd64cd9715d85f498c"
-  },
-  "name": "ui"
+    "@connexta/ace": "git://github.com/connexta/ace.git#d48cdcd457289b66a310f2ab7ed4564ce5d8db93"
+  }
 }

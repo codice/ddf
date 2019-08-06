@@ -14,7 +14,7 @@
  **/
 /*global require*/
 import * as React from 'react'
-import styled from 'styled-components'
+import styled from '../../../react-component/styles/styled-components'
 import MarionetteRegionContainer from '../../container/marionette-region-container'
 const PropertyView = require('../../../component/property/property.view.js')
 const user = require('../../../component/singletons/user-instance.js')
@@ -329,7 +329,6 @@ class ThemeCustomComponent extends React.Component<
         {this.state.customColorArray.map((colorVariable: any) => {
           return (
             <MarionetteRegionContainer
-              key={colorVariable.get('label')}
               view={PropertyView}
               viewOptions={() => {
                 return {

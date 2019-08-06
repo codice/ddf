@@ -24,7 +24,7 @@ import MarionetteRegionContainer from '../../../react-component/container/marion
 const QuerySettingsView = require('../../../component/query-settings/query-settings.view.js')
 const QueryModel = require('../../../js/model/Query.js')
 const ConfirmationView = require('../../../component/confirmation/confirmation.view.js')
-import styled from 'styled-components'
+import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 
 const Root = styled.div`

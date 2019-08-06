@@ -18,7 +18,7 @@ const SearchForm = require('../search-form/search-form')
 import { matchesFilter } from '../select/filterHelper'
 import React from 'react'
 import { lighten, readableColor, transparentize } from 'polished'
-import styled from 'styled-components'
+import styled from '../../react-component/styles/styled-components'
 const Backbone = require('backbone')
 const SearchFormCollection = require('../search-form/search-form-collection-instance')
 

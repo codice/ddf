@@ -14,7 +14,7 @@
  **/
 
 import * as React from 'react'
-import styled from 'styled-components'
+import styled from '../../../react-component/styles/styled-components'
 
 const Marionette = require('marionette')
 const CustomElements = require('../../../js/CustomElements.js')

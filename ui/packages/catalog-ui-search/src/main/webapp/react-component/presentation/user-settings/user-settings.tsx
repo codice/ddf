@@ -20,7 +20,7 @@ import HiddenSettings from '../../../react-component/container/user-blacklist/us
 const MapSettings = require('../../../component/layers/layers.view.js')
 import TimeSettings from '../../container/time-settings'
 
-import styled from 'styled-components'
+import styled from '../../styles/styled-components'
 import { Button, buttonTypeEnum } from '../button'
 import { hot } from 'react-hot-loader'
 import MarionetteRegionContainer from '../../container/marionette-region-container'

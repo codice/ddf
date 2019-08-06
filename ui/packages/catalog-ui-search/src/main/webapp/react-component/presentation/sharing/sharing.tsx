@@ -18,7 +18,7 @@ import { hot } from 'react-hot-loader'
 import Text from '../../container/input-wrappers/text/text'
 import Enum from '../../container/input-wrappers/enum/enum'
 import { Category, Item } from '../../container/sharing'
-import styled from 'styled-components'
+import styled from '../../styles/styled-components/styled-components'
 import { Access } from '../../utils/security'
 
 const Root = styled.div`

@@ -15,7 +15,7 @@
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import { Button, buttonTypeEnum } from '../../presentation/button'
-import styled from 'styled-components'
+import styled from '../../styles/styled-components'
 const { Menu, MenuItem } = require('../../menu')
 const Dropdown = require('../../dropdown')
 

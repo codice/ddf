@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from 'styled-components'
+import styled from '../../styles/styled-components'
 import MenuItem from '../menu-item'
 import { withDropdown, withContext, ContextType } from '../dropdown'
 import { hot } from 'react-hot-loader'

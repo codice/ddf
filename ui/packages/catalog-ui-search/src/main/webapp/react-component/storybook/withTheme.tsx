@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled, { ThemeProvider } from 'styled-components'
+import styled, { ThemeProvider } from '../styles/styled-components'
 import themes, { ColorMode, SpacingMode } from './themes'
 
 import '../../styles/fonts.css'

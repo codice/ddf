@@ -17,7 +17,7 @@ import RouteContainer from '../route-container'
 
 const router = require('../../../component/router/router.js')
 
-import styled from 'styled-components'
+import styled from '../../styles/styled-components'
 import { CustomElement } from '../../styles/mixins'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 

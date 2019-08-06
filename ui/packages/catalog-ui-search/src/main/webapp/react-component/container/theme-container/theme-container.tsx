@@ -13,8 +13,8 @@
  *
  **/
 import * as React from 'react'
-import { ThemeProvider } from 'styled-components'
 import {
+  ThemeProvider,
   ThemeInterface,
   SpecificSizingInterface,
   ThemeColorInterface,
@@ -305,9 +305,7 @@ class ThemeContainer extends React.Component<
   }
   render() {
     return (
-      <ThemeProvider theme={this.state}>
-        {this.props.children as React.ReactElement}
-      </ThemeProvider>
+      <ThemeProvider theme={this.state}>{this.props.children}</ThemeProvider>
     )
   }
 }

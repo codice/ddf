@@ -13,9 +13,9 @@
  *
  **/
 import * as React from 'react'
-import styled, { css } from 'styled-components'
+import styled from '../../styles/styled-components'
 import { transparentize } from 'polished'
-import { keyframes } from 'styled-components'
+import { keyframes } from '../../styles/styled-components'
 import { CustomElement } from '../../styles/mixins'
 
 export interface Props {
@@ -26,14 +26,14 @@ export interface Props {
 
 const navigationRightUserIcon = '1.375rem'
 const unseenNotifications = keyframes`
-  0% {
-    opacity: ${props => props.theme.minimumOpacity};
-    transform: scale(1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
+    0% {
+        opacity: ${props => props.theme.minimumOpacity};
+        transform: scale(1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
 `
 
 const Root = styled<Props, 'div'>('div')`
@@ -96,19 +96,21 @@ const Root = styled<Props, 'div'>('div')`
 
   ${props => {
     if (props.hasUnseenNotifications) {
-      return css`
-        .item-alerts {
-          opacity: 1;
-          animation: ${unseenNotifications}
-            ${props.theme.multiple(4, props.theme.coreTransitionTime, 's')} 5
-            alternate ease-in-out;
-          transform: scale(1.2);
-        }
+      return `
+                .item-alerts {
+                    opacity: 1;
+                    animation: ${unseenNotifications} ${props.theme.multiple(
+        4,
+        props.theme.coreTransitionTime,
+        's'
+      )} 5 alternate ease-in-out;
+                    transform: scale(1.2);
+                }
 
-        .alerts-badge {
-          transform: scale(1) translateY(-50%);
-        }
-      `
+                .alerts-badge {
+                    transform: scale(1) translateY(-50%);
+                }
+            `
     }
   }};
 `

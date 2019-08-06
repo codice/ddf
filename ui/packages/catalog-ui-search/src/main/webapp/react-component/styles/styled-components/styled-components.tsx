@@ -12,16 +12,35 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export {
-  default,
+import * as styledComponents from 'styled-components'
+import { ThemedStyledComponentsModule } from 'styled-components'
+
+import { ThemeInterface } from './theme'
+
+const {
+  default: styled,
   css,
   injectGlobal,
   keyframes,
   ThemeProvider,
   withTheme,
-} from './styled-components'
+} = styledComponents as ThemedStyledComponentsModule<ThemeInterface>
+
+/*
+  Remove once https://github.com/DefinitelyTyped/DefinitelyTyped/pull/28207 is merged
+*/
+const keyframesWithTheme: (
+  strings: TemplateStringsArray,
+  ...interpolations: styledComponents.FlattenInterpolation<
+    styledComponents.ThemeProps<ThemeInterface>
+  >[]
+) => string = keyframes as any
+
 export {
-  ThemeInterface,
-  SpecificSizingInterface,
-  ThemeColorInterface,
-} from './theme'
+  css,
+  injectGlobal,
+  keyframesWithTheme as keyframes,
+  ThemeProvider,
+  withTheme,
+}
+export default styled

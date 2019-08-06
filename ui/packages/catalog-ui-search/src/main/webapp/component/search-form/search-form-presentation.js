@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import styled from 'styled-components'
+import styled from '../../react-component/styles/styled-components'
 
 export const TabMessage = styled.div`
   text-align: center;

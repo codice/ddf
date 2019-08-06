@@ -18,7 +18,7 @@ const Marionette = require('marionette')
 const _ = require('underscore')
 const CustomElements = require('../../js/CustomElements.js')
 import Dropdown from '../../react-component/dropdown'
-import styled from 'styled-components'
+import styled from '../../react-component/styles/styled-components'
 import ExtensionPoints from '../../extension-points'
 
 const zeroWidthSpace = '\u200B'

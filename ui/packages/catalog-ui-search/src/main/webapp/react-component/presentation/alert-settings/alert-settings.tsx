@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from 'styled-components'
+import styled from '../../styles/styled-components'
 import Enum from '../../container/input-wrappers/enum'
 import { hot } from 'react-hot-loader'
 

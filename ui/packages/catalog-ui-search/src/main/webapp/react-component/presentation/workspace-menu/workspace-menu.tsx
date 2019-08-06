@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from 'styled-components'
+import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
 import WorkspaceInteractions from '../../container/workspace-interactions'
 const QueryAddView = require('../../../component/query-add/query-add.view.js')
@@ -44,7 +44,7 @@ const StyledWorkspaceTitle = styled.div`
   display: block;
 `
 
-const StyledDropdown = styled(Dropdown as any)`
+const StyledDropdown = styled(Dropdown)`
   height: 100%;
   line-height: inherit;
   min-height: 0px;

@@ -18,7 +18,7 @@
     "target/test"
   ],
   "dependencies": {
-    "ace": "git://github.com/connexta/ace.git#235d5b3885e1525e2f42bfbd64cd9715d85f498c",
+    "ace": "*",
     "imperio": "*"
   },
   "main": "./src/main/webapp/index.js",

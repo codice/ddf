@@ -19,7 +19,7 @@ const CustomElements = require('../../js/CustomElements.js')
 const Button = require('../button')
 const Dropdown = require('../dropdown')
 const { Menu, MenuItem } = require('../menu')
-import styled from 'styled-components'
+import styled from '../styles/styled-components/styled-components'
 const {
   validateInput,
 } = require('../../component/location-new/utils/dms-utils')

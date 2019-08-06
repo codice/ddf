@@ -24,7 +24,7 @@ const LoadingCompanionView = require('../loading-companion/loading-companion.vie
 
 import { ChangeBackground } from '../../react-component/styles/mixins/change-background'
 import MultiSelectActions from '../../react-component/container/multi-select-actions'
-import styled from 'styled-components'
+import styled from '../../react-component/styles/styled-components'
 
 const ContentLeft = styled.div`
   ${props => {

@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 import { useEffect } from 'react'
-import styled from 'styled-components'
+import styled from '../styles/styled-components'
 import { readableColor, rgba } from 'polished'
 
 const mod = (n: any, m: any) => ((n % m) + m) % m

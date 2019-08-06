@@ -17,7 +17,7 @@ import { FormattedMessage } from 'react-intl'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 const SaveView = require('../../component/save/workspaces/workspaces-save.view')
 const UnsavedIndicatorView = require('../../component/unsaved-indicator/workspaces/workspaces-unsaved-indicator.view')
-import styled from 'styled-components'
+import styled from '../../react-component/styles/styled-components'
 import {
   Button,
   buttonTypeEnum,

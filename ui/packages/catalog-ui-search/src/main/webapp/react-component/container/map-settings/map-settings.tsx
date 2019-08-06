@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from 'styled-components'
+import styled from '../../styles/styled-components'
 import MapSettingsPresentation from '../../presentation/map-settings'
 import Dropdown from '../../presentation/dropdown'
 import { hot } from 'react-hot-loader'

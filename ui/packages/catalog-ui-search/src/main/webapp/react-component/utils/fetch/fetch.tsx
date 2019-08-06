@@ -24,7 +24,7 @@ window.__global__fetch = fetch
 
 // patch global fetch to warn about usage during development
 if (process.env.NODE_ENV !== 'production') {
-  window.fetch = (...args: any[]) => {
+  window.fetch = (...args) => {
     const error = new Error(
       [
         `Using 'window.fetch'.`,
@@ -34,7 +34,6 @@ if (process.env.NODE_ENV !== 'production') {
       ].join(' ')
     )
     console.warn(error)
-    // @ts-ignore
     return fetch(...args)
   }
 }

@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from 'styled-components'
+import styled from '../../styles/styled-components'
 import { readableColor, transparentize } from 'polished'
 import { hot } from 'react-hot-loader'
 const $ = require('jquery')
@@ -210,7 +210,7 @@ class Dropdown extends React.Component<Props, State> {
     return (
       <Wrapper
         tabIndex={0}
-        ref={this.wrapperRef as any}
+        innerRef={this.wrapperRef as any}
         className={`composed-menu ${className ? className : ''}`}
         style={style as any}
       >

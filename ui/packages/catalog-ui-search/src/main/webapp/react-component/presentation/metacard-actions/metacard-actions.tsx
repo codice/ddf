@@ -15,7 +15,7 @@
 
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-import styled from 'styled-components'
+import styled from '../../styles/styled-components'
 import { readableColor } from 'polished'
 import MapActions from '../../container/map-actions'
 

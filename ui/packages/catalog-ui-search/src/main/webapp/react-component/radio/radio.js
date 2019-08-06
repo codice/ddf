@@ -15,7 +15,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import styled from 'styled-components'
+import styled from '../styles/styled-components'
 import { readableColor, rgba } from 'polished'
 
 const foreground = props => {

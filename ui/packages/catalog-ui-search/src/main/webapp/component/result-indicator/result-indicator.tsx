@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import styled from 'styled-components'
+import styled from '../../react-component/styles/styled-components'
 
 const Flex = styled.div`
   display: flex;

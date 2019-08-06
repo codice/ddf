@@ -14,7 +14,7 @@
  **/
 const React = require('react')
 
-import styled from 'styled-components'
+import styled from '../styles/styled-components'
 
 const { Menu, MenuItem } = require('../menu')
 const Dropdown = require('../dropdown')

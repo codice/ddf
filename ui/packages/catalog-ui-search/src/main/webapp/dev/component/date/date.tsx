@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from 'styled-components'
+import styled from '../../../react-component/styles/styled-components'
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live'
 import alert from '../utils/alert'
 import { hot } from 'react-hot-loader'
