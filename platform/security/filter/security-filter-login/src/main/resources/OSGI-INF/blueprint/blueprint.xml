@@ -30,9 +30,6 @@
         <property name="securityManager" ref="securityManager"/>
         <property name="sessionFactory" ref="sessionFactory" />
         <property name="contextPolicyManager" ref="contextPolicyManager"/>
-        <property name="expirationTime" value="31"/>
-        <cm:managed-properties persistent-id="org.codice.ddf.security.filter.login.Session"
-                               update-strategy="container-managed"/>
     </bean>
 
     <service ref="filter" interface="org.codice.ddf.platform.filter.SecurityFilter" ranking="99">
