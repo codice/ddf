@@ -89,11 +89,6 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
             .filter(didNotFailEnforcedValidator)
             .collect(Collectors.toList());
 
-    INGEST_LOGGER.info(
-        "Validation results: {} had warnings and {} had errors.",
-        counter.getOrDefault(Validation.VALIDATION_WARNINGS, 0),
-        counter.getOrDefault(Validation.VALIDATION_ERRORS, 0));
-
     return validated;
   }
 
@@ -122,11 +117,38 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
         if ((isValidatorEnforced(validatorName) && validationErrorsExist && enforceErrors)
             || isValidatorEnforced(validatorName) && validationWarningsExist && enforceWarnings) {
           INGEST_LOGGER.debug(
-              "The metacard with id={} is being removed from the operation because it failed the enforced validator [{}].",
+              "The metacard with title='{}' and id={} is being removed from the operation because it failed the enforced validator [{}].",
+              metacard.getTitle(),
               metacard.getId(),
-              validatorName);
+              validatorName,
+              e.getMessage());
           return null;
         } else {
+          if (validationErrorsExist) {
+            INGEST_LOGGER.debug(
+                "The metacard with title='{}' and id={} had an unenforced validation error [{}] and error message='{}'.",
+                metacard.getTitle(),
+                metacard.getId(),
+                validatorName,
+                e.getMessage());
+          }
+          if (validationWarningsExist) {
+            INGEST_LOGGER.debug(
+                "The metacard with title='{}' and id={} had an unenforced validation warning [{}] and warning message ='{}'.",
+                metacard.getTitle(),
+                metacard.getId(),
+                validatorName,
+                e.getMessage());
+          }
+          if (validationErrorsExist || validationWarningsExist) {
+            INGEST_LOGGER.info(
+                "The metacard with title='{}' and id={} had {} unenforced validation warnings and {} unenforced validation errors.",
+                metacard.getTitle(),
+                metacard.getId(),
+                e.getWarnings() != null ? e.getWarnings().size() : 0,
+                e.getErrors() != null ? e.getErrors().size() : 0);
+          }
+
           getValidationProblems(
               validatorName,
               e,
