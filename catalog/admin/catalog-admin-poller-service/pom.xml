@@ -89,6 +89,10 @@
                         <Embed-Dependency>
                             catalog-core-api-impl;scope=!test,platform-util
                         </Embed-Dependency>
+                        <Import-Package>
+                            !javax.activation,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

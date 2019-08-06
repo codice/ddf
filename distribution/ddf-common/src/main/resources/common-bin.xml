@@ -25,8 +25,6 @@
                 <exclude>bin/**</exclude>
                 <!-- Don't copy over config files that are customized -->
                 <exclude>etc/custom.properties</exclude>
-                <!-- Needed until Karaf fixes bundle 0 exporting javax.xml (KARAF-6093) -->
-                <exclude>etc/jre.properties</exclude>
                 <exclude>etc/jetty.xml</exclude>
                 <exclude>etc/profile.cfg</exclude>
                 <exclude>etc/org.apache.karaf.command.acl.shell.cfg</exclude>

@@ -138,9 +138,9 @@
         <mockito-core.version>2.8.47</mockito-core.version>
         <mockito-all.version>1.10.19</mockito-all.version>
         <pax.exam.version>4.13.1</pax.exam.version>
-        <pax.url.version>2.5.4</pax.url.version>
-        <pax.transx.version>0.2.0</pax.transx.version>
-        <pax.web.version>7.2.5</pax.web.version>
+        <pax.url.version>2.6.1</pax.url.version>
+        <pax.transx.version>0.4.1</pax.transx.version>
+        <pax.web.version>7.2.8</pax.web.version>
         <restito.version>0.8.2</restito.version>
         <xmlunit.version>1.4</xmlunit.version>
         <xmlunit-matchers.version>2.5.1</xmlunit-matchers.version>
@@ -163,7 +163,7 @@
         <apache.shiro.version>1.4.0</apache.shiro.version>
         <artemis.version>2.6.2</artemis.version>
         <asm.version>3.3.1</asm.version>
-        <awaitility.version>3.1.2</awaitility.version>
+        <awaitility.version>3.1.5</awaitility.version>
         <aws-java-sdk-bundle.version>1.11.344_1</aws-java-sdk-bundle.version>
         <bouncy.version>1.61</bouncy.version>
         <camel.version>2.22.1</camel.version>
@@ -189,7 +189,7 @@
         <commons-text.version>1.2</commons-text.version>
         <commons-validator.version>1.6</commons-validator.version>
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
-        <countryconverter.version>0.1.5</countryconverter.version>
+        <countryconverter.version>0.1.6</countryconverter.version>
         <cxf.version>3.2.6</cxf.version>
         <decanter.version>1.3.0</decanter.version>
         <dropwizard.version>3.2.6</dropwizard.version>
@@ -197,7 +197,7 @@
         <fabric8.version>3.0.12</fabric8.version>
         <failsafe.pax-exam-compatible.version>2.17</failsafe.pax-exam-compatible.version>
         <felix.configadmin.version>1.9.10</felix.configadmin.version>
-        <felix.framework.version>5.6.10</felix.framework.version>
+        <felix.framework.version>5.6.12</felix.framework.version>
         <felix.scr.version>2.0.14</felix.scr.version>
         <ftpserver-version>1.0.6</ftpserver-version>
         <geotools.version>19.1</geotools.version>
@@ -244,7 +244,7 @@
         <jts.spatial4j.version>1.15.0</jts.spatial4j.version>
         <jts.version>1.14.0</jts.version>
         <jvnet-ogc.version>2.6.1</jvnet-ogc.version>
-        <karaf.version>4.2.2</karaf.version>
+        <karaf.version>4.2.3</karaf.version>
         <la4j.version>0.6.0</la4j.version>
         <log4j.version>1.2.17</log4j.version>
         <apache-log4j.version>2.11.0</apache-log4j.version>
@@ -299,7 +299,7 @@
 
         <spark.version>2.5.5</spark.version>
         <spatial4j.version>0.7</spatial4j.version>
-        <spring.version>5.1.3.RELEASE</spring.version>
+        <spring.version>5.1.4.RELEASE</spring.version>
         <spring-osgi.version>1.2.1</spring-osgi.version>
         <tika.thirdparty.bundle.version>1.18.0_5</tika.thirdparty.bundle.version>
         <tika.version>1.18</tika.version>
