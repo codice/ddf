@@ -2,6 +2,11 @@
 .global-bracket.is-right {
   position: relative;
 }
+
+.global-bracket.is-right {
+  width: ~'calc(100% - @{minimumButtonSize} - @{minimumSpacing} - 1.5rem)';
+}
+
 .global-bracket.is-left::before,
 .global-bracket.is-right::before {
   content: '';

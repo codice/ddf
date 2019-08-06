@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.2.0"
+  xmlns:jaxrs="http://cxf.apache.org/blueprint/jaxrs"
+  xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+  xsi:schemaLocation="
+  http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+
+    <!--
+        cm:managed-properties inline in the bean didn't persist configuration across restarts.
+        Using cm:property-placeholder instead
+      -->
+    <cm:property-placeholder persistent-id="org.codice.ddf.security.handler.api.OidcHandlerConfiguration"
+                             update-strategy="reload">
+        <cm:default-properties>
+            <cm:property name="idpType" value="Keycloak"/>
+            <cm:property name="clientId" value="ddf-client"/>
+            <cm:property name="realm" value="master"/>
+            <cm:property name="secret" value="secret"/>
+            <cm:property name="discoveryUri"
+                         value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
+            <cm:property name="baseUri" value="https://localhost:8443/auth"/>
+            <cm:property name="logoutUri"
+                         value="https://localhost:8443/auth/realms/master/protocol/openid-connect/logout"/>
+            <cm:property name="scope" value="openid profile email resource.read"/>
+            <cm:property name="useNonce">
+                <value type="java.lang.Boolean">true</value>
+            </cm:property>
+            <cm:property name="responseType" value="code"/>
+            <cm:property name="responseMode" value="form_post"/>
+        </cm:default-properties>
+    </cm:property-placeholder>
+
+    <bean id="oidcConfiguration" class="org.codice.ddf.security.handler.oidc.OidcHandlerConfigurationImpl">
+        <property name="properties">
+            <map>
+                <entry key="idpType" value="${idpType}"/>
+                <entry key="clientId" value="${clientId}"/>
+                <entry key="realm" value="${realm}"/>
+                <entry key="secret" value="${secret}"/>
+                <entry key="discoveryUri" value="${discoveryUri}"/>
+                <entry key="baseUri" value="${baseUri}"/>
+                <entry key="logoutUri" value="${logoutUri}"/>
+                <entry key="scope" value="${scope}"/>
+                <entry key="useNonce">
+                    <value type="java.lang.Boolean">${useNonce}</value>
+                </entry>
+                <entry key="responseType" value="${responseType}"/>
+                <entry key="responseMode" value="${responseMode}"/>
+            </map>
+        </property>
+    </bean>
+
+    <service ref="oidcConfiguration" interface="org.codice.ddf.security.handler.api.OidcHandlerConfiguration"/>
+
+    <bean id="oidcHandler" class="org.codice.ddf.security.handler.oidc.OidcHandler">
+        <argument ref="oidcConfiguration"/>
+    </bean>
+
+    <service ref="oidcHandler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"/>
+
+    <service interface="ddf.action.ActionProvider">
+        <service-properties>
+            <entry key="id" value="security.logout.oidc"/>
+        </service-properties>
+        <bean class="org.codice.ddf.security.handler.oidc.OidcLogoutActionProvider">
+            <argument ref="oidcConfiguration"/>
+        </bean>
+    </service>
+
+    <bean id="oidcCallbackEndpoint" class="org.codice.ddf.security.handler.oidc.OidcCallbackEndpoint"/>
+
+    <jaxrs:server id="restService" address="/oidc">
+        <jaxrs:serviceBeans>
+            <ref component-id="oidcCallbackEndpoint"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+</blueprint>

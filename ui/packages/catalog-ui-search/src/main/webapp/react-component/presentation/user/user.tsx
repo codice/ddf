@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import { Button, buttonTypeEnum } from '../../presentation/button'
 import { hot } from 'react-hot-loader'
 
@@ -41,11 +41,12 @@ const Root = styled<{}, 'div'>('div')`
 
 type Props = {
   username: string
+  isGuest: boolean
   email: string
   signOut: () => void
 }
 
-export default hot(module)(({ username, email, signOut }: Props) => {
+export default hot(module)(({ username, isGuest, email, signOut }: Props) => {
   return (
     <Root>
       <div className="user-info">
@@ -53,11 +54,15 @@ export default hot(module)(({ username, email, signOut }: Props) => {
         <div className="info-email is-medium-font">{email}</div>
       </div>
       <div className="is-divider" />
-      <Button
-        buttonType={buttonTypeEnum.negative}
-        text="Sign Out"
-        onClick={signOut}
-      />
+      {isGuest ? (
+        <div />
+      ) : (
+        <Button
+          buttonType={buttonTypeEnum.negative}
+          text="Sign Out"
+          onClick={signOut}
+        />
+      )}
     </Root>
   )
 })

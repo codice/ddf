@@ -48,6 +48,10 @@
             <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-impl</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
             <version>${project.version}</version>

@@ -19,6 +19,7 @@ import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 
 import java.io.IOException;
@@ -66,7 +67,9 @@ public abstract class AbstractComponentTest {
   protected abstract List<BundleInfo> bundlesToStart();
 
   private Option startBundle(BundleInfo bundle) {
-    return mavenBundle(bundle.groupId, bundle.artifactId).versionAsInProject().start();
+    return (bundle.wrap)
+        ? wrappedBundle(mavenBundle(bundle.groupId, bundle.artifactId).versionAsInProject()).start()
+        : mavenBundle(bundle.groupId, bundle.artifactId).versionAsInProject().start();
   }
 
   protected <T> void registerService(T service, Class<T> registerClass) {

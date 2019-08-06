@@ -120,7 +120,7 @@ public abstract class AbstractIntegrationTest {
 
   protected static final String TEST_SECURITY_LOG_LEVEL_PROPERTY = "securityLogLevel";
 
-  protected static final String KARAF_VERSION = "4.2.2";
+  protected static final String KARAF_VERSION = "4.2.3";
 
   protected static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
 
@@ -881,6 +881,10 @@ public abstract class AbstractIntegrationTest {
 
   public void configureRestForBasic(String whitelist) throws Exception {
     getSecurityPolicy().configureRestForBasic(whitelist);
+  }
+
+  public void configureRestForSaml(String whitelist) throws Exception {
+    getSecurityPolicy().configureRestForSaml(whitelist);
   }
 
   protected void configureBundle(

@@ -17,5 +17,6 @@ export {
   DropdownContext,
   withDropdown,
   withContext,
+  Props,
   Context as ContextType,
 } from './dropdown'

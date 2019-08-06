@@ -49,17 +49,6 @@ public class SolrClientFactoryImplTest {
   }
 
   @Test
-  public void newEmbeddedSolrClient() {
-    System.setProperty("solr.client", "EmbeddedSolrServer");
-    SolrClientFactoryImpl factory =
-        new SolrClientFactoryImpl(mockHttpSolrClientFactory, newClientFunction);
-
-    SolrClient client = factory.newClient("core");
-    assertThat(solrClientFactory, is(instanceOf(EmbeddedSolrFactory.class)));
-    assertThat(client, is(mockClient));
-  }
-
-  @Test
   public void newHttpSolrClient() {
     System.setProperty("solr.client", "HttpSolrClient");
     SolrClientFactoryImpl factory =

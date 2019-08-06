@@ -44,10 +44,12 @@
         <argument ref="mimeTypeMapper"/>
         <argument ref="uuidGenerator"/>
     </bean>
+
     <bean id="userManager" class="ddf.catalog.ftp.UserManagerImpl">
         <property name="uploadDirectory" value="${ddf.data}/products"/>
         <property name="karafLocalRoles" value="${karaf.local.roles}"/>
         <argument ref="securityManager"/>
+        <argument ref="contextPolicyManager"/>
     </bean>
 
     <bean id="sslConfigurationFactory" class="org.apache.ftpserver.ssl.SslConfigurationFactory"/>
@@ -58,4 +60,5 @@
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework"/>
     <reference id="mimeTypeMapper" interface="ddf.mime.MimeTypeMapper"/>
     <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
+    <reference id="contextPolicyManager" interface="org.codice.ddf.security.policy.context.ContextPolicyManager"/>
 </blueprint>

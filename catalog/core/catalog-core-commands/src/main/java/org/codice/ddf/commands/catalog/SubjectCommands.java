@@ -98,7 +98,7 @@ public abstract class SubjectCommands extends CommandSupport {
   private Object runWithUserName() throws InvocationTargetException {
     try {
       String password = session.readLine("Password for " + user + ": ", '*');
-      Subject subject = security.getSubject(user, password);
+      Subject subject = security.getSubject(user, password, "127.0.0.1");
 
       if (subject == null) {
         printErrorMessage("Invalid username/password");

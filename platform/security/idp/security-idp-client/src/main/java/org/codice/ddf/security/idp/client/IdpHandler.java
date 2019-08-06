@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.security.idp.client;
 
+import ddf.security.SecurityConstants;
+import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.http.SessionFactory;
 import ddf.security.liberty.paos.Request;
@@ -28,6 +30,7 @@ import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.impl.RelayStates;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -37,19 +40,24 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriBuilder;
+import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
 import org.apache.cxf.rs.security.saml.sso.SamlpRequestComponentBuilder;
+import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
@@ -57,10 +65,12 @@ import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
 import org.codice.ddf.platform.filter.FilterChain;
+import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.saml.SAMLAssertionHandler;
+import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
+import org.codice.ddf.security.util.SAMLUtils;
 import org.joda.time.DateTime;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
@@ -96,7 +106,7 @@ public class IdpHandler implements AuthenticationHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(IdpHandler.class);
 
   /** IdP type to use when configuring context policy. */
-  public static final String AUTH_TYPE = "IDP";
+  public static final String AUTH_TYPE = "SAML";
 
   public static final String SOURCE = "IdpHandler";
 
@@ -234,14 +244,9 @@ public class IdpHandler implements AuthenticationHandler {
       }
       return new HandlerResult(HandlerResult.Status.NO_ACTION, null);
     }
-    HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper(httpRequest);
 
-    SAMLAssertionHandler samlAssertionHandler = new SAMLAssertionHandler();
-    samlAssertionHandler.setSessionFactory(sessionFactory);
-
-    LOGGER.trace("Processing SAML assertion with SAML Handler.");
-    HandlerResult samlResult =
-        samlAssertionHandler.getNormalizedToken(wrappedRequest, null, null, false);
+    LOGGER.trace("Checking for assertion in HTTP header.");
+    HandlerResult samlResult = checkForAssertionInHttpHeader(request);
 
     if (samlResult != null && samlResult.getStatus() == HandlerResult.Status.COMPLETED) {
       return samlResult;
@@ -261,7 +266,7 @@ public class IdpHandler implements AuthenticationHandler {
     }
 
     HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
-    handlerResult.setSource("idp-" + SOURCE);
+    handlerResult.setSource(SOURCE);
 
     String path = httpRequest.getServletPath();
     LOGGER.debug("Doing IdP authentication and authorization for path {}", path);
@@ -275,6 +280,69 @@ public class IdpHandler implements AuthenticationHandler {
     }
 
     return handlerResult;
+  }
+
+  private HandlerResult checkForAssertionInHttpHeader(ServletRequest request) {
+    HttpServletRequest httpRequest = (HttpServletRequest) request;
+    String authHeader =
+        ((HttpServletRequest) request).getHeader(SecurityConstants.SAML_HEADER_NAME);
+    HandlerResult handlerResult = new HandlerResult();
+    SecurityToken securityToken;
+
+    // check for full SAML assertions coming in (federated requests, etc.)
+    if (authHeader != null) {
+      String[] tokenizedAuthHeader = authHeader.split(" ");
+      if (tokenizedAuthHeader.length == 2 && tokenizedAuthHeader[0].equals("SAML")) {
+        String encodedSamlAssertion = tokenizedAuthHeader[1];
+        LOGGER.trace("Header retrieved");
+        try {
+          String tokenString = RestSecurity.inflateBase64(encodedSamlAssertion);
+          LOGGER.trace("Header value: {}", tokenString);
+          securityToken = SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(tokenString);
+          SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
+          simplePrincipalCollection.add(new SecurityAssertionSaml(securityToken), "default");
+          SAMLAuthenticationToken samlToken =
+              new SAMLAuthenticationToken(
+                  simplePrincipalCollection, simplePrincipalCollection, request.getRemoteAddr());
+          handlerResult.setToken(samlToken);
+          handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+        } catch (IOException e) {
+          LOGGER.info("Unexpected error converting header value to string", e);
+        }
+        return handlerResult;
+      }
+    }
+
+    // Check for legacy SAML cookie
+    Map<String, Cookie> cookies = HttpUtils.getCookieMap(httpRequest);
+    Cookie samlCookie = cookies.get(SecurityConstants.SAML_COOKIE_NAME);
+    if (samlCookie != null) {
+      String cookieValue = samlCookie.getValue();
+      LOGGER.trace("Cookie retrieved");
+      try {
+        String tokenString = RestSecurity.inflateBase64(cookieValue);
+        LOGGER.trace("Cookie value: {}", tokenString);
+        securityToken = new SecurityToken();
+        Element thisToken = StaxUtils.read(new StringReader(tokenString)).getDocumentElement();
+        securityToken.setToken(thisToken);
+        SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
+        simplePrincipalCollection.add(new SecurityAssertionSaml(securityToken), "default");
+        SAMLAuthenticationToken samlToken =
+            new SAMLAuthenticationToken(null, simplePrincipalCollection, request.getRemoteAddr());
+        handlerResult.setToken(samlToken);
+        handlerResult.setStatus(HandlerResult.Status.COMPLETED);
+      } catch (IOException e) {
+        LOGGER.info(
+            "Unexpected error converting cookie value to string - proceeding without SAML token.",
+            e);
+      } catch (XMLStreamException e) {
+        LOGGER.info(
+            "Unexpected error converting XML string to element - proceeding without SAML token.",
+            e);
+      }
+      return handlerResult;
+    }
+    return null;
   }
 
   private boolean userAgentIsNotBrowser(HttpServletRequest httpRequest) {
@@ -305,7 +373,7 @@ public class IdpHandler implements AuthenticationHandler {
   private HandlerResult doPaosRequest(ServletRequest request, ServletResponse response) {
     HttpServletResponse httpServletResponse = (HttpServletResponse) response;
     HandlerResult handlerResult = new HandlerResult(HandlerResult.Status.REDIRECTED, null);
-    handlerResult.setSource("idp-" + SOURCE);
+    handlerResult.setSource(SOURCE);
     String paosHeader = ((HttpServletRequest) request).getHeader(PAOS);
 
     // some of these options aren't currently used, leaving these here as a marker for what

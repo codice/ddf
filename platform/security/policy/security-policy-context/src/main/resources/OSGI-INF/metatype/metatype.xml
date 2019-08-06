@@ -20,24 +20,32 @@
          id="org.codice.ddf.security.policy.context.impl.PolicyManager">
 
         <AD description="Depth to which paths will be traversed. Any value greater than 500 will be set to 500."
-            name="Context Traversal Depth" id="traversalDepth" required="true"
+            name="Context Traversal Depth" id="traversalDepth"
             type="Integer"
             default="20"/>
 
-        <AD description="List of authentication types required for each context. List of default valid authentication types are: IDP, SAML, BASIC, PKI, GUEST. Example: /context=AUTH1|AUTH2|AUTH3"
-            name="Authentication Types" id="authenticationTypes" required="true" cardinality="100"
+        <AD id="guestAccess" type="Boolean" name="Allow Guest Access"
+            description="Allow guest access to all web contexts. Required attributes can be used to restrict access to contexts from guest users."
+            default="true"/>
+
+        <AD id="sessionAccess" type="Boolean" name="Allow Session Storage"
+            description="Allow for session cookies to be used. Note that the SAML and OIDC authentication types require session storage to be enabled."
+            default="true"/>
+
+        <AD description="List of authentication types required for each context. List of default valid authentication types are: BASIC, PKI, SAML, and OIDC. Example: /context=AUTH1|AUTH2|AUTH3"
+            name="Authentication Types" id="authenticationTypes" cardinality="100"
             type="String"
-            default="/=IDP|GUEST,/admin=IDP|basic"/>
+            default="/=SAML,/admin=SAML|BASIC"/>
 
         <AD description="List of attributes required for each Web Context. Example: /context={role=role1;type=type1}"
-            name="Required Attributes" id="requiredAttributes" required="true" cardinality="100"
+            name="Required Attributes" id="requiredAttributes" cardinality="100"
             type="String"
             default="/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}"/>
 
         <AD description="List of contexts that will not use security. Note that sub-contexts to ones listed here will also skip security, unless authentication types are provided for it. For example: if /foo is listed here, then /foo/bar will also not require any sort of authentication. However, if /foo is listed and /foo/bar has authentication types provided in the 'Authentication Types' field, then that more specific policy will be used."
-            name="White Listed Contexts" id="whiteListContexts" required="true" cardinality="100"
+            name="White Listed Contexts" id="whiteListContexts" cardinality="100"
             type="String"
-            default="${org.codice.ddf.system.rootContext}/SecurityTokenService,${org.codice.ddf.system.rootContext}/internal/metrics,/proxy,${org.codice.ddf.system.rootContext}/saml,${org.codice.ddf.system.rootContext}/idp,/idp,${org.codice.ddf.system.rootContext}/platform/config/ui,/login,/logout,${org.codice.ddf.system.rootContext}/internal/session,/error,/webjars,/health-check,/readiness-check"/>
+            default="${org.codice.ddf.system.rootContext}/SecurityTokenService,${org.codice.ddf.system.rootContext}/internal/metrics,/proxy,${org.codice.ddf.system.rootContext}/saml,${org.codice.ddf.system.rootContext}/idp,/idp,${org.codice.ddf.system.rootContext}/platform/config/ui,${org.codice.ddf.system.rootContext}/login,${org.codice.ddf.system.rootContext}/logout,/logout,${org.codice.ddf.system.rootContext}/internal/session,${org.codice.ddf.system.rootContext}/admin/fonts,/favicon.ico,/error,/webjars,/health-check,/readiness-check"/>
 
     </OCD>
 

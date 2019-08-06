@@ -19,6 +19,8 @@
                interface="org.codice.ddf.security.policy.context.ContextPolicyManager"
                availability="optional"/>
 
+    <reference id="sessionFactory" interface="ddf.security.http.SessionFactory" />
+
     <reference-list id="handlerList"
                     interface="org.codice.ddf.security.handler.api.AuthenticationHandler"
                     availability="optional"/>
@@ -26,6 +28,7 @@
     <bean id="filter" class="org.codice.ddf.security.filter.websso.WebSSOFilter">
         <property name="handlerList" ref="handlerList"/>
         <property name="contextPolicyManager" ref="contextPolicyManager"/>
+        <property name="sessionFactory" ref="sessionFactory" />
     </bean>
 
     <service ref="filter"

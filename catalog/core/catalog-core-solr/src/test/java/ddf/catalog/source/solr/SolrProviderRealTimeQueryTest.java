@@ -79,6 +79,8 @@ public class SolrProviderRealTimeQueryTest {
     System.setProperty("solr.data.dir", solrDataPath);
     store.setDataDirectoryPath(solrDataPath);
 
+    System.setProperty("jute.maxbuffer", "20000000"); // windows solution
+
     miniSolrCloud =
         new MiniSolrCloudCluster(
             1, baseDir.getRoot().toPath(), JettyConfig.builder().setContext("/solr").build());

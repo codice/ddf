@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
 
 const Root = styled.div`
@@ -64,7 +64,7 @@ interface Props {
 const Card = (props: Props) => {
   const { header, details, footer, className, style, onClick } = props
   return (
-    <Root className={className} style={style as any} onClick={onClick}>
+    <Root className={className} style={style as any} onClick={onClick as any}>
       <Header>{header}</Header>
       <Details>{details}</Details>
       <Footer>{footer}</Footer>

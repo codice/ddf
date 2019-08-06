@@ -16,7 +16,7 @@ import { hot } from 'react-hot-loader'
 import * as React from 'react'
 import Enum from '../../container/enum'
 import { Button, buttonTypeEnum } from '../button'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import Number from '../../container/input-wrappers/number'
 const properties = require('../../../js/properties.js')
 

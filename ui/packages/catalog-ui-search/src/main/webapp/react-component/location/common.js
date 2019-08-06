@@ -14,6 +14,8 @@
  **/
 const React = require('react')
 
+import styled from 'styled-components'
+
 const { Menu, MenuItem } = require('../menu')
 const Dropdown = require('../dropdown')
 const Group = require('../group')
@@ -64,8 +66,13 @@ const Hemisphere = ({ value, onChange }) => (
   </Group>
 )
 
+const MinimumSpacing = styled.div`
+  height: ${props => props.theme.minimumSpacing};
+`
+
 module.exports = {
   Units,
   Zone,
   Hemisphere,
+  MinimumSpacing,
 }

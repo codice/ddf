@@ -1,0 +1,84 @@
+:title: OIDC Handler
+:id: org.codice.ddf.security.handler.oidc.OidcHandler
+:type: table
+:status: published
+:application: ${ddf-security}
+:summary: OIDC Handler configurations.
+
+.[[_org.codice.ddf.security.handler.oidc.OidcHandler]]OIDC Handler
+[cols="1,1m,1,3,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+
+|IdP Type
+|idpType
+|String
+|IdP type to use.
+|Keycloak
+
+|Client ID
+|clientId
+|String
+|Unique ID for the client, this may be provided by the Identity Provider.
+|ddf-client
+
+|Realm/Tenant
+|realm
+|String
+|Realm to use for a multi-tenant environment. This is required for Keycloak or Azure.
+|master
+
+|Secret
+|secret
+|String
+|This value must match the value set on the Identity Provider.
+|secret
+
+|Discovery URI
+|discoveryUri
+|String
+|Discovery URI for fetching OP metadata (http://openid.net/specs/openid-connect-discovery-1_0.html).
+|http://localhost:8080/auth/realms/master/.well-known/openid-configuration
+
+|Base URI
+|baseUri
+|String
+|Base URI for IdP. Do not fill out both this and the Discovery URI. Only one is needed depending on the IdP in use.
+|http://localhost:8080/auth
+
+|Logout URI
+|logoutUri
+|String
+|URI directing to single logout service of the IdP in use.
+|http://localhost:8080/auth/realms/master/protocol/openid-connect/logout
+
+|Scope
+|scope
+|String
+|OIDC scopes.
+|openid profile email resource.read
+
+|Use Nonce
+|useNonce
+|Boolean
+|Whether or not to use nonce in JWT.
+|true
+
+|Response Type
+|responseType
+|String
+|Response type to use.
+|code
+
+|Mode
+|responseMode
+|String
+|Mode. Leave blank if you are unsure of the value to use.
+|form_post
+
+|===

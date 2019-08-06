@@ -31,6 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.security.SecurityConstants;
+import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.SecurityTokenHolder;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
@@ -55,6 +56,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.platform.session.api.HttpSessionInvalidator;
@@ -140,10 +142,14 @@ public class LogoutRequestServiceTest {
     Element issuedAssertion = readSamlAssertion().getDocumentElement();
     String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();
     SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
-    when(securityTokenHolder.getSecurityToken()).thenReturn(token);
+    SimplePrincipalCollection principalCollection = new SimplePrincipalCollection();
+    SecurityAssertion securityAssertion = mock(SecurityAssertion.class);
+    principalCollection.add(securityAssertion, "default");
+    when(securityAssertion.getToken()).thenReturn(token);
+    when(securityTokenHolder.getPrincipals()).thenReturn(principalCollection);
     initializeLogutRequestService();
     when(sessionFactory.getOrCreateSession(request)).thenReturn(session);
-    when(session.getAttribute(eq(SecurityConstants.SAML_ASSERTION)))
+    when(session.getAttribute(eq(SecurityConstants.SECURITY_TOKEN_KEY)))
         .thenReturn(securityTokenHolder);
     when(request.getRequestURL()).thenReturn(new StringBuffer("www.url.com/url"));
     when(idpMetadata.getSigningCertificate()).thenReturn("signingCertificate");

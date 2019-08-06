@@ -13,115 +13,156 @@
  */
 package org.codice.ddf.security.idp.client;
 
+import static org.codice.ddf.security.idp.client.AssertionConsumerService.SAML_PROPERTY_KEY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.xml.HasXPath.hasXPath;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import ddf.security.Subject;
+import ddf.security.assertion.SecurityAssertion;
+import ddf.security.common.SecurityTokenHolder;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.RelayStates;
 import java.io.ByteArrayInputStream;
+import java.security.Principal;
+import java.util.Arrays;
 import java.util.Base64;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.http.HttpStatus;
-import org.codice.ddf.platform.filter.AuthenticationFailureException;
-import org.codice.ddf.platform.filter.FilterChain;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.platform.filter.SecurityFilter;
+import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.w3c.dom.Document;
 
 public class AssertionConsumerServiceTest {
 
-  private AssertionConsumerService assertionConsumerService;
-
-  private SimpleSign simpleSign;
-
-  private IdpMetadata idpMetadata;
-
-  private SystemCrypto systemCrypto;
-
-  private RelayStates<String> relayStates;
-
-  private SecurityFilter loginFilter;
-
-  private SessionFactory sessionFactory;
-
-  private EncryptionService encryptionService;
-
-  private String cannedResponse;
-
-  private HttpServletRequest httpRequest;
-
+  private static final String SESSION_ID = "Session ID";
+  private static final String SUBJECT_NAME = "Subject Name";
+  private static final String REQUEST_URL = "http://request.com";
   private static final String RELAY_STATE_VAL = "b0b4e449-7f69-413f-a844-61fe2256de19";
-
-  private static final String LOCATION = "test";
-
+  private static final String LOCATION = "http://host.com/path/to/access";
+  private static final String HOST = "host.com";
   private static final String SIG_ALG_VAL = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
-
   private static final String SIGNATURE_VAL =
       "Xwl1U2xqGx9Q/mWvBSsvv3oolPODCTvs920soROMh54fNNRYA+3hEF1oIoC4IaR4IhZfpGTTwuVyoVBpWOGd/8jh515/056CAGezFsG/sD1E5h36XHnV+Xdnlua2wl+c9TfedynfIexRgL+IGTsTm6SPyM0W9B9ddjg96g8shEY=";
 
+  private static String cannedResponse;
+  private static String metadata;
   private static String deflatedSamlResponse;
 
-  @Before
-  public void setUp() throws Exception {
+  private SystemCrypto systemCrypto;
+  private SimpleSign simpleSign;
+  private IdpMetadata idpMetadata;
+  private AssertionConsumerService assertionConsumerService;
 
-    encryptionService = mock(EncryptionService.class);
+  // mocks
+  @Mock private EncryptionService encryptionService;
+  @Mock private RelayStates<String> relayStates;
+  @Mock private SecurityFilter loginFilter;
+  @Mock private Principal principal;
+  @Mock private SecurityToken securityToken;
+  @Mock private SecurityTokenHolder securityTokenHolder;
+  @Mock private SessionFactory sessionFactory;
+  @Mock private HttpSession session;
+  @Mock private HttpServletRequest httpRequest;
+  @Mock private PrincipalCollection principalCollection;
+  @Mock private Subject subject;
+  @Mock private SecurityAssertion securityAssertion;
+  @Mock private ContextPolicyManager contextPolicyManager;
+
+  @BeforeClass
+  public static void setupClass() throws Exception {
+    System.setProperty("org.codice.ddf.system.rootContext", "/services");
+
+    cannedResponse =
+        Resources.toString(
+            Resources.getResource(AssertionConsumerServiceTest.class, "/SAMLResponse.xml"),
+            Charsets.UTF_8);
+
+    metadata =
+        Resources.toString(
+            Resources.getResource(AssertionConsumerServiceTest.class, "/IDPmetadata.xml"),
+            Charsets.UTF_8);
+
+    deflatedSamlResponse =
+        Resources.toString(
+            Resources.getResource(AssertionConsumerServiceTest.class, "/DeflatedSAMLResponse.txt"),
+            Charsets.UTF_8);
+  }
+
+  @Before
+  public void setup() throws Exception {
+    MockitoAnnotations.initMocks(this);
+
     systemCrypto =
         new SystemCrypto("encryption.properties", "signature.properties", encryptionService);
+
     simpleSign = new SimpleSign(systemCrypto);
-    relayStates = (RelayStates<String>) mock(RelayStates.class);
-    when(relayStates.encode("fubar")).thenReturn(RELAY_STATE_VAL);
-    when(relayStates.decode(RELAY_STATE_VAL)).thenReturn(LOCATION);
-    loginFilter = mock(SecurityFilter.class);
-    sessionFactory = mock(SessionFactory.class);
-    httpRequest = mock(HttpServletRequest.class);
-    when(httpRequest.getRequestURL()).thenReturn(new StringBuffer("fubar"));
-    when(httpRequest.isSecure()).thenReturn(true);
+
     idpMetadata = new IdpMetadata();
+    idpMetadata.setMetadata(metadata);
+
+    // stubs
+    when(relayStates.encode(REQUEST_URL)).thenReturn(RELAY_STATE_VAL);
+    when(relayStates.decode(RELAY_STATE_VAL)).thenReturn(LOCATION);
+
+    when(principal.getName()).thenReturn(SUBJECT_NAME);
+
+    when(securityToken.getPrincipal()).thenReturn(principal);
+
+    when(securityTokenHolder.getPrincipals()).thenReturn(null);
+
+    when(session.getAttribute(SAML_PROPERTY_KEY)).thenReturn(securityTokenHolder);
+    when(session.getId()).thenReturn(SESSION_ID);
+
+    when(sessionFactory.getOrCreateSession(any(HttpServletRequest.class))).thenReturn(session);
+
+    when(httpRequest.getServerName()).thenReturn(HOST);
+    when(httpRequest.getRequestURL()).thenReturn(new StringBuffer(REQUEST_URL));
+    when(httpRequest.isSecure()).thenReturn(true);
+
+    when(securityAssertion.getToken()).thenReturn(securityToken);
+
+    List<Object> principalList = Arrays.asList(securityAssertion);
+    when(principalCollection.asList()).thenReturn(principalList);
+
+    when(subject.getPrincipals()).thenReturn(principalCollection);
 
     assertionConsumerService =
         new AssertionConsumerService(simpleSign, idpMetadata, systemCrypto, relayStates);
     assertionConsumerService.setRequest(httpRequest);
     assertionConsumerService.setLoginFilter(loginFilter);
     assertionConsumerService.setSessionFactory(sessionFactory);
-    cannedResponse =
-        Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"), Charsets.UTF_8);
-
-    String metadata =
-        Resources.toString(Resources.getResource(getClass(), "/IDPmetadata.xml"), Charsets.UTF_8);
-
-    deflatedSamlResponse =
-        Resources.toString(
-            Resources.getResource(getClass(), "/DeflatedSAMLResponse.txt"), Charsets.UTF_8);
-    idpMetadata.setMetadata(metadata);
-    System.setProperty("org.codice.ddf.system.rootContext", "/services");
+    assertionConsumerService.setContextPolicyManager(contextPolicyManager);
   }
 
   @Test
   public void testPostSamlResponse() throws Exception {
     Response response =
         assertionConsumerService.postSamlResponse(
-            Base64.getEncoder().encodeToString(this.cannedResponse.getBytes()), RELAY_STATE_VAL);
+            Base64.getEncoder().encodeToString(cannedResponse.getBytes()), RELAY_STATE_VAL);
     assertThat(
         "The http response was not 307 TEMPORARY REDIRECT",
         response.getStatus(),
@@ -152,7 +193,7 @@ public class AssertionConsumerServiceTest {
             Resources.getResource(getClass(), "/DoubleSignedSAMLResponse.txt"), Charsets.UTF_8);
     String relayStateValue = "a0552c29-8b2b-492c-87fb-17a20d22f887";
 
-    when(relayStates.encode("fubar")).thenReturn(relayStateValue);
+    when(relayStates.encode(REQUEST_URL)).thenReturn(relayStateValue);
     when(relayStates.decode(relayStateValue)).thenReturn(LOCATION);
 
     Response response =
@@ -414,22 +455,8 @@ public class AssertionConsumerServiceTest {
   }
 
   @Test
-  public void testProcessSamlResponseLoginFail() throws Exception {
-    doThrow(AuthenticationFailureException.class)
-        .when(loginFilter)
-        .doFilter(any(ServletRequest.class), isNull(ServletResponse.class), any(FilterChain.class));
-    Response response =
-        assertionConsumerService.processSamlResponse(this.cannedResponse, RELAY_STATE_VAL, false);
-    assertThat(
-        "The http response was not 500 SEVER ERROR",
-        response.getStatus(),
-        is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
-  }
-
-  @Test
   public void testProcessSamlResponseEmptyRelayState() throws Exception {
-    Response response =
-        assertionConsumerService.processSamlResponse(this.cannedResponse, "", false);
+    Response response = assertionConsumerService.processSamlResponse(cannedResponse, "", false);
     assertThat(
         "The http response was not 500 SEVER ERROR",
         response.getStatus(),

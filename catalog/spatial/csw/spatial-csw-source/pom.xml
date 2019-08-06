@@ -4,7 +4,7 @@
  * Copyright (c) Codice Foundation
  *
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
- * version 3 of the License, or any later version. 
+ * version 3 of the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
@@ -175,11 +175,6 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security.core</groupId>
-            <artifactId>security-core-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>geospatial</artifactId>
             <version>${project.version}</version>
@@ -221,8 +216,7 @@
                             platform-util-unavailableurls,
                             jaxb2-basics-runtime,
                             commons-lang3,
-                            geospatial,
-                            security-core-impl
+                            geospatial
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

@@ -1,0 +1,44 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logout Response</title>
+    <script src="../webjars/jquery/3.2.1/dist/jquery.min.js"></script>
+    <meta http-equiv="x-ua-compatible" content="IE=Edge">
+    <link rel="stylesheet" type="text/css" href="../webjars/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../webjars/css/ddf-theme-flatly.css">
+    <link rel="stylesheet" type="text/css" href="./css/style.css?bust=${timestamp}">
+</head>
+<body class="full-width logout-response-body">
+<div class="full-width logout-response-container">
+    <div id="standard-msg" class="logout-msg" style="display:none;">
+        <h2>You have been logged out</h2>
+        <h4><a id="link" href="#">Sign in again</a></h4>
+    </div>
+    <div id="close-browser-msg" class="logout-msg" style="display:none;">
+        <h2>You have been logged out</h2>
+        <h4>Please close your browser to prevent reuse of cached credentials</h4>
+    </div>
+    <div id="error-msg" class="logout-msg" style="display:none;">
+        <h2>Logout failed!</h2>
+        <h4>Please notify a system administrator</h4>
+    </div>
+</div>
+<script src="./js/main.js?bust=${timestamp}"></script>
+</body>
+</html>

@@ -25,7 +25,6 @@ import ddf.catalog.plugin.PreFederatedLocalProviderQueryPlugin;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.UnsupportedQueryException;
-import java.util.ArrayList;
 import java.util.List;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -65,11 +64,9 @@ public class TagsFilterQueryPlugin extends PreFederatedLocalProviderQueryPlugin 
         return request;
       }
 
-      List<Filter> filters = new ArrayList<>();
-      // no tags filter given in props or in query. Add the default ones.
-      filters.add(filterBuilder.attribute(Metacard.TAGS).is().like().text(Metacard.DEFAULT_TAG));
-      filters.add(filterBuilder.attribute(Metacard.TAGS).empty());
-      Filter newFilter = filterBuilder.allOf(query, filterBuilder.anyOf(filters));
+      Filter newFilter =
+          filterBuilder.allOf(
+              query, filterBuilder.attribute(Metacard.TAGS).is().like().text(Metacard.DEFAULT_TAG));
 
       QueryImpl newQuery =
           new QueryImpl(

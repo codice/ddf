@@ -29,6 +29,10 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.security.handler</groupId>
+            <artifactId>security-handler-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
         </dependency>
@@ -55,18 +59,12 @@
             <groupId>ddf.security.servlet</groupId>
             <artifactId>security-servlet-logout-service</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
             <version>${json-smart.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.servlet</groupId>
-            <artifactId>security-servlet-logout-service</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -137,17 +135,17 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.90</minimum>
+                                            <minimum>0.97</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.54</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.60</minimum>
+                                            <minimum>0.72</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

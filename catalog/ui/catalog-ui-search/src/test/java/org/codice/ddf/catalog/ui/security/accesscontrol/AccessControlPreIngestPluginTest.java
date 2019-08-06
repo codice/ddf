@@ -32,8 +32,11 @@ import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.OperationTransactionImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.security.SubjectIdentity;
+import ddf.security.assertion.SecurityAssertion;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
+import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
 import org.junit.Before;
@@ -53,7 +56,15 @@ public class AccessControlPreIngestPluginTest {
   }
 
   private AccessControlPreIngestPlugin makePlugin() {
+    SecurityAssertion securityAssertion = mock(SecurityAssertion.class);
+    when(securityAssertion.getWeight()).thenReturn(SecurityAssertion.LOCAL_AUTH_WEIGHT);
+
+    PrincipalCollection principalCollection = mock(PrincipalCollection.class);
+    when(principalCollection.byType(SecurityAssertion.class))
+        .thenReturn(Collections.singletonList(securityAssertion));
+
     Subject subject = mock(Subject.class);
+    when(subject.getPrincipals()).thenReturn(principalCollection);
 
     return new AccessControlPreIngestPlugin(subjectIdentity) {
       @Override

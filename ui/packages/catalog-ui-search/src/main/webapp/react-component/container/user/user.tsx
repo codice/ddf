@@ -14,12 +14,11 @@
  **/
 import * as React from 'react'
 import UserComponent from '../../presentation/user'
-import fetch from '../../utils/fetch'
-import processActions from '@connexta/atlas/atoms/logout'
 const user = require('../../../component/singletons/user-instance.js')
 
 interface State {
   username: string
+  isGuest: boolean
   email: string
 }
 
@@ -27,20 +26,20 @@ class UserContainer extends React.Component<{}, State> {
   constructor(props: {}) {
     super(props)
     this.state = {
-      username: user.getUserName(),
+      username: user.isGuest() ? 'Guest' : user.getUserName(),
+      isGuest: user.isGuest(),
       email: user.getEmail(),
     }
   }
   signOut() {
-    fetch('./internal/logout/actions')
-      .then(res => res.json())
-      .then(actions => processActions({ actions: actions }))
+    window.location.href = '../../logout?service=' + window.location.href
   }
   render() {
-    const { username, email } = this.state
+    const { username, isGuest, email } = this.state
     return (
       <UserComponent
         username={username}
+        isGuest={isGuest}
         email={email}
         signOut={this.signOut.bind(this)}
       />

@@ -13,27 +13,27 @@
  *
  **/
 
-var React = require('react');
-var utils = require('react-addons-test-utils');
-var expect = require('chai').expect;
+var React = require('react')
+var utils = require('react-addons-test-utils')
+var expect = require('chai').expect
 
-var configureStore = require('./configureStore');
-var Announcements = require('./announcements.jsx');
+var configureStore = require('./configureStore')
+var Announcements = require('./announcements.jsx')
 
-var mock = function (type, message) {
-    return {
-        id: 0,
-        title: 'Title',
-        type: type || 'error',
-        message: message || 'Unknown message.'
-    }
-};
+var mock = function(type, message) {
+  return {
+    id: 0,
+    title: 'Title',
+    type: type || 'error',
+    message: message || 'Unknown message.',
+  }
+}
 
-describe('<Announcements/>', function () {
-    it('should render correctly', function () {
-        var store = configureStore([mock()])
-        var node = utils.renderIntoDocument(<Announcements store={store} />);
-        var found = utils.scryRenderedDOMComponentsWithClass(node, 'announcement');
-        expect(found).to.have.lengthOf(1);
-    });
-});
+describe('<Announcements/>', function() {
+  it('should render correctly', function() {
+    var store = configureStore([mock()])
+    var node = utils.renderIntoDocument(<Announcements store={store} />)
+    var found = utils.scryRenderedDOMComponentsWithClass(node, 'announcement')
+    expect(found).to.have.lengthOf(1)
+  })
+})

@@ -129,13 +129,28 @@ public class CreateOperations {
     List<ContentItem> contentItems = new ArrayList<>(streamCreateRequest.getContentItems().size());
     HashMap<String, Map<String, Path>> tmpContentPaths = new HashMap<>();
 
-    CreateResponse createResponse = null;
+    CreateResponse createResponse;
     CreateStorageRequest createStorageRequest = null;
     CreateStorageResponse createStorageResponse;
+    CreateRequest createRequest = null;
+    Exception ingestError = null;
+    String fileNames = "";
 
     streamCreateRequest =
         opsStorageSupport.prepareStorageRequest(
             streamCreateRequest, streamCreateRequest::getContentItems);
+
+    if (!streamCreateRequest.getContentItems().isEmpty()) {
+      List<String> fileList =
+          streamCreateRequest
+              .getContentItems()
+              .stream()
+              .map(ContentItem::getFilename)
+              .collect(Collectors.toList());
+      fileNames = String.join(", ", fileList);
+    }
+
+    INGEST_LOGGER.info("Started ingesting resources with titles: {}.", fileNames);
 
     // Operation populates the metacardMap, contentItems, and tmpContentPaths
     opsMetacardSupport.generateMetacardAndContentItems(
@@ -165,6 +180,7 @@ public class CreateOperations {
           createStorageResponse = sourceOperations.getStorage().create(createStorageRequest);
           createStorageResponse.getProperties().put(CONTENT_PATHS, tmpContentPaths);
         } catch (StorageException e) {
+          INGEST_LOGGER.debug("Could not store content items: {}.", fileNames, e);
           throw new IngestException("Could not store content items.", e);
         }
 
@@ -173,7 +189,7 @@ public class CreateOperations {
         populateMetacardMap(metacardMap, createStorageResponse);
       }
 
-      CreateRequest createRequest =
+      createRequest =
           new CreateRequestImpl(
               new ArrayList<>(metacardMap.values()),
               Optional.ofNullable(createStorageRequest)
@@ -182,15 +198,21 @@ public class CreateOperations {
 
       createResponse = doCreate(createRequest);
     } catch (IngestException e) {
+      ingestError = e;
       rollbackStorage(createStorageRequest);
       throw e;
     } catch (IOException | RuntimeException e) {
+      ingestError = e;
       rollbackStorage(createStorageRequest);
-      throw new IngestException(
-          "Unable to store products for request: " + streamCreateRequest.getId(), e);
-
+      throw new IngestException("Unable to store products for request: " + fileNames, e);
     } finally {
       opsStorageSupport.commitAndCleanup(createStorageRequest, tmpContentPaths);
+      if (INGEST_LOGGER.isInfoEnabled()) {
+        if (createRequest != null && ingestError != null) {
+          INGEST_LOGGER.info("Error during ingesting resource: {}", fileNames, ingestError);
+        }
+        INGEST_LOGGER.info("Completed ingesting resource: {}.", fileNames);
+      }
     }
 
     createResponse = doPostIngest(createResponse);
@@ -214,15 +236,28 @@ public class CreateOperations {
   //
   private CreateResponse doCreate(CreateRequest createRequest)
       throws IngestException, SourceUnavailableException {
-    CreateResponse createResponse = null;
+    CreateResponse createResponse;
 
     Exception ingestError = null;
 
     createRequest = queryOperations.setFlagsOnRequest(createRequest);
     createRequest = validateCreateRequest(createRequest);
     createRequest = validateLocalSource(createRequest);
+    String fileNames = "";
+
+    if (createRequest != null) {
+      List<String> fileList =
+          createRequest
+              .getMetacards()
+              .stream()
+              .filter(Objects::nonNull)
+              .map(Metacard::getTitle)
+              .collect(Collectors.toList());
+      fileNames = String.join(", ", fileList);
+    }
 
     try {
+      INGEST_LOGGER.info("Started ingesting metacard with titles: {}.", fileNames);
       createRequest = injectAttributes(createRequest);
       createRequest = setDefaultValues(createRequest);
       createRequest = processPreAuthorizationPlugins(createRequest);
@@ -242,7 +277,6 @@ public class CreateOperations {
       createResponse = performRemoteCreate(createRequest, createResponse);
 
     } catch (IngestException iee) {
-      INGEST_LOGGER.debug("Ingest error", iee);
       ingestError = iee;
       throw iee;
     } catch (StopProcessingException see) {
@@ -293,11 +327,10 @@ public class CreateOperations {
     // building
     if (INGEST_LOGGER.isDebugEnabled()) {
       INGEST_LOGGER.debug(
-          "{} metacards were successfully ingested. {}",
+          "{} metacards were successfully ingested. {}.",
           createResponse.getRequest().getMetacards().size(),
           buildIngestLog(createResponse.getRequest()));
     }
-
     return createResponse;
   }
 

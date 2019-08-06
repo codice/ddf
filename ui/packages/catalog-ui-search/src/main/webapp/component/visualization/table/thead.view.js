@@ -134,7 +134,9 @@ module.exports = Marionette.LayoutView.extend({
       .get('user')
       .get('preferences')
       .get('columnHide')
-    const availableAttributes = this.options.selectionInterface.getActiveSearchResultsAttributes()
+    const availableAttributes = this.options.filteredAttributes.get(
+      'filteredAttributes'
+    )
 
     // tack on unknown attributes to end (sorted), then save
     preferredHeader = _.union(preferredHeader, availableAttributes)

@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import { Button, buttonTypeEnum } from '../button'
 import { hot } from 'react-hot-loader'
 const lightboxInstance = require('../../../component/lightbox/lightbox.view.instance.js')

@@ -145,13 +145,15 @@ See the documentation for https://docs.oracle.com/javase/7/docs/api/java/lang/Lo
 [source,linenums]
 ----
 authenticationTypes=[ \
-  "/\=SAML|GUEST", \
-  "/admin\=SAML|basic", \
+  "/\=", \
+  "/admin\=basic", \
   "/system\=basic", \
-  "/sources\=SAML|basic", \
-  "/security-config\=SAML|basic", \
+  "/sources\=basic", \
+  "/security-config\=basic", \
   "/search\=basic", \
   ]
+sessionAccess=B"true"
+guestAccess=B"true"
 realms=[ \
   "/\=karaf", \
   ]

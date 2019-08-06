@@ -74,11 +74,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.handler</groupId>
-            <artifactId>security-handler-saml</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.filter</groupId>
             <artifactId>security-filter-login</artifactId>
             <version>${project.version}</version>
@@ -141,6 +136,11 @@
             <artifactId>httpcore</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>security-saml-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-services</artifactId>
             <version>${project.version}</version>
@@ -201,7 +201,6 @@
                             ddf-security-common,
                             platform-util-unavailableurls,
                             platform-util,
-                            security-core-impl,
                             httpclient,
                             httpcore
                         </Embed-Dependency>

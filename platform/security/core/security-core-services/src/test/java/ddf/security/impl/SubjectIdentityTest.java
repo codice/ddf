@@ -22,6 +22,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import ddf.security.Subject;
 import ddf.security.SubjectUtils;
+import ddf.security.assertion.Attribute;
+import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.SecurityAssertion;
 import java.util.Collections;
 import java.util.List;
@@ -34,8 +36,6 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.core.xml.schema.XSString;
-import org.opensaml.saml.saml2.core.Attribute;
-import org.opensaml.saml.saml2.core.AttributeStatement;
 
 public class SubjectIdentityTest {
 
@@ -91,7 +91,7 @@ public class SubjectIdentityTest {
         attributes.entrySet().stream().map(this::getAttribute).collect(Collectors.toList());
 
     doReturn(pc).when(subject).getPrincipals();
-    doReturn(assertion).when(pc).oneByType(SecurityAssertion.class);
+    doReturn(Collections.singletonList(assertion)).when(pc).byType(SecurityAssertion.class);
     doReturn(ImmutableList.of(assertion)).when(pc).byType(SecurityAssertion.class);
     doReturn(Collections.singletonList(as)).when(assertion).getAttributeStatements();
     doReturn(attrs).when(as).getAttributes();
@@ -104,9 +104,7 @@ public class SubjectIdentityTest {
 
     doReturn(attribute.getKey()).when(attr).getName();
 
-    doReturn(attribute.getValue().stream().map(this::getXSString).collect(Collectors.toList()))
-        .when(attr)
-        .getAttributeValues();
+    doReturn(attribute.getValue()).when(attr).getValues();
 
     return attr;
   }

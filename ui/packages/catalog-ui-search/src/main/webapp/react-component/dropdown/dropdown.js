@@ -12,11 +12,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const React = require('react')
-const { createPortal } = require('react-dom')
-
-import styled from '../styles/styled-components'
+import React from 'react'
+import { createPortal } from 'react-dom'
+import PropTypes from 'prop-types'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCaretDown } from '@fortawesome/free-solid-svg-icons/faCaretDown'
 import isEqual from 'lodash/isEqual'
+import styled from 'styled-components'
+import { readableColor, rgba } from 'polished'
 
 class Poller extends React.Component {
   constructor(props) {
@@ -54,7 +57,25 @@ const getPosition = (viewport, rect) => {
   const top = y + height
   const bottom = viewport.height - y
   const pos = top > viewport.height / 2 ? { bottom } : { top }
-  return { width, left: x, ...pos }
+  return {
+    transform: `translateX(calc(-50% + ${width / 2}px))`,
+    width: 'auto',
+    minWidth: width,
+    left: x,
+    ...pos,
+  }
+}
+
+const foreground = props => {
+  if (props.theme.backgroundDropdown !== undefined) {
+    return readableColor(props.theme.backgroundDropdown)
+  }
+}
+
+const background = props => {
+  if (props.theme.backgroundDropdown !== undefined) {
+    return rgba(readableColor(props.theme.backgroundDropdown), 0.1)
+  }
 }
 
 const Area = styled.div`
@@ -62,13 +83,14 @@ const Area = styled.div`
   z-index: ${props => props.theme.zIndexDropdown};
 
   overflow: auto;
-  border-radius: 2px;
+  border-radius: ${props => props.theme.borderRadius};
 
+  color: ${foreground};
   background-color: ${props => props.theme.backgroundDropdown};
   box-shadow: 0px 0px 2px 1px rgba(255, 255, 255, 0.4),
     2px 2px 10px 2px rgba(0, 0, 0, 0.4);
   max-width: 90vw;
-  max-height: 25vh;
+  max-height: 50vh;
 `
 
 class DropdownArea extends React.Component {
@@ -93,7 +115,7 @@ class DropdownArea extends React.Component {
     const viewport = document.body.getBoundingClientRect()
     const style = getPosition(viewport, rect)
     return (
-      <Area style={style} innerRef={ref => (this.ref = ref)}>
+      <Area style={style} ref={ref => (this.ref = ref)}>
         {React.Children.map(children, child => {
           if (!React.isValidElement(child)) {
             return child
@@ -111,12 +133,15 @@ class DropdownArea extends React.Component {
 const Icon = styled.div`
   color: white;
   display: inline-block;
+  color: #fff;
   background: ${props => props.theme.primaryColor};
   width: ${props => props.theme.minimumButtonSize};
   height: ${props => props.theme.minimumButtonSize};
   line-height: ${props => props.theme.minimumButtonSize};
   text-align: center;
+  box-sizing: border-box;
   font-size: ${props => props.theme.largeFontSize};
+  border-radius: ${props => props.theme.borderRadius};
 `
 
 const Text = styled.div`
@@ -130,6 +155,13 @@ const Text = styled.div`
   text-overflow: ellipsis;
   overflow: hidden;
   box-sizing: border-box;
+  color: ${foreground};
+  background: ${background};
+
+  border: 2px solid ${background};
+  outline: none;
+
+  border-radius: ${props => props.theme.borderRadius};
 `
 
 const Component = styled.div`
@@ -137,6 +169,7 @@ const Component = styled.div`
   display: block;
   white-space: nowrap;
   position: relative;
+  background: ${props => props.theme.backgroundDropdown};
 `
 
 class Dropdown extends React.Component {
@@ -163,7 +196,7 @@ class Dropdown extends React.Component {
     }
   }
   onMouseDown(e) {
-    if (this.ref && !this.ref.contains(e.target)) {
+    if (this.state.open && this.ref && !this.ref.contains(e.target)) {
       this.onToggle(false)
     }
   }
@@ -200,8 +233,10 @@ class Dropdown extends React.Component {
       React.cloneElement(this.props.anchor, { onClick: () => this.onToggle() })
     ) : (
       <div onClick={() => this.onToggle()}>
-        <Text className="is-input">{this.props.label}</Text>
-        <Icon className="fa fa-caret-down" />
+        <Text>{this.props.label}</Text>
+        <Icon>
+          <FontAwesomeIcon icon={faCaretDown} />
+        </Icon>
       </div>
     )
 
@@ -229,6 +264,22 @@ class Dropdown extends React.Component {
       </Component>
     )
   }
+}
+
+Dropdown.propTypes = {
+  /** Turn dropdown into a controlled component and force dropdown state. */
+  open: PropTypes.bool,
+  /** The label to use for the default anchor. */
+  label: PropTypes.node,
+  /** Component to anchor the dropdown. */
+  anchor: PropTypes.element,
+  /** Component to show when dropdown is open. */
+  children: PropTypes.node,
+
+  /** Open handler. */
+  onOpen: PropTypes.func,
+  /** Close handler. */
+  onClose: PropTypes.func,
 }
 
 module.exports = Dropdown

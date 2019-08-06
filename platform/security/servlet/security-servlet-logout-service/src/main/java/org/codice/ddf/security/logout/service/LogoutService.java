@@ -15,8 +15,10 @@ package org.codice.ddf.security.logout.service;
 
 import ddf.security.service.SecurityServiceException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public interface LogoutService {
 
-  String getActionProviders(HttpServletRequest request) throws SecurityServiceException;
+  String getActionProviders(HttpServletRequest request, HttpServletResponse response)
+      throws SecurityServiceException;
 }

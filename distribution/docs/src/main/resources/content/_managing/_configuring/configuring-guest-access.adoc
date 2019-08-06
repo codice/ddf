@@ -39,15 +39,13 @@ If using the included IdP for authentication, disable the `Allow Guest Access` o
 Guest authentication must be enabled and configured to allow guest users.
 Once the guest user is configured, redaction and filtering of metadata is done for the guest user the same way it is done for normal users.
 
-To enable guest authentication for a context, use the <<{managing-prefix}configuring_the_web_context_policy_manager, Web Context Policy Manager>> configuration to change the *Authentication Type* for that context to *Guest*.
+To enable guest authentication for a context, use the <<{managing-prefix}configuring_the_web_context_policy_manager, Web Context Policy Manager>> configuration to select *Allow Guest Access*.
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-security}* application.
 . Select the *Configuration* tab.
 . Select *Web Context Policy Manager*.
-. Select the desired context (`/`, `/search`, `/admin`, etc.).
-. Add `Guest` to the *Authentication Type* list.
-.. Separate entries with a `|` symbol (eg. `/=SAML|Guest`).
+. Select *Allow Guest Access*
 
 ==== Configuring Guest Interceptor if Allowing Guest Users
 

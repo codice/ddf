@@ -13,20 +13,11 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled, { css } from 'styled-components'
 import { transparentize } from 'polished'
-import { keyframes } from '../../styles/styled-components'
+import { keyframes } from 'styled-components'
 import { CustomElement } from '../../styles/mixins'
-import { Button, buttonTypeEnum } from '../button'
-import plugin from 'plugins/navigation-right'
 
-const HelpView = require('../../../component/help/help.view.js')
-const UserSettings = require('../../../component/user-settings/user-settings.view.js')
-import UserNotifications from '../user-notifications/user-notifications'
-const SlideoutViewInstance = require('../../../component/singletons/slideout.view-instance.js')
-const SlideoutRightViewInstance = require('../../../component/singletons/slideout.right.view-instance.js')
-const user = require('../../../component/singletons/user-instance.js')
-import UserView from '../../../react-component/container/user'
 export interface Props {
   username: string
   hasUnseenNotifications: boolean
@@ -35,12 +26,12 @@ export interface Props {
 
 const navigationRightUserIcon = '1rem'
 const unseenNotifications = keyframes`
-    0% {
-        opacity: ${props => props.theme.minimumOpacity};
-    }
-    100% {
-        opacity: 1;
-    }
+  0% {
+    opacity: ${props => props.theme.minimumOpacity};
+  }
+  100% {
+    opacity: 1;
+  }
 `
 
 const Root = styled<Props, 'div'>('div')`
@@ -101,111 +92,30 @@ const Root = styled<Props, 'div'>('div')`
     padding: 0 ${navigationRightUserIcon} 0 0;
   }
 
-  .user-unique {
-    ${props => (props.isGuest ? 'display:none;' : '')};
-  }
-
-  .user-guest {
-    ${props => (!props.isGuest ? 'display:none;' : '')};
-  }
-
   ${props => {
     if (props.hasUnseenNotifications) {
-      return `
+      return css`
         .item-alerts {
           opacity: 1;
-          animation: ${unseenNotifications} ${props.theme.multiple(
-        4,
-        props.theme.coreTransitionTime,
-        's'
-      )} 5 alternate ease-in-out;    
+          animation: ${unseenNotifications}
+            ${props.theme.multiple(4, props.theme.coreTransitionTime, 's')} 5
+            alternate ease-in-out;
         }
 
         .alerts-badge {
-            transform: scale(1) translateY(-50%);
+          transform: scale(1) translateY(-50%);
         }
       `
     }
   }};
 `
 
-const toggleAlerts = () => {
-  SlideoutRightViewInstance.updateContent(UserNotifications)
-  SlideoutRightViewInstance.open()
-}
-
-const toggleHelp = () => {
-  HelpView.toggleHints()
-}
-
-const toggleUserSettings = () => {
-  SlideoutViewInstance.updateContent(UserSettings)
-  SlideoutViewInstance.open()
-}
-
-const toggleUser = () => {
-  SlideoutRightViewInstance.updateContent(UserView)
-  SlideoutRightViewInstance.open()
-}
-
-const Help = () => (
-  <Button
-    className="navigation-item"
-    icon="fa fa-question"
-    buttonType={buttonTypeEnum.neutral}
-    title="Shows helpful hints in the current context"
-    onClick={toggleHelp}
-    fadeUntilHover={true}
-  />
-)
-
-const Settings = () => (
-  <Button
-    className="navigation-item"
-    icon="fa fa-cog"
-    buttonType={buttonTypeEnum.neutral}
-    title="Shows settings for the application"
-    onClick={toggleUserSettings}
-    fadeUntilHover={true}
-  />
-)
-
-const Notifications = () => (
-  <Button
-    className="navigation-item item-alerts"
-    buttonType={buttonTypeEnum.neutral}
-    title="Shows notifications"
-    onClick={toggleAlerts}
-    fadeUntilHover={true}
-  >
-    <span className="fa fa-bell" />
-    <span className="alerts-badge fa fa-exclamation" />
-  </Button>
-)
-
-const User = () => (
-  <Button
-    className="navigation-item item-user"
-    buttonType={buttonTypeEnum.neutral}
-    onClick={toggleUser}
-    fadeUntilHover={true}
-  >
-    <div className="user-unique" title={`Logged in as ${user.getUserName()}`}>
-      <span className="fa fa-user" />
-      <span className="">{user.getUserName()}</span>
-    </div>
-    <div className="user-guest" title="Logged in as guest.">
-      <span className="">Sign In</span>
-    </div>
-  </Button>
-)
-
-const buttons = plugin([Help, Settings, Notifications, User])
+import ExtensionPoints from '../../../extension-points'
 
 export default function NavigationRight(props: Props) {
   return (
     <Root {...props}>
-      {buttons.map((Component: any, i: number) => (
+      {ExtensionPoints.navigationRight.map((Component: any, i: number) => (
         <Component key={i} />
       ))}
     </Root>

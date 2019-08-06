@@ -13,7 +13,7 @@
  *
  **/
 import React from 'react'
-import styled from '../../react-component/styles/styled-components'
+import styled from 'styled-components'
 import { ChangeBackground } from '../../react-component/styles/mixins/change-background'
 
 const Marionette = require('marionette')

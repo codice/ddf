@@ -35,6 +35,14 @@
             </excludes>
             <outputDirectory>catalog-ui-search</outputDirectory>
         </fileSet>
+       <fileSet>
+            <directory>${project.basedir}/packages/imperio/</directory>
+            <excludes>
+                <exclude>**/target/**</exclude>
+                <exclude>**/node_modules/**</exclude>
+            </excludes>
+            <outputDirectory>imperio</outputDirectory>
+        </fileSet>
         <fileSet>
             <directory>${project.basedir}/packages/ace</directory>
             <excludes>

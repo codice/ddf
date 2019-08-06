@@ -14,8 +14,7 @@
 -->
 <project
     xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>features</artifactId>
         <groupId>ddf.features</groupId>
@@ -213,13 +212,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.handler</groupId>
-            <artifactId>security-handler-saml</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.handler</groupId>
-            <artifactId>security-handler-guest</artifactId>
+            <groupId>ddf.security</groupId>
+            <artifactId>security-saml-util</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -235,16 +229,6 @@
         <dependency>
             <groupId>ddf.security.policy</groupId>
             <artifactId>security-policy-context</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-guestvalidator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-guestclaimshandler</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -443,6 +427,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.security.saml</groupId>
+            <artifactId>saml-assertion-validator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.saml</groupId>
+            <artifactId>saml-assertion-validator-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform.security</groupId>
             <artifactId>security-rest-cxfwrapper</artifactId>
             <version>${project.version}</version>
@@ -463,9 +457,53 @@
             <version>${protobuf.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.security.handler</groupId>
+            <artifactId>security-handler-oauth</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.crypto.tink</groupId>
             <artifactId>tink</artifactId>
             <version>${tink.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.handler</groupId>
+            <artifactId>security-handler-oidc</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-oidc-realm</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-oidc-bundle</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>${nimbus.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>accessors-smart</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>security-guest-realm</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!--feature dependencies-->
@@ -505,7 +543,6 @@
             <classifier>features</classifier>
         </dependency>
         <!--end feature dependencies-->
-
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>sync-installer-api</artifactId>

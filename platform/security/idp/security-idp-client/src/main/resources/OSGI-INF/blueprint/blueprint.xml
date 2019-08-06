@@ -42,6 +42,8 @@
 
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
+    <reference id="contextPolicyManager" interface="org.codice.ddf.security.policy.context.ContextPolicyManager"/>
+
     <bean id="crypto" class="ddf.security.samlp.SystemCrypto">
         <argument value="${ddf.etc}/ws-security/server/encryption.properties"/>
         <argument value="${ddf.etc}/ws-security/server/signature.properties"/>
@@ -74,7 +76,7 @@
         </property>
     </bean>
 
-    <service ref="idpHandler"             interface="org.codice.ddf.security.handler.api.AuthenticationHandler"/>
+    <service ref="idpHandler" interface="org.codice.ddf.security.handler.api.AuthenticationHandler"/>
 
     <bean id="assertionConsumerService"
           class=" org.codice.ddf.security.idp.client.AssertionConsumerService">
@@ -87,6 +89,7 @@
                        filter="(osgi.http.whiteboard.filter.name=login-filter)"/>
         </property>
         <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="contextPolicyManager" ref="contextPolicyManager"/>
     </bean>
 
     <bean id="logoutRequestService"

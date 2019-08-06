@@ -19,7 +19,7 @@ const Label = require('./label')
 const TextField = require('../text-field')
 const { Radio, RadioItem } = require('../radio')
 
-const { Zone, Hemisphere } = require('./common')
+const { Zone, Hemisphere, MinimumSpacing } = require('./common')
 
 const {
   DmsLatitude,
@@ -246,6 +246,7 @@ const BoundingBox = props => {
         <RadioItem value="usng">USNG / MGRS</RadioItem>
         <RadioItem value="utmUps">UTM / UPS</RadioItem>
       </Radio>
+      <MinimumSpacing />
       {Component !== null ? <Component {...props} /> : null}
     </div>
   )

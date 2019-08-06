@@ -15,7 +15,7 @@
 
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-import styled, { keyframes } from '../../styles/styled-components'
+import styled, { keyframes, css } from 'styled-components'
 import { Button, buttonTypeEnum } from '../button'
 import BlacklistItemContainer from '../../container/blacklist-item'
 
@@ -51,8 +51,10 @@ const ItemsWrapper = styled<Props, 'div'>('div')`
   overflow: hidden;
   ${props =>
     props.clearing
-      ? `animation: ${collapseAnimation} 
-      ${props.theme.coreTransitionTime} linear forwards;`
+      ? css`
+          animation: ${collapseAnimation} ${props.theme.coreTransitionTime}
+            linear forwards;
+        `
       : ''};
 `
 

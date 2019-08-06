@@ -14,7 +14,11 @@
 package ddf.security.impl;
 
 import ddf.security.Subject;
-import ddf.security.principal.GuestPrincipal;
+import ddf.security.SubjectUtils;
+import ddf.security.assertion.SecurityAssertion;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -55,14 +59,11 @@ public class SubjectImpl extends DelegatingSubject implements Subject {
 
   @Override
   public boolean isGuest() {
-    PrincipalCollection collection = getPrincipals();
-    for (Object principal : collection.asList()) {
-      if (principal instanceof GuestPrincipal
-          || principal.toString().startsWith(GuestPrincipal.GUEST_NAME_PREFIX)) {
-        return true;
-      }
-    }
-    return false;
+    Collection<SecurityAssertion> securityAssertions =
+        getPrincipals().byType(SecurityAssertion.class);
+    List<SecurityAssertion> assertionList = new ArrayList<>(securityAssertions);
+    assertionList.sort(SubjectUtils.getAssertionComparator());
+    return assertionList.get(0).getWeight() == SecurityAssertion.NO_AUTH_WEIGHT;
   }
 
   @Override

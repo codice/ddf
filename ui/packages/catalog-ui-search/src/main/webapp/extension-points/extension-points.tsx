@@ -14,12 +14,16 @@
  **/
 import * as React from 'react'
 import routes from './routes'
-import Navigator, { Props } from './navigator'
+import navigator, { Props } from './navigator'
 import filterActions from './filter-actions'
 import { SFC } from '../react-component/hoc/utils'
 import { providers, Props as ProviderProps } from './providers'
 import visualizations from './visualizations'
 import queryForms from './query-forms'
+import navigationRight from './navigation-right'
+import searchInteractions, {
+  SearchInteractionProps,
+} from './search-interactions'
 
 export type ExtensionPointsType = {
   routes: {}
@@ -28,15 +32,19 @@ export type ExtensionPointsType = {
   providers: SFC<ProviderProps>
   visualizations: any[]
   queryForms: any[]
+  navigationRight: any[]
+  searchInteractions: SFC<SearchInteractionProps>
 }
 
 const ExtensionPoints: ExtensionPointsType = {
-  routes: routes,
-  navigator: Navigator,
-  filterActions: filterActions,
-  providers: providers,
-  visualizations: visualizations,
-  queryForms: queryForms,
+  routes,
+  navigator,
+  filterActions,
+  providers,
+  visualizations,
+  queryForms,
+  navigationRight,
+  searchInteractions,
 }
 
 export default ExtensionPoints

@@ -80,6 +80,14 @@
             default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
             description="List of claims that should be requested by the STS Client.">
         </AD>
+
+        <AD name="SAML NameID Policy" id="usernameAttributeList"
+            required="true"
+            type="String" cardinality="100"
+            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier, uid"
+            description="List of attributes that are considered for replacing the username of the logged in user.
+            If any of these attributes match any of the attributes within the SecurityAssertion, the value of the first matching attribute will be used as the username.
+            (Does not apply when NameIDFormat is of the following: X509, persistent, kerberos or unspecified, and the username is not empty).-"/>
     </OCD>
 
     <Designate

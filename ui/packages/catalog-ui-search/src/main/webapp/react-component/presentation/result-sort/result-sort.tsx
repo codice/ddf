@@ -15,7 +15,7 @@
 
 import { hot } from 'react-hot-loader'
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import MarionetteRegionContainer from '../../container/marionette-region-container'
 import { Button, buttonTypeEnum } from '../button'
 

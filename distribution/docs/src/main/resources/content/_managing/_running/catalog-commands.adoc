@@ -3,7 +3,7 @@
 :status: published
 :parent: Available Console Commands
 :summary: Catalog commands available.
-:order: 00
+:order: 01
 
 == {title}
 

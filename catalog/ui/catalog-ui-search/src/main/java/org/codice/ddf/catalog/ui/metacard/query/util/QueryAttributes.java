@@ -41,5 +41,9 @@ public class QueryAttributes {
 
   public static final String FACETS = "facets";
 
+  public static final String SPELLCHECK = "spellcheck";
+
+  public static final String PHONETICS = "phonetics";
+
   private QueryAttributes() {}
 }

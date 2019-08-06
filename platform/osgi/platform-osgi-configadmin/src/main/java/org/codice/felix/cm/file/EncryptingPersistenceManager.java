@@ -174,7 +174,8 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
       }
 
       try {
-        return crypter.encrypt(plainTextValue);
+        return AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> crypter.encrypt(plainTextValue));
       } catch (CrypterException e) {
         LOGGER.warn("Failed to encrypt to bundle cache. {}", e.getMessage());
         AUDIT_LOG.warn(AUDIT_MESSAGE);
@@ -193,7 +194,8 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
       }
 
       try {
-        return crypter.decrypt(encryptedValue);
+        return AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> crypter.decrypt(encryptedValue));
       } catch (CrypterException e) {
         LOGGER.warn("Failed to decrypt from bundle cache. {}", e.getMessage());
         return encryptedValue;

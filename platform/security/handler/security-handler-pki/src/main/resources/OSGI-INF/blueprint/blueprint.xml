@@ -23,7 +23,7 @@
     <reference id="ocspService" interface="org.codice.ddf.security.OcspService"/>
 
     <bean id="tokenFactory"
-          class="org.codice.ddf.security.handler.api.BaseAuthenticationTokenFactory"
+          class="org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory"
           init-method="init"/>
 
     <bean id="handler" class="org.codice.ddf.security.handler.pki.PKIHandler">

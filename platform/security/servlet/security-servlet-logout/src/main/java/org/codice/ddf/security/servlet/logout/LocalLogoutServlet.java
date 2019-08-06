@@ -17,32 +17,22 @@ import ddf.security.SecurityConstants;
 import ddf.security.common.SecurityTokenHolder;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.logging.log4j.util.Strings;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LocalLogoutServlet extends HttpServlet {
   private static final Logger LOGGER = LoggerFactory.getLogger(LocalLogoutServlet.class);
-
-  private String redirectUri;
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -51,57 +41,41 @@ public class LocalLogoutServlet extends HttpServlet {
     response.setHeader("Pragma", "no-cache");
     response.setContentType("text/html");
 
-    URIBuilder redirectUrlBuilder = null;
-    List<NameValuePair> params = new ArrayList<>();
+    invalidateSession(request, response);
+
+    boolean mustCloseBrowser = (checkForBasic(request) || checkForPki(request));
+    String message = String.format("{ \"mustCloseBrowser\": %b }", mustCloseBrowser);
 
     try {
-      redirectUrlBuilder = new URIBuilder(redirectUri);
-
-      if (Strings.isNotBlank(SystemBaseUrl.EXTERNAL.getRootContext())) {
-        redirectUrlBuilder = new URIBuilder(SystemBaseUrl.EXTERNAL.getRootContext() + redirectUri);
-      }
-
-      invalidateSession(request, response);
-
-      checkForPki(request, params);
-
-      checkForBasic(request, redirectUrlBuilder, params);
-
-      response.sendRedirect(redirectUrlBuilder.build().toString());
-    } catch (URISyntaxException e) {
-      LOGGER.debug("Invalid URI: ", e);
+      response.setStatus(HttpServletResponse.SC_OK);
+      response.setContentType("application/json");
+      response.getWriter().write(message);
+      response.flushBuffer();
     } catch (IOException e) {
-      LOGGER.warn("Send Redirect failed due to: ", e);
+      LOGGER.warn("Unable to write response body", e);
     }
   }
 
-  private void checkForBasic(
-      HttpServletRequest request, URIBuilder redirectUrlBuilder, List<NameValuePair> params) {
+  private boolean checkForBasic(HttpServletRequest request) {
     Enumeration authHeaders = request.getHeaders(javax.ws.rs.core.HttpHeaders.AUTHORIZATION);
     while (authHeaders.hasMoreElements()) {
       if (((String) authHeaders.nextElement()).contains("Basic")) {
-        params.add(
-            new BasicNameValuePair("msg", "Please close your browser to finish logging out"));
-        break;
+        return true;
       }
     }
-    redirectUrlBuilder.addParameters(params);
+    return false;
   }
 
-  private void checkForPki(HttpServletRequest request, List<NameValuePair> params) {
-    if (request.getAttribute("javax.servlet.request.X509Certificate") != null
-        && ((X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate"))
-                .length
-            > 0) {
-      params.add(new BasicNameValuePair("msg", "Please close your browser to finish logging out"));
-    }
+  private boolean checkForPki(HttpServletRequest request) {
+    Object x509Certificates = request.getAttribute("javax.servlet.request.X509Certificate");
+    return (x509Certificates != null && ((X509Certificate[]) x509Certificates).length > 0);
   }
 
   private void invalidateSession(HttpServletRequest request, HttpServletResponse response) {
     HttpSession session = request.getSession();
     if (session != null) {
       SecurityTokenHolder savedToken =
-          (SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION);
+          (SecurityTokenHolder) session.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY);
       if (savedToken != null) {
         Subject subject = ThreadContext.getSubject();
 
@@ -127,9 +101,5 @@ public class LocalLogoutServlet extends HttpServlet {
     cookie.setPath("/");
     cookie.setComment("EXPIRING COOKIE at " + System.currentTimeMillis());
     response.addCookie(cookie);
-  }
-
-  public void setRedirectUri(String redirectUri) {
-    this.redirectUri = redirectUri;
   }
 }

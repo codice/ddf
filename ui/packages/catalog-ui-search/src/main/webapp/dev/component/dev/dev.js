@@ -13,7 +13,7 @@
  *
  **/
 import React from 'react'
-import styled from '../../../react-component/styles/styled-components'
+import styled from 'styled-components'
 import { readableColor, darken, lighten } from 'polished'
 import MarionetteRegionContainer from '../../../react-component/container/marionette-region-container'
 const TabsModel = require('../../../component/tabs/tabs.js')

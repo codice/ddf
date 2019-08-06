@@ -1,0 +1,12 @@
+:title: Using Results Forms
+:type: using
+:status: draft
+:parent: Using ${catalog-ui}
+:summary: Using results forms within ${catalog-ui}
+:order: 08
+
+////
+== {title}
+
+TODO: DDF-5034
+////

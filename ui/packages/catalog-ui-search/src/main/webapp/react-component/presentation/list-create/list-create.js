@@ -20,7 +20,7 @@
  * any manner and for any purpose, and to have or permit others to do so.
  */
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import withListenTo from '../../container/backbone-container'
 import MarionetteRegionContainer from '../../container/marionette-region-container'
 import { buttonTypeEnum, Button } from '../button'

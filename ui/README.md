@@ -21,7 +21,7 @@ provided in the package's `README.md`.
 
 To add the maven versions of `node` and `yarn` to your $PATH, do:
 
-    source path.sh # you must have run `mvn install` before this
+    source path.sh
 
 To install all dependencies for all packages, do:
 

@@ -12,8 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import { css, ThemeInterface } from '../styled-components'
-
+import { ThemeInterface } from '../styled-components'
+import { css } from 'styled-components'
 export const IsButton = (theme: ThemeInterface) => css`
   width: ${theme.minimumButtonSize};
   height: ${theme.minimumButtonSize};

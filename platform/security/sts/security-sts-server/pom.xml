@@ -49,11 +49,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-bstdelegationhandler</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
         </dependency>
@@ -121,7 +116,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             security-sts-x509delegationhandler,
-                            security-sts-bstdelegationhandler,
                             httpclient,httpcore,
                             platform-util-unavailableurls,
                             ddf-security-common,

@@ -33,6 +33,7 @@ module.exports = Marionette.CollectionView.extend({
   childViewOptions() {
     return {
       selectionInterface: this.options.selectionInterface,
+      filteredAttributes: this.options.filteredAttributes,
     }
   },
   initialize(options) {

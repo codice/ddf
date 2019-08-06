@@ -1,0 +1,35 @@
+:title: Using Lists
+:type: using
+:status: published
+:parent: Using ${catalog-ui}
+:summary: Using Lists
+:order: 01
+
+== {title}
+
+Lists organize results and enable performing actions on those sets of results.
+
+. Perform any of these actions on lists:
+.. Filter the result set locally (does not re-execute the search),
+.. Customize results sorting (Default: Title in Ascending Order).
+.. Toggle results view between *List* and *Gallery*.
+
+[NOTE]
+====
+Lists are not available to guest users.
+====
+
+=== Creating a List
+A new list can be created by selecting the *Lists* tab and selecting the *new list* text.
+
+image:new-list-options.png[]
+
+=== Adding/Removing Results to a List
+
+Results can be added to a list by selecting the *+* icon on a result.
+
+image:sample-result-view.png[]
+
+Results can be added or removed to/from a list through the result's dropdown menu.
+
+image:sample-dropdown-menu.png[]

@@ -68,25 +68,20 @@ Run the command `feature:install security-idp` from the ${command-console}.
 </md:EntityDescriptor>
 ----
 
-.Configuring IdP as the Authentication Type
-To use the IdP for authentication,
+.Configuring Authentication Types to use SAML IdP
+To use the SAML IdP for authentication,
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-security}* application.
 . Select the *Configuration* tab.
 . Select *Web Context Policy Manager*.
-. Under *Authentication Types*, set the IdP authentication type to context paths as necessary.
-Note that it should only be used on context paths that will be accessed by users via web browsers. For example:
-* `/search=IdP`
+. Under *Authentication Types*, set the authentication type to SAML for context paths as necessary.
+For example:
+* `/search=SAML`
 
-Other authentication types can also be used in conjunction with the IdP type.
-For example, if you wanted to secure the entire system with the IdP, but still allow legacy clients that don’t understand the SAML ECP specification to connect, you could set `/=IdP|PKI`.
+Other authentication types can also be used in conjunction with the SAML type.
+For example, if you wanted to secure the entire system with the IdP, but still allow legacy clients that don’t understand the SAML ECP specification to connect, you could set `/=SAML|PKI`.
 With that configuration, any clients that failed to connect using either the SAML 2.0 Web SSO Profile or the SAML ECP specification would fall back to 2-way TLS for authentication.
-
-[NOTE]
-====
-If you have configured `/search` to use IdP, ensure to select the "External Authentication" checkbox in Search UI standard settings.
-====
 
 .[[_configuring_idp_sp]]Configuring the SP
 To configure the IdP client (also known as the SP) that interacts with the specified IdP,

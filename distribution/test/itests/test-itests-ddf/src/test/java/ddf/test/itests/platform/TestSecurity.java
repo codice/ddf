@@ -409,7 +409,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             .get(url)
             .then()
             .log()
-            .all()
+            .ifValidationFails()
             .assertThat()
             .statusCode(equalTo(200))
             .assertThat()
@@ -424,7 +424,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .get(url)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(200));
 
@@ -435,7 +435,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .get(ADMIN_PATH.getUrl())
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(403));
   }
@@ -460,7 +460,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .get(url)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(401));
 
@@ -473,7 +473,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             .get(url)
             .then()
             .log()
-            .all()
+            .ifValidationFails()
             .assertThat()
             .statusCode(equalTo(200))
             .assertThat()
@@ -488,7 +488,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .get(url)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(200));
 
@@ -499,7 +499,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .get(ADMIN_PATH.getUrl())
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(200));
 
@@ -629,7 +629,6 @@ public class TestSecurity extends AbstractIntegrationTest {
     String recordId =
         ingest(
             getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
-    configureRestForBasic(SDK_SOAP_CONTEXT);
 
     // Creating a new OpenSearch source with no username/password.
     // When an OpenSearch source attempts to authenticate without a username/password it will
@@ -644,23 +643,18 @@ public class TestSecurity extends AbstractIntegrationTest {
     String openSearchQuery =
         SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SAML_SOURCE_ID;
     waitForSecurityHandlers(openSearchQuery);
-    getSecurityPolicy().waitForBasicAuthReady(openSearchQuery);
     given()
-        .auth()
-        .basic("admin", "admin")
         .when()
         .get(openSearchQuery)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(200))
         .assertThat()
         .body(
             hasXPath("//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
 
-    configureRestForGuest(SDK_SOAP_CONTEXT);
-    getSecurityPolicy().waitForGuestAuthReady(openSearchQuery);
     delete(recordId);
   }
 
@@ -702,7 +696,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .get(openSearchQuery)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(200))
         .assertThat()
@@ -717,7 +711,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .get(cswQuery)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(200))
         .assertThat()
@@ -741,7 +735,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .get(cswQueryUnavail)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(500));
 
@@ -761,7 +755,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .get(unavailableOpenSearchQuery)
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(200))
         .assertThat()
@@ -789,17 +783,17 @@ public class TestSecurity extends AbstractIntegrationTest {
     // mostly testing the same stuff that this is hitting
     given()
         .log()
-        .all()
+        .ifValidationFails()
         .body(body)
         .header("Content-Type", "text/xml; charset=utf-8")
         .header("SOAPAction", "helloWorld")
         .expect()
         .statusCode(equalTo(200))
         .when()
-        .post(SERVICE_ROOT.getUrl() + "/sdk/SoapTransportService")
+        .post(SERVICE_ROOT.getUrl() + "/sdk/SoapService")
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .body(
             HasXPath.hasXPath(
@@ -822,17 +816,17 @@ public class TestSecurity extends AbstractIntegrationTest {
     // mostly testing the same stuff that this is hitting
     given()
         .log()
-        .all()
+        .ifValidationFails()
         .body(body)
         .header("Content-Type", "text/xml; charset=utf-8")
         .header("SOAPAction", "helloWorld")
         .expect()
         .statusCode(equalTo(200))
         .when()
-        .post(INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapTransportService")
+        .post(INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapService")
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .body(
             HasXPath.hasXPath(
@@ -862,7 +856,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             PASSWORD,
             certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
         .log()
-        .all()
+        .ifValidationFails()
         .body(body)
         .header("Content-Type", "text/xml; charset=utf-8")
         .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
@@ -872,7 +866,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
   }
@@ -895,7 +889,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             PASSWORD,
             certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
         .log()
-        .all()
+        .ifValidationFails()
         .body(body)
         .header("Content-Type", "text/xml; charset=utf-8")
         .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
@@ -905,7 +899,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
         .then()
         .log()
-        .all();
+        .ifValidationFails();
   }
 
   @Test
@@ -925,7 +919,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             PASSWORD,
             certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
         .log()
-        .all()
+        .ifValidationFails()
         .body(body)
         .header("Content-Type", "text/xml; charset=utf-8")
         .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
@@ -935,7 +929,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
         .then()
         .log()
-        .all();
+        .ifValidationFails();
   }
 
   @Test
@@ -957,7 +951,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             PASSWORD,
             certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
         .log()
-        .all()
+        .ifValidationFails()
         .body(body)
         .header("Content-Type", "text/xml; charset=utf-8")
         .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
@@ -967,7 +961,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
   }
@@ -991,7 +985,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             PASSWORD,
             certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
         .log()
-        .all()
+        .ifValidationFails()
         .body(body)
         .header("Content-Type", "text/xml; charset=utf-8")
         .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
@@ -1001,7 +995,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
   }
@@ -1020,7 +1014,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     given()
         .log()
-        .all()
+        .ifValidationFails()
         .body(body)
         .header("Content-Type", "text/xml; charset=utf-8")
         .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
@@ -1030,7 +1024,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
         .then()
         .log()
-        .all();
+        .ifValidationFails();
   }
 
   @Test
@@ -1047,7 +1041,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     given()
         .log()
-        .all()
+        .ifValidationFails()
         .body(body)
         .header("Content-Type", "text/xml; charset=utf-8")
         .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
@@ -1057,7 +1051,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
         .then()
         .log()
-        .all();
+        .ifValidationFails();
   }
 
   @Test
@@ -1079,7 +1073,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 PASSWORD,
                 certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
             .log()
-            .all()
+            .ifValidationFails()
             .body(body)
             .header("Content-Type", "text/xml; charset=utf-8")
             .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
@@ -1098,6 +1092,9 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     LOGGER.trace(assertionHeader);
 
+    configureRestForSaml(SDK_SOAP_CONTEXT);
+    getSecurityPolicy().waitForSamlAuthReady(ADMIN_PATH.getUrl());
+
     // try that admin level assertion token on a restricted resource
     given()
         .header(
@@ -1107,7 +1104,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .get(ADMIN_PATH.getUrl())
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(200));
   }
@@ -1124,7 +1121,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 PASSWORD,
                 certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
             .log()
-            .all()
+            .ifValidationFails()
             .body(body)
             .header("Content-Type", "text/xml; charset=utf-8")
             .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
@@ -1143,6 +1140,9 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     LOGGER.trace(assertionHeader);
 
+    configureRestForSaml(SDK_SOAP_CONTEXT);
+    getSecurityPolicy().waitForSamlAuthReady(ADMIN_PATH.getUrl());
+
     // try that admin level assertion token on a restricted resource
     given()
         .auth()
@@ -1157,7 +1157,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .get(ADMIN_PATH.getUrl())
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
         .statusCode(equalTo(200));
   }
@@ -1174,7 +1174,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                 PASSWORD,
                 certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
             .log()
-            .all()
+            .ifValidationFails()
             .body(body)
             .header("Content-Type", "text/xml; charset=utf-8")
             .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
@@ -1193,6 +1193,9 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     LOGGER.trace(assertionHeader);
 
+    configureRestForSaml(SDK_SOAP_CONTEXT);
+    getSecurityPolicy().waitForSamlAuthReady(ADMIN_PATH.getUrl());
+
     // try that admin level assertion token on a restricted resource
     given()
         .auth()
@@ -1207,9 +1210,9 @@ public class TestSecurity extends AbstractIntegrationTest {
         .get(ADMIN_PATH.getUrl())
         .then()
         .log()
-        .all()
+        .ifValidationFails()
         .assertThat()
-        .statusCode(equalTo(401));
+        .statusCode(equalTo(400));
   }
 
   private String getSoapEnvelope(String onBehalfOf) {
@@ -1246,63 +1249,6 @@ public class TestSecurity extends AbstractIntegrationTest {
 
   void restoreKeystoreFile() throws IOException {
     Files.copy(Paths.get(getBackupFilename()), Paths.get(getKeystoreFilename()), REPLACE_EXISTING);
-  }
-
-  @Test
-  public void testTransportSoapPolicy() {
-    // verify that transport policy is observed indirectly by verifying that a security header with
-    // a timestamp was added to the response
-    given()
-        .log()
-        .all()
-        .body(SAMPLE_SOAP)
-        .header("Content-Type", "application/json")
-        .when()
-        .post(SERVICE_ROOT + "/sdk/SoapTransportService")
-        .then()
-        .log()
-        .all()
-        .assertThat()
-        .statusCode(equalTo(200))
-        .body(hasXPath("/Envelope/Header/Security/Timestamp"));
-  }
-
-  @Test
-  public void testAsymmetricSoapPolicy() {
-    // verify that asymmetric policy is observed indirectly by verifying that a security header with
-    // encrypted data was added to the response
-    given()
-        .log()
-        .all()
-        .body(SAMPLE_SOAP)
-        .header("Content-Type", "application/json")
-        .when()
-        .post(SERVICE_ROOT + "/sdk/SoapAsymmetricService")
-        .then()
-        .log()
-        .all()
-        .assertThat()
-        .statusCode(equalTo(200))
-        .body(hasXPath("/Envelope/Header/Security/EncryptedData"));
-  }
-
-  @Test
-  public void testSymmetricSoapPolicy() throws Exception {
-    // verify that symmetric policy is observed indirectly by verifying that a security header with
-    // a signature was added to the response
-    given()
-        .log()
-        .all()
-        .body(SAMPLE_SOAP)
-        .header("Content-Type", "application/xml")
-        .when()
-        .post(SERVICE_ROOT + "/sdk/SoapSymmetricService")
-        .then()
-        .log()
-        .all()
-        .assertThat()
-        .statusCode(equalTo(200))
-        .body(hasXPath("/Envelope/Header/Security/Signature/SignatureValue"));
   }
 
   // ConfigurationAdmin tests
@@ -1365,7 +1311,10 @@ public class TestSecurity extends AbstractIntegrationTest {
 
   // ApplicationService tests
   @Test
-  public void testAdminConfigPolicyGetAllFeaturesAndApps() {
+  public void testAdminConfigPolicyGetAllFeaturesAndApps() throws Exception {
+
+    configureRestForBasic();
+    getSecurityPolicy().waitForBasicAuthReady(ADMIN_PATH.getUrl());
 
     String getAllFeaturesResponseNotPermitted =
         sendNotPermittedRequest(
@@ -1500,10 +1449,14 @@ public class TestSecurity extends AbstractIntegrationTest {
     Dictionary authZProperties = null;
     Dictionary metacardAttributeSecurityFilterProperties = null;
 
+    String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
+
+    configureRestForGuest(SDK_SOAP_CONTEXT);
+    getSecurityPolicy().waitForGuestAuthReady(url);
+
     String testData = getFileContent(XML_RECORD_RESOURCE_PATH + "/accessGroupTokenMetacard.xml");
     testData = testData.replace(ACCESS_GROUP_REPLACE_TOKEN, "B");
     String id = CatalogTestCommons.ingest(testData, MediaType.TEXT_XML);
-    String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=" + id + "&src=local";
 
     try {
       authZProperties =

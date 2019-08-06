@@ -10,66 +10,69 @@
 .Security Architecture
 [ditaa,security_architecture,png]
 ....
-+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-|                                                                                                                                                                                     |
-|                                                /----------\          /----------------\                                               /-------------------------------------------\ |
-|    /-------=--\ Request  /----------\ Request  |          | Request  |          cDEF  |                                               |                 STS Server                | |
-|    | External +--------->|          +--------->|  Jetty   +--------->|    Web SSO     |                                   /-------\   |  /----------\  /----------\  /----------\ | |
-|    |   DDF    |          |  Jetty   |          |  Auth.   |          |     Filter     |                             /---->|       +-->|->|Validators+->|  Claims  +->|  Token   | | |
-|    |  Client  |          |          |<---------+     cEEE |<---------|                |                             |     |  STS  |   |  |          |  | Handlers |  | Issuers  | | |
-|    \----------/          \----+-----/ Response \----------/ Response | /------------\ |                             |     | Realm |   |  \----------/  \----------/  \-----+----/ | |
-|       ^                      |                                       | |Whitelisted?| |<-------\                    |     |       |   |                                    |      | |
-|       |                      | Response                              | \------+-----/ |        |              /-----+ /---+       |<--+<-----=-----------------------------/      | |
-|       |                      |                                       |        |       |        v              |TOKEN| |   |  cDEF |   |                                           | |
-|       |       +--------------+------------+                          |        |No     |     /-----=-\         \-----+ |   \-------/   |                                cDEF       | |
-|       |       |              |            |                          |        |       |     |Web Cxt|               | |               \-------------------------------------------/ |
-|       |       v              v            v                          |        :       |  /->|Policy |               | |                                                             |
-|       | /-----------\  /--------\  /-----------\                     |        |       |  |  |Manager|               | +-------\                                                     |
-|       | |   c5F5    |  | cF55   |  | cF55      |   /-----------\     |        |       |  |  \-------/               | |SUBJECT|                                                     |
-|       +-+  Endpoint |  | Not    |  | Not       |   |Basic Auth.|<-\  |        v       |  |  /---------\   /-------\ | +-------/                                                     |
-|         \-----------/  +Handled |  | Authorized|   |  Handler  |  |  | /------------\ |  |  |         |   | Shiro | | |                                                             |
-|                        \--------/  \-----------/   \-----+-----/  \--|-+loop through| |  |  |    cDEF |   |       | | |                                                             |
-|                                                          |           | | configured | |  |  |         +-->|----=->|-/ |                                                             |
-|                                                          ^        /->| |  handlers  | |  |  |  Login  |   |       |   |                                                             |
-|                                                    /-----------\  |  | \-----+------/ |  |  |  Filter |   |       |   |                                                             |
-|                                                    |PKI Handler|  |  |       |        |  |  |         |<--+<---=--|<--/                                                             |
-|                                                    \-----+-----/  |  |       \---=--->+--+->|-=--\    |   |       |                                                                 |
-|                                                          |        |  |                |  |  |    |    |   |       |                                                                 |
-|                                                          v        |  \----------------/  |  |    v    |   |  c555 |                                                                 |
-|                                                   /------------\  |                      |  \----+----/   |       |                                                                 |
-|                                                   +Anon Handler|  |                      |       |        |       |                                                                 |
-|                                                   \------+-----/  |                      |       v        |       |                                                                 |
-|                                                          |        |                      |  /---------\   |       |                                                                 |
-|                                                          v        |                      |  |     cDEF|   |       |                                                                 |
-|                                                    /-----------\  |                      |  |         |   |       |       /--------\                                                |
-|                                                    |SAML Assert|  |                      |  |  AuthZ  |   |       |       |cDEF    |   /=--------\                                  |
-|                                                    |  Handler  |  |                      \->| Filter  +-->|----=->+------>|        +-->|         |                                  |
-|                                                    \-----+-----/  |                         |         |   |       |       |  PDP   |   |Expansion|                                  |
-|                                                          |        |                         |         |   |       |       |        |   | Service |                                  |
-|                                                          v        |                         |         |   |       |       |        |   |         |                                  |
-|                                                    /-----------\  |                         |         |<--+<----=-|<------+        |<--+         |                                  |
-|                                                    |   Other   |  |                         |         |   |       |       |        |   \---------/                                  |
-|                                                    | Handlers  |  |                         |         |   |       |       \--------/                                                |
-|                                                    \-------+---/  |                         \---------/   \-------/                                                                 |
-|                                                            |      |                                                                                                                 |
-|                                                            \------/                                                                                                                 |
-|                                                                                                                                                                                     |
-+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                                                                                                                                                 |
+|                                                                   /--------------------\                                   /--------------------------------------------------\ |
+| /==========\ Request  /----------\ Request  /----------\ Request  |               cDEF |                                   |                Authenticating Realms             | |
+| | External |--------->|          |--------->|  Jetty   |--------->|      Web SSO       |                                   |   /----------\   /----------\   /----------\     | |
+| |   DDF    |          |  Jetty   |          |  Auth.   |          |      Filter        |                             /---->|==>|  Guest   |==>|   Oidc   |==>|   STS    |==\  | |
+| |  Client  |          |          |<---------|     cEEE |<---------|                    |                             |     |   |  Realm   |   |   Realm  |   |   Realm  |  :  | |
+| \==========/          \----------/ Response \----------/ Response |  /------------\    |                             |     |   \----------/   \----------/   \----------/  :  | |
+|      ^                     |                                      |  |Whitelisted?|<---|--------\                    |     |                                     |   ^     :  | |
+|      |                     | Response        /-----------\        |  \------------/    |        |        /-----------+ /---|===============================================/  | |
+|      |                     |                 |c5F5       |  Yes   |    :    :          |        v        |Auth. Token| |   |                                     |   |   cDEF | |
+|      |       /-------------+------------\    |  Endpoint |<-------|====/    :No        |     /=======\   \-----------+ |   \--------------------------------------------------/ |
+|      |       |             |            |    \-----------/        |         :        /-|---->|Web Ctx|               | |                                         |   |          |
+|      |       v             v            v                         |         :        | |     |Policy |               | |                                         v   |          |
+|      | /-----------\  /--------\  /-----------\                   |         :        | |  /->|Manager|               | +-------\                            /--------------\    |
+|      | |   c5F5    |  | cF55   |  | cF55      | /-----------\     |         :        | |  |  \=======/               | |Subject|                            |cDEF|   ^     |    |
+|      \-|  Endpoint |  |  Not   |  |    Not    | |Basic Auth.|<-\  |         v        | |  |  /---------\   /-------\ | +-------/                            |    v   |     |    |
+|        |           |  |Handled |  | Authorized| |  Handler  |  |  |  /------------\  | |  |  |    cDEF |   | Shiro | | |                                    | /----------\ |    |
+|        \-----------/  \--------/  \-----------/ \-----------/  \--|--|loop through|<-/ |  |  |         |   |       | | |                                    | |Validators| |    |
+|                                                       |           |  | configured |    |  |  |         |-->|======>|-/ |                                    | \----------/ |    |
+|                                                       v        /--|->|  handlers  |    |  |  |  Login  |   |       |   |                                    |    |   ^     |    |
+|                                                 /-----------\  |  |  \------------/    |  |  |  Filter |   |       |   |                                    |    v   |     |    |
+|                                                 |PKI Handler|  |  |        :           |  |  |         |<--|<======|<--/                                    | /----------\ |    |
+|                                                 \-----------/  |  |        \==========>|--|->|         |   |       |                                        | |  Claims  | |    |
+|                                                       |        |  |                    |  |  |         |   |       |                                        | | Handlers | |    |
+|                                                       v        |  \--------------------/  |  |         |   |       |                                        | \----------/ |    |
+|                                                 /-----------\  |                          |  \---------/   |       |                                        |    |   ^     |    |
+|                                                 |IdP Handler|  |                          |       |        |       |                                        |    v   |     |    |
+|                                                 \-----------/  |                          |       v        |       |                        /==========\    | /----------\ |    |
+|                                                       |        |                          |  /---------\   |       |                        |          |    | |   Token  | |    |
+|                                                       v        |                          |  |     cDEF|   |       |                    /-->| Expansion|    | |  Issuers | |    |
+|                                                 /-----------\  |                          |  |         |   |       |                    |   |  Service |    | \----------/ |    |
+|                                                 |   OAuth   |  |                          |  |         |   |       |       /----------\ | /-|          |    |   STS Realm  |    |
+|                                                 |  Handler  |  |                          \->|         |-->|======>|------>|          |-/ | \==========/    \--------------/    |
+|                                                 \-----------/  |                             |  Authz  |   |       |       |  Authz   |<--/                                     |
+|                                                       |        |                             |  Filter |   |       |       |  Realm   |                                         |
+|                                                       v        |                             |         |   |       |       |          |<--\                                     |
+|                                                 /-----------\  |                             |         |<--|<======|<------|    cDEF  |-\ | /==========\                        |
+|                                                 |   OIDC    |  |                             |         |   |       |       \----------/ | \-|          |                        |
+|                                                 |  Handler  |  |                             |         |   |  c555 |                    |   |   PDP    |                        |
+|                                                 \-----------/  |                             \---------/   \-------/                    \-->|          |                        |
+|                                                       |        |                                                                            \==========/                        |
+|                                                       \--------/                                                                                                                |
+|                                                                                                                                                                                 |
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ....
 
 The Jetty Authenticator is the topmost handler of all requests.
 It initializes all Security Filters and runs them in order according to service ranking:
 
 . The *Web SSO Filter* reads from the web context policy manager and functions as the first decision point.
-If the request is from a whitelisted context, no further authentication is needed and the request goes directly to the desired endpoint.
-If the context is not on the whitelist, the filter will attempt to get a claims handler for the context.
+If the request is from a whitelisted context, no further authentication is needed and the request skips through the rest of the security filters to the desired endpoint.
+
+If the context is not on the whitelist, the filter will first attempt to pull authentication information off of the session.
+If authentication information cannot be found on the session, the filter will then attempt to get an authentication handler for the context.
 The filter loops through all configured context handlers until one signals that it has found authentication information that it can use to build a token.
 This configuration can be changed by modifying the web context policy manager configuration.
 If unable to resolve the context, the filter will return an authentication error and the process stops.
 If a handler is successfully found, an auth token is assigned and the request continues to the login filter.
 
-. The *Login Filter* receives a token and returns a subject.
-To retrieve the subject, the token is sent through Shiro to the STS Realm where the token will be exchanged for a SAML assertion through a SOAP call to an STS server.
+. The *Login Filter* receives an authentication token and returns a subject.
+To retrieve the subject, the authentication token is sent through Shiro to the configured authenticating realms.
+The realms will take the authentication token and attempt to return authentication info to the Shiro framework in order to put together a subject.
 
 . If the Subject is returned, the request moves to the *AuthZ Filter* to check permissions on the user.
 If the user has the correct permissions to access that web context, the request can hit the endpoint.
@@ -87,35 +90,28 @@ IdP Architecture
 |  |   Web SSO    +----+    |   IdP Client                     |       |  Endpoint   |        |                            |       |    |
 |  |   Filter     |    |    |                                  |       |             |        |       STS Server           |       |    |
 |  |              |    |    |                                  |       |c5F5         |        |                            |       |    |
-|  +-+------------+    |    +-----------------+----------------+       +------+------+        |                            |       |    |
-|    ^    ^            |    |   IdP Handler   |   Assertion    |              ^               +----+------+----------------+       |    |
-|    |    |            \--->+ cDEF            |   Consumer     |              |                    ^      |                        |    |
-|    |    |    Yes          |  +------------+ |   Service (ACS)|              |                    |      |                        |    |
-|    |    \-----------------|--+Has Session | |                |  Logged In   |                    |      |                        |    |
-|    |                      |  |            | |                +--------------/                    |      |                        |    |
-|    |                      |  +-------+----+ |                |                             Token |      | SAML                   |    |
-|    |                      |          | No   |                |                                   |      |                        |    |
-|    |                      |          v      |                |                                   |      v                        |    |
-|    |                      |  +-------+----+ |                |                         +---------+----------+--------------+     |    |
-|    |         Yes          |  | Has SAML   | |                | Redirect back via POST  |                    |   Metadata   |     |    |
-|    \----------------------|--+            | |                |<------------------------+                    |   Endpoint   +<----/    |
-|                           |  +-------+----+ |                |                         |      IdP Server    |cDEF          |          |
-|                           |          | No   |                |              /--------->|                    +--------------+          |
-|                           |          v      |                |              |          |                                   |          |
-|                           |  +-------+----+ |                |              |          |                                   |          |
-|                    Yes    |  | Is Browser | |                |              |          |                                   |          |
-|                   /-------|--+            | |                |              |          +-----------------------------------+          |
-|                   |       |  +-------+----+ |                |              |                                                         |
-|                   |       |          | No   |                |              |                                                         |
-|                   |       |          v      |                |              |                                                         |
-|                   |       |  +-------+----+ |                |              |                                                         |
-|                   |       |  | Start ECP  | |                |              |                                                         |
-|                   |       |  |c5F5        | |                |              |                                                         |
+|  +--------------+    |    +-----------------+----------------+       +------+------+        |                            |       |    |
+|         ^            |    |   IdP Handler   |   Assertion    |              ^               +----+------+----------------+       |    |
+|         |            \--->+ cDEF            |   Consumer     |              |                    ^      |                        |    |
+|         |    Yes          |  +------------+ |   Service (ACS)|              |                    |      |                        |    |
+|         \-----------------|--+  Has SAML  | |                |  Logged In   |                    |      |                        |    |
+|                           |  |            | |                +--------------/                    |      |                        |    |
+|                           |  +-------+----+ |                |                             Token |      | SAML                   |    |
+|                           |          | No   |                |                                   |      |                        |    |
+|                           |          v      |                |                                   |      v                        |    |
+|                           |  +-------+----+ |                |                         +---------+----------+--------------+     |    |
+|                      Yes  |  | Is Broswer | |                | Redirect back via POST  |                    |   Metadata   |     |    |
+|                   /-------|--+            | |                |<------------------------+                    |   Endpoint   +<----/    |
+|                   |       |  +-------+----+ |                |                         |      IdP Server    |cDEF          |          |
+|                   |       |          | No   |                |              /--------->|                    +--------------+          |
+|                   |       |          v      |                |              |          |                                   |          |
+|                   |       |  +------------+ |                |              |          |                                   |          |
+|                   |       |  | Start ECP  | |                |              |          |                                   |          |
+|                   |       |  | c5F5       | |                |              |          +-----------------------------------+          |
 |                   |       |  +------------+ |cDEF            |              |                                                         |
 |                   |       +-----------------+----------------+              |                                                         |
 |                   |                   Redirect to IdP                       |                                                         |
 |                   \---------------------------------------------------------/                                                         |
-|                                                                                                                                       |
 +---------------------------------------------------------------------------------------------------------------------------------------+
 
 ....
@@ -126,7 +122,7 @@ The IdP Handler and the Assertion Consumer Service are both part of the IdP clie
 The Metadata Exchange happens asynchronously from any login event.
 The exchange can happen via HTTP or File, or the metadata XML itself can be pasted into the configuration for either the IdP client or the IdP server that the system ships with.
 The metadata contains information about what bindings are accepted by the client or server and whether or not either expects messages to be signed, etc.
-The redirect from the Assertion Consumer Service to the Endpoint will cause the client to pass back through the entire filter chain, which will get caught at the `Has Session` point of the IdP Handler.
+The redirect from the Assertion Consumer Service to the Endpoint will cause the client to pass back through the entire filter chain, which will get caught at the `Has Session` point of the `WebSsoFilter`.
 The request will proceed through the rest of the filters as any other connection would in the previous diagram.
 
 Unauthenticated non-browser clients that pass the HTTP headers signaling that they understand SAML ECP can authenticate via that mechanism as explained below.

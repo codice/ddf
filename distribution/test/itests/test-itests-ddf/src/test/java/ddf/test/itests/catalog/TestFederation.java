@@ -1306,8 +1306,7 @@ public class TestFederation extends AbstractIntegrationTest {
   @Test
   public void testRetrievalReliablility() throws Exception {
     try {
-      getSecurityPolicy()
-          .configureWebContextPolicy("/=SAML|basic,/solr=SAML|PKI|basic", null, null);
+      getSecurityPolicy().configureWebContextPolicy("/=basic,/solr=PKI|basic", null, null);
 
       String filename = "product2.txt";
       String metacardId = generateUniqueMetacardId();
@@ -1505,7 +1504,7 @@ public class TestFederation extends AbstractIntegrationTest {
       // This query will put the ingested metacards from the BeforeExam method into the cache
       given()
           .log()
-          .all()
+          .ifValidationFails()
           .contentType("application/json")
           .auth()
           .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
@@ -1516,7 +1515,7 @@ public class TestFederation extends AbstractIntegrationTest {
           .post(cqlUrl)
           .then()
           .log()
-          .all()
+          .ifValidationFails()
           .statusCode(200);
 
       // CacheBulkProcessor could take up to 10 seconds to flush the cached results into solr
@@ -1735,8 +1734,7 @@ public class TestFederation extends AbstractIntegrationTest {
   public void testCancelDownload() throws Exception {
     try {
       getCatalogBundle().setupCaching(true);
-      getSecurityPolicy()
-          .configureWebContextPolicy("/=SAML|basic,/solr=SAML|PKI|basic", null, null);
+      getSecurityPolicy().configureWebContextPolicy("/=basic,/solr=PKI|basic", null, null);
 
       String filename = testName + ".txt";
       String metacardId = generateUniqueMetacardId();
@@ -1865,8 +1863,7 @@ public class TestFederation extends AbstractIntegrationTest {
   @Test
   public void testProductDownloadWithTwoUsers() throws Exception {
     try {
-      getSecurityPolicy()
-          .configureWebContextPolicy("/=SAML|basic,/solr=SAML|PKI|basic", null, null);
+      getSecurityPolicy().configureWebContextPolicy("/=basic,/solr=PKI|basic", null, null);
 
       String filename1 = "product4.txt";
       String metacardId1 = generateUniqueMetacardId();
@@ -1970,8 +1967,7 @@ public class TestFederation extends AbstractIntegrationTest {
   public void testSingleUserDownloadSameProductSyncAndAsync() throws Exception {
     try {
       getCatalogBundle().setupCaching(true);
-      getSecurityPolicy()
-          .configureWebContextPolicy("/=SAML|basic,/solr=SAML|PKI|basic", null, null);
+      getSecurityPolicy().configureWebContextPolicy("/=basic,/solr=PKI|basic", null, null);
 
       String filename = "product4.txt";
       String metacardId = generateUniqueMetacardId();
@@ -2017,8 +2013,7 @@ public class TestFederation extends AbstractIntegrationTest {
   public void testSingleUserDownloadSameProductAsync() throws Exception {
     try {
       getCatalogBundle().setupCaching(true);
-      getSecurityPolicy()
-          .configureWebContextPolicy("/=SAML|basic,/solr=SAML|PKI|basic", null, null);
+      getSecurityPolicy().configureWebContextPolicy("/=basic,/solr=PKI|basic", null, null);
 
       String filename = "product4.txt";
       String metacardId = generateUniqueMetacardId();

@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.metacard.query.data.model;
 
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.DETAIL_LEVEL;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.FACETS;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.PHONETICS;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_CQL;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_ENTERPRISE;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_FEDERATION;
@@ -24,6 +25,7 @@ import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUER
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SOURCES;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_TYPE;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.SCHEDULES;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.SPELLCHECK;
 
 import com.google.gson.annotations.SerializedName;
 import ddf.catalog.data.Attribute;
@@ -31,6 +33,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Security;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
@@ -92,6 +95,21 @@ public class QueryBasic {
   @SerializedName("facets")
   private List<String> facets;
 
+  @SerializedName("spellcheck")
+  private Boolean spellcheck;
+
+  @SerializedName("phonetics")
+  private Boolean phonetics;
+
+  @SerializedName("accessAdministrators")
+  private List<String> accessAdministrators;
+
+  @SerializedName("accessIndividuals")
+  private List<String> accessIndividuals;
+
+  @SerializedName("accessIndividualsRead")
+  private List<String> accessIndividualsRead;
+
   public QueryBasic(Metacard metacard) {
     this.metacardId = getAttributeValue(metacard, Core.ID, String.class);
     this.title = getAttributeValue(metacard, Core.TITLE, String.class);
@@ -113,6 +131,15 @@ public class QueryBasic {
     this.detailLevel = getAttributeValue(metacard, DETAIL_LEVEL, String.class);
     this.schedules = getAttributeValues(metacard, SCHEDULES, String.class);
     this.facets = getAttributeValues(metacard, FACETS, String.class);
+    this.spellcheck = getAttributeValue(metacard, SPELLCHECK, Boolean.class);
+    this.phonetics = getAttributeValue(metacard, PHONETICS, Boolean.class);
+
+    this.accessAdministrators =
+        getAttributeValues(metacard, Security.ACCESS_ADMINISTRATORS, String.class);
+    this.accessIndividuals =
+        getAttributeValues(metacard, Security.ACCESS_INDIVIDUALS, String.class);
+    this.accessIndividualsRead =
+        getAttributeValues(metacard, Security.ACCESS_INDIVIDUALS_READ, String.class);
   }
 
   public Metacard getMetacard() {
@@ -135,6 +162,16 @@ public class QueryBasic {
     metacard.setAttribute(new AttributeImpl(DETAIL_LEVEL, this.detailLevel));
     metacard.setAttribute(new AttributeImpl(SCHEDULES, (Serializable) this.schedules));
     metacard.setAttribute(new AttributeImpl(FACETS, (Serializable) this.facets));
+    metacard.setAttribute(new AttributeImpl(SPELLCHECK, this.spellcheck));
+    metacard.setAttribute(new AttributeImpl(PHONETICS, this.phonetics));
+    metacard.setAttribute(
+        new AttributeImpl(
+            Security.ACCESS_ADMINISTRATORS, (Serializable) this.accessAdministrators));
+    metacard.setAttribute(
+        new AttributeImpl(Security.ACCESS_INDIVIDUALS, (Serializable) this.accessIndividuals));
+    metacard.setAttribute(
+        new AttributeImpl(
+            Security.ACCESS_INDIVIDUALS_READ, (Serializable) this.accessIndividualsRead));
 
     return new QueryMetacardImpl(metacard);
   }

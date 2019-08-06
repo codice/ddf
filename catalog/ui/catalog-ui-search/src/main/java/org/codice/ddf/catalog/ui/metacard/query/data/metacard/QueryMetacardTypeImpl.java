@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.metacard.query.data.metacard;
 
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.DETAIL_LEVEL;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.FACETS;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.PHONETICS;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_CQL;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_ENTERPRISE;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_FEDERATION;
@@ -25,12 +26,14 @@ import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUER
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SOURCES;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_TYPE;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.SCHEDULES;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.SPELLCHECK;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
 import java.util.HashSet;
 import java.util.Set;
@@ -55,6 +58,8 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
     QUERY_DESCRIPTORS.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Core.METACARD_OWNER));
 
     QUERY_DESCRIPTORS.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Core.DESCRIPTION));
+
+    QUERY_DESCRIPTORS.add(MetacardImpl.BASIC_METACARD.getAttributeDescriptor(Core.METACARD_TAGS));
 
     QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
@@ -154,6 +159,26 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
             false /* tokenized */,
             true /* multivalued */,
             BasicTypes.STRING_TYPE));
+
+    QUERY_DESCRIPTORS.add(
+        new AttributeDescriptorImpl(
+            SPELLCHECK,
+            true /* indexed */,
+            true /* stored */,
+            false /* tokenized */,
+            false /* multivalued */,
+            BasicTypes.BOOLEAN_TYPE));
+
+    QUERY_DESCRIPTORS.add(
+        new AttributeDescriptorImpl(
+            PHONETICS,
+            true /* indexed */,
+            true /* stored */,
+            false /* tokenized */,
+            false /* multivalued */,
+            BasicTypes.BOOLEAN_TYPE));
+
+    QUERY_DESCRIPTORS.addAll(new SecurityAttributes().getAttributeDescriptors());
 
     QUERY_ATTRIBUTE_NAMES =
         QUERY_DESCRIPTORS.stream().map(AttributeDescriptor::getName).collect(Collectors.toSet());

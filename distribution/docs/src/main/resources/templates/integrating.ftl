@@ -13,4 +13,7 @@ include::config.adoc[]
 
 <#include "build/integrating.ftl">
 
+ifdef::backend-html5[]
+
 include::${project.build.directory}/asciidoctor-ready-${project.version}/scripts.html[]
+endif::backend-html5[]

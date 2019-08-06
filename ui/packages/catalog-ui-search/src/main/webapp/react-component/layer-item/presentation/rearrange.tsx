@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
 import { PresentationProps, IsButton, HighlightBehavior, GrabCursor } from '.'
 
@@ -59,7 +59,7 @@ const RearrangeUp = (
 
   return (
     !isTop && (
-      <Up innerRef={forwardedRef} onClick={handleClick}>
+      <Up ref={forwardedRef as any} onClick={handleClick}>
         <RearrangeIcon className="fa fa-angle-up" />
       </Up>
     )
@@ -75,7 +75,7 @@ const RearrangeDown = (
 
   return (
     !isBottom && (
-      <Down innerRef={forwardedRef} onClick={handleClick}>
+      <Down ref={forwardedRef as any} onClick={handleClick}>
         <RearrangeIcon className="fa fa-angle-down" />
       </Down>
     )

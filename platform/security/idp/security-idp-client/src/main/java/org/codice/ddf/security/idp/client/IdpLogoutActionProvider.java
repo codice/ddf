@@ -16,11 +16,15 @@ package org.codice.ddf.security.idp.client;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.action.impl.ActionImpl;
+import ddf.security.SecurityConstants;
 import ddf.security.SubjectUtils;
 import ddf.security.encryption.EncryptionService;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
@@ -35,7 +39,7 @@ public class IdpLogoutActionProvider implements ActionProvider {
   private static final String TITLE = "Identity Provider Logout";
 
   private static final String DESCRIPTION =
-      "Logging out of the Identity Provider(IDP) realm will logout all external accounts signed in to that Identity Provider.";
+      "Logging out of the Identity Provider(IDP) will logout all external accounts signed in to that Identity Provider.";
 
   private static final String SAML_TYPE_START =
       "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1";
@@ -46,23 +50,26 @@ public class IdpLogoutActionProvider implements ActionProvider {
    * *
    *
    * @param <T> is a Map<String, Subject>
-   * @param subject the corresponding subject
+   * @param subjectMap containing the corresponding subject
    * @return IdpLogoutActionProvider containing the logout url
    */
-  public <T> Action getAction(T subject) {
-    if (!canHandle(subject)) {
+  public <T> Action getAction(T subjectMap) {
+    if (!canHandle(subjectMap)) {
       return null;
     }
 
     String logoutUrlString = "";
     URL logoutUrl = null;
-    try {
 
+    try {
       @SuppressWarnings("unchecked")
+      Object subject = ((Map) subjectMap).get(SecurityConstants.SECURITY_SUBJECT);
       String nameId = SubjectUtils.getName((Subject) subject, "You", true);
 
       String nameIdTimestamp = nameId + "\n" + System.currentTimeMillis();
-      nameIdTimestamp = URLEncoder.encode(encryptionService.encrypt(nameIdTimestamp));
+      nameIdTimestamp =
+          URLEncoder.encode(
+              encryptionService.encrypt(nameIdTimestamp), StandardCharsets.UTF_8.name());
       logoutUrlString =
           SystemBaseUrl.EXTERNAL.constructUrl(
               "/saml/logout/request?EncryptedNameIdTime=" + nameIdTimestamp, true);
@@ -71,7 +78,9 @@ public class IdpLogoutActionProvider implements ActionProvider {
     } catch (MalformedURLException e) {
       LOGGER.info("Unable to resolve URL: {}", logoutUrlString);
     } catch (ClassCastException e) {
-      LOGGER.debug("Unable to cast parameter to Subject, {}", subject, e);
+      LOGGER.debug("Unable to cast parameter to Map<String, Object>, {}", subjectMap, e);
+    } catch (UnsupportedEncodingException e) {
+      LOGGER.debug("Unable to encode the encrypted timestamp.", subjectMap, e);
     }
     return new ActionImpl(ID, TITLE, DESCRIPTION, logoutUrl);
   }
@@ -85,11 +94,17 @@ public class IdpLogoutActionProvider implements ActionProvider {
     this.encryptionService = encryptionService;
   }
 
-  private <T> boolean canHandle(T subject) {
-    if (subject instanceof Subject) {
-      String type = SubjectUtils.getType((Subject) subject);
-      return type != null && type.startsWith(SAML_TYPE_START);
+  private <T> boolean canHandle(T subjectMap) {
+    if (!(subjectMap instanceof Map)) {
+      return false;
     }
-    return false;
+
+    Object subject = ((Map) subjectMap).get(SecurityConstants.SECURITY_SUBJECT);
+    if (!(subject instanceof Subject)) {
+      return false;
+    }
+
+    String type = SubjectUtils.getType((Subject) subject);
+    return type != null && type.startsWith(SAML_TYPE_START);
   }
 }

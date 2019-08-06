@@ -29,13 +29,9 @@
         <module>security-sts-server</module>
         <module>security-sts-samlvalidator</module>
         <module>security-sts-x509validator</module>
-        <module>security-sts-usernametokenvalidator</module>
         <module>security-sts-ldapclaimshandler</module>
         <module>security-sts-ldaplogin</module>
-        <module>security-sts-bstdelegationhandler</module>
         <module>security-sts-x509delegationhandler</module>
-        <module>security-sts-guestvalidator</module>
-        <module>security-sts-guestclaimshandler</module>
         <module>security-sts-attributequeryclaimshandler</module>
         <module>security-sts-attributequerycommon</module>
         <module>security-sts-propertyclaimshandler</module>

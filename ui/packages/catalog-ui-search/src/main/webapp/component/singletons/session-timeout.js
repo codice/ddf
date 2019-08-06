@@ -22,7 +22,7 @@ const properties = require('../../js/properties.js')
 import fetch from '../../react-component/utils/fetch'
 const featureDetection = require('./feature-detection')
 
-const invalidateUrl = './internal/session/invalidate?prevurl='
+const invalidateUrl = './internal/session/invalidate?service='
 
 const idleNoticeDuration = 60000
 // Length of inactivity that will trigger user timeout (15 minutes in ms by default)
@@ -114,7 +114,7 @@ const sessionTimeoutModel = new (Backbone.Model.extend({
     if (window.onbeforeunload != null) {
       window.onbeforeunload = null
     }
-    fetch(invalidateUrl + window.location.pathname, {
+    fetch(invalidateUrl + window.location.href, {
       redirect: 'manual',
     })
       .then(response => response.text())

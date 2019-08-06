@@ -179,7 +179,7 @@ public abstract class MigrationCommand implements Action {
   private Object runWithUserName() throws ExecutionException {
     try {
       final String password = session.readLine("Password for " + user + ": ", '*');
-      final Subject subject = security.getSubject(user, password);
+      final Subject subject = security.getSubject(user, password, "127.0.0.1");
 
       if (subject != null) {
         return subject.execute(this::executeWithSubject);

@@ -13,7 +13,7 @@
  *
  **/
 import * as React from 'react'
-import styled from '../../styles/styled-components'
+import styled from 'styled-components'
 import { ThemeInterface } from '../../styles/styled-components'
 import { readableColor, shade, tint, opacify } from 'polished'
 

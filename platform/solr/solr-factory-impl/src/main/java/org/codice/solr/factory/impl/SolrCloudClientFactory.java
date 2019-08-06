@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import net.jodah.failsafe.Failsafe;
@@ -117,18 +118,14 @@ public class SolrCloudClientFactory implements SolrClientFactory {
   public void createCollection(String collection, CloudSolrClient client)
       throws SolrFactoryException {
     try {
-      CollectionAdminResponse response = new CollectionAdminRequest.List().process(client);
-
-      if (response.getResponse() == null) {
-        throw new SolrFactoryException("Failed to get a list of existing collections");
+      if (aliasExists(collection, client)) {
+        LOGGER.debug(
+            "Solr({}): Collection exists as an Alias, will not create collection", collection);
+        return;
       }
-      List<String> collections = (List<String>) response.getResponse().get("collections");
 
-      if (collections == null) {
-        throw new SolrFactoryException("Failed to get a list of existing collections");
-      }
-      if (!collections.contains(collection)) {
-        response =
+      if (!collectionExists(collection, client)) {
+        CollectionAdminResponse response =
             CollectionAdminRequest.createCollection(collection, collection, shardCount, shardCount)
                 .setMaxShardsPerNode(maximumShardsPerNode)
                 .setReplicationFactor(replicationFactor)
@@ -147,6 +144,38 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     } catch (SolrServerException | SolrException | IOException e) {
       throw new SolrFactoryException("Failed to create collection: " + collection, e);
     }
+  }
+
+  private boolean aliasExists(String collection, CloudSolrClient client)
+      throws IOException, SolrServerException {
+    CollectionAdminResponse aliasResponse =
+        new CollectionAdminRequest.ListAliases().process(client);
+    if (aliasResponse != null) {
+      Map<String, String> aliases = aliasResponse.getAliases();
+      if (aliases != null && aliases.containsKey(collection)) {
+        LOGGER.debug(
+            "Solr({}): Collection exists as an Alias, will not create collection", collection);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean collectionExists(String collection, CloudSolrClient client)
+      throws SolrFactoryException, IOException, SolrServerException {
+    CollectionAdminResponse response = new CollectionAdminRequest.List().process(client);
+
+    if (response.getResponse() == null) {
+      throw new SolrFactoryException("Failed to get a list of existing collections");
+    }
+
+    List<String> collections = (List<String>) response.getResponse().get("collections");
+
+    if (collections == null) {
+      throw new SolrFactoryException("Failed to get a list of existing collections");
+    }
+
+    return collections.contains(collection);
   }
 
   @SuppressWarnings({

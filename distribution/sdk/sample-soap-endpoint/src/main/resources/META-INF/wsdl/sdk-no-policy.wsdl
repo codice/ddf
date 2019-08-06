@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" name="CatalogQueryService" targetNamespace="http://ddf.sdk/soap/hello"
+             xmlns:tns="http://ddf.sdk/soap/hello"
+             xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+    <types>
+        <xsd:schema targetNamespace="http://ddf.sdk/soap/hello" xmlns:tns="http://ddf.sdk/soap/hello" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="qualified">
+            <xsd:include schemaLocation="HelloWorld.xsd"/>
+        </xsd:schema>
+    </types>
+    <message name="helloWorld">
+        <part name="parameters" element="tns:helloWorld"/>
+    </message>
+    <message name="helloWorldResponse">
+        <part name="parameters" element="tns:helloWorldResponse"/>
+    </message>
+
+    <portType name="HelloWorldServicePort">
+        <operation name="helloWorldOp">
+            <input message="tns:helloWorld"/>
+            <output message="tns:helloWorldResponse"/>
+        </operation>
+    </portType>
+    <binding name="HelloWorldServiceBinding" type="tns:HelloWorldServicePort">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="helloWorldOp">
+            <soap:operation soapAction="helloWorld" />
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+        </operation>
+    </binding>
+
+
+    <service name="HelloWorldService">
+        <port name="HelloWorldServicePort" binding="tns:HelloWorldServiceBinding">
+            <soap:address location="http://localhost:8181/sdk/SoapService"/>
+        </port>
+    </service>
+</definitions>

@@ -1,0 +1,12 @@
+:title: Using Search Forms
+:type: using
+:status: published
+:parent: Using ${catalog-ui}
+:summary: Using search forms in ${catalog-ui}
+:order: 07
+
+////
+== {title}
+
+TODO: DDF-5034
+////

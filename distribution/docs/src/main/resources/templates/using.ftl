@@ -1,6 +1,6 @@
 = ${branding} User's Guide
 include::config.adoc[]
-:title: Using ${branding-expanded}
+:title: Using ${catalog-ui}
 :architecture-prefix: architecture.adoc#_
 :developing-prefix: developing.adoc#_
 :integrating-prefix: documentation.adoc#_
@@ -15,4 +15,8 @@ include::config.adoc[]
 
 <#include "build/using.ftl">
 
+
+ifdef::backend-html5[]
+
 include::${project.build.directory}/asciidoctor-ready-${project.version}/scripts.html[]
+endif::backend-html5[]

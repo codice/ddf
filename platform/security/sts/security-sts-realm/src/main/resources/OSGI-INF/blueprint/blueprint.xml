@@ -23,7 +23,17 @@
                interface="org.codice.ddf.security.policy.context.ContextPolicyManager"
                availability="optional"/>
 
+    <reference id="samlAssertionValidator"
+               interface="org.codice.ddf.security.saml.assertion.validator.SamlAssertionValidator"/>
+
     <bean id="stsRealm" class="ddf.security.realm.sts.StsRealm">
+        <property name="samlAssertionValidator" ref="samlAssertionValidator"/>
+        <property name="usernameAttributeList">
+            <list>
+                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier</value>
+                <value>uid</value>
+            </list>
+        </property>
         <property name="contextPolicyManager" ref="contextPolicyManager"/>
         <cm:managed-properties persistent-id="ddf.security.sts.client.configuration"
                                update-strategy="container-managed"/>

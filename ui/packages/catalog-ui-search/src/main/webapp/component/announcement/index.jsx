@@ -13,29 +13,32 @@
  *
  **/
 
-var $ = require('jquery');
-var React = require('react');
-var render = require('react-dom').render;
+var $ = require('jquery')
+var React = require('react')
+var render = require('react-dom').render
 var Provider = require('react-redux').Provider
 
-var actions = require('./actions');
-var configureStore = require('./configureStore');
+var actions = require('./actions')
+var configureStore = require('./configureStore')
 
-var Announcments = require('./announcements');
+var Announcments = require('./announcements')
 
-var region = $('<div id="announcments">').get(0);
-$(window.document.body).append(region);
+var region = $('<div id="announcments">').get(0)
+$(window.document.body).append(region)
 
-var store = configureStore();
+var store = configureStore()
 
-render(<Provider store={store}>
-            <Announcments />
-       </Provider>, region);
+render(
+  <Provider store={store}>
+    <Announcments />
+  </Provider>,
+  region
+)
 
-exports.announce = function (announcement, timeout) {
-    store.dispatch(actions.announce(announcement, timeout));
-};
+exports.announce = function(announcement, timeout) {
+  store.dispatch(actions.announce(announcement, timeout))
+}
 
 if (process.env.NODE_ENV !== 'production' && module.hot) {
-    module.hot.accept();
+  module.hot.accept()
 }
