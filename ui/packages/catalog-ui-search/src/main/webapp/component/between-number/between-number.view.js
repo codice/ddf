@@ -17,7 +17,7 @@ const Marionette = require('marionette')
 import * as React from 'react'
 import NumberComponent from '../../react-component/container/input-wrappers/number'
 import { isNumber } from 'util'
-import styled from '../../react-component/styles/styled-components'
+import styled from 'styled-components'
 
 const InputContainer = styled.div`
   vertical-align: top;
