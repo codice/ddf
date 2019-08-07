@@ -100,8 +100,6 @@ public class LoginFilter implements SecurityFilter {
 
   private static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
 
-  private static final int DEFAULT_EXPIRATION_TIME = 31;
-
   private static final ThreadLocal<DocumentBuilder> BUILDER =
       new ThreadLocal<DocumentBuilder>() {
         @Override
@@ -139,8 +137,6 @@ public class LoginFilter implements SecurityFilter {
   private Validator assertionValidator = new SamlAssertionValidator();
 
   private SessionFactory sessionFactory;
-
-  private int expirationTime = DEFAULT_EXPIRATION_TIME;
 
   public LoginFilter() {
     super();
@@ -706,9 +702,6 @@ public class LoginFilter implements SecurityFilter {
         "Added SAML for user [{}] to session [{}]",
         securityAssertion.getPrincipal().getName(),
         Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString());
-    int minutes = getExpirationTime();
-
-    session.setMaxInactiveInterval(minutes * 60);
   }
 
   /**
@@ -753,32 +746,5 @@ public class LoginFilter implements SecurityFilter {
 
   public void setSignaturePropertiesFile(String signaturePropertiesFile) {
     this.signaturePropertiesFile = signaturePropertiesFile;
-  }
-
-  /**
-   * Returns session expiration time in minutes.
-   *
-   * @return minutes for session expiration
-   */
-  public int getExpirationTime() {
-    return expirationTime;
-  }
-
-  /**
-   * Sets session expiration time in minutes
-   *
-   * @param expirationTime - time in minutes
-   */
-  public void setExpirationTime(int expirationTime) {
-    // Sets expirationTime to the default if the provided value is less than 2
-    if (expirationTime >= 2) {
-      this.expirationTime = expirationTime;
-    } else {
-      LOGGER.info(
-          "Session expiration time of {} minute(s) is invalid. It will be set to the default of {} minutes",
-          expirationTime,
-          DEFAULT_EXPIRATION_TIME);
-      this.expirationTime = DEFAULT_EXPIRATION_TIME;
-    }
   }
 }

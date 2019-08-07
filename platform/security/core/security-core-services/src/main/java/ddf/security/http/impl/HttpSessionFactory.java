@@ -19,10 +19,15 @@ import ddf.security.common.SecurityTokenHolder;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.http.SessionFactory;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 public class HttpSessionFactory implements SessionFactory {
+
+  private static final int DEFAULT_EXPIRATION_TIME = 30;
+
+  private int expirationTime = DEFAULT_EXPIRATION_TIME;
 
   /**
    * Synchronized method because of jettys getSession method is not thread safe. Additionally,
@@ -36,6 +41,7 @@ public class HttpSessionFactory implements SessionFactory {
   public synchronized HttpSession getOrCreateSession(HttpServletRequest httpRequest) {
     HttpSession session = httpRequest.getSession(true);
     if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
+      session.setMaxInactiveInterval(Math.toIntExact(TimeUnit.MINUTES.toSeconds(expirationTime)));
       session.setAttribute(SecurityConstants.SAML_ASSERTION, new SecurityTokenHolder());
       SecurityLogger.audit(
           "Creating a new session with id {} for client {}.",
@@ -43,5 +49,14 @@ public class HttpSessionFactory implements SessionFactory {
           httpRequest.getRemoteAddr());
     }
     return session;
+  }
+
+  public void setExpirationTime(int expirationTime) {
+    // Sets expirationTime to the default if the provided value is less than 2
+    if (expirationTime >= 2) {
+      this.expirationTime = expirationTime;
+    } else {
+      this.expirationTime = DEFAULT_EXPIRATION_TIME;
+    }
   }
 }
