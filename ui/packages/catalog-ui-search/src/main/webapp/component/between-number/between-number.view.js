@@ -76,6 +76,8 @@ module.exports = Marionette.LayoutView.extend({
   getStartingValue() {
     if (this.model !== undefined) {
       return this.getModelValue()
+    } else if (this.options !== undefined) {
+      return this.options.value
     }
   },
   validateType(value) {
@@ -97,11 +99,11 @@ module.exports = Marionette.LayoutView.extend({
       .find('intrigue-input.is-number')
       .toggleClass('has-validation-issues', false)
 
-    if (value === undefined) {
+    if (value === undefined || !value) {
       this.$el
         .find('intrigue-input.is-number')
         .toggleClass('has-validation-issues', true)
-      isValid = false
+      return false
     }
     if (!(this.validateType(value.lower) && isNumber(value.lower))) {
       this.$el
