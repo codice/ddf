@@ -17,31 +17,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>ddf</groupId>
-        <artifactId>ddf</artifactId>
-        <version>2.18.0-SNAPSHOT</version>
+        <groupId>ddf.lib</groupId>
+        <artifactId>lib</artifactId>
+        <version>2.17.0-SNAPSHOT</version>
     </parent>
-    <groupId>ddf.lib</groupId>
-    <artifactId>lib</artifactId>
+    <groupId>org.codice.ddf.lib</groupId>
+    <artifactId>metrics</artifactId>
     <packaging>pom</packaging>
-    <name>DDF Lib</name>
-    <description>DDF Libraries</description>
+    <name>DDF :: Metrics</name>
+    <description>DDF Metrics Support</description>
     <modules>
-        <module>libs-pomfix</module>
-        <module>libs-pomfix-run</module>
-        <module>gson-support</module>
-        <module>activities</module>
-        <module>httpproxy</module>
-        <module>notifications</module>
-        <module>platform-configuration-impl</module>
-        <module>common-system</module>
-        <module>checksum</module>
-        <module>klv</module>
-        <module>mpeg-transport-stream</module>
-        <module>geospatial</module>
-        <module>tlmatcher</module>
-        <module>alerts</module>
-        <module>test-common</module>
-        <module>metrics</module>
+        <module>meter-registry-service</module>
+        <module>meter-registry</module>
+        <module>metrics-endpoint</module>
     </modules>
 </project>
