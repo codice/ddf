@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
+const CustomElements = require('../../js/CustomElements.js')
 const Marionette = require('marionette')
 import * as React from 'react'
 import NumberComponent from '../../react-component/container/input-wrappers/number'
@@ -51,6 +51,7 @@ module.exports = Marionette.LayoutView.extend({
       </React.Fragment>
     )
   },
+  tagName: CustomElements.register('is-number-range'),
   handleLowerUpdate(value) {
     this.lowerValue = value
     this.updateModelValue()
