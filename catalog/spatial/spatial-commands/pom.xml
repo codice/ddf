@@ -70,10 +70,6 @@
                             catalog-core-api-impl,
                             platform-util
                         </Embed-Dependency>
-                        <Import-Package>
-                            !javax.activation,
-                            *
-                        </Import-Package>
                         <Export-Package/>
                     </instructions>
                 </configuration>
