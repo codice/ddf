@@ -112,7 +112,7 @@ const Invalid = styled.div`
 `
 
 const Root = styled.div`
-  height: ${props => (props.open ? 'auto' : props.theme.minimumButtonSize)};
+  height: ${props => (props.isOpen ? 'auto' : props.theme.minimumButtonSize)};
 `
 
 const Component = CustomElements.registerReact('location')
@@ -128,7 +128,7 @@ const LocationInput = props => {
     setState((errors = false))
   }
   return (
-    <Root open={props.open}>
+    <Root isOpen={input.label !== undefined}>
       <Component>
         <Dropdown label={input.label || 'Select Location Option'}>
           <Menu value={mode} onChange={cursor('mode')}>
@@ -226,7 +226,6 @@ module.exports = ({ state, setState, options }) => (
           return
         }
         setState(key, value, (errors = false))
-        setState('open', true)
       }
     }}
   />
