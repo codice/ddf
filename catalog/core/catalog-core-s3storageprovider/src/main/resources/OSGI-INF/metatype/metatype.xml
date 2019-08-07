@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
+
+    <OCD name="Content S3 Storage Provider"
+         id="org.codice.ddf.catalog.content.impl.S3StorageProvider">
+
+        <AD description="The endpoint for the region in which the bucket is located."
+            name="S3 Endpoint" id="s3Endpoint" required="true" type="String"
+            default=""/>
+
+        <AD description="The Region to use for the AWS Signing Region."
+            name="S3 Region" id="s3Region" required="true" type="String"
+            default=""/>
+
+        <AD description="Specifies the S3 bucket name for the content repository."
+            name="Content Repository S3 Bucket" id="s3Bucket" required="false"
+            type="String" default=""/>
+
+        <AD description="Specifies the prefix to use for the S3 content repository."
+            name="Content Repository Prefix" id="contentPrefix" required="false"
+            type="String" default=""/>
+
+        <AD description="The AWS KMS Key ID to use for encryption via SSE-KMS. Leave blank if using default AWS managed key."
+            name="AWS KMS Key ID" id="awsKmsKeyId" required="false" type="Password"
+            default=""/>
+
+        <AD description="The access key to use for S3. Leave blank if on an EC2 host with roles assigned."
+            name="S3 Access Key" id="s3AccessKey" required="false" type="Password"
+            default=""/>
+
+        <AD description="The secret key to use for S3. Leave blank if on an EC2 host with roles assigned."
+            name="S3 Secret Key" id="s3SecretKey" required="false" type="Password"
+            default=""/>
+
+        <AD description="Determines whether SSE-S3 encryption is enabled or not. If disabled, SSE-KMS encryption will be used."
+            name="Enable SSE-S3 Encryption" id="useSseS3Encryption" required="false" type="Boolean"
+            default="false"/>
+    </OCD>
+
+    <Designate pid="org.codice.ddf.catalog.content.impl.S3StorageProvider">
+
+        <Object ocdref="org.codice.ddf.catalog.content.impl.S3StorageProvider"/>
+    </Designate>
+
+</metatype:MetaData>

@@ -130,6 +130,13 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-directorymonitor/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-content-s3storageprovider" version="${project.version}"
+             description="A storage provider for storing products in AWS S3 buckets">
+        <feature>catalog-core</feature>
+        <feature>camel-aws</feature>
+        <bundle>mvn:ddf.catalog.core/catalog-core-s3storageprovider/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-transformer-bootflag" version="${project.version}"
              description="Flag service which indicates all default InputTransformers in the system are ready.">
         <feature>catalog-core-api</feature>
@@ -601,7 +608,7 @@
     </feature>
 
     <feature name="catalog-async-api" version="${project.version}"
-      description="Asynchronous Processing Framework API">
+             description="Asynchronous Processing Framework API">
         <feature>catalog-core-api</feature>
         <bundle>mvn:ddf.catalog.async/catalog-async-data-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.async/catalog-async-plugin-api/${project.version}</bundle>
@@ -617,13 +624,13 @@
     </feature>
 
     <feature name="catalog-plugin-gazetteer" version="${project.version}"
-      description="Post-ingest plugin for updating the offline gazetteer's suggester index when
+             description="Post-ingest plugin for updating the offline gazetteer's suggester index when
           gazetteer metacards are created, updated, or deleted.">
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-gazetteer/${project.version}</bundle>
     </feature>
 
     <feature name="data-migration" version="${project.version}"
-      description="Provides a framework for data migration and karaf commands.">
+             description="Provides a framework for data migration and karaf commands.">
         <bundle>mvn:ddf.catalog.migrate/migration-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.migrate/migration-command/${project.version}</bundle>
     </feature>

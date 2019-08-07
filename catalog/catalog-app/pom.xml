@@ -416,6 +416,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-s3storageprovider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-contentresourcereader</artifactId>
             <version>${project.version}</version>
         </dependency>
