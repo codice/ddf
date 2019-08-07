@@ -42,10 +42,11 @@
   },
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/!(catalog-ui-search-e2e)*"
     ],
     "nohoist": [
-      "**/styled-components"
+      "**/catalog-ui-search/styled-components",
+      "**/imperio"
     ]
   },
   "resolutions": {

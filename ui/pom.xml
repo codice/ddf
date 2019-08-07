@@ -393,11 +393,6 @@
                                     <classifier>sources-module</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>packages/catalog-ui-search-e2e/target/catalog-ui-search-e2e.jar</file>
-                                    <type>jar</type>
-                                    <classifier>catalog-ui-search-e2e</classifier>
-                                </artifact>
-                                <artifact>
                                     <file>packages/catalog-ui-search/target/catalog-ui-search.jar</file>
                                     <type>jar</type>
                                     <classifier>catalog-ui-search</classifier>
