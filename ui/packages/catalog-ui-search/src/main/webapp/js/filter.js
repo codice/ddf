@@ -135,7 +135,7 @@ function matchesLessThanOrEqualTo(value, filter) {
 }
 
 function matchesBETWEEN(value, filter) {
-  return (filter.lowerBoundary <= value && value <= filter.upperBoundary)
+  return filter.lowerBoundary <= value && value <= filter.upperBoundary
 }
 
 // terraformer doesn't offically support Point, MultiPoint, FeatureCollection, or GeometryCollection

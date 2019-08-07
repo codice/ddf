@@ -98,24 +98,20 @@ const transformFilter = filter => {
       ? 'RELATIVE'
       : cqlToComparator[type]
 
-
   let parsedValue
-  if(type === 'DURING') {
-    parsedValue = `${filter.from}/${filter.to}` 
-  }
-  else if(type === 'BETWEEN') {
-    parsedValue = {lower: filter.lowerBoundary, upper: filter.upperBoundary}
-  }
-  else{
+  if (type === 'DURING') {
+    parsedValue = `${filter.from}/${filter.to}`
+  } else if (type === 'BETWEEN') {
+    parsedValue = { lower: filter.lowerBoundary, upper: filter.upperBoundary }
+  } else {
     parsedValue = value
   }
 
   return {
     type: property,
     comparator,
-    value: [parsedValue]
+    value: [parsedValue],
   }
-
 }
 
 const FilterBuilderCollection = Backbone.Collection.extend({
