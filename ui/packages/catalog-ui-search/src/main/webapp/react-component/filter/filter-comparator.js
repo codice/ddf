@@ -42,7 +42,10 @@ const AnchorRoot = styled.div`
 
 const Anchor = props => (
   <AnchorRoot onClick={props.onClick}>
-    <span style={{ display: 'inline-block' }}>{props.comparator}&nbsp;</span>
+    <span style={{ display: 'inline-block' }}>
+      {props.comparator}
+      &nbsp;
+    </span>
     <span style={{ display: 'inline-block' }} className="fa fa-caret-down" />
   </AnchorRoot>
 )
@@ -85,7 +88,8 @@ class FilterComparator extends React.Component {
             onChange={this.props.onChange}
           >
             {comparators.map(comparator => (
-              <MenuItem style={{paddingLeft: '2rem'}}
+              <MenuItem
+                style={{ paddingLeft: '2rem' }}
                 value={comparator}
                 key={comparator}
                 title={comparator}

@@ -39,7 +39,9 @@ const BaseRoot = styled.div`
 const LocationRoot = styled(BaseRoot)`
   padding: ${({ theme }) =>
     `${theme.minimumSpacing}
-      1.5rem 0px calc(${theme.minimumSpacing} + 0.75*${theme.minimumButtonSize} + ${theme.minimumButtonSize})`};
+      1.5rem 0px calc(${theme.minimumSpacing} + 0.75*${
+      theme.minimumButtonSize
+    } + ${theme.minimumButtonSize})`};
 
   min-width: ${({ theme }) => `calc(19*${theme.minimumFontSize})`};
   margin: 0px !important;
@@ -57,10 +59,10 @@ const EmptyRoot = styled(BaseRoot)`
 `
 
 const Roots = {
-  'LOCATION': LocationRoot,
-  'GEOMETRY': LocationRoot,
-  'DATE': DateRoot,
-  'EMPTY': EmptyRoot
+  LOCATION: LocationRoot,
+  GEOMETRY: LocationRoot,
+  DATE: DateRoot,
+  EMPTY: EmptyRoot,
 }
 
 const FilterInput = withListenTo(
@@ -97,7 +99,10 @@ const FilterInput = withListenTo(
           this.props.isForm === true || this.props.isFormBuilder === true
         )
       }
-      const Root = Roots[this.state.comparator === 'IS EMPTY' ? 'EMPTY' : this.props.type] || BaseRoot
+      const Root =
+        Roots[
+          this.state.comparator === 'IS EMPTY' ? 'EMPTY' : this.props.type
+        ] || BaseRoot
       return (
         <Root
           data-help="The value for the property to use during comparison."
