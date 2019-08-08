@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@connexta/ace": "*",
+    "@types/geojson": "7946.0.7",
     "chai": "4.1.1",
     "enzyme": "3.3.0",
     "enzyme-adapter-react-16": "1.5.0",
@@ -41,7 +42,7 @@
     "@fortawesome/react-fontawesome": "0.1.4",
     "@turf/circle": "3.3.3",
     "@turf/meta": "3.13.0",
-    "@turf/turf": "3.4.1",
+    "@turf/turf": "5.1.6",
     "@types/backbone": "1.3.41",
     "@types/backbone-associations": "0.6.31",
     "@types/backbone.marionette": "3.3.2",
