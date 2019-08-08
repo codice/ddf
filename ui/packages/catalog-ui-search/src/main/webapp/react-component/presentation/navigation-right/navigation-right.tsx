@@ -24,15 +24,13 @@ export interface Props {
   isGuest: boolean
 }
 
-const navigationRightUserIcon = '1.375rem'
+const navigationRightUserIcon = '1rem'
 const unseenNotifications = keyframes`
   0% {
     opacity: ${props => props.theme.minimumOpacity};
-    transform: scale(1);
   }
   100% {
     opacity: 1;
-    transform: scale(1.2);
   }
 `
 
@@ -102,7 +100,6 @@ const Root = styled<Props, 'div'>('div')`
           animation: ${unseenNotifications}
             ${props.theme.multiple(4, props.theme.coreTransitionTime, 's')} 5
             alternate ease-in-out;
-          transform: scale(1.2);
         }
 
         .alerts-badge {

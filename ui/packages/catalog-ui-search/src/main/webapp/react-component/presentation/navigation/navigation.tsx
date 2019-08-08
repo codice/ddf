@@ -88,7 +88,7 @@ const Navigation = styled.div`
   > div {
     display: inline-block;
     vertical-align: top;
-    font-size: ${props => props.theme.largeFontSize};
+    font-size: ${props => props.theme.mediumFontSize};
     line-height: ${props =>
       props.theme.multiple(2, props.theme.minimumLineSize)};
     height: ${props => props.theme.multiple(2, props.theme.minimumLineSize)};

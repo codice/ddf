@@ -39,7 +39,7 @@ const Root = styled<{}, 'div'>('div')`
     transition: padding ${props => props.theme.coreTransitionTime} ease-out;
     transition-delay: ${props => props.theme.coreTransitionTime};
     visibility: hidden;
-    font-size: ${props => props.theme.largeFontSize};
+    font-size: ${props => props.theme.mediumFontSize};
     line-height: inherit;
     border: none;
     font-family: inherit;
@@ -80,7 +80,7 @@ const Root = styled<{}, 'div'>('div')`
     min-width: 1px;
     background: ${props => props.theme.backgroundNavigation} !important;
     border: none !important;
-    font-size: ${props => props.theme.largeFontSize};
+    font-size: ${props => props.theme.mediumFontSize};
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
