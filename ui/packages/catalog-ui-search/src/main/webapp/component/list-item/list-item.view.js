@@ -24,9 +24,8 @@ const ListEditorView = require('../list-editor/list-editor.view.js')
 const QueryFeedView = require('../query-feed/query-feed.view.js')
 const ListInteractionsView = require('../list-interactions/list-interactions.view.js')
 const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
-//const ListAddTabsView = require('../tabs/list-add/tabs-list-add.view.js')
 const user = require('../../component/singletons/user-instance')
-import {NewItemManager} from '../tabs/list-add/tabs-list-add.view.js'
+import NewItemManager from '../tabs/list-add/new-items-manager'
 import React from 'react'
 
 

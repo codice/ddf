@@ -16,12 +16,11 @@
 const Marionette = require('marionette')
 const IngestView = require('../ingest/ingest.view')
 const BuilderView = require('../builder/builder.view')
-import {BuilderStart} from '../builder/builder-start.view'
+import {BuilderStart} from '../builder/builder-start'
 
 import React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
-import styled from '../../react-component/styles/styled-components'
-
+import styled from 'styled-components'
 
 const ItemCreationView = styled.div`
   display: flex;
@@ -56,6 +55,13 @@ const ManualView = styled.div`
 `
 
 class NewItem extends React.Component {
+   constructor(props) {
+    super(props)
+    this.state = {
+      item: 'a'
+    }
+   }
+
   render() {
     return (
       <React.Fragment>
@@ -74,16 +80,6 @@ class NewItem extends React.Component {
 
           <ManualView>
             <BuilderStart/>
-            {/* <MarionetteRegionContainer
-              className="manual-menu"
-              view={
-                new BuilderView({
-                  handleNewMetacard: this.options.handleNewMetacard,
-                  close: this.options.close,
-                  model: this.model,
-                })
-              }
-            /> */}
           </ManualView>
         </ItemCreationView>
       </React.Fragment>
@@ -92,3 +88,4 @@ class NewItem extends React.Component {
 }
 
 export {NewItem}
+

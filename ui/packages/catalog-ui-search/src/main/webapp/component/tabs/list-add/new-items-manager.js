@@ -15,8 +15,9 @@
 // const TabsView = require('../tabs.view')
 // const ListAddTabsModel = require('./tabs-list-add')
 import * as React from 'react'
-import {NewItem} from '../../newitem/newitem.view'
+import {NewItem} from '../../newitem/new-item'
 const user = require('../../../component/singletons/user-instance')
+import withListenTo from '../../../react-component/container/backbone-container'
 
 
 class NewItemManager extends React.Component {
@@ -25,35 +26,25 @@ class NewItemManager extends React.Component {
     this.state = {
       currentView: 'new item',
       selectedMetacardType: undefined,
-      files: []
+      files: [],
+      uploads: []
     }
 
+    this.change = this.change.bind(this)
+    
+    this.initializeUploadListeners()
+  }
+
+  initializeUploadListeners() {
     const uploads = user
       .get('user')
       .get('preferences')
       .get('uploads')
-    
-  
-
-    // this.listenTo(uploads, 'add', this.add)
-    // this.listenTo(uploads, 'remove', this.remove)
-
+    this.props.listenTo(uploads, 'change', this.change)
   }
 
-  uploadEvent() {
-    console.log("nice");
-  }
-
-  add() {
-    console.log("file added");
-  }
-
-  remove() {
-    console.log("file removed");
-  }
-
-  tempClick() {
-    console.log("clicked");
+  change(uploads) {
+    this.setState({uploads})    
   }
 
   handleViewUpdate(newView) {
@@ -74,7 +65,6 @@ class NewItemManager extends React.Component {
       .get('preferences')
       .get('uploads')
     
-    console.log(uploads)
     return (<NewItem/>)
   }
 
@@ -86,7 +76,7 @@ class NewItemManager extends React.Component {
   }
 }
 
-export {NewItemManager}
+export default withListenTo(NewItemManager)
 
 // module.exports = TabsView.extend({
 //   className: 'is-list-add',

@@ -6,7 +6,7 @@ import {
   buttonTypeEnum,
 } from '../../react-component/presentation/button'
 
-const metacardDefinitions = require('../singletons/metacard-definitions.js')
+const metacardDefinitions = require('../singletons/metacard-definitions')
 
 
 const BuilderStartStyle = styled.div`

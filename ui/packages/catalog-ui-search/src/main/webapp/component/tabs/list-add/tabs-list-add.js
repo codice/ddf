@@ -16,7 +16,7 @@
 const Tabs = require('../tabs')
 const IngestView = require('../../ingest/ingest.view.js')
 const BuilderView = require('../../builder/builder.view.js')
-import {NewItem} from '../../newitem/newitem.view'
+import {NewItem} from '../../newitem/new-item'
 
 module.exports = Tabs.extend({
   defaults: {
