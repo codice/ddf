@@ -22,8 +22,6 @@
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
     <bean id="filter" class="org.codice.ddf.security.filter.login.LoginFilter">
-        <cm:managed-properties persistent-id="org.codice.ddf.security.filter.login.Session"
-                               update-strategy="container-managed"/>
         <property name="securityManager" ref="securityManager"/>
         <property name="signaturePropertiesFile"
                   value="${ddf.etc}/ws-security/server/signature.properties"/>

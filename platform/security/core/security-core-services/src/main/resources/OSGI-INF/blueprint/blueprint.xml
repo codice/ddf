@@ -64,11 +64,16 @@
     <service id="serviceManager" ref="securityManagerImpl"
              interface="ddf.security.service.SecurityManager"/>
 
-    <service interface="ddf.security.http.SessionFactory">
+    <bean id="sessionFactory" class="ddf.security.http.impl.HttpSessionFactory">
+        <cm:managed-properties persistent-id="ddf.security.http.impl.HttpSessionFactory"
+          update-strategy="container-managed"/>
+        <property name="expirationTime" value="30" />
+    </bean>
+
+    <service interface="ddf.security.http.SessionFactory" ref="sessionFactory">
         <service-properties>
             <entry key="id" value="http"/>
         </service-properties>
-        <bean class="ddf.security.http.impl.HttpSessionFactory"/>
     </service>
 
     <bean id="sessionListener" class="ddf.security.listener.AuditingHttpSessionListener"/>

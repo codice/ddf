@@ -38,11 +38,22 @@
           default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"/>
     </OCD>
 
+    <OCD name="Session" id="ddf.security.http.impl.HttpSessionFactory">
+        <AD description="Specifies the length of inactivity (in minutes) between client requests before the servlet container will invalidate the session (this applies to all client sessions).
+            This value must be 2 minutes or greater, as users are warned when only 1 minute remains. If a value of less than 2 minutes is used, the timeout is set to the default time of 30 minutes."
+          name="Session Timeout (in minutes)" id="expirationTime" required="true" type="Integer"
+          default="30"/>
+    </OCD>
+
     <Designate pid="ddf.security.service.SecurityManager">
         <Object ocdref="ddf.security.service.SecurityManager"/>
     </Designate>
 
     <Designate pid="ddf.security.SubjectIdentity">
         <Object ocdref="ddf.security.SubjectIdentity"/>
+    </Designate>
+
+    <Designate pid="ddf.security.http.impl.HttpSessionFactory">
+        <Object ocdref="ddf.security.http.impl.HttpSessionFactory"/>
     </Designate>
 </metatype:MetaData>
