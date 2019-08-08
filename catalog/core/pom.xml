@@ -91,6 +91,7 @@
         <module>catalog-core-solrcommands</module>
         <module>catalog-core-contentresourcereader</module>
         <module>catalog-core-localstorageprovider</module>
+        <module>catalog-core-s3storageprovider</module>
         <module>catalog-core-camelcontext</module>
         <module>catalog-core-directorymonitor</module>
         <module>catalog-core-validator</module>

@@ -130,6 +130,13 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-directorymonitor/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-content-s3storageprovider" version="${project.version}"
+             description="A storage provider for storing products in AWS S3 buckets">
+        <feature>catalog-core</feature>
+        <feature>camel-aws</feature>
+        <bundle>mvn:ddf.catalog.core/catalog-core-s3storageprovider/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-transformer-bootflag" version="${project.version}"
              description="Flag service which indicates all default InputTransformers in the system are ready.">
         <feature>catalog-core-api</feature>
