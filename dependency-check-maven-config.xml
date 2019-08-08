@@ -329,5 +329,14 @@
         <cve>CVE-2016-6811</cve>
         <cve>CVE-2017-3162</cve>
     </suppress>
+    <suppress>
+        <notes>
+            This CVE affects jackson-databind up to version 2.9.9.1. This is pulled in primarily by
+            ehcache, which cannot be upgraded until DDF's other dependencies (such as CXF) upgrade.
+            This CVE will be addressed by upgrading from ehcache2 to latest ehcache3, once the other
+            dependencies have upgraded.
+        </notes>
+        <cve>CVE-2019-14379</cve>
+    </suppress>
 
 </suppressions>
