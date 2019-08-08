@@ -17,7 +17,7 @@ const Marionette = require('marionette')
 const IngestView = require('../ingest/ingest.view')
 const BuilderView = require('../builder/builder.view')
 import {BuilderStart} from '../builder/builder-start'
-
+import {InformalProductsTable} from '../../react-component/informal-products/informal-upload-table'
 import React from 'react'
 import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import styled from 'styled-components'
@@ -79,7 +79,7 @@ class NewItem extends React.Component {
           </OrContainer>
 
           <ManualView>
-            <BuilderStart/>
+              <InformalProductsTable uploads={this.props.uploads}/>
           </ManualView>
         </ItemCreationView>
       </React.Fragment>

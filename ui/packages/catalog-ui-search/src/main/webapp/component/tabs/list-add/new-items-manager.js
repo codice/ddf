@@ -16,6 +16,7 @@
 // const ListAddTabsModel = require('./tabs-list-add')
 import * as React from 'react'
 import {NewItem} from '../../newitem/new-item'
+import {InformalProductsTable} from '../../../react-component/informal-products/informal-upload-table'
 const user = require('../../../component/singletons/user-instance')
 import withListenTo from '../../../react-component/container/backbone-container'
 
@@ -43,8 +44,13 @@ class NewItemManager extends React.Component {
     this.props.listenTo(uploads, 'change', this.change)
   }
 
-  change(uploads) {
-    this.setState({uploads})    
+  getFileModels(uploads) {
+    console.log(upload.collection.models)
+    return upload.collection.models
+  }
+
+  change(uploadPayload) {
+    this.setState({uploads: this.getFileModels(uploadPayload)})    
   }
 
   handleViewUpdate(newView) {
@@ -60,16 +66,10 @@ class NewItemManager extends React.Component {
   }
 
   getCurrentView() {
-    const uploads = user
-      .get('user')
-      .get('preferences')
-      .get('uploads')
-    
-    return (<NewItem/>)
+    return (<NewItem uploads={this.state.uploads}/>)
   }
 
   render() {
-    
     return( 
       this.getCurrentView() 
     )
