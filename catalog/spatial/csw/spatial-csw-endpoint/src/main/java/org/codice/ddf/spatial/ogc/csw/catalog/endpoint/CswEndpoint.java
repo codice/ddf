@@ -613,48 +613,47 @@ public class CswEndpoint implements Csw {
     List<UpdateAction> updateActions = request.getUpdateActions();
     CompletionService<Integer> updateCompletionService =
         new ExecutorCompletionService<>(queryExecutor);
-    if (!updateActions.isEmpty()) {
-      for (final UpdateAction updateAction : updateActions) {
-        Callable<Integer> callable =
-            () -> {
-              try {
-                return updateRecords(subject, updateAction);
-              } catch (CswException
-                  | FederationException
-                  | IngestException
-                  | SourceUnavailableException
-                  | UnsupportedQueryException
-                  | CatalogQueryException e) {
-                LOGGER.debug("Unable to update record(s)", e);
-                throw new CswException(
-                    "Unable to update record(s).",
-                    CswConstants.TRANSACTION_FAILED,
-                    updateAction.getHandle());
-              }
-            };
-        Callable<Integer> updateCallable = subject.associateWith(callable);
-        updateCompletionService.submit(updateCallable);
-      }
-      for (int i = 0; i < updateActions.size(); i++) {
-        try {
-          Future<Integer> completedFuture = updateCompletionService.take();
-          try {
-            numUpdated += completedFuture.get();
-          } catch (ExecutionException | CancellationException e) {
-            LOGGER.debug("Error updating Metacard", e);
-            throw new CswException(
-                "Unable to update record(s).", CswConstants.TRANSACTION_FAILED, "Update");
-          }
-        } catch (InterruptedException e) {
-          LOGGER.debug("Metacard update interrupted", e);
-          Thread.currentThread().interrupt();
-          break;
-        }
-      }
 
-      LOGGER.debug("{} records updated.", numUpdated);
-      response.getTransactionSummary().setTotalUpdated(BigInteger.valueOf(numUpdated));
+    for (final UpdateAction updateAction : updateActions) {
+      Callable<Integer> callable =
+          () -> {
+            try {
+              return updateRecords(subject, updateAction);
+            } catch (CswException
+                | FederationException
+                | IngestException
+                | SourceUnavailableException
+                | UnsupportedQueryException
+                | CatalogQueryException e) {
+              LOGGER.debug("Unable to update record(s)", e);
+              throw new CswException(
+                  "Unable to update record(s).",
+                  CswConstants.TRANSACTION_FAILED,
+                  updateAction.getHandle());
+            }
+          };
+      Callable<Integer> updateCallable = subject.associateWith(callable);
+      updateCompletionService.submit(updateCallable);
     }
+    for (int i = 0; i < updateActions.size(); i++) {
+      try {
+        Future<Integer> completedFuture = updateCompletionService.take();
+        try {
+          numUpdated += completedFuture.get();
+        } catch (ExecutionException | CancellationException e) {
+          LOGGER.debug("Error updating Metacard", e);
+          throw new CswException(
+              "Unable to update record(s).", CswConstants.TRANSACTION_FAILED, "Update");
+        }
+      } catch (InterruptedException e) {
+        LOGGER.debug("Metacard update interrupted", e);
+        Thread.currentThread().interrupt();
+        break;
+      }
+    }
+
+    LOGGER.debug("{} records updated.", numUpdated);
+    response.getTransactionSummary().setTotalUpdated(BigInteger.valueOf(numUpdated));
 
     int numDeleted = 0;
     for (DeleteAction deleteAction : request.getDeleteActions()) {

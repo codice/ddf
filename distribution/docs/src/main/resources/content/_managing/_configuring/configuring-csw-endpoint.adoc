@@ -16,5 +16,9 @@ To install the CSW endpoint:
 . Select *Features*.
 . Install the `csw-endpoint` feature.
 
-The CSW endpoint has no configurable properties.
+The CSW endpoint has no Admin UI configurable properties.
 It can only be installed or uninstalled.
+
+To control the number of threads used for parallel processing of transactions,
+set the `org.codice.ddf.spatial.ogc.csw.catalog.endpoint.threadpool` system property.
+The default thread pool is 2 * Number Processors.
