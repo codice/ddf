@@ -44,13 +44,14 @@ class NewItemManager extends React.Component {
     this.props.listenTo(uploads, 'change', this.change)
   }
 
-  getFileModels(uploads) {
-    console.log(upload.collection.models)
-    return upload.collection.models
+  getFileModels(uploadPayload) {
+    console.log(uploadPayload.collection.models)
+    return uploadPayload.collection.models.map(child => child.attributes)
   }
 
   change(uploadPayload) {
     this.setState({uploads: this.getFileModels(uploadPayload)})    
+    console.log(this.state)
   }
 
   handleViewUpdate(newView) {

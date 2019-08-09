@@ -64,13 +64,13 @@ const InformalProductsTable = (props) => {
                     return(
                         <InformalProductsTableRowStyleComp>
                                 <td>
-                                    <p>{upload.title}</p>
+                                    <p>{upload.id}</p>
                                 </td>
                                 <td>
                                     <p>{upload.fileType}</p>
                                 </td>
                                 <td>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-                                    <ProgressBarWithText progress={upload.progress} 
+                                    <ProgressBarWithText progress={upload.percentage} 
                                                          message={upload.message} 
                                                          messageOnClick={handleMessageClick}/>
                                 </td>
