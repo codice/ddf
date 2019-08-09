@@ -43,7 +43,6 @@ public class QueryMetacardImpl extends MetacardImpl {
 
   public QueryMetacardImpl(Metacard wrappedMetacard) {
     super(wrappedMetacard, TYPE);
-    setTags(Collections.singleton(QUERY_TAG));
 
     for (AttributeDescriptor attrDesc : TYPE.getAttributeDescriptors()) {
       Attribute attr = wrappedMetacard.getAttribute(attrDesc.getName());
@@ -54,6 +53,8 @@ public class QueryMetacardImpl extends MetacardImpl {
         this.setAttribute(new AttributeImpl(attr.getName(), attr.getValue()));
       }
     }
+    // Set tags last in case tags from the wrapped metacard were copied above
+    setTags(Collections.singleton(QUERY_TAG));
   }
 
   public static QueryMetacardImpl from(Metacard metacard) {

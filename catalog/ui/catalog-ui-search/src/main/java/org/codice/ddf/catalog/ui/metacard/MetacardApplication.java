@@ -538,12 +538,12 @@ public class MetacardApplication implements SparkApplication {
           Map<String, Object> incoming =
               GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
 
-          List<Metacard> queries =
+          List<QueryMetacardImpl> queries =
               ((List<Map<String, Object>>)
                       incoming.getOrDefault(
                           WorkspaceConstants.WORKSPACE_QUERIES, Collections.emptyList()))
                   .stream()
-                  .map(transformer::transform)
+                  .map(this::jsonToQueryMetacard)
                   .collect(Collectors.toList());
 
           queryMetacardsHandler.create(Collections.emptyList(), queries);
@@ -567,11 +567,12 @@ public class MetacardApplication implements SparkApplication {
           Map<String, Object> updatedWorkspace =
               GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
 
-          List<Metacard> updatedQueryMetacards =
+          List<QueryMetacardImpl> updatedQueryMetacards =
               ((List<Map<String, Object>>)
-                      updatedWorkspace.getOrDefault("queries", Collections.emptyList()))
+                      updatedWorkspace.getOrDefault(
+                          WorkspaceConstants.WORKSPACE_QUERIES, Collections.emptyList()))
                   .stream()
-                  .map(transformer::transform)
+                  .map(this::jsonToQueryMetacard)
                   .collect(Collectors.toList());
 
           List<String> updatedQueryIds =
@@ -1160,6 +1161,12 @@ public class MetacardApplication implements SparkApplication {
   private Metacard saveMetacard(Metacard metacard)
       throws IngestException, SourceUnavailableException {
     return catalogFramework.create(new CreateRequestImpl(metacard)).getCreatedMetacards().get(0);
+  }
+
+  private QueryMetacardImpl jsonToQueryMetacard(final Map<String, Object> queryJson) {
+    final QueryMetacardImpl queryMetacard = new QueryMetacardImpl();
+    transformer.transformIntoMetacard(queryJson, queryMetacard);
+    return queryMetacard;
   }
 
   private static class ByteSourceWrapper extends ByteSource {
