@@ -18,6 +18,7 @@ import * as React from 'react'
 import {NewItem} from '../../newitem/new-item'
 import {InformalProductsTable} from '../../../react-component/informal-products/informal-upload-table'
 const user = require('../../../component/singletons/user-instance')
+const Upload = require('../../../js/model/Upload.js')
 import withListenTo from '../../../react-component/container/backbone-container'
 
 
@@ -28,11 +29,12 @@ class NewItemManager extends React.Component {
       currentView: 'new item',
       selectedMetacardType: undefined,
       files: [],
-      uploads: []
+      uploads: [],
     }
 
     this.change = this.change.bind(this)
-    
+    this.cancelUpload = this.cancelUpload.bind(this)
+    this.initializeUploadListeners = this.initializeUploadListeners.bind(this)
     this.initializeUploadListeners()
   }
 
@@ -41,17 +43,50 @@ class NewItemManager extends React.Component {
       .get('user')
       .get('preferences')
       .get('uploads')
+
     this.props.listenTo(uploads, 'change', this.change)
   }
 
   getFileModels(uploadPayload) {
-    console.log(uploadPayload.collection.models)
-    return uploadPayload.collection.models.map(child => child.attributes)
+    try{
+      console.log(uploadPayload)
+      return uploadPayload.attributes.uploads.models
+        .map( model => { 
+          const fileModel = model.attributes.file
+          if(fileModel.status === 'uploading') {
+            fileModel.status = 'Stop'
+            fileModel.onClick = uploadPayload.cancel.bind(uploadPayload)
+          }
+          return fileModel
+        })
+    }
+
+    catch(err){
+      console.error(err);
+      return;
+    }
+    
+  }
+
+  componentDidMount () {
+    //setInterval(this.cancelUpload, 1000)
+  }
+
+  cancelUpload() {
+    console.log("canceling")
+    // if(this.state.uploads.length!=0){
+    //   const upload = this.state.uploads[0]
+    //   upload.cancel()
+    // }
   }
 
   change(uploadPayload) {
-    this.setState({uploads: this.getFileModels(uploadPayload)})    
-    console.log(this.state)
+    this.setState(
+      {
+        files: this.getFileModels(uploadPayload),
+        uploads: uploadPayload
+      }
+    )    
   }
 
   handleViewUpdate(newView) {
@@ -67,7 +102,7 @@ class NewItemManager extends React.Component {
   }
 
   getCurrentView() {
-    return (<NewItem uploads={this.state.uploads}/>)
+    return (<NewItem files={this.state.files}/>)
   }
 
   render() {
@@ -79,7 +114,7 @@ class NewItemManager extends React.Component {
 
 export default withListenTo(NewItemManager)
 
-// module.exports = TabsView.extend({
+// module.exports = TabsView.extend({ 
 //   className: 'is-list-add',
 //   setDefaultModel(options) {
 //     this.model = new ListAddTabsModel()

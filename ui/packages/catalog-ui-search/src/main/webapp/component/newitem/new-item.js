@@ -65,7 +65,7 @@ class NewItem extends React.Component {
   render() {
     return (
       <React.Fragment>
-        <ItemCreationView>
+        <ItemCreationView>l
           <UploadView>
             <MarionetteRegionContainer
               className="upload-menu"
@@ -79,7 +79,9 @@ class NewItem extends React.Component {
           </OrContainer>
 
           <ManualView>
-              <InformalProductsTable uploads={this.props.uploads}/>
+              <InformalProductsTable 
+                  files={this.props.files}
+                />
           </ManualView>
         </ItemCreationView>
       </React.Fragment>

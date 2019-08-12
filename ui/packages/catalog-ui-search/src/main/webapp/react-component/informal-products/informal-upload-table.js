@@ -60,19 +60,19 @@ const InformalProductsTable = (props) => {
                 </tr>
             </thead>
             <tbody>
-                {props.uploads.map((upload, index) => {
+                {props.files.map((file) => {
                     return(
                         <InformalProductsTableRowStyleComp>
                                 <td>
-                                    <p>{upload.id}</p>
+                                    <p>{file.name}</p>
                                 </td>
                                 <td>
-                                    <p>{upload.fileType}</p>
+                                    <p>{file.upload.fileType}</p>
                                 </td>
                                 <td>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-                                    <ProgressBarWithText progress={upload.percentage} 
-                                                         message={upload.message} 
-                                                         messageOnClick={handleMessageClick}/>
+                                    <ProgressBarWithText progress={file.upload.progress} 
+                                                         message={file.status} 
+                                                         messageOnClick={file.onClick}/>
                                 </td>
                             </InformalProductsTableRowStyleComp>
                         )

@@ -144,6 +144,7 @@ module.exports = Backbone.Model.extend({
         children,
         success: true,
         message,
+        file
       })
 
       checkValidation(this)
