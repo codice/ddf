@@ -24,6 +24,7 @@ const InputContainer = styled.div`
   display: flex;
   flex-direction: column;
   max-width: 150px;
+  align-items: center;
 `
 
 const Label = styled.div`
@@ -32,7 +33,7 @@ const Label = styled.div`
 
 module.exports = Marionette.LayoutView.extend({
   template() {
-    const { lower = '', upper = '' } = this.getStartingValue() || {}
+    const { lower = 0, upper = 0 } = this.getStartingValue() || {}
     this.lowerValue = lower
     this.upperValue = upper
     return (
