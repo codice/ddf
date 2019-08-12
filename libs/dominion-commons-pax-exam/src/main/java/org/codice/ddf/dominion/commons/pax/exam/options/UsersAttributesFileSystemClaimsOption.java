@@ -33,7 +33,6 @@ import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileCo
 // check
 // /git/ddf/platform/admin/core/admin-core-impl/src/main/java/org/codice/ddf/admin/core/impl/SystemPropertiesAdmin.java
 // for help on implementation.
-// **** will need to be converted to GSON when moved to master
 @SuppressWarnings("squid:MaximumInheritanceDepth" /* cannot control hierarchy for PaxExam */)
 public class UsersAttributesFileSystemClaimsOption extends UsersAttributesFileContentOption {
   private static final String PROFILES_JSON = "etc/ws-security/profiles.json";
