@@ -12,20 +12,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export const dateComparators = [
-  'BEFORE',
-  'AFTER',
-  'RELATIVE',
-  'BETWEEN',
-  'IS EMPTY',
-]
-export const geometryComparators = ['INTERSECTS', 'IS EMPTY']
-export const stringComparators = [
-  'CONTAINS',
-  'MATCHCASE',
-  '=',
-  'NEAR',
-  'IS EMPTY',
-]
-export const numberComparators = ['>', '<', '=', '>=', '<=', 'IS EMPTY']
-export const booleanComparators = ['=', 'IS EMPTY']
+export { default } from './filter'

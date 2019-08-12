@@ -135,6 +135,10 @@ module.exports = Marionette.LayoutView.extend({
   },
   isValid() {
     const value = this.getModelValue()
-    return value.last !== undefined && value.unit !== undefined
+    return (
+      value !== undefined &&
+      value.last !== undefined &&
+      value.unit !== undefined
+    )
   },
 })

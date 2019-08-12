@@ -33,7 +33,6 @@ module.exports = Marionette.CollectionView.extend({
       handle: 'div.filter-rearrange',
       animation: 250,
       draggable: '>*',
-      disabled: this.options.isForm && !this.options.isFormBuilder,
       onEnd: () => {
         _.forEach(
           this.$el.children(
@@ -55,7 +54,6 @@ module.exports = Marionette.CollectionView.extend({
       editing: true,
       isForm: this.options.isForm || false,
       isFormBuilder: this.options.isFormBuilder || false,
-      isSortable: !this.sortable.options.disabled,
       suggester: this.options.suggester,
       includedAttributes: this.options.includedAttributes,
     }
