@@ -199,7 +199,6 @@ grant codeBase "file:/catalog-core-commands" {
 
 grant codeBase "file:/platform-osgi-configadmin" {
     permission java.security.AllPermission;
-    permission java.lang.RuntimePermission "accessClassInPackage.sun.misc";
 }
 
 grant codeBase "file:/org.apache.karaf.deployer.blueprint/org.apache.karaf.deployer.kar" {
