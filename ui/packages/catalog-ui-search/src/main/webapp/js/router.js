@@ -23,7 +23,9 @@ const router = require('../component/router/router')
 import ReactRouter from '../react-component/router'
 import React from 'react'
 import { render } from 'react-dom'
-import { routes } from '../extension-points'
+import ExtensionPoints from '../extension-points'
+
+const { routes } = ExtensionPoints
 
 // notfound route needs to come at the end otherwise no other routes will work
 render(<ReactRouter routeDefinitions={routes} />, Application.App.router.$el[0])
