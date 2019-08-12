@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.platform</groupId>
         <artifactId>platform</artifactId>
-        <version>2.16.1</version>
+        <version>2.16.2-SNAPSHOT</version>
     </parent>
     <artifactId>platform-commands</artifactId>
     <name>DDF :: Platform :: Commands</name>
