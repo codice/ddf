@@ -16,7 +16,7 @@ import * as React from 'react'
 import { Props as PresentationProps } from './navigator.presentation'
 import withListenTo, {
   WithBackboneProps,
-} from '../../react-component/container/backbone-container'
+} from '../../react-component/backbone-container'
 const store = require('../../js/store')
 const sources = require('../../component/singletons/sources-instance')
 const properties = require('../../js/properties.js')

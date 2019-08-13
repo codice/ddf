@@ -40,7 +40,7 @@ import InputWithParam from '../input-with-param'
 import Textarea from '../textarea'
 import MultiEnum from '../multi-enum'
 import Password from '../password'
-import MarionetteRegionContainer from '../../../react-component/container/marionette-region-container'
+import MarionetteRegionContainer from '../../../react-component/marionette-region-container'
 import React from 'react'
 
 /* eslint-disable no-dupe-keys */

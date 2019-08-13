@@ -16,7 +16,7 @@
 ;({
   openSources: {
     patterns: ['sources(/)'],
-    component: 'react-component/container/sources-container/sources-container',
+    component: 'react-component/sources',
     menu: {
       i18n: true,
       id: 'sources.title',

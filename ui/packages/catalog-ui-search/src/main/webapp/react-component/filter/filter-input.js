@@ -13,8 +13,8 @@
  *
  **/
 import * as React from 'react'
-import withListenTo from '../../react-component/container/backbone-container'
-import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+import withListenTo from '../../react-component/backbone-container'
+import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 import styled from 'styled-components'
 const PropertyModel = require('../../component/property/property.js')
 const ValueModel = require('../../component/value/value.js')

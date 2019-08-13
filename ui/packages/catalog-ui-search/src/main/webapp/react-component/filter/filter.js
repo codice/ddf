@@ -28,7 +28,7 @@ import {
 import { generatePropertyJSON } from './filterHelper'
 
 import ExtensionPoints from '../../extension-points'
-import withListenTo from '../../react-component/container/backbone-container'
+import withListenTo from '../../react-component/backbone-container'
 import styled from 'styled-components'
 import { GrabCursor } from '../styles/mixins'
 import { Button, buttonTypeEnum } from '../presentation/button'

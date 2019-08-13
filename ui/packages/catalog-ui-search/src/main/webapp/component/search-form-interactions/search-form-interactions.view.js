@@ -14,7 +14,7 @@
  **/
 
 import React from 'react'
-import { Sharing } from '../../react-component/container/sharing'
+import { Sharing } from '../../react-component/sharing'
 
 const Marionette = require('marionette')
 const template = require('./search-form-interactions.hbs')

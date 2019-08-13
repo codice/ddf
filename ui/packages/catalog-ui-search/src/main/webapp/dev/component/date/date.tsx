@@ -18,7 +18,7 @@ import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live'
 import alert from '../utils/alert'
 import { hot } from 'react-hot-loader'
 
-import DateComponent from '../../../react-component/container/input-wrappers/date'
+import DateComponent from '../../../react-component/input-wrappers/date'
 
 const Root = styled.div`
   height: 100%;

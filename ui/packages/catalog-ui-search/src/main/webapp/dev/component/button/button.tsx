@@ -20,7 +20,7 @@ import {
 } from '../../../react-component/presentation/button'
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live'
 
-import MarionetteRegionContainer from '../../../react-component/container/marionette-region-container'
+import MarionetteRegionContainer from '../../../react-component/marionette-region-container'
 const PropertyView = require('../../../component/property/property.view.js')
 const PropertyModel = require('../../../component/property/property.js')
 

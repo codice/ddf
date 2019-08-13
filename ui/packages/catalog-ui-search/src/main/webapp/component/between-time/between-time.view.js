@@ -17,7 +17,7 @@ const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
 const moment = require('moment')
 import * as React from 'react'
-import DateComponent from '../../react-component/container/input-wrappers/date'
+import DateComponent from '../../react-component/input-wrappers/date'
 
 module.exports = Marionette.LayoutView.extend({
   template() {
