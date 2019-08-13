@@ -13,8 +13,8 @@
  *
  **/
 import * as React from 'react'
-import withListenTo from '../../react-component/container/backbone-container'
-import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+import withListenTo from '../../react-component/backbone-container'
+import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 import styled from 'styled-components'
 import { getFilteredAttributeList } from './filterHelper'
 const DropdownView = require('../../component/dropdown/dropdown.view.js')
