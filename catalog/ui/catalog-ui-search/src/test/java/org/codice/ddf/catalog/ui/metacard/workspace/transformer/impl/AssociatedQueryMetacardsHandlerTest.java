@@ -20,9 +20,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
@@ -56,7 +54,8 @@ public class AssociatedQueryMetacardsHandlerTest {
 
   @Test
   public void testCreateQueryMetacards() throws IngestException, SourceUnavailableException {
-    List<Metacard> updatedQueryMetacards = Collections.singletonList(new MetacardImpl());
+    List<QueryMetacardImpl> updatedQueryMetacards =
+        Collections.singletonList(new QueryMetacardImpl());
     doReturn(mock(CreateResponse.class)).when(catalogFramework).create(any(CreateRequest.class));
 
     queryMetacardsHandler.create(Collections.emptyList(), updatedQueryMetacards);
