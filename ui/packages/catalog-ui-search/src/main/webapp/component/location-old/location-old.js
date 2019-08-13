@@ -270,7 +270,9 @@ module.exports = Backbone.AssociatedModel.extend({
         newResult.mapWest = result.west
 
         this.set(newResult)
-      } catch (err) {}
+      } catch (err) {
+        // do nothing
+      }
     }
 
     this.repositionLatLonUtmUps(
@@ -304,6 +306,7 @@ module.exports = Backbone.AssociatedModel.extend({
       ) &&
       isDefined(this)
     ) {
+      // eslint-disable-next-line no-undef
       const utmUpsParts = parse(_this)
       if (utmUpsParts !== undefined) {
         const utmUpsResult = this.utmUpstoLL(utmUpsParts)
@@ -335,7 +338,9 @@ module.exports = Backbone.AssociatedModel.extend({
       ) {
         try {
           result = converter.USNGtoLL(this.get('usngbb'))
-        } catch (err) {}
+        } catch (err) {
+          // do nothing
+        }
       }
 
       this.setLatLonUtmUps(
@@ -405,6 +410,7 @@ module.exports = Backbone.AssociatedModel.extend({
 
     utmUps = this.LLtoUtmUps(south, east)
     if (utmUps !== undefined) {
+      // eslint-disable-next-line no-redeclare
       var utmUpsParts = this.formatUtmUps(utmUps)
       this.setUtmUpsLowerRight(utmUpsParts, !this.isLocationTypeUtmUps())
     }
@@ -477,7 +483,9 @@ module.exports = Backbone.AssociatedModel.extend({
     let result
     try {
       result = converter.USNGtoLL(this.get('usngbb'))
-    } catch (err) {}
+    } catch (err) {
+      // do nothing
+    }
 
     if (result === undefined) {
       return
@@ -497,8 +505,10 @@ module.exports = Backbone.AssociatedModel.extend({
       this.setUtmUpsUpperLeft(utmUpsFormatted, true)
     }
 
+    // eslint-disable-next-line no-redeclare
     var utmUps = this.LLtoUtmUps(result.south, result.east)
     if (utmUps !== undefined) {
+      // eslint-disable-next-line no-redeclare
       var utmUpsFormatted = this.formatUtmUps(utmUps)
       this.setUtmUpsLowerRight(utmUpsFormatted, true)
     }
@@ -544,7 +554,9 @@ module.exports = Backbone.AssociatedModel.extend({
     let result
     try {
       result = converter.USNGtoLL(usng, true)
-    } catch (err) {}
+    } catch (err) {
+      // do nothing
+    }
 
     if (!isNaN(result.lat) && !isNaN(result.lon)) {
       this.set(result)

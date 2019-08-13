@@ -40,10 +40,6 @@ module.exports = Marionette.ItemView.extend({
     )
   },
   serializeData() {
-    const prefs = user.get('user').get('preferences')
-    const results = this.options.selectionInterface
-      .getActiveSearchResults()
-      .toJSON()
     const preferredHeader = user
       .get('user')
       .get('preferences')

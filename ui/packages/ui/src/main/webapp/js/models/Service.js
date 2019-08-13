@@ -145,7 +145,7 @@ define([
           // is returned in the arguments field of configs with array attributes,
           // causing the JSON string from jolokia to be unparseable, so we remove it,
           // since we don't care about the arguments for our parsing needs
-          jsonString = jsonString.replace(/\[L[\w\.;@]*/g, '""')
+          jsonString = jsonString.replace(/\[L[\w.;@]*/g, '""')
           jsonResult = JSON.parse(jsonString.toString().trim())
         }
       } else {

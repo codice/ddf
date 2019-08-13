@@ -27,19 +27,17 @@ function match(regexList, attribute) {
   )
 }
 
+// these variables are defined during the build
+/* global __COMMIT_HASH__, __IS_DIRTY__, __COMMIT_DATE__ */
 const properties = {
   commitHash: __COMMIT_HASH__,
   isDirty: __IS_DIRTY__,
   commitDate: __COMMIT_DATE__,
   canvasThumbnailScaleFactor: 10,
   slidingAnimationDuration: 150,
-
   defaultFlytoHeight: 15000.0,
-
   CQL_DATE_FORMAT: 'YYYY-MM-DD[T]HH:mm:ss[Z]',
-
   ui: {},
-
   filters: {
     METADATA_CONTENT_TYPE: 'metadata-content-type',
     SOURCE_ID: 'source-id',

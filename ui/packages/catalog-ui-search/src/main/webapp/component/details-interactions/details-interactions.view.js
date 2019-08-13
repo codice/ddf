@@ -44,10 +44,6 @@ module.exports = Marionette.LayoutView.extend({
   handleTypes() {
     const types = {}
     this.options.selectionInterface.getSelectedResults().forEach(result => {
-      const tags = result
-        .get('metacard')
-        .get('properties')
-        .get('metacard-tags')
       if (result.isWorkspace()) {
         types.workspace = true
       } else if (result.isResource()) {

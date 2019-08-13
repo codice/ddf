@@ -27,10 +27,6 @@ function radiansToDegrees(radians) {
  * R is Earth's approximate radius. Assumes a perfect circle, which will produce at most 0.5% error
  */
 const R = 6371.01
-const MIN_LAT = degreesToRadians(-90)
-const MAX_LAT = degreesToRadians(90)
-const MIN_LON = degreesToRadians(-180)
-const MAX_LON = degreesToRadians(180)
 
 /*
  * Given a starting point, initial bearing, and distance travelled, returns the destination point

@@ -289,7 +289,6 @@ module.exports = function CesiumMap(
     },
     onRightClick(callback) {
       $(map.scene.canvas).on('contextmenu', e => {
-        const boundingRect = map.scene.canvas.getBoundingClientRect()
         callback(e)
       })
     },

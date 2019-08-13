@@ -105,6 +105,7 @@ const spacingModes = {
   comfortable: comfortableVariables,
 }
 
+// eslint-disable-next-line no-unused-vars
 const colorModes = {
   dark: _.pick(baseVariables, colorVariables),
   light: {

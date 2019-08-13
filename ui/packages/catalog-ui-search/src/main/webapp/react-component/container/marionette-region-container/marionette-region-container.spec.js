@@ -14,7 +14,7 @@
  **/
 import React from 'react'
 import { expect } from 'chai'
-import { shallow, mount } from 'enzyme'
+import { mount } from 'enzyme'
 
 import MarionetteRegionContainer from './index'
 
@@ -36,7 +36,7 @@ describe('<MarionetteRegionContainer />', () => {
         div.remove()
       },
     })
-    const wrapper = mount(<MarionetteRegionContainer view={TestView} />, {
+    mount(<MarionetteRegionContainer view={TestView} />, {
       attachTo: div,
     })
   })

@@ -165,6 +165,7 @@ function arrayFromPartialWkt(partialWkt) {
   // change parentheses to array brackets
   result = result.replace(/\(/g, '[').replace(/\)/g, ']')
   // change each space-separated coordinate pair to a two-element array
+  // eslint-disable-next-line no-useless-escape
   result = result.replace(/([^,\[\]]+)\s+([^,\[\]]+)/g, '[$1,$2]')
   // build nested arrays from the string
   return JSON.parse(result)
@@ -351,12 +352,12 @@ function buildIntersectCQL(locationGeometry) {
 function arrayFromPolygonWkt(wkt) {
   // Handle POLYGON with no internal rings (i.e. holes)
   if (wkt.startsWith('POLYGON')) {
-    const polygon = wkt.match(/\(\([^\(\)]+\)\)/g)
+    const polygon = wkt.match(/\(\([^()]+\)\)/g)
     return polygon.length === 1 ? arrayFromPartialWkt(polygon[0]) : []
   }
 
   // Handle MULTIPOLYGON with no internal rings (i.e. holes)
-  let polygons = wkt.match(/\(\([^\(\)]+\)\)/g)
+  const polygons = wkt.match(/\(\([^()]+\)\)/g)
   if (polygons) {
     return polygons.map(polygon => arrayFromPartialWkt(polygon))
   }

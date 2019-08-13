@@ -201,6 +201,7 @@ module.exports = Marionette.LayoutView.extend(
           .removeClass('is-hidden')
           .removeClass('is-error')
           .addClass('is-warning')
+        // eslint-disable-next-line no-redeclare
         var validationMessage = validationReport.warnings.reduce(
           this.concatMessages,
           []
@@ -236,6 +237,7 @@ module.exports = Marionette.LayoutView.extend(
               .removeClass('is-hidden')
               .removeClass('is-error')
               .addClass('is-warning')
+            // eslint-disable-next-line no-redeclare
             var validationMessage = validationReport.warnings.reduce(
               this.concatMessages,
               []

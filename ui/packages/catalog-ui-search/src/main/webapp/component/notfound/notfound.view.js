@@ -14,7 +14,6 @@
  **/
 
 const Marionette = require('marionette')
-const template = require('./notfound.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 import * as React from 'react'
 import ExtensionPoints from '../../extension-points'

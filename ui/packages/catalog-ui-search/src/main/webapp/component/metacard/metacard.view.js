@@ -20,8 +20,6 @@ const CustomElements = require('../../js/CustomElements.js')
 const metacardInstance = require('./metacard.js')
 const GoldenLayoutMetacardView = require('../golden-layout/golden-layout.view.js')
 
-let queryForMetacard
-
 module.exports = Marionette.LayoutView.extend({
   template,
   tagName: CustomElements.register('metacard'),

@@ -220,6 +220,7 @@ const ResultSelector = Marionette.LayoutView.extend({
   scrollIntoView(metacard) {
     const result = this.$el.find(
       '.resultSelector-list ' +
+        // eslint-disable-next-line no-undef
         resultItemSelector +
         '[data-resultid="' +
         metacard.id +

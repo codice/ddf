@@ -21,7 +21,7 @@
  * www.metaaps.com
  *
  */
-/* eslint-disable no-var */
+/* eslint-disable */
 
 const Cesium = require('cesium')
 
@@ -720,6 +720,7 @@ const DrawHelper = (module.exports = (function() {
         return i
       }
       if (callbacks.dragHandlers) {
+        // eslint-disable-next-line no-redeclare
         var _self = this
         setListener(billboard, 'leftDown', position => {
           // TODO - start the drag handlers here
@@ -849,6 +850,7 @@ const DrawHelper = (module.exports = (function() {
   }
 
   _.prototype.startDrawingMarker = function(options) {
+    // eslint-disable-next-line no-redeclare
     var options = copyOptions(options, defaultBillboard)
 
     this.startDrawing(() => {
@@ -904,11 +906,13 @@ const DrawHelper = (module.exports = (function() {
   }
 
   _.prototype.startDrawingPolygon = function(options) {
+    // eslint-disable-next-line no-redeclare
     var options = copyOptions(options, defaultSurfaceOptions)
     this.startDrawingPolyshape(true, options)
   }
 
   _.prototype.startDrawingPolyline = function(options) {
+    // eslint-disable-next-line no-redeclare
     var options = copyOptions(options, defaultPolylineOptions)
     this.startDrawingPolyshape(false, options)
   }
@@ -1030,6 +1034,7 @@ const DrawHelper = (module.exports = (function() {
   }
 
   _.prototype.startDrawingExtent = function(options) {
+    // eslint-disable-next-line no-redeclare
     var options = copyOptions(options, defaultSurfaceOptions)
 
     this.startDrawing(() => {
@@ -1122,6 +1127,7 @@ const DrawHelper = (module.exports = (function() {
   }
 
   _.prototype.startDrawingCircle = function(options) {
+    // eslint-disable-next-line no-redeclare
     var options = copyOptions(options, defaultSurfaceOptions)
 
     this.startDrawing(function cleanUp() {

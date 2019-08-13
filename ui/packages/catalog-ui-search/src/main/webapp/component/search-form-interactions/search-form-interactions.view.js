@@ -147,7 +147,7 @@ module.exports = Marionette.ItemView.extend({
     user.savePreferences()
     this.messageNotifier(
       'Success',
-      `\"${this.model.get('title')}\" Saved As Default Query Form`,
+      `"${this.model.get('title')}" Saved As Default Query Form`,
       'success'
     )
   },

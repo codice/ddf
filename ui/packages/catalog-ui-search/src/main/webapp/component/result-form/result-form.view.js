@@ -147,7 +147,6 @@ module.exports = Marionette.LayoutView.extend({
       return
     }
     let description = this.basicDescription.currentView.model.getValue()[0]
-    let id = this.model.get('id')
 
     this.model.set({
       descriptors: descriptors.flatten(),

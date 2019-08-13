@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
+/* global _ */
 const metacardDefinitions = require('../../component/singletons/metacard-definitions.js')
 const properties = require('../../js/properties.js')
 const MultivalueView = require('../../component/multivalue/multivalue.view.js')
