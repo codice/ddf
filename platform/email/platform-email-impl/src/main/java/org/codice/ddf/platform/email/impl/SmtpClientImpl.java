@@ -136,11 +136,15 @@ public class SmtpClientImpl implements SmtpClient {
     notNull(message, "message must be non-null");
     return executorService.submit(
         () -> {
+          final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+          Thread.currentThread().setContextClassLoader(Transport.class.getClassLoader());
           try {
             Transport.send(message);
           } catch (MessagingException e) {
             LOGGER.debug("Could not send message {}", message, e);
             return null;
+          } finally {
+            Thread.currentThread().setContextClassLoader(classLoader);
           }
 
           SecurityLogger.audit(

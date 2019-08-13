@@ -26,7 +26,8 @@
     <dependencies>
         <dependency>
             <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
+            <artifactId>javax.mail-api</artifactId>
+            <version>${javax-mail.version}</version>
         </dependency>
     </dependencies>
 

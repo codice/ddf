@@ -233,11 +233,6 @@
             <artifactId>catalog-core-commons</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.email</groupId>
-            <artifactId>platform-email-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.github.jknack</groupId>
             <artifactId>handlebars</artifactId>
         </dependency>
@@ -421,7 +416,6 @@
                             handlebars,
                             httpclient,
                             httpcore,
-                            platform-email-impl,
                             platform-util,
                             tlmatcher,
                             gson-support,
@@ -479,7 +473,7 @@
                             <rules>
                                 <ArtifactSizeEnforcerRule
                                         implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>5.5_MB</maxArtifactSize>
+                                    <maxArtifactSize>5_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>
@@ -516,17 +510,17 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.44</minimum>
+                                            <minimum>0.50</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.43</minimum>
+                                            <minimum>0.47</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.40</minimum>
+                                            <minimum>0.43</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
