@@ -14,7 +14,6 @@
  **/
 
 const Marionette = require('marionette')
-const _ = require('underscore')
 const CustomElements = require('../../js/CustomElements.js')
 import * as React from 'react'
 import Filter from '../../react-component/filter'

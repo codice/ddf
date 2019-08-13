@@ -92,7 +92,6 @@ define([
     },
     updateValue: function(event) {
       var target = event.currentTarget
-      var entry = target.parentElement
       var value = target.value
       var oldValue = target.getAttribute('oldValue')
 

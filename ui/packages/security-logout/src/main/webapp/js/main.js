@@ -12,6 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/* global $ */
+// eslint-disable-next-line no-extra-semi
 ;(function() {
   $.get('../services/platform/config/ui', function(data) {
     $('.nav img').attr('src', 'data:image/png;base64,' + data.productImage)
@@ -20,8 +22,10 @@
     $('.nav label button').click(function() {
       window.location.href =
         window.location.origin +
+        // eslint-disable-next-line no-undef
         (prevUrl !== undefined && prevUrl !== 'undefined'
-          ? decodeURI(prevUrl)
+          ? // eslint-disable-next-line no-undef
+            decodeURI(prevUrl)
           : '')
     })
   })
