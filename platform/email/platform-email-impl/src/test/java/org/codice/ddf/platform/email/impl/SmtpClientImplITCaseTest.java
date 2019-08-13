@@ -193,6 +193,11 @@ public class SmtpClientImplITCaseTest {
     emailService.createSession();
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void throwsIllegalArgumentExceptionWhenPortNumberIsLessThanOne() {
+    new SmtpClientImpl().setPortNumber(0);
+  }
+
   private void validateUsernamePassword(String username, String password)
       throws UnknownHostException {
     SmtpClientImpl emailService = new SmtpClientImpl();
