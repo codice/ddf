@@ -205,6 +205,6 @@ public class WhoAmI {
   }
 
   private static boolean attributeValuesAreNonNull(Attribute attribute) {
-    return !attribute.getValues().stream().allMatch(Objects::isNull);
+    return attribute.getValues().stream().noneMatch(Objects::isNull);
   }
 }
