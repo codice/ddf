@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
+import static java.util.stream.Collectors.toSet;
 import static org.codice.ddf.libs.geo.util.GeospatialUtil.LAT_LON_ORDER;
 
 import ddf.catalog.Constants;
@@ -599,8 +600,8 @@ public class WfsSource extends AbstractWfsSource {
             schema,
             featureTypeType.getName(),
             nonQueryableProperties != null
-                ? Arrays.asList(nonQueryableProperties)
-                : new ArrayList<>(),
+                ? Arrays.stream(nonQueryableProperties).collect(toSet())
+                : new HashSet<>(),
             Wfs11Constants.GML_3_1_1_NAMESPACE,
             metacardTypeEnhancer);
 
@@ -806,7 +807,7 @@ public class WfsSource extends AbstractWfsSource {
     return typeNames
         .stream()
         .map(featureName -> new ContentTypeImpl(featureName.getLocalPart(), getVersion()))
-        .collect(Collectors.toSet());
+        .collect(toSet());
   }
 
   @Override
