@@ -126,6 +126,8 @@ const Filter = withListenTo(
             editing={this.state.editing}
             model={this.props.model}
             type={type}
+            isForm={this.props.isForm}
+            isFormBuilder={this.props.isFormBuilder}
           />
           <ExtensionPoints.filterActions
             model={this.props.model}
