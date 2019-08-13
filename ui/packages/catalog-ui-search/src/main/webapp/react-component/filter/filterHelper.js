@@ -39,8 +39,8 @@ export const generatePropertyJSON = (value, type, comparator) => {
     propertyJSON.placeholder = 'Use * for wildcard.'
   }
 
-  if(propertyJSON.type === 'BETWEEN') {
-    propertyJSON.typeOfValue = propertyJSON.type
+  if (comparator === 'RANGE') {
+    propertyJSON.typeOfValues = propertyJSON.type
     propertyJSON.type = 'RANGE'
   }
 
@@ -93,13 +93,17 @@ export const transformValue = (value, comparator) => {
       }
       break
     case 'RANGE':
-        if (value[0]!==undefined && value[0]!==null && value[0].constructor !== Object) {
-          value[0] = {
-            lower: value[0] || 0,
-            upper: value[0] || 0,
-          }
+      if (
+        value[0] !== undefined &&
+        value[0] !== null &&
+        value[0].constructor !== Object
+      ) {
+        value[0] = {
+          lower: value[0] || 0,
+          upper: value[0] || 0,
         }
-        break
+      }
+      break
     case 'INTERSECTS':
     case 'DWITHIN':
       break

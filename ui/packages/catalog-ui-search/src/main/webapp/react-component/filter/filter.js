@@ -170,6 +170,7 @@ const Filter = withListenTo(
         case 'FLOAT':
         case 'INTEGER':
         case 'SHORT':
+        case 'RANGE':
           if (numberComparators.indexOf(currentComparator) === -1) {
             newComparator = '>'
           }

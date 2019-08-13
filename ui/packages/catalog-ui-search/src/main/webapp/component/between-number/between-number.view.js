@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const CustomElements = require('../../js/CustomElements.js')
 const Marionette = require('marionette')
 import * as React from 'react'
 import NumberComponent from '../../react-component/container/input-wrappers/number'
@@ -22,13 +21,22 @@ import styled from 'styled-components'
 const InputContainer = styled.div`
   vertical-align: top;
   display: flex;
-  flex-direction: column;
-  max-width: 150px;
+  flex-direction: row;
   align-items: center;
+  transform: translateY(-50%);
+  width: 200px;
 `
 
 const Label = styled.div`
-  padding: 0px ${props => props.theme.minimumSpacing};
+  align-self: center;
+  justify-self: center;
+  transform: translateY(150%);
+`
+
+const InputWrapper = styled.div`
+  intrigue-property {
+    padding: 0px;
+  }
 `
 
 module.exports = Marionette.LayoutView.extend({
@@ -39,20 +47,23 @@ module.exports = Marionette.LayoutView.extend({
     return (
       <React.Fragment>
         <InputContainer>
-          <NumberComponent
-            value={lower}
-            onChange={this.handleLowerUpdate.bind(this)}
-          />
-          <Label>TO</Label>
-          <NumberComponent
-            value={upper}
-            onChange={this.handleUpperUpdate.bind(this)}
-          />
+          <InputWrapper className="range-input">
+            <NumberComponent
+              value={lower}
+              onChange={this.handleLowerUpdate.bind(this)}
+            />
+          </InputWrapper>
+          <Label className="label">TO</Label>
+          <InputWrapper className="range-input">
+            <NumberComponent
+              value={upper}
+              onChange={this.handleUpperUpdate.bind(this)}
+            />
+          </InputWrapper>
         </InputContainer>
       </React.Fragment>
     )
   },
-  tagName: CustomElements.register('is-number-range'),
   handleLowerUpdate(value) {
     this.lowerValue = value
     this.updateModelValue()
@@ -69,6 +80,15 @@ module.exports = Marionette.LayoutView.extend({
       lower: this.lowerValue,
       upper: this.upperValue,
     }
+  },
+  onAttach() {
+    const width = this.$el
+      .find('.label')
+      .last()
+      .outerWidth()
+    this.$el
+      .find('.range-input, .param')
+      .css('width', `calc(50% - ${width / 2}px)`)
   },
   updateModelValue() {
     if (this.model !== undefined) {
@@ -114,11 +134,7 @@ module.exports = Marionette.LayoutView.extend({
       this.$el
         .find('intrigue-input.is-number:eq(0)')
         .find('.for-error')
-        .text(
-          'Incorrect input type. ' +
-            this.model.attributes.typeOfValues +
-            ' required.'
-        )
+        .text(this.model.attributes.typeOfValues + ' required.')
       isValid = false
     }
     if (!(this.validateType(value.upper) && isNumber(value.upper))) {
@@ -128,11 +144,7 @@ module.exports = Marionette.LayoutView.extend({
       this.$el
         .find('intrigue-input.is-number:eq(1)')
         .find('.for-error')
-        .text(
-          'Incorrect input type. ' +
-            this.model.attributes.typeOfValues +
-            ' required.'
-        )
+        .text(this.model.attributes.typeOfValues + ' required.')
       isValid = false
     }
     return isValid
