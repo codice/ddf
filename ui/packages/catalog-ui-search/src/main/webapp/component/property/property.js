@@ -240,9 +240,6 @@ module.exports = Backbone.Model.extend({
       case 'RANGE':
         calculatedType = 'range'
         break
-      case 'NUMBER_RANGE':
-        calculatedType = 'number_range'
-        break
       case 'GEOMETRY':
         calculatedType = 'geometry'
         break
