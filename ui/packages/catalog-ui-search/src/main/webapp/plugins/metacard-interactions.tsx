@@ -12,5 +12,5 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export default (navigationItems: any[]) => navigationItems
+export default (metacardInteractions: any[]) => metacardInteractions
 
