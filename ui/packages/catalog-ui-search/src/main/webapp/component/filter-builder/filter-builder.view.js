@@ -99,7 +99,6 @@ module.exports = Marionette.LayoutView.extend({
         includedAttributes: this.options.includedAttributes,
       })
     )
-    this.handleEditing()
   },
   updateOperatorDropdown() {
     this.filterOperator.currentView.model.set('value', [
