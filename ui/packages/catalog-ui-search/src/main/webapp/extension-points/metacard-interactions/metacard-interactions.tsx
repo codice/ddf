@@ -21,7 +21,14 @@ import ExportActions from '../../react-component/container/metacard-interactions
 import AddToList from '../../react-component/container/metacard-interactions/add-to-list-interaction'
 import { Divider } from '../../react-component/presentation/metacard-interactions/metacard-interactions'
 
-const DefaultItems = [AddToList, BlacklistToggle, ExpandMetacard, Divider,
-    DownloadProduct, CreateLocationSearch, ExportActions]
+const DefaultItems = [
+  AddToList,
+  BlacklistToggle,
+  ExpandMetacard,
+  Divider,
+  DownloadProduct,
+  CreateLocationSearch,
+  ExportActions,
+]
 
 export default plugin(DefaultItems) as any[]

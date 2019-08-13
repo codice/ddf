@@ -87,17 +87,19 @@ class MetacardInteractions extends React.Component<Props, State> {
   render = () => {
     return (
       <>
-        {ExtensionPoints.metacardInteractions.map((Component: any, i: number) => {
-          const componentName = Component.toString()
-          const key = componentName + '-' + i
-          return (
-            <Component
-              key={key}
-              {...this.props}
-              blacklisted={this.state.blacklisted}
-            />
-          )
-        })}
+        {ExtensionPoints.metacardInteractions.map(
+          (Component: any, i: number) => {
+            const componentName = Component.toString()
+            const key = componentName + '-' + i
+            return (
+              <Component
+                key={key}
+                {...this.props}
+                blacklisted={this.state.blacklisted}
+              />
+            )
+          }
+        )}
       </>
     )
   }

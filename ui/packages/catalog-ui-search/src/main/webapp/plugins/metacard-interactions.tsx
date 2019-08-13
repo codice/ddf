@@ -13,4 +13,3 @@
  *
  **/
 export default (metacardInteractions: any[]) => metacardInteractions
-
