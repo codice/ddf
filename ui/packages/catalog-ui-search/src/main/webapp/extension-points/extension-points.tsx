@@ -21,6 +21,7 @@ import { providers, Props as ProviderProps } from './providers'
 import visualizations from './visualizations'
 import queryForms from './query-forms'
 import navigationRight from './navigation-right'
+import metacardInteractions from './metacard-interactions'
 import searchInteractions, {
   SearchInteractionProps,
 } from './search-interactions'
@@ -33,6 +34,7 @@ export type ExtensionPointsType = {
   visualizations: any[]
   queryForms: any[]
   navigationRight: any[]
+  metacardInteractions: any[]
   searchInteractions: SFC<SearchInteractionProps>
 }
 
@@ -44,6 +46,7 @@ const ExtensionPoints: ExtensionPointsType = {
   visualizations,
   queryForms,
   navigationRight,
+  metacardInteractions,
   searchInteractions,
 }
 
