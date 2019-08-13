@@ -180,7 +180,7 @@ public class FeedbackApplication implements SparkApplication {
     if (searchObj instanceof Map) {
       Map<String, Object> searchObject = (Map<String, Object>) searchObj;
       searchStr = (String) searchObject.get("cql");
-      searchInitiated = (Date) searchObject.get("initiated");
+      searchInitiated = new Date((Long) searchObject.get("initiated"));
       searchStatus = (List) searchObject.get("status");
       Object resultsObj = searchObject.get("results");
       if (resultsObj instanceof List) {

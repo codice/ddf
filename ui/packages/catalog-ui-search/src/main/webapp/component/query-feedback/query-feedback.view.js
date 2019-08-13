@@ -66,9 +66,7 @@ module.exports = Marionette.LayoutView.extend({
         name: user.get('user').get('username'),
       },
       search: {
-        initiated: new Date(
-          this.model.get('result').get('initiated')
-        ).toISOString(),
+        initiated: this.model.get('result').get('initiated'),
         cql: this.model.get('cql'),
         results: this.model
           .get('result')
