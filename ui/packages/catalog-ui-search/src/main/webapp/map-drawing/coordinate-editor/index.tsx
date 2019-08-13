@@ -23,7 +23,7 @@ import CircleEditorDialog from './container/circle-editor-dialog'
 import LineEditorDialog from './container/line-editor-dialog'
 import PointEditorDialog from './container/point-editor-dialog'
 import PolygonEditorDialog from './container/polygon-editor-dialog'
-import FlatCoordinateListEditor from './presentation/flat-coordinate-list-editor'
+import { CoordinateUnit, LAT_LON_DMS, LAT_LON, USNG, UTM } from './units'
 
 export {
   AllShapesEditorDialog,
@@ -35,5 +35,9 @@ export {
   LineEditorDialog,
   PointEditorDialog,
   PolygonEditorDialog,
-  FlatCoordinateListEditor,
+  CoordinateUnit,
+  LAT_LON_DMS,
+  LAT_LON,
+  USNG,
+  UTM,
 }

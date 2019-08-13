@@ -45,14 +45,14 @@ type Props = HTMLAttributes & {
   isActive: boolean
   showCoordinateEditor?: boolean
   saveAndContinue?: boolean
-  title: string | null
+  title?: string
   geometry: GeometryJSON | null
   toggleCoordinateEditor?: () => void
   onCancel: () => void
   onOk: () => void
   onSetShape: (shape: string) => void
   onUpdate: UpdatedGeoReceiver
-  enabledShapes?: Shape[]
+  disabledShapes?: Shape[]
   mapProjection: string
   userProjection: string
   mapStyle: ol.StyleFunction | ol.style.Style | ol.style.Style[]
@@ -63,7 +63,6 @@ type DrawingControlMap = Map<Shape, DrawingControl>
 const InvisibleBackground = styled.div`
   display: none;
 `
-
 const TitleContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -71,20 +70,20 @@ const TitleContainer = styled.div`
   height: 100%;
   font-size: ${props => props.theme.largeFontSize};
 `
-
 const TitleLabel = styled.div`
   color: ${props => readableColor(props.theme.positiveColor)};
   align-self: center;
   padding-left: ${props => props.theme.largeSpacing};
   padding-right: ${props => props.theme.minimumSpacing};
 `
-
 const Title = styled.div`
   color: ${props => readableColor(props.theme.positiveColor)};
   font-weight: bold;
   align-self: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
-
 const ShapeMenu = styled.div`
   height: 100%;
   display: flex;
@@ -92,13 +91,11 @@ const ShapeMenu = styled.div`
   border-left: 1px solid ${props => props.theme.backgroundSlideout};
   font-size: ${props => props.theme.minimumFontSize};
 `
-
 const ToolMenu = styled.div`
   height: 100%;
   display: flex;
   font-size: ${props => props.theme.minimumFontSize};
 `
-
 const StyledButton = styled(Button)`
   height: 100%;
   padding: 0px ${props => props.theme.largeSpacing};
@@ -107,7 +104,6 @@ const StyledButton = styled(Button)`
   text-align: center;
   width: 5em;
 `
-
 const SelectableButton = styled.div<{ isSelected: boolean }>`
   display: flex;
   justify-content: center;
@@ -127,13 +123,13 @@ const SelectableButton = styled.div<{ isSelected: boolean }>`
     border: 1px solid ${props => readableColor(props.theme.positiveColor)};
   }
 `
-
 const DrawingBackground = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
   height: 100%;
   width: 100%;
+  max-width: 100%;
   background-color: ${props => transparentize(0.2, props.theme.positiveColor)};
 `
 
@@ -247,7 +243,8 @@ class DrawingMenu extends React.Component<Props> {
   }
 
   renderShapeButton(shape: Shape, icon: any) {
-    return (
+    return this.props.disabledShapes &&
+      this.props.disabledShapes.includes(shape) ? null : (
       <SelectableButton
         isSelected={this.props.shape === shape}
         onClick={() => this.setShape(shape)}
@@ -268,7 +265,6 @@ class DrawingMenu extends React.Component<Props> {
       onOk,
       onSetShape,
       onUpdate,
-      enabledShapes,
       title,
       saveAndContinue,
       showCoordinateEditor,
@@ -283,8 +279,12 @@ class DrawingMenu extends React.Component<Props> {
     return (
       <Background {...rest}>
         <TitleContainer>
-          <TitleLabel>Editing Shape:</TitleLabel>
-          <Title>{title}</Title>
+          {title === undefined ? null : (
+            <React.Fragment>
+              <TitleLabel>Editing Shape:</TitleLabel>
+              <Title>{title}</Title>
+            </React.Fragment>
+          )}
         </TitleContainer>
         <ShapeMenu>
           {this.renderShapeButton('Line', <LineIcon />)}
@@ -293,7 +293,8 @@ class DrawingMenu extends React.Component<Props> {
           {this.renderShapeButton('Point Radius', <CircleIcon />)}
           {this.renderShapeButton('Point', <PointIcon />)}
         </ShapeMenu>
-        {showCoordinateEditor === undefined ? null : (
+        {showCoordinateEditor === undefined ||
+        toggleCoordinateEditor === undefined ? null : (
           <ToolMenu>
             <SelectableButton
               isSelected={showCoordinateEditor}
