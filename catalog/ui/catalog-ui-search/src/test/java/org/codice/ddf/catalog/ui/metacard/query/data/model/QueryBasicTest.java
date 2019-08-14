@@ -22,7 +22,6 @@ import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUER
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ddf.catalog.data.Attribute;
@@ -30,7 +29,6 @@ import ddf.catalog.data.Metacard;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.catalog.ui.metacard.QueryMetacardApplicationTest;
 import org.junit.Test;
@@ -54,7 +52,7 @@ public class QueryBasicTest {
         "{\"type\":\"AND\",\"filters\":[{\"type\":\"ILIKE\",\"property\":\"anyText\",\"value\":\"foo bar\"}]}");
     assertAttribute(metacard, QUERY_FEDERATION, "enterprise");
 
-    Map<String, String> sorts = ImmutableMap.of("attribute", "modified", "direction", "descending");
+    String sorts = "{\"attribute\":\"modified\",\"direction\":\"descending\"}";
     assertAttribute(metacard, QUERY_SORTS, sorts);
 
     assertAttribute(metacard, QUERY_TYPE, "advanced");
