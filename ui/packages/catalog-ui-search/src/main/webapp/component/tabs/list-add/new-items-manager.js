@@ -32,7 +32,10 @@ class NewItemManager extends React.Component {
       uploads: [],
     }
 
+
+
     this.change = this.change.bind(this)
+    this.add = this.add.bind(this)
     this.cancelUpload = this.cancelUpload.bind(this)
     this.initializeUploadListeners = this.initializeUploadListeners.bind(this)
     this.initializeUploadListeners()
@@ -49,13 +52,12 @@ class NewItemManager extends React.Component {
 
   getFileModels(uploadPayload) {
     try{
-      console.log(uploadPayload)
       return uploadPayload.attributes.uploads.models
         .map( model => { 
           const fileModel = model.attributes.file
           if(fileModel.status === 'uploading') {
             fileModel.status = 'Stop'
-            fileModel.onClick = uploadPayload.cancel.bind(uploadPayload)
+            fileModel.onClick = model.cancel.bind(model)
           }
           return fileModel
         })
@@ -69,15 +71,12 @@ class NewItemManager extends React.Component {
   }
 
   componentDidMount () {
-    //setInterval(this.cancelUpload, 1000)
+    
+
   }
 
   cancelUpload() {
-    console.log("canceling")
-    // if(this.state.uploads.length!=0){
-    //   const upload = this.state.uploads[0]
-    //   upload.cancel()
-    // }
+    
   }
 
   change(uploadPayload) {
@@ -86,7 +85,15 @@ class NewItemManager extends React.Component {
         files: this.getFileModels(uploadPayload),
         uploads: uploadPayload
       }
-    )    
+    )
+
+    if(uploadPayload.attributes.percentage === 100){
+      console.log('all files finished')
+    }
+  }
+
+  add(addedUploads){
+    console.log(addedUploads)
   }
 
   handleViewUpdate(newView) {

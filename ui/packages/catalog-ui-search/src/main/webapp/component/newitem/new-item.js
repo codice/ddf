@@ -57,15 +57,20 @@ const ManualView = styled.div`
 class NewItem extends React.Component {
    constructor(props) {
     super(props)
+    const ingestView = new IngestView()
     this.state = {
-      item: 'a'
+      ingestView
     }
+   }
+
+   componentDidMount() {
+     console.log(this.state.ingestView)
    }
 
   render() {
     return (
       <React.Fragment>
-        <ItemCreationView>l
+        <ItemCreationView>
           <UploadView>
             <MarionetteRegionContainer
               className="upload-menu"
@@ -79,9 +84,10 @@ class NewItem extends React.Component {
           </OrContainer>
 
           <ManualView>
-              <InformalProductsTable 
+            <BuilderStart/>
+              {/* <InformalProductsTable 
                   files={this.props.files}
-                />
+                /> */}
           </ManualView>
         </ItemCreationView>
       </React.Fragment>
