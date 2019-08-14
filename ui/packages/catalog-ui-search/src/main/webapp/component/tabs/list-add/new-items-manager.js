@@ -19,12 +19,12 @@ import {NewItem} from '../../newitem/new-item'
 import {InformalProductsTable} from '../../../react-component/informal-products/informal-upload-table'
 const user = require('../../../component/singletons/user-instance')
 const Upload = require('../../../js/model/Upload.js')
-import withListenTo from '../../../react-component/container/backbone-container'
+import withListenTo from '../../../react-component/backbone-container'
 
 
 class NewItemManager extends React.Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       currentView: 'new item',
       selectedMetacardType: undefined,
@@ -38,6 +38,7 @@ class NewItemManager extends React.Component {
     this.add = this.add.bind(this)
     this.cancelUpload = this.cancelUpload.bind(this)
     this.initializeUploadListeners = this.initializeUploadListeners.bind(this)
+    this.setSelectedMetacardType = this.setSelectedMetacardType.bind(this)
     this.initializeUploadListeners()
   }
 
@@ -46,7 +47,7 @@ class NewItemManager extends React.Component {
       .get('user')
       .get('preferences')
       .get('uploads')
-
+    //TODO subscribe to single payload from add
     this.props.listenTo(uploads, 'change', this.change)
   }
 
@@ -106,10 +107,11 @@ class NewItemManager extends React.Component {
     this.setState({
       selectedMetacardType: card
     })
+    console.log(this.state.selectedMetacardType);
   }
 
   getCurrentView() {
-    return (<NewItem files={this.state.files}/>)
+    return (<NewItem files={this.state.files} onManualSubmit={this.setSelectedMetacardType}/>)
   }
 
   render() {

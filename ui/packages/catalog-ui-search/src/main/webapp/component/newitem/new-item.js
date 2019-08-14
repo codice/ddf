@@ -16,10 +16,11 @@
 const Marionette = require('marionette')
 const IngestView = require('../ingest/ingest.view')
 const BuilderView = require('../builder/builder.view')
+import AttributeEditor from '../tabs/list-add/attribute-editor'
 import {BuilderStart} from '../builder/builder-start'
 import {InformalProductsTable} from '../../react-component/informal-products/informal-upload-table'
 import React from 'react'
-import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 import styled from 'styled-components'
 
 const ItemCreationView = styled.div`
@@ -72,10 +73,12 @@ class NewItem extends React.Component {
       <React.Fragment>
         <ItemCreationView>
           <UploadView>
-            <MarionetteRegionContainer
+            <AttributeEditor/>
+            {/* <MarionetteRegionContainer
               className="upload-menu"
               view={IngestView}
-            />
+            /> */}
+
           </UploadView>
           <OrContainer>
             <StyleLine />
@@ -84,7 +87,7 @@ class NewItem extends React.Component {
           </OrContainer>
 
           <ManualView>
-            <BuilderStart/>
+            <BuilderStart onManualSubmit={this.props.onManualSubmit}/>
               {/* <InformalProductsTable 
                   files={this.props.files}
                 /> */}

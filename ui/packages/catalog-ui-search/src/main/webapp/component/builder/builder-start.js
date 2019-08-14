@@ -1,11 +1,12 @@
 import styled from 'styled-components'
 import React from 'react'
-import Enum from '../../react-component/container/enum/'
+import Enum from '../../react-component/enum/'
 import {
   Button,
   buttonTypeEnum,
 } from '../../react-component/presentation/button'
 
+// TODO make sure other metacard types aren't required
 const metacardDefinitions = require('../singletons/metacard-definitions')
 
 
@@ -28,8 +29,8 @@ class BuilderStart extends React.Component {
             selectedType: undefined
         };
 
-        this.getSelectedItem = this.getSelectedItem.bind(this);
-        this.startItemCreation = this.startItemCreation.bind(this);
+        this.setSelectedType = this.setSelectedType.bind(this);
+        this.handleManualSubmit = this.handleManualSubmit.bind(this);
     }
 
     componentDidMount() {
@@ -40,14 +41,14 @@ class BuilderStart extends React.Component {
 
     }
 
-    startItemCreation() {
-        console.log(this.state.selectedType);
+    setSelectedType(selectedType) {
+        this.setState({
+            selectedType
+        })
     }
 
-    getSelectedItem = (metacardType) => {
-        this.setState({
-            selectedType: metacardType
-        });
+    handleManualSubmit () {
+        this.props.onManualSubmit(this.state.selectedType)
     }
 
     render() {
@@ -62,7 +63,7 @@ class BuilderStart extends React.Component {
                         value = {this.state.entities[0].value}
                         filtering = {true}
                         label = "Item Type"
-                        onChange = {this.getSelectedItem}
+                        onChange = {this.setSelectedType}
                     />
                     <SpacingStyle>
                         <Button 
@@ -73,7 +74,7 @@ class BuilderStart extends React.Component {
                         style={{width: '100%'}}
                         inText={false}
                         fadeUntilHover={false}
-                        onClick={this.startItemCreation}/>
+                        onClick={this.handleManualSubmit}/>
                     </SpacingStyle>
                 </BuilderStartStyle>   
             </div>
