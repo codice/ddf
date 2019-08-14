@@ -15,15 +15,15 @@
 
 import * as React from 'react'
 import TableExportComponent from './presentation'
-import { exportResultSet, getExportOptions, Transformer } from '../utils/export'
+import { exportResultSet } from '../utils/export'
 import LoadingCompanion from '../loading-companion'
 import saveFile from '../utils/save-file'
 import { hot } from 'react-hot-loader'
-const _ = require('underscore')
 const user = require('../../component/singletons/user-instance.js')
 const properties = require('../../js/properties.js')
 const announcement = require('../../component/announcement/index.jsx')
 const contentDisposition = require('content-disposition')
+
 function buildCqlQueryFromMetacards(metacards: any) {
   const queryParts = metacards.map((metacard: any) => {
     return `(("id" ILIKE '${metacard.metacard.id}'))`
@@ -41,10 +41,7 @@ function getCqlForSize(exportSize: string, selectionInterface: any) {
     ? visibleData(selectionInterface)
     : allData(selectionInterface)
 }
-function getSrcs(selectionInterface: any) {
-  const srcs = selectionInterface.getCurrentQuery().get('src')
-  return srcs === undefined ? _.pluck(Sources.toJSON(), 'id') : srcs
-}
+
 function getColumnOrder(): string[] {
   return user
     .get('user')
@@ -117,6 +114,7 @@ function getWarning(exportCountInfo: ExportCountInfo): string {
   return warningMessage
 }
 type Props = {
+  getSrcs: (selectionInterface: any) => string[]
   selectionInterface: () => void
   exportFormats: Option[]
 }
@@ -125,7 +123,6 @@ type Option = {
   value: string
 }
 type State = {
-  exportFormats: Option[]
   exportSizes: Option[]
   exportFormat: string
   exportSize: string
@@ -181,12 +178,12 @@ export default hot(module)(
     onDownloadClick = async () => {
       const exportFormat = encodeURIComponent(this.state.exportFormat)
       const { exportSize, customExportCount } = this.state
-      const { selectionInterface } = this.props
+      const { getSrcs, selectionInterface } = this.props
       try {
         const hiddenFields = getHiddenFields()
         const columnOrder = getColumnOrder()
         const cql = getCqlForSize(exportSize, selectionInterface)
-        const sources = getSrcs(selectionInterface)
+        const srcs = getSrcs(selectionInterface)
         const sorts = getSorts(selectionInterface)
         const count = Math.min(
           getExportCount({ exportSize, selectionInterface, customExportCount }),
@@ -199,7 +196,7 @@ export default hot(module)(
         }
         const body = {
           cql,
-          srcs: sources,
+          srcs,
           count,
           sorts,
           args,
@@ -227,16 +224,21 @@ export default hot(module)(
       }
     }
     render() {
-      const { exportFormats, exportSize, customExportCount } = this.state
-      const { selectionInterface } = this.props
+      const {
+        exportFormat,
+        exportSizes,
+        exportSize,
+        customExportCount,
+      } = this.state
+      const { exportFormats, selectionInterface } = this.props
       return (
         <LoadingCompanion loading={exportFormats.length === 0}>
           {exportFormats.length > 0 ? (
             <TableExportComponent
-              exportFormatOptions={this.state.exportFormats}
-              exportFormat={this.state.exportFormat}
-              exportSizeOptions={this.state.exportSizes}
-              exportSize={this.state.exportSize}
+              exportFormatOptions={exportFormats}
+              exportFormat={exportFormat}
+              exportSizeOptions={exportSizes}
+              exportSize={exportSize}
               handleExportFormatChange={this.handleExportFormatChange}
               handleExportSizeChange={this.handleExportSizeChange}
               handleCustomExportCountChange={this.handleCustomExportCountChange}
@@ -246,7 +248,7 @@ export default hot(module)(
                 selectionInterface,
                 customExportCount,
               })}
-              customExportCount={this.state.customExportCount}
+              customExportCount={customExportCount}
             />
           ) : null}
         </LoadingCompanion>

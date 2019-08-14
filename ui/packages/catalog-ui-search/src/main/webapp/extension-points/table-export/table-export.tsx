@@ -12,9 +12,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react'
+const _ = require('underscore')
+const Sources = require('../../component/singletons/sources-instance.js')
 
-import TableExport from '../../react-component/container/table-export'
+import * as React from 'react'
+import { useEffect, useState } from 'react'
+import TableExport from '../../react-component/table-export'
 import {
   getExportOptions,
   Transformer,
@@ -35,34 +38,46 @@ export type Props = {
   exportFormats: Option[]
 }
 
-async function getExportedFormats() {
-  const response = await getExportOptions(Transformer.Query)
-  const exportFormats = await response.json()
-  const sortedExportFormats = exportFormats.sort(
-    (format1: ExportResponse, format2: ExportResponse) => {
-      if (format1.displayName > format2.displayName) {
-        return 1
-      }
-      if (format1.displayName < format2.displayName) {
-        return -1
-      }
-      return 0
-    }
-  )
-  return sortedExportFormats.map((exportFormat: ExportResponse) => ({
-    label: exportFormat.displayName,
-    value: exportFormat.id,
-  }))
+function getSrcs(selectionInterface: any) {
+  const srcs = selectionInterface.getCurrentQuery().get('src')
+  return srcs === undefined ? _.pluck(Sources.toJSON(), 'id') : srcs
 }
 
 const TableExports = (props: Props) => {
-  let exportFormats
-  getExportedFormats().then(function(response: Option[]) {
-    exportFormats = response
-  })
+  const [formats, setFormats] = useState([])
+
+  useEffect(
+    () => {
+      async function fetchFormats() {
+        const response = await getExportOptions(Transformer.Query)
+        const exportFormats = await response.json()
+        const sortedExportFormats = exportFormats.sort(
+          (format1: ExportResponse, format2: ExportResponse) => {
+            if (format1.displayName > format2.displayName) {
+              return 1
+            }
+            if (format1.displayName < format2.displayName) {
+              return -1
+            }
+            return 0
+          }
+        )
+        setFormats(
+          sortedExportFormats.map((exportFormat: ExportResponse) => ({
+            label: exportFormat.displayName,
+            value: exportFormat.id,
+          }))
+        )
+      }
+      fetchFormats()
+    },
+    [setFormats]
+  )
+
   return (
     <TableExport
-      exportFormats={exportFormats || []}
+      getSrcs={getSrcs}
+      exportFormats={formats || []}
       selectionInterface={props.selectionInterface}
     />
   )
