@@ -34,7 +34,9 @@ class BuilderStart extends React.Component {
     }
 
     componentDidMount() {
-    
+        this.setState({
+            selectedType: this.state.entities[0].value
+        })
     }
 
     componentWillUnmount() {

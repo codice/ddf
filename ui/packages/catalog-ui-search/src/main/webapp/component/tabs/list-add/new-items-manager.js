@@ -27,7 +27,7 @@ class NewItemManager extends React.Component {
     super(props)
     this.state = {
       currentView: 'new item',
-      selectedMetacardType: undefined,
+      selectedMetacardType: 'common',
       files: [],
       uploads: [],
     }
@@ -107,11 +107,10 @@ class NewItemManager extends React.Component {
     this.setState({
       selectedMetacardType: card
     })
-    console.log(this.state.selectedMetacardType);
   }
 
   getCurrentView() {
-    return (<NewItem files={this.state.files} onManualSubmit={this.setSelectedMetacardType}/>)
+    return (<NewItem files={this.state.files} metacardType={this.state.selectedMetacardType} onManualSubmit={this.setSelectedMetacardType}/>)
   }
 
   render() {

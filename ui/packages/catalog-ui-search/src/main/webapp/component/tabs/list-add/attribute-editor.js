@@ -26,30 +26,37 @@ const AttributeEditorContainer = styled.div`
     width: 100%;
     overflow-y: scroll;
     background-color: ${props => props.theme.backgroundNavigation};
+
+    intrigue-property {
+        padding: 0;
+    }
+`
+
+const AttributeTitle = styled.div`
+    padding: ${props => props.theme.minimumSpacing};
+    font-size: ${props => props.theme.largeFontSize};
 `
 
 class AttributeEditor extends React.Component {
     constructor(props){
         super(props)
         this.state = {
-            metacardType: 'common',
-            metacardAttributes: metacardDefinitions.metacardDefinitions['common']
+            metacardAttributes: metacardDefinitions.metacardDefinitions
         }
-        // move type to props
     }
-    
+
     render() {
         return (
             <AttributeEditorContainer>
-
-                {Object.keys(this.state.metacardAttributes).map(key => {
+                <AttributeTitle>Item Attributes</AttributeTitle>
+                {Object.keys(this.state.metacardAttributes[this.props.metacardType]).map(key => {
                     return (<AttributeInput key={key}
                                             id={key} 
-                                            hidden={this.state.metacardAttributes[key].hidden}
-                                            alias={this.state.metacardAttributes[key].alias}
-                                            multiValued={this.state.metacardAttributes[key].multiValued}
-                                            readOnly={this.state.metacardAttributes[key].readOnly}
-                                            type={this.state.metacardAttributes[key].type}>
+                                            hidden={this.state.metacardAttributes[this.props.metacardType][key].hidden}
+                                            alias={this.state.metacardAttributes[this.props.metacardType][key].alias}
+                                            multiValued={this.state.metacardAttributes[this.props.metacardType][key].multiValued}
+                                            readOnly={this.state.metacardAttributes[this.props.metacardType][key].readOnly}
+                                            type={this.state.metacardAttributes[this.props.metacardType][key].type}>
 
                             </AttributeInput>)
                 })}

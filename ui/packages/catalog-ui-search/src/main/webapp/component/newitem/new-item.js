@@ -73,7 +73,7 @@ class NewItem extends React.Component {
       <React.Fragment>
         <ItemCreationView>
           <UploadView>
-            <AttributeEditor/>
+            <AttributeEditor metacardType={this.props.metacardType}/>
             {/* <MarionetteRegionContainer
               className="upload-menu"
               view={IngestView}

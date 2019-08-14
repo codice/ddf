@@ -18,7 +18,7 @@ import Text from '../../../react-component/input-wrappers/text'
 import Number from '../../../react-component/input-wrappers/text'
 
 const InputContainer = styled.div`
-    padding: ${props => props.theme.minimumSpacing};
+    padding: 0px ${props => props.theme.minimumSpacing};
 `
 
 class AttributeInput extends React.Component {
@@ -27,21 +27,20 @@ class AttributeInput extends React.Component {
     }
 
     getInputByType() {
-
+        //TODO readonly
         switch(this.props.type){
             case 'STRING':
-                return <Text></Text>
+                return <Text label={this.props.id}></Text>
             case 'NUMBER':
-                return <Number></Number>
+                return <Number label={this.props.id}></Number>
             default:
-                return <Text></Text>
+                return <Text label={this.props.id}></Text>
         }
     }
 
     render() {
         return(
             <InputContainer>
-                <div>{this.props.id}</div>
                 {this.getInputByType()}
             </InputContainer>
         )
