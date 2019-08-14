@@ -14,7 +14,7 @@
  **/
 const Marionette = require('marionette')
 import * as React from 'react'
-import NumberComponent from '../../react-component/container/input-wrappers/number'
+import NumberComponent from '../../react-component/input-wrappers/number'
 import { isNumber } from 'util'
 import styled from 'styled-components'
 
@@ -36,6 +36,10 @@ const Label = styled.div`
 const InputWrapper = styled.div`
   intrigue-property {
     padding: 0px;
+  }
+
+  .property-revert {
+    transform: translateX(-150%);
   }
 `
 
