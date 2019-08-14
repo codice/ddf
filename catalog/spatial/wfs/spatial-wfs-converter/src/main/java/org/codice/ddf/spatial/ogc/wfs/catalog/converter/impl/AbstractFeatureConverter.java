@@ -51,8 +51,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang.StringUtils;
@@ -67,24 +65,15 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 public abstract class AbstractFeatureConverter implements FeatureConverter {
-
-  protected static final String FID = "fid";
-
   protected static final String ERROR_PARSING_MESSAGE = "Error parsing Geometry from feature xml.";
 
   protected static final String UTF8_ENCODING = "UTF-8";
 
-  protected static final String EXT_PREFIX = "ext.";
-
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFeatureConverter.class);
-
-  private final Set<String> basicAttributeNames = getBasicAttributeNames();
 
   protected String sourceId;
 
   protected String wfsUrl;
-
-  protected String prefix;
 
   protected MetacardType metacardType;
 
@@ -109,23 +98,27 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     return Metacard.class.isAssignableFrom(clazz);
   }
 
+  @Override
   public void setSourceId(String sourceId) {
     this.sourceId = sourceId;
   }
 
+  @Override
   public void setWfsUrl(String url) {
     this.wfsUrl = url;
   }
 
+  @Override
   public MetacardType getMetacardType() {
     return this.metacardType;
   }
 
+  @Override
   public void setMetacardType(MetacardType metacardType) {
     this.metacardType = metacardType;
-    this.prefix = EXT_PREFIX + metacardType.getName() + ".";
   }
 
+  @Override
   public void setCoordinateOrder(String coordinateOrder) {
     this.coordinateOrder = coordinateOrder;
   }
@@ -149,22 +142,22 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     while (reader.hasMoreChildren()) {
       reader.moveDown();
 
-      String featureProperty = prefix + reader.getNodeName();
-      AttributeDescriptor attributeDescriptor =
-          metacardType.getAttributeDescriptor(featureProperty);
+      handleBasicMetacardAttribute(reader, mc);
 
-      // Check MetacardMapper for mappings of incoming values
-      String mappedMetacardAttribute = null;
-      if (metacardMapper != null) {
+      String featureProperty = reader.getNodeName();
+
+      String mappedMetacardAttribute = getMappedMetacardAttribute(featureProperty);
+
+      if (mappedMetacardAttribute == null) {
         LOGGER.debug(
-            "Looking up metacard attribute for feature property {} using metacard mapper",
+            "Feature property {} did not map to a metacard attribute so it will be skipped.",
             featureProperty);
-        mappedMetacardAttribute = metacardMapper.getMetacardAttribute(featureProperty);
-        LOGGER.debug(
-            "Found metacard attribute {} for feature property {}",
-            mappedMetacardAttribute,
-            featureProperty);
+        reader.moveUp();
+        continue;
       }
+
+      AttributeDescriptor attributeDescriptor =
+          metacardType.getAttributeDescriptor(mappedMetacardAttribute);
 
       Serializable value = null;
       if (attributeDescriptor != null
@@ -175,58 +168,32 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
               || BasicTypes.DATE_TYPE
                   .getAttributeFormat()
                   .equals(attributeDescriptor.getType().getAttributeFormat()))) {
-        if (StringUtils.isNotBlank(mappedMetacardAttribute)) {
-          if (StringUtils.equals(mappedMetacardAttribute, Core.RESOURCE_SIZE)) {
-            String sizeBeforeConversion = reader.getValue();
-            String bytes = convertToBytes(reader, metacardMapper.getDataUnit());
-            if (StringUtils.isNotBlank(bytes)) {
-              LOGGER.debug(
-                  "Setting mapped metacard attribute {} with value {}",
-                  mappedMetacardAttribute,
-                  bytes);
-              mc.setAttribute(mappedMetacardAttribute, bytes);
-            }
-            if (StringUtils.isNotBlank(sizeBeforeConversion)) {
-              LOGGER.debug(
-                  "Setting metacard attribute {} with value {}",
-                  featureProperty,
-                  sizeBeforeConversion);
-              mc.setAttribute(featureProperty, sizeBeforeConversion);
-            }
-          } else {
-            value =
-                getValueForMetacardAttribute(
-                    attributeDescriptor.getType().getAttributeFormat(), reader);
-            if (value != null) {
-              LOGGER.debug(
-                  "Setting mapped metacard attribute {} with value {}",
-                  mappedMetacardAttribute,
-                  value);
-              mc.setAttribute(mappedMetacardAttribute, value);
-              mc.setAttribute(featureProperty, value);
-            }
+        if (StringUtils.equals(mappedMetacardAttribute, Core.RESOURCE_SIZE)) {
+          String bytes = convertToBytes(reader, metacardMapper.getDataUnit());
+          if (StringUtils.isNotBlank(bytes)) {
+            LOGGER.debug(
+                "Setting mapped metacard attribute {} with value {}",
+                mappedMetacardAttribute,
+                bytes);
+            mc.setAttribute(mappedMetacardAttribute, bytes);
           }
         } else {
           value =
               getValueForMetacardAttribute(
                   attributeDescriptor.getType().getAttributeFormat(), reader);
-
           if (value != null) {
-            LOGGER.debug("Setting metacard attribute {} with value {}", featureProperty, value);
-            mc.setAttribute(featureProperty, value);
+            LOGGER.debug(
+                "Setting mapped metacard attribute {} with value {}",
+                mappedMetacardAttribute,
+                value);
+            mc.setAttribute(mappedMetacardAttribute, value);
           }
         }
+
         if (BasicTypes.GEO_TYPE
             .getAttributeFormat()
             .equals(attributeDescriptor.getType().getAttributeFormat())) {
           mc.setLocation((String) value);
-        }
-        // if this node matches a basic metacard attribute name,
-        // populate that field as well
-        if (isBasicMetacardAttribute(reader.getNodeName())) {
-          LOGGER.debug("Setting metacard basic attribute: {} = {}", reader.getNodeName(), value);
-
-          mc.setAttribute(reader.getNodeName(), value);
         }
       }
 
@@ -245,6 +212,43 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     }
 
     return mc;
+  }
+
+  private void handleBasicMetacardAttribute(
+      final HierarchicalStreamReader reader, final MetacardImpl metacard) {
+    final String featurePropertyName = reader.getNodeName();
+    if (isBasicMetacardAttribute(featurePropertyName)) {
+      final AttributeDescriptor attributeDescriptor =
+          getBasicMetacardAttributeDescriptor(featurePropertyName);
+      final Serializable value =
+          getValueForMetacardAttribute(attributeDescriptor.getType().getAttributeFormat(), reader);
+      LOGGER.debug("Setting metacard basic attribute: {} = {}", featurePropertyName, value);
+
+      metacard.setAttribute(featurePropertyName, value);
+    }
+  }
+
+  private boolean isBasicMetacardAttribute(String attrName) {
+    return getBasicMetacardAttributeDescriptor(attrName) != null;
+  }
+
+  private AttributeDescriptor getBasicMetacardAttributeDescriptor(String attrName) {
+    return MetacardImpl.BASIC_METACARD.getAttributeDescriptor(attrName);
+  }
+
+  private String getMappedMetacardAttribute(final String featurePropertyName) {
+    String mappedMetacardAttribute = null;
+    if (metacardMapper != null) {
+      LOGGER.debug(
+          "Looking up metacard attribute for feature property {} using metacard mapper",
+          featurePropertyName);
+      mappedMetacardAttribute = metacardMapper.getMetacardAttribute(featurePropertyName);
+      LOGGER.debug(
+          "Found metacard attribute {} for feature property {}",
+          mappedMetacardAttribute,
+          featurePropertyName);
+    }
+    return mappedMetacardAttribute;
   }
 
   protected Serializable getValueForMetacardAttribute(
@@ -365,13 +369,12 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     try { // trying to parse xsd:date
       date = DatatypeConverter.parseDate(reader.getValue()).getTime();
     } catch (IllegalArgumentException e) {
-      LOGGER.debug(
-          "Unable to parse date, attempting to parse as xsd:dateTime, Exception was {}", e);
+      LOGGER.debug("Unable to parse date, attempting to parse as xsd:dateTime.", e);
       try { // try to parse it as a xsd:dateTime
         date = DatatypeConverter.parseDateTime(reader.getValue()).getTime();
       } catch (IllegalArgumentException ie) {
         LOGGER.debug(
-            "Unable to parse date from XML; defaulting \"{}\" to current datetime.  Exception {}",
+            "Unable to parse date from XML; defaulting \"{}\" to current datetime.",
             reader.getNodeName(),
             ie);
         date = new Date();
@@ -383,24 +386,6 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     }
     LOGGER.debug("node name: {}", reader.getNodeName());
     return date;
-  }
-
-  protected Boolean isAttributeNotNull(final String attributeName, Metacard mc) {
-    return (mc.getAttribute(attributeName) != null
-        && mc.getAttribute(attributeName).getValue() != null);
-  }
-
-  private Set<String> getBasicAttributeNames() {
-    Set<String> attrNames =
-        new HashSet<>(MetacardImpl.BASIC_METACARD.getAttributeDescriptors().size());
-    for (AttributeDescriptor ad : MetacardImpl.BASIC_METACARD.getAttributeDescriptors()) {
-      attrNames.add(ad.getName());
-    }
-    return attrNames;
-  }
-
-  private boolean isBasicMetacardAttribute(String attrName) {
-    return basicAttributeNames.contains(attrName);
   }
 
   public void setSrs(String srs) {

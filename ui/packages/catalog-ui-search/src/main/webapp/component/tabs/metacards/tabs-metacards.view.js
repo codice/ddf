@@ -22,10 +22,6 @@ const properties = require('../../../js/properties.js')
 function getTypes(results) {
   const types = {}
   results.forEach(result => {
-    const tags = result
-      .get('metacard')
-      .get('properties')
-      .get('metacard-tags')
     if (result.isWorkspace()) {
       types.workspace = true
     } else if (result.isResource()) {

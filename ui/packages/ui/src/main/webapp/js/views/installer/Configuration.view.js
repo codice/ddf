@@ -108,6 +108,7 @@ define([
       // loop through models and check for hostname change, validation errors and set redirect url
       var hostChange = true
       var hostName
+      // eslint-disable-next-line no-unused-vars
       var port
       var hasErrors = false
 
@@ -168,8 +169,6 @@ define([
       this.navigationModel.previousStep()
     },
     onRender: function() {
-      var view = this
-
       var sysPropsView = new SystemPropertiesView({ collection: this.model })
       var certificateView = new CertificateView({
         model: this.certificateModel,

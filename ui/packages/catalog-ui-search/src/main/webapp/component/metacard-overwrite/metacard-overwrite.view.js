@@ -24,7 +24,7 @@ import {
   Button,
   buttonTypeEnum,
 } from '../../react-component/presentation/button'
-import withListenTo from '../../react-component/container/backbone-container'
+import withListenTo from '../../react-component/backbone-container'
 
 const Root = styled.div`
   overflow: auto;

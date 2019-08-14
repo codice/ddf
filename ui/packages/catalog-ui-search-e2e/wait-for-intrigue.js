@@ -65,11 +65,10 @@ const waitFor = async url => {
       console.error(`Got status code ${statusCode} when pinging "${url}"`)
     } catch (e) {
       console.error(`Got error '${e.message}' when pinging "${url}"`)
-      continue
     }
   }
 
-  throw new Exception(`Timeout waiting from ${url}`)
+  throw new Error(`Timeout waiting from ${url}`)
 }
 
 const main = async () => {

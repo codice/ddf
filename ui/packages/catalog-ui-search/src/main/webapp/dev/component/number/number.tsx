@@ -18,7 +18,7 @@ import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live'
 import { hot } from 'react-hot-loader'
 import alert from '../utils/alert'
 
-import Number from '../../../react-component/container/input-wrappers/number'
+import Number from '../../../react-component/input-wrappers/number'
 
 const Root = styled.div`
   height: 100%;

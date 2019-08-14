@@ -19,7 +19,6 @@ const TextField = require('../../../react-component/text-field/index.js')
 const { Units } = require('../../../react-component/location/common.js')
 const ListEditor = require('../inputs/list-editor')
 const { UsngCoordinate } = require('./coordinates')
-const { validateUsngGrid, errorMessages } = require('../utils')
 
 const Point = props => {
   const { usng, setState } = props

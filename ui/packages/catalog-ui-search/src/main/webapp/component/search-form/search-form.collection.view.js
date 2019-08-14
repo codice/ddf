@@ -15,7 +15,7 @@
 
 import SearchFormView, { Item, NewForm } from './search-form.view'
 import React from 'react'
-import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 import { TabMessage } from './search-form-presentation'
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements')

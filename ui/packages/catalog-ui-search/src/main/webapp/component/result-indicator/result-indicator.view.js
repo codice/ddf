@@ -24,6 +24,7 @@ module.exports = Marionette.ItemView.extend({
   },
   className: 'customElement',
   initialize() {
+    // eslint-disable-next-line no-undef
     this.debouncedRender = _.debounce(function() {
       if (!this.isDestroyed) {
         this.render()

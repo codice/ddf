@@ -13,6 +13,7 @@
  *
  **/
 
+// eslint-disable-next-line no-extra-semi
 ;(function injectStyles() {
   if (process.env.NODE_ENV !== 'production') {
     require('../dev/styles/styles.less') // include styles for dev guide components

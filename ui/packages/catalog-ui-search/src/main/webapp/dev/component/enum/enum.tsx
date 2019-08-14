@@ -18,7 +18,7 @@ import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live'
 import { hot } from 'react-hot-loader'
 import alert from '../utils/alert'
 
-import Enum from '../../../react-component/container/input-wrappers/enum'
+import Enum from '../../../react-component/input-wrappers/enum'
 
 const Root = styled.div`
   height: 100%;

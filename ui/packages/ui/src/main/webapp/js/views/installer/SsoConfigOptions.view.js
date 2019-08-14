@@ -72,8 +72,6 @@ define([
       }
     },
     updateValue: function(event) {
-      var updatedValue = event.currentTarget.value
-
       this.value = event.currentTarget.value
       wreqr.vent.trigger('ssoConfigModified')
     },

@@ -22,8 +22,8 @@ Configure a new WFS v2.0.0 Source through the ${admin-console}:
 * Navigate to the *${admin-console}*.
 * Select the *${ddf-catalog}* application.
 * Select the *Sources* tab.
-* Add a New source.
-* Name the New source.
+* Add a new source.
+* Name the new source.
 * Select *WFS v2.0.0 Source* from *Binding Configurations*.
 
 .Configuring the WFS v2.0.0 Source
@@ -57,7 +57,7 @@ http://www.example.org:8080/geoserver/ows
 .Mapping WFS Feature Properties to Metacard Attributes
 
 The WFS 2.0 Source allows for virtually any schema to be used to describe a feature.
-A feature is relatively equivalent to a metacard. The `MetacardMapper` was added to allow an administrator to configure which feature properties map to which metacard attributes.
+A feature is roughly equivalent to a metacard. The `MetacardMapper` was added to allow an administrator to configure which feature properties map to which metacard attributes.
 
 .Using the WFS `MetacardMapper`
 Use the WFS `MetacardMapper` to configure which feature properties map to which metacard attributes when querying a WFS version 2.0.0 compliant service.
@@ -67,18 +67,19 @@ Custom mappings of feature property responses to metacard attributes can be achi
 The `MetacardMapper` is set by creating a feature file configuration which specifies the appropriate mapping. The mappings are specific to a given feature type.
 
 .Installing the WFS `MetacardMapper`
-The WFS `MetacardMapper` is is not installed by default with a standard application in the ${ddf-spatial} application.
+The WFS `MetacardMapper` is installed by default with a standard installation in the ${ddf-spatial} application.
 
 .Configuring the WFS `MetacardMapper`
-There are two ways to configure the `MetcardMapper`, one is to use the Configuration Admin available via the ${admin-console}.
-Additionally, a `feature.xml` file can be created and copied into the "deploy" directory.
+There are two ways to configure the `MetacardMapper`:
+
+. The Configuration Admin available in the ${admin-console}.
+. Placing a `feature.xml` file in the `deploy` directory.
 
 .Example WFS MetacardMapper Configuration
 The following shows how to configure the `MetacardMapper` to be used with the sample data provided with GeoServer.
 This configuration shows a custom mapping for the feature type ‘states’.
-For the given type, we are taking the feature property ‘states.STATE_NAME’ and mapping it to the metacard attribute ‘title’.
+For the given type, we are taking the feature property ‘STATE_NAME’ and mapping it to the metacard attribute ‘title’.
 In this particular case, since we mapped the state name to title in the metacard, it will now be fully searchable.
-More mappings can be added to the `featurePropToMetacardAttrMap` line through the use of comma as a delimiter.
 
 .Example `MetacardMapper` Configuration Within a `feature.xml` file:
 [source,xml,linenums]
@@ -87,7 +88,7 @@ More mappings can be added to the `featurePropToMetacardAttrMap` line through th
     description="WFS Feature to Metacard mappings for GeoServer Example {http://www.openplans.org/topp}states">
     <config name="org.codice.${ddf-branding-lowercase}.spatial.ogc.wfs.catalog.mapper.MetacardMapper-geoserver.http://www.openplans.org/topp.states">
         featureType = {http://www.openplans.org/topp}states
-        featurePropToMetacardAttrMap = states.STATE_NAME=title
+        titleMapping = STATE_NAME
     </config>
 </feature>
 ----

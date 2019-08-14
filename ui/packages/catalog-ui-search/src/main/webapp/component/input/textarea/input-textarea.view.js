@@ -51,15 +51,12 @@ module.exports = InputView.extend({
   expand() {
     const textarea = this.$el.find('.ta-disabled')
     const scrollableHeight = textarea.prop('scrollHeight')
-    const currViewableHeight = parseInt(textarea.css('max-height'), 10)
     this.$el.toggleClass('is-expanded', true)
     textarea.css('height', scrollableHeight + 15)
     textarea.css('max-height', scrollableHeight + 15)
   },
   contract() {
     const textarea = this.$el.find('.ta-disabled')
-    const scrollableHeight = textarea.prop('scrollHeight')
-    const currViewableHeight = parseInt(textarea.css('max-height'), 10)
     this.$el.toggleClass('is-expanded', false)
     textarea.css('height', '75px')
     textarea.css('max-height', '75px')

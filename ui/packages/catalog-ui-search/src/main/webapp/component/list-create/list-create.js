@@ -20,7 +20,7 @@
  * any manner and for any purpose, and to have or permit others to do so.
  */
 import React from 'react'
-import ListCreate from '../../react-component/presentation/list-create/list-create'
+import ListCreate from '../../react-component/list-create'
 
 const Marionette = require('marionette')
 

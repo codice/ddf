@@ -28,7 +28,7 @@ import {
 import { generatePropertyJSON } from './filterHelper'
 
 import ExtensionPoints from '../../extension-points'
-import withListenTo from '../../react-component/container/backbone-container'
+import withListenTo from '../../react-component/backbone-container'
 import styled from 'styled-components'
 import { GrabCursor } from '../styles/mixins'
 import { Button, buttonTypeEnum } from '../presentation/button'
@@ -126,6 +126,8 @@ const Filter = withListenTo(
             editing={this.state.editing}
             model={this.props.model}
             type={type}
+            isForm={this.props.isForm}
+            isFormBuilder={this.props.isFormBuilder}
           />
           <ExtensionPoints.filterActions
             model={this.props.model}

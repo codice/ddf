@@ -28,14 +28,7 @@ function filterAndSort(attributes) {
       if (metacardDefinitions.metacardTypes[property]) {
         return !metacardDefinitions.metacardTypes[property].hidden
       } else {
-        announcement.announce({
-          title: 'Missing Attribute Definition',
-          message:
-            'Could not find information for ' +
-            property +
-            ' in definitions.  If this problem persists, contact your Administrator.',
-          type: 'warn',
-        })
+        console.warn('Could not find ' + property + ' in definitions.')
         return false
       }
     })

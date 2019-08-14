@@ -24,6 +24,7 @@ var DropdownView = require('../dropdown/dropdown.view.js')
 const PropertyView = require('../property/property.view.js')
 const Property = require('../property/property.js')
 const List = require('../../js/model/List.js')
+// eslint-disable-next-line no-redeclare
 var DropdownView = require('../dropdown/popout/dropdown.popout.view.js')
 const ListFilterView = require('../result-filter/list/result-filter.list.view.js')
 const properties = require('../../js/properties.js')

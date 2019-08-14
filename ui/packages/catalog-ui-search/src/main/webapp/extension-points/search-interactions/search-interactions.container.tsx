@@ -17,7 +17,7 @@ import { Props as PresentationProps } from './search-interactions.presentation'
 import { hot } from 'react-hot-loader'
 import withListenTo, {
   WithBackboneProps,
-} from '../../react-component/container/backbone-container'
+} from '../../react-component/backbone-container'
 const user = require('../../component/singletons/user-instance.js')
 const ConfirmationView = require('../../component/confirmation/confirmation.view.js')
 

@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 import { FormattedMessage } from 'react-intl'
-import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 const SaveView = require('../../component/save/workspaces/workspaces-save.view')
 const UnsavedIndicatorView = require('../../component/unsaved-indicator/workspaces/workspaces-unsaved-indicator.view')
 import styled from 'styled-components'

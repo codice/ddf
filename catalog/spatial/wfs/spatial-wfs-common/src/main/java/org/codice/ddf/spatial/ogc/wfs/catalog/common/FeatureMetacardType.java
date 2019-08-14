@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.catalog.common;
 
+import static java.util.stream.Collectors.toSet;
+
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
@@ -29,7 +31,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ws.commons.schema.XmlSchema;
@@ -68,15 +69,11 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
   private final transient QName featureType;
 
-  private final transient String propertyPrefix;
-
-  private final transient List<String> nonQueryableProperties;
+  private final transient Set<String> nonQueryableProperties;
 
   private final transient String gmlNamespace;
 
   private final transient XmlSchema schema;
-
-  private static final String EXT_PREFIX = "ext.";
 
   public static final MetacardTypeEnhancer DEFAULT_METACARD_TYPE_ENHANCER =
       new MetacardTypeEnhancer() {
@@ -94,7 +91,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
   public FeatureMetacardType(
       XmlSchema schema,
       final QName featureType,
-      List<String> nonQueryableProperties,
+      Set<String> nonQueryableProperties,
       String gmlNamespace) {
     this(schema, featureType, nonQueryableProperties, gmlNamespace, DEFAULT_METACARD_TYPE_ENHANCER);
   }
@@ -102,7 +99,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
   public FeatureMetacardType(
       XmlSchema schema,
       final QName featureType,
-      List<String> nonQueryableProperties,
+      Set<String> nonQueryableProperties,
       String gmlNamespace,
       MetacardTypeEnhancer metacardTypeEnhancer) {
     super(featureType.getLocalPart(), (Set<AttributeDescriptor>) null);
@@ -112,7 +109,6 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     this.schema = schema;
     this.featureType = featureType;
     this.nonQueryableProperties = nonQueryableProperties;
-    this.propertyPrefix = EXT_PREFIX + getName() + ".";
     this.gmlNamespace = gmlNamespace;
     if (schema != null) {
       processXmlSchema(schema);
@@ -122,10 +118,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     }
 
     Set<String> existingAttributeNames =
-        getAttributeDescriptors()
-            .stream()
-            .map(AttributeDescriptor::getName)
-            .collect(Collectors.toSet());
+        getAttributeDescriptors().stream().map(AttributeDescriptor::getName).collect(toSet());
 
     metacardTypeEnhancer
         .getAttributeDescriptors()
@@ -169,10 +162,6 @@ public class FeatureMetacardType extends MetacardTypeImpl {
   @Override
   public String getName() {
     return featureType.getLocalPart();
-  }
-
-  public String getPrefix() {
-    return featureType.getPrefix();
   }
 
   public String getNamespaceURI() {
@@ -310,76 +299,35 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
   private void mapSchemaElement(final XmlSchemaElement element, final QName elementBaseTypeName) {
     final String elementName = element.getName();
-    final AttributeType<?> attributeType = toBasicType(elementBaseTypeName);
 
-    if (attributeType != null) {
-      final boolean multivalued = element.getMaxOccurs() > 1;
-      add(
-          new FeatureAttributeDescriptor(
-              propertyPrefix + elementName,
-              elementName,
-              isQueryable(elementName) /* indexed */,
-              true /* stored */,
-              false /* tokenized */,
-              multivalued,
-              attributeType));
-    }
     if (Constants.XSD_STRING.equals(elementBaseTypeName)) {
-      textualProperties.add(propertyPrefix + elementName);
+      textualProperties.add(elementName);
     }
 
-    properties.add(propertyPrefix + elementName);
+    properties.add(elementName);
   }
 
   private Boolean processGmlType(XmlSchemaElement xmlSchemaElement) {
     QName qName = xmlSchemaElement.getSchemaTypeName();
     String name = xmlSchemaElement.getName();
-    String propertyPrefixWithName = propertyPrefix + name;
 
     if (qName != null
         && StringUtils.isNotEmpty(name)
         && qName.getNamespaceURI().equals(gmlNamespace)
         && (qName.getLocalPart().equals("TimeInstantType")
             || qName.getLocalPart().equals("TimePeriodType"))) {
-      LOGGER.debug("Adding temporal property: {}{}", propertyPrefix, name);
-      temporalProperties.add(propertyPrefix + name);
-
-      boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1;
-      add(
-          new FeatureAttributeDescriptor(
-              propertyPrefixWithName,
-              name,
-              isQueryable(name) /* indexed */,
-              true /* stored */,
-              false /* tokenized */,
-              multiValued,
-              BasicTypes.DATE_TYPE));
-
-      properties.add(propertyPrefixWithName);
-
+      LOGGER.debug("Adding temporal property: {}", name);
+      temporalProperties.add(name);
+      properties.add(name);
       return true;
     }
 
     if (qName != null
         && qName.getNamespaceURI().equals(gmlNamespace)
         && StringUtils.isNotEmpty(name)) {
-
-      LOGGER.debug("Adding geo property: {}", propertyPrefixWithName);
-      gmlProperties.add(propertyPrefixWithName);
-
-      boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1;
-      add(
-          new FeatureAttributeDescriptor(
-              propertyPrefixWithName,
-              name,
-              isQueryable(name) /* indexed */,
-              true /* stored */,
-              false /* tokenized */,
-              multiValued,
-              BasicTypes.GEO_TYPE));
-
-      properties.add(propertyPrefixWithName);
-
+      LOGGER.debug("Adding geo property: {}", name);
+      gmlProperties.add(name);
+      properties.add(name);
       return true;
     }
 
@@ -425,7 +373,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
     return null;
   }
 
-  private boolean isQueryable(String propertyName) {
+  public boolean isQueryable(String propertyName) {
     return !nonQueryableProperties.contains(propertyName);
   }
 

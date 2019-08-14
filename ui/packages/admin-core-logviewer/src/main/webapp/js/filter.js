@@ -40,7 +40,9 @@ export default (filters, logs) => {
   const regexps = fields.reduce((o, field) => {
     try {
       o[field] = new RegExp(filters[field], 'i')
-    } catch (e) {}
+    } catch (e) {
+      // do nothing
+    }
     return o
   }, {})
 

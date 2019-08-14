@@ -13,15 +13,6 @@
  *
  **/
 
-function getRandomColor() {
-  const letters = '789ABCD'
-  let color = '#'
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 6)]
-  }
-  return color
-}
-
 module.exports = {
   getNewGenerator() {
     const colors = [

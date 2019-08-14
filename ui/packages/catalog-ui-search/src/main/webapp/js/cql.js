@@ -561,7 +561,6 @@ function write(filter) {
         default:
           throw new Error('Unknown spatial filter type: ' + filter.type)
       }
-      break
     case logicalClass:
       if (filter.type === 'NOT') {
         // TODO: deal with precedence of logical operators to
@@ -580,7 +579,6 @@ function write(filter) {
         }
         return res + ')'
       }
-      break
     case comparisonClass:
       if (filter.type === 'IS NULL') {
         return `("${filter.property}" ${filter.type})`
@@ -602,7 +600,6 @@ function write(filter) {
           ? property + ' ' + filter.type + ' ' + write(filter.value)
           : property + ' ' + filter.type
       }
-      break
     case temporalClass:
       switch (filter.type) {
         case 'BEFORE':

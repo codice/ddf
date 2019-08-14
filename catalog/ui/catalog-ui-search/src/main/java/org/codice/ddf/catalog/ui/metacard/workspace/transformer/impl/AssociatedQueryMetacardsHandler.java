@@ -40,14 +40,13 @@ public class AssociatedQueryMetacardsHandler {
     this.catalogFramework = catalogFramework;
   }
 
-  public void create(List<String> existingQueryIds, List<Metacard> updatedQueryMetacards)
+  public void create(List<String> existingQueryIds, List<QueryMetacardImpl> updatedQueryMetacards)
       throws IngestException, SourceUnavailableException {
     List<Metacard> createMetacards =
         updatedQueryMetacards
             .stream()
             .filter(Objects::nonNull)
             .filter(query -> !existingQueryIds.contains(query.getId()))
-            .map(QueryMetacardImpl::new)
             .collect(Collectors.toList());
     if (!createMetacards.isEmpty()) {
       catalogFramework.create(new CreateRequestImpl(createMetacards));
@@ -70,7 +69,7 @@ public class AssociatedQueryMetacardsHandler {
   public void update(
       List<String> existingQueryIds,
       List<QueryMetacardImpl> existingQueryMetacards,
-      List<Metacard> updatedQueryMetacards)
+      List<QueryMetacardImpl> updatedQueryMetacards)
       throws IngestException, SourceUnavailableException {
     Map<String, QueryMetacardImpl> existingQueryMap =
         existingQueryMetacards
@@ -81,7 +80,6 @@ public class AssociatedQueryMetacardsHandler {
             .stream()
             .filter(query -> existingQueryIds.contains(query.getId()))
             .filter(query -> hasChanges(existingQueryMap.get(query.getId()), query))
-            .map(QueryMetacardImpl::new)
             .collect(Collectors.toList());
     if (!updateMetacards.isEmpty()) {
       String[] updateMetacardIds =

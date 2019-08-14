@@ -149,17 +149,6 @@ function registerComponent(
   )
 }
 
-function unMaximize(contentItem) {
-  if (contentItem.isMaximised) {
-    contentItem.toggleMaximize()
-    return true
-  } else if (contentItem.contentItems.length === 0) {
-    return false
-  } else {
-    return _.some(contentItem.contentItems, isMaximised)
-  }
-}
-
 function isMaximised(contentItem) {
   if (contentItem.isMaximised) {
     return true

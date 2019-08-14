@@ -20,7 +20,7 @@ const DropdownView = require('../dropdown.view')
 const template = require('./dropdown.result-sort.hbs')
 const user = require('../../singletons/user-instance.js')
 
-import ResultSort from '../../../react-component/container/result-sort'
+import ResultSort from '../../../react-component/result-sort'
 
 const ResultSortView = Marionette.LayoutView.extend({
   template() {

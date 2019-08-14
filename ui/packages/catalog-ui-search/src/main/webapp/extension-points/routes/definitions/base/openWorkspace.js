@@ -12,12 +12,13 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+// eslint-disable-next-line no-extra-semi
 ;({
   openWorkspace: {
     patterns: ['workspaces/:id'],
     component: 'component/content/content.view',
     menu: {
-      component: 'react-component/container/workspace-menu/workspace-menu',
+      component: 'react-component/workspace-menu/container',
     },
   },
 })

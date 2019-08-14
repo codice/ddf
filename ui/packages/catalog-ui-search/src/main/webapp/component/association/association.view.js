@@ -286,7 +286,6 @@ module.exports = Marionette.LayoutView.extend({
       .html(Common.escapeHTML(label))
   },
   updateRelationshipReadOnly() {
-    const currentMetacard = this.options.currentMetacard
     const currentRelation =
       this.model.get('relationship') === 'related'
         ? 'related to'

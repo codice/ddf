@@ -14,7 +14,7 @@
  **/
 
 import React from 'react'
-import { Sharing } from '../../react-component/container/sharing'
+import { Sharing } from '../../react-component/sharing'
 
 const Marionette = require('marionette')
 const template = require('./search-form-interactions.hbs')
@@ -147,7 +147,7 @@ module.exports = Marionette.ItemView.extend({
     user.savePreferences()
     this.messageNotifier(
       'Success',
-      `\"${this.model.get('title')}\" Saved As Default Query Form`,
+      `"${this.model.get('title')}" Saved As Default Query Form`,
       'success'
     )
   },
