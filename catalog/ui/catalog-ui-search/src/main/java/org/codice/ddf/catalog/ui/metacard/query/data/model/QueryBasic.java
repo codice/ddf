@@ -165,8 +165,7 @@ public class QueryBasic {
     metacard.setAttribute(new AttributeImpl(QUERY_ENTERPRISE, this.enterprise));
     metacard.setAttribute(new AttributeImpl(QUERY_SOURCES, (Serializable) this.sources));
 
-    List<String> sortFields =
-        this.sorts.stream().map(sort -> GSON.toJson(sort)).collect(Collectors.toList());
+    List<String> sortFields = getSortsField();
     metacard.setAttribute(new AttributeImpl(QUERY_SORTS, (Serializable) sortFields));
 
     metacard.setAttribute(new AttributeImpl(QUERY_POLLING, this.polling));
@@ -187,6 +186,13 @@ public class QueryBasic {
             Security.ACCESS_INDIVIDUALS_READ, (Serializable) this.accessIndividualsRead));
 
     return new QueryMetacardImpl(metacard);
+  }
+
+  private List<String> getSortsField() {
+    if (this.sorts == null) {
+      return Collections.emptyList();
+    }
+    return this.sorts.stream().map(GSON::toJson).collect(Collectors.toList());
   }
 
   public void setOwner(String owner) {
