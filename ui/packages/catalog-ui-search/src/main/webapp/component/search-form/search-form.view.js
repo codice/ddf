@@ -190,6 +190,14 @@ export default Marionette.LayoutView.extend({
   changeView() {
     // Don't allow users to edit system forms
     if (this.model.get('createdBy') === 'system') {
+      announcement.announce(
+        {
+          title: 'Error',
+          message: 'System Search forms are not editable.',
+          type: 'error',
+        },
+        3000
+      )
       return
     }
     const sharedAttributes = this.model.transformToQueryStructure()
