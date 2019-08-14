@@ -26,7 +26,7 @@ const AttributeEditorContainer = styled.div`
     width: 100%;
     overflow-y: scroll;
     background-color: ${props => props.theme.backgroundNavigation};
-
+    border-radius: 3px;
     intrigue-property {
         padding: 0;
     }

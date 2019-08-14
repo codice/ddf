@@ -16,7 +16,8 @@ import * as React from 'react'
 import styled from 'styled-components'
 import Text from '../../../react-component/input-wrappers/text'
 import Number from '../../../react-component/input-wrappers/text'
-
+import Date from '../../../react-component/input-wrappers/date'
+import Date from '../../../react-component/input-wrappers/'
 const InputContainer = styled.div`
     padding: 0px ${props => props.theme.minimumSpacing};
 `
@@ -29,12 +30,23 @@ class AttributeInput extends React.Component {
     getInputByType() {
         //TODO readonly
         switch(this.props.type){
-            case 'STRING':
-                return <Text label={this.props.id}></Text>
-            case 'NUMBER':
-                return <Number label={this.props.id}></Number>
-            default:
-                return <Text label={this.props.id}></Text>
+            case 'DATE':
+            return <Date/>
+        case 'TIME':
+            return <Date/>
+        case 'XML':
+        case 'BINARY':
+        case 'STRING':
+            return <Text label={this.props.id}></Text>
+        case 'LONG':
+        case 'DOUBLE':
+        case 'FLOAT':
+        case 'INTEGER':
+        case 'SHORT':
+        case 'TEXTAREA':
+            return <Number label={this.props.id}></Number>
+        default:
+            return <Text label={this.props.id}></Text>
         }
     }
 
