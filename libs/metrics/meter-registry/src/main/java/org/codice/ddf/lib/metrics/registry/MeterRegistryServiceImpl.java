@@ -17,7 +17,6 @@ import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class MeterRegistryServiceImpl implements MeterRegistryService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MeterRegistryService.class);

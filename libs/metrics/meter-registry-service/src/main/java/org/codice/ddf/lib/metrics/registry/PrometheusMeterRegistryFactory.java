@@ -18,6 +18,8 @@ import io.micrometer.prometheus.PrometheusMeterRegistry;
 
 public class PrometheusMeterRegistryFactory {
 
+  private PrometheusMeterRegistryFactory() {}
+
   public static PrometheusMeterRegistry createMeterRegistry() {
     return new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
   }

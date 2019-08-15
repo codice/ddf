@@ -18,7 +18,7 @@
 
     <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
 
-    <feature name="metrics-services" version="${project.version}" description="Support for metrics services">
+    <feature name="metrics-support" version="${project.version}" description="Support for metrics services">
         <feature>wrap</feature>
         <feature>cxf-jaxrs</feature>
         <bundle>wrap:mvn:io.micrometer/micrometer-core/${micrometer.version}</bundle>
