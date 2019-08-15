@@ -219,7 +219,7 @@ public class QueryMetacardApplication implements SparkApplication {
   }
 
   private Filter getQueryMetacardFilter() {
-    return filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(QUERY_TAG);
+    return filterBuilder.attribute(Core.METACARD_TAGS).is().equalTo().text(QUERY_TAG);
   }
 
   private Filter getFuzzyAttributeFilter(String attribute, String value) {
