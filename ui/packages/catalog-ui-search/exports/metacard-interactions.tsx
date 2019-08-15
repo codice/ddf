@@ -15,4 +15,5 @@
 export {
   default,
   Divider,
+  MetacardInteraction,
 } from '../src/main/webapp/react-component/metacard-interactions'
