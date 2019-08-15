@@ -13,13 +13,13 @@
  *
  **/
 import plugin from 'plugins/metacard-interactions'
-import CreateLocationSearch from '../../react-component/container/metacard-interactions/location-interaction'
-import ExpandMetacard from '../../react-component/container/metacard-interactions/expand-interaction'
-import BlacklistToggle from '../../react-component/container/metacard-interactions/hide-interaction'
-import DownloadProduct from '../../react-component/container/metacard-interactions/download-interaction'
-import ExportActions from '../../react-component/container/metacard-interactions/export-interaction'
-import AddToList from '../../react-component/container/metacard-interactions/add-to-list-interaction'
-import { Divider } from '../../react-component/presentation/metacard-interactions/metacard-interactions'
+import CreateLocationSearch from '../../react-component/metacard-interactions/location-interaction'
+import ExpandMetacard from '../../react-component/metacard-interactions/expand-interaction'
+import BlacklistToggle from '../../react-component/metacard-interactions/hide-interaction'
+import DownloadProduct from '../../react-component/metacard-interactions/download-interaction'
+import ExportActions from '../../react-component/metacard-interactions/export-interaction'
+import AddToList from '../../react-component/metacard-interactions/add-to-list-interaction'
+import { Divider } from '../../react-component/metacard-interactions/metacard-interactions'
 
 const DefaultItems = [
   AddToList,
