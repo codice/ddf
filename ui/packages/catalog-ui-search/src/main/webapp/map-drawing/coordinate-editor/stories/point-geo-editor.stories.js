@@ -23,19 +23,26 @@ import {
   number,
   boolean,
 } from '../../../react-component/storybook'
-import { makeEmptyGeometry } from '../../geometry'
-import { AllShapesEditorDialog } from '../'
-import { shapeList } from '../../storybook-helpers'
+import { makePointGeo } from '../../geometry'
+import { PointGeoEditor } from '../'
+import { coordinateUnitList } from '../../storybook-helpers'
 
 const stories = storiesOf(
-  'map-drawing/coordinate-editor/AllShapesEditorDialog',
+  'map-drawing/coordinate-editor/PointGeoEditor',
   module
 )
 
-const makeGeometry = shape => makeEmptyGeometry('id', shape)
-
-stories.add('basic', () => {
-  const shape = select('shape', shapeList, 'Polygon')
-  const geo = makeGeometry(shape)
-  return <AllShapesEditorDialog geo={geo} onOk={action('onOk')} shape={shape} />
+coordinateUnitList.forEach(coordinateUnit => {
+  stories.add(coordinateUnit, () => {
+    const lat = number('lat', 50)
+    const lon = number('lon', 50)
+    const geometry = makePointGeo('id', lat, lon)
+    return (
+      <PointGeoEditor
+        geo={geometry}
+        coordinateUnit={coordinateUnit}
+        onUpdateGeo={action('onUpdateGeo')}
+      />
+    )
+  })
 })

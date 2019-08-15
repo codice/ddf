@@ -12,7 +12,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import Map from './map'
-import { coordinateUnitList, lengthUnitList, shapeList } from './options-lists'
+import { KILOMETERS, METERS, MILES, NAUTICAL_MILES, YARDS } from '../geometry'
+import { LAT_LON, LAT_LON_DMS, USNG, UTM } from '../coordinate-editor'
 
-export { Map, coordinateUnitList, lengthUnitList, shapeList }
+const coordinateUnitList = [LAT_LON, LAT_LON_DMS, USNG, UTM]
+const lengthUnitList = [KILOMETERS, METERS, MILES, NAUTICAL_MILES, YARDS]
+const shapeList = ['Line', 'Polygon', 'Bounding Box', 'Point Radius', 'Point']
+
+export { coordinateUnitList, lengthUnitList, shapeList }

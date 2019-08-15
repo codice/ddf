@@ -12,9 +12,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+
 import * as React from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus, faMinus } from '@fortawesome/free-solid-svg-icons'
 import styled from 'styled-components'
-import { readableColor } from 'polished'
 import { CoordinateUnit } from '../units'
 import { LengthUnit } from '../../geometry'
 import PointEditor from '../container/point-editor'
@@ -24,18 +26,31 @@ import CoordinateValue from './coordinate-value'
 import * as Common from './common-styles'
 
 type Props = {
+  /** Buffer */
   buffer: number
+  /** Buffer unit of measure */
   bufferUnit: LengthUnit
+  /** Array of coordinates in lon/lat */
   coordinateList: [number, number][]
+  /** Coordinate unit */
   coordinateUnit: CoordinateUnit
+  /** Lattiude of current selected coordinate */
   lat: number
+  /** Longitude of current selected coordinate */
   lon: number
+  /** Sets buffer */
   setBuffer: (buffer: number) => void
+  /** Sets buffer unit of measure */
   setUnit: (unit: LengthUnit) => void
+  /** Sets coordinate at selected point */
   setCoordinate: (lat: number, lon: number) => void
+  /** Adds new coordinate at selected point */
   addCoordinate: () => void
+  /** Deletes coordiante from selected point */
   deleteCoordinate: () => void
+  /** Selects coordinate at index (should update selectedIndex) */
   selectCoordinate: (index: number) => void
+  /** Selected coordinate index */
   selectedIndex: number
 }
 
@@ -82,7 +97,6 @@ const Button = styled.div<{ onClick: () => void; title: string }>`
   margin: 0;
   opacity: ${props => props.theme.minimumOpacity};
   cursor: pointer;
-  color: ${props => readableColor(props.theme.primaryColor)};
   :hover {
     opacity: 1;
   }
@@ -124,10 +138,10 @@ const FlatCoordinateListEditor: React.SFC<Props> = ({
     </InputGroup>
     <ControlsGroup>
       <Button onClick={addCoordinate} title="Add New Coordinate">
-        <span className="fa fa-plus" />
+        <FontAwesomeIcon icon={faPlus} />
       </Button>
       <Button onClick={deleteCoordinate} title="Delete Coordinate">
-        <span className="fa fa-minus" />
+        <FontAwesomeIcon icon={faMinus} />
       </Button>
     </ControlsGroup>
     <List>

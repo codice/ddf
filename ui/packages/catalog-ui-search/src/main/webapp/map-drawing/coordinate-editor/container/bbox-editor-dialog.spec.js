@@ -16,7 +16,8 @@ import React from 'react'
 import { expect } from 'chai'
 import { shallow } from 'enzyme'
 import { LAT_LON, makeEmptyGeometry } from '../../geometry'
-import BBoxEditorDialog, {
+import {
+  BBoxEditorDialog,
   updateGeoWithExtentBBox,
   finalizeGeo,
 } from './bbox-editor-dialog'

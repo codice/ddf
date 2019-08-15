@@ -12,29 +12,35 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import {
-  CircleEditor,
-  FixedHeightPointEditor,
-} from './presentation/point-circle-editor'
 import AllShapesEditorDialog from './container/all-shapes-editor-dialog'
-import BBoxEditor from './container/bbox-editor'
-import BBoxEditorDialog from './container/bbox-editor-dialog'
-import CircleEditorDialog from './container/circle-editor-dialog'
-import LineEditorDialog from './container/line-editor-dialog'
-import PointEditorDialog from './container/point-editor-dialog'
-import PolygonEditorDialog from './container/polygon-editor-dialog'
+import { BBoxEditorDialog, BBoxGeoEditor } from './container/bbox-editor-dialog'
+import {
+  CircleEditorDialog,
+  CircleGeoEditor,
+} from './container/circle-editor-dialog'
+import { LineGeoEditor, LineEditorDialog } from './container/line-editor-dialog'
+import {
+  PointEditorDialog,
+  PointGeoEditor,
+} from './container/point-editor-dialog'
+import {
+  PolygonGeoEditor,
+  PolygonEditorDialog,
+} from './container/polygon-editor-dialog'
 import { CoordinateUnit, LAT_LON_DMS, LAT_LON, USNG, UTM } from './units'
 
 export {
   AllShapesEditorDialog,
-  BBoxEditor,
+  BBoxGeoEditor,
   BBoxEditorDialog,
-  CircleEditor,
+  CircleGeoEditor,
   CircleEditorDialog,
-  FixedHeightPointEditor as PointEditor,
   LineEditorDialog,
+  LineGeoEditor,
+  PointGeoEditor,
   PointEditorDialog,
   PolygonEditorDialog,
+  PolygonGeoEditor,
   CoordinateUnit,
   LAT_LON_DMS,
   LAT_LON,

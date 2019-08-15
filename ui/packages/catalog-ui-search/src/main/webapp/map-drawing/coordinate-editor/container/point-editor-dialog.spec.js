@@ -16,7 +16,7 @@ import React from 'react'
 import { expect } from 'chai'
 import { shallow } from 'enzyme'
 import { LAT_LON, makeEmptyGeometry } from '../../geometry'
-import PointEditorDialog from './point-editor-dialog'
+import { PointEditorDialog } from './point-editor-dialog'
 
 describe('<PointEditorDialog />', () => {
   it('render', () => {

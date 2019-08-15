@@ -27,9 +27,13 @@ import { HTMLAttributes } from '../../../react-component/html'
 import { Dropshadow } from '../../../react-component/styles/mixins'
 
 type Props = HTMLAttributes & {
+  /** Called when ok button is clicked */
   onOk: () => void
+  /** Called when unit changes (should set unit) */
   setUnit: (unit: CoordinateUnit) => void
+  /** Children nodes to display in dialog */
   children: React.ReactNode
+  /** Coordinate unit to display */
   unit: CoordinateUnit
 }
 

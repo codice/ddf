@@ -67,8 +67,10 @@ class BBoxGeoEditor extends React.Component<Props> {
   }
 }
 
-const Dialog = geoEditorToDialog(BBoxGeoEditor, 'Bounding Box', finalizeGeo)
+const BBoxEditorDialog = geoEditorToDialog(
+  BBoxGeoEditor,
+  'Bounding Box',
+  finalizeGeo
+)
 
-export default Dialog
-
-export { updateGeoWithExtentBBox, finalizeGeo }
+export { BBoxGeoEditor, BBoxEditorDialog, updateGeoWithExtentBBox, finalizeGeo }

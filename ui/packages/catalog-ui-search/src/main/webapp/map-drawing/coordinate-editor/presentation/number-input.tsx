@@ -16,10 +16,15 @@ import * as React from 'react'
 import { HTMLAttributes } from '../../../react-component/html'
 
 type Props = HTMLAttributes & {
+  /** Numeric value */
   value: number | null
+  /** Maximum allowed value */
   maxValue?: number
+  /** Minimum allowed value */
   minValue?: number
+  /** Number of displayed decimal places */
   decimalPlaces?: number
+  /** Called on change */
   onChange: (value: number) => void
 }
 

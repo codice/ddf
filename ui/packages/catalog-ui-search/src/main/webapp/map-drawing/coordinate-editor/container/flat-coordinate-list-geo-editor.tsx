@@ -30,7 +30,9 @@ type State = {
 type Coordinates = [number, number][]
 
 type Props = GeoEditorProps & {
+  /** Gets coordinates from Geometry JSON */
   getCoordinatesFromGeo: (geo: GeometryJSON) => Coordinates
+  /** Returns Geometry JSON updated with new coordinates */
   updateGeoCoordinates: (
     geo: GeometryJSON,
     coordinates: Coordinates

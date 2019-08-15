@@ -50,6 +50,10 @@ const PolygonGeoEditor: React.SFC<GeoEditorProps> = props => (
   />
 )
 
-const Dialog = geoEditorToDialog(PolygonGeoEditor, 'Polygon', finalizeGeo)
+const PolygonEditorDialog = geoEditorToDialog(
+  PolygonGeoEditor,
+  'Polygon',
+  finalizeGeo
+)
 
-export default Dialog
+export { PolygonGeoEditor, PolygonEditorDialog }

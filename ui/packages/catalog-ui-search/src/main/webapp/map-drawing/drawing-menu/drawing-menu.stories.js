@@ -24,7 +24,7 @@ import {
   boolean,
 } from '../../react-component/storybook'
 import { makeEmptyGeometry } from '../geometry'
-import { Map } from '../storybook-helpers'
+import { Map, shapeList } from '../storybook-helpers'
 import DrawingMenu from './drawing-menu'
 import styled from 'styled-components'
 
@@ -65,12 +65,10 @@ stories.add('full featured', () => {
   const title = text('title', 'Untitled')
   const saveAndContinue = boolean('saveAndContinue', false)
   const isActive = boolean('isActive', true)
+  const showCoordinateEditor = boolean('showCoordinateEditor', false)
   const id = 'someID'
   const color = text('color', '#0000FF')
-  const shape = text(
-    'shape (Line/Polygon/Bounding Box/Point Radius/Point)',
-    'Polygon'
-  )
+  const shape = select('shape', shapeList, 'Polygon')
   const geometry = makeEmptyGeometry(id, shape, {
     color,
   })
@@ -80,7 +78,7 @@ stories.add('full featured', () => {
         shape={shape}
         map={map}
         isActive={isActive}
-        showCoordinateEditor={action('showCoordinateEditor')}
+        showCoordinateEditor={showCoordinateEditor}
         saveAndContinue={saveAndContinue}
         title={title}
         geometry={geometry}
@@ -113,10 +111,7 @@ stories.add('simplified', () => {
   const isActive = boolean('isActive', true)
   const id = 'someID'
   const color = text('color', '#0000FF')
-  const shape = text(
-    'shape (Line/Polygon/Bounding Box/Point Radius/Point)',
-    'Polygon'
-  )
+  const shape = select('shape', shapeList, 'Polygon')
   const geometry = makeEmptyGeometry(id, shape, {
     id,
     color,
@@ -156,7 +151,7 @@ stories.add('minimal', () => {
   const isActive = boolean('isActive', true)
   const id = 'someID'
   const color = text('color', '#0000FF')
-  const shape = text('shape (Line/Polygon)', 'Polygon')
+  const shape = select('shape', ['Line', 'Polygon'], 'Polygon')
   const geometry = makeEmptyGeometry(id, shape, {
     id,
     color,

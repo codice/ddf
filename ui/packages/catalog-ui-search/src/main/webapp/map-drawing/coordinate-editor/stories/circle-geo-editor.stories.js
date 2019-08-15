@@ -23,28 +23,27 @@ import {
   number,
   boolean,
 } from '../../../react-component/storybook'
-import { makeEmptyGeometry } from '../../geometry'
-import { CircleEditor } from '../'
-import { coordinateUnitList, lengthUnitKnob } from '../../storybook-helpers'
+import { makePointRadiusGeo, METERS } from '../../geometry'
+import { CircleGeoEditor } from '../'
+import { coordinateUnitList, lengthUnitList } from '../../storybook-helpers'
 
-const stories = storiesOf('map-drawing/coordinate-editor/CircleEditor', module)
+const stories = storiesOf(
+  'map-drawing/coordinate-editor/CircleGeoEditor',
+  module
+)
 
 coordinateUnitList.forEach(coordinateUnit => {
   stories.add(coordinateUnit, () => {
-    const lat = number('lat', 0)
-    const lon = number('lon', 0)
-    const radius = number('radius', 1)
-    const radiusUnit = lengthUnitKnob()
+    const lat = number('lat', 50)
+    const lon = number('lon', 50)
+    const radius = number('radius', 10)
+    const radiusUnit = select('radius unit', lengthUnitList, METERS)
+    const geometry = makePointRadiusGeo('id', lat, lon, radius, radiusUnit)
     return (
-      <CircleEditor
+      <CircleGeoEditor
+        geo={geometry}
         coordinateUnit={coordinateUnit}
-        lat={lat}
-        lon={lon}
-        radius={radius}
-        radiusUnit={radiusUnit}
-        setRadius={action('setRadius')}
-        setRadiusUnit={action('setRadiusUnit')}
-        setCoordinate={action('setCoordinate')}
+        onUpdateGeo={action('onUpdateGeo')}
       />
     )
   })

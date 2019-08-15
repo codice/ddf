@@ -54,6 +54,10 @@ class CircleGeoEditor extends React.Component<Props> {
   }
 }
 
-const Dialog = geoEditorToDialog(CircleGeoEditor, 'Point Radius', finalizeGeo)
+const CircleEditorDialog = geoEditorToDialog(
+  CircleGeoEditor,
+  'Point Radius',
+  finalizeGeo
+)
 
-export default Dialog
+export { CircleEditorDialog, CircleGeoEditor }

@@ -16,7 +16,7 @@ import React from 'react'
 import { expect } from 'chai'
 import { shallow } from 'enzyme'
 import { makeEmptyGeometry } from '../../geometry'
-import LineEditorDialog from './line-editor-dialog'
+import { LineEditorDialog } from './line-editor-dialog'
 
 describe('<LineEditorDialog />', () => {
   it('render', () => {

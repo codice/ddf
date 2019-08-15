@@ -45,6 +45,6 @@ const LineGeoEditor: React.SFC<GeoEditorProps> = props => (
     }}
   />
 )
-const Dialog = geoEditorToDialog(LineGeoEditor, 'Line', finalizeGeo)
+const LineEditorDialog = geoEditorToDialog(LineGeoEditor, 'Line', finalizeGeo)
 
-export default Dialog
+export { LineGeoEditor, LineEditorDialog }

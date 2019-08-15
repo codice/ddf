@@ -19,7 +19,9 @@ import NumberInput from './number-input'
 import * as Common from './common-styles'
 
 type BaseProps = {
+  /** DMS value */
   value: DMS
+  /** Called on change */
   setValue: (value: DMS) => void
 }
 

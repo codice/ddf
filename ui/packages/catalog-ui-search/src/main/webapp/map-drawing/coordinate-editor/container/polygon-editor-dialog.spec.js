@@ -16,7 +16,7 @@ import React from 'react'
 import { expect } from 'chai'
 import { shallow } from 'enzyme'
 import { makeEmptyGeometry } from '../../geometry'
-import PolygonEditorDialog from './polygon-editor-dialog'
+import { PolygonEditorDialog } from './polygon-editor-dialog'
 
 describe('<PolygonEditorDialog />', () => {
   let startGeo

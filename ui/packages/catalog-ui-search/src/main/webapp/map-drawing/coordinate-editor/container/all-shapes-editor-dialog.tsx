@@ -15,13 +15,14 @@
 import * as React from 'react'
 import { Shape } from '../../shape-utils'
 import { GeoEditorDialogProps } from './geo-editor-to-dialog'
-import BBoxEditorDialog from './bbox-editor-dialog'
-import CircleEditorDialog from './circle-editor-dialog'
-import LineEditorDialog from './line-editor-dialog'
-import PointEditorDialog from './point-editor-dialog'
-import PolygonEditorDialog from './polygon-editor-dialog'
+import { BBoxEditorDialog } from './bbox-editor-dialog'
+import { CircleEditorDialog } from './circle-editor-dialog'
+import { LineEditorDialog } from './line-editor-dialog'
+import { PointEditorDialog } from './point-editor-dialog'
+import { PolygonEditorDialog } from './polygon-editor-dialog'
 
 type Props = GeoEditorDialogProps & {
+  /** Geometry shape */
   shape: Shape
 }
 

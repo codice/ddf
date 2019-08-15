@@ -19,7 +19,9 @@ import NumberInput from './number-input'
 import { DECIMAL_DEGREES_PRECISION } from '../coordinate-converter'
 
 type Props = HTMLAttributes & {
+  /** Decimal value */
   value: number
+  /** Called on change */
   onChange: (value: number) => void
 }
 const DegreeInput = styled(NumberInput)`

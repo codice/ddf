@@ -12,7 +12,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import Map from './map'
-import { coordinateUnitList, lengthUnitList, shapeList } from './options-lists'
+const decodeHtml = (html: string): string => {
+  const textarea = document.createElement('textarea')
+  textarea.innerHTML = html
+  return textarea.value
+}
 
-export { Map, coordinateUnitList, lengthUnitList, shapeList }
+const encodeHtml = (text: string): string => {
+  const textarea = document.createElement('textarea')
+  textarea.value = text
+  return textarea.innerHTML
+}
+
+export { decodeHtml, encodeHtml }

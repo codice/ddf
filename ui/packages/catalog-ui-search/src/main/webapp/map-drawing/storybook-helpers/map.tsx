@@ -34,10 +34,13 @@ const Root = styled.div`
 `
 const MapContainer = styled.div`
   display: flex;
-  width: 300px;
-  height: 150px;
   margin: 0;
   padding: 0;
+`
+
+const MapDiv = styled.div`
+  width: 900px;
+  height: 500px;
 `
 
 const renderChildren = (
@@ -85,7 +88,7 @@ class Map extends React.Component<Props, State> {
       <Root>
         {map === null ? null : renderChildren(children, map)}
         <MapContainer>
-          <div id={id} className="map" ref="olmap" />
+          <MapDiv id={id} className="map" ref="olmap" />
         </MapContainer>
       </Root>
     )

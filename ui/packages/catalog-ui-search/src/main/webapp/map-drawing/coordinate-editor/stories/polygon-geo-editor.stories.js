@@ -23,22 +23,42 @@ import {
   number,
   boolean,
 } from '../../../react-component/storybook'
-import { makeEmptyGeometry } from '../../geometry'
-import { PointEditor } from '../'
-import { coordinateUnitList } from '../../storybook-helpers'
+import { makePolygonGeo, METERS } from '../../geometry'
+import { PolygonGeoEditor } from '../'
+import { coordinateUnitList, lengthUnitList } from '../../storybook-helpers'
 
-const stories = storiesOf('map-drawing/coordinate-editor/PointEditor', module)
+const stories = storiesOf(
+  'map-drawing/coordinate-editor/PolygonGeoEditor',
+  module
+)
 
 coordinateUnitList.forEach(coordinateUnit => {
   stories.add(coordinateUnit, () => {
-    const lat = number('lat', 0)
-    const lon = number('lon', 0)
+    const coordinatesText = text(
+      'coordinates',
+      `
+      [
+        [10, 15],
+        [10.5, 15.8],
+        [11, 16],
+        [10, 14.925]
+      ]
+    `
+    )
+    let coordinates = [[10, 15], [10.5, 15.8], [11, 16], [10, 14.925]]
+    try {
+      coordinates = JSON.parse(coordinatesText)
+    } catch (e) {
+      console.log(e)
+    }
+    const buffer = number('buffer', 0)
+    const bufferUnit = select('buffer unit', lengthUnitList, METERS)
+    const geometry = makePolygonGeo('id', coordinates, buffer, bufferUnit)
     return (
-      <PointEditor
+      <PolygonGeoEditor
+        geo={geometry}
         coordinateUnit={coordinateUnit}
-        lat={lat}
-        lon={lon}
-        setCoordinate={action('setCoordinate')}
+        onUpdateGeo={action('onUpdateGeo')}
       />
     )
   })

@@ -28,4 +28,5 @@ export {
   text,
   number,
   boolean,
+  select,
 } from '@connexta/ace/@storybook/addon-knobs'

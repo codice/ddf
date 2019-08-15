@@ -23,17 +23,22 @@ import {
   number,
   boolean,
 } from '../../../react-component/storybook'
-import { makeEmptyGeometry } from '../../geometry'
-import { BBoxEditor } from '../'
+import { makeBBoxGeo } from '../../geometry'
+import { BBoxGeoEditor } from '../'
 import { coordinateUnitList } from '../../storybook-helpers'
 
-const stories = storiesOf('map-drawing/coordinate-editor/BBoxEditor', module)
+const stories = storiesOf('map-drawing/coordinate-editor/BBoxGeoEditor', module)
 
-coordinateUnitList.forEach(unit => {
-  stories.add(unit, () => {
-    const extent = array('extent (4 numbers)', [0, 0, 50, 50])
+coordinateUnitList.forEach(coordinateUnit => {
+  stories.add(coordinateUnit, () => {
+    const extent = array('extent', [10, 5, 50, 55])
+    const geometry = makeBBoxGeo('id', extent)
     return (
-      <BBoxEditor setExtent={action('setExtent')} extent={extent} unit={unit} />
+      <BBoxGeoEditor
+        geo={geometry}
+        coordinateUnit={coordinateUnit}
+        onUpdateGeo={action('onUpdateGeo')}
+      />
     )
   })
 })

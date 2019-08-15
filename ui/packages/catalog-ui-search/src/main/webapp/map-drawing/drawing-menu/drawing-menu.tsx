@@ -14,6 +14,8 @@
  **/
 import * as React from 'react'
 import * as ol from 'openlayers'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faThList } from '@fortawesome/free-solid-svg-icons'
 import styled from 'styled-components'
 import {
   Button,
@@ -40,21 +42,37 @@ import PointIcon from './icons/point'
 import { GeometryJSON } from '../geometry'
 
 type Props = HTMLAttributes & {
+  /** Geometry Shape to draw */
   shape: Shape | null
+  /** Open Layers Map to draw on */
   map: ol.Map
+  /** True if the draw menu should be displayed */
   isActive: boolean
+  /** True if the coordinate editor popup should be displayed */
   showCoordinateEditor?: boolean
+  /** True if the Apply button should be replaced with a Save & Continue button */
   saveAndContinue?: boolean
+  /** Title of Geometry being edited */
   title?: string
+  /** Geometry JSON to edit */
   geometry: GeometryJSON | null
+  /** Called when show coordinate editor button is clicked (should set `showCoordinateEditor` flag) */
   toggleCoordinateEditor?: () => void
+  /** Called when cancel button is clicked */
   onCancel: () => void
+  /** Called when ok button is clicked */
   onOk: () => void
+  /** Called when the shape changes (should set `shape`) */
   onSetShape: (shape: string) => void
+  /** Called when the Geometry JSON is updated */
   onUpdate: UpdatedGeoReceiver
+  /** List of shapes to hide from menu */
   disabledShapes?: Shape[]
+  /** Displayed projection on Open Layers Map */
   mapProjection: string
+  /** Projection for coordinates returned to users */
   userProjection: string
+  /** Style to apply to geometries drawn on the map */
   mapStyle: ol.StyleFunction | ol.style.Style | ol.style.Style[]
 }
 
@@ -217,6 +235,16 @@ class DrawingMenu extends React.Component<Props> {
     return false
   }
 
+  componentDidMount() {
+    if (this.props.isActive && !this.props.showCoordinateEditor) {
+      this.drawShape()
+    }
+  }
+
+  componentWillUnmount() {
+    this.cancelShapeDrawing()
+  }
+
   componentDidUpdate(prevProps: Props) {
     if (prevProps.shape !== this.props.shape) {
       this.cancelShapeDrawing()
@@ -301,7 +329,7 @@ class DrawingMenu extends React.Component<Props> {
               onClick={toggleCoordinateEditor}
               title="Edit Coordinates"
             >
-              <span className="fa fa-th-list" />
+              <FontAwesomeIcon icon={faThList} color="white" />
             </SelectableButton>
           </ToolMenu>
         )}

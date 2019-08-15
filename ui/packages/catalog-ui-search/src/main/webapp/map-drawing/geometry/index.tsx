@@ -12,32 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import {
-  GeometryJSON,
-  GeometryJSONProperties,
-  Geometry,
-  BufferShape,
-  Extent,
-  BUFFER_SHAPE_PROPERTY,
-  CIRCLE_BUFFER,
-  POLYGON_LINE_BUFFER,
-} from './geometry'
-import {
-  bboxToExtent,
-  geoToExtent,
-  makeGeometry,
-  makeBufferedGeo,
-  makeEmptyGeometry,
-} from './utilities'
-import {
-  LengthUnit,
-  KILOMETERS,
-  METERS,
-  MILES,
-  NAUTICAL_MILES,
-  YARDS,
-} from './units'
-
 export {
   GeometryJSON,
   GeometryJSONProperties,
@@ -47,15 +21,26 @@ export {
   BUFFER_SHAPE_PROPERTY,
   CIRCLE_BUFFER,
   POLYGON_LINE_BUFFER,
+} from './geometry'
+export {
   bboxToExtent,
   geoToExtent,
   makeGeometry,
   makeBufferedGeo,
   makeEmptyGeometry,
+} from './utilities'
+export {
   LengthUnit,
   KILOMETERS,
   METERS,
   MILES,
   NAUTICAL_MILES,
   YARDS,
-}
+} from './units'
+export {
+  makeBBoxGeo,
+  makeLineGeo,
+  makePointGeo,
+  makePointRadiusGeo,
+  makePolygonGeo,
+} from './shape-factory'

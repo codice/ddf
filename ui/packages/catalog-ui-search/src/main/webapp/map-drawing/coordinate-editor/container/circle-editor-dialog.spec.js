@@ -16,7 +16,7 @@ import React from 'react'
 import { expect } from 'chai'
 import { shallow } from 'enzyme'
 import { LAT_LON, makeEmptyGeometry } from '../../geometry'
-import CircleEditorDialog from './circle-editor-dialog'
+import { CircleEditorDialog } from './circle-editor-dialog'
 
 describe('<CircleEditorDialog />', () => {
   it('render', () => {

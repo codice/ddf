@@ -21,6 +21,7 @@ import UTMPointEditor from '../presentation/utm-point-editor'
 import EditorProps from '../point-editor-props'
 
 type Props = EditorProps & {
+  /** Coordinate Unit to display */
   unit: Units.CoordinateUnit
 }
 

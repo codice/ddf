@@ -1,3 +1,4 @@
-import HTMLAttributes from './html-attributes'
+import HTMLAttributes from './attributes'
+import { encodeHtml, decodeHtml } from './entities'
 
-export { HTMLAttributes }
+export { HTMLAttributes, encodeHtml, decodeHtml }

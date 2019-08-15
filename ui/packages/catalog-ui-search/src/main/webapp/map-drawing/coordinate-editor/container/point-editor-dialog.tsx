@@ -42,6 +42,10 @@ class PointGeoEditor extends React.Component<Props> {
   }
 }
 
-const Dialog = geoEditorToDialog(PointGeoEditor, 'Point', finalizeGeo)
+const PointEditorDialog = geoEditorToDialog(
+  PointGeoEditor,
+  'Point',
+  finalizeGeo
+)
 
-export default Dialog
+export { PointGeoEditor, PointEditorDialog }

@@ -26,8 +26,11 @@ import {
 import * as Common from './common-styles'
 
 type Props = {
+  /** Lattitude */
   lat: number
+  /** Longitude */
   lon: number
+  /** Coordinate unit */
   unit: CoordinateUnit
 }
 

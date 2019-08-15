@@ -18,7 +18,9 @@ import { HTMLAttributes } from '../../../react-component/html'
 import { Converter } from 'usng.js'
 
 type Props = HTMLAttributes & {
+  /** USNG string */
   value: string
+  /** Called on change */
   onChange: (value: string) => void
 }
 
