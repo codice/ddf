@@ -6,6 +6,7 @@
   "license": "LGPL-3.0",
   "scripts": {
     "fmt": "ace format -w",
+    "format": "ace format",
     "prestart": "ace disable-idp",
     "start": "node --max_old_space_size=8192 ../../node_modules/@connexta/ace/bin.js start",
     "pretest": "ace bundle --env=test",
