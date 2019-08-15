@@ -268,7 +268,6 @@
         <feature>security-core-api</feature>
         <bundle>mvn:ddf.security.sts/security-sts-x509validator/${project.version}</bundle>
         <feature>parser-xml</feature>
-        <bundle>mvn:ddf.security.sts/security-sts-usernametokenvalidator/${project.version}</bundle>
     </feature>
 
     <feature name="security-sts-realm" version="${project.version}"
