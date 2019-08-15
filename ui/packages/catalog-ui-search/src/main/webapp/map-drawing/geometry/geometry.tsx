@@ -61,8 +61,8 @@ const DEFAULT_GEOMETRY: { [shape in Shape]: Geometry } = {
   },
   Point: DEFAULT_POINT,
 }
-const CIRCLE_BUFFER = 'circle'
-const POLYGON_LINE_BUFFER = 'polygon/line'
+const CIRCLE_BUFFER_PROPERTY_VALUE = 'circle'
+const POLYGON_LINE_BUFFER_PROPERTY_VALUE = 'polygon/line'
 const BUFFER_SHAPE_PROPERTY = 'bufferShape'
 type BufferShape = 'circle' | 'polygon/line'
 
@@ -73,8 +73,8 @@ export {
   BufferShape,
   Extent,
   BUFFER_SHAPE_PROPERTY,
-  CIRCLE_BUFFER,
+  CIRCLE_BUFFER_PROPERTY_VALUE,
   DEFAULT_GEOMETRY,
   DEFAULT_PROPERTIES,
-  POLYGON_LINE_BUFFER,
+  POLYGON_LINE_BUFFER_PROPERTY_VALUE,
 }

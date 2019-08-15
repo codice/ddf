@@ -133,6 +133,13 @@ abstract class BasicDrawingControl implements DrawingControl {
   isDrawing(): boolean {
     return this.drawingActive
   }
+
+  isEmptyFeature(feature: ol.Feature): boolean {
+    return feature
+      .getGeometry()
+      .getExtent()
+      .every(value => value <= Number.MIN_VALUE && value >= -Number.MIN_VALUE)
+  }
 }
 
 export default BasicDrawingControl

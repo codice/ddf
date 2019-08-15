@@ -80,8 +80,10 @@ abstract class ModifiableDrawingControl extends BasicDrawingControl {
     this.setProperties((geoJSON as GeometryJSON).properties || {})
     const feature = this.makeFeature(geoJSON)
     this.applyPropertiesToFeature(feature)
-    this.context.updateFeature(feature)
-    this.context.updateBufferFeature(feature)
+    if (!this.isEmptyFeature(feature)) {
+      this.context.updateFeature(feature)
+      this.context.updateBufferFeature(feature)
+    }
     const draw = new ol.interaction.Draw({
       type: this.getGeoType(),
       style: this.getStaticStyle(feature),

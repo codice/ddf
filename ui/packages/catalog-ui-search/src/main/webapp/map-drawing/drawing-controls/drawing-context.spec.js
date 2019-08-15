@@ -16,6 +16,7 @@ import * as ol from 'openlayers'
 import { expect } from 'chai'
 import MockMap from './test/mock-map'
 import DrawingContext from './drawing-context'
+import { makeEmptyGeometry } from '../geometry'
 
 const DRAW_LAYER_INDEX = 1
 const BUFFER_LAYER_INDEX = 0

@@ -37,7 +37,7 @@ const MenuContainer = styled.div`
   height: 45px;
 `
 
-const MAP_PROJECTION = 'EPSG:3857'
+const MAP_PROJECTION = 'EPSG:4326'
 const USER_PROJECTION = 'EPSG:4326'
 const STYLE = (feature: ol.Feature): ol.style.Style =>
   new ol.style.Style({

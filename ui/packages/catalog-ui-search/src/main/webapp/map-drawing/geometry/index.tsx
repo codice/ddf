@@ -19,8 +19,8 @@ export {
   BufferShape,
   Extent,
   BUFFER_SHAPE_PROPERTY,
-  CIRCLE_BUFFER,
-  POLYGON_LINE_BUFFER,
+  CIRCLE_BUFFER_PROPERTY_VALUE,
+  POLYGON_LINE_BUFFER_PROPERTY_VALUE,
 } from './geometry'
 export {
   bboxToExtent,

@@ -21,10 +21,10 @@ import {
   Geometry,
   Extent,
   BUFFER_SHAPE_PROPERTY,
-  CIRCLE_BUFFER,
+  CIRCLE_BUFFER_PROPERTY_VALUE,
   DEFAULT_GEOMETRY,
   DEFAULT_PROPERTIES,
-  POLYGON_LINE_BUFFER,
+  POLYGON_LINE_BUFFER_PROPERTY_VALUE,
 } from './geometry'
 
 const DistanceUtils = require('../../js/DistanceUtils.js')
@@ -67,7 +67,7 @@ const makeEmptyGeometry = (
     ...initialProperties,
     shape,
     id,
-    buffer: shape === 'Point Radius' ? 1 : 0,
+    buffer: shape === 'Point Radius' ? Number.MIN_VALUE : 0,
     bufferUnit: METERS,
   },
   bbox: [0, 0, 0, 0],
@@ -102,7 +102,9 @@ const makeBufferedGeo = (geo: GeometryJSON): GeometryJSON => {
     )
     if (bufferedGeo && bufferedGeo.properties) {
       bufferedGeo.properties[BUFFER_SHAPE_PROPERTY] =
-        geo.geometry.type === 'Point' ? CIRCLE_BUFFER : POLYGON_LINE_BUFFER
+        geo.geometry.type === 'Point'
+          ? CIRCLE_BUFFER_PROPERTY_VALUE
+          : POLYGON_LINE_BUFFER_PROPERTY_VALUE
     }
     return bufferedGeo as GeometryJSON
   }

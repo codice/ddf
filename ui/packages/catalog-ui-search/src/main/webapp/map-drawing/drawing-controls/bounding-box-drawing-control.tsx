@@ -63,8 +63,10 @@ class BoundingBoxDrawingControl extends BasicDrawingControl {
       extent: feature.getGeometry().getExtent(),
     })
     this.applyPropertiesToFeature(feature)
-    this.context.updateFeature(feature)
-    this.context.updateBufferFeature(feature)
+    if (!this.isEmptyFeature(feature)) {
+      this.context.updateFeature(feature)
+      this.context.updateBufferFeature(feature)
+    }
     this.context.setDrawInteraction(draw)
     this.context.setEvent('draw', 'extentchanged', this.extentChanged)
     this.context.addInteractionsWithoutModify()
