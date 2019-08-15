@@ -12,18 +12,18 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
 import * as React from 'react'
 import TableExportComponent from './presentation'
 import { exportResultSet } from '../utils/export'
 import LoadingCompanion from '../loading-companion'
 import saveFile from '../utils/save-file'
 import { hot } from 'react-hot-loader'
+const _ = require('underscore')
 const user = require('../../component/singletons/user-instance.js')
 const properties = require('../../js/properties.js')
 const announcement = require('../../component/announcement/index.jsx')
+const Sources = require('../../component/singletons/sources-instance.js')
 const contentDisposition = require('content-disposition')
-
 function buildCqlQueryFromMetacards(metacards: any) {
   const queryParts = metacards.map((metacard: any) => {
     return `(("id" ILIKE '${metacard.metacard.id}'))`
@@ -41,7 +41,10 @@ function getCqlForSize(exportSize: string, selectionInterface: any) {
     ? visibleData(selectionInterface)
     : allData(selectionInterface)
 }
-
+function getSrcs(selectionInterface: any) {
+  const srcs = selectionInterface.getCurrentQuery().get('src')
+  return srcs === undefined ? _.pluck(Sources.toJSON(), 'id') : srcs
+}
 function getColumnOrder(): string[] {
   return user
     .get('user')
@@ -114,7 +117,6 @@ function getWarning(exportCountInfo: ExportCountInfo): string {
   return warningMessage
 }
 type Props = {
-  getSrcs: (selectionInterface: any) => string[]
   selectionInterface: () => void
   exportFormats: Option[]
 }
@@ -178,7 +180,7 @@ export default hot(module)(
     onDownloadClick = async () => {
       const exportFormat = encodeURIComponent(this.state.exportFormat)
       const { exportSize, customExportCount } = this.state
-      const { getSrcs, selectionInterface } = this.props
+      const { selectionInterface } = this.props
       try {
         const hiddenFields = getHiddenFields()
         const columnOrder = getColumnOrder()

@@ -57,7 +57,8 @@ export const getExportResult = (result: any) => {
 }
 
 export const getExportOptions = async (type: Transformer) => {
-  return await fetch(`./internal/transformers/${type}`)
+  const response = await fetch(`./internal/transformers/${type}`)
+  return await response.json()
 }
 
 export const exportResult = async (
