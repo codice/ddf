@@ -52,7 +52,6 @@ public class ConfigurationFileProxy {
               "schema.xml",
               "solr.xml",
               "solrconfig.xml",
-              "solrconfig-inmemory.xml",
               "stopwords.txt",
               "stopwords_en.txt",
               "synonyms.txt"));
