@@ -17,12 +17,14 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.types.ContactAttributes;
 import ddf.catalog.data.impl.types.CoreAttributes;
@@ -32,9 +34,8 @@ import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.ValidationAttributes;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,13 +43,12 @@ import javax.xml.namespace.QName;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.MetacardTypeEnhancer;
 import org.junit.Test;
 
 public class FeatureMetacardTypeTest {
 
   private static final QName FEATURE_TYPE = new QName("", "FeatureTypeName");
-
-  private static final String PROPERTY_PREFIX = FEATURE_TYPE.getLocalPart() + ".";
 
   private static final String GML_3_1_1_NAMESPACE = "http://www.opengis.net/gml";
 
@@ -60,9 +60,7 @@ public class FeatureMetacardTypeTest {
 
   private static final String ELEMENT_NAME_3 = ELEMENT_NAME + "3";
 
-  private static final String EXT_PREFIX = "ext.";
-
-  private static final List<String> EMPTY_NON_QUERYABLE_PROPS = Collections.emptyList();
+  private static final Set<String> EMPTY_NON_QUERYABLE_PROPS = Collections.emptySet();
 
   private XmlSchema schema;
 
@@ -74,14 +72,8 @@ public class FeatureMetacardTypeTest {
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
 
-    assertThat(
-        featureMetacardType.getGmlProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME1")));
-    assertThat(
-        featureMetacardType.getProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME1")));
-
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.GEO_TYPE);
+    assertThat(featureMetacardType.getGmlProperties(), is(singletonList(ELEMENT_NAME_1)));
+    assertThat(featureMetacardType.getProperties(), is(singletonList(ELEMENT_NAME_1)));
   }
 
   @Test
@@ -92,9 +84,8 @@ public class FeatureMetacardTypeTest {
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
 
-    assertThat(featureMetacardType.getTemporalProperties(), hasSize(1));
-
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.DATE_TYPE);
+    assertThat(featureMetacardType.getTemporalProperties(), is(singletonList(ELEMENT_NAME_1)));
+    assertThat(featureMetacardType.getProperties(), is(singletonList(ELEMENT_NAME_1)));
   }
 
   @Test
@@ -104,46 +95,27 @@ public class FeatureMetacardTypeTest {
     FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
+    assertThat(featureMetacardType.getGmlProperties(), is(singletonList(ELEMENT_NAME_1)));
+    assertThat(featureMetacardType.getTemporalProperties(), is(singletonList(ELEMENT_NAME_2)));
     assertThat(
-        featureMetacardType.getGmlProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME1")));
-    assertThat(
-        featureMetacardType.getTemporalProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME2")));
-    assertThat(
-        featureMetacardType.getProperties(),
-        containsInAnyOrder(
-            "ext.FeatureTypeName.ELEMENT_NAME1", "ext.FeatureTypeName.ELEMENT_NAME2"));
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.GEO_TYPE);
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_2, BasicTypes.DATE_TYPE);
+        featureMetacardType.getProperties(), containsInAnyOrder(ELEMENT_NAME_1, ELEMENT_NAME_2));
   }
 
   @Test
   public void testFeatureMetacardTypeNonQueryGmlProperty() throws Exception {
     loadSchema("multipleGmlProperties.xsd");
 
-    List<String> nonQueryProps = new ArrayList<>();
+    Set<String> nonQueryProps = new HashSet<>();
     nonQueryProps.add(ELEMENT_NAME_2);
 
     FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(schema, FEATURE_TYPE, nonQueryProps, GML_3_1_1_NAMESPACE);
+    assertThat(featureMetacardType.getGmlProperties(), is(singletonList(ELEMENT_NAME_1)));
+    assertThat(featureMetacardType.getTemporalProperties(), is(singletonList(ELEMENT_NAME_2)));
     assertThat(
-        featureMetacardType.getGmlProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME1")));
-    AttributeDescriptor attrDesc =
-        featureMetacardType.getAttributeDescriptor(prefix(ELEMENT_NAME_1));
-    assertThat(attrDesc, notNullValue());
-    assertThat(attrDesc.getType(), is(BasicTypes.GEO_TYPE));
-    assertThat(attrDesc.isIndexed(), is(true));
-
-    assertThat(
-        featureMetacardType.getTemporalProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME2")));
-    AttributeDescriptor attrDesc2 =
-        featureMetacardType.getAttributeDescriptor(prefix(ELEMENT_NAME_2));
-    assertThat(attrDesc2, notNullValue());
-    assertThat(attrDesc2.getType(), is(BasicTypes.DATE_TYPE));
-    assertThat(attrDesc2.isIndexed(), is(false));
+        featureMetacardType.getProperties(), containsInAnyOrder(ELEMENT_NAME_1, ELEMENT_NAME_2));
+    assertThat(featureMetacardType.isQueryable(ELEMENT_NAME_1), is(true));
+    assertThat(featureMetacardType.isQueryable(ELEMENT_NAME_2), is(false));
   }
 
   @Test
@@ -153,14 +125,8 @@ public class FeatureMetacardTypeTest {
     FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
-    assertThat(
-        featureMetacardType.getTextualProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME1")));
-    assertThat(
-        featureMetacardType.getProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME1")));
-
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.STRING_TYPE);
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList(ELEMENT_NAME_1)));
+    assertThat(featureMetacardType.getProperties(), is(singletonList(ELEMENT_NAME_1)));
   }
 
   @Test
@@ -172,39 +138,27 @@ public class FeatureMetacardTypeTest {
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
     assertThat(
         featureMetacardType.getTextualProperties(),
-        containsInAnyOrder(
-            "ext.FeatureTypeName.ELEMENT_NAME1", "ext.FeatureTypeName.ELEMENT_NAME2"));
+        containsInAnyOrder(ELEMENT_NAME_1, ELEMENT_NAME_2));
     assertThat(
-        featureMetacardType.getProperties(),
-        containsInAnyOrder(
-            "ext.FeatureTypeName.ELEMENT_NAME1", "ext.FeatureTypeName.ELEMENT_NAME2"));
-
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_2, BasicTypes.STRING_TYPE);
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.STRING_TYPE);
+        featureMetacardType.getProperties(), containsInAnyOrder(ELEMENT_NAME_1, ELEMENT_NAME_2));
   }
 
   @Test
   public void testFeatureMetacardTypeStringNonQueryProperty() throws Exception {
     loadSchema("multipleStringProperties.xsd");
 
-    List<String> nonQueryProps = new ArrayList<>();
+    Set<String> nonQueryProps = new HashSet<>();
     nonQueryProps.add(ELEMENT_NAME_1);
 
     FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(schema, FEATURE_TYPE, nonQueryProps, GML_3_1_1_NAMESPACE);
     assertThat(
         featureMetacardType.getTextualProperties(),
-        containsInAnyOrder(
-            "ext.FeatureTypeName.ELEMENT_NAME1", "ext.FeatureTypeName.ELEMENT_NAME2"));
-    AttributeDescriptor attrDesc =
-        featureMetacardType.getAttributeDescriptor(prefix(ELEMENT_NAME_1));
-    assertThat(attrDesc, notNullValue());
-    assertThat(attrDesc.isIndexed(), is(false));
-
-    AttributeDescriptor attrDesc2 =
-        featureMetacardType.getAttributeDescriptor(prefix(ELEMENT_NAME_2));
-    assertThat(attrDesc2, notNullValue());
-    assertThat(attrDesc2.isIndexed(), is(true));
+        containsInAnyOrder(ELEMENT_NAME_1, ELEMENT_NAME_2));
+    assertThat(
+        featureMetacardType.getProperties(), containsInAnyOrder(ELEMENT_NAME_1, ELEMENT_NAME_2));
+    assertThat(featureMetacardType.isQueryable(ELEMENT_NAME_1), is(false));
+    assertThat(featureMetacardType.isQueryable(ELEMENT_NAME_2), is(true));
   }
 
   @Test
@@ -214,19 +168,10 @@ public class FeatureMetacardTypeTest {
     FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList(ELEMENT_NAME_1)));
+    assertThat(featureMetacardType.getGmlProperties(), is(singletonList(ELEMENT_NAME_2)));
     assertThat(
-        featureMetacardType.getTextualProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME1")));
-    assertThat(
-        featureMetacardType.getGmlProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME2")));
-    assertThat(
-        featureMetacardType.getProperties(),
-        containsInAnyOrder(
-            "ext.FeatureTypeName.ELEMENT_NAME1", "ext.FeatureTypeName.ELEMENT_NAME2"));
-
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.STRING_TYPE);
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_2, BasicTypes.GEO_TYPE);
+        featureMetacardType.getProperties(), containsInAnyOrder(ELEMENT_NAME_1, ELEMENT_NAME_2));
   }
 
   @Test
@@ -236,19 +181,10 @@ public class FeatureMetacardTypeTest {
     FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList(ELEMENT_NAME_2)));
+    assertThat(featureMetacardType.getGmlProperties(), is(singletonList(ELEMENT_NAME_1)));
     assertThat(
-        featureMetacardType.getTextualProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME2")));
-    assertThat(
-        featureMetacardType.getGmlProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME1")));
-    assertThat(
-        featureMetacardType.getProperties(),
-        containsInAnyOrder(
-            "ext.FeatureTypeName.ELEMENT_NAME1", "ext.FeatureTypeName.ELEMENT_NAME2"));
-
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_2, BasicTypes.STRING_TYPE);
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.GEO_TYPE);
+        featureMetacardType.getProperties(), containsInAnyOrder(ELEMENT_NAME_1, ELEMENT_NAME_2));
   }
 
   @Test
@@ -260,12 +196,7 @@ public class FeatureMetacardTypeTest {
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
 
     assertThat(
-        featureMetacardType.getProperties(),
-        containsInAnyOrder(
-            "ext.FeatureTypeName.ELEMENT_NAME1", "ext.FeatureTypeName.ELEMENT_NAME2"));
-
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.DATE_TYPE);
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_2, BasicTypes.DATE_TYPE);
+        featureMetacardType.getProperties(), containsInAnyOrder(ELEMENT_NAME_1, ELEMENT_NAME_2));
   }
 
   @Test
@@ -276,11 +207,7 @@ public class FeatureMetacardTypeTest {
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
 
-    assertThat(
-        featureMetacardType.getProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME1")));
-
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.BOOLEAN_TYPE);
+    assertThat(featureMetacardType.getProperties(), is(singletonList(ELEMENT_NAME_1)));
   }
 
   @Test
@@ -291,11 +218,7 @@ public class FeatureMetacardTypeTest {
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
 
-    assertThat(
-        featureMetacardType.getProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME1")));
-
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.DOUBLE_TYPE);
+    assertThat(featureMetacardType.getProperties(), is(singletonList(ELEMENT_NAME_1)));
   }
 
   @Test
@@ -306,11 +229,7 @@ public class FeatureMetacardTypeTest {
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
 
-    assertThat(
-        featureMetacardType.getProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME1")));
-
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.FLOAT_TYPE);
+    assertThat(featureMetacardType.getProperties(), is(singletonList(ELEMENT_NAME_1)));
   }
 
   @Test
@@ -323,14 +242,7 @@ public class FeatureMetacardTypeTest {
 
     assertThat(
         featureMetacardType.getProperties(),
-        containsInAnyOrder(
-            "ext.FeatureTypeName.ELEMENT_NAME1",
-            "ext.FeatureTypeName.ELEMENT_NAME2",
-            "ext.FeatureTypeName.ELEMENT_NAME3"));
-
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.STRING_TYPE);
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_2, BasicTypes.INTEGER_TYPE);
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_3, BasicTypes.STRING_TYPE);
+        containsInAnyOrder(ELEMENT_NAME_1, ELEMENT_NAME_2, ELEMENT_NAME_3));
   }
 
   @Test
@@ -341,11 +253,7 @@ public class FeatureMetacardTypeTest {
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
 
-    assertThat(
-        featureMetacardType.getProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME1")));
-
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.LONG_TYPE);
+    assertThat(featureMetacardType.getProperties(), is(singletonList(ELEMENT_NAME_1)));
   }
 
   @Test
@@ -356,11 +264,7 @@ public class FeatureMetacardTypeTest {
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
 
-    assertThat(
-        featureMetacardType.getProperties(),
-        is(singletonList("ext.FeatureTypeName.ELEMENT_NAME1")));
-
-    assertAttributeDescriptor(featureMetacardType, ELEMENT_NAME_1, BasicTypes.SHORT_TYPE);
+    assertThat(featureMetacardType.getProperties(), is(singletonList(ELEMENT_NAME_1)));
   }
 
   @Test
@@ -377,13 +281,6 @@ public class FeatureMetacardTypeTest {
       assertBasicAttributeDescriptor(fmt, ad.getName(), ad.getType());
       assertThat(fmt.getAttributeDescriptor(ad.getName()).isStored(), is(false));
     }
-
-    // +1 to account for one element added to schema.
-    assertThat(fmt.getAttributeDescriptors(), hasSize(descriptors.size() + 1));
-    assertThat(
-        "The feature metacard type does not contain an attribute for the feature property.",
-        fmt.getAttributeDescriptor("ext.FeatureTypeName.ELEMENT_NAME1"),
-        is(notNullValue()));
   }
 
   @Test
@@ -393,11 +290,8 @@ public class FeatureMetacardTypeTest {
     final FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
-    assertThat(
-        featureMetacardType.getProperties(), is(singletonList("ext.FeatureTypeName.TheProperty")));
-    assertThat(
-        featureMetacardType.getTextualProperties(),
-        is(singletonList("ext.FeatureTypeName.TheProperty")));
+    assertThat(featureMetacardType.getProperties(), is(singletonList("TheProperty")));
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList("TheProperty")));
   }
 
   @Test
@@ -407,11 +301,8 @@ public class FeatureMetacardTypeTest {
     final FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
-    assertThat(
-        featureMetacardType.getProperties(), is(singletonList("ext.FeatureTypeName.TheProperty")));
-    assertThat(
-        featureMetacardType.getTextualProperties(),
-        is(singletonList("ext.FeatureTypeName.TheProperty")));
+    assertThat(featureMetacardType.getProperties(), is(singletonList("TheProperty")));
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList("TheProperty")));
   }
 
   @Test
@@ -422,11 +313,20 @@ public class FeatureMetacardTypeTest {
     final FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
-    assertThat(
-        featureMetacardType.getProperties(), is(singletonList("ext.FeatureTypeName.TheProperty")));
-    assertThat(
-        featureMetacardType.getTextualProperties(),
-        is(singletonList("ext.FeatureTypeName.TheProperty")));
+    assertThat(featureMetacardType.getProperties(), is(singletonList("TheProperty")));
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList("TheProperty")));
+  }
+
+  @Test
+  public void testElementOfFeatureTypeIsSimpleTypeRestrictionAndBaseIsInlineSimpleType()
+      throws Exception {
+    loadSchema("elementOfFeatureTypeIsSimpleTypeRestrictionAndBaseIsInlineSimpleType.xsd");
+
+    final FeatureMetacardType featureMetacardType =
+        new FeatureMetacardType(
+            schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
+    assertThat(featureMetacardType.getProperties(), is(singletonList("TheProperty")));
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList("TheProperty")));
   }
 
   @Test
@@ -436,11 +336,8 @@ public class FeatureMetacardTypeTest {
     final FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
-    assertThat(
-        featureMetacardType.getProperties(), is(singletonList("ext.FeatureTypeName.TheProperty")));
-    assertThat(
-        featureMetacardType.getTextualProperties(),
-        is(singletonList("ext.FeatureTypeName.TheProperty")));
+    assertThat(featureMetacardType.getProperties(), is(singletonList("TheProperty")));
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList("TheProperty")));
   }
 
   @Test
@@ -450,11 +347,19 @@ public class FeatureMetacardTypeTest {
     final FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
-    assertThat(
-        featureMetacardType.getProperties(), is(singletonList("ext.FeatureTypeName.TheProperty")));
-    assertThat(
-        featureMetacardType.getTextualProperties(),
-        is(singletonList("ext.FeatureTypeName.TheProperty")));
+    assertThat(featureMetacardType.getProperties(), is(singletonList("TheProperty")));
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList("TheProperty")));
+  }
+
+  @Test
+  public void testElementOfFeatureTypeIsSimpleTypeListAndBaseIsInlineSimpleType() throws Exception {
+    loadSchema("elementOfFeatureTypeIsSimpleTypeListAndBaseIsInlineSimpleType.xsd");
+
+    final FeatureMetacardType featureMetacardType =
+        new FeatureMetacardType(
+            schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
+    assertThat(featureMetacardType.getProperties(), is(singletonList("TheProperty")));
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList("TheProperty")));
   }
 
   @Test
@@ -465,11 +370,8 @@ public class FeatureMetacardTypeTest {
     final FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
-    assertThat(
-        featureMetacardType.getProperties(), is(singletonList("ext.FeatureTypeName.TheProperty")));
-    assertThat(
-        featureMetacardType.getTextualProperties(),
-        is(singletonList("ext.FeatureTypeName.TheProperty")));
+    assertThat(featureMetacardType.getProperties(), is(singletonList("TheProperty")));
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList("TheProperty")));
   }
 
   @Test
@@ -480,11 +382,8 @@ public class FeatureMetacardTypeTest {
     final FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
-    assertThat(
-        featureMetacardType.getProperties(), is(singletonList("ext.FeatureTypeName.TheProperty")));
-    assertThat(
-        featureMetacardType.getTextualProperties(),
-        is(singletonList("ext.FeatureTypeName.TheProperty")));
+    assertThat(featureMetacardType.getProperties(), is(singletonList("TheProperty")));
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList("TheProperty")));
   }
 
   @Test
@@ -495,11 +394,8 @@ public class FeatureMetacardTypeTest {
     final FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
-    assertThat(
-        featureMetacardType.getProperties(), is(singletonList("ext.FeatureTypeName.TheProperty")));
-    assertThat(
-        featureMetacardType.getTextualProperties(),
-        is(singletonList("ext.FeatureTypeName.TheProperty")));
+    assertThat(featureMetacardType.getProperties(), is(singletonList("TheProperty")));
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList("TheProperty")));
   }
 
   @Test
@@ -510,11 +406,8 @@ public class FeatureMetacardTypeTest {
     final FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
-    assertThat(
-        featureMetacardType.getProperties(), is(singletonList("ext.FeatureTypeName.TheProperty")));
-    assertThat(
-        featureMetacardType.getTextualProperties(),
-        is(singletonList("ext.FeatureTypeName.TheProperty")));
+    assertThat(featureMetacardType.getProperties(), is(singletonList("TheProperty")));
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList("TheProperty")));
   }
 
   @Test
@@ -524,20 +417,83 @@ public class FeatureMetacardTypeTest {
     final FeatureMetacardType featureMetacardType =
         new FeatureMetacardType(
             schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
-    assertThat(
-        featureMetacardType.getProperties(), is(singletonList("ext.FeatureTypeName.TheProperty")));
-    assertThat(
-        featureMetacardType.getTextualProperties(),
-        is(singletonList("ext.FeatureTypeName.TheProperty")));
+    assertThat(featureMetacardType.getProperties(), is(singletonList("TheProperty")));
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList("TheProperty")));
   }
 
-  private String prefix(String element) {
-    return EXT_PREFIX + PROPERTY_PREFIX + element;
+  @Test
+  public void testTopLevelSimpleType() throws Exception {
+    loadSchema("simpleType.xsd");
+
+    final FeatureMetacardType featureMetacardType =
+        new FeatureMetacardType(
+            schema, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
+    assertThat(featureMetacardType.getProperties(), is(singletonList("FeatureTypeName")));
+    assertThat(featureMetacardType.getTextualProperties(), is(singletonList("FeatureTypeName")));
   }
 
-  private void assertAttributeDescriptor(
-      FeatureMetacardType featureMetacardType, String propertyName, AttributeType type) {
-    assertBasicAttributeDescriptor(featureMetacardType, prefix(propertyName), type);
+  @Test(expected = IllegalArgumentException.class)
+  public void testExceptionThrownWhenSchemaIsNull() {
+    new FeatureMetacardType(null, FEATURE_TYPE, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
+  }
+
+  @Test
+  public void testMetacardTypeNameIsLocalPartOfFeatureType() throws Exception {
+    loadSchema("singleFloatProperty.xsd");
+
+    final FeatureMetacardType featureMetacardType =
+        new FeatureMetacardType(
+            schema,
+            new QName("http://codice.org/test", "TheFeatureType"),
+            EMPTY_NON_QUERYABLE_PROPS,
+            GML_3_1_1_NAMESPACE);
+    assertThat(featureMetacardType.getName(), is("TheFeatureType"));
+  }
+
+  @Test
+  public void testGetNamespaceURI() throws Exception {
+    loadSchema("singleFloatProperty.xsd");
+
+    final FeatureMetacardType featureMetacardType =
+        new FeatureMetacardType(
+            schema,
+            new QName("http://codice.org/test", "TheFeatureType"),
+            EMPTY_NON_QUERYABLE_PROPS,
+            GML_3_1_1_NAMESPACE);
+    assertThat(featureMetacardType.getNamespaceURI(), is("http://codice.org/test"));
+  }
+
+  @Test
+  public void testGetFeatureType() throws Exception {
+    loadSchema("singleFloatProperty.xsd");
+
+    final QName featureTypeName = new QName("http://codice.org/test", "TheFeatureType");
+    final FeatureMetacardType featureMetacardType =
+        new FeatureMetacardType(
+            schema, featureTypeName, EMPTY_NON_QUERYABLE_PROPS, GML_3_1_1_NAMESPACE);
+    assertThat(featureMetacardType.getFeatureType(), is(featureTypeName));
+  }
+
+  @Test
+  public void testMetacardTypeEnhancer() {
+    final AttributeDescriptor attributeDescriptor =
+        new AttributeDescriptorImpl("foo", true, true, true, true, BasicTypes.STRING_TYPE);
+
+    final MetacardTypeEnhancer metacardTypeEnhancer = mock(MetacardTypeEnhancer.class);
+    doReturn(Collections.singleton(attributeDescriptor))
+        .when(metacardTypeEnhancer)
+        .getAttributeDescriptors();
+
+    final QName featureTypeName = new QName("http://codice.org/test", "TheFeatureType");
+    final FeatureMetacardType featureMetacardType =
+        new FeatureMetacardType(
+            new XmlSchema(),
+            featureTypeName,
+            EMPTY_NON_QUERYABLE_PROPS,
+            GML_3_1_1_NAMESPACE,
+            metacardTypeEnhancer);
+
+    assertThat(featureMetacardType.getAttributeDescriptor("foo"), is(attributeDescriptor));
   }
 
   private void assertBasicAttributeDescriptor(

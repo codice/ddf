@@ -25,11 +25,12 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.DatatypeConverter;
@@ -170,7 +171,9 @@ public class GenericFeatureConverterTest {
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
 
-    GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20();
+    MetacardMapper mockMapper = mock(MetacardMapper.class);
+    when(mockMapper.getMetacardAttribute("the_geom")).thenReturn(Core.LOCATION);
+    GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20(mockMapper);
 
     fcMap.put("states", converter);
     fcMap.put("streams", converter);
@@ -203,7 +206,9 @@ public class GenericFeatureConverterTest {
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
 
-    GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20();
+    MetacardMapper mockMapper = mock(MetacardMapper.class);
+    when(mockMapper.getMetacardAttribute("the_geom")).thenReturn(Core.LOCATION);
+    GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20(mockMapper);
 
     fcMap.put("states", converter);
     fcMap.put("streams", converter);
@@ -237,7 +242,9 @@ public class GenericFeatureConverterTest {
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
 
-    GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20();
+    MetacardMapper mockMapper = mock(MetacardMapper.class);
+    when(mockMapper.getMetacardAttribute("the_geom")).thenReturn(Core.LOCATION);
+    GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20(mockMapper);
 
     fcMap.put("states", converter);
     fcMap.put("streams", converter);
@@ -331,16 +338,16 @@ public class GenericFeatureConverterTest {
   }
 
   /*
-   * This test will check that the MetacardMapper maps the feature value of 'states.STATE_NAME' to the metacard property 'title'.
+   * This test will check that the MetacardMapper maps the feature value of 'STATE_NAME' to the metacard property 'title'.
    */
   @Test
   public void testUnmarshalMultiQueryFeatureCollectionXmlToObjectWithMetacardMapper()
       throws Exception {
-    // Create Metacard Mapper
-    String featureProp = "ext.states.STATE_NAME";
+    String featureProp = "STATE_NAME";
     String metacardAttr = "title";
     MetacardMapper metacardMapper = mock(MetacardMapper.class);
     when(metacardMapper.getMetacardAttribute(featureProp)).thenReturn(metacardAttr);
+    when(metacardMapper.getMetacardAttribute("the_geom")).thenReturn(Core.LOCATION);
 
     XStream xstream = new XStream(new WstxDriver());
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
@@ -376,17 +383,14 @@ public class GenericFeatureConverterTest {
     final XmlSchema schema = loadSchema("video_data_set.xsd");
 
     return new FeatureMetacardType(
-        schema, new QName(FEATURE_TYPE), new ArrayList<>(), Wfs20Constants.GML_3_2_NAMESPACE);
+        schema, new QName(FEATURE_TYPE), new HashSet<>(), Wfs20Constants.GML_3_2_NAMESPACE);
   }
 
   private MetacardType buildStatesMetacardType() throws IOException {
     final XmlSchema schema = loadSchema("states.xsd");
 
     return new FeatureMetacardType(
-        schema,
-        new QName(STATES_FEATURE_TYPE),
-        new ArrayList<>(),
-        Wfs20Constants.GML_3_2_NAMESPACE);
+        schema, new QName(STATES_FEATURE_TYPE), new HashSet<>(), Wfs20Constants.GML_3_2_NAMESPACE);
   }
 
   private XmlSchema loadSchema(final String schemaFile) throws IOException {

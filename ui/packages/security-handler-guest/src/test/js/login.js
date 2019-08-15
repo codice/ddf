@@ -15,6 +15,7 @@
 // NOTE: to enable debug uncomment the following 2 lines.
 //casper.options.verbose = true;
 //casper.options.logLevel = 'debug';
+/* global casper */
 casper.test.begin('Login test', 1, function(test) {
   var url = casper.cli.get('url')
   casper.start(url)

@@ -17,7 +17,7 @@ import React from 'react'
 const Tabs = require('../tabs')
 const Marionette = require('marionette')
 const MetacardsBasicView = require('../../editor/metacards-basic/metacards-basic.view.js')
-import MetacardArchive from '../../../react-component/container/metacard-archive'
+import MetacardArchive from '../../../react-component/metacard-archive'
 
 const MetacardArchiveView = Marionette.LayoutView.extend({
   template() {

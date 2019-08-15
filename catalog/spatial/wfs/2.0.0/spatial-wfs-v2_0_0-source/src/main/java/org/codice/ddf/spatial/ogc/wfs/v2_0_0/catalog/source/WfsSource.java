@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
+import static java.util.stream.Collectors.toSet;
+
 import ddf.catalog.Constants;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -707,8 +709,8 @@ public class WfsSource extends AbstractWfsSource {
             schema,
             featureTypeType.getName(),
             nonQueryableProperties != null
-                ? Arrays.asList(nonQueryableProperties)
-                : new ArrayList<String>(),
+                ? Arrays.stream(nonQueryableProperties).collect(toSet())
+                : new HashSet<>(),
             Wfs20Constants.GML_3_2_NAMESPACE);
 
     Dictionary<String, Object> props = new DictionaryMap<>();

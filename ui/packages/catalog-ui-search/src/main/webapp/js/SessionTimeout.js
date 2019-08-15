@@ -16,7 +16,7 @@ const sessionTimeoutModel = require('../component/singletons/session-timeout.js'
 const BlockingLightbox = require('../component/lightbox/blocking/lightbox.blocking.view.js')
 const blockingLightbox = BlockingLightbox.generateNewLightbox()
 const React = require('react')
-import SessionTimeout from '../react-component/presentation/session-timeout'
+import SessionTimeout from '../react-component/session-timeout'
 
 function showPrompt() {
   return sessionTimeoutModel.get('showPrompt')

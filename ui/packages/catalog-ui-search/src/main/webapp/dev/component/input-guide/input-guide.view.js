@@ -499,12 +499,6 @@ module.exports = BaseGuideView.extend({
               ids: ['fakeid4'],
               hasNoValue: false,
             },
-            '2,3': {
-              value: [2, 3],
-              hits: 1,
-              ids: ['fakeid4'],
-              hasNoValue: false,
-            },
             [Common.undefined]: {
               value: [],
               hits: 1,

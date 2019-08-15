@@ -15,8 +15,8 @@
 import * as React from 'react'
 const childView = require('./result-item.view')
 import { hot } from 'react-hot-loader'
-import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
 import styled from 'styled-components'
+import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 
 const SHOW_MORE_LENGTH = 2
 

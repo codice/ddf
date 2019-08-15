@@ -19,45 +19,26 @@ const _ = require('underscore')
 const $ = require('jquery')
 const Backbone = require('backbone')
 const Application = require('./application.js')
-const router = require('../component/router/router.js')
-import ReactRouter from '../react-component/container/router-container'
+const router = require('../component/router/router')
+import ReactRouter from '../react-component/router'
 import React from 'react'
 import { render } from 'react-dom'
 import ExtensionPoints from '../extension-points'
+
+const { routes } = ExtensionPoints
+
 // notfound route needs to come at the end otherwise no other routes will work
-const routeDefinitions = ExtensionPoints.routes
-
-const initializeRoutes = function(routeDefinitions) {
-  Application.App.router.show(
-    new RouterView({
-      routeDefinitions,
-    }),
-    {
-      replaceElement: true,
-    }
-  )
-}
-
-const onComponentResolution = function(deferred, component) {
-  this.component = this.component || new component()
-  deferred.resolve(this.component)
-}
-
-//initializeRoutes(routeDefinitions);
-render(
-  <ReactRouter routeDefinitions={routeDefinitions} />,
-  Application.App.router.$el[0]
-)
+render(<ReactRouter routeDefinitions={routes} />, Application.App.router.$el[0])
 
 const Router = Backbone.Router.extend({
   preloadRoutes() {
-    Object.keys(routeDefinitions).forEach(this.preloadRoute)
+    Object.keys(routes).forEach(this.preloadRoute)
   },
   preloadFragment(fragment) {
     this.preloadRoute(this.getRouteNameFromFragment(fragment))
   },
   preloadRoute(routeName) {
-    routeDefinitions[routeName].preload()
+    routes[routeName].preload()
   },
   getRouteNameFromFragment(fragment) {
     return this.routes[
@@ -66,8 +47,8 @@ const Router = Backbone.Router.extend({
       })
     ]
   },
-  routes: Object.keys(routeDefinitions).reduce((routesBlob, key) => {
-    const { patterns } = routeDefinitions[key]
+  routes: Object.keys(routes).reduce((routesBlob, key) => {
+    const { patterns } = routes[key]
     patterns.forEach(pattern => (routesBlob[pattern] = key))
     return routesBlob
   }, {}),

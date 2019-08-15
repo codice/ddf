@@ -12,10 +12,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+// eslint-disable-next-line no-extra-semi
 ;({
   openSources: {
     patterns: ['sources(/)'],
-    component: 'react-component/container/sources-container/sources-container',
+    component: 'react-component/sources',
     menu: {
       i18n: true,
       id: 'sources.title',

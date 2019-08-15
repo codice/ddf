@@ -14,12 +14,12 @@
  **/
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import Portal from '../portal'
 import styled from 'styled-components'
 import { ThemeInterface } from '../../styles/styled-components'
+import Portal from '../../portal'
 import { Dropshadow } from '../../styles/mixins'
-import ChangeBackground from '../change-background'
-import ButtonBehavior from '../button-behavior'
+import ChangeBackground from '../../change-background'
+import ButtonBehavior from '../../button-behavior'
 import { SFC } from '../../hoc/utils'
 import { CSSProperties } from 'react'
 const CustomElements = require('../../../js/CustomElements.js')

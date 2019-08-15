@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import { Item } from '../../container/sharing'
+import { Item } from '../../sharing'
 
 /**
  * Copyright (c) Codice Foundation

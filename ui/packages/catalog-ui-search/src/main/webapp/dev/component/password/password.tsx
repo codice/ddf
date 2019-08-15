@@ -18,7 +18,7 @@ import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live'
 import { hot } from 'react-hot-loader'
 import alert from '../utils/alert'
 
-import Password from '../../../react-component/container/input-wrappers/password'
+import Password from '../../../react-component/input-wrappers/password'
 
 const Root = styled.div`
   height: 100%;

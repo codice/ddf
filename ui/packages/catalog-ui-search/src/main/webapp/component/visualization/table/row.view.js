@@ -93,10 +93,6 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   handleResultThumbnail() {
-    const hiddenColumns = user
-      .get('user')
-      .get('preferences')
-      .get('columnHide')
     if (
       this.model
         .get('metacard')
@@ -139,7 +135,6 @@ module.exports = Marionette.LayoutView.extend({
     )
   },
   serializeData() {
-    const prefs = user.get('user').get('preferences')
     const preferredHeader = user
       .get('user')
       .get('preferences')

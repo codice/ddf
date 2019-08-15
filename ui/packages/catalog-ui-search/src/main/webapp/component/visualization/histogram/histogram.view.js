@@ -15,7 +15,7 @@
 /* eslint-disable no-var */
 
 import * as React from 'react'
-import { HistogramContainer } from '../../../react-component/container/histogram'
+import { HistogramContainer } from '../../../react-component/histogram'
 
 const wreqr = require('../../../js/wreqr.js')
 const $ = require('jquery')

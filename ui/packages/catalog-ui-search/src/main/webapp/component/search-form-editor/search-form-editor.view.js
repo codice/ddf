@@ -87,7 +87,6 @@ module.exports = Marionette.LayoutView.extend({
   },
   initialize() {
     this.listenTo(Router, 'change', this.render)
-    const [id] = Router.get('args')
   },
   onRender() {
     const [id] = Router.get('args')

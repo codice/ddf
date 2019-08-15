@@ -18,6 +18,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
@@ -27,8 +29,8 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.DatatypeConverter;
@@ -45,6 +47,7 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.EnhancedStaxDriver;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverter;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -145,7 +148,10 @@ public class GenericFeatureConverterTest {
     FeatureCollectionConverterWfs10 fcConverter = new FeatureCollectionConverterWfs10();
     Map<String, FeatureConverter> fcMap = new HashMap<>();
 
-    GenericFeatureConverter converter = new GenericFeatureConverter("EPSG:26713");
+    MetacardMapper mockMapper = mock(MetacardMapper.class);
+    doReturn(Core.LOCATION).when(mockMapper).getMetacardAttribute("ground_geom");
+    GenericFeatureConverter converter = new GenericFeatureConverter(mockMapper);
+    converter.setSrs("EPSG:26713");
 
     fcMap.put("video_data_set", converter);
     fcConverter.setFeatureConverterMap(fcMap);
@@ -293,7 +299,7 @@ public class GenericFeatureConverterTest {
     schema.getElements().putAll(buildElementMap(schema));
 
     return new FeatureMetacardType(
-        schema, new QName(FEATURE_TYPE), new ArrayList<>(), Wfs10Constants.GML_NAMESPACE);
+        schema, new QName(FEATURE_TYPE), new HashSet<>(), Wfs10Constants.GML_NAMESPACE);
   }
 
   private Map<QName, XmlSchemaElement> buildElementMap(XmlSchema schema) {

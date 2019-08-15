@@ -108,7 +108,6 @@ module.exports = {
     ctx.lineWidth = options.strokeWidth
     ctx.fillStyle = options.fillColor
 
-    const s = options.scale
     ctx.beginPath()
     ctx.moveTo(19.36, 2)
     ctx.bezierCurveTo(11.52, 2, 4.96, 6.64, 4.96, 14.64)

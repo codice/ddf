@@ -21,7 +21,7 @@ const Lightbox = require('./Lightbox.js')
 const router = require('../router/router.js')
 const componentName = 'lightbox'
 import React from 'react'
-import MarionetteRegionContainer from '../../react-component/container/marionette-region-container'
+import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 
 module.exports = Marionette.LayoutView.extend(
   {

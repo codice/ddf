@@ -12,10 +12,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+// eslint-disable-next-line no-extra-semi
 ;({
   openAbout: {
     patterns: ['about(/)'],
-    component: 'react-component/container/about-container/about-container',
+    component: 'react-component/about',
     menu: {
       text: 'About',
       classes: 'is-bold',

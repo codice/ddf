@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const _ = require('lodash')
 const _get = require('lodash/get')
 const _map = {
   default: {
@@ -170,7 +169,6 @@ function _deriveIconByMetacard(metacard) {
     metacardType,
     mimeType,
     contentType,
-    contentTypeVersion,
     icon = _default
 
   prop = metacard.get('metacard').get('properties')
@@ -209,15 +207,12 @@ module.exports = {
     return _get(i, 'class', _default.class)
   },
   getUnicode(metacard) {
-    const i = _deriveIconByMetacard(metacard)
     return _get(_map, 'style.code', _default.style.code)
   },
   getFont(metacard) {
-    const i = _deriveIconByMetacard(metacard)
     return _get(_map, 'style.font', _default.style.font)
   },
   getSize(metacard) {
-    const i = _deriveIconByMetacard(metacard)
     return _get(_map, 'style.size', _default.style.size)
   },
   getFull(metacard) {

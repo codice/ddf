@@ -27,6 +27,8 @@ import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUER
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.SCHEDULES;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.SPELLCHECK;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -43,6 +45,9 @@ import java.util.stream.Collectors;
 import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardImpl;
 
 public class QueryBasic {
+
+  private static final Gson GSON =
+      new GsonBuilder().disableHtmlEscaping().serializeNulls().create();
 
   @SerializedName("id")
   private String metacardId;
@@ -123,7 +128,11 @@ public class QueryBasic {
     this.sources = getAttributeValues(metacard, QUERY_SOURCES, String.class);
 
     Class<Map<String, String>> clazz = (Class<Map<String, String>>) (Class) Map.class;
-    this.sorts = getAttributeValues(metacard, QUERY_SORTS, clazz);
+    this.sorts =
+        getAttributeValues(metacard, QUERY_SORTS, String.class)
+            .stream()
+            .map(sortStr -> GSON.fromJson(sortStr, clazz))
+            .collect(Collectors.toList());
 
     this.polling = getAttributeValue(metacard, QUERY_POLLING, Integer.class);
     this.federation = getAttributeValue(metacard, QUERY_FEDERATION, String.class);
@@ -155,7 +164,10 @@ public class QueryBasic {
     metacard.setAttribute(new AttributeImpl(QUERY_FILTER_TREE, this.filterTree));
     metacard.setAttribute(new AttributeImpl(QUERY_ENTERPRISE, this.enterprise));
     metacard.setAttribute(new AttributeImpl(QUERY_SOURCES, (Serializable) this.sources));
-    metacard.setAttribute(new AttributeImpl(QUERY_SORTS, (Serializable) this.sorts));
+
+    List<String> sortFields = getSortsField();
+    metacard.setAttribute(new AttributeImpl(QUERY_SORTS, (Serializable) sortFields));
+
     metacard.setAttribute(new AttributeImpl(QUERY_POLLING, this.polling));
     metacard.setAttribute(new AttributeImpl(QUERY_FEDERATION, this.federation));
     metacard.setAttribute(new AttributeImpl(QUERY_TYPE, this.type));
@@ -174,6 +186,13 @@ public class QueryBasic {
             Security.ACCESS_INDIVIDUALS_READ, (Serializable) this.accessIndividualsRead));
 
     return new QueryMetacardImpl(metacard);
+  }
+
+  private List<String> getSortsField() {
+    if (this.sorts == null) {
+      return Collections.emptyList();
+    }
+    return this.sorts.stream().map(GSON::toJson).collect(Collectors.toList());
   }
 
   public void setOwner(String owner) {

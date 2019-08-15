@@ -16,7 +16,6 @@
 const Backbone = require('backbone')
 const {
   validateWkt,
-  roundWktCoords,
   validateDd,
   validateDms,
   validateUsng,

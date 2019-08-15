@@ -18,9 +18,6 @@ const wreqr = require('./wreqr.js')
 const user = require('../component/singletons/user-instance.js')
 const preferences = user.get('user').get('preferences')
 let lessStyles = require('./uncompiled-less.unless')
-const variableRegex = '/@(.*:[^;]*)/g'
-const variableRegexPrefix = '@'
-const variableRegexPostfix = '(.*:[^;]*)'
 const Common = require('./Common.js')
 import { lessWorkerModel } from './../component/singletons/less.worker-instance'
 lessWorkerModel.subscribe(data => {

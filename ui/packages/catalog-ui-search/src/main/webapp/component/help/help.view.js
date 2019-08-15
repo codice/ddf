@@ -104,31 +104,6 @@ function findBlockers() {
   }))
 }
 
-function hasNotScrolledPastVertically(element, boundingRect) {
-  return boundingRect.top + 1 >= findHighestAncestorTop(element)
-}
-
-function hasScrolledToVertically(element, boundingRect) {
-  return boundingRect.bottom - 1 <= findLowestAncestorBottom(element)
-}
-
-function hasNotScrolledPastHorizontally(element, boundingRect) {
-  return boundingRect.left + 1 >= findHighestAncestorLeft(element)
-}
-
-function hasScrolledToHorizontally(element, boundingRect) {
-  return boundingRect.right - 1 <= findLowestAncestorRight(element)
-}
-
-function withinScrollViewport(element, boundingRect) {
-  return (
-    hasNotScrolledPastVertically(element, boundingRect) &&
-    hasScrolledToVertically(element, boundingRect) &&
-    hasNotScrolledPastHorizontally(element, boundingRect) &&
-    hasScrolledToHorizontally(element, boundingRect)
-  )
-}
-
 function isBlocked(element, boundingRect) {
   return _.some(findBlockers(), blocker => {
     if (

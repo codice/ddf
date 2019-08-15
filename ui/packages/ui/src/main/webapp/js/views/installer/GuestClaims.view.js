@@ -219,6 +219,7 @@ define([
     checkWarnings: function() {
       var warnings = [],
         nameMap = {}
+      // eslint-disable-next-line no-unused-vars
       var claimName, claimValue
       var immutableClaims = this.model.get('immutableClaims')
 
@@ -379,7 +380,6 @@ define([
       }
     },
     onRender: function() {
-      var view = this
       this.guestClaimProfiles.show(
         new GuestClaimProfiles({
           model: new Backbone.Model(this.valObj.get('profiles')),

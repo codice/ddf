@@ -57,7 +57,6 @@ const { Direction } = require('../location-new/utils/dms-utils.js')
 import { deserialize } from './location-serialization'
 const wkx = require('wkx')
 
-const minimumDifference = 0.0001
 const minimumBuffer = 0.000001
 
 const filterToLocationOldModel = filter => {
@@ -67,7 +66,7 @@ const filterToLocationOldModel = filter => {
     return deserialize(filter.geojson)
   }
 
-  // for backwards compatability with wkt
+  // for backwards compatibility with wkt
   if (filter.value && typeof filter.value === 'string') {
     const geometry = wkx.Geometry.parse(filter.value).toGeoJSON()
     return deserialize({

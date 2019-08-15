@@ -17,7 +17,7 @@ import React from 'react'
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements.js')
 const IconHelper = require('../../js/IconHelper.js')
-import MetacardInteractionsDropdown from '../../react-component/container/metacard-interactions/metacard-interactions-dropdown'
+import MetacardInteractionsDropdown from '../../react-component/metacard-interactions/metacard-interactions-dropdown'
 
 module.exports = Marionette.ItemView.extend({
   template({ title, icon }) {

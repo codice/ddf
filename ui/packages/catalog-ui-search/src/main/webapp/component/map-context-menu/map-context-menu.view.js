@@ -14,7 +14,7 @@
  **/
 
 import * as React from 'react'
-import { MapContextMenu } from '../../react-component/presentation/map-context-menu'
+import { MapContextMenu } from '../../react-component/map-context-menu'
 
 const _ = require('underscore')
 const Marionette = require('marionette')

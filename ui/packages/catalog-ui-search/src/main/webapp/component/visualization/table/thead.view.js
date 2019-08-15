@@ -123,9 +123,6 @@ module.exports = Marionette.LayoutView.extend({
       type => !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
     ).map(type => type.id)
     const prefs = user.get('user').get('preferences')
-    const results = this.options.selectionInterface
-      .getActiveSearchResults()
-      .toJSON()
     let preferredHeader = user
       .get('user')
       .get('preferences')

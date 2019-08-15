@@ -23,7 +23,7 @@ const GoldenLayoutView = require('../golden-layout/golden-layout.view.js')
 const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
 
 import { ChangeBackground } from '../../react-component/styles/mixins/change-background'
-import MultiSelectActions from '../../react-component/container/multi-select-actions'
+import MultiSelectActions from '../../react-component/multi-select-actions'
 import styled from 'styled-components'
 
 const ContentLeft = styled.div`
@@ -65,7 +65,7 @@ const Root = styled.div`
   height: 100%;
   width: 100%;
   position: relative;
-  z-index: @zIndexContent;
+  z-index: ${({ theme }) => theme.zIndexContent};
 `
 
 const ContentView = Marionette.LayoutView.extend({

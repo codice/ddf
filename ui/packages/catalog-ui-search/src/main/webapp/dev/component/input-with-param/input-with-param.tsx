@@ -17,7 +17,7 @@ import styled from 'styled-components'
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live'
 import { hot } from 'react-hot-loader'
 
-import InputWithParam from '../../../react-component/container/input-wrappers/input-with-param'
+import InputWithParam from '../../../react-component/input-wrappers/input-with-param'
 
 const Root = styled.div`
   height: 100%;

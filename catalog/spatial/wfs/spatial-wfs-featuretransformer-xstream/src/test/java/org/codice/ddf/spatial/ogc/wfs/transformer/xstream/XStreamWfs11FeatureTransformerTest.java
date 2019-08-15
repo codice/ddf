@@ -110,7 +110,7 @@ public class XStreamWfs11FeatureTransformerTest {
         new FeatureMetacardType(
             schema,
             PETER_PAN_NAME,
-            Collections.emptyList(),
+            Collections.emptySet(),
             Wfs11Constants.GML_3_1_1_NAMESPACE,
             FeatureMetacardType.DEFAULT_METACARD_TYPE_ENHANCER);
 

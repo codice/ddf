@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import { expect, assert } from 'chai'
+import { expect } from 'chai'
 import { serialize, deserialize } from './location-serialization'
 
 describe('serialize/deserialize line', () => {

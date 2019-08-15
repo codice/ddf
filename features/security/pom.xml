@@ -177,12 +177,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-usernametokenvalidator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ddf.security.sts</groupId>
             <artifactId>security-sts-realm</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -17,11 +17,11 @@
     <OCD name="CSW Specification Profile Federated Source" id="Csw_Federated_Source"
          description="CSW Specification Profile Federated Source should be used when federating to an external CSW service.">
 
-        <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
+        <AD description="The unique name of the Source" name="Source ID" id="id"
             type="String"/>
 
         <AD description="URL to the endpoint implementing the Catalogue Service for Web (CSW) spec"
-            name="CSW URL" id="cswUrl" required="true" type="String"
+            name="CSW URL" id="cswUrl" type="String"
             default="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/csw"/>
 
         <AD name="Event Service Address" id="eventServiceAddress" required="false" type="String"
@@ -40,11 +40,11 @@
             required="false" type="Password" default=""/>
 
         <AD description="Disable CN check for the server certificate. This should only be used when testing."
-            name="Disable CN Check" id="disableCnCheck" required="true"
+            name="Disable CN Check" id="disableCnCheck"
             type="Boolean" default="false"/>
 
         <AD description="Coordinate order expected and returned by remote source"
-            name="Coordinate Order" id="coordinateOrder" required="true"
+            name="Coordinate Order" id="coordinateOrder"
             type="String" default="LON_LAT">
             <Option label="Lon/Lat" value="LON_LAT"/>
             <Option label="Lat/Lon" value="LAT_LON"/>
@@ -62,29 +62,29 @@
 
         <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
             name="Poll Interval" id="pollInterval"
-            required="true" type="Integer" default="5"/>
+            type="Integer" default="5"/>
 
         <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
             name="Connection Timeout" id="connectionTimeout"
-            required="true" type="Integer" default="30000"/>
+            type="Integer" default="30000"/>
 
         <AD description="Amount of time to wait for a response before timing out, in milliseconds."
             name="Receive Timeout" id="receiveTimeout"
-            required="true" type="Integer" default="60000"/>
+            type="Integer" default="60000"/>
 
-        <AD description="Output Schema" name="Output Schema" id="outputSchema" required="true"
+        <AD description="Output Schema" name="Output Schema" id="outputSchema"
             type="String" default="http://www.opengis.net/cat/csw/2.0.2"/>
 
         <AD description="Qualified Name for the Query Type used in the CSW GetRecords request"
-            name="Query Type Name" id="queryTypeName" required="true" type="String"
+            name="Query Type Name" id="queryTypeName" type="String"
             default="csw:Record"/>
 
         <AD description="Namespace for the Query Type used in the CSW GetRecords request"
-            name="Query Type Namespace" id="queryTypeNamespace" required="true" type="String"
+            name="Query Type Namespace" id="queryTypeNamespace" type="String"
             default="http://www.opengis.net/cat/csw/2.0.2"/>
 
         <AD description="Force CQL Text" name="Force CQL Text as the Query Language"
-            id="isCqlForced" required="true"
+            id="isCqlForced"
             type="Boolean" default="false"/>
 
         <AD description="Force only the selected Spatial Filter Type as the only available Spatial Filter."
@@ -105,7 +105,7 @@
         </AD>
 
         <AD description="Security attributes for this source" name="Security Attributes"
-            id="securityAttributeStrings" required="true" type="String" cardinality="1000"/>
+            id="securityAttributeStrings" type="String" cardinality="1000"/>
 
     </OCD>
 
@@ -113,11 +113,11 @@
          description="Full fidelity CSW Federation Profile. Use this when federating to a DDF-based system."
          id="Csw_Federation_Profile_Source">
 
-        <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
+        <AD description="The unique name of the Source" name="Source ID" id="id"
             type="String" default="CSW"/>
 
         <AD description="URL to the endpoint implementing the Catalogue Service for Web (CSW) spec"
-            name="CSW URL" id="cswUrl" required="true" type="String"
+            name="CSW URL" id="cswUrl" type="String"
             default="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/csw"/>
 
         <AD name="CSW Event Service Address" id="eventServiceAddress" required="false" type="String"
@@ -137,21 +137,26 @@
 
         <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
             name="Connection Timeout" id="connectionTimeout"
-            required="true" type="Integer" default="30000"/>
+            type="Integer" default="30000"/>
 
         <AD description="Amount of time to wait for a response before timing out, in milliseconds."
             name="Receive Timeout" id="receiveTimeout"
-            required="true" type="Integer" default="60000"/>
+            type="Integer" default="60000"/>
+
+        <AD description="Disable CN check for the server certificate. This should only be used when testing."
+            name="Disable CN Check" id="disableCnCheck"
+            type="Boolean" default="false"/>
+
     </OCD>
 
     <OCD name="GMD CSW ISO Federated Source" id="Gmd_Csw_Federated_Source"
          description="CSW Federated Source using the Geographic MetaData (GMD) format (ISO 19115:2003)">
 
-        <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
+        <AD description="The unique name of the Source" name="Source ID" id="id"
             type="String"/>
 
         <AD description="URL to the endpoint implementing the Catalogue Service for Web (CSW) spec"
-            name="CSW URL" id="cswUrl" required="true" type="String"/>
+            name="CSW URL" id="cswUrl" type="String"/>
 
         <AD description="Username for CSW Service (optional)" name="Username" id="username"
             required="false" type="String"/>
@@ -159,11 +164,11 @@
             required="false" type="Password" default=""/>
 
         <AD description="Disable CN check for the server certificate. This should only be used when testing."
-            name="Disable CN Check" id="disableCnCheck" required="true"
+            name="Disable CN Check" id="disableCnCheck"
             type="Boolean" default="false"/>
 
         <AD description="Coordinate order expected and returned by remote source"
-            name="Coordinate Order" id="coordinateOrder" required="true"
+            name="Coordinate Order" id="coordinateOrder"
             type="String" default="LON_LAT">
             <Option label="Lon/Lat" value="LON_LAT"/>
             <Option label="Lat/Lon" value="LAT_LON"/>
@@ -181,29 +186,29 @@
 
         <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
             name="Poll Interval" id="pollInterval"
-            required="true" type="Integer" default="5"/>
+            type="Integer" default="5"/>
 
         <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
             name="Connection Timeout" id="connectionTimeout"
-            required="true" type="Integer" default="30000"/>
+            type="Integer" default="30000"/>
 
         <AD description="Amount of time to wait for a response before timing out, in milliseconds."
             name="Receive Timeout" id="receiveTimeout"
-            required="true" type="Integer" default="60000"/>
+            type="Integer" default="60000"/>
 
-        <AD description="Output Schema" name="Output Schema" id="outputSchema" required="true"
+        <AD description="Output Schema" name="Output Schema" id="outputSchema"
             type="String" default="http://www.isotc211.org/2005/gmd"/>
 
         <AD description="Qualified Name for the Query Type used in the CSW GetRecords request"
-            name="Query Type Name" id="queryTypeName" required="true" type="String"
+            name="Query Type Name" id="queryTypeName" type="String"
             default="gmd:MD_Metadata"/>
 
         <AD description="Namespace for the Query Type used in the CSW GetRecords request"
-            name="Query Type Namespace" id="queryTypeNamespace" required="true" type="String"
+            name="Query Type Namespace" id="queryTypeNamespace" type="String"
             default="http://www.isotc211.org/2005/gmd"/>
 
         <AD description="Force CQL Text" name="Force CQL Text as the Query Language"
-            id="isCqlForced" required="true"
+            id="isCqlForced"
             type="Boolean" default="false"/>
 
         <AD description="Force only the selected Spatial Filter Type as the only available Spatial Filter."
@@ -224,18 +229,18 @@
         </AD>
 
         <AD description="Security attributes for this source" name="Security Attributes"
-            id="securityAttributeStrings" required="true" type="String" cardinality="1000"/>
+            id="securityAttributeStrings" type="String" cardinality="1000"/>
 
     </OCD>
 
     <OCD name="CSW Transactional Profile Federated Source" id="Csw_Transactional_Federated_Source"
          description="CSW Federated Source that supports transactions (create, update, delete)">
 
-        <AD description="The unique name of the Source" name="Source ID" id="id" required="true"
+        <AD description="The unique name of the Source" name="Source ID" id="id"
             type="String"/>
 
         <AD description="URL to the endpoint implementing the Catalogue Service for Web (CSW) spec"
-            name="CSW URL" id="cswUrl" required="true" type="String"
+            name="CSW URL" id="cswUrl" type="String"
             default="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/csw"/>
 
         <AD name="Event Service Address" id="eventServiceAddress" required="false" type="String"
@@ -254,11 +259,11 @@
             required="false" type="Password" default=""/>
 
         <AD description="Disable CN check for the server certificate. This should only be used when testing."
-            name="Disable CN Check" id="disableCnCheck" required="true"
+            name="Disable CN Check" id="disableCnCheck"
             type="Boolean" default="false"/>
 
         <AD description="Coordinate order expected and returned by remote source"
-            name="Coordinate Order" id="coordinateOrder" required="true"
+            name="Coordinate Order" id="coordinateOrder"
             type="String" default="LON_LAT">
             <Option label="Lon/Lat" value="LON_LAT"/>
             <Option label="Lat/Lon" value="LAT_LON"/>
@@ -276,29 +281,29 @@
 
         <AD description="Poll Interval to Check if the Source is available (in minutes - minimum 1)."
             name="Poll Interval" id="pollInterval"
-            required="true" type="Integer" default="5"/>
+            type="Integer" default="5"/>
 
         <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
             name="Connection Timeout" id="connectionTimeout"
-            required="true" type="Integer" default="30000"/>
+            type="Integer" default="30000"/>
 
         <AD description="Amount of time to wait for a response before timing out, in milliseconds."
             name="Receive Timeout" id="receiveTimeout"
-            required="true" type="Integer" default="60000"/>
+            type="Integer" default="60000"/>
 
-        <AD description="Output Schema" name="Output Schema" id="outputSchema" required="true"
+        <AD description="Output Schema" name="Output Schema" id="outputSchema"
             type="String" default="urn:catalog:metacard"/>
 
         <AD description="Qualified Name for the Query Type used in the CSW GetRecords request"
-            name="Query Type Name" id="queryTypeName" required="true" type="String"
+            name="Query Type Name" id="queryTypeName" type="String"
             default="csw:Record"/>
 
         <AD description="Namespace for the Query Type used in the CSW GetRecords request"
-            name="Query Type Namespace" id="queryTypeNamespace" required="true" type="String"
+            name="Query Type Namespace" id="queryTypeNamespace" type="String"
             default="http://www.opengis.net/cat/csw/2.0.2"/>
 
         <AD description="Force CQL Text" name="Force CQL Text as the Query Language"
-            id="isCqlForced" required="true"
+            id="isCqlForced"
             type="Boolean" default="false"/>
 
         <AD description="Force only the selected Spatial Filter Type as the only available Spatial Filter."
@@ -319,7 +324,7 @@
         </AD>
 
         <AD description="Security attributes for this source" name="Security Attributes"
-            id="securityAttributeStrings" required="true" type="String" cardinality="1000"/>
+            id="securityAttributeStrings" type="String" cardinality="1000"/>
 
     </OCD>
 

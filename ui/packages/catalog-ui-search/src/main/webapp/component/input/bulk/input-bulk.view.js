@@ -150,7 +150,6 @@ module.exports = InputView.extend({
         help: 'Select this to enter a custom value.',
       },
     ]
-    const type = this.model.getCalculatedType()
     _.forEach(this.model.get('values'), valueInfo => {
       let value = valueInfo.value
       let label = valueInfo.hasNoValue ? 'No Value' : value

@@ -54,14 +54,7 @@ function calculateAvailableAttributesFromSelection(selectionInterface) {
       if (metacardDefinitions.metacardTypes[property]) {
         return !metacardDefinitions.metacardTypes[property].hidden
       } else {
-        announcement.announce({
-          title: 'Missing Attribute Definition',
-          message:
-            'Could not find information for ' +
-            property +
-            ' in definitions.  If this problem persists, contact your Administrator.',
-          type: 'warn',
-        })
+        console.warn('Could not find ' + property + ' in definitions.')
         return false
       }
     })
@@ -132,10 +125,6 @@ module.exports = Marionette.ItemView.extend({
   },
   getPreferredOrder() {
     if (this.options.summary) {
-      const usersShown = user
-        .get('user')
-        .get('preferences')
-        .get('inspector-summaryShown')
       const usersOrder = user
         .get('user')
         .get('preferences')

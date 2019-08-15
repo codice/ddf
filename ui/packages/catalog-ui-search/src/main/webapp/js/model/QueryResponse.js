@@ -22,7 +22,6 @@ const Common = require('../Common.js')
 require('backbone-associations')
 const QueryResponseSourceStatus = require('./QueryResponseSourceStatus.js')
 const QueryResultCollection = require('./QueryResult.collection.js')
-const ResultForm = require('../../component/result-form/result-form.js')
 
 let rpc = null
 
@@ -212,11 +211,6 @@ module.exports = Backbone.AssociatedModel.extend({
     metacardDefinitions.addMetacardDefinitions(resp.types)
     if (resp.results) {
       const queryId = this.getQueryId()
-      const selectedResultTemplate = ResultForm.getResultCollection().filteredList.filter(
-        form =>
-          form.id === this.get('selectedResultTemplate') ||
-          form.value === this.get('selectedResultTemplate')
-      )[0]
       const color = this.getColor()
       _.forEach(resp.results, result => {
         result.propertyTypes =

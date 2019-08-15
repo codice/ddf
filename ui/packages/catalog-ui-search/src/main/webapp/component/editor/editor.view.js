@@ -105,10 +105,6 @@ module.exports = Marionette.LayoutView.extend({
     let isOwner = true
     const types = {}
     this.model.forEach(result => {
-      const tags = result
-        .get('metacard')
-        .get('properties')
-        .get('metacard-tags')
       if (result.isWorkspace()) {
         types.workspace = true
       } else if (result.isResource()) {
@@ -243,7 +239,7 @@ module.exports = Marionette.LayoutView.extend({
       this.attributesAdded,
       this.editorActions.currentView.model.get('attributesToAdd')[0]
     )
-    const newAttributes = this.editorProperties.currentView.addProperties(
+    this.editorProperties.currentView.addProperties(
       this.attributesAdded.pluck('id')
     )
     this.editorProperties.currentView.removeProperties(difference)

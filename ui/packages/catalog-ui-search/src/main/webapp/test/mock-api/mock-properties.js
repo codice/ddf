@@ -22,6 +22,7 @@ const mock = () => {
     const uiConfig = api('./internal/platform/config/ui')
     // use this function to initialize variables that rely on others
     let props = this
+    // eslint-disable-next-line no-undef
     props = _.extend(props, data)
     props.ui = uiConfig
     this.handleEditing()

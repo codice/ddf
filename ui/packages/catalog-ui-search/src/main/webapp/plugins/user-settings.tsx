@@ -20,7 +20,7 @@ import {
   SearchSettingsComponent,
   TimeSettingsComponent,
   HiddenSettingsComponent,
-} from '../react-component/presentation/user-settings'
+} from '../react-component/user-settings'
 import * as React from 'react'
 
 const ExtendedUserSettings = UserSettings([

@@ -14,7 +14,7 @@
  **/
 import * as React from 'react'
 
-import { storiesOf, action, array, text, number, boolean } from '../storybook'
+import { storiesOf, action, number, boolean } from '../storybook'
 
 import AutoComplete from '.'
 
