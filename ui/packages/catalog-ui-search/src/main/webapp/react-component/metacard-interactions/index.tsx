@@ -126,3 +126,5 @@ const Component = withListenTo(MetacardInteractions)
 export default hot(module)(Component)
 
 export { Divider }
+
+export { MetacardInteraction } from './metacard-interactions'
