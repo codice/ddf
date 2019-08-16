@@ -62,7 +62,7 @@ const renderMap = DrawingMenuWithMap => (
       getOlMap={olMap => {
         map = olMap
       }}
-      projection={MAP_PROJECTION}
+      projection="EPSG:4326"
     >
       <DrawingMenuWithMap />
     </Map>
