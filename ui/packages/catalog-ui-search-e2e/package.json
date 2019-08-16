@@ -1,5 +1,6 @@
 {
   "name": "catalog-ui-search-e2e",
+  "version": "0.0.1",
   "description": "Implements a series of user level e2e tests through Intrigue's programmatic api.",
   "scripts": {
     "m2": "ace install",
