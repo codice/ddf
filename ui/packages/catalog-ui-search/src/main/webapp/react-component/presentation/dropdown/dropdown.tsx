@@ -124,7 +124,10 @@ export const withDropdown = <P extends withContext>(
   return function dropdownedComponent(props: Subtract<P, withContext>) {
     return (
       <DropdownContext.Consumer>
-        {context => <Component {...props} dropdownContext={context} />}
+        {context => {
+          // @ts-ignore
+          return <Component {...props} dropdownContext={context} />
+        }}
       </DropdownContext.Consumer>
     )
   }
