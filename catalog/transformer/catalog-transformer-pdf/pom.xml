@@ -10,14 +10,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/ -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.catalog.transformer</groupId>
         <artifactId>transformer</artifactId>
-        <version>2.17.0-SNAPSHOT</version>
+        <version>2.17.0</version>
     </parent>
 
     <name>DDF :: Catalog :: Transformer :: PDF</name>
@@ -119,7 +117,7 @@
                             fontbox,
                             pdfbox,pdfbox-tools
                         </Embed-Dependency>
-                        <Export-Package/>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>
@@ -135,8 +133,7 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <ArtifactSizeEnforcerRule
-                                    implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
+                                <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
                                     <maxArtifactSize>4.8_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>

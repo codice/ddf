@@ -17,7 +17,7 @@
     <parent>
         <artifactId>plugin</artifactId>
         <groupId>ddf.catalog.plugin</groupId>
-        <version>2.17.0-SNAPSHOT</version>
+        <version>2.17.0</version>
     </parent>
     <artifactId>plugin-federation-replication</artifactId>
     <name>DDF :: Catalog :: Plugin :: Federation :: Replication</name>
@@ -55,7 +55,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>catalog-core-api-impl;scope=!test</Embed-Dependency>
-                        <Export-Package/>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>
