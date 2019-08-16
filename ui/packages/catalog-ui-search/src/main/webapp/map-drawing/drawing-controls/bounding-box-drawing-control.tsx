@@ -17,7 +17,6 @@ import * as turf from '@turf/turf'
 import DrawingContext from './drawing-context'
 import UpdatedGeoReceiver from './geo-receiver'
 import BasicDrawingControl from './basic-drawing-control'
-import ProjectedExtent from './projected-extent'
 import { Shape } from '../shape-utils'
 import { GeometryJSON, Extent } from '../geometry'
 
@@ -26,8 +25,6 @@ type ExtentEvent = {
 }
 
 class BoundingBoxDrawingControl extends BasicDrawingControl {
-  originalExtent: ProjectedExtent
-
   constructor(context: DrawingContext, receiver: UpdatedGeoReceiver) {
     super(context, receiver)
     this.extentChanged = this.extentChanged.bind(this)
@@ -43,18 +40,12 @@ class BoundingBoxDrawingControl extends BasicDrawingControl {
 
   startDrawing(geoJSON: GeometryJSON): void {
     const feature = this.geoFormat.readFeature(geoJSON)
-    const coordinates = feature.getGeometry().getExtent()
+    const extent = feature.getGeometry().getExtent()
     this.setProperties((geoJSON as GeometryJSON).properties || {})
-    this.startDrawingExtent(this.context.makeExtent(coordinates, false))
-  }
-
-  startDrawingExtentCoordinates(coordinates: Extent): void {
-    const extent = this.context.makeExtent(coordinates, false)
     this.startDrawingExtent(extent)
   }
 
-  startDrawingExtent(extent: ProjectedExtent): void {
-    this.originalExtent = extent
+  startDrawingExtent(extent: Extent): void {
     this.drawingActive = true
     const geoJSON = this.extentToGeoJSON(extent)
     const feature = this.geoFormat.readFeature(geoJSON)
@@ -74,21 +65,19 @@ class BoundingBoxDrawingControl extends BasicDrawingControl {
 
   extentChanged(e: ExtentEvent): void {
     if (e.extent !== null) {
-      const extent = this.context.makeExtent(e.extent, false)
-      this.receiver(this.extentToGeoJSON(extent))
-      const feature = this.extentToFeature(extent)
+      this.receiver(this.extentToGeoJSON(e.extent))
+      const feature = this.extentToFeature(e.extent)
       this.applyPropertiesToFeature(feature)
       this.context.updateFeature(feature)
       this.context.updateBufferFeature(feature)
     }
   }
 
-  extentToFeature(extent: ProjectedExtent): ol.Feature {
+  extentToFeature(extent: Extent): ol.Feature {
     return this.geoFormat.readFeature(this.extentToGeoJSON(extent))
   }
 
-  extentToGeoJSON(extent: ProjectedExtent): GeometryJSON {
-    const bbox = extent.getUserCoordinates()
+  extentToGeoJSON(bbox: Extent): GeometryJSON {
     const bboxPolygon = turf.bboxPolygon(bbox)
     return {
       bbox,

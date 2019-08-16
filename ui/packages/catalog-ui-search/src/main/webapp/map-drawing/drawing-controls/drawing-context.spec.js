@@ -29,8 +29,6 @@ describe('DrawingContext', () => {
     context = new DrawingContext({
       map,
       drawingStyle: new ol.style.Style(),
-      userProjection: 'user',
-      mapProjection: 'map',
     })
   })
   describe('constructor', () => {

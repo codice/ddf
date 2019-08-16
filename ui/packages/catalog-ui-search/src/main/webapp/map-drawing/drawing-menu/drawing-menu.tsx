@@ -68,10 +68,6 @@ type Props = HTMLAttributes & {
   onUpdate: UpdatedGeoReceiver
   /** List of shapes to hide from menu */
   disabledShapes?: Shape[]
-  /** Displayed projection on Open Layers Map */
-  mapProjection: string
-  /** Projection for coordinates returned to users */
-  userProjection: string
   /** Style to apply to geometries drawn on the map */
   mapStyle: ol.StyleFunction | ol.style.Style | ol.style.Style[]
 }
@@ -163,8 +159,6 @@ class DrawingMenu extends React.Component<Props> {
     this.drawingContext = new DrawingContext({
       map: this.props.map,
       drawingStyle: props.mapStyle,
-      userProjection: props.userProjection,
-      mapProjection: props.mapProjection,
     })
     this.controlsMap = new Map<Shape, DrawingControl>()
     this.controlsMap.set(

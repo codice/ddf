@@ -13,8 +13,7 @@
  *
  **/
 import * as ol from 'openlayers'
-import ProjectedExtent from './projected-extent'
-import { GeometryJSON, makeBufferedGeo, Extent } from '../geometry'
+import { GeometryJSON, makeBufferedGeo } from '../geometry'
 
 type EventListener = (e: any) => void
 
@@ -34,8 +33,6 @@ class DrawingContext {
   snap: ol.interaction.Snap
   draw: ol.interaction.Interaction | null
   listenerList: ListenerRecord[]
-  userProjection: string
-  mapProjection: string
   style: ol.style.Style | ol.StyleFunction | ol.style.Style[]
   geoFormat: ol.format.GeoJSON
   animationFrameId: number
@@ -43,13 +40,9 @@ class DrawingContext {
   constructor({
     map,
     drawingStyle,
-    userProjection,
-    mapProjection,
   }: {
     map: ol.Map
     drawingStyle: ol.style.Style | ol.StyleFunction | ol.style.Style[]
-    userProjection: string
-    mapProjection: string
   }) {
     this.bufferUpdateEvent = this.bufferUpdateEvent.bind(this)
     this.animationFrameId = 0
@@ -58,8 +51,6 @@ class DrawingContext {
     this.draw = null
     this.listenerList = []
     this.map = map
-    this.userProjection = userProjection
-    this.mapProjection = mapProjection
     this.drawLayer = new ol.layer.Vector({
       source: new ol.source.Vector(),
       style: drawingStyle,
@@ -191,15 +182,6 @@ class DrawingContext {
       (this.draw === null || this.draw.getActive()) &&
       this.modify.getActive() &&
       this.snap.getActive()
-    )
-  }
-
-  makeExtent(coordinates: Extent, isMapProjection: boolean): ProjectedExtent {
-    return new ProjectedExtent(
-      this.userProjection,
-      this.mapProjection,
-      coordinates,
-      isMapProjection
     )
   }
 

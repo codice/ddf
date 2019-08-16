@@ -46,17 +46,6 @@ class MockDrawingContext {
     return this.methodCalls
   }
 
-  makeExtent(extent) {
-    return {
-      getMapCoordinates() {
-        return extent
-      },
-      getUserCoordinates() {
-        return extent
-      },
-    }
-  }
-
   circleRadiusToMeters(radius: number): number {
     return radius
   }

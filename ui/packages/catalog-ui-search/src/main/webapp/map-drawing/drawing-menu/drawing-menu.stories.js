@@ -37,9 +37,7 @@ const MenuContainer = styled.div`
   height: 45px;
 `
 
-const MAP_PROJECTION = 'EPSG:4326'
-const USER_PROJECTION = 'EPSG:4326'
-const STYLE = (feature: ol.Feature): ol.style.Style =>
+const STYLE = feature =>
   new ol.style.Style({
     stroke: new ol.style.Stroke({
       color: feature.get('color'),
@@ -55,11 +53,21 @@ const STYLE = (feature: ol.Feature): ol.style.Style =>
       }),
     }),
   })
+
 const stories = storiesOf('map-drawing/drawing-menu/DrawingMenu', module)
 
-type Props = {
-  map?: ol.Map,
-}
+const renderMap = DrawingMenuWithMap => (
+  <React.Fragment>
+    <Map
+      getOlMap={olMap => {
+        map = olMap
+      }}
+      projection={MAP_PROJECTION}
+    >
+      <DrawingMenuWithMap />
+    </Map>
+  </React.Fragment>
+)
 
 stories.add('full featured', () => {
   const title = text('title', 'Untitled')
@@ -72,7 +80,7 @@ stories.add('full featured', () => {
   const geometry = makeEmptyGeometry(id, shape, {
     color,
   })
-  const DrawingMenuWithMap: React.SFC<Props> = ({ map }) => (
+  const DrawingMenuWithMap = ({ map }) => (
     <MenuContainer class="menu-container">
       <DrawingMenu
         shape={shape}
@@ -87,24 +95,11 @@ stories.add('full featured', () => {
         onOk={action('Ok')}
         onSetShape={action('setShape')}
         onUpdate={action('update')}
-        mapProjection={MAP_PROJECTION}
-        userProjection={USER_PROJECTION}
         mapStyle={STYLE}
       />
     </MenuContainer>
   )
-  return (
-    <React.Fragment>
-      <Map
-        getOlMap={olMap => {
-          map = olMap
-        }}
-        projection={MAP_PROJECTION}
-      >
-        <DrawingMenuWithMap />
-      </Map>
-    </React.Fragment>
-  )
+  return renderMap(DrawingMenuWithMap)
 })
 
 stories.add('simplified', () => {
@@ -116,7 +111,7 @@ stories.add('simplified', () => {
     id,
     color,
   })
-  const DrawingMenuWithMap: React.SFC<Props> = ({ map }) => (
+  const DrawingMenuWithMap = ({ map }) => (
     <MenuContainer class="menu-container">
       <DrawingMenu
         shape={shape}
@@ -127,24 +122,11 @@ stories.add('simplified', () => {
         onOk={action('Ok')}
         onSetShape={action('setShape')}
         onUpdate={action('update')}
-        mapProjection={MAP_PROJECTION}
-        userProjection={USER_PROJECTION}
         mapStyle={STYLE}
       />
     </MenuContainer>
   )
-  return (
-    <React.Fragment>
-      <Map
-        getOlMap={olMap => {
-          map = olMap
-        }}
-        projection={MAP_PROJECTION}
-      >
-        <DrawingMenuWithMap />
-      </Map>
-    </React.Fragment>
-  )
+  return renderMap(DrawingMenuWithMap)
 })
 
 stories.add('minimal', () => {
@@ -156,7 +138,7 @@ stories.add('minimal', () => {
     id,
     color,
   })
-  const DrawingMenuWithMap: React.SFC<Props> = ({ map }) => (
+  const DrawingMenuWithMap = ({ map }) => (
     <MenuContainer class="menu-container">
       <DrawingMenu
         shape={shape}
@@ -168,22 +150,9 @@ stories.add('minimal', () => {
         onOk={action('Ok')}
         onSetShape={action('setShape')}
         onUpdate={action('update')}
-        mapProjection={MAP_PROJECTION}
-        userProjection={USER_PROJECTION}
         mapStyle={STYLE}
       />
     </MenuContainer>
   )
-  return (
-    <React.Fragment>
-      <Map
-        getOlMap={olMap => {
-          map = olMap
-        }}
-        projection={MAP_PROJECTION}
-      >
-        <DrawingMenuWithMap />
-      </Map>
-    </React.Fragment>
-  )
+  return renderMap(DrawingMenuWithMap)
 })
