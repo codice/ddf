@@ -45,7 +45,9 @@ const comparisonClass = 'Comparison',
     DURING: /^DURING/i,
     RELATIVE: /^'RELATIVE\([A-Za-z0-9.]*\)'/i,
     TIME: new RegExp('^' + timePattern.source),
-    TIME_PERIOD: new RegExp('^' + timePattern.source + '/' + timePattern.source),
+    TIME_PERIOD: new RegExp(
+      '^' + timePattern.source + '/' + timePattern.source
+    ),
     GEOMETRY(text) {
       const type = /^(POINT|LINESTRING|POLYGON|MULTIPOINT|MULTILINESTRING|MULTIPOLYGON|GEOMETRYCOLLECTION)/.exec(
         text
