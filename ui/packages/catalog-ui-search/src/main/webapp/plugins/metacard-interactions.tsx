@@ -12,4 +12,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-module.exports = v => v
+export default (metacardInteractions: any[]) => metacardInteractions
