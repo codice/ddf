@@ -16,16 +16,9 @@ import * as React from 'react'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 import { hot } from 'react-hot-loader'
 const user = require('../../component/singletons/user-instance')
-
-import CreateLocationSearch from './location-interaction'
-import ExpandMetacard from './expand-interaction'
-import BlacklistToggle, { isBlacklisted } from './hide-interaction'
-import DownloadProduct from './download-interaction'
-import ExportActions from './export-interaction'
-import AddToList from './add-to-list-interaction'
+import { isBlacklisted } from './hide-interaction'
 import { Divider } from './metacard-interactions'
-
-const plugin = require('plugins/metacard-interactions')
+import ExtensionPoints from '../../extension-points'
 
 export type Props = {
   model: {} | any
@@ -61,16 +54,6 @@ type State = {
   model: any
 }
 
-const interactions = plugin([
-  AddToList,
-  BlacklistToggle,
-  ExpandMetacard,
-  Divider,
-  DownloadProduct,
-  CreateLocationSearch,
-  ExportActions,
-])
-
 const mapPropsToState = (props: Props) => {
   return {
     model: props.model,
@@ -105,17 +88,19 @@ class MetacardInteractions extends React.Component<Props, State> {
   render = () => {
     return (
       <>
-        {interactions.map((Component: any, i: number) => {
-          const componentName = Component.toString()
-          const key = componentName + '-' + i
-          return (
-            <Component
-              key={key}
-              {...this.props}
-              blacklisted={this.state.blacklisted}
-            />
-          )
-        })}
+        {ExtensionPoints.metacardInteractions.map(
+          (Component: any, i: number) => {
+            const componentName = Component.toString()
+            const key = componentName + '-' + i
+            return (
+              <Component
+                key={key}
+                {...this.props}
+                blacklisted={this.state.blacklisted}
+              />
+            )
+          }
+        )}
       </>
     )
   }
