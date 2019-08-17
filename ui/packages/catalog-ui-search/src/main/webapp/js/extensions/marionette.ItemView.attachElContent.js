@@ -18,14 +18,12 @@ import React from 'react'
 const Parser = require('html-react-parser')
 import ExtensionPoints from '../../extension-points'
 
-const Providers = ExtensionPoints.providers
-
 Marionette.ItemView.prototype.attachElContent = function(rendering) {
   this.triggerMethod('before:react:attach', rendering)
   render(
-    <Providers>
+    <ExtensionPoints.providers>
       {React.isValidElement(rendering) ? rendering : Parser(rendering)}
-    </Providers>,
+    </ExtensionPoints.providers>,
     this.el
   )
   this.triggerMethod('after:react:attach', rendering)
