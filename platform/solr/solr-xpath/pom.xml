@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.platform.solr</groupId>
         <artifactId>platform-solr</artifactId>
-        <version>2.17.1</version>
+        <version>2.17.2-SNAPSHOT</version>
     </parent>
     <artifactId>solr-xpath</artifactId>
     <name>DDF :: Platform :: Solr :: XPath</name>
