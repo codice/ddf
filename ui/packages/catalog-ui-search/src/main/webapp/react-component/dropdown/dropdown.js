@@ -169,7 +169,6 @@ const Component = styled.div`
   display: block;
   white-space: nowrap;
   position: relative;
-  background: ${props => props.theme.backgroundDropdown};
 `
 
 class Dropdown extends React.Component {
