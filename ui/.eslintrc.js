@@ -1,5 +1,5 @@
 module.exports = {
-    "extends": ["eslint:recommended", "plugin:react/recommended"],
+    "extends": ["eslint:recommended", "plugin:react/recommended", "@connexta/eslint-config-connexta"],
     rules: {
         /* eslint:recommended */
 
