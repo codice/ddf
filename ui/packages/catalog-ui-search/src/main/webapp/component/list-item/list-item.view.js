@@ -28,7 +28,6 @@ const user = require('../../component/singletons/user-instance')
 import NewItemManager from '../tabs/list-add/new-items-manager'
 import React from 'react'
 
-
 module.exports = Marionette.LayoutView.extend({
   tagName: CustomElements.register('list-item'),
   template,
@@ -92,6 +91,9 @@ module.exports = Marionette.LayoutView.extend({
       'change:defaultListId',
       this.handleDefault
     )
+    this.setManualCreateAsView = this.setManualCreateAsView.bind(this)
+    this.handleBack = this.handleBack.bind(this)
+    this.currentView = 'new item'
   },
   handleOutOfDate() {
     this.$el.toggleClass('is-out-of-date', this.model.get('query>isOutdated'))
@@ -149,10 +151,15 @@ module.exports = Marionette.LayoutView.extend({
     e.stopPropagation()
   },
   triggerAdd(e) {
-    lightboxInstance.model.updateTitle('Add List Items')
+    lightboxInstance.model.updateTitle('Add items')
+    lightboxInstance.model
     lightboxInstance.model.open()
     lightboxInstance.showContent(
-      <NewItemManager/>
+      (<NewItemManager currentView={this.currentView} setManualCreateAsView={this.setManualCreateAsView} />),
+      undefined,
+      this.handleBack
+    )
+    
       // new ListAddTabsView({
       //   extraHeaders: {
       //     'List-ID': this.model.attributes.id,
@@ -163,8 +170,20 @@ module.exports = Marionette.LayoutView.extend({
       //   handleNewMetacard: id => this.handleNewMetacard(id),
       //   close: () => lightboxInstance.close(),
       // })
-    )
+    //)
     e.stopPropagation()
+  },
+  handleBack() {
+    if(this.currentView!='new item'){
+      this.currentView = 'new item'
+    }
+    lightboxInstance.render()
+    this.render()
+  },
+  setManualCreateAsView() {
+    this.currentView = 'manual upload'
+    lightboxInstance.render()
+    this.render()
   },
   handleNewMetacard(id) {
     if (id) {

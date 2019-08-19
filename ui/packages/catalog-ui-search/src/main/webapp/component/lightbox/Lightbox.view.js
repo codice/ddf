@@ -25,9 +25,11 @@ import MarionetteRegionContainer from '../../react-component/marionette-region-c
 
 module.exports = Marionette.LayoutView.extend(
   {
-    showContent(contentComponent, onClose) {
+    showContent(contentComponent, onClose, onBack) {
       this.contentComponent = contentComponent
       this.onClose = onClose
+      console.log(onBack)
+      this.onBack = onBack
       this.render()
     },
     template() {
@@ -45,14 +47,26 @@ module.exports = Marionette.LayoutView.extend(
       } else if (this.contentComponent !== undefined) {
         component = this.contentComponent
       }
+
+      let backButton = (<div></div>)
+      if( this.onBack !== undefined ) {
+        backButton = (
+          <button title="back" className="lightbox-back is-button">
+            <span className="fa fa-angle-left"/>
+          </button>
+        )
+      }
+     
       return (
+
         <React.Fragment>
           <div className="lightbox-container">
             <div className="lightbox-title-bar clearfix">
+              {backButton}
+              <span className="lightbox-title">{this.model.get('title')}</span>
               <button title="close" className="lightbox-close is-button">
                 <span className="fa fa-times" />
               </button>
-              <span className="lightbox-title">{this.model.get('title')}</span>
             </div>
             <div className="lightbox-content">{component}</div>
           </div>
@@ -67,6 +81,7 @@ module.exports = Marionette.LayoutView.extend(
     events: {
       click: 'handleOutsideClick',
       'click .lightbox-close': 'close',
+      'click .lightbox-back': 'back'
     },
     initialize() {
       $('body').append(this.el)
@@ -107,6 +122,14 @@ module.exports = Marionette.LayoutView.extend(
         }
       )
     },
+    listenForBack() {
+      this.$el.on(
+        CustomElements.getNamespace() + 'back-' + componentName,
+        () => {
+          this.back()
+        }
+      )
+    },
     handleOpen() {
       this.$el.toggleClass('is-open', this.model.isOpen())
       $('html').toggleClass('open-lightbox', true)
@@ -120,6 +143,11 @@ module.exports = Marionette.LayoutView.extend(
     handleOutsideClick(event) {
       if (event.target === this.el) {
         this.close()
+      }
+    },
+    back() {
+      if (typeof this.onBack === 'function') {
+        this.onBack()
       }
     },
     close() {

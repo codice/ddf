@@ -17,8 +17,8 @@ const Marionette = require('marionette')
 const IngestView = require('../ingest/ingest.view')
 const BuilderView = require('../builder/builder.view')
 import AttributeEditor from '../tabs/list-add/attribute-editor'
-import {BuilderStart} from '../builder/builder-start'
-import {InformalProductsTable} from '../../react-component/informal-products/informal-upload-table'
+import { BuilderStart } from '../builder/builder-start'
+import { InformalProductsTable } from '../../react-component/informal-products/informal-upload-table'
 import React from 'react'
 import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 import styled from 'styled-components'
@@ -56,29 +56,28 @@ const ManualView = styled.div`
 `
 
 class NewItem extends React.Component {
-   constructor(props) {
+  constructor(props) {
     super(props)
     const ingestView = new IngestView()
     this.state = {
-      ingestView
+      ingestView,
     }
-   }
+  }
 
-   componentDidMount() {
-     console.log(this.state.ingestView)
-   }
+  componentDidMount() {
+    //console.log(this.state.ingestView)
+  }
 
   render() {
     return (
       <React.Fragment>
         <ItemCreationView>
           <UploadView>
-            <AttributeEditor metacardType={this.props.metacardType}/>
-            {/* <MarionetteRegionContainer
+            {/* <AttributeEditor metacardType={this.props.metacardType} /> */}
+            <MarionetteRegionContainer
               className="upload-menu"
               view={IngestView}
-            /> */}
-
+            />
           </UploadView>
           <OrContainer>
             <StyleLine />
@@ -87,8 +86,8 @@ class NewItem extends React.Component {
           </OrContainer>
 
           <ManualView>
-            <BuilderStart onManualSubmit={this.props.onManualSubmit}/>
-              {/* <InformalProductsTable 
+            <BuilderStart onManualSubmit={this.props.onManualSubmit} />
+            {/* <InformalProductsTable 
                   files={this.props.files}
                 /> */}
           </ManualView>
@@ -98,5 +97,4 @@ class NewItem extends React.Component {
   }
 }
 
-export {NewItem}
-
+export { NewItem }

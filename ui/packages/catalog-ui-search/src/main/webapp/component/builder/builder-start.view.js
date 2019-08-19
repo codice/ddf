@@ -8,78 +8,74 @@ import {
 
 const metacardDefinitions = require('../singletons/metacard-definitions.js')
 
-
 const BuilderStartStyle = styled.div`
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 `
 
 const SpacingStyle = styled.div`
-    padding: ${props => props.theme.minimumSpacing};
+  padding: ${props => props.theme.minimumSpacing};
 `
 
 class BuilderStart extends React.Component {
-    constructor(props) {
-        super(props);
-        const mds = metacardDefinitions.metacardDefinitions;
-        const metacardTypes = Object.keys(mds).map(card => ({label: card, value: card}))
-        this.state = {
-            entities: metacardTypes,
-            selectedType: undefined
-        };
-
-        this.getSelectedItem = this.getSelectedItem.bind(this);
-        this.startItemCreation = this.startItemCreation.bind(this);
+  constructor(props) {
+    super(props)
+    const mds = metacardDefinitions.metacardDefinitions
+    const metacardTypes = Object.keys(mds).map(card => ({
+      label: card,
+      value: card,
+    }))
+    this.state = {
+      entities: metacardTypes,
+      selectedType: undefined,
     }
 
-    componentDidMount() {
-    
-    }
+    this.getSelectedItem = this.getSelectedItem.bind(this)
+    this.startItemCreation = this.startItemCreation.bind(this)
+  }
 
-    componentWillUnmount() {
+  componentDidMount() {}
 
-    }
+  componentWillUnmount() {}
 
-    startItemCreation() {
-        console.log(this.state.selectedType);
-    }
+  startItemCreation() {
+    console.log(this.state.selectedType)
+  }
 
-    getSelectedItem = (metacardType) => {
-        this.setState({
-            selectedType: metacardType
-        });
-    }
+  getSelectedItem = metacardType => {
+    this.setState({
+      selectedType: metacardType,
+    })
+  }
 
-    render() {
-        return (
-            <div>
-                <BuilderStartStyle>  
-                    <SpacingStyle>
-                    Manually create an item.
-                    </SpacingStyle>
-                    <Enum
-                        options = {this.state.entities}
-                        value = {this.state.entities[0].value}
-                        filtering = {true}
-                        label = "Item Type"
-                        onChange = {this.getSelectedItem}
-                    />
-                    <SpacingStyle>
-                        <Button 
-                        buttonType={buttonTypeEnum.primary}
-                        text="Create item"
-                        disabled={false}
-                        icon=""
-                        style={{width: '100%'}}
-                        inText={false}
-                        fadeUntilHover={false}
-                        onClick={this.startItemCreation}/>
-                    </SpacingStyle>
-                </BuilderStartStyle>   
-            </div>
-            
-        )
-    }
+  render() {
+    return (
+      <div>
+        <BuilderStartStyle>
+          <SpacingStyle>Manually create an item.</SpacingStyle>
+          <Enum
+            options={this.state.entities}
+            value={this.state.entities[0].value}
+            filtering={true}
+            label="Item Type"
+            onChange={this.getSelectedItem}
+          />
+          <SpacingStyle>
+            <Button
+              buttonType={buttonTypeEnum.primary}
+              text="Create item"
+              disabled={false}
+              icon=""
+              style={{ width: '100%' }}
+              inText={false}
+              fadeUntilHover={false}
+              onClick={this.startItemCreation}
+            />
+          </SpacingStyle>
+        </BuilderStartStyle>
+      </div>
+    )
+  }
 }
 
-export {BuilderStart}
+export { BuilderStart }

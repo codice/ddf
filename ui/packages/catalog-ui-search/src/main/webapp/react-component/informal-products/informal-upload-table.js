@@ -13,74 +13,77 @@
  *
  **/
 
-import  React, { useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
-import {ProgressBarWithText} from './progress-car'
+import { ProgressBarWithText } from './progress-car'
 
+//TODO center items vertically
 const InformalProductsTableStyleComp = styled.table`
-    width: 100%;
-    height: 100%;
-    border-spacing: 0px;
-    text-align: left;
-    & > tbody > tr:nth-child(odd) {
-        background-color: ${props => props.theme.backgroundAccentContent};
-    };
-    & p: {
-        padding-left: ${props => props.theme.minimumSpacing};
-    };
+  width: 100%;
+  height: 100%;
+  border-spacing: 0px;
+  text-align: left;
+  & > tbody > tr:nth-child(odd) {
+    background-color: ${props => props.theme.backgroundAccentContent};
+  }
+  & p {
+    padding-left: ${props => props.theme.minimumSpacing};
+  }
 `
 
 const InformalProductsTableRowStyleComp = styled.tr`
-    padding: ${props => props.theme.minimumSpacing};
+  padding: ${props => props.theme.minimumSpacing};
 `
 
-const InformalProductsTable = (props) => {
-    const {uploads} = props
+const InformalProductsTable = props => {
+  const { uploads } = props
 
-    function handleMessageClick() {
-        console.log("Message was clicked");
-    }
+  function handleMessageClick() {
+    console.log('Message was clicked')
+  }
 
-    return(
-        <InformalProductsTableStyleComp>
-            <col width="60%"></col>
-            <col width="10%"></col>
-            <col width="30%"></col>
-            <thead>
-                <tr>
-                    <th>
-                        <p>Title</p>
-                    </th>
-                    <th>
-                        <p>Type</p>
-                    </th>
-                    <th> 
-                        <p>Status</p>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                {props.files.map((file) => {
-                    return(
-                        <InformalProductsTableRowStyleComp>
-                                <td>
-                                    <p>{file.name}</p>
-                                </td>
-                                <td>
-                                    <p>{file.upload.fileType}</p>
-                                </td>
-                                <td>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-                                    <ProgressBarWithText progress={file.upload.progress} 
-                                                         message={file.status} 
-                                                         messageOnClick={file.onClick}/>
-                                </td>
-                            </InformalProductsTableRowStyleComp>
-                        )
-                })}
-            </tbody>
-        </InformalProductsTableStyleComp>
-    )
+  return (
+    <InformalProductsTableStyleComp>
+      <col width="60%" />
+      <col width="10%" />
+      <col width="30%" />
+      <thead>
+        <tr>
+          <th>
+            <p>Title</p>
+          </th>
+          <th>
+            <p>Type</p>
+          </th>
+          <th>
+            <p>Status</p>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {props.files.map(file => {
+          return (
+            <InformalProductsTableRowStyleComp>
+              <td>
+                <p>{file.name}</p>
+              </td>
+              <td>
+                <p>{file.fileType}</p>
+              </td>
+              <td>
+                <ProgressBarWithText
+                  progress={file.upload.progress}
+                  status={file.status}
+                  messageOnClick={file.onClick}
+                  message={file.message}
+                />
+              </td>
+            </InformalProductsTableRowStyleComp>
+          )
+        })}
+      </tbody>
+    </InformalProductsTableStyleComp>
+  )
 }
 
-
-export {InformalProductsTable}
+export { InformalProductsTable }

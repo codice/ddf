@@ -12,44 +12,45 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import  React, { useState } from 'react'
+import React, { useState } from 'react'
 import { storiesOf, number, text } from '../storybook'
-import {InformalProductsTable} from './informal-upload-table'
-import {ProgressBar, ProgressBarWithText} from './progress-car'
+import { InformalProductsTable } from './informal-upload-table'
+import { ProgressBar, ProgressBarWithText } from './progress-car'
 
 const stories = storiesOf('Informal Products', module)
 
 stories.add('progress bar', () => {
-    const progress = number('Progress Amount', 50)
-    return (
-        <ProgressBar progress={progress}/>
-    )
+  const progress = number('Progress Amount', 50)
+  return <ProgressBar progress={progress} />
 })
 
 stories.add('progress bar with text', () => {
-    const progress = number('progress amount', 74)
-    const message = text('message', 'Stop')
-    return(
-     <ProgressBarWithText progress={progress} message={message}/>
-    )
+  const progress = number('progress amount', 74)
+  const message = text('message', 'Stop')
+  return <ProgressBarWithText progress={progress} message={message} />
 })
 
 stories.add('uploads table', () => {
-    const uploads = [{title: 'Document 1', 
-                     fileType: 'JIF LOREM EPSO DO DA UNUM',
-                     progress: 40,
-                     message: 'Stop'},
-                    {title: 'Document 2: Document Reloaded', 
-                     fileType: 'NEO',
-                     progress: null,
-                     message: 'Failed. Try again?'},
-                     {title: 'Document 3: Document Revolutions', 
-                     fileType: 'PDF',
-                     progress: 10,
-                     message: 'Duplicate Detected'}]
+  const uploads = [
+    {
+      title: 'Document 1',
+      fileType: 'JIF LOREM EPSO DO DA UNUM',
+      progress: 40,
+      message: 'Stop',
+    },
+    {
+      title: 'Document 2: Document Reloaded',
+      fileType: 'NEO',
+      progress: null,
+      message: 'Failed. Try again?',
+    },
+    {
+      title: 'Document 3: Document Revolutions',
+      fileType: 'PDF',
+      progress: 10,
+      message: 'Duplicate Detected',
+    },
+  ]
 
-    return (
-        <InformalProductsTable uploads={uploads}/>
-    )
+  return <InformalProductsTable uploads={uploads} />
 })
-

@@ -33,6 +33,15 @@
       rgba(0, 0, 0, 0.15) 0 15px 10px, rgba(0, 0, 0, 0.3) 0 8px 36px;
   }
 
+  .lightbox-back {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    font-size: @largeFontSize;
+    height: @minimumButtonSize;
+    width: @minimumButtonSize;
+  }
+
   .lightbox-title-bar {
     border-bottom: 1px solid;
     text-align: center;
@@ -44,12 +53,13 @@
   .lightbox-close {
     position: absolute;
     right: 0px;
+    top: 0px;
     height: @minimumButtonSize;
     width: @minimumButtonSize;
   }
 
   .lightbox-title {
-    display: block;
+    display: inline-block;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;

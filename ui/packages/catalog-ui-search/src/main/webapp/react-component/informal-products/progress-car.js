@@ -12,66 +12,72 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import  React, { useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 
 const StatusContainer = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 `
 
 const Root = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-grow: 9;
-    height: ${props => props.theme.minimumLineSize};
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-grow: 9;
+  height: ${props => props.theme.minimumLineSize};
 `
 
 const Background = styled.div`
-    height: 50%;
-    background: ${props => props.theme.backgroundAccentContent};
-    box-shadow: inset 0px 1px 1px 1px rgb(11, 24, 33);
-    border-radius: calc(${props => props.theme.minimumLineSize} / 4);
-    width: 100%;
+  height: 50%;
+  background: ${props => props.theme.backgroundAccentContent};
+  box-shadow: inset 0px 1px 1px 1px rgb(11, 24, 33);
+  border-radius: calc(${props => props.theme.minimumLineSize} / 4);
+  width: 100%;
 `
 
 const Foreground = styled.div`
-    width: ${props => props.width}%;
-    height: 100%;
-    background: rgba(0,0,0,0.75);
-    line-height: ${props => props.theme.minimumLineSize};
-    vertical-align: middle;
-    border-radius: calc(${props => props.theme.minimumLineSize} / 2);
+  width: ${props => props.width}%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  line-height: ${props => props.theme.minimumLineSize};
+  vertical-align: middle;
+  border-radius: calc(${props => props.theme.minimumLineSize} / 2);
 `
 
 const Line = styled.div`
-    flex-grow: 1;
-    line-height: ${props => props.theme.minimumLineSize};
-    padding-left: ${props => props.theme.minimumSpacing};
-    color: ${props => props.theme.primaryColor};
+  flex-grow: 1;
+  line-height: ${props => props.theme.minimumLineSize};
+  padding-left: ${props => props.theme.minimumSpacing};
+  color: ${props => props.theme.primaryColor};
 `
 
-const ProgressBar = (props) => {
-    const { progress } = props
-    return (
-        <Root>
-            <Background>
-                <Foreground width={progress} />
-            </Background>
-        </Root>
-    ) 
+const Message = styled.div`
+  color: ${props => props.theme.warningColor};
+`
+
+const ProgressBar = props => {
+  const { progress } = props
+  return (
+    <Root>
+      <Background>
+        <Foreground width={progress} />
+      </Background>
+    </Root>
+  )
 }
 
-const ProgressBarWithText = (props) => {
-    const {progress, message, messageOnClick} = props
-    return (
-        <StatusContainer>
-            { progress ? <ProgressBar progress={progress} /> : <div></div>}
-            <Line onClick={messageOnClick}>{message}</Line>
-        </StatusContainer>
-    )
+const ProgressBarWithText = props => {
+  const { progress, status, message, messageOnClick } = props
+  return (
+    <StatusContainer>
+      {progress ? <ProgressBar progress={progress} /> : <div />}
+      <Line onClick={messageOnClick}>{status}
+        <Message>{message}</Message>
+      </Line>
+    </StatusContainer>
+  )
 }
 
-export {ProgressBar, ProgressBarWithText}
+export { ProgressBar, ProgressBarWithText }

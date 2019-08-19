@@ -49,51 +49,35 @@ module.exports = Marionette.LayoutView.extend({
   template() {
     return (
       <React.Fragment>
-      <div className="details-files">
-      </div>
-      <div className="details-dropzone">
+        <div className="details-files" />
+        <div className="details-dropzone">
           <div className="dropzone-text">
-              <span class="dropdown-icon fa fa-upload"></span>
-              <div></div>
-              Drag files to upload.
-              <div></div>
-              Or click to browse.
+            <span class="dropdown-icon fa fa-upload" />
+            <div />
+            Drag files to upload.
+            <div />
+            Or click to browse.
           </div>
-      </div>
-    <div className="details-summary">
-      </div>
-      <div className="details-footer">
+        </div>
+        <div className="details-summary" />
+        <div className="details-footer">
           <button className="footer-clear is-negative">
-              <span className="fa fa-times">
-              </span>
-              <span>
-                  Clear
-              </span>
+            <span className="fa fa-times" />
+            <span>Clear</span>
           </button>
-            <button className="footer-start is-positive">
-              <span className="fa fa-upload">
-                  
-              </span>
-              <span>
-                  Start
-              </span>
+          <button className="footer-start is-positive">
+            <span className="fa fa-upload" />
+            <span>Start</span>
           </button>
-            <button className="footer-cancel is-negative">
-              <span className="fa fa-stop">
-              </span>
-              <span>
-                  Stop
-              </span>
+          <button className="footer-cancel is-negative">
+            <span className="fa fa-stop" />
+            <span>Stop</span>
           </button>
-             <button className="footer-new is-positive">
-              <span className="fa fa-upload">
-                  
-              </span>
-              <span>
-                  New
-              </span>
+          <button className="footer-new is-positive">
+            <span className="fa fa-upload" />
+            <span>New</span>
           </button>
-      </div>
+        </div>
       </React.Fragment>
     )
   },
