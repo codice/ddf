@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import plugin from '../../plugins/navigation-right'
+import plugin from 'plugins/navigation-right'
 
 import {
   Help,
