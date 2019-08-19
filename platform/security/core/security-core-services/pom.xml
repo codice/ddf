@@ -270,7 +270,6 @@
                             ddf.security.assertion.impl;version=${project.version},
                             ddf.security.assertion.jwt.impl;version=${project.version},
                             ddf.security.assertion.saml.impl;version=${project.version},
-                            ddf.security.impl;version=${project.version},
                             ddf.security.service.impl;version=${project.version},
                             ddf.security.http.impl;version=${project.version},
                             ddf.security.samlp.impl;version=${project.version}
