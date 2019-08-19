@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.16.1. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.17.1. Copyright (c) Codice Foundation">
 <title>DDF Reference Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,7 +520,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>DDF Reference Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.16.1. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.17.1. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -4627,6 +4627,11 @@ These services comprise both a framework that developers and integrators can ext
 <td class="tableblock halign-left valign-top"><p class="tableblock">Logout Page configurations.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.security.handler.oidc.OidcHandler">OIDC Handler</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.security.handler.oidc.OidcHandler</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OIDC Handler configurations.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.security.policy.context.impl.PolicyManager">Web Context Policy Manager</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.security.policy.context.impl.PolicyManager</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Web Context Security Policies.</p></td>
@@ -4667,14 +4672,9 @@ These services comprise both a framework that developers and integrators can ext
 <td class="tableblock halign-left valign-top"><p class="tableblock">STS Client configurations.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_ddf.security.sts.guestclaims">Security STS Guest Claims Handler</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ddf.security.sts.guestclaims</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Guest Claims Handler configurations.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_ddf.security.sts.guestvalidator">Guest Validator</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ddf.security.sts.guestvalidator</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Security STS Guest Validator configurations.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_ddf.security.guest.realm">Guest Claims Configuration</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ddf.security.guest.realm</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Guest Claims configurations.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.security.validator.pki">Security STS PKI Token Validator</a></p></td>
@@ -4897,7 +4897,105 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 56. <a id="_org.codice.ddf.security.policy.context.impl.PolicyManager"></a>Web Context Policy Manager</caption>
+<caption class="title">Table 56. <a id="_org.codice.ddf.security.handler.oidc.OidcHandler"></a>OIDC Handler</caption>
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 42.8571%;">
+<col style="width: 14.2858%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Id</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IdP Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>idpType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">IdP type to use.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Keycloak</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Client ID</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>clientId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unique ID for the client, this may be provided by the Identity Provider.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ddf-client</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Realm/Tenant</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>realm</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Realm to use for a multi-tenant environment. This is required for Keycloak or Azure.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">master</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>secret</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This value must match the value set on the Identity Provider.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">secret</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Discovery URI</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>discoveryUri</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Discovery URI for fetching OP metadata (<a href="http://openid.net/specs/openid-connect-discovery-1_0.html" class="bare">http://openid.net/specs/openid-connect-discovery-1_0.html</a>).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://localhost:8080/auth/realms/master/.well-known/openid-configuration" class="bare">http://localhost:8080/auth/realms/master/.well-known/openid-configuration</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Base URI</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>baseUri</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Base URI for IdP. Do not fill out both this and the Discovery URI. Only one is needed depending on the IdP in use.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://localhost:8080/auth" class="bare">http://localhost:8080/auth</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Logout URI</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>logoutUri</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URI directing to single logout service of the IdP in use.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://localhost:8080/auth/realms/master/protocol/openid-connect/logout" class="bare">http://localhost:8080/auth/realms/master/protocol/openid-connect/logout</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Scope</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>scope</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OIDC scopes.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">openid profile email resource.read</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use Nonce</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>useNonce</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether or not to use nonce in JWT.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Response Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>responseType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Response type to use.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">code</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>responseMode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mode. Leave blank if you are unsure of the value to use.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">form_post</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 57. <a id="_org.codice.ddf.security.policy.context.impl.PolicyManager"></a>Web Context Policy Manager</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4926,33 +5024,49 @@ These services comprise both a framework that developers and integrators can ext
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allow Guest Access</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>guestAccess</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allow guest access to all web contexts. Required attributes can be used to restrict access to contexts from guest users.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allow Session Storage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sessionAccess</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allow for session cookies to be used. Note that the SAML and OIDC authentication types require session storage to be enabled.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Types</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationTypes</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of authentication types required for each context. List of default valid authentication types are: IDP, SAML, BASIC, PKI, GUEST. Example: /context=AUTH1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of authentication types required for each context. List of default valid authentication types are: BASIC, PKI, SAML, and OIDC. Example: /context=AUTH1</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">AUTH2</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">AUTH3</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">/=IDP</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>GUEST,/admin=IDP</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">basic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/=SAML,/admin=SAML</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>BASIC</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Required Attributes</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">requiredAttributes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>List of attributes required for each Web Context. Example: /context={role=role1;type=type1}</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes required for each Web Context. Example: /context={role=role1;type=type1}</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">White Listed Contexts</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">whiteListContexts</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 </tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 57. <a id="_org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler"></a>File Based Claims Handler</caption>
+<caption class="title">Table 58. <a id="_org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler"></a>File Based Claims Handler</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5007,7 +5121,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 58. <a id="_org.codice.ddf.security.filter.login.Session"></a>Session</caption>
+<caption class="title">Table 59. <a id="_org.codice.ddf.security.filter.login.Session"></a>Session</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5040,7 +5154,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 59. <a id="_org.codice.ddf.security.idp.client.IdpHandler"></a>IdP Handler</caption>
+<caption class="title">Table 60. <a id="_org.codice.ddf.security.idp.client.IdpHandler"></a>IdP Handler</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -5068,7 +5182,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 60. <a id="_ddf.security.pdp.realm.AuthzRealm"></a>Security AuthZ Realm</caption>
+<caption class="title">Table 61. <a id="_ddf.security.pdp.realm.AuthzRealm"></a>Security AuthZ Realm</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5115,7 +5229,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 61. <a id="_ddf.security.service.SecurityManager"></a>SAML NameID Policy</caption>
+<caption class="title">Table 62. <a id="_ddf.security.service.SecurityManager"></a>SAML NameID Policy</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5146,7 +5260,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 62. <a id="_ddf.security.sts"></a>Security STS Server</caption>
+<caption class="title">Table 63. <a id="_ddf.security.sts"></a>Security STS Server</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5201,7 +5315,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 63. <a id="_ddf.security.sts.client.configuration"></a>Security STS Client</caption>
+<caption class="title">Table 64. <a id="_ddf.security.sts.client.configuration"></a>Security STS Client</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5312,7 +5426,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 64. <a id="_ddf.security.sts.guestclaims"></a>Security STS Guest Claims Handler</caption>
+<caption class="title">Table 65. <a id="_ddf.security.guest.realm"></a>Guest Claims Configuration</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5338,37 +5452,6 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The attributes to be returned for any Guest user.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=guest,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest" class="bare">http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=guest,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 65. <a id="_ddf.security.sts.guestvalidator"></a>Guest Validator</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Supported Realms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>supportedRealm</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The realms that this validator supports.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">karaf,ldap</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 </tbody>
@@ -9519,7 +9602,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>This list of DDF dependencies is automatically generated:</p>
 </div>
 <div class="ulist">
-<div class="title">DDF 2.16.1 Dependency List.</div>
+<div class="title">DDF 2.17.1 Dependency List.</div>
 <ul>
 <li>
 <p>c3p0:c3p0:jar:0.9.1.1</p>
@@ -10745,7 +10828,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-08-12 20:35:40 MST
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-08-19 09:58:17 MST
 </div>
 </div>
 </body>
