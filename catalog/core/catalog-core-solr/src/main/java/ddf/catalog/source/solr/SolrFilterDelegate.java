@@ -480,6 +480,46 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
   }
 
   @Override
+  public SolrQuery propertyIsBetween(
+      String propertyName, short lowerBoundary, short upperBoundary) {
+    return getBetweenQuery(propertyName, AttributeFormat.SHORT, lowerBoundary, upperBoundary);
+  }
+
+  @Override
+  public SolrQuery propertyIsBetween(String propertyName, int lowerBoundary, int upperBoundary) {
+    return getBetweenQuery(propertyName, AttributeFormat.INTEGER, lowerBoundary, upperBoundary);
+  }
+
+  @Override
+  public SolrQuery propertyIsBetween(String propertyName, long lowerBoundary, long upperBoundary) {
+    return getBetweenQuery(propertyName, AttributeFormat.LONG, lowerBoundary, upperBoundary);
+  }
+
+  @Override
+  public SolrQuery propertyIsBetween(
+      String propertyName, float lowerBoundary, float upperBoundary) {
+    return getBetweenQuery(propertyName, AttributeFormat.FLOAT, lowerBoundary, upperBoundary);
+  }
+
+  @Override
+  public SolrQuery propertyIsBetween(
+      String propertyName, double lowerBoundary, double upperBoundary) {
+    return getBetweenQuery(propertyName, AttributeFormat.DOUBLE, lowerBoundary, upperBoundary);
+  }
+
+  @Override
+  public SolrQuery propertyIsBetween(
+      String propertyName, Object lowerBoundary, Object upperBoundary)
+      throws IllegalArgumentException {
+
+    if (lowerBoundary instanceof Number && upperBoundary instanceof Number) {
+      return getBetweenQuery(
+          propertyName, AttributeFormat.FLOAT, (Number) lowerBoundary, (Number) upperBoundary);
+    }
+    throw new IllegalArgumentException("Non Number Object values are not accepted.");
+  }
+
+  @Override
   public SolrQuery propertyIsGreaterThanOrEqualTo(String propertyName, short literal) {
     return getGreaterThanOrEqualToQuery(propertyName, AttributeFormat.SHORT, literal);
   }
@@ -908,6 +948,23 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     SolrQuery query = new SolrQuery();
     query.setQuery(" " + mappedPropertyName + ":" + literal.toString());
+
+    return query;
+  }
+
+  private SolrQuery getBetweenQuery(
+      String propertyName, AttributeFormat format, Number lowerBoundary, Number upperBoundary) {
+    String mappedPropertyName = getMappedPropertyName(propertyName, format, true);
+
+    SolrQuery query = new SolrQuery();
+    query.setQuery(
+        " "
+            + mappedPropertyName
+            + ":[ "
+            + lowerBoundary.toString()
+            + TO
+            + upperBoundary.toString()
+            + "] ");
 
     return query;
   }
