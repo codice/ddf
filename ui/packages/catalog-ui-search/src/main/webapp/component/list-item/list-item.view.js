@@ -152,7 +152,6 @@ module.exports = Marionette.LayoutView.extend({
   },
   triggerAdd(e) {
     lightboxInstance.model.updateTitle('Add items')
-    lightboxInstance.model
     lightboxInstance.model.open()
     lightboxInstance.showContent(
       (<NewItemManager currentView={this.currentView} setManualCreateAsView={this.setManualCreateAsView} />),
@@ -176,14 +175,13 @@ module.exports = Marionette.LayoutView.extend({
   handleBack() {
     if(this.currentView!='new item'){
       this.currentView = 'new item'
+      this.onBack = undefined
     }
-    lightboxInstance.render()
-    this.render()
+    this.triggerAdd()
   },
   setManualCreateAsView() {
     this.currentView = 'manual upload'
-    lightboxInstance.render()
-    this.render()
+    this.triggerAdd()
   },
   handleNewMetacard(id) {
     if (id) {
