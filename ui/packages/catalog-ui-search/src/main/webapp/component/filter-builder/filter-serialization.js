@@ -55,6 +55,7 @@ const comparatorToCQL = {
   '=': '=',
   '<=': '<=',
   '>=': '>=',
+  RANGE: 'BETWEEN',
 }
 
 const cqlToComparator = Object.keys(comparatorToCQL).reduce((mapping, key) => {
@@ -97,10 +98,19 @@ const transformFilter = filter => {
       ? 'RELATIVE'
       : cqlToComparator[type]
 
+  let parsedValue
+  if (type === 'DURING') {
+    parsedValue = `${filter.from}/${filter.to}`
+  } else if (type === 'BETWEEN') {
+    parsedValue = { lower: filter.lowerBoundary, upper: filter.upperBoundary }
+  } else {
+    parsedValue = value
+  }
+
   return {
     type: property,
     comparator,
-    value: [type === 'DURING' ? `${filter.from}/${filter.to}` : value],
+    value: [parsedValue],
   }
 }
 

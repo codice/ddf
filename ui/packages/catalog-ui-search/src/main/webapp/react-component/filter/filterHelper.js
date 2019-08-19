@@ -18,6 +18,7 @@ const properties = require('../../js/properties.js')
 const MultivalueView = require('../../component/multivalue/multivalue.view.js')
 const RelativeTimeView = require('../../component/relative-time/relative-time.view.js')
 const BetweenTimeView = require('../../component/between-time/between-time.view.js')
+const BetweenNumberView = require('../../component/between-number/between-number.view.js')
 
 export const generatePropertyJSON = (value, type, comparator) => {
   const propertyJSON = _.extend({}, metacardDefinitions.metacardTypes[type], {
@@ -36,6 +37,11 @@ export const generatePropertyJSON = (value, type, comparator) => {
 
   if (propertyJSON.type === 'STRING') {
     propertyJSON.placeholder = 'Use * for wildcard.'
+  }
+
+  if (comparator === 'RANGE') {
+    propertyJSON.typeOfValues = propertyJSON.type
+    propertyJSON.type = 'RANGE'
   }
 
   if (comparator === 'NEAR' && propertyJSON.type === 'STRING') {
@@ -66,6 +72,9 @@ export const determineView = comparator => {
     case 'BETWEEN':
       necessaryView = BetweenTimeView
       break
+    case 'RANGE':
+      necessaryView = BetweenNumberView
+      break
     default:
       necessaryView = MultivalueView
       break
@@ -80,6 +89,18 @@ export const transformValue = (value, comparator) => {
         value[0] = {
           value: value[0],
           distance: 2,
+        }
+      }
+      break
+    case 'RANGE':
+      if (
+        value[0] !== undefined &&
+        value[0] !== null &&
+        value[0].constructor !== Object
+      ) {
+        value[0] = {
+          lower: value[0] || 0,
+          upper: value[0] || 0,
         }
       }
       break

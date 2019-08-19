@@ -254,6 +254,11 @@ function generateFilter(type, property, value, metacardDefinitions) {
         filter.to = dates[1]
       }
 
+      if (type === 'BETWEEN') {
+        filter.lowerBoundary = value.lower
+        filter.upperBoundary = value.upper
+      }
+
       return filter
   }
 }
