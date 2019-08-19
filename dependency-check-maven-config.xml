@@ -328,6 +328,8 @@
         <cve>CVE-2018-11766</cve>
         <cve>CVE-2016-6811</cve>
         <cve>CVE-2017-3162</cve>
+        <!-- Remove this once Solr is upgraded to 8.2 -->
+        <cve>CVE-2019-0193</cve>
     </suppress>
     <suppress>
         <notes>
@@ -337,6 +339,14 @@
             dependencies have upgraded.
         </notes>
         <cve>CVE-2019-14379</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+      This is a false positive due to our module name matching the OWASP regex for this CVE
+    ]]></notes>
+        <gav regex="true">^ddf\.security\.idp:security-idp-plugin-requestsubjectvalidator:.*$</gav>
+        <cve>CVE-2017-16026</cve>
     </suppress>
 
 </suppressions>
