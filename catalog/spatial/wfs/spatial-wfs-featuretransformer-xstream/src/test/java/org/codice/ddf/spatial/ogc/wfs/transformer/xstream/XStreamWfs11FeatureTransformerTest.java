@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -187,7 +188,8 @@ public class XStreamWfs11FeatureTransformerTest {
   private MetacardMapper mockMetacardMapper() {
     MetacardMapper metacardMapper = mock(MetacardMapper.class);
     when(metacardMapper.getFeatureType()).thenReturn(PETER_PAN_NAME.toString());
-    when(metacardMapper.getMetacardAttribute(MAPPED_ATTRIBUTE)).thenReturn("title");
+    when(metacardMapper.getMetacardAttribute(MAPPED_ATTRIBUTE)).thenReturn(Core.TITLE);
+    when(metacardMapper.getMetacardAttribute("SpatialData")).thenReturn(Core.LOCATION);
     return metacardMapper;
   }
 }
