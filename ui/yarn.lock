@@ -1172,13 +1172,12 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@connexta/ace@*", "@connexta/ace@git://github.com/connexta/ace.git#a821ea66f6ecb4404a6a23e9e86a95a0064a113f":
+"@connexta/ace@*", "@connexta/ace@git://github.com/connexta/ace.git#f51c1b59ec73fea2c196cf5b59eaf4ad48dddcee":
   version "1.0.0"
-  resolved "git://github.com/connexta/ace.git#a821ea66f6ecb4404a6a23e9e86a95a0064a113f"
+  resolved "git://github.com/connexta/ace.git#f51c1b59ec73fea2c196cf5b59eaf4ad48dddcee"
   dependencies:
     "@babel/core" "^7.0.0"
     "@connexta/eslint-plugin-connexta" "git://github.com/connexta/eslint-plugin-connexta.git#v0.0.2"
-    "@hot-loader/react-dom" "16.8.6"
     "@storybook/addon-actions" "5.1.9"
     "@storybook/addon-info" "5.1.9"
     "@storybook/addon-knobs" "5.1.9"
@@ -1233,7 +1232,7 @@
     raw-loader "0.5.1"
     react-dev-utils "5.0.2"
     react-docgen-typescript-loader "^3.1.0"
-    react-hot-loader "4.12.10"
+    react-hot-loader "4.12.6"
     rimraf "2.6.2"
     script-loader "0.7.2"
     simple-progress-webpack-plugin "1.1.2"
@@ -1531,16 +1530,6 @@
   dependencies:
     humps "^2.0.1"
     prop-types "^15.5.10"
-
-"@hot-loader/react-dom@16.8.6":
-  version "16.8.6"
-  resolved "https://registry.yarnpkg.com/@hot-loader/react-dom/-/react-dom-16.8.6.tgz#7923ba27db1563a7cc48d4e0b2879a140df461ea"
-  integrity sha512-+JHIYh33FVglJYZAUtRjfT5qZoT2mueJGNzU5weS2CVw26BgbxGKSujlJhO85BaRbg8sqNWyW1hYBILgK3ZCgA==
-  dependencies:
-    loose-envify "^1.1.0"
-    object-assign "^4.1.1"
-    prop-types "^15.6.2"
-    scheduler "^0.13.6"
 
 "@icons/material@^0.2.4":
   version "0.2.4"
@@ -19221,10 +19210,10 @@ react-helmet-async@^1.0.2:
     react-fast-compare "2.0.4"
     shallowequal "1.1.0"
 
-react-hot-loader@4.12.10:
-  version "4.12.10"
-  resolved "https://registry.yarnpkg.com/react-hot-loader/-/react-hot-loader-4.12.10.tgz#b3457c0f733423c4827c6d2672e50c9f8bedaf6b"
-  integrity sha512-dX+ZUigxQijWLsKPnxc0khuCt2sYiZ1W59LgSBMOLeGSG3+HkknrTlnJu6BCNdhYxbEQkGvBsr7zXlNWYUIhAQ==
+react-hot-loader@4.12.6:
+  version "4.12.6"
+  resolved "https://registry.yarnpkg.com/react-hot-loader/-/react-hot-loader-4.12.6.tgz#bd7a41501b02576638031482474a72bac453587d"
+  integrity sha512-tRXWgF5MhQSEXX3EHIplCOWCzSg+ye7ddHeQLt7Z+CaZMeEfeCL2/uSGITIzWXOQYhefnLX8IZtr2cff4xIrww==
   dependencies:
     fast-levenshtein "^2.0.6"
     global "^4.3.0"
@@ -19232,7 +19221,7 @@ react-hot-loader@4.12.10:
     loader-utils "^1.1.0"
     prop-types "^15.6.1"
     react-lifecycles-compat "^3.0.4"
-    shallowequal "^1.1.0"
+    shallowequal "^1.0.2"
     source-map "^0.7.3"
 
 react-hotkeys@2.0.0-pre4:
@@ -21086,7 +21075,7 @@ shallow-equal@^1.1.0:
   resolved "https://registry.yarnpkg.com/shallow-equal/-/shallow-equal-1.2.0.tgz#fd828d2029ff4e19569db7e19e535e94e2d1f5cc"
   integrity sha512-Z21pVxR4cXsfwpMKMhCEIO1PCi5sp7KEp+CmOpBQ+E8GpHwKOw2sEzk7sgblM3d/j4z4gakoWEoPcjK0VJQogA==
 
-shallowequal@1.1.0, shallowequal@^1.1.0:
+shallowequal@1.1.0, shallowequal@^1.0.2:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/shallowequal/-/shallowequal-1.1.0.tgz#188d521de95b9087404fd4dcb68b13df0ae4e7f8"
   integrity sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==
