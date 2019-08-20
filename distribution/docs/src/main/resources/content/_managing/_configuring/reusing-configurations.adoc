@@ -23,17 +23,27 @@ Keeping all 3 files together represents a security risk and should be avoided.
 
 To import previously exported configuration settings:
 
-. Install ${branding} by unzipping its distribution.
+. Unzip the ${branding} distribution.
 . Restore all external files, softlinks, and directories that would not have been exported and for which warnings would have been generated during export. This could include (but is not limited to) external certificates or monitored directories.
-. Launch the newly installed ${branding}.
+. Start up the newly unzipped ${branding} distribution.
 . Make sure to install and re-enable the ${branding} <<{managing-prefix}managed_services,service>> on the new system if it was installed and enabled on the original system.
 . Copy the previously exported files from your secure locations to the `exported` directory underneath `${home_directory}`.
 . Either:
-.. Step through the installation process.
-.. Run the command migration:import from the ${command-console}.
-. Or if an administrator wishes to restore the original profile along with the configuration (experimental):
-.. Run the command migration:import with the option `--profile` from the ${command-console}.
+.. If an administrator wishes to restore the original profile along with the configuration (experimental, see 'NOTE' below this list):
+... Run the command migration:import with the option `--profile` from the ${command-console} (see 'NOTE' below this list)
+.. Otherwise:
+... Step through the installation process one of 2 ways:
+.... If network profile needs to be configured, install through the <<{managing-prefix}completing_installation_from_the_admin_console, UI Admin Console>>.
+.... Else, install by running the command `profile:install standard` in the ${command-console}.
+... Run the command migration:import from the ${command-console}.
 . ${branding} will automatically restart if the command is successful. Otherwise address any generated warnings before manually restarting ${branding}.
+
+[NOTE]
+====
+The `--profile` command enables the installed profile from the original system to be restored. It cannot be used if upgrading from an older version.
+
+'Experimental' in this context denotes the continuing development of using migration:import along with --profile to restore the original profile with the configuration.
+====
 
 It is possible to decrypt the previously exported configuration settings but doing so is insecure and appropriate measures should be taken to secure the resulting decrypted file.
 To decrypt the exported file:
