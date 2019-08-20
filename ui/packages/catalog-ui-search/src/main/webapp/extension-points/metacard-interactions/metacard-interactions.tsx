@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import plugin from '../../plugins/metacard-interactions'
 import CreateLocationSearch from '../../react-component/metacard-interactions/location-interaction'
 import ExpandMetacard from '../../react-component/metacard-interactions/expand-interaction'
 import BlacklistToggle from '../../react-component/metacard-interactions/hide-interaction'
@@ -31,4 +30,4 @@ const DefaultItems = [
   ExportActions,
 ]
 
-export default plugin(DefaultItems) as any[]
+export default DefaultItems as any[]
