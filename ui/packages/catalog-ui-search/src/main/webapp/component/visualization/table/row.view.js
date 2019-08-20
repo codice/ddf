@@ -100,12 +100,14 @@ module.exports = Marionette.LayoutView.extend({
         .get('thumbnail') &&
       !this.isHidden('thumbnail')
     ) {
-      this.resultThumbnail.show(
-        new HoverPreviewDropdown({
-          model: new DropdownModel(),
-          modelForComponent: this.model,
-        })
-      )
+      if (this.resultThumbnail.$el) {
+        this.resultThumbnail.show(
+          new HoverPreviewDropdown({
+            model: new DropdownModel(),
+            modelForComponent: this.model,
+          })
+        )
+      }
     }
   },
   checkIfDownloadable() {
