@@ -110,6 +110,17 @@ describe('tokenize', () => {
       it('serializes a filter function', () => {
         expect(cql.write(cqlFilter)).to.equal(cqlString)
       })
+
+      it('parses an empty time string', () => {
+        const cqlString = '("created" BEFORE \'\')'
+        const cqlFilter = {
+          property: 'created',
+          type: 'BEFORE',
+          value: null,
+        }
+        const filter = cql.simplify(cql.read(cqlString))
+        expect(filter).to.deep.include(cqlFilter)
+      })
     })
 
   describe('CQL and UserQL translation functions', () => {
@@ -130,6 +141,16 @@ describe('tokenize', () => {
       expect(result).equals(
         '"anyText" ILIKE \'this % is \\% a \\_ test _ \\* \\?\''
       )
+    })
+
+    it('parses a UserQL string with an empty time string', () => {
+      const filter = {
+        property: 'created',
+        type: 'BEFORE',
+        value: '',
+      }
+      const result = cql.write(filter)
+      expect(result).equals('"created" BEFORE \'\'')
     })
 
     it('parses multiple CQL characters in a row into UserQL', () => {
