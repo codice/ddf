@@ -25,6 +25,7 @@ type Props = {
   history: any
   selectedVersion: any
   loading: boolean
+  canEdit: boolean
 }
 
 const Root = styled.div`
@@ -116,6 +117,7 @@ const MetacardHistory = (props: Props) => {
     history,
     selectedVersion,
     loading,
+    canEdit,
   } = props
   return (
     <LoadingCompanion loading={loading}>
@@ -157,14 +159,15 @@ have chosen."
             )
           })}
         </Body>
-        {selectedVersion && (
-          <RevertButton
-            buttonType={buttonTypeEnum.primary}
-            onClick={revertToSelectedVersion}
-            icon="fa fa-undo"
-            text="Revert to Selected Version"
-          />
-        )}
+        {selectedVersion &&
+          canEdit && (
+            <RevertButton
+              buttonType={buttonTypeEnum.primary}
+              onClick={revertToSelectedVersion}
+              icon="fa fa-undo"
+              text="Revert to Selected Version"
+            />
+          )}
       </Root>
     </LoadingCompanion>
   )
