@@ -12,9 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
-import ExportResults from '../../../react-component/table-export'
-import ExtensionPoint from '../../../extension-points'
+import ExtensionPoints from '../../../extension-points'
 import React from 'react'
 import union from 'lodash/union'
 const lightboxInstance = require('../../lightbox/lightbox.view.instance.js')
@@ -93,7 +91,7 @@ module.exports = Marionette.LayoutView.extend({
     lightboxInstance.model.updateTitle('Export Results')
     lightboxInstance.model.open()
     lightboxInstance.showContent(
-      <ExtensionPoint.tableExport
+      <ExtensionPoints.tableExport
         selectionInterface={this.options.selectionInterface}
       />
     )
