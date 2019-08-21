@@ -22,6 +22,7 @@ const RemoveAttributeView = require('../dropdown/remove-attribute/dropdown.remov
 const AttributesRearrangeView = require('../dropdown/attributes-rearrange/dropdown.attributes-rearrange.view.js')
 const ShowAttributeView = require('../dropdown/show-attribute/dropdown.show-attribute.view.js')
 const HideAttributeView = require('../dropdown/hide-attribute/dropdown.hide-attribute.view.js')
+const user = require('../singletons/user-instance.js')
 
 module.exports = Marionette.LayoutView.extend({
   template,
@@ -42,6 +43,13 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-summary', this.options.summary)
   },
   handleTypes() {
+    const canEdit = this.options.selectionInterface
+      .getSelectedResults()
+      .reduce((canEdit, result) => {
+        return (
+          canEdit && user.canWrite(result.get('metacard').get('properties'))
+        )
+      }, true)
     const types = {}
     this.options.selectionInterface.getSelectedResults().forEach(result => {
       if (result.isWorkspace()) {
@@ -63,6 +71,7 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-revision', types.revision !== undefined)
     this.$el.toggleClass('is-deleted', types.deleted !== undefined)
     this.$el.toggleClass('is-remote', types.remote !== undefined)
+    this.$el.toggleClass('is-editing-restricted', !canEdit)
   },
   generateDetailsAdd() {
     this.detailsAdd.show(
