@@ -15,8 +15,14 @@ const BuilderStartStyle = styled.div`
 `
 
 const SpacingStyle = styled.div`
+
   padding: ${props => props.theme.minimumSpacing};
 `
+
+const retrieveAvailableTypes = async () => {
+    const response = await fetch('./internal/builder/availabletypes')
+    return await response.json()
+}
 
 class BuilderStart extends React.Component {
   constructor(props) {
@@ -35,13 +41,23 @@ class BuilderStart extends React.Component {
     this.handleManualSubmit = this.handleManualSubmit.bind(this)
   }
 
-  componentDidMount() {
+  
+
+  async componentDidMount() {
     this.setState({
       selectedType: this.state.entities[0].value,
     })
-  }
+    retrievedAvailableTypes = await retrieveAvailableTypes()
 
-  componentWillUnmount() {}
+    //TODO forbidden access to these right now. 
+    // Maybe because it is requesting localhost:8080 
+    // instead of 8993
+    const enums = retrievedAvailableTypes.availableTypes.map(availableType => ({
+      label: availableType.metacardType,
+      value: availableType.metacardType,
+    }))
+    console.log(enums)
+  }
 
   setSelectedType(selectedType) {
     this.setState({

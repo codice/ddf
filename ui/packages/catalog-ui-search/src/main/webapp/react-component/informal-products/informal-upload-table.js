@@ -17,22 +17,61 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { ProgressBarWithText } from './progress-car'
 
+const InformalProductsContainer = styled.div`
+  display: flex;
+  align-items: center;
+  height: 80%;
+  width: 80%;
+  margin-left: 10%;
+  margin-top: 5%;
+`
+
 //TODO center items vertically
 const InformalProductsTableStyleComp = styled.table`
+  display: flex;
+  flex-flow: column;
   width: 100%;
   height: 100%;
-  border-spacing: 0px;
-  text-align: left;
+  & > thead {
+    flex: 0 0 auto;
+    width: calc(100% - 0.9em);
+  }
+  & > tbody {
+    flex: 1 1 auto;
+    display: block;
+    overflow-y: auto;
+  }
+  & > tbody > tr {
+    width: 100%;
+  }
+  & > thead,
+  & > tbody > tr {
+    display:table;
+    table-layout: fixed;
+  }
+
   & > tbody > tr:nth-child(odd) {
     background-color: ${props => props.theme.backgroundAccentContent};
   }
-  & p {
+  & > tbody > tr > td {
+    height: 40px;
+  }
+  & tr, 
+  & td {
+    font-size: ${props => props.theme.minimumFontSize};
+    padding: ${props => props.theme.minimumFontSize};
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  & td,
+  & th {
     padding-left: ${props => props.theme.minimumSpacing};
   }
+
 `
 
 const InformalProductsTableRowStyleComp = styled.tr`
-  padding: ${props => props.theme.minimumSpacing};
+  
 `
 
 const InformalProductsTable = props => {
@@ -43,46 +82,45 @@ const InformalProductsTable = props => {
   }
 
   return (
-    <InformalProductsTableStyleComp>
-      <col width="60%" />
-      <col width="10%" />
-      <col width="30%" />
-      <thead>
-        <tr>
-          <th>
-            <p>Title</p>
-          </th>
-          <th>
-            <p>Type</p>
-          </th>
-          <th>
-            <p>Status</p>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {props.files.map(file => {
-          return (
-            <InformalProductsTableRowStyleComp>
-              <td>
-                <p>{file.name}</p>
-              </td>
-              <td>
-                <p>{file.fileType}</p>
-              </td>
-              <td>
-                <ProgressBarWithText
-                  progress={file.upload.progress}
-                  status={file.status}
-                  messageOnClick={file.onClick}
-                  message={file.message}
-                />
-              </td>
-            </InformalProductsTableRowStyleComp>
-          )
-        })}
-      </tbody>
-    </InformalProductsTableStyleComp>
+    <InformalProductsContainer>
+      <InformalProductsTableStyleComp>
+        <thead>
+          <tr>
+            <th style={{width:'50%'}}> 
+              Title
+            </th>
+            <th style={{width:'15%'}}>
+              Type
+            </th>
+            <th style={{width:'25%'}}>
+              Status
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {props.files.map(file => {
+            return (
+              <InformalProductsTableRowStyleComp key={file.name}>
+                <td style={{width:'50%'}}>
+                  {file.name}
+                </td>
+                <td style={{width:'15%'}}>
+                  {file.type}
+                </td>
+                <td style={{width:'25%'}}>
+                  <ProgressBarWithText
+                    progress={file.upload.progress}
+                    messageOnClick={() => file.onClick(file)}
+                    status={file.status}
+                    message={file.message}
+                  />
+                </td>
+              </InformalProductsTableRowStyleComp>
+            )
+          })}
+        </tbody>
+      </InformalProductsTableStyleComp>
+    </InformalProductsContainer>
   )
 }
 

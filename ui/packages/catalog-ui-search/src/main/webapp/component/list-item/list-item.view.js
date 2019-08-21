@@ -92,6 +92,9 @@ module.exports = Marionette.LayoutView.extend({
       this.handleDefault
     )
     this.setManualCreateAsView = this.setManualCreateAsView.bind(this)
+    this.handleUploadSuccess = this.handleUploadSuccess.bind(this)
+    this.handleNewMetacard = this.handleNewMetacard.bind(this)
+    this.setInformalView = this.setInformalView.bind(this)
     this.handleBack = this.handleBack.bind(this)
     this.currentView = 'new item'
   },
@@ -154,7 +157,19 @@ module.exports = Marionette.LayoutView.extend({
     lightboxInstance.model.updateTitle('Add items')
     lightboxInstance.model.open()
     lightboxInstance.showContent(
-      (<NewItemManager currentView={this.currentView} setManualCreateAsView={this.setManualCreateAsView} />),
+      (
+          <NewItemManager currentView={this.currentView} 
+                        setManualCreateAsView={this.setManualCreateAsView} 
+                        setInformalView={this.setInformalView}
+                        handleNewMetacard={this.handleNewMetacard}
+                        handleUploadSuccess={this.handleUploadSuccess}
+                        url={'./internal/list/import'}
+                        extraHeaders={{
+                          'List-ID': this.model.attributes.id,
+                          'List-Type': this.model.get('list.icon'),
+                        }}>
+          </NewItemManager>
+      ),
       undefined,
       this.handleBack
     )
@@ -170,7 +185,13 @@ module.exports = Marionette.LayoutView.extend({
       //   close: () => lightboxInstance.close(),
       // })
     //)
-    e.stopPropagation()
+    if(e){
+      e.stopPropagation()
+    }
+  },
+  setInformalView() {
+    this.currentView = 'informal table'
+    this.triggerAdd()
   },
   handleBack() {
     if(this.currentView!='new item'){
@@ -189,6 +210,7 @@ module.exports = Marionette.LayoutView.extend({
       this.model
         .get('query')
         .startTieredSearchIfOutdated(this.model.get('list.bookmarks'))
+      lightboxInstance.close()
     }
   },
   handleUploadSuccess(file) {

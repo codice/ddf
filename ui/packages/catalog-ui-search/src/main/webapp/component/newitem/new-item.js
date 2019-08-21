@@ -55,28 +55,20 @@ const ManualView = styled.div`
   width: 30%;
 `
 
-class NewItem extends React.Component {
-  constructor(props) {
-    super(props)
-    const ingestView = new IngestView()
-    this.state = {
-      ingestView,
-    }
-  }
+function NewItem(props) {
 
-  componentDidMount() {
-    //console.log(this.state.ingestView)
-  }
-
-  render() {
     return (
       <React.Fragment>
         <ItemCreationView>
           <UploadView>
-            {/* <AttributeEditor metacardType={this.props.metacardType} /> */}
             <MarionetteRegionContainer
               className="upload-menu"
               view={IngestView}
+              viewOptions={{
+                handleUploadSuccess: props.handleUploadSuccess,
+                url: props.url,
+                extraHeaders: props.extraHeaders,
+              }}
             />
           </UploadView>
           <OrContainer>
@@ -86,15 +78,11 @@ class NewItem extends React.Component {
           </OrContainer>
 
           <ManualView>
-            <BuilderStart onManualSubmit={this.props.onManualSubmit} />
-            {/* <InformalProductsTable 
-                  files={this.props.files}
-                /> */}
+            <BuilderStart onManualSubmit={props.onManualSubmit}/>
           </ManualView>
         </ItemCreationView>
       </React.Fragment>
     )
-  }
 }
 
 export { NewItem }

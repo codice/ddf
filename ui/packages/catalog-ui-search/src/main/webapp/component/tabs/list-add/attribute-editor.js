@@ -17,6 +17,7 @@ import * as React from 'react'
 import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
 import MarionetteRegionContainer from '../../../react-component/marionette-region-container'
+const $ = require('jquery')
 const metacardDefinitions = require('../../singletons/metacard-definitions')
 const PropertyCollectionView = require('../../property/property.collection.view')
 const Property = require('../../property/property')
@@ -49,34 +50,20 @@ class AttributeEditor extends React.Component {
     super(props)
 
     //TODO find out if pre validation is needed
-
-    const _propertyCollectionView = new PropertyCollectionView()
-    this.state = {
-      metacardAttributes: metacardDefinitions.metacardDefinitions,
-      propertyView: _propertyCollectionView
-    }
     this.turnOnEditing = this.turnOnEditing.bind(this)
     this.stripValuesFromFields = this.stripValuesFromFields.bind(this)
     this.getEditableFields = this.getEditableFields.bind(this)
     this.submitMetacard = this.submitMetacard.bind(this)
-  }
 
-  componentDidMount () {
-      //TODO the view should reflect the state - i.e. the selected metacard.
-      //TODO instead it can only initialize.
-      //TODO Component should update can be based on whether or not the selected metacard type has changed
-      //TODO Editing needs to be the default state of the property view. It looks like MarionetteRC doesn't initialize
-      // TODO the view right away so it can't be set until after it is rendered
-      const attributes = this.stripValuesFromFields()
-      attributes['metacard-type'] = this.props.metacardType
-      this.setState({
-        propertyView: PropertyCollectionView.generatePropertyCollectionView([attributes])
-      }) 
-
+    const attributes = this.stripValuesFromFields()
+    attributes['metacard-type'] = this.props.metacardType
+    this.state = {
+      propertyView: PropertyCollectionView.generatePropertyCollectionView([attributes])
+    }
   }
 
   getEditableFields() {
-    const metacardAttributes = this.state.metacardAttributes[this.props.metacardType]
+    const metacardAttributes = metacardDefinitions.metacardDefinitions[this.props.metacardType]
     const editableFields = []
     // remove hidden and readonly attributes
     Object.keys(metacardAttributes).forEach(key => {
@@ -95,14 +82,17 @@ class AttributeEditor extends React.Component {
     return stripedFields
   }
 
+  componentDidMount() {
+    this.turnOnEditing()
+  }
+
   turnOnEditing() {
     this.state.propertyView.turnOnEditing()
   }
 
   submitMetacard() {
     //TODO make sure this works!
-    const metacardType = this.model.get(SELECTED_AVAILABLE_TYPE_ATTRIBUTE)
-    .metacardType
+    const metacardType = this.props.metacardType
 
     const metacardDefinition =
       metacardDefinitions.metacardDefinitions[metacardType]
@@ -135,8 +125,7 @@ class AttributeEditor extends React.Component {
     }).then((response, status, xhr) => {
       const id = xhr.getResponseHeader('id')
       if (id) {
-        this.options.handleNewMetacard(id)
-        this.options.close()
+        this.props.handleNewMetacard(id)
       }
     })
   }
@@ -144,10 +133,11 @@ class AttributeEditor extends React.Component {
   render() {
     return (
       <AttributeEditorContainer>
-        <AttributeTitle>Item Attributes</AttributeTitle>
+        <AttributeTitle>{this.props.metacardType} Attributes</AttributeTitle>
         <MarionetteRegionContainer view={this.state.propertyView} 
                                    onClick={this.turnOnEditing} 
-                                   onDoubleClick={this.submitMetacard}>
+                                   onDoubleClick={this.submitMetacard}
+                                   >
         </MarionetteRegionContainer>  
       </AttributeEditorContainer>
     )

@@ -22,16 +22,21 @@ import { InformalProductsTable } from '../../../react-component/informal-product
 const user = require('../../../component/singletons/user-instance')
 const Upload = require('../../../js/model/Upload.js')
 import withListenTo from '../../../react-component/backbone-container'
+import {BottomBar} from './bottom-bar'
+
 
 const AttributeEditorView = styled.div`
   display: flex;
   width: 50%;
   overflow-y: scroll;
-  height: calc(100% - 1.8rem);
+  height: calc(90% - 1.8rem);
   background-color: ${props => props.theme.backgroundNavigation};
   margin-top: ${props => props.theme.minimumSpacing};
   margin-left: ${props => props.theme.minimumSpacing};
+`
 
+const ViewWithBottomBar = styled.div`
+  height: 100%;
 `
 
 class NewItemManager extends React.Component {
@@ -43,6 +48,7 @@ class NewItemManager extends React.Component {
       currentBatch: undefined,
       files: [],
       uploads: [],
+      informalBottomText: 'Starting'
     }
 
     this.change = this.change.bind(this)
@@ -51,7 +57,6 @@ class NewItemManager extends React.Component {
     this.initializeUploadListeners = this.initializeUploadListeners.bind(this)
     this.setSelectedMetacardType = this.setSelectedMetacardType.bind(this)
     this.goToFile = this.goToFile.bind(this)
-    this.setManualCreateAsView = this.setManualCreateAsView.bind(this)
     this.initializeUploadListeners()
   }
 
@@ -83,8 +88,9 @@ class NewItemManager extends React.Component {
     }
   }
 
-  goToFile() {
+  goToFile(file) {
     //TODO implement redirect to file
+    console.log(file)
   }
 
   componentDidMount() {}
@@ -92,29 +98,51 @@ class NewItemManager extends React.Component {
   cancelUpload() {}
 
   change(uploadPayload) {
+    uploadPayload.attributes.uploads.models
+    .filter( model => model.attributes.file.status === 'success' 
+                    || model.attributes.file.status === 'error')
+      .forEach( el => {
+        // TODO not sure how I want to handle error's yet. Want a hover to explain
+        // But it does not look like that info is available
+        el.attributes.file.onClick = this.goToFile
+      })
+
+    const progressText = `${uploadPayload.attributes.complete} 
+                          of ${uploadPayload.attributes.amount} items uploaded.`
+    
+    let errorText = ''
+    if(uploadPayload.attributes.errors > 0){
+      errorText = `${uploadPayload.attributes.errors} errors.`
+    }
+
+    let issueText = ''
+    if(uploadPayload.attributes.issues > 0){
+      issueText = `${uploadPayload.attributes.issues} issues.`
+    }
+    
     this.setState({
       files: this.getFileModels(uploadPayload),
       uploads: uploadPayload,
+      informalBottomText: progressText + ' ' + errorText + ' ' + issueText
     })
+
     if (uploadPayload.attributes.percentage === 100) {
       //TODO make sure security access attribute is set to only the uploader
+
       console.log('all files finished')
     }
   }
 
   add(addedUploads) {    
     this.props.listenTo(addedUploads, 'change', this.change)
-    console.log(addedUploads)
-    //TODO the message needs to be set
+    // TODO the message may need to be set 
+    // THis initializes the file details that only need to be done once
     addedUploads.attributes.uploads.models.map(model => {
       const fileModel = model.attributes.file
-      const splits = fileModel.name.split('.')
-      if(splits.length > 0){
-        fileModel.fileType = splits[splits.length - 1]
-      }
       fileModel.onClick = model.cancel.bind(model)
       return fileModel
     })
+    this.props.setInformalView()
   }
 
   handleViewUpdate(newView) {
@@ -129,33 +157,47 @@ class NewItemManager extends React.Component {
     })
   }
 
-  setManualCreateAsView() {
-    this.setState({
-      currentView: 'manual upload'
-    })
-  }
-
   getCurrentView() {
     switch(this.props.currentView){
       case 'new item':
         return (
-        <NewItem
-          files={this.state.files}
-          metacardType={this.state.selectedMetacardType}
-          onManualSubmit={this.props.setManualCreateAsView}
-        />
-      )
+          <NewItem
+            files={this.state.files}
+            metacardType={this.state.selectedMetacardType}
+            onManualSubmit={this.props.setManualCreateAsView}
+            handleUploadSuccess={this.props.handleUploadSuccess}
+            url={this.props.url}
+            extraHeaders={this.props.extraHeaders}
+          />
+        )
       case 'manual upload':
           return(
-            <AttributeEditorView>
-              <AttributeEditor metacardType={this.state.selectedMetacardType} />
-            </AttributeEditorView>
+            <ViewWithBottomBar>
+              <AttributeEditorView>
+                <AttributeEditor metacardType={this.state.selectedMetacardType} 
+                                 handleNewMetacard={this.props.handleNewMetacard}/>
+              </AttributeEditorView>
+              <BottomBar bottomBarText={this.state.bottomBarText}
+                         rightButtonText={'View Items'}
+                         leftButtonText={'Done'}/>
+            </ViewWithBottomBar>
           )
+      case 'informal table':
+        return (
+          <ViewWithBottomBar>
+            <InformalProductsTable 
+                    files={this.state.files}
+            /> 
+            <BottomBar bottomBarText={this.state.informalBottomText}
+                       rightButtonText={'View Items'}
+                       leftButtonText={'Done'}/>
+          </ViewWithBottomBar>
+        )
     }
   }
 
   render() {
-    return this.getCurrentView()
+      return this.getCurrentView()
   }
 }
 
