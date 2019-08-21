@@ -11,11 +11,10 @@ const metacardDefinitions = require('../singletons/metacard-definitions')
 
 const BuilderStartStyle = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-flow: column;
 `
 
 const SpacingStyle = styled.div`
-
   padding: ${props => props.theme.minimumSpacing};
 `
 
@@ -38,7 +37,6 @@ class BuilderStart extends React.Component {
     }
 
     this.setSelectedType = this.setSelectedType.bind(this)
-    this.handleManualSubmit = this.handleManualSubmit.bind(this)
   }
 
   
@@ -65,10 +63,6 @@ class BuilderStart extends React.Component {
     })
   }
 
-  handleManualSubmit() {
-    this.props.onManualSubmit(this.state.selectedType)
-  }
-
   render() {
     return (
       <div>
@@ -90,7 +84,7 @@ class BuilderStart extends React.Component {
               style={{ width: '100%' }}
               inText={false}
               fadeUntilHover={false}
-              onClick={this.handleManualSubmit}
+              onClick={() => this.props.onManualSubmit(this.state.selectedType)}
             />
           </SpacingStyle>
         </BuilderStartStyle>

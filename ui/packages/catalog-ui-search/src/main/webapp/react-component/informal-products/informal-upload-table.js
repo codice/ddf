@@ -68,6 +68,11 @@ const InformalProductsTableStyleComp = styled.table`
     padding-left: ${props => props.theme.minimumSpacing};
   }
 
+  & th{
+    font-size: ${props => props.theme.mediumFontSize};
+    padding-bottom: ${props => props.theme.minimumSpacing};
+  }
+
 `
 
 const InformalProductsTableRowStyleComp = styled.tr`

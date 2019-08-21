@@ -55,7 +55,7 @@ class NewItemManager extends React.Component {
     this.add = this.add.bind(this)
     this.cancelUpload = this.cancelUpload.bind(this)
     this.initializeUploadListeners = this.initializeUploadListeners.bind(this)
-    this.setSelectedMetacardType = this.setSelectedMetacardType.bind(this)
+    this.onManualSubmit = this.onManualSubmit.bind(this)
     this.goToFile = this.goToFile.bind(this)
     this.initializeUploadListeners()
   }
@@ -151,10 +151,11 @@ class NewItemManager extends React.Component {
     })
   }
 
-  setSelectedMetacardType(card) {
+  onManualSubmit(selectedMetacardType) {
     this.setState({
-      selectedMetacardType: card,
+      selectedMetacardType
     })
+    this.props.setManualCreateAsView()
   }
 
   getCurrentView() {
@@ -164,7 +165,7 @@ class NewItemManager extends React.Component {
           <NewItem
             files={this.state.files}
             metacardType={this.state.selectedMetacardType}
-            onManualSubmit={this.props.setManualCreateAsView}
+            onManualSubmit={this.onManualSubmit}
             handleUploadSuccess={this.props.handleUploadSuccess}
             url={this.props.url}
             extraHeaders={this.props.extraHeaders}
