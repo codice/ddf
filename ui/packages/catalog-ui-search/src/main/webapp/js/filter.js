@@ -134,6 +134,10 @@ function matchesLessThanOrEqualTo(value, filter) {
   return false
 }
 
+function matchesBETWEEN(value, filter) {
+  return filter.lowerBoundary <= value && value <= filter.upperBoundary
+}
+
 // terraformer doesn't offically support Point, MultiPoint, FeatureCollection, or GeometryCollection
 // terraformer incorrectly supports MultiPolygon, so turn it into a Polygon first
 function intersects(terraformerObject, value) {
@@ -379,6 +383,11 @@ function matchesFilter(metacard, filter) {
           break
         case '<=':
           if (matchesLessThanOrEqualTo(valuesToCheck[i], filter)) {
+            return true
+          }
+          break
+        case 'BETWEEN':
+          if (matchesBETWEEN(valuesToCheck[i], filter)) {
             return true
           }
           break
