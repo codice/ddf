@@ -438,7 +438,10 @@ User.Response = Backbone.AssociatedModel.extend({
     return new Security(Restrictions.from(metacard)).canRead(this)
   },
   canWrite(metacard) {
-    return new Security(Restrictions.from(metacard)).canWrite(this)
+    return (
+      !properties.isEditingRestricted() &&
+      new Security(Restrictions.from(metacard)).canWrite(this)
+    )
   },
   canShare(metacard) {
     return new Security(Restrictions.from(metacard)).canShare(this)

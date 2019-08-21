@@ -13,10 +13,10 @@
  *
  **/
 
+import * as React from 'react'
 const Backbone = require('backbone')
 const Marionette = require('marionette')
 const $ = require('jquery')
-const template = require('./metacard-associations.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
 const LoadingCompanionView = require('../loading-companion/loading-companion.view.js')
@@ -24,6 +24,7 @@ const AssociationsMenuView = require('../associations-menu/associations-menu.vie
 const AssociationCollectionView = require('../association/association.collection.view.js')
 const AssociationCollection = require('../association/association.collection.js')
 const AssociationGraphView = require('../associations-graph/associations-graph.view.js')
+const user = require('../singletons/user-instance')
 
 module.exports = Marionette.LayoutView.extend({
   setDefaultModel() {
@@ -34,7 +35,49 @@ module.exports = Marionette.LayoutView.extend({
     associationsList: '> .editor-content',
     associationsGraph: '> .content-graph',
   },
-  template,
+  template() {
+    const canEdit = user.canWrite(this.model.get('metacard').get('properties'))
+
+    return (
+      <React.Fragment>
+        <div className="content-menu" />
+        <div className="content-graph" />
+        <div className="list-header">
+          <div className="header-text header-parent">Parent</div>
+          <div className="header-text header-relationship">Relationship</div>
+          <div className="header-text header-child">Child</div>
+        </div>
+        <div className="editor-content" />
+        {canEdit ? (
+          <React.Fragment>
+            <div className="list-footer">
+              <div className="footer-text" />
+              <button className="footer-add is-positive">
+                <span className="fa fa-plus" />
+                <span>&nbsp;Add Association</span>
+              </button>
+            </div>
+            <div className="editor-footer">
+              <button className="footer-edit is-primary">
+                <span className="fa fa-pencil" />
+                <span>&nbsp;Edit</span>
+              </button>
+              <button className="footer-cancel is-negative">
+                <span className="fa fa-times" />
+                <span>&nbsp;Cancel</span>
+              </button>
+              <button className="footer-save is-positive">
+                <span className="fa fa-floppy-o" />
+                <span>&nbsp;Save</span>
+              </button>
+            </div>
+          </React.Fragment>
+        ) : (
+          <React.Fragment />
+        )}
+      </React.Fragment>
+    )
+  },
   tagName: CustomElements.register('metacard-associations'),
   selectionInterface: store,
   events: {
