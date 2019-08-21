@@ -40,10 +40,10 @@ function sync(collection, array) {
   return difference
 }
 
+import * as React from 'react'
 const Backbone = require('backbone')
 const Marionette = require('marionette')
 const _ = require('underscore')
-const template = require('./editor.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const DetailsFilterView = require('../dropdown/details-filter/dropdown.details-filter.view.js')
 const DropdownModel = require('../dropdown/dropdown.js')
@@ -56,7 +56,39 @@ module.exports = Marionette.LayoutView.extend({
   setDefaultModel() {
     //override
   },
-  template,
+  template() {
+    const canEdit = this.model.reduce((canEdit, result) => {
+      return canEdit && user.canWrite(result.get('metacard').get('properties'))
+    }, true)
+
+    return (
+      <React.Fragment>
+        <div className="editor-header">
+          <div className="header-filter" />
+          <div className="header-actions" />
+        </div>
+        <div className="editor-properties" />
+        {canEdit ? (
+          <div className="editor-footer">
+            <button className="editor-edit is-primary">
+              <span className="fa fa-pencil" />
+              <span>Edit</span>
+            </button>
+            <button className="editor-cancel is-negative">
+              <span className="fa fa-times" />
+              <span>Cancel</span>
+            </button>
+            <button className="editor-save is-positive">
+              <span className="fa fa-floppy-o" />
+              <span>Save</span>
+            </button>
+          </div>
+        ) : (
+          <React.Fragment />
+        )}
+      </React.Fragment>
+    )
+  },
   tagName: CustomElements.register('editor'),
   modelEvents: {},
   events: {
