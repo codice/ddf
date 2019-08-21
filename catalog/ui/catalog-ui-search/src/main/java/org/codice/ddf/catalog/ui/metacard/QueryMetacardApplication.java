@@ -168,7 +168,7 @@ public class QueryMetacardApplication implements SparkApplication {
         (req, res) -> {
           String body = endpointUtil.safeGetBody(req);
           QueryBasic query = GSON.fromJson(body, QueryBasic.class);
-          query.setOwner(getSubjectIdentifier());
+          query.setOwnerAndAccessIndividuals(getSubjectIdentifier());
 
           CreateRequest createRequest = new CreateRequestImpl(query.getMetacard());
           CreateResponse createResponse = catalogFramework.create(createRequest);
