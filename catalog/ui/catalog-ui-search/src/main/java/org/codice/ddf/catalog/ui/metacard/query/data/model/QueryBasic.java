@@ -195,8 +195,9 @@ public class QueryBasic {
     return this.sorts.stream().map(GSON::toJson).collect(Collectors.toList());
   }
 
-  public void setOwner(String owner) {
+  public void setOwnerAndAccessIndividuals(String owner) {
     this.owner = owner;
+    this.accessIndividuals = Collections.singletonList(owner);
   }
 
   private static <T> T getAttributeValue(Metacard metacard, String name, Class<T> type) {
