@@ -115,6 +115,12 @@ public class QueryBasic {
   @SerializedName("accessIndividualsRead")
   private List<String> accessIndividualsRead;
 
+  @SerializedName("accessGroups")
+  private List<String> accessGroups;
+
+  @SerializedName("accessGroupsRead")
+  private List<String> accessGroupsRead;
+
   public QueryBasic(Metacard metacard) {
     this.metacardId = getAttributeValue(metacard, Core.ID, String.class);
     this.title = getAttributeValue(metacard, Core.TITLE, String.class);
@@ -149,6 +155,8 @@ public class QueryBasic {
         getAttributeValues(metacard, Security.ACCESS_INDIVIDUALS, String.class);
     this.accessIndividualsRead =
         getAttributeValues(metacard, Security.ACCESS_INDIVIDUALS_READ, String.class);
+    this.accessGroups = getAttributeValues(metacard, Security.ACCESS_GROUPS, String.class);
+    this.accessGroupsRead = getAttributeValues(metacard, Security.ACCESS_GROUPS_READ, String.class);
   }
 
   public Metacard getMetacard() {
@@ -184,6 +192,10 @@ public class QueryBasic {
     metacard.setAttribute(
         new AttributeImpl(
             Security.ACCESS_INDIVIDUALS_READ, (Serializable) this.accessIndividualsRead));
+    metacard.setAttribute(
+        new AttributeImpl(Security.ACCESS_GROUPS, (Serializable) this.accessGroups));
+    metacard.setAttribute(
+        new AttributeImpl(Security.ACCESS_GROUPS_READ, (Serializable) this.accessGroupsRead));
 
     return new QueryMetacardImpl(metacard);
   }
