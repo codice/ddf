@@ -25,6 +25,7 @@ import metacardInteractions from './metacard-interactions'
 import searchInteractions, {
   SearchInteractionProps,
 } from './search-interactions'
+import { tableExport, Props as TableExportProps } from './table-export'
 
 export type ExtensionPointsType = {
   routes: {}
@@ -36,6 +37,7 @@ export type ExtensionPointsType = {
   navigationRight: any[]
   metacardInteractions: any[]
   searchInteractions: SFC<SearchInteractionProps>
+  tableExport: SFC<TableExportProps>
 }
 
 const ExtensionPoints: ExtensionPointsType = {
@@ -48,6 +50,7 @@ const ExtensionPoints: ExtensionPointsType = {
   navigationRight,
   metacardInteractions,
   searchInteractions,
+  tableExport,
 }
 
 export default ExtensionPoints
