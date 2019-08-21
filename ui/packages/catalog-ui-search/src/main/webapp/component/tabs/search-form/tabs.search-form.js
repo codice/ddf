@@ -20,25 +20,29 @@ const user = require('../../singletons/user-instance')
 const SearchFormCollectionView = require('../../search-form/search-form.collection.view')
 const SearchFormCollection = require('../../search-form/search-form-collection-instance')
 const FormContainer = require('../../search-form/form-tab-container.view')
+const properties = require('../../../js/properties')
+
+const formsTitle = properties.i18n['forms.title'] || 'Forms'
 
 const tabChildViewOptions = {
-  'My Search Forms': {
+  [`My Search ${formsTitle}`]: {
     filter: child => child.get('createdBy') === user.getEmail(),
     showNewForm: true,
   },
-  'Shared Search Forms': {
+  [`Shared Search ${formsTitle}`]: {
     type: 'Shared',
     filter: child =>
       child.get('createdBy') !== 'system' &&
       child.get('createdBy') !== user.getEmail() &&
       user.canRead(child),
   },
-  'System Search Forms': {
+  [`System Search ${formsTitle}`]: {
     type: 'System',
     filter: child => child.get('createdBy') === 'system',
     message: (
       <TabMessage>
-        These are system search forms and <b>cannot be changed</b>
+        These are system search {formsTitle.toLowerCase()} and{' '}
+        <b>cannot be changed</b>
       </TabMessage>
     ),
   },

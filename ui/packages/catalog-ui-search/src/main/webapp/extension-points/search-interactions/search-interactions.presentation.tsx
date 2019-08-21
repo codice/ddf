@@ -17,6 +17,12 @@ import styled from 'styled-components'
 const { Menu, MenuItem } = require('../../react-component/menu')
 const Dropdown = require('../../react-component/dropdown')
 const SearchFormList = require('../../component/search-form-list/search-form-list')
+const properties = require('../../js/properties')
+
+const formTitle = properties.i18n['form.title'] || 'Form'
+const formTitleLowerCase = properties.i18n['form.title']
+  ? properties.i18n['form.title'].toLowerCase()
+  : 'form'
 
 export type Props = {
   triggerQueryForm: (formId: string) => void
@@ -50,7 +56,7 @@ export const CustomSearchFormDropdown = ({ model }: { model: any }) => {
       anchor={
         <Text>
           <Icon className="cf cf-search-forms" />
-          Use Another Search Form
+          Use Another Search {formTitle}
         </Text>
       }
     >
@@ -77,8 +83,8 @@ export const SearchFormMenuItem = ({
   return (
     <MenuItem
       value={value}
-      title={`Use the ${title} Form to construct the search.`}
-      data-help={`Use the ${title} Form to construct the search.`}
+      title={`Use the ${title} ${formTitle} to construct the search.`}
+      data-help={`Use the ${title} ${formTitle} to construct the search.`}
       onClick={onClick}
       active={active}
       onHover={onHover}
@@ -105,8 +111,8 @@ export const ResetMenuItem = ({
   return (
     <MenuItem
       value={value}
-      title="Resets the search form."
-      data-help="Resets the search form."
+      title={`Resets the search ${formTitleLowerCase}.`}
+      data-help={`Resets the search ${formTitleLowerCase}.`}
       onClick={onClick}
       active={active}
       onHover={onHover}
