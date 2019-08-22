@@ -45,17 +45,35 @@ const RightButtonStyle = styled.div`
     background: ${props => props.theme.primaryColor};
 `
 
+const LeftButton = (props) => {
+    if(props.leftButtonText != ''){
+        return(
+            <LeftButtonStyle>
+                    <ButtonStyle onClick={props.onLeftClick}></ButtonStyle>
+            </LeftButtonStyle>
+        )
+    }
+}
+
+const RightButton = (props) => {
+    if(props.rightButtonText != ''){
+        return(
+            <RightButtonStyle>
+                <ButtonStyle onClick={props.onRightClick}>{props.rightButtonText}</ButtonStyle>
+            </RightButtonStyle>
+        )
+    }
+}
+
 const BottomBar = (props) => {
     
     return (
         <BottomBarContainer>
         <BottomMessageContainer>{props.bottomBarText}</BottomMessageContainer>
-            <RightButtonStyle>
-                <ButtonStyle>{props.rightButtonText}</ButtonStyle>
-            </RightButtonStyle>
-            <LeftButtonStyle>
-                <ButtonStyle>{props.leftButtonText}</ButtonStyle>
-            </LeftButtonStyle>
+        <RightButton rightButtonText={props.rightButtonText} 
+                     onRightClick={props.onRightButtonClick}/>
+        <LeftButton leftButtonText={props.leftButtonText}
+                    onLeftClick={props.onLeftButtonClick}/>
         </BottomBarContainer>
     )
 }

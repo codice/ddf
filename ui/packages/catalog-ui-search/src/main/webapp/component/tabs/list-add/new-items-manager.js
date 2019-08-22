@@ -19,8 +19,11 @@ import styled from 'styled-components'
 import { NewItem } from '../../newitem/new-item'
 import AttributeEditor from '../../tabs/list-add/attribute-editor'
 import { InformalProductsTable } from '../../../react-component/informal-products/informal-upload-table'
+const $ = require('jquery')
 const user = require('../../../component/singletons/user-instance')
 const Upload = require('../../../js/model/Upload.js')
+const metacardDefinitions = require('../../singletons/metacard-definitions')
+const PropertyCollectionView = require('../../property/property.collection.view')
 import withListenTo from '../../../react-component/backbone-container'
 import {BottomBar} from './bottom-bar'
 
@@ -29,7 +32,7 @@ const AttributeEditorView = styled.div`
   display: flex;
   width: 50%;
   overflow-y: scroll;
-  height: calc(90% - 1.8rem);
+  height: calc(80% - 1.8rem);
   background-color: ${props => props.theme.backgroundNavigation};
   margin-top: ${props => props.theme.minimumSpacing};
   margin-left: ${props => props.theme.minimumSpacing};
@@ -48,15 +51,17 @@ class NewItemManager extends React.Component {
       currentBatch: undefined,
       files: [],
       uploads: [],
-      informalBottomText: 'Starting'
+      informalBottomText: 'Starting',
+      manualMetacard: undefined
     }
 
-    this.change = this.change.bind(this)
-    this.add = this.add.bind(this)
-    this.cancelUpload = this.cancelUpload.bind(this)
     this.initializeUploadListeners = this.initializeUploadListeners.bind(this)
+    this.createManualMetacard = this.createManualMetacard.bind(this)
+    this.onAttributeEdit = this.onAttributeEdit.bind(this)
     this.onManualSubmit = this.onManualSubmit.bind(this)
     this.goToFile = this.goToFile.bind(this)
+    this.change = this.change.bind(this)
+    this.add = this.add.bind(this)
     this.initializeUploadListeners()
   }
 
@@ -65,13 +70,12 @@ class NewItemManager extends React.Component {
       .get('user')
       .get('preferences')
       .get('uploads')
-    //TODO subscribe to single payload from add
+      
     this.props.listenTo(uploads, 'add', this.add)
   }
 
   getFileModels(uploadPayload) {
     try {
-      //TODO detect upload issues
       return uploadPayload.attributes.uploads.models.map(model => {
         const fileModel = model.attributes.file
         if (fileModel.status === 'uploading') {
@@ -89,13 +93,12 @@ class NewItemManager extends React.Component {
   }
 
   goToFile(file) {
-    //TODO implement redirect to file
+    // TODO implement redirect to file
+    // close modal and highlight selected metacard
     console.log(file)
   }
 
   componentDidMount() {}
-
-  cancelUpload() {}
 
   change(uploadPayload) {
     uploadPayload.attributes.uploads.models
@@ -125,12 +128,6 @@ class NewItemManager extends React.Component {
       uploads: uploadPayload,
       informalBottomText: progressText + ' ' + errorText + ' ' + issueText
     })
-
-    if (uploadPayload.attributes.percentage === 100) {
-      //TODO make sure security access attribute is set to only the uploader
-
-      console.log('all files finished')
-    }
   }
 
   add(addedUploads) {    
@@ -151,6 +148,12 @@ class NewItemManager extends React.Component {
     })
   }
 
+  onAttributeEdit(editedMetacard) {
+    this.setState({
+      manualMetacard: editedMetacard
+    })
+  }
+
   onManualSubmit(selectedMetacardType) {
     this.setState({
       selectedMetacardType
@@ -158,6 +161,45 @@ class NewItemManager extends React.Component {
     this.props.setManualCreateAsView()
   }
 
+  createManualMetacard() {
+    const editedMetacard = this.state.manualMetacard
+    console.log(editedMetacard)
+    const metacardType = this.state.selectedMetacardType
+
+    const metacardDefinition =
+      metacardDefinitions.metacardDefinitions[metacardType]
+
+    const properties = editedMetacard.properties
+    editedMetacard.properties = Object.keys(editedMetacard.properties)
+      .filter(attributeName => properties[attributeName].length >= 1)
+      .filter(attributeName => properties[attributeName][0] !== '')
+      .reduce(
+        (accummulator, currentValue) =>
+          _.extend(accummulator, {
+            [currentValue]: metacardDefinition[currentValue].multivalued
+              ? properties[currentValue]
+              : properties[currentValue][0],
+          }),
+        {}
+      )
+
+    editedMetacard.properties['metacard-type'] = metacardType
+    editedMetacard.type = 'Feature'
+
+    $.ajax({
+      type: 'POST',
+      url: './internal/catalog/?transform=geojson',
+      data: JSON.stringify(editedMetacard),
+      dataType: 'text',
+      contentType: 'application/json',
+    }).then((response, status, xhr) => {
+      const id = xhr.getResponseHeader('id')
+      if (id) {
+        this.props.handleNewMetacard(id)
+      }
+    })
+  }
+  
   getCurrentView() {
     switch(this.props.currentView){
       case 'new item':
@@ -175,12 +217,13 @@ class NewItemManager extends React.Component {
           return(
             <ViewWithBottomBar>
               <AttributeEditorView>
-                <AttributeEditor metacardType={this.state.selectedMetacardType} 
-                                 handleNewMetacard={this.props.handleNewMetacard}/>
+                <AttributeEditor metacardType={this.state.selectedMetacardType}
+                                 onAttributeEdit={this.onAttributeEdit}/>
               </AttributeEditorView>
               <BottomBar bottomBarText={this.state.bottomBarText}
-                         rightButtonText={'View Items'}
-                         leftButtonText={'Done'}/>
+                         rightButtonText={'Add Item'}
+                         onRightButtonClick={this.createManualMetacard}
+                         />
             </ViewWithBottomBar>
           )
       case 'informal table':
@@ -191,7 +234,8 @@ class NewItemManager extends React.Component {
             /> 
             <BottomBar bottomBarText={this.state.informalBottomText}
                        rightButtonText={'View Items'}
-                       leftButtonText={'Done'}/>
+                       onRightButtonClick={this.props.closeModal}
+                       />
           </ViewWithBottomBar>
         )
     }
@@ -203,37 +247,3 @@ class NewItemManager extends React.Component {
 }
 
 export default withListenTo(NewItemManager)
-
-// module.exports = TabsView.extend({
-//   className: 'is-list-add',
-//   setDefaultModel(options) {
-//     this.model = new ListAddTabsModel()
-//   },
-//   initialize(options) {
-//     this.setDefaultModel(options)
-
-//     TabsView.prototype.initialize.call(this)
-//     this.model.set('activeTab', 'Import')
-//   },
-//   determineContent() {
-//     const ActiveTab = this.model.getActiveView()
-//     if (this.model.attributes.activeTab === 'Import') {
-//       this.tabsContent.show(
-//         new ActiveTab({
-//           isList: true,
-//           extraHeaders: this.options.extraHeaders,
-//           url: this.options.url,
-//           handleUploadSuccess: this.options.handleUploadSuccess,
-//         })
-//       )
-//     } else {
-//       this.tabsContent.show(
-//         new ActiveTab({
-//           handleNewMetacard: this.options.handleNewMetacard,
-//           close: this.options.close,
-//           model: this.model,
-//         })
-//       )
-//     }
-//   },
-// })

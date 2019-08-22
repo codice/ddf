@@ -46,20 +46,26 @@ const AttributeTitle = styled.div`
 `
 
 class AttributeEditor extends React.Component {
-  constructor(props) {
+  constructor(props){
     super(props)
-
-    //TODO find out if pre validation is needed
-    this.turnOnEditing = this.turnOnEditing.bind(this)
+      
     this.stripValuesFromFields = this.stripValuesFromFields.bind(this)
     this.getEditableFields = this.getEditableFields.bind(this)
-    this.submitMetacard = this.submitMetacard.bind(this)
+    this.onAttributeEdit = this.onAttributeEdit.bind(this)
 
     const attributes = this.stripValuesFromFields()
+    
     attributes['metacard-type'] = this.props.metacardType
     this.state = {
-      propertyView: PropertyCollectionView.generatePropertyCollectionView([attributes])
+      propertyView: PropertyCollectionView.generatePropertyCollectionView([attributes]),
     }
+
+    this.turnOnEdit = () => {
+      if(this.state.propertyView.$el.children.length > 0){
+        this.state.propertyView.turnOnEditing()
+      }
+    }
+    
   }
 
   getEditableFields() {
@@ -83,61 +89,25 @@ class AttributeEditor extends React.Component {
   }
 
   componentDidMount() {
-    this.turnOnEditing()
+    setInterval(
+      this.turnOnEdit
+    , 1000);
   }
 
-  turnOnEditing() {
-    this.state.propertyView.turnOnEditing()
+  componentWillUnmount() {
+    clearInterval(this.turnOnEdit)
   }
 
-  submitMetacard() {
-    //TODO make sure this works!
-    const metacardType = this.props.metacardType
-
-    const metacardDefinition =
-      metacardDefinitions.metacardDefinitions[metacardType]
-
-    const editedMetacard = this.state.propertyView.toPropertyJSON()
-
-    const props = editedMetacard.properties
-    editedMetacard.properties = Object.keys(editedMetacard.properties)
-      .filter(attributeName => props[attributeName].length >= 1)
-      .filter(attributeName => props[attributeName][0] !== '')
-      .reduce(
-        (accummulator, currentValue) =>
-          _.extend(accummulator, {
-            [currentValue]: metacardDefinition[currentValue].multivalued
-              ? props[currentValue]
-              : props[currentValue][0],
-          }),
-        {}
-      )
-
-    editedMetacard.properties['metacard-type'] = metacardType
-    editedMetacard.type = 'Feature'
-
-    $.ajax({
-      type: 'POST',
-      url: './internal/catalog/?transform=geojson',
-      data: JSON.stringify(editedMetacard),
-      dataType: 'text',
-      contentType: 'application/json',
-    }).then((response, status, xhr) => {
-      const id = xhr.getResponseHeader('id')
-      if (id) {
-        this.props.handleNewMetacard(id)
-      }
-    })
+  onAttributeEdit() {
+    this.props.onAttributeEdit(this.state.propertyView.toPropertyJSON())
   }
 
   render() {
     return (
       <AttributeEditorContainer>
-        <AttributeTitle>{this.props.metacardType} Attributes</AttributeTitle>
-        <MarionetteRegionContainer view={this.state.propertyView} 
-                                   onClick={this.turnOnEditing} 
-                                   onDoubleClick={this.submitMetacard}
-                                   >
+        <AttributeTitle>{this.props.metacardType} attributes</AttributeTitle>
+        <MarionetteRegionContainer view={this.state.propertyView}  
+                                   onBlur={this.onAttributeEdit}>
         </MarionetteRegionContainer>  
       </AttributeEditorContainer>
     )

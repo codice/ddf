@@ -96,6 +96,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleNewMetacard = this.handleNewMetacard.bind(this)
     this.setInformalView = this.setInformalView.bind(this)
     this.handleBack = this.handleBack.bind(this)
+    this.closeModal = this.closeModal.bind(this)
     this.currentView = 'new item'
   },
   handleOutOfDate() {
@@ -163,6 +164,7 @@ module.exports = Marionette.LayoutView.extend({
                         setInformalView={this.setInformalView}
                         handleNewMetacard={this.handleNewMetacard}
                         handleUploadSuccess={this.handleUploadSuccess}
+                        closeModal={this.closeModal}
                         url={'./internal/list/import'}
                         extraHeaders={{
                           'List-ID': this.model.attributes.id,
@@ -210,7 +212,7 @@ module.exports = Marionette.LayoutView.extend({
       this.model
         .get('query')
         .startTieredSearchIfOutdated(this.model.get('list.bookmarks'))
-      lightboxInstance.close()
+      this.closeModal()
     }
   },
   handleUploadSuccess(file) {
@@ -221,6 +223,10 @@ module.exports = Marionette.LayoutView.extend({
         .get('query')
         .startTieredSearchIfOutdated(this.model.get('list.bookmarks'))
     }
+  },
+  closeModal() {
+    this.currentView = 'new item'
+    lightboxInstance.close()
   },
   serializeData() {
     return _merge(
