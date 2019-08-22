@@ -197,9 +197,7 @@ public class ExportMigrationConfigurationAdminContext {
         }
       } catch (MalformedURLException | URISyntaxException e) {
         path = constructPathForBasename(configuration);
-        LOGGER.debug(
-            String.format("failed to parse %s property from '%s'; ", DirectoryWatcher.FILENAME, o),
-            e);
+        LOGGER.debug("failed to parse {} property from '{}'; ", DirectoryWatcher.FILENAME, o, e);
         context
             .getReport()
             .record(
