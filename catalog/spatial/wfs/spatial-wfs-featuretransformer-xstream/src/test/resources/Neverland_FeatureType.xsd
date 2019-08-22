@@ -48,5 +48,5 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
-    <xsd:element name="PeterPAN" substitutionGroup="gml:_Feature" type="neverland:Peterpan_Type"/>
+    <xsd:element name="PeterPAN" substitutionGroup="gml:_Feature" type="neverland:PeterPan_Type"/>
 </xsd:schema>

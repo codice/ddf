@@ -13,13 +13,18 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.transformer.xstream;
 
+import static java.util.Collections.singletonList;
+import static org.codice.ddf.libs.geo.util.GeospatialUtil.LAT_LON_ORDER;
+import static org.codice.ddf.libs.geo.util.GeospatialUtil.LON_LAT_ORDER;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -61,7 +66,7 @@ public class XStreamWfs11FeatureTransformerTest {
 
   @Test
   public void testMetacardMappers() throws IOException {
-    transformer.setMetacardMappers(Collections.singletonList(mockMetacardMapper()));
+    transformer.setMetacardMappers(singletonList(mockMetacardMapper()));
 
     try (InputStream inputStream =
         new BufferedInputStream(getClass().getResourceAsStream("/FeatureMember.xml"))) {
@@ -73,13 +78,47 @@ public class XStreamWfs11FeatureTransformerTest {
   }
 
   @Test
+  public void testCoordinatesAreSwappedWhenCoordinateOrderIsLatLon() throws Exception {
+    transformer.setMetacardMappers(singletonList(mockMetacardMapper()));
+
+    try (final InputStream inputStream =
+        new BufferedInputStream(getClass().getResourceAsStream("/FeatureMember.xml"))) {
+      final Optional<Metacard> metacardOptional =
+          transformer.apply(inputStream, mockWfsMetadata(LAT_LON_ORDER));
+
+      assertThat(
+          "The feature transformer should have returned a metacard but didn't.",
+          metacardOptional.isPresent(),
+          is(true));
+      assertThat(metacardOptional.get().getLocation(), is("POINT (-123.26 49.4)"));
+    }
+  }
+
+  @Test
+  public void testCoordinatesAreNotSwappedWhenCoordinateOrderIsLonLat() throws Exception {
+    transformer.setMetacardMappers(singletonList(mockMetacardMapper()));
+
+    try (final InputStream inputStream =
+        new BufferedInputStream(getClass().getResourceAsStream("/FeatureMember.xml"))) {
+      final Optional<Metacard> metacardOptional =
+          transformer.apply(inputStream, mockWfsMetadata(LON_LAT_ORDER));
+
+      assertThat(
+          "The feature transformer should have returned a metacard but didn't.",
+          metacardOptional.isPresent(),
+          is(true));
+      assertThat(metacardOptional.get().getLocation(), is("POINT (49.4 -123.26)"));
+    }
+  }
+
+  @Test
   public void testFeatureConverters() throws IOException {
     FeatureConverterFactory featureConverterFactory = mock(FeatureConverterFactory.class);
     when(featureConverterFactory.getFeatureType()).thenReturn(PETER_PAN_NAME.toString());
 
     FeatureConverter featureConverter = new GenericFeatureConverter(mockMetacardMapper());
     when(featureConverterFactory.createConverter()).thenReturn(featureConverter);
-    transformer.setFeatureConverterFactories(Collections.singletonList(featureConverterFactory));
+    transformer.setFeatureConverterFactories(singletonList(featureConverterFactory));
 
     try (InputStream inputStream =
         new BufferedInputStream(getClass().getResourceAsStream("/FeatureMember.xml"))) {
@@ -124,11 +163,17 @@ public class XStreamWfs11FeatureTransformerTest {
   private WfsMetadata<FeatureTypeType> mockWfsMetadata() {
     WfsMetadata<FeatureTypeType> wfsMetadata = mock(WfsMetadata.class);
     when(wfsMetadata.getId()).thenReturn(SOURCE_ID);
-    when(wfsMetadata.getFeatureMemberNodeNames()).thenReturn(Collections.singletonList("PeterPan"));
+    when(wfsMetadata.getFeatureMemberNodeNames()).thenReturn(singletonList("PeterPan"));
     when(wfsMetadata.getActiveFeatureMemberNodeName()).thenReturn("PeterPan");
 
-    when(wfsMetadata.getDescriptors()).thenReturn(Collections.singletonList(mockFeatureType()));
+    when(wfsMetadata.getDescriptors()).thenReturn(singletonList(mockFeatureType()));
 
+    return wfsMetadata;
+  }
+
+  private WfsMetadata<FeatureTypeType> mockWfsMetadata(final String coordinateOrder) {
+    final WfsMetadata<FeatureTypeType> wfsMetadata = mockWfsMetadata();
+    when(wfsMetadata.getCoordinateOrder()).thenReturn(coordinateOrder);
     return wfsMetadata;
   }
 
@@ -143,7 +188,8 @@ public class XStreamWfs11FeatureTransformerTest {
   private MetacardMapper mockMetacardMapper() {
     MetacardMapper metacardMapper = mock(MetacardMapper.class);
     when(metacardMapper.getFeatureType()).thenReturn(PETER_PAN_NAME.toString());
-    when(metacardMapper.getMetacardAttribute(MAPPED_ATTRIBUTE)).thenReturn("title");
+    when(metacardMapper.getMetacardAttribute(MAPPED_ATTRIBUTE)).thenReturn(Core.TITLE);
+    when(metacardMapper.getMetacardAttribute("SpatialData")).thenReturn(Core.LOCATION);
     return metacardMapper;
   }
 }
