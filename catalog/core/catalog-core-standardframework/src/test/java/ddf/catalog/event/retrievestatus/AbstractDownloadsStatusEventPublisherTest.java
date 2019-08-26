@@ -96,7 +96,7 @@ public abstract class AbstractDownloadsStatusEventPublisherTest {
     properties.put(Notification.NOTIFICATION_KEY_USER_ID, USER_ID);
     properties.put(Notification.NOTIFICATION_KEY_SESSION_ID, SESSION_ID);
 
-    when(resource.getName()).thenReturn("testCometDSessionID");
+    when(resource.getName()).thenReturn("testSessionID");
     when(resourceRequest.getProperties()).thenReturn(properties);
     when(resourceRequest.containsPropertyName(Notification.NOTIFICATION_KEY_USER_ID))
         .thenReturn(true);

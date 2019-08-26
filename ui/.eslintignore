@@ -45,7 +45,5 @@ packages/codice-icons/icons
 test.js
 server*.js
 webpack*
-cometd.js
-cometd-web-example
 packages/linter
 disable-idp.js

@@ -68,7 +68,6 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
     - 2D map based on OpenLayers 3
     - USNG/MGRS grid support
     - GeoNames geocoder integrated into both maps
-    - CometD integration for push notifications
     - Upload and edit capability
     - Saved workspaces (searches and metadata artifacts)
  * Admin Web user interface
