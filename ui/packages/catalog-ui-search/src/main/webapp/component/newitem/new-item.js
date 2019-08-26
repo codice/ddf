@@ -47,7 +47,7 @@ const StyleLine = styled.div`
   align-self: center;
   width: 1px;
   height: 75px;
-  box-shadow: 0px 0px 1px 1px;
+  box-shadow: 0px 0px 0px 1px;
 `
 
 const ManualView = styled.div`

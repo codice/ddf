@@ -40,7 +40,7 @@ const Background = styled.div`
 const Foreground = styled.div`
   width: ${props => props.width}%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.75);
+  background: ${props => props.theme.primaryColor};
   line-height: ${props => props.theme.minimumLineSize};
   vertical-align: middle;
   border-radius: calc(${props => props.theme.minimumLineSize} / 2);

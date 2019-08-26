@@ -17,10 +17,8 @@ import * as React from 'react'
 import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
 import MarionetteRegionContainer from '../../../react-component/marionette-region-container'
-const $ = require('jquery')
 const metacardDefinitions = require('../../singletons/metacard-definitions')
 const PropertyCollectionView = require('../../property/property.collection.view')
-const Property = require('../../property/property')
 
 const AttributeEditorContainer = styled.div`
   display: flex;

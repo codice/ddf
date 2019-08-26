@@ -159,7 +159,6 @@ module.exports = Backbone.Model.extend({
     checkValidation(this)
   },
   cancel() {
-    console.log('cancel')
     if (this.options.dropzone) {
       this.options.dropzone.removeFile(this.get('file'))
       if (this.collection) {

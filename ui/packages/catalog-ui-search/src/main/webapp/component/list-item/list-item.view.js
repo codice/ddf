@@ -157,6 +157,10 @@ module.exports = Marionette.LayoutView.extend({
   triggerAdd(e) {
     lightboxInstance.model.updateTitle('Add items')
     lightboxInstance.model.open()
+    let back = this.handleBack
+    if(this.currentView === 'new item'){
+      back = undefined
+    }
     lightboxInstance.showContent(
       (
           <NewItemManager currentView={this.currentView} 
@@ -173,20 +177,9 @@ module.exports = Marionette.LayoutView.extend({
           </NewItemManager>
       ),
       this.closeModal,
-      this.handleBack
+      back
     )
     
-      // new ListAddTabsView({
-      //   extraHeaders: {
-      //     'List-ID': this.model.attributes.id,
-      //     'List-Type': this.model.get('list.icon'),
-      //   },
-      //   url: './internal/list/import',
-      //   handleUploadSuccess: file => this.handleUploadSuccess(file),
-      //   handleNewMetacard: id => this.handleNewMetacard(id),
-      //   close: () => lightboxInstance.close(),
-      // })
-    //)
     if(e){
       e.stopPropagation()
     }
@@ -198,7 +191,6 @@ module.exports = Marionette.LayoutView.extend({
   handleBack() {
     if(this.currentView!='new item'){
       this.currentView = 'new item'
-      this.onBack = undefined
     }
     this.triggerAdd()
   },

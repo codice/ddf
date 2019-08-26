@@ -20,13 +20,12 @@ import { ProgressBarWithText } from './progress-car'
 const InformalProductsContainer = styled.div`
   display: flex;
   align-items: center;
-  height: 80%;
+  height: 70%;
   width: 80%;
   margin-left: 10%;
   margin-top: 5%;
 `
 
-//TODO center items vertically
 const InformalProductsTableStyleComp = styled.table`
   display: flex;
   flex-flow: column;
@@ -77,11 +76,6 @@ const InformalProductsTableStyleComp = styled.table`
 const InformalProductsTableRowStyleComp = styled.tr``
 
 const InformalProductsTable = props => {
-
-  function handleMessageClick() {
-    console.log('Message was clicked')
-  }
-
   return (
     <InformalProductsContainer>
       <InformalProductsTableStyleComp>

@@ -28,7 +28,6 @@ module.exports = Marionette.LayoutView.extend(
     showContent(contentComponent, onClose, onBack) {
       this.contentComponent = contentComponent
       this.onClose = onClose
-      console.log(onBack)
       this.onBack = onBack
       this.render()
     },

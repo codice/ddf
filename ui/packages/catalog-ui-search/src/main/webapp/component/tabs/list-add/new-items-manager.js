@@ -19,21 +19,20 @@ import styled from 'styled-components'
 import { NewItem } from '../../newitem/new-item'
 import AttributeEditor from '../../tabs/list-add/attribute-editor'
 import { InformalProductsTable } from '../../../react-component/informal-products/informal-upload-table'
-const $ = require('jquery')
-const user = require('../../../component/singletons/user-instance')
-const Upload = require('../../../js/model/Upload.js')
-const metacardDefinitions = require('../../singletons/metacard-definitions')
-const PropertyCollectionView = require('../../property/property.collection.view')
 import withListenTo from '../../../react-component/backbone-container'
 import { BottomBar } from './bottom-bar'
+const $ = require('jquery')
+const user = require('../../../component/singletons/user-instance')
+const metacardDefinitions = require('../../singletons/metacard-definitions')
+
 
 const AttributeEditorView = styled.div`
   display: flex;
   width: 50%;
   overflow-y: scroll;
-  height: calc(80% - 1.8rem);
+  height: calc(90% - 1.8rem);
   background-color: ${props => props.theme.backgroundNavigation};
-  margin-top: ${props => props.theme.minimumSpacing};
+  margin-top: calc(1.5 * ${props => props.theme.minimumSpacing});
   margin-left: ${props => props.theme.minimumSpacing};
 `
 
@@ -62,7 +61,9 @@ class NewItemManager extends React.Component {
     }
 
     this.initializeUploadListeners = this.initializeUploadListeners.bind(this)
+    this.getInformalBottomText = this.getInformalBottomText.bind(this)
     this.createManualMetacard = this.createManualMetacard.bind(this)
+    this.setCancelAction = this.setCancelAction.bind(this)
     this.onAttributeEdit = this.onAttributeEdit.bind(this)
     this.onManualSubmit = this.onManualSubmit.bind(this)
     this.change = this.change.bind(this)
@@ -78,30 +79,43 @@ class NewItemManager extends React.Component {
     this.props.listenTo(uploads, 'add', this.add)
   }
 
-
   add(addedUploads) {    
-    this.setState({
-      addedUploads
-    })
-    this.props.listenTo(this.state.addedUploads, 'change', this.change)
-    // TODO the message may need to be set 
-    // THis initializes the file details that only need to be done once
     addedUploads.attributes.uploads.models.map(model => {
       const fileModel = model.attributes.file
       return fileModel
     })
+    this.setState({
+      addedUploads
+    })
+    this.props.listenTo(addedUploads, 'change', this.change)
+
     this.props.setInformalView()
   }
 
   change(uploadPayload) {
+    this.setCancelAction(uploadPayload)
+    this.setState({
+      files: this.getFileModels(uploadPayload),
+      informalBottomText: this.getInformalBottomText(uploadPayload)
+    })
+  }
+
+  setCancelAction(uploadPayload) {
     uploadPayload.attributes.uploads.models
-    .filter( model => model.attributes.file.status === 'success' 
-                    || model.attributes.file.status === 'error')
-      .forEach( el => {
-        // TODO not sure how I want to handle error's yet. Want a hover to explain
-        // But it does not look like that info is available
-        el.attributes.file.onClick = this.goToFile
-      })
+    .filter(model => model.attributes.file.status === 'uploading')
+    .map(model => {
+      
+      model.attributes.file.status = 'stop'
+      model.attributes.file.onClick = () => {
+        model.cancel()
+        this.props.stopListening(model)
+      }
+    })
+
+  }
+
+
+  getInformalBottomText(uploadPayload) {
 
     const progressText = `${uploadPayload.attributes.complete} 
                           of ${uploadPayload.attributes.amount} items uploaded.`
@@ -115,12 +129,9 @@ class NewItemManager extends React.Component {
     if(uploadPayload.attributes.issues > 0){
       issueText = `${uploadPayload.attributes.issues} issues.`
     }
-    
-    this.setState({
-      files: this.getFileModels(uploadPayload),
-      uploads: uploadPayload,
-      informalBottomText: progressText + ' ' + errorText + ' ' + issueText
-    })
+
+    return progressText + ' ' + errorText + ' ' + issueText
+
   }
 
   componentDidMount(){
@@ -128,20 +139,19 @@ class NewItemManager extends React.Component {
   }
 
   componentWillUnmount() {
-    console.log('unmounted')
     this.props.stopListening(this.state.addedUploads)
+    this.state.addedUploads.cancel()
+    user
+      .get('user')
+      .get('preferences')
+      .save()
   }
 
   getFileModels(uploadPayload) {
-    try {
-      return uploadPayload.attributes.uploads.models.map(model => {
-        const fileModel = model.attributes.file
-        return fileModel
-      })
-    } catch (err) {
-      console.error(err)
-      return
-    }
+    return uploadPayload.attributes.uploads.models.map(model => {
+      const fileModel = model.attributes.file
+      return fileModel
+    })
   }
 
   handleViewUpdate(newView) {
@@ -246,7 +256,7 @@ class NewItemManager extends React.Component {
         return (
           <ViewWithBottomBar>
             <InformalProductsTable files={this.state.files} />
-            <BottomBar bottomBarText={this.props.informalBottomText} children={[viewItemsButton]}/>
+            <BottomBar bottomBarText={this.state.informalBottomText} children={[viewItemsButton]}/>
           </ViewWithBottomBar>
         )
     }
