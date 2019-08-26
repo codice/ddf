@@ -46,7 +46,7 @@ const InformalProductsTableStyleComp = styled.table`
   }
   & > thead,
   & > tbody > tr {
-    display:table;
+    display: table;
     table-layout: fixed;
   }
 
@@ -56,7 +56,7 @@ const InformalProductsTableStyleComp = styled.table`
   & > tbody > tr > td {
     height: 40px;
   }
-  & tr, 
+  & tr,
   & td {
     font-size: ${props => props.theme.minimumFontSize};
     padding: ${props => props.theme.minimumFontSize};
@@ -68,19 +68,15 @@ const InformalProductsTableStyleComp = styled.table`
     padding-left: ${props => props.theme.minimumSpacing};
   }
 
-  & th{
+  & th {
     font-size: ${props => props.theme.mediumFontSize};
     padding-bottom: ${props => props.theme.minimumSpacing};
   }
-
 `
 
-const InformalProductsTableRowStyleComp = styled.tr`
-  
-`
+const InformalProductsTableRowStyleComp = styled.tr``
 
 const InformalProductsTable = props => {
-  const { uploads } = props
 
   function handleMessageClick() {
     console.log('Message was clicked')
@@ -91,31 +87,21 @@ const InformalProductsTable = props => {
       <InformalProductsTableStyleComp>
         <thead>
           <tr>
-            <th style={{width:'50%'}}> 
-              Title
-            </th>
-            <th style={{width:'15%'}}>
-              Type
-            </th>
-            <th style={{width:'25%'}}>
-              Status
-            </th>
+            <th style={{ width: '50%' }}>Title</th>
+            <th style={{ width: '15%' }}>Type</th>
+            <th style={{ width: '25%' }}>Status</th>
           </tr>
         </thead>
         <tbody>
           {props.files.map(file => {
             return (
               <InformalProductsTableRowStyleComp key={file.name}>
-                <td style={{width:'50%'}}>
-                  {file.name}
-                </td>
-                <td style={{width:'15%'}}>
-                  {file.type}
-                </td>
-                <td style={{width:'25%'}}>
+                <td style={{ width: '50%' }}>{file.name}</td>
+                <td style={{ width: '15%' }}>{file.type}</td>
+                <td style={{ width: '25%' }}>
                   <ProgressBarWithText
                     progress={file.upload.progress}
-                    messageOnClick={() => file.onClick(file)}
+                    messageOnClick={file.onClick}
                     status={file.status}
                     message={file.message}
                   />

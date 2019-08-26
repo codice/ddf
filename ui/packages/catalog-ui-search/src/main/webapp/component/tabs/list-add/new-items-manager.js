@@ -25,8 +25,7 @@ const Upload = require('../../../js/model/Upload.js')
 const metacardDefinitions = require('../../singletons/metacard-definitions')
 const PropertyCollectionView = require('../../property/property.collection.view')
 import withListenTo from '../../../react-component/backbone-container'
-import {BottomBar} from './bottom-bar'
-
+import { BottomBar } from './bottom-bar'
 
 const AttributeEditorView = styled.div`
   display: flex;
@@ -42,6 +41,13 @@ const ViewWithBottomBar = styled.div`
   height: 100%;
 `
 
+const ButtonStyle = styled.div`
+  padding: 0px ${props => props.theme.minimumSpacing};
+  min-width: ${props => props.theme.minimumButtonSize};
+  background-color: ${props => props.theme.primaryColor};
+  align-self: center;
+`
+
 class NewItemManager extends React.Component {
   constructor(props) {
     super(props)
@@ -49,8 +55,8 @@ class NewItemManager extends React.Component {
       currentView: 'new item',
       selectedMetacardType: 'common',
       currentBatch: undefined,
+      addedUploads: undefined,
       files: [],
-      uploads: [],
       informalBottomText: 'Starting',
       manualMetacard: undefined
     }
@@ -59,10 +65,8 @@ class NewItemManager extends React.Component {
     this.createManualMetacard = this.createManualMetacard.bind(this)
     this.onAttributeEdit = this.onAttributeEdit.bind(this)
     this.onManualSubmit = this.onManualSubmit.bind(this)
-    this.goToFile = this.goToFile.bind(this)
     this.change = this.change.bind(this)
     this.add = this.add.bind(this)
-    this.initializeUploadListeners()
   }
 
   initializeUploadListeners() {
@@ -74,31 +78,20 @@ class NewItemManager extends React.Component {
     this.props.listenTo(uploads, 'add', this.add)
   }
 
-  getFileModels(uploadPayload) {
-    try {
-      return uploadPayload.attributes.uploads.models.map(model => {
-        const fileModel = model.attributes.file
-        if (fileModel.status === 'uploading') {
-          fileModel.status = 'stop'
-        }
-        else if(model.attributes.progress === 100) {
-          fileModel.onClick = this.goToFile
-        }
-        return fileModel
-      })
-    } catch (err) {
-      console.error(err)
-      return
-    }
-  }
 
-  goToFile(file) {
-    // TODO implement redirect to file
-    // close modal and highlight selected metacard
-    console.log(file)
+  add(addedUploads) {    
+    this.setState({
+      addedUploads
+    })
+    this.props.listenTo(this.state.addedUploads, 'change', this.change)
+    // TODO the message may need to be set 
+    // THis initializes the file details that only need to be done once
+    addedUploads.attributes.uploads.models.map(model => {
+      const fileModel = model.attributes.file
+      return fileModel
+    })
+    this.props.setInformalView()
   }
-
-  componentDidMount() {}
 
   change(uploadPayload) {
     uploadPayload.attributes.uploads.models
@@ -130,16 +123,25 @@ class NewItemManager extends React.Component {
     })
   }
 
-  add(addedUploads) {    
-    this.props.listenTo(addedUploads, 'change', this.change)
-    // TODO the message may need to be set 
-    // THis initializes the file details that only need to be done once
-    addedUploads.attributes.uploads.models.map(model => {
-      const fileModel = model.attributes.file
-      fileModel.onClick = model.cancel.bind(model)
-      return fileModel
-    })
-    this.props.setInformalView()
+  componentDidMount(){
+    this.initializeUploadListeners()
+  }
+
+  componentWillUnmount() {
+    console.log('unmounted')
+    this.props.stopListening(this.state.addedUploads)
+  }
+
+  getFileModels(uploadPayload) {
+    try {
+      return uploadPayload.attributes.uploads.models.map(model => {
+        const fileModel = model.attributes.file
+        return fileModel
+      })
+    } catch (err) {
+      console.error(err)
+      return
+    }
   }
 
   handleViewUpdate(newView) {
@@ -150,20 +152,19 @@ class NewItemManager extends React.Component {
 
   onAttributeEdit(editedMetacard) {
     this.setState({
-      manualMetacard: editedMetacard
+      manualMetacard: editedMetacard,
     })
   }
 
   onManualSubmit(selectedMetacardType) {
     this.setState({
-      selectedMetacardType
+      selectedMetacardType,
     })
     this.props.setManualCreateAsView()
   }
 
   createManualMetacard() {
     const editedMetacard = this.state.manualMetacard
-    console.log(editedMetacard)
     const metacardType = this.state.selectedMetacardType
 
     const metacardDefinition =
@@ -199,13 +200,14 @@ class NewItemManager extends React.Component {
       }
     })
   }
-  
+
   getCurrentView() {
-    switch(this.props.currentView){
+
+    switch (this.props.currentView) {
       case 'new item':
         return (
           <NewItem
-            files={this.state.files}
+            files={this.props.files}
             metacardType={this.state.selectedMetacardType}
             onManualSubmit={this.onManualSubmit}
             handleUploadSuccess={this.props.handleUploadSuccess}
@@ -214,35 +216,44 @@ class NewItemManager extends React.Component {
           />
         )
       case 'manual upload':
-          return(
-            <ViewWithBottomBar>
-              <AttributeEditorView>
-                <AttributeEditor metacardType={this.state.selectedMetacardType}
-                                 onAttributeEdit={this.onAttributeEdit}/>
-              </AttributeEditorView>
-              <BottomBar bottomBarText={this.state.bottomBarText}
-                         rightButtonText={'Add Item'}
-                         onRightButtonClick={this.createManualMetacard}
-                         />
-            </ViewWithBottomBar>
-          )
-      case 'informal table':
+        const addButton = (
+          <ButtonStyle>
+            <button onClick={this.createManualMetacard}>
+              {'Add Item'}
+            </button>
+          </ButtonStyle>
+        )
         return (
           <ViewWithBottomBar>
-            <InformalProductsTable 
-                    files={this.state.files}
-            /> 
-            <BottomBar bottomBarText={this.state.informalBottomText}
-                       rightButtonText={'View Items'}
-                       onRightButtonClick={this.props.closeModal}
-                       />
+            <AttributeEditorView>
+              <AttributeEditor
+                metacardType={this.state.selectedMetacardType}
+                onAttributeEdit={this.onAttributeEdit}
+              />
+            </AttributeEditorView>
+            <BottomBar children={[addButton]}/>
+          </ViewWithBottomBar>
+        )
+      case 'informal table':
+        const viewItemsButton = (
+          <ButtonStyle>
+            <button onClick={this.props.closeModal}>
+              {'View Items'}
+            </button>
+          </ButtonStyle>
+        )
+        
+        return (
+          <ViewWithBottomBar>
+            <InformalProductsTable files={this.state.files} />
+            <BottomBar bottomBarText={this.props.informalBottomText} children={[viewItemsButton]}/>
           </ViewWithBottomBar>
         )
     }
   }
 
   render() {
-      return this.getCurrentView()
+    return this.getCurrentView()
   }
 }
 

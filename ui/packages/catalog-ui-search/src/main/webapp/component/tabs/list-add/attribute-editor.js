@@ -31,11 +31,11 @@ const AttributeEditorContainer = styled.div`
     padding: 0;
   }
 
-  & .property-label{
+  & .property-label {
     padding: 0px ${props => props.theme.minimumSpacing};
   }
 
-  & .property-value{
+  & .property-value {
     padding: 0px ${props => props.theme.minimumSpacing};
   }
 `
@@ -46,36 +46,41 @@ const AttributeTitle = styled.div`
 `
 
 class AttributeEditor extends React.Component {
-  constructor(props){
+  constructor(props) {
     super(props)
-      
+
     this.stripValuesFromFields = this.stripValuesFromFields.bind(this)
     this.getEditableFields = this.getEditableFields.bind(this)
     this.onAttributeEdit = this.onAttributeEdit.bind(this)
 
     const attributes = this.stripValuesFromFields()
-    
+
     attributes['metacard-type'] = this.props.metacardType
     this.state = {
-      propertyView: PropertyCollectionView.generatePropertyCollectionView([attributes]),
+      propertyView: PropertyCollectionView.generatePropertyCollectionView([
+        attributes,
+      ]),
     }
 
     this.turnOnEdit = () => {
-      if(this.state.propertyView.$el.children.length > 0){
+      if (this.state.propertyView.$el.children.length > 0) {
         this.state.propertyView.turnOnEditing()
       }
     }
-    
   }
 
   getEditableFields() {
-    const metacardAttributes = metacardDefinitions.metacardDefinitions[this.props.metacardType]
+    const metacardAttributes =
+      metacardDefinitions.metacardDefinitions[this.props.metacardType]
     const editableFields = []
     // remove hidden and readonly attributes
     Object.keys(metacardAttributes).forEach(key => {
-        if((!metacardAttributes[key].hidden) && (!metacardAttributes[key].readOnly)){
-          editableFields.push(key)
-        }
+      if (
+        !metacardAttributes[key].hidden &&
+        !metacardAttributes[key].readOnly
+      ) {
+        editableFields.push(key)
+      }
     })
     return editableFields
   }
@@ -89,9 +94,7 @@ class AttributeEditor extends React.Component {
   }
 
   componentDidMount() {
-    setInterval(
-      this.turnOnEdit
-    , 1000);
+    setInterval(this.turnOnEdit, 1000)
   }
 
   componentWillUnmount() {
@@ -106,9 +109,10 @@ class AttributeEditor extends React.Component {
     return (
       <AttributeEditorContainer>
         <AttributeTitle>{this.props.metacardType} attributes</AttributeTitle>
-        <MarionetteRegionContainer view={this.state.propertyView}  
-                                   onBlur={this.onAttributeEdit}>
-        </MarionetteRegionContainer>  
+        <MarionetteRegionContainer
+          view={this.state.propertyView}
+          onBlur={this.onAttributeEdit}
+        />
       </AttributeEditorContainer>
     )
   }

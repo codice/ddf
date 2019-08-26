@@ -56,33 +56,32 @@ const ManualView = styled.div`
 `
 
 function NewItem(props) {
+  return (
+    <React.Fragment>
+      <ItemCreationView>
+        <UploadView>
+          <MarionetteRegionContainer
+            className="upload-menu"
+            view={IngestView}
+            viewOptions={{
+              handleUploadSuccess: props.handleUploadSuccess,
+              url: props.url,
+              extraHeaders: props.extraHeaders,
+            }}
+          />
+        </UploadView>
+        <OrContainer>
+          <StyleLine />
+          <div>OR</div>
+          <StyleLine />
+        </OrContainer>
 
-    return (
-      <React.Fragment>
-        <ItemCreationView>
-          <UploadView>
-            <MarionetteRegionContainer
-              className="upload-menu"
-              view={IngestView}
-              viewOptions={{
-                handleUploadSuccess: props.handleUploadSuccess,
-                url: props.url,
-                extraHeaders: props.extraHeaders,
-              }}
-            />
-          </UploadView>
-          <OrContainer>
-            <StyleLine />
-            <div>OR</div>
-            <StyleLine />
-          </OrContainer>
-
-          <ManualView>
-            <BuilderStart onManualSubmit={props.onManualSubmit}/>
-          </ManualView>
-        </ItemCreationView>
-      </React.Fragment>
-    )
+        <ManualView>
+          <BuilderStart onManualSubmit={props.onManualSubmit} />
+        </ManualView>
+      </ItemCreationView>
+    </React.Fragment>
+  )
 }
 
 export { NewItem }

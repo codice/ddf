@@ -19,8 +19,8 @@ const SpacingStyle = styled.div`
 `
 
 const retrieveAvailableTypes = async () => {
-    const response = await fetch('./internal/builder/availabletypes')
-    return await response.json()
+  const response = await fetch('./internal/builder/availabletypes')
+  return await response.json()
 }
 
 class BuilderStart extends React.Component {
@@ -39,16 +39,14 @@ class BuilderStart extends React.Component {
     this.setSelectedType = this.setSelectedType.bind(this)
   }
 
-  
-
   async componentDidMount() {
     this.setState({
       selectedType: this.state.entities[0].value,
     })
     retrievedAvailableTypes = await retrieveAvailableTypes()
 
-    //TODO forbidden access to these right now. 
-    // Maybe because it is requesting localhost:8080 
+    //TODO forbidden access to these right now.
+    // Maybe because it is requesting localhost:8080
     // instead of 8993
     const enums = retrievedAvailableTypes.availableTypes.map(availableType => ({
       label: availableType.metacardType,

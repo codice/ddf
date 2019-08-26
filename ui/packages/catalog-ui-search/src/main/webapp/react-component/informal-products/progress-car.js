@@ -73,7 +73,8 @@ const ProgressBarWithText = props => {
   return (
     <StatusContainer>
       {progress ? <ProgressBar progress={progress} /> : <div />}
-      <Line onClick={messageOnClick}>{status}
+      <Line onClick={messageOnClick}>
+        {status}
         <Message>{message}</Message>
       </Line>
     </StatusContainer>

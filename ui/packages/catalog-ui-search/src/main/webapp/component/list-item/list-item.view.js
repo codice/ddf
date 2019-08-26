@@ -172,7 +172,7 @@ module.exports = Marionette.LayoutView.extend({
                         }}>
           </NewItemManager>
       ),
-      undefined,
+      this.closeModal,
       this.handleBack
     )
     
@@ -226,7 +226,9 @@ module.exports = Marionette.LayoutView.extend({
   },
   closeModal() {
     this.currentView = 'new item'
-    lightboxInstance.close()
+    // this forces the existing view to unmount
+    lightboxInstance.showContent(undefined)
+    lightboxInstance.model.close()
   },
   serializeData() {
     return _merge(

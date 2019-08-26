@@ -16,67 +16,30 @@ import React from 'react'
 import styled from 'styled-components'
 
 const BottomBarContainer = styled.div`
-    position: absolute;
-    width: 100%;
-    bottom: 0;
-    display: flex;
-    flex-flow: row-reverse;
-    border-top: ${props => props.theme.backgroundNavigation} 2px solid;
-    padding: ${props => props.theme.minimumSpacing};
-`
-
-const ButtonStyle = styled.button`
-    padding: 0px ${props => props.theme.minimumSpacing};
-    min-width: ${props => props.theme.minimumButtonSize};
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  display: flex;
+  flex-flow: row-reverse;
+  border-top: ${props => props.theme.backgroundNavigation} 2px solid;
+  padding: ${props => props.theme.minimumSpacing};
 `
 
 const BottomMessageContainer = styled.div`
-    position: absolute;
-    padding: ${props => props.theme.minimumSpacing};
-    font-size: ${props => props.theme.minimumFontSize};
-    left: 0;
+  position: absolute;
+  padding: ${props => props.theme.minimumSpacing};
+  font-size: ${props => props.theme.minimumFontSize};
+  align-self: center;
+  left: ${props => props.theme.minimumSpacing};
 `
 
-const LeftButtonStyle = styled.div`
-    background: none;
-`
-
-const RightButtonStyle = styled.div`
-    background: ${props => props.theme.primaryColor};
-`
-
-const LeftButton = (props) => {
-    if(props.leftButtonText != ''){
-        return(
-            <LeftButtonStyle>
-                    <ButtonStyle onClick={props.onLeftClick}></ButtonStyle>
-            </LeftButtonStyle>
-        )
-    }
+const BottomBar = props => {
+  return (
+    <BottomBarContainer>
+      <BottomMessageContainer>{props.bottomBarText}</BottomMessageContainer>
+      {props.children}
+    </BottomBarContainer>
+  )
 }
 
-const RightButton = (props) => {
-    if(props.rightButtonText != ''){
-        return(
-            <RightButtonStyle>
-                <ButtonStyle onClick={props.onRightClick}>{props.rightButtonText}</ButtonStyle>
-            </RightButtonStyle>
-        )
-    }
-}
-
-const BottomBar = (props) => {
-    
-    return (
-        <BottomBarContainer>
-        <BottomMessageContainer>{props.bottomBarText}</BottomMessageContainer>
-        <RightButton rightButtonText={props.rightButtonText} 
-                     onRightClick={props.onRightButtonClick}/>
-        <LeftButton leftButtonText={props.leftButtonText}
-                    onLeftClick={props.onLeftButtonClick}/>
-        </BottomBarContainer>
-    )
-}
-
-export {BottomBar}
-
+export { BottomBar }

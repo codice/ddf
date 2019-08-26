@@ -48,17 +48,16 @@ module.exports = Marionette.LayoutView.extend(
         component = this.contentComponent
       }
 
-      let backButton = (<div></div>)
-      if( this.onBack !== undefined ) {
+      let backButton = <div />
+      if (typeof this.onBack === 'function') {
         backButton = (
           <button title="back" className="lightbox-back is-button">
-            <span className="fa fa-angle-left"/>
+            <span className="fa fa-angle-left" />
           </button>
         )
       }
-     
-      return (
 
+      return (
         <React.Fragment>
           <div className="lightbox-container">
             <div className="lightbox-title-bar clearfix">
@@ -81,7 +80,7 @@ module.exports = Marionette.LayoutView.extend(
     events: {
       click: 'handleOutsideClick',
       'click .lightbox-close': 'close',
-      'click .lightbox-back': 'back'
+      'click .lightbox-back': 'back',
     },
     initialize() {
       $('body').append(this.el)
