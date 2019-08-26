@@ -52,7 +52,11 @@ class BuilderStart extends React.Component {
       label: availableType.metacardType,
       value: availableType.metacardType,
     }))
-    console.log(enums)
+    if(enums !== undefined){
+      this.setState({
+        entities: enums
+      })
+    }
   }
 
   setSelectedType(selectedType) {
@@ -69,9 +73,9 @@ class BuilderStart extends React.Component {
           <Enum
             options={this.state.entities}
             value={this.state.entities[0].value}
-            filtering={true}
             label="Item Type"
             onChange={this.setSelectedType}
+            filtering={true}
           />
           <SpacingStyle>
             <Button

@@ -114,7 +114,6 @@ class NewItemManager extends React.Component {
 
   }
 
-
   getInformalBottomText(uploadPayload) {
 
     const progressText = `${uploadPayload.attributes.complete} 
