@@ -52,9 +52,9 @@ class BuilderStart extends React.Component {
       label: availableType.metacardType,
       value: availableType.metacardType,
     }))
-    if(enums !== undefined){
+    if (enums !== undefined) {
       this.setState({
-        entities: enums
+        entities: enums,
       })
     }
   }

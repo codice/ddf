@@ -25,12 +25,11 @@ const $ = require('jquery')
 const user = require('../../../component/singletons/user-instance')
 const metacardDefinitions = require('../../singletons/metacard-definitions')
 
-
 const AttributeEditorView = styled.div`
   display: flex;
   width: 50%;
   overflow-y: scroll;
-  height: calc(90% - 1.8rem);
+  height: calc(80% - 1.8rem);
   background-color: ${props => props.theme.backgroundNavigation};
   margin-top: calc(1.5 * ${props => props.theme.minimumSpacing});
   margin-left: ${props => props.theme.minimumSpacing};
@@ -57,7 +56,7 @@ class NewItemManager extends React.Component {
       addedUploads: undefined,
       files: [],
       informalBottomText: 'Starting',
-      manualMetacard: undefined
+      manualMetacard: undefined,
     }
 
     this.initializeUploadListeners = this.initializeUploadListeners.bind(this)
@@ -75,17 +74,17 @@ class NewItemManager extends React.Component {
       .get('user')
       .get('preferences')
       .get('uploads')
-      
+
     this.props.listenTo(uploads, 'add', this.add)
   }
 
-  add(addedUploads) {    
+  add(addedUploads) {
     addedUploads.attributes.uploads.models.map(model => {
       const fileModel = model.attributes.file
       return fileModel
     })
     this.setState({
-      addedUploads
+      addedUploads,
     })
     this.props.listenTo(addedUploads, 'change', this.change)
 
@@ -93,47 +92,46 @@ class NewItemManager extends React.Component {
   }
 
   change(uploadPayload) {
+    if (uploadPayload.attributes.uploads.models.length <= 0) {
+      this.props.setNewItemView()
+    }
     this.setCancelAction(uploadPayload)
     this.setState({
       files: this.getFileModels(uploadPayload),
-      informalBottomText: this.getInformalBottomText(uploadPayload)
+      informalBottomText: this.getInformalBottomText(uploadPayload),
     })
   }
 
   setCancelAction(uploadPayload) {
     uploadPayload.attributes.uploads.models
-    .filter(model => model.attributes.file.status === 'uploading')
-    .map(model => {
-      
-      model.attributes.file.status = 'stop'
-      model.attributes.file.onClick = () => {
-        model.cancel()
-        this.props.stopListening(model)
-      }
-    })
-
+      .filter(model => model.attributes.file.status === 'uploading')
+      .map(model => {
+        model.attributes.file.status = 'stop'
+        model.attributes.file.onClick = () => {
+          model.cancel()
+          this.props.stopListening(model)
+        }
+      })
   }
 
   getInformalBottomText(uploadPayload) {
-
     const progressText = `${uploadPayload.attributes.complete} 
                           of ${uploadPayload.attributes.amount} items uploaded.`
-    
+
     let errorText = ''
-    if(uploadPayload.attributes.errors > 0){
+    if (uploadPayload.attributes.errors > 0) {
       errorText = `${uploadPayload.attributes.errors} errors.`
     }
 
     let issueText = ''
-    if(uploadPayload.attributes.issues > 0){
+    if (uploadPayload.attributes.issues > 0) {
       issueText = `${uploadPayload.attributes.issues} issues.`
     }
 
     return progressText + ' ' + errorText + ' ' + issueText
-
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.initializeUploadListeners()
   }
 
@@ -211,7 +209,6 @@ class NewItemManager extends React.Component {
   }
 
   getCurrentView() {
-
     switch (this.props.currentView) {
       case 'new item':
         return (
@@ -227,9 +224,7 @@ class NewItemManager extends React.Component {
       case 'manual upload':
         const addButton = (
           <ButtonStyle>
-            <button onClick={this.createManualMetacard}>
-              {'Add Item'}
-            </button>
+            <button onClick={this.createManualMetacard}>{'Add Item'}</button>
           </ButtonStyle>
         )
         return (
@@ -240,22 +235,23 @@ class NewItemManager extends React.Component {
                 onAttributeEdit={this.onAttributeEdit}
               />
             </AttributeEditorView>
-            <BottomBar children={[addButton]}/>
+            <BottomBar children={[addButton]} />
           </ViewWithBottomBar>
         )
       case 'informal table':
         const viewItemsButton = (
           <ButtonStyle>
-            <button onClick={this.props.closeModal}>
-              {'View Items'}
-            </button>
+            <button onClick={this.props.closeModal}>{'View Items'}</button>
           </ButtonStyle>
         )
-        
+
         return (
           <ViewWithBottomBar>
             <InformalProductsTable files={this.state.files} />
-            <BottomBar bottomBarText={this.state.informalBottomText} children={[viewItemsButton]}/>
+            <BottomBar
+              bottomBarText={this.state.informalBottomText}
+              children={[viewItemsButton]}
+            />
           </ViewWithBottomBar>
         )
     }

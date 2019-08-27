@@ -95,6 +95,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleUploadSuccess = this.handleUploadSuccess.bind(this)
     this.handleNewMetacard = this.handleNewMetacard.bind(this)
     this.setInformalView = this.setInformalView.bind(this)
+    this.setNewItemView = this.setNewItemView.bind(this)
     this.handleBack = this.handleBack.bind(this)
     this.closeModal = this.closeModal.bind(this)
     this.currentView = 'new item'
@@ -158,29 +159,29 @@ module.exports = Marionette.LayoutView.extend({
     lightboxInstance.model.updateTitle('Add items')
     lightboxInstance.model.open()
     let back = this.handleBack
-    if(this.currentView === 'new item'){
+    if (this.currentView === 'new item') {
       back = undefined
     }
     lightboxInstance.showContent(
-      (
-          <NewItemManager currentView={this.currentView} 
-                        setManualCreateAsView={this.setManualCreateAsView} 
-                        setInformalView={this.setInformalView}
-                        handleNewMetacard={this.handleNewMetacard}
-                        handleUploadSuccess={this.handleUploadSuccess}
-                        closeModal={this.closeModal}
-                        url={'./internal/list/import'}
-                        extraHeaders={{
-                          'List-ID': this.model.attributes.id,
-                          'List-Type': this.model.get('list.icon'),
-                        }}>
-          </NewItemManager>
-      ),
+      <NewItemManager
+        currentView={this.currentView}
+        setManualCreateAsView={this.setManualCreateAsView}
+        setInformalView={this.setInformalView}
+        setNewItemView={this.setNewItemView}
+        handleNewMetacard={this.handleNewMetacard}
+        handleUploadSuccess={this.handleUploadSuccess}
+        closeModal={this.closeModal}
+        url={'./internal/list/import'}
+        extraHeaders={{
+          'List-ID': this.model.attributes.id,
+          'List-Type': this.model.get('list.icon'),
+        }}
+      />,
       this.closeModal,
       back
     )
-    
-    if(e){
+
+    if (e) {
       e.stopPropagation()
     }
   },
@@ -189,9 +190,12 @@ module.exports = Marionette.LayoutView.extend({
     this.triggerAdd()
   },
   handleBack() {
-    if(this.currentView!='new item'){
-      this.currentView = 'new item'
+    if (this.currentView != 'new item') {
+      this.setNewItemView()
     }
+  },
+  setNewItemView() {
+    this.currentView = 'new item'
     this.triggerAdd()
   },
   setManualCreateAsView() {
