@@ -159,14 +159,15 @@ have chosen."
             )
           })}
         </Body>
-        {selectedVersion && canEdit && (
-          <RevertButton
-            buttonType={buttonTypeEnum.primary}
-            onClick={revertToSelectedVersion}
-            icon="fa fa-undo"
-            text="Revert to Selected Version"
-          />
-        )}
+        {selectedVersion &&
+          canEdit && (
+            <RevertButton
+              buttonType={buttonTypeEnum.primary}
+              onClick={revertToSelectedVersion}
+              icon="fa fa-undo"
+              text="Revert to Selected Version"
+            />
+          )}
       </Root>
     </LoadingCompanion>
   )

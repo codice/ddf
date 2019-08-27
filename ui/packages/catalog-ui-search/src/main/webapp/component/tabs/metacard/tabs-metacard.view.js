@@ -94,7 +94,7 @@ module.exports = TabsView.extend({
       this.model.set('activeTab', 'Summary')
     }
     if (
-      properties.isEditingRestricted() &&
+      !user.canWrite(result) &&
       ['Archive', 'Overwrite'].indexOf(activeTabName) >= 0
     ) {
       this.model.set('activeTab', 'Summary')
@@ -125,10 +125,7 @@ module.exports = TabsView.extend({
       this.$el.toggleClass('is-deleted', result.isDeleted())
       this.$el.toggleClass('is-remote', result.isRemote())
       this.$el.toggleClass('lacks-preview', !result.hasPreview())
-      this.$el.toggleClass(
-        'is-editing-disabled',
-        !user.canWrite(result.get('metacard').get('properties'))
-      )
+      this.$el.toggleClass('is-editing-disabled', !user.canWrite(result))
     }
   },
   determineDisabledContent() {

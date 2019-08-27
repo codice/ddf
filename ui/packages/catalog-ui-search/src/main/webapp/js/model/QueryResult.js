@@ -44,6 +44,7 @@ function humanizeResourceSize(result) {
 }
 
 module.exports = Backbone.AssociatedModel.extend({
+  type: 'query-result',
   defaults() {
     return {
       isResourceLocal: false,

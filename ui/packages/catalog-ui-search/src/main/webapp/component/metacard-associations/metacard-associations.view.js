@@ -36,8 +36,6 @@ module.exports = Marionette.LayoutView.extend({
     associationsGraph: '> .content-graph',
   },
   template() {
-    const canEdit = user.canWrite(this.model.get('metacard').get('properties'))
-
     return (
       <React.Fragment>
         <div className="content-menu" />
@@ -48,7 +46,7 @@ module.exports = Marionette.LayoutView.extend({
           <div className="header-text header-child">Child</div>
         </div>
         <div className="editor-content" />
-        {canEdit ? (
+        {user.canWrite(this.model) ? (
           <React.Fragment>
             <div className="list-footer">
               <div className="footer-text" />
@@ -72,9 +70,7 @@ module.exports = Marionette.LayoutView.extend({
               </button>
             </div>
           </React.Fragment>
-        ) : (
-          <React.Fragment />
-        )}
+        ) : null}
       </React.Fragment>
     )
   },
