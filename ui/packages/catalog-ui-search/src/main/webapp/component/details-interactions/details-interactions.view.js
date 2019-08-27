@@ -43,13 +43,6 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-summary', this.options.summary)
   },
   handleTypes() {
-    const canEdit = this.options.selectionInterface
-      .getSelectedResults()
-      .reduce((canEdit, result) => {
-        return (
-          canEdit && user.canWrite(result.get('metacard').get('properties'))
-        )
-      }, true)
     const types = {}
     this.options.selectionInterface.getSelectedResults().forEach(result => {
       if (result.isWorkspace()) {
@@ -71,7 +64,10 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-revision', types.revision !== undefined)
     this.$el.toggleClass('is-deleted', types.deleted !== undefined)
     this.$el.toggleClass('is-remote', types.remote !== undefined)
-    this.$el.toggleClass('is-editing-restricted', !canEdit)
+    this.$el.toggleClass(
+      'is-editing-restricted',
+      !user.canWrite(this.options.selectionInterface.getSelectedResults())
+    )
   },
   generateDetailsAdd() {
     this.detailsAdd.show(

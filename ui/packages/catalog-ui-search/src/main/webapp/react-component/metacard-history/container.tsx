@@ -136,7 +136,6 @@ class MetacardHistory extends React.Component<Props, State> {
 
   render() {
     const { history, selectedVersion, loading } = this.state
-    const canEdit = user.canWrite(this.model.get('metacard').get('properties'))
     return (
       <MetacardHistoryPresentation
         clickWorkspace={this.clickWorkspace}
@@ -144,7 +143,7 @@ class MetacardHistory extends React.Component<Props, State> {
         history={history}
         selectedVersion={selectedVersion}
         loading={loading}
-        canEdit={canEdit}
+        canEdit={user.canWrite(this.model)}
       />
     )
   }

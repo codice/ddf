@@ -57,10 +57,6 @@ module.exports = Marionette.LayoutView.extend({
     //override
   },
   template() {
-    const canEdit = this.model.reduce((canEdit, result) => {
-      return canEdit && user.canWrite(result.get('metacard').get('properties'))
-    }, true)
-
     return (
       <React.Fragment>
         <div className="editor-header">
@@ -68,7 +64,7 @@ module.exports = Marionette.LayoutView.extend({
           <div className="header-actions" />
         </div>
         <div className="editor-properties" />
-        {canEdit ? (
+        {user.canWrite(this.model) ? (
           <div className="editor-footer">
             <button className="editor-edit is-primary">
               <span className="fa fa-pencil" />
@@ -83,9 +79,7 @@ module.exports = Marionette.LayoutView.extend({
               <span>Save</span>
             </button>
           </div>
-        ) : (
-          <React.Fragment />
-        )}
+        ) : null}
       </React.Fragment>
     )
   },
