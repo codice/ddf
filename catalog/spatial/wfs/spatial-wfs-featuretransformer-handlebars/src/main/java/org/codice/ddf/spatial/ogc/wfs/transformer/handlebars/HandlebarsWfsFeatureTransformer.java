@@ -124,8 +124,6 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
 
   private WfsMetacardTypeRegistry metacardTypeRegistry;
 
-  private String featureCoordinateOrder;
-
   @Override
   public Optional<Metacard> apply(InputStream inputStream, WfsMetadata metadata) {
     if (!isStateValid(inputStream, metadata)) {
@@ -144,7 +142,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
       return Optional.empty();
     }
 
-    return Optional.of(createMetacard(contextMap, metadata.getId()));
+    return Optional.of(createMetacard(contextMap, metadata));
   }
 
   /**
@@ -338,14 +336,14 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
     }
   }
 
-  private Metacard createMetacard(Map<String, String> contextMap, String metadataId) {
+  private Metacard createMetacard(Map<String, String> contextMap, WfsMetadata wfsMetadata) {
     MetacardImpl metacard = new MetacardImpl(metacardType);
 
     List<Attribute> attributes =
         mappingEntries
             .values()
             .stream()
-            .map(entry -> createAttribute(entry, contextMap))
+            .map(entry -> createAttribute(entry, contextMap, wfsMetadata.getCoordinateOrder()))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
 
@@ -361,6 +359,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
       }
     }
 
+    String metadataId = wfsMetadata.getId();
     metacard.setSourceId(metadataId);
 
     Date date = new Date();
@@ -412,7 +411,8 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
             .iterator());
   }
 
-  private Attribute createAttribute(FeatureAttributeEntry entry, Map<String, String> contextMap) {
+  private Attribute createAttribute(
+      FeatureAttributeEntry entry, Map<String, String> contextMap, String coordinateOrder) {
     String value;
     if (StringUtils.isNotBlank(entry.getTemplateText())) {
       value = entry.getMappingFunction().apply(contextMap);
@@ -425,7 +425,8 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
       return null;
     }
 
-    Serializable attributeValue = getMetacardAttributeValue(entry.getFeatureProperty(), value);
+    Serializable attributeValue =
+        getMetacardAttributeValue(entry.getFeatureProperty(), value, coordinateOrder);
     if (attributeValue == null) {
       LOGGER.debug(
           "No attribute value found for feature type: {}, attribute: {}",
@@ -437,7 +438,8 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
     return new AttributeImpl(entry.getAttributeName(), attributeValue);
   }
 
-  private Serializable getMetacardAttributeValue(String featureName, String featureValue) {
+  private Serializable getMetacardAttributeValue(
+      String featureName, String featureValue, String coordinateOrder) {
     FeatureAttributeEntry entry = mappingEntries.get(featureName);
     if (entry == null) {
       LOGGER.debug(
@@ -467,14 +469,16 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
     } else {
       attributeValue =
           getValueForAttributeFormat(
-              attributeDescriptor.getType().getAttributeFormat(), featureValue);
+              attributeDescriptor.getType().getAttributeFormat(), featureValue, coordinateOrder);
     }
 
     return attributeValue;
   }
 
   private Serializable getValueForAttributeFormat(
-      AttributeType.AttributeFormat attributeFormat, final String value) {
+      final AttributeType.AttributeFormat attributeFormat,
+      final String value,
+      final String coordinateOrder) {
 
     Serializable serializable = null;
     switch (attributeFormat) {
@@ -504,7 +508,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
         LOGGER.trace("Unescape the geometry: {}", value);
         String newValue = StringEscapeUtils.unescapeXml(value);
         LOGGER.debug("Geometry value after it has been xml unescaped: {}", newValue);
-        String wkt = getWktFromGeometry(newValue);
+        String wkt = getWktFromGeometry(newValue, coordinateOrder);
         LOGGER.debug("String wkt value: {}", wkt);
         serializable = wkt;
         break;
@@ -524,16 +528,19 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
     return serializable;
   }
 
-  private String getWktFromGeometry(String geometry) {
-    String wkt = getWktFromGml(geometry, new org.geotools.gml3.GMLConfiguration());
+  private String getWktFromGeometry(String geometry, String coordinateOrder) {
+    String wkt = getWktFromGml(geometry, new org.geotools.gml3.GMLConfiguration(), coordinateOrder);
     if (StringUtils.isNotBlank(wkt)) {
       return wkt;
     }
     LOGGER.debug("Error converting gml to wkt using gml3 configuration. Trying gml2.");
-    return getWktFromGml(geometry, new org.geotools.gml2.GMLConfiguration());
+    return getWktFromGml(geometry, new org.geotools.gml2.GMLConfiguration(), coordinateOrder);
   }
 
-  private String getWktFromGml(final String geometry, final Configuration gmlConfiguration) {
+  private String getWktFromGml(
+      final String geometry,
+      final Configuration gmlConfiguration,
+      final String featureCoordinateOrder) {
     final Gml3ToWkt gml3ToWkt = new Gml3ToWktImpl(gmlConfiguration);
     try (final InputStream gmlStream =
         new ByteArrayInputStream(geometry.getBytes(StandardCharsets.UTF_8))) {
@@ -704,9 +711,5 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
     String resourceSizeAsString = resourceSize.toPlainString();
     LOGGER.debug("resource size in bytes: {}", resourceSizeAsString);
     return resourceSizeAsString;
-  }
-
-  public void setFeatureCoordinateOrder(final String featureCoordinateOrder) {
-    this.featureCoordinateOrder = featureCoordinateOrder;
   }
 }

@@ -34,12 +34,6 @@
             <Option label="PB" value="PB"/>
         </AD>
 
-        <AD id="featureCoordinateOrder" name="Coordinate Order" type="String" default="LON_LAT"
-            description="The coordinate order of the feature's spatial properties.">
-            <Option label="Lat/Lon" value="LAT_LON"/>
-            <Option label="Lon/Lat" value="LON_LAT"/>
-        </AD>
-
         <AD id="attributeMappings"
             name="Attribute Mappings"
             description='List of attribute mappings using a handlebars template. Example:

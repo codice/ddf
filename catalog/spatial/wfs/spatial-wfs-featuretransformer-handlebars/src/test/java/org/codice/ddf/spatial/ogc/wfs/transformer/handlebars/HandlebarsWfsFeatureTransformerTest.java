@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
 import org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.WfsMetadata;
 import org.junit.Before;
@@ -88,7 +89,6 @@ public class HandlebarsWfsFeatureTransformerTest {
     transformer.setFeatureType(EXPECTED_FEATURE_TYPE);
     transformer.setAttributeMappings(getMappings());
     transformer.setMetacardTypeRegistry(mockMetacardTypeRegistry);
-    transformer.setFeatureCoordinateOrder(LAT_LON_ORDER);
 
     inputStream =
         new BufferedInputStream(
@@ -238,7 +238,7 @@ public class HandlebarsWfsFeatureTransformerTest {
 
   @Test
   public void coordinateOrderIsReversedWhenFeatureCoordinateOrderIsLatLon() throws Exception {
-    transformer.setFeatureCoordinateOrder(LAT_LON_ORDER);
+    when(mockWfsMetadata.getCoordinateOrder()).thenReturn(LAT_LON_ORDER);
 
     try (final InputStream is = getClass().getResourceAsStream("/FeatureMemberPolygon.xml")) {
       final Optional<Metacard> metacardOptional = transformer.apply(is, mockWfsMetadata);
@@ -253,7 +253,7 @@ public class HandlebarsWfsFeatureTransformerTest {
 
   @Test
   public void coordinateOrderIsNotReversedWhenFeatureCoordinateOrderIsLonLat() throws Exception {
-    transformer.setFeatureCoordinateOrder(LON_LAT_ORDER);
+    when(mockWfsMetadata.getCoordinateOrder()).thenReturn(LON_LAT_ORDER);
 
     try (final InputStream is = getClass().getResourceAsStream("/FeatureMemberPolygon.xml")) {
       final Optional<Metacard> metacardOptional = transformer.apply(is, mockWfsMetadata);
@@ -285,6 +285,113 @@ public class HandlebarsWfsFeatureTransformerTest {
     assertThat(getAttributeValue(Core.TITLE, metacard), is("value1"));
     assertThat(getAttributeValue(Core.DESCRIPTION, metacard), is("value2"));
     assertThat(getAttributeValue(Core.METACARD_OWNER, metacard), is("value3"));
+  }
+
+  @Test
+  public void resourceSizeInBytes() {
+    transformer.setAttributeMappings(
+        Collections.singletonList(
+            createMapping(Core.RESOURCE_SIZE, "ResourceSize", "{{ResourceSize}}")));
+    transformer.setDataUnit(WfsConstants.B);
+
+    final Optional<Metacard> metacardOptional = transformer.apply(inputStream, mockWfsMetadata);
+    assertThat(
+        "The transformer should have returned a metacard but didn't.",
+        metacardOptional.isPresent(),
+        is(true));
+
+    final Metacard metacard = metacardOptional.get();
+    assertThat(getAttributeValue(Core.RESOURCE_SIZE, metacard), is("1.0"));
+  }
+
+  @Test
+  public void resourceSizeInKilobytes() {
+    transformer.setAttributeMappings(
+        Collections.singletonList(
+            createMapping(Core.RESOURCE_SIZE, "ResourceSize", "{{ResourceSize}}")));
+    transformer.setDataUnit(WfsConstants.KB);
+
+    final Optional<Metacard> metacardOptional = transformer.apply(inputStream, mockWfsMetadata);
+    assertThat(
+        "The transformer should have returned a metacard but didn't.",
+        metacardOptional.isPresent(),
+        is(true));
+
+    final Metacard metacard = metacardOptional.get();
+    assertThat(
+        getAttributeValue(Core.RESOURCE_SIZE, metacard), is(WfsConstants.BYTES_PER_KB + ".0"));
+  }
+
+  @Test
+  public void resourceSizeInMegabytes() {
+    transformer.setAttributeMappings(
+        Collections.singletonList(
+            createMapping(Core.RESOURCE_SIZE, "ResourceSize", "{{ResourceSize}}")));
+    transformer.setDataUnit(WfsConstants.MB);
+
+    final Optional<Metacard> metacardOptional = transformer.apply(inputStream, mockWfsMetadata);
+    assertThat(
+        "The transformer should have returned a metacard but didn't.",
+        metacardOptional.isPresent(),
+        is(true));
+
+    final Metacard metacard = metacardOptional.get();
+    assertThat(
+        getAttributeValue(Core.RESOURCE_SIZE, metacard), is(WfsConstants.BYTES_PER_MB + ".0"));
+  }
+
+  @Test
+  public void resourceSizeInGigabytes() {
+    transformer.setAttributeMappings(
+        Collections.singletonList(
+            createMapping(Core.RESOURCE_SIZE, "ResourceSize", "{{ResourceSize}}")));
+    transformer.setDataUnit(WfsConstants.GB);
+
+    final Optional<Metacard> metacardOptional = transformer.apply(inputStream, mockWfsMetadata);
+    assertThat(
+        "The transformer should have returned a metacard but didn't.",
+        metacardOptional.isPresent(),
+        is(true));
+
+    final Metacard metacard = metacardOptional.get();
+    assertThat(
+        getAttributeValue(Core.RESOURCE_SIZE, metacard), is(WfsConstants.BYTES_PER_GB + ".0"));
+  }
+
+  @Test
+  public void resourceSizeInTerabytes() {
+    transformer.setAttributeMappings(
+        Collections.singletonList(
+            createMapping(Core.RESOURCE_SIZE, "ResourceSize", "{{ResourceSize}}")));
+    transformer.setDataUnit(WfsConstants.TB);
+
+    final Optional<Metacard> metacardOptional = transformer.apply(inputStream, mockWfsMetadata);
+    assertThat(
+        "The transformer should have returned a metacard but didn't.",
+        metacardOptional.isPresent(),
+        is(true));
+
+    final Metacard metacard = metacardOptional.get();
+    assertThat(
+        getAttributeValue(Core.RESOURCE_SIZE, metacard), is(WfsConstants.BYTES_PER_TB + ".0"));
+  }
+
+  @Test
+  public void resourceSizeInPetabytes() {
+    transformer.setAttributeMappings(
+        Collections.singletonList(
+            createMapping(Core.RESOURCE_SIZE, "ResourceSize", "{{ResourceSize}}")));
+    transformer.setDataUnit(WfsConstants.PB);
+
+    final Optional<Metacard> metacardOptional = transformer.apply(inputStream, mockWfsMetadata);
+    assertThat(
+        "The transformer should have returned a metacard but didn't.",
+        metacardOptional.isPresent(),
+        is(true));
+
+    final Metacard metacard = metacardOptional.get();
+    assertThat(
+        getAttributeValue(Core.RESOURCE_SIZE, metacard), is(WfsConstants.BYTES_PER_PB + ".0"));
   }
 
   private void assertDefaultAttributesExist(Metacard metacard) {
@@ -328,6 +435,7 @@ public class HandlebarsWfsFeatureTransformerTest {
 
   private void setupWfsMetadata() {
     when(mockWfsMetadata.getId()).thenReturn(SOURCE_ID);
+    when(mockWfsMetadata.getCoordinateOrder()).thenReturn(LAT_LON_ORDER);
   }
 
   private MetacardType getMetacardType() {
