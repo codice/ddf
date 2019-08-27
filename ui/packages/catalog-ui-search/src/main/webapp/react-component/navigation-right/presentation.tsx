@@ -14,7 +14,6 @@
  **/
 import * as React from 'react'
 import styled, { css, keyframes } from 'styled-components'
-import { transparentize } from 'polished'
 import { CustomElement } from '../styles/mixins'
 import ExtensionPoints from '../../extension-points'
 
@@ -24,7 +23,6 @@ export interface Props {
   isGuest: boolean
 }
 
-const navigationRightUserIcon = '1rem'
 const unseenNotifications = keyframes`
   0% {
     opacity: ${props => props.theme.minimumOpacity};
@@ -47,15 +45,6 @@ const Root = styled<Props, 'div'>('div')`
     line-height: inherit;
   }
 
-  .navigation-item.item-user {
-    padding: 0px ${props => props.theme.minimumSpacing};
-    max-width: 9rem + ${navigationRightUserIcon};
-    width: auto;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border-left: solid 1px ${transparentize(0.8, '#ffffff')};
-  }
-
   .alerts-badge {
     position: absolute;
     font-size: ${props => props.theme.minimumFontSize};
@@ -69,32 +58,6 @@ const Root = styled<Props, 'div'>('div')`
     transition: transform 4 * ${props => props.theme.coreTransitionTime}
       ease-in-out;
     transform: scale(1);
-  }
-
-  .user-unique {
-    white-space: nowrap;
-    vertical-align: top;
-    position: relative;
-    ${props => (props.isGuest ? 'display:none;' : '')};
-  }
-
-  .user-unique span:first-of-type {
-    display: inline-block;
-    text-overflow: ellipsis;
-    vertical-align: top;
-    width: ${navigationRightUserIcon};
-    padding: 0 ${navigationRightUserIcon};
-  }
-
-  .user-unique span:nth-of-type(2) {
-    display: inline-block;
-    overflow: hidden;
-    max-width: calc(9rem - ${navigationRightUserIcon});
-    padding: 0 ${navigationRightUserIcon} 0 0;
-  }
-
-  .user-guest {
-    ${props => (!props.isGuest ? 'display:none;' : '')};
   }
 
   ${props => {

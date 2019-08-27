@@ -50,12 +50,6 @@ const StyledDropdown = styled(Dropdown as any)`
   min-height: 0px;
 `
 
-const Icon = styled.span`
-  display: inline-block;
-  text-align: right;
-  width: ${({ theme }) => theme.minimumButtonSize};
-`
-
 const Root = styled.div`
   padding: ${({ theme }) => theme.minimumSpacing};
   line-height: calc(
@@ -115,11 +109,17 @@ const Grouping = styled.div`
   }
 `
 
+const Icon = styled.span`
+  margin-right: ${({theme}) => theme.minimumSpacing};
+`
+
 const AdhocButton = styled(Button)`
   height: 100%;
-  padding-right: ${({ theme }) => theme.minimumSpacing};
   min-height: 0px;
   line-height: inherit;
+  padding: 0px ${({theme}) => theme.mediumSpacing};
+  display: flex;
+  justify-content: center;
 `
 
 const { withAction: withSearch } = createAction({
