@@ -110,14 +110,14 @@ const Grouping = styled.div`
 `
 
 const Icon = styled.span`
-  margin-right: ${({theme}) => theme.minimumSpacing};
+  margin-right: ${({ theme }) => theme.minimumSpacing};
 `
 
 const AdhocButton = styled(Button)`
   height: 100%;
   min-height: 0px;
   line-height: inherit;
-  padding: 0px ${({theme}) => theme.mediumSpacing};
+  padding: 0px ${({ theme }) => theme.mediumSpacing};
   display: flex;
   justify-content: center;
 `

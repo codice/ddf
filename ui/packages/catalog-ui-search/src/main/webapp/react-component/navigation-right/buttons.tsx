@@ -31,7 +31,7 @@ export interface Props {
 }
 
 const Icon = styled.span`
-  margin-right: ${({theme}) => theme.minimumSpacing};
+  margin-right: ${({ theme }) => theme.minimumSpacing};
 `
 
 const UserName = styled.span`
