@@ -22,11 +22,14 @@ import static spark.Spark.post;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ddf.catalog.plugin.OauthPluginException;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
@@ -101,9 +104,24 @@ public class QueryApplication implements SparkApplication, Function {
         "/cql",
         APPLICATION_JSON,
         (req, res) -> {
-          CqlRequest cqlRequest = GSON.fromJson(util.safeGetBody(req), CqlRequest.class);
-          CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
-          return GSON.toJson(cqlQueryResponse);
+          try {
+            CqlRequest cqlRequest = GSON.fromJson(util.safeGetBody(req), CqlRequest.class);
+            CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
+            return GSON.toJson(cqlQueryResponse);
+          } catch (OauthPluginException e) {
+            if (e.getErrorType() == OauthPluginException.ErrorType.NO_AUTH) {
+              res.status(401);
+              Map<String, String> responseMap = new HashMap<>();
+              responseMap.put("id", e.getSourceId());
+              responseMap.put("url", e.getRedirectUrl());
+              return GSON.toJson(responseMap);
+            } else {
+              res.status(412);
+              Map<String, String> responseMap = new HashMap<>();
+              responseMap.put("id", e.getSourceId());
+              return GSON.toJson(responseMap);
+            }
+          }
         });
 
     post("/cql/transform/:transformerId", cqlTransformHandler, GSON::toJson);
@@ -187,6 +205,17 @@ public class QueryApplication implements SparkApplication, Function {
 
     try {
       return util.executeCqlQuery(cqlRequest);
+    } catch (OauthPluginException e) {
+      if (e.getErrorType() == OauthPluginException.ErrorType.NO_AUTH) {
+        Map<String, String> responseMap = new HashMap<>();
+        responseMap.put("id", e.getSourceId());
+        responseMap.put("url", e.getRedirectUrl());
+        return JsonRpc.error(401, GSON.toJson(responseMap));
+      } else {
+        Map<String, String> responseMap = new HashMap<>();
+        responseMap.put("id", e.getSourceId());
+        return JsonRpc.error(412, GSON.toJson(responseMap));
+      }
     } catch (UnsupportedQueryException e) {
       LOGGER.error(QUERY_ENDPOINT_FAILED, e);
       return JsonRpc.error(400, "Unsupported query request.");
