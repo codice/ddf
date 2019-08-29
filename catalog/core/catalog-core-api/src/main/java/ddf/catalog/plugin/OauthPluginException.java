@@ -17,27 +17,12 @@ public class OauthPluginException extends RuntimeException {
 
   private final String sourceId;
 
-  private final String redirectUrl;
+  private final String providerUrl;
 
-  private final ErrorType errorType;
-
-  public enum ErrorType {
-    NO_AUTH,
-    AUTH_SOURCE
-  }
-
-  public OauthPluginException(String sourceId) {
+  public OauthPluginException(String sourceId, String providerUrl) {
     super();
     this.sourceId = sourceId;
-    this.redirectUrl = "";
-    this.errorType = ErrorType.AUTH_SOURCE;
-  }
-
-  public OauthPluginException(String sourceId, String redirectUrl) {
-    super();
-    this.sourceId = sourceId;
-    this.redirectUrl = redirectUrl;
-    this.errorType = ErrorType.NO_AUTH;
+    this.providerUrl = providerUrl;
   }
 
   public String getSourceId() {
@@ -45,10 +30,6 @@ public class OauthPluginException extends RuntimeException {
   }
 
   public String getProviderUrl() {
-    return redirectUrl;
-  }
-
-  public ErrorType getErrorType() {
-    return errorType;
+    return providerUrl;
   }
 }

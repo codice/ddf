@@ -41,6 +41,5 @@
         <module>catalog-plugin-metacardbackup-s3storage</module>
         <module>catalog-plugin-security-audit</module>
         <module>catalog-plugin-gazetteer</module>
-        <module>catalog-plugin-oauth</module>
     </modules>
 </project>

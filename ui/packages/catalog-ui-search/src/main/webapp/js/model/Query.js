@@ -419,13 +419,13 @@ Query.Model = PartialAssociatedModel.extend({
           },
           error(model, response, options) {
             if (response.status === 401) {
-              const redirectUrl = response.responseJSON.url
+              const providerUrl = response.responseJSON.url
               const sourceId = response.responseJSON.id
 
               const link = React.createElement(
                 'a',
                 {
-                  href: redirectUrl,
+                  href: providerUrl,
                   target: '_blank',
                   style: {
                     color: `${props =>
