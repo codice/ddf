@@ -17,7 +17,7 @@ import * as React from 'react'
 import { Button, buttonTypeEnum } from '../presentation/button'
 import styled from 'styled-components'
 import { transparentize, readableColor } from 'polished'
-import plugin from '../../plugins/multi-select-actions'
+import ExtensionPoints from '../../extension-points'
 
 type Props = {
   isDisabled: boolean
@@ -73,16 +73,14 @@ export const MultiSelectAction = (props: MultiSelectActionProps) => (
   </Root>
 )
 
-const buttons = plugin([])
-
 const render = (props: Props) => {
-  if (buttons.length === 0) {
+  if (ExtensionPoints.multiSelectActions.length === 0) {
     return null
   }
 
   return (
     <ContextBar>
-      {buttons.map((Component: any, i: number) => (
+      {ExtensionPoints.multiSelectActions.map((Component: any, i: number) => (
         <Component key={i} {...props} />
       ))}
     </ContextBar>

@@ -12,5 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+const MultiSelectButtons = [] as any[]
 
-export default (multiSelectButtons: any[]) => multiSelectButtons
+export default MultiSelectButtons

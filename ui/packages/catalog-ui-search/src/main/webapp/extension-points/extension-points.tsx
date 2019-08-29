@@ -26,6 +26,7 @@ import searchInteractions, {
   SearchInteractionProps,
 } from './search-interactions'
 import { tableExport, Props as TableExportProps } from './table-export'
+import multiSelectActions from './multi-select-actions'
 
 export type ExtensionPointsType = {
   routes: {}
@@ -38,6 +39,7 @@ export type ExtensionPointsType = {
   metacardInteractions: any[]
   searchInteractions: SFC<SearchInteractionProps>
   tableExport: SFC<TableExportProps>
+  multiSelectActions: any[]
 }
 
 const ExtensionPoints: ExtensionPointsType = {
@@ -51,6 +53,7 @@ const ExtensionPoints: ExtensionPointsType = {
   metacardInteractions,
   searchInteractions,
   tableExport,
+  multiSelectActions,
 }
 
 export default ExtensionPoints
