@@ -23,7 +23,7 @@ const comparisonClass = 'Comparison',
   logicalClass = 'Logical',
   spatialClass = 'Spatial',
   temporalClass = 'Temporal',
-  timePatter = /([0-9]{4})(-([0-9]{2})(-([0-9]{2})(T([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?/i,
+  timePattern = /((([0-9]{4})(-([0-9]{2})(-([0-9]{2})(T([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?)|^'')/i,
   patterns = {
     //Allows for non-standard single-quoted property names
     PROPERTY: /^([_a-zA-Z]\w*|"[^"]+"|'[^']+')/,
@@ -44,8 +44,10 @@ const comparisonClass = 'Comparison',
     AFTER: /^AFTER/i,
     DURING: /^DURING/i,
     RELATIVE: /^'RELATIVE\([A-Za-z0-9.]*\)'/i,
-    TIME: new RegExp('^' + timePatter.source),
-    TIME_PERIOD: new RegExp('^' + timePatter.source + '/' + timePatter.source),
+    TIME: new RegExp('^' + timePattern.source),
+    TIME_PERIOD: new RegExp(
+      '^' + timePattern.source + '/' + timePattern.source
+    ),
     GEOMETRY(text) {
       const type = /^(POINT|LINESTRING|POLYGON|MULTIPOINT|MULTILINESTRING|MULTIPOLYGON|GEOMETRYCOLLECTION)/.exec(
         text
@@ -609,7 +611,7 @@ function write(filter) {
             ' ' +
             filter.type +
             ' ' +
-            filter.value.toString(dateTimeFormat)
+            (filter.value ? filter.value.toString(dateTimeFormat) : "''")
           )
         case 'DURING':
           return (
@@ -617,9 +619,9 @@ function write(filter) {
             ' ' +
             filter.type +
             ' ' +
-            filter.from.toString(dateTimeFormat) +
+            (filter.from ? filter.from.toString(dateTimeFormat) : "''") +
             '/' +
-            filter.to.toString(dateTimeFormat)
+            (filter.to ? filter.to.toString(dateTimeFormat) : "''")
           )
       }
       break
