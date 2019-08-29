@@ -25,7 +25,7 @@ import MarionetteRegionContainer from '../../react-component/marionette-region-c
 
 module.exports = Marionette.LayoutView.extend(
   {
-    showContent(contentComponent, onClose, onBack) {
+    showContent(contentComponent, onClose, onBack = undefined) {
       this.contentComponent = contentComponent
       this.onClose = onClose
       this.onBack = onBack

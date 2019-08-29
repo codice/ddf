@@ -54,7 +54,7 @@ class NewItemManager extends React.Component {
       selectedMetacardType: 'common',
       currentBatch: undefined,
       addedUploads: undefined,
-      files: [],
+      uploads: [],
       informalBottomText: 'Starting',
       manualMetacard: undefined,
     }
@@ -95,8 +95,9 @@ class NewItemManager extends React.Component {
     if (uploadPayload.attributes.uploads.models.length <= 0) {
       this.props.setNewItemView()
     }
+
     this.setState({
-      files: this.getFileModels(uploadPayload),
+      uploads: this.getFileModels(uploadPayload),
       informalBottomText: this.getInformalBottomText(uploadPayload),
     })
   }
@@ -135,8 +136,14 @@ class NewItemManager extends React.Component {
 
   getFileModels(uploadPayload) {
     return uploadPayload.attributes.uploads.models.map(model => {
-      const fileModel = model.attributes.file
-      return fileModel
+      let uploadContainer = {}
+      uploadContainer.text = model.attributes.file.status
+      if (model.attributes.file.status === 'uploading') {
+        uploadContainer.onClick = model.cancel.bind(model)
+        uploadContainer.text = 'stop'
+      }
+      uploadContainer.file = model.attributes.file
+      return uploadContainer
     })
   }
 
@@ -196,8 +203,6 @@ class NewItemManager extends React.Component {
       case 'new item':
         return (
           <NewItem
-            files={this.props.files}
-            metacardType={this.state.selectedMetacardType}
             onManualSubmit={this.onManualSubmit}
             handleUploadSuccess={this.props.handleUploadSuccess}
             url={this.props.url}
@@ -230,7 +235,7 @@ class NewItemManager extends React.Component {
 
         return (
           <ViewWithBottomBar>
-            <InformalProductsTable files={this.state.files} />
+            <InformalProductsTable uploads={this.state.uploads} />
             <BottomBar
               bottomBarText={this.state.informalBottomText}
               children={[viewItemsButton]}

@@ -87,17 +87,17 @@ const InformalProductsTable = props => {
           </tr>
         </thead>
         <tbody>
-          {props.files.map(file => {
+          {props.uploads.map(upload => {
             return (
-              <InformalProductsTableRowStyleComp key={file.name}>
-                <td style={{ width: '50%' }}>{file.name}</td>
-                <td style={{ width: '15%' }}>{file.type}</td>
+              <InformalProductsTableRowStyleComp key={upload.file.name}>
+                <td style={{ width: '50%' }}>{upload.file.name}</td>
+                <td style={{ width: '15%' }}>{upload.file.type}</td>
                 <td style={{ width: '25%' }}>
                   <ProgressBarWithText
-                    progress={file.upload.progress}
-                    messageOnClick={file.onClick}
-                    status={file.status}
-                    message={file.message}
+                    progress={upload.file.upload.progress}
+                    messageOnClick={upload.onClick}
+                    status={upload.text}
+                    message={upload.file.message}
                   />
                 </td>
               </InformalProductsTableRowStyleComp>
