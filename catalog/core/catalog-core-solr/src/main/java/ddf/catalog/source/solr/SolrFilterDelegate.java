@@ -947,7 +947,14 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     String mappedPropertyName = getMappedPropertyName(propertyName, format, true);
 
     SolrQuery query = new SolrQuery();
-    query.setQuery(" " + mappedPropertyName + ":" + literal.toString());
+    String literalString = literal.toString();
+
+    // Negative numbers must be escaped
+    if (literalString.startsWith("-")) {
+      literalString = "\\" + literalString;
+    }
+
+    query.setQuery(" " + mappedPropertyName + ":" + literalString);
 
     return query;
   }
