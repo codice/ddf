@@ -44,7 +44,7 @@ public class OauthPluginException extends RuntimeException {
     return sourceId;
   }
 
-  public String getRedirectUrl() {
+  public String getProviderUrl() {
     return redirectUrl;
   }
 

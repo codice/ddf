@@ -419,7 +419,6 @@ Query.Model = PartialAssociatedModel.extend({
           },
           error(model, response, options) {
             if (response.status === 401) {
-              // OAuth Unauthorized
               const redirectUrl = response.responseJSON.url
               const sourceId = response.responseJSON.id
 
@@ -433,22 +432,11 @@ Query.Model = PartialAssociatedModel.extend({
                       readableColor(props.theme.negativeColor)}`,
                   },
                 },
-                'Click Here To Authenticate ' + sourceId
+                `Click Here To Authenticate ${sourceId}`
               )
               announcement.announce({
-                title: 'Source ' + sourceId + ' is Not Authenticated',
+                title: `Source ${sourceId} is Not Authenticated`,
                 message: link,
-                type: 'error',
-              })
-            } else if (response.status === 412) {
-              const sourceId = response.responseJSON.id
-
-              announcement.announce({
-                title: 'Failed to Access ' + sourceId,
-                message:
-                  'Unable to Properly Connect to ' +
-                  sourceId +
-                  ' Authentication Servers',
                 type: 'error',
               })
             }

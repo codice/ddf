@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import org.apache.http.HttpStatus;
 import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
@@ -68,6 +69,10 @@ public class QueryApplication implements SparkApplication, Function {
   private static final String MESSAGE = "message";
 
   private static final String QUERY_ENDPOINT_FAILED = "Query endpoint failed";
+
+  private static final String ID_KEY = "id";
+
+  private static final String URL_KEY = "url";
 
   private final LatLonCoordinateProcessor latLonCoordinateProcessor;
 
@@ -109,18 +114,11 @@ public class QueryApplication implements SparkApplication, Function {
             CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
             return GSON.toJson(cqlQueryResponse);
           } catch (OauthPluginException e) {
-            if (e.getErrorType() == OauthPluginException.ErrorType.NO_AUTH) {
-              res.status(401);
-              Map<String, String> responseMap = new HashMap<>();
-              responseMap.put("id", e.getSourceId());
-              responseMap.put("url", e.getRedirectUrl());
-              return GSON.toJson(responseMap);
-            } else {
-              res.status(412);
-              Map<String, String> responseMap = new HashMap<>();
-              responseMap.put("id", e.getSourceId());
-              return GSON.toJson(responseMap);
-            }
+            res.status(HttpStatus.SC_UNAUTHORIZED);
+            Map<String, String> responseMap = new HashMap<>();
+            responseMap.put(ID_KEY, e.getSourceId());
+            responseMap.put(URL_KEY, e.getProviderUrl());
+            return GSON.toJson(responseMap);
           }
         });
 
@@ -206,16 +204,10 @@ public class QueryApplication implements SparkApplication, Function {
     try {
       return util.executeCqlQuery(cqlRequest);
     } catch (OauthPluginException e) {
-      if (e.getErrorType() == OauthPluginException.ErrorType.NO_AUTH) {
-        Map<String, String> responseMap = new HashMap<>();
-        responseMap.put("id", e.getSourceId());
-        responseMap.put("url", e.getRedirectUrl());
-        return JsonRpc.error(401, GSON.toJson(responseMap));
-      } else {
-        Map<String, String> responseMap = new HashMap<>();
-        responseMap.put("id", e.getSourceId());
-        return JsonRpc.error(412, GSON.toJson(responseMap));
-      }
+      Map<String, String> responseMap = new HashMap<>();
+      responseMap.put(ID_KEY, e.getSourceId());
+      responseMap.put(URL_KEY, e.getProviderUrl());
+      return JsonRpc.error(HttpStatus.SC_UNAUTHORIZED, GSON.toJson(responseMap));
     } catch (UnsupportedQueryException e) {
       LOGGER.error(QUERY_ENDPOINT_FAILED, e);
       return JsonRpc.error(400, "Unsupported query request.");
