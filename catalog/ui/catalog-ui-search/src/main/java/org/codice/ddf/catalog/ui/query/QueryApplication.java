@@ -26,7 +26,6 @@ import ddf.catalog.plugin.OauthPluginException;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -115,9 +114,8 @@ public class QueryApplication implements SparkApplication, Function {
             return GSON.toJson(cqlQueryResponse);
           } catch (OauthPluginException e) {
             res.status(HttpStatus.SC_UNAUTHORIZED);
-            Map<String, String> responseMap = new HashMap<>();
-            responseMap.put(ID_KEY, e.getSourceId());
-            responseMap.put(URL_KEY, e.getProviderUrl());
+            Map<String, String> responseMap =
+                ImmutableMap.of(ID_KEY, e.getSourceId(), URL_KEY, e.getProviderUrl());
             return GSON.toJson(responseMap);
           }
         });
@@ -204,9 +202,8 @@ public class QueryApplication implements SparkApplication, Function {
     try {
       return util.executeCqlQuery(cqlRequest);
     } catch (OauthPluginException e) {
-      Map<String, String> responseMap = new HashMap<>();
-      responseMap.put(ID_KEY, e.getSourceId());
-      responseMap.put(URL_KEY, e.getProviderUrl());
+      Map<String, String> responseMap =
+          ImmutableMap.of(ID_KEY, e.getSourceId(), URL_KEY, e.getProviderUrl());
       return JsonRpc.error(HttpStatus.SC_UNAUTHORIZED, GSON.toJson(responseMap));
     } catch (UnsupportedQueryException e) {
       LOGGER.error(QUERY_ENDPOINT_FAILED, e);
