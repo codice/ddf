@@ -12,10 +12,20 @@ const metacardDefinitions = require('../singletons/metacard-definitions')
 const BuilderStartStyle = styled.div`
   display: flex;
   flex-flow: column;
+  align-content: center;
+  justify-content: center;
 `
 
 const SpacingStyle = styled.div`
-  padding: ${props => props.theme.minimumSpacing};
+  padding: 0 1.5rem;
+`
+
+const CreateButton = styled(Button)`
+  width: 100%;
+`
+
+const StyledEnum = styled(Enum)`
+  width: 100%;
 `
 
 const retrieveAvailableTypes = async () => {
@@ -45,9 +55,6 @@ class BuilderStart extends React.Component {
     })
     retrievedAvailableTypes = await retrieveAvailableTypes()
 
-    //TODO forbidden access to these right now.
-    // Maybe because it is requesting localhost:8080
-    // instead of 8993
     const enums = retrievedAvailableTypes.availableTypes.map(availableType => ({
       label: availableType.metacardType,
       value: availableType.metacardType,
@@ -70,7 +77,7 @@ class BuilderStart extends React.Component {
       <div>
         <BuilderStartStyle>
           <SpacingStyle>Manually create an item.</SpacingStyle>
-          <Enum
+          <StyledEnum
             options={this.state.entities}
             value={this.state.entities[0].value}
             label="Item Type"
@@ -78,12 +85,11 @@ class BuilderStart extends React.Component {
             filtering={true}
           />
           <SpacingStyle>
-            <Button
+            <CreateButton
               buttonType={buttonTypeEnum.primary}
               text="Create item"
               disabled={false}
               icon=""
-              style={{ width: '100%' }}
               inText={false}
               fadeUntilHover={false}
               onClick={() => this.props.onManualSubmit(this.state.selectedType)}

@@ -62,9 +62,9 @@ class NewItemManager extends React.Component {
     this.initializeUploadListeners = this.initializeUploadListeners.bind(this)
     this.getInformalBottomText = this.getInformalBottomText.bind(this)
     this.createManualMetacard = this.createManualMetacard.bind(this)
-    this.setCancelAction = this.setCancelAction.bind(this)
     this.onAttributeEdit = this.onAttributeEdit.bind(this)
     this.onManualSubmit = this.onManualSubmit.bind(this)
+    this.cancelUploads = this.cancelUploads.bind(this)
     this.change = this.change.bind(this)
     this.add = this.add.bind(this)
   }
@@ -79,6 +79,7 @@ class NewItemManager extends React.Component {
   }
 
   add(addedUploads) {
+    this.cancelUploads()
     addedUploads.attributes.uploads.models.map(model => {
       const fileModel = model.attributes.file
       return fileModel
@@ -86,8 +87,7 @@ class NewItemManager extends React.Component {
     this.setState({
       addedUploads,
     })
-    this.props.listenTo(addedUploads, 'change', this.change)
-
+    this.props.listenTo(this.state.addedUploads, 'change', this.change)
     this.props.setInformalView()
   }
 
@@ -95,23 +95,10 @@ class NewItemManager extends React.Component {
     if (uploadPayload.attributes.uploads.models.length <= 0) {
       this.props.setNewItemView()
     }
-    this.setCancelAction(uploadPayload)
     this.setState({
       files: this.getFileModels(uploadPayload),
       informalBottomText: this.getInformalBottomText(uploadPayload),
     })
-  }
-
-  setCancelAction(uploadPayload) {
-    uploadPayload.attributes.uploads.models
-      .filter(model => model.attributes.file.status === 'uploading')
-      .map(model => {
-        model.attributes.file.status = 'stop'
-        model.attributes.file.onClick = () => {
-          model.cancel()
-          this.props.stopListening(model)
-        }
-      })
   }
 
   getInformalBottomText(uploadPayload) {
@@ -136,24 +123,20 @@ class NewItemManager extends React.Component {
   }
 
   componentWillUnmount() {
-    this.props.stopListening(this.state.addedUploads)
-    this.state.addedUploads.cancel()
-    user
-      .get('user')
-      .get('preferences')
-      .save()
+    this.cancelUploads()
+  }
+
+  cancelUploads() {
+    if (this.state.addedUploads !== undefined) {
+      this.state.addedUploads.cancel()
+      this.props.stopListening(this.state.addedUploads)
+    }
   }
 
   getFileModels(uploadPayload) {
     return uploadPayload.attributes.uploads.models.map(model => {
       const fileModel = model.attributes.file
       return fileModel
-    })
-  }
-
-  handleViewUpdate(newView) {
-    this.setState({
-      currentView: newView,
     })
   }
 
