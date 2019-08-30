@@ -1598,7 +1598,7 @@ public class SolrProviderQuery {
     float floatFieldValue = 4.435f;
 
     String intField = "count";
-    int intFieldValue = 4;
+    int intFieldValue = -4;
 
     String longField = "milliseconds";
     long longFieldValue = 9876543293L;
@@ -1622,7 +1622,7 @@ public class SolrProviderQuery {
     create(Collections.singletonList(customMetacard1), provider);
 
     // searching double field with int value
-    greaterThanQueryAssertion(doubleField, intFieldValue, 1);
+    greaterThanQueryAssertion(doubleField, 4, 1);
 
     // searching float field with double value
     greaterThanQueryAssertion(floatField, 4.0, 1);
@@ -1631,10 +1631,12 @@ public class SolrProviderQuery {
     greaterThanQueryAssertion(longField, intFieldValue, 1);
 
     // searching int field with long value
-    greaterThanQueryAssertion(intField, 3L, 1);
+    greaterThanQueryAssertion(intField, -6L, 1);
 
     // searching int field with long value
     greaterThanQueryAssertion(shortField, 0L, 1);
+
+    equalToQueryAssertion(intField, intFieldValue, 1);
   }
 
   @Test()
@@ -1747,6 +1749,28 @@ public class SolrProviderQuery {
       filter = getFilterBuilder().attribute(fieldName).greaterThan().number((Long) fieldValue);
     } else if (fieldValue instanceof Float) {
       filter = getFilterBuilder().attribute(fieldName).greaterThan().number((Float) fieldValue);
+    }
+
+    SourceResponse response = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
+
+    assertThat(response.getResults().size(), is(equalTo(count)));
+  }
+
+  private void equalToQueryAssertion(String fieldName, Serializable fieldValue, int count)
+      throws UnsupportedQueryException {
+
+    Filter filter = null;
+
+    if (fieldValue instanceof Double) {
+      filter = getFilterBuilder().attribute(fieldName).equalTo().number((Double) fieldValue);
+    } else if (fieldValue instanceof Integer) {
+      filter = getFilterBuilder().attribute(fieldName).equalTo().number((Integer) fieldValue);
+    } else if (fieldValue instanceof Short) {
+      filter = getFilterBuilder().attribute(fieldName).equalTo().number((Short) fieldValue);
+    } else if (fieldValue instanceof Long) {
+      filter = getFilterBuilder().attribute(fieldName).equalTo().number((Long) fieldValue);
+    } else if (fieldValue instanceof Float) {
+      filter = getFilterBuilder().attribute(fieldName).equalTo().number((Float) fieldValue);
     }
 
     SourceResponse response = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
