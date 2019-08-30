@@ -13,7 +13,7 @@ RUN unzip /jars/solr-schema-${project.version}.jar -d /prep
 # Final Image Stage
 FROM solr:${solr.version}
 # Copy solr libs
-COPY maven/jts-core-1.15.0.jar /opt/solr/server/lib/
+COPY maven/jts-core-1.15.0.jar /opt/solr/server/solr-webapp/webapp/WEB-INF/lib/
 
 # Copy solr plugins
 COPY maven/solr-xpath-${project.version}.jar /opt/solr/plugins/

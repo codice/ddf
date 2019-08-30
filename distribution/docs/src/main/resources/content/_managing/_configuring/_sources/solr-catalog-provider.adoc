@@ -98,13 +98,14 @@ Cloud installation instructions have been followed.
 
 The JARs can be found here:
 
-.. http://artifacts.codice.org/service/local/repositories/releases/content/org/codice/thirdparty/jts/1.14.0_1/jts-1.14.0_1.jar
+.. http://artifacts.codice.org/content/groups/public/org/locationtech/jts/jts-core/1.15.0/jts-core-1.15.0.jar
 .. http://artifacts.codice.org/service/local/artifact/maven/content?r=public&g=ddf.platform.solr&a=solr-xpath&v=${ddf.version}
 
 Repeat the following procedure for each Solr server instance that will be part of the Solr Cloud cluster:
 
 . Refer to https://cwiki.apache.org/confluence/display/solr/Apache+Solr+Reference+Guide for installation instructions.
-. Copy downloaded jar files to: `<SOLR_INSTALL_DIR>/server/solr-webapp/webapp/WEB-INF/lib/`
+. Copy `jts-core-1.15.0.jar` to: `<SOLR_INSTALL_DIR>/server/solr-webapp/webapp/WEB-INF/lib/`.
+. Copy `solr-xpath-${ddf.version}.jar` to: `<SOLR_INSTALL_DIR>/plugins/`.
 
 [NOTE]
 ====
