@@ -144,6 +144,8 @@
         <Logger name="org.apache.cxf" level="warn"/>
         <Logger name="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper" level="error"/>
         <Logger name="org.apache.cxf.phase.PhaseInterceptorChain" level="error"/>
+        <!-- todo -->
+        <Logger name="org.apache.wss4j.common.NamePasswordCallbackHandler" level="error"/>
         <!--Suppress a NPE that can be disregarded that occurs when a null file is passed through
         the Camel exchange on a delete event of a WebDav entry.-->
         <Logger name="org.apache.camel.impl.DefaultUnitOfWork" level="error"/>
