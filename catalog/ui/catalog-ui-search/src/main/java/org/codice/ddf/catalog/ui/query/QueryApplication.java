@@ -22,12 +22,15 @@ import static spark.Spark.post;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ddf.catalog.plugin.OauthPluginException;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import org.apache.http.HttpStatus;
 import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
@@ -66,6 +69,10 @@ public class QueryApplication implements SparkApplication, Function {
 
   private static final String QUERY_ENDPOINT_FAILED = "Query endpoint failed";
 
+  private static final String ID_KEY = "id";
+
+  private static final String URL_KEY = "url";
+
   private final LatLonCoordinateProcessor latLonCoordinateProcessor;
 
   private final DmsCoordinateProcessor dmsCoordinateProcessor;
@@ -101,9 +108,16 @@ public class QueryApplication implements SparkApplication, Function {
         "/cql",
         APPLICATION_JSON,
         (req, res) -> {
-          CqlRequest cqlRequest = GSON.fromJson(util.safeGetBody(req), CqlRequest.class);
-          CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
-          return GSON.toJson(cqlQueryResponse);
+          try {
+            CqlRequest cqlRequest = GSON.fromJson(util.safeGetBody(req), CqlRequest.class);
+            CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
+            return GSON.toJson(cqlQueryResponse);
+          } catch (OauthPluginException e) {
+            res.status(HttpStatus.SC_UNAUTHORIZED);
+            Map<String, String> responseMap =
+                ImmutableMap.of(ID_KEY, e.getSourceId(), URL_KEY, e.getProviderUrl());
+            return GSON.toJson(responseMap);
+          }
         });
 
     post("/cql/transform/:transformerId", cqlTransformHandler, GSON::toJson);
@@ -187,6 +201,10 @@ public class QueryApplication implements SparkApplication, Function {
 
     try {
       return util.executeCqlQuery(cqlRequest);
+    } catch (OauthPluginException e) {
+      Map<String, String> responseMap =
+          ImmutableMap.of(ID_KEY, e.getSourceId(), URL_KEY, e.getProviderUrl());
+      return JsonRpc.error(HttpStatus.SC_UNAUTHORIZED, GSON.toJson(responseMap));
     } catch (UnsupportedQueryException e) {
       LOGGER.error(QUERY_ENDPOINT_FAILED, e);
       return JsonRpc.error(400, "Unsupported query request.");

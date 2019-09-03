@@ -29,6 +29,8 @@ const _merge = require('lodash/merge')
 require('backbone-associations')
 import PartialAssociatedModel from '../../js/extensions/backbone.partialAssociatedModel'
 const plugin = require('plugins/query')
+import React from 'react'
+import { readableColor } from 'polished'
 
 const Query = {}
 
@@ -417,6 +419,29 @@ Query.Model = PartialAssociatedModel.extend({
             }
           },
           error(model, response, options) {
+            if (response.status === 401) {
+              const providerUrl = response.responseJSON.url
+              const sourceId = response.responseJSON.id
+
+              const link = React.createElement(
+                'a',
+                {
+                  href: providerUrl,
+                  target: '_blank',
+                  style: {
+                    color: `${props =>
+                      readableColor(props.theme.negativeColor)}`,
+                  },
+                },
+                `Click Here To Authenticate ${sourceId}`
+              )
+              announcement.announce({
+                title: `Source ${sourceId} is Not Authenticated`,
+                message: link,
+                type: 'error',
+              })
+            }
+
             const srcStatus = result.get('status').get(search.src)
             if (srcStatus) {
               srcStatus.set({
