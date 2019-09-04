@@ -167,6 +167,7 @@ Implementation details
         <argument ref="persistentStore"/>
         <argument ref="endpointUtil"/>
         <argument ref="subjectIdentity"/>
+        <argument ref="filterBuilder"/>
     </bean>
 
     <!--
