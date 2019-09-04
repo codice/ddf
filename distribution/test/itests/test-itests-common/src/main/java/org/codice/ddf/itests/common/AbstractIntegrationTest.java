@@ -588,7 +588,10 @@ public abstract class AbstractIntegrationTest {
     final String globalLogLevel = System.getProperty(GLOBAL_LOG_LEVEL_PROPERTY, DEFAULT_LOG_LEVEL);
     final String itestLevel = System.getProperty(TEST_LOG_LEVEL_PROPERTY);
     final String securityLogLevel = System.getProperty(TEST_SECURITY_LOG_LEVEL_PROPERTY);
+    Option[] setLogLevelOption = createSetLogLevelOption(
+        "org.apache.wss4j.common.NamePasswordCallbackHandler", "ERROR");
     return options(
+        setLogLevelOption[0], setLogLevelOption[1],
         editConfigurationFilePut(
             LOGGER_CONFIGURATION_FILE_PATH, "log4j2.rootLogger.level", globalLogLevel),
         when(StringUtils.isNotEmpty(itestLevel))
