@@ -15,7 +15,7 @@
     "prebuild": "ace clean --workspaces",
     "build": "yarn format && ace set-env lerna run build",
     "postbuild": "ace gen-feature --exclude catalog-ui-search-e2e && yarn run build-fonts",
-    "build-fonts": "yarn run clean-fonts && yarn run copy-fonts && yarn run build-sass",
+    "build-fonts": "yarn run clean-fonts && yarn run copy-fonts && npm rebuild node-sass && yarn run build-sass",
     "build-sass": "node-sass src/main/webapp/sass/ --output-style compressed -o src/main/resources/webapp/css/",
     "disable-idp": "ace disable-idp",
     "m2": "yarn install:m2",
