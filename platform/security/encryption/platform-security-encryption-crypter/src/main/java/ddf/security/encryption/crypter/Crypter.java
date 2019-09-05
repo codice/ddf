@@ -354,11 +354,11 @@ public class Crypter {
 
     Properties properties = getAssociatedDataProperties();
     if (properties.containsKey(primaryKeyId)) {
-      LOGGER.debug("Found MAC (%s) in property file (%s).", primaryKeyId, associatedDataPath);
+      LOGGER.debug("Found MAC ({}) in property file ({}).", primaryKeyId, associatedDataPath);
       return Base64.getDecoder().decode(properties.getProperty(primaryKeyId));
     }
     LOGGER.debug(
-        "Could not find key (%s) in properties file (%s).", primaryKeyId, associatedDataPath);
+        "Could not find key ({}) in properties file ({}).", primaryKeyId, associatedDataPath);
 
     try {
       byte[] generatedAssociatedData = generateAssociatedData();

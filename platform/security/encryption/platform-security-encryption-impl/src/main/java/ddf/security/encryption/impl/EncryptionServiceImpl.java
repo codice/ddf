@@ -62,7 +62,7 @@ public class EncryptionServiceImpl implements EncryptionService {
     try {
       return crypter.decrypt(encryptedValue);
     } catch (CrypterException e) {
-      LOGGER.debug("Failed to decrypt string of value %s.", encryptedValue, e);
+      LOGGER.debug("Failed to decrypt string of value {}.", encryptedValue, e);
       return encryptedValue;
     }
   }
