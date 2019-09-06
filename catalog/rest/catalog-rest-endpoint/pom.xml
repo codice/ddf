@@ -69,12 +69,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.rest</groupId>
-            <artifactId>catalog-rest-impl</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
             <scope>test</scope>
@@ -156,6 +150,16 @@
             <classifier>features</classifier>
             <type>xml</type>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.rest</groupId>
+            <artifactId>catalog-rest-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.rest</groupId>
+            <artifactId>catalog-service-impl</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

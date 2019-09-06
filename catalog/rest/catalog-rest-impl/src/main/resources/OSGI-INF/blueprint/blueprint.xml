@@ -15,14 +15,6 @@
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <reference id="transformerMapper" interface="ddf.mime.MimeTypeToTransformerMapper"/>
-    <reference id="catalog" interface="ddf.catalog.CatalogFramework"/>
-    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
-    <reference id="tikaMimeTypeResolver" filter="(name=tikaMimeTypeResolver)" interface="ddf.mime.MimeTypeResolver"/>
-    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
-    <reference id="attachmentParser" interface="org.codice.ddf.attachment.AttachmentParser"/>
-    <reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
-
     <bean id="actionFactory"
           class="org.codice.ddf.rest.impl.action.MetacardTransformerActionProviderFactory"/>
 
@@ -35,18 +27,6 @@
             </bean>
         </reference-listener>
     </reference-list>
-
-    <bean id="catalogService" class="org.codice.ddf.rest.impl.CatalogServiceImpl">
-        <argument ref="catalog"/>
-        <argument ref="attachmentParser"/>
-        <argument ref="attributeRegistry" />
-        <property name="filterBuilder" ref="filterBuilder"/>
-        <property name="mimeTypeToTransformerMapper" ref="transformerMapper"/>
-        <property name="tikaMimeTypeResolver" ref="tikaMimeTypeResolver"/>
-        <property name="uuidGenerator" ref="uuidGenerator" />
-    </bean>
-
-    <service ref="catalogService" interface="org.codice.ddf.rest.service.CatalogService"/>
 
     <bean id="viewActionProvider"
           class="org.codice.ddf.rest.impl.action.ViewMetacardActionProvider">

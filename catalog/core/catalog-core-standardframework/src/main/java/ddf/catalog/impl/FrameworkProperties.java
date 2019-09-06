@@ -80,7 +80,7 @@ public class FrameworkProperties {
 
   private List<ConnectedSource> connectedSources = new ArrayList<>();
 
-  private Collection<FederatedSource> federatedSources = Collections.emptyList();
+  private List<FederatedSource> federatedSources = Collections.emptyList();
 
   private List<ResourceReader> resourceReaders = new ArrayList<>();
 
@@ -212,11 +212,11 @@ public class FrameworkProperties {
     this.connectedSources = connectedSources;
   }
 
-  public Collection<FederatedSource> getFederatedSources() {
+  public List<FederatedSource> getFederatedSources() {
     return federatedSources;
   }
 
-  public void setFederatedSources(Collection<FederatedSource> federatedSources) {
+  public void setFederatedSources(List<FederatedSource> federatedSources) {
     this.federatedSources = federatedSources;
   }
 

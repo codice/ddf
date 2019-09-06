@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.rest.impl.action;
 
-import static org.codice.ddf.rest.impl.CatalogServiceImpl.CONTEXT_ROOT;
-import static org.codice.ddf.rest.impl.CatalogServiceImpl.SOURCES_PATH;
+import static org.codice.ddf.rest.service.CatalogService.CONTEXT_ROOT;
+import static org.codice.ddf.rest.service.CatalogService.SOURCES_PATH;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;

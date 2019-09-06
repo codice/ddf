@@ -30,6 +30,9 @@ import org.codice.ddf.attachment.AttachmentInfo;
 /** Catalog service interface */
 public interface CatalogService {
 
+  String CONTEXT_ROOT = "catalog";
+  String SOURCES_PATH = "/sources";
+
   /**
    * Retrieves header information regarding the entry specified by the id such as the Accept-Ranges
    * and Content-Range headers.

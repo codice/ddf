@@ -11,10 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.rest.impl;
-
-import static ddf.catalog.data.AttributeType.AttributeFormat.BINARY;
-import static ddf.catalog.data.AttributeType.AttributeFormat.OBJECT;
+package org.codice.ddf.rest.service.impl;
 
 import com.google.common.collect.Iterables;
 import ddf.action.Action;
@@ -28,7 +25,7 @@ import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
-import ddf.catalog.data.AttributeType;
+import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -90,6 +87,7 @@ import javax.activation.MimeTypeParseException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
 import net.minidev.json.JSONArray;
@@ -123,10 +121,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CatalogServiceImpl implements CatalogService {
-
-  public static final String CONTEXT_ROOT = "catalog";
-
-  public static final String SOURCES_PATH = "/sources";
 
   static final String DEFAULT_METACARD_TRANSFORMER = "xml";
 
@@ -973,10 +967,10 @@ public class CatalogServiceImpl implements CatalogService {
       Map<String, AttributeImpl> attributeMap,
       String parsedName,
       InputStream inputStream,
-      AttributeType.AttributeFormat attributeFormat) {
+      AttributeFormat attributeFormat) {
     try (InputStream is = inputStream;
         InputStream boundedStream = new BoundedInputStream(is, MAX_INPUT_SIZE + 1L)) {
-      if (attributeFormat == OBJECT) {
+      if (attributeFormat == AttributeFormat.OBJECT) {
         LOGGER.debug("Object type not supported for override");
         return;
       }
@@ -995,7 +989,7 @@ public class CatalogServiceImpl implements CatalogService {
         attributeMap.put(parsedName, attribute);
       }
 
-      if (attributeFormat == BINARY) {
+      if (attributeFormat == AttributeFormat.BINARY) {
         attribute.addValue(bytes);
         return;
       }
