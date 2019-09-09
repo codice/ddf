@@ -168,6 +168,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Import-Package>
+                            !ddf.catalog.content.data.impl,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

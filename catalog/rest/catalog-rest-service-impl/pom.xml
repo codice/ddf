@@ -104,11 +104,6 @@
             <artifactId>catalog-core-attachment</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.catalog.rest</groupId>
-            <artifactId>catalog-rest-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <!-- Unit Tests -->
         <dependency>
@@ -121,6 +116,11 @@
             <artifactId>catalog-core-attachment-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.rest</groupId>
+            <artifactId>catalog-rest-service</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
@@ -140,12 +140,35 @@
                             platform-util,
                             owasp-java-html-sanitizer
                         </Embed-Dependency>
+                        <Export-Package>
+                            org.codice.ddf.rest.service.impl
+                        </Export-Package>
                         <Import-Package>
                             !org.codice.ddf.platform.util,
+                            !com.google.errorprone.annotations.concurrent,
                             *
                         </Import-Package>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>check-artifact-size</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <ArtifactSizeEnforcerRule>
+                                    <maxArtifactSize>20.0_MB</maxArtifactSize>
+                                </ArtifactSizeEnforcerRule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

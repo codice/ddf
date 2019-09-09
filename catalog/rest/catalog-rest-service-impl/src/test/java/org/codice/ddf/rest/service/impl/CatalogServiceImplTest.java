@@ -99,6 +99,7 @@ import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.attachment.impl.AttachmentParserImpl;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
+import org.codice.ddf.rest.service.AbstractCatalogService;
 import org.codice.ddf.rest.service.CatalogServiceException;
 import org.junit.Before;
 import org.junit.Test;
@@ -218,7 +219,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
-          BundleContext getBundleContext() {
+          protected BundleContext getBundleContext() {
             return bundleContext;
           }
         };
@@ -288,7 +289,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
-          BundleContext getBundleContext() {
+          protected BundleContext getBundleContext() {
             return bundleContext;
           }
         };
@@ -389,7 +390,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
-          BundleContext getBundleContext() {
+          protected BundleContext getBundleContext() {
             return bundleContext;
           }
         };
@@ -461,7 +462,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
-          BundleContext getBundleContext() {
+          protected BundleContext getBundleContext() {
             return bundleContext;
           }
         };
@@ -636,7 +637,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
-          BundleContext getBundleContext() {
+          protected BundleContext getBundleContext() {
             return bundleContext;
           }
         };
@@ -709,7 +710,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
-          BundleContext getBundleContext() {
+          protected BundleContext getBundleContext() {
             return bundleContext;
           }
         };
@@ -916,7 +917,7 @@ public class CatalogServiceImplTest {
 
     BinaryContent binaryContent =
         catalogService.createMetacard(
-            multipartBody, CatalogServiceImpl.DEFAULT_METACARD_TRANSFORMER);
+            multipartBody, AbstractCatalogService.DEFAULT_METACARD_TRANSFORMER);
     InputStream responseEntity = binaryContent.getInputStream();
     String responseXml = IOUtils.toString(responseEntity);
     assertEquals(metacardXml, responseXml);
@@ -949,7 +950,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
-          BundleContext getBundleContext() {
+          protected BundleContext getBundleContext() {
             return bundleContext;
           }
         };
