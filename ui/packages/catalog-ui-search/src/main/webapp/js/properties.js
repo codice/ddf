@@ -98,7 +98,6 @@ const properties = {
         )
       })
 
-    this.handleEditing()
     this.handleFeedback()
     this.handleExperimental()
     this.handleUpload()
@@ -117,9 +116,6 @@ const properties = {
               */
       this.listTemplates = []
     }
-  },
-  handleEditing() {
-    $('html').toggleClass('is-editing-restricted', this.isEditingRestricted())
   },
   handleFeedback() {
     $('html').toggleClass('is-feedback-restricted', this.isFeedbackRestricted())
