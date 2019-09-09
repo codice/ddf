@@ -299,6 +299,7 @@ public class ImportMigrationConfigurationAdminContext {
               Objects.toString(properties.remove(ConfigurationAdmin.SERVICE_BUNDLELOCATION), null);
         } else {
           properties.remove("felix.fileinstall.filename");
+          properties.remove(ConfigurationAdmin.SERVICE_BUNDLELOCATION);
         }
         final String factoryPid =
             Objects.toString(properties.remove(ConfigurationAdmin.SERVICE_FACTORYPID), null);

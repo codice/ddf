@@ -136,8 +136,7 @@ public class ConfigurationAdminMigratable implements Migratable {
         .memoryEntries()
         .filter(
             s ->
-                (s.getFactoryPid() != null
-                        && s.getFactoryPid().equals(CONTENT_DIRECTORY_MONITOR_FPID))
+                CONTENT_DIRECTORY_MONITOR_FPID.equals(s.getFactoryPid())
                     || s.getPid().equals(URL_RESOURCE_READER_PID))
         .forEach(ImportMigrationConfigurationAdminEntry::restore);
   }
