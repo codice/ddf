@@ -74,6 +74,7 @@ const WorkspaceListCollection = Backbone.Collection.extend({
 })
 
 module.exports = PartialAssociatedModel.extend({
+  type: 'workspace',
   useAjaxSync: true,
   defaults() {
     return {
