@@ -67,6 +67,8 @@ public class ImportMigrationConfigurationAdminContext {
 
   private final ConfigurationAdmin configurationAdmin;
 
+  private final boolean restoreWithBundleLocation;
+
   /**
    * Keeps track of all managed services in memory that were not found in the export file so we know
    * what to delete at the end.
@@ -89,7 +91,8 @@ public class ImportMigrationConfigurationAdminContext {
       ImportMigrationContext context,
       ConfigurationAdminMigratable admin,
       ConfigurationAdmin configurationAdmin,
-      Configuration[] memoryConfigs) {
+      Configuration[] memoryConfigs,
+      boolean restoreWithBundleLocation) {
     Validate.notNull(context, "invalid null context");
     Validate.notNull(admin, "invalid null configuration admin migratable");
     Validate.notNull(configurationAdmin, "invalid null configuration admin");
@@ -97,6 +100,7 @@ public class ImportMigrationConfigurationAdminContext {
     this.context = context;
     this.admin = admin;
     this.configurationAdmin = configurationAdmin;
+    this.restoreWithBundleLocation = restoreWithBundleLocation;
     // categorize memory configurations
     this.managedServicesToDelete =
         Stream.of(memoryConfigs)
@@ -289,8 +293,14 @@ public class ImportMigrationConfigurationAdminContext {
             .record(
                 new MigrationException("Import error: missing pid from configuration [%s].", path));
       } else {
-        final String bundleLocation =
-            Objects.toString(properties.remove(ConfigurationAdmin.SERVICE_BUNDLELOCATION), null);
+        String bundleLocation = null;
+        if (restoreWithBundleLocation) {
+          bundleLocation =
+              Objects.toString(properties.remove(ConfigurationAdmin.SERVICE_BUNDLELOCATION), null);
+        } else {
+          properties.remove("felix.fileinstall.filename");
+          properties.remove(ConfigurationAdmin.SERVICE_BUNDLELOCATION);
+        }
         final String factoryPid =
             Objects.toString(properties.remove(ConfigurationAdmin.SERVICE_FACTORYPID), null);
 
