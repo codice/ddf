@@ -20,10 +20,14 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,6 +40,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -105,11 +110,25 @@ public class ConfigurationAdminMigratableTest {
 
   private static final String SUPPORTED_BRANDING = "test";
 
-  private static final String SUPPORTED_VERSION = "1.0";
+  private static final String SUPPORTED_VERSION = "2.0";
+
+  private static final String IMPORTING_PRODUCT_VERSION = "3.0";
 
   private static final String DEFAULT_FILE_EXT = "config";
 
   private static final String CFG_FILE_EXT = "cfg";
+
+  private static final String CONTENT_DIRECTORY_MONITOR_FACTORY_PID =
+      "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor";
+
+  private static final String CONTENT_DIRECTORY_MONITOR_FILENAME =
+      String.format("%s-csw.config", CONTENT_DIRECTORY_MONITOR_FACTORY_PID);
+
+  private static final String URL_RESOURCE_READER_FACTORY_PID =
+      "ddf.catalog.resource.impl.URLResourceReader";
+
+  private static final String URL_RESOURCE_READER_FILENAME =
+      String.format("%s-csw.config", URL_RESOURCE_READER_FACTORY_PID);
 
   private static final String DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID =
       "DDF_Custom_Mime_Type_Resolver";
@@ -132,8 +151,6 @@ public class ConfigurationAdminMigratableTest {
 
   @Mock private ConfigurationAdmin configurationAdminForImport;
 
-  @Mock private Configuration configurationImportedFromExport;
-
   @Mock private SystemService systemService;
 
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -141,11 +158,13 @@ public class ConfigurationAdminMigratableTest {
 
   @Mock private MigrationReport migrationReport;
 
+  private Configuration[] configurations;
+
   @Before
   public void setup() throws Exception {
-    setup(DDF_HOME);
-    setupConfigAdminForExportSystem();
-    setupConfigAdminForImportSystem();
+    setup(DDF_HOME, SUPPORTED_VERSION);
+    setupConfigAdminForExportSystem(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
+    configurations = setupConfigAdminForImportSystem(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
   }
 
   @Test
@@ -210,7 +229,7 @@ public class ConfigurationAdminMigratableTest {
     // Setup Export
     Path exportDir = tempDir.getRoot().toPath().toRealPath();
     final String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_HOME);
-    final Path configFile = setupConfigFile(tag);
+    final Path configFile = setupConfigFile(tag, DDF_CUSTOM_MIME_TYPE_RESOLVER_FILENAME);
 
     // override to intercept doImport() and verify exported files from etc. Must be done before zip
     // file is closed
@@ -249,7 +268,7 @@ public class ConfigurationAdminMigratableTest {
     // Setup Import
     // Clean up ddf home, so we can import into a clean directory
     FileUtils.deleteDirectory(ddfHome.toRealPath().toFile());
-    setup(DDF_HOME);
+    setup(DDF_HOME, SUPPORTED_VERSION);
 
     // intercept doImport() to verify exported files from etc
     ConfigurationAdminMigratable iCam =
@@ -272,7 +291,7 @@ public class ConfigurationAdminMigratableTest {
         .createFactoryConfiguration(eq(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID), isNull());
     ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
         ArgumentCaptor.forClass(Dictionary.class);
-    verify(configurationImportedFromExport).update(argumentCaptor.capture());
+    verify(configurations[0]).update(argumentCaptor.capture());
     Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.getValue());
     assertThat(
         dictionayAsMap,
@@ -288,6 +307,106 @@ public class ConfigurationAdminMigratableTest {
                         String.format("%s-csw.config", DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID))
                     .toUri()
                     .toString())));
+  }
+
+  @Test
+  public void testDoExportDoVersionUpgradeImport() throws Exception {
+    // Setup Export
+    String[] factoryPids = {CONTENT_DIRECTORY_MONITOR_FACTORY_PID, URL_RESOURCE_READER_FACTORY_PID};
+    Configuration[] exportedConfigurations =
+        setupConfigAdminForExportSystem(
+            CONTENT_DIRECTORY_MONITOR_FACTORY_PID,
+            URL_RESOURCE_READER_FACTORY_PID,
+            DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
+    when(exportedConfigurations[1].getPid()).thenReturn(URL_RESOURCE_READER_FACTORY_PID);
+    Path exportDir = tempDir.getRoot().toPath().toRealPath();
+    final String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_HOME);
+    final Path configFile = setupConfigFile(tag, CONTENT_DIRECTORY_MONITOR_FILENAME);
+    final Path configFile2 = setupConfigFile(tag, URL_RESOURCE_READER_FILENAME);
+
+    // override to intercept doImport() and verify exported files from etc. Must be done before zip
+    // file is closed
+    ConfigurationAdminMigratable eCam =
+        new ConfigurationAdminMigratable(
+            configurationAdminForExport, STRATEGIES, DEFAULT_FILE_EXT) {
+          @Override
+          public void doVersionUpgradeImport(ImportMigrationContext context) {
+            super.doVersionUpgradeImport(context);
+            assertThat(configFile.toFile(), Matchers.equalTo(false));
+            assertThat(configFile2.toFile(), Matchers.equalTo(false));
+            // Verify exported files from etc since we are currently not re-importing them
+            context.entries(Paths.get("etc")).forEach(ImportMigrationEntry::restore);
+            try {
+              verifyConfigFile(configFile, tag);
+              verifyConfigFile(configFile2, tag);
+            } catch (IOException e) {
+              throw new AssertionError(e);
+            }
+          }
+        };
+    List<Migratable> eMigratables = Arrays.asList(eCam);
+    ConfigurationMigrationManager eConfigurationMigrationManager =
+        new ConfigurationMigrationManager(eMigratables, systemService);
+
+    // Perform Export
+    MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
+
+    // Verify Export
+    Assert.assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
+    Assert.assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
+    Assert.assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
+    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
+    Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
+    Assert.assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
+    Assert.assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
+
+    // Setup Import
+    // Clean up ddf home, so we can import into a clean directory
+    FileUtils.deleteDirectory(ddfHome.toRealPath().toFile());
+    setup(DDF_HOME, IMPORTING_PRODUCT_VERSION);
+    configurations =
+        setupConfigAdminForImportSystem(
+            CONTENT_DIRECTORY_MONITOR_FACTORY_PID,
+            URL_RESOURCE_READER_FACTORY_PID,
+            DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
+    when(configurations[1].getPid()).thenReturn(URL_RESOURCE_READER_FACTORY_PID);
+
+    // intercept doImport() to verify exported files from etc
+    ConfigurationAdminMigratable iCam =
+        spy(
+            new ConfigurationAdminMigratable(
+                configurationAdminForImport, STRATEGIES, DEFAULT_FILE_EXT));
+    List<Migratable> iMigratables = Collections.singletonList(iCam);
+    ConfigurationMigrationManager iConfigurationMigrationManager =
+        new ConfigurationMigrationManager(iMigratables, systemService);
+
+    // Perform Import
+    MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
+
+    // Verify import
+    Assert.assertThat("The import report has errors.", importReport.hasErrors(), is(false));
+    Assert.assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
+    Assert.assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
+    verify(iCam).doVersionUpgradeImport(any(ImportMigrationContext.class));
+
+    // Does not have DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID because not acceptable version
+    verify(configurationAdminForImport, never())
+        .createFactoryConfiguration(
+            eq(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID), nullable(String.class));
+
+    // Verify that the config admin in the system being imported into gets the factory configuration
+    // from the system being exported from.
+    for (int i = 0; i < factoryPids.length; i++) {
+      verify(configurationAdminForImport).createFactoryConfiguration(eq(factoryPids[i]), isNull());
+      ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
+          ArgumentCaptor.forClass(Dictionary.class);
+      verify(configurations[i]).update(argumentCaptor.capture());
+      Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.getValue());
+      assertThat(
+          dictionayAsMap,
+          allOf(aMapWithSize(1), hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2")));
+      // Does not have filename because felix.fileinstall is removed
+    }
   }
 
   private void print(MigrationMessage msg) {
@@ -310,77 +429,83 @@ public class ConfigurationAdminMigratableTest {
     return map;
   }
 
-  private void setupConfigAdminForExportSystem() throws Exception {
-    Configuration[] configurations = getConfigurationsForExportSystem();
+  private Configuration[] setupConfigAdminForExportSystem(String... configFactoryPids)
+      throws Exception {
+    Configuration[] configurations = getConfigurationsForExportSystem(configFactoryPids);
     when(configurationAdminForExport.listConfigurations(isNull())).thenReturn(configurations);
     when(exportMigrationContext.entries(any(), eq(false), any())).thenReturn(Stream.empty());
+    return configurations;
   }
 
-  private void setupConfigAdminForImportSystem() throws Exception {
-    Configuration[] configurations = getConfigurationsForImportSystem();
+  private Configuration[] setupConfigAdminForImportSystem(String... configFactoryPids)
+      throws Exception {
+    Configuration[] configurations = getConfigurationsForImportSystem(configFactoryPids);
     when(configurationAdminForImport.listConfigurations(isNull())).thenReturn(configurations);
     // Create a new factory Configuration object with a new PID. The properties of the new
     // Configuration
     // object are null until the first time that its Configuration.update(Dictionary) method is
     // called.
-    when(configurationImportedFromExport.getPid())
-        .thenReturn(
-            String.format(
-                "%s.8e3c2b12-9807-482a-aaa7-d3d317973581",
-                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID));
-    when(configurationAdminForImport.createFactoryConfiguration(
-            eq(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID), isNull()))
-        .thenReturn(configurationImportedFromExport);
+    for (int i = 0; i < configFactoryPids.length; i++) {
+      when(configurations[i].getPid())
+          .thenReturn(
+              String.format("%s.8e3c2b12-9807-482a-aaa7-d3d317973581", configFactoryPids[i]));
+      when(configurationAdminForImport.createFactoryConfiguration(
+              eq(configFactoryPids[i]), isNull()))
+          .thenReturn(configurations[i]);
+    }
+    return configurations;
   }
 
-  private Configuration[] getConfigurationsForExportSystem() throws IOException {
-    Configuration[] configs = new Configuration[1];
-    configs[0] = getConfigurationForExportSystem();
-    return configs;
+  private Configuration[] getConfigurationsForExportSystem(String... configFactoryPids) {
+    return Arrays.stream(configFactoryPids)
+        .map(this::getConfigurationForExportSystem)
+        .toArray(Configuration[]::new);
   }
 
-  private Configuration[] getConfigurationsForImportSystem() throws IOException {
-    Configuration[] configs = new Configuration[1];
-    configs[0] = getConfigurationForImportSystem();
-    return configs;
+  private Configuration[] getConfigurationsForImportSystem(String... configFactoryPids) {
+    return Arrays.stream(configFactoryPids)
+        .map(this::getConfigurationForImportSystem)
+        .toArray(Configuration[]::new);
   }
 
-  private Configuration getConfigurationForExportSystem() throws IOException {
+  private Configuration getConfigurationForExportSystem(String configFactoryPid) {
     Configuration config = mock(Configuration.class);
     Dictionary<String, Object> props = new Hashtable<>();
-    props.put(
-        DirectoryWatcher.FILENAME,
-        ddfHome
-            .resolve("etc")
-            .toRealPath()
-            .resolve(String.format("%s-csw.config", DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID))
-            .toUri());
-    String pid =
-        String.format(
-            "%s.4039089d-839f-4d52-a174-77c8a19fc03d", DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
+    try {
+      props.put(
+          DirectoryWatcher.FILENAME,
+          ddfHome
+              .resolve("etc")
+              .toRealPath()
+              .resolve(String.format("%s-csw.config", configFactoryPid))
+              .toUri());
+    } catch (IOException e) {
+      fail("Unable to resolve configuration path");
+    }
+    String pid = String.format("%s.4039089d-839f-4d52-a174-77c8a19fc03d", configFactoryPid);
     props.put("service.pid", pid);
-    props.put("service.factoryPid", DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
+    props.put("service.factoryPid", configFactoryPid);
     props.put("schema", "http://www.opengis.net/cat/csw/2.0.2");
     when(config.getProperties()).thenReturn(props);
     when(config.getPid()).thenReturn(pid);
-    when(config.getFactoryPid()).thenReturn(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
+    when(config.getFactoryPid()).thenReturn(configFactoryPid);
     return config;
   }
 
-  private Configuration getConfigurationForImportSystem() throws IOException {
+  private Configuration getConfigurationForImportSystem(String configFactoryPid) {
     Configuration config = mock(Configuration.class);
-    String pid = "ddf.platform.ui.config";
-    when(config.getPid()).thenReturn(pid);
+    when(config.getPid()).thenReturn(configFactoryPid);
+    when(config.getFactoryPid()).thenReturn(configFactoryPid);
     return config;
   }
 
-  private void setup(String ddfHomeStr) throws IOException {
+  private void setup(String ddfHomeStr, String productVersion) throws IOException {
     ddfHome = tempDir.newFolder(ddfHomeStr).toPath().toRealPath();
     System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
     Path etcDir = ddfHome.resolve("etc");
     Files.createDirectory(etcDir);
     setupBrandingFile(SUPPORTED_BRANDING);
-    setupVersionFile(SUPPORTED_VERSION);
+    setupVersionFile(productVersion);
     setupMigrationPropertiesFile(SUPPORTED_VERSION);
   }
 
@@ -409,12 +534,8 @@ public class ConfigurationAdminMigratableTest {
         StandardCharsets.UTF_8);
   }
 
-  private Path setupConfigFile(String tag) throws IOException {
-    Path configFile =
-        ddfHome
-            .resolve("etc")
-            .toRealPath()
-            .resolve(ConfigurationAdminMigratableTest.DDF_CUSTOM_MIME_TYPE_RESOLVER_FILENAME);
+  private Path setupConfigFile(String tag, String configFileName) throws IOException {
+    Path configFile = ddfHome.resolve("etc").toRealPath().resolve(configFileName);
     Files.createFile(configFile);
     List<String> lines = new ArrayList<>(2);
     lines.add(String.format("#%s:%s", configFile.toRealPath().toString(), tag));
