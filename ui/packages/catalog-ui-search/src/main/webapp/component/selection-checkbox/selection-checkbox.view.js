@@ -77,7 +77,7 @@ const SelectAllToggle = createToggle({
       this.options.selectionInterface.clearSelectedResults()
     } else {
       const currentResults = this.options.selectionInterface.getActiveSearchResults()
-      this.options.selectionInterface.addSelectedResult(currentResults.models)
+      this.options.selectionInterface.setSelectedResults(currentResults.models)
     }
   },
   isSelected() {

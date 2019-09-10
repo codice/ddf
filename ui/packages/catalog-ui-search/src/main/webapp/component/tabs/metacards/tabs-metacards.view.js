@@ -52,29 +52,10 @@ const MetacardsTabsView = TabsView.extend({
     this.determineAvailableContent()
     TabsView.prototype.initialize.call(this)
     const debounceDetermineContent = _.debounce(this.handleMetacardChange, 200)
+
     this.listenTo(
       this.selectionInterface.getSelectedResults(),
-      'update',
-      debounceDetermineContent
-    )
-    this.listenTo(
-      this.selectionInterface.getSelectedResults(),
-      'add',
-      debounceDetermineContent
-    )
-    this.listenTo(
-      this.selectionInterface.getSelectedResults(),
-      'remove',
-      debounceDetermineContent
-    )
-    this.listenTo(
-      this.selectionInterface.getSelectedResults(),
-      'reset',
-      debounceDetermineContent
-    )
-    this.listenTo(
-      this.selectionInterface.getSelectedResults(),
-      'refreshdata',
+      'add remove reset refreshdata update',
       debounceDetermineContent
     )
   },

@@ -116,6 +116,9 @@ module.exports = new (Backbone.Model.extend({
   getSelectedResults() {
     return this.get('content').get('selectedResults')
   },
+  setSelectedResults(results) {
+    this.get('content').setSelectedResults(results)
+  },
   clearSelectedResults() {
     this.getSelectedResults().reset()
   },
