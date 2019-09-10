@@ -63,8 +63,6 @@ public class RESTEndpoint implements RESTService {
 
   private CatalogService catalogService;
 
-  public RESTEndpoint() {}
-
   public RESTEndpoint(CatalogService catalogService) {
     LOGGER.trace("Constructing REST Endpoint");
     this.catalogService = catalogService;
@@ -406,9 +404,5 @@ public class RESTEndpoint implements RESTService {
         .entity("<pre>" + entityMessage + "</pre>")
         .type(MediaType.TEXT_HTML)
         .build();
-  }
-
-  public void setCatalogService(CatalogService catalogService) {
-    this.catalogService = catalogService;
   }
 }

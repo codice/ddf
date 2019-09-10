@@ -18,10 +18,10 @@
            http://cxf.apache.org/blueprint/jaxrs
            http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
 
-    <reference id="catalogService" interface="org.codice.ddf.rest.service.CatalogService" availability="optional"/>
+    <reference id="catalogService" interface="org.codice.ddf.rest.service.CatalogService"/>
 
     <bean id="restSvc" class="org.codice.ddf.endpoints.rest.RESTEndpoint">
-        <property name="catalogService" ref="catalogService"/>
+        <argument ref="catalogService"/>
     </bean>
 
     <jaxrs:server id="restService" address="/catalog">
