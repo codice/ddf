@@ -26,7 +26,7 @@ type State = {
   open: boolean
 }
 
-const Wrapper = styled<{}, 'div'>('div')`
+const Wrapper = styled.div`
   > *:not(.composed-menu):hover:not(button),
   > *.is-active:not(.composed-menu):not(button),
   .composed-menu > *:not(.composed-menu):hover:not(button),

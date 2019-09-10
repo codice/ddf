@@ -21,7 +21,7 @@ type SaveButtonProps = {
   isSaved: boolean
 }
 
-const Root = styled<SaveButtonProps, 'div'>('div')`
+const Root = styled.div<SaveButtonProps>`
   display: inline-block;
   vertical-align: top;
   overflow: hidden;
@@ -38,7 +38,7 @@ const Root = styled<SaveButtonProps, 'div'>('div')`
   }};
 `
 
-const SaveIcon = styled<SaveButtonProps, 'span'>('span')`
+const SaveIcon = styled.span<SaveButtonProps>`
   color: inherit;
   opacity: ${props => (props.isSaved ? 0 : 1)};
   transform: scale(${props => (props.isSaved ? 2 : 1)});
@@ -50,7 +50,7 @@ const SaveIcon = styled<SaveButtonProps, 'span'>('span')`
       ease-out 0s;
 `
 
-const CheckIcon = styled<SaveButtonProps, 'span'>('span')`
+const CheckIcon = styled.span<SaveButtonProps>`
   visibility: visible;
   transition: transform
       ${props => props.theme.multiple(2, props.theme.coreTransitionTime, 's')}

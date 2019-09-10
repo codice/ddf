@@ -23,7 +23,7 @@ type RootProps = {
   available: boolean
 }
 
-const Root = styled<RootProps, 'div'>('div')`
+const Root = styled.div<RootProps>`
   width: 100%;
   height: auto;
   white-space: nowrap;

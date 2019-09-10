@@ -19,17 +19,15 @@ import SourceItem from '../source-item'
 import SourcesSummary from '../sources-summary'
 import { hot } from 'react-hot-loader'
 
-const Root = styled<{}, 'div'>('div')`
+const Root = styled.div`
   display: block;
   height: 100%;
   width: 100%;
   overflow: hidden;
-  ${props => {
-    return ChangeBackground(props.theme.backgroundContent)
-  }};
+  ${props => ChangeBackground(props.theme.backgroundContent)};
 `
 
-const SourcesCenter = styled<{}, 'div'>('div')`
+const SourcesCenter = styled.div`
   margin: auto;
   max-width: ${props => {
     return props.theme.screenBelow(props.theme.mediumScreenSize)

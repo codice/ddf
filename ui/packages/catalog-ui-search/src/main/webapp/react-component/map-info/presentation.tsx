@@ -24,7 +24,7 @@ type Props = {
   coordinates: Coordinates
 }
 
-const Root = styled<Props, 'div'>('div')`
+const Root = styled.div<Props>`
   font-family: 'Inconsolata', 'Lucida Console', monospace;
   background: ${props => props.theme.backgroundModal};
   display: block;

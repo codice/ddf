@@ -39,7 +39,7 @@ const NavigationRight = styled.div`
   transition: width ${props => props.theme.coreTransitionTime} ease-in-out;
 `
 
-const NavigationMiddle = styled<Props, 'div'>('div')`
+const NavigationMiddle = styled.div<Props>`
   width: ${props => {
     if (props.hasLogo) {
       if (props.hasUnavailable || props.hasUnsaved) {

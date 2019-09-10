@@ -17,7 +17,7 @@ import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
 import { FormattedMessage } from 'react-intl'
 
-const Root = styled<{}, 'div'>('div')`
+const Root = styled.div`
   display: block;
   width: 100%;
   height: auto;
