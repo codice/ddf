@@ -28,4 +28,8 @@
         <module>spatial-wfs-v2_0_0-source</module>
         <module>spatial-wfs-v2_0_0-connectedsource</module>
     </modules>
+    <properties>
+        <stax-api.version>1.0-2</stax-api.version>
+        <xmlschema.version>2.2.3</xmlschema.version>
+    </properties>
 </project>
