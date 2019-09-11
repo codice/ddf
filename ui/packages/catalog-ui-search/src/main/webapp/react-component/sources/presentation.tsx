@@ -52,7 +52,7 @@ type Source = {
 type Props = {
   sources: Source[]
   amountDown: number
-  refreshSources : () => void
+  refreshSources: () => void
 }
 
 export default hot(module)(({ sources, amountDown, refreshSources }: Props) => {
