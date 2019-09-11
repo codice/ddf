@@ -26,7 +26,6 @@
     <name>DDF :: Catalog :: Service :: Impl</name>
 
     <dependencies>
-
         <!-- Compile and Runtime -->
         <dependency>
             <groupId>org.apache.cxf</groupId>

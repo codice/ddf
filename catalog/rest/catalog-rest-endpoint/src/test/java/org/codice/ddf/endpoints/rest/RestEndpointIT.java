@@ -199,7 +199,7 @@ public class RestEndpointIT extends AbstractComponentTest {
             .add("ddf.catalog.transformer", "catalog-transformer-attribute")
             .add("ddf.catalog.core", "catalog-core-attachment")
             .add("ddf.catalog.rest", "catalog-rest-service")
-            .add("ddf.catalog.rest", "catalog-service-impl")
+            .add("ddf.catalog.rest", "catalog-rest-service-impl")
             .add("ddf.catalog.rest", "catalog-rest-impl");
       }
 

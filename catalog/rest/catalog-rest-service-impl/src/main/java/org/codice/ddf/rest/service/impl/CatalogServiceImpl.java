@@ -63,7 +63,11 @@ public class CatalogServiceImpl extends AbstractCatalogService {
         sourceObj.put("available", Boolean.valueOf(source.isAvailable()));
 
         List<JSONObject> sourceActions =
-            source.getActions().stream().map(this::sourceActionToJSON).collect(Collectors.toList());
+            source
+                .getActions()
+                .stream()
+                .map(super::sourceActionToJSON)
+                .collect(Collectors.toList());
 
         sourceObj.put("sourceActions", sourceActions);
 

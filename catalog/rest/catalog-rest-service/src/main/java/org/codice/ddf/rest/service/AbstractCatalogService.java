@@ -257,7 +257,7 @@ public abstract class AbstractCatalogService implements CatalogService {
     }
   }
 
-  protected JSONObject sourceActionToJSON(Action action) {
+  public JSONObject sourceActionToJSON(Action action) {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("title", action.getTitle());
     jsonObject.put("url", action.getUrl().toString());
