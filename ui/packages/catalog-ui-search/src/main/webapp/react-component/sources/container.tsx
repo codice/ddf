@@ -55,6 +55,7 @@ class SourcesSummaryContainer extends React.Component<Props, State> {
     return (
       <Sources
         sources={this.state.sources}
+        refreshSources={() => sources.fetch()}
         amountDown={this.state.amountDown}
       />
     )

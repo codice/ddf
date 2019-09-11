@@ -92,13 +92,14 @@ type SourceAction = {
 
 type Props = {
   sourceActions?: SourceAction[]
-  id: string
+  id: string,
+  refreshSources = () => void
 } & RootProps
 
 const windowWidth = '520'
 const windowHeight = '570'
 
-export default hot(module)(({ id, sourceActions, available }: Props) => {
+export default hot(module)(({ id, sourceActions, available, refreshSources  }: Props) => {
   return (
     <Root available={available}>
       <div className="source-available">
@@ -127,7 +128,8 @@ export default hot(module)(({ id, sourceActions, available }: Props) => {
                         sourceAction.id.startsWith('catalog.data.source.window')
                       ) {
                         const windowFeatures = `location=yes,height=${windowHeight},width=${windowWidth},scrollbars=yes,status=yes`
-                        window.open(sourceAction.url, '_blank', windowFeatures)
+                        const popup = window.open(sourceAction.url, '_blank', windowFeatures)
+                        popup.onbeforeunload( refreshSources())
                       } else if (
                         sourceAction.id.startsWith('catalog.data.source.iframe')
                       ) {
