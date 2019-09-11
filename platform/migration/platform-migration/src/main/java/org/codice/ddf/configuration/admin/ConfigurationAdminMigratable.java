@@ -15,6 +15,8 @@ package org.codice.ddf.configuration.admin;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
@@ -46,11 +48,17 @@ public class ConfigurationAdminMigratable implements Migratable {
    */
   private static final String CURRENT_VERSION = "1.0";
 
-  private static final String CONTENT_DIRECTORY_MONITOR_FPID =
-      "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor";
+  private static final List<String> ACCEPTED_ENTRY_PIDS =
+      Arrays.asList(
+          "ddf.catalog.resource.impl.URLResourceReader",
+          "org.codice.ddf.security.policy.context.impl.PolicyManager",
+          "ddf.security.sts.guestclaims",
+          "ddf.security.sts",
+          "ddf.security.http.impl.HttpSessionFactory",
+          "org.codice.ddf.security.filter.login.Session");
 
-  private static final String URL_RESOURCE_READER_PID =
-      "ddf.catalog.resource.impl.URLResourceReader";
+  private static final List<String> ACCEPTED_ENTRY_FACTORY_PIDS =
+      Collections.singletonList("org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor");
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminMigratable.class);
 
@@ -123,7 +131,11 @@ public class ConfigurationAdminMigratable implements Migratable {
     final ImportMigrationConfigurationAdminContext adminContext =
         new ImportMigrationConfigurationAdminContext(
             context, this, configurationAdmin, getConfigurations(context), true);
+
     adminContext.memoryEntries().forEach(ImportMigrationConfigurationAdminEntry::restore);
+    context
+        .getReport()
+        .doAfterCompletion(adminContext::deleteUnexportedConfigurationsAfterCompletion);
   }
 
   @Override
@@ -134,11 +146,30 @@ public class ConfigurationAdminMigratable implements Migratable {
 
     adminContext
         .memoryEntries()
-        .filter(
-            s ->
-                CONTENT_DIRECTORY_MONITOR_FPID.equals(s.getFactoryPid())
-                    || s.getPid().equals(URL_RESOURCE_READER_PID))
+        .filter(this::isAcceptedConfigurationAdminEntry)
+        .map(this::updateNecessaryConfigurationAdminEntries)
         .forEach(ImportMigrationConfigurationAdminEntry::restore);
+  }
+
+  private boolean isAcceptedConfigurationAdminEntry(ImportMigrationConfigurationAdminEntry entry) {
+    if (ACCEPTED_ENTRY_PIDS.contains(entry.getPid())) {
+      return true;
+    }
+    if (ACCEPTED_ENTRY_FACTORY_PIDS.contains(entry.getFactoryPid())) {
+      return true;
+    }
+    return false;
+  }
+
+  // entries must be updated to the latest versions of themselves in order to restore correctly
+  private ImportMigrationConfigurationAdminEntry updateNecessaryConfigurationAdminEntries(
+      ImportMigrationConfigurationAdminEntry entry) {
+    // this pid was updated in versions 2.16.1 and 2.17.0
+    // see https://github.com/codice/ddf/issues/5131
+    if (entry.getPid().equals("org.codice.ddf.security.filter.login.Session")) {
+      entry.setPid("ddf.security.http.impl.HttpSessionFactory");
+    }
+    return entry;
   }
 
   @SuppressWarnings(

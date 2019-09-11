@@ -46,7 +46,7 @@ public class ImportMigrationConfigurationAdminEntry {
 
   @Nullable private final String factoryPid;
 
-  private final String pid;
+  private String pid;
 
   @Nullable private final Configuration memoryConfiguration;
 
@@ -125,6 +125,10 @@ public class ImportMigrationConfigurationAdminEntry {
 
   public String getPid() {
     return pid;
+  }
+
+  public void setPid(String pid) {
+    this.pid = pid;
   }
 
   public boolean isManagedServiceFactory() {
