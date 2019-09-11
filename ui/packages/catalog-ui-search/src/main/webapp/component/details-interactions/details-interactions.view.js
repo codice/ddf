@@ -22,7 +22,6 @@ const RemoveAttributeView = require('../dropdown/remove-attribute/dropdown.remov
 const AttributesRearrangeView = require('../dropdown/attributes-rearrange/dropdown.attributes-rearrange.view.js')
 const ShowAttributeView = require('../dropdown/show-attribute/dropdown.show-attribute.view.js')
 const HideAttributeView = require('../dropdown/hide-attribute/dropdown.hide-attribute.view.js')
-const user = require('../singletons/user-instance.js')
 
 module.exports = Marionette.LayoutView.extend({
   template,
@@ -64,10 +63,6 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-revision', types.revision !== undefined)
     this.$el.toggleClass('is-deleted', types.deleted !== undefined)
     this.$el.toggleClass('is-remote', types.remote !== undefined)
-    this.$el.toggleClass(
-      'is-editing-restricted',
-      !user.canWrite(this.options.selectionInterface.getSelectedResults())
-    )
   },
   generateDetailsAdd() {
     this.detailsAdd.show(
