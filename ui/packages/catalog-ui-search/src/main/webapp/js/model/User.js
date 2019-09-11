@@ -437,22 +437,8 @@ User.Response = Backbone.AssociatedModel.extend({
   canRead(metacard) {
     return new Security(Restrictions.from(metacard)).canRead(this)
   },
-  canWrite(thing) {
-    if (properties.isEditingRestricted()) {
-      return false
-    }
-    switch (thing.type) {
-      case 'workspace':
-      case 'metacard-properties':
-        return new Security(Restrictions.from(thing)).canWrite(this)
-      case 'query-result':
-        return this.canWrite(thing.get('metacard').get('properties'))
-      case 'query-result.collection':
-      default:
-        return !thing.some(subthing => {
-          return !this.canWrite(subthing)
-        })
-    }
+  canWrite(metacard) {
+    return new Security(Restrictions.from(metacard)).canWrite(this)
   },
   canShare(metacard) {
     return new Security(Restrictions.from(metacard)).canShare(this)
