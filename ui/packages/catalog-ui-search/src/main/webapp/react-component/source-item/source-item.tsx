@@ -93,7 +93,7 @@ type SourceAction = {
 type Props = {
   sourceActions?: SourceAction[]
   id: string,
-  refreshSources = () => void
+  refreshSources: () => void
 } & RootProps
 
 const windowWidth = '520'
