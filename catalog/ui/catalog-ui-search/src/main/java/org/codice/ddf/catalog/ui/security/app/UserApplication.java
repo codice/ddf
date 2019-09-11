@@ -48,6 +48,7 @@ import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.geotools.filter.text.ecql.ECQL;
+import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +57,6 @@ import spark.servlet.SparkApplication;
 public class UserApplication implements SparkApplication {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UserApplication.class);
-
-  private FilterBuilder filterBuilder;
 
   private static final Gson GSON =
       new GsonBuilder()
@@ -70,6 +69,8 @@ public class UserApplication implements SparkApplication {
   private final PersistentStore persistentStore;
 
   private final SubjectIdentity subjectIdentity;
+
+  private final FilterBuilder filterBuilder;
 
   public UserApplication(
       EndpointUtil util,
@@ -216,12 +217,13 @@ public class UserApplication implements SparkApplication {
 
   private Map mapAttributes(Map<String, Object> persistentItem) {
     return new ImmutableMap.Builder<String, Object>()
-        .put("src", persistentItem.get("src_txt"))
         .put("id", persistentItem.get("id_txt"))
-        .put("metacards", persistentItem.get("metacardIds_txt"))
-        .put("queryId", persistentItem.get("queryId_txt"))
-        .put("serverGenerated", persistentItem.get("serverGenerated_txt"))
-        .put("when", persistentItem.get("when_lng"))
+        .put("src", persistentItem.getOrDefault("src_txt", Collections.emptySet()))
+        .put("metacardIds", persistentItem.getOrDefault("metacardIds_txt", Collections.emptySet()))
+        .put("queryId", persistentItem.getOrDefault("queryId_txt", ""))
+        .put("serverGenerated", persistentItem.getOrDefault("serverGenerated_txt", "true"))
+        .put(
+            "when", persistentItem.getOrDefault("when_lng", DateTime.now().toInstant().getMillis()))
         .build();
   }
 
