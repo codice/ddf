@@ -128,7 +128,6 @@ public class ImportMigrationConfigurationAdminContext {
         Stream.of(entries)
             .filter(ImportMigrationConfigurationAdminEntry::isManagedServiceFactory)
             .collect(Collectors.groupingBy(ImportMigrationConfigurationAdminEntry::getFactoryPid));
-    context.getReport().doAfterCompletion(this::deleteUnexportedConfigurationsAfterCompletion);
   }
 
   public Stream<ImportMigrationConfigurationAdminEntry> memoryEntries() {
@@ -325,7 +324,7 @@ public class ImportMigrationConfigurationAdminContext {
 
   @SuppressWarnings(
       "PMD.UnusedFormalParameter" /* report parameter is required as this method is used as a functional interface */)
-  private void deleteUnexportedConfigurationsAfterCompletion(MigrationReport report) {
+  protected void deleteUnexportedConfigurationsAfterCompletion(MigrationReport report) {
     if (isValid) {
       Stream.concat(
               managedServicesToDelete.values().stream(),
