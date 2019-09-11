@@ -21,7 +21,7 @@
         <groupId>ddf.catalog.rest</groupId>
         <version>2.18.0-SNAPSHOT</version>
     </parent>
-    <artifactId>catalog-service-impl</artifactId>
+    <artifactId>catalog-rest-service-impl</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: Catalog :: Service :: Impl</name>
 
