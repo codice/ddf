@@ -50,15 +50,12 @@ const getAttributes = (map: Backbone.Model) => {
   }
   return properties.summaryShow
     .map((attribute: string) => {
-      const definition = metacardDefinitions.metacardTypes[attribute]
-      const name =
-        definition !== undefined ? definition.alias || definition.id : attribute
       const value = map
         .get('targetMetacard')
         .get('metacard')
         .get('properties')
-        .get(name)
-      return { name, value }
+        .get(attribute)
+      return { name: attribute, value }
     })
     .filter(({ value }: Attribute) => value !== undefined)
 }
