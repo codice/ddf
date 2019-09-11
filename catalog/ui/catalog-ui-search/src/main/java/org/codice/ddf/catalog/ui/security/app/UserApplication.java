@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.security.app;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.codice.gsonsupport.GsonTypeAdapters.MAP_STRING_TO_OBJECT_TYPE;
+import static spark.Spark.delete;
 import static spark.Spark.exception;
 import static spark.Spark.get;
 import static spark.Spark.put;
@@ -28,7 +29,6 @@ import ddf.security.SubjectIdentity;
 import ddf.security.SubjectUtils;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
@@ -117,7 +117,7 @@ public class UserApplication implements SparkApplication {
         },
         util::getJson);
 
-    put(
+    delete(
         "/user/notifications",
         APPLICATION_JSON,
         (req, res) -> {
@@ -243,8 +243,10 @@ public class UserApplication implements SparkApplication {
     if (ids.isEmpty()) {
       return;
     }
-    List<Filter> idsToDelete = new ArrayList<>();
-    ids.forEach(id -> idsToDelete.add(filterBuilder.attribute("id").is().equalTo().text(id)));
+    List<Filter> idsToDelete =
+        ids.stream()
+            .map(id -> filterBuilder.attribute("id").is().equalTo().text(id))
+            .collect(Collectors.toList());
     try {
       persistentStore.delete(
           PersistenceType.NOTIFICATION_TYPE.toString(),

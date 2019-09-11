@@ -20,7 +20,6 @@ const template = require('./alert-item.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
 const Common = require('../../js/Common.js')
-const user = require('../singletons/user-instance.js')
 
 module.exports = Marionette.ItemView.extend({
   template,
@@ -49,7 +48,7 @@ module.exports = Marionette.ItemView.extend({
   removeModel() {
     this.$el.toggleClass('is-destroyed', true)
     fetch('./internal/user/notifications', {
-      method: 'put',
+      method: 'delete',
       body: JSON.stringify({ alerts: [this.model.id] }),
       headers: {
         'Content-Type': 'application/json',
@@ -57,10 +56,6 @@ module.exports = Marionette.ItemView.extend({
     })
     setTimeout(() => {
       this.model.collection.remove(this.model)
-      user
-        .get('user')
-        .get('preferences')
-        .savePreferences()
     }, 250)
   },
   expandAlert() {

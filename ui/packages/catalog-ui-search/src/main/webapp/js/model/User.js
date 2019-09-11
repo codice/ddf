@@ -269,7 +269,7 @@ User.Preferences = Backbone.AssociatedModel.extend({
     }
     this.get('alerts').remove(expiredAlerts)
     fetch('./internal/user/notifications', {
-      method: 'put',
+      method: 'delete',
       body: JSON.stringify({ alerts: expiredAlerts.map(({ id }) => id) }),
       headers: {
         'Content-Type': 'application/json',
