@@ -203,13 +203,8 @@ public class UserApplication implements SparkApplication {
     try {
       String filter = String.format("user = '%s'", userid);
       List<Map<String, Object>> notificationsList =
-          persistentStore.get(PersistenceType.NOTIFICATION_TYPE.toString(), filter);
-      return notificationsList
-          .stream()
-          .map(
-              json ->
-                  GSON.fromJson((String) json.get("notification_txt"), MAP_STRING_TO_OBJECT_TYPE))
-          .collect(Collectors.toList());
+          persistentStore.get(PersistenceType.NOTIFICATION_TYPE.toString(), filter, 0, 999);
+      return notificationsList.stream().map(this::mapAttributes).collect(Collectors.toList());
     } catch (PersistenceException e) {
       LOGGER.info(
           "PersistenceException while trying to retrieve persisted notifications for user {}",
@@ -217,6 +212,17 @@ public class UserApplication implements SparkApplication {
           e);
     }
     return Collections.emptyList();
+  }
+
+  private Map mapAttributes(Map<String, Object> persistentItem) {
+    return new ImmutableMap.Builder<String, Object>()
+        .put("src", persistentItem.get("src_txt"))
+        .put("id", persistentItem.get("id_txt"))
+        .put("metacards", persistentItem.get("metacardIds_txt"))
+        .put("queryId", persistentItem.get("queryId_txt"))
+        .put("serverGenerated", persistentItem.get("serverGenerated_txt"))
+        .put("when", persistentItem.get("when_lng"))
+        .build();
   }
 
   private Map<String, Object> getSubjectAttributes(Subject subject) {
