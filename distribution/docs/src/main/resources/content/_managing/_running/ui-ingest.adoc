@@ -14,5 +14,5 @@ Files can also be ingested directly from ${catalog-ui}.
 The ${catalog-ui} uploader is intended for the upload of products (such as images or documents), not metadata files (such as Metacard XML). A user will not be able to specify which input transformer is used to ingest the document.
 ====
 
-See <<{using-prefix}ui_ingest,Ingesting from ${catalog-ui}>> for details.
+See <<{using-prefix}uploading,Ingesting from ${catalog-ui}>> for details.
 
