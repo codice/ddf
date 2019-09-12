@@ -1,8 +1,9 @@
 module.exports = {
-    "extends": ["eslint:recommended", "plugin:react/recommended", "@connexta/eslint-config-connexta"],
+    extends: ["@connexta/eslint-config-connexta", "eslint:recommended", "plugin:react/recommended"],
     rules: {
-        /* eslint:recommended */
+        "@connexta/connexta/no-absolute-urls": "off",
 
+        "no-console": "off",
         "no-case-declarations" : "off",
         "no-fallthrough" : "off",
 
@@ -11,15 +12,12 @@ module.exports = {
         // number of arguments (unused or not) in the function signature
         "no-unused-vars" : ["error", { "args": "none" }],
 
-        // TODO investigate whether the below rules should be enabled
-        /* plugin:react/recommended */
         "react/prop-types" : "off",
         "react/display-name" : "off",
         "react/no-unescaped-entities" : "off",
         "react/jsx-key" : "off",
         "react/no-render-return-value" : "off",
         "react/no-deprecated" : "off",
-        "react/no-find-dom-node" : "off",
-    },
-    env: {es6: true}
+        "react/no-find-dom-node" : "off"
+    }
 };
