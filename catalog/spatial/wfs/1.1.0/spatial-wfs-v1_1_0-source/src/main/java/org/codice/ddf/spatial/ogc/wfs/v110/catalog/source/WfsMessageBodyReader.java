@@ -13,17 +13,15 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
-import ddf.catalog.data.Metacard;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.List;
 import java.util.function.Supplier;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import net.opengis.wfs.v_1_1_0.FeatureTypeType;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.FeatureTransformationService;
 import org.codice.ddf.spatial.ogc.wfs.featuretransformer.WfsMetadata;
 import org.slf4j.Logger;
@@ -62,12 +60,6 @@ public class WfsMessageBodyReader implements MessageBodyReader<WfsFeatureCollect
       MediaType mediaType,
       MultivaluedMap<String, String> multivaluedMap,
       InputStream inputStream) {
-
-    List<Metacard> featureMembers =
-        featureTransformationService.apply(inputStream, wfsMetadataSupplier.get());
-
-    WfsFeatureCollection result = new WfsFeatureCollection();
-    result.setFeatureMembers(featureMembers);
-    return result;
+    return featureTransformationService.apply(inputStream, wfsMetadataSupplier.get());
   }
 }
