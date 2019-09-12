@@ -138,7 +138,11 @@ export default hot(module)(
                             '_blank',
                             windowFeatures
                           )
-                          popup.onbeforeunload(refreshSources())
+                          if (popup) {
+                            popup.addEventListener('beforeunload', () =>
+                              refreshSources()
+                            )
+                          }
                         } else if (
                           sourceAction.id.startsWith(
                             'catalog.data.source.iframe'
