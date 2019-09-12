@@ -21,7 +21,6 @@ const Common = require('../../js/Common.js')
 const ResultUtils = require('../../js/ResultUtils.js')
 const moment = require('moment')
 const announcement = require('component/announcement')
-const user = require('../../component/singletons/user-instance.js')
 import MetacardHistoryPresentation from './presentation'
 
 type Props = {
@@ -143,7 +142,6 @@ class MetacardHistory extends React.Component<Props, State> {
         history={history}
         selectedVersion={selectedVersion}
         loading={loading}
-        canEdit={user.canWrite(this.model)}
       />
     )
   }

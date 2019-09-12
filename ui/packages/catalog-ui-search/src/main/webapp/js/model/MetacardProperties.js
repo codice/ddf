@@ -21,7 +21,6 @@ const properties = require('../properties.js')
 require('backbone-associations')
 
 module.exports = Backbone.AssociatedModel.extend({
-  type: 'metacard-properties',
   defaults() {
     return {
       'metacard-tags': ['resource'],
