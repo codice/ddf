@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.MultivaluedMap;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.codice.ddf.attachment.AttachmentInfo;
@@ -39,7 +40,7 @@ public interface CatalogService {
    */
   BinaryContent getHeaders(
       String sourceid, String id, URI absolutePath, MultivaluedMap<String, String> queryParameters)
-      throws CatalogServiceException;
+      throws CatalogServiceException, InternalServerErrorException;
 
   /** Retrieves information regarding available sources. */
   BinaryContent getSourcesInfo();
@@ -56,7 +57,7 @@ public interface CatalogService {
       URI absolutePath,
       MultivaluedMap<String, String> queryParameters,
       HttpServletRequest httpRequest)
-      throws CatalogServiceException, DataUsageLimitExceededException;
+      throws CatalogServiceException, DataUsageLimitExceededException, InternalServerErrorException;
 
   /** Creates a new metacard. */
   BinaryContent createMetacard(MultipartBody multipartBody, String transformerParam)

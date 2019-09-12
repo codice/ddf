@@ -141,6 +141,9 @@ public class RESTEndpoint implements RESTService {
       return responseBuilder.build();
     } catch (CatalogServiceException e) {
       return createBadRequestResponse(e.getMessage());
+    } catch (InternalServerErrorException e) {
+      LOGGER.info(e.getMessage());
+      return createErrorResponse(e.getMessage());
     }
   }
 
@@ -251,6 +254,9 @@ public class RESTEndpoint implements RESTService {
       String exceptionMessage = "Unknown error occurred while processing request: ";
       LOGGER.info(exceptionMessage, e);
       throw new InternalServerErrorException(exceptionMessage);
+    } catch (InternalServerErrorException e) {
+      LOGGER.info(e.getMessage());
+      return createErrorResponse(e.getMessage());
     }
   }
 
@@ -401,6 +407,13 @@ public class RESTEndpoint implements RESTService {
 
   private Response createBadRequestResponse(String entityMessage) {
     return Response.status(Status.BAD_REQUEST)
+        .entity("<pre>" + entityMessage + "</pre>")
+        .type(MediaType.TEXT_HTML)
+        .build();
+  }
+
+  private Response createErrorResponse(String entityMessage) {
+    return Response.status(Status.INTERNAL_SERVER_ERROR)
         .entity("<pre>" + entityMessage + "</pre>")
         .type(MediaType.TEXT_HTML)
         .build();

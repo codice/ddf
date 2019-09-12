@@ -277,7 +277,8 @@ public abstract class AbstractCatalogService implements CatalogService {
       URI absolutePath,
       MultivaluedMap<String, String> queryParameters,
       HttpServletRequest httpRequest)
-      throws CatalogServiceException, DataUsageLimitExceededException {
+      throws CatalogServiceException, DataUsageLimitExceededException,
+          InternalServerErrorException {
 
     QueryResponse queryResponse;
     Metacard card = null;

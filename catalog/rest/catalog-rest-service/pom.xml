@@ -139,10 +139,6 @@
                             platform-util,
                             owasp-java-html-sanitizer
                         </Embed-Dependency>
-                        <Import-Package>
-                            !org.codice.ddf.attachment,
-                            *
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
