@@ -46,6 +46,12 @@ public class ConfigurationAdminMigratable implements Migratable {
    */
   private static final String CURRENT_VERSION = "1.0";
 
+  private static final String CONTENT_DIRECTORY_MONITOR_FPID =
+      "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor";
+
+  private static final String URL_RESOURCE_READER_PID =
+      "ddf.catalog.resource.impl.URLResourceReader";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminMigratable.class);
 
   private final ConfigurationAdmin configurationAdmin;
@@ -116,9 +122,23 @@ public class ConfigurationAdminMigratable implements Migratable {
   public void doImport(ImportMigrationContext context) {
     final ImportMigrationConfigurationAdminContext adminContext =
         new ImportMigrationConfigurationAdminContext(
-            context, this, configurationAdmin, getConfigurations(context));
-
+            context, this, configurationAdmin, getConfigurations(context), true);
     adminContext.memoryEntries().forEach(ImportMigrationConfigurationAdminEntry::restore);
+  }
+
+  @Override
+  public void doVersionUpgradeImport(ImportMigrationContext context) {
+    final ImportMigrationConfigurationAdminContext adminContext =
+        new ImportMigrationConfigurationAdminContext(
+            context, this, configurationAdmin, getConfigurations(context), false);
+
+    adminContext
+        .memoryEntries()
+        .filter(
+            s ->
+                CONTENT_DIRECTORY_MONITOR_FPID.equals(s.getFactoryPid())
+                    || s.getPid().equals(URL_RESOURCE_READER_PID))
+        .forEach(ImportMigrationConfigurationAdminEntry::restore);
   }
 
   @SuppressWarnings(
