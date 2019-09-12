@@ -20,7 +20,6 @@ import { Coordinates, Format, Attribute } from '.'
 
 const user = require('../../component/singletons/user-instance.js')
 const properties = require('properties')
-const metacardDefinitions = require('component/singletons/metacard-definitions')
 
 type State = {
   coordinates: Coordinates
