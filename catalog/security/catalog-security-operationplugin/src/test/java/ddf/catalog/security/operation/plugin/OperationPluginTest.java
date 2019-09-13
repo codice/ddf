@@ -17,6 +17,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
@@ -149,6 +150,69 @@ public class OperationPluginTest {
     plugin.processPreCreate(request);
   }
 
+  @Test
+  public void testCreateAction() throws Exception {
+    MockSubject2 subject2 = new MockSubject2(subject, CollectionPermission.CREATE_ACTION);
+    Map<String, Serializable> properties = new HashMap<>();
+    properties.put(SecurityConstants.SECURITY_SUBJECT, subject2);
+    HashMap<String, Set<String>> perms = new HashMap<>();
+    Set<String> roles = new HashSet<>();
+    roles.add("A");
+    perms.put("Roles", roles);
+    properties.put(PolicyPlugin.OPERATION_SECURITY, perms);
+    CreateRequestImpl request = new CreateRequestImpl(new ArrayList<>(), properties);
+
+    plugin.processPreCreate(request);
+  }
+
+  @Test
+  public void testDeleteAction() throws Exception {
+    MockSubject2 subject2 = new MockSubject2(subject, CollectionPermission.DELETE_ACTION);
+    Map<String, Serializable> properties = new HashMap<>();
+    properties.put(SecurityConstants.SECURITY_SUBJECT, subject2);
+    HashMap<String, Set<String>> perms = new HashMap<>();
+    Set<String> roles = new HashSet<>();
+    roles.add("A");
+    perms.put("Roles", roles);
+    properties.put(PolicyPlugin.OPERATION_SECURITY, perms);
+
+    DeleteRequestImpl request = new DeleteRequestImpl(new String[] {""}, properties);
+
+    plugin.processPreDelete(request);
+  }
+
+  @Test
+  public void testUpdateAction() throws Exception {
+    MockSubject2 subject2 = new MockSubject2(subject, CollectionPermission.UPDATE_ACTION);
+    Map<String, Serializable> properties = new HashMap<>();
+    properties.put(SecurityConstants.SECURITY_SUBJECT, subject2);
+    HashMap<String, Set<String>> perms = new HashMap<>();
+    Set<String> roles = new HashSet<>();
+    roles.add("A");
+    perms.put("Roles", roles);
+    properties.put(PolicyPlugin.OPERATION_SECURITY, perms);
+
+    UpdateRequestImpl request = new UpdateRequestImpl(new ArrayList<>(), "", properties);
+
+    plugin.processPreUpdate(request, new HashMap<String, Metacard>());
+  }
+
+  @Test
+  public void testQueryAction() throws Exception {
+    MockSubject2 subject2 = new MockSubject2(subject, CollectionPermission.READ_ACTION);
+    Map<String, Serializable> properties = new HashMap<>();
+    properties.put(SecurityConstants.SECURITY_SUBJECT, subject2);
+    HashMap<String, Set<String>> perms = new HashMap<>();
+    Set<String> roles = new HashSet<>();
+    roles.add("A");
+    perms.put("Roles", roles);
+    properties.put(PolicyPlugin.OPERATION_SECURITY, perms);
+
+    QueryRequestImpl request = new QueryRequestImpl(mock(Query.class), properties);
+
+    plugin.processPreQuery(request);
+  }
+
   private void testPluginWithRole(String role) throws Exception {
     Map<String, Serializable> properties = new HashMap<>();
     properties.put(SecurityConstants.SECURITY_SUBJECT, subject);
@@ -177,6 +241,8 @@ public class OperationPluginTest {
 
   private class MockSubject extends DelegatingSubject implements Subject {
 
+    String expectedAction;
+
     public MockSubject(SecurityManager manager, PrincipalCollection principals) {
       super(principals, true, null, new SimpleSession(UUID.randomUUID().toString()), manager);
     }
@@ -189,6 +255,34 @@ public class OperationPluginTest {
     @Override
     public String getName() {
       return "Mock Subject";
+    }
+
+    public void setExpectedAction(String action) {
+      expectedAction = action;
+    }
+
+    public String getExpectedAction() {
+      return expectedAction;
+    }
+  }
+
+  private class MockSubject2 extends MockSubject {
+    private String expectedAction;
+
+    public MockSubject2(Subject subject, String action) {
+      super(((DelegatingSubject) subject).getSecurityManager(), subject.getPrincipals());
+      expectedAction = CollectionPermission.DELETE_ACTION;
+      expectedAction = action;
+    }
+
+    @Override
+    public boolean isPermitted(Permission perm) {
+      KeyValueCollectionPermission incomingPermission;
+      if (perm instanceof KeyValueCollectionPermission) {
+        incomingPermission = (KeyValueCollectionPermission) perm;
+        return incomingPermission.getAction().equals(expectedAction);
+      }
+      return false;
     }
   }
 }

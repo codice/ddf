@@ -42,20 +42,20 @@ public class OperationPlugin implements AccessPlugin {
 
   @Override
   public CreateRequest processPreCreate(CreateRequest input) throws StopProcessingException {
-    checkOperation(input);
+    checkOperation(input, CollectionPermission.CREATE_ACTION);
     return input;
   }
 
   @Override
   public UpdateRequest processPreUpdate(
       UpdateRequest input, Map<String, Metacard> existingMetacards) throws StopProcessingException {
-    checkOperation(input);
+    checkOperation(input, CollectionPermission.UPDATE_ACTION);
     return input;
   }
 
   @Override
   public DeleteRequest processPreDelete(DeleteRequest input) throws StopProcessingException {
-    checkOperation(input);
+    checkOperation(input, CollectionPermission.DELETE_ACTION);
     return input;
   }
 
@@ -66,7 +66,7 @@ public class OperationPlugin implements AccessPlugin {
 
   @Override
   public QueryRequest processPreQuery(QueryRequest input) throws StopProcessingException {
-    checkOperation(input);
+    checkOperation(input, CollectionPermission.READ_ACTION);
     return input;
   }
 
@@ -77,7 +77,7 @@ public class OperationPlugin implements AccessPlugin {
 
   @Override
   public ResourceRequest processPreResource(ResourceRequest input) throws StopProcessingException {
-    checkOperation(input);
+    checkOperation(input, CollectionPermission.READ_ACTION);
     return input;
   }
 
@@ -94,7 +94,7 @@ public class OperationPlugin implements AccessPlugin {
    * @param operation The operation to check
    * @throws StopProcessingException
    */
-  private void checkOperation(Operation operation) throws StopProcessingException {
+  private void checkOperation(Operation operation, String action) throws StopProcessingException {
     if (!operation.hasProperties()
         || !operation.containsPropertyName(PolicyPlugin.OPERATION_SECURITY)) {
       return;
@@ -112,7 +112,7 @@ public class OperationPlugin implements AccessPlugin {
     Map<String, Set<String>> perms =
         (Map<String, Set<String>>) operation.getPropertyValue(PolicyPlugin.OPERATION_SECURITY);
     KeyValueCollectionPermission securityPermission =
-        new KeyValueCollectionPermission(CollectionPermission.READ_ACTION, perms);
+        new KeyValueCollectionPermission(action, perms);
 
     if (!subject.isPermitted(securityPermission)) {
       throw new StopProcessingException(
