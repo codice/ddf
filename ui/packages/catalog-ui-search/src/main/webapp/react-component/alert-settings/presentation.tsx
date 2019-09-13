@@ -28,7 +28,7 @@ type Props = {
   onPersistenceChange: (v: Value) => any
 }
 
-const Root = styled<{}, 'div'>('div')`
+const Root = styled.div`
   width: 100%;
   height: 100%;
   overflow: auto;

@@ -25,7 +25,7 @@ type Props = {
   children?: any
 }
 
-const ModifiedMenuItem = styled<Props>(MenuItem)`
+const ModifiedMenuItem = styled(MenuItem)<Props>`
   display: flex;
   align-items: center;
   justify-content: flex-start;

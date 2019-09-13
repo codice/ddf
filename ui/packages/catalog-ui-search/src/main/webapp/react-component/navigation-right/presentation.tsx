@@ -34,7 +34,7 @@ const unseenNotifications = keyframes`
   }
 `
 
-const Root = styled<Props, 'div'>('div')`
+const Root = styled.div<Props>`
   ${CustomElement} white-space: nowrap;
   overflow: hidden;
 

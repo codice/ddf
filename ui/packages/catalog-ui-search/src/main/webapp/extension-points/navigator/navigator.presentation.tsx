@@ -40,18 +40,15 @@ export const Divider = () => {
   return <div className="is-divider" />
 }
 
-export const Root = styled<Props, 'div'>('div')`
+export const Root = styled.div<Props>`
   height: 100%;
   width: 100%;
   overflow: auto;
 `
 
-export const WorkspacesSave = styled<
-  {
-    isSaved: Props['isSaved']
-  },
-  'div'
->('div')`
+export const WorkspacesSave = styled.div<{
+  isSaved: Props['isSaved']
+}>`
   position: absolute;
   right: 0px;
   top: 0px;
@@ -77,12 +74,9 @@ export const WorkspacesIndicator = styled.div`
   display: inline-block;
 `
 
-export const SourcesIndicator = styled<
-  {
-    hasUnavailableSources: Props['hasUnavailableSources']
-  },
-  'span'
->('span')`
+export const SourcesIndicator = styled.span<{
+  hasUnavailableSources: Props['hasUnavailableSources']
+}>`
   opacity: ${props => (props.hasUnavailableSources ? '1' : '0')};
   transform: ${props =>
     props.hasUnavailableSources ? 'scale(1)' : 'scale(0)'};

@@ -425,7 +425,7 @@ module.exports = Marionette.LayoutView.extend({
   handleEmpty() {
     this.$el.toggleClass(
       'is-empty',
-      this.options.selectionInterface.getActiveSearchResults().length === 0
+      this.options.selectionInterface.getCurrentQuery() === undefined
     )
   },
   handleResize() {
@@ -460,23 +460,14 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.listenTo(
       this.options.selectionInterface.getSelectedResults(),
-      'update',
+      'update add remove update',
       this.updateHistogram
     )
+
     this.listenTo(
-      this.options.selectionInterface.getSelectedResults(),
-      'add',
-      this.updateHistogram
-    )
-    this.listenTo(
-      this.options.selectionInterface.getSelectedResults(),
-      'remove',
-      this.updateHistogram
-    )
-    this.listenTo(
-      this.options.selectionInterface.getSelectedResults(),
+      this.options.selectionInterface.getActiveSearchResults(),
       'reset',
-      this.updateHistogram
+      this.onRender
     )
 
     this.listenTo(

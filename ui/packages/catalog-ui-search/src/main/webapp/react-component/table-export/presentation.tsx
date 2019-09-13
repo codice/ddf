@@ -20,7 +20,7 @@ import styled from 'styled-components'
 import Number from '../input-wrappers/number'
 const properties = require('../../js/properties.js')
 
-const Root = styled<{}, 'div'>('div')`
+const Root = styled.div`
   display: block;
   height: 100%;
   width: 100%;

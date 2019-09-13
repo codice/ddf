@@ -37,7 +37,7 @@ type Props = {
   isShareable: boolean
 }
 
-const Root = styled<{}, 'div'>('div')`
+const Root = styled.div`
   width: 100%;
   color: ${props => readableColor(props.theme.background)};
 `
