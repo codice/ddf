@@ -21,6 +21,7 @@ import static spark.Spark.get;
 import static spark.Spark.put;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ddf.catalog.filter.FilterBuilder;
@@ -216,10 +217,20 @@ public class UserApplication implements SparkApplication {
   }
 
   private Map mapAttributes(Map<String, Object> persistentItem) {
+    Object srcs = persistentItem.getOrDefault("src_txt", Collections.emptySet());
+    if (srcs instanceof String) {
+      srcs = ImmutableSet.of((String) srcs);
+    }
+
+    Object metacardIds = persistentItem.getOrDefault("metacardIds_txt", Collections.emptySet());
+    if (metacardIds instanceof String) {
+      metacardIds = ImmutableSet.of((String) metacardIds);
+    }
+
     return new ImmutableMap.Builder<String, Object>()
         .put("id", persistentItem.get("id_txt"))
-        .put("src", persistentItem.getOrDefault("src_txt", Collections.emptySet()))
-        .put("metacardIds", persistentItem.getOrDefault("metacardIds_txt", Collections.emptySet()))
+        .put("src", srcs)
+        .put("metacardIds", metacardIds)
         .put("queryId", persistentItem.getOrDefault("queryId_txt", ""))
         .put("serverGenerated", persistentItem.getOrDefault("serverGenerated_txt", "true"))
         .put(
