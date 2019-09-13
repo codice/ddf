@@ -112,7 +112,7 @@ module.exports = TabsView.extend({
   },
   determineContent() {
     if (this.selectionInterface.getSelectedResults().length === 1) {
-      this.determineContentFromType()
+      setTimeout(() => this.determineContentFromType(), 0)
     }
   },
   determineAvailableContent() {
