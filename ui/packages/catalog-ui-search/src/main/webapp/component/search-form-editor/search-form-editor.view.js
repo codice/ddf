@@ -18,6 +18,7 @@ import { ChangeBackground } from '../../react-component/styles/mixins/change-bac
 
 const Marionette = require('marionette')
 const MapView = require('../visualization/maps/openlayers/openlayers.view.js')
+const properties = require('../../js/properties.js')
 const Router = require('../router/router.js')
 const SearchFormCollection = require('../search-form/search-form-collection-instance')
 const SearchFormModel = require('../search-form/search-form.js')
@@ -29,6 +30,10 @@ const wreqr = require('../../js/wreqr.js')
 const user = require('../singletons/user-instance.js')
 const cql = require('../../js/cql.js')
 const announcement = require('../announcement/index.jsx')
+
+const formTitle = properties.i18n['form.title']
+  ? properties.i18n['form.title'].toLowerCase()
+  : 'form'
 
 const Root = styled.div`
   display: flex;
@@ -131,7 +136,7 @@ module.exports = Marionette.LayoutView.extend({
             announcement.announce(
               {
                 title: 'Some fields need your attention',
-                message: 'Search form title cannot be blank.',
+                message: `Search ${formTitle} title cannot be blank.`,
                 type: 'error',
               },
               2500
@@ -211,14 +216,14 @@ module.exports = Marionette.LayoutView.extend({
   successMessage() {
     announcement.announce({
       title: 'Success',
-      message: 'Search form successfully saved',
+      message: `Search ${formTitle} successfully saved`,
       type: 'success',
     })
   },
   errorMessage() {
     announcement.announce({
       title: 'Error',
-      message: 'Search form failed to save',
+      message: `Search ${formTitle} failed to save`,
       type: 'error',
     })
   },

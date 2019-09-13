@@ -21,8 +21,16 @@ const SearchFormInteractionsDropdownView = require('../dropdown/search-form-inte
 const wreqr = require('../../exports/wreqr.js')
 const announcement = require('../announcement')
 const Common = require('../../js/Common.js')
+const properties = require('../../js/properties')
 import React from 'react'
 import styled from 'styled-components'
+
+const formTitle = properties.i18n['form.title']
+  ? properties.i18n['form.title'].toLowerCase()
+  : 'form'
+const formsTitle = properties.i18n['forms.title']
+  ? properties.i18n['forms.title'].toLowerCase()
+  : 'forms'
 
 const Item = styled(({ className, ...props }) => {
   return <div className={className + ' is-button'} {...props} />
@@ -122,7 +130,9 @@ const CustomSearchForm = props => {
         <span className="fa fa-cloud" />
         {' ' + createdBy}
       </Author>
-      <Actions title="Shows a list of actions to take on the search forms" />
+      <Actions
+        title={'Shows a list of actions to take on the search ' + formsTitle}
+      />
     </RelativeWrapper>
   )
 }
@@ -147,7 +157,11 @@ export default Marionette.LayoutView.extend({
             <span className="fa fa-cloud" />
             {' ' + props.createdBy}
           </Author>
-          <Actions title="Shows a list of actions to take on the result forms" />
+          <Actions
+            title={
+              'Shows a list of actions to take on the result ' + formsTitle
+            }
+          />
         </RelativeWrapper>
       )
     }
@@ -193,7 +207,7 @@ export default Marionette.LayoutView.extend({
       announcement.announce(
         {
           title: 'Error',
-          message: 'System Search forms are not editable.',
+          message: `System search ${formsTitle} are not editable.`,
           type: 'error',
         },
         3000
@@ -217,7 +231,7 @@ export default Marionette.LayoutView.extend({
       announcement.announce(
         {
           title: 'Error',
-          message: `You have read-only permission on search form ${this.model.get(
+          message: `You have read-only permission on search ${formTitle} ${this.model.get(
             'title'
           )}.`,
           type: 'error',

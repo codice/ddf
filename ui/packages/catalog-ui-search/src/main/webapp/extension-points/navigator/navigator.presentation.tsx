@@ -17,6 +17,7 @@ import { FormattedMessage } from 'react-intl'
 import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 const SaveView = require('../../component/save/workspaces/workspaces-save.view')
 const UnsavedIndicatorView = require('../../component/unsaved-indicator/workspaces/workspaces-unsaved-indicator.view')
+const properties = require('../../js/properties')
 import styled from 'styled-components'
 import {
   Button,
@@ -245,7 +246,7 @@ export const SearchFormsLink = ({
       }}
     >
       <span className="fa cf cf-search-forms" />
-      <span>Search Forms</span>
+      <span>Search {properties.i18n['forms.title'] || 'Forms'}</span>
       <div className="forms-indicator" />
     </Link>
   )

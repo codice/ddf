@@ -21,6 +21,11 @@ import { lighten, readableColor, transparentize } from 'polished'
 import styled from 'styled-components'
 const Backbone = require('backbone')
 const SearchFormCollection = require('../search-form/search-form-collection-instance')
+const properties = require('../../js/properties')
+
+const formsTitle = properties.i18n['forms.title']
+  ? properties.i18n['forms.title'].toLowerCase()
+  : 'forms'
 
 const ListContainer = styled.div`
   max-height: 50vh;
@@ -56,7 +61,9 @@ const WarningItem = styled(ListItem)`
 
 const NothingFound = () => <WarningItem>Nothing Found</WarningItem>
 
-const NoSearchForms = () => <ListItem>No search forms are available</ListItem>
+const NoSearchForms = () => (
+  <ListItem>No search {formsTitle} are available</ListItem>
+)
 
 const SearchFormItem = ({ title, onClick }) => {
   return <HoverableListItem onClick={onClick}>{title}</HoverableListItem>
