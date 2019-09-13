@@ -12,36 +12,36 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react'
+import React, { useState, useEffect } from 'react'
+import EnumInput from '../../../../inputs/enum-input'
+import { deserializeValue } from '../textFilterHelper'
 import styled from 'styled-components'
-import { getFilteredAttributeList } from './filterHelper'
-import EnumInput from '../inputs/enum-input'
 
 const Root = styled.div`
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: ${({ theme }) => theme.minimumSpacing};
+  min-width: ${({ theme }) => `calc(19*${theme.minimumFontSize})`};
 `
 
-const FilterAttributeDropdown = ({
-  onChange,
-  includedAttributes,
-  editing,
-  value,
-}) => {
+const FilterEnumInput = props => {
+  const [value, setValue] = useState(deserializeValue(props.value))
+
+  useEffect(
+    () => {
+      props.onChange(value)
+    },
+    [value]
+  )
+
   return (
     <Root>
-      {editing ? (
-        <EnumInput
-          value={value}
-          suggestions={getFilteredAttributeList(includedAttributes)}
-          onChange={onChange}
-        />
-      ) : (
-        value
-      )}
+      <EnumInput
+        allowCustom
+        matchCase={props.matchCase}
+        suggestions={props.suggestions}
+        onChange={setValue}
+        value={value}
+      />
     </Root>
   )
 }
 
-export default FilterAttributeDropdown
+export default FilterEnumInput

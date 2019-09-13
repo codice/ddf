@@ -12,36 +12,19 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react'
-import styled from 'styled-components'
-import { getFilteredAttributeList } from './filterHelper'
-import EnumInput from '../inputs/enum-input'
+import { matchesFilter } from '../../../component/select/filterHelper'
 
-const Root = styled.div`
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: ${({ theme }) => theme.minimumSpacing};
-`
-
-const FilterAttributeDropdown = ({
-  onChange,
-  includedAttributes,
-  editing,
-  value,
-}) => {
-  return (
-    <Root>
-      {editing ? (
-        <EnumInput
-          value={value}
-          suggestions={getFilteredAttributeList(includedAttributes)}
-          onChange={onChange}
-        />
-      ) : (
-        value
-      )}
-    </Root>
+export const getFilteredSuggestions = (input, suggestions, matchCase) => {
+  return suggestions.filter(suggestion =>
+    matchesFilter(input, suggestion.label, matchCase)
   )
 }
 
-export default FilterAttributeDropdown
+export const inputMatchesSuggestions = (input, suggestions, matchCase) => {
+  if (matchCase) {
+    return suggestions.find(({ label }) => label === input)
+  }
+  return suggestions.find(
+    ({ label }) => label.toLowerCase() === input.toLowerCase()
+  )
+}
