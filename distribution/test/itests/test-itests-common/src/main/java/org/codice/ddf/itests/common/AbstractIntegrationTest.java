@@ -553,8 +553,8 @@ public abstract class AbstractIntegrationTest {
                 + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
                 + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
                 + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype,"
-                + "http://artifacts.codice.org/content/repositories/releases,"
-                + "http://artifacts.codice.org/content/repositories/thirdparty"),
+                + "http://artifacts.codice.org/content/repositories/releases@id=codice-releases,"
+                + "http://artifacts.codice.org/content/repositories/thirdparty@id=codice-thirdparty"),
         when(System.getProperty(MVN_LOCAL_REPO) != null)
             .useOptions(
                 editConfigurationFilePut(
