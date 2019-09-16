@@ -366,7 +366,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
         ImmutableMap.<String, Object>builder()
             .put(Core.TITLE, "title")
             .put(QUERY_CQL, "query")
-            .put("sources", sources)
+            .put("src", sources)
             .build();
 
     Response res =
@@ -376,7 +376,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
     Map body = parse(res);
     String id = (String) body.get("id");
     assertNotNull(id);
-    assertThat(body.get("sources"), is(sources));
+    assertThat(body.get("src"), is(sources));
   }
 
   @Test
