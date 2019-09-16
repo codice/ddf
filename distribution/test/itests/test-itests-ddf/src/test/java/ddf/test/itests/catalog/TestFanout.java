@@ -15,15 +15,16 @@ package ddf.test.itests.catalog;
 
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
+import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOURCE_FACTORY_PID;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSourceProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
-import static org.junit.Assert.fail;
 
 import com.jayway.restassured.path.json.JsonPath;
 import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.Source;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -105,27 +106,17 @@ public class TestFanout extends AbstractIntegrationTest {
             CSW_FEDERATED_SOURCE_FACTORY_PID,
             getCswSourceProperties(CSW_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager()));
 
-    long timeout = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10);
-    boolean available = false;
-    FederatedSource source = null;
-    while (!available) {
-      if (source == null) {
-        source =
-            getServiceManager()
-                .getServiceReferences(FederatedSource.class, null)
-                .stream()
-                .map(getServiceManager()::getService)
-                .filter(src -> CSW_SOURCE_ID.equals(src.getId()))
-                .findFirst()
-                .orElse(null);
-      } else {
-        available = source.isAvailable();
-      }
-      if (System.currentTimeMillis() > timeout) {
-        fail("CSW source failed to initialize in time.");
-      }
-      Thread.sleep(1000);
-    }
+    await("Waiting for CSW source to initialize")
+        .atMost(10, TimeUnit.MINUTES)
+        .pollDelay(1, TimeUnit.SECONDS)
+        .until(
+            () ->
+                getServiceManager()
+                    .getServiceReferences(FederatedSource.class, null)
+                    .stream()
+                    .map(getServiceManager()::getService)
+                    .filter(src -> CSW_SOURCE_ID.equals(src.getId()))
+                    .anyMatch(Source::isAvailable));
   }
 
   @Test

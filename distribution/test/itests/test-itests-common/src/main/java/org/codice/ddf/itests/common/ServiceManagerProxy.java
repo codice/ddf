@@ -19,6 +19,8 @@ import static org.awaitility.Awaitility.with;
 import ddf.security.service.SecurityManager;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.security.common.Security;
 
@@ -29,7 +31,7 @@ public class ServiceManagerProxy implements InvocationHandler {
 
   private ServiceManager serviceManager;
 
-  public ServiceManagerProxy(ServiceManager serviceManager) {
+  ServiceManagerProxy(ServiceManager serviceManager) {
     this.serviceManager = serviceManager;
   }
 
@@ -41,19 +43,11 @@ public class ServiceManagerProxy implements InvocationHandler {
         .await()
         .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, SECONDS)
         .until(() -> serviceManager.getServiceReference(SecurityManager.class) != null);
-    Subject subject = null;
-    int retry = 0;
-    while (subject == null && retry < 10) {
-      try {
-        subject = SECURITY.runAsAdmin(SECURITY::getSystemSubject);
-      } catch (Exception e) {
-        Thread.sleep(1000);
-        retry++;
-      }
-    }
-    if (subject == null) {
-      throw new RuntimeException("Unable to generate system subject");
-    }
+
+    RetryPolicy retryPolicy =
+        new RetryPolicy().withMaxRetries(10).withDelay(1, SECONDS).retryWhen(null);
+    Subject subject =
+        Failsafe.with(retryPolicy).get(() -> SECURITY.runAsAdmin(SECURITY::getSystemSubject));
     return subject.execute(() -> method.invoke(serviceManager, args));
   }
 }

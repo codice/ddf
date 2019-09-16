@@ -18,6 +18,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.TRANSFORMER_XML;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.delete;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
@@ -40,7 +41,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import com.jayway.restassured.path.json.JsonPath;
 import ddf.catalog.data.Metacard;
@@ -165,7 +165,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
   private static final String SDK_SOAP_CONTEXT = "/services/sdk";
 
-  /** ************** USERS *************** */
+  /** ************* USERS *************** */
   private static final String USER_PASSWORD = "password1";
 
   private static final String A_USER = "slang";
@@ -1410,13 +1410,10 @@ public class TestSecurity extends AbstractIntegrationTest {
   }
 
   private void waitForSecurityHandlers(String url) throws InterruptedException {
-    long stop = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5);
-    while (get(url).statusCode() == 503) {
-      Thread.sleep(1000);
-      if (System.currentTimeMillis() > stop) {
-        fail("Failed waiting for security handlers to become available.");
-      }
-    }
+    await("Waiting for security handlers to become available")
+        .atMost(5, TimeUnit.MINUTES)
+        .pollDelay(1, TimeUnit.SECONDS)
+        .until(() -> get(url).statusCode() != 503);
   }
 
   public String sendPermittedRequest(String jolokiaEndpoint) {
