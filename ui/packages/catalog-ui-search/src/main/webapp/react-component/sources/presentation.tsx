@@ -50,9 +50,10 @@ type Source = {
 type Props = {
   sources: Source[]
   amountDown: number
+  refreshSources: () => void
 }
 
-export default hot(module)(({ sources, amountDown }: Props) => {
+export default hot(module)(({ sources, amountDown, refreshSources }: Props) => {
   return (
     <Root>
       <SourcesCenter>
@@ -62,6 +63,7 @@ export default hot(module)(({ sources, amountDown }: Props) => {
             <SourceItem
               key={source.id}
               sourceActions={source.sourceActions}
+              refreshSources={refreshSources}
               id={source.id}
               available={source.available}
             />
