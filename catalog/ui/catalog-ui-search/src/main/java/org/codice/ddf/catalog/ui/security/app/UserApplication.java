@@ -200,7 +200,7 @@ public class UserApplication implements SparkApplication {
     return Collections.emptyMap();
   }
 
-  private List getSubjectNotifications(Subject subject) {
+  private List<Map<String, Object>> getSubjectNotifications(Subject subject) {
     String userid = subjectIdentity.getUniqueIdentifier(subject);
     try {
       String filter = String.format("user = '%s'", userid);
@@ -216,25 +216,24 @@ public class UserApplication implements SparkApplication {
     return Collections.emptyList();
   }
 
-  private Map mapAttributes(Map<String, Object> persistentItem) {
-    Object srcs = persistentItem.getOrDefault("src_txt", Collections.emptySet());
+  private Map<String, Object> mapAttributes(Map<String, Object> persistentItem) {
+    persistentItem = PersistentItem.stripSuffixes(persistentItem);
+    Object srcs = persistentItem.getOrDefault("src", Collections.emptySet());
     if (srcs instanceof String) {
       srcs = ImmutableSet.of((String) srcs);
     }
 
-    Object metacardIds = persistentItem.getOrDefault("metacardIds_txt", Collections.emptySet());
+    Object metacardIds = persistentItem.getOrDefault("metacardIds", Collections.emptySet());
     if (metacardIds instanceof String) {
       metacardIds = ImmutableSet.of((String) metacardIds);
     }
-
     return new ImmutableMap.Builder<String, Object>()
-        .put("id", persistentItem.get("id_txt"))
+        .put("id", persistentItem.get("id"))
         .put("src", srcs)
         .put("metacardIds", metacardIds)
-        .put("queryId", persistentItem.getOrDefault("queryId_txt", ""))
-        .put("serverGenerated", persistentItem.getOrDefault("serverGenerated_txt", "true"))
-        .put(
-            "when", persistentItem.getOrDefault("when_lng", DateTime.now().toInstant().getMillis()))
+        .put("queryId", persistentItem.getOrDefault("queryId", ""))
+        .put("serverGenerated", persistentItem.getOrDefault("serverGenerated", "true"))
+        .put("when", persistentItem.getOrDefault("when", DateTime.now().toInstant().getMillis()))
         .build();
   }
 
@@ -260,6 +259,7 @@ public class UserApplication implements SparkApplication {
 
   private void deleteNotifications(List<String> ids) {
     if (ids.isEmpty()) {
+      LOGGER.debug("Received empty list of notification ids to delete");
       return;
     }
     List<Filter> idsToDelete =
@@ -271,7 +271,7 @@ public class UserApplication implements SparkApplication {
           PersistenceType.NOTIFICATION_TYPE.toString(),
           ECQL.toCQL(filterBuilder.anyOf(idsToDelete)));
     } catch (PersistenceException e) {
-      LOGGER.info(
+      LOGGER.debug(
           "PersistenceException while trying to delete persisted notifications with ids {} ",
           ids,
           e);
