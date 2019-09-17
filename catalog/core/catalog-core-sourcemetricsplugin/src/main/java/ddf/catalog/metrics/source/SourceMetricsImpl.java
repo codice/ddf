@@ -30,9 +30,9 @@ import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
 import ddf.metrics.collector.rrd4j.RrdJmxCollector;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -84,6 +84,12 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
    */
   public static final String QUERIES_TOTAL_RESULTS_SCOPE = "Queries.TotalResults";
 
+  /**
+   * Name of the JMX MBean scope for source-level metrics tracking latency in milliseconds while
+   * querying a specific {@link Source}
+   */
+  public static final String QUERIES_LATENCY_SCOPE = "Queries.Latency";
+
   public static final String DERIVE_DATA_SOURCE_TYPE = "DERIVE";
 
   public static final String GAUGE_DATA_SOURCE_TYPE = "GAUGE";
@@ -91,6 +97,8 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
   public static final String COUNT_MBEAN_ATTRIBUTE_NAME = "Count";
 
   public static final String MEAN_MBEAN_ATTRIBUTE_NAME = "Mean";
+
+  private static final String METRICS_SOURCE_ELAPSED_PREFIX = "metrics.source.elapsed.";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SourceMetricsImpl.class);
 
@@ -170,38 +178,53 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
       Set<ProcessingDetails> processingDetails = input.getProcessingDetails();
       List<Result> results = input.getResults();
 
-      // Total Exceptions metric per Source
-      Iterator<ProcessingDetails> iterator = processingDetails.iterator();
-      while (iterator.hasNext()) {
-        ProcessingDetails next = iterator.next();
-        if (next != null && next.getException() != null) {
-          String sourceId = next.getSourceId();
-          updateMetric(sourceId, EXCEPTIONS_SCOPE, 1);
-        }
-      }
-
-      Map<String, Integer> totalHitsPerSource = new HashMap<String, Integer>();
-
-      for (Result result : results) {
-        String sourceId = result.getMetacard().getSourceId();
-        if (totalHitsPerSource.containsKey(sourceId)) {
-          totalHitsPerSource.put(sourceId, totalHitsPerSource.get(sourceId) + 1);
-        } else {
-          // First detection of this new source ID in the results list -
-          // initialize the Total Query Result Count for this Source
-          totalHitsPerSource.put(sourceId, 1);
-        }
-      }
-
-      // Total Query Results metric per Source
-      for (Map.Entry<String, Integer> source : totalHitsPerSource.entrySet()) {
-        updateMetric(source.getKey(), QUERIES_TOTAL_RESULTS_SCOPE, source.getValue());
-      }
+      updateExceptionsMetric(processingDetails);
+      updateTotalHitsMetric(results);
+      updateLatencyMetric(input);
     }
 
     LOGGER.trace("EXITING: process (for PostFederatedQueryPlugin)");
 
     return input;
+  }
+
+  private void updateExceptionsMetric(Set<ProcessingDetails> processingDetails) {
+    for (ProcessingDetails next : processingDetails) {
+      if (next != null && next.getException() != null) {
+        String sourceId = next.getSourceId();
+        updateMetric(sourceId, EXCEPTIONS_SCOPE, 1);
+      }
+    }
+  }
+
+  private void updateTotalHitsMetric(List<Result> results) {
+    Map<String, Integer> totalHitsPerSource = new HashMap<>();
+
+    for (Result result : results) {
+      String sourceId = result.getMetacard().getSourceId();
+      if (totalHitsPerSource.containsKey(sourceId)) {
+        totalHitsPerSource.put(sourceId, totalHitsPerSource.get(sourceId) + 1);
+      } else {
+        // First detection of this new source ID in the results list -
+        // initialize the Total Query Result Count for this Source
+        totalHitsPerSource.put(sourceId, 1);
+      }
+    }
+
+    for (Map.Entry<String, Integer> source : totalHitsPerSource.entrySet()) {
+      updateMetric(source.getKey(), QUERIES_TOTAL_RESULTS_SCOPE, source.getValue());
+    }
+  }
+
+  private void updateLatencyMetric(QueryResponse input) {
+    for (Map.Entry<String, Serializable> property : input.getProperties().entrySet()) {
+      String key = property.getKey();
+      if (key.startsWith(METRICS_SOURCE_ELAPSED_PREFIX)) {
+        String source = key.substring(METRICS_SOURCE_ELAPSED_PREFIX.length());
+        updateMetric(source, QUERIES_LATENCY_SCOPE, (int) property.getValue());
+        break;
+      }
+    }
   }
 
   public void updateMetric(String sourceId, String name, int incrementAmount) {
@@ -253,11 +276,13 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
           String oldSourceId = sourceToSourceIdMap.get(source);
           LOGGER.debug("CASE 2: source {} exists but has oldSourceId = {}", sourceId, oldSourceId);
           deleteMetric(oldSourceId, QUERIES_TOTAL_RESULTS_SCOPE);
+          deleteMetric(oldSourceId, QUERIES_LATENCY_SCOPE);
           deleteMetric(oldSourceId, QUERIES_SCOPE);
           deleteMetric(oldSourceId, EXCEPTIONS_SCOPE);
 
           // Create metrics for Source with new sourceId
           createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
+          createMetric(sourceId, QUERIES_LATENCY_SCOPE, MetricType.HISTOGRAM);
           createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
           createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
 
@@ -272,6 +297,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
           // Source exists.)
           LOGGER.debug("CASE 3: New source {} detected - creating metrics", sourceId);
           createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
+          createMetric(sourceId, QUERIES_LATENCY_SCOPE, MetricType.HISTOGRAM);
           createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
           createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
 
@@ -337,6 +363,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     LOGGER.debug("sourceId = {},    props = {}", sourceId, props);
 
     deleteMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE);
+    deleteMetric(sourceId, QUERIES_LATENCY_SCOPE);
     deleteMetric(sourceId, QUERIES_SCOPE);
     deleteMetric(sourceId, EXCEPTIONS_SCOPE);
 
@@ -359,6 +386,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     LOGGER.debug("sourceId = {}", sourceId);
 
     createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
+    createMetric(sourceId, QUERIES_LATENCY_SCOPE, MetricType.HISTOGRAM);
     createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
     createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
 
