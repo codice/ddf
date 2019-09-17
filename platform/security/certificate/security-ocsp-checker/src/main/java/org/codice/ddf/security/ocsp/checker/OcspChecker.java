@@ -44,6 +44,7 @@ import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.bouncycastle.asn1.DERIA5String;
+import org.bouncycastle.asn1.ocsp.BasicOCSPResponse;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AccessDescription;
 import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
@@ -58,6 +59,7 @@ import org.bouncycastle.cert.ocsp.OCSPException;
 import org.bouncycastle.cert.ocsp.OCSPReq;
 import org.bouncycastle.cert.ocsp.OCSPReqBuilder;
 import org.bouncycastle.cert.ocsp.OCSPResp;
+import org.bouncycastle.cert.ocsp.Req;
 import org.bouncycastle.cert.ocsp.RevokedStatus;
 import org.bouncycastle.cert.ocsp.SingleResp;
 import org.bouncycastle.cert.ocsp.UnknownStatus;
@@ -85,7 +87,7 @@ public class OcspChecker implements OcspService {
   private final EventAdmin eventAdmin;
 
   private boolean ocspEnabled; // metatype value
-  private List<String> ocspServerUrls; // metatype value
+  private List<String> ocspServerUrls = new ArrayList<>(); // metatype value
 
   public OcspChecker(ClientFactoryFactory factory, EventAdmin eventAdmin) {
     this.factory = factory;
@@ -107,6 +109,7 @@ public class OcspChecker implements OcspService {
       return true;
     }
 
+    LOGGER.debug("OCSP check for {} certificate(s)", certs == null ? "0" : certs.length);
     for (X509Certificate cert : certs) {
       try {
         Certificate certificate = convertToBouncyCastleCert(cert);
@@ -124,6 +127,7 @@ public class OcspChecker implements OcspService {
               revokedStatusUrl);
           return false;
         }
+        LOGGER.debug("No certificates revoked by the OCSP server");
       } catch (OcspCheckerException e) {
         postErrorEvent(e.getMessage());
       }
@@ -285,6 +289,10 @@ public class OcspChecker implements OcspService {
     // try and pull an OCSP server url off of the cert
     urlsToCheck.addAll(getOcspUrlsFromCert(cert));
 
+    if (LOGGER.isTraceEnabled()) {
+      logRequest(ocspRequest);
+    }
+
     Map<String, CertificateStatus> ocspStatuses = new HashMap<>();
 
     for (String ocspServerUrl : urlsToCheck) {
@@ -298,9 +306,13 @@ public class OcspChecker implements OcspService {
                   .accept("application/ocsp-response")
                   .type("application/ocsp-request");
 
+          LOGGER.debug("Sending OCSP request to URL: {}", ocspServerUrl);
           Response response = client.post(ocspRequest.getEncoded());
           OCSPResp ocspResponse = createOcspResponse(response);
-          ocspStatuses.put(ocspServerUrl, getStatusFromOcspResponse(ocspResponse));
+          if (LOGGER.isTraceEnabled()) {
+            logResponse(ocspResponse);
+          }
+          ocspStatuses.put(ocspServerUrl, getStatusFromOcspResponse(ocspResponse, cert));
           continue;
         } catch (IOException | OcspCheckerException | ProcessingException e) {
           LOGGER.debug(
@@ -382,7 +394,8 @@ public class OcspChecker implements OcspService {
    * @return the {@link CertificateStatus} from the given {@param ocspResponse}. Returns an {@link
    *     UnknownStatus} if the status could not be found.
    */
-  private CertificateStatus getStatusFromOcspResponse(OCSPResp ocspResponse) {
+  private CertificateStatus getStatusFromOcspResponse(
+      OCSPResp ocspResponse, X509Certificate certificate) {
     try {
       BasicOCSPResp basicResponse = (BasicOCSPResp) ocspResponse.getResponseObject();
 
@@ -394,14 +407,26 @@ public class OcspChecker implements OcspService {
       if (singleResps == null) {
         return new UnknownStatus();
       }
-
-      SingleResp response = Arrays.stream(singleResps).findFirst().orElse(null);
+      SingleResp response =
+          Arrays.stream(singleResps)
+              .filter(singleResp -> singleResp.getCertID() != null)
+              .filter(
+                  singleResp ->
+                      singleResp
+                          .getCertID()
+                          .getSerialNumber()
+                          .equals(certificate.getSerialNumber()))
+              .findFirst()
+              .orElse(null);
       if (response == null) {
+        LOGGER.debug("Certificate status from OCSP response is unknown.");
         return new UnknownStatus();
       }
-
+      if (response.getCertStatus() == null) {
+        LOGGER.debug("Certificate status from OCSP response is good.");
+        return CertificateStatus.GOOD;
+      }
       return response.getCertStatus();
-
     } catch (OCSPException e) {
       return new UnknownStatus();
     }
@@ -446,6 +471,193 @@ public class OcspChecker implements OcspService {
     LOGGER.debug(errorMessage);
   }
 
+  private void logRequest(OCSPReq ocspRequest) {
+    StringBuilder logBuilder = new StringBuilder();
+    logBuilder.append("OCSP Request:\n");
+    logBuilder.append("  TBSRequest:\n");
+    logBuilder.append(
+        "    version: " + getValueOrDefault(ocspRequest.getVersionNumber(), "") + "\n");
+    logBuilder.append(
+        "    requestorName: "
+            + getValueOrDefault(ocspRequest.getRequestorName(), "").toString()
+            + "\n");
+    logBuilder.append("    requestList:\n");
+    Req[] requests = ocspRequest.getRequestList();
+
+    if (requests != null) {
+      for (int i = 0; i < requests.length; i++) {
+        logBuilder.append("      Certificate " + i + "\n");
+        CertificateID cert = requests[i].getCertID();
+        if (cert != null) {
+          logBuilder.append(
+              "        hashAlgorithm: "
+                  + getValueOrDefault(cert.getHashAlgOID(), "").toString()
+                  + "\n");
+          logBuilder.append(
+              "        issuerNameHash: "
+                  + getValueOrDefault(Arrays.toString(cert.getIssuerNameHash()), "")
+                  + "\n");
+          logBuilder.append(
+              "        issuerKeyHash: "
+                  + getValueOrDefault(Arrays.toString(cert.getIssuerKeyHash()), "")
+                  + "\n");
+          logBuilder.append(
+              "        cert serial number: "
+                  + getValueOrDefault(cert.getSerialNumber(), "").toString()
+                  + "\n");
+        }
+      }
+    }
+    LOGGER.trace(logBuilder.toString());
+  }
+
+  private void logResponse(OCSPResp response) {
+    BasicOCSPResp basicOCSPResp;
+    BasicOCSPResponse basicOCSPResponse;
+    try {
+      basicOCSPResp = (BasicOCSPResp) response.getResponseObject();
+      basicOCSPResponse =
+          BasicOCSPResponse.getInstance(
+              ((BasicOCSPResp) response.getResponseObject()).getEncoded());
+      StringBuilder logBuilder = new StringBuilder();
+      logBuilder.append("OCSP Response: \n");
+      logBuilder.append("  responseStatus: " + getValueOrDefault(response.getStatus(), "") + "\n");
+      logBuilder.append("  responseBytes:\n");
+      logBuilder.append(
+          "  responseType: "
+              + getValueOrDefault(basicOCSPResponse, "").getClass().getSimpleName()
+              + "\n");
+      logBuilder.append("    response:\n");
+      logBuilder.append("      tbsResponseData:\n");
+      if (basicOCSPResponse.getTbsResponseData() != null) {
+        logBuilder.append(
+            "        version: "
+                + getValueOrDefault(basicOCSPResponse.getTbsResponseData().getVersion(), "")
+                    .toString()
+                + "\n");
+        logBuilder.append("        responderId:\n");
+        if (basicOCSPResponse.getTbsResponseData().getResponderID() != null) {
+          logBuilder.append(
+              "          byName: "
+                  + getValueOrDefault(
+                          basicOCSPResponse.getTbsResponseData().getResponderID().getName(), "")
+                      .toString()
+                  + "\n");
+          logBuilder.append(
+              "          byKey: "
+                  + getValueOrDefault(
+                      Arrays.toString(
+                          basicOCSPResponse.getTbsResponseData().getResponderID().getKeyHash()),
+                      "")
+                  + "\n");
+        } else {
+          logBuilder.append("          byName:\n");
+        }
+        if (basicOCSPResponse.getTbsResponseData().getProducedAt() != null) {
+          logBuilder.append(
+              "        producedAt: "
+                  + getValueOrDefault(
+                      basicOCSPResponse.getTbsResponseData().getProducedAt().getTimeString(), "")
+                  + "\n");
+        } else {
+          logBuilder.append("        producedAt:\n");
+        }
+      }
+      logBuilder.append("        responses:\n");
+      if (basicOCSPResp.getResponses() != null) {
+        SingleResp[] singleResps = basicOCSPResp.getResponses();
+        for (int i = 0; i < singleResps.length; i++) {
+          CertificateID certificateID = singleResps[i].getCertID();
+          if (certificateID != null) {
+            logBuilder.append("        certID #: " + i + "\n");
+            logBuilder.append(
+                "          hashAlgorithm: "
+                    + getValueOrDefault(certificateID.getHashAlgOID(), "").toString()
+                    + "\n");
+            logBuilder.append(
+                "          issuerNameHash: "
+                    + getValueOrDefault(Arrays.toString(certificateID.getIssuerNameHash()), "")
+                    + "\n");
+            logBuilder.append(
+                "          issuerKeyHash: "
+                    + getValueOrDefault(Arrays.toString(certificateID.getIssuerKeyHash()), "")
+                    + "\n");
+            logBuilder.append(
+                "          cert serial number: "
+                    + getValueOrDefault(certificateID.getSerialNumber(), "")
+                    + "\n");
+            logBuilder.append(
+                "        certStatus: "
+                    + getValueOrDefault(singleResps[i].getCertStatus(), "good")
+                        .getClass()
+                        .getSimpleName()
+                    + "\n");
+            logBuilder.append(
+                "        thisUpdate: "
+                    + getValueOrDefault(singleResps[i].getThisUpdate(), "").toString()
+                    + "\n");
+            logBuilder.append(
+                "        nextUpdate: "
+                    + getValueOrDefault(singleResps[i].getNextUpdate(), "").toString()
+                    + "\n");
+          }
+        }
+      }
+      if (basicOCSPResp.getSignatureAlgorithmID() != null) {
+        logBuilder.append(
+            "      signatureAlgorithm: "
+                + getValueOrDefault(basicOCSPResp.getSignatureAlgorithmID().getAlgorithm(), "")
+                    .toString()
+                + "\n");
+      }
+      logBuilder.append(
+          "      signature: "
+              + getValueOrDefault(Arrays.toString(basicOCSPResp.getSignature()), "")
+              + "\n");
+      logBuilder.append("      certs:\n");
+      if (basicOCSPResp.getCerts() != null) {
+        X509CertificateHolder[] x509CertificateHolders = basicOCSPResp.getCerts();
+        for (int i = 0; i < x509CertificateHolders.length; i++) {
+          logBuilder.append("        certificate: " + i + "\n");
+          logBuilder.append(
+              "          issuer: "
+                  + getValueOrDefault(x509CertificateHolders[i].getIssuer(), "").toString()
+                  + "\n");
+          logBuilder.append(
+              "          subject: "
+                  + getValueOrDefault(x509CertificateHolders[i].getSubject(), "").toString()
+                  + "\n");
+          if (basicOCSPResp.getSignatureAlgorithmID() != null) {
+            logBuilder.append(
+                "          signatureAlgorithm: "
+                    + getValueOrDefault(
+                            x509CertificateHolders[i].getSignatureAlgorithm().getAlgorithm(), "")
+                        .toString()
+                    + "\n");
+          }
+          logBuilder.append(
+              "          start date: "
+                  + getValueOrDefault(
+                          x509CertificateHolders[i].toASN1Structure().getStartDate(), "")
+                      .toString()
+                  + "\n");
+          logBuilder.append(
+              "          end date: "
+                  + getValueOrDefault(x509CertificateHolders[i].toASN1Structure().getEndDate(), "")
+                      .toString()
+                  + "\n");
+          logBuilder.append(
+              "          cert serial number: "
+                  + getValueOrDefault(x509CertificateHolders[i].getSerialNumber(), "")
+                  + "\n");
+        }
+      }
+      LOGGER.trace(logBuilder.toString());
+    } catch (IOException | OCSPException e) {
+      LOGGER.trace("Could not log response, issue converting response to a BasicOcspResponse.", e);
+    }
+  }
+
   public void setOcspEnabled(boolean ocspEnabled) {
     this.ocspEnabled = ocspEnabled;
   }
@@ -474,5 +686,9 @@ public class OcspChecker implements OcspService {
     public OcspCheckerException(String msg, Exception cause) {
       super(msg, cause);
     }
+  }
+
+  private static <T> T getValueOrDefault(T value, T defaultValue) {
+    return value == null ? defaultValue : value;
   }
 }
