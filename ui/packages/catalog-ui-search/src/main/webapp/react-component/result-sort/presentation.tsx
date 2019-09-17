@@ -28,7 +28,7 @@ type Props = {
   collection: Backbone.Collection<Backbone.Model>
 }
 
-const Root = styled<Props, 'div'>('div')`
+const Root = styled.div<Props>`
   display: block;
   padding: ${props => props.theme.minimumSpacing};
   min-width: 500px;

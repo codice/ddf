@@ -39,7 +39,7 @@ type State = {
   component?: JSX.Element
 }
 
-const Root = styled<State, 'div'>('div')`
+const Root = styled.div<State>`
   width: 100%;
   height: 100%;
   position: relative;

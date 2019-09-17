@@ -12,12 +12,11 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const properties = require('../../js/properties.js')
+import * as React from 'react'
+const properties = require('../../js/properties')
 
-export const InvalidSearchFormMessage = {
-  title: `Validation Issues: Search ${properties.i18n['form.title'] ||
-    'Form'} cannot be run.`,
-  message:
-    'Please verify your search criteria and settings before attempting to search again.',
-  type: 'error',
+const SearchFormMenu = () => {
+  return <div>{'Search ' + properties.i18n['forms.title'] || 'Forms'}</div>
 }
+
+export default SearchFormMenu
