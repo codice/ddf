@@ -59,10 +59,6 @@
             <artifactId>mime-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-actions</artifactId>
             <version>${project.version}</version>
@@ -76,10 +72,6 @@
             <artifactId>mime-tika-resolver</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
@@ -89,18 +81,13 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>util-uuidgenerator-api</artifactId>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-attachment</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
-            <artifactId>owasp-java-html-sanitizer</artifactId>
-            <version>${owasp-html-sanitizer.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-attachment</artifactId>
+            <groupId>ddf.catalog.rest</groupId>
+            <artifactId>catalog-rest-service</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -115,11 +102,6 @@
             <artifactId>catalog-core-attachment-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.rest</groupId>
-            <artifactId>catalog-rest-service</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
@@ -136,14 +118,12 @@
                             catalog-core-actions,
                             catalog-core-api-impl,
                             json-smart,
-                            platform-util,
-                            owasp-java-html-sanitizer
+                            platform-util
                         </Embed-Dependency>
                         <Export-Package>
                             org.codice.ddf.rest.service.impl
                         </Export-Package>
                         <Import-Package>
-                            !org.codice.ddf.platform.util,
                             !com.google.errorprone.annotations.concurrent,
                             *
                         </Import-Package>
