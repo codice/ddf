@@ -12,13 +12,11 @@
  *
  **/
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>ddf</groupId>
     <artifactId>ddf</artifactId>
-    <version>2.18.0-SNAPSHOT</version>
+    <version>2.19.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DDF Reactor</name>
     <description>Distributed Data Framework (DDF) Parent</description>
@@ -54,9 +52,9 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <!--  default URL properties -->
-        <ddf.scm.connection.url/>
-        <snapshots.repository.url/>
-        <reports.repository.url/>
+        <ddf.scm.connection.url />
+        <snapshots.repository.url />
+        <reports.repository.url />
         <!-- Must MANUALLY update this if the ddf/support project's version changes -->
         <ddf.support.version>2.3.16</ddf.support.version>
         <!-- Must MANUALLY update this if the codice-maven project's version changes -->
@@ -318,7 +316,7 @@
         <xpp3.bundle.version>1.1.4c_6</xpp3.bundle.version>
         <xstream.version>1.4.9</xstream.version>
         <!-- Command line argument properties for the maven-surefire-plugin -->
-        <surefire.argline.append/>
+        <surefire.argline.append />
         <surefire.argline>${jacoco.argline} ${surefire.argline.append} -Xmx1024m -Djava.awt.headless=true -noverify</surefire.argline>
         <failsafe.argline>${jacoco.argline}</failsafe.argline>
 
@@ -705,8 +703,7 @@
                             </goals>
                             <configuration>
                                 <rules>
-                                    <ArtifactSizeEnforcerRule
-                                        implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule"/>
+                                    <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule" />
                                 </rules>
                             </configuration>
                         </execution>
@@ -728,9 +725,8 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <ArtifactSizeEnforcerRule
-                                    implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule"/>
-                                <banDuplicatePomDependencyVersions/>
+                                <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule" />
+                                <banDuplicatePomDependencyVersions />
                             </rules>
                         </configuration>
                     </execution>
@@ -931,20 +927,17 @@
                                                 will be set to 0 not 0.75
                                                 -->
                                                 <limits>
-                                                    <limit
-                                                        implementation="org.codice.jacoco.LenientLimit">
+                                                    <limit implementation="org.codice.jacoco.LenientLimit">
                                                         <counter>INSTRUCTION</counter>
                                                         <value>COVEREDRATIO</value>
                                                         <minimum>0.75</minimum>
                                                     </limit>
-                                                    <limit
-                                                        implementation="org.codice.jacoco.LenientLimit">
+                                                    <limit implementation="org.codice.jacoco.LenientLimit">
                                                         <counter>BRANCH</counter>
                                                         <value>COVEREDRATIO</value>
                                                         <minimum>0.75</minimum>
                                                     </limit>
-                                                    <limit
-                                                        implementation="org.codice.jacoco.LenientLimit">
+                                                    <limit implementation="org.codice.jacoco.LenientLimit">
                                                         <counter>COMPLEXITY</counter>
                                                         <value>COVEREDRATIO</value>
                                                         <minimum>0.75</minimum>
