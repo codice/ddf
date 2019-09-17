@@ -308,7 +308,7 @@ class SortedQueryMonitor implements Runnable {
             sourceResponse.getResults(),
             true,
             sourceResponse.getHits(),
-            queryRequest.getProperties());
+            sourceResponse.getProperties());
 
     try {
       for (PostFederatedQueryPlugin service : postQuery) {

@@ -71,6 +71,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 import org.codice.solr.client.solrj.SolrClient;
 import org.geotools.filter.NullFilterImpl;
 import org.junit.After;
@@ -88,6 +89,9 @@ public class CachingFederationStrategyTest {
   private static final long LONG_TIMEOUT = 1000;
 
   private static final String MOCK_RESPONSE_TITLE = "mock response";
+
+  /** Constant to test contract of source latency prefix. */
+  private static final String METRICS_SOURCE_ELAPSED_PREFIX = "metrics.source.elapsed.";
 
   private ExecutorService cacheExecutor, queryExecutor;
 
@@ -204,6 +208,30 @@ public class CachingFederationStrategyTest {
     QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
 
     assertThat(federateResponse.getResults().size(), is(sourceList.size()));
+  }
+
+  @Test
+  public void testFederateLatencyMetrics() throws Exception {
+    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, null, properties);
+
+    when(mockResponse.getProperties()).thenReturn(properties);
+
+    Source mockSource1 = getMockSource();
+    Source mockSource2 = getMockSource();
+    Source mockSource3 = getMockSource();
+
+    List<Source> sourceList = ImmutableList.of(mockSource1, mockSource2, mockSource3);
+    QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
+
+    List<Map.Entry<String, Serializable>> metrics =
+        federateResponse
+            .getProperties()
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getKey().startsWith(METRICS_SOURCE_ELAPSED_PREFIX))
+            .collect(Collectors.toList());
+
+    assertThat(metrics.size(), is(sourceList.size()));
   }
 
   @Test

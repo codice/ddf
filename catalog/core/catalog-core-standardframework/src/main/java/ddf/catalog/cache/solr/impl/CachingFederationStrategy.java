@@ -273,7 +273,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         }
 
         futures.put(
-            queryCompletion.submit(new CallableSourceResponse(source, sourceQueryRequest)),
+            queryCompletion.submit(
+                new CallableSourceResponse(new TimedSource(source), sourceQueryRequest)),
             sourceQueryRequest);
       }
     }
