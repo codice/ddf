@@ -28,5 +28,6 @@
         <module>catalog-rest-impl</module>
         <module>catalog-rest-endpoint</module>
         <module>catalog-rest-service-impl</module>
+        <module>catalog-rest-api</module>
     </modules>
 </project>

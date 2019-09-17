@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.rest.impl.action;
 
-import static org.codice.ddf.rest.service.CatalogService.CONTEXT_ROOT;
-import static org.codice.ddf.rest.service.CatalogService.SOURCES_PATH;
+import static org.codice.ddf.rest.api.CatalogService.CONTEXT_ROOT;
+import static org.codice.ddf.rest.api.CatalogService.SOURCES_PATH;
 
 import ddf.action.Action;
 import ddf.action.impl.ActionImpl;

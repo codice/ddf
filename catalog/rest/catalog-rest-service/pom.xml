@@ -22,7 +22,7 @@
     </parent>
 
     <artifactId>catalog-rest-service</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
     <name>DDF :: Catalog :: REST :: Service</name>
     <dependencies>
 
@@ -121,27 +121,13 @@
             <artifactId>javax.servlet-api</artifactId>
             <version>${javax.servlet-api.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.rest</groupId>
+            <artifactId>catalog-rest-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            asm,
-                            catalog-core-actions,
-                            catalog-core-api-impl,
-                            json-smart,
-                            platform-util,
-                            owasp-java-html-sanitizer
-                        </Embed-Dependency>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
     </build>
 </project>

@@ -98,6 +98,8 @@ import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
+import org.codice.ddf.rest.api.CatalogService;
+import org.codice.ddf.rest.api.CatalogServiceException;
 import org.opengis.filter.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;

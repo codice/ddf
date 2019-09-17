@@ -44,8 +44,8 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
-import org.codice.ddf.rest.service.CatalogService;
-import org.codice.ddf.rest.service.CatalogServiceException;
+import org.codice.ddf.rest.api.CatalogService;
+import org.codice.ddf.rest.api.CatalogServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

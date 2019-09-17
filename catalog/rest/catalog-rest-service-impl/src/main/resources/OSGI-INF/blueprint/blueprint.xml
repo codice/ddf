@@ -33,5 +33,5 @@
         <property name="uuidGenerator" ref="uuidGenerator" />
     </bean>
 
-    <service ref="catalogService" interface="org.codice.ddf.rest.service.CatalogService"/>
+    <service ref="catalogService" interface="org.codice.ddf.rest.api.CatalogService"/>
 </blueprint>

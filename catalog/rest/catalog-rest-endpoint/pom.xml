@@ -44,6 +44,11 @@
             <artifactId>catalog-core-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>${commons-codec.version}</version>
@@ -159,6 +164,20 @@
             <artifactId>catalog-rest-service-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+            <artifactId>owasp-java-html-sanitizer</artifactId>
+            <version>${owasp-html-sanitizer.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.rest</groupId>
+            <artifactId>catalog-rest-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -172,6 +191,12 @@
                             !ddf.catalog.content.data.impl,
                             *
                         </Import-Package>
+                        <Embed-Dependency>
+                            catalog-rest-service,
+                            catalog-core-api-impl,
+                            owasp-java-html-sanitizer,
+                            platform-util
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

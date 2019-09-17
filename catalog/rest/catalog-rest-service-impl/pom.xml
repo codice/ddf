@@ -90,6 +90,11 @@
             <artifactId>catalog-rest-service</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+            <artifactId>owasp-java-html-sanitizer</artifactId>
+            <version>${owasp-html-sanitizer.version}</version>
+        </dependency>
 
         <!-- Unit Tests -->
         <dependency>
@@ -117,12 +122,11 @@
                             asm,
                             catalog-core-actions,
                             catalog-core-api-impl,
+                            catalog-rest-service,
                             json-smart,
-                            platform-util
+                            platform-util,
+                            owasp-java-html-sanitizer
                         </Embed-Dependency>
-                        <Export-Package>
-                            org.codice.ddf.rest.service.impl
-                        </Export-Package>
                         <Import-Package>
                             !com.google.errorprone.annotations.concurrent,
                             *

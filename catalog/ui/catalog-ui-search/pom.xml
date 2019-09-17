@@ -366,6 +366,16 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+            <artifactId>owasp-java-html-sanitizer</artifactId>
+            <version>${owasp-html-sanitizer.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.rest</groupId>
+            <artifactId>catalog-rest-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -426,7 +436,9 @@
                             versioning-common,
                             filter-v_2_0,
                             ows-v_1_1_0-schema,
-                            jaxb2-basics-runtime
+                            jaxb2-basics-runtime,
+                            catalog-rest-service,
+                            owasp-java-html-sanitizer
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
@@ -469,8 +481,9 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>5_MB</maxArtifactSize>
+                                <ArtifactSizeEnforcerRule
+                                        implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
+                                    <maxArtifactSize>6_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>
