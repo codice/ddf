@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.security.Constants;
@@ -58,6 +59,12 @@ import spark.servlet.SparkApplication;
 public class UserApplication implements SparkApplication {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UserApplication.class);
+
+  private static final String MAX_PAGE_SIZE_PROPERTY = "catalog.maxPageSize";
+
+  private static final Integer DEFAULT_MAX_PAGE_SIZE = 1000;
+
+  public static final Integer MAX_PAGE_SIZE = determineAndRetrieveMaxPageSize();
 
   private static final Gson GSON =
       new GsonBuilder()
@@ -82,6 +89,10 @@ public class UserApplication implements SparkApplication {
     this.persistentStore = persistentStore;
     this.subjectIdentity = subjectIdentity;
     this.filterBuilder = filterBuilder;
+  }
+
+  private static Integer determineAndRetrieveMaxPageSize() {
+    return NumberUtils.toInt(System.getProperty(MAX_PAGE_SIZE_PROPERTY), DEFAULT_MAX_PAGE_SIZE);
   }
 
   @Override
@@ -205,10 +216,11 @@ public class UserApplication implements SparkApplication {
     try {
       String filter = String.format("user = '%s'", userid);
       List<Map<String, Object>> notificationsList =
-          persistentStore.get(PersistenceType.NOTIFICATION_TYPE.toString(), filter, 0, 999);
+          persistentStore.get(
+              PersistenceType.NOTIFICATION_TYPE.toString(), filter, 0, MAX_PAGE_SIZE);
       return notificationsList.stream().map(this::mapAttributes).collect(Collectors.toList());
     } catch (PersistenceException e) {
-      LOGGER.info(
+      LOGGER.debug(
           "PersistenceException while trying to retrieve persisted notifications for user {}",
           userid,
           e);
@@ -218,6 +230,11 @@ public class UserApplication implements SparkApplication {
 
   private Map<String, Object> mapAttributes(Map<String, Object> persistentItem) {
     persistentItem = PersistentItem.stripSuffixes(persistentItem);
+    /*
+     *  The persistent store implementation only returns a collection if there is
+     *  more than one item in the field, else it returns a string
+     *  We need to check if it is a string, and if so add it to a collection
+     */
     Object srcs = persistentItem.getOrDefault("src", Collections.emptySet());
     if (srcs instanceof String) {
       srcs = ImmutableSet.of((String) srcs);
