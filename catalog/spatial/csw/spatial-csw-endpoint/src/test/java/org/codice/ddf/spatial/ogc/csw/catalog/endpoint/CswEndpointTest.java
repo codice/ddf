@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
@@ -86,7 +87,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.activation.MimeType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
@@ -121,6 +124,12 @@ import net.opengis.ows.v_1_0_0.SectionsType;
 import net.opengis.ows.v_1_0_0.ServiceIdentification;
 import net.opengis.ows.v_1_0_0.ServiceProvider;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.mgt.DefaultSecurityManager;
+import org.apache.shiro.session.mgt.SimpleSession;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -141,6 +150,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerMana
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformerProvider;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.stubbing.Answer;
 import org.opengis.filter.sort.SortBy;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -184,6 +194,8 @@ public class CswEndpointTest {
 
   private static final String THIRD_PARTY_TYPE_NAME = "thirdPartyTypeName";
 
+  private static final String USER_ID = "testUser";
+
   private static UriInfo mockUriInfo = mock(UriInfo.class);
 
   private static Bundle mockBundle = mock(Bundle.class);
@@ -213,6 +225,8 @@ public class CswEndpointTest {
 
   private Validator validator = mock(Validator.class);
 
+  private DeleteResponse deleteResponse = mock(DeleteResponse.class);
+
   private List<QueryResponse> queryResponseBatch;
 
   private CswQueryFactory queryFactory = mock(CswQueryFactory.class);
@@ -222,6 +236,7 @@ public class CswEndpointTest {
       throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
           FederationException, ParseException, IngestException, CswException,
           InvalidSyntaxException {
+    addSecurity();
     URI mockUri = new URI("http://example.com/services/csw");
     when(mockUriInfo.getBaseUri()).thenReturn(mockUri);
     URL resourceUrl = CswEndpointTest.class.getResource("/record.xsd");
@@ -250,6 +265,7 @@ public class CswEndpointTest {
             queryFactory,
             mockBundle);
     csw.setUri(mockUriInfo);
+    csw.init();
     when(mockMimeTypeManager.getAvailableMimeTypes())
         .thenReturn(Arrays.asList(MediaType.APPLICATION_XML));
     when(mockSchemaManager.getAvailableSchemas())
@@ -285,6 +301,28 @@ public class CswEndpointTest {
         .thenReturn(queryRequest);
     when(queryFactory.updateQueryRequestTags(any(QueryRequest.class), anyString()))
         .thenReturn(queryRequest);
+  }
+
+  private void addSecurity() {
+    org.apache.shiro.mgt.SecurityManager secManager = new DefaultSecurityManager();
+    PrincipalCollection principals = new SimplePrincipalCollection(USER_ID, "testrealm");
+    Subject subject =
+        new Subject.Builder(secManager)
+            .principals(principals)
+            .session(new SimpleSession())
+            .authenticated(true)
+            .buildSubject();
+    ThreadContext.bind(secManager);
+    ThreadContext.bind(subject);
+  }
+
+  @org.junit.After
+  public void tearDownClass() {
+    if (csw != null) {
+      csw.destroy();
+    }
+    ThreadContext.unbindSubject();
+    ThreadContext.unbindSecurityManager();
   }
 
   @Test
@@ -1662,10 +1700,16 @@ public class CswEndpointTest {
     queryConstraintType.setCqlText("title = \"foo\"");
     doReturn(queryConstraintType).when(deleteType).getConstraint();
 
-    List<DeleteResponse> delBatch = getDelBatch(queryResponseBatch);
-
-    DeleteResponse[] delRest = delBatch.subList(1, delBatch.size()).toArray(new DeleteResponse[0]);
-    when(catalogFramework.delete(any(DeleteRequest.class))).thenReturn(delBatch.get(0), delRest);
+    when(catalogFramework.delete(any(DeleteRequest.class)))
+        .thenAnswer(
+            (Answer<DeleteResponse>)
+                invocation -> {
+                  DeleteRequest request = (DeleteRequest) invocation.getArguments()[0];
+                  long numResults = request.getAttributeValues().size();
+                  when(deleteResponse.getDeletedMetacards())
+                      .thenReturn(populateMetacardList((int) numResults));
+                  return deleteResponse;
+                });
 
     DeleteAction deleteAction =
         new DeleteActionImpl(deleteType, DefaultCswRecordMap.getPrefixToUriMapping());
@@ -1714,8 +1758,16 @@ public class CswEndpointTest {
 
     List<DeleteResponse> delBatch = getDelBatch(queryResponseBatch);
 
-    DeleteResponse[] delRest = delBatch.subList(1, delBatch.size()).toArray(new DeleteResponse[0]);
-    when(catalogFramework.delete(any(DeleteRequest.class))).thenReturn(delBatch.get(0), delRest);
+    when(catalogFramework.delete(any(DeleteRequest.class)))
+        .thenAnswer(
+            (Answer<DeleteResponse>)
+                invocation -> {
+                  DeleteRequest request = (DeleteRequest) invocation.getArguments()[0];
+                  long numResults = request.getAttributeValues().size();
+                  when(deleteResponse.getDeletedMetacards())
+                      .thenReturn(populateMetacardList((int) numResults));
+                  return deleteResponse;
+                });
 
     DeleteAction deleteAction =
         new DeleteActionImpl(deleteType, DefaultCswRecordMap.getPrefixToUriMapping());
@@ -1726,7 +1778,7 @@ public class CswEndpointTest {
     TransactionResponseType response = csw.transaction(deleteRequest);
     assertThat(response.getTransactionSummary().getTotalDeleted().intValue(), equalTo(800));
     verify(catalogFramework, times(4)).query(any());
-    verify(catalogFramework, times(2)).delete(any());
+    verify(catalogFramework, times(800)).delete(any());
   }
 
   @Test
@@ -2137,6 +2189,16 @@ public class CswEndpointTest {
         .flatMap(Collection::stream)
         .filter(s -> s.equals(typeName))
         .count();
+  }
+
+  private List<Metacard> populateMetacardList(int size) {
+    return Stream.generate(this::newRandomMetacard).limit(size).collect(toList());
+  }
+
+  private MetacardImpl newRandomMetacard() {
+    MetacardImpl metacard = new MetacardImpl();
+    metacard.setId(UUID.randomUUID().toString());
+    return metacard;
   }
 
   public static class CswEndpointStub extends CswEndpoint {
