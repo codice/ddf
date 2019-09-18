@@ -51,6 +51,13 @@
             <classifier>features</classifier>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-features</artifactId>
+            <version>${pax.exam.version}</version>
+            <type>xml</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
