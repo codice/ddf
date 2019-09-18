@@ -31,6 +31,15 @@
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>asm</artifactId>
+            <version>${net.minidev.asm.version}</version>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
@@ -195,7 +204,9 @@
                             catalog-rest-service,
                             catalog-core-api-impl,
                             owasp-java-html-sanitizer,
-                            platform-util
+                            platform-util,
+                            asm,
+                            json-smart
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
