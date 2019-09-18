@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -130,6 +131,26 @@ public class UserApplication implements SparkApplication {
         },
         util::getJson);
 
+    put(
+        "/user/notifications",
+        APPLICATION_JSON,
+        (req, res) -> {
+          Subject subject = (Subject) SecurityUtils.getSubject();
+
+          if (subject.isGuest()) {
+            res.status(401);
+            return ImmutableMap.of("message", "Guest cannot save notifications.");
+          }
+
+          Map<String, Object> notification =
+              GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
+
+          addUserNotification(subject, notification);
+
+          return "";
+        },
+        util::getJson);
+
     delete(
         "/user/notifications",
         APPLICATION_JSON,
@@ -198,6 +219,9 @@ public class UserApplication implements SparkApplication {
 
         Map<String, Object> attributes =
             GSON.fromJson(new String(json, Charset.defaultCharset()), MAP_STRING_TO_OBJECT_TYPE);
+        /* Replace alert attribute of preferences with alerts stored in notifications core
+         * Alerts may be added to Notification core by User.js (addAlert()) in DDF
+         */
         attributes.put("alerts", getSubjectNotifications(subject));
         return attributes;
       }
@@ -272,6 +296,29 @@ public class UserApplication implements SparkApplication {
     }
 
     return ImmutableMap.<String, Object>builder().putAll(required).put("email", email).build();
+  }
+
+  private void addUserNotification(Subject subject, Map<String, Object> alert) {
+
+    String userid = subjectIdentity.getUniqueIdentifier(subject);
+    PersistentItem item = new PersistentItem();
+    item.addIdProperty(UUID.randomUUID().toString());
+    item.addProperty("user", userid);
+    item.addProperty("when", alert.getOrDefault("when", DateTime.now().toInstant().getMillis()));
+    item.addProperty("queryId", alert.getOrDefault("queryId", ""));
+    item.addProperty("serverGenerated", false);
+
+    if (alert.containsKey("metacardIds")) {
+      item.addProperty("metacardIds", ImmutableSet.copyOf((List<String>) alert.get("metacardIds")));
+    } else {
+      item.addProperty("metacardIds", Collections.emptySet());
+    }
+    try {
+      persistentStore.add(PersistenceType.NOTIFICATION_TYPE.toString(), item);
+    } catch (PersistenceException e) {
+      LOGGER.debug(
+          "PersistenceException while trying to persist notification for user {}", userid, e);
+    }
   }
 
   private void deleteNotifications(List<String> ids) {

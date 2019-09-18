@@ -212,6 +212,17 @@ User.Preferences = Backbone.AssociatedModel.extend({
   },
   addAlert(alertDetails) {
     this.get('alerts').add(alertDetails)
+    /*
+    * Add alert to notification core
+    * Alert will be retrieved and sent to the UI by UserApplication.java (getSubjectPreferences()) on refresh
+    */
+    fetch('./internal/user/notifications', {
+      method: 'put',
+      body: JSON.stringify(alertDetails),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
     this.savePreferences()
   },
   savePreferences() {
