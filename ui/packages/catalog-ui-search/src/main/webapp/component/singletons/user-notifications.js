@@ -12,6 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+import fetch from '../../react-component/utils/fetch'
 
 const user = require('./user-instance.js')
 const Backbone = require('backbone')
@@ -40,8 +41,22 @@ module.exports = new (Backbone.Collection.extend({
     return this.some(notification => notification.get('unseen'))
   },
   setSeen() {
+    const setSeen = []
     this.forEach(notification => {
       notification.set('unseen', false)
+      if (notification.get('queryId')) {
+        setSeen.push(notification)
+      }
+    })
+    if (setSeen.length === 0) {
+      return
+    }
+    fetch('./internal/user/notifications', {
+      method: 'put',
+      body: JSON.stringify({ alerts: setSeen }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     })
   },
 }))()

@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -63,8 +64,6 @@ public class UserApplication implements SparkApplication {
   private static final String MAX_PAGE_SIZE_PROPERTY = "catalog.maxPageSize";
 
   private static final Integer DEFAULT_MAX_PAGE_SIZE = 1000;
-
-  public static final Integer MAX_PAGE_SIZE = determineAndRetrieveMaxPageSize();
 
   private static final Gson GSON =
       new GsonBuilder()
@@ -127,6 +126,27 @@ public class UserApplication implements SparkApplication {
           setUserPreferences(subject, preferences);
 
           return preferences;
+        },
+        util::getJson);
+
+    put(
+        "/user/notifications",
+        APPLICATION_JSON,
+        (req, res) -> {
+          Subject subject = (Subject) SecurityUtils.getSubject();
+
+          if (subject.isGuest()) {
+            res.status(401);
+            return ImmutableMap.of("message", "Guest cannot save notifications.");
+          }
+
+          Map<String, Object> alerts =
+              GSON.fromJson(util.safeGetBody(req), MAP_STRING_TO_OBJECT_TYPE);
+
+          List<Map<String, Object>> notifications =
+              (List<Map<String, Object>>) alerts.getOrDefault("alerts", Collections.emptyList());
+          notifications.forEach(notification -> addUserNotification(subject, notification));
+          return "";
         },
         util::getJson);
 
@@ -198,6 +218,9 @@ public class UserApplication implements SparkApplication {
 
         Map<String, Object> attributes =
             GSON.fromJson(new String(json, Charset.defaultCharset()), MAP_STRING_TO_OBJECT_TYPE);
+        /* Replace alert attribute of preferences with alerts stored in notifications core
+         * Alerts may be added to Notification core by User.js (addAlert()) in DDF
+         */
         attributes.put("alerts", getSubjectNotifications(subject));
         return attributes;
       }
@@ -213,11 +236,14 @@ public class UserApplication implements SparkApplication {
 
   private List<Map<String, Object>> getSubjectNotifications(Subject subject) {
     String userid = subjectIdentity.getUniqueIdentifier(subject);
+    String filter = String.format("user = '%s'", userid);
     try {
-      String filter = String.format("user = '%s'", userid);
       List<Map<String, Object>> notificationsList =
           persistentStore.get(
-              PersistenceType.NOTIFICATION_TYPE.toString(), filter, 0, MAX_PAGE_SIZE);
+              PersistenceType.NOTIFICATION_TYPE.toString(),
+              filter,
+              0,
+              determineAndRetrieveMaxPageSize());
       return notificationsList.stream().map(this::mapAttributes).collect(Collectors.toList());
     } catch (PersistenceException e) {
       LOGGER.debug(
@@ -251,6 +277,7 @@ public class UserApplication implements SparkApplication {
         .put("queryId", persistentItem.getOrDefault("queryId", ""))
         .put("serverGenerated", persistentItem.getOrDefault("serverGenerated", "true"))
         .put("when", persistentItem.getOrDefault("when", DateTime.now().toInstant().getMillis()))
+        .put("unseen", Boolean.parseBoolean((String) persistentItem.getOrDefault("unseen", "true")))
         .build();
   }
 
@@ -272,6 +299,29 @@ public class UserApplication implements SparkApplication {
     }
 
     return ImmutableMap.<String, Object>builder().putAll(required).put("email", email).build();
+  }
+
+  private void addUserNotification(Subject subject, Map<String, Object> alert) {
+
+    String userid = subjectIdentity.getUniqueIdentifier(subject);
+    PersistentItem item = new PersistentItem();
+    item.addIdProperty(alert.getOrDefault("id", UUID.randomUUID().toString()));
+    item.addProperty("user", userid);
+    item.addProperty("when", alert.getOrDefault("when", DateTime.now().toInstant().getMillis()));
+    item.addProperty("queryId", alert.getOrDefault("queryId", ""));
+    item.addProperty("serverGenerated", alert.getOrDefault("serverGenerated", false));
+    item.addProperty("unseen", alert.getOrDefault("unseen", true));
+    if (alert.containsKey("metacardIds")) {
+      item.addProperty("metacardIds", ImmutableSet.copyOf((List<String>) alert.get("metacardIds")));
+    } else {
+      item.addProperty("metacardIds", Collections.emptySet());
+    }
+    try {
+      persistentStore.add(PersistenceType.NOTIFICATION_TYPE.toString(), item);
+    } catch (PersistenceException e) {
+      LOGGER.debug(
+          "PersistenceException while trying to persist notification for user {}", userid, e);
+    }
   }
 
   private void deleteNotifications(List<String> ids) {
