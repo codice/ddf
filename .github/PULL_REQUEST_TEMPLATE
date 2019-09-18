@@ -1,29 +1,8 @@
-<!--
-** For commits created to resolve GH Issues during the pilot and beyond, please prefix the
-issue number with a 0 until we roll over at issue #10000, ie: `DDF-0####`. This kludgy solution
-will avoid overlap with issues created in Jira.**
-
-See https://github.com/codice/ddf/wiki/%5BGH-ISSUES-PILOT%5D-Pull-Request-Guidelines
-for more info.
--->
-
-<!--
-Uncomment this block and include PR # of change against 2.13.x where appropriate.
-When doing so, it is reasonable to delete much of the rest of the PR description, leaving only:
-- This uncommented block with link to 2.13.x PR
-- Reviewers tagged
-- Teams tagged
-- Committers tagged
-- The link to the "Notes on Review Process"
-
-##### ABBREVIATED REVIEW BETWEEN 2.13.X AND MASTER IS IN EFFECT
-Link to 2.13.x PR: #XXXX
-____
--->
-
 #### What does this PR do?
+
 #### Who is reviewing it? 
 <!--(please choose AT LEAST two reviewers that need to approve the PR before it can get merged)-->
+
 #### Select relevant component teams: 
 <!--
 @codice/build 
@@ -39,11 +18,11 @@ ____
 @codice/ui 
 @codice/website 
 -->
+
 #### Ask 2 committers to review/merge the PR and tag them here.
 <!--
 If you don't know who to ask, you can request reviews in https://groups.google.com/forum/#!forum/ddf-developers .
-(please choose ONLY two committers from below, delete the rest)
--->
+(please choose ONLY two committers from below)
 @adimka
 @ahoffer
 @andrewkfiedler
@@ -77,15 +56,19 @@ If you don't know who to ask, you can request reviews in https://groups.google.c
 @tbatie
 @troymohl
 @vinamartin
+-->
 
 #### How should this be tested?
 <!--(List steps with links to updated documentation)-->
+
 #### Any background context you want to provide?
+
 #### What are the relevant tickets?
 Fixes: #____
 
 #### Screenshots
 <!--(if appropriate)-->
+
 #### Checklist:
 - [ ] Documentation Updated
 - [ ] Update / Add Threat Dragon models
