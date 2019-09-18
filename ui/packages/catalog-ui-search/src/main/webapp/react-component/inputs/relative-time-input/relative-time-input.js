@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import UnitsDropdown from './units-dropdown'
 import TextField from '../../text-field'
