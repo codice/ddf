@@ -175,7 +175,8 @@
 
     <feature name="catalog-rest-endpoint" version="${project.version}"
              description="REST Endpoint provides CRUD operations on the Catalog Framework.">
-        <bundle>mvn:ddf.catalog.rest/catalog-rest-service/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.rest/catalog-rest-api/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.rest/catalog-rest-service-impl/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.rest/catalog-rest-impl/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.rest/catalog-rest-endpoint/${project.version}</bundle>
     </feature>

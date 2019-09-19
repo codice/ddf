@@ -219,6 +219,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.rest</groupId>
+            <artifactId>catalog-rest-service-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.rest</groupId>
             <artifactId>catalog-rest-endpoint</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -686,6 +691,11 @@
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-bootflag</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.rest</groupId>
+            <artifactId>catalog-rest-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

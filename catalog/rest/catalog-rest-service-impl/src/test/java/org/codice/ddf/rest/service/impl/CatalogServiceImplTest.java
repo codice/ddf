@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.rest.impl;
+package org.codice.ddf.rest.service.impl;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
@@ -83,6 +83,7 @@ import javax.activation.MimeType;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import net.minidev.json.JSONArray;
@@ -98,7 +99,8 @@ import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.attachment.impl.AttachmentParserImpl;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
-import org.codice.ddf.rest.service.CatalogServiceException;
+import org.codice.ddf.rest.api.CatalogServiceException;
+import org.codice.ddf.rest.service.AbstractCatalogService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -217,7 +219,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
-          BundleContext getBundleContext() {
+          protected BundleContext getBundleContext() {
             return bundleContext;
           }
         };
@@ -287,7 +289,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
-          BundleContext getBundleContext() {
+          protected BundleContext getBundleContext() {
             return bundleContext;
           }
         };
@@ -388,7 +390,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
-          BundleContext getBundleContext() {
+          protected BundleContext getBundleContext() {
             return bundleContext;
           }
         };
@@ -460,7 +462,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
-          BundleContext getBundleContext() {
+          protected BundleContext getBundleContext() {
             return bundleContext;
           }
         };
@@ -635,7 +637,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
-          BundleContext getBundleContext() {
+          protected BundleContext getBundleContext() {
             return bundleContext;
           }
         };
@@ -708,7 +710,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogServiceImpl =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
-          BundleContext getBundleContext() {
+          protected BundleContext getBundleContext() {
             return bundleContext;
           }
         };
@@ -915,7 +917,7 @@ public class CatalogServiceImplTest {
 
     BinaryContent binaryContent =
         catalogService.createMetacard(
-            multipartBody, CatalogServiceImpl.DEFAULT_METACARD_TRANSFORMER);
+            multipartBody, AbstractCatalogService.DEFAULT_METACARD_TRANSFORMER);
     InputStream responseEntity = binaryContent.getInputStream();
     String responseXml = IOUtils.toString(responseEntity);
     assertEquals(metacardXml, responseXml);
@@ -948,7 +950,7 @@ public class CatalogServiceImplTest {
     CatalogServiceImpl catalogService =
         new CatalogServiceImpl(framework, attachmentParser, attributeRegistry) {
           @Override
-          BundleContext getBundleContext() {
+          protected BundleContext getBundleContext() {
             return bundleContext;
           }
         };

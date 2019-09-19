@@ -198,7 +198,8 @@ public class RestEndpointIT extends AbstractComponentTest {
             .add("org.bouncycastle", "bcprov-jdk15on")
             .add("ddf.catalog.transformer", "catalog-transformer-attribute")
             .add("ddf.catalog.core", "catalog-core-attachment")
-            .add("ddf.catalog.rest", "catalog-rest-service")
+            .add("ddf.catalog.rest", "catalog-rest-api")
+            .add("ddf.catalog.rest", "catalog-rest-service-impl")
             .add("ddf.catalog.rest", "catalog-rest-impl");
       }
 
