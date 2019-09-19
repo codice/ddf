@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.catalog.transformer</groupId>
         <artifactId>transformer</artifactId>
-        <version>2.18.0-SNAPSHOT</version>
+        <version>2.19.0-SNAPSHOT</version>
     </parent>
     <groupId>ddf.catalog.transformer</groupId>
     <artifactId>geojson-queryresponse-transformer</artifactId>
@@ -70,7 +70,7 @@
                             platform-util,
                             asm
                         </Embed-Dependency>
-                        <Export-Package/>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

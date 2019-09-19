@@ -28,7 +28,7 @@ type RootProps = {
   hasUnsaved: boolean
 }
 
-const Root = styled<RootProps, 'div'>('div')`
+const Root = styled.div<RootProps>`
   ${CustomElement} ${props =>
     ChangeBackground(
       props.theme.backgroundContent

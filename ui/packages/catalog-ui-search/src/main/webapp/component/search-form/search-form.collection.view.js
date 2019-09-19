@@ -19,7 +19,10 @@ import MarionetteRegionContainer from '../../react-component/marionette-region-c
 import { TabMessage } from './search-form-presentation'
 const Marionette = require('marionette')
 const CustomElements = require('../../js/CustomElements')
+const properties = require('../../js/properties')
 const wreqr = require('../../exports/wreqr.js')
+
+const formsTitle = properties.i18n['forms.title'] || 'Forms'
 
 module.exports = Marionette.ItemView.extend({
   tagName: CustomElements.register('my-search-forms'),
@@ -59,14 +62,18 @@ module.exports = Marionette.ItemView.extend({
     }
 
     if (forms.length === 0) {
-      return <TabMessage>No {this.options.type} Search Forms Found</TabMessage>
+      return (
+        <TabMessage>
+          No {this.options.type} Search {formsTitle} Found
+        </TabMessage>
+      )
     } else {
       return <TabMessage>{this.options.message}</TabMessage>
     }
   },
   getButtons() {
     return this.options.showNewForm ? (
-      <NewForm label="New Search Form" onClick={this.handleNewForm} />
+      <NewForm label={'Search ' + formsTitle} onClick={this.handleNewForm} />
     ) : null
   },
   handleNewForm() {

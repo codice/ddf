@@ -17,6 +17,7 @@ import { FormattedMessage } from 'react-intl'
 import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 const SaveView = require('../../component/save/workspaces/workspaces-save.view')
 const UnsavedIndicatorView = require('../../component/unsaved-indicator/workspaces/workspaces-unsaved-indicator.view')
+const properties = require('../../js/properties')
 import styled from 'styled-components'
 import {
   Button,
@@ -39,18 +40,15 @@ export const Divider = () => {
   return <div className="is-divider" />
 }
 
-export const Root = styled<Props, 'div'>('div')`
+export const Root = styled.div<Props>`
   height: 100%;
   width: 100%;
   overflow: auto;
 `
 
-export const WorkspacesSave = styled<
-  {
-    isSaved: Props['isSaved']
-  },
-  'div'
->('div')`
+export const WorkspacesSave = styled.div<{
+  isSaved: Props['isSaved']
+}>`
   position: absolute;
   right: 0px;
   top: 0px;
@@ -76,12 +74,9 @@ export const WorkspacesIndicator = styled.div`
   display: inline-block;
 `
 
-export const SourcesIndicator = styled<
-  {
-    hasUnavailableSources: Props['hasUnavailableSources']
-  },
-  'span'
->('span')`
+export const SourcesIndicator = styled.span<{
+  hasUnavailableSources: Props['hasUnavailableSources']
+}>`
   opacity: ${props => (props.hasUnavailableSources ? '1' : '0')};
   transform: ${props =>
     props.hasUnavailableSources ? 'scale(1)' : 'scale(0)'};
@@ -245,7 +240,7 @@ export const SearchFormsLink = ({
       }}
     >
       <span className="fa cf cf-search-forms" />
-      <span>Search Forms</span>
+      <span>Search {properties.i18n['forms.title'] || 'Forms'}</span>
       <div className="forms-indicator" />
     </Link>
   )

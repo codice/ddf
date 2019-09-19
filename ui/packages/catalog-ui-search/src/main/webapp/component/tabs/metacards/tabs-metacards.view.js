@@ -17,7 +17,7 @@ const _ = require('underscore')
 const TabsView = require('../tabs.view')
 const MetacardsTabsModel = require('./tabs-metacards')
 const store = require('../../../js/store.js')
-const user = require('../../singletons/user-instance')
+const properties = require('../../../js/properties.js')
 
 function getTypes(results) {
   const types = {}
@@ -52,29 +52,10 @@ const MetacardsTabsView = TabsView.extend({
     this.determineAvailableContent()
     TabsView.prototype.initialize.call(this)
     const debounceDetermineContent = _.debounce(this.handleMetacardChange, 200)
+
     this.listenTo(
       this.selectionInterface.getSelectedResults(),
-      'update',
-      debounceDetermineContent
-    )
-    this.listenTo(
-      this.selectionInterface.getSelectedResults(),
-      'add',
-      debounceDetermineContent
-    )
-    this.listenTo(
-      this.selectionInterface.getSelectedResults(),
-      'remove',
-      debounceDetermineContent
-    )
-    this.listenTo(
-      this.selectionInterface.getSelectedResults(),
-      'reset',
-      debounceDetermineContent
-    )
-    this.listenTo(
-      this.selectionInterface.getSelectedResults(),
-      'refreshdata',
+      'add remove reset refreshdata update',
       debounceDetermineContent
     )
   },
@@ -104,7 +85,7 @@ const MetacardsTabsView = TabsView.extend({
       this.model.set('activeTab', 'Details')
     }
     if (
-      !user.canWrite(this.selectionInterface.getSelectedResults()) &&
+      properties.isEditingRestricted() &&
       ['Archive'].indexOf(activeTabName) >= 0
     ) {
       this.model.set('activeTab', 'Details')
@@ -118,7 +99,7 @@ const MetacardsTabsView = TabsView.extend({
   },
   determineContent() {
     if (this.selectionInterface.getSelectedResults().length > 1) {
-      this.determineContentFromType()
+      setTimeout(() => this.determineContentFromType(), 0)
     }
   },
   determineAvailableContent() {
@@ -130,10 +111,6 @@ const MetacardsTabsView = TabsView.extend({
       this.$el.toggleClass('is-revision', types.indexOf('revision') >= 0)
       this.$el.toggleClass('is-deleted', types.indexOf('deleted') >= 0)
       this.$el.toggleClass('is-remote', types.indexOf('remote') >= 0)
-      this.$el.toggleClass(
-        'is-editing-disabled',
-        !user.canWrite(this.selectionInterface.getSelectedResults())
-      )
     }
   },
 })

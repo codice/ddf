@@ -23,7 +23,7 @@ const Flex = styled.div`
   height: 100%;
 `
 
-const ColorBand = styled<{ bandColor: string }, 'div'>('div')`
+const ColorBand = styled.div<{ bandColor: string }>`
   width: 100%;
   height: 100%;
   background: ${props => props.bandColor};

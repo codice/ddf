@@ -133,7 +133,7 @@ export const withDropdown = <P extends withContext>(
   }
 }
 
-const DropdownWrapper = styled<{ open: boolean }, 'div'>('div')`
+const DropdownWrapper = styled.div<{ open: boolean }>`
   display: block;
   position: absolute;
   z-index: ${props => props.theme.zIndexDropdown};

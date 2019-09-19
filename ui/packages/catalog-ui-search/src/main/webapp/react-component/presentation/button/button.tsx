@@ -111,7 +111,7 @@ type RootProps = {
   fadeUntilHover?: boolean
 }
 
-const Root = styled<RootProps, 'button'>('button')`
+const Root = styled.button<RootProps>`
     max-width: 100%;
     white-space: nowrap;
     overflow: hidden;
@@ -184,7 +184,7 @@ type IconProps = {
   text?: string
 }
 
-const Icon = styled<IconProps, 'span'>('span')`
+const Icon = styled.span<IconProps>`
   margin: 0px
     ${props =>
       props.text !== undefined && props.text !== ''
@@ -197,7 +197,7 @@ type TextProps = {
   inText?: boolean
 }
 
-const Text = styled<TextProps, 'span'>('span')`
+const Text = styled.span<TextProps>`
   font-size: ${props =>
     props.inText ? 'inherit !important' : props.theme.mediumFontSize};
 `

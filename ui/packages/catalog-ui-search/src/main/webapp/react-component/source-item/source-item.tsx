@@ -23,7 +23,7 @@ type RootProps = {
   available: boolean
 }
 
-const Root = styled<RootProps, 'div'>('div')`
+const Root = styled.div<RootProps>`
   width: 100%;
   height: auto;
   white-space: nowrap;
@@ -93,57 +93,75 @@ type SourceAction = {
 type Props = {
   sourceActions?: SourceAction[]
   id: string
+  refreshSources: () => void
 } & RootProps
 
 const windowWidth = '520'
 const windowHeight = '570'
 
-export default hot(module)(({ id, sourceActions, available }: Props) => {
-  return (
-    <Root available={available}>
-      <div className="source-available">
-        <span className="is-available fa fa-check" />
-        <span className="is-not-available fa fa-bolt" />
-      </div>
-      <div className="source-name" title={id}>
-        {id}
-      </div>
-      <div className="source-actions">
-        {sourceActions !== undefined
-          ? sourceActions.map(sourceAction => {
-              return (
-                <div className="source-action" key={sourceAction.url}>
-                  <Button
-                    icon="fa fa-external-link"
-                    text={sourceAction.title}
-                    buttonType={buttonTypeEnum.neutral}
-                    fadeUntilHover
-                    title={`${sourceAction.title}: ${sourceAction.description}`}
-                    data-help={`${sourceAction.title}: ${
-                      sourceAction.description
-                    }`}
-                    onClick={() => {
-                      if (
-                        sourceAction.id.startsWith('catalog.data.source.window')
-                      ) {
-                        const windowFeatures = `location=yes,height=${windowHeight},width=${windowWidth},scrollbars=yes,status=yes`
-                        window.open(sourceAction.url, '_blank', windowFeatures)
-                      } else if (
-                        sourceAction.id.startsWith('catalog.data.source.iframe')
-                      ) {
-                        lightboxInstance.model.updateTitle(sourceAction.title)
-                        lightboxInstance.model.open()
-                        lightboxInstance.showContent(
-                          new SourceAppView({ url: sourceAction.url })
-                        )
-                      }
-                    }}
-                  />
-                </div>
-              )
-            })
-          : null}
-      </div>
-    </Root>
-  )
-})
+export default hot(module)(
+  ({ id, sourceActions, available, refreshSources }: Props) => {
+    return (
+      <Root available={available}>
+        <div className="source-available">
+          <span className="is-available fa fa-check" />
+          <span className="is-not-available fa fa-bolt" />
+        </div>
+        <div className="source-name" title={id}>
+          {id}
+        </div>
+        <div className="source-actions">
+          {sourceActions !== undefined
+            ? sourceActions.map(sourceAction => {
+                return (
+                  <div className="source-action" key={sourceAction.url}>
+                    <Button
+                      icon="fa fa-external-link"
+                      text={sourceAction.title}
+                      buttonType={buttonTypeEnum.neutral}
+                      fadeUntilHover
+                      title={`${sourceAction.title}: ${
+                        sourceAction.description
+                      }`}
+                      data-help={`${sourceAction.title}: ${
+                        sourceAction.description
+                      }`}
+                      onClick={() => {
+                        if (
+                          sourceAction.id.startsWith(
+                            'catalog.data.source.window'
+                          )
+                        ) {
+                          const windowFeatures = `location=yes,height=${windowHeight},width=${windowWidth},scrollbars=yes,status=yes`
+                          const popup = window.open(
+                            sourceAction.url,
+                            '_blank',
+                            windowFeatures
+                          )
+                          if (popup) {
+                            popup.addEventListener('beforeunload', () =>
+                              refreshSources()
+                            )
+                          }
+                        } else if (
+                          sourceAction.id.startsWith(
+                            'catalog.data.source.iframe'
+                          )
+                        ) {
+                          lightboxInstance.model.updateTitle(sourceAction.title)
+                          lightboxInstance.model.open()
+                          lightboxInstance.showContent(
+                            new SourceAppView({ url: sourceAction.url })
+                          )
+                        }
+                      }}
+                    />
+                  </div>
+                )
+              })
+            : null}
+        </div>
+      </Root>
+    )
+  }
+)

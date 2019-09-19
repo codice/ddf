@@ -396,11 +396,11 @@
         <feature version="${cxf.version}">cxf-jaxrs</feature>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-cors/${cxf.version}</bundle>
     </feature>
-    <!--feature name="cxf-rs-security-oauth" version="${cxf.version}" >
+    <feature name="cxf-rs-security-oauth" version="${cxf.version}" >
         <feature version="${cxf.version}">cxf-jaxrs</feature>
         <bundle start-level="30" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.oauth-provider/${cxf.oauth.bundle.version}</bundle>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-oauth/${cxf.version}</bundle>
-    </feature-->
+    </feature>
     <feature name="cxf-rs-security-jose" version="${cxf.version}">
         <feature version="${cxf.version}">cxf-jaxrs</feature>
         <feature version="${cxf.version}">cxf-rt-security</feature>
@@ -409,10 +409,10 @@
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-jose-jaxrs/${cxf.version}
         </bundle>
     </feature>
-    <!--feature name="cxf-rs-security-oauth2" version="${cxf.version}" >
+    <feature name="cxf-rs-security-oauth2" version="${cxf.version}" >
         <feature version="${cxf.version}">cxf-rs-security-jose</feature>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-security-oauth2/${cxf.version}</bundle>
-    </feature-->
+    </feature>
     <feature name="cxf-jackson" version="${cxf.version}">
         <!-- Required by jackson-dataformat-yaml -->
         <bundle start-level="10" dependency="true">
@@ -421,7 +421,7 @@
         <bundle start-level="10" dependency="true">
             mvn:javax.annotation/javax.annotation-api/${cxf.javax.annotation-api.version}
         </bundle>
-        <bundle start-level="35">mvn:org.yaml/snakeyaml/1.20</bundle>
+        <bundle start-level="35">mvn:org.yaml/snakeyaml/1.23</bundle>
         <bundle start-level="35">
             mvn:com.fasterxml.jackson.core/jackson-core/${cxf.jackson.version}
         </bundle>
@@ -455,10 +455,10 @@
         <feature version="${cxf.version}">cxf-core</feature>
         <bundle start-level="10" dependency="true">mvn:com.google.code.findbugs/jsr305/3.0.2
         </bundle>
-        <bundle start-level="35">mvn:io.zipkin.java/zipkin/1.31.1</bundle>
-        <bundle start-level="35">mvn:io.zipkin.reporter/zipkin-reporter/1.0.2</bundle>
-        <bundle start-level="35">mvn:io.zipkin.brave/brave/4.6.0</bundle>
-        <bundle start-level="35">mvn:io.zipkin.brave/brave-instrumentation-http/4.6.0</bundle>
+        <bundle start-level="35">mvn:io.zipkin.zipkin2/zipkin/2.11.6</bundle>
+        <bundle start-level="35">mvn:io.zipkin.reporter2/zipkin-reporter/2.7.9</bundle>
+        <bundle start-level="35">mvn:io.zipkin.brave/brave/5.4.2</bundle>
+        <bundle start-level="35">mvn:io.zipkin.brave/brave-instrumentation-http/5.4.2</bundle>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-integration-tracing-brave/${cxf.version}
         </bundle>
     </feature>
@@ -473,80 +473,36 @@
     <feature name="cxf-rs-description-swagger2" version="${cxf.version}">
         <feature version="${cxf.version}">cxf-jaxrs</feature>
         <feature version="${cxf.version}">cxf-jackson</feature>
-        <bundle start-level="35">
-            mvn:org.apache.cxf/cxf-rt-rs-service-description-swagger-ui/${cxf.version}
-        </bundle>
-        <bundle start-level="40">
-            mvn:org.apache.cxf/cxf-rt-rs-service-description-swagger/${cxf.version}
-        </bundle>
-        <bundle start-level="10" dependency="true">
-            mvn:javax.validation/validation-api/${cxf.validation.api.version}
-        </bundle>
-        <bundle start-level="35" dependency="true">
-            mvn:org.apache.commons/commons-lang3/${cxf.commons-lang3.version}
-        </bundle>
-        <bundle start-level="30" dependency="true">
-            mvn:org.javassist/javassist/${cxf.javassist.version}
-        </bundle>
-        <bundle start-level="30" dependency="true">
-            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.reflections/${cxf.reflections.bundle.version}
-        </bundle>
-        <bundle start-level="25" dependency="true">mvn:com.google.guava/guava/${cxf.guava.version}
-        </bundle>
-        <bundle start-level="35" dependency="true">
-            mvn:io.swagger/swagger-annotations/${cxf.swagger2.version}
-        </bundle>
-        <bundle start-level="35" dependency="true">
-            mvn:io.swagger/swagger-models/${cxf.swagger2.version}
-        </bundle>
-        <bundle start-level="35" dependency="true">
-            mvn:io.swagger/swagger-core/${cxf.swagger2.version}
-        </bundle>
-        <bundle start-level="35" dependency="true">
-            mvn:io.swagger/swagger-jaxrs/${cxf.swagger2.version}
-        </bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-service-description-common-openapi/${cxf.version}</bundle>
+        <bundle start-level="35">mvn:org.apache.cxf/cxf-rt-rs-service-description-swagger-ui/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-service-description-swagger/${cxf.version}</bundle>
+        <bundle start-level="10" dependency="true">mvn:javax.validation/validation-api/${cxf.validation.api.version}</bundle>
+        <bundle start-level="35" dependency="true">mvn:org.apache.commons/commons-lang3/${cxf.commons-lang3.version}</bundle>
+        <bundle start-level="30" dependency="true">mvn:org.javassist/javassist/${cxf.javassist.version}</bundle>
+        <bundle start-level="30" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.reflections/${cxf.reflections.bundle.version}</bundle>
+        <bundle start-level="25" dependency="true">mvn:com.google.guava/guava/${cxf.guava.version}</bundle>
+        <bundle start-level="35" dependency="true">mvn:io.swagger/swagger-annotations/${cxf.swagger2.version}</bundle>
+        <bundle start-level="35" dependency="true">mvn:io.swagger/swagger-models/${cxf.swagger2.version}</bundle>
+        <bundle start-level="35" dependency="true">mvn:io.swagger/swagger-core/${cxf.swagger2.version}</bundle>
+        <bundle start-level="35" dependency="true">mvn:io.swagger/swagger-jaxrs/${cxf.swagger2.version}</bundle>
     </feature>
     <feature name="cxf-rs-description-openapi-v3" version="${cxf.version}">
         <feature version="${cxf.version}">cxf-jaxrs</feature>
         <feature version="${cxf.version}">cxf-jackson</feature>
-        <bundle start-level="35">
-            mvn:org.apache.cxf/cxf-rt-rs-service-description-swagger-ui/${cxf.version}
-        </bundle>
-        <bundle start-level="40">
-            mvn:org.apache.cxf/cxf-rt-rs-service-description-openapi-v3/${cxf.version}
-        </bundle>
-        <bundle dependency="true" start-level="35">
-            mvn:javax.servlet/javax.servlet-api/${cxf.javax.servlet-api.version}
-        </bundle>
-        <bundle start-level="10" dependency="true">
-            mvn:javax.validation/validation-api/${cxf.validation.api.version}
-        </bundle>
-        <bundle start-level="35" dependency="true">
-            mvn:org.apache.commons/commons-lang3/${cxf.commons-lang3.version}
-        </bundle>
-        <bundle start-level="25" dependency="true">mvn:com.google.guava/guava/${cxf.guava.version}
-        </bundle>
-        <bundle start-level="30" dependency="true">
-            mvn:org.javassist/javassist/${cxf.javassist.version}
-        </bundle>
-        <bundle start-level="30" dependency="true">
-            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.reflections/${cxf.reflections.bundle.version}
-        </bundle>
-        <bundle start-level="35" dependency="true">
-            mvn:io.swagger.core.v3/swagger-annotations/${cxf.swagger3.version}
-        </bundle>
-        <bundle start-level="35" dependency="true">
-            mvn:io.swagger.core.v3/swagger-models/${cxf.swagger3.version}
-        </bundle>
-        <bundle start-level="35" dependency="true">
-            mvn:io.swagger.core.v3/swagger-core/${cxf.swagger3.version}
-        </bundle>
-        <bundle start-level="35" dependency="true">
-            mvn:io.swagger.core.v3/swagger-integration/${cxf.swagger3.version}
-        </bundle>
-        <bundle start-level="35" dependency="true">
-            mvn:io.swagger.core.v3/swagger-jaxrs2/${cxf.swagger3.version}
-        </bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-service-description-common-openapi/${cxf.version}</bundle>
+        <bundle start-level="35">mvn:org.apache.cxf/cxf-rt-rs-service-description-swagger-ui/${cxf.version}</bundle>
+        <bundle start-level="40">mvn:org.apache.cxf/cxf-rt-rs-service-description-openapi-v3/${cxf.version}</bundle>
+        <bundle dependency="true" start-level="35">mvn:javax.servlet/javax.servlet-api/${servlet-api.version}</bundle>
+        <bundle start-level="10" dependency="true">mvn:javax.validation/validation-api/${cxf.validation.api.version}</bundle>
+        <bundle start-level="35" dependency="true">mvn:org.apache.commons/commons-lang3/${cxf.commons-lang3.version}</bundle>
+        <bundle start-level="25" dependency="true">mvn:com.google.guava/guava/${cxf.guava.version}</bundle>
+        <bundle start-level="30" dependency="true">mvn:org.javassist/javassist/${cxf.javassist.version}</bundle>
+        <bundle start-level="30" dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.reflections/${cxf.reflections.bundle.version}</bundle>
+        <bundle start-level="35" dependency="true">mvn:io.swagger.core.v3/swagger-annotations/${cxf.swagger3.version}</bundle>
+        <bundle start-level="35" dependency="true">mvn:io.swagger.core.v3/swagger-models/${cxf.swagger3.version}</bundle>
+        <bundle start-level="35" dependency="true">mvn:io.swagger.core.v3/swagger-core/${cxf.swagger3.version}</bundle>
+        <bundle start-level="35" dependency="true">mvn:io.swagger.core.v3/swagger-integration/${cxf.swagger3.version}</bundle>
+        <bundle start-level="35" dependency="true">mvn:io.swagger.core.v3/swagger-jaxrs2/${cxf.swagger3.version}</bundle>
     </feature>
     <feature name="cxf-databinding-aegis" version="${cxf.version}">
         <feature version="${cxf.version}">cxf-wsdl</feature>

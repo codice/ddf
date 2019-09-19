@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -270,12 +271,20 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
       String feature,
       String... additionalFeatures)
       throws InterruptedException {
+    Set<String> featuresNotFound =
+        missingFeaturesFromNames(feature, additionalFeatures).collect(Collectors.toSet());
     Set<String> featuresToInstall =
         featuresFromNames(feature, additionalFeatures)
+            .filter(Objects::nonNull)
             .filter(f -> !featuresService.isInstalled(f))
             .map(Feature::getName)
             .collect(Collectors.toSet());
     String featureNames = String.join(", ", featuresToInstall);
+
+    if (!featuresNotFound.isEmpty()) {
+      String missingFeatureNames = String.join(", ", featuresNotFound);
+      LOGGER.info("Unable to find the following features to install: [{}]", missingFeatureNames);
+    }
 
     if (featuresToInstall.isEmpty()) {
       return;
@@ -530,6 +539,10 @@ public class SynchronizedInstallerImpl implements SynchronizedInstaller {
 
   private Stream<Feature> featuresFromNames(String feature, String... additionalFeatures) {
     return toStream(feature, additionalFeatures).map(this::getFeature);
+  }
+
+  private Stream<String> missingFeaturesFromNames(String feature, String... additionalFeatures) {
+    return toStream(feature, additionalFeatures).filter(ftr -> getFeature(ftr) == null);
   }
 
   private Feature getFeature(String featureName) {

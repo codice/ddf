@@ -17,7 +17,6 @@ import React from 'react'
 import { Sharing } from '../../react-component/sharing'
 
 const Marionette = require('marionette')
-const template = require('./search-form-interactions.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const user = require('../singletons/user-instance.js')
 const LoadingView = require('../loading/loading.view.js')
@@ -25,9 +24,69 @@ const announcement = require('../announcement/index.jsx')
 const ConfirmationView = require('../confirmation/confirmation.view.js')
 const lightboxInstance = require('../lightbox/lightbox.view.instance.js')
 const wreqr = require('../../exports/wreqr.js')
+const properties = require('../../js/properties')
+
+const formTitle = properties.i18n['form.title']
+  ? properties.i18n['form.title']
+  : 'Form'
+
+const formTitleLowerCase = properties.i18n['form.title']
+  ? properties.i18n['form.title'].toLowerCase()
+  : 'form'
+
+const formsTitleLowerCase = properties.i18n['forms.title']
+  ? properties.i18n['forms.title'].toLowerCase()
+  : 'forms'
 
 module.exports = Marionette.ItemView.extend({
-  template,
+  template() {
+    return (
+      <React.Fragment>
+        <div
+          className="search-form-interaction interaction-default"
+          data-help={`Sets the ${formTitleLowerCase} as default. Causes new searches that are created to default to using this search ${formTitleLowerCase}.`}
+        >
+          <div className="interaction-icon fa fa-star" />
+          <div className="interaction-text">Make Default {formTitle}</div>
+        </div>
+
+        <div
+          className="search-form-interaction interaction-share"
+          data-help="Allows template to be shared with other users"
+        >
+          <div className="interaction-icon fa fa-users" />
+          <div className="interaction-text">Share {formTitle}</div>
+        </div>
+
+        <div
+          className="search-form-interaction interaction-clear"
+          data-help={`Clears this ${formTitleLowerCase} as default.
+Causes new searches that are created to not necessarily default to this search ${formTitle}.`}
+        >
+          <div className="interaction-icon fa fa-eraser" />
+          <div className="interaction-text">Clear Default {formTitle}</div>
+        </div>
+
+        <div
+          className="search-form-interaction interaction-edit"
+          data-help={`Edits this search ${formTitleLowerCase}.
+Opens an editor to allow the user to customize this search ${formTitleLowerCase}.`}
+        >
+          <div className="interaction-icon fa fa-pencil" />
+          <div className="interaction-text">Edit {formTitle}</div>
+        </div>
+
+        <div
+          className="search-form-interaction interaction-trash"
+          data-help={`Deletes the search ${formTitleLowerCase}.
+Anyone who has access to this search ${formTitleLowerCase} will subsequently lose access.`}
+        >
+          <div className="interaction-icon fa fa-trash-o" />
+          <div className="interaction-text">Delete {formTitle}</div>
+        </div>
+      </React.Fragment>
+    )
+  },
   tagName: CustomElements.register('search-form-interactions'),
   className: 'composed-menu',
   modelEvents: {
@@ -73,7 +132,7 @@ module.exports = Marionette.ItemView.extend({
   handleTrash() {
     this.listenTo(
       ConfirmationView.generateConfirmation({
-        prompt: 'This will permanently delete the search form. Are you sure?',
+        prompt: `This will permanently delete the search ${formTitleLowerCase}. Are you sure?`,
         no: 'Cancel',
         yes: 'Delete',
       }),
@@ -93,7 +152,9 @@ module.exports = Marionette.ItemView.extend({
               announcement.announce(
                 {
                   title: 'Error',
-                  message: 'Unable to delete the forms: ' + xhr.responseText,
+                  message:
+                    `Unable to delete the ${formsTitleLowerCase}: ` +
+                    xhr.responseText,
                   type: 'error',
                 },
                 2500
@@ -147,7 +208,7 @@ module.exports = Marionette.ItemView.extend({
     user.savePreferences()
     this.messageNotifier(
       'Success',
-      `"${this.model.get('title')}" Saved As Default Query Form`,
+      `"${this.model.get('title')}" Saved As Default Query ${formTitle}`,
       'success'
     )
   },
@@ -157,7 +218,11 @@ module.exports = Marionette.ItemView.extend({
       type: 'text',
     })
     user.savePreferences()
-    this.messageNotifier('Success', `Default Query Form Cleared`, 'success')
+    this.messageNotifier(
+      'Success',
+      `Default Query ${formTitle} Cleared`,
+      'success'
+    )
   },
   messageNotifier(title, message, type) {
     announcement.announce({

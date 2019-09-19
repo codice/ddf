@@ -326,6 +326,7 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("ddf.platform.api", "platform-api"),
         new BundleInfo("org.codice.thirdparty", "gt-opengis"),
         new BundleInfo("ddf.catalog.core", "catalog-core-api"),
+        new BundleInfo("org.codehaus.woodstox", "stax2-api"),
         new BundleInfo("ddf.security.core", "security-core-api"),
         new BundleInfo("ddf.security.expansion", "security-expansion-api"),
         new BundleInfo("ddf.security.expansion", "security-expansion-impl"),
