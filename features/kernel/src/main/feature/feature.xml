@@ -48,6 +48,30 @@
         <bundle dependency="true">mvn:org.apache.xbean/xbean-finder/4.12</bundle>
     </feature>
 
+    <feature name="pax-http-jetty" version="${pax.web.version}">
+        <configfile finalname="${karaf.etc}/jetty.xml">mvn:org.ops4j.pax.web/pax-web-features/${pax.web.version}/xml/jettyconfig</configfile>
+        <config name="org.ops4j.pax.web">
+            org.osgi.service.http.port=8181
+            javax.servlet.context.tempdir=${karaf.data}/pax-web-jsp
+            org.ops4j.pax.web.config.file=${karaf.etc}/jetty.xml
+        </config>
+        <feature>scr</feature>
+        <feature version="[9.3,10.0)">pax-jetty</feature>
+
+        <feature>pax-web-core</feature>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-runtime/${pax.web.version}</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jetty/${pax.web.version}</bundle>
+
+        <capability>
+            pax.http.provider;provider:=jetty
+        </capability>
+
+        <conditional>
+            <condition>pax-keycloak</condition>
+            <feature>pax-keycloak-http-jetty</feature>
+        </conditional>
+    </feature>
+
     <feature name="sync-installer" version="${project.version}">
         <bundle>mvn:ddf.platform/sync-installer-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform/sync-installer-impl/${project.version}</bundle>
