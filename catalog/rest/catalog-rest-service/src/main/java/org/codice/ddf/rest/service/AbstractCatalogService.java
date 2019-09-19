@@ -11,10 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.rest.impl;
-
-import static ddf.catalog.data.AttributeType.AttributeFormat.BINARY;
-import static ddf.catalog.data.AttributeType.AttributeFormat.OBJECT;
+package org.codice.ddf.rest.service;
 
 import com.google.common.collect.Iterables;
 import ddf.action.Action;
@@ -28,15 +25,13 @@ import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
-import ddf.catalog.data.AttributeType;
+import ddf.catalog.data.AttributeType.AttributeFormat;
 import ddf.catalog.data.BinaryContent;
-import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.federation.FederationException;
@@ -44,25 +39,21 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.resource.DataUsageLimitExceededException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
-import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -70,7 +61,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -84,17 +74,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedMap;
-import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -110,8 +98,8 @@ import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
-import org.codice.ddf.rest.service.CatalogService;
-import org.codice.ddf.rest.service.CatalogServiceException;
+import org.codice.ddf.rest.api.CatalogService;
+import org.codice.ddf.rest.api.CatalogServiceException;
 import org.opengis.filter.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -122,17 +110,13 @@ import org.owasp.html.HtmlPolicyBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CatalogServiceImpl implements CatalogService {
+public abstract class AbstractCatalogService implements CatalogService {
 
-  public static final String CONTEXT_ROOT = "catalog";
-
-  public static final String SOURCES_PATH = "/sources";
-
-  static final String DEFAULT_METACARD_TRANSFORMER = "xml";
+  public static final String DEFAULT_METACARD_TRANSFORMER = "xml";
 
   private static final String BYTES_TO_SKIP = "BytesToSkip";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogServiceImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCatalogService.class);
 
   private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
@@ -152,9 +136,11 @@ public class CatalogServiceImpl implements CatalogService {
 
   private static final int MAX_INPUT_SIZE = 65_536;
 
+  private FilterBuilder filterBuilder;
+
   private UuidGenerator uuidGenerator;
 
-  private static MimeType jsonMimeType;
+  protected static MimeType jsonMimeType;
 
   static {
     MimeType mime = null;
@@ -166,19 +152,17 @@ public class CatalogServiceImpl implements CatalogService {
     jsonMimeType = mime;
   }
 
-  private FilterBuilder filterBuilder;
-
-  private CatalogFramework catalogFramework;
-
   private MimeTypeToTransformerMapper mimeTypeToTransformerMapper;
 
   private MimeTypeResolver tikaMimeTypeResolver;
 
-  private final AttachmentParser attachmentParser;
+  protected AttachmentParser attachmentParser;
 
-  private AttributeRegistry attributeRegistry;
+  protected AttributeRegistry attributeRegistry;
 
-  public CatalogServiceImpl(
+  protected CatalogFramework catalogFramework;
+
+  public AbstractCatalogService(
       CatalogFramework framework,
       AttachmentParser attachmentParser,
       AttributeRegistry attributeRegistry) {
@@ -189,8 +173,8 @@ public class CatalogServiceImpl implements CatalogService {
     LOGGER.trace(("CatalogServiceImpl constructed successfully"));
   }
 
-  BundleContext getBundleContext() {
-    Bundle bundle = FrameworkUtil.getBundle(CatalogServiceImpl.class);
+  protected BundleContext getBundleContext() {
+    Bundle bundle = FrameworkUtil.getBundle(AbstractCatalogService.class);
     return bundle == null ? null : bundle.getBundleContext();
   }
 
@@ -275,7 +259,7 @@ public class CatalogServiceImpl implements CatalogService {
     }
   }
 
-  private JSONObject sourceActionToJSON(Action action) {
+  public JSONObject sourceActionToJSON(Action action) {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("title", action.getTitle());
     jsonObject.put("url", action.getUrl().toString());
@@ -285,51 +269,7 @@ public class CatalogServiceImpl implements CatalogService {
   }
 
   @Override
-  public BinaryContent getSourcesInfo() {
-    JSONArray resultsList = new JSONArray();
-    SourceInfoResponse sources;
-    String sourcesString;
-
-    try {
-      SourceInfoRequestEnterprise sourceInfoRequestEnterprise =
-          new SourceInfoRequestEnterprise(true);
-
-      sources = catalogFramework.getSourceInfo(sourceInfoRequestEnterprise);
-      for (SourceDescriptor source : sources.getSourceInfo()) {
-        JSONObject sourceObj = new JSONObject();
-        sourceObj.put("id", source.getSourceId());
-        sourceObj.put("version", source.getVersion() != null ? source.getVersion() : "");
-        sourceObj.put("available", Boolean.valueOf(source.isAvailable()));
-
-        List<JSONObject> sourceActions =
-            source.getActions().stream().map(this::sourceActionToJSON).collect(Collectors.toList());
-
-        sourceObj.put("sourceActions", sourceActions);
-
-        JSONArray contentTypesObj = new JSONArray();
-        if (source.getContentTypes() != null) {
-          for (ContentType contentType : source.getContentTypes()) {
-            if (contentType != null && contentType.getName() != null) {
-              JSONObject contentTypeObj = new JSONObject();
-              contentTypeObj.put("name", contentType.getName());
-              contentTypeObj.put(
-                  "version", contentType.getVersion() != null ? contentType.getVersion() : "");
-              contentTypesObj.add(contentTypeObj);
-            }
-          }
-        }
-        sourceObj.put("contentTypes", contentTypesObj);
-        resultsList.add(sourceObj);
-      }
-    } catch (SourceUnavailableException e) {
-      LOGGER.info("Unable to retrieve Sources. {}", e.getMessage());
-      LOGGER.debug("Unable to retrieve Sources", e);
-    }
-
-    sourcesString = JSONValue.toJSONString(resultsList);
-    return new BinaryContentImpl(
-        new ByteArrayInputStream(sourcesString.getBytes(StandardCharsets.UTF_8)), jsonMimeType);
-  }
+  public abstract BinaryContent getSourcesInfo();
 
   @Override
   public BinaryContent getDocument(
@@ -339,7 +279,8 @@ public class CatalogServiceImpl implements CatalogService {
       URI absolutePath,
       MultivaluedMap<String, String> queryParameters,
       HttpServletRequest httpRequest)
-      throws CatalogServiceException, DataUsageLimitExceededException {
+      throws CatalogServiceException, DataUsageLimitExceededException,
+          InternalServerErrorException {
 
     QueryResponse queryResponse;
     Metacard card = null;
@@ -795,7 +736,7 @@ public class CatalogServiceImpl implements CatalogService {
     }
   }
 
-  Pair<AttachmentInfo, Metacard> parseAttachments(
+  public Pair<AttachmentInfo, Metacard> parseAttachments(
       List<Attachment> contentParts, String transformerParam) {
 
     if (contentParts.size() == 1) {
@@ -973,10 +914,10 @@ public class CatalogServiceImpl implements CatalogService {
       Map<String, AttributeImpl> attributeMap,
       String parsedName,
       InputStream inputStream,
-      AttributeType.AttributeFormat attributeFormat) {
+      AttributeFormat attributeFormat) {
     try (InputStream is = inputStream;
         InputStream boundedStream = new BoundedInputStream(is, MAX_INPUT_SIZE + 1L)) {
-      if (attributeFormat == OBJECT) {
+      if (attributeFormat == AttributeFormat.OBJECT) {
         LOGGER.debug("Object type not supported for override");
         return;
       }
@@ -995,7 +936,7 @@ public class CatalogServiceImpl implements CatalogService {
         attributeMap.put(parsedName, attribute);
       }
 
-      if (attributeFormat == BINARY) {
+      if (attributeFormat == AttributeFormat.BINARY) {
         attribute.addValue(bytes);
         return;
       }
