@@ -187,13 +187,8 @@
         <commons-text.version>1.6</commons-text.version>
         <commons-validator.version>1.6</commons-validator.version>
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
-<<<<<<< HEAD
-        <countryconverter.version>0.1.6</countryconverter.version>
-        <cxf.version>3.2.6</cxf.version>
-=======
-        <countryconverter.version>0.1.5</countryconverter.version>
+        <countryconverter.version>0.1.8</countryconverter.version>
         <cxf.version>3.2.9</cxf.version>
->>>>>>> e3d90b5d50ba0f07c245c981ba3945dfb5590830
         <decanter.version>1.3.0</decanter.version>
         <dropwizard.version>3.2.6</dropwizard.version>
         <equinox.version>3.13.0</equinox.version>
