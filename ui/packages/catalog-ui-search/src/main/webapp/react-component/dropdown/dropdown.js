@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import PropTypes from 'prop-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -52,13 +52,13 @@ class Poller extends React.Component {
   }
 }
 
-const getPosition = (viewport, rect) => {
+const getPosition = (viewport, rect, offset) => {
   const { x, y, width, height } = rect
   const top = y + height
   const bottom = viewport.height - y
   const pos = top > viewport.height / 2 ? { bottom } : { top }
   return {
-    transform: `translateX(calc(-50% + ${width / 2}px))`,
+    transform: `translateX(calc(-50% + ${width / 2}px + ${offset}px))`,
     width: 'auto',
     minWidth: width,
     left: x,
@@ -89,45 +89,62 @@ const Area = styled.div`
   background-color: ${props => props.theme.backgroundDropdown};
   box-shadow: 0px 0px 2px 1px rgba(255, 255, 255, 0.4),
     2px 2px 10px 2px rgba(0, 0, 0, 0.4);
-  max-width: 90vw;
+  max-width: calc(100vw - 40px);
   max-height: 50vh;
 `
 
-class DropdownArea extends React.Component {
-  ref = React.createRef()
-  stopPropagation = e => {
-    e.stopPropagation()
-  }
-  componentDidMount() {
-    if (this.ref) {
-      this.ref.addEventListener('mousedown', this.stopPropagation)
-      this.ref.addEventListener('mouseup', this.stopPropagation)
+const stopPropagation = e => e.stopPropagation()
+const DropdownArea = props => {
+  const [offset, setOffset] = useState(0)
+  const ref = useRef(null)
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.addEventListener('mousedown', stopPropagation)
+      ref.current.addEventListener('mouseup', stopPropagation)
     }
-  }
-  componentWillUnmount() {
-    if (this.ref) {
-      this.ref.removeEventListener('mousedown', this.stopPropagation)
-      this.ref.removeEventListener('mouseup', this.stopPropagation)
+    return () => {
+      if (ref.current) {
+        ref.current.removeEventListener('mousedown', stopPropagation)
+        ref.current.removeEventListener('mouseup', stopPropagation)
+      }
     }
-  }
-  render() {
-    const { rect, children, onClose } = this.props
-    const viewport = document.body.getBoundingClientRect()
-    const style = getPosition(viewport, rect)
-    return (
-      <Area style={style} ref={ref => (this.ref = ref)}>
-        {React.Children.map(children, child => {
-          if (!React.isValidElement(child)) {
-            return child
-          }
+  }, [])
 
-          return React.cloneElement(child, {
-            onClose,
-          })
-        })}
-      </Area>
-    )
-  }
+  useEffect(() => {
+    if (ref.current) {
+      let newOffset = offset
+      const { x, width } = ref.current.getBoundingClientRect()
+      const viewport = document.body.getBoundingClientRect()
+      const padding = 20
+      if (x - offset < padding) {
+        newOffset = padding + -1 * (x - offset)
+      } else if (x - offset + width > viewport.width) {
+        newOffset = viewport.width - (x - offset + width) - padding
+      } else {
+        newOffset = 0
+      }
+      if (newOffset !== offset) {
+        setOffset(newOffset)
+      }
+    }
+  })
+
+  const { rect, children, onClose } = props
+  const viewport = document.body.getBoundingClientRect()
+  const style = getPosition(viewport, rect, offset)
+  return (
+    <Area style={style} ref={ref}>
+      {React.Children.map(children, child => {
+        if (!React.isValidElement(child)) {
+          return child
+        }
+
+        return React.cloneElement(child, {
+          onClose,
+        })
+      })}
+    </Area>
+  )
 }
 
 const Icon = styled.div`
