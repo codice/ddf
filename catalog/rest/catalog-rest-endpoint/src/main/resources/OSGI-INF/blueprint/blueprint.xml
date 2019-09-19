@@ -18,7 +18,7 @@
            http://cxf.apache.org/blueprint/jaxrs
            http://cxf.apache.org/schemas/blueprint/jaxrs.xsd">
 
-    <reference id="catalogService" interface="org.codice.ddf.rest.service.CatalogService"/>
+    <reference id="catalogService" interface="org.codice.ddf.rest.api.CatalogService"/>
 
     <bean id="restSvc" class="org.codice.ddf.endpoints.rest.RESTEndpoint">
         <argument ref="catalogService"/>
