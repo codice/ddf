@@ -627,13 +627,15 @@
             dependencies have upgraded.
         </notes>
         <cve>CVE-2019-14379</cve>
+        <cve>CVE-2019-14540</cve>
+        <cve>CVE-2019-16335</cve>
     </suppress>
     <suppress>
         <notes>
             This CVE is coming from artemis. Suppressing the CVE until Artemis is removed from DDF.
             https://github.com/codice/ddf/issues/5315
         </notes>
-        <gav regex="true">^commons-beanutils:commons-beanutils:.*$</gav>
+        <gav regex="true">^commons-beanutils:commons-beanutils.*$</gav>
         <cve>CVE-2019-10086</cve>
     </suppress>
 </suppressions>
