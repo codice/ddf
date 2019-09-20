@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.configuration.admin;
 
+import static org.codice.ddf.configuration.admin.ConfigurationAdminMigratable.ACCEPTED_ENTRY_PIDS;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.greaterThan;
@@ -137,15 +138,6 @@ public class ConfigurationAdminMigratableTest {
 
   private static final String DDF_CUSTOM_MIME_TYPE_RESOLVER_FILENAME =
       String.format("%s-csw.config", DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
-
-  private static final String STS_GUEST_CLAIMS_HANDLER_PID = "ddf.security.sts.guestclaims";
-
-  private static final String STS_SERVER_PID = "ddf.security.sts";
-
-  private static final String WEB_CONTEXT_POLICY_MANAGER_PID =
-      "org.codice.ddf.security.policy.context.impl.PolicyManager";
-
-  private static final String SECURITY_SESSION_PID = "ddf.security.http.impl.HttpSessionFactory";
 
   private static final List<PersistenceStrategy> STRATEGIES =
       ImmutableList.of(new CfgStrategy(), new ConfigStrategy());
@@ -327,17 +319,15 @@ public class ConfigurationAdminMigratableTest {
   @Test
   public void testDoExportDoVersionUpgradeImport() throws Exception {
     // Setup Export
-    List<String> pids =
-        Arrays.asList(
-            URL_RESOURCE_READER_FACTORY_PID,
-            STS_GUEST_CLAIMS_HANDLER_PID,
-            STS_SERVER_PID,
-            WEB_CONTEXT_POLICY_MANAGER_PID,
-            SECURITY_SESSION_PID);
     List<String> factoryPids =
         Arrays.asList(
-            CONTENT_DIRECTORY_MONITOR_FACTORY_PID, DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
-    setupConfigAdminForExportSystem(pids, factoryPids);
+            CONTENT_DIRECTORY_MONITOR_FACTORY_PID,
+            "Csw_Registry_Store",
+            "Csw_Federation_Profile_Source",
+            "Test_Service",
+            DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
+
+    setupConfigAdminForExportSystem(ACCEPTED_ENTRY_PIDS, factoryPids);
     Path exportDir = tempDir.getRoot().toPath().toRealPath();
     final String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_HOME);
     final Path configFile = setupConfigFile(tag, CONTENT_DIRECTORY_MONITOR_FILENAME);
@@ -383,7 +373,7 @@ public class ConfigurationAdminMigratableTest {
     // Clean up ddf home, so we can import into a clean directory
     FileUtils.deleteDirectory(ddfHome.toRealPath().toFile());
     setup(DDF_HOME, IMPORTING_PRODUCT_VERSION);
-    setupConfigAdminForImportSystem(pids, factoryPids);
+    setupConfigAdminForImportSystem(ACCEPTED_ENTRY_PIDS, factoryPids);
 
     // intercept doImport() to verify exported files from etc
     ConfigurationAdminMigratable iCam =

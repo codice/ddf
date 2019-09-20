@@ -323,8 +323,9 @@ public class ImportMigrationConfigurationAdminContext {
   }
 
   @SuppressWarnings(
-      "PMD.UnusedFormalParameter" /* report parameter is required as this method is used as a functional interface */)
-  protected void deleteUnexportedConfigurationsAfterCompletion(MigrationReport report) {
+      "PMD.UnusedFormalParameter" /* report parameter is required as this method is used as a functional interface
+                                  and is being called in the ConfigurationAdminMigratable class */)
+  void deleteUnexportedConfigurationsAfterCompletion(MigrationReport report) {
     if (isValid) {
       Stream.concat(
               managedServicesToDelete.values().stream(),
