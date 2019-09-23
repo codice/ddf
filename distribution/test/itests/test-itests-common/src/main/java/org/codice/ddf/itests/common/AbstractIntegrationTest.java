@@ -141,9 +141,9 @@ public abstract class AbstractIntegrationTest {
 
   private static final File UNPACK_DIRECTORY = new File("target/exam");
 
-  public static final long GENERIC_TIMEOUT_SECONDS = TimeUnit.MINUTES.toSeconds(2);
+  public static final long GENERIC_TIMEOUT_SECONDS = TimeUnit.MINUTES.toSeconds(5);
 
-  public static final long GENERIC_TIMEOUT_MILLISECONDS = TimeUnit.MINUTES.toMillis(2);
+  public static final long GENERIC_TIMEOUT_MILLISECONDS = TimeUnit.MINUTES.toMillis(5);
 
   private static final String UNABLE_TO_DETERMINE_EXAM_DIR_ERROR =
       "Unable to determine current exam directory";
@@ -552,7 +552,9 @@ public abstract class AbstractIntegrationTest {
                 + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
                 + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
                 + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
-                + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
+                + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype,"
+                + "http://artifacts.codice.org/content/repositories/releases@id=codice-releases,"
+                + "http://artifacts.codice.org/content/repositories/thirdparty@id=codice-thirdparty"),
         when(System.getProperty(MVN_LOCAL_REPO) != null)
             .useOptions(
                 editConfigurationFilePut(
@@ -581,6 +583,10 @@ public abstract class AbstractIntegrationTest {
             SYSTEM_PROPERTIES_REL_PATH,
             "ddf.version",
             MavenUtils.getArtifactVersion(DDF_ITESTS_GROUP_ID, "test-itests-common")),
+        editConfigurationFilePut(
+            SYSTEM_PROPERTIES_REL_PATH,
+            "org.ops4j.pax.exam.raw.extender.intern.Parser.DEFAULT_TIMEOUT",
+            "100000"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "artemis.diskusage", "100"));
   }
 

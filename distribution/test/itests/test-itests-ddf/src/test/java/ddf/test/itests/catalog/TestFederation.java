@@ -1723,7 +1723,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     cswServer
         .verifyHttp()
-        .times(
+        .atLeast(
             3,
             Condition.uri("/services/csw"),
             Condition.parameter("request", "GetRecordById"),

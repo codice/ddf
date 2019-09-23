@@ -44,8 +44,8 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
-import org.codice.ddf.rest.service.CatalogService;
-import org.codice.ddf.rest.service.CatalogServiceException;
+import org.codice.ddf.rest.api.CatalogService;
+import org.codice.ddf.rest.api.CatalogServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,6 +141,9 @@ public class RESTEndpoint implements RESTService {
       return responseBuilder.build();
     } catch (CatalogServiceException e) {
       return createBadRequestResponse(e.getMessage());
+    } catch (InternalServerErrorException e) {
+      LOGGER.info(e.getMessage());
+      return createErrorResponse(e.getMessage());
     }
   }
 
@@ -251,6 +254,9 @@ public class RESTEndpoint implements RESTService {
       String exceptionMessage = "Unknown error occurred while processing request: ";
       LOGGER.info(exceptionMessage, e);
       throw new InternalServerErrorException(exceptionMessage);
+    } catch (InternalServerErrorException e) {
+      LOGGER.info(e.getMessage());
+      return createErrorResponse(e.getMessage());
     }
   }
 
@@ -401,6 +407,13 @@ public class RESTEndpoint implements RESTService {
 
   private Response createBadRequestResponse(String entityMessage) {
     return Response.status(Status.BAD_REQUEST)
+        .entity("<pre>" + entityMessage + "</pre>")
+        .type(MediaType.TEXT_HTML)
+        .build();
+  }
+
+  private Response createErrorResponse(String entityMessage) {
+    return Response.status(Status.INTERNAL_SERVER_ERROR)
         .entity("<pre>" + entityMessage + "</pre>")
         .type(MediaType.TEXT_HTML)
         .build();

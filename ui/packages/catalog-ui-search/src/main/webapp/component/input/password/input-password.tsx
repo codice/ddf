@@ -28,7 +28,7 @@ type State = {
   showPassword: boolean
 }
 
-const Root = styled<{}, 'div'>('div')`
+const Root = styled.div`
   width: 100%;
 
   input {

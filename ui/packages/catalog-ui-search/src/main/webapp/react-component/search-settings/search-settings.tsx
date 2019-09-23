@@ -44,7 +44,7 @@ const QuerySettings = styled.div`
   }
 `
 
-const EditorFooter = styled<Props, 'div'>('div')`
+const EditorFooter = styled.div<Props>`
   display: ${props => (props.showFooter ? 'block' : 'none')};
   button {
     display: inline-block;

@@ -26,6 +26,9 @@
                                update-strategy="container-managed"/>
         <argument ref="clientFactoryFactory"/>
         <argument ref="eventAdmin"/>
+        <property name="ocspServerUrls">
+            <list/>
+        </property>
         <property name="ocspEnabled" value="false"/>
     </bean>
 

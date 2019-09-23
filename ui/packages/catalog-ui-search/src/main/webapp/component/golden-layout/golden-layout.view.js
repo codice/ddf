@@ -105,6 +105,14 @@ function getGoldenLayoutSettings() {
       dragProxyWidth: 300,
       dragProxyHeight: 200,
     },
+    labels: {
+      close: 'close',
+      maximise: 'maximize',
+      minimise: 'minimize',
+      popout: 'open in new window',
+      popin: 'pop in',
+      tabDropdown: 'additional tabs',
+    },
   }
 }
 

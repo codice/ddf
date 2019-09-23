@@ -16,7 +16,7 @@
     <parent>
         <artifactId>registry-admin-modules</artifactId>
         <groupId>org.codice.ddf.registry</groupId>
-        <version>2.18.0-SNAPSHOT</version>
+        <version>2.19.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>DDF :: Registry :: Admin :: Local UI</name>
@@ -46,7 +46,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package/>
+                        <Export-Package />
                     </instructions>
                 </configuration>
             </plugin>

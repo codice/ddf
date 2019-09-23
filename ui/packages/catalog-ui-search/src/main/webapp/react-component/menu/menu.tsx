@@ -20,7 +20,7 @@ import { readableColor, rgba } from 'polished'
 const mod = (n: any, m: any) => ((n % m) + m) % m
 
 const MenuRoot = styled.div`
-  max-height: 25vh;
+  max-height: 50vh;
   position: relative;
 `
 

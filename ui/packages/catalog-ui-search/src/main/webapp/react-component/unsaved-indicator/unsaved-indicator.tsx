@@ -21,7 +21,7 @@ interface Props {
   style?: React.CSSProperties
 }
 
-const Root = styled<Props, 'span'>('span')`
+const Root = styled.span<Props>`
   display: inline-block;
   line-height: inherit;
   vertical-align: top;
@@ -29,19 +29,14 @@ const Root = styled<Props, 'span'>('span')`
     return props.theme.warningColor
   }};
 
-  transition: ${props => {
-    return `transform ${props.theme.coreTransitionTime} ease-out, opacity ${
-      props.theme.coreTransitionTime
+  transition: ${({ theme }) => {
+    return `transform ${theme.coreTransitionTime} ease-out, opacity ${
+      theme.coreTransitionTime
     } ease-out;`
   }};
 
-  transform: ${props => {
-    return `scale(${props.shown ? 1 : 2});`
-  }};
-
-  opacity: ${props => {
-    return props.shown ? 1 : 0
-  }};
+  transform: ${props => `scale(${props.shown ? 1 : 2});`};
+  opacity: ${props => (props.shown ? 1 : 0)};
 `
 
 export default function UnsavedIndicator(props: Props) {

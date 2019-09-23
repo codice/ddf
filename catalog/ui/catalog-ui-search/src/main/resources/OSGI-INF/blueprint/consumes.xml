@@ -39,7 +39,7 @@ Services (OSGi) that catalog-ui-search CONSUMES from DDF
     <reference id="smtpClient" availability="mandatory"
                interface="org.codice.ddf.platform.email.SmtpClient"/>
 
-    <reference id="catalogService" interface="org.codice.ddf.rest.service.CatalogService"/>
+    <reference id="catalogService" interface="org.codice.ddf.rest.api.CatalogService"/>
 
     <reference-list id="metacardActionProviders" interface="ddf.action.ActionProvider"
                     filter="(id=catalog.data.metacard.*)"/>

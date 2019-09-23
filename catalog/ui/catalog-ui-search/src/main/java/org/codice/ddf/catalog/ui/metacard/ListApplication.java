@@ -54,7 +54,7 @@ import org.codice.ddf.catalog.ui.splitter.StopSplitterExecutionException;
 import org.codice.ddf.catalog.ui.splitter.StorableResource;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
-import org.codice.ddf.rest.service.CatalogService;
+import org.codice.ddf.rest.api.CatalogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Response;
