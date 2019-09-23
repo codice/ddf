@@ -14,20 +14,3 @@ It provides metadata search and discovery, resource retrieval, and workspace man
 For more detail on any feature or button within ${catalog-ui}, click the `?` icon in the upper right of the screen; then, hover over any item on the screen and a contextual tooltip will be displayed to define its purpose.
 To exit this mode, click the `?` again or press `escape`.
 ====
-
-=== Accessing ${catalog-ui}
-
-The default URL for ${catalog-ui} is \${secure_url}/search/catalog
-
-.Catalog UI Guest Users
-[NOTE]
-====
-If Guest access has been enabled, users not signed in to ${branding} (i.e. guest users) will have access to search functions, but all workspace configuration and settings will only exist locally and will not be available for sharing.
-====
-
-The default view for ${catalog-ui} is the *Workspaces* view. For other views or to return to the *Workspaces* view, click the *Navigation* menu in the upper-left corner of ${catalog-ui} and select the desired view.
-
-image::navigator-icon.png[navigator icon]
-
-.Select the desired view from the *Navigation* menu.
-image::navigator-menu-icon.png[navigation menu]

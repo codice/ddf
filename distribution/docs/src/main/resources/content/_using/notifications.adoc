@@ -3,7 +3,7 @@
 :status: published
 :parent: Using ${catalog-ui}
 :summary: Uploading from ${catalog-ui}
-:order: 06
+:order: 08
 
 == {title}
 
