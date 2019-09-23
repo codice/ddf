@@ -69,6 +69,7 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -86,14 +87,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.fileinstall.ArtifactInstaller;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.osgi.framework.Bundle;
@@ -103,7 +107,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DefinitionParser implements ArtifactInstaller {
+public class DefinitionParser {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefinitionParser.class);
 
@@ -138,6 +142,8 @@ public class DefinitionParser implements ArtifactInstaller {
           .setLenient()
           .create();
 
+  public static final int FILE_POLL_INTERVAL_MS = 997;
+
   private final AttributeRegistry attributeRegistry;
 
   private final AttributeValidatorRegistry attributeValidatorRegistry;
@@ -163,6 +169,8 @@ public class DefinitionParser implements ArtifactInstaller {
           new ValidationAttributes(),
           new VersionAttributes());
 
+  private FileAlterationMonitor fileAlterationMonitor;
+
   public DefinitionParser(
       AttributeRegistry attributeRegistry,
       AttributeValidatorRegistry attributeValidatorRegistry,
@@ -174,6 +182,33 @@ public class DefinitionParser implements ArtifactInstaller {
         defaultAttributeValueRegistry,
         metacardTypes,
         FrameworkUtil::getBundle);
+
+    FileAlterationObserver fileAlterationObserver =
+        new FileAlterationObserver(
+            Paths.get(System.getProperty("ddf.home"), "etc", "definitions").toString(),
+            pathname -> pathname.getName().endsWith(".json")) {
+          @Override
+          public void initialize() throws Exception {
+            // method purposely blank so that on startup files are picked up as new
+          }
+        };
+    fileAlterationObserver.addListener(new DefinitionFileListenerAdaptor());
+    fileAlterationMonitor =
+        new FileAlterationMonitor(FILE_POLL_INTERVAL_MS, fileAlterationObserver);
+    try {
+      fileAlterationMonitor.start();
+    } catch (Exception e) {
+      LOGGER.error(
+          "Could not start Definition Parser file watcher- Definition files may not be loaded.", e);
+    }
+  }
+
+  public void onDestroy() {
+    try {
+      fileAlterationMonitor.stop(TimeUnit.SECONDS.toMillis(5));
+    } catch (Exception e) {
+      LOGGER.debug("Could not shut down file watcher", e);
+    }
   }
 
   @VisibleForTesting
@@ -190,23 +225,19 @@ public class DefinitionParser implements ArtifactInstaller {
     this.bundleLookup = bundleLookup;
   }
 
-  @Override
   public void install(File file) throws Exception {
     apply(file);
   }
 
-  @Override
   public void update(File file) throws Exception {
     undo(file);
     apply(file);
   }
 
-  @Override
   public void uninstall(File file) throws Exception {
     undo(file);
   }
 
-  @Override
   public boolean canHandle(File file) {
     return file.getName().endsWith(".json");
   }
@@ -916,6 +947,35 @@ public class DefinitionParser implements ArtifactInstaller {
                 validatorName, context.deserialize(object.get("arguments"), LIST_STRING));
       }
       return result;
+    }
+  }
+
+  private class DefinitionFileListenerAdaptor extends FileAlterationListenerAdaptor {
+    @Override
+    public void onFileCreate(File file) {
+      try {
+        install(file);
+      } catch (Exception e) {
+        LOGGER.error("Could not install definitions file '{}'", file.getName(), e);
+      }
+    }
+
+    @Override
+    public void onFileDelete(File file) {
+      try {
+        uninstall(file);
+      } catch (Exception e) {
+        LOGGER.error("Could not uninstall definitions file '{}'", file.getName(), e);
+      }
+    }
+
+    @Override
+    public void onFileChange(File file) {
+      try {
+        update(file);
+      } catch (Exception e) {
+        LOGGER.error("Could not update definitions file '{}'", file.getName(), e);
+      }
     }
   }
 }
