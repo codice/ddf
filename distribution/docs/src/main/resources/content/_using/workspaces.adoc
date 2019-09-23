@@ -7,5 +7,5 @@
 
 == {title}
 
-Within ${catalog-ui}, workspaces are collections of settings, searches, and lists that can be shared between users and stored for repeated access.
+Within ${catalog-ui}, ((Workspaces)) are collections of settings, searches, and lists that can be shared between users and stored for repeated access.
 

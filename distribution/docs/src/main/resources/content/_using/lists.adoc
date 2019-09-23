@@ -7,7 +7,7 @@
 
 == {title}
 
-Lists organize results and enable performing actions on those sets of results.
+((Lists)) organize results and enable performing actions on those sets of results.
 The *Lists* tab can be found on the *Search* pane.
 
 The Lists tab defaults to the most recent list viewed.

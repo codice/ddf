@@ -29,9 +29,9 @@ These searches can be saved, edited, and duplicated as the basis of further sear
 .Search Types[[_search_types]]
 [no-bullet]
 * *Text*: Perform a minimal textual search that is treated identically to a Basic search with only <<_text_search_details,Text>> specified.
-* *Basic*: Define a <<_text_search_details,Text>>, <<_temporal_search_details,Temporal>>, <<_spatial_search_details,Spatial>>, or <<_type_search_details,Type>> Search.
+* *Basic*: [[_basic_search]](((Basic Search Tool)))Define a <<_text_search_details,Text>>, <<_temporal_search_details,Temporal>>, <<_spatial_search_details,Spatial>>, or <<_type_search_details,Type>> Search.
 [no-bullet]
-** [[_text_search_details]]*Text Search Details*: Searches across all textual data of the targeted data source. Text search capabilities include:
+** [[_text_search_details]]((*Text Search)) Details*: Searches across all textual data of the targeted data source. Text search capabilities include:
 [no-bullet]
 *** Search for an exact word, such as `Text = apple` : Returns items containing the word "apple" but not "apples". Matching occurs on word boundaries.
 *** Search for the existence of items containing multiple words, such as `Text = apple orange` : Returns items containing both "apple" and "orange" words. Words can occur anywhere in an item's metadata.
@@ -41,7 +41,7 @@ These searches can be saved, edited, and duplicated as the basis of further sear
 When searching with wildcards, do not include the punctuation at the beginning or the end of a word. For example, search for `Text = ca*` instead of `Text = -ca*` when searching for words like "cat", "-cat", etc..  and search for `Text = *og` instead of `Text = *og.` when searching for words like "dog", "dog.", etc..
 *** Text searches are by default case insensitive, but case sensitive searches are an option.
 +
-** [[_temporal_search_details]]*Temporal Search Details*: Search based on absolute time of the created, modified, or effective date.
+** [[_temporal_search_details]]((*Temporal Search)) Details*: Search based on absolute time of the created, modified, or effective date.
 [no-bullet]
 *** *Any*: Search without any time restrictions (default).
 *** *After*: Search records after a specified time.
@@ -49,7 +49,7 @@ When searching with wildcards, do not include the punctuation at the beginning o
 *** *Between*: Set a beginning and end time to search between.
 *** *Relative*: Search records relative to the current time.
 +
-** [[_spatial_search_details]]*Spatial Search Details*
+** [[_spatial_search_details]]((*Spatial Search)) Details*
 [no-bullet]
 *** Search by latitude/longitude (decimal degrees or degrees minutes seconds), USNG/MGRS, or UTM
 *** Search by entering a *Keyword* for a region, country, or city in the *Location* section of the query builder.
@@ -68,9 +68,9 @@ image::convex-hull-transform-example.png[]
 [no-bullet]
 *** Search for specific content types.
 +
-* *Advanced*: Advanced query builder can be used to create more specific searches than can be done through the other methods.
+* *Advanced*: ((Advanced Query Builder)) can be used to create more specific searches than can be done through the other methods.
 [no-bullet]
-** [[_advanced_query_builder_details]]*Advanced Query Builder Details*
+** [[_advanced_query_builder]]*Advanced Query Builder Details*
 [no-bullet]
 *** *Operator*: If 'AND' is used, all the filters in the branch have to be true for this branch to be true. If 'OR' is used, only one of the filters in this branch has to be true for this branch to be true.
 *** *Property*: Property to compare against.

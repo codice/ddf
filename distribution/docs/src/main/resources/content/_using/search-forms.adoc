@@ -7,7 +7,7 @@
 
 == {title}
 
-*Search Forms* are customizable templates of the attributes used in creating searches.
+((*Search Forms*)) are customizable templates of the attributes used in creating searches.
 Search forms are reusable, for when certain search types are created repeatedly.
 
 The Search Form screen has tabs to view Search Forms you created, Search Forms shared with you,
