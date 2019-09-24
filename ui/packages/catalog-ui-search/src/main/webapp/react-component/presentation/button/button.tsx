@@ -250,7 +250,7 @@ export const Button = ({
       className={rootClassName}
       // @ts-ignore
       style={rootStyle}
-      {...(otherProps as JSX.IntrinsicAttributes)}
+      {...otherProps as JSX.IntrinsicAttributes}
     >
       <>
         {children ? children : ''}
