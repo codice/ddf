@@ -16,7 +16,6 @@ import metacardDefinitions from '../../component/singletons/metacard-definitions
 
 import * as React from 'react'
 
-import ExtensionPoints from '../../extension-points'
 import styled from 'styled-components'
 import { GrabCursor } from '../styles/mixins'
 import { Button, buttonTypeEnum } from '../presentation/button'
