@@ -12,10 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react'
 import routes from './routes'
 import navigator, { Props } from './navigator'
-import filterActions from './filter-actions'
 import { SFC } from '../react-component/hoc/utils'
 import { providers, Props as ProviderProps } from './providers'
 import visualizations from './visualizations'
@@ -31,7 +29,6 @@ import multiSelectActions from './multi-select-actions'
 export type ExtensionPointsType = {
   routes: {}
   navigator: SFC<Props>
-  filterActions: React.ReactNode
   providers: SFC<ProviderProps>
   visualizations: any[]
   queryForms: any[]
@@ -45,7 +42,6 @@ export type ExtensionPointsType = {
 const ExtensionPoints: ExtensionPointsType = {
   routes,
   navigator,
-  filterActions,
   providers,
   visualizations,
   queryForms,

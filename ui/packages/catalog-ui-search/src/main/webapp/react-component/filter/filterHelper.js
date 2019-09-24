@@ -33,9 +33,18 @@ export const getFilteredAttributeList = includedAttributes => {
 }
 
 export const getAttributeType = attribute => {
-  return metacardDefinitions.metacardTypes[attribute].type
+  const type = metacardDefinitions.metacardTypes[attribute].type
+  if (type === 'GEOMETRY') return 'LOCATION'
+  if (isIntegerType(type)) return 'INTEGER'
+  if (isFloatType(type)) return 'FLOAT'
+
+  return type
 }
 
-export const isIntegerType = type => {
+const isIntegerType = type => {
   return type === 'INTEGER' || type === 'SHORT' || type === 'LONG'
+}
+
+const isFloatType = type => {
+  return type === 'FLOAT' || type === 'DOUBLE'
 }

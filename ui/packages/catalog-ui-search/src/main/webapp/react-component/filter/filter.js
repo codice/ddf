@@ -72,7 +72,6 @@ class Filter extends React.Component {
       attribute,
       suggestions: props.suggestions || [],
       value: props.value !== undefined ? props.value : '',
-      isValid: props.isValid,
     }
     props.onChange(this.state)
   }
@@ -113,13 +112,7 @@ class Filter extends React.Component {
           onChange={value => {
             this.setState({ value }, () => this.props.onChange(this.state))
           }}
-          isValid={this.state.isValid}
           value={this.state.value}
-        />
-        <ExtensionPoints.filterActions
-          model={this.props.model}
-          metacardDefinitions={metacardDefinitions}
-          options={this.props}
         />
       </Root>
     )

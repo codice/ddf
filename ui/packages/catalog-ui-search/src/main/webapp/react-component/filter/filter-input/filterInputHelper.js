@@ -52,14 +52,10 @@ export const determineInput = (
     case 'DATE':
       return <DateInput {...props} />
     case 'LOCATION':
-    case 'GEOMETRY':
       return <LocationInput {...props} />
-    case 'DOUBLE':
     case 'FLOAT':
       return <FloatInput {...props} />
     case 'INTEGER':
-    case 'SHORT':
-    case 'LONG':
       return <IntegerInput {...props} />
   }
 

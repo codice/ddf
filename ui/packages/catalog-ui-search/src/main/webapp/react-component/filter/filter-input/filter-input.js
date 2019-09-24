@@ -35,11 +35,6 @@ const LocationRoot = styled(BaseRoot)`
   display: block !important;
 `
 
-const Roots = {
-  LOCATION: LocationRoot,
-  GEOMETRY: LocationRoot,
-}
-
 const FilterInput = ({
   comparator,
   value,
@@ -48,7 +43,7 @@ const FilterInput = ({
   onChange,
 }) => {
   const type = getAttributeType(attribute)
-  const Root = Roots[type] || BaseRoot
+  const Root = type === 'LOCATION' ? LocationRoot : BaseRoot
   return (
     <Root>
       {determineInput(comparator, type, suggestions, value, onChange)}
