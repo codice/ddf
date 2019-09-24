@@ -23,17 +23,18 @@ const Label = styled.div`
 
 const InputContainer = styled.div`
   margin-bottom: ${({ theme }) => theme.minimumSpacing};
+  width: 100%;
 `
 
 const LastInput = styled(TextField)`
-  width: ${({ theme }) => `calc(8*${theme.mediumSpacing})`};
+  width: 100%;
 `
 
 const serialize = (last, unit) => ({ last, unit })
 
 const RelativeTime = props => {
   return (
-    <div>
+    <div className={props.className}>
       <InputContainer>
         <Label>Last</Label>
         <LastInput

@@ -22,7 +22,6 @@ import {
   BetweenTimeInput,
 } from './filter-date-inputs'
 import { TextInput, NearInput, EnumInput } from './filter-text-inputs'
-import { isIntegerType } from '../filterHelper'
 
 export const determineInput = (
   comparator,
@@ -42,7 +41,7 @@ export const determineInput = (
     case 'RELATIVE':
       return <RelativeTimeInput {...props} />
     case 'RANGE':
-      props.isInteger = isIntegerType(type)
+      props.isInteger = type === 'INTEGER'
       return <RangeInput {...props} />
   }
 

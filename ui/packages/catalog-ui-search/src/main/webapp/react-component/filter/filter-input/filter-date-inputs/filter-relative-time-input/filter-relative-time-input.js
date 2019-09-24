@@ -16,6 +16,11 @@
 import React, { useEffect, useState } from 'react'
 import RelativeTimeInput from '../../../../inputs/relative-time-input'
 import { deserialize, serialize } from './relativeTimeHelper'
+import styled from 'styled-components'
+
+const Component = styled(RelativeTimeInput)`
+  width: ${({ theme }) => `calc(14*${theme.mediumSpacing})`};
+`
 
 const FilterRelativeTimeInput = props => {
   const [value, setValue] = useState(
@@ -27,13 +32,7 @@ const FilterRelativeTimeInput = props => {
     },
     [value]
   )
-  return (
-    <RelativeTimeInput
-      last={value.last}
-      unit={value.unit}
-      onChange={setValue}
-    />
-  )
+  return <Component last={value.last} unit={value.unit} onChange={setValue} />
 }
 
 export default FilterRelativeTimeInput

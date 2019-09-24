@@ -29,8 +29,12 @@ const Root = styled.div`
   height: 100%;
   display: block;
   white-space: nowrap;
-  margin: ${({ theme }) => theme.minimumSpacing};
-  padding: ${({ theme }) => theme.minimumSpacing};
+  margin: ${({ theme }) =>
+    `${theme.minimumSpacing} 0px ${theme.minimumSpacing} ${
+      theme.minimumSpacing
+    }`};
+  padding: ${({ theme }) =>
+    `${theme.minimumSpacing} 1.5rem ${theme.minimumSpacing} 0px`};
 `
 
 const FilterRearrange = styled.div`
