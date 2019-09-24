@@ -34,6 +34,7 @@ export type Props = {
   uploadEnabled: boolean
   isDevelopment: boolean
   navigateToRoute: (route: string) => void
+  destination?: string
 }
 
 export const Divider = () => {
@@ -140,11 +141,16 @@ export const Link = ({
   )
 }
 
-export const ProductLink = ({ navigateToRoute, branding, product }: Props) => {
+export const ProductLink = ({
+  navigateToRoute,
+  destination,
+  branding,
+  product,
+}: Props) => {
   return (
     <Link
       onClick={() => {
-        navigateToRoute('workspaces')
+        navigateToRoute(destination || 'workspaces')
       }}
     >
       <span className="is-bold">{branding} </span>
