@@ -359,4 +359,18 @@
         <cve>CVE-2019-10086</cve>
     </suppress>
 
+    <suppress>
+        <notes>
+            filename: jackson-databind-2.9.8.jar
+            filename: jackson-databind-2.9.7.jar
+            filename: jackson-databind-2.7.7.jar
+            filename: ehcache-2.10.5.jar
+
+            These CVEs list 2.9.10 as the unaffected version, which does not exist.
+        </notes>
+
+        <cve>CVE-2019-16335</cve>
+        <cve>CVE-2019-14540</cve>
+    </suppress>
+
 </suppressions>
