@@ -325,6 +325,15 @@ const setupEditor = (dispatch, getState) => {
     },
   ]
 
+  const customVisualizations = getConfig(state).get('customVisualizations')
+  customVisualizations.forEach(component => {
+    visualizations.push({
+      name: component,
+      title: component,
+      icon: 'question',
+    })
+  })
+
   let layout = new GoldenLayout(baseConf, '#layoutContainer')
   visualizations.forEach(function(component) {
     layout.registerComponent(
