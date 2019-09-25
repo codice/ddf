@@ -184,9 +184,13 @@ public class SecurityAssertionJwt implements SecurityAssertion {
       try {
         return (String) attributes.get(claim);
       } catch (NoSuchElementException e) {
-        LOGGER.debug(
-            "Could not find username claim [%s] in jwt claims [%s]",
-            claim, String.join(",", attributes.keySet()), e);
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug(
+              "Could not find username claim [{}] in jwt claims [{}]",
+              claim,
+              String.join(",", attributes.keySet()),
+              e);
+        }
       }
     }
 
