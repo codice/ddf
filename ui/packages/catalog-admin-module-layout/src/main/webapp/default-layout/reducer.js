@@ -37,6 +37,15 @@ window.React = React
 window.ReactDOM = ReactDOM
 const GoldenLayout = require('golden-layout')
 
+const SET_CONFIG = 'default-layout/SET_CONFIG'
+const SET_BUFFER = 'default-layout/SET_BUFFER'
+const INIT_EDITOR = 'default-layout/INIT_EDITOR'
+const START_SUBMIT = 'default-layout/START_SUBMIT'
+const END_SUBMIT = 'default-layout/END_SUBMIT'
+const MESSAGE = 'default-layout/MESSAGE'
+const UPDATE = 'default-layout/UPDATE'
+const RESET = 'default-layout/RESET'
+
 const themes = {
   admin,
   catalog,
@@ -89,25 +98,25 @@ export const hasChanges = state => {
 }
 
 export const setConfig = value => ({
-  type: 'default-layout/SET_CONFIG',
+  type: SET_CONFIG,
   value,
 })
 export const setBuffer = value => ({
-  type: 'default-layout/SET_BUFFER',
+  type: SET_BUFFER,
   value,
 })
 export const setEditor = value => ({
-  type: 'default-layout/INIT_EDITOR',
+  type: INIT_EDITOR,
   value,
 })
 export const start = () => ({
-  type: 'default-layout/START_SUBMIT',
+  type: START_SUBMIT,
 })
 export const end = () => ({
-  type: 'default-layout/END_SUBMIT',
+  type: END_SUBMIT,
 })
 export const message = (text, action) => ({
-  type: 'default-layout/MESSAGE',
+  type: MESSAGE,
   text,
   action,
 })
@@ -127,7 +136,7 @@ export const update = value => (dispatch, getState) => {
     updateLayout(value, getState)
 
     return dispatch({
-      type: 'default-layout/UPDATE',
+      type: UPDATE,
       value,
     })
   }
@@ -139,7 +148,7 @@ export const reset = () => (dispatch, getState) => {
   updateLayout(config.get('defaultLayout'), getState)
 
   return dispatch({
-    type: 'default-layout/RESET',
+    type: RESET,
     value: config,
   })
 }
@@ -410,9 +419,9 @@ const setupEditor = (dispatch, getState) => {
 
 const loading = (state = false, { type }) => {
   switch (type) {
-    case 'default-layout/END_SUBMIT':
+    case END_SUBMIT:
       return false
-    case 'default-layout/START_SUBMIT':
+    case START_SUBMIT:
       return true
     default:
       return state
@@ -421,12 +430,12 @@ const loading = (state = false, { type }) => {
 
 export const config = (state = Map(), { type, value }) => {
   switch (type) {
-    case 'default-layout/SET_CONFIG':
+    case SET_CONFIG:
       if (!value.get('defaultLayout')) {
         value = value.set('defaultLayout', JSON.stringify(baseDefault))
       }
       return value
-    case 'default-layout/RESET':
+    case RESET:
       return state
     default:
       return state
@@ -435,7 +444,7 @@ export const config = (state = Map(), { type, value }) => {
 
 const editor = (state = Map(), { type, value = undefined }) => {
   switch (type) {
-    case 'default-layout/INIT_EDITOR':
+    case INIT_EDITOR:
       return value
     default:
       return state
@@ -444,10 +453,10 @@ const editor = (state = Map(), { type, value = undefined }) => {
 
 export const buffer = (state = Map(), { type, value }) => {
   switch (type) {
-    case 'default-layout/SET_BUFFER':
+    case SET_BUFFER:
       const parsed = convertLayout(value, false)
       return state.set('buffer', JSON.stringify(parsed, null, 2))
-    case 'default-layout/RESET':
+    case RESET:
       const defaultConf = JSON.parse(value.get('defaultLayout'))
       return state.set('buffer', JSON.stringify(defaultConf, null, 2))
     default:
@@ -457,7 +466,7 @@ export const buffer = (state = Map(), { type, value }) => {
 
 const msg = (state = {}, { type, text, action }) => {
   switch (type) {
-    case 'default-layout/MESSAGE':
+    case MESSAGE:
       return { text, action }
     default:
       return state
