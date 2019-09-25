@@ -276,7 +276,7 @@ class ThemeContainer extends React.Component<
     this.watchScreenSize()
   }
   componentWillUnmount() {
-    $(window).off(this.id)
+    $(window).off(`.${this.id}`)
     this.isDestroyed = true // we have a throttled listener that updates state, so we need this!
   }
   watchScreenSize() {
