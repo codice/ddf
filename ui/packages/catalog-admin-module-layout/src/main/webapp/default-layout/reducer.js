@@ -325,7 +325,8 @@ const setupEditor = (dispatch, getState) => {
     },
   ]
 
-  const customVisualizations = getConfig(state).get('customVisualizations')
+  const customVisualizations =
+    getConfig(state).get('customVisualizations') || []
   customVisualizations.forEach(component => {
     visualizations.push({
       name: component,

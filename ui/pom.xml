@@ -376,9 +376,9 @@
                                     <classifier>message-broker</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>packages/catalog-admin-module-layout/target/defaul-layout.jar</file>
+                                    <file>packages/catalog-admin-module-layout/target/default-layout.jar</file>
                                     <type>jar</type>
-                                    <classifier>defaul-layout</classifier>
+                                    <classifier>default-layout</classifier>
                                 </artifact>
                                 <artifact>
                                     <file>packages/catalog-admin-module-maplayers/target/map-layers.jar</file>
