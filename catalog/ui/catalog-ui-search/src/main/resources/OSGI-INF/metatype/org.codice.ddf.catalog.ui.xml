@@ -46,6 +46,13 @@
             type="String"
             default='[{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]'/>
 
+        <AD id="customVisualizations"
+            name="Custom Visualizations"
+            description='Custom Visualizations that should be recognized by golden layout.'
+            type="String"
+            cardinality="10000"
+            default=''/>
+
         <AD id="listTemplates"
             name="List Templates"
             description='Templates for users to quickly create lists that already specify an icon and a filter. Example: {"id":"Pizza Deliveries", "list.icon": "tasks", "list.cql": "(\"anyText\" ILIKE &apos;pizza&apos;)"} '

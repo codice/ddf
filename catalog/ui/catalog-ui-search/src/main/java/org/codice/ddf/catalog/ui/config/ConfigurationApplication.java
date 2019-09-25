@@ -84,6 +84,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private List defaultLayout = new ArrayList<>();
 
+  private List customVisualizations = new ArrayList<String>();
+
   private List<Map> imageryProviderUrlMaps = new ArrayList<>();
 
   private List<Map<String, Object>> imageryProviderMaps = new ArrayList<>();
@@ -534,6 +536,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("zoomPercentage", zoomPercentage);
     config.put("spacingMode", spacingMode);
     config.put("defaultLayout", getDefaultLayoutConfig());
+    config.put("customVisualizations", customVisualizations);
     config.put("isExperimental", experimentalEnabled);
     config.put("autoMergeTime", autoMergeTime);
     config.put("webSocketsEnabled", webSocketsEnabled);
@@ -1245,6 +1248,14 @@ public class ConfigurationApplication implements SparkApplication {
 
   public List<String> getBasicSearchTemporalSelectionDefault() {
     return basicSearchTemporalSelectionDefault;
+  }
+
+  public void setCustomVisualizations(List<String> customVisualizations) {
+    this.customVisualizations = customVisualizations;
+  }
+
+  public List<String> getCustomVisualizations() {
+    return customVisualizations;
   }
 
   public String getBasicSearchMatchType() {
