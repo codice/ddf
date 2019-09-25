@@ -14,27 +14,39 @@
  **/
 
 const Marionette = require('marionette')
-const CustomElements = require('../../js/CustomElements.js')
 import * as React from 'react'
 import Filter from '../../react-component/filter'
 
 module.exports = Marionette.LayoutView.extend({
   template() {
+    const value = this.model.get('value')
     return (
       <Filter
+        attribute={this.model.get('type')}
+        comparator={this.model.get('comparator')}
+        value={value ? value[0] : undefined}
         model={this.model}
+        isValid={this.model.get('isValid')}
         {...this.options}
         editing={this.$el.hasClass('is-editing')}
         onRemove={() => this.delete()}
+        onChange={state => this.onChange(state)}
       />
     )
   },
-  tagName: CustomElements.register('filter'),
   attributes() {
     return { 'data-id': this.model.cid }
   },
   delete() {
     this.model.destroy()
+  },
+  onChange(state) {
+    const { attribute, comparator, value } = state
+    this.model.set({
+      type: attribute,
+      comparator,
+      value: [value],
+    })
   },
   turnOnEditing() {
     if (this.$el.hasClass('is-editing')) return

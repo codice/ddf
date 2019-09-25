@@ -12,12 +12,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export type Props = {
-  model: Backbone.Model
-  metacardDefinitions: any
-  options: any
-}
-
-export default () => {
-  return null
-}
+export { default } from './filter-enum-input'

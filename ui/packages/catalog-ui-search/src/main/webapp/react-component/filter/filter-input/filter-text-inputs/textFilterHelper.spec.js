@@ -12,21 +12,14 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import { storiesOf as of } from '@connexta/ace/@storybook/react'
+import { expect } from 'chai'
+import { deserializeValue } from './textFilterHelper'
 
-import withTheme from './withTheme'
-
-export const storiesOf = (name, m) => {
-  const stories = of(name, m)
-  stories.addDecorator(withTheme)
-  return stories
-}
-
-export { action } from '@connexta/ace/@storybook/addon-actions'
-export {
-  array,
-  text,
-  number,
-  boolean,
-  object,
-} from '@connexta/ace/@storybook/addon-knobs'
+describe('deserialize', () => {
+  it('deserializes near input format', () => {
+    expect(deserializeValue({ value: 'value', distance: 4 })).to.equal('value')
+  })
+  it('leaves strings alone', () => {
+    expect(deserializeValue('value')).to.equal('value')
+  })
+})

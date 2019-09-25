@@ -12,36 +12,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react'
-import styled from 'styled-components'
-import { getFilteredAttributeList } from './filterHelper'
-import EnumInput from '../inputs/enum-input'
+import moment from 'moment-timezone'
 
-const Root = styled.div`
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: ${({ theme }) => theme.minimumSpacing};
-`
-
-const FilterAttributeDropdown = ({
-  onChange,
-  includedAttributes,
-  editing,
-  value,
-}) => {
-  return (
-    <Root>
-      {editing ? (
-        <EnumInput
-          value={value}
-          suggestions={getFilteredAttributeList(includedAttributes)}
-          onChange={onChange}
-        />
-      ) : (
-        value
-      )}
-    </Root>
-  )
+export const formatDate = (date, timeZone, format) => {
+  if (!date.isValid()) {
+    return ''
+  }
+  return date.tz(timeZone).format(format)
 }
 
-export default FilterAttributeDropdown
+export const parseInput = (input, timeZone, format, fallback) => {
+  if (input === '') {
+    return moment('')
+  }
+  const date = moment.tz(input, format, timeZone)
+  if (date.isValid()) {
+    return moment.tz(date, format, timeZone)
+  }
+  return moment(fallback)
+}

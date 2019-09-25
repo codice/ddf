@@ -12,36 +12,18 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react'
-import styled from 'styled-components'
-import { getFilteredAttributeList } from './filterHelper'
-import EnumInput from '../inputs/enum-input'
+import user from '../../../../component/singletons/user-instance'
 
-const Root = styled.div`
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: ${({ theme }) => theme.minimumSpacing};
-`
-
-const FilterAttributeDropdown = ({
-  onChange,
-  includedAttributes,
-  editing,
-  value,
-}) => {
-  return (
-    <Root>
-      {editing ? (
-        <EnumInput
-          value={value}
-          suggestions={getFilteredAttributeList(includedAttributes)}
-          onChange={onChange}
-        />
-      ) : (
-        value
-      )}
-    </Root>
-  )
+export const getTimeZone = () => {
+  return user
+    .get('user')
+    .get('preferences')
+    .get('timeZone')
 }
 
-export default FilterAttributeDropdown
+export const getDateFormat = () => {
+  return user
+    .get('user')
+    .get('preferences')
+    .get('dateTimeFormat')['datetimefmt']
+}

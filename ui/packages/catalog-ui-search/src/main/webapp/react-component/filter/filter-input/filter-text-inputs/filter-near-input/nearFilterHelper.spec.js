@@ -12,21 +12,23 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import { storiesOf as of } from '@connexta/ace/@storybook/react'
+import { expect } from 'chai'
+import { deserializeDistance, serialize } from './nearFilterHelper'
 
-import withTheme from './withTheme'
+describe('deserializeDistance', () => {
+  it('deserializes distance', () => {
+    expect(deserializeDistance({ value: 'value', distance: '4' })).to.equal('4')
+  })
+  it('defaults distance to 2', () => {
+    expect(deserializeDistance('value')).to.equal('2')
+  })
+})
 
-export const storiesOf = (name, m) => {
-  const stories = of(name, m)
-  stories.addDecorator(withTheme)
-  return stories
-}
-
-export { action } from '@connexta/ace/@storybook/addon-actions'
-export {
-  array,
-  text,
-  number,
-  boolean,
-  object,
-} from '@connexta/ace/@storybook/addon-knobs'
+describe('serialize', () => {
+  it('prevents negative non-positive distance', () => {
+    expect(serialize('value', -5)).to.deep.equal({
+      value: 'value',
+      distance: '1',
+    })
+  })
+})

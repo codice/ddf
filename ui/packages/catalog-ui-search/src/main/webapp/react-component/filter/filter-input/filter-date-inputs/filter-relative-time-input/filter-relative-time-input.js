@@ -12,36 +12,27 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react'
-import styled from 'styled-components'
-import { getFilteredAttributeList } from './filterHelper'
-import EnumInput from '../inputs/enum-input'
 
-const Root = styled.div`
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: ${({ theme }) => theme.minimumSpacing};
+import React, { useEffect, useState } from 'react'
+import RelativeTimeInput from '../../../../inputs/relative-time-input'
+import { deserialize, serialize } from './relativeTimeHelper'
+import styled from 'styled-components'
+
+const Component = styled(RelativeTimeInput)`
+  width: ${({ theme }) => `calc(14*${theme.mediumSpacing})`};
 `
 
-const FilterAttributeDropdown = ({
-  onChange,
-  includedAttributes,
-  editing,
-  value,
-}) => {
-  return (
-    <Root>
-      {editing ? (
-        <EnumInput
-          value={value}
-          suggestions={getFilteredAttributeList(includedAttributes)}
-          onChange={onChange}
-        />
-      ) : (
-        value
-      )}
-    </Root>
+const FilterRelativeTimeInput = props => {
+  const [value, setValue] = useState(
+    deserialize(props.value) || { last: '', unit: '' }
   )
+  useEffect(
+    () => {
+      props.onChange(serialize(value))
+    },
+    [value]
+  )
+  return <Component last={value.last} unit={value.unit} onChange={setValue} />
 }
 
-export default FilterAttributeDropdown
+export default FilterRelativeTimeInput

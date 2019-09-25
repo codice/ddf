@@ -12,36 +12,27 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react'
-import styled from 'styled-components'
-import { getFilteredAttributeList } from './filterHelper'
-import EnumInput from '../inputs/enum-input'
+import React, { useState, useEffect } from 'react'
+import ExpandingTextInput from '../../../inputs/expanding-text-input'
+import { deserializeValue } from './textFilterHelper'
 
-const Root = styled.div`
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: ${({ theme }) => theme.minimumSpacing};
-`
+const TextInput = props => {
+  const [value, setValue] = useState(deserializeValue(props.value))
 
-const FilterAttributeDropdown = ({
-  onChange,
-  includedAttributes,
-  editing,
-  value,
-}) => {
+  useEffect(
+    () => {
+      props.onChange(value)
+    },
+    [value]
+  )
+
   return (
-    <Root>
-      {editing ? (
-        <EnumInput
-          value={value}
-          suggestions={getFilteredAttributeList(includedAttributes)}
-          onChange={onChange}
-        />
-      ) : (
-        value
-      )}
-    </Root>
+    <ExpandingTextInput
+      placeholder="Use * for wildcard."
+      value={value}
+      onChange={setValue}
+    />
   )
 }
 
-export default FilterAttributeDropdown
+export default TextInput

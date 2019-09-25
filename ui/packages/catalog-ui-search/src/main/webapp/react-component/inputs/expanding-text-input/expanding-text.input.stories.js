@@ -12,36 +12,19 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react'
-import styled from 'styled-components'
-import { getFilteredAttributeList } from './filterHelper'
-import EnumInput from '../inputs/enum-input'
+import React from 'react'
 
-const Root = styled.div`
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: ${({ theme }) => theme.minimumSpacing};
-`
+import { storiesOf, action, text } from '../../storybook'
 
-const FilterAttributeDropdown = ({
-  onChange,
-  includedAttributes,
-  editing,
-  value,
-}) => {
+import ExpandingTextInput from '.'
+
+const stories = storiesOf('ExpandingTextInput', module)
+
+stories.add('basic', () => {
   return (
-    <Root>
-      {editing ? (
-        <EnumInput
-          value={value}
-          suggestions={getFilteredAttributeList(includedAttributes)}
-          onChange={onChange}
-        />
-      ) : (
-        value
-      )}
-    </Root>
+    <ExpandingTextInput
+      value={text('value', 'value')}
+      onChange={action('onChange')}
+    />
   )
-}
-
-export default FilterAttributeDropdown
+})

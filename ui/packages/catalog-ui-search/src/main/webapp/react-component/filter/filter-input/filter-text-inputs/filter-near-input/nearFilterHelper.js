@@ -12,36 +12,13 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import * as React from 'react'
-import styled from 'styled-components'
-import { getFilteredAttributeList } from './filterHelper'
-import EnumInput from '../inputs/enum-input'
-
-const Root = styled.div`
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: ${({ theme }) => theme.minimumSpacing};
-`
-
-const FilterAttributeDropdown = ({
-  onChange,
-  includedAttributes,
-  editing,
-  value,
-}) => {
-  return (
-    <Root>
-      {editing ? (
-        <EnumInput
-          value={value}
-          suggestions={getFilteredAttributeList(includedAttributes)}
-          onChange={onChange}
-        />
-      ) : (
-        value
-      )}
-    </Root>
-  )
+export const serialize = (value, distance) => {
+  return {
+    value,
+    distance: Math.max(1, parseInt(distance) || 0).toString(),
+  }
 }
 
-export default FilterAttributeDropdown
+export const deserializeDistance = value => {
+  return (value && value.distance) || '2'
+}
