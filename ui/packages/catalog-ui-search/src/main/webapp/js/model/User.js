@@ -437,8 +437,15 @@ User.Response = Backbone.AssociatedModel.extend({
   canRead(metacard) {
     return new Security(Restrictions.from(metacard)).canRead(this)
   },
+  /**
+   * Allow workspaces to be created no matter what,
+   * but still enforce the other restrictions (if it's a shared workspace,
+   * check if they have permission to write to it)
+   *
+   * For all other types, every policy is enforced.
+   */
   canWrite(thing) {
-    if (properties.isEditingRestricted()) {
+    if (thing.type !== 'workspace' && properties.isEditingRestricted()) {
       return false
     }
     switch (thing.type) {
