@@ -13,13 +13,14 @@
  */
 package org.codice.ddf.configuration.admin;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ExportMigrationEntry;
@@ -48,17 +49,23 @@ public class ConfigurationAdminMigratable implements Migratable {
    */
   private static final String CURRENT_VERSION = "1.0";
 
-  private static final List<String> ACCEPTED_ENTRY_PIDS =
+  @VisibleForTesting
+  static final List<String> ACCEPTED_ENTRY_PIDS =
       Arrays.asList(
           "ddf.catalog.resource.impl.URLResourceReader",
           "org.codice.ddf.security.policy.context.impl.PolicyManager",
           "ddf.security.sts.guestclaims",
           "ddf.security.sts",
           "ddf.security.http.impl.HttpSessionFactory",
-          "org.codice.ddf.security.filter.login.Session");
+          "org.codice.ddf.security.filter.login.Session",
+          "org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries",
+          "org.codice.ddf.registry.policy.RegistryPolicyPlugin",
+          "Registry_Configuration_Event_Handler",
+          "org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler");
 
   private static final List<String> ACCEPTED_ENTRY_FACTORY_PIDS =
-      Collections.singletonList("org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor");
+      Arrays.asList(
+          "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor", "Csw_Registry_Store");
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminMigratable.class);
 
@@ -152,13 +159,16 @@ public class ConfigurationAdminMigratable implements Migratable {
   }
 
   private boolean isAcceptedConfigurationAdminEntry(ImportMigrationConfigurationAdminEntry entry) {
-    if (ACCEPTED_ENTRY_PIDS.contains(entry.getPid())) {
-      return true;
-    }
-    if (ACCEPTED_ENTRY_FACTORY_PIDS.contains(entry.getFactoryPid())) {
-      return true;
-    }
-    return false;
+    return (ACCEPTED_ENTRY_PIDS.contains(entry.getPid())
+        || ACCEPTED_ENTRY_FACTORY_PIDS.contains(entry.getFactoryPid())
+        || isASource(entry.getFactoryPid()));
+  }
+
+  private boolean isASource(String factoryPid) {
+    // this is generic in order to get downstream project sources and is being handled similarly to
+    // how the CSW Registry uses the SourceConfigurationHandler class
+    return (StringUtils.containsIgnoreCase(factoryPid, "source")
+        || StringUtils.containsIgnoreCase(factoryPid, "service"));
   }
 
   // entries must be updated to the latest versions of themselves in order to restore correctly
