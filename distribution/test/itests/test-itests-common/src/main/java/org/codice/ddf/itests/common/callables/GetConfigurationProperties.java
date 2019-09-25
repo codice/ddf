@@ -79,7 +79,7 @@ public class GetConfigurationProperties implements Callable<Dictionary<String, O
     }
 
     if (configurationSet.size() > 1) {
-      LOGGER.error(String.format("Multiple Configuration objects returned for query %s", query));
+      LOGGER.error("Multiple Configuration objects returned for query {}", query);
       throw new IllegalArgumentException("Property name/value pair isn't unique");
     }
 
