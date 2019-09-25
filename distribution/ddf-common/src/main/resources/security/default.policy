@@ -396,7 +396,7 @@ grant codeBase "file:/admin-ui" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
 }
 
-grant codeBase "file:/admin-configuration-configupdater" {
+grant codeBase "file:/admin-configuration-configupdater/sync-installer-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}*", "read,write,delete";
 }
 
