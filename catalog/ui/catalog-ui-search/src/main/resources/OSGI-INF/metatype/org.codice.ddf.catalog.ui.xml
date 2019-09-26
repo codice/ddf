@@ -48,7 +48,7 @@
 
         <AD id="customVisualizations"
             name="Custom Visualizations"
-            description='Custom Visualizations that should be recognized by golden layout.'
+            description='Custom Visualizations that should be recognized by golden layout. Example single onfig entry: "component,componentName,font-awesome4.7.0-icon-name"'
             type="String"
             cardinality="10000"
             default=''/>

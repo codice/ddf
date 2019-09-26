@@ -78,6 +78,13 @@ Example:
 |[{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]
 |true
 
+|Custom Visualizations
+|customVisualizations
+|String
+|Custom Visualizations that should be recognized by golden layout. Example single onfig entry: "component,componentName,font-awesome4.7.0-icon-name"
+|
+|false
+
 |List Templates
 |listTemplates
 |String
