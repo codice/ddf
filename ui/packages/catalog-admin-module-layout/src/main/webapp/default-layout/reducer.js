@@ -297,46 +297,9 @@ const setupEditor = (dispatch, getState) => {
     },
     content: convertLayout(config, true),
   }
-  const visualizations = [
-    {
-      name: 'openlayers',
-      title: '2D Map',
-      icon: 'map',
-    },
-    {
-      name: 'cesium',
-      title: '3D Map',
-      icon: 'globe',
-    },
-    {
-      name: 'inspector',
-      title: 'Inspector',
-      icon: 'info',
-    },
-    {
-      name: 'histogram',
-      title: 'Histogram',
-      icon: 'bar-chart',
-    },
-    {
-      name: 'table',
-      title: 'Table',
-      icon: 'table',
-    },
-  ]
-
-  const customVisualizations =
-    getConfig(state).get('customVisualizations') || []
-  customVisualizations.forEach(componentDeclaration => {
-    const component = componentDeclaration.split(',')
-    visualizations.push({
-      name: component[0],
-      title: component[1],
-      icon: component[2],
-    })
-  })
 
   let layout = new GoldenLayout(baseConf, '#layoutContainer')
+  const visualizations = getConfig(state).get('visualizations') || []
   visualizations.forEach(function(component) {
     layout.registerComponent(
       component.name,
