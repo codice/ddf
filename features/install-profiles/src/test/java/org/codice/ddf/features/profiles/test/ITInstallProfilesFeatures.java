@@ -52,9 +52,6 @@ public class ITInstallProfilesFeatures {
         defaultVmOptions(),
         defaultPortsOptions(),
         defaultLogging(),
-        DebugOptions.enableRemoteDebugging(),
-        editConfigurationFilePut(
-            "etc/org.ops4j.pax.logging.cfg", "log4j2.rootLogger.level", "TRACE"),
         includeTestResources(),
         addFeatureRepo(FeatureUtilities.toFeatureRepo(FEATURE_REPO_PATH)),
         addBootFeature(TestUtilitiesFeatures.testCommon()));
