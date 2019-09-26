@@ -327,11 +327,12 @@ const setupEditor = (dispatch, getState) => {
 
   const customVisualizations =
     getConfig(state).get('customVisualizations') || []
-  customVisualizations.forEach(component => {
+  customVisualizations.forEach(componentDeclaration => {
+    const component = componentDeclaration.split(',')
     visualizations.push({
-      name: component,
-      title: component,
-      icon: 'question',
+      name: component[0],
+      title: component[1],
+      icon: component[2],
     })
   })
 
