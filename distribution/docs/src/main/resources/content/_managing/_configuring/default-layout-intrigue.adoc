@@ -30,7 +30,7 @@ Table:: Compare attributes of items in a search result set as a table.
 
 .Configuring Possible Visualizations
 . Navigate to the *${admin-console}*.
-. Select the *${ddf-ui}* applicatiAppender Beforeon.
+. Select the *${ddf-ui}* application.
 . Select the *Configuration* tab.
 . Select `org.codice.ddf.catalog.ui`
 . *Edit* "Visualizations" JSON as desired.
