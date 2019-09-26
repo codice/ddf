@@ -22,14 +22,12 @@ import static org.codice.ddf.test.common.options.TestResourcesOptions.getTestRes
 import static org.codice.ddf.test.common.options.TestResourcesOptions.includeTestResources;
 import static org.codice.ddf.test.common.options.VmOptions.defaultVmOptions;
 import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 
 import java.util.List;
 import javax.inject.Inject;
 import org.codice.ddf.sync.installer.api.SynchronizedInstaller;
 import org.codice.ddf.test.common.features.FeatureUtilities;
 import org.codice.ddf.test.common.features.TestUtilitiesFeatures;
-import org.codice.ddf.test.common.options.DebugOptions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
