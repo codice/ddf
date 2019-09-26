@@ -12,113 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/* global _ */
-const metacardDefinitions = require('../../component/singletons/metacard-definitions.js')
-const properties = require('../../js/properties.js')
-const MultivalueView = require('../../component/multivalue/multivalue.view.js')
-const RelativeTimeView = require('../../component/relative-time/relative-time.view.js')
-const BetweenTimeView = require('../../component/between-time/between-time.view.js')
-const BetweenNumberView = require('../../component/between-number/between-number.view.js')
-
-export const generatePropertyJSON = (value, type, comparator) => {
-  const propertyJSON = _.extend({}, metacardDefinitions.metacardTypes[type], {
-    value,
-    multivalued: false,
-    enumFiltering: true,
-    enumCustom: true,
-    matchcase: ['MATCHCASE', '='].indexOf(comparator) !== -1 ? true : false,
-    enum: metacardDefinitions.enums[type],
-    showValidationIssues: false,
-  })
-
-  if (propertyJSON.type === 'GEOMETRY') {
-    propertyJSON.type = 'LOCATION'
-  }
-
-  if (propertyJSON.type === 'STRING') {
-    propertyJSON.placeholder = 'Use * for wildcard.'
-  }
-
-  if (comparator === 'RANGE') {
-    propertyJSON.typeOfValues = propertyJSON.type
-    propertyJSON.type = 'RANGE'
-  }
-
-  if (comparator === 'NEAR' && propertyJSON.type === 'STRING') {
-    propertyJSON.type = 'NEAR'
-    propertyJSON.param = 'within'
-    propertyJSON.help =
-      'The distance (number of words) within which search terms must be found in order to match'
-    delete propertyJSON.enum
-  }
-
-  // if we don't set this the property model will transform the value as if it's a date, clobbering the special format
-  if (
-    (comparator === 'RELATIVE' || comparator === 'BETWEEN') &&
-    propertyJSON.type === 'DATE'
-  ) {
-    propertyJSON.transformValue = false
-  }
-
-  return propertyJSON
-}
-
-export const determineView = comparator => {
-  let necessaryView
-  switch (comparator) {
-    case 'RELATIVE':
-      necessaryView = RelativeTimeView
-      break
-    case 'BETWEEN':
-      necessaryView = BetweenTimeView
-      break
-    case 'RANGE':
-      necessaryView = BetweenNumberView
-      break
-    default:
-      necessaryView = MultivalueView
-      break
-  }
-  return necessaryView
-}
-
-export const transformValue = (value, comparator) => {
-  switch (comparator) {
-    case 'NEAR':
-      if (value[0].constructor !== Object) {
-        value[0] = {
-          value: value[0],
-          distance: 2,
-        }
-      }
-      break
-    case 'RANGE':
-      if (
-        value[0] !== undefined &&
-        value[0] !== null &&
-        value[0].constructor !== Object
-      ) {
-        value[0] = {
-          lower: value[0] || 0,
-          upper: value[0] || 0,
-        }
-      }
-      break
-    case 'INTERSECTS':
-    case 'DWITHIN':
-      break
-    default:
-      if (value === null || value[0] === null) {
-        value = ['']
-        break
-      }
-      if (value[0].constructor === Object) {
-        value[0] = value[0].value
-      }
-      break
-  }
-  return value
-}
+import metacardDefinitions from '../../component/singletons/metacard-definitions.js'
+import properties from '../../js/properties.js'
 
 export const getFilteredAttributeList = includedAttributes => {
   return metacardDefinitions.sortedMetacardTypes
@@ -135,4 +30,21 @@ export const getFilteredAttributeList = includedAttributes => {
       value: id,
       description: (properties.attributeDescriptions || {})[id],
     }))
+}
+
+export const getAttributeType = attribute => {
+  const type = metacardDefinitions.metacardTypes[attribute].type
+  if (type === 'GEOMETRY') return 'LOCATION'
+  if (isIntegerType(type)) return 'INTEGER'
+  if (isFloatType(type)) return 'FLOAT'
+
+  return type
+}
+
+const isIntegerType = type => {
+  return type === 'INTEGER' || type === 'SHORT' || type === 'LONG'
+}
+
+const isFloatType = type => {
+  return type === 'FLOAT' || type === 'DOUBLE'
 }

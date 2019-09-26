@@ -12,4 +12,31 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { default, Props } from './filter-actions'
+import moment from 'moment-timezone'
+
+export const serialize = value => {
+  const from = moment(value.from)
+  const to = moment(value.to)
+  if (!from.isValid() || !to.isValid()) {
+    return ''
+  } else if (from.isAfter(to)) {
+    return `${to.toISOString()}/${from.toISOString()}`
+  }
+  return `${from.toISOString()}/${to.toISOString()}`
+}
+
+export const deserialize = value => {
+  if (value.includes('/')) {
+    const dates = value.split('/')
+    const from = dates[0]
+    const to = dates[1]
+    return {
+      from,
+      to,
+    }
+  }
+  return {
+    from: '',
+    to: '',
+  }
+}

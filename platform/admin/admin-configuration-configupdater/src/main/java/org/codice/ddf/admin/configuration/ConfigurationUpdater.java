@@ -251,8 +251,7 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
         Files.delete(fileFromCache.toPath());
         SecurityLogger.audit("Removed a deleted config [{}]", fileFromCache.getAbsolutePath());
       } catch (IOException e) {
-        LOGGER.debug(
-            format("Problem deleting config file [%s]: ", fileFromCache.getAbsolutePath()), e);
+        LOGGER.debug("Problem deleting config file [{}]: ", fileFromCache.getAbsolutePath(), e);
         SecurityLogger.audit("Failure to delete config file [{}]", fileFromCache.getAbsolutePath());
         // Synchronous with config admin, so we can report the failure to the UI this way
         throw e;
