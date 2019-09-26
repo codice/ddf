@@ -77,6 +77,33 @@ const baseDefault = [
     ],
   },
 ]
+const visualizationsDefault = [
+  {
+    name: 'openlayers',
+    title: '2D Map',
+    icon: 'map',
+  },
+  {
+    name: 'cesium',
+    title: '3D Map',
+    icon: 'globe',
+  },
+  {
+    name: 'inspector',
+    title: 'Inspector',
+    icon: 'info',
+  },
+  {
+    name: 'histogram',
+    title: 'Histogram',
+    icon: 'bar-chart',
+  },
+  {
+    name: 'table',
+    title: 'Table',
+    icon: 'table',
+  },
+]
 
 const select = state => state.get('layout')
 const getConfig = state => select(state).get('config')
@@ -299,7 +326,8 @@ const setupEditor = (dispatch, getState) => {
   }
 
   let layout = new GoldenLayout(baseConf, '#layoutContainer')
-  const visualizations = getConfig(state).get('visualizations') || []
+  const visualizations =
+    JSON.parse(getConfig(state).get('visualizations')) || []
   visualizations.forEach(function(component) {
     layout.registerComponent(
       component.name,
@@ -407,6 +435,12 @@ export const config = (state = Map(), { type, value }) => {
     case SET_CONFIG:
       if (!value.get('defaultLayout')) {
         value = value.set('defaultLayout', JSON.stringify(baseDefault))
+      }
+      if (!value.get('visualizations')) {
+        value = value.set(
+          'visualizations',
+          JSON.stringify(visualizationsDefault)
+        )
       }
       return value
     case RESET:
