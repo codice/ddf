@@ -84,7 +84,7 @@ public class ConfigurationApplication implements SparkApplication {
 
   private List defaultLayout = new ArrayList<>();
 
-  private List visualizations = new ArrayList<String>();
+  private List visualizations = new ArrayList<>();
 
   private List<Map> imageryProviderUrlMaps = new ArrayList<>();
 
