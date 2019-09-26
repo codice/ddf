@@ -81,7 +81,7 @@ Example:
 |Custom Visualizations
 |customVisualizations
 |String
-|Custom Visualizations that should be recognized by golden layout. Example single onfig entry: "component,componentName,font-awesome4.7.0-icon-name"
+|Custom Visualizations that should be recognized by golden layout. Example single config entry: "component,componentName,font-awesome4.7.0-icon-name"
 |
 |false
 
