@@ -229,7 +229,7 @@
         <bundle dependency="true">mvn:com.google.protobuf/protobuf-java/${protobuf-version}</bundle>
         <bundle dependency="true">mvn:com.google.protobuf/protobuf-java-util/${protobuf-version}</bundle>
         <bundle dependency="true">mvn:commons-io/commons-io/${commons-io-version}</bundle>
-        <bundle dependency="true">mvn:com.google.guava/guava/${google-guava-version}</bundle>
+        <bundle dependency="true">mvn:com.google.guava/guava/${camel.guava.version}</bundle>
         <bundle dependency="true">mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>mvn:org.apache.camel/camel-protobuf/${camel.version}</bundle>
     </feature>
