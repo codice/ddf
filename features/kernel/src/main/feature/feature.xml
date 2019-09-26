@@ -43,9 +43,9 @@
         <bundle dependency="true">mvn:org.ow2.asm/asm-analysis/7.1</bundle>
         <bundle dependency="true">mvn:org.ow2.asm/asm-commons/7.1</bundle>
 
-        <bundle dependency="true">mvn:org.apache.xbean/xbean-bundleutils/4.12</bundle>
-        <bundle dependency="true">mvn:org.apache.xbean/xbean-reflect/4.12</bundle>
-        <bundle dependency="true">mvn:org.apache.xbean/xbean-finder/4.12</bundle>
+        <bundle dependency="true">mvn:org.apache.xbean/xbean-bundleutils/4.14</bundle>
+        <bundle dependency="true">mvn:org.apache.xbean/xbean-reflect/4.14</bundle>
+        <bundle dependency="true">mvn:org.apache.xbean/xbean-finder/4.14</bundle>
     </feature>
 
     <feature name="pax-http-jetty" version="${pax.web.version}">
