@@ -84,7 +84,7 @@ public class ConfigurationApplication implements SparkApplication {
 
   private List defaultLayout = new ArrayList<>();
 
-  private List customVisualizations = new ArrayList<String>();
+  private List visualizations = new ArrayList<String>();
 
   private List<Map> imageryProviderUrlMaps = new ArrayList<>();
 
@@ -497,6 +497,21 @@ public class ConfigurationApplication implements SparkApplication {
     }
   }
 
+  private List<Map> getVisualizationsConfig() {
+    if (visualizations == null || visualizations.isEmpty()) {
+      // @formatter:off
+      return Arrays.asList(
+          ImmutableMap.of("name", "openlayers", "title", "2D Map", "icon", "map"),
+          ImmutableMap.of("name", "cesium", "title", "3D Map", "icon", "globe"),
+          ImmutableMap.of("name", "inspector", "title", "Inspector", "icon", "info"),
+          ImmutableMap.of("name", "histogram", "title", "Histogram", "icon", "bar-chart"),
+          ImmutableMap.of("name", "table", "title", "Table", "icon", "table"));
+      // @formatter:on
+    } else {
+      return defaultLayout;
+    }
+  }
+
   public Map<String, Object> getConfig() {
     Map<String, Object> config = new HashMap<>();
 
@@ -536,7 +551,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("zoomPercentage", zoomPercentage);
     config.put("spacingMode", spacingMode);
     config.put("defaultLayout", getDefaultLayoutConfig());
-    config.put("customVisualizations", customVisualizations);
+    config.put("visualizations", getVisualizationsConfig());
     config.put("isExperimental", experimentalEnabled);
     config.put("autoMergeTime", autoMergeTime);
     config.put("webSocketsEnabled", webSocketsEnabled);
@@ -1250,12 +1265,27 @@ public class ConfigurationApplication implements SparkApplication {
     return basicSearchTemporalSelectionDefault;
   }
 
-  public void setCustomVisualizations(List<String> customVisualizations) {
-    this.customVisualizations = customVisualizations;
+  public String getVisualizations() {
+    return GSON.toJson(visualizations);
   }
 
-  public List<String> getCustomVisualizations() {
-    return customVisualizations;
+  public void setVisualizations(String visualizations) {
+    if (StringUtils.isEmpty(visualizations)) {
+      this.visualizations = Collections.emptyList();
+    } else {
+      try {
+        Object o = GSON.fromJson(visualizations, List.class);
+        if (o != null) {
+          this.visualizations = (List) o;
+        } else {
+          this.visualizations = Collections.emptyList();
+          LOGGER.warn("Could not parse visualizations config as JSON, {}", visualizations);
+        }
+      } catch (ClassCastException e) {
+        this.visualizations = Collections.emptyList();
+        LOGGER.error("Unable to parse visualizations config {} into map.", visualizations, e);
+      }
+    }
   }
 
   public String getBasicSearchMatchType() {

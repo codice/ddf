@@ -46,12 +46,11 @@
             type="String"
             default='[{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]'/>
 
-        <AD id="customVisualizations"
-            name="Custom Visualizations"
-            description='Custom Visualizations that should be recognized by golden layout. Example single config entry: "component,componentName,font-awesome4.7.0-icon-name"'
+        <AD id="visualizations"
+            name="Visualizations"
+            description='Visualizations that should be recognized by golden layout in Admin UI. Example: [{"name":"openlayers","title":"2D Map","icon":"map"},{"name":"cesium","title":"3D Map","icon":"globe"},{"name":"inspector","title":"Inspector","icon":"info"},{"name":"histogram","title":"Histogram","icon":"bar-chart"},{"name":"table","title":"Table","icon":"table"}]'
             type="String"
-            cardinality="10000"
-            default=''/>
+            default='[{"name":"openlayers","title":"2D Map","icon":"map"},{"name":"cesium","title":"3D Map","icon":"globe"},{"name":"inspector","title":"Inspector","icon":"info"},{"name":"histogram","title":"Histogram","icon":"bar-chart"},{"name":"table","title":"Table","icon":"table"}]'/>
 
         <AD id="listTemplates"
             name="List Templates"
