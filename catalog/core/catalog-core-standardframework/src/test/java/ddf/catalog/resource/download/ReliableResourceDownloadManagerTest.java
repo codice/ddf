@@ -49,6 +49,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -805,7 +806,9 @@ public class ReliableResourceDownloadManagerTest {
     assertEquals(expectedFileContents, new String(cachedData));
 
     // Verifies cached file on disk has same contents as product input file
-    assertEquals(expectedFileContents, IOUtils.toString(reliableResource.getInputStream()));
+    assertEquals(
+        expectedFileContents,
+        IOUtils.toString(reliableResource.getInputStream(), StandardCharsets.UTF_8));
   }
 
   private void verifyClientBytesRead(ByteArrayOutputStream clientBytesRead) {

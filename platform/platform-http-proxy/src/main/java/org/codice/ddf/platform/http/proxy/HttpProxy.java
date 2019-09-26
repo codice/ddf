@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
@@ -170,7 +171,7 @@ public class HttpProxy {
             if (body != null) {
               String bodyStr;
               if (body instanceof InputStream) {
-                bodyStr = IOUtils.toString((InputStream) body);
+                bodyStr = IOUtils.toString((InputStream) body, StandardCharsets.UTF_8);
                 IOUtils.closeQuietly((InputStream) body);
               } else if (body instanceof String) {
                 bodyStr = (String) body;

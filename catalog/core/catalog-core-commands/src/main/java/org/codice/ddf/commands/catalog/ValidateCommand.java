@@ -27,6 +27,7 @@ import ddf.catalog.validation.MetacardValidator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -127,7 +128,7 @@ public class ValidateCommand extends CqlCommands {
     List<Metacard> metacards = new ArrayList<>();
     for (File file : files) {
       Metacard metacard = new MetacardImpl();
-      String metadata = IOUtils.toString(file.toURI());
+      String metadata = IOUtils.toString(file.toURI(), StandardCharsets.UTF_8);
       metacard.setAttribute(new AttributeImpl(Metacard.METADATA, metadata));
       metacard.setAttribute(new AttributeImpl(Metacard.TITLE, file.getName()));
       metacards.add(metacard);

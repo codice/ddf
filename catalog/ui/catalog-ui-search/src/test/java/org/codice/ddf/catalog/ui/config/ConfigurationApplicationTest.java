@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.platform.resource.bundle.locator.ResourceBundleLocator;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -74,7 +75,8 @@ public class ConfigurationApplicationTest {
 
     configurationApplication.setHttpProxy(mockHttpProxyService);
     configurationApplication.setImageryProviders(
-        IOUtils.toString(getClass().getResourceAsStream("/imagery-providers.json")));
+        IOUtils.toString(
+            getClass().getResourceAsStream("/imagery-providers.json"), StandardCharsets.UTF_8));
 
     // Verify
     for (Map<String, Object> provider : configurationApplication.getImageryProviderUrlMaps()) {
@@ -94,7 +96,8 @@ public class ConfigurationApplicationTest {
 
     configurationApplication.setHttpProxy(mockHttpProxyService);
     configurationApplication.setTerrainProvider(
-        IOUtils.toString(getClass().getResourceAsStream("/terrain-provider.json")));
+        IOUtils.toString(
+            getClass().getResourceAsStream("/terrain-provider.json"), StandardCharsets.UTF_8));
 
     // Verify
     assertTrue(

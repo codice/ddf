@@ -39,6 +39,7 @@ import ddf.catalog.data.types.Topic;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -250,19 +251,27 @@ public class RegistryTransformerTest {
 
   @Test
   public void testMetacardToXml() throws Exception {
-    String in = IOUtils.toString(getClass().getResourceAsStream("/csw-rim-node.xml"));
+    String in =
+        IOUtils.toString(
+            getClass().getResourceAsStream("/csw-rim-node.xml"), StandardCharsets.UTF_8);
     Metacard metacard = registryTransformer.transform(IOUtils.toInputStream(in));
-    String out = IOUtils.toString(registryTransformer.transform(metacard, null).getInputStream());
+    String out =
+        IOUtils.toString(
+            registryTransformer.transform(metacard, null).getInputStream(), StandardCharsets.UTF_8);
     assertThat(in, is(out));
   }
 
   @Test(expected = CatalogTransformerException.class)
   public void testMetacardToXmlBadTag() throws Exception {
-    String in = IOUtils.toString(getClass().getResourceAsStream("/csw-rim-node.xml"));
+    String in =
+        IOUtils.toString(
+            getClass().getResourceAsStream("/csw-rim-node.xml"), StandardCharsets.UTF_8);
     Metacard metacard = registryTransformer.transform(IOUtils.toInputStream(in));
 
     metacard.setAttribute(new AttributeImpl(Metacard.TAGS, "JustSomeMadeUpStuff"));
-    String out = IOUtils.toString(registryTransformer.transform(metacard, null).getInputStream());
+    String out =
+        IOUtils.toString(
+            registryTransformer.transform(metacard, null).getInputStream(), StandardCharsets.UTF_8);
     assertThat(in, is(out));
   }
 

@@ -123,10 +123,10 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
             PaosInInterceptor.class.getResourceAsStream("/templates/security.handlebars");
         InputStream userTokenStream =
             PaosInInterceptor.class.getResourceAsStream("/templates/username.handlebars")) {
-      soapMessage = IOUtils.toString(soapMessageStream);
-      soapfaultMessage = IOUtils.toString(soapfaultMessageStream);
-      securityHeader = IOUtils.toString(securityHeaderStream);
-      usernameToken = IOUtils.toString(userTokenStream);
+      soapMessage = IOUtils.toString(soapMessageStream, StandardCharsets.UTF_8);
+      soapfaultMessage = IOUtils.toString(soapfaultMessageStream, StandardCharsets.UTF_8);
+      securityHeader = IOUtils.toString(securityHeaderStream, StandardCharsets.UTF_8);
+      usernameToken = IOUtils.toString(userTokenStream, StandardCharsets.UTF_8);
     } catch (IOException e) {
       LOGGER.info("Unable to load templates for PAOS");
     }

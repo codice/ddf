@@ -156,7 +156,7 @@ public class IdpEndpointTest {
 
   private String soapRequestSaml =
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"> <soapenv:Header> <wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" soap:mustUnderstand=\"1\"> "
-          + IOUtils.toString(getClass().getResourceAsStream("/saml.xml"))
+          + IOUtils.toString(getClass().getResourceAsStream("/saml.xml"), StandardCharsets.UTF_8)
           + " </wsse:Security> <ecp:RelayState xmlns:ecp=\"urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp\" soapenv:actor=\"http://schemas.xmlsoap.org/soap/actor/next\" soapenv:mustUnderstand=\"1\">relaystate</ecp:RelayState> </soapenv:Header> <soapenv:Body>"
           + authNRequestGetForce
           + "</soapenv:Body></soapenv:Envelope>";

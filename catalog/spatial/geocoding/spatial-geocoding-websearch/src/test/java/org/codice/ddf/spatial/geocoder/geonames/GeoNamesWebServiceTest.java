@@ -28,6 +28,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.Optional;
 import javax.ws.rs.WebApplicationException;
@@ -123,7 +124,8 @@ public class GeoNamesWebServiceTest {
         IOUtils.toString(
             GeoNamesWebServiceTest.class
                 .getClassLoader()
-                .getResourceAsStream("getLocationTestResponse.json"));
+                .getResourceAsStream("getLocationTestResponse.json"),
+            StandardCharsets.UTF_8);
 
     prepareWebClient(response);
 

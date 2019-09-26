@@ -35,6 +35,7 @@ import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.TopicAttributes;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
@@ -213,7 +214,8 @@ public class TransactionRequestConverterTest {
   public void testUnmarshalInsert() throws Exception {
     String insertRequest =
         IOUtils.toString(
-            TransactionRequestConverterTest.class.getResourceAsStream("/insertRequest.xml"));
+            TransactionRequestConverterTest.class.getResourceAsStream("/insertRequest.xml"),
+            StandardCharsets.UTF_8);
     CswTransactionRequest request = (CswTransactionRequest) xStream.fromXML(insertRequest);
     assertThat(request.getDeleteActions(), emptyCollectionOf(DeleteAction.class));
     assertThat(request.getUpdateActions(), emptyCollectionOf(UpdateAction.class));
@@ -227,7 +229,8 @@ public class TransactionRequestConverterTest {
     String updateRequest =
         IOUtils.toString(
             TransactionRequestConverterTest.class.getResourceAsStream(
-                "/updateWholeRecordRequest.xml"));
+                "/updateWholeRecordRequest.xml"),
+            StandardCharsets.UTF_8);
     CswTransactionRequest request = (CswTransactionRequest) xStream.fromXML(updateRequest);
     assertThat(request.getDeleteActions(), emptyCollectionOf(DeleteAction.class));
     assertThat(request.getUpdateActions(), hasSize(1));
@@ -241,7 +244,8 @@ public class TransactionRequestConverterTest {
     String updateRequest =
         IOUtils.toString(
             TransactionRequestConverterTest.class.getResourceAsStream(
-                "/updateByPropertyRequest.xml"));
+                "/updateByPropertyRequest.xml"),
+            StandardCharsets.UTF_8);
     CswTransactionRequest request = (CswTransactionRequest) xStream.fromXML(updateRequest);
     assertThat(request.getDeleteActions(), emptyCollectionOf(DeleteAction.class));
     assertThat(request.getUpdateActions(), hasSize(1));
@@ -264,7 +268,8 @@ public class TransactionRequestConverterTest {
   public void testUnmarshalDelete() throws Exception {
     String deleteRequest =
         IOUtils.toString(
-            TransactionRequestConverterTest.class.getResourceAsStream("/deleteRequest.xml"));
+            TransactionRequestConverterTest.class.getResourceAsStream("/deleteRequest.xml"),
+            StandardCharsets.UTF_8);
     CswTransactionRequest request = (CswTransactionRequest) xStream.fromXML(deleteRequest);
     assertThat(request.getDeleteActions(), hasSize(1));
     assertThat(request.getUpdateActions(), emptyCollectionOf(UpdateAction.class));

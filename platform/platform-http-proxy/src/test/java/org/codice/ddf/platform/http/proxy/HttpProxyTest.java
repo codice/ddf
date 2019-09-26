@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.camel.Exchange;
@@ -129,7 +130,7 @@ public class HttpProxyTest {
   @Test
   public void testPolicyRemoveBean() throws IOException {
     InputStream inpuStream = HttpProxyTest.class.getResourceAsStream("/test.wsdl");
-    String wsdl = IOUtils.toString(inpuStream);
+    String wsdl = IOUtils.toString(inpuStream, StandardCharsets.UTF_8);
     HttpProxy.PolicyRemoveBean policyRemoveBean =
         new HttpProxy.PolicyRemoveBean("8181", "8993", "localhost", "/services");
     Exchange exchange = mock(Exchange.class);
@@ -150,7 +151,7 @@ public class HttpProxyTest {
   @Test
   public void testPolicyRemoveBeanGzipEncoding() throws IOException {
     InputStream inpuStream = HttpProxyTest.class.getResourceAsStream("/test.wsdl");
-    String wsdl = IOUtils.toString(inpuStream);
+    String wsdl = IOUtils.toString(inpuStream, StandardCharsets.UTF_8);
     HttpProxy.PolicyRemoveBean policyRemoveBean =
         new HttpProxy.PolicyRemoveBean("8181", "8993", "localhost", "/services");
     Exchange exchange = mock(Exchange.class);
@@ -172,7 +173,7 @@ public class HttpProxyTest {
   @Test
   public void testPolicyRemoveBeanNulls() throws IOException {
     InputStream inpuStream = HttpProxyTest.class.getResourceAsStream("/test.wsdl");
-    String wsdl = IOUtils.toString(inpuStream);
+    String wsdl = IOUtils.toString(inpuStream, StandardCharsets.UTF_8);
     HttpProxy.PolicyRemoveBean policyRemoveBean =
         new HttpProxy.PolicyRemoveBean("8181", "8993", "localhost", "/services");
     Exchange exchange = mock(Exchange.class);

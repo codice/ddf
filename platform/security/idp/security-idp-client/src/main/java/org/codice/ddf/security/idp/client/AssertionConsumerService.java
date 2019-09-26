@@ -145,7 +145,8 @@ public class AssertionConsumerService {
   @Consumes({"text/xml", "application/soap+xml"})
   public Response processSoapResponse(InputStream body, @Context HttpServletRequest request) {
     try {
-      SOAPPart soapMessage = SamlProtocol.parseSoapMessage(IOUtils.toString(body));
+      SOAPPart soapMessage =
+          SamlProtocol.parseSoapMessage(IOUtils.toString(body, StandardCharsets.UTF_8));
       String relayState = getRelayState(soapMessage);
       org.opensaml.saml.saml2.core.Response samlpResponse = getSamlpResponse(soapMessage);
       boolean validateResponse = validateResponse(samlpResponse, false);

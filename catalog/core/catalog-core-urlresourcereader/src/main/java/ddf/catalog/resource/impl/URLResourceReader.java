@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.security.AccessController;
@@ -411,7 +412,7 @@ public class URLResourceReader implements ResourceReader {
   private String getResponseErrorMessage(InputStream is) {
     String error = "";
     try {
-      error = IOUtils.toString(is);
+      error = IOUtils.toString(is, StandardCharsets.UTF_8);
     } catch (IOException ioe) {
       LOGGER.debug("Could not convert error message to a string for output.", ioe);
     }

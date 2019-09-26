@@ -48,6 +48,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -249,7 +250,7 @@ public class GmdTransformerTest {
 
     BinaryContent content = new GmdTransformer(gmdMetacardType).transform(metacard, args);
 
-    String xml = IOUtils.toString(content.getInputStream());
+    String xml = IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8);
     assertThat(xml, startsWith(XML_DECLARATION));
   }
 
@@ -262,7 +263,7 @@ public class GmdTransformerTest {
 
     BinaryContent content = new GmdTransformer(gmdMetacardType).transform(metacard, args);
 
-    String xml = IOUtils.toString(content.getInputStream());
+    String xml = IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8);
     assertThat(xml, not(startsWith(XML_DECLARATION)));
   }
 
@@ -272,7 +273,7 @@ public class GmdTransformerTest {
 
     BinaryContent content = new GmdTransformer(gmdMetacardType).transform(metacard, null);
 
-    String xml = IOUtils.toString(content.getInputStream());
+    String xml = IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8);
     assertThat(xml, startsWith(XML_DECLARATION));
   }
 
@@ -280,7 +281,7 @@ public class GmdTransformerTest {
   public void testMetacardTransformNullMetacard() throws IOException, CatalogTransformerException {
     BinaryContent content = new GmdTransformer(gmdMetacardType).transform((Metacard) null, null);
 
-    String xml = IOUtils.toString(content.getInputStream());
+    String xml = IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8);
 
     assertThat(xml.trim(), is(XML_DECLARATION));
   }

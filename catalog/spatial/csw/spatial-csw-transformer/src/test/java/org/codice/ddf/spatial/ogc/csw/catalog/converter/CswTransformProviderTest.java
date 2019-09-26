@@ -40,6 +40,7 @@ import ddf.catalog.transform.MetacardTransformer;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import javax.activation.MimeType;
@@ -212,7 +213,7 @@ public class CswTransformProviderTest {
     verify(mockInputTransformer, times(1)).transform(captor.capture());
 
     InputStream inStream = captor.getValue();
-    String result = IOUtils.toString(inStream);
+    String result = IOUtils.toString(inStream, StandardCharsets.UTF_8);
 
     XMLUnit.setIgnoreWhitespace(true);
     XMLAssert.assertXMLEqual(getRecord(), result);
@@ -286,7 +287,7 @@ public class CswTransformProviderTest {
     verify(mockInputTransformer, times(1)).transform(captor.capture());
 
     InputStream inStream = captor.getValue();
-    String result = IOUtils.toString(inStream);
+    String result = IOUtils.toString(inStream, StandardCharsets.UTF_8);
 
     XMLUnit.setIgnoreWhitespace(true);
     XMLAssert.assertXMLEqual(getRecord(), result);

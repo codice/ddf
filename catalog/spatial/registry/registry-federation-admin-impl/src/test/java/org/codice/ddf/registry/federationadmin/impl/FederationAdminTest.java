@@ -47,6 +47,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -202,7 +203,7 @@ public class FederationAdminTest {
     federationAdmin.createLocalEntry(registryMap);
     ArgumentCaptor<InputStream> captor = ArgumentCaptor.forClass(InputStream.class);
     verify(registryTransformer).transform(captor.capture());
-    String ebrim = IOUtils.toString(captor.getValue());
+    String ebrim = IOUtils.toString(captor.getValue(), StandardCharsets.UTF_8);
     IOUtils.closeQuietly(captor.getValue());
     assertXpathEvaluatesTo(
         SystemBaseUrl.EXTERNAL.getBaseUrl(), "/*[local-name() = 'RegistryPackage']/@home", ebrim);

@@ -26,6 +26,7 @@ import com.xebialabs.restito.builder.stub.StubHttp;
 import com.xebialabs.restito.builder.verify.VerifyHttp;
 import com.xebialabs.restito.server.StubServer;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -268,7 +269,8 @@ public class FederatedCswMockServer {
   private String getDefaultResponseResource(String resourceName) {
     try {
       return IOUtils.toString(
-          FederatedCswMockServer.class.getClassLoader().getResourceAsStream("/" + resourceName));
+          FederatedCswMockServer.class.getClassLoader().getResourceAsStream("/" + resourceName),
+          StandardCharsets.UTF_8);
     } catch (IOException e) {
       return null;
     }

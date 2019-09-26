@@ -20,6 +20,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -166,7 +167,7 @@ public class MetadataConfigurationParserTest {
 
   @Test
   public void testMetadataHttp() throws Exception {
-    serverRespondsWith(IOUtils.toString(entityDescriptorPath.toUri()));
+    serverRespondsWith(IOUtils.toString(entityDescriptorPath.toUri(), StandardCharsets.UTF_8));
 
     MetadataConfigurationParser metadataConfigurationParser =
         new MetadataConfigurationParser(Collections.singletonList("http://" + serverAddress));
@@ -200,7 +201,7 @@ public class MetadataConfigurationParserTest {
 
   @Test
   public void testRootElementNoCacheDuration() throws Exception {
-    String xml = IOUtils.toString(entityDescriptorPath.toUri());
+    String xml = IOUtils.toString(entityDescriptorPath.toUri(), StandardCharsets.UTF_8);
     String xmlNoCacheDuration = xml.replaceFirst(CACHE_DURATION_REGEX, "");
     EntityDescriptor entity = getEntityDescriptor(xmlNoCacheDuration);
     assertThat(
@@ -211,7 +212,7 @@ public class MetadataConfigurationParserTest {
 
   @Test
   public void testRootElementValidUntil() throws Exception {
-    String xml = IOUtils.toString(entityDescriptorPath.toUri());
+    String xml = IOUtils.toString(entityDescriptorPath.toUri(), StandardCharsets.UTF_8);
     DateTime validUntil = DateTime.now().plusYears(1);
     String validUntilXmlString = String.format("validUntil=\"%tF\"", validUntil.toDate());
     String xmlNoCacheDuration = xml.replaceFirst(CACHE_DURATION_REGEX, validUntilXmlString);

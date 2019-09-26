@@ -28,6 +28,7 @@ import ddf.security.assertion.SecurityAssertion;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -36,9 +37,9 @@ import java.util.zip.InflaterInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -113,11 +114,13 @@ public class RestSecurityTest {
     DeflateEncoderDecoder deflateEncoderDecoder = new DeflateEncoderDecoder();
     byte[] deflatedToken = deflateEncoderDecoder.deflateToken(token.getBytes());
 
-    String cxfInflatedToken = IOUtils.toString(deflateEncoderDecoder.inflateToken(deflatedToken));
+    String cxfInflatedToken =
+        IOUtils.toString(deflateEncoderDecoder.inflateToken(deflatedToken), StandardCharsets.UTF_8);
 
     String streamInflatedToken =
         IOUtils.toString(
-            new InflaterInputStream(new ByteArrayInputStream(deflatedToken), new Inflater(true)));
+            new InflaterInputStream(new ByteArrayInputStream(deflatedToken), new Inflater(true)),
+            StandardCharsets.UTF_8);
 
     assertNotSame(cxfInflatedToken, token);
     assertEquals(streamInflatedToken, token);

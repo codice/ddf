@@ -18,14 +18,15 @@ import ddf.mime.MimeTypeResolutionException;
 import ddf.mime.MimeTypeResolver;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
-import org.apache.tika.io.IOUtils;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
@@ -187,7 +188,7 @@ public class MimeTypeMapperImpl implements MimeTypeMapper {
     String namespace = null;
     if (fileExtension.equals(XML_FILE_EXTENSION)) {
       try {
-        namespace = XML_UTILS.getRootNamespace(IOUtils.toString(is));
+        namespace = XML_UTILS.getRootNamespace(IOUtils.toString(is, StandardCharsets.UTF_8));
       } catch (IOException ioe) {
         LOGGER.debug("Could not read namespace from input stream.", ioe);
       }

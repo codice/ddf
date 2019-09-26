@@ -69,6 +69,7 @@ import ddf.mime.tika.TikaMimeTypeResolver;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -89,12 +90,12 @@ import javax.ws.rs.core.MediaType;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
-import org.apache.tika.io.IOUtils;
 import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.attachment.impl.AttachmentParserImpl;
@@ -816,7 +817,7 @@ public class CatalogServiceImplTest {
     BinaryContent content = catalogService.getSourcesInfo();
     assertEquals(jsonMimeTypeString, content.getMimeTypeValue());
 
-    String responseMessage = IOUtils.toString(content.getInputStream());
+    String responseMessage = IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8);
     JSONArray srcList = (JSONArray) new JSONParser().parse(responseMessage);
 
     assertEquals(3, srcList.size());
@@ -919,7 +920,7 @@ public class CatalogServiceImplTest {
         catalogService.createMetacard(
             multipartBody, AbstractCatalogService.DEFAULT_METACARD_TRANSFORMER);
     InputStream responseEntity = binaryContent.getInputStream();
-    String responseXml = IOUtils.toString(responseEntity);
+    String responseXml = IOUtils.toString(responseEntity, StandardCharsets.UTF_8);
     assertEquals(metacardXml, responseXml);
   }
 

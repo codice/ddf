@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -67,7 +68,7 @@ public class XmlSchemaMessageBodyReader implements MessageBodyReader<XmlSchema> 
       InputStream inStream)
       throws IOException, WebApplicationException {
     // Determine if this is an XMLSchema
-    String input = IOUtils.toString(inStream);
+    String input = IOUtils.toString(inStream, StandardCharsets.UTF_8);
     inStream.reset();
     String count = COUNT_XPATH_BUILDER.evaluate(camelContext, input);
     // See if there exactly one instance of "xsd:schema" in this doc

@@ -27,6 +27,7 @@ import ddf.catalog.validation.report.MetacardValidationReport;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -217,7 +218,9 @@ public class SchematronValidationServiceTest {
   }
 
   private MetacardImpl getMetacard(String filename) throws IOException {
-    String metadata = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(filename));
+    String metadata =
+        IOUtils.toString(
+            getClass().getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
     MetacardImpl metacard = new MetacardImpl();
     metacard.setMetadata(metadata);
     return metacard;

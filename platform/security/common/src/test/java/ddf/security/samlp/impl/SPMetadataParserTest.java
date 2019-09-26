@@ -20,6 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.google.common.collect.ImmutableSet;
 import ddf.security.samlp.SamlProtocol.Binding;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,16 +64,19 @@ public class SPMetadataParserTest {
     // read Certificate file into certificate
     certificate =
         IOUtils.toString(
-            SPMetadataParserTest.class.getClassLoader().getResourceAsStream(CERTIFICATE_NAME));
+            SPMetadataParserTest.class.getClassLoader().getResourceAsStream(CERTIFICATE_NAME),
+            StandardCharsets.UTF_8);
 
     // read SPMetadata file into spMetadata
     List<String> spMetadata = new ArrayList<>();
     spMetadata.add(
         IOUtils.toString(
-            SPMetadataParserTest.class.getClassLoader().getResourceAsStream(METADATA_FILE)));
+            SPMetadataParserTest.class.getClassLoader().getResourceAsStream(METADATA_FILE),
+            StandardCharsets.UTF_8));
     spMetadata.add(
         IOUtils.toString(
-            SPMetadataParserTest.class.getClassLoader().getResourceAsStream(METADATA_FILE_2)));
+            SPMetadataParserTest.class.getClassLoader().getResourceAsStream(METADATA_FILE_2),
+            StandardCharsets.UTF_8));
 
     // set up binding set
     bindingSet = ImmutableSet.of(Binding.HTTP_POST, Binding.HTTP_REDIRECT, Binding.SOAP);

@@ -15,6 +15,7 @@ package ddf.security.samlp.impl;
 
 import ddf.security.samlp.SamlProtocol;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +32,8 @@ public class HtmlResponseTemplate {
             HtmlResponseTemplate.class.getResourceAsStream("/templates/submitFormTemplate.html");
         InputStream redirectPageStream =
             HtmlResponseTemplate.class.getResourceAsStream("/templates/redirectTemplate.html")) {
-      submitTemplate = IOUtils.toString(submitFormStream);
-      redirectTemplate = IOUtils.toString(redirectPageStream);
+      submitTemplate = IOUtils.toString(submitFormStream, StandardCharsets.UTF_8);
+      redirectTemplate = IOUtils.toString(redirectPageStream, StandardCharsets.UTF_8);
     } catch (Exception e) {
       LOGGER.warn("Unable to load index page for IDP.", e);
     }

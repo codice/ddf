@@ -61,6 +61,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -136,7 +137,9 @@ public class CswRecordConverterTest {
     converter = new CswRecordConverter(getCswMetacardType());
 
     cswRecordXml =
-        IOUtils.toString(CswRecordConverterTest.class.getResourceAsStream("/Csw_Record_Text.xml"));
+        IOUtils.toString(
+            CswRecordConverterTest.class.getResourceAsStream("/Csw_Record_Text.xml"),
+            StandardCharsets.UTF_8);
   }
 
   @Test
@@ -438,7 +441,7 @@ public class CswRecordConverterTest {
 
     BinaryContent content = converter.transform(metacard, args);
 
-    String xml = IOUtils.toString(content.getInputStream());
+    String xml = IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8);
     assertThat(
         xml, containsString("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"));
     XMLUnit.setIgnoreWhitespace(true);
@@ -456,7 +459,7 @@ public class CswRecordConverterTest {
 
     BinaryContent content = converter.transform(metacard, args);
 
-    String xml = IOUtils.toString(content.getInputStream());
+    String xml = IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8);
     assertThat(
         xml, not(containsString("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>")));
     XMLUnit.setIgnoreWhitespace(true);
@@ -473,7 +476,7 @@ public class CswRecordConverterTest {
 
     BinaryContent content = converter.transform(metacard, args);
 
-    String xml = IOUtils.toString(content.getInputStream());
+    String xml = IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8);
     assertThat(xml, containsString("<csw:Record>"));
   }
 
@@ -487,7 +490,7 @@ public class CswRecordConverterTest {
 
     BinaryContent content = converter.transform(metacard, args);
 
-    String xml = IOUtils.toString(content.getInputStream());
+    String xml = IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8);
     assertThat(xml, containsString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
     XMLUnit.setIgnoreWhitespace(true);
     assertXMLEqual(cswRecordXml, xml);

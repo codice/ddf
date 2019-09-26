@@ -25,6 +25,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -218,7 +219,7 @@ public class AttributeMetacardTransformerTest {
 
     BinaryContent content = METADATA_TRANSFORMER.transform(mockMetacard, null);
 
-    assertEquals(metadata, IOUtils.toString(content.getInputStream()));
+    assertEquals(metadata, IOUtils.toString(content.getInputStream(), StandardCharsets.UTF_8));
 
     assertEquals("Mime type failed to match.", xmlMimeType, content.getMimeType());
   }

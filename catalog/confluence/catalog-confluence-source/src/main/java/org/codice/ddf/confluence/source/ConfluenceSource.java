@@ -44,6 +44,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -257,7 +258,7 @@ public class ConfluenceSource extends MaskableImpl
       String error = "";
       try {
         if (stream != null) {
-          error = IOUtils.toString(stream);
+          error = IOUtils.toString(stream, StandardCharsets.UTF_8);
         }
       } catch (IOException ioe) {
         LOGGER.debug("Could not convert error message to a string for output.", ioe);

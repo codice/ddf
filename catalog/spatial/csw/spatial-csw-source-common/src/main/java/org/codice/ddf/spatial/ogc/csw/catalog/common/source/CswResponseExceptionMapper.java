@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
@@ -25,9 +26,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import net.opengis.ows.v_1_0_0.ExceptionType;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
@@ -77,7 +78,7 @@ public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswEx
           if (is.markSupported()) {
             is.reset();
           }
-          msg = IOUtils.toString(is);
+          msg = IOUtils.toString(is, StandardCharsets.UTF_8);
         } catch (IOException e) {
           LOGGER.info("Unable to parse exception report: {}", e.getMessage());
           LOGGER.debug("Unable to parse exception report: {}", e);

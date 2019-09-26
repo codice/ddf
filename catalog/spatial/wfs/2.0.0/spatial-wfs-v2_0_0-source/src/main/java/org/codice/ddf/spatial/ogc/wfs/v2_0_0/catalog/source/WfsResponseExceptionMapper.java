@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.core.Response;
@@ -26,9 +27,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import net.opengis.ows.v_1_1_0.ExceptionReport;
 import net.opengis.ows.v_1_1_0.ExceptionType;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
@@ -49,7 +50,7 @@ public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsEx
         try {
           InputStream is = (InputStream) response.getEntity();
           is.reset();
-          msg = IOUtils.toString(is);
+          msg = IOUtils.toString(is, StandardCharsets.UTF_8);
         } catch (IOException e) {
           LOGGER.info("Unable to parse exception report: {}", e.getMessage());
           LOGGER.debug("Unable to parse exception report: {}", e);

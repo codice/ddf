@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
@@ -86,7 +87,9 @@ public class EXIEncoderTest {
     XMLUnit.setNormalize(true);
     XMLUnit.setNormalizeWhitespace(true);
     InputStream stream = getClass().getResourceAsStream(TEST_FILE);
-    Diff diff = XMLUnit.compareXML(IOUtils.toString(stream), stringWriter.getBuffer().toString());
+    Diff diff =
+        XMLUnit.compareXML(
+            IOUtils.toString(stream, StandardCharsets.UTF_8), stringWriter.getBuffer().toString());
     IOUtils.closeQuietly(stream);
     assertTrue(
         "The XML input file (" + TEST_FILE + ") did not match the EXI-decoded output",

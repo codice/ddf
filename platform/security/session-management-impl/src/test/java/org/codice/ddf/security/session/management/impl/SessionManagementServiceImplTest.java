@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Duration;
@@ -171,14 +172,18 @@ public class SessionManagementServiceImplTest {
     SecurityToken soonerToken = mock(SecurityToken.class);
     String saml =
         IOUtils.toString(
-            new InputStreamReader(getClass().getClassLoader().getResourceAsStream("saml.xml")));
+            new InputStreamReader(
+                getClass().getClassLoader().getResourceAsStream("saml.xml"),
+                StandardCharsets.UTF_8));
     saml = saml.replace("2113-04-24", "2113-04-25");
     when(soonerToken.getToken())
         .thenReturn(readXml(IOUtils.toInputStream(saml, "UTF-8")).getDocumentElement());
     SecurityToken laterToken = mock(SecurityToken.class);
     saml =
         IOUtils.toString(
-            new InputStreamReader(getClass().getClassLoader().getResourceAsStream("saml.xml")));
+            new InputStreamReader(
+                getClass().getClassLoader().getResourceAsStream("saml.xml"),
+                StandardCharsets.UTF_8));
     saml = saml.replace("2113-04-24", "2113-04-26");
     when(laterToken.getToken())
         .thenReturn(readXml(IOUtils.toInputStream(saml, "UTF-8")).getDocumentElement());
