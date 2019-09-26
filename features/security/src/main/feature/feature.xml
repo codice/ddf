@@ -35,20 +35,27 @@
         <feature>cxf-rt-security</feature>
         <feature>security-filter-api</feature>
         <feature>cxf-jaxrs</feature>
+
         <bundle dependency="true">mvn:org.apache.commons/commons-configuration2/${commons-configuration2.version}</bundle>
         <bundle dependency="true">mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
-        <feature>common-system</feature>
 
         <feature>guava</feature>
+        <feature>common-system</feature>
+
         <bundle>mvn:joda-time/joda-time/${joda-time.version}</bundle>
         <bundle>mvn:org.apache.santuario/xmlsec/${xmlsec.version}</bundle>
-        <feature>cxf-bindings-soap</feature>
 
+        <feature>cxf-bindings-soap</feature>
         <feature>cxf-ws-policy</feature>
         <feature>cxf-ws-security</feature>
         <feature>spring</feature>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${opensaml.osgi.version}
-        </bundle>
+
+        <!--  TODO (https://github.com/codice/ddf/issues/5327)
+                Remove wrapped OpenSAML after security refactor is complete  -->
+        <!--  <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${opensaml.osgi.version}-->
+        <!--  </bundle>-->
+        <bundle>mvn:ddf.lib.bundles/libs-bundles-opensaml/${project.version}</bundle>
+
         <bundle>mvn:ddf.security.core/security-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.security/security-rest-clientapi/${project.version}</bundle>
         <bundle>
@@ -115,7 +122,7 @@
         <feature>pax-jetty</feature>
         <feature>session-invalidator</feature>
         <bundle>wrap:mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
-        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
+        <feature>guava</feature>
         <feature>common-system</feature>
         <bundle>mvn:ddf.platform/platform-paxweb-jettyconfig/${project.version}</bundle>
     </feature>
@@ -574,6 +581,8 @@
     </feature>
 
     <feature name="saml-validator" version="${project.version}" description="Saml token validator">
+        <!--  TODO (https://github.com/codice/ddf/issues/5327)
+                Address potential circular dependencies as part of security refactor  -->
         <feature>security-core</feature>
         <bundle>mvn:ddf.security.saml/saml-assertion-validator/${project.version}</bundle>
         <bundle>mvn:ddf.security.saml/saml-assertion-validator-impl/${project.version}</bundle>

@@ -18,14 +18,13 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
 
 import org.ops4j.pax.exam.Option;
 
-public class CatalogAppFeatures {
-
+public class SecurityFeatures {
   public static Option start(String... features) {
     return features(
         maven()
-            .groupId("ddf.catalog")
-            .artifactId("catalog-app")
-            .versionAsInProject()
+            .groupId("ddf.features")
+            .artifactId("security")
+            .version(System.getProperty("component.version")) // equal to ${project.version}
             .classifier("features")
             .type("xml"),
         features);
