@@ -267,7 +267,7 @@
         <org.geotools.bundle.version>${org.geotools.version}_2</org.geotools.bundle.version>
         <org.geotools.version>19.1</org.geotools.version>
         <!-- Note: The swissbox version needs to match the version used by pax-exam . -->
-        <org.ops4j.pax.swissbox.version>1.8.3</org.ops4j.pax.swissbox.version>
+        <org.ops4j.pax.swissbox.version>1.8.2</org.ops4j.pax.swissbox.version>
         <org.rrd4j.version>3.3.1</org.rrd4j.version>
         <org.slf4j.version>1.7.1</org.slf4j.version>
         <osgi.version>5.0.0</osgi.version>
