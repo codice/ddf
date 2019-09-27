@@ -26,7 +26,6 @@
         <sitename.default>ddf.distribution</sitename.default>
     </properties>
     <modules>
-        <module>sdk</module>
         <module>solr-distro</module>
         <module>console-branding</module>
         <module>ddf-branding-plugin</module>
