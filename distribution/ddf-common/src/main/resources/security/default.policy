@@ -72,6 +72,11 @@ grant codeBase "file:/org.apache.felix.fileinstall" {
     permission java.io.FilePermission "${ddf.home.perm}wrap:jardir:${ddf.home.perm}etc${/}-", "read";
 }
 
+grant codeBase "file:/catalog-core-definitionparser" {
+      permission java.io.FilePermission "${ddf.home.perm}etc${/}/definitions${/}", "read";
+      permission java.io.FilePermission "${ddf.home.perm}etc${/}/definitions${/}-", "read";
+}
+
 grant codeBase "file:/platform-osgi-condpermadmin/acdebugger-backdoor" {
     permission java.io.FilePermission "${ddf.home.perm}security${/}-", "read";
     permission org.osgi.framework.ServicePermission "org.codice.acdebugger.PermissionService", "get, register";

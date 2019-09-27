@@ -14,7 +14,7 @@
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="definitionDeployer" class="ddf.catalog.definition.impl.DefinitionParser">
+    <bean id="definitionDeployer" class="ddf.catalog.definition.impl.DefinitionParser" destroy-method="onDestroy">
         <argument>
             <reference interface="ddf.catalog.data.AttributeRegistry"/>
         </argument>
@@ -28,7 +28,5 @@
             <reference-list interface="ddf.catalog.data.MetacardType" />
         </argument>
     </bean>
-
-    <service ref="definitionDeployer" interface="org.apache.felix.fileinstall.ArtifactInstaller"/>
 
 </blueprint>
