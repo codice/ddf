@@ -32,19 +32,6 @@
             <artifactId>platform-configuration</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.metrics.collector</groupId>
-            <artifactId>metrics-collector</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.rrd4j</groupId>
-            <artifactId>rrd4j</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
         </dependency>
@@ -76,6 +63,24 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.lib.metrics</groupId>
+            <artifactId>meter-registry-service</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.lib.metrics</groupId>
+            <artifactId>micrometer-bundle</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.lib.metrics</groupId>
+            <artifactId>micrometer-registry-prometheus-bundle</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -86,24 +91,31 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            metrics-core,
-                            metrics-collector,
-                            rrd4j;scope=compile|runtime;artifactId=!slf4j-api,
                             catalog-core-api-impl;scope=!test,
                             platform-util
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Import-Package><!-- START: imports specific for embedding rrd4j -->
-                            !com.mongodb*,
-                            !org.bson.conversions,
-                            !com.sleepycat.je,
-                            sun.misc;resolution:=optional,
-                            sun.nio.ch;resolution:=optional,
-                            com.sun.image.codec.jpeg;resolution:=optional,
+                        <Import-Package>
+                            !ch.qos.logback.classic.*,
+                            !ch.qos.logback.core.*,
+                            !com.sun.management,
+                            !groovy.lang,
+                            !com.github.benmanes.caffeine.*,
+                            !com.netflix.hystrix.*,
+                            !io.netty.*,
+                            !io.prometheus.client.*,
+                            !javax.*,
+                            !okhttp3.*,
+                            !org.HdrHistogram,
+                            !org.LatencyUtils,
+                            !org.apache.catalina,
+                            !org.aspectj.*,
+                            !org.hibernate.*,
+                            !org.reactivestreams,
+                            !reactor.*,
+                            !rx.*,
                             *
                         </Import-Package>
-                        <Export-Package>
-                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

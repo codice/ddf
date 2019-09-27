@@ -14,10 +14,12 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
     
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+    <reference id="meterRegistryService" interface="org.codice.ddf.lib.metrics.registry.MeterRegistryService" availability="mandatory"/>
 
 
 	<bean id="catalogMetrics" class="ddf.catalog.metrics.CatalogMetrics">
         <argument ref="filterAdapter"/>
+        <argument ref="meterRegistryService"/>
     </bean>
 
     <service ref="catalogMetrics" interface="ddf.catalog.plugin.PreQueryPlugin"/>

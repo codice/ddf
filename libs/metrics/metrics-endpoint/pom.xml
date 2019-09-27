@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.codice.ddf.lib</groupId>
         <artifactId>metrics</artifactId>
-        <version>2.17.0-SNAPSHOT</version>
+        <version>2.18.0-SNAPSHOT</version>
     </parent>
     <groupId>org.codice.ddf.lib.metrics</groupId>
     <artifactId>metrics-endpoint</artifactId>
@@ -31,6 +31,16 @@
         <dependency>
             <groupId>org.codice.ddf.lib.metrics</groupId>
             <artifactId>meter-registry-service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.lib.metrics</groupId>
+            <artifactId>micrometer-bundle</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.lib.metrics</groupId>
+            <artifactId>micrometer-registry-prometheus-bundle</artifactId>
             <version>${project.version}</version>
         </dependency>
 

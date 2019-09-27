@@ -15,12 +15,18 @@ package org.codice.ddf.lib.metrics.registry;
 
 import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PrometheusMeterRegistryFactory {
+
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(PrometheusMeterRegistryFactory.class);
 
   private PrometheusMeterRegistryFactory() {}
 
   public static PrometheusMeterRegistry createMeterRegistry() {
+    LOGGER.debug("Creating new prometheus meter registry");
     return new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
   }
 }

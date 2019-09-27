@@ -20,12 +20,12 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.Meter;
 import ddf.catalog.metrics.source.SourceMetricsImpl.SourceMetric;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMetrics;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.DistributionSummary;
 import java.util.Collections;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -235,11 +235,11 @@ public class SourceMetricsImplTest {
     SourceMetric sourceMetric = sourceMetrics.metrics.get(key);
 
     if (sourceMetric.isHistogram()) {
-      Histogram histogram = (Histogram) sourceMetric.getMetric();
-      assertThat(histogram.getCount(), is((long) expectedCount));
+      DistributionSummary histogram = (DistributionSummary) sourceMetric.getMetric();
+      assertThat(histogram.count(), is((long) expectedCount));
     } else {
-      Meter meter = (Meter) sourceMetric.getMetric();
-      assertThat(meter.getCount(), is((long) expectedCount));
+      Counter meter = (Counter) sourceMetric.getMetric();
+      assertThat(meter.count(), is((long) expectedCount));
     }
   }
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -15,51 +15,47 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.codice.ddf.lib</groupId>
         <artifactId>metrics</artifactId>
+        <groupId>org.codice.ddf.lib</groupId>
         <version>2.18.0-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
+
     <groupId>org.codice.ddf.lib.metrics</groupId>
-    <artifactId>meter-registry</artifactId>
+    <artifactId>micrometer-registry-prometheus-bundle</artifactId>
     <packaging>bundle</packaging>
-    <name>DDF :: Metrics :: Meter Registry </name>
-    <description>DDF Meter Registry</description>
 
     <dependencies>
         <dependency>
-            <groupId>org.codice.ddf.lib.metrics</groupId>
-            <artifactId>meter-registry-service</artifactId>
-            <version>${project.version}</version>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>${micrometer.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.micrometer</groupId>
+                    <artifactId>micrometer-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.prometheus</groupId>
+                    <artifactId>simpleclient_common</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
-            <groupId>org.codice.ddf.lib.metrics</groupId>
-            <artifactId>micrometer-bundle</artifactId>
-            <version>${project.version}</version>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>${micrometer.version}</version>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.codice.ddf.lib.metrics</groupId>
-            <artifactId>micrometer-registry-prometheus-bundle</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${org.slf4j.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient</artifactId>
-            <version>0.5.0</version>
+            <artifactId>simpleclient_common</artifactId>
+            <version>${prometheus-client.version}</version>
             <scope>provided</scope>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -69,20 +65,21 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.name}</Bundle-Name>
+                        <Export-Package>
+                            io.micrometer.prometheus;version=${micrometer.version}
+                        </Export-Package>
                         <Import-Package>
-                            io.micrometer.prometheus;version=${micrometer.version},
+                            io.micrometer.core;version=${micrometer.version},
+                            io.micrometer.core.instrument;version=${micrometer.version},
+                            io.micrometer.core.lang;version=${micrometer.version},
                             *
                         </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+
 </project>

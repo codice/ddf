@@ -18,13 +18,22 @@
 
     <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
 
-    <feature name="metrics-support" version="${project.version}" description="Support for metrics services">
-        <feature>wrap</feature>
-        <feature>cxf-jaxrs</feature>
-        <bundle>wrap:mvn:io.micrometer/micrometer-core/${micrometer.version}</bundle>
-        <bundle>wrap:mvn:io.micrometer/micrometer-registry-prometheus/${micrometer.version}</bundle>
+    <feature name="metrics-support-libs" version="${project.version}" description="Libraries for metrics support">
+        <feature dependency="true">cxf-jaxrs</feature>
+        <bundle>mvn:io.prometheus/simpleclient/${prometheus-client.version}</bundle>
+        <bundle>mvn:io.prometheus/simpleclient_common/${prometheus-client.version}</bundle>
+        <bundle>mvn:org.codice.ddf.lib.metrics/micrometer-bundle/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.lib.metrics/micrometer-registry-prometheus-bundle/${project.version}</bundle>
+    </feature>
+
+    <feature name="metrics-support-registry" version="${project.version}" description="Meter Registry">
+        <feature dependency="true">metrics-support-libs</feature>
         <bundle>mvn:org.codice.ddf.lib.metrics/meter-registry-service/${project.version}/</bundle>
         <bundle>mvn:org.codice.ddf.lib.metrics/meter-registry/${project.version}</bundle>
+    </feature>
+
+    <feature name="metrics-support-endpoint" version="${project.version}" description="Metrics Endpoint">
+        <feature dependency="true">metrics-support-registry</feature>
         <bundle>mvn:org.codice.ddf.lib.metrics/metrics-endpoint/${project.version}</bundle>
     </feature>
 </features>

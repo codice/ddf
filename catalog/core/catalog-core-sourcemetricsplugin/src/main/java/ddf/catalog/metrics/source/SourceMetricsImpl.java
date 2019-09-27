@@ -13,11 +13,6 @@
  */
 package ddf.catalog.metrics.source;
 
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricRegistry;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.QueryRequest;
@@ -29,6 +24,11 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.Meter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,10 +88,9 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
   private static final String ALPHA_NUMERIC_REGEX = "[^a-zA-Z0-9]";
 
-  private final MetricRegistry metricsRegistry = new MetricRegistry();
+  private MeterRegistryService meterRegistryService;
 
-  private final JmxReporter reporter =
-      JmxReporter.forRegistry(metricsRegistry).inDomain(MBEAN_PACKAGE_NAME).build();
+  private final MeterRegistry meterRegistry;
 
   // Map of sourceId to Source's metric data
   protected Map<String, SourceMetric> metrics = new HashMap<String, SourceMetric>();
@@ -107,6 +107,10 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
   private ExecutorService executorPool;
 
+  public SourceMetricsImpl() {
+    meterRegistry = meterRegistryService.getMeterRegistry();
+  }
+
   public List<CatalogProvider> getCatalogProviders() {
     return catalogProviders;
   }
@@ -121,18 +125,6 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
   public void setFederatedSources(List<FederatedSource> federatedSources) {
     this.federatedSources = federatedSources;
-  }
-
-  public void init() {
-    LOGGER.trace("INSIDE: init");
-
-    reporter.start();
-  }
-
-  public void destroy() {
-    LOGGER.trace("INSIDE: destroy");
-
-    reporter.stop();
   }
 
   // PreFederatedQuery
@@ -221,13 +213,13 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     if (sourceMetric != null) {
       LOGGER.debug("CASE 1: Metric already exists for {}", mapKey);
       if (sourceMetric.isHistogram()) {
-        Histogram metric = (Histogram) sourceMetric.getMetric();
+        DistributionSummary metric = (DistributionSummary) sourceMetric.getMetric();
         LOGGER.debug("Updating histogram metric {} by amount of {}", name, incrementAmount);
-        metric.update(incrementAmount);
+        metric.record(incrementAmount);
       } else {
-        Meter metric = (Meter) sourceMetric.getMetric();
+        Counter metric = (Counter) sourceMetric.getMetric();
         LOGGER.debug("Updating metric {} by amount of {}", name, incrementAmount);
-        metric.mark(incrementAmount);
+        metric.increment(incrementAmount);
       }
       return;
     }
@@ -362,11 +354,11 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     // as the local catalog provider).
     if (!metrics.containsKey(key)) {
       if (type == MetricType.HISTOGRAM) {
-        Histogram histogram = metricsRegistry.histogram(MetricRegistry.name(sourceId, mbeanName));
+        DistributionSummary histogram = meterRegistry.summary(key);
         metrics.put(key, new SourceMetric(histogram, true));
       } else if (type == MetricType.METER) {
-        Meter meter = metricsRegistry.meter(MetricRegistry.name(sourceId, mbeanName));
-        metrics.put(key, new SourceMetric(meter));
+        Counter counter = meterRegistry.counter(key, Tags.empty());
+        metrics.put(key, new SourceMetric(counter));
       } else {
         LOGGER.debug("Metric {} not created because unknown metric type {} specified.", key, type);
       }
@@ -375,7 +367,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     }
   }
 
-  // The types of Yammer Metrics supported
+  // The types of Micrometer Metrics supported
   private enum MetricType {
     HISTOGRAM,
     METER
@@ -388,22 +380,22 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
    */
   public static class SourceMetric {
 
-    // The Yammer Metric
-    private Metric metric;
+    // The Micrometer Meter
+    private Meter metric;
 
     // Whether this metric is a Histogram or Meter
     private boolean isHistogram = false;
 
-    public SourceMetric(Metric metric) {
+    public SourceMetric(Meter metric) {
       this(metric, false);
     }
 
-    public SourceMetric(Metric metric, boolean isHistogram) {
+    public SourceMetric(Meter metric, boolean isHistogram) {
       this.metric = metric;
       this.isHistogram = isHistogram;
     }
 
-    public Metric getMetric() {
+    public Meter getMetric() {
       return metric;
     }
 

@@ -40,7 +40,7 @@
     <feature name="ddf-boot-features" version="${project.version}"
              description="Features that will be started on container startup.">
         <feature>kernel</feature>
-<!--        <feature>metrics-services</feature>-->
+        <feature>metrics-support-endpoint</feature>
         <feature>platform-paxweb-jettyconfig</feature>
         <feature>security-services-app</feature>
         <feature>ddf-branding</feature>

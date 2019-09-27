@@ -29,6 +29,7 @@ public class MeterRegistryServiceImpl implements MeterRegistryService {
 
   @Override
   public MeterRegistry getMeterRegistry() {
+    LOGGER.debug("Getting meter registry");
     return meterRegistry;
   }
 }
