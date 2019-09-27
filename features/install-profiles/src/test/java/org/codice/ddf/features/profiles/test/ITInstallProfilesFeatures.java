@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.features.profiles.test;
 
-import static org.codice.ddf.test.common.options.DebugOptions.defaultDebuggingOptions;
 import static org.codice.ddf.test.common.options.DistributionOptions.kernelDistributionOption;
 import static org.codice.ddf.test.common.options.FeatureOptions.addBootFeature;
 import static org.codice.ddf.test.common.options.FeatureOptions.addFeatureRepo;
@@ -49,7 +48,6 @@ public class ITInstallProfilesFeatures {
     return options(
         kernelDistributionOption(),
         defaultVmOptions(),
-        defaultDebuggingOptions(),
         defaultPortsOptions(),
         defaultLogging(),
         includeTestResources(),

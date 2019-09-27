@@ -152,6 +152,7 @@
                         </Export-Package>
                         <Import-Package>
                             org.osgi.framework;version="[1.5,2)",
+                            !javax.activation,
                             *
                         </Import-Package>
                         <Karaf-Commands>*</Karaf-Commands>
