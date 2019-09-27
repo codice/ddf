@@ -52,7 +52,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.apache.tika.io.IOUtils;
 import org.codice.ddf.attachment.impl.AttachmentParserImpl;
-import org.codice.ddf.rest.impl.CatalogServiceImpl;
+import org.codice.ddf.rest.service.impl.CatalogServiceImpl;
 import org.junit.Test;
 
 public class RESTEndpointTest {

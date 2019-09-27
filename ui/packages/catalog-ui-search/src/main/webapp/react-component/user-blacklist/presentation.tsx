@@ -47,7 +47,7 @@ const EmptyBlacklist = styled.div`
     linear;
 `
 
-const ItemsWrapper = styled<Props, 'div'>('div')`
+const ItemsWrapper = styled.div<Props>`
   overflow: hidden;
   ${props =>
     props.clearing

@@ -21,7 +21,6 @@ const QueryResultModel = require('./QueryResult.js')
 require('backbone-associations')
 
 module.exports = Backbone.Collection.extend({
-  type: 'query-result.collection',
   model: QueryResultModel,
   amountFiltered: 0,
   generateFilteredVersion(filter) {

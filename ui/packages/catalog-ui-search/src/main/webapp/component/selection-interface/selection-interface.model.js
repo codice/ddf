@@ -120,6 +120,9 @@ module.exports = Backbone.AssociatedModel.extend({
   addToActiveSearchResults(results) {
     this.get('activeSearchResults').add(results.models || results)
   },
+  setSelectedResults(results) {
+    this.get('selectedResults').reset(results.models || results)
+  },
   getSelectedResults() {
     return this.get('selectedResults')
   },

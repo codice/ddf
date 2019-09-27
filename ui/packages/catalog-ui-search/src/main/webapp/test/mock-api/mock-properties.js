@@ -25,6 +25,7 @@ const mock = () => {
     // eslint-disable-next-line no-undef
     props = _.extend(props, data)
     props.ui = uiConfig
+    this.handleEditing()
     this.handleFeedback()
     this.handleExperimental()
     this.handleUpload()

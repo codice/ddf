@@ -17,7 +17,7 @@
     <parent>
         <artifactId>security-sts-pom</artifactId>
         <groupId>ddf.security.sts</groupId>
-        <version>2.18.0-SNAPSHOT</version>
+        <version>2.19.0-SNAPSHOT</version>
     </parent>
     <artifactId>security-sts-x509delegationhandler</artifactId>
     <name>DDF :: Security :: STS :: X509 Delegation Handler</name>
@@ -62,7 +62,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package/>
+                        <Export-Package />
                         <Embed-Dependency>ddf-security-common,platform-util-unavailableurls</Embed-Dependency>
                     </instructions>
                 </configuration>

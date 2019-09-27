@@ -22,9 +22,16 @@ const usngPrecision = 6
 
 import { Attribute, Coordinates, Format, validCoordinates } from '.'
 
-export const formatAttribute = ({ name, value }: Attribute): string => {
-  const isDate = metacardDefinitions.metacardTypes[name].type === 'DATE'
-  return `${name.toUpperCase()}: ${
+export const formatAttribute = ({ name, value }: Attribute): string | null => {
+  const definition = metacardDefinitions.metacardTypes[name]
+  if (definition === undefined) {
+    return null
+  }
+
+  const isDate = definition.type === 'DATE'
+  const displayName = definition.alias || name
+
+  return `${displayName.toUpperCase()}: ${
     isDate ? Common.getHumanReadableDateTime(value) : value
   }`
 }

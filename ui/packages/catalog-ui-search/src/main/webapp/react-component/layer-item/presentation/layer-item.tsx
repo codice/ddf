@@ -19,7 +19,7 @@ import { PresentationProps } from '.'
 
 import { LayerRearrange, LayerAlpha, LayerInteractions, LayerName } from '.'
 
-const Root = styled<PresentationProps, 'div'>('div')`
+const Root = styled.div<PresentationProps>`
   display: block;
   white-space: nowrap;
   width: 100%;

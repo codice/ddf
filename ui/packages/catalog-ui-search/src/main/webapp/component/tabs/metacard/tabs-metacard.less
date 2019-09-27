@@ -48,6 +48,15 @@
   }
 }
 
+.is-editing-restricted @{customElementNamespace}tabs.is-metacard {
+  > .tabs-list {
+    [data-id='Overwrite'],
+    [data-id='Archive'] {
+      display: none !important;
+    }
+  }
+}
+
 @{customElementNamespace}tabs.is-metacard.lacks-preview {
   > .tabs-list {
     [data-id='Preview'] {
@@ -58,7 +67,10 @@
 
 @{customElementNamespace}tabs.is-editing-disabled {
   > .tabs-list {
+    [data-id='History'],
+    [data-id='Associations'],
     [data-id='Archive'],
+    [data-id='Quality'],
     [data-id='Overwrite'] {
       display: none !important;
     }

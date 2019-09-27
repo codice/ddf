@@ -76,7 +76,7 @@
              interface="javax.servlet.http.HttpSessionListener"/>
 
     <bean id="subjectIdentityImpl"
-          class="ddf.security.impl.SubjectIdentityImpl">
+          class="ddf.security.service.impl.SubjectIdentityImpl">
         <cm:managed-properties
                 persistent-id="ddf.security.SubjectIdentity"
                 update-strategy="container-managed"/>

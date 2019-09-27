@@ -8,6 +8,13 @@ include::${ui.file}[]
 
 include::${userInterface.file}[leveloffset=+1]
 
+<#list subUsings?sort_by("order") as subSection>
+<#if (subSection.status == "published"&& subSection.parent == userInterface.title)>
+
+include::${subSection.file}[leveloffset=+2]
+
+</#if>
+</#list>
 </#if>
 </#list>
 </#if>

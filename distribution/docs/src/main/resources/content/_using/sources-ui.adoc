@@ -1,0 +1,18 @@
+:title: Sources View
+:type: using
+:status: published
+:parent: Using ${catalog-ui}
+:summary: Uploading from ${catalog-ui}
+:order: 04
+
+== {title}
+
+${branding} can be configured to search multiple data sources simultaneously,
+or searches can be limited to specific sources as needed.
+
+To view the status of all configured sources, select *Sources* from the Navigation Menu.
+
+To limit the sources used for a Basic search, select the appropriate source(s) from the *Sources* menu while creating/editing the search.
+
+.Select Sources
+image::sources-dropdown.png[Sources Dropdown]

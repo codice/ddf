@@ -40,7 +40,7 @@
                 Since DDF pulls in equinox 3.13.0 instead of what Karaf uses, R7 is available
                 and felix.scr tries to use R7 logging even though the current version of pax-logging
                 does not support it. This override can be removed when pax-logging supports R7.-->
-        <bundle originalUri="mvn:org.apache.felix/org.apache.felix.scr/2.1.14"
+        <bundle originalUri="mvn:org.apache.felix/org.apache.felix.scr/2.1.16"
                 replacement="mvn:org.apache.felix/org.apache.felix.scr/${felix.scr.version}"
                 mode="maven"/>
         <bundle originalUri="mvn:org.apache.aries.proxy/org.apache.aries.proxy/1.1.3"

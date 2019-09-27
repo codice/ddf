@@ -140,7 +140,7 @@ public class ImportMigrationConfigurationAdminEntry {
     // factory
     // config object. If there was none than null would have been exported and passed in to these
     // next
-    // 2 calls. When that happens, the location wuld automatically be set to the first bundle that
+    // 2 calls. When that happens, the location will automatically be set to the first bundle that
     // // registers a managed service or a managed service factory
     if (isManagedServiceFactory()) {
       return configurationAdmin.createFactoryConfiguration(factoryPid, bundleLocation);

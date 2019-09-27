@@ -27,7 +27,7 @@ type Props = {
   saved: boolean
 }
 
-const Root = styled<{}, 'div'>('div')`
+const Root = styled.div`
   width: 100%;
   height: 100%;
   position: relative;

@@ -19,17 +19,15 @@ import SourceItem from '../source-item'
 import SourcesSummary from '../sources-summary'
 import { hot } from 'react-hot-loader'
 
-const Root = styled<{}, 'div'>('div')`
+const Root = styled.div`
   display: block;
   height: 100%;
   width: 100%;
   overflow: hidden;
-  ${props => {
-    return ChangeBackground(props.theme.backgroundContent)
-  }};
+  ${props => ChangeBackground(props.theme.backgroundContent)};
 `
 
-const SourcesCenter = styled<{}, 'div'>('div')`
+const SourcesCenter = styled.div`
   margin: auto;
   max-width: ${props => {
     return props.theme.screenBelow(props.theme.mediumScreenSize)
@@ -52,9 +50,10 @@ type Source = {
 type Props = {
   sources: Source[]
   amountDown: number
+  refreshSources: () => void
 }
 
-export default hot(module)(({ sources, amountDown }: Props) => {
+export default hot(module)(({ sources, amountDown, refreshSources }: Props) => {
   return (
     <Root>
       <SourcesCenter>
@@ -64,6 +63,7 @@ export default hot(module)(({ sources, amountDown }: Props) => {
             <SourceItem
               key={source.id}
               sourceActions={source.sourceActions}
+              refreshSources={refreshSources}
               id={source.id}
               available={source.available}
             />

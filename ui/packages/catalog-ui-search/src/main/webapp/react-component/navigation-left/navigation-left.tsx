@@ -38,7 +38,7 @@ export interface Props {
   logo: string
 }
 
-const Root = styled<Props, 'div'>('div')`
+const Root = styled.div<Props>`
   position: relative;
   overflow: hidden;
   cursor: pointer;
