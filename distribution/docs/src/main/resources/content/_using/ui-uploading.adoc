@@ -1,11 +1,10 @@
-:title: Uploading from ${catalog-ui}
+:title: Uploading
 :type: using
 :status: published
 :parent: Using ${catalog-ui}
 :summary: Uploading from ${catalog-ui}
-:order: 04
+:order: 03
 
-[[_ui_ingest]]
 == {title}
 
 Data can be ingested via ${catalog-ui}.
@@ -30,16 +29,3 @@ The default location of the log is `${home_directory}/data/log/ingest_error.log`
 Uploaded products may be marked with Validation Warnings or Errors.
 Additional configuration may be needed to view these products in searches.
 ====
-
-=== Using the Upload Editor
-${catalog-ui} provides an upload editor form which allows users to customize the metadata of their
-uploads. If enabled, it will appear alongside the upload dropzone and will displays a list of
-attributes a that may be set.
-
-To set an attribute, simply provide a value in the corresponding form control. All custom values in
-the form will be applied on upload. If a field is left blank, the attribute will be ignored. To
-remove all custom values entered, simply click the "Reset Attributes" button at the bottom of the
-form.
-
-Certain attributes within the form may be marked as required (indicated by an asterisk). These
-fields must be set before uploads will be permitted.

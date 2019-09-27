@@ -12,29 +12,30 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
-const metacardDefinitions = require('../../component/singletons/metacard-definitions.js')
-const Common = require('../../js/Common.js')
+import metacardDefinitions from '../../component/singletons/metacard-definitions.js'
 
 import * as React from 'react'
-import {
-  geometryComparators,
-  dateComparators,
-  stringComparators,
-  numberComparators,
-  booleanComparators,
-} from '../../component/filter/comparators'
 
-import { generatePropertyJSON } from './filterHelper'
-
-import ExtensionPoints from '../../extension-points'
-import withListenTo from '../../react-component/backbone-container'
 import styled from 'styled-components'
 import { GrabCursor } from '../styles/mixins'
 import { Button, buttonTypeEnum } from '../presentation/button'
 import FilterAttribute from './filter-attribute'
 import FilterComparator from './filter-comparator'
 import FilterInput from './filter-input'
+import { getAttributeType } from './filterHelper'
+
+const Root = styled.div`
+  width: auto;
+  height: 100%;
+  display: block;
+  white-space: nowrap;
+  margin: ${({ theme }) =>
+    `${theme.minimumSpacing} 0px ${theme.minimumSpacing} ${
+      theme.minimumSpacing
+    }`};
+  padding: ${({ theme }) =>
+    `${theme.minimumSpacing} 1.5rem ${theme.minimumSpacing} 0px`};
+`
 
 const FilterRearrange = styled.div`
   ${GrabCursor};
@@ -57,177 +58,101 @@ const FilterRemove = styled(Button)`
   display: ${({ editing }) => (editing ? 'inline-block' : 'none')};
 `
 
-const Filter = withListenTo(
-  class Filter extends React.Component {
-    constructor(props) {
-      super(props)
-      const comparator = props.model.get('comparator') || 'CONTAINS'
-      let attribute = props.model.get('type') || 'anyText'
-      if (
-        props.includedAttributes &&
-        !props.includedAttributes.includes(attribute)
-      ) {
-        attribute = props.includedAttributes[0]
-      }
-
-      this.state = {
-        comparator,
-        attribute,
-        editing: props.editing,
-        suggestions: [],
-      }
-      props.model.set('type', attribute)
-      props.model.set('comparator', comparator)
+class Filter extends React.Component {
+  constructor(props) {
+    super(props)
+    const comparator = props.comparator || 'CONTAINS'
+    let attribute = props.attribute || 'anyText'
+    if (
+      props.includedAttributes &&
+      !props.includedAttributes.includes(attribute)
+    ) {
+      attribute = props.includedAttributes[0]
     }
 
-    componentDidMount = () => {
-      this.updateComparator()
-      this.updateSuggestions()
+    this.state = {
+      comparator,
+      attribute,
+      suggestions: props.suggestions || [],
+      value: props.value !== undefined ? props.value : '',
     }
-
-    componentWillReceiveProps = ({ editing }) => {
-      this.setState({ editing })
-    }
-
-    render() {
-      const type = metacardDefinitions.metacardTypes[this.state.attribute].type
-      return (
-        <React.Fragment>
-          <FilterRearrange className="filter-rearrange">
-            <span className="cf cf-sort-grabber" />
-          </FilterRearrange>
-          <FilterRemove
-            buttonType={buttonTypeEnum.negative}
-            editing={this.state.editing}
-            onClick={this.props.onRemove}
-            icon="fa fa-minus"
-          />
-          <FilterAttribute
-            attribute={this.state.attribute}
-            includedAttributes={this.props.includedAttributes}
-            editing={this.state.editing}
-            onChange={this.updateAttribute}
-          />
-          <FilterComparator
-            comparator={this.state.comparator}
-            editing={this.state.editing}
-            type={type}
-            attribute={this.state.attribute}
-            onChange={comparator => {
-              this.setState({ comparator })
-              this.props.model.set('comparator', comparator)
-            }}
-          />
-
-          <FilterInput
-            suggestions={this.state.suggestions}
-            attribute={this.state.attribute}
-            comparator={this.state.comparator}
-            editing={this.state.editing}
-            model={this.props.model}
-            type={type}
-            isForm={this.props.isForm}
-            isFormBuilder={this.props.isFormBuilder}
-          />
-          <ExtensionPoints.filterActions
-            model={this.props.model}
-            metacardDefinitions={metacardDefinitions}
-            options={this.props}
-          />
-        </React.Fragment>
-      )
-    }
-
-    updateComparator = (attribute = this.state.attribute) => {
-      const currentComparator = this.props.model.get('comparator')
-      const value = Common.duplicate(this.props.model.get('value'))
-      const propertyJSON = generatePropertyJSON(
-        value,
-        attribute,
-        currentComparator
-      )
-
-      let newComparator = currentComparator
-      switch (propertyJSON.type) {
-        case 'LOCATION':
-          if (
-            geometryComparators.indexOf(currentComparator) === -1 ||
-            attribute === 'anyGeo'
-          ) {
-            newComparator = 'INTERSECTS'
-          }
-          break
-        case 'DATE':
-          if (dateComparators.indexOf(currentComparator) === -1) {
-            newComparator = 'BEFORE'
-          }
-          break
-        case 'BOOLEAN':
-          if (booleanComparators.indexOf(currentComparator) === -1) {
-            newComparator = '='
-          }
-          break
-        case 'LONG':
-        case 'DOUBLE':
-        case 'FLOAT':
-        case 'INTEGER':
-        case 'SHORT':
-        case 'RANGE':
-          if (numberComparators.indexOf(currentComparator) === -1) {
-            newComparator = '>'
-          }
-          break
-        default:
-          if (
-            stringComparators.indexOf(currentComparator) === -1 ||
-            (attribute === 'anyText' && currentComparator === 'IS EMPTY')
-          ) {
-            newComparator = 'CONTAINS'
-          }
-          break
-      }
-      if (currentComparator !== newComparator) {
-        this.props.model.set({ comparator: newComparator })
-      }
-      this.setState(
-        {
-          comparator: newComparator,
-          attribute,
-        },
-        this.updateSuggestions
-      )
-    }
-
-    updateSuggestions = async () => {
-      const propertyJSON = generatePropertyJSON(
-        this.props.model.get('value'),
-        this.state.attribute,
-        this.state.comparator
-      )
-      if (this.props.suggester) {
-        const suggestions = (await this.props.suggester(propertyJSON)).map(
-          suggestion => ({
-            label: suggestion,
-            value: suggestion,
-          })
-        )
-        this.setState({ suggestions })
-      }
-    }
-
-    updateAttribute = attribute => {
-      const previousAttributeType =
-        metacardDefinitions.metacardTypes[this.state.attribute].type
-      this.props.model.set('type', attribute)
-      const newAttributeType = metacardDefinitions.metacardTypes[attribute].type
-      let value = this.props.model.get('value')
-      if (newAttributeType !== previousAttributeType) {
-        value = ['']
-        this.props.model.set('value', value)
-      }
-      this.updateComparator(attribute)
-    }
+    props.onChange(this.state)
   }
-)
+
+  componentDidMount() {
+    this.updateSuggestions()
+  }
+
+  render() {
+    return (
+      <Root>
+        <FilterRearrange className="filter-rearrange">
+          <span className="cf cf-sort-grabber" />
+        </FilterRearrange>
+        <FilterRemove
+          buttonType={buttonTypeEnum.negative}
+          editing={this.props.editing}
+          onClick={this.props.onRemove}
+          icon="fa fa-minus"
+        />
+        <FilterAttribute
+          value={this.state.attribute}
+          includedAttributes={this.props.includedAttributes}
+          editing={this.props.editing}
+          onChange={this.updateAttribute}
+        />
+        <FilterComparator
+          comparator={this.state.comparator}
+          editing={this.props.editing}
+          attribute={this.state.attribute}
+          onChange={comparator => this.setState({ comparator }, this.onChange)}
+        />
+        <FilterInput
+          suggestions={this.state.suggestions}
+          attribute={this.state.attribute}
+          comparator={this.state.comparator}
+          editing={this.props.editing}
+          onChange={value => {
+            this.setState({ value }, () => this.props.onChange(this.state))
+          }}
+          value={this.state.value}
+        />
+      </Root>
+    )
+  }
+
+  onChange = () => {
+    this.updateSuggestions()
+    this.props.onChange(this.state)
+  }
+
+  updateSuggestions = async () => {
+    const { attribute } = this.state
+    let suggestions = []
+    if (metacardDefinitions.enums[attribute]) {
+      suggestions = metacardDefinitions.enums[attribute].map(suggestion => {
+        return { label: suggestion, value: suggestion }
+      })
+    } else if (this.props.suggester) {
+      suggestions = (await this.props.suggester(
+        metacardDefinitions.metacardTypes[attribute]
+      )).map(suggestion => ({
+        label: suggestion,
+        value: suggestion,
+      }))
+    }
+    this.setState({ suggestions })
+  }
+
+  updateAttribute = attribute => {
+    const prevType = getAttributeType(this.state.attribute)
+    const newType = getAttributeType(attribute)
+    let value = this.state.value
+    if (prevType !== newType) {
+      value = ''
+    }
+    this.setState({ attribute, value }, this.onChange)
+  }
+}
 
 export default Filter

@@ -1,0 +1,24 @@
+:title: Sharing Workspaces
+:type: subUsing
+:status: published
+:parent: Using Workspaces
+:summary: Sharing workspaces
+:order: 02
+
+== {title}
+
+Workspaces can be shared between users at different levels of access as needed.
+
+.Share a Workspace
+. From the *Workspaces* view, select the *Options* menu (image:options-icon.png[options icon]) for the workspace in which sharing will be modified.
+. Select *View Sharing*.
+.. To share by user role, set the drop-down menu to *Read Only* or *Read and Write* for each desired role. All users with that role will be able to view the workspace, but will be limited based on the permission assigned. No user will be granted the ability to share the workspace with additional users.
+.. To share with an individual user, add his/her email to the email list and set the drop-down menu to *Read Only*, *Read and Write*, or *Read, Write, and Share*.
+. Click *Apply*.
+
+.Remove Sharing on a Workspace
+. From the *Workspaces* view, select the *Options* menu (image:options-icon.png[options icon]) for the workspace in which sharing will be modified.
+. Select *View Sharing*.
+.. To remove the workspace from users with specific roles, set the drop-down menu to *No Access* for those roles.
+.. To remove an individual user, remove the user's email address from the email list.
+. Click *Apply*.

@@ -135,3 +135,46 @@ stories.add('with small anchor', () => {
     </div>
   )
 })
+
+stories.add('with overflow', () => {
+  const open = boolean('Dropdown Open', false)
+
+  const anchor = (
+    <div
+      style={{
+        padding: 10,
+        boxSizing: 'border-box',
+        border: '1px dashed rgba(0, 0, 0, 0.4)',
+        width: 60,
+        textAlign: 'center',
+        margin: '0 auto',
+      }}
+    >
+      (+)
+    </div>
+  )
+
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <Dropdown
+        open={open ? open : undefined}
+        label="test"
+        onClose={action('onClose')}
+        onOpen={action('onOpen')}
+        anchor={anchor}
+      >
+        <ExampleChild />
+      </Dropdown>
+
+      <Dropdown
+        open={open ? open : undefined}
+        label="test"
+        onClose={action('onClose')}
+        onOpen={action('onOpen')}
+        anchor={anchor}
+      >
+        <ExampleChild />
+      </Dropdown>
+    </div>
+  )
+})

@@ -151,6 +151,16 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
     return sessionData != null;
   }
 
+  @Override
+  public SessionData doLoad(String id) throws Exception {
+    return sessionDataMap.get(id);
+  }
+
+  @Override
+  public String dumpSelf() {
+    return this.getClass().getName();
+  }
+
   private boolean isExpired(String candidateId, long now) {
     SessionData sessionData;
     synchronized (sessionDataMap) {

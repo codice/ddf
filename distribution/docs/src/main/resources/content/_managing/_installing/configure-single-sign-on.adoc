@@ -1,0 +1,76 @@
+:title: System Configuration Settings
+:type: installing
+:status: published
+:summary: Configure Single Sign On (SSO) page of installer.
+:project: ${branding}
+:order: 07
+
+.[[_configuring_sso]]Configure Single Sign On (SSO)
+****
+Configure Single Sign On method: SAML or OIDC.
+
+.SAML SSO
+Enter the URLs for the IdP metatdata and set other options.
+
+IdP Server::
+Configure ${BRANDING}'s internal Identity Provider Server.
+
+. *_SP Metadata_*: The metatada of the desired Service Provider to connect to the internal IdP. Can be configured as an HTTPS URL (`https://`), file URL (`file:`), or an XML block (`&lt;md:EntityDescriptor&gt;...&lt;/md:EntityDescriptor&gt;`).
+
+. *_Require Signed AuthnRequests_*:
+Toggle whether or not to require signed `AuthnRequests`. When off, unsigned `AuthnRequests` will be rejected.
+
+. *_Limit RelayStates to 80 Bytes_*: Toggle whether or not to restrict the `RelayState` length to 80 bytes. The SAML specification requires a maximum length of 80 bytes. When on, messages with `RelayStates` over 80 bytes will be rejected. Only disable if this length is not enforced by the IdP being connected.
+
+. *_Cookie Expiration Time (minutes)_*:
+Sets the cookie expiration time for Single Sign On, which determines how long the internal IdP will cache SAML assertions for later use. This value should match the lifetime of SAML assertions.
+
+IdP Client::
+Configure handling of incoming requests where SAML authentication is enabled.
+
+. *_IdP Metadata_*:
+The metadata of the desired IdP to authenticate with. Can be configured as an HTTPS URL (`https://`), file URL (`file:`), or an XML block (`&lt;md:EntityDescriptor&gt;...&lt;/md:EntityDescriptor&gt;`).
+
+. *_Perform User-Agent Check_*:
+If selected, this will allow clients that do not support ECP and are not browsers to fall back to PKI, BASIC, and potentially GUEST authentication, if enabled.
+
+.OIDC
+Select the IdP type desired and set other options as needed.
+
+OIDC Handler Configuration::
+Configurations relating to handling incoming requests where OIDC authentication is enabled.
+
+. *_IdP Type_*:
+The type of IdP that OIDC will be authenticating with.
+
+. *_Client ID_*:
+Unique ID for the client. This may be provided by the Identity Provider.
+
+. *_Realm/Tenant_*:
+Realm to use for a multi-tenant environment. This is required for Keycloak or Azure.
+
+. *_Secret_*:
+A secret shared between the IdP and its clients. This value must match the value set on the Identity Provider.
+
+. *_Discovery URI_*:
+URI for fetching OP metadata (http://openid.net/specs/openid-connect-discovery-1_0.html {external-link}). This may be provided by the Identity Provider.
+
+. *_Base URI_*:
+URI used as a base for different IdP endpoints. This should only be populated if a Discovery URI was not found. This may be provided by the Identity Provider.
+
+. *_Logout URI_*:
+URI directing to single logout service of the IdP in use.
+
+. *_Scope_*:
+The OIDC scopes to send in requests to the IdP.
+
+. *_Use Nonce_*:
+Whether or not to use nonce in JWT.
+
+. *_Response Type_*:
+The type of OIDC flow to use.
+
+. *_Response Mode_*:
+Informs the IdP of the mechanism to be used for returning parameters from the Authorization Endpoint.
+
+****

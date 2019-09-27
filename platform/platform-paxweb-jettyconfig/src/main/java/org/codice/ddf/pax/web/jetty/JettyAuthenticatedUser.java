@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.pax.web.jetty;
 
+import javax.servlet.ServletRequest;
 import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.server.UserIdentity;
 
@@ -42,5 +43,10 @@ public class JettyAuthenticatedUser implements Authentication.User {
   @Override
   public void logout() {
     // not used
+  }
+
+  @Override
+  public Authentication logout(ServletRequest servletRequest) {
+    return Authentication.UNAUTHENTICATED;
   }
 }

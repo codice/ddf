@@ -1,0 +1,50 @@
+:title: Editing Searches
+:type: subUsing
+:status: published
+:parent: Searching ${catalog-ui}
+:summary: Viewing an editing searches
+:order: 01
+
+== {title}
+
+View and edit searches from the *Search* tab.
+
+The available searches for a workspace can be viewed by clicking on the drop-down on the *Search* tab.
+
+.Viewing available searches.
+image::searches-dropdown.png[searches dropdown]
+
+.Search Menu Options
+At the bottom of each search is a list of options for the search.
+
+* *Run* &#9654;: Trigger this search to begin immediately.
+* *Edit* &#10000;: Edit the search criteria.
+* *Settings* &#9881;: Edit the search settings, such as sorting.
+** *Sort*: Set the sorting criteria for this search.
+** *Sources*: Limit the sources queried by this search.
+** *Result Form*: Choose a format for search results. See <<{using-prefix}using_result_forms,Result Forms>>
+* *Notifications* &#128277;: Allows setting up search notifications.
+* Additional Options
+** *Stop*: Stop this search.
+** *Delete*: Remove this search.
+** *Duplicate*: Create a copy of this search as a starting point.
+** *Search Archived*: Execute this search, but specifically for archived results.
+** *Search Historical*: Execute this search, but specifically for historical results.
+** *View Notes*: View or add annotations to the record.
+** *Export Selected*: Select a record, or group of records, and download the metadata or resources for those records.
+** *Export Selected (Compressed)*: Export selected records into a zip file.
+
+.Viewing Search Status
+An existing search's status can be viewed by selecting the search in the *Search* tab of a workspace and by clicking the *Status* (&#xf21e;) icon.
+The *Status* view for a search displays information about the sources searched.
+
+.Repeating a Search
+Schedule a standing search.
+
+. Select the *Notifications* icon on the search.
+. Select the *Frequency* for the search to repeat.
+
+[NOTE]
+====
+Notifications for the search will persist until the user logs out or refreshes the page.
+====

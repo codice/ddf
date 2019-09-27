@@ -72,6 +72,11 @@ grant codeBase "file:/org.apache.felix.fileinstall" {
     permission java.io.FilePermission "${ddf.home.perm}wrap:jardir:${ddf.home.perm}etc${/}-", "read";
 }
 
+grant codeBase "file:/catalog-core-definitionparser" {
+      permission java.io.FilePermission "${ddf.home.perm}etc${/}/definitions${/}", "read";
+      permission java.io.FilePermission "${ddf.home.perm}etc${/}/definitions${/}-", "read";
+}
+
 grant codeBase "file:/platform-osgi-condpermadmin/acdebugger-backdoor" {
     permission java.io.FilePermission "${ddf.home.perm}security${/}-", "read";
     permission org.osgi.framework.ServicePermission "org.codice.acdebugger.PermissionService", "get, register";
@@ -92,6 +97,7 @@ grant codeBase "file:/security-crl-generator" {
 grant codeBase "file:/org.apache.felix.configadmin" {
     permission java.security.SecurityPermission "createAccessControlContext";
     permission org.osgi.framework.BundlePermission "*", "provide, require, host, fragment";
+    permission java.lang.RuntimePermission "getClassLoader";
 }
 
 grant codeBase "file:/org.apache.karaf.features.core/org.apache.karaf.features.command" {
@@ -141,7 +147,7 @@ grant codeBase "file:/org.apache.servicemix.bundles.wsdl4j/spatial-commands/spat
     permission java.io.FilePermission "<<ALL FILES>>", "read";
 }
 
-grant codeBase "file:/org.apache.felix.configadmin/service-atom-transformer/spatial-commands/spatial-geocoding-feature/org.apache.karaf.shell.core/registry-federation-admin-service-impl/catalog-core-commands/spatial-geocoding-offline-catalog/spatial-geocoding-geocoder/spatial-geocoding-plugin/spatial-wfs-v1_0_0-source/spatial-wfs-v2_0_0-source/spatial-wfs-v2_0_0-connectedsource/spatial-wfs-v1_1_0-source/spatial-wfs-featuretransformer/spatial-wfs-featuretransformer-xstream/resourcemanagement-usage-ui/catalog-rest-endpoint/catalog-core-camelcomponent/org.eclipse.jetty.websocket.server/catalog-rest-service" {
+grant codeBase "file:/security-sts-realm/security-core-services/org.apache.felix.configadmin/service-atom-transformer/spatial-commands/spatial-geocoding-feature/org.apache.karaf.shell.core/registry-federation-admin-service-impl/catalog-core-commands/spatial-geocoding-offline-catalog/spatial-geocoding-geocoder/spatial-geocoding-plugin/spatial-wfs-v1_0_0-source/spatial-wfs-v2_0_0-source/spatial-wfs-v2_0_0-connectedsource/spatial-wfs-v1_1_0-source/spatial-wfs-featuretransformer/spatial-wfs-featuretransformer-xstream/resourcemanagement-usage-ui/catalog-rest-endpoint/catalog-core-camelcomponent/org.eclipse.jetty.websocket.server/catalog-rest-service" {
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
@@ -199,6 +205,7 @@ grant codeBase "file:/catalog-core-commands" {
 
 grant codeBase "file:/platform-osgi-configadmin" {
     permission java.security.AllPermission;
+    permission java.lang.RuntimePermission "accessClassInPackage.sun.misc";
 }
 
 grant codeBase "file:/org.apache.karaf.deployer.blueprint/org.apache.karaf.deployer.kar" {
@@ -396,7 +403,7 @@ grant codeBase "file:/admin-ui" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
 }
 
-grant codeBase "file:/admin-configuration-configupdater" {
+grant codeBase "file:/admin-configuration-configupdater/sync-installer-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}*", "read,write,delete";
 }
 

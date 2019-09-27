@@ -16,6 +16,8 @@ import * as React from 'react'
 import { Button, buttonTypeEnum } from '../presentation/button'
 import UserNotifications from '../user-notifications'
 import UserView from '../user'
+import styled from 'styled-components'
+import { transparentize } from 'polished'
 
 const HelpView = require('../../component/help/help.view.js')
 const UserSettings = require('../../component/user-settings/user-settings.view.js')
@@ -28,6 +30,26 @@ export interface Props {
   isGuest: boolean
 }
 
+const Icon = styled.span`
+  margin-right: ${({ theme }) => theme.minimumSpacing};
+`
+
+const UserName = styled.span`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`
+
+const UserUnique = styled.div`
+  display: flex;
+`
+
+const UserButton = styled(Button)`
+  height: 100%;
+  padding: 0px ${props => props.theme.mediumSpacing};
+  max-width: 10rem;
+  border-left: solid 1px ${transparentize(0.8, '#ffffff')};
+`
 const toggleAlerts = () => {
   SlideoutRightViewInstance.updateContent(UserNotifications)
   SlideoutRightViewInstance.open()
@@ -83,15 +105,14 @@ export const Notifications = () => (
 )
 
 export const User = () => (
-  <Button
-    className="navigation-item item-user"
+  <UserButton
     buttonType={buttonTypeEnum.neutral}
     onClick={toggleUser}
     fadeUntilHover={true}
   >
-    <div className="user-unique" title={`Logged in as ${user.getUserName()}`}>
-      <span className="fa fa-user" />
-      <span className="">{user.isGuest() ? 'Guest' : user.getUserName()}</span>
-    </div>
-  </Button>
+    <UserUnique title={`Logged in as ${user.getUserName()}`}>
+      <Icon className="fa fa-user" />
+      <UserName>{user.isGuest() ? 'Guest' : user.getUserName()}</UserName>
+    </UserUnique>
+  </UserButton>
 )
