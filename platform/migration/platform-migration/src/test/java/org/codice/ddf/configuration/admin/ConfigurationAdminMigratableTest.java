@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -390,6 +392,12 @@ public class ConfigurationAdminMigratableTest {
         spy(
             new ConfigurationAdminMigratable(
                 configurationAdminForImport, STRATEGIES, DEFAULT_FILE_EXT));
+    doReturn(
+            ImmutableMap.of("whiteListContexts", new String[] {"/login", "/logout", "/idp"}),
+            ImmutableMap.of("guestAccess", "true"),
+            ImmutableMap.of("sessionAccess", "true"))
+        .when(iCam)
+        .getDefaultProperties(WEB_CONTEXT_POLICY_MANAGER_PID);
     List<Migratable> iMigratables = Collections.singletonList(iCam);
     ConfigurationMigrationManager iConfigurationMigrationManager =
         new ConfigurationMigrationManager(iMigratables, systemService);
@@ -417,7 +425,22 @@ public class ConfigurationAdminMigratableTest {
       }
     }
     for (Configuration config : configurations) {
-      if (!config.getPid().contains(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)) {
+      if (config.getPid().contains(WEB_CONTEXT_POLICY_MANAGER_PID)) {
+        ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
+            ArgumentCaptor.forClass(Dictionary.class);
+        verify(config).update(argumentCaptor.capture());
+        Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.getValue());
+        assertThat(
+            dictionayAsMap,
+            allOf(
+                aMapWithSize(5),
+                hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2"),
+                hasEntry("guestAccess", "true"),
+                hasEntry("sessionAccess", "true"),
+                hasEntry("whiteListContexts", "/idp,/login,/logout"),
+                hasEntry("authenticationTypes", "/=SAML,/admin=SAML|basic")));
+        // Does not have filename because felix.fileinstall is removed
+      } else if (!config.getPid().contains(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)) {
         ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
             ArgumentCaptor.forClass(Dictionary.class);
         verify(config).update(argumentCaptor.capture());
@@ -504,8 +527,24 @@ public class ConfigurationAdminMigratableTest {
   }
 
   private Configuration getConfigurationForExportSystem(String pid) {
+    return getConfigurationForExportSystem(pid, null);
+  }
+
+  private Configuration getConfigurationForExportSystem(
+      String pid, Dictionary<String, Object> props) {
     Configuration config = mock(Configuration.class);
-    Dictionary<String, Object> props = new Hashtable<>();
+    if (props == null) {
+      props = new Hashtable<>();
+      props.put("service.pid", pid);
+      props.put("schema", "http://www.opengis.net/cat/csw/2.0.2");
+      if (pid.equals(WEB_CONTEXT_POLICY_MANAGER_PID)) {
+        props.put("authenticationTypes", new String[] {"/=IDP|GUEST", "/admin=IDP|basic"});
+        props.put("whiteListContexts", new String[] {"/login", "/logout", "/idp"});
+        props.put("guestAccess", "true");
+        props.put("sessionAccess", "true");
+      }
+    }
+
     try {
       props.put(
           DirectoryWatcher.FILENAME,
@@ -513,8 +552,6 @@ public class ConfigurationAdminMigratableTest {
     } catch (IOException e) {
       fail("Unable to resolve configuration path");
     }
-    props.put("service.pid", pid);
-    props.put("schema", "http://www.opengis.net/cat/csw/2.0.2");
     when(config.getProperties()).thenReturn(props);
     when(config.getPid()).thenReturn(pid);
     return config;
