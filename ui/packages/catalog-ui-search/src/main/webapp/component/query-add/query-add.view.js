@@ -267,6 +267,7 @@ module.exports = Marionette.LayoutView.extend({
           } else if (choice !== false) {
             store.getCurrentQueries().remove(choice)
             store.getCurrentQueries().add(this.model)
+            this.model.startSearch()
             this.endSave()
           }
         }
@@ -274,7 +275,6 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   endSave() {
-    this.model.startSearch()
     store.setCurrentQuery(this.model)
     this.initialize()
     this.cancel()
