@@ -1,14 +1,14 @@
 :title: Using the Attribute Editor
 :type: subUsing
 :status: published
-:parent: Pan to a Location
+:parent: Uploading
 :summary: Using the Attribute Editor
 :order: 00
 
 == {title}
 
-${catalog-ui} provides an attribute editor form which allows users to customize the metadata of their uploads.
-If enabled, it will appear alongside the upload dropzone and will display a list ofattributes that may be set.
+${catalog-ui} provides an ((Attribute Editor)) form which allows users to customize the metadata of their uploads.
+If enabled, it will appear alongside the upload dropzone and will display a list of attributes that may be set.
 
 To set an attribute, simply provide a value in the corresponding form control.
 All custom values in the form will be applied on upload.

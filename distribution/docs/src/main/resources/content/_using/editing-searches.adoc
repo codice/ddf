@@ -35,7 +35,7 @@ At the bottom of each search is a list of options for the search.
 ** *Export Selected (Compressed)*: Export selected records into a zip file.
 
 .Viewing Search Status
-An existing search's status can be viewed by selecting the search in the *Search* tab of a workspace and by clicking the *Status* (&#xf21e;) icon.
+An existing search's status can be viewed by selecting the search in the *Search* tab of a workspace and by clicking the *Status* icon.
 The *Status* view for a search displays information about the sources searched.
 
 .Repeating a Search

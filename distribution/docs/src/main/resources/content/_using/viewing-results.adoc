@@ -33,7 +33,7 @@ image::search-results-options.png[search results options]
 
 === Adding Visuals
 
-*Visuals* allow different views of search results.
+((*Visuals*)) allow different views of search results.
 
 . Click the *Add Visual* (image:add-visual-icon.png[add visual icon]) icon in the bottom right corner of ${catalog-ui}.
 . Select a visual to add.
@@ -41,7 +41,7 @@ image::search-results-options.png[search results options]
 .. *3D Map*: A 3 dimensional map view.
 .. *Histogram*: A configurable histogram view for the results of a search.
 .. *Table*: A configurable table view for the results of a search.
-.. *Inspector*: In depth details and actions for the results of a search.
+.. ((*Inspector*)): [[_inspector]]In depth details and actions for the results of a search.
 
 .Inspector View Available Options
 * *Summary*: A customizable subset of the attributes of the result.
@@ -65,7 +65,7 @@ If a preview for a result is available, an extra tab will appear in the *Inspect
 
 ==== Editing Associations on a Record
 
-Update relationships between records through *Associations*.
+Update relationships between records through [[_associations]]((*Associations*)).
 
 . Select the desired result from the *Search* tab.
 . Select the *Inspector* visual.
@@ -94,6 +94,7 @@ View the complete revision history of a record.
 
 ==== Viewing Metadata Quality
 
+(((Metadata Quality)))
 View and fix issues with metadata quality in a record.
 
 [NOTE]

@@ -23,7 +23,7 @@ For other views, select the *Navigation* menu image:navigator-icon.png[navigator
 .Navigation Menu
 . <<{using-prefix}using_workspaces,Workspaces>>
 . <<{using-prefix}uploading,Upload>>
-. <<{using-prefix}using_workspaces,Sources>>
+. <<{using-prefix}sources_view,Sources>>
 . <<{using-prefix}using_search_forms,Search Forms>>
-. <<{using-prefix}using_result_forms,Results Forms>>
+. <<{using-prefix}using_result_forms,Result Forms>>
 
