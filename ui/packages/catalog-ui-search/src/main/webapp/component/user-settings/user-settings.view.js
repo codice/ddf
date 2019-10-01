@@ -19,7 +19,7 @@ import React from 'react'
 
 module.exports = Marionette.LayoutView.extend({
   template() {
-    return <ExtensionPoints.extendedUserSettings />
+    return <ExtensionPoints.userSettings />
   },
   className: 'customElement',
   tagName: 'div',

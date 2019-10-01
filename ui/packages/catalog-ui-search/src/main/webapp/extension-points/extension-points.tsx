@@ -25,7 +25,7 @@ import searchInteractions, {
 } from './search-interactions'
 import { tableExport, Props as TableExportProps } from './table-export'
 import multiSelectActions from './multi-select-actions'
-import extendedUserSettings from './user-settings'
+import userSettings from './user-settings'
 
 export type ExtensionPointsType = {
   routes: {}
