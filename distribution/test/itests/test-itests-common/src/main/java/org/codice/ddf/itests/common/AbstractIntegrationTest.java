@@ -586,8 +586,7 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_REL_PATH,
             "org.ops4j.pax.exam.raw.extender.intern.Parser.DEFAULT_TIMEOUT",
-            "100000"),
-        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "artemis.diskusage", "100"));
+            "100000"));
   }
 
   protected Option[] configureLogLevel() {
@@ -608,11 +607,7 @@ public abstract class AbstractIntegrationTest {
                     createSetLogLevelOption(
                         "ddf.security.expansion.impl.RegexExpansion", securityLogLevel),
                     createSetLogLevelOption(
-                        "ddf.security.service.impl.AbstractAuthorizingRealm", securityLogLevel))),
-        editConfigurationFilePut(
-            LOGGER_CONFIGURATION_FILE_PATH,
-            "log4j2.logger.org_apache_activemq_artemis.additivity",
-            "true"));
+                        "ddf.security.service.impl.AbstractAuthorizingRealm", securityLogLevel))));
   }
 
   /**

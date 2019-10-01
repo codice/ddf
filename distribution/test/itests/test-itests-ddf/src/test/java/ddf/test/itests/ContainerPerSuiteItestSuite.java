@@ -19,7 +19,6 @@ import ddf.test.itests.catalog.TestCatalogValidation;
 import ddf.test.itests.catalog.TestFanout;
 import ddf.test.itests.catalog.TestFederation;
 import ddf.test.itests.catalog.TestFtp;
-import ddf.test.itests.catalog.TestMessageBroker;
 import ddf.test.itests.catalog.TestRegistry;
 import ddf.test.itests.catalog.TestSecurityAuditPlugin;
 import ddf.test.itests.catalog.TestSpatial;
@@ -50,7 +49,6 @@ import org.junit.runners.Suite;
   TestOidc.class,
   TestPlatform.class,
   TestFanout.class,
-  TestMessageBroker.class,
   TestSecurityAuditPlugin.class
 })
 public class ContainerPerSuiteItestSuite {}
