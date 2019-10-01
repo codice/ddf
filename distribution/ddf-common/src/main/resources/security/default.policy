@@ -114,7 +114,7 @@ grant codeBase "file:/org.eclipse.osgi" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.decanter.sla.checker.cfg", "read,write";
 }
 
-grant codeBase "file:/registry-api-impl/catalog-plugin-metacardbackup-filestorage/org.apache.servicemix.bundles.xstream/platform-http-proxy/broker-route-manager/spatial-csw-transformer/catalog-core-camelcontext/org.ops4j.pax.web.pax-web-jsp/org.apache.aries.transaction.blueprint/org.apache.aries.proxy/org.apache.camel.camel-blueprint" {
+grant codeBase "file:/registry-api-impl/catalog-plugin-metacardbackup-filestorage/org.apache.servicemix.bundles.xstream/platform-http-proxy/spatial-csw-transformer/catalog-core-camelcontext/org.ops4j.pax.web.pax-web-jsp/org.apache.aries.transaction.blueprint/org.apache.aries.proxy/org.apache.camel.camel-blueprint" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.cxf.osgi.cfg", "read";
@@ -225,7 +225,7 @@ grant codebase "file:/org.apache.karaf.log.core" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}log4j2.xml", "read,write";
 }
 
-grant codeBase "file:/woodstox-core/broker-topic-logger/catalog-core-downloadaction/platform-http-proxy/platform-scheduler/catalog-validator-metacardduplication/org.apache.cxf.cxf-rt-bindings-soap" {
+grant codeBase "file:/woodstox-core/catalog-core-downloadaction/platform-http-proxy/platform-scheduler/catalog-validator-metacardduplication/org.apache.cxf.cxf-rt-bindings-soap" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
@@ -289,15 +289,13 @@ grant codeBase "file:/security-pdp-authzrealm" {
     permission java.lang.RuntimePermission "modifyThread";
 }
 
-grant codeBase "file:/admin-core-insecuredefaults/org.apache.felix.scr/org.apache.karaf.decanter.scheduler.simple/org.apache.activemq.artemis-server-osgi/io.netty.common/io.netty.transport" {
+grant codeBase "file:/admin-core-insecuredefaults/org.apache.felix.scr/org.apache.karaf.decanter.scheduler.simple/io.netty.common/io.netty.transport" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}artemis.xml", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}artemis-backup.xml", "read";
 }
 
 grant codeBase "file:/admin-core-insecuredefaults/org.apache.karaf.decanter.scheduler.simple/org.apache.felix.scr" {
