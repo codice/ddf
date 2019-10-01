@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -47,7 +49,9 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.apache.karaf.system.SystemService;
@@ -136,6 +140,15 @@ public class ConfigurationAdminMigratableTest {
   private static final String DDF_CUSTOM_MIME_TYPE_RESOLVER_FILENAME =
       String.format("%s-csw.config", DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
 
+  private static final String STS_GUEST_CLAIMS_HANDLER_PID = "ddf.security.sts.guestclaims";
+
+  private static final String STS_SERVER_PID = "ddf.security.sts";
+
+  private static final String WEB_CONTEXT_POLICY_MANAGER_PID =
+      "org.codice.ddf.security.policy.context.impl.PolicyManager";
+
+  private static final String SECURITY_SESSION_PID = "ddf.security.http.impl.HttpSessionFactory";
+
   private static final List<PersistenceStrategy> STRATEGIES =
       ImmutableList.of(new CfgStrategy(), new ConfigStrategy());
 
@@ -158,13 +171,17 @@ public class ConfigurationAdminMigratableTest {
 
   @Mock private MigrationReport migrationReport;
 
-  private Configuration[] configurations;
+  private List<Configuration> configurations;
 
   @Before
   public void setup() throws Exception {
     setup(DDF_HOME, SUPPORTED_VERSION);
-    setupConfigAdminForExportSystem(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
-    configurations = setupConfigAdminForImportSystem(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
+    setupConfigAdminForExportSystem(
+        Collections.emptyList(),
+        Collections.singletonList(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID));
+    setupConfigAdminForImportSystem(
+        Collections.emptyList(),
+        Collections.singletonList(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID));
   }
 
   @Test
@@ -291,7 +308,7 @@ public class ConfigurationAdminMigratableTest {
         .createFactoryConfiguration(eq(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID), isNull());
     ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
         ArgumentCaptor.forClass(Dictionary.class);
-    verify(configurations[0]).update(argumentCaptor.capture());
+    verify(configurations.get(0)).update(argumentCaptor.capture());
     Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.getValue());
     assertThat(
         dictionayAsMap,
@@ -312,13 +329,17 @@ public class ConfigurationAdminMigratableTest {
   @Test
   public void testDoExportDoVersionUpgradeImport() throws Exception {
     // Setup Export
-    String[] factoryPids = {CONTENT_DIRECTORY_MONITOR_FACTORY_PID, URL_RESOURCE_READER_FACTORY_PID};
-    Configuration[] exportedConfigurations =
-        setupConfigAdminForExportSystem(
-            CONTENT_DIRECTORY_MONITOR_FACTORY_PID,
+    List<String> pids =
+        Arrays.asList(
             URL_RESOURCE_READER_FACTORY_PID,
-            DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
-    when(exportedConfigurations[1].getPid()).thenReturn(URL_RESOURCE_READER_FACTORY_PID);
+            STS_GUEST_CLAIMS_HANDLER_PID,
+            STS_SERVER_PID,
+            WEB_CONTEXT_POLICY_MANAGER_PID,
+            SECURITY_SESSION_PID);
+    List<String> factoryPids =
+        Arrays.asList(
+            CONTENT_DIRECTORY_MONITOR_FACTORY_PID, DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
+    setupConfigAdminForExportSystem(pids, factoryPids);
     Path exportDir = tempDir.getRoot().toPath().toRealPath();
     final String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_HOME);
     final Path configFile = setupConfigFile(tag, CONTENT_DIRECTORY_MONITOR_FILENAME);
@@ -364,18 +385,19 @@ public class ConfigurationAdminMigratableTest {
     // Clean up ddf home, so we can import into a clean directory
     FileUtils.deleteDirectory(ddfHome.toRealPath().toFile());
     setup(DDF_HOME, IMPORTING_PRODUCT_VERSION);
-    configurations =
-        setupConfigAdminForImportSystem(
-            CONTENT_DIRECTORY_MONITOR_FACTORY_PID,
-            URL_RESOURCE_READER_FACTORY_PID,
-            DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
-    when(configurations[1].getPid()).thenReturn(URL_RESOURCE_READER_FACTORY_PID);
+    setupConfigAdminForImportSystem(pids, factoryPids);
 
     // intercept doImport() to verify exported files from etc
     ConfigurationAdminMigratable iCam =
         spy(
             new ConfigurationAdminMigratable(
                 configurationAdminForImport, STRATEGIES, DEFAULT_FILE_EXT));
+    doReturn(
+            ImmutableMap.of("whiteListContexts", new String[] {"/login", "/logout", "/idp"}),
+            ImmutableMap.of("guestAccess", "true"),
+            ImmutableMap.of("sessionAccess", "true"))
+        .when(iCam)
+        .getDefaultProperties(WEB_CONTEXT_POLICY_MANAGER_PID);
     List<Migratable> iMigratables = Collections.singletonList(iCam);
     ConfigurationMigrationManager iConfigurationMigrationManager =
         new ConfigurationMigrationManager(iMigratables, systemService);
@@ -396,16 +418,38 @@ public class ConfigurationAdminMigratableTest {
 
     // Verify that the config admin in the system being imported into gets the factory configuration
     // from the system being exported from.
-    for (int i = 0; i < factoryPids.length; i++) {
-      verify(configurationAdminForImport).createFactoryConfiguration(eq(factoryPids[i]), isNull());
-      ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
-          ArgumentCaptor.forClass(Dictionary.class);
-      verify(configurations[i]).update(argumentCaptor.capture());
-      Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.getValue());
-      assertThat(
-          dictionayAsMap,
-          allOf(aMapWithSize(1), hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2")));
-      // Does not have filename because felix.fileinstall is removed
+    // Using legacy for lops due to exception handling
+    for (String fPid : factoryPids) {
+      if (!fPid.equals(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)) {
+        verify(configurationAdminForImport).createFactoryConfiguration(eq(fPid), isNull());
+      }
+    }
+    for (Configuration config : configurations) {
+      if (config.getPid().contains(WEB_CONTEXT_POLICY_MANAGER_PID)) {
+        ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
+            ArgumentCaptor.forClass(Dictionary.class);
+        verify(config).update(argumentCaptor.capture());
+        Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.getValue());
+        assertThat(
+            dictionayAsMap,
+            allOf(
+                aMapWithSize(5),
+                hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2"),
+                hasEntry("guestAccess", "true"),
+                hasEntry("sessionAccess", "true"),
+                hasEntry("whiteListContexts", "/idp,/login,/logout"),
+                hasEntry("authenticationTypes", "/=SAML,/admin=SAML|basic")));
+        // Does not have filename because felix.fileinstall is removed
+      } else if (!config.getPid().contains(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)) {
+        ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
+            ArgumentCaptor.forClass(Dictionary.class);
+        verify(config).update(argumentCaptor.capture());
+        Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.getValue());
+        assertThat(
+            dictionayAsMap,
+            allOf(aMapWithSize(1), hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2")));
+        // Does not have filename because felix.fileinstall is removed
+      }
     }
   }
 
@@ -429,46 +473,36 @@ public class ConfigurationAdminMigratableTest {
     return map;
   }
 
-  private Configuration[] setupConfigAdminForExportSystem(String... configFactoryPids)
+  private void setupConfigAdminForExportSystem(List<String> pids, List<String> configFactoryPids)
       throws Exception {
-    Configuration[] configurations = getConfigurationsForExportSystem(configFactoryPids);
-    when(configurationAdminForExport.listConfigurations(isNull())).thenReturn(configurations);
+    List<Configuration> configs =
+        pids.stream().map(this::getConfigurationForExportSystem).collect(Collectors.toList());
+    List<Configuration> factoryConfigs =
+        configFactoryPids
+            .stream()
+            .map(this::getFactoryConfigurationForExportSystem)
+            .collect(Collectors.toList());
+    configurations = ListUtils.union(configs, factoryConfigs);
+    when(configurationAdminForExport.listConfigurations(isNull()))
+        .thenReturn(configurations.toArray(new Configuration[0]));
     when(exportMigrationContext.entries(any(), eq(false), any())).thenReturn(Stream.empty());
-    return configurations;
   }
 
-  private Configuration[] setupConfigAdminForImportSystem(String... configFactoryPids)
+  private void setupConfigAdminForImportSystem(List<String> pids, List<String> configFactoryPids)
       throws Exception {
-    Configuration[] configurations = getConfigurationsForImportSystem(configFactoryPids);
-    when(configurationAdminForImport.listConfigurations(isNull())).thenReturn(configurations);
-    // Create a new factory Configuration object with a new PID. The properties of the new
-    // Configuration
-    // object are null until the first time that its Configuration.update(Dictionary) method is
-    // called.
-    for (int i = 0; i < configFactoryPids.length; i++) {
-      when(configurations[i].getPid())
-          .thenReturn(
-              String.format("%s.8e3c2b12-9807-482a-aaa7-d3d317973581", configFactoryPids[i]));
-      when(configurationAdminForImport.createFactoryConfiguration(
-              eq(configFactoryPids[i]), isNull()))
-          .thenReturn(configurations[i]);
-    }
-    return configurations;
+    List<Configuration> configs =
+        pids.stream().map(this::getConfigurationForImportSystem).collect(Collectors.toList());
+    List<Configuration> factoryConfigs =
+        configFactoryPids
+            .stream()
+            .map(this::getFactoryConfigurationForImportSystem)
+            .collect(Collectors.toList());
+    configurations = ListUtils.union(configs, factoryConfigs);
+    when(configurationAdminForImport.listConfigurations(isNull()))
+        .thenReturn(configurations.toArray(new Configuration[0]));
   }
 
-  private Configuration[] getConfigurationsForExportSystem(String... configFactoryPids) {
-    return Arrays.stream(configFactoryPids)
-        .map(this::getConfigurationForExportSystem)
-        .toArray(Configuration[]::new);
-  }
-
-  private Configuration[] getConfigurationsForImportSystem(String... configFactoryPids) {
-    return Arrays.stream(configFactoryPids)
-        .map(this::getConfigurationForImportSystem)
-        .toArray(Configuration[]::new);
-  }
-
-  private Configuration getConfigurationForExportSystem(String configFactoryPid) {
+  private Configuration getFactoryConfigurationForExportSystem(String configFactoryPid) {
     Configuration config = mock(Configuration.class);
     Dictionary<String, Object> props = new Hashtable<>();
     try {
@@ -492,10 +526,58 @@ public class ConfigurationAdminMigratableTest {
     return config;
   }
 
-  private Configuration getConfigurationForImportSystem(String configFactoryPid) {
+  private Configuration getConfigurationForExportSystem(String pid) {
+    return getConfigurationForExportSystem(pid, null);
+  }
+
+  private Configuration getConfigurationForExportSystem(
+      String pid, Dictionary<String, Object> props) {
     Configuration config = mock(Configuration.class);
-    when(config.getPid()).thenReturn(configFactoryPid);
+    if (props == null) {
+      props = new Hashtable<>();
+      props.put("service.pid", pid);
+      props.put("schema", "http://www.opengis.net/cat/csw/2.0.2");
+      if (pid.equals(WEB_CONTEXT_POLICY_MANAGER_PID)) {
+        props.put("authenticationTypes", new String[] {"/=IDP|GUEST", "/admin=IDP|basic"});
+        props.put("whiteListContexts", new String[] {"/login", "/logout", "/idp"});
+        props.put("guestAccess", "true");
+        props.put("sessionAccess", "true");
+      }
+    }
+
+    try {
+      props.put(
+          DirectoryWatcher.FILENAME,
+          ddfHome.resolve("etc").toRealPath().resolve(String.format("%s.config", pid)).toUri());
+    } catch (IOException e) {
+      fail("Unable to resolve configuration path");
+    }
+    when(config.getProperties()).thenReturn(props);
+    when(config.getPid()).thenReturn(pid);
+    return config;
+  }
+
+  private Configuration getFactoryConfigurationForImportSystem(String configFactoryPid) {
+    Configuration config = mock(Configuration.class);
+    // Create a new factory Configuration object with a new PID. The properties of the new
+    // Configuration
+    // object are null until the first time that its Configuration.update(Dictionary) method is
+    // called.
+    when(config.getPid())
+        .thenReturn(String.format("%s.8e3c2b12-9807-482a-aaa7-d3d317973581", configFactoryPid));
     when(config.getFactoryPid()).thenReturn(configFactoryPid);
+    try {
+      when(configurationAdminForImport.createFactoryConfiguration(eq(configFactoryPid), isNull()))
+          .thenReturn(config);
+    } catch (IOException e) {
+      // Can't happen since this is mocking the createFactoryConfiguration method.
+    }
+    return config;
+  }
+
+  private Configuration getConfigurationForImportSystem(String pid) {
+    Configuration config = mock(Configuration.class);
+    when(config.getPid()).thenReturn(pid);
     return config;
   }
 
