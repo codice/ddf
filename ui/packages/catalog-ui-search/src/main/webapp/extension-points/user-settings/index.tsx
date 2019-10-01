@@ -12,14 +12,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
-const Marionette = require('marionette')
-import ExtensionPoints from '../../extension-points'
-
-module.exports = Marionette.LayoutView.extend({
-  template() {
-    return ExtensionPoints.extendedUserSettings
-  },
-  className: 'customElement',
-  tagName: 'div',
-})
+export { default } from './user-settings'

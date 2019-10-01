@@ -12,14 +12,26 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+import plugin from 'plugins/user-settings'
 
-const Marionette = require('marionette')
-import ExtensionPoints from '../../extension-points'
+import {
+  default as UserSettings,
+  ThemeSettingsComponent,
+  AlertSettingsComponent,
+  MapSettingsComponent,
+  SearchSettingsComponent,
+  TimeSettingsComponent,
+  HiddenSettingsComponent,
+} from '../../react-component/user-settings'
+import * as React from 'react'
 
-module.exports = Marionette.LayoutView.extend({
-  template() {
-    return ExtensionPoints.extendedUserSettings
-  },
-  className: 'customElement',
-  tagName: 'div',
-})
+const ExtendedUserSettings = UserSettings([
+  <ThemeSettingsComponent />,
+  <AlertSettingsComponent />,
+  <MapSettingsComponent />,
+  <SearchSettingsComponent />,
+  <TimeSettingsComponent />,
+  <HiddenSettingsComponent />,
+])
+
+export default plugin(ExtendedUserSettings) as any
