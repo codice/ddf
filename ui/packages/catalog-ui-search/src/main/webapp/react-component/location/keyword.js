@@ -29,6 +29,12 @@ class Keyword extends React.Component {
       loading: false,
       error: null,
       polyType: null,
+      minimumInputLength: props.minimumInputLength || 2,
+      placeholder: props.placeholder || 'Pan to a region, country, or city',
+      renderLoadingDisplay:
+        props.renderLoadingDisplay !== undefined
+          ? props.renderLoadingDisplay
+          : true,
     }
     this.fetch = this.props.fetch || fetch
   }
@@ -87,7 +93,10 @@ class Keyword extends React.Component {
       }
     } catch (e) {
       this.setState(
-        { loading: false, error: 'Geo feature endpoint unavailable' },
+        {
+          loading: false,
+          error: this.props.errorMessage || 'Geo feature endpoint unavailable',
+        },
         () => {
           if (typeof this.props.onError === 'function') {
             this.props.onError(e)
@@ -104,39 +113,48 @@ class Keyword extends React.Component {
       polygonBufferWidth,
       polygonBufferUnits,
       polyType,
+      loadingMessage,
     } = this.props
-    const { value, loading, error } = this.state
+    const {
+      value,
+      loading,
+      error,
+      minimumInputLength,
+      placeholder,
+      renderLoadingDisplay,
+    } = this.state
     return (
       <div>
         <AutoComplete
           value={value}
           onChange={option => this.onChange(option)}
-          minimumInputLength={2}
-          placeholder="Pan to a region, country, or city"
+          minimumInputLength={minimumInputLength}
+          placeholder={placeholder}
           suggester={suggester}
         />
-        {loading ? (
+        {loading && renderLoadingDisplay && (
           <div style={{ marginTop: 10 }}>
-            Loading geometry... <span className="fa fa-refresh fa-spin" />
+            {loadingMessage || 'Loading geometry...'}{' '}
+            <span className="fa fa-refresh fa-spin" />
           </div>
-        ) : null}
-        {!loading && error !== null ? <div>{error}</div> : null}
-        {!loading && polygon !== undefined && polyType === 'polygon' ? (
+        )}
+        {!loading && error !== null && <div>{error}</div>}
+        {!loading && polygon !== undefined && polyType === 'polygon' && (
           <Polygon
             polygon={polygon}
             cursor={cursor}
             polygonBufferWidth={polygonBufferWidth}
             polygonBufferUnits={polygonBufferUnits}
           />
-        ) : null}
-        {!loading && polygon !== undefined && polyType === 'multipolygon' ? (
+        )}
+        {!loading && polygon !== undefined && polyType === 'multipolygon' && (
           <MultiPolygon
             polygon={polygon}
             cursor={cursor}
             polygonBufferWidth={polygonBufferWidth}
             polygonBufferUnits={polygonBufferUnits}
           />
-        ) : null}
+        )}
       </div>
     )
   }
