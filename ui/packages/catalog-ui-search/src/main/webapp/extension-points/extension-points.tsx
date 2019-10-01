@@ -38,7 +38,7 @@ export type ExtensionPointsType = {
   searchInteractions: SFC<SearchInteractionProps>
   tableExport: SFC<TableExportProps>
   multiSelectActions: any[]
-  extendedUserSettings: React.ReactNode
+  userSettings: React.ReactNode
 }
 
 const ExtensionPoints: ExtensionPointsType = {
@@ -52,7 +52,7 @@ const ExtensionPoints: ExtensionPointsType = {
   searchInteractions,
   tableExport,
   multiSelectActions,
-  extendedUserSettings,
+  userSettings,
 }
 
 export default ExtensionPoints

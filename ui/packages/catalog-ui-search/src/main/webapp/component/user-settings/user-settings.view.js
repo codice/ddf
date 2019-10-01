@@ -15,10 +15,11 @@
 
 const Marionette = require('marionette')
 import ExtensionPoints from '../../extension-points'
+import React from 'react'
 
 module.exports = Marionette.LayoutView.extend({
   template() {
-    return ExtensionPoints.extendedUserSettings
+    return <ExtensionPoints.extendedUserSettings />
   },
   className: 'customElement',
   tagName: 'div',
