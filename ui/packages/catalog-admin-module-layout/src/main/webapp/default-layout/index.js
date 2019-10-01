@@ -216,7 +216,6 @@ const MapLayers = ({
   onRender,
   onUpdate,
   onSave,
-  onAdd,
   onReset,
   onMessage,
   disabled,

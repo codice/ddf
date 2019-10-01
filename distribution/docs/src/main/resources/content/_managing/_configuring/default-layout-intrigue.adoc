@@ -19,11 +19,56 @@ Inspector _(Default)_:: Display a view of detailed information about a search re
 Histogram:: Compare attributes of items in a search result set as a histogram.
 Table:: Compare attributes of items in a search result set as a table.
 
-.Configuring Visualizations
+.Configuring Enabled Visualizations
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-ui}* application.
 . Select the *Default Layout* tab.
 . *Add* or *Remove* visualizations as desired.
 .. To add a visualization, select the *Add* icon.
 .. To remove a visualization, select the *Delete* icon on the tab for that visualization.
+. Select *Save* to complete.
+
+.Configuring Possible Visualizations
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-ui}* application.
+. Select the *Configuration* tab.
+. Select `org.codice.ddf.catalog.ui`
+. *Edit* "Visualizations" JSON as desired.
+
++
+Example JSON:
++
+[source,json]
+----
+[
+  {
+    "name": "openlayers",
+    "title": "2D Map",
+    "icon": "map"
+  },
+  {
+    "name": "cesium",
+    "title": "3D Map",
+    "icon": "globe"
+  },
+  {
+    "name": "inspector",
+    "title": "Inspector",
+    "icon": "info"
+  },
+  {
+    "name": "histogram",
+    "title": "Histogram",
+    "icon": "bar-chart"
+  },
+  {
+    "name": "table",
+    "title": "Table",
+    "icon": "table"
+  }
+]
+
+----
+
+
 . Select *Save* to complete.
