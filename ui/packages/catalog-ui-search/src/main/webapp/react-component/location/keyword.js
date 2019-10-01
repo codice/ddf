@@ -132,29 +132,34 @@ class Keyword extends React.Component {
           placeholder={placeholder}
           suggester={suggester}
         />
-        {loading && renderLoadingDisplay && (
-          <div style={{ marginTop: 10 }}>
-            {loadingMessage || 'Loading geometry...'}{' '}
-            <span className="fa fa-refresh fa-spin" />
-          </div>
-        )}
+        {loading &&
+          renderLoadingDisplay && (
+            <div style={{ marginTop: 10 }}>
+              {loadingMessage || 'Loading geometry...'}{' '}
+              <span className="fa fa-refresh fa-spin" />
+            </div>
+          )}
         {!loading && error !== null && <div>{error}</div>}
-        {!loading && polygon !== undefined && polyType === 'polygon' && (
-          <Polygon
-            polygon={polygon}
-            cursor={cursor}
-            polygonBufferWidth={polygonBufferWidth}
-            polygonBufferUnits={polygonBufferUnits}
-          />
-        )}
-        {!loading && polygon !== undefined && polyType === 'multipolygon' && (
-          <MultiPolygon
-            polygon={polygon}
-            cursor={cursor}
-            polygonBufferWidth={polygonBufferWidth}
-            polygonBufferUnits={polygonBufferUnits}
-          />
-        )}
+        {!loading &&
+          polygon !== undefined &&
+          polyType === 'polygon' && (
+            <Polygon
+              polygon={polygon}
+              cursor={cursor}
+              polygonBufferWidth={polygonBufferWidth}
+              polygonBufferUnits={polygonBufferUnits}
+            />
+          )}
+        {!loading &&
+          polygon !== undefined &&
+          polyType === 'multipolygon' && (
+            <MultiPolygon
+              polygon={polygon}
+              cursor={cursor}
+              polygonBufferWidth={polygonBufferWidth}
+              polygonBufferUnits={polygonBufferUnits}
+            />
+          )}
       </div>
     )
   }
