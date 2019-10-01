@@ -108,6 +108,11 @@ class AttributeValueNormalizer {
     if (iso != null) {
       return Objects.toString(iso.toEpochMilli());
     }
+
+    if (value.equals("")) {
+      return "";
+    }
+
     // Edge case for relative date function
     if (EXPECTED_RELATIVE_FUNCTION_PATTERN.matcher(value).matches()) {
       return value;
