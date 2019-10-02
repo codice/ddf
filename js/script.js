@@ -75,12 +75,10 @@ var setPreviousVersionList = function(data) {
   
 
 $(function() {
-    if (window.location.href.indexOf("index") > -1 ) {
-        getLatestStableVersion(setNewsAndEvents);
-    } else if (window.location.href.indexOf("Documentation-versions") > -1 ) {
+    if (window.location.href.indexOf("Documentation-versions") > -1 ) {
         getLatestStableVersion(setPreviousVersionList);
     } else {
-        getLatestStableVersion();
+        getLatestStableVersion(setNewsAndEvents);
     }
 });
 
