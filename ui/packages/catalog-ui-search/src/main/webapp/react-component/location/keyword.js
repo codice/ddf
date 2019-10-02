@@ -29,12 +29,6 @@ class Keyword extends React.Component {
       loading: false,
       error: null,
       polyType: null,
-      minimumInputLength: props.minimumInputLength || 2,
-      placeholder: props.placeholder || 'Pan to a region, country, or city',
-      renderLoadingDisplay:
-        props.renderLoadingDisplay !== undefined
-          ? props.renderLoadingDisplay
-          : true,
     }
     this.fetch = this.props.fetch || fetch
   }
@@ -107,6 +101,10 @@ class Keyword extends React.Component {
   }
   render() {
     const suggester = this.props.suggester || (input => this.suggester(input))
+    const renderLoadingDisplay =
+      this.props.renderLoadingDisplay !== undefined
+        ? this.props.renderLoadingDisplay
+        : true
     const {
       polygon,
       cursor,
@@ -114,22 +112,17 @@ class Keyword extends React.Component {
       polygonBufferUnits,
       polyType,
       loadingMessage,
-    } = this.props
-    const {
-      value,
-      loading,
-      error,
       minimumInputLength,
       placeholder,
-      renderLoadingDisplay,
-    } = this.state
+    } = this.props
+    const { value, loading, error } = this.state
     return (
       <div>
         <AutoComplete
           value={value}
           onChange={option => this.onChange(option)}
-          minimumInputLength={minimumInputLength}
-          placeholder={placeholder}
+          minimumInputLength={minimumInputLength || 2}
+          placeholder={placeholder || 'Pan to a region, country, or city'}
           suggester={suggester}
         />
         {loading &&
