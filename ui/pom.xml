@@ -371,11 +371,6 @@
                                     <classifier>security-certificate-adminmodule</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>packages/broker-undelivered-messages-ui/target/message-broker.jar</file>
-                                    <type>jar</type>
-                                    <classifier>message-broker</classifier>
-                                </artifact>
-                                <artifact>
                                     <file>packages/catalog-admin-module-layout/target/defaul-layout.jar</file>
                                     <type>jar</type>
                                     <classifier>defaul-layout</classifier>

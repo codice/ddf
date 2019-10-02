@@ -97,13 +97,6 @@
         </dependency>
         <!--end feature dependencies-->
         <dependency>
-            <groupId>org.codice.ddf.broker</groupId>
-            <artifactId>broker-app</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog</groupId>
             <artifactId>catalog-app</artifactId>
             <version>${project.version}</version>

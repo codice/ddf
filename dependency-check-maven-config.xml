@@ -161,14 +161,6 @@
     </suppress>
     <suppress>
         <notes>
-            These CVEs apply to the Hawtio console which is not exposed in this system.
-            artemis-core-client-2.1.0.jar and activemq-client-5.14.5.jar
-        </notes>
-        <cve>CVE-2015-5184</cve>
-        <cve>CVE-2015-5183</cve>
-    </suppress>
-    <suppress>
-        <notes>
             These CVEs apply to org.apache.geronimo:geronimo which is not a dependency of any of
             these artifacts.
 
@@ -286,10 +278,8 @@
     </suppress>
     <suppress>
         <notes>
-            Apache httpd vulnerabilities inaccurately associated with artemis-server-osgi-2.4.0.jar
-            and cxf-rt-transports-http-netty-server-3.2.5.jar in the DDF distribution.
-            artemis-server-osgi-2.6.2.jar
-            cxf-rt-transports-http-netty-server-3.2.6.jar
+            Apache httpd vulnerabilities inaccurately associated with
+            cxf-rt-transports-http-netty-server-3.2.5.jar in the DDF distribution.
         </notes>
         <cve>CVE-1999-0236</cve>
         <cve>CVE-1999-1237</cve>
@@ -359,4 +349,34 @@
         <cve>CVE-2019-10086</cve>
     </suppress>
 
+    <suppress>
+        <notes><![CDATA[
+      This is a false positive due to our module name matching the OWASP regex for this CVE
+    ]]></notes>
+        <gav regex="true">^ddf\.security\.idp:security-idp-plugin-requestsubjectvalidator:.*$</gav>
+        <cve>CVE-2017-16026</cve>
+    </suppress>
+
+    <suppress>
+        <notes>
+            filename: jackson-databind-2.9.8.jar
+            filename: jackson-databind-2.9.7.jar
+            filename: jackson-databind-2.7.7.jar
+            filename: ehcache-2.10.5.jar
+
+            These CVEs list 2.9.10 as the unaffected version, which does not exist.
+        </notes>
+
+        <cve>CVE-2019-16335</cve>
+        <cve>CVE-2019-14540</cve>
+    </suppress>
+
+    <suppress>
+        <notes>
+            solr-assembly.zip depends on commons-beanutils-1.8.3.jar which is subject to this
+            vulnerability. We have updated our direct usages of beanutils to an unaffected version.
+        </notes>
+
+        <cve>CVE-2019-10086</cve>
+    </suppress>
 </suppressions>
