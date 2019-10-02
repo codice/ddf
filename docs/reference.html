@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.18.0. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.19.0. Copyright (c) Codice Foundation">
 <title>DDF Reference Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,7 +520,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>DDF Reference Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.18.0. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.19.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -7795,6 +7795,14 @@ Note: This will query for results from the interval to the time the query is sen
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Visualizations</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>visualizations</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Visualizations that should be recognized by golden layout. Example <code>[{"name":"openlayers","title":"2D Map","icon":"map"},{"name":"cesium","title":"3D Map","icon":"globe"},{"name":"inspector","title":"Inspector","icon":"info"},{"name":"histogram","title":"Histogram","icon":"bar-chart"},{"name":"table","title":"Table","icon":"table"}]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[{"name":"openlayers","title":"2D Map","icon":"map"},{"name":"cesium","title":"3D Map","icon":"globe"},{"name":"inspector","title":"Inspector","icon":"info"},{"name":"histogram","title":"Histogram","icon":"bar-chart"},{"name":"table","title":"Table","icon":"table"}]</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List Templates</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>listTemplates</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
@@ -9602,7 +9610,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>This list of DDF dependencies is automatically generated:</p>
 </div>
 <div class="ulist">
-<div class="title">DDF 2.18.0 Dependency List.</div>
+<div class="title">DDF 2.19.0 Dependency List.</div>
 <ul>
 <li>
 <p>c3p0:c3p0:jar:0.9.1.1</p>
@@ -10052,7 +10060,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.apache.felix:org.apache.felix.fileinstall:jar:3.6.0</p>
 </li>
 <li>
-<p>org.apache.felix:org.apache.felix.framework:jar:5.6.6</p>
+<p>org.apache.felix:org.apache.felix.framework:jar:5.6.12</p>
 </li>
 <li>
 <p>org.apache.felix:org.apache.felix.utils:jar:1.10.0</p>
@@ -10082,40 +10090,40 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.apache.httpcomponents:httpmime:jar:4.5.5</p>
 </li>
 <li>
-<p>org.apache.karaf.bundle:org.apache.karaf.bundle.core:jar:4.2.2</p>
+<p>org.apache.karaf.bundle:org.apache.karaf.bundle.core:jar:4.2.6</p>
 </li>
 <li>
-<p>org.apache.karaf.features:org.apache.karaf.features.core:jar:4.2.2</p>
+<p>org.apache.karaf.features:org.apache.karaf.features.core:jar:4.2.6</p>
 </li>
 <li>
-<p>org.apache.karaf.features:standard:xml:features:4.2.2</p>
+<p>org.apache.karaf.features:standard:xml:features:4.2.6</p>
 </li>
 <li>
-<p>org.apache.karaf.jaas:org.apache.karaf.jaas.boot:jar:4.2.2</p>
+<p>org.apache.karaf.jaas:org.apache.karaf.jaas.boot:jar:4.2.6</p>
 </li>
 <li>
-<p>org.apache.karaf.jaas:org.apache.karaf.jaas.config:jar:4.2.2</p>
+<p>org.apache.karaf.jaas:org.apache.karaf.jaas.config:jar:4.2.6</p>
 </li>
 <li>
-<p>org.apache.karaf.jaas:org.apache.karaf.jaas.modules:jar:4.2.2</p>
+<p>org.apache.karaf.jaas:org.apache.karaf.jaas.modules:jar:4.2.6</p>
 </li>
 <li>
-<p>org.apache.karaf.shell:org.apache.karaf.shell.console:jar:4.2.2</p>
+<p>org.apache.karaf.shell:org.apache.karaf.shell.console:jar:4.2.6</p>
 </li>
 <li>
-<p>org.apache.karaf.shell:org.apache.karaf.shell.core:jar:4.2.2</p>
+<p>org.apache.karaf.shell:org.apache.karaf.shell.core:jar:4.2.6</p>
 </li>
 <li>
-<p>org.apache.karaf.system:org.apache.karaf.system.core:jar:4.2.2</p>
+<p>org.apache.karaf.system:org.apache.karaf.system.core:jar:4.2.6</p>
 </li>
 <li>
-<p>org.apache.karaf:apache-karaf:tar.gz:4.2.2</p>
+<p>org.apache.karaf:apache-karaf:tar.gz:4.2.6</p>
 </li>
 <li>
-<p>org.apache.karaf:apache-karaf:zip:4.2.2</p>
+<p>org.apache.karaf:apache-karaf:zip:4.2.6</p>
 </li>
 <li>
-<p>org.apache.karaf:org.apache.karaf.util:jar:4.2.2</p>
+<p>org.apache.karaf:org.apache.karaf.util:jar:4.2.6</p>
 </li>
 <li>
 <p>org.apache.logging.log4j:log4j-1.2-api:jar:2.11.0</p>
@@ -10244,6 +10252,9 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.awaitility:awaitility:jar:3.1.0</p>
 </li>
 <li>
+<p>org.awaitility:awaitility:jar:3.1.5</p>
+</li>
+<li>
 <p>org.bouncycastle:bcmail-jdk15on:jar:1.60</p>
 </li>
 <li>
@@ -10259,7 +10270,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.codehaus.jackson:jackson-mapper-asl:jar:1.9.13</p>
 </li>
 <li>
-<p>org.codice.countrycode:converter:jar:0.1.2</p>
+<p>org.codice.countrycode:converter:jar:0.1.6</p>
 </li>
 <li>
 <p>org.codice.geowebcache:geowebcache-server-standalone:war:0.7.0</p>
@@ -10637,7 +10648,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.springframework.osgi:spring-osgi-core:jar:1.2.1</p>
 </li>
 <li>
-<p>org.springframework:spring-core:jar:5.0.4.RELEASE</p>
+<p>org.springframework:spring-core:jar:5.1.7.RELEASE</p>
 </li>
 <li>
 <p>org.taktik:mpegts-streamer:jar:0.1.0_2</p>
@@ -10828,7 +10839,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-09-17 23:38:25 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-10-02 11:53:52 MDT
 </div>
 </div>
 </body>
