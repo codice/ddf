@@ -28,8 +28,9 @@
     "react-dom": "16.8.6"
   },
   "devDependencies": {
-    "@connexta/ace": "git://github.com/connexta/ace.git#f51c1b59ec73fea2c196cf5b59eaf4ad48dddcee",
-    "@connexta/eslint-config-connexta": "git://github.com/connexta/eslint-config-connexta.git#3f0caece6210d25c16863d472026fbfa069521a6",
+    "@connexta/ace": "git://github.com/connexta/ace.git#b2e678df2c8fd2c6b534d2d381ac24a1616ffd93",
+    "@connexta/eslint-config-connexta": "git://github.com/connexta/eslint-config-connexta.git#105393617ec845b009b682882c95313ba50144b1",
+    "@connexta/eslint-plugin-connexta": "git://github.com/connexta/eslint-plugin-connexta.git#9b366b8924c3dbe03aedcfe6d25c8eb3567cc061",
     "bootstrap-sass": "3.3.6",
     "bootswatch": "3.3.7",
     "compass-mixins": "0.12.10",
@@ -52,7 +53,7 @@
   },
   "resolutions": {
     "admin-ui/@connexta/atlas/backbone.marionette": "1.8.8",
-    "@connexta/ace": "git://github.com/connexta/ace.git#f51c1b59ec73fea2c196cf5b59eaf4ad48dddcee"
+    "@connexta/ace": "git://github.com/connexta/ace.git#b2e678df2c8fd2c6b534d2d381ac24a1616ffd93"
   },
   "name": "ui"
 }
