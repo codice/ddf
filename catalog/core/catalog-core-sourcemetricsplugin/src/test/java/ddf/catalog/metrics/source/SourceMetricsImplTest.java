@@ -27,6 +27,7 @@ import ddf.catalog.source.SourceMetrics;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
 import java.util.Collections;
+import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -213,7 +214,7 @@ public class SourceMetricsImplTest {
     fedSource = mock(FederatedSource.class);
     when(fedSource.getId()).thenReturn("fs-1");
 
-    sourceMetrics = new SourceMetricsImpl();
+    sourceMetrics = new SourceMetricsImpl(mock(MeterRegistryService.class));
     sourceMetrics.setCatalogProviders(Collections.singletonList(catalogProvider));
     sourceMetrics.setFederatedSources(Collections.singletonList(fedSource));
 

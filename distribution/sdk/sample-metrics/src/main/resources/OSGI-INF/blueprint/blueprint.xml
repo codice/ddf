@@ -16,9 +16,11 @@
 	xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
     
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter" />
+    <reference id="meterRegistryService" interface="org.codice.ddf.lib.metrics.registry.MeterRegistryService" availability="mandatory"/>
 
 	<bean id="sdkSampleMetrics" class="ddf.sdk.metrics.SampleMetrics">
         <argument ref="filterAdapter" />
+        <argument ref="meterRegistryService" />
     </bean>
 
     <!-- 

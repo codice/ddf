@@ -95,27 +95,6 @@
                             platform-util
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
-                        <Import-Package>
-                            !ch.qos.logback.classic.*,
-                            !ch.qos.logback.core.*,
-                            !com.sun.management,
-                            !groovy.lang,
-                            !com.github.benmanes.caffeine.*,
-                            !com.netflix.hystrix.*,
-                            !io.netty.*,
-                            !io.prometheus.client.*,
-                            !javax.*,
-                            !okhttp3.*,
-                            !org.HdrHistogram,
-                            !org.LatencyUtils,
-                            !org.apache.catalina,
-                            !org.aspectj.*,
-                            !org.hibernate.*,
-                            !org.reactivestreams,
-                            !reactor.*,
-                            !rx.*,
-                            *
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

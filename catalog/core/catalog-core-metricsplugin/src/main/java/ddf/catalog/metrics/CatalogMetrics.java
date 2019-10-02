@@ -50,13 +50,15 @@ import org.slf4j.LoggerFactory;
 public final class CatalogMetrics
     implements PreQueryPlugin, PostQueryPlugin, PostIngestPlugin, PostResourcePlugin {
 
-  protected static final String EXCEPTIONS_SCOPE = "Exceptions";
+  protected static final String METRIC_PREFIX = "ddf.catalog";
 
-  protected static final String QUERIES_SCOPE = "Queries";
+  protected static final String EXCEPTIONS_SCOPE = "exceptions";
 
-  protected static final String INGEST_SCOPE = "Ingest";
+  protected static final String QUERIES_SCOPE = "queries";
 
-  protected static final String RESOURCE_SCOPE = "Resource";
+  protected static final String INGEST_SCOPE = "ingest";
+
+  protected static final String RESOURCE_SCOPE = "resource";
 
   protected final MeterRegistry meterRegistry;
 
@@ -107,28 +109,32 @@ public final class CatalogMetrics
     }
 
     meterRegistry = meterRegistryService.getMeterRegistry();
-    resultCount = meterRegistry.summary(QUERIES_SCOPE + "." + "TotalResults");
+    resultCount = meterRegistry.summary(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "totalresults");
 
-    queries = meterRegistry.counter(QUERIES_SCOPE);
-    federatedQueries = meterRegistry.counter(QUERIES_SCOPE + "." + "Federated");
-    comparisonQueries = meterRegistry.counter(QUERIES_SCOPE + "." + "Comparison");
-    spatialQueries = meterRegistry.counter(QUERIES_SCOPE + "." + "Spatial");
-    xpathQueries = meterRegistry.counter(QUERIES_SCOPE + "." + "Xpath");
-    fuzzyQueries = meterRegistry.counter(QUERIES_SCOPE + "." + "Fuzzy");
-    temporalQueries = meterRegistry.counter(QUERIES_SCOPE + "." + "Temporal");
-    functionQueries = meterRegistry.counter(QUERIES_SCOPE + "." + "Function");
+    queries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE);
+    federatedQueries =
+        meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "federated");
+    comparisonQueries =
+        meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "comparison");
+    spatialQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "spatial");
+    xpathQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "xpath");
+    fuzzyQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "fuzzy");
+    temporalQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "temporal");
+    functionQueries = meterRegistry.counter(METRIC_PREFIX + "." + QUERIES_SCOPE + "." + "function");
 
-    exceptions = meterRegistry.counter(EXCEPTIONS_SCOPE);
-    unsupportedQueryExceptions = meterRegistry.counter(EXCEPTIONS_SCOPE + "." + "UnsupportedQuery");
+    exceptions = meterRegistry.counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE);
+    unsupportedQueryExceptions =
+        meterRegistry.counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE + "." + "unsupportedquery");
     sourceUnavailableExceptions =
-        meterRegistry.counter(EXCEPTIONS_SCOPE + "." + "SourceUnavailable");
-    federationExceptions = meterRegistry.counter(EXCEPTIONS_SCOPE + "." + "Federation");
+        meterRegistry.counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE + "." + "sourceunavailable");
+    federationExceptions =
+        meterRegistry.counter(METRIC_PREFIX + "." + EXCEPTIONS_SCOPE + "." + "federation");
 
-    createdMetacards = meterRegistry.counter(INGEST_SCOPE + "." + "Created");
-    updatedMetacards = meterRegistry.counter(INGEST_SCOPE + "." + "Updated");
-    deletedMetacards = meterRegistry.counter(INGEST_SCOPE + "." + "Deleted");
+    createdMetacards = meterRegistry.counter(METRIC_PREFIX + "." + INGEST_SCOPE + "." + "created");
+    updatedMetacards = meterRegistry.counter(METRIC_PREFIX + "." + INGEST_SCOPE + "." + "updated");
+    deletedMetacards = meterRegistry.counter(METRIC_PREFIX + "." + INGEST_SCOPE + "." + "deleted");
 
-    resourceRetrival = meterRegistry.counter(RESOURCE_SCOPE);
+    resourceRetrival = meterRegistry.counter(METRIC_PREFIX + "." + RESOURCE_SCOPE);
   }
 
   // PostQuery

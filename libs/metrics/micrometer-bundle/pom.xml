@@ -117,6 +117,9 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
+                        <Embed-Dependency>
+                            micrometer-core;inline=true
+                        </Embed-Dependency>
                         <Export-Package>
                             io.micrometer.core;version=${micrometer.version},
                             io.micrometer.core.annotation;version=${micrometer.version},
@@ -171,6 +174,7 @@
                             !org.reactivestreams,
                             !reactor.*,
                             !rx.*,
+                            !com.hazelcast.*,
                             *
                         </Import-Package>
                     </instructions>

@@ -13,41 +13,44 @@
  */
 package ddf.sdk.metrics;
 
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PreQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.UnsupportedQueryException;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SampleMetrics implements PreQueryPlugin {
   private static final Logger LOGGER = LoggerFactory.getLogger(SampleMetrics.class);
 
-  private final MetricRegistry metrics = new MetricRegistry();
+  private static final String METRICS_PREFIX = "ddf.sample";
 
-  private final JmxReporter reporter =
-      JmxReporter.forRegistry(metrics).inDomain("sdk.metrics.sample").build();
+  private final MeterRegistry meterRegistry;
 
-  protected final Meter pointRadiusQueries;
+  protected final Counter pointRadiusQueries;
 
   private FilterAdapter filterAdapter;
 
-  public SampleMetrics(FilterAdapter filterAdapter) {
+  public SampleMetrics(FilterAdapter filterAdapter, MeterRegistryService meterRegistryService) {
     LOGGER.trace("ENTERING: SampleMetrics constructor");
 
     this.filterAdapter = filterAdapter;
 
+    if (meterRegistryService == null) {
+      LOGGER.warn("Meter Registry Service is not available");
+    }
+    meterRegistry = meterRegistryService.getMeterRegistry();
+
     // Maps to the MBean's ObjectName, i.e., sdk.metrics.sample:name=Queries.PointRadius
     // NOTE: Also look in the sdk-app project's blueprint.xml file for how the configuration
     // of the JmxCollector for this MBean is setup
-    pointRadiusQueries = metrics.meter(MetricRegistry.name("Queries", "PointRadius"));
-
-    reporter.start();
+    pointRadiusQueries =
+        meterRegistry.counter(METRICS_PREFIX + ". " + "queries" + "." + "pointradius");
 
     LOGGER.trace("EXITING: SampleMetrics constructor");
   }
@@ -65,7 +68,7 @@ public class SampleMetrics implements PreQueryPlugin {
     try {
       filterAdapter.adapt(input.getQuery(), queryType);
       if (queryType.isPointRadius()) {
-        pointRadiusQueries.mark();
+        pointRadiusQueries.increment();
       }
     } catch (UnsupportedQueryException e) {
       // ignore filters not supported by the QueryTypeFilterDelegate

@@ -28,7 +28,6 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.DistributionSummary;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tags;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -58,23 +57,26 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
   /** Package name for the JMX MBean where metrics for {@link Source}s are stored. */
   public static final String MBEAN_PACKAGE_NAME = "ddf.metrics.catalog.source";
 
+  /** Prefix for metrics */
+  public static final String METRICS_PREFIX = "ddf.catalog.source";
+
   /**
    * Name of the JMX MBean scope for source-level metrics tracking exceptions while querying a
    * specific {@link Source}
    */
-  public static final String EXCEPTIONS_SCOPE = "Exceptions";
+  public static final String EXCEPTIONS_SCOPE = "exceptions";
 
   /**
    * Name of the JMX MBean scope for source-level metrics tracking query count while querying a
    * specific {@link Source}
    */
-  public static final String QUERIES_SCOPE = "Queries";
+  public static final String QUERIES_SCOPE = "queries";
 
   /**
    * Name of the JMX MBean scope for source-level metrics tracking total results returned while
    * querying a specific {@link Source}
    */
-  public static final String QUERIES_TOTAL_RESULTS_SCOPE = "Queries.TotalResults";
+  public static final String QUERIES_TOTAL_RESULTS_SCOPE = "queries.totalresults";
 
   public static final String DERIVE_DATA_SOURCE_TYPE = "DERIVE";
 
@@ -87,8 +89,6 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
   private static final Logger LOGGER = LoggerFactory.getLogger(SourceMetricsImpl.class);
 
   private static final String ALPHA_NUMERIC_REGEX = "[^a-zA-Z0-9]";
-
-  private MeterRegistryService meterRegistryService;
 
   private final MeterRegistry meterRegistry;
 
@@ -107,7 +107,11 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
   private ExecutorService executorPool;
 
-  public SourceMetricsImpl() {
+  public SourceMetricsImpl(MeterRegistryService meterRegistryService) {
+    if (meterRegistryService == null) {
+      LOGGER.warn("Meter Registry Service is not available");
+    }
+
     meterRegistry = meterRegistryService.getMeterRegistry();
   }
 
@@ -237,9 +241,10 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
           LOGGER.debug("CASE 2: source {} exists but has oldSourceId = {}", sourceId, oldSourceId);
 
           // Create metrics for Source with new sourceId
-          createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
-          createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
-          createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
+          createMetric(
+              sourceId, METRICS_PREFIX + "." + QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
+          createMetric(sourceId, METRICS_PREFIX + "." + QUERIES_SCOPE, MetricType.COUNTER);
+          createMetric(sourceId, METRICS_PREFIX + "." + EXCEPTIONS_SCOPE, MetricType.COUNTER);
 
           // Add Source to map with its new sourceId
           sourceToSourceIdMap.put(source, sourceId);
@@ -251,9 +256,10 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
           // needs updating because client, e.g., SortedFederationStrategy, knows the
           // Source exists.)
           LOGGER.debug("CASE 3: New source {} detected - creating metrics", sourceId);
-          createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
-          createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
-          createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
+          createMetric(
+              sourceId, METRICS_PREFIX + "." + QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
+          createMetric(sourceId, METRICS_PREFIX + "." + QUERIES_SCOPE, MetricType.COUNTER);
+          createMetric(sourceId, METRICS_PREFIX + "." + EXCEPTIONS_SCOPE, MetricType.COUNTER);
 
           sourceToSourceIdMap.put(source, sourceId);
         }
@@ -334,9 +340,9 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
 
     LOGGER.debug("sourceId = {}", sourceId);
 
-    createMetric(sourceId, QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
-    createMetric(sourceId, QUERIES_SCOPE, MetricType.METER);
-    createMetric(sourceId, EXCEPTIONS_SCOPE, MetricType.METER);
+    createMetric(sourceId, METRICS_PREFIX + QUERIES_TOTAL_RESULTS_SCOPE, MetricType.HISTOGRAM);
+    createMetric(sourceId, METRICS_PREFIX + QUERIES_SCOPE, MetricType.COUNTER);
+    createMetric(sourceId, METRICS_PREFIX + EXCEPTIONS_SCOPE, MetricType.COUNTER);
 
     // Add new source to internal map used when updating metrics by sourceId
     sourceToSourceIdMap.put(source, sourceId);
@@ -345,8 +351,6 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
   private void createMetric(String sourceId, String mbeanName, MetricType type) {
 
     // Create source-specific metrics for this source
-    // (Must be done prior to creating metrics collector so that
-    // JMX MBean exists for collector to detect).
     String key = sourceId + "." + mbeanName;
 
     // Do not create metric and collector if they already exist for this source.
@@ -354,10 +358,10 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     // as the local catalog provider).
     if (!metrics.containsKey(key)) {
       if (type == MetricType.HISTOGRAM) {
-        DistributionSummary histogram = meterRegistry.summary(key);
+        DistributionSummary histogram = meterRegistry.summary(mbeanName);
         metrics.put(key, new SourceMetric(histogram, true));
-      } else if (type == MetricType.METER) {
-        Counter counter = meterRegistry.counter(key, Tags.empty());
+      } else if (type == MetricType.COUNTER) {
+        Counter counter = meterRegistry.counter(mbeanName);
         metrics.put(key, new SourceMetric(counter));
       } else {
         LOGGER.debug("Metric {} not created because unknown metric type {} specified.", key, type);
@@ -370,7 +374,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
   // The types of Micrometer Metrics supported
   private enum MetricType {
     HISTOGRAM,
-    METER
+    COUNTER
   }
 
   /**
@@ -383,7 +387,7 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
     // The Micrometer Meter
     private Meter metric;
 
-    // Whether this metric is a Histogram or Meter
+    // Whether this metric is a Histogram or Counter
     private boolean isHistogram = false;
 
     public SourceMetric(Meter metric) {

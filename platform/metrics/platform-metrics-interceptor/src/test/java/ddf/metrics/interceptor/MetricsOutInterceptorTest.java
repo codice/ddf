@@ -28,19 +28,22 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 import org.junit.Test;
 
 /** @author willisod */
 public class MetricsOutInterceptorTest {
 
   /**
-   * Test method for {@link ddf.metrics.interceptor.MetricsOutInterceptor#MetricsOutInterceptor()} .
+   * Test method for {@link
+   * ddf.metrics.interceptor.MetricsOutInterceptor#MetricsOutInterceptor(MeterRegistryService)} .
    */
   @Test
   public void testMetricsOutInterceptor() {
 
     // Perform test
-    MetricsOutInterceptor outInterceptor = new MetricsOutInterceptor();
+    MetricsOutInterceptor outInterceptor =
+        new MetricsOutInterceptor(mock(MeterRegistryService.class));
 
     // Validate
     assertEquals(Phase.SEND, outInterceptor.getPhase());
@@ -56,7 +59,8 @@ public class MetricsOutInterceptorTest {
   public void testHandleMessageWithPartialResponseMessage() {
 
     // Setup
-    MetricsOutInterceptor outInterceptor = new MetricsOutInterceptor();
+    MetricsOutInterceptor outInterceptor =
+        new MetricsOutInterceptor(mock(MeterRegistryService.class));
 
     Message mockMessage = mock(Message.class);
     Exchange ex = new ExchangeImpl();
@@ -82,7 +86,8 @@ public class MetricsOutInterceptorTest {
   public void testHandleMessageWithTwoWayClientMessageWithLatencyTimeRecorder() {
 
     // Setup
-    MetricsOutInterceptor outInterceptor = new MetricsOutInterceptor();
+    MetricsOutInterceptor outInterceptor =
+        new MetricsOutInterceptor(mock(MeterRegistryService.class));
 
     Message mockMessage = mock(Message.class);
     Exchange ex = new ExchangeImpl();
@@ -114,7 +119,8 @@ public class MetricsOutInterceptorTest {
   public void testHandleMessageWithTwoWayClientMessageWithoutLatencyTimeRecorder() {
 
     // Setup
-    MetricsOutInterceptor outInterceptor = new MetricsOutInterceptor();
+    MetricsOutInterceptor outInterceptor =
+        new MetricsOutInterceptor(mock(MeterRegistryService.class));
 
     Message mockMessage = mock(Message.class);
     Exchange ex = new ExchangeImpl();
@@ -145,7 +151,8 @@ public class MetricsOutInterceptorTest {
   public void testHandleMessageWithOneWayClientMessage() {
 
     // Setup
-    MetricsOutInterceptor outInterceptor = new MetricsOutInterceptor();
+    MetricsOutInterceptor outInterceptor =
+        new MetricsOutInterceptor(mock(MeterRegistryService.class));
 
     Message mockMessage = mock(Message.class);
     Exchange ex = new ExchangeImpl();
@@ -178,7 +185,8 @@ public class MetricsOutInterceptorTest {
   public void testHandleMessageWithNonClientMessageWithNullExchange() {
 
     // Setup
-    MetricsOutInterceptor outInterceptor = new MetricsOutInterceptor();
+    MetricsOutInterceptor outInterceptor =
+        new MetricsOutInterceptor(mock(MeterRegistryService.class));
 
     Message mockMessage = mock(Message.class);
 
@@ -204,7 +212,8 @@ public class MetricsOutInterceptorTest {
   public void testHandleMessageWithNonClientMessageWithoutLatencyTimeRecorder() {
 
     // Setup
-    MetricsOutInterceptor outInterceptor = new MetricsOutInterceptor();
+    MetricsOutInterceptor outInterceptor =
+        new MetricsOutInterceptor(mock(MeterRegistryService.class));
 
     Message mockMessage = mock(Message.class);
     Exchange ex = new ExchangeImpl();

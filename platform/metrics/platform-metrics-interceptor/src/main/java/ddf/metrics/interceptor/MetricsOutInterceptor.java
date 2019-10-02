@@ -18,6 +18,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 
 /**
  * CXF out interceptor used to capture HTTP message latency metrics.
@@ -31,8 +32,8 @@ public class MetricsOutInterceptor extends AbstractMetricsInterceptor {
 
   private OneWayMessageEndingInterceptor ending = new OneWayMessageEndingInterceptor();
 
-  public MetricsOutInterceptor() {
-    super(Phase.SEND);
+  public MetricsOutInterceptor(MeterRegistryService meterRegistryService) {
+    super(Phase.SEND, meterRegistryService);
   }
 
   /**

@@ -65,8 +65,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            platform-util,
-                            metrics-core
+                            platform-util
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Import-Package><!-- START: imports specific for embedding rrd4j -->
