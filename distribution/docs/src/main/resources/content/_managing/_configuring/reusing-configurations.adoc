@@ -83,6 +83,8 @@ The same step-by-step process above can be followed when migrating configuration
 *** Guest Claims Configuration
 *** Security STS Server
 *** Session
+*** All Catalog Source configurations
+*** All Registry configurations
 [WARNING]
 If a supported configuration is being imported across versions, any corresponding `.config` files in the `etc` directory will not be put into the `etc` directory of the importing system.
 * There is a list of specific ${branding} versions that have been tested that can be found in `etc/migration.properties` under the property `supported.versions`, as a comma-delimited list. The system will only allow importing configurations from those versions.
