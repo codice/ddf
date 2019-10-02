@@ -16,7 +16,7 @@
     <parent>
         <artifactId>distribution</artifactId>
         <groupId>ddf</groupId>
-        <version>2.19.0</version>
+        <version>2.19.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>DDF :: Distribution :: Solr Distro</name>
