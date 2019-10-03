@@ -104,7 +104,16 @@
     </feature>
 
     <feature name="platform-paxweb-jettyconfig" version="${project.version}"
-             description="Custom Session Manager">
+      description="Custom Session Manager">
+        <config name="org.ops4j.pax.web" append="true">
+#######################################
+# Jetty Server Authenticator Settings
+#######################################
+
+# Set the authmethod/realmname so that our JettyAuthenticator is used
+org.ops4j.pax.web.default.authmethod=DDF
+org.ops4j.pax.web.default.realmname=DDF
+        </config>
         <feature version="${spring.version}_1">spring</feature>
         <feature>apache-commons</feature>
         <feature>security-core-api</feature>
