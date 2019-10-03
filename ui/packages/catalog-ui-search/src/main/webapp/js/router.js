@@ -25,20 +25,21 @@ import React from 'react'
 import { render } from 'react-dom'
 import ExtensionPoints from '../extension-points'
 
-const { routes } = ExtensionPoints
-
 // notfound route needs to come at the end otherwise no other routes will work
-render(<ReactRouter routeDefinitions={routes} />, Application.App.router.$el[0])
+render(
+  <ReactRouter routeDefinitions={ExtensionPoints.routes} />,
+  Application.App.router.$el[0]
+)
 
 const Router = Backbone.Router.extend({
   preloadRoutes() {
-    Object.keys(routes).forEach(this.preloadRoute)
+    Object.keys(ExtensionPoints.routes).forEach(this.preloadRoute)
   },
   preloadFragment(fragment) {
     this.preloadRoute(this.getRouteNameFromFragment(fragment))
   },
   preloadRoute(routeName) {
-    routes[routeName].preload()
+    ExtensionPoints.routes[routeName].preload()
   },
   getRouteNameFromFragment(fragment) {
     return this.routes[
@@ -47,11 +48,17 @@ const Router = Backbone.Router.extend({
       })
     ]
   },
-  routes: Object.keys(routes).reduce((routesBlob, key) => {
-    const { patterns } = routes[key]
-    patterns.forEach(pattern => (routesBlob[pattern] = key))
-    return routesBlob
-  }, {}),
+  routes: {
+    ...Object.keys(ExtensionPoints.routes).reduce((routesBlob, key) => {
+      if (key === 'notFound') {
+        return routesBlob
+      }
+      const { patterns } = ExtensionPoints.routes[key]
+      patterns.forEach(pattern => (routesBlob[pattern] = key))
+      return routesBlob
+    }, {}),
+    notFound: ExtensionPoints.routes['notFound'],
+  },
   initialize() {
     this.listenTo(wreqr.vent, 'router:preload', this.handlePreload)
     this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate)
