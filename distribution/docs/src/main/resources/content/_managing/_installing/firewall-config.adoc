@@ -22,15 +22,6 @@ Firewalls will need to be configured to open these ports in order for external s
 |8101
 |For administering ${branding} instances gives ssh access to the administration console.
 
-|61616
-|${branding} broker port for JMS messaging over the OpenWire protocol.
-
-|5672
-|${branding} broker port for JMS messaging over multiple protocols: Artemis CORE, AMQP and OpenWire by default .
-
-|5671
-|${branding} broker port for JMS messaging over: AMQP by default.
-
 |1099
 |RMI Registry Port
 

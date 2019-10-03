@@ -81,15 +81,6 @@
             </Failovers>
         </Failover>
 
-        <RollingFile name="artemis" append="true"
-                     fileName="${sys:karaf.log}/artemis.log"
-                     filePattern="${sys:karaf.log}/artemis.log-%d{yyyy-MM-dd-HH}-%i.log.gz">
-            <PatternLayout pattern="${log4j2.pattern}"/>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="20 MB"/>
-            </Policies>
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
     </Appenders>
 
     <Loggers>
@@ -118,12 +109,6 @@
         </Logger>
 
         <Logger name="org.apache.solr" level="info" additivity="false">
-            <AppenderRef ref="syslog"/>
-            <AppenderRef ref="osgi-platformLogging"/>
-        </Logger>
-
-        <Logger name="org.apache.activemq.artemis" level="info" additivity="false">
-            <AppenderRef ref="artemis"/>
             <AppenderRef ref="syslog"/>
             <AppenderRef ref="osgi-platformLogging"/>
         </Logger>
