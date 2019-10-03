@@ -21,6 +21,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -31,6 +32,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.xmlunit.matchers.HasXPathMatcher.hasXPath;
@@ -87,6 +89,7 @@ import net.opengis.wfs.v_1_1_0.FeatureTypeListType;
 import net.opengis.wfs.v_1_1_0.FeatureTypeType;
 import net.opengis.wfs.v_1_1_0.GetFeatureType;
 import net.opengis.wfs.v_1_1_0.QueryType;
+import net.opengis.wfs.v_1_1_0.ResultTypeType;
 import net.opengis.wfs.v_1_1_0.WFSCapabilitiesType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.ws.commons.schema.XmlSchema;
@@ -94,7 +97,7 @@ import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollectionImpl;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.impl.MetacardMapperImpl;
 import org.codice.ddf.spatial.ogc.wfs.catalog.metacardtype.registry.WfsMetacardTypeRegistry;
@@ -108,8 +111,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opengis.filter.Filter;
 import org.osgi.framework.BundleContext;
 
@@ -220,11 +221,11 @@ public class WfsSourceTest {
 
   private static final String ORDER_DOG = "orderdog";
 
-  private static final Integer MAX_FEATURES = 10;
+  private static final int MAX_FEATURES = 10;
 
-  private static final Integer ONE_FEATURE = 1;
+  private static final int ONE_FEATURE = 1;
 
-  private static final Integer TWO_FEATURES = 2;
+  private static final int TWO_FEATURES = 2;
 
   private static final String SRS_NAME = "EPSG:4326";
 
@@ -244,8 +245,6 @@ public class WfsSourceTest {
   private Wfs mockWfs = mock(Wfs.class);
 
   private WFSCapabilitiesType mockCapabilities = new WFSCapabilitiesType();
-
-  private WfsFeatureCollection mockFeatureCollection = mock(WfsFeatureCollection.class);
 
   private BundleContext mockContext = mock(BundleContext.class);
 
@@ -275,10 +274,7 @@ public class WfsSourceTest {
   }
 
   private void setUpMocks(
-      final List<String> supportedGeos,
-      final String srsName,
-      final Integer numFeatures,
-      final Integer numResults)
+      final List<String> supportedGeos, final String srsName, final int results, final int hits)
       throws WfsException {
 
     SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
@@ -348,53 +344,33 @@ public class WfsSourceTest {
 
     sampleFeatures = new ArrayList<>();
     mockCapabilities.setFeatureTypeList(new FeatureTypeListType());
-    if (numFeatures != null) {
-      for (int ii = 0; ii < numFeatures; ii++) {
 
-        FeatureTypeType feature = new FeatureTypeType();
-        QName qName;
-        if (ii == 0) {
-          qName = new QName("SampleFeature" + ii);
-        } else {
-          qName = new QName("http://example.com", "SampleFeature" + ii, "Prefix" + ii);
-        }
-        sampleFeatures.add(qName);
-        feature.setName(qName);
-        // feature.setName(SAMPLE_FEATURE[ii]);
-        if (null != srsName) {
-          feature.setDefaultSRS(srsName);
-        }
-        mockCapabilities.getFeatureTypeList().getFeatureType().add(feature);
+    for (int ii = 0; ii < results; ii++) {
+      FeatureTypeType feature = new FeatureTypeType();
+      QName qName;
+      if (ii == 0) {
+        qName = new QName("SampleFeature" + ii);
+      } else {
+        qName = new QName("http://example.com", "SampleFeature" + ii, "Prefix" + ii);
       }
+      sampleFeatures.add(qName);
+      feature.setName(qName);
+      if (null != srsName) {
+        feature.setDefaultSRS(srsName);
+      }
+      mockCapabilities.getFeatureTypeList().getFeatureType().add(feature);
     }
 
-    // GetFeature Response
-    when(mockWfs.getFeature(any(GetFeatureType.class))).thenReturn(mockFeatureCollection);
-
-    when(mockFeatureCollection.getFeatureMembers())
-        .thenAnswer(
-            new Answer<List<Metacard>>() {
-
-              @Override
-              public List<Metacard> answer(InvocationOnMock invocation) {
-                // Create as many metacards as there are features
-                Integer resultsToReturn = numResults;
-                if (resultsToReturn == null && numFeatures != null) {
-                  resultsToReturn = numFeatures;
-                }
-                if (resultsToReturn != null) {
-                  List<Metacard> metacards = new ArrayList<>(resultsToReturn);
-                  for (int i = 0; i < resultsToReturn; i++) {
-                    MetacardImpl mc = new MetacardImpl();
-                    mc.setId("ID_" + (i + 1));
-                    metacards.add(mc);
-                  }
-
-                  return metacards;
-                }
-                return Collections.emptyList();
-              }
-            });
+    List<Metacard> metacards = new ArrayList<>(results);
+    for (int i = 0; i < results; i++) {
+      MetacardImpl mc = new MetacardImpl();
+      mc.setId("ID_" + (i + 1));
+      metacards.add(mc);
+    }
+    when(mockWfs.getFeature(withResultType(ResultTypeType.HITS)))
+        .thenReturn(new WfsFeatureCollectionImpl(hits));
+    when(mockWfs.getFeature(withResultType(ResultTypeType.RESULTS)))
+        .thenReturn(new WfsFeatureCollectionImpl(results, metacards));
 
     final ScheduledFuture<?> mockAvailabilityPollFuture = mock(ScheduledFuture.class);
     doReturn(mockAvailabilityPollFuture)
@@ -414,14 +390,14 @@ public class WfsSourceTest {
   @Test
   public void testAvailability() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
     assertThat(source.isAvailable(), is(true));
   }
 
   @Test(expected = UnsupportedQueryException.class)
   public void testQueryEmptyQueryList() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
     QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
@@ -431,7 +407,7 @@ public class WfsSourceTest {
   @Test
   public void testPropertyIsLikeQuery() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
     QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
@@ -439,9 +415,9 @@ public class WfsSourceTest {
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
 
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -454,16 +430,16 @@ public class WfsSourceTest {
   @Test
   public void testTwoPropertyQuery() throws Exception {
     mapSchemaToFeatures(TWO_TEXT_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
     QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -476,7 +452,7 @@ public class WfsSourceTest {
   @Test
   public void testContentTypeQuery() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
     Filter propertyIsLikeFilter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
     Filter contentTypeFilter =
         builder
@@ -490,9 +466,9 @@ public class WfsSourceTest {
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -505,7 +481,7 @@ public class WfsSourceTest {
   @Test
   public void testContentTypeAndNoPropertyQuery() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
 
     Filter contentTypeFilter =
         builder
@@ -519,9 +495,9 @@ public class WfsSourceTest {
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
     assertThat(ONE_FEATURE, is(getFeatureType.getQuery().size()));
     assertThat(sampleFeatures.get(0), is(getFeatureType.getQuery().get(0).getTypeName().get(0)));
@@ -530,7 +506,7 @@ public class WfsSourceTest {
   @Test
   public void testTwoContentTypeAndNoPropertyQuery() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, TWO_FEATURES);
-    setUpMocks(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, TWO_FEATURES);
 
     Filter contentTypeFilter =
         builder
@@ -551,11 +527,11 @@ public class WfsSourceTest {
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(twoContentTypeQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, twoContentTypeQuery);
-    Collections.sort(getFeatureType.getQuery(), QUERY_TYPE_COMPARATOR);
+    getFeatureType.getQuery().sort(QUERY_TYPE_COMPARATOR);
     assertThat(TWO_FEATURES, is(getFeatureType.getQuery().size()));
     assertThat(sampleFeatures.get(0), is(getFeatureType.getQuery().get(0).getTypeName().get(0)));
   }
@@ -563,7 +539,7 @@ public class WfsSourceTest {
   @Test
   public void testAndQuery() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
     Filter propertyIsLikeFilter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
     Filter contentTypeFilter =
         builder.attribute(Metacard.ANY_TEXT).is().like().text(sampleFeatures.get(0).getLocalPart());
@@ -573,9 +549,9 @@ public class WfsSourceTest {
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -587,7 +563,7 @@ public class WfsSourceTest {
   @Test
   public void testIntersectQuery() throws Exception {
     mapSchemaToFeatures(ONE_GML_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUpMocks(Arrays.asList("Intersects", "BBOX"), SRS_NAME, ONE_FEATURE, null);
+    setUpMocks(Arrays.asList("Intersects", "BBOX"), SRS_NAME, ONE_FEATURE, ONE_FEATURE);
     Filter intersectFilter =
         builder.attribute(Metacard.ANY_GEO).is().intersecting().wkt(POLYGON_WKT);
     QueryImpl intersectQuery = new QueryImpl(intersectFilter);
@@ -595,9 +571,9 @@ public class WfsSourceTest {
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(intersectQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, intersectQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -609,7 +585,7 @@ public class WfsSourceTest {
   @Test
   public void testTwoIntersectQuery() throws Exception {
     mapSchemaToFeatures(TWO_GML_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUpMocks(Arrays.asList("Intersects", "BBOX"), SRS_NAME, ONE_FEATURE, null);
+    setUpMocks(Arrays.asList("Intersects", "BBOX"), SRS_NAME, ONE_FEATURE, ONE_FEATURE);
     Filter intersectFilter =
         builder.attribute(Metacard.ANY_GEO).is().intersecting().wkt(POLYGON_WKT);
     QueryImpl intersectQuery = new QueryImpl(intersectFilter);
@@ -617,9 +593,9 @@ public class WfsSourceTest {
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(intersectQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, intersectQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -633,7 +609,7 @@ public class WfsSourceTest {
   @Test
   public void testBboxQuery() throws Exception {
     mapSchemaToFeatures(ONE_GML_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUpMocks(Collections.singletonList("BBOX"), SRS_NAME, ONE_FEATURE, null);
+    setUpMocks(Collections.singletonList("BBOX"), SRS_NAME, ONE_FEATURE, ONE_FEATURE);
     Filter intersectFilter =
         builder.attribute(Metacard.ANY_GEO).is().intersecting().wkt(POLYGON_WKT);
     QueryImpl intersectQuery = new QueryImpl(intersectFilter);
@@ -641,9 +617,9 @@ public class WfsSourceTest {
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(intersectQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, intersectQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -655,7 +631,7 @@ public class WfsSourceTest {
   @Test
   public void testGmlImport() throws Exception {
     mapSchemaToFeatures(GML_IMPORT_SCHEMA, ONE_FEATURE);
-    setUpMocks(Collections.singletonList("BBOX"), SRS_NAME, ONE_FEATURE, null);
+    setUpMocks(Collections.singletonList("BBOX"), SRS_NAME, ONE_FEATURE, ONE_FEATURE);
     Filter intersectFilter =
         builder.attribute(Metacard.ANY_GEO).is().intersecting().wkt(POLYGON_WKT);
     QueryImpl intersectQuery = new QueryImpl(intersectFilter);
@@ -663,9 +639,9 @@ public class WfsSourceTest {
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(intersectQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, intersectQuery);
     assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
     QueryType query = getFeatureType.getQuery().get(0);
@@ -677,7 +653,7 @@ public class WfsSourceTest {
   @Test(expected = UnsupportedQueryException.class)
   public void testNoGeoAttributesQuery() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
     Filter intersectFilter =
         builder.attribute(Metacard.ANY_GEO).is().intersecting().wkt(POLYGON_WKT);
     QueryImpl intersectQuery = new QueryImpl(intersectFilter);
@@ -689,16 +665,16 @@ public class WfsSourceTest {
   @Test
   public void testTwoFeatureTypesQuery() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, TWO_FEATURES);
-    setUpMocks(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, TWO_FEATURES);
     QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(propertyIsLikeQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, propertyIsLikeQuery);
     assertThat(getFeatureType.getQuery().size(), is(TWO_FEATURES));
     Collections.sort(getFeatureType.getQuery(), QUERY_TYPE_COMPARATOR);
@@ -720,16 +696,15 @@ public class WfsSourceTest {
    */
   @Test
   public void testPagingStartIndexOne() throws Exception {
-
     int pageSize = 4;
     int startIndex = 1;
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
-    setUpMocks(null, null, MAX_FEATURES, null);
+    setUpMocks(null, null, MAX_FEATURES, MAX_FEATURES);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
 
-    assertThat(response.getHits(), equalTo(new Long(MAX_FEATURES)));
+    assertThat(response.getHits(), equalTo((long) MAX_FEATURES));
 
     // Verify that metacards 1 thru 4 were returned since pageSize=4
     assertCorrectMetacardsReturned(results, startIndex, pageSize);
@@ -741,17 +716,16 @@ public class WfsSourceTest {
    */
   @Test
   public void testPagingStartIndexTwo() throws Exception {
-
     int pageSize = 4;
     int startIndex = 2;
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
-    setUpMocks(null, null, MAX_FEATURES, null);
+    setUpMocks(null, null, MAX_FEATURES, MAX_FEATURES);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
 
     assertThat(results.size(), is(pageSize));
-    assertThat(response.getHits(), equalTo(new Long(MAX_FEATURES)));
+    assertThat(response.getHits(), equalTo((long) MAX_FEATURES));
 
     // Verify that metacards 2 thru 5 were returned since pageSize=4
     assertCorrectMetacardsReturned(results, startIndex, pageSize);
@@ -763,12 +737,11 @@ public class WfsSourceTest {
    */
   @Test
   public void testPagingStartIndexGreaterThanNumberOfFeatures() throws Exception {
-
     int pageSize = 4;
     int startIndex = 3;
     int numFeatures = 2;
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, numFeatures);
-    setUpMocks(null, null, numFeatures, null);
+    setUpMocks(null, null, numFeatures, numFeatures);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -778,16 +751,14 @@ public class WfsSourceTest {
   }
 
   // Simulates query by ID (which is analogous to clicking on link in search
-  // results to
-  // view associated metacard in XML)
+  // results to view associated metacard in XML)
   @Test
   public void testPaging() throws Exception {
-
     int pageSize = 4;
     int startIndex = 1;
     int numFeatures = 1;
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, numFeatures);
-    setUpMocks(null, null, numFeatures, null);
+    setUpMocks(null, null, numFeatures, numFeatures);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -803,12 +774,12 @@ public class WfsSourceTest {
     int startIndex = 5;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
-    setUpMocks(null, null, MAX_FEATURES, null);
+    setUpMocks(null, null, MAX_FEATURES, MAX_FEATURES);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
 
-    assertThat(response.getHits(), equalTo(new Long(MAX_FEATURES)));
+    assertThat(response.getHits(), equalTo((long) MAX_FEATURES));
 
     // Verify that metacards 5 thru 8 were returned
     assertCorrectMetacardsReturned(results, startIndex, 4);
@@ -821,18 +792,17 @@ public class WfsSourceTest {
    */
   @Test
   public void testPagingPageSizeExceedsFeatureCountStartIndexOne() throws Exception {
-
     int pageSize = 20;
     int startIndex = 1;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
-    setUpMocks(null, null, MAX_FEATURES, null);
+    setUpMocks(null, null, MAX_FEATURES, MAX_FEATURES);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
 
     assertThat(results.size(), is(MAX_FEATURES));
-    assertThat(response.getHits(), equalTo(new Long(MAX_FEATURES)));
+    assertThat(response.getHits(), equalTo((long) MAX_FEATURES));
 
     // Verify that metacards 1 thru 10 were returned
     assertCorrectMetacardsReturned(results, startIndex, MAX_FEATURES);
@@ -845,18 +815,17 @@ public class WfsSourceTest {
    */
   @Test
   public void testPagingPageSizeExceedsFeatureCountStartIndexTwo() throws Exception {
-
     int pageSize = 20;
     int startIndex = 2;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
-    setUpMocks(null, null, MAX_FEATURES, null);
+    setUpMocks(null, null, MAX_FEATURES, MAX_FEATURES);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
 
     assertThat(results.size(), is(MAX_FEATURES - 1));
-    assertThat(response.getHits(), equalTo(new Long(MAX_FEATURES)));
+    assertThat(response.getHits(), equalTo((long) MAX_FEATURES));
 
     // Verify that metacards 2 thru 10 were returned
     assertCorrectMetacardsReturned(results, startIndex, MAX_FEATURES - 1);
@@ -868,12 +837,11 @@ public class WfsSourceTest {
    */
   @Test(expected = UnsupportedQueryException.class)
   public void testPagingStartIndexNegative() throws Exception {
-
     int pageSize = 4;
     int startIndex = -1;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
-    setUpMocks(null, null, MAX_FEATURES, null);
+    setUpMocks(null, null, MAX_FEATURES, MAX_FEATURES);
 
     executeQuery(startIndex, pageSize);
   }
@@ -888,7 +856,7 @@ public class WfsSourceTest {
     int startIndex = 0;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, MAX_FEATURES);
-    setUpMocks(null, null, MAX_FEATURES, null);
+    setUpMocks(null, null, MAX_FEATURES, MAX_FEATURES);
 
     executeQuery(startIndex, pageSize);
   }
@@ -899,13 +867,12 @@ public class WfsSourceTest {
    */
   @Test
   public void testPagingPageSizeNegative() throws Exception {
-
     int pageSize = -1;
     int startIndex = 1;
     int numResults = WfsSource.WFS_MAX_FEATURES_RETURNED + 10;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, numResults);
+    setUpMocks(null, null, WfsSource.WFS_MAX_FEATURES_RETURNED, numResults);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -920,13 +887,12 @@ public class WfsSourceTest {
    */
   @Test
   public void testPagingPageSizeZero() throws Exception {
-
     int pageSize = 0;
     int startIndex = 1;
     int numResults = WfsSource.WFS_MAX_FEATURES_RETURNED + 10;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, numResults);
+    setUpMocks(null, null, WfsSource.WFS_MAX_FEATURES_RETURNED, numResults);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -942,13 +908,12 @@ public class WfsSourceTest {
    */
   @Test
   public void testPagingPageSizeExceedsMaxFeaturesThatCanBeReturned() throws Exception {
-
     int pageSize = WfsSource.WFS_MAX_FEATURES_RETURNED + 1;
     int startIndex = 1;
     int numResults = WfsSource.WFS_MAX_FEATURES_RETURNED + 10;
 
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, numResults);
+    setUpMocks(null, null, pageSize, numResults);
 
     SourceResponse response = executeQuery(startIndex, pageSize);
     List<Result> results = response.getResults();
@@ -960,7 +925,7 @@ public class WfsSourceTest {
   @Test
   public void testGetContentTypes() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, TWO_FEATURES);
-    setUpMocks(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, TWO_FEATURES);
     Set<ContentType> contentTypes = source.getContentTypes();
     assertThat(contentTypes.size(), is(TWO_FEATURES));
     for (ContentType contentType : contentTypes) {
@@ -976,7 +941,7 @@ public class WfsSourceTest {
     mapSchemaToSingleFeature(TWO_TEXT_PROPERTY_SCHEMA, 0);
     mapSchemaToSingleFeature(ONE_TEXT_PROPERTY_SCHEMA_PERSON, 1);
 
-    setUpMocks(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, TWO_FEATURES);
     Filter orderDogFilter = builder.attribute(ORDER_DOG).is().like().text(LITERAL);
     Filter mctFeature1Filter =
         builder
@@ -1000,9 +965,9 @@ public class WfsSourceTest {
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(inQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, inQuery);
 
     List<QueryType> filterQueries =
@@ -1027,7 +992,7 @@ public class WfsSourceTest {
   public void testQueryTwoFeaturesWithMixedPropertyNames() throws Exception {
     mapSchemaToSingleFeature(ONE_TEXT_PROPERTY_SCHEMA_PERSON, 0);
     mapSchemaToSingleFeature(ONE_TEXT_PROPERTY_SCHEMA_DOG, 1);
-    setUpMocks(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, TWO_FEATURES);
     Filter orderPersonFilter = builder.attribute(ORDER_PERSON).is().like().text(LITERAL);
     Filter mctFeature1Filter =
         builder
@@ -1037,13 +1002,13 @@ public class WfsSourceTest {
             .text(sampleFeatures.get(0).getLocalPart());
     Filter feature1Filter = builder.allOf(Arrays.asList(orderPersonFilter, mctFeature1Filter));
     Filter orderDogFilter = builder.attribute(ORDER_DOG).is().like().text(LITERAL);
-    Filter mctFeature2Fitler =
+    Filter mctFeature2Filter =
         builder
             .attribute(Metacard.CONTENT_TYPE)
             .is()
             .like()
             .text(sampleFeatures.get(1).getLocalPart());
-    Filter feature2Filter = builder.allOf(Arrays.asList(orderDogFilter, mctFeature2Fitler));
+    Filter feature2Filter = builder.allOf(Arrays.asList(orderDogFilter, mctFeature2Filter));
     Filter totalFilter = builder.anyOf(Arrays.asList(feature1Filter, feature2Filter));
 
     QueryImpl inQuery = new QueryImpl(totalFilter);
@@ -1051,11 +1016,11 @@ public class WfsSourceTest {
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(inQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertMaxFeatures(getFeatureType, inQuery);
-    Collections.sort(getFeatureType.getQuery(), QUERY_TYPE_COMPARATOR);
+    getFeatureType.getQuery().sort(QUERY_TYPE_COMPARATOR);
     assertThat(TWO_FEATURES, is(getFeatureType.getQuery().size()));
     // Feature 1
     QueryType query = getFeatureType.getQuery().get(0);
@@ -1082,15 +1047,15 @@ public class WfsSourceTest {
   @Test
   public void testIDQuery() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, TWO_FEATURES);
-    setUpMocks(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, TWO_FEATURES);
 
     QueryImpl idQuery = new QueryImpl(builder.attribute(Core.ID).is().text(ORDER_PERSON));
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(idQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertThat(ONE_FEATURE, is(getFeatureType.getQuery().get(0).getFilter().getId().size()));
 
     assertThat(
@@ -1103,7 +1068,7 @@ public class WfsSourceTest {
   @Test
   public void testTwoIDQuery() throws Exception {
     mapSchemaToFeatures(NO_PROPERTY_SCHEMA, TWO_FEATURES);
-    setUpMocks(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, TWO_FEATURES);
 
     Filter idFilter1 = builder.attribute(Core.ID).is().text(ORDER_PERSON);
     Filter idFilter2 = builder.attribute(Core.ID).is().text(ORDER_DOG);
@@ -1112,9 +1077,9 @@ public class WfsSourceTest {
 
     ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(twoIDQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertThat(TWO_FEATURES, is(getFeatureType.getQuery().get(0).getFilter().getId().size()));
 
     assertThat(
@@ -1143,21 +1108,20 @@ public class WfsSourceTest {
   @Test(expected = UnsupportedQueryException.class)
   public void testOneIDOnePropertyQuery() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, TWO_FEATURES);
-    setUpMocks(null, null, TWO_FEATURES, null);
+    setUpMocks(null, null, TWO_FEATURES, TWO_FEATURES);
 
     Filter idFilter = builder.attribute(Core.ID).is().text(ORDER_PERSON);
     Filter propertyIsLikeFilter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
 
     QueryImpl query = new QueryImpl(builder.anyOf(Arrays.asList(propertyIsLikeFilter, idFilter)));
 
-    // we are verifying that mixing featureID filters with other filters is
-    // not supported
+    // we are verifying that mixing featureID filters with other filters is not supported
     source.query(new QueryRequestImpl(query));
   }
 
   @Test(expected = UnsupportedQueryException.class)
   public void testNoFeatures() throws Exception {
-    setUpMocks(null, null, 0, null);
+    setUpMocks(null, null, 0, TWO_FEATURES);
     QueryImpl propertyIsLikeQuery =
         new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
     propertyIsLikeQuery.setPageSize(MAX_FEATURES);
@@ -1175,7 +1139,7 @@ public class WfsSourceTest {
     metacardMappers.add(metacardMapper);
 
     mapSchemaToFeatures(TWO_TEXT_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
 
     final Filter filter =
         builder.allOf(
@@ -1187,9 +1151,9 @@ public class WfsSourceTest {
 
     final ArgumentCaptor<GetFeatureType> getFeatureCaptor =
         ArgumentCaptor.forClass(GetFeatureType.class);
-    verify(mockWfs).getFeature(getFeatureCaptor.capture());
+    verify(mockWfs, times(2)).getFeature(getFeatureCaptor.capture());
 
-    final GetFeatureType getFeatureType = getFeatureCaptor.getValue();
+    GetFeatureType getFeatureType = getFeatureCaptor.getAllValues().get(1);
     final String getFeatureXml = marshal(getFeatureType);
     assertThat(
         getFeatureXml,
@@ -1206,7 +1170,7 @@ public class WfsSourceTest {
   @Test
   public void testTimeoutConfiguration() throws Exception {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
 
     source.setConnectionTimeout(10000);
     source.setReceiveTimeout(10000);
@@ -1219,7 +1183,7 @@ public class WfsSourceTest {
   public void testClientFactoryIsCreatedCorrectlyWhenUsernameAndPasswordAreConfigured()
       throws WfsException {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
 
     final String wfsUrl = "http://localhost/wfs";
     final String username = "test_user";
@@ -1264,7 +1228,7 @@ public class WfsSourceTest {
   public void testClientFactoryIsCreatedCorrectlyWhenCertAliasAndKeystorePathAreConfigured()
       throws WfsException {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
 
     final String wfsUrl = "http://localhost/wfs";
     final Boolean disableCnCheck = false;
@@ -1309,7 +1273,7 @@ public class WfsSourceTest {
   @Test
   public void testClientFactoryIsCreatedCorrectlyWhenNoAuthIsConfigured() throws WfsException {
     mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
-    setUpMocks(null, null, ONE_FEATURE, null);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
 
     final String wfsUrl = "http://localhost/wfs";
     final Boolean disableCnCheck = false;
@@ -1345,7 +1309,7 @@ public class WfsSourceTest {
   @Test
   public void testQueryLatLonCoordinateOrder() throws Exception {
     mapSchemaToFeatures(ONE_GML_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUpMocks(Collections.singletonList("DWithin"), SRS_NAME, ONE_FEATURE, null);
+    setUpMocks(Collections.singletonList("DWithin"), SRS_NAME, ONE_FEATURE, ONE_FEATURE);
 
     source.setPollInterval(1);
 
@@ -1365,9 +1329,9 @@ public class WfsSourceTest {
 
     final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(withinQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    final GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertThat(getFeatureType.getQuery(), hasSize(1));
 
     final QueryType query = getFeatureType.getQuery().get(0);
@@ -1385,7 +1349,7 @@ public class WfsSourceTest {
   @Test
   public void testQueryLonLatCoordinateOrder() throws Exception {
     mapSchemaToFeatures(ONE_GML_PROPERTY_SCHEMA, ONE_FEATURE);
-    setUpMocks(Collections.singletonList("DWithin"), SRS_NAME, ONE_FEATURE, null);
+    setUpMocks(Collections.singletonList("DWithin"), SRS_NAME, ONE_FEATURE, ONE_FEATURE);
 
     source.setPollInterval(1);
 
@@ -1405,9 +1369,9 @@ public class WfsSourceTest {
 
     final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
     source.query(new QueryRequestImpl(withinQuery));
-    verify(mockWfs).getFeature(captor.capture());
+    verify(mockWfs, times(2)).getFeature(captor.capture());
 
-    final GetFeatureType getFeatureType = captor.getValue();
+    GetFeatureType getFeatureType = captor.getAllValues().get(1);
     assertThat(getFeatureType.getQuery(), hasSize(1));
 
     final QueryType query = getFeatureType.getQuery().get(0);
@@ -1422,6 +1386,38 @@ public class WfsSourceTest {
     assertThat(pointType.getCoordinates().getValue(), is("30.0,-10.0"));
   }
 
+  @Test
+  public void testQuerySendsHitsRequestBeforeResultsRequest() throws Exception {
+    mapSchemaToFeatures(ONE_TEXT_PROPERTY_SCHEMA_PERSON, ONE_FEATURE);
+    setUpMocks(null, null, ONE_FEATURE, ONE_FEATURE);
+    final QueryImpl propertyIsLikeQuery =
+        new QueryImpl(builder.attribute(Metacard.ANY_TEXT).is().like().text("literal"));
+    propertyIsLikeQuery.setPageSize(MAX_FEATURES);
+
+    final ArgumentCaptor<GetFeatureType> captor = ArgumentCaptor.forClass(GetFeatureType.class);
+
+    source.query(new QueryRequestImpl(propertyIsLikeQuery));
+    verify(mockWfs, times(2)).getFeature(captor.capture());
+
+    final GetFeatureType getHits = captor.getAllValues().get(0);
+    assertThat(getHits.getResultType(), is(ResultTypeType.HITS));
+    assertThat(getHits.getMaxFeatures(), is(nullValue()));
+
+    final GetFeatureType getResults = captor.getAllValues().get(1);
+    assertThat(getResults.getResultType(), is(ResultTypeType.RESULTS));
+    assertMaxFeatures(getResults, propertyIsLikeQuery);
+
+    for (final GetFeatureType getFeatureType : captor.getAllValues()) {
+      assertThat(getFeatureType.getQuery().size(), is(ONE_FEATURE));
+      final QueryType query = getFeatureType.getQuery().get(0);
+      assertThat(query.getTypeName().get(0), is(sampleFeatures.get(0)));
+      assertThat(query.getFilter().isSetComparisonOps(), is(true));
+      assertThat(
+          query.getFilter().getComparisonOps().getValue(),
+          is(instanceOf(PropertyIsLikeType.class)));
+    }
+  }
+
   private SourceResponse executeQuery(int startIndex, int pageSize)
       throws UnsupportedQueryException {
 
@@ -1434,10 +1430,7 @@ public class WfsSourceTest {
   }
 
   private void assertMaxFeatures(GetFeatureType getFeatureType, Query inQuery) {
-    int pageSize =
-        (inQuery.getStartIndex() / MAX_FEATURES + 1)
-            * inQuery.getPageSize()
-            * WfsSource.WFS_QUERY_PAGE_SIZE_MULTIPLIER;
+    int pageSize = (inQuery.getStartIndex() / MAX_FEATURES + 1) * inQuery.getPageSize();
     assertThat(getFeatureType.getMaxFeatures(), is(BigInteger.valueOf(pageSize)));
   }
 
@@ -1509,6 +1502,24 @@ public class WfsSourceTest {
     public boolean matches(final Object request) {
       return request instanceof DescribeFeatureTypeRequest
           && Objects.equals(((DescribeFeatureTypeRequest) request).getTypeName(), typeName);
+    }
+  }
+
+  private static GetFeatureType withResultType(final ResultTypeType resultType) {
+    return argThat(new IsGetFeatureRequestWithResultType(resultType));
+  }
+
+  private static class IsGetFeatureRequestWithResultType extends ArgumentMatcher<GetFeatureType> {
+    private final ResultTypeType resultType;
+
+    private IsGetFeatureRequestWithResultType(final ResultTypeType resultType) {
+      this.resultType = resultType;
+    }
+
+    @Override
+    public boolean matches(final Object o) {
+      return o instanceof GetFeatureType
+          && Objects.equals(((GetFeatureType) o).getResultType(), resultType);
     }
   }
 }

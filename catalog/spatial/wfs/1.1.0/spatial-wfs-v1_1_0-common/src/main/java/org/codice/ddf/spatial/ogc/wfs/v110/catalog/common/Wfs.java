@@ -25,8 +25,8 @@ import net.opengis.wfs.v_1_1_0.GetCapabilitiesType;
 import net.opengis.wfs.v_1_1_0.GetFeatureType;
 import net.opengis.wfs.v_1_1_0.WFSCapabilitiesType;
 import org.apache.ws.commons.schema.XmlSchema;
+import org.codice.ddf.spatial.ogc.wfs.catalog.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 
 /** JAX-RS Interface to define a WFS server. */
 @Path("/")

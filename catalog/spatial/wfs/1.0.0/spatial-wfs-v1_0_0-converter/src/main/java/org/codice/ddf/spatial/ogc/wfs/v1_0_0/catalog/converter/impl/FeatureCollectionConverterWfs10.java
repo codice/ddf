@@ -33,8 +33,9 @@ import java.util.Set;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
+import org.codice.ddf.spatial.ogc.wfs.catalog.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollectionImpl;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsQnameBuilder;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants;
@@ -51,14 +52,13 @@ public class FeatureCollectionConverterWfs10 implements Converter {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(FeatureCollectionConverterWfs10.class);
 
-  protected String featureMember = "";
+  private String featureMember;
 
-  protected Map<String, String> prefixToUriMapping = new HashMap<String, String>();
+  private Map<String, String> prefixToUriMapping = new HashMap<>();
 
   private String contextRoot;
 
-  private Map<String, FeatureConverter> featureConverterMap =
-      new HashMap<String, FeatureConverter>();
+  private Map<String, FeatureConverter> featureConverterMap = new HashMap<>();
 
   public FeatureCollectionConverterWfs10() {
     featureMember = "featureMember";
@@ -118,7 +118,7 @@ public class FeatureCollectionConverterWfs10 implements Converter {
         .append("/wfs?service=wfs&request=DescribeFeatureType&version=1.0.0&typeName=");
 
     StringBuilder schemaLocation = new StringBuilder();
-    Set<QName> qnames = new HashSet<QName>();
+    Set<QName> qnames = new HashSet<>();
     for (Metacard metacard : metacards) {
       qnames.add(
           WfsQnameBuilder.buildQName(
@@ -140,7 +140,7 @@ public class FeatureCollectionConverterWfs10 implements Converter {
 
   private Geometry getBounds(List<Metacard> metacards) {
     if (metacards != null) {
-      List<Geometry> geometries = new ArrayList<Geometry>();
+      List<Geometry> geometries = new ArrayList<>();
       for (Metacard card : metacards) {
         if (null != card.getLocation()) {
           Geometry geo = XmlNode.readGeometry(card.getLocation());
@@ -150,9 +150,7 @@ public class FeatureCollectionConverterWfs10 implements Converter {
         }
       }
 
-      Geometry allGeometry =
-          new GeometryCollection(geometries.toArray(new Geometry[0]), new GeometryFactory());
-      return allGeometry;
+      return new GeometryCollection(geometries.toArray(new Geometry[0]), new GeometryFactory());
     } else {
       LOGGER.debug("List of metacards was null.");
       return null;
@@ -161,7 +159,7 @@ public class FeatureCollectionConverterWfs10 implements Converter {
 
   @Override
   public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-    WfsFeatureCollection featureCollection = new WfsFeatureCollection();
+    final List<Metacard> featureMembers = new ArrayList<>();
     while (reader.hasMoreChildren()) {
       reader.moveDown();
       String nodeName = reader.getNodeName();
@@ -170,17 +168,15 @@ public class FeatureCollectionConverterWfs10 implements Converter {
       if (featureMember.equals(nodeName)) {
         reader.moveDown();
         // lookup the converter for this featuretype
-        featureCollection
-            .getFeatureMembers()
-            .add(
-                (Metacard)
-                    context.convertAnother(
-                        null, MetacardImpl.class, featureConverterMap.get(reader.getNodeName())));
+        featureMembers.add(
+            (Metacard)
+                context.convertAnother(
+                    null, MetacardImpl.class, featureConverterMap.get(reader.getNodeName())));
         reader.moveUp();
       }
       reader.moveUp();
     }
-    return featureCollection;
+    return new WfsFeatureCollectionImpl(featureMembers.size(), featureMembers);
   }
 
   public void setFeatureConverterMap(Map<String, FeatureConverter> featureConverterMap) {
