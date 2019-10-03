@@ -12,9 +12,26 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { default, ExtensionPointsType } from './extension-points'
-export { default as routes } from './routes'
-export { default as navigator } from './navigator'
-export { default as searchInteractions } from './search-interactions'
-export { default as metacardInteractions } from './metacard-interactions'
-export { default as userSettings } from './user-settings'
+import plugin from 'plugins/user-settings'
+
+import {
+  default as UserSettings,
+  ThemeSettingsComponent,
+  AlertSettingsComponent,
+  MapSettingsComponent,
+  SearchSettingsComponent,
+  TimeSettingsComponent,
+  HiddenSettingsComponent,
+} from '../../react-component/user-settings'
+import * as React from 'react'
+
+const ExtendedUserSettings = UserSettings([
+  <ThemeSettingsComponent />,
+  <AlertSettingsComponent />,
+  <MapSettingsComponent />,
+  <SearchSettingsComponent />,
+  <TimeSettingsComponent />,
+  <HiddenSettingsComponent />,
+])
+
+export default plugin(ExtendedUserSettings) as any
