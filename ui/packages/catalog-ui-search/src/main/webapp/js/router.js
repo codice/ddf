@@ -25,7 +25,6 @@ import React from 'react'
 import { render } from 'react-dom'
 import ExtensionPoints from '../extension-points'
 
-// notfound route needs to come at the end otherwise no other routes will work
 render(
   <ReactRouter routeDefinitions={ExtensionPoints.routes} />,
   Application.App.router.$el[0]
@@ -48,6 +47,7 @@ const Router = Backbone.Router.extend({
       })
     ]
   },
+  // notfound route needs to come at the end otherwise no other routes will work
   routes: {
     ...Object.keys(ExtensionPoints.routes).reduce((routesBlob, key) => {
       if (key === 'notFound') {
