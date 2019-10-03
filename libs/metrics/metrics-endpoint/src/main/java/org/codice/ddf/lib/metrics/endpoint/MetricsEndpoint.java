@@ -14,13 +14,12 @@
 package org.codice.ddf.lib.metrics.endpoint;
 
 import io.micrometer.prometheus.PrometheusMeterRegistry;
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 import org.slf4j.Logger;
@@ -45,9 +44,6 @@ public class MetricsEndpoint {
       @Context HttpServletRequest request, @Context HttpServletResponse response) {
     PrometheusMeterRegistry metrics =
         (PrometheusMeterRegistry) meterRegistryService.getMeterRegistry();
-    return Response.ok(new ByteArrayInputStream(metrics.scrape().getBytes(StandardCharsets.UTF_8)))
-        .header("Cache-Control", "no-cache, no-store")
-        .header("Pragma", "no-cache")
-        .build();
+    return Response.status(200).entity(metrics.scrape()).type(MediaType.TEXT_PLAIN).build();
   }
 }
