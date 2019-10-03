@@ -57,6 +57,7 @@
                             <value>/services/store/config[/]?$=GET</value>
                             <value>/services/internal/registries.*=GET</value>
                             <value>/services/oidc/logout.*=GET</value>
+                            <value>/services/metrics[/]?$=GET</value>
                         </array>
                     </property>
                 </bean>
