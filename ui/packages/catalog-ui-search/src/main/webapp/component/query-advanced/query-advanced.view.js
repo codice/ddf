@@ -28,7 +28,7 @@ import query from '../../react-component/utils/query'
 const fetchSuggestions = memoize(async attr => {
   const json = await query({
     count: 0,
-    cql: cql.ANYTEXT_EMPTY,
+    cql: cql.ANYTEXT_WILDCARD,
     facets: [attr],
   })
 
