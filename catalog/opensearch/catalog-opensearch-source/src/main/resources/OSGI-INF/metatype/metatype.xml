@@ -27,15 +27,21 @@
             default="${org.codice.ddf.external.protocol}${org.codice.ddf.external.hostname}:${org.codice.ddf.external.port}${org.codice.ddf.external.context}${org.codice.ddf.system.rootContext}/catalog/query"
             description="The OpenSearch endpoint URL or DDF's OpenSearch endpoint (https://localhost:8993/services/catalog/query)"/>
 
+        <AD name="Authentication Type" id="authenticationType" type="String" default="saml"
+            description="The authentication type to use when federating.">
+            <Option label="SAML" value="saml"/>
+            <Option label="Basic" value="basic"/>
+        </AD>
+
         <AD name="Username" id="username" required="false"
             type="String"
             default=""
-            description="Username to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the OpenSearch endpoint requires basic authentication."/>
+            description="Username to use with HTTP Basic Authentication. Required if basic authentication type is selected."/>
 
         <AD name="Password" id="password" required="false"
             type="Password"
             default=""
-            description="Password to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the OpenSearch endpoint requires basic authentication."/>
+            description="Password to use with HTTP Basic Authentication. Required if basic authentication type is selected."/>
 
         <AD name="OpenSearch query parameters" id="parameters" required="true"
             type="String"

@@ -129,6 +129,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   private static final int MAX_NUM_POINT_RADIUS_VERTICES = 32;
 
+  private static final String BASIC_AUTH_TYPE = "basic";
+
   private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
@@ -161,6 +163,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   protected List<String> parameters;
 
   protected Set<String> markUpSet;
+
+  protected String authenticationType = "";
 
   protected String username = "";
 
@@ -292,7 +296,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   protected SecureCxfClientFactory<OpenSearch> createClientFactory(
       String url, String username, String password) {
-    if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+    if (BASIC_AUTH_TYPE.equals(authenticationType)
+        && StringUtils.isNotBlank(username)
+        && StringUtils.isNotBlank(password)) {
       return clientFactoryFactory.getSecureCxfClientFactory(
           url,
           OpenSearch.class,
@@ -935,6 +941,14 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   public void setParameters(List<String> parameters) {
     this.parameters = parameters;
+  }
+
+  public String getAuthenticationType() {
+    return authenticationType;
+  }
+
+  public void setAuthenticationType(String authenticationType) {
+    this.authenticationType = authenticationType;
   }
 
   public String getUsername() {

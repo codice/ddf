@@ -84,6 +84,7 @@
             <argument ref="resourceReader"/>
             <argument ref="attributeRegistry"/>
             <argument ref="clientFactoryFactory"/>
+            <property name="authenticationType" value="saml"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="includeArchivedSpaces" value="false"/>
@@ -119,6 +120,7 @@
             <argument ref="resourceReader"/>
             <argument ref="attributeRegistry"/>
             <argument ref="clientFactoryFactory"/>
+            <property name="authenticationType" value="saml"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="includeArchivedSpaces" value="false"/>

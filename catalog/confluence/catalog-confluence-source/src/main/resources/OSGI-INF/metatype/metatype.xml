@@ -22,14 +22,19 @@
         <AD name="Confluence Rest URL" id="endpointUrl" required="true"
             type="String"
             description="The Confluence Rest API endpoint URL. Example: https://<host>:<port>/rest/api/content"/>
+        <AD name="Authentication Type" id="authenticationType" type="String" default="saml"
+            description="The authentication type to use when federating.">
+            <Option label="SAML" value="saml"/>
+            <Option label="Basic" value="basic"/>
+        </AD>
         <AD name="Username" id="username" required="false"
             type="String"
             default=""
-            description="Username to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the Confluence endpoint requires basic authentication."/>
+            description="Username to use with HTTP Basic Authentication. Required if basic authentication type is selected."/>
         <AD name="Password" id="password" required="false"
             type="Password"
             default=""
-            description="Password to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the Confluence endpoint requires basic authentication."/>
+            description="Password to use with HTTP Basic Authentication. Required if basic authentication type is selected."/>
         <AD name="Include Page Contents In Results" id="includePageContent" required="false"
             type="Boolean"
             default="false"
@@ -68,14 +73,19 @@
         <AD name="Confluence Rest URL" id="endpointUrl" required="true"
             type="String"
             description="The Confluence Rest API endpoint URL. Example: https://<host>:<port>/rest/api/content"/>
+        <AD name="Authentication Type" id="authenticationType" type="String" default="saml"
+            description="The authentication type to use when federating.">
+            <Option label="SAML" value="saml"/>
+            <Option label="Basic" value="basic"/>
+        </AD>
         <AD name="Username" id="username" required="false"
             type="String"
             default=""
-            description="Username to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the Confluence endpoint requires basic authentication."/>
+            description="Username to use with HTTP Basic Authentication. Required if basic authentication type is selected."/>
         <AD name="Password" id="password" required="false"
             type="Password"
             default=""
-            description="Password to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the Confluence endpoint requires basic authentication."/>
+            description="Password to use with HTTP Basic Authentication. Required if basic authentication type is selected."/>
         <AD name="Include Page Contents In Results" id="includePageContent" required="false"
             type="Boolean"
             default="false"

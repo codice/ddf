@@ -94,6 +94,8 @@ public class TestCswSourceBase {
 
   protected static final String URL = "http://www.example.com/csw";
 
+  protected static final String AUTHENTICATION_TYPE = "saml";
+
   protected static final String USERNAME = "myUsername";
 
   protected static final String PASSWORD = "myPass";

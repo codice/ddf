@@ -33,6 +33,8 @@ public class CswSourceConfiguration {
 
   private String id;
 
+  private String authenticationType;
+
   private String username;
 
   private String password;
@@ -94,6 +96,14 @@ public class CswSourceConfiguration {
 
   public void setId(String id) {
     this.id = id;
+  }
+
+  public String getAuthenticationType() {
+    return authenticationType;
+  }
+
+  public void setAuthenticationType(String authenticationType) {
+    this.authenticationType = authenticationType;
   }
 
   public String getUsername() {

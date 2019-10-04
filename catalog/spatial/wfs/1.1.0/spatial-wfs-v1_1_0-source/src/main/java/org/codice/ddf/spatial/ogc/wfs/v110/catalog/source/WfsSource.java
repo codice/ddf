@@ -131,6 +131,8 @@ public class WfsSource extends AbstractWfsSource {
 
   private static final String ID_KEY = "id";
 
+  private static final String AUTHENTICATION_TYPE = "authenticationType";
+
   private static final String USERNAME_KEY = "username";
 
   @SuppressWarnings("squid:S2068" /*Key for the requestProperties map, not a hardcoded password*/)
@@ -166,6 +168,8 @@ public class WfsSource extends AbstractWfsSource {
 
   private static final String SOURCE_MSG = " Source '";
 
+  private static final String BASIC = "basic";
+
   private final EncryptionService encryptionService;
 
   private final ClientFactoryFactory clientFactoryFactory;
@@ -175,6 +179,8 @@ public class WfsSource extends AbstractWfsSource {
   private String wfsVersion;
 
   private Map<QName, WfsFilterDelegate> featureTypeFilters = new HashMap<>();
+
+  private String authenticationType;
 
   private String username;
 
@@ -292,6 +298,7 @@ public class WfsSource extends AbstractWfsSource {
     setDisableCnCheck((Boolean) configuration.get(DISABLE_CN_CHECK_KEY));
     setAllowRedirects((Boolean) configuration.get(ALLOW_REDIRECTS_KEY));
     setCoordinateOrder((String) configuration.get(COORDINATE_ORDER_KEY));
+    setAuthenticationType((String) configuration.get(AUTHENTICATION_TYPE));
     setUsername((String) configuration.get(USERNAME_KEY));
     setPassword((String) configuration.get(PASSWORD_KEY));
     setCertAlias((String) configuration.get(CERT_ALIAS_KEY));
@@ -323,7 +330,9 @@ public class WfsSource extends AbstractWfsSource {
 
   /** This method should only be called after all properties have been set. */
   private void createClientFactory() {
-    if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+    if (BASIC.equals(authenticationType)
+        && StringUtils.isNotBlank(username)
+        && StringUtils.isNotBlank(password)) {
       factory =
           clientFactoryFactory.getSecureCxfClientFactory(
               wfsUrl,
@@ -889,6 +898,10 @@ public class WfsSource extends AbstractWfsSource {
 
   public void setWfsUrl(String wfsUrl) {
     this.wfsUrl = wfsUrl;
+  }
+
+  public void setAuthenticationType(String authenticationType) {
+    this.authenticationType = authenticationType;
   }
 
   public void setUsername(String username) {

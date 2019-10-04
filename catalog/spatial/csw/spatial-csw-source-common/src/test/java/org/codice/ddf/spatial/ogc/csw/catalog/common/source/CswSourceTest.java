@@ -1476,6 +1476,9 @@ public class CswSourceTest extends TestCswSourceBase {
       CswSourceConfiguration cswSourceConfiguration,
       CswSourceConfiguration defaultCswSourceConfiguration) {
     assertThat(
+        cswSourceConfiguration.getAuthenticationType(),
+        is(defaultCswSourceConfiguration.getAuthenticationType()));
+    assertThat(
         cswSourceConfiguration.getUsername(), is(defaultCswSourceConfiguration.getUsername()));
     assertThat(
         cswSourceConfiguration.getPassword(), is(defaultCswSourceConfiguration.getPassword()));
@@ -1519,6 +1522,7 @@ public class CswSourceTest extends TestCswSourceBase {
   }
 
   private void assertConfigurationAfterRefresh(CswSourceConfiguration cswSourceConfiguration) {
+    assertThat(cswSourceConfiguration.getAuthenticationType(), is(AUTHENTICATION_TYPE));
     assertThat(cswSourceConfiguration.getUsername(), is(USERNAME));
     assertThat(cswSourceConfiguration.getPassword(), is(PASSWORD));
     assertThat(cswSourceConfiguration.getCertAlias(), is(CERT_ALIAS));
@@ -1545,6 +1549,7 @@ public class CswSourceTest extends TestCswSourceBase {
 
   private Map<String, Object> getConfigurationMap(AbstractCswSource cswSource) {
     Map<String, Object> configuration = new HashMap<>();
+    configuration.put(cswSource.AUTHENTICATION_TYPE, AUTHENTICATION_TYPE);
     configuration.put(cswSource.USERNAME_PROPERTY, USERNAME);
     configuration.put(cswSource.PASSWORD_PROPERTY, PASSWORD);
     configuration.put(cswSource.CERT_ALIAS_PROPERTY, CERT_ALIAS);

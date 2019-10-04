@@ -999,6 +999,7 @@ public class WfsSourceTest {
     final String wfsUrl = "http://localhost/wfs";
     final String username = "test_user";
     final String password = "encrypted_password";
+    final String authenticationType = "basic";
     final Boolean disableCnCheck = false;
     final Integer connectionTimeout = 10000;
     final Integer receiveTimeout = 20000;
@@ -1012,6 +1013,7 @@ public class WfsSourceTest {
             .put("wfsUrl", wfsUrl)
             .put("username", username)
             .put("password", password)
+            .put("authenticationType", authenticationType)
             .put("disableCnCheck", disableCnCheck)
             .put("connectionTimeout", connectionTimeout)
             .put("receiveTimeout", receiveTimeout)
