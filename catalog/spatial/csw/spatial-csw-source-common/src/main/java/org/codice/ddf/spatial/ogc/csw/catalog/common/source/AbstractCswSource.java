@@ -157,6 +157,7 @@ public abstract class AbstractCswSource extends MaskableImpl
   protected static final String CSW_SERVER_ERROR = "Error received from CSW server.";
   protected static final String CSWURL_PROPERTY = "cswUrl";
   protected static final String ID_PROPERTY = "id";
+  protected static final String AUTHENTICATION_TYPE = "authenticationType";
   protected static final String USERNAME_PROPERTY = "username";
   protected static final String CERT_ALIAS_PROPERTY = "certAlias";
   protected static final String KEYSTORE_PATH_PROPERTY = "keystorePath";
@@ -179,6 +180,8 @@ public abstract class AbstractCswSource extends MaskableImpl
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCswSource.class);
   private static final String DEFAULT_CSW_TRANSFORMER_ID = "csw";
   private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
+
+  private static final String BASIC_AUTH_TYPE = "basic";
 
   @SuppressWarnings("squid:S1845")
   private static final String DESCRIPTION = "description";
@@ -327,7 +330,8 @@ public abstract class AbstractCswSource extends MaskableImpl
   }
 
   protected void initClientFactory() {
-    if (StringUtils.isNotBlank(cswSourceConfiguration.getUsername())
+    if (BASIC_AUTH_TYPE.equals(cswSourceConfiguration.getAuthenticationType())
+        && StringUtils.isNotBlank(cswSourceConfiguration.getUsername())
         && StringUtils.isNotBlank(cswSourceConfiguration.getPassword())) {
       factory =
           clientFactoryFactory.getSecureCxfClientFactory(
@@ -371,7 +375,8 @@ public abstract class AbstractCswSource extends MaskableImpl
   }
 
   protected void initSubscribeClientFactory() {
-    if (StringUtils.isNotBlank(cswSourceConfiguration.getUsername())
+    if (BASIC_AUTH_TYPE.equals(cswSourceConfiguration.getAuthenticationType())
+        && StringUtils.isNotBlank(cswSourceConfiguration.getUsername())
         && StringUtils.isNotBlank(cswSourceConfiguration.getPassword())) {
       subscribeClientFactory =
           clientFactoryFactory.getSecureCxfClientFactory(
@@ -418,6 +423,9 @@ public abstract class AbstractCswSource extends MaskableImpl
   private void setConsumerMap() {
 
     consumerMap.put(ID_PROPERTY, value -> setId((String) value));
+
+    consumerMap.put(
+        AUTHENTICATION_TYPE, value -> cswSourceConfiguration.setAuthenticationType((String) value));
 
     consumerMap.put(PASSWORD_PROPERTY, value -> cswSourceConfiguration.setPassword((String) value));
 
@@ -1003,6 +1011,14 @@ public abstract class AbstractCswSource extends MaskableImpl
     LOGGER.debug("Setting cswUrl to {}", cswUrl);
 
     cswSourceConfiguration.setCswUrl(cswUrl);
+  }
+
+  public String getAuthenticationType() {
+    return cswSourceConfiguration.getAuthenticationType();
+  }
+
+  public void setAuthenticationType(String authenticationType) {
+    cswSourceConfiguration.setAuthenticationType(authenticationType);
   }
 
   public void setUsername(String username) {

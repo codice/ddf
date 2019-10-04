@@ -133,6 +133,8 @@ public class WfsSource extends AbstractWfsSource {
 
   private static final String ID_PROPERTY = "id";
 
+  private static final String AUTHENTICATION_TYPE = "authenticationType";
+
   private static final String USERNAME_PROPERTY = "username";
 
   @SuppressWarnings("squid:S2068" /* Real credentials are not hard coded */)
@@ -164,6 +166,8 @@ public class WfsSource extends AbstractWfsSource {
 
   private static final String DISABLE_CN_CHECK_PROPERTY = "disableCnCheck";
 
+  private static final String BASIC = "basic";
+
   private static Properties describableProperties = new Properties();
 
   private final EncryptionService encryptionService;
@@ -184,6 +188,8 @@ public class WfsSource extends AbstractWfsSource {
   private String wfsUrl;
 
   private String wfsVersion;
+
+  private String authenticationType;
 
   private String username;
 
@@ -279,6 +285,7 @@ public class WfsSource extends AbstractWfsSource {
     String wfsUrl = (String) configuration.get(WFSURL_PROPERTY);
     String password = (String) configuration.get(PASSWORD_PROPERTY);
     String username = (String) configuration.get(USERNAME_PROPERTY);
+    String authenticationType = (String) configuration.get(AUTHENTICATION_TYPE);
     Boolean disableCnCheckProp = (Boolean) configuration.get(DISABLE_CN_CHECK_PROPERTY);
     String coordinateOrder = (String) configuration.get(COORDINATE_ORDER);
     boolean disableSorting = (Boolean) configuration.get(DISABLE_SORTING);
@@ -298,6 +305,7 @@ public class WfsSource extends AbstractWfsSource {
     this.wfsUrl = wfsUrl;
     this.password = encryptionService.decryptValue(password);
     this.username = username;
+    this.authenticationType = authenticationType;
     this.disableCnCheck = disableCnCheckProp;
     this.coordinateOrder = coordinateOrder;
     this.disableSorting = disableSorting;
@@ -333,7 +341,9 @@ public class WfsSource extends AbstractWfsSource {
 
   /* This method should only be called after all properties have been set. */
   private void createClientFactory() {
-    if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+    if (BASIC.equals(authenticationType)
+        && StringUtils.isNotBlank(username)
+        && StringUtils.isNotBlank(password)) {
       factory =
           clientFactoryFactory.getSecureCxfClientFactory(
               wfsUrl,
@@ -1098,6 +1108,10 @@ public class WfsSource extends AbstractWfsSource {
   public void setWfsUrl(String wfsUrl) {
     this.wfsUrl = wfsUrl;
     factory = clientFactoryFactory.getSecureCxfClientFactory(wfsUrl, Wfs.class);
+  }
+
+  public void setAuthenticationType(String authenticationType) {
+    this.authenticationType = authenticationType;
   }
 
   public void setUsername(String username) {

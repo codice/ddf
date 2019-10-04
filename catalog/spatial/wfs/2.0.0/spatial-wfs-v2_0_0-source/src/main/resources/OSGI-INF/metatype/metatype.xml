@@ -41,9 +41,14 @@
             name="Disable Sorting" id="disableSorting" required="true"
             type="Boolean" default="false"/>
 
-        <AD description="Username for the WFS Service (optional)" name="Username" id="username"
+        <AD name="Authentication Type" id="authType" type="String" default="saml"
+            description="The authentication type to use when federating.">
+            <Option label="SAML" value="saml"/>
+            <Option label="Basic" value="basic"/>
+        </AD>
+        <AD description="Username for the WFS Service. Required if basic authentication type is selected." name="Username" id="username"
             required="false" type="String"/>
-        <AD description="Password for the WFS Service (optional)" name="Password" id="password"
+        <AD description="Password for WFS Service. Required if basic authentication type is selected." name="Password" id="password"
             required="false" type="Password" default=""/>
         <AD name="Non Queryable Properties" id="nonQueryableProperties" required="false"
             type="String"

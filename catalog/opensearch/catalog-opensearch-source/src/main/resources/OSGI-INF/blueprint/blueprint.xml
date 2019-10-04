@@ -56,6 +56,7 @@
             <property name="shortname" value="DDF-OS"/>
             <property name="endpointUrl"
                       value="https://localhost:8993/services/query"/>
+            <property name="authenticationType" value="saml"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="localQueryOnly" value="false"/>
