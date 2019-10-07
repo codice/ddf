@@ -14,7 +14,7 @@ The process for changing catalog providers involves first exporting the metadata
 
 From the ${command-console}, use these commands to export data from the existing catalog and then import into the new one.
 
-`catalog:export`:: Exports Metacards and history from the current Catalog to an auto-generated file inside ${home_directory}. +
+`catalog:export`:: Exports metacards, history, and their associated resources from the current Catalog to an auto-generated file inside ${home_directory}. +
 Use the `catalog:export --help` command to see all available options.
 
 `catalog:import <FILE_NAME>`:: Imports Metacards and history into the current Catalog. +
