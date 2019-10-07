@@ -66,11 +66,12 @@ function convertToValid(key, model) {
     key.mapEast = Math.max(-180, key.mapEast)
     key.mapEast = Math.min(180, key.mapEast)
   }
-  if (key.lat !== undefined) {
+  // Leave the value alone if it is an empty string, otherwise it will be converted to 0
+  if (key.lat) {
     key.lat = Math.max(-90, key.lat)
     key.lat = Math.min(90, key.lat)
   }
-  if (key.lon !== undefined) {
+  if (key.lon) {
     key.lon = Math.max(-180, key.lon)
     key.lon = Math.min(180, key.lon)
   }
