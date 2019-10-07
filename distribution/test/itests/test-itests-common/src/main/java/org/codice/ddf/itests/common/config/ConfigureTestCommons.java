@@ -62,7 +62,7 @@ public class ConfigureTestCommons {
       AdminConfig configAdmin)
       throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
-    properties.put("attributeMap", securityAttributeMappings);
+    properties.put("attributeMap", securityAttributeMappings.toArray(new String[0]));
     properties.put("filterErrors", filterErrors);
     properties.put("filterWarnings", filterWarnings);
     return configureMetacardValidityFilterPlugin(properties, configAdmin);
@@ -95,7 +95,7 @@ public class ConfigureTestCommons {
       AdminConfig configAdmin)
       throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
-    properties.put("enforcedMetacardValidators", enforcedValidators);
+    properties.put("enforcedMetacardValidators", enforcedValidators.toArray(new String[0]));
     properties.put("enforceErrors", enforceErrors);
     properties.put("enforceWarnings", enforceWarnings);
     return configureValidationMarkerPlugin(properties, configAdmin);
@@ -125,7 +125,7 @@ public class ConfigureTestCommons {
       List<String> intersectAttributes, List<String> unionAttributes, AdminConfig configAdmin)
       throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
-    properties.put("intersectMetacardAttributes", intersectAttributes);
+    properties.put("intersectMetacardAttributes", intersectAttributes.toArray(new String[0]));
     properties.put("unionMetacardAttributes", unionAttributes);
     return configureMetacardAttributeSecurityFiltering(properties, configAdmin);
   }
@@ -157,9 +157,9 @@ public class ConfigureTestCommons {
       AdminConfig configAdmin)
       throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
-    properties.put("matchAllMappings", matchAllMappings);
-    properties.put("matchOneMappings", matchOneAttributes);
-    properties.put("environmentAttributes", environmentAttributes);
+    properties.put("matchAllMappings", matchAllMappings.toArray(new String[0]));
+    properties.put("matchOneMappings", matchOneAttributes.toArray(new String[0]));
+    properties.put("environmentAttributes", environmentAttributes.toArray(new String[0]));
     return configureAuthZRealm(properties, configAdmin);
   }
 
@@ -188,8 +188,8 @@ public class ConfigureTestCommons {
       List<String> featurePolicies, List<String> servicePolicies, AdminConfig configAdmin)
       throws IOException {
     Dictionary<String, Object> properties = new DictionaryMap<>();
-    properties.put("featurePolicies", featurePolicies);
-    properties.put("servicePolicies", servicePolicies);
+    properties.put("featurePolicies", featurePolicies.toArray(new String[0]));
+    properties.put("servicePolicies", servicePolicies.toArray(new String[0]));
     return configureAdminConfigPolicy(properties, configAdmin);
   }
 

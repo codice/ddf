@@ -164,8 +164,12 @@ public class TestOidc extends AbstractIntegrationTest {
           .disableHtmlEscaping()
           .registerTypeAdapterFactory(GsonTypeAdapters.LongDoubleTypeAdapter.FACTORY)
           .create();
+  public static final String OIDC_PID =
+      "org.codice.ddf.security.handler.api.OidcHandlerConfiguration";
 
   private static Dictionary<String, Object> handlerConfig;
+  private static Dictionary<String, Object> oldHandlerProps;
+  private static Map<String, Object> oldPolicyManagerProps;
   private static StubServer server;
   private static RSAPublicKey publicKey;
   private static Algorithm validAlgorithm;
@@ -175,11 +179,11 @@ public class TestOidc extends AbstractIntegrationTest {
   @BeforeExam
   public void beforeTest() {
     try {
-      waitForSystemReady();
       getServiceManager().waitForAllBundles();
       getServiceManager().waitForHttpEndpoint(WHO_AM_I_URL.getUrl());
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
-      getSecurityPolicy().configureWebContextPolicy(OIDC_AUTH_TYPES, null, null);
+      oldPolicyManagerProps =
+          getSecurityPolicy().configureWebContextPolicy(OIDC_AUTH_TYPES, null, null);
 
       // start stub server
       server = new StubServer(Integer.parseInt(IDP_PORT.getPort())).run();
@@ -249,8 +253,9 @@ public class TestOidc extends AbstractIntegrationTest {
 
   @AfterExam
   public void afterExam() throws Exception {
+    resetConfig();
     getSecurityPolicy().configureRestForGuest();
-
+    getSecurityPolicy().updateWebContextPolicy(oldPolicyManagerProps);
     if (server != null) {
       server.stop();
     }
@@ -1306,9 +1311,15 @@ public class TestOidc extends AbstractIntegrationTest {
 
   /** Configure the OIDC Handler with the given parameters */
   private void setConfig() throws Exception {
-    Configuration config =
-        getAdminConfig()
-            .getConfiguration("org.codice.ddf.security.handler.api.OidcHandlerConfiguration", null);
+    Configuration config = getAdminConfig().getConfiguration(OIDC_PID, null);
+
+    if (config.getProperties() == null) {
+      oldHandlerProps =
+          new Hashtable<>(
+              getServiceManager().getMetatypeDefaults("security-handler-oidc", OIDC_PID));
+    } else {
+      oldHandlerProps = config.getProperties();
+    }
 
     config.update(handlerConfig);
 
@@ -1321,5 +1332,12 @@ public class TestOidc extends AbstractIntegrationTest {
 
     // Wait for the OIDC Handler to test the connection, create the OIDC client etc..
     Thread.sleep(1000);
+  }
+
+  private void resetConfig() throws Exception {
+    if (oldHandlerProps != null) {
+      handlerConfig = oldHandlerProps;
+      setConfig();
+    }
   }
 }

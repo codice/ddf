@@ -15,6 +15,7 @@ package org.codice.ddf.itests.common;
 
 import static org.junit.Assert.fail;
 
+import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -51,8 +52,9 @@ public class SynchronizedConfiguration {
     this.configAdmin = configAdmin;
   }
 
-  public final void updateConfig() throws Exception {
+  public final Dictionary<String, Object> updateConfig() throws Exception {
     Configuration config = configAdmin.getConfiguration(pid, location);
+    Dictionary<String, Object> oldProps = config.getProperties();
     config.update(new Hashtable<>(configProps));
 
     long timeoutLimit = System.currentTimeMillis() + CONFIG_UPDATE_MAX_WAIT_MILLIS;
@@ -75,5 +77,7 @@ public class SynchronizedConfiguration {
         }
       }
     }
+
+    return oldProps;
   }
 }

@@ -29,7 +29,6 @@ import static org.hamcrest.CoreMatchers.not;
 
 import com.jayway.restassured.response.ValidatableResponse;
 import ddf.catalog.data.types.Validation;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -41,9 +40,9 @@ import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -71,32 +70,46 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   private static final String ERROR_METACARD =
       XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml";
 
+  private Dictionary<String, Object> oldValidationMarkerPluginProps;
+
+  private Dictionary<String, Object> oldValidityFilterPluginProps;
+
   @BeforeExam
   public void beforeExam() {
     try {
-      waitForSystemReady();
       getServiceManager().startFeature(true, SAMPLE_VALIDATOR);
 
       // start test with validation errors/warnings allowed in catalog/search results
-      configureValidationMarkerPlugin(
-          Collections.singletonList(""), false, false, getAdminConfig());
-      configureMetacardValidityFilterPlugin(
-          Collections.singletonList("invalid-state=guest"), false, false, getAdminConfig());
+      oldValidationMarkerPluginProps =
+          configureValidationMarkerPlugin(
+              Collections.singletonList(""), false, false, getAdminConfig());
+      oldValidityFilterPluginProps =
+          configureMetacardValidityFilterPlugin(
+              Collections.singletonList("invalid-state=guest"), false, false, getAdminConfig());
+      clearCatalogAndWait();
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
     }
   }
 
-  @Before
-  public void setup() {
+  @After
+  public void tearDown() {
     clearCatalogAndWait();
   }
 
-  @After
-  public void tearDown() throws IOException {
-    configureValidationMarkerPlugin(Collections.singletonList(""), false, false, getAdminConfig());
-    configureMetacardValidityFilterPlugin(
-        Collections.singletonList("invalid-state=guest"), false, false, getAdminConfig());
+  @AfterExam
+  public void afterExam() {
+    try {
+      if (oldValidationMarkerPluginProps != null) {
+        configureValidationMarkerPlugin(oldValidationMarkerPluginProps, getAdminConfig());
+      }
+      if (oldValidityFilterPluginProps != null) {
+        configureMetacardValidityFilterPlugin(oldValidityFilterPluginProps, getAdminConfig());
+      }
+      getServiceManager().stopFeature(true, SAMPLE_VALIDATOR);
+    } catch (Exception e) {
+      LoggingUtils.failWithThrowableStacktrace(e, "Failed in @AfterExam: ");
+    }
   }
 
   /* ***************** TEST ENFORCE VALIDATION ON INGEST ***************** */
@@ -268,12 +281,14 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
         configureMetacardValidityFilterPlugin(
             Collections.singletonList("invalid-state=data-manager"), false, true, getAdminConfig());
 
-    query(warningId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
-    query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
-    query(errorId, TRANSFORMER_XML, HttpStatus.SC_OK);
-
-    // Reset plugin
-    configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
+    try {
+      query(warningId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
+      query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
+      query(errorId, TRANSFORMER_XML, HttpStatus.SC_OK);
+    } finally {
+      // Reset plugin
+      configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
+    }
   }
 
   @Test
@@ -287,12 +302,14 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
         configureMetacardValidityFilterPlugin(
             Collections.singletonList("invalid-state=data-manager"), true, false, getAdminConfig());
 
-    query(warningId, TRANSFORMER_XML, HttpStatus.SC_OK);
-    query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
-    query(errorId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
-
-    // Reset plugin
-    configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
+    try {
+      query(warningId, TRANSFORMER_XML, HttpStatus.SC_OK);
+      query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
+      query(errorId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
+    } finally {
+      // Reset plugin
+      configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
+    }
   }
 
   @Test
@@ -306,12 +323,14 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
         configureMetacardValidityFilterPlugin(
             Collections.singletonList("invalid-state=data-manager"), true, true, getAdminConfig());
 
-    query(warningId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
-    query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
-    query(errorId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
-
-    // Reset plugin
-    configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
+    try {
+      query(warningId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
+      query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
+      query(errorId, TRANSFORMER_XML, HttpStatus.SC_NOT_FOUND);
+    } finally {
+      // Reset plugin
+      configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
+    }
   }
 
   @Test
@@ -328,12 +347,14 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
             false,
             getAdminConfig());
 
-    query(warningId, TRANSFORMER_XML, HttpStatus.SC_OK);
-    query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
-    query(errorId, TRANSFORMER_XML, HttpStatus.SC_OK);
-
-    // Reset plugin
-    configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
+    try {
+      query(warningId, TRANSFORMER_XML, HttpStatus.SC_OK);
+      query(cleanId, TRANSFORMER_XML, HttpStatus.SC_OK);
+      query(errorId, TRANSFORMER_XML, HttpStatus.SC_OK);
+    } finally {
+      // Reset plugin
+      configureMetacardValidityFilterPlugin(filterPluginProps, getAdminConfig());
+    }
   }
 
   /**

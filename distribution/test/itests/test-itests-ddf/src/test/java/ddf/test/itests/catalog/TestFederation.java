@@ -97,6 +97,7 @@ import org.codice.ddf.itests.common.restito.ChunkedContent;
 import org.codice.ddf.itests.common.restito.HeaderCapture;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -195,6 +196,18 @@ public class TestFederation extends AbstractIntegrationTest {
 
   private static FederatedCswMockServer cswServer;
 
+  private static String openSearchPid;
+
+  private static String cswPid;
+
+  private static String cswPid2;
+
+  private static String cswPid3;
+
+  private static String gmdPid;
+
+  private static String connectedPid;
+
   @Rule public TestName testName = new TestName();
 
   @Rule public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
@@ -212,16 +225,17 @@ public class TestFederation extends AbstractIntegrationTest {
   @BeforeExam
   public void beforeExam() throws Exception {
     try {
-      waitForSystemReady();
       getSecurityPolicy().configureRestForGuest();
-      waitForSystemReady();
 
       getCatalogBundle().setupMaxDownloadRetryAttempts(MAX_DOWNLOAD_RETRY_ATTEMPTS);
 
       Map<String, Object> openSearchProperties =
           getOpenSearchSourceProperties(
               OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
-      getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties);
+      openSearchPid =
+          getServiceManager()
+              .createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties)
+              .getPid();
 
       cswServer =
           new FederatedCswMockServer(
@@ -232,8 +246,10 @@ public class TestFederation extends AbstractIntegrationTest {
           getCswSourceProperties(CSW_STUB_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager());
       cswStubServerProperties.put("cswUrl", CSW_STUB_SERVER_PATH.getUrl());
       cswStubServerProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
-      getServiceManager()
-          .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswStubServerProperties);
+      cswPid =
+          getServiceManager()
+              .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswStubServerProperties)
+              .getPid();
 
       getServiceManager().waitForHttpEndpoint(CSW_PATH + "?_wadl");
 
@@ -241,14 +257,20 @@ public class TestFederation extends AbstractIntegrationTest {
           getCswSourceProperties(CSW_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager());
 
       cswProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
-      getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties);
+      cswPid2 =
+          getServiceManager()
+              .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties)
+              .getPid();
 
       Map<String, Object> cswProperties2 =
           getCswSourceProperties(
               CSW_SOURCE_WITH_METACARD_XML_ID, CSW_PATH.getUrl(), getServiceManager());
       cswProperties2.put("outputSchema", "urn:catalog:metacard");
       cswProperties2.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
-      getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties2);
+      cswPid3 =
+          getServiceManager()
+              .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties2)
+              .getPid();
 
       Map<String, Object> gmdProperties =
           getCswSourceProperties(
@@ -258,7 +280,10 @@ public class TestFederation extends AbstractIntegrationTest {
               getServiceManager());
 
       gmdProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
-      getServiceManager().createManagedService(GMD_CSW_FEDERATED_SOURCE_FACTORY_PID, gmdProperties);
+      gmdPid =
+          getServiceManager()
+              .createManagedService(GMD_CSW_FEDERATED_SOURCE_FACTORY_PID, gmdProperties)
+              .getPid();
 
       getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
       getCatalogBundle().waitForFederatedSource(CSW_STUB_SOURCE_ID);
@@ -279,6 +304,28 @@ public class TestFederation extends AbstractIntegrationTest {
 
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
+    }
+  }
+
+  @AfterExam
+  public void afterExam() throws Exception {
+    if (openSearchPid != null) {
+      getServiceManager().stopManagedService(openSearchPid);
+    }
+    if (cswPid != null) {
+      getServiceManager().stopManagedService(cswPid);
+    }
+    if (cswPid2 != null) {
+      getServiceManager().stopManagedService(cswPid2);
+    }
+    if (cswPid3 != null) {
+      getServiceManager().stopManagedService(cswPid3);
+    }
+    if (gmdPid != null) {
+      getServiceManager().stopManagedService(gmdPid);
+    }
+    if (cswServer != null) {
+      cswServer.stop();
     }
   }
 
@@ -1003,6 +1050,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     } finally {
       getSecurityPolicy().configureRestForGuest();
+      cleanupConnectedSources();
     }
   }
 
@@ -1560,50 +1608,54 @@ public class TestFederation extends AbstractIntegrationTest {
   public void testDownloadFromCacheIfAvailable() throws Exception {
     getCatalogBundle().setupCaching(true);
 
-    String filename = "product4.txt";
-    String metacardId = generateUniqueMetacardId();
-    String resourceData = getResourceData(metacardId);
-    Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).build();
+    try {
+      String filename = "product4.txt";
+      String metacardId = generateUniqueMetacardId();
+      String resourceData = getResourceData(metacardId);
+      Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).build();
 
-    cswServer
-        .whenHttp()
-        .match(
-            Condition.post("/services/csw"),
-            withPostBodyContaining("GetRecords"),
-            withPostBodyContaining(metacardId))
-        .then(
-            ok(),
-            contentType("text/xml"),
-            bytesContent(getCswQueryResponse(metacardId).getBytes()));
+      cswServer
+          .whenHttp()
+          .match(
+              Condition.post("/services/csw"),
+              withPostBodyContaining("GetRecords"),
+              withPostBodyContaining(metacardId))
+          .then(
+              ok(),
+              contentType("text/xml"),
+              bytesContent(getCswQueryResponse(metacardId).getBytes()));
 
-    cswServer
-        .whenHttp()
-        .match(
-            Condition.get("/services/csw"),
-            Condition.parameter("request", "GetRecordById"),
-            Condition.parameter("id", metacardId))
-        .then(getCswRetrievalHeaders(filename), response);
+      cswServer
+          .whenHttp()
+          .match(
+              Condition.get("/services/csw"),
+              Condition.parameter("request", "GetRecordById"),
+              Condition.parameter("id", metacardId))
+          .then(getCswRetrievalHeaders(filename), response);
 
-    String restUrl =
-        REST_PATH.getUrl()
-            + "sources/"
-            + CSW_STUB_SOURCE_ID
-            + "/"
-            + metacardId
-            + "?transform=resource";
+      String restUrl =
+          REST_PATH.getUrl()
+              + "sources/"
+              + CSW_STUB_SOURCE_ID
+              + "/"
+              + metacardId
+              + "?transform=resource";
 
-    // Download product twice, should only call the stub server to download once
-    when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
+      // Download product twice, should only call the stub server to download once
+      when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
 
-    when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
+      when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
 
-    cswServer
-        .verifyHttp()
-        .times(
-            1,
-            Condition.uri("/services/csw"),
-            Condition.parameter("request", "GetRecordById"),
-            Condition.parameter("id", metacardId));
+      cswServer
+          .verifyHttp()
+          .times(
+              1,
+              Condition.uri("/services/csw"),
+              Condition.parameter("request", "GetRecordById"),
+              Condition.parameter("id", metacardId));
+    } finally {
+      getCatalogBundle().setupCaching(false);
+    }
   }
 
   /**
@@ -1677,57 +1729,61 @@ public class TestFederation extends AbstractIntegrationTest {
   @Test
   public void testFileCachesCorrectlyWhenRangeHeadersAreSupported() throws Exception {
     getCatalogBundle().setupCaching(true);
-    String filename = "product2.txt";
-    String metacardId = generateUniqueMetacardId();
-    String resourceData = getResourceData(metacardId);
-    HeaderCapture headerCapture = new HeaderCapture();
-    Action response =
-        new ChunkedContent.ChunkedContentBuilder(resourceData)
-            .delayBetweenChunks(Duration.ofMillis(200))
-            .fail(2)
-            .allowPartialContent(headerCapture)
-            .build();
+    try {
+      String filename = "product2.txt";
+      String metacardId = generateUniqueMetacardId();
+      String resourceData = getResourceData(metacardId);
+      HeaderCapture headerCapture = new HeaderCapture();
+      Action response =
+          new ChunkedContent.ChunkedContentBuilder(resourceData)
+              .delayBetweenChunks(Duration.ofMillis(200))
+              .fail(2)
+              .allowPartialContent(headerCapture)
+              .build();
 
-    cswServer
-        .whenHttp()
-        .match(
-            Condition.post("/services/csw"),
-            withPostBodyContaining("GetRecords"),
-            withPostBodyContaining(metacardId))
-        .then(
-            ok(),
-            contentType("text/xml"),
-            bytesContent(getCswQueryResponse(metacardId).getBytes()));
+      cswServer
+          .whenHttp()
+          .match(
+              Condition.post("/services/csw"),
+              withPostBodyContaining("GetRecords"),
+              withPostBodyContaining(metacardId))
+          .then(
+              ok(),
+              contentType("text/xml"),
+              bytesContent(getCswQueryResponse(metacardId).getBytes()));
 
-    cswServer
-        .whenHttp()
-        .match(
-            Condition.get("/services/csw"),
-            Condition.parameter("request", "GetRecordById"),
-            Condition.parameter("id", metacardId),
-            Condition.custom(headerCapture))
-        .then(getCswRetrievalHeaders(filename), response);
+      cswServer
+          .whenHttp()
+          .match(
+              Condition.get("/services/csw"),
+              Condition.parameter("request", "GetRecordById"),
+              Condition.parameter("id", metacardId),
+              Condition.custom(headerCapture))
+          .then(getCswRetrievalHeaders(filename), response);
 
-    String restUrl =
-        REST_PATH.getUrl()
-            + "sources/"
-            + CSW_STUB_SOURCE_ID
-            + "/"
-            + metacardId
-            + "?transform=resource";
+      String restUrl =
+          REST_PATH.getUrl()
+              + "sources/"
+              + CSW_STUB_SOURCE_ID
+              + "/"
+              + metacardId
+              + "?transform=resource";
 
-    // Verify that the testData from the csw stub server is returned.
-    when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
+      // Verify that the testData from the csw stub server is returned.
+      when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
 
-    when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
+      when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
 
-    cswServer
-        .verifyHttp()
-        .atLeast(
-            3,
-            Condition.uri("/services/csw"),
-            Condition.parameter("request", "GetRecordById"),
-            Condition.parameter("id", metacardId));
+      cswServer
+          .verifyHttp()
+          .atLeast(
+              3,
+              Condition.uri("/services/csw"),
+              Condition.parameter("request", "GetRecordById"),
+              Condition.parameter("id", metacardId));
+    } finally {
+      getCatalogBundle().setupCaching(false);
+    }
   }
 
   @Test
@@ -1778,6 +1834,7 @@ public class TestFederation extends AbstractIntegrationTest {
           .get(startDownloadUrl);
     } finally {
       getSecurityPolicy().configureRestForGuest();
+      getCatalogBundle().setupCaching(false);
     }
   }
 
@@ -2185,11 +2242,17 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   private void setupConnectedSources() throws IOException {
-    getServiceManager()
-        .createManagedService(
-            CSW_CONNECTED_SOURCE_FACTORY_PID,
-            getCswConnectedSourceProperties(
-                CONNECTED_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager()));
+    connectedPid =
+        getServiceManager()
+            .createManagedService(
+                CSW_CONNECTED_SOURCE_FACTORY_PID,
+                getCswConnectedSourceProperties(
+                    CONNECTED_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager()))
+            .getPid();
+  }
+
+  private void cleanupConnectedSources() throws IOException {
+    getServiceManager().stopManagedService(connectedPid);
   }
 
   private String ingestXmlWithProduct(String fileName) throws IOException {

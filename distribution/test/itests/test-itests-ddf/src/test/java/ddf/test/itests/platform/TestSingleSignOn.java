@@ -70,6 +70,7 @@ import org.codice.ddf.security.common.Security;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.SessionHandler;
 import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.junit.After;
 import org.junit.Before;
@@ -111,6 +112,21 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
   public static final String BROWSER_USER_AGENT =
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
+
+  public static final String IPD_METADATA_PID = "org.codice.ddf.security.idp.client.IdpMetadata";
+  public static final String IDP_ENDPOINT_PID = "org.codice.ddf.security.idp.server.IdpEndpoint";
+  public static final String IDP_METADATA_KEY = "metadata";
+  public static final String SP_METADATA_KEY = "spMetadata";
+  public static final String IDP_CLIENT_BUNDLE_NAME = "security-idp-client";
+  public static final String IDP_SERVER_BUNDLE_NAME = "security-idp-server";
+
+  private static Map<String, Object> oldPolicyManagerProps;
+
+  private static String openSearchPid;
+
+  private static Object spMetadataValue;
+
+  private static Object idpMetadataValue;
 
   private String ddfSpMetadataEntityId;
 
@@ -154,11 +170,14 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     // The IdP server can point to multiple Service Providers and as such expects an array.
     // Thus, even though we are only setting a single item, we must wrap it in an array.
-    setConfig("org.codice.ddf.security.idp.client.IdpMetadata", "metadata", metadata);
-    setConfig(
-        "org.codice.ddf.security.idp.server.IdpEndpoint",
-        "spMetadata",
-        new String[] {ddfSpMetadata});
+    idpMetadataValue =
+        setConfig(IPD_METADATA_PID, IDP_METADATA_KEY, metadata, IDP_CLIENT_BUNDLE_NAME);
+    spMetadataValue =
+        setConfig(
+            IDP_ENDPOINT_PID,
+            SP_METADATA_KEY,
+            new String[] {ddfSpMetadata},
+            IDP_SERVER_BUNDLE_NAME);
 
     Security security = Security.getInstance();
     systemSubject = security.runAsAdmin(security::getSystemSubject);
@@ -173,21 +192,19 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     for (String sessionName : activeSessions.keySet()) {
       systemSubject.execute(() -> sessionHandler.invalidateSession(sessionName));
     }
+
+    setConfig(IPD_METADATA_PID, IDP_METADATA_KEY, idpMetadataValue, IDP_CLIENT_BUNDLE_NAME);
+    setConfig(IDP_ENDPOINT_PID, SP_METADATA_KEY, spMetadataValue, IDP_SERVER_BUNDLE_NAME);
   }
 
   @BeforeExam
   public void beforeTest() throws Exception {
     try {
-      waitForSystemReady();
-      // Start the services needed for testing.
-      // We need to start the Search UI to test that it redirects properly
-      getServiceManager().startFeature(true, "security-idp");
-      getServiceManager().waitForAllBundles();
-
       ingest(
           getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
 
-      getSecurityPolicy().configureWebContextPolicy(IDP_AUTH_TYPES, null, null);
+      oldPolicyManagerProps =
+          getSecurityPolicy().configureWebContextPolicy(IDP_AUTH_TYPES, null, null);
       getServiceManager().waitForAllBundles();
 
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
@@ -200,11 +217,25 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
               OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
       openSearchProperties.put("username", "admin");
       openSearchProperties.put("password", "admin");
-      getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties);
+      openSearchPid =
+          getServiceManager()
+              .createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties)
+              .getPid();
       getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
     }
+  }
+
+  @AfterExam
+  public void afterExam() throws Exception {
+    if (oldPolicyManagerProps != null) {
+      getSecurityPolicy().updateWebContextPolicy(oldPolicyManagerProps);
+    }
+    if (openSearchPid != null) {
+      getServiceManager().stopManagedService(openSearchPid);
+    }
+    clearCatalogAndWait();
   }
 
   private void validateSaml(String xml, SamlSchema schema) throws IOException {
@@ -235,10 +266,18 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     }
   }
 
-  private void setConfig(String pid, String param, Object value) throws Exception {
+  private Object setConfig(String pid, String param, Object value, String symbolicName)
+      throws Exception {
 
     // Update the config
     Configuration config = getAdminConfig().getConfiguration(pid, null);
+
+    Object oldValue;
+    if (config.getProperties() == null || config.getProperties().get(param) == null) {
+      oldValue = getServiceManager().getMetatypeDefaults(symbolicName, pid).get(param);
+    } else {
+      oldValue = config.getProperties().get(param);
+    }
 
     config.update(
         new Hashtable<String, Object>() {
@@ -252,6 +291,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     expect("Configs to update")
         .within(2, TimeUnit.MINUTES)
         .until(() -> config.getProperties() != null && (config.getProperties().get(param) != null));
+
+    return oldValue;
   }
 
   private ResponseHelper getSearchResponse(boolean isPassiveRequest, String url) throws Exception {
@@ -321,7 +362,11 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
   private String setupHttpRequestUsingBinding(Binding requestBinding, Binding metadataBinding)
       throws Exception {
     // Signing is tested in the unit tests, so we don't require signing here to make things simpler
-    setConfig("org.codice.ddf.security.idp.server.IdpEndpoint", "strictSignature", false);
+    setConfig(
+        "org.codice.ddf.security.idp.server.IdpEndpoint",
+        "strictSignature",
+        false,
+        IDP_SERVER_BUNDLE_NAME);
 
     // Set the metadata
     String confluenceSpMetadata =
@@ -333,7 +378,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     setConfig(
         "org.codice.ddf.security.idp.server.IdpEndpoint",
         "spMetadata",
-        new String[] {confluenceSpMetadata});
+        new String[] {confluenceSpMetadata},
+        IDP_SERVER_BUNDLE_NAME);
 
     // Get the authn request
     String mockAuthnRequest =
