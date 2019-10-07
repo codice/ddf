@@ -44,22 +44,13 @@
         <div class="container marketing">
             <div class="page-header">
                 <h1>Documentation</h1>
-                    <h2>Current Version:</h2>
-                <div class="container">
-                    <h3 id="stable-version">Fetching latest version...</h3>
-                    <div class="row">
-                        <div class="col-md-8">
-                            <h4>Release Notes</h4>
-                            <p>What's new in this version, component list, and known issues. &nbsp;
-                                <a href="https://codice.atlassian.net/wiki/display/DDF/Release+Notes">Notes</a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                    <h2>Latest Stable Version: <span id="stable-version-no-link"></span></h2>
             </div>
-            <div class="container">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h3>DDF Documentation Library</h3></div>
+                <div class="panel-body">
+                    
                 <table class="table table-striped table-hover">
-                    <caption><h3>DDF Documentation Library</h3></caption>
                     <thead>
                         <tr>
                           <th scope="col">I want to...</th>
@@ -113,40 +104,58 @@
                           <td><a href="docs/metadata.html" target="_blank">Metadata Reference</a></th>
                           <td><a href="docs/metadata.pdf" target="_blank">pdf</a></td>
                         </tr>
+                        <tr>
+                          <td>View all DDF Documentation.</td>
+                          <td><a href="docs/documentation.html" target="_blank">Complete Documentation</a></th>
+                          <td><a href="docs/documentation.pdf" target="_blank">pdf</a></td>
+                        </tr>
+                        <tr>
+                          <td>See what's new in this version: New features, resolved issues, known issues.</td>
+                          <td><a href= "https://codice.atlassian.net/wiki/display/DDF/Release+Notes" target="_blank">Release Notes</a></th>
+                          <td></td>
+                        </tr>
                     </tbody>
                 </table>
-            </div>    
-            <h2>Development Version:</h2>
-            <p>Version currently in development</p>
-            <div class="container col-md-8">
+                </div>
+            </div>  
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h2>Development Version:</h2>
+                    </div>
+                    <div class="panel-body">
+                        <p>Version currently in development</p>
+                        <table class="table table-striped table-hover">
+                        <caption><h4>Complete DDF Documentation</h4></caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Download</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <a href="http://artifacts.codice.org//service/local/artifact/maven/redirect?g=ddf&a=docs&v=LATEST&r=public&c=documentation&e=html">html</a>
+                                    </td>
+                                    <td>
+                                        <a href="http://artifacts.codice.org//service/local/artifact/maven/redirect?g=ddf&a=docs&v=LATEST&r=public&c=documentation&e=pdf" target="_blank">pdf</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>     
+                </div>  
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2>Previous Versions:</h2>
+            </div>
+            <div class="panel-body">
                 <table class="table table-striped table-hover">
-                    <caption><h4>Complete DDF Documentation</h4></caption>
                     <thead>
-                        <tr>
-                            <th scope="col">Download</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <a href="http://artifacts.codice.org//service/local/artifact/maven/redirect?g=ddf&a=docs&v=LATEST&r=public&c=documentation&e=html">html</a>
-                            </td>
-                            <td>
-                                <a href="http://artifacts.codice.org//service/local/artifact/maven/redirect?g=ddf&a=docs&v=LATEST&r=public&c=documentation&e=pdf" target="_blank">pdf</a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            <hr>
-        <h2>Previous Versions:</h2>
-        <div class="container col-md-8">
-            <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th class="col-md-2">Version</th>
-                            <th class="col-md-2">Release Date</th>
-                            <th class="col-md-8 text-center" colspan="2">Download</th>
-                        </tr>
+                            <tr>
+                                <th class="col-md-2">Version</th>
+                                <th class="col-md-2">Release Date</th>
+                                <th class="col-md-8 text-center" colspan="2">Download</th>
+                            </tr>
                     </thead>
                     <tbody id="version-history-table">
                         <!-- New versions added from scripts.js -->
@@ -248,9 +257,10 @@
                             <td class="text-center"><a href="archive/DDF22x-docs.pdf" target="_blank">pdf</a></td>
                         </tr>
                     </tbody>
-                </table>
+                </table>              
             </div>
-            <footer>
+        </div>
+        <footer>
                 <div class="container">
                     <div class="row">
                         <div class="col-md-10">Website and software - <a href="http://www.codice.org" target="_blank">The Codice Foundation</a></div>
@@ -258,7 +268,7 @@
                         <div class="col-md-1"><a href="https://github.com/codice/ddf" target="_blank">GitHub</a></div>
                     </div>
                 </div>
-            </footer>
+        </footer>
         </div>
         
         <script src="js/jquery-1.11.3.min.js"></script>
