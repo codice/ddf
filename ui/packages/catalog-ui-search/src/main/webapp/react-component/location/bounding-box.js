@@ -87,13 +87,20 @@ const BoundingBoxLatLon = props => {
 }
 
 const BoundingBoxUsngMgrs = props => {
-  const { usngbb, cursor } = props
+  const { usngbbUpperLeft, usngbbLowerRight, cursor } = props
   return (
     <div className="input-location">
       <TextField
-        label="USNG / MGRS"
-        value={usngbb}
-        onChange={cursor('usngbb')}
+        label="Upper Left"
+        style={{ minWidth: 200 }}
+        value={usngbbUpperLeft}
+        onChange={cursor('usngbbUpperLeft')}
+      />
+      <TextField
+        label="Lower Right"
+        style={{ minWidth: 200 }}
+        value={usngbbLowerRight}
+        onChange={cursor('usngbbLowerRight')}
       />
     </div>
   )
