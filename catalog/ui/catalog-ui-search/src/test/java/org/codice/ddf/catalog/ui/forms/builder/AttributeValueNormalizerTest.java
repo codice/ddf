@@ -202,6 +202,14 @@ public class AttributeValueNormalizerTest {
         is(equalTo(VALID_RELATIVE_FUNCTION)));
   }
 
+  @Test
+  public void testBetweenFunctionToXml() {
+    when(registry.lookup(eq(PROPERTY_NAME))).thenReturn(Optional.of(DATE_DESCRIPTOR));
+    assertThat(
+        normalizer.normalizeForXml(PROPERTY_NAME, VALID_RELATIVE_FUNCTION),
+        is(equalTo(VALID_RELATIVE_FUNCTION)));
+  }
+
   @Test(expected = FilterProcessingException.class)
   public void testInvalidRelativeFunctionToXml() {
     when(registry.lookup(eq(PROPERTY_NAME))).thenReturn(Optional.of(DATE_DESCRIPTOR));

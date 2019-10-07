@@ -50,6 +50,9 @@ class AttributeValueNormalizer {
   private static final Pattern EXPECTED_RELATIVE_FUNCTION_PATTERN =
       Pattern.compile("RELATIVE\\(\\p{Alnum}+\\)");
 
+  private static final Pattern EXPECTED_BETWEEN_FUNCTION_PATTERN =
+      Pattern.compile("\\(\\p{Alnum}+\\)");
+
   private final AttributeRegistry registry;
 
   AttributeValueNormalizer(AttributeRegistry registry) {
@@ -113,6 +116,8 @@ class AttributeValueNormalizer {
       return "";
     }
 
+    //TODO look into exactly how relative gets created - that or find out if its okay to store the between
+    // as separated epoch millis
     // Edge case for relative date function
     if (EXPECTED_RELATIVE_FUNCTION_PATTERN.matcher(value).matches()) {
       return value;
