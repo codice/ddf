@@ -115,7 +115,6 @@ module.exports = Backbone.AssociatedModel.extend({
     dmsLatDirection: Direction.North,
     dmsLonDirection: Direction.East,
     bbox: undefined,
-    usngbb: undefined,
     usng: undefined,
     utmUps: undefined,
     color: undefined,
@@ -141,6 +140,8 @@ module.exports = Backbone.AssociatedModel.extend({
     utmUpsNorthing: undefined,
     utmUpsZone: 1,
     utmUpsHemisphere: 'Northern',
+    usngbbUpperLeft: undefined,
+    usngbbLowerRight: undefined,
   },
   set(key, value, options) {
     if (!_.isObject(key)) {
@@ -192,10 +193,14 @@ module.exports = Backbone.AssociatedModel.extend({
       'change:dmsLon change:dmsLonDirection',
       this.setRadiusDmsLon
     )
+    this.listenTo(
+      this,
+      'change:usngbbUpperLeft change:usngbbLowerRight',
+      this.setBboxUsngUL
+    )
     this.listenTo(this, 'change:locationType', this.handleLocationType)
     this.listenTo(this, 'change:bbox', this.setBboxLatLon)
     this.listenTo(this, 'change:lat change:lon', this.setRadiusLatLon)
-    this.listenTo(this, 'change:usngbb', this.setBboxUsng)
     this.listenTo(this, 'change:usng', this.setRadiusUsng)
     this.listenTo(
       this,
@@ -260,9 +265,9 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   repositionLatLon() {
-    if (this.get('usngbb') !== undefined) {
+    const result = this.usngBbToLatLon()
+    if (result !== undefined) {
       try {
-        const result = converter.USNGtoLL(this.get('usngbb'))
         const newResult = {}
         newResult.mapNorth = result.north
         newResult.mapSouth = result.south
@@ -334,10 +339,11 @@ module.exports = Backbone.AssociatedModel.extend({
           result.west !== undefined &&
           result.east !== undefined
         ) &&
-        this.get('usngbb')
+        this.get('usngbbUpperLeft') &&
+        this.get('usngbbLowerRight')
       ) {
         try {
-          result = converter.USNGtoLL(this.get('usngbb'))
+          result = this.usngBbToLatLon()
         } catch (err) {
           // do nothing
         }
@@ -422,15 +428,19 @@ module.exports = Backbone.AssociatedModel.extend({
     const lat = (north + south) / 2
     const lon = (east + west) / 2
     if (this.isInUpsSpace(lat, lon)) {
-      this.set('usngbb', undefined)
+      this.set({
+        usngbbUpperLeft: undefined,
+        usngbbLowerRight: undefined,
+      })
       return
     }
 
-    const usngsStr = converter.LLBboxtoUSNG(north, south, east, west)
+    const result = this.usngBbFromLatLon({ north, west, south, east })
 
-    this.set('usngbb', usngsStr, {
+    this.set(result, {
       silent: this.get('locationType') !== 'usng',
     })
+
     if (this.get('locationType') === 'usng' && this.drawing) {
       this.repositionLatLon()
     }
@@ -473,6 +483,65 @@ module.exports = Backbone.AssociatedModel.extend({
 
   setRadiusDmsLon() {
     this.setLatLonFromDms('dmsLon', 'dmsLonDirection', 'lon')
+  },
+
+  usngBbFromLatLon({ north, west, south, east }) {
+    const usngbbUpperLeft = converter.LLtoUSNG(north, west, usngPrecision)
+    const usngbbLowerRight = converter.LLtoUSNG(south, east, usngPrecision)
+    return {
+      usngbbUpperLeft,
+      usngbbLowerRight,
+    }
+  },
+
+  usngBbToLatLon() {
+    if (
+      this.get('usngbbUpperLeft') !== undefined &&
+      this.get('usngbbLowerRight') !== undefined
+    ) {
+      const { north, west } = converter.USNGtoLL(this.get('usngbbUpperLeft'))
+      const { south, east } = converter.USNGtoLL(this.get('usngbbLowerRight'))
+      return { north, south, east, west }
+    }
+  },
+
+  setBboxUsngUL() {
+    if (this.get('locationType') !== 'usng') {
+      return
+    }
+
+    const { north, west, south, east } = this.usngBbToLatLon()
+
+    this.set({
+      mapNorth: north,
+      mapSouth: south,
+      mapEast: east,
+      mapWest: west,
+    })
+
+    this.set(
+      {
+        north,
+        west,
+        south,
+        east,
+      },
+      {
+        silent: true,
+      }
+    )
+
+    let utmUps = this.LLtoUtmUps(north, west)
+    if (utmUps !== undefined) {
+      const utmUpsFormatted = this.formatUtmUps(utmUps)
+      this.setUtmUpsUpperLeft(utmUpsFormatted, true)
+    }
+
+    utmUps = this.LLtoUtmUps(south, east)
+    if (utmUps !== undefined) {
+      const utmUpsFormatted = this.formatUtmUps(utmUps)
+      this.setUtmUpsLowerRight(utmUpsFormatted, true)
+    }
   },
 
   setBboxUsng() {
@@ -658,7 +727,8 @@ module.exports = Backbone.AssociatedModel.extend({
             mapSouth: undefined,
             mapEast: undefined,
             mapWest: undefined,
-            usngbb: undefined,
+            usngbbUpperLeft: undefined,
+            usngbbLowerRight: undefined,
           })
         }
       }
@@ -685,7 +755,8 @@ module.exports = Backbone.AssociatedModel.extend({
             mapSouth: undefined,
             mapEast: undefined,
             mapWest: undefined,
-            usngbb: undefined,
+            usngbbUpperLeft: undefined,
+            usngbbLowerRight: undefined,
           })
         }
       }
@@ -699,17 +770,20 @@ module.exports = Backbone.AssociatedModel.extend({
     const lon = (upperLeft.lon + lowerRight.lon) / 2
 
     if (!this.isLatLonValid(lat, lon) || this.isInUpsSpace(lat, lon)) {
-      this.set('usngbb', undefined)
+      this.set({
+        usngbbUpperLeft: undefined,
+        usngbbLowerRight: undefined,
+      })
       return
     }
 
-    const usngsStr = converter.LLBboxtoUSNG(
-      upperLeft.lat,
-      lowerRight.lat,
-      lowerRight.lon,
-      upperLeft.lon
-    )
-    this.set('usngbb', usngsStr, {
+    const result = this.usngBbFromLatLon({
+      north: upperLeft.lat,
+      south: lowerRight.lat,
+      east: lowerRight.lon,
+      west: upperLeft.lon,
+    })
+    this.set(result, {
       silent: this.get('locationType') === 'usng',
     })
   },
