@@ -20,7 +20,6 @@
 const moment = require('moment')
 
 const ANYTEXT_WILDCARD = '"anyText" ILIKE \'%\''
-const ANYTEXT_EMPTY = '"anyText" ILIKE \'\''
 
 const comparisonClass = 'Comparison',
   logicalClass = 'Logical',
@@ -750,5 +749,4 @@ module.exports = {
   translateCqlToUserql,
   translateUserqlToCql,
   ANYTEXT_WILDCARD,
-  ANYTEXT_EMPTY,
 }

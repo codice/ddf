@@ -161,7 +161,7 @@ module.exports = Marionette.LayoutView.extend({
   },
   serializeData() {
     return {
-      cql: cql.ANYTEXT_EMPTY,
+      cql: 'anyText ILIKE ""',
     }
   },
   handleEditing() {
