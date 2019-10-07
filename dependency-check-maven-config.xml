@@ -161,14 +161,6 @@
     </suppress>
     <suppress>
         <notes>
-            These CVEs apply to the Hawtio console which is not exposed in this system.
-            artemis-core-client-2.1.0.jar and activemq-client-5.14.5.jar
-        </notes>
-        <cve>CVE-2015-5184</cve>
-        <cve>CVE-2015-5183</cve>
-    </suppress>
-    <suppress>
-        <notes>
             These CVEs apply to org.apache.geronimo:geronimo which is not a dependency of any of
             these artifacts.
 
@@ -286,10 +278,8 @@
     </suppress>
     <suppress>
         <notes>
-            Apache httpd vulnerabilities inaccurately associated with artemis-server-osgi-2.4.0.jar
-            and cxf-rt-transports-http-netty-server-3.2.5.jar in the DDF distribution.
-            artemis-server-osgi-2.6.2.jar
-            cxf-rt-transports-http-netty-server-3.2.6.jar
+            Apache httpd vulnerabilities inaccurately associated with
+            cxf-rt-transports-http-netty-server-3.2.5.jar in the DDF distribution.
         </notes>
         <cve>CVE-1999-0236</cve>
         <cve>CVE-1999-1237</cve>
