@@ -77,7 +77,7 @@ module.exports = Backbone.Collection.extend({
     let cqlQuery
     let title = text
     if (text.length === 0) {
-      cqlQuery = cql.ANYTEXT_WILDCARD,
+      cqlQuery = cql.ANYTEXT_WILDCARD
       title = '*'
     } else {
       cqlQuery = cql.write({
