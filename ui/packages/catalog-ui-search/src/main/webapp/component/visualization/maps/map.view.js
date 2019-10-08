@@ -472,7 +472,6 @@ module.exports = Marionette.LayoutView.extend({
       let locationModel
       const value = filter.value
       switch (filter.type) {
-
         case 'DWITHIN':
           if (CQLUtils.isPolygonFilter(value)) {
             this.handleFilterAsPolygon(value, color, filter.distance)
