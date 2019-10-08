@@ -470,14 +470,16 @@ module.exports = Marionette.LayoutView.extend({
     } else {
       let pointText
       let locationModel
+      const value = filter.value
       switch (filter.type) {
+
         case 'DWITHIN':
-          if (CQLUtils.isPolygonFilter(filter.value)) {
-            this.handleFilterAsPolygon(filter.value, color, filter.distance)
+          if (CQLUtils.isPolygonFilter(value)) {
+            this.handleFilterAsPolygon(value, color, filter.distance)
             break
           }
-          if (CQLUtils.isPointRadiusFilter(filter.value)) {
-            pointText = filter.value.value.substring(6)
+          if (CQLUtils.isPointRadiusFilter(value)) {
+            pointText = value.value.substring(6)
             pointText = pointText.substring(0, pointText.length - 1)
             const latLon = pointText.split(' ')
             locationModel = new LocationModel({
@@ -488,7 +490,7 @@ module.exports = Marionette.LayoutView.extend({
             })
             this.map.showCircleShape(locationModel)
           } else {
-            pointText = filter.value.value.substring(11)
+            pointText = value.value.substring(11)
             pointText = pointText.substring(0, pointText.length - 1)
             locationModel = new LocationModel({
               lineWidth: filter.distance,
@@ -503,7 +505,7 @@ module.exports = Marionette.LayoutView.extend({
           }
           break
         case 'INTERSECTS':
-          this.handleFilterAsPolygon(filter.value, color, filter.distance)
+          this.handleFilterAsPolygon(value, color, filter.distance)
           break
       }
     }
