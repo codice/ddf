@@ -454,7 +454,12 @@ module.exports = Marionette.LayoutView.extend({
       .get('preferences')
       .get('resultFilter')
     if (resultFilter) {
-      this.handleFilter(CQLUtils.transformCQLToFilter(resultFilter), '#c89600')
+      this.handleFilter(
+        CQLUtils.transformCQLToFilter(
+          CQLUtils.transformFilterToCQL(resultFilter)
+        ),
+        '#c89600'
+      )
     }
   },
   handleFilter(filter, color) {

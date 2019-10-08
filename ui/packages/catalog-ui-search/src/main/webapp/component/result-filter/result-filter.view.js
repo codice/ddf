@@ -44,14 +44,14 @@ module.exports = Marionette.LayoutView.extend({
   onRender() {
     const resultFilter = this.getResultFilter()
     let filter
-    if (resultFilter) {
-      filter = cql.simplify(cql.read(resultFilter))
-    } else {
+    if (!resultFilter) {
       filter = {
         property: 'anyText',
         value: '',
         type: 'ILIKE',
       }
+    } else {
+      filter = resultFilter
     }
     this.editorProperties.show(
       new FilterBuilderView({
@@ -64,7 +64,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleFilter()
   },
   getFilter() {
-    return this.editorProperties.currentView.transformToCql()
+    return this.editorProperties.currentView.getFilters()
   },
   removeFilter() {
     user
