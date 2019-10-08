@@ -63,9 +63,6 @@ const ResultSelector = Marionette.LayoutView.extend({
       .get('user')
       .get('preferences')
       .get('resultFilter')
-    if (resultFilter) {
-      //resultFilter = cql.simplify(cql.read(resultFilter))
-    }
     resultFilter = mixinBlackListCQL(resultFilter)
     const filteredResults = this.model
       .get('result')
