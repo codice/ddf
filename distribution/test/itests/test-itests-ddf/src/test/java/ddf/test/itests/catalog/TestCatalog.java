@@ -103,8 +103,6 @@ import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
-import org.codice.ddf.test.common.LoggingUtils;
-import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.json.simple.JSONObject;
@@ -176,15 +174,6 @@ public class TestCatalog extends AbstractIntegrationTest {
             XML_RECORD_RESOURCE_PATH + "/SimpleXmlNoDecMetacard", ImmutableMap.of("uri", uri));
   }
 
-  @BeforeExam
-  public void beforeExam() {
-    try {
-      waitForSystemReady();
-    } catch (Exception e) {
-      LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
-    }
-  }
-
   @Before
   public void setup() {
     urlResourceReaderConfigurator = getUrlResourceReaderConfigurator();
@@ -194,7 +183,7 @@ public class TestCatalog extends AbstractIntegrationTest {
   public void tearDown() throws IOException {
     urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
         DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS);
-    clearCatalog();
+    clearCatalogAndWait();
   }
 
   @Test
@@ -2281,7 +2270,6 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   private void persistToWorkspace(int size) throws Exception {
-    getServiceManager().startFeature(true, "search-ui-app");
     // Generate very large data block
     Map<String, String> map = Maps.newHashMap();
     for (int i = 0; i < size; i++) {

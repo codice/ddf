@@ -85,8 +85,6 @@ public class TestFtp extends AbstractIntegrationTest {
   @BeforeExam
   public void beforeExam() throws Exception {
     try {
-      waitForSystemReady();
-
       System.setProperty(FTP_PORT_PROPERTY, FTP_PORT.getPort());
       getServiceManager().startFeature(true, FTP_ENDPOINT_FEATURE);
 

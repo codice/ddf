@@ -82,6 +82,7 @@ import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.opensearch.OpenSearchFeature;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.hamcrest.xml.HasXPath;
 import org.junit.After;
@@ -90,7 +91,6 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
-import org.osgi.service.cm.Configuration;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerSuite.class)
@@ -359,11 +359,11 @@ public class TestSecurity extends AbstractIntegrationTest {
           + "   </soap:Body>\n"
           + "</soap:Envelope>";
 
-  @BeforeExam
-  public void beforeTest() throws Exception {
-    try {
-      waitForSystemReady();
+  private static Dictionary<String, Object> adminConfigProps;
 
+  @BeforeExam
+  public void beforeExam() throws Exception {
+    try {
       List<String> featurePolicies = new ArrayList<>();
       featurePolicies.addAll(Arrays.asList(getDefaultRequiredApps()));
       featurePolicies.addAll(FEATURES_TO_FILTER);
@@ -379,14 +379,23 @@ public class TestSecurity extends AbstractIntegrationTest {
                   + "=\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=admin\"");
 
       String adminConfigPolicyPid = "org.codice.ddf.admin.config.policy.AdminConfigPolicy";
-      Configuration config = getAdminConfig().getConfiguration(adminConfigPolicyPid);
-      config.setBundleLocation(
-          "mvn:ddf.admin.core/admin-core-configpolicy/" + System.getProperty("ddf.version"));
+      getAdminConfig()
+          .getConfiguration(adminConfigPolicyPid)
+          .setBundleLocation(
+              "mvn:ddf.admin.core/admin-core-configpolicy/" + System.getProperty("ddf.version"));
 
-      configureAdminConfigPolicy(featurePolicies, servicePolicies, getAdminConfig());
+      adminConfigProps =
+          configureAdminConfigPolicy(featurePolicies, servicePolicies, getAdminConfig());
 
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
+    }
+  }
+
+  @AfterExam
+  public void afterExam() throws Exception {
+    if (adminConfigProps != null) {
+      configureAdminConfigPolicy(adminConfigProps, getAdminConfig());
     }
   }
 
@@ -636,30 +645,43 @@ public class TestSecurity extends AbstractIntegrationTest {
     Map<String, Object> openSearchProperties =
         getOpenSearchSourceProperties(
             OPENSEARCH_SAML_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
-    getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties);
+    String opensearchPid =
+        getServiceManager()
+            .createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties)
+            .getPid();
 
-    getCatalogBundle().waitForFederatedSource(OPENSEARCH_SAML_SOURCE_ID);
+    try {
+      getCatalogBundle().waitForFederatedSource(OPENSEARCH_SAML_SOURCE_ID);
 
-    String openSearchQuery =
-        SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SAML_SOURCE_ID;
-    waitForSecurityHandlers(openSearchQuery);
-    given()
-        .when()
-        .get(openSearchQuery)
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .statusCode(equalTo(200))
-        .assertThat()
-        .body(
-            hasXPath("//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
+      String openSearchQuery =
+          SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SAML_SOURCE_ID;
+      waitForSecurityHandlers(openSearchQuery);
+      given()
+          .when()
+          .get(openSearchQuery)
+          .then()
+          .log()
+          .ifValidationFails()
+          .assertThat()
+          .statusCode(equalTo(200))
+          .assertThat()
+          .body(
+              hasXPath(
+                  "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
 
-    delete(recordId);
+      delete(recordId);
+    } finally {
+      getServiceManager().stopManagedService(opensearchPid);
+    }
   }
 
   @Test
   public void testBasicFederatedAuth() throws Exception {
+    String opensearchPid;
+    String cswPid = null;
+    String unavailableCswPid = null;
+    String unavailableOpenSearchPid = null;
+
     configureRestForGuest(SDK_SOAP_CONTEXT);
     getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
 
@@ -674,99 +696,129 @@ public class TestSecurity extends AbstractIntegrationTest {
             OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
     openSearchProperties.put("username", "admin");
     openSearchProperties.put("password", "admin");
-    getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties);
+    opensearchPid =
+        getServiceManager()
+            .createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties)
+            .getPid();
 
-    Map<String, Object> cswProperties =
-        getCswSourceProperties(CSW_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager());
-    cswProperties.put("username", "admin");
-    cswProperties.put("password", "admin");
-    getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties);
+    try {
+      Map<String, Object> cswProperties =
+          getCswSourceProperties(CSW_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager());
+      cswProperties.put("username", "admin");
+      cswProperties.put("password", "admin");
+      cswPid =
+          getServiceManager()
+              .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties)
+              .getPid();
 
-    getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
-    getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
+      getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
+      getCatalogBundle().waitForFederatedSource(CSW_SOURCE_ID);
 
-    String openSearchQuery =
-        SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
-    waitForSecurityHandlers(openSearchQuery);
-    getSecurityPolicy().waitForBasicAuthReady(openSearchQuery);
-    given()
-        .auth()
-        .basic("admin", "admin")
-        .when()
-        .get(openSearchQuery)
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .statusCode(equalTo(200))
-        .assertThat()
-        .body(
-            hasXPath("//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
+      String openSearchQuery =
+          SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SOURCE_ID;
+      waitForSecurityHandlers(openSearchQuery);
+      getSecurityPolicy().waitForBasicAuthReady(openSearchQuery);
+      given()
+          .auth()
+          .basic("admin", "admin")
+          .when()
+          .get(openSearchQuery)
+          .then()
+          .log()
+          .ifValidationFails()
+          .assertThat()
+          .statusCode(equalTo(200))
+          .assertThat()
+          .body(
+              hasXPath(
+                  "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
 
-    String cswQuery = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + CSW_SOURCE_ID;
-    given()
-        .auth()
-        .basic("admin", "admin")
-        .when()
-        .get(cswQuery)
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .statusCode(equalTo(200))
-        .assertThat()
-        .body(
-            hasXPath("//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
+      String cswQuery = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + CSW_SOURCE_ID;
+      given()
+          .auth()
+          .basic("admin", "admin")
+          .when()
+          .get(cswQuery)
+          .then()
+          .log()
+          .ifValidationFails()
+          .assertThat()
+          .statusCode(equalTo(200))
+          .assertThat()
+          .body(
+              hasXPath(
+                  "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
 
-    // Negative tests
-    String unavailableCswSourceId = "Unavailable Csw";
-    cswProperties =
-        getCswSourceProperties(unavailableCswSourceId, CSW_PATH.getUrl(), getServiceManager());
-    cswProperties.put("username", "bad");
-    cswProperties.put("password", "auth");
-    getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties);
+      // Negative tests
+      String unavailableCswSourceId = "Unavailable Csw";
+      cswProperties =
+          getCswSourceProperties(unavailableCswSourceId, CSW_PATH.getUrl(), getServiceManager());
+      cswProperties.put("username", "bad");
+      cswProperties.put("password", "auth");
+      unavailableCswPid =
+          getServiceManager()
+              .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties)
+              .getPid();
 
-    String cswQueryUnavail =
-        SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableCswSourceId;
-    given()
-        .auth()
-        .basic("admin", "admin")
-        .when()
-        .get(cswQueryUnavail)
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .statusCode(equalTo(500));
+      String cswQueryUnavail =
+          SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableCswSourceId;
+      given()
+          .auth()
+          .basic("admin", "admin")
+          .when()
+          .get(cswQueryUnavail)
+          .then()
+          .log()
+          .ifValidationFails()
+          .assertThat()
+          .statusCode(equalTo(500));
 
-    String unavailableOpenSourceId = "unavailableOpenSearchSource";
+      String unavailableOpenSourceId = "unavailableOpenSearchSource";
 
-    OpenSearchFeature.createManagedService(
-        getServiceManager(), unavailableOpenSourceId, "bad", "auth");
-    getCatalogBundle().waitForFederatedSource(unavailableOpenSourceId);
+      unavailableOpenSearchPid =
+          OpenSearchFeature.createManagedService(
+                  getServiceManager(), unavailableOpenSourceId, "bad", "auth")
+              .getPid();
+      getCatalogBundle().waitForFederatedSource(unavailableOpenSourceId);
 
-    String unavailableOpenSearchQuery =
-        SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableOpenSourceId;
+      String unavailableOpenSearchQuery =
+          SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + unavailableOpenSourceId;
 
-    given()
-        .auth()
-        .basic("admin", "admin")
-        .when()
-        .get(unavailableOpenSearchQuery)
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .statusCode(equalTo(200))
-        .assertThat()
-        .body(
-            not(
-                hasXPath(
-                    "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']")));
+      given()
+          .auth()
+          .basic("admin", "admin")
+          .when()
+          .get(unavailableOpenSearchQuery)
+          .then()
+          .log()
+          .ifValidationFails()
+          .assertThat()
+          .statusCode(equalTo(200))
+          .assertThat()
+          .body(
+              not(
+                  hasXPath(
+                      "//metacard/string[@name='"
+                          + Metacard.TITLE
+                          + "']/value[text()='myTitle']")));
 
-    configureRestForGuest(SDK_SOAP_CONTEXT);
-    getSecurityPolicy().waitForGuestAuthReady(openSearchQuery);
-    delete(recordId);
+      configureRestForGuest(SDK_SOAP_CONTEXT);
+      getSecurityPolicy().waitForGuestAuthReady(openSearchQuery);
+      delete(recordId);
+    } finally {
+      if (cswPid != null) {
+        getServiceManager().stopManagedService(cswPid);
+      }
+      if (opensearchPid != null) {
+        getServiceManager().stopManagedService(opensearchPid);
+      }
+      if (unavailableCswPid != null) {
+        getServiceManager().stopManagedService(unavailableCswPid);
+      }
+      if (unavailableOpenSearchPid != null) {
+        getServiceManager().stopManagedService(unavailableOpenSearchPid);
+      }
+    }
   }
 
   @Test
@@ -804,35 +856,38 @@ public class TestSecurity extends AbstractIntegrationTest {
   public void testGuestSoapAccessHttp() throws Exception {
     getServiceManager().startFeature(true, "platform-http-proxy");
 
-    String body =
-        "<soapenv:Envelope xmlns:hel=\"http://ddf.sdk/soap/hello\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
-            + "   <soapenv:Header>\n"
-            + "   </soapenv:Header>\n"
-            + "   <soapenv:Body>\n"
-            + "      <hel:helloWorld/>\n"
-            + "   </soapenv:Body>\n"
-            + "</soapenv:Envelope>";
-    // we are only testing guest because that hits the most code, testing with an assertion would be
-    // mostly testing the same stuff that this is hitting
-    given()
-        .log()
-        .ifValidationFails()
-        .body(body)
-        .header("Content-Type", "text/xml; charset=utf-8")
-        .header("SOAPAction", "helloWorld")
-        .expect()
-        .statusCode(equalTo(200))
-        .when()
-        .post(INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapService")
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .body(
-            HasXPath.hasXPath(
-                "//*[local-name()='helloWorldResponse']/result/text()", containsString("Guest")));
-
-    getServiceManager().stopFeature(false, "platform-http-proxy");
+    try {
+      String body =
+          "<soapenv:Envelope xmlns:hel=\"http://ddf.sdk/soap/hello\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
+              + "   <soapenv:Header>\n"
+              + "   </soapenv:Header>\n"
+              + "   <soapenv:Body>\n"
+              + "      <hel:helloWorld/>\n"
+              + "   </soapenv:Body>\n"
+              + "</soapenv:Envelope>";
+      // we are only testing guest because that hits the most code, testing with an assertion would
+      // be
+      // mostly testing the same stuff that this is hitting
+      given()
+          .log()
+          .ifValidationFails()
+          .body(body)
+          .header("Content-Type", "text/xml; charset=utf-8")
+          .header("SOAPAction", "helloWorld")
+          .expect()
+          .statusCode(equalTo(200))
+          .when()
+          .post(INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapService")
+          .then()
+          .log()
+          .ifValidationFails()
+          .assertThat()
+          .body(
+              HasXPath.hasXPath(
+                  "//*[local-name()='helloWorldResponse']/result/text()", containsString("Guest")));
+    } finally {
+      getServiceManager().stopFeature(false, "platform-http-proxy");
+    }
   }
 
   /* These STS tests are here to prove out functionality that doesn't get hit when accessing internal services. The standard UsernameToken and BinarySecurityToken elements are supported

@@ -17,9 +17,14 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
 
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.ServiceManager;
@@ -59,28 +64,28 @@ public class SecurityPolicyConfigurator {
     this.configAdmin = configAdmin;
   }
 
-  public void configureRestForGuest() throws Exception {
-    configureRestForGuest(null);
+  public Map<String, Object> configureRestForGuest() throws Exception {
+    return configureRestForGuest(null);
   }
 
-  public void configureRestForGuest(String whitelist) throws Exception {
-    configureWebContextPolicy(GUEST_AUTH_TYPES, null, createWhitelist(whitelist));
+  public Map<String, Object> configureRestForGuest(String whitelist) throws Exception {
+    return configureWebContextPolicy(GUEST_AUTH_TYPES, null, createWhitelist(whitelist));
   }
 
-  public void configureRestForBasic() throws Exception {
-    configureRestForBasic(null);
+  public Map<String, Object> configureRestForBasic() throws Exception {
+    return configureRestForBasic(null);
   }
 
-  public void configureRestForBasic(String whitelist) throws Exception {
-    configureWebContextPolicy(BASIC_AUTH_TYPES, null, createWhitelist(whitelist));
+  public Map<String, Object> configureRestForBasic(String whitelist) throws Exception {
+    return configureWebContextPolicy(BASIC_AUTH_TYPES, null, createWhitelist(whitelist));
   }
 
-  public void configureRestForSaml(String whitelist) throws Exception {
-    configureWebContextPolicy(SAML_AUTH_TYPES, null, createWhitelist(whitelist));
+  public Map<String, Object> configureRestForSaml(String whitelist) throws Exception {
+    return configureWebContextPolicy(SAML_AUTH_TYPES, null, createWhitelist(whitelist));
   }
 
-  public void configureRestForPki(String whitelist) throws Exception {
-    configureWebContextPolicy(PKI_AUTH_TYPES, null, createWhitelist(whitelist));
+  public Map<String, Object> configureRestForPki(String whitelist) throws Exception {
+    return configureWebContextPolicy(PKI_AUTH_TYPES, null, createWhitelist(whitelist));
   }
 
   public void waitForBasicAuthReady(String url) {
@@ -129,7 +134,7 @@ public class SecurityPolicyConfigurator {
     return DEFAULT_WHITELIST + (StringUtils.isNotBlank(whitelist) ? "," + whitelist : "");
   }
 
-  public void configureWebContextPolicy(
+  public Map<String, Object> configureWebContextPolicy(
       String authTypes, String requiredAttributes, String whitelist) throws Exception {
 
     Map<String, Object> policyProperties = null;
@@ -159,11 +164,28 @@ public class SecurityPolicyConfigurator {
 
     putPolicyValues(policyProperties, "sessionAccess", true);
 
-    new SynchronizedConfiguration(
-            FACTORY_PID, null, policyProperties, createChecker(policyProperties), configAdmin)
-        .updateConfig();
+    return updateWebContextPolicy(policyProperties);
+  }
+
+  public Map<String, Object> updateWebContextPolicy(Map<String, Object> policyProperties)
+      throws Exception {
+    Dictionary<String, Object> oldProps =
+        new SynchronizedConfiguration(
+                FACTORY_PID, null, policyProperties, createChecker(policyProperties), configAdmin)
+            .updateConfig();
 
     services.waitForAllBundles();
+
+    return convertToMap(oldProps);
+  }
+
+  private Map<String, Object> convertToMap(Dictionary<String, Object> oldProps) {
+    if (oldProps == null || oldProps.isEmpty()) {
+      return services.getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID);
+    } else {
+      List<String> keys = Collections.list(oldProps.keys());
+      return keys.stream().collect(Collectors.toMap(Function.identity(), oldProps::get));
+    }
   }
 
   private void putPolicyValues(Map<String, Object> properties, String key, String value) {

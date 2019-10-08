@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.MediaType;
 import org.apache.http.HttpStatus;
@@ -53,12 +54,13 @@ public class TestFanout extends AbstractIntegrationTest {
   // Using default resource tag as the one to blacklist
   private static final List<String> TAG_BLACKLIST = Collections.singletonList("resource");
 
+  private static Map<String, Object> oldPolicyManagerProps;
+
   @BeforeExam
   public void beforeExam() throws Exception {
     try {
-      waitForSystemReady();
-      getSecurityPolicy().configureWebContextPolicy("/=IDP|GUEST", null, null);
-      waitForSystemReady();
+      oldPolicyManagerProps =
+          getSecurityPolicy().configureWebContextPolicy("/=IDP|GUEST", null, null);
 
       getCatalogBundle().setFanout(true);
       getCatalogBundle().waitForCatalogProvider();
@@ -70,6 +72,9 @@ public class TestFanout extends AbstractIntegrationTest {
 
   @AfterExam
   public void afterExam() throws Exception {
+    if (oldPolicyManagerProps != null) {
+      getSecurityPolicy().updateWebContextPolicy(oldPolicyManagerProps);
+    }
     getCatalogBundle().setFanout(false);
     getCatalogBundle().setFanoutTagBlacklist(TAG_BLACKLIST);
     getCatalogBundle().waitForCatalogProvider();

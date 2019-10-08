@@ -21,6 +21,7 @@ import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SE
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_LIKE;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
+import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.options;
@@ -75,6 +76,8 @@ import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.itests.common.security.SecurityPolicyConfigurator;
 import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.BeforeSuite;
+import org.codice.ddf.test.common.annotations.ExamResultLogger;
 import org.codice.ddf.test.common.annotations.PaxExamRule;
 import org.codice.ddf.test.common.annotations.PostTestConstruct;
 import org.junit.Rule;
@@ -162,6 +165,8 @@ public abstract class AbstractIntegrationTest {
   protected static String ddfHome;
 
   @Rule public PaxExamRule paxExamRule = new PaxExamRule(this);
+
+  @Rule public ExamResultLogger resultLogger = new ExamResultLogger();
 
   @Rule public Stopwatch stopwatch = new TestMethodTimer();
 
@@ -406,6 +411,15 @@ public abstract class AbstractIntegrationTest {
     manager.waitForSystemBaseState();
   }
 
+  @BeforeSuite
+  public void beforeSuite() throws Exception {
+    try {
+      waitForSystemReady();
+    } catch (Exception e) {
+      LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeSuite: ");
+    }
+  }
+
   /**
    * Configures the pax exam test container
    *
@@ -596,6 +610,8 @@ public abstract class AbstractIntegrationTest {
     return options(
         editConfigurationFilePut(
             LOGGER_CONFIGURATION_FILE_PATH, "log4j2.rootLogger.level", globalLogLevel),
+        // Always print the start/stop/result of individual test methods
+        composite(createSetLogLevelOption("org.codice.ddf.test.common.annotations", "INFO")),
         when(StringUtils.isNotEmpty(itestLevel))
             .useOptions(
                 combineOptions(

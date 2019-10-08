@@ -48,6 +48,7 @@ import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
 import org.codice.ddf.security.common.Security;
 import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
@@ -89,6 +90,8 @@ public class TestRegistry extends AbstractIntegrationTest {
   private static String storeId;
 
   private static FederatedCswMockServer cswServer;
+
+  private static String registryPid;
 
   private Set<String> destinations;
 
@@ -170,9 +173,7 @@ public class TestRegistry extends AbstractIntegrationTest {
   @BeforeExam
   public void beforeExam() throws Exception {
     try {
-      waitForSystemReady();
       getServiceManager().startFeature(true, CATALOG_REGISTRY);
-      getServiceManager().waitForAllBundles();
       getServiceManager().startFeature(true, CATALOG_REGISTRY_CORE);
       getServiceManager().waitForAllBundles();
 
@@ -191,13 +192,15 @@ public class TestRegistry extends AbstractIntegrationTest {
       cswServer.setupDefaultQueryResponseExpectation(defaultResponse);
       cswServer.start();
       waitForMockServer();
-      getServiceManager()
-          .createManagedService(
-              FACTORY_PID,
-              getCswRegistryStoreProperties(
-                  REGISTRY_CATALOG_STORE_ID,
-                  "http://localhost:" + CSW_STUB_SERVER_PORT.getPort() + "/services/csw",
-                  getServiceManager()));
+      registryPid =
+          getServiceManager()
+              .createManagedService(
+                  FACTORY_PID,
+                  getCswRegistryStoreProperties(
+                      REGISTRY_CATALOG_STORE_ID,
+                      "http://localhost:" + CSW_STUB_SERVER_PORT.getPort() + "/services/csw",
+                      getServiceManager()))
+              .getPid();
       storeId =
           String.format(
               "RemoteRegistry (localhost:%s) (%s)",
@@ -206,6 +209,18 @@ public class TestRegistry extends AbstractIntegrationTest {
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeExam: ");
     }
+  }
+
+  @AfterExam
+  public void afterExam() throws Exception {
+    if (registryPid != null) {
+      getServiceManager().stopManagedService(registryPid);
+    }
+    if (cswServer != null) {
+      cswServer.stop();
+    }
+    getServiceManager().stopFeature(true, CATALOG_REGISTRY);
+    getServiceManager().stopFeature(true, CATALOG_REGISTRY_CORE);
   }
 
   @Before
