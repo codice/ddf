@@ -50,7 +50,7 @@ const isValidFacetAttribute = (id, type) => {
   if (id === 'anyText') {
     return false
   }
-  if (!properties.facetWhitelist.includes(id)) {
+  if (!properties.attributeSuggestionList.includes(id)) {
     return false
   }
   return true
