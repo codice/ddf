@@ -69,10 +69,10 @@ const transformFilter = filter => {
 
   const value = CQLUtils.isGeoFilter(filter.type) ? filter : filter.value
   if (type === 'DURING') {
-    if (filter.value.indexOf('/') >= 0){
+    if (filter.value.indexOf('/') >= 0) {
       const dates = filter.value.split('/')
-      filter.to = dates[0] || null
-      filter.from = dates[1] || null
+      filter.from = dates[0] || null
+      filter.to = dates[1] || null
     }
   }
 
@@ -213,8 +213,8 @@ export const deserialize = (filter = defaultFilter) => {
   return new FilterBuilderModel({
     operator: type,
     filters: new FilterBuilderCollection(
-      filters.map(
-        filter => (filter.filters !== undefined ? deserialize(filter) : filter)
+      filters.map(filter =>
+        filter.filters !== undefined ? deserialize(filter) : filter
       )
     ),
   })
