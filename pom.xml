@@ -195,7 +195,7 @@
         <dropwizard.version>3.2.6</dropwizard.version>
         <equinox.version>3.13.0</equinox.version>
         <fabric8.version>3.0.12</fabric8.version>
-        <failsafe.pax-exam-compatible.version>2.17</failsafe.pax-exam-compatible.version>
+        <failsafe.pax-exam-compatible.version>3.0.0-M3</failsafe.pax-exam-compatible.version>
         <felix.configadmin.version>1.9.14</felix.configadmin.version>
         <felix.framework.version>5.6.12</felix.framework.version>
         <felix.scr.version>2.0.14</felix.scr.version>
@@ -518,7 +518,8 @@
                                 <goal>verify</goal>
                             </goals>
                             <configuration>
-                                <argLine>${failsafe.argline}</argLine>
+                              <argLine>${failsafe.argline}</argLine>
+                              <skipAfterFailureCount>1</skipAfterFailureCount>
                             </configuration>
                         </execution>
                     </executions>
