@@ -176,6 +176,7 @@ type UserTheme = {
 function updateTheme(userTheme: UserTheme) {
   let relevantColorTheme = themes[userTheme.theme]
   if (userTheme.theme === 'custom') {
+    // @ts-ignore
     relevantColorTheme = Object.keys(relevantColorTheme).reduce(
       (newMap: UserTheme, key) => {
         newMap[key] =
