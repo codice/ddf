@@ -116,12 +116,23 @@ class AttributeValueNormalizer {
       return "";
     }
 
-    //TODO look into exactly how relative gets created - that or find out if its okay to store the between
-    // as separated epoch millis
     // Edge case for relative date function
     if (EXPECTED_RELATIVE_FUNCTION_PATTERN.matcher(value).matches()) {
       return value;
     }
+
+    if (value.indexOf('/') >= 0) {
+      String[] dates = value.split("/", 2);
+      if (dates.length == 2) {
+        Instant dateOneIso = instantFromIso(dates[0]);
+        Instant dateTwoIso = instantFromIso(dates[1]);
+        // TODO make sure to set the value to null
+        if (dateOneIso != null || dateTwoIso != null) {
+          return value;
+        }
+      }
+    }
+
     throw new FilterProcessingException("Unexpected date format on search form: " + value);
   }
 

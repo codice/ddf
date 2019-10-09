@@ -15,14 +15,12 @@
 import moment from 'moment-timezone'
 
 export const serialize = value => {
-  const from = moment(value.from)
-  const to = moment(value.to)
-  if (!from.isValid() || !to.isValid()) {
-    return ''
-  } else if (from.isAfter(to)) {
-    return `${to.toISOString()}/${from.toISOString()}`
+  let from = moment(value.from)
+  let to = moment(value.to)
+  if (from.isAfter(to)) {
+    return (to.toISOString() || '') + '/' + (from.toISOString() || '')
   }
-  return `${from.toISOString()}/${to.toISOString()}`
+  return (from.toISOString() || '') + '/' + (to.toISOString() || '')
 }
 
 export const deserialize = value => {
