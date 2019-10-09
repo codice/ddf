@@ -35,6 +35,9 @@ module.exports = Marionette.LayoutView.extend({
         coordinateValues={coordinateValues}
         selectionCount={selectionCount}
         closeMenu={this.triggerClick.bind(this)}
+        selectCoordHandler={this.triggerMeasurementStateChange.bind(this)}
+        clearRulerHandler={this.triggerClearRuler.bind(this)}
+        mapModel={this.options.mapModel}
       />
     )
   },
@@ -109,6 +112,21 @@ module.exports = Marionette.LayoutView.extend({
       'has-selection',
       this.options.selectionInterface.getSelectedResults().length > 0
     )
+  },
+  /*
+    Triggers a measurement state change when the user clicks on the menu option.
+    If the user was already in the START state (already put down a start point),
+    then the state will change to END. Otherwise if the user was already in the
+    END state (already put down an end point) or the NONE state (have not put down
+    any points), then the state will change to START.
+  */
+  triggerMeasurementStateChange() {
+    const state = this.options.mapModel.get('measurementState') === 'START' ? 'END' : 'START'
+    this.options.mapModel.changeMeasurementState(state)
+  },
+  // To clear the ruler, just set measurement state to NONE
+  triggerClearRuler() {
+    this.options.mapModel.changeMeasurementState('NONE')
   },
   triggerClick() {
     this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())

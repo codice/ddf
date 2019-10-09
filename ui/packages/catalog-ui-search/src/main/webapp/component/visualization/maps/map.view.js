@@ -234,6 +234,13 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.handleCurrentQuery()
 
+    // listener for when the measurement state changes in map model
+    this.listenTo(
+      this.mapModel,
+      'change:measurementState',
+      this.handleMarkerChange.bind(this)
+    )
+
     if (this.options.selectionInterface.getSelectedResults().length > 0) {
       this.map.zoomToSelected(
         this.options.selectionInterface.getSelectedResults()
@@ -343,6 +350,54 @@ module.exports = Marionette.LayoutView.extend({
       target,
       targetMetacard,
     })
+  },
+  /*
+    Handles drawing or clearing the ruler as needed by the measurement state.
+
+    START indicates that a starting point should be drawn, 
+    so the map clears any previous points drawn and draws a new start point.
+
+    END indicates that an ending point should be drawn,
+    so the map draws an end point and a line, and calculates the distance.
+
+    NONE indicates that the ruler should be cleared.
+  */
+  handleMeasurementStateChange() {
+    const state = this.mapModel.get('measurementState')
+    let billboard = null
+    switch(state) {
+      case 'START':
+        this.clearRuler()
+        // starting map marker is labeled 'A'
+        billboard = this.map.addRulerPoint(this.mapModel.get('coordinateValues'), 'A')
+        this.mapModel.addBillboard(billboard)
+        break;
+      case 'END':
+        // ending map marker is labeled 'B'
+        billboard = this.map.addRulerPoint(this.mapModel.get('coordinateValues'), 'B')
+        this.mapModel.addBillboard(billboard)
+        const linePrimitive = this.map.addRulerLine(this.mapModel.get('billboards'))
+        this.mapModel.setLinePrimitive(linePrimitive)
+        break;
+      case 'NONE':
+        this.clearRuler()
+        break;
+      default:
+        break;
+    }
+  },
+  /*
+    Handles tasks for clearing the ruler, which include removing all billboards
+    (endpoints of the line) and the line primitive.
+  */
+  clearRuler() {
+    const billboards = this.mapModel.get('billboards')
+    billboards.forEach(billboard => {
+      this.map.removeRulerPoint(billboard)
+    })
+    this.mapModel.clearBillboards()
+    const linePrimitive = this.mapModel.removeLinePrimitive()
+    this.map.removeRulerLine(linePrimitive)
   },
   onRightClick(event, mapEvent) {
     event.preventDefault()

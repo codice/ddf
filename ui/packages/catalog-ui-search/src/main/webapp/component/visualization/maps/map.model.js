@@ -43,6 +43,56 @@ module.exports = Backbone.AssociatedModel.extend({
     },
     target: undefined,
     targetMetacard: undefined,
+    measurementState: 'NONE',
+    currentDistance: 0,
+    billboards: [],
+    linePrimitive: undefined,
+  },
+  /*
+   * Sets the measurement state to the given new state.
+   * Valid measurement states are:
+   *   - NONE
+   *   - START
+   *   - END
+   */
+  changeMeasurementState(state) {
+    this.set({ measurementState: state })
+  },
+  /*
+   * Appends the given Billboard to the array of Billboards being tracked.
+   */
+  addBillboard(billboard) {
+    this.set({
+      billboards: [...this.get('billboards'), billboard]
+    })
+  },
+  /*
+   * Sets the line Primitive to the given new line Primitive. This represents the line on the map
+   * being used for the ruler measurement.
+   */
+  setLinePrimitive(primitive) {
+    this.set({ linePrimitive: primitive })
+  },
+  /*
+   * Resets the model's line Primitive and returns the old one.
+   */
+  removeLinePrimitive() {
+    const linePrimitive = this.get('linePrimitive')
+    this.set({ linePrimitive: undefined })
+
+    return linePrimitive
+  },
+  /*
+   * Resets the model's array of Billboards.
+   */
+  clearBillboards() {
+    this.set({ billboards: [] })
+  },
+  /*
+   * Sets the current distance to the new given distance (in meters).
+   */
+  setCurrentDistance(distance) {
+    this.set({ currentDistance: distance })
   },
   isOffMap() {
     return this.get('mouseLat') === undefined
