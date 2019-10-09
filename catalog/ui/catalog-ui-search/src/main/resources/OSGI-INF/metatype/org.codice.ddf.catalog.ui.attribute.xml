@@ -42,6 +42,21 @@
             required="false"/>
     </OCD>
 
+    <OCD name="Catalog UI Search Attribute Suggestion List" id="org.codice.ddf.catalog.ui.attribute.suggestionList">
+        <AD id="attributeSuggestionList"
+            name="Attribute Suggestion List"
+            description="List of attributes that should provide autocomplete suggestions. Suggestions are typically popular values for the attribute in data storage.
+Note: Attributes must also be listed under the Facet Attribute Whitelist for this to work properly"
+            type="String"
+            cardinality="10000"
+            required="false"
+            />
+    </OCD>
+
+    <Designate pid="org.codice.ddf.catalog.ui.attribute.suggestionList">
+        <Object ocdref="org.codice.ddf.catalog.ui.attribute.suggestionList"/>
+    </Designate>
+
     <Designate pid="org.codice.ddf.catalog.ui.attribute.aliases">
         <Object ocdref="org.codice.ddf.catalog.ui.attribute.aliases"/>
     </Designate>
