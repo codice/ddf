@@ -14,7 +14,6 @@
 package ddf.security.sts.claimsHandler;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.net.URI;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,11 +107,10 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
           .and(new EqualsFilter("objectclass", this.getObjectClass()))
           .and(new EqualsFilter(this.getUserNameAttribute(), user));
 
-      List<String> searchAttributeList = new ArrayList<String>();
+      List<String> searchAttributeList = new ArrayList<>();
       for (Claim claim : claims) {
-        if (getClaimsLdapAttributeMapping().keySet().contains(claim.getClaimType().toString())) {
-          searchAttributeList.add(
-              getClaimsLdapAttributeMapping().get(claim.getClaimType().toString()));
+        if (getClaimsLdapAttributeMapping().keySet().contains(claim.getClaimType())) {
+          searchAttributeList.add(getClaimsLdapAttributeMapping().get(claim.getClaimType()));
         } else {
           LOGGER.debug("Unsupported claim: {}", claim.getClaimType());
         }
@@ -138,8 +136,8 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
             if (entryReader.isEntry()) {
               entry = entryReader.readEntry();
               for (Claim claim : claims) {
-                URI claimType = claim.getClaimType();
-                String ldapAttribute = getClaimsLdapAttributeMapping().get(claimType.toString());
+                String claimType = claim.getClaimType();
+                String ldapAttribute = getClaimsLdapAttributeMapping().get(claimType);
                 Attribute attr = entry.getAttribute(ldapAttribute);
                 if (attr == null) {
                   LOGGER.trace("Claim '{}' is null", claim.getClaimType());

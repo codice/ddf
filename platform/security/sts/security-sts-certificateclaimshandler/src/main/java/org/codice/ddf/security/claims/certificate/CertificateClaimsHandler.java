@@ -45,9 +45,10 @@ public class CertificateClaimsHandler implements ClaimsHandler, RealmSupport {
   private String realm;
 
   @Override
-  public List<URI> getSupportedClaimTypes() {
+  public List<String> getSupportedClaimTypes() {
     try {
-      return Arrays.asList(new URI(emailClaim), new URI(countryClaim));
+      // Converting to URI despite String return type to maintain the URI validation
+      return Arrays.asList(new URI(emailClaim).toString(), new URI(countryClaim).toString());
     } catch (URISyntaxException e) {
       LOGGER.info("Unable to create claim URIs for certificate claims.", e);
     }
@@ -64,14 +65,14 @@ public class CertificateClaimsHandler implements ClaimsHandler, RealmSupport {
         && (additionalProperties.containsKey(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI)
             || additionalProperties.containsKey(SubjectUtils.COUNTRY_CLAIM_URI))) {
       for (Claim claim : claims) {
-        URI claimType = claim.getClaimType();
-        if (emailClaim.equals(claimType.toString())) {
+        String claimType = claim.getClaimType();
+        if (emailClaim.equals(claimType)) {
           buildClaim(
               claimsColl,
               principal,
               claimType,
               additionalProperties.get(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI));
-        } else if (countryClaim.equals(claimType.toString())) {
+        } else if (countryClaim.equals(claimType)) {
           buildClaim(
               claimsColl,
               principal,
@@ -84,7 +85,7 @@ public class CertificateClaimsHandler implements ClaimsHandler, RealmSupport {
   }
 
   private void buildClaim(
-      ProcessedClaimCollection claimsColl, Principal principal, URI claimType, Object value) {
+      ProcessedClaimCollection claimsColl, Principal principal, String claimType, Object value) {
     if (value == null) {
       return;
     }

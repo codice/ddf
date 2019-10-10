@@ -179,20 +179,15 @@ public class AttributeQueryClaimsHandlerTest {
     // Test that the claims were created and mapped correctly.
     assertThat(processedClaimCollection.size(), is(equalTo(3)));
 
-    assertThat(processedClaimCollection.get(0).getClaimType().toString(), is(equalTo("Role")));
-    assertThat(
-        (String) processedClaimCollection.get(0).getValues().get(0),
-        is(equalTo("Guest-hasMapping")));
+    assertThat(processedClaimCollection.get(0).getClaimType(), is(equalTo("Role")));
+    assertThat(processedClaimCollection.get(0).getValues().get(0), is(equalTo("Guest-hasMapping")));
 
-    assertThat(
-        processedClaimCollection.get(1).getClaimType().toString(), is(equalTo("NameIdentifier")));
-    assertThat(
-        (String) processedClaimCollection.get(1).getValues().get(0),
-        is(equalTo("Name-hasMapping")));
+    assertThat(processedClaimCollection.get(1).getClaimType(), is(equalTo("NameIdentifier")));
+    assertThat(processedClaimCollection.get(1).getValues().get(0), is(equalTo("Name-hasMapping")));
 
     // Does not have an attribute mapping.
-    assertThat(processedClaimCollection.get(2).getClaimType().toString(), is(equalTo("Email")));
-    assertThat((String) processedClaimCollection.get(2).getValues().get(0), is(equalTo("email")));
+    assertThat(processedClaimCollection.get(2).getClaimType(), is(equalTo("Email")));
+    assertThat(processedClaimCollection.get(2).getValues().get(0), is(equalTo("email")));
   }
 
   @Test
@@ -240,12 +235,12 @@ public class AttributeQueryClaimsHandlerTest {
 
   @Test
   public void testSupportedClaimsTypes() {
-    List<URI> supportedClaimTypes = spyAttributeQueryClaimsHandler.getSupportedClaimTypes();
+    List<String> supportedClaimTypes = spyAttributeQueryClaimsHandler.getSupportedClaimTypes();
 
     assertThat(supportedClaimTypes.size(), is(equalTo(3)));
-    assertThat(supportedClaimTypes.get(0).toString(), is(equalTo("Role")));
-    assertThat(supportedClaimTypes.get(1).toString(), is(equalTo("NameIdentifier")));
-    assertThat(supportedClaimTypes.get(2).toString(), is(equalTo("Email")));
+    assertThat(supportedClaimTypes.get(0), is(equalTo("Role")));
+    assertThat(supportedClaimTypes.get(1), is(equalTo("NameIdentifier")));
+    assertThat(supportedClaimTypes.get(2), is(equalTo("Email")));
   }
 
   @Test

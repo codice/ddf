@@ -213,11 +213,11 @@ public class RoleClaimsHandler implements ClaimsHandler {
   }
 
   @Override
-  public List<URI> getSupportedClaimTypes() {
-    List<URI> uriList = new ArrayList<>();
-    uriList.add(getRoleURI());
+  public List<String> getSupportedClaimTypes() {
+    List<String> uriStringList = new ArrayList<>();
+    uriStringList.add(getRoleURI().toString());
 
-    return uriList;
+    return uriStringList;
   }
 
   @Override
