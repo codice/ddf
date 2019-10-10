@@ -50,9 +50,6 @@ class AttributeValueNormalizer {
   private static final Pattern EXPECTED_RELATIVE_FUNCTION_PATTERN =
       Pattern.compile("RELATIVE\\(\\p{Alnum}+\\)");
 
-  private static final Pattern EXPECTED_BETWEEN_FUNCTION_PATTERN =
-      Pattern.compile("\\(\\p{Alnum}+\\)");
-
   private final AttributeRegistry registry;
 
   AttributeValueNormalizer(AttributeRegistry registry) {
@@ -79,7 +76,34 @@ class AttributeValueNormalizer {
     if (instant != null) {
       return instant.toString();
     }
+
+    String isoDateRange = getIsoDateRangeFromEpoch(value);
+    if (isoDateRange != null) {
+      return isoDateRange;
+    }
+
     return value;
+  }
+
+  private String getIsoDateRangeFromEpoch(String value) {
+    if (value.indexOf('/') >= 0) {
+      String dates[] = value.split("/", 2);
+      Instant instantFrom = instantFromEpoch(dates[0]);
+      Instant instantTo = instantFromEpoch(dates[1]);
+
+      String fromDate = "";
+      String toDate = "";
+
+      if (instantFrom != null) {
+        fromDate = instantFrom.toString();
+      }
+      if (instantTo != null) {
+        toDate = instantTo.toString();
+      }
+      return fromDate + '/' + toDate;
+    }
+
+    return null;
   }
 
   /**
@@ -121,19 +145,35 @@ class AttributeValueNormalizer {
       return value;
     }
 
-    if (value.indexOf('/') >= 0) {
-      String[] dates = value.split("/", 2);
-      if (dates.length == 2) {
-        Instant dateOneIso = instantFromIso(dates[0]);
-        Instant dateTwoIso = instantFromIso(dates[1]);
-        // TODO make sure to set the value to null
-        if (dateOneIso != null || dateTwoIso != null) {
-          return value;
-        }
-      }
+    // Edge case for a during date range (ISO/ISO)
+    String normalDateRange = normalizableDateRangeForXML(value);
+    if (normalDateRange != null) {
+      return normalDateRange;
     }
 
     throw new FilterProcessingException("Unexpected date format on search form: " + value);
+  }
+
+  @Nullable
+  private String normalizableDateRangeForXML(String dateRange) {
+    if (dateRange.indexOf('/') >= 0) {
+      String[] dates = dateRange.split("/", 2);
+      Instant dateFromInstant = instantFromIso(dates[0]);
+      Instant dateToInstant = instantFromIso(dates[1]);
+
+      String dateFrom = "";
+      String dateTo = "";
+
+      if (dateFromInstant != null) {
+        dateFrom = Objects.toString(dateFromInstant.toEpochMilli());
+      }
+      if (dateToInstant != null) {
+        dateTo = Objects.toString(dateToInstant.toEpochMilli());
+      }
+
+      return dateFrom + '/' + dateTo;
+    }
+    return null;
   }
 
   private boolean eitherStringIsNull(String property, String value) {
