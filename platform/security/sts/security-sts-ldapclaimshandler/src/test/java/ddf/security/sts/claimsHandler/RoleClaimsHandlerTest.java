@@ -26,7 +26,6 @@ import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
 import java.util.List;
 import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsParameters;
@@ -259,7 +258,7 @@ public class RoleClaimsHandlerTest {
   @Test
   public void testSupportClaimTypes() {
     RoleClaimsHandler claimsHandler = new RoleClaimsHandler(new AttributeMapLoader());
-    List<URI> uris = claimsHandler.getSupportedClaimTypes();
+    List<String> uris = claimsHandler.getSupportedClaimTypes();
     assertThat(uris, hasSize(1));
   }
 }

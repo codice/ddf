@@ -49,10 +49,11 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
   private String idClaimType;
 
   @Override
-  public List<URI> getSupportedClaimTypes() {
-    List<URI> uriList = new ArrayList<>();
-    uriList.add(URI.create(roleClaimType));
-    uriList.add(URI.create(idClaimType));
+  public List<String> getSupportedClaimTypes() {
+    List<String> uriList = new ArrayList<>();
+    // Converting to URI despite String return type to maintain the URI validation
+    uriList.add(URI.create(roleClaimType).toString());
+    uriList.add(URI.create(idClaimType).toString());
     return uriList;
   }
 
@@ -64,9 +65,9 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
     boolean needsRoleClaim = false;
     boolean needsIdClaim = false;
     for (Claim claim : claims) {
-      if (roleClaimType.equals(claim.getClaimType().toString())) {
+      if (roleClaimType.equals(claim.getClaimType())) {
         needsRoleClaim = true;
-      } else if (idClaimType.equals(claim.getClaimType().toString())) {
+      } else if (idClaimType.equals(claim.getClaimType())) {
         needsIdClaim = true;
       } else {
         LOGGER.debug("Unsupported claim: {}", claim.getClaimType());

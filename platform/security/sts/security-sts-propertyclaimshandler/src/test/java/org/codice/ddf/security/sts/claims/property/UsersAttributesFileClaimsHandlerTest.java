@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
@@ -63,21 +62,22 @@ public class UsersAttributesFileClaimsHandlerTest {
         getPathForValidTestAttributesFile());
 
     // when
-    final List<URI> supportedClaimTypes = usersAttributesFileClaimsHandler.getSupportedClaimTypes();
+    final List<String> supportedClaimTypes =
+        usersAttributesFileClaimsHandler.getSupportedClaimTypes();
 
     // then
     assertThat(
         supportedClaimTypes,
         containsInAnyOrder(
-            URI.create("Clearance"),
-            URI.create("CountryOfAffiliation"),
-            URI.create("classification"),
-            URI.create("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"),
-            URI.create("ownerProducer"),
-            URI.create("releasableTo"),
-            URI.create("FineAccessControls"),
-            URI.create("disseminationControls"),
-            URI.create("reg")));
+            "Clearance",
+            "CountryOfAffiliation",
+            "classification",
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
+            "ownerProducer",
+            "releasableTo",
+            "FineAccessControls",
+            "disseminationControls",
+            "reg"));
   }
 
   @Test
@@ -107,32 +107,30 @@ public class UsersAttributesFileClaimsHandlerTest {
         processedClaims,
         containsInAnyOrder(
             allOf(
-                hasProperty("claimType", is(URI.create("Clearance"))),
+                hasProperty("claimType", is("Clearance")),
                 hasProperty("values", containsInAnyOrder("U"))),
             allOf(
-                hasProperty("claimType", is(URI.create("CountryOfAffiliation"))),
+                hasProperty("claimType", is("CountryOfAffiliation")),
                 hasProperty("values", containsInAnyOrder("USA"))),
             allOf(
-                hasProperty("claimType", is(URI.create("classification"))),
+                hasProperty("claimType", is("classification")),
                 hasProperty("values", containsInAnyOrder("U"))),
             allOf(
                 hasProperty(
                     "claimType",
-                    is(
-                        URI.create(
-                            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"))),
+                    is("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")),
                 hasProperty("values", containsInAnyOrder("system@testHostname"))),
             allOf(
-                hasProperty("claimType", is(URI.create("ownerProducer"))),
+                hasProperty("claimType", is("ownerProducer")),
                 hasProperty("values", containsInAnyOrder("USA"))),
             allOf(
-                hasProperty("claimType", is(URI.create("releasableTo"))),
+                hasProperty("claimType", is("releasableTo")),
                 hasProperty("values", containsInAnyOrder("USA"))),
             allOf(
-                hasProperty("claimType", is(URI.create("FineAccessControls"))),
+                hasProperty("claimType", is("FineAccessControls")),
                 hasProperty("values", containsInAnyOrder("SCI1", "SCI2"))),
             allOf(
-                hasProperty("claimType", is(URI.create("disseminationControls"))),
+                hasProperty("claimType", is("disseminationControls")),
                 hasProperty("values", containsInAnyOrder("NF")))));
   }
 
@@ -166,9 +164,7 @@ public class UsersAttributesFileClaimsHandlerTest {
             allOf(
                 hasProperty(
                     "claimType",
-                    is(
-                        URI.create(
-                            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"))),
+                    is("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")),
                 hasProperty("values", containsInAnyOrder("admin@testHostname")))));
   }
 
@@ -199,7 +195,7 @@ public class UsersAttributesFileClaimsHandlerTest {
         processedClaims,
         contains(
             allOf(
-                hasProperty("claimType", is(URI.create("reg"))),
+                hasProperty("claimType", is("reg")),
                 hasProperty("values", containsInAnyOrder("ex")))));
   }
 
@@ -423,7 +419,7 @@ public class UsersAttributesFileClaimsHandlerTest {
         .map(
             attributeName -> {
               final Claim claim = new Claim();
-              claim.setClaimType(URI.create(attributeName));
+              claim.setClaimType(attributeName);
               return claim;
             })
         .collect(Collectors.toCollection(ClaimCollection::new));

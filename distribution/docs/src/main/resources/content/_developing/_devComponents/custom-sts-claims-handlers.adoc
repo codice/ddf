@@ -45,7 +45,7 @@ import java.util.List;
  */
 public interface ClaimsHandler {
 
-    List<URI> getSupportedClaimTypes();
+    List<String> getSupportedClaimTypes();
 
     ClaimCollection retrieveClaimValues(RequestClaimCollection claims, ClaimsParameters parameters);
 

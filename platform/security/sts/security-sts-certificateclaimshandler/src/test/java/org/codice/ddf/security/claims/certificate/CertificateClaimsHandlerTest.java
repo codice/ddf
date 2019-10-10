@@ -34,6 +34,11 @@ import org.junit.Test;
 
 public class CertificateClaimsHandlerTest {
 
+  private static final String EMAIL_CLAIM_NAME = "Email";
+  private static final String COUNTRY_CLAIM_NAME = "Country";
+  private static final String COUNTRY_CLAIM_URI_VALUE = "USA";
+  private static final String EMAIL_ADDRESS_CLAIM_URI_VALUE = "local@localhost";
+
   private ClaimCollection getClaims() throws URISyntaxException {
     ClaimCollection claims = new ClaimCollection();
     Claim claim = new Claim();
@@ -46,9 +51,9 @@ public class CertificateClaimsHandlerTest {
   }
 
   @Test
-  public void testGetSupportedClaimTypes() throws URISyntaxException {
+  public void testGetSupportedClaimTypes() {
     CertificateClaimsHandler certificateClaimsHandler = new CertificateClaimsHandler();
-    List<URI> supportedClaimTypes = certificateClaimsHandler.getSupportedClaimTypes();
+    List<String> supportedClaimTypes = certificateClaimsHandler.getSupportedClaimTypes();
     assertThat(supportedClaimTypes.size(), is(2));
   }
 
@@ -70,54 +75,54 @@ public class CertificateClaimsHandlerTest {
     ClaimsParameters parameters = new ClaimsParameters();
     parameters.setPrincipal(mock(Principal.class));
     Map<String, Object> map = new HashMap<>();
-    map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, "local@localhost");
-    map.put(SubjectUtils.COUNTRY_CLAIM_URI, "USA");
+    map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, EMAIL_ADDRESS_CLAIM_URI_VALUE);
+    map.put(SubjectUtils.COUNTRY_CLAIM_URI, COUNTRY_CLAIM_URI_VALUE);
     parameters.setAdditionalProperties(map);
     ProcessedClaimCollection processedClaims =
         certificateClaimsHandler.retrieveClaimValues(claims, parameters);
     assertThat(processedClaims.size(), is(2));
     assertThat(
-        processedClaims.stream().map(c -> c.getClaimType().toString()).collect(Collectors.toList()),
+        processedClaims.stream().map(Claim::getClaimType).collect(Collectors.toList()),
         containsInAnyOrder(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, SubjectUtils.COUNTRY_CLAIM_URI));
   }
 
   @Test
   public void testRetrieveClaimValuesWithAltNamesRequested() throws URISyntaxException {
     CertificateClaimsHandler certificateClaimsHandler = new CertificateClaimsHandler();
-    certificateClaimsHandler.setCountryClaim("Country");
-    certificateClaimsHandler.setEmailClaim("Email");
+    certificateClaimsHandler.setCountryClaim(COUNTRY_CLAIM_NAME);
+    certificateClaimsHandler.setEmailClaim(EMAIL_CLAIM_NAME);
     ClaimCollection claims = new ClaimCollection();
     Claim claim = new Claim();
-    claim.setClaimType(new URI("Country"));
+    claim.setClaimType(new URI(COUNTRY_CLAIM_NAME));
     claims.add(claim);
     Claim claim1 = new Claim();
-    claim1.setClaimType(new URI("Email"));
+    claim1.setClaimType(new URI(EMAIL_CLAIM_NAME));
     claims.add(claim1);
     ClaimsParameters parameters = new ClaimsParameters();
     parameters.setPrincipal(mock(Principal.class));
     Map<String, Object> map = new HashMap<>();
-    map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, "local@localhost");
-    map.put(SubjectUtils.COUNTRY_CLAIM_URI, "USA");
+    map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, EMAIL_ADDRESS_CLAIM_URI_VALUE);
+    map.put(SubjectUtils.COUNTRY_CLAIM_URI, COUNTRY_CLAIM_URI_VALUE);
     parameters.setAdditionalProperties(map);
     ProcessedClaimCollection processedClaims =
         certificateClaimsHandler.retrieveClaimValues(claims, parameters);
     assertThat(processedClaims.size(), is(2));
     assertThat(
-        processedClaims.stream().map(c -> c.getClaimType().toString()).collect(Collectors.toList()),
-        containsInAnyOrder("Email", "Country"));
+        processedClaims.stream().map(Claim::getClaimType).collect(Collectors.toList()),
+        containsInAnyOrder(EMAIL_CLAIM_NAME, COUNTRY_CLAIM_NAME));
   }
 
   @Test
   public void testRetrieveClaimValuesWithAltNamesNotRequested() throws URISyntaxException {
     CertificateClaimsHandler certificateClaimsHandler = new CertificateClaimsHandler();
-    certificateClaimsHandler.setCountryClaim("Country");
-    certificateClaimsHandler.setEmailClaim("Email");
+    certificateClaimsHandler.setCountryClaim(COUNTRY_CLAIM_NAME);
+    certificateClaimsHandler.setEmailClaim(EMAIL_CLAIM_NAME);
     ClaimCollection claims = getClaims();
     ClaimsParameters parameters = new ClaimsParameters();
     parameters.setPrincipal(mock(Principal.class));
     Map<String, Object> map = new HashMap<>();
-    map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, "local@localhost");
-    map.put(SubjectUtils.COUNTRY_CLAIM_URI, "USA");
+    map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, EMAIL_ADDRESS_CLAIM_URI_VALUE);
+    map.put(SubjectUtils.COUNTRY_CLAIM_URI, COUNTRY_CLAIM_URI_VALUE);
     parameters.setAdditionalProperties(map);
     ProcessedClaimCollection processedClaims =
         certificateClaimsHandler.retrieveClaimValues(claims, parameters);
@@ -131,13 +136,13 @@ public class CertificateClaimsHandlerTest {
     ClaimsParameters parameters = new ClaimsParameters();
     parameters.setPrincipal(mock(Principal.class));
     Map<String, Object> map = new HashMap<>();
-    map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, "local@localhost");
+    map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, EMAIL_ADDRESS_CLAIM_URI_VALUE);
     parameters.setAdditionalProperties(map);
     ProcessedClaimCollection processedClaims =
         certificateClaimsHandler.retrieveClaimValues(claims, parameters);
     assertThat(processedClaims.size(), is(1));
     assertThat(
-        processedClaims.stream().map(c -> c.getClaimType().toString()).collect(Collectors.toList()),
+        processedClaims.stream().map(Claim::getClaimType).collect(Collectors.toList()),
         containsInAnyOrder(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI));
   }
 
@@ -148,13 +153,13 @@ public class CertificateClaimsHandlerTest {
     ClaimsParameters parameters = new ClaimsParameters();
     parameters.setPrincipal(mock(Principal.class));
     Map<String, Object> map = new HashMap<>();
-    map.put(SubjectUtils.COUNTRY_CLAIM_URI, "USA");
+    map.put(SubjectUtils.COUNTRY_CLAIM_URI, COUNTRY_CLAIM_URI_VALUE);
     parameters.setAdditionalProperties(map);
     ProcessedClaimCollection processedClaims =
         certificateClaimsHandler.retrieveClaimValues(claims, parameters);
     assertThat(processedClaims.size(), is(1));
     assertThat(
-        processedClaims.stream().map(c -> c.getClaimType().toString()).collect(Collectors.toList()),
+        processedClaims.stream().map(Claim::getClaimType).collect(Collectors.toList()),
         containsInAnyOrder(SubjectUtils.COUNTRY_CLAIM_URI));
   }
 }

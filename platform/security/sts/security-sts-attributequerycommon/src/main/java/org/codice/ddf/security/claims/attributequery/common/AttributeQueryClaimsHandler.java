@@ -89,12 +89,13 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
    * @return List of supported claims.
    */
   @Override
-  public List<URI> getSupportedClaimTypes() {
+  public List<String> getSupportedClaimTypes() {
     LOGGER.debug("Getting supported claim types.");
-    List<URI> supportedClaimTypes = new ArrayList<>();
+    List<String> supportedClaimTypes = new ArrayList<>();
     try {
       for (String claim : supportedClaims) {
-        supportedClaimTypes.add(new URI(claim));
+        // Converting to URI despite String return type to maintain the URI validation
+        supportedClaimTypes.add(new URI(claim).toString());
       }
     } catch (URISyntaxException e) {
       LOGGER.info("Not a valid URI for claim type {}.", e);

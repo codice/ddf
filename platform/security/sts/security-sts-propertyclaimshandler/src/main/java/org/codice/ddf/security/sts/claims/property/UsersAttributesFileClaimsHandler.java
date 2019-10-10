@@ -62,7 +62,7 @@ public class UsersAttributesFileClaimsHandler implements ClaimsHandler, SystemHi
 
   private String usersAttributesFileLocation;
 
-  private volatile ImmutableSet<URI> supportedClaimTypes;
+  private volatile ImmutableSet<String> supportedClaimTypes;
 
   private volatile Map<String, Map<String, Set<String>>> json;
 
@@ -117,7 +117,7 @@ public class UsersAttributesFileClaimsHandler implements ClaimsHandler, SystemHi
   }
 
   @Override
-  public List<URI> getSupportedClaimTypes() {
+  public List<String> getSupportedClaimTypes() {
     return supportedClaimTypes.asList();
   }
 
@@ -145,7 +145,7 @@ public class UsersAttributesFileClaimsHandler implements ClaimsHandler, SystemHi
     }
 
     for (Claim claim : claimCollection) {
-      Set<String> attributeValue = userMap.get(claim.getClaimType().toString());
+      Set<String> attributeValue = userMap.get(claim.getClaimType());
       ProcessedClaim c = new ProcessedClaim();
       c.setClaimType(claim.getClaimType());
       c.setPrincipal(principal);
@@ -191,12 +191,13 @@ public class UsersAttributesFileClaimsHandler implements ClaimsHandler, SystemHi
   }
 
   private void setSupportedClaimTypes() {
-    final ImmutableSet.Builder<URI> immutableSetBuilder = ImmutableSet.builder();
+    final ImmutableSet.Builder<String> immutableSetBuilder = ImmutableSet.builder();
 
     for (final Map<String, Set<String>> user : json.values()) {
       for (final String attributeName : user.keySet()) {
         try {
-          immutableSetBuilder.add(new URI(attributeName));
+          // Converting to URI despite String return type to maintain the URI validation
+          immutableSetBuilder.add(new URI(attributeName).toString());
         } catch (URISyntaxException e) {
           final String reason =
               String.format("Unable to create URI from attributeName \"%s\"", attributeName);
