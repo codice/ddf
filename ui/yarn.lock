@@ -1306,10 +1306,10 @@
     webpack "4.6.0"
     webpack-cli "2.0.15"
 
-"@connexta/kanri@0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@connexta/kanri/-/kanri-0.0.5.tgz#d688e1d55c9794134dc850b08273fd4b2e3167fa"
-  integrity sha512-lOrUsXSGVO6vo49x3NwliwREkyhBNqf1oIKpLruusdIywphTHN57QCmayvL6BAi38KuifZB8XyzK5LeaFUeHag==
+"@connexta/kanri@0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@connexta/kanri/-/kanri-0.0.6.tgz#45ce2cc0034ead024a9add5e15cb38e9928ffdcc"
+  integrity sha512-mqJjZ5PZaEDC6FteYXspCSq+R87e0XXrYep0oBMZZ8qrzWKPLHFUIr2FM4TYaG0eiJBsAz1IWUGKPxlR/O+CiA==
   dependencies:
     "@connexta/atlas" "0.0.46"
     "@connexta/logviewer" "git://github.com/connexta/logviewer.git#17e7f603fbe5ba5d8edcd64c07787d065617deaa"
