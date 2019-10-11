@@ -25,6 +25,11 @@
     <packaging>feature</packaging>
     <dependencies>
         <dependency>
+            <groupId>ddf.lib.bundles</groupId>
+            <artifactId>libs-bundles-opensaml</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>sync-installer-api</artifactId>
             <version>${project.version}</version>
