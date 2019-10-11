@@ -41,6 +41,7 @@ const withListenTo = <P extends WithBackboneProps>(
     }
     render() {
       return (
+        // @ts-ignore
         <Component
           listenTo={this.backbone.listenTo.bind(this.backbone)}
           stopListening={this.backbone.stopListening.bind(this.backbone)}
