@@ -33,7 +33,7 @@ const PointRadiusLatLon = props => {
       <TextField
         type="number"
         label="Latitude"
-        value={lat === 0 ? '' : lat}
+        value={lat}
         onChange={cursor('lat')}
         onBlur={props.callback}
         addon="°"
@@ -41,7 +41,7 @@ const PointRadiusLatLon = props => {
       <TextField
         type="number"
         label="Longitude"
-        value={lon === 0 ? '' : lon}
+        value={lon}
         onChange={cursor('lon')}
         addon="°"
       />
