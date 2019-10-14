@@ -69,4 +69,8 @@ public class PreviewMetacardTransformerTest {
     String preview = new String(content.getByteArray());
     assertThat(preview, is(equalTo(TRANSFORMED_TEXT)));
   }
+
+  /** Test that text-based products can still have previews even without a set EXTRACTED_TEXT */
+  @Test
+  public void testMetacardAlternativeTextPreviewSource() {}
 }

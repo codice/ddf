@@ -15,70 +15,98 @@ package org.codice.ddf.transformer.preview;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.types.experimental.Extracted;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.HashSet;
 import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
+import java.util.Set;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.tika.io.IOUtils;
+import org.codice.ddf.confluence.common.Confluence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.XMLEvent;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
 
 public class PreviewMetacardTransformer implements MetacardTransformer {
 
   private static final Logger LOGGER =
-          LoggerFactory.getLogger(PreviewMetacardTransformer.class.getName());
+      LoggerFactory.getLogger(PreviewMetacardTransformer.class.getName());
 
   @Override
   public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
-          throws CatalogTransformerException {
+      throws CatalogTransformerException {
     if (metacard == null) {
       throw new CatalogTransformerException("Cannot transform null metacard.");
     }
 
     String preview = "No preview text available.";
+
     if (metacard.getAttribute(Extracted.EXTRACTED_TEXT) != null
-            && metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue() != null) {
+        && metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue() != null) {
       preview =
-              StringEscapeUtils.escapeHtml4(
-                      metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString())
-                      .replaceAll("[\n|\r]", "<br>");
-      preview = String.format("<head><meta charset=\"utf-8\"/>%s</head>", preview);
+          StringEscapeUtils.escapeHtml4(
+                  metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString())
+              .replaceAll("[\n|\r]", "<br>");
     } else if (StringUtils.isNotEmpty(metacard.getMetadata())) {
-      enrichMetacard(metacard);
+      preview =
+          StringEscapeUtils.escapeHtml4(selectPreviewFromMetadata(metacard.getMetadata()))
+              .replaceAll("[\n|\r]", "<br>");
+    }
+
+//    if (preview.equals("")
+//        && (boolean) metacard.getAttribute("internal.local-resource").getValue()) {
+//      preview =
+//          String.format(
+//              "<img src=\"%s\" alt=\"preview-img\">",
+//              metacard.getAttribute("resource-download-url").getValue());
+//    }
+
+    if (StringUtils.isNotEmpty(preview)) {
+      preview = String.format("<head><meta charset=\"utf-8\"/>%s</head>", preview);
     }
 
     return new BinaryContentImpl(IOUtils.toInputStream(preview));
   }
 
-  public Metacard enrichMetacard(Metacard metacard) {
-    XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+  private String selectPreviewFromMetadata(String metadata) {
+    // temp set
+    Set<String> textAttributes = new HashSet<>();
+    textAttributes.add("text");
+    textAttributes.add("TEXT");
 
-    try {
-      XMLEventReader xmlEventReader =
-              xmlInputFactory.createXMLEventReader(new StringReader(metacard.getMetadata()));
+    XPathFactory xPathFactory;
+    String xPathString = "//*[name()='%s']";
+    String text = "";
 
-      while (xmlEventReader.hasNext()) {
-        XMLEvent xmlEvent = xmlEventReader.nextEvent();
+    for (String attributeName : textAttributes) {
+      xPathFactory = XPathFactory.newInstance();
+      try {
+        String xpath = String.format(xPathString, attributeName);
+
+        StringReader metadataReader = new StringReader(metadata);
+        InputSource inputXml = new InputSource(metadataReader);
+
+        Node result =
+            (Node) xPathFactory.newXPath().compile(xpath).evaluate(inputXml, XPathConstants.NODE);
+        text = result.getTextContent().trim();
+
+        if (StringUtils.isNotEmpty(text)) {
+          break;
+        }
+      } catch (XPathExpressionException | NullPointerException e) {
+        LOGGER.warn("Could not find attribute in xPath: {}", xPathFactory);
       }
-
-
-      metacard.setAttribute(new AttributeImpl(Extracted.EXTRACTED_TEXT, ""));
-    } catch (XMLStreamException e) {
-      LOGGER.error("Error parsing metacard metadata", e);
     }
 
-    return metacard;
+    return text;
   }
 }

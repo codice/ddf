@@ -60,7 +60,9 @@ public class PreviewActionProvider extends AbstractMetacardActionProvider {
   @Override
   protected boolean canHandleMetacard(Metacard metacard) {
     Attribute bodyText = metacard.getAttribute(Extracted.EXTRACTED_TEXT);
-    return bodyText != null && StringUtils.isNotBlank((String) bodyText.getValue());
+    boolean hasExtractedText =
+        bodyText != null && StringUtils.isNotBlank((String) bodyText.getValue());
+    return hasExtractedText || StringUtils.isNotEmpty(metacard.getMetadata()) || true;
   }
 
   @Override
