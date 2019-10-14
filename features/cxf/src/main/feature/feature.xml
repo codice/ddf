@@ -376,6 +376,7 @@
     <feature name="cxf-jaxrs" version="${cxf.version}">
         <feature version="${cxf.version}">cxf-core</feature>
         <feature version="${cxf.version}">cxf-http</feature>
+        <feature version="${cxf.version}">cxf-rt-security</feature>
         <bundle start-level="30" dependency="true">
             mvn:org.codehaus.jettison/jettison/${cxf.jettison.version}
         </bundle>
@@ -464,8 +465,8 @@
         </bundle>
         <bundle start-level="35">mvn:io.zipkin.zipkin2/zipkin/2.11.6</bundle>
         <bundle start-level="35">mvn:io.zipkin.reporter2/zipkin-reporter/2.7.9</bundle>
-        <bundle start-level="35">mvn:io.zipkin.brave/brave/5.4.2</bundle>
-        <bundle start-level="35">mvn:io.zipkin.brave/brave-instrumentation-http/5.4.2</bundle>
+        <bundle start-level="35">mvn:io.zipkin.brave/brave/5.6.0</bundle>
+        <bundle start-level="35">mvn:io.zipkin.brave/brave-instrumentation-http/5.6.0</bundle>
         <bundle start-level="40">mvn:org.apache.cxf/cxf-integration-tracing-brave/${cxf.version}
         </bundle>
     </feature>
