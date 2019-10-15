@@ -42,6 +42,13 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(PreviewMetacardTransformer.class.getName());
 
+  private Set<String> textElements = new HashSet<>();
+
+  public PreviewMetacardTransformer() {
+    textElements.add("text");
+    textElements.add("TEXT");
+  }
+
   @Override
   public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
       throws CatalogTransformerException {
@@ -71,10 +78,6 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
   }
 
   private String selectPreviewFromMetadata(String metadata) {
-    Set<String> textElements = new HashSet<>();
-    textElements.add("text");
-    textElements.add("TEXT");
-
     XPathFactory xPathFactory;
     String xPathString = "//*[name()='%s']";
     String text = "";
