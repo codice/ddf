@@ -32,6 +32,7 @@
             org.apache.cxf:cxf-rt-rs-security-sso-saml -> ehcache-2.10.4 -> jackson-databind-2.6.3.
             solr-assembly.zip -> jackson-core-asl-1.9.13.jar
             This suppression can be removed when DDF-3593 has been completed.
+             CVE-2019-16942, CVE-2019-16943 refers to an externally exposed JSON/RMI endpoint, which is not used    
         </notes>
         <cve>CVE-2016-3720</cve>
         <cve>CVE-2017-7525</cve>
@@ -47,6 +48,8 @@
         <cve>CVE-2018-19362</cve>
         <cve>CVE-2018-19361</cve>
         <cve>CVE-2018-19360</cve>
+        <cve>CVE-2019-16942</cve>
+        <cve>CVE-2019-16943</cve>
     </suppress>
     <suppress>
         <notes>
