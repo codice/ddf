@@ -71,16 +71,15 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
   }
 
   private String selectPreviewFromMetadata(String metadata) {
-    // temp set
-    Set<String> textAttributes = new HashSet<>();
-    textAttributes.add("text");
-    textAttributes.add("TEXT");
+    Set<String> textElements = new HashSet<>();
+    textElements.add("text");
+    textElements.add("TEXT");
 
     XPathFactory xPathFactory;
     String xPathString = "//*[name()='%s']";
     String text = "";
 
-    for (String attributeName : textAttributes) {
+    for (String attributeName : textElements) {
       xPathFactory = XPathFactory.newInstance();
       try {
         String xpath = String.format(xPathString, attributeName);

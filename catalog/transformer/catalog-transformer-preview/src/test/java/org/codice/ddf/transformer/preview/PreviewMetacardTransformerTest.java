@@ -87,7 +87,7 @@ public class PreviewMetacardTransformerTest {
             + "        <TEXT>\n"
             + "          <BODY>"
             + EXTRACTED_TEXT
-            + "</BODY>\n"
+            + "          </BODY>\n"
             + "        </TEXT>\n"
             + "      </REUTERS>\n"
             + "    </value>\n"
