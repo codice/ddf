@@ -243,7 +243,8 @@ public class RestEndpointIT extends AbstractComponentTest {
                 new StringBuilder()
                     .append("javax.annotation;version=1.0.0,")
                     .append("javax.annotation;version=1.3.2,")
-                    .append("javax.annotation;version=3.0.2")
+                    .append("javax.annotation;version=3.0.2,")
+                    .append("sun.misc")
                     .toString()));
       }
     };
