@@ -30,13 +30,14 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.tika.io.IOUtils;
-import org.codice.ddf.confluence.common.Confluence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 public class PreviewMetacardTransformer implements MetacardTransformer {
+
+  private Boolean previewFromMetadata = false;
 
   private static final Logger LOGGER =
       LoggerFactory.getLogger(PreviewMetacardTransformer.class.getName());
@@ -56,19 +57,19 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
           StringEscapeUtils.escapeHtml4(
                   metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString())
               .replaceAll("[\n|\r]", "<br>");
-    } else if (StringUtils.isNotEmpty(metacard.getMetadata())) {
+    } else if (previewFromMetadata && StringUtils.isNotEmpty(metacard.getMetadata())) {
       preview =
           StringEscapeUtils.escapeHtml4(selectPreviewFromMetadata(metacard.getMetadata()))
               .replaceAll("[\n|\r]", "<br>");
     }
 
-//    if (preview.equals("")
-//        && (boolean) metacard.getAttribute("internal.local-resource").getValue()) {
-//      preview =
-//          String.format(
-//              "<img src=\"%s\" alt=\"preview-img\">",
-//              metacard.getAttribute("resource-download-url").getValue());
-//    }
+    //    if (preview.equals("")
+    //        && (boolean) metacard.getAttribute("internal.local-resource").getValue()) {
+    //      preview =
+    //          String.format(
+    //              "<img src=\"%s\" alt=\"preview-img\">",
+    //              metacard.getAttribute("resource-download-url").getValue());
+    //    }
 
     if (StringUtils.isNotEmpty(preview)) {
       preview = String.format("<head><meta charset=\"utf-8\"/>%s</head>", preview);
@@ -108,5 +109,13 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     }
 
     return text;
+  }
+
+  public Boolean getPreviewFromMetadata() {
+    return previewFromMetadata;
+  }
+
+  public void setPreviewFromMetadata(Boolean previewFromMetadata) {
+    this.previewFromMetadata = previewFromMetadata;
   }
 }
