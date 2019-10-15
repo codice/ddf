@@ -480,10 +480,17 @@ module.exports = function CesiumMap(
      * Cartesian3 points.
      */
     calculateDistanceBetweenPositions(cartesians) {
-      const startCartographic = new Cesium.Cartographic.fromCartesian(cartesians[0])
-      const endCartographic = new Cesium.Cartographic.fromCartesian(cartesians[1])
-      const ellipsoidGeodesic = new Cesium.EllipsoidGeodesic(startCartographic, endCartographic)
-      
+      const startCartographic = new Cesium.Cartographic.fromCartesian(
+        cartesians[0]
+      )
+      const endCartographic = new Cesium.Cartographic.fromCartesian(
+        cartesians[1]
+      )
+      const ellipsoidGeodesic = new Cesium.EllipsoidGeodesic(
+        startCartographic,
+        endCartographic
+      )
+
       return ellipsoidGeodesic.surfaceDistance
     },
     /*
@@ -527,15 +534,19 @@ module.exports = function CesiumMap(
       const geometryInstance = new Cesium.GeometryInstance({
         geometry: geometry,
         attributes: {
-          color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.DEEPPINK)
-        }
+          color: Cesium.ColorGeometryInstanceAttribute.fromColor(
+            Cesium.Color.DEEPPINK
+          ),
+        },
       })
       const linePrimitive = new Cesium.Primitive({
         geometryInstances: geometryInstance,
-        appearance: new Cesium.PolylineColorAppearance()
+        appearance: new Cesium.PolylineColorAppearance(),
       })
       // calculates the distance between the two positions in the array of Cartesian3 points
-      const distanceBetweenPoints = this.calculateDistanceBetweenPositions(cartesianArray)
+      const distanceBetweenPoints = this.calculateDistanceBetweenPositions(
+        cartesianArray
+      )
       mapModel.setCurrentDistance(distanceBetweenPoints)
       // rendering the line breaks if the distance is 0
       if (distanceBetweenPoints > 0) {
@@ -554,7 +565,7 @@ module.exports = function CesiumMap(
             Adds a billboard point utilizing the passed in point and options.
             Options are a view to relate to, and an id, and a color.
           */
-    addPointWithText(point, options, useCustomText=false) {
+    addPointWithText(point, options, useCustomText = false) {
       const pointObject = convertPointCoordinate(point)
       const cartographicPosition = Cesium.Cartographic.fromDegrees(
         pointObject.longitude,

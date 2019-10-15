@@ -62,9 +62,8 @@ const Description = styled.div`
  */
 const getDistanceText = (distance: number) => {
   // use meters when distance is under 1000m and convert to kilometers when ≥1000m
-  const distanceText = distance < 1000
-  ? `${distance} m`
-  : `${distance * 0.001} km`
+  const distanceText =
+    distance < 1000 ? `${distance} m` : `${distance * 0.001} km`
   return distanceText
 }
 
@@ -104,20 +103,20 @@ const clearHandler = (
   context: ContextType,
   closeParent: () => void,
   clearRulerHandler: () => void
-  ) => {
-    return () => {
-      clearRulerHandler()
+) => {
+  return () => {
+    clearRulerHandler()
 
-      announcement.announce({
-        title: 'Ruler markers cleared.',
-        message: '',
-        type: 'success',
-      })
+    announcement.announce({
+      title: 'Ruler markers cleared.',
+      message: '',
+      type: 'success',
+    })
 
-      context.closeAndRefocus()
-      closeParent()
-    }
+    context.closeAndRefocus()
+    closeParent()
   }
+}
 
 /*
  * Handler function for copying the measured distance string to the clipboard.
@@ -160,7 +159,7 @@ const render = (props: Props) => {
   const distanceText = getDistanceText(mapModel.get('currentDistance'))
   const state = mapModel.get('measurementState')
   let measurementSelectText = ''
-  
+
   // determines the text to display on the menu action based on the current measurement state
   switch (state) {
     case 'NONE':
@@ -184,7 +183,11 @@ const render = (props: Props) => {
             key="current-distance"
             icon="fa fa-clipboard"
             data-help=""
-            onClick={generateClipboardHandler(distanceText, context, closeParent)}
+            onClick={generateClipboardHandler(
+              distanceText,
+              context,
+              closeParent
+            )}
           >
             <Text>
               <Description>Copy current distance</Description>
@@ -204,14 +207,14 @@ const render = (props: Props) => {
           >
             <Text>
               <Description>{measurementSelectText}</Description>
-              { `${lat} ${lon}` }
+              {`${lat} ${lon}`}
             </Text>
           </MenuAction>
           <MenuAction
-              key="clear-markers"
-              icon="fa fa-eraser"
-              data-help="Clears the selected coordinates and map markers"
-              onClick={clearHandler(context, closeParent, clearRulerHandler)}
+            key="clear-markers"
+            icon="fa fa-eraser"
+            data-help="Clears the selected coordinates and map markers"
+            onClick={clearHandler(context, closeParent, clearRulerHandler)}
           >
             <Text>
               <Description>Clear all coordinates</Description>

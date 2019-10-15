@@ -69,16 +69,22 @@ const renderCopyCoordinatesMenu = ({ coordinateValues, closeMenu }: Props) => (
   </MenuItem>
 )
 
-const renderSelectCoordinatesMenu = ({ coordinateValues, closeMenu, selectCoordHandler, clearRulerHandler, mapModel }: Props) => (
-    <MenuItem value="SelectCoordinates">
-      <SelectCoordinates
-          coordinateValues={coordinateValues}
-          closeParent={closeMenu}
-          selectCoordHandler={selectCoordHandler}
-          clearRulerHandler={clearRulerHandler}
-          mapModel={mapModel}
-      />
-    </MenuItem>
+const renderSelectCoordinatesMenu = ({
+  coordinateValues,
+  closeMenu,
+  selectCoordHandler,
+  clearRulerHandler,
+  mapModel,
+}: Props) => (
+  <MenuItem value="SelectCoordinates">
+    <SelectCoordinates
+      coordinateValues={coordinateValues}
+      closeParent={closeMenu}
+      selectCoordHandler={selectCoordHandler}
+      clearRulerHandler={clearRulerHandler}
+      mapModel={mapModel}
+    />
+  </MenuItem>
 )
 
 const renderHistogramMenu = () => (

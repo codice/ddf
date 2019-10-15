@@ -365,25 +365,33 @@ module.exports = Marionette.LayoutView.extend({
   handleMeasurementStateChange() {
     const state = this.mapModel.get('measurementState')
     let billboard = null
-    switch(state) {
+    switch (state) {
       case 'START':
         this.clearRuler()
         // starting map marker is labeled 'A'
-        billboard = this.map.addRulerPoint(this.mapModel.get('coordinateValues'), 'A')
+        billboard = this.map.addRulerPoint(
+          this.mapModel.get('coordinateValues'),
+          'A'
+        )
         this.mapModel.addBillboard(billboard)
-        break;
+        break
       case 'END':
         // ending map marker is labeled 'B'
-        billboard = this.map.addRulerPoint(this.mapModel.get('coordinateValues'), 'B')
+        billboard = this.map.addRulerPoint(
+          this.mapModel.get('coordinateValues'),
+          'B'
+        )
         this.mapModel.addBillboard(billboard)
-        const linePrimitive = this.map.addRulerLine(this.mapModel.get('billboards'))
+        const linePrimitive = this.map.addRulerLine(
+          this.mapModel.get('billboards')
+        )
         this.mapModel.setLinePrimitive(linePrimitive)
-        break;
+        break
       case 'NONE':
         this.clearRuler()
-        break;
+        break
       default:
-        break;
+        break
     }
   },
   /*

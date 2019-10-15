@@ -121,7 +121,10 @@ module.exports = Marionette.LayoutView.extend({
     any points), then the state will change to START.
   */
   triggerMeasurementStateChange() {
-    const state = this.options.mapModel.get('measurementState') === 'START' ? 'END' : 'START'
+    const state =
+      this.options.mapModel.get('measurementState') === 'START'
+        ? 'END'
+        : 'START'
     this.options.mapModel.changeMeasurementState(state)
   },
   // To clear the ruler, just set measurement state to NONE

@@ -63,7 +63,7 @@ module.exports = Backbone.AssociatedModel.extend({
    */
   addBillboard(billboard) {
     this.set({
-      billboards: [...this.get('billboards'), billboard]
+      billboards: [...this.get('billboards'), billboard],
     })
   },
   /*
