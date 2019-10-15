@@ -17,6 +17,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.pac4j.oidc.config.OidcConfiguration.IMPLICIT_FLOWS;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.nimbusds.oauth2.sdk.ResponseType;
 import java.util.Map;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.pac4j.core.exception.TechnicalException;
@@ -81,7 +82,7 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
     logoutUri = (String) properties.getOrDefault(LOGOUT_URI_KEY, logoutUri);
 
     // TODO - Remove if fragment response_mode is supported
-    if (IMPLICIT_FLOWS.contains(responseType)) {
+    if (IMPLICIT_FLOWS.contains(new ResponseType(responseType))) {
       responseMode = "form_post";
     }
 
