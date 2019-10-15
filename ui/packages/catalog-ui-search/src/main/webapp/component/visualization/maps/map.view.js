@@ -238,7 +238,7 @@ module.exports = Marionette.LayoutView.extend({
     this.listenTo(
       this.mapModel,
       'change:measurementState',
-      this.handleMarkerChange.bind(this)
+      this.handleMeasurementStateChange.bind(this)
     )
 
     if (this.options.selectionInterface.getSelectedResults().length > 0) {
