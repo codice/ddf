@@ -38,7 +38,7 @@ public class PreviewActionProvider extends AbstractMetacardActionProvider {
 
   private static final String DESCRIPTION = "Provides a text preview of the resource";
 
-  private Boolean previewFromMetadata;
+  private Boolean previewFromMetadata = false;
 
   /**
    * Constructor that accepts the values to be used when a new {@link Action} is created by this

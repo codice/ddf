@@ -98,4 +98,6 @@ public class PreviewActionProviderTest {
             CONTEXT_ROOT, SOURCES_PATH, metacardSource, encodedMetacardId);
     return new URL(SystemBaseUrl.EXTERNAL.constructUrl(urlString, true));
   }
+
+
 }

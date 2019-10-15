@@ -26,13 +26,13 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.experimental.Extracted;
 import ddf.catalog.transform.CatalogTransformerException;
-import org.junit.Test;
-
 import java.io.IOException;
+import org.junit.Test;
 
 public class PreviewMetacardTransformerTest {
 
-  private static final String NO_PREVIEW = "<head><meta charset=\"utf-8\"/>No preview text available.</head>";
+  private static final String NO_PREVIEW =
+      "<head><meta charset=\"utf-8\"/>No preview text available.</head>";
 
   private static final String EXTRACTED_TEXT = "Some value\nAnother value";
 
@@ -74,21 +74,25 @@ public class PreviewMetacardTransformerTest {
 
   /** Test that text-based products can still have previews even without a set EXTRACTED_TEXT */
   @Test
-  public void testMetacardAlternativeTextPreviewSource() throws CatalogTransformerException, IOException {
-    String metadata = "<?xml version=\"1.0\"?>\n" +
-            "<metacard xmlns=\"urn:catalog:metacard\" xmlns:gml=\"http://www.opengis.net/gml\">\n" +
-            "  <type>ddf.metacard</type>\n" +
-            "  <source>ddf.distribution</source>\n" +
-            "  <stringxml name=\"metadata\">\n" +
-            "    <value>\n" +
-            "      <REUTERS>\n" +
-            "        <TEXT>\n" +
-            "          <BODY>" + EXTRACTED_TEXT + "</BODY>\n" +
-            "        </TEXT>\n" +
-            "      </REUTERS>\n" +
-            "    </value>\n" +
-            "  </stringxml>\n" +
-            "</metacard>";
+  public void testMetacardAlternativeTextPreviewSource()
+      throws CatalogTransformerException, IOException {
+    String metadata =
+        "<?xml version=\"1.0\"?>\n"
+            + "<metacard xmlns=\"urn:catalog:metacard\" xmlns:gml=\"http://www.opengis.net/gml\">\n"
+            + "  <type>ddf.metacard</type>\n"
+            + "  <source>ddf.distribution</source>\n"
+            + "  <stringxml name=\"metadata\">\n"
+            + "    <value>\n"
+            + "      <REUTERS>\n"
+            + "        <TEXT>\n"
+            + "          <BODY>"
+            + EXTRACTED_TEXT
+            + "</BODY>\n"
+            + "        </TEXT>\n"
+            + "      </REUTERS>\n"
+            + "    </value>\n"
+            + "  </stringxml>\n"
+            + "</metacard>";
     Metacard metacard = mock(Metacard.class);
 
     doReturn(null).when(metacard).getAttribute(Extracted.EXTRACTED_TEXT);

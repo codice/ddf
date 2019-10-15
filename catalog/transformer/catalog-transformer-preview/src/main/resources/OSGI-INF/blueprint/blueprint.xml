@@ -20,10 +20,8 @@
           class="org.codice.ddf.transformer.preview.PreviewMetacardTransformer">
 
         <cm:managed-properties
-                persistent-id="org.codice.ddf.transformer.preview.actions.PreviewActionProvider"
+                persistent-id="org.codice.ddf.transformer.preview"
                 update-strategy="container-managed"/>
-
-        <property name="previewFromMetadata" value="false" />
     </bean>
 
     <service ref="previewMetacardTransformer" interface="ddf.catalog.transform.MetacardTransformer">
@@ -39,10 +37,8 @@
         <argument value="catalog.data.metacard.html.preview"/>
 
         <cm:managed-properties
-                persistent-id="org.codice.ddf.transformer.preview.actions.PreviewActionProvider"
+                persistent-id="org.codice.ddf.transformer.preview"
                 update-strategy="container-managed"/>
-
-        <property name="previewFromMetadata" value="false" />
     </bean>
 
     <service ref="previewActionProvider" interface="ddf.action.ActionProvider">

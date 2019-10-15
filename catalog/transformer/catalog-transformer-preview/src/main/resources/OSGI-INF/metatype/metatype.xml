@@ -15,7 +15,7 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" >
 
-    <OCD name="Catalog Preview" id="org.codice.ddf.transformer.preview.actions.PreviewActionProvider">
+    <OCD name="Catalog Preview" id="org.codice.ddf.transformer.preview">
         <AD description="Allow Preview to be Extracted From Metadata."
             name="Preview From Metadata"
             id="previewFromMetadata"
@@ -23,8 +23,8 @@
             default="false"/>
     </OCD>
 
-    <Designate pid="org.codice.ddf.transformer.preview.actions.PreviewActionProvider">
-        <Object ocdref="org.codice.ddf.transformer.preview.actions.PreviewActionProvider"/>
+    <Designate pid="org.codice.ddf.transformer.preview">
+        <Object ocdref="org.codice.ddf.transformer.preview"/>
     </Designate>
 
 </metatype:MetaData>
