@@ -63,14 +63,6 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
               .replaceAll("[\n|\r]", "<br>");
     }
 
-    //    if (preview.equals("")
-    //        && (boolean) metacard.getAttribute("internal.local-resource").getValue()) {
-    //      preview =
-    //          String.format(
-    //              "<img src=\"%s\" alt=\"preview-img\">",
-    //              metacard.getAttribute("resource-download-url").getValue());
-    //    }
-
     if (StringUtils.isNotEmpty(preview)) {
       preview = String.format("<head><meta charset=\"utf-8\"/>%s</head>", preview);
     }
@@ -98,7 +90,10 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
 
         Node result =
             (Node) xPathFactory.newXPath().compile(xpath).evaluate(inputXml, XPathConstants.NODE);
-        text = result.getTextContent().trim();
+
+        if (result != null) {
+          text = result.getTextContent().trim();
+        }
 
         if (StringUtils.isNotEmpty(text)) {
           break;
