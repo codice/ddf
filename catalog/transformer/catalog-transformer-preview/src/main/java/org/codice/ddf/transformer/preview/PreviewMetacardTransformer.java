@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.util.*;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang.StringUtils;
@@ -39,7 +40,7 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
 
   private List<String> previewElements;
 
-  private XPathFactory xPathFactory = XPathFactory.newInstance();
+  private List<XPathExpression> xPathExpressions;
 
   private static final Logger LOGGER =
       LoggerFactory.getLogger(PreviewMetacardTransformer.class.getName());
@@ -59,9 +60,11 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
           StringEscapeUtils.escapeHtml4(
                   metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString())
               .replaceAll("[\n|\r]", "<br>");
-    } else if (previewFromMetadata && previewElements != null && StringUtils.isNotEmpty(metacard.getMetadata())) {
+    } else if (previewFromMetadata
+        && xPathExpressions != null
+        && StringUtils.isNotEmpty(metacard.getMetadata())) {
       String text =
-          previewElements
+          xPathExpressions
               .stream()
               .map(x -> evaluateXPath(metacard.getMetadata(), x))
               .filter(Objects::nonNull)
@@ -72,24 +75,18 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
       }
     }
 
-    if (StringUtils.isNotEmpty(preview)) {
-      preview = String.format("<head><meta charset=\"utf-8\"/>%s</head>", preview);
-    }
+    preview = String.format("<head><meta charset=\"utf-8\"/>%s</head>", preview);
 
     return new BinaryContentImpl(IOUtils.toInputStream(preview));
   }
 
-  private String evaluateXPath(String metadata, String textElement) {
-    String xPathString = "//*[name()='%s']";
-    String xpath = String.format(xPathString, textElement);
-
+  private String evaluateXPath(String metadata, XPathExpression xPathExpression) {
     StringReader metadataReader = new StringReader(metadata);
     InputSource inputXml = new InputSource(metadataReader);
 
     String text = null;
     try {
-      Node result =
-          (Node) xPathFactory.newXPath().compile(xpath).evaluate(inputXml, XPathConstants.NODE);
+      Node result = (Node) xPathExpression.evaluate(inputXml, XPathConstants.NODE);
       if (result != null) {
         text = result.getTextContent().trim();
       }
@@ -98,6 +95,22 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     }
 
     return text;
+  }
+
+  private List<XPathExpression> createXPathExpressions(List<String> previewElements) {
+    XPathFactory xPathFactory = XPathFactory.newInstance();
+    List<XPathExpression> xPathExpressions = new ArrayList<>();
+
+    String xPathString = "//*[name()='%s']";
+
+    try {
+      for (String element : previewElements) {
+        xPathExpressions.add(xPathFactory.newXPath().compile(String.format(xPathString, element)));
+      }
+    } catch (XPathExpressionException e) {
+      LOGGER.error("Error compiling xpath", e);
+    }
+    return xPathExpressions;
   }
 
   public Boolean getPreviewFromMetadata() {
@@ -114,5 +127,6 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
 
   public void setPreviewElements(List<String> previewElements) {
     this.previewElements = previewElements;
+    this.xPathExpressions = createXPathExpressions(previewElements);
   }
 }

@@ -29,7 +29,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Test;
 
 public class PreviewMetacardTransformerTest {
@@ -43,22 +42,22 @@ public class PreviewMetacardTransformerTest {
       "<head><meta charset=\"utf-8\"/>Some value<br>Another value</head>";
 
   private static final String METADATA =
-          "<?xml version=\"1.0\"?>\n"
-                  + "<metacard xmlns=\"urn:catalog:metacard\" xmlns:gml=\"http://www.opengis.net/gml\">\n"
-                  + "  <type>ddf.metacard</type>\n"
-                  + "  <source>ddf.distribution</source>\n"
-                  + "  <stringxml name=\"metadata\">\n"
-                  + "    <value>\n"
-                  + "      <REUTERS>\n"
-                  + "        <TEXT>\n"
-                  + "          <BODY>"
-                  + EXTRACTED_TEXT
-                  + "          </BODY>\n"
-                  + "        </TEXT>\n"
-                  + "      </REUTERS>\n"
-                  + "    </value>\n"
-                  + "  </stringxml>\n"
-                  + "</metacard>";
+      "<?xml version=\"1.0\"?>\n"
+          + "<metacard xmlns=\"urn:catalog:metacard\" xmlns:gml=\"http://www.opengis.net/gml\">\n"
+          + "  <type>ddf.metacard</type>\n"
+          + "  <source>ddf.distribution</source>\n"
+          + "  <stringxml name=\"metadata\">\n"
+          + "    <value>\n"
+          + "      <REUTERS>\n"
+          + "        <TEXT>\n"
+          + "          <BODY>"
+          + EXTRACTED_TEXT
+          + "          </BODY>\n"
+          + "        </TEXT>\n"
+          + "      </REUTERS>\n"
+          + "    </value>\n"
+          + "  </stringxml>\n"
+          + "</metacard>";
 
   private PreviewMetacardTransformer previewMetacardTransformer = new PreviewMetacardTransformer();
 
@@ -119,7 +118,7 @@ public class PreviewMetacardTransformerTest {
 
   @Test
   public void testMetacardTextPreviewMetadataNoMatchingXPath()
-          throws CatalogTransformerException, IOException {
+      throws CatalogTransformerException, IOException {
     Metacard metacard = mock(Metacard.class);
 
     doReturn(null).when(metacard).getAttribute(Extracted.EXTRACTED_TEXT);
@@ -138,5 +137,4 @@ public class PreviewMetacardTransformerTest {
     String preview = new String(content.getByteArray());
     assertThat(preview, is(equalTo(NO_PREVIEW)));
   }
-
 }
