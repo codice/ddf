@@ -45,6 +45,7 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
+import org.osgi.framework.InvalidSyntaxException;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerSuite.class)
@@ -109,14 +110,16 @@ public class TestFanout extends AbstractIntegrationTest {
     await("Waiting for CSW source to initialize")
         .atMost(10, TimeUnit.MINUTES)
         .pollDelay(1, TimeUnit.SECONDS)
-        .until(
-            () ->
-                getServiceManager()
-                    .getServiceReferences(FederatedSource.class, null)
-                    .stream()
-                    .map(getServiceManager()::getService)
-                    .filter(src -> CSW_SOURCE_ID.equals(src.getId()))
-                    .anyMatch(Source::isAvailable));
+        .until(this::areSourcesReady);
+  }
+
+  private boolean areSourcesReady() throws InvalidSyntaxException {
+    return getServiceManager()
+        .getServiceReferences(FederatedSource.class, null)
+        .stream()
+        .map(getServiceManager()::getService)
+        .filter(src -> CSW_SOURCE_ID.equals(src.getId()))
+        .anyMatch(Source::isAvailable);
   }
 
   @Test

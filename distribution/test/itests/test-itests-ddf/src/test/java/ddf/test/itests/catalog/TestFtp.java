@@ -322,10 +322,7 @@ public class TestFtp extends AbstractIntegrationTest {
         .pollDelay(1, TimeUnit.SECONDS)
         .dontCatchUncaughtExceptions()
         .until(
-            () -> {
-              ftps.connect(FTP_SERVER, Integer.parseInt(FTP_PORT.getPort()));
-              return true;
-            });
+            () -> successfulFtpConnection(ftps, FTP_SERVER, Integer.parseInt(FTP_PORT.getPort())));
 
     showServerReply(ftps);
     int connectionReply = ftps.getReplyCode();
@@ -442,38 +439,38 @@ public class TestFtp extends AbstractIntegrationTest {
         await(
                 "SSL handshake to succeed with FTPS client without certificate because clientAuth = \"want\"")
             .atMost(SET_CLIENT_AUTH_TIMEOUT_SEC, TimeUnit.SECONDS)
-            .until(
-                () -> {
-                  FTPSClient client;
-                  try {
-                    client = createSecureClient(false);
-                    disconnectClient(client);
-                    return true;
-                  } catch (SSLException | SocketException | FTPConnectionClosedException e) {
-                    // SSL handshake or connection failed
-                    return false;
-                  }
-                });
+            .until(this::clientWithWant);
         break;
       case NEED:
         await(
                 "SSL handshake to fail with FTPS client without certificate because clientAuth = \"need\"")
             .atMost(SET_CLIENT_AUTH_TIMEOUT_SEC, TimeUnit.SECONDS)
-            .until(
-                () -> {
-                  FTPSClient client;
-                  try {
-                    client = createSecureClient(false);
-                    disconnectClient(client);
-                    return false;
-                  } catch (SSLException e) {
-                    // SSL handshake failed
-                    return true;
-                  } catch (SocketException | FTPConnectionClosedException e) {
-                    // connection failed
-                    return false;
-                  }
-                });
+            .until(this::clientWithNeed);
+    }
+  }
+
+  private boolean clientWithWant() throws Exception {
+    try {
+      FTPSClient client = createSecureClient(false);
+      disconnectClient(client);
+      return true;
+    } catch (SSLException | SocketException | FTPConnectionClosedException e) {
+      // SSL handshake or connection failed
+      return false;
+    }
+  }
+
+  private boolean clientWithNeed() throws Exception {
+    try {
+      FTPSClient client = createSecureClient(false);
+      disconnectClient(client);
+      return false;
+    } catch (SSLException e) {
+      // SSL handshake failed
+      return true;
+    } catch (SocketException | FTPConnectionClosedException e) {
+      // connection failed
+      return false;
     }
   }
 
@@ -498,5 +495,11 @@ public class TestFtp extends AbstractIntegrationTest {
 
               return numOfResults == expectedResults && title.equals(expectedTitle);
             });
+  }
+
+  private boolean successfulFtpConnection(FTPClient client, String server, int port)
+      throws IOException {
+    client.connect(server, port);
+    return true;
   }
 }

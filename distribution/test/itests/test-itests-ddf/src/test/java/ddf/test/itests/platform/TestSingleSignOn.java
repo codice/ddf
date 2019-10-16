@@ -185,7 +185,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
   }
 
   @After
-  public void teardown() {
+  public void teardown() throws Exception {
     // Clear all active login sessions to ensure a clean slate
     SessionHandler sessionHandler = getServiceManager().getService(SessionHandler.class);
     Map<String, Set<String>> activeSessions =

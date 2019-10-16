@@ -2082,23 +2082,25 @@ public class TestFederation extends AbstractIntegrationTest {
       Set<String> metacardIdsExpected,
       Set<String> metacardIdsNotExpected,
       Set<String> subscriptionIds) {
-    long millis = 0;
-
-    boolean isAllEventsReceived = false;
-    boolean isUnexpectedEventReceived = false;
 
     await("Waiting for events to be received")
         .atMost(2, MINUTES)
         .pollDelay(EVENT_UPDATE_WAIT_INTERVAL, TimeUnit.MILLISECONDS)
         .until(
             () ->
-                subscriptionIds
-                    .stream()
-                    .map(this::getEvents)
-                    .allMatch(
-                        ids ->
-                            ids.containsAll(metacardIdsExpected)
-                                && !ids.removeAll(metacardIdsNotExpected)));
+                verifySubscriptions(subscriptionIds, metacardIdsExpected, metacardIdsNotExpected));
+  }
+
+  private boolean verifySubscriptions(
+      Set<String> subscriptionIds, Set<String> expected, Set<String> unexpected) {
+    return subscriptionIds
+        .stream()
+        .map(this::getEvents)
+        .allMatch(ids -> areIdsCorrect(ids, expected, unexpected));
+  }
+
+  private boolean areIdsCorrect(Set<String> result, Set<String> expected, Set<String> unexpected) {
+    return result.containsAll(expected) && !result.removeAll(unexpected);
   }
 
   private Set<String> getEvents(String subscriptionId) {

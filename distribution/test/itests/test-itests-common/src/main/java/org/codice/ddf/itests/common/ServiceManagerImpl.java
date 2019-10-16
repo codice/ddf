@@ -190,17 +190,16 @@ public class ServiceManagerImpl implements ServiceManager {
     await("Waiting for service: " + sourceConfig.getPid())
         .atMost(MANAGED_SERVICE_TIMEOUT, TimeUnit.MILLISECONDS)
         .pollDelay(CONFIG_UPDATE_WAIT_INTERVAL_MILLIS, TimeUnit.MILLISECONDS)
-        .until(
-            () ->
-                adminConfig
-                    .getAdminConsoleService()
-                    .listServices()
-                    .stream()
-                    .map(Service::getId)
-                    .anyMatch(
-                        id ->
-                            id.equals(sourceConfig.getPid())
-                                || id.equals(sourceConfig.getFactoryPid())));
+        .until(() -> isServiceReady(sourceConfig));
+  }
+
+  private boolean isServiceReady(Configuration sourceConfig) throws NotCompliantMBeanException {
+    return adminConfig
+        .getAdminConsoleService()
+        .listServices()
+        .stream()
+        .map(Service::getId)
+        .anyMatch(id -> servicePredicate(id, sourceConfig));
   }
 
   @Override
@@ -244,7 +243,7 @@ public class ServiceManagerImpl implements ServiceManager {
   private boolean isFeatureInstalled(String featureName) throws Exception {
     return Arrays.stream(featuresService.listInstalledFeatures())
         .map(Feature::getName)
-        .anyMatch(name -> name.equals(featureName));
+        .anyMatch(featureName::equals);
   }
 
   @Override
@@ -308,11 +307,13 @@ public class ServiceManagerImpl implements ServiceManager {
     await("Waiting for bundles with prefix to be ready: " + symbolicNamePrefix)
         .atMost(FEATURES_AND_BUNDLES_TIMEOUT, TimeUnit.MILLISECONDS)
         .pollDelay(1, TimeUnit.SECONDS)
-        .until(
-            () ->
-                Arrays.stream(bundleContext.getBundles())
-                    .filter(bundle -> bundle.getSymbolicName().startsWith(symbolicNamePrefix))
-                    .allMatch(this::isBundleReady));
+        .until(() -> areBundlesReady(symbolicNamePrefix));
+  }
+
+  private boolean areBundlesReady(String prefix) {
+    return Arrays.stream(bundleContext.getBundles())
+        .filter(bundle -> bundle.getSymbolicName().startsWith(prefix))
+        .allMatch(this::isBundleReady);
   }
 
   private boolean isBundleReady(Bundle bundle) {
@@ -332,7 +333,7 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     if (!ready) {
-      LOGGER.info("{} bundle not ready yet", name);
+      LOGGER.debug("{} bundle not ready yet", name);
     }
 
     return ready;
@@ -490,6 +491,10 @@ public class ServiceManagerImpl implements ServiceManager {
       }
     }
     return null;
+  }
+
+  private boolean servicePredicate(String id, Configuration serviceConfig) {
+    return id.equals(serviceConfig.getPid()) || id.equals(serviceConfig.getFactoryPid());
   }
 
   @Override

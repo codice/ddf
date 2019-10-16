@@ -599,22 +599,23 @@ public class TestRegistry extends AbstractIntegrationTest {
         new RetryPolicy()
             .withMaxDuration(2, TimeUnit.MINUTES)
             .withDelay(SLEEP_TIME, TimeUnit.MILLISECONDS);
-    Failsafe.with(retryPolicy)
-        .run(
-            () ->
-                given()
-                    .auth()
-                    .preemptive()
-                    .basic(ADMIN, ADMIN)
-                    .body(
-                        "<csw:GetCapabilities service=\"CSW\" xmlns:csw=\"http://www.opengis.net/cat/csw\" xmlns:ows=\"http://www.opengis.net/ows\"/>")
-                    .header("Content-Type", "text/xml")
-                    .expect()
-                    .log()
-                    .ifValidationFails()
-                    .statusCode(200)
-                    .when()
-                    .post(CSW_PATH.getUrl()));
+    Failsafe.with(retryPolicy).run(this::mockServerIsReady);
+  }
+
+  private void mockServerIsReady() {
+    given()
+        .auth()
+        .preemptive()
+        .basic(ADMIN, ADMIN)
+        .body(
+            "<csw:GetCapabilities service=\"CSW\" xmlns:csw=\"http://www.opengis.net/cat/csw\" xmlns:ows=\"http://www.opengis.net/ows\"/>")
+        .header("Content-Type", "text/xml")
+        .expect()
+        .log()
+        .ifValidationFails()
+        .statusCode(200)
+        .when()
+        .post(CSW_PATH.getUrl());
   }
 
   private static void waitForCatalogStoreVerify(final Callable callable)
@@ -625,16 +626,17 @@ public class TestRegistry extends AbstractIntegrationTest {
               .pollInterval(5, TimeUnit.SECONDS)
               .await()
               .atMost(5, TimeUnit.MINUTES)
-              .untilAsserted(
-                  () -> {
-                    try {
-                      callable.call();
-                    } catch (Exception e) {
-                      throw new AssertionError(
-                          "There was an error interacting with the remote registry metacard.", e);
-                    }
-                  });
+              .untilAsserted(() -> callableAssertion(callable));
           return null;
         });
+  }
+
+  private static void callableAssertion(final Callable callable) {
+    try {
+      callable.call();
+    } catch (Exception e) {
+      throw new AssertionError(
+          "There was an error interacting with the remote registry metacard.", e);
+    }
   }
 }
