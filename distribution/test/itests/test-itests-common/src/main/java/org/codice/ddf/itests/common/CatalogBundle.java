@@ -81,7 +81,7 @@ public class CatalogBundle {
         return sources
             .getSourceInfo()
             .stream()
-            .filter(descriptor -> descriptor.getSourceId().endsWith(provider.getId()))
+            .filter(descriptor -> descriptor.getSourceId().equals(provider.getId()))
             .map(descriptor -> descriptor.isAvailable() && provider.isAvailable())
             .findFirst()
             .orElse(false);
@@ -166,11 +166,7 @@ public class CatalogBundle {
   }
 
   public void setupCaching(boolean cachingEnabled) throws IOException {
-    if (cachingEnabled) {
-      setResourceDownloadProperty("cacheEnabled", "True");
-    } else {
-      setResourceDownloadProperty("cacheEnabled", "False");
-    }
+    setResourceDownloadProperty("cacheEnabled", Boolean.toString(cachingEnabled));
   }
 
   public void setDownloadRetryDelayInSeconds(int delay) throws IOException {
