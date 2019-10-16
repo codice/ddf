@@ -27,6 +27,9 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.experimental.Extracted;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 
 public class PreviewMetacardTransformerTest {
@@ -38,6 +41,24 @@ public class PreviewMetacardTransformerTest {
 
   private static final String TRANSFORMED_TEXT =
       "<head><meta charset=\"utf-8\"/>Some value<br>Another value</head>";
+
+  private static final String METADATA =
+          "<?xml version=\"1.0\"?>\n"
+                  + "<metacard xmlns=\"urn:catalog:metacard\" xmlns:gml=\"http://www.opengis.net/gml\">\n"
+                  + "  <type>ddf.metacard</type>\n"
+                  + "  <source>ddf.distribution</source>\n"
+                  + "  <stringxml name=\"metadata\">\n"
+                  + "    <value>\n"
+                  + "      <REUTERS>\n"
+                  + "        <TEXT>\n"
+                  + "          <BODY>"
+                  + EXTRACTED_TEXT
+                  + "          </BODY>\n"
+                  + "        </TEXT>\n"
+                  + "      </REUTERS>\n"
+                  + "    </value>\n"
+                  + "  </stringxml>\n"
+                  + "</metacard>";
 
   private PreviewMetacardTransformer previewMetacardTransformer = new PreviewMetacardTransformer();
 
@@ -74,31 +95,20 @@ public class PreviewMetacardTransformerTest {
 
   /** Test that text-based products can still have previews even without a set EXTRACTED_TEXT */
   @Test
-  public void testMetacardAlternativeTextPreviewSource()
+  public void testMetacardTextPreviewMetadataSource()
       throws CatalogTransformerException, IOException {
-    String metadata =
-        "<?xml version=\"1.0\"?>\n"
-            + "<metacard xmlns=\"urn:catalog:metacard\" xmlns:gml=\"http://www.opengis.net/gml\">\n"
-            + "  <type>ddf.metacard</type>\n"
-            + "  <source>ddf.distribution</source>\n"
-            + "  <stringxml name=\"metadata\">\n"
-            + "    <value>\n"
-            + "      <REUTERS>\n"
-            + "        <TEXT>\n"
-            + "          <BODY>"
-            + EXTRACTED_TEXT
-            + "          </BODY>\n"
-            + "        </TEXT>\n"
-            + "      </REUTERS>\n"
-            + "    </value>\n"
-            + "  </stringxml>\n"
-            + "</metacard>";
+
     Metacard metacard = mock(Metacard.class);
 
     doReturn(null).when(metacard).getAttribute(Extracted.EXTRACTED_TEXT);
-    doReturn(metadata).when(metacard).getMetadata();
+    doReturn(METADATA).when(metacard).getMetadata();
+
+    List<String> previewElements = new ArrayList<>();
+    previewElements.add("text");
+    previewElements.add("TEXT");
 
     previewMetacardTransformer.setPreviewFromMetadata(true);
+    previewMetacardTransformer.setPreviewElements(previewElements);
     BinaryContent content = previewMetacardTransformer.transform(metacard, null);
 
     assertThat(content, notNullValue());
@@ -106,4 +116,27 @@ public class PreviewMetacardTransformerTest {
     String preview = new String(content.getByteArray());
     assertThat(preview, is(equalTo(TRANSFORMED_TEXT)));
   }
+
+  @Test
+  public void testMetacardTextPreviewMetadataNoMatchingXPath()
+          throws CatalogTransformerException, IOException {
+    Metacard metacard = mock(Metacard.class);
+
+    doReturn(null).when(metacard).getAttribute(Extracted.EXTRACTED_TEXT);
+    doReturn(METADATA).when(metacard).getMetadata();
+
+    // make specified preview elements invalid for xpath
+    List<String> previewElements = new ArrayList<>();
+    previewElements.add("no match");
+
+    previewMetacardTransformer.setPreviewFromMetadata(true);
+    previewMetacardTransformer.setPreviewElements(previewElements);
+    BinaryContent content = previewMetacardTransformer.transform(metacard, null);
+
+    assertThat(content, notNullValue());
+
+    String preview = new String(content.getByteArray());
+    assertThat(preview, is(equalTo(NO_PREVIEW)));
+  }
+
 }

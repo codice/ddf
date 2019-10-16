@@ -21,6 +21,13 @@
             id="previewFromMetadata"
             type="Boolean"
             default="false"/>
+
+        <AD description="Specify element names to preview from XML."
+            name="Element Names to Preview"
+            id="previewElements"
+            type="String"
+            cardinality="100"
+            default="text,TEXT" />
     </OCD>
 
     <Designate pid="org.codice.ddf.transformer.preview">

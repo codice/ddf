@@ -21,10 +21,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -40,15 +37,12 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
 
   private Boolean previewFromMetadata = false;
 
+  private List<String> previewElements;
+
+  private XPathFactory xPathFactory = XPathFactory.newInstance();
+
   private static final Logger LOGGER =
       LoggerFactory.getLogger(PreviewMetacardTransformer.class.getName());
-
-  private Set<String> textElements = new HashSet<>();
-
-  public PreviewMetacardTransformer() {
-    textElements.add("text");
-    textElements.add("TEXT");
-  }
 
   @Override
   public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
@@ -65,15 +59,17 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
           StringEscapeUtils.escapeHtml4(
                   metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString())
               .replaceAll("[\n|\r]", "<br>");
-    } else if (previewFromMetadata && StringUtils.isNotEmpty(metacard.getMetadata())) {
+    } else if (previewFromMetadata && previewElements != null && StringUtils.isNotEmpty(metacard.getMetadata())) {
       String text =
-          textElements
+          previewElements
               .stream()
               .map(x -> evaluateXPath(metacard.getMetadata(), x))
               .filter(Objects::nonNull)
               .findFirst()
               .orElse("");
-      preview = StringEscapeUtils.escapeHtml4(text).replaceAll("[\n|\r]", "<br>");
+      if (StringUtils.isNotEmpty(text)) {
+        preview = StringEscapeUtils.escapeHtml4(text).replaceAll("[\n|\r]", "<br>");
+      }
     }
 
     if (StringUtils.isNotEmpty(preview)) {
@@ -87,7 +83,6 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     String xPathString = "//*[name()='%s']";
     String xpath = String.format(xPathString, textElement);
 
-    XPathFactory xPathFactory = XPathFactory.newInstance();
     StringReader metadataReader = new StringReader(metadata);
     InputSource inputXml = new InputSource(metadataReader);
 
@@ -111,5 +106,13 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
 
   public void setPreviewFromMetadata(Boolean previewFromMetadata) {
     this.previewFromMetadata = previewFromMetadata;
+  }
+
+  public List<String> getPreviewElements() {
+    return previewElements;
+  }
+
+  public void setPreviewElements(List<String> previewElements) {
+    this.previewElements = previewElements;
   }
 }
