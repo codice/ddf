@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -65,9 +66,14 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
                   metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString())
               .replaceAll("[\n|\r]", "<br>");
     } else if (previewFromMetadata && StringUtils.isNotEmpty(metacard.getMetadata())) {
-      preview =
-          StringEscapeUtils.escapeHtml4(selectPreviewFromMetadata(metacard.getMetadata()))
-              .replaceAll("[\n|\r]", "<br>");
+      String text =
+          textElements
+              .stream()
+              .map(x -> evaluateXPath(metacard.getMetadata(), x))
+              .filter(Objects::nonNull)
+              .findFirst()
+              .orElse("");
+      preview = StringEscapeUtils.escapeHtml4(text).replaceAll("[\n|\r]", "<br>");
     }
 
     if (StringUtils.isNotEmpty(preview)) {
@@ -77,32 +83,23 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     return new BinaryContentImpl(IOUtils.toInputStream(preview));
   }
 
-  private String selectPreviewFromMetadata(String metadata) {
-    XPathFactory xPathFactory;
+  private String evaluateXPath(String metadata, String textElement) {
     String xPathString = "//*[name()='%s']";
-    String text = "";
+    String xpath = String.format(xPathString, textElement);
 
-    for (String attributeName : textElements) {
-      xPathFactory = XPathFactory.newInstance();
-      try {
-        String xpath = String.format(xPathString, attributeName);
+    XPathFactory xPathFactory = XPathFactory.newInstance();
+    StringReader metadataReader = new StringReader(metadata);
+    InputSource inputXml = new InputSource(metadataReader);
 
-        StringReader metadataReader = new StringReader(metadata);
-        InputSource inputXml = new InputSource(metadataReader);
-
-        Node result =
-            (Node) xPathFactory.newXPath().compile(xpath).evaluate(inputXml, XPathConstants.NODE);
-
-        if (result != null) {
-          text = result.getTextContent().trim();
-        }
-
-        if (StringUtils.isNotEmpty(text)) {
-          break;
-        }
-      } catch (XPathExpressionException | NullPointerException e) {
-        LOGGER.warn("Could not find attribute in xPath: {}", xPathFactory);
+    String text = null;
+    try {
+      Node result =
+          (Node) xPathFactory.newXPath().compile(xpath).evaluate(inputXml, XPathConstants.NODE);
+      if (result != null) {
+        text = result.getTextContent().trim();
       }
+    } catch (XPathExpressionException e) {
+      LOGGER.error("Error evaluating xpath");
     }
 
     return text;
