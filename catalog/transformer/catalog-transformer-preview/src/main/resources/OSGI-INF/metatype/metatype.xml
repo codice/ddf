@@ -22,7 +22,7 @@
             type="Boolean"
             default="false"/>
 
-        <AD description="Specify element names to preview from XML."
+        <AD description="Specify element names to preview from XML. Note: This list will not be used unless Preview From Metadata is enabled."
             name="Element Names to Preview"
             id="previewElements"
             type="String"
