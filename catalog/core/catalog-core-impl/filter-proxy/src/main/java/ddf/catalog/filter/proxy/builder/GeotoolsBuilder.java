@@ -117,19 +117,13 @@ class GeotoolsBuilder {
       case AFTER:
         date = getValue(Date.class);
         if (date != null) {
-          filter =
-              factory.after(
-                  factory.property(attribute),
-                  factory.literal(new DefaultInstant(new DefaultPosition(date))));
+          filter = factory.after(factory.property(attribute), factory.literal(date));
         }
         break;
       case BEFORE:
         date = getValue(Date.class);
         if (date != null) {
-          filter =
-              factory.before(
-                  factory.property(attribute),
-                  factory.literal(new DefaultInstant(new DefaultPosition(date))));
+          filter = factory.before(factory.property(attribute), factory.literal(date));
         }
         break;
       case BETWEEN:

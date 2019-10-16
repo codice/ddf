@@ -25,6 +25,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import java.util.Date;
+import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.filter.visitor.DefaultExpressionVisitor;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.junit.Test;
@@ -51,7 +52,6 @@ import org.opengis.filter.temporal.After;
 import org.opengis.filter.temporal.Before;
 import org.opengis.filter.temporal.During;
 import org.opengis.geometry.Geometry;
-import org.opengis.temporal.Instant;
 
 public class FilterBuilderTest {
 
@@ -258,7 +258,7 @@ public class FilterBuilderTest {
     expressionArgument.getValue().getExpression2().accept(expVisitor, null);
     ArgumentCaptor<Literal> literalArgument = ArgumentCaptor.forClass(Literal.class);
     verify(expVisitor).visit(literalArgument.capture(), anyObject());
-    assertEquals(date, ((Instant) literalArgument.getValue().getValue()).getPosition().getDate());
+    assertEquals(date, literalArgument.getValue().getValue());
   }
 
   @Test
@@ -288,6 +288,15 @@ public class FilterBuilderTest {
   }
 
   @Test
+  public void afterFilterIsSymmetricWithCql() throws Exception {
+    FilterBuilder builder = new GeotoolsFilterBuilder();
+    Filter filter = builder.attribute(FOO_ATTRIBUTE).after().date(new Date());
+    String cql = ECQL.toCQL(filter);
+    // will throw an exception if the generated CQL was not valid
+    ECQL.toFilter(cql);
+  }
+
+  @Test
   public void before() {
     FilterVisitor visitor = spy(new DefaultFilterVisitor() {});
     FilterBuilder builder = new GeotoolsFilterBuilder();
@@ -299,6 +308,15 @@ public class FilterBuilderTest {
 
     InOrder inOrder = inOrder(visitor);
     inOrder.verify(visitor, times(2)).visit(isA(Before.class), anyObject());
+  }
+
+  @Test
+  public void beforeFilterIsSymmetricWithCql() throws Exception {
+    FilterBuilder builder = new GeotoolsFilterBuilder();
+    Filter filter = builder.attribute(FOO_ATTRIBUTE).before().date(new Date());
+    String cql = ECQL.toCQL(filter);
+    // will throw an exception if the generated CQL was not valid
+    ECQL.toFilter(cql);
   }
 
   @Test
