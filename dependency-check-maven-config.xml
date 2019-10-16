@@ -39,7 +39,6 @@
         <cve>CVE-2017-15095</cve>
         <cve>CVE-2017-17485</cve>
         <cve>CVE-2018-7489</cve>
-
         <cve>CVE-2018-11307</cve>
         <cve>CVE-2018-14719</cve>
         <cve>CVE-2018-14718</cve>
@@ -50,6 +49,7 @@
         <cve>CVE-2018-19360</cve>
         <cve>CVE-2019-16942</cve>
         <cve>CVE-2019-16943</cve>
+        <cve>CVE-2019-17267</cve>
     </suppress>
     <suppress>
         <notes>
