@@ -114,6 +114,7 @@ public class PreviewMetacardTransformerTest {
 
     String preview = new String(content.getByteArray());
     assertThat(preview, is(equalTo(TRANSFORMED_TEXT)));
+    assertThat(previewMetacardTransformer.getPreviewElements(), is(equalTo(previewElements)));
   }
 
   @Test
@@ -127,6 +128,28 @@ public class PreviewMetacardTransformerTest {
     // make specified preview elements invalid for xpath
     List<String> previewElements = new ArrayList<>();
     previewElements.add("no match");
+
+    previewMetacardTransformer.setPreviewFromMetadata(true);
+    previewMetacardTransformer.setPreviewElements(previewElements);
+    BinaryContent content = previewMetacardTransformer.transform(metacard, null);
+
+    assertThat(content, notNullValue());
+
+    String preview = new String(content.getByteArray());
+    assertThat(preview, is(equalTo(NO_PREVIEW)));
+  }
+
+  @Test
+  public void testMetacardTextPreviewMetadataNull()
+      throws CatalogTransformerException, IOException {
+    Metacard metacard = mock(Metacard.class);
+
+    doReturn(null).when(metacard).getAttribute(Extracted.EXTRACTED_TEXT);
+    doReturn(null).when(metacard).getMetadata();
+
+    // make specified preview elements invalid for xpath
+    List<String> previewElements = new ArrayList<>();
+    previewElements.add("TEXT");
 
     previewMetacardTransformer.setPreviewFromMetadata(true);
     previewMetacardTransformer.setPreviewElements(previewElements);
