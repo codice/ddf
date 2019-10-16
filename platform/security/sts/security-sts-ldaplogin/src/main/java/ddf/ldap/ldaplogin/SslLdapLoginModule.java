@@ -339,22 +339,12 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         return false;
       }
 
+      succeeded = true;
+      commitSucceeded = true;
       return true;
     } finally {
       ldapConnectionPool.returnObject(connection);
     }
-  }
-
-  @Override
-  public boolean abort() throws LoginException {
-    return true;
-  }
-
-  @Override
-  public boolean logout() throws LoginException {
-    subject.getPrincipals().removeAll(principals);
-    principals.clear();
-    return true;
   }
 
   protected BundleContext getContext() {
