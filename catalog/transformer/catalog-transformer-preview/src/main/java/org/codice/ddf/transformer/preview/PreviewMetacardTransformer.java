@@ -87,7 +87,7 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     String text = null;
     try {
       Node result = (Node) xPathExpression.evaluate(inputXml, XPathConstants.NODE);
-      if (result != null) {
+      if (result != null && result.getTextContent() != null) {
         text = result.getTextContent().trim();
       }
     } catch (XPathExpressionException e) {
