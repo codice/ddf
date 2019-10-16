@@ -509,9 +509,9 @@ module.exports = function CesiumMap(
         icon: null,
         view: this,
       }
+      const useCustomText = true
 
-      // calls addPointWithText() with the flag set to use the custom marker label
-      return this.addPointWithText(point, options, true)
+      return this.addPointWithText(point, options, useCustomText)
     },
     /*
      * Removes the given Billboard from the map.
@@ -548,7 +548,7 @@ module.exports = function CesiumMap(
         cartesianArray
       )
       mapModel.setCurrentDistance(distanceBetweenPoints)
-      // rendering the line breaks if the distance is 0
+      // rendering a line between two points with a distance of 0 causes an error
       if (distanceBetweenPoints > 0) {
         map.scene.primitives.add(linePrimitive)
       }

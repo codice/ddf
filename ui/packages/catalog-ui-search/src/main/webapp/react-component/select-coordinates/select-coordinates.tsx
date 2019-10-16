@@ -57,13 +57,20 @@ const Description = styled.div`
   opacity: ${props => props.theme.minimumOpacity};
 `
 
+const BLANK_DISTANCE_TEXT = '----'
+
 /*
  * Formats the current distance value to a string with the appropriate unit of measurement.
  */
-const getDistanceText = (distance: number) => {
+const getDistanceText = (distance: number, state: string) => {
+  // displays a "blank" when there's no distance measurement (in NONE or START state)
+  if (state === 'NONE' || state === 'START') {
+    return BLANK_DISTANCE_TEXT
+  }
   // use meters when distance is under 1000m and convert to kilometers when ≥1000m
   const distanceText =
     distance < 1000 ? `${distance} m` : `${distance * 0.001} km`
+
   return distanceText
 }
 
@@ -79,13 +86,14 @@ const coordHandler = (
 ) => {
   return () => {
     selectCoordHandler()
+    const currentState = mapModel.get('measurementState')
 
     // displays an announcement with the current distance when the end state has been reached
-    if (mapModel.get('measurementState') === 'END') {
+    if (currentState === 'END') {
       const distance = mapModel.get('currentDistance')
       announcement.announce({
         title: 'Distance between points:',
-        message: `${getDistanceText(distance)}`,
+        message: `${getDistanceText(distance, currentState)}`,
         type: 'success',
       })
     }
@@ -156,12 +164,15 @@ const generateClipboardHandler = (
 const render = (props: Props) => {
   const { lat, lon } = props.coordinateValues
   const { closeParent, selectCoordHandler, clearRulerHandler, mapModel } = props
-  const distanceText = getDistanceText(mapModel.get('currentDistance'))
-  const state = mapModel.get('measurementState')
+  const currentState = mapModel.get('measurementState')
+  const distanceText = getDistanceText(
+    mapModel.get('currentDistance'),
+    currentState
+  )
   let measurementSelectText = ''
 
   // determines the text to display on the menu action based on the current measurement state
-  switch (state) {
+  switch (currentState) {
     case 'NONE':
       measurementSelectText = 'Select start point'
       break
@@ -182,12 +193,15 @@ const render = (props: Props) => {
           <MenuAction
             key="current-distance"
             icon="fa fa-clipboard"
-            data-help=""
-            onClick={generateClipboardHandler(
-              distanceText,
-              context,
-              closeParent
-            )}
+            data-help="Copies the current distance measurement to the clipboard"
+            onClick={
+              /* the copy coordinates functionality is disabled when there's no distance
+               * measurement
+               */
+              distanceText === BLANK_DISTANCE_TEXT
+                ? () => {}
+                : generateClipboardHandler(distanceText, context, closeParent)
+            }
           >
             <Text>
               <Description>Copy current distance</Description>

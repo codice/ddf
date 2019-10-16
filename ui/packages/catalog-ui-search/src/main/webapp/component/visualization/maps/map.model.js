@@ -56,7 +56,15 @@ module.exports = Backbone.AssociatedModel.extend({
    *   - END
    */
   changeMeasurementState(state) {
-    this.set({ measurementState: state })
+    // the current distance should be 0 when in the NONE or START state
+    if (state === 'NONE' || state === 'START') {
+      this.set({
+        measurementState: state,
+        currentDistance: 0,
+      })
+    } else {
+      this.set({ measurementState: state })
+    }
   },
   /*
    * Appends the given Billboard to the array of Billboards being tracked.
