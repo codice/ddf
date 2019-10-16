@@ -154,7 +154,6 @@
                             owasp-java-html-sanitizer
                         </Embed-Dependency>
                         <Import-Package>
-                            !javax.activation,
                             !org.codice.ddf.platform.util,
                             *
                         </Import-Package>

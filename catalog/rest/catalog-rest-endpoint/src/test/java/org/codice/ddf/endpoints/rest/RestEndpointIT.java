@@ -241,10 +241,10 @@ public class RestEndpointIT extends AbstractComponentTest {
                 "etc/custom.properties",
                 "org.osgi.framework.system.packages.extra",
                 new StringBuilder()
+                    .append("sun.misc,")
                     .append("javax.annotation;version=1.0.0,")
                     .append("javax.annotation;version=1.3.2,")
-                    .append("javax.annotation;version=3.0.2,")
-                    .append("sun.misc")
+                    .append("javax.annotation;version=3.0.2")
                     .toString()));
       }
     };
