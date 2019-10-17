@@ -17,6 +17,9 @@ import styled from 'styled-components'
 import MapSettingsPresentation from './presentation'
 import Dropdown from '../presentation/dropdown'
 import { hot } from 'react-hot-loader'
+import withListenTo, {
+  WithBackboneProps,
+} from '../../react-component/backbone-container'
 const user = require('../../component/singletons/user-instance.js')
 
 const save = (newFormat: string) => {
@@ -34,8 +37,8 @@ type State = {
   selected: string
 }
 
-class MapSettings extends React.Component<{}, State> {
-  constructor(props: {}) {
+class MapSettings extends React.Component<WithBackboneProps, State> {
+  constructor(props: WithBackboneProps) {
     super(props)
     this.state = {
       selected: user
@@ -44,6 +47,13 @@ class MapSettings extends React.Component<{}, State> {
         .get('coordinateFormat'),
     }
   }
+
+  componentDidMount = () =>
+    this.props.listenTo(
+      user.get('user').get('preferences'),
+      'change:coordinateFormat',
+      (_prefs: any, value: string) => this.setState({ selected: value })
+    )
 
   update(newFormat: string) {
     save(newFormat)
@@ -69,5 +79,5 @@ class MapSettings extends React.Component<{}, State> {
   }
 }
 
-export default hot(module)(MapSettings)
-export const testComponent = MapSettings
+export default hot(module)(withListenTo(MapSettings))
+export const testComponent = withListenTo(MapSettings)
