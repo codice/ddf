@@ -62,9 +62,7 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
         && metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue() != null) {
 
       text = metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString();
-    } else if (previewFromMetadata
-        && elementXPathExpressions != null
-        && StringUtils.isNotEmpty(metacard.getMetadata())) {
+    } else if (canPreviewFromMetadata(metacard)) {
 
       text = getPreviewTextFromMetadata(metacard);
     }
@@ -78,18 +76,26 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     return new BinaryContentImpl(IOUtils.toInputStream(preview));
   }
 
+  private boolean canPreviewFromMetadata(Metacard metacard) {
+    final int MAX_METADATA_SIZE = 1000000;
+
+    return previewFromMetadata
+        && elementXPathExpressions != null
+        && StringUtils.isNotEmpty(metacard.getMetadata())
+        && metacard.getMetadata().length() <= MAX_METADATA_SIZE;
+  }
+
   private String getPreviewTextFromMetadata(Metacard metacard) {
     return elementXPathExpressions
-                    .stream()
-                    .map(x -> evaluateXPath(metacard.getMetadata(), x))
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse("");
+        .stream()
+        .map(x -> evaluateXPath(metacard.getMetadata(), x))
+        .filter(Objects::nonNull)
+        .findFirst()
+        .orElse("");
   }
 
   private String evaluateXPath(String metadata, XPathExpression xPathExpression) {
-    StringReader metadataReader = new StringReader(metadata);
-    InputSource inputXml = new InputSource(metadataReader);
+    InputSource inputXml = new InputSource(new StringReader(metadata));
 
     String text = null;
     try {
