@@ -236,7 +236,9 @@ public class RestEndpointIT extends AbstractComponentTest {
             super.get(),
             CoreOptions.bootClasspathLibraries(
                 new BootClasspathLibraryOption(
-                    CoreOptions.maven("javax.annotation", "javax.annotation-api", "1.3"))),
+                    CoreOptions.maven("javax.annotation", "javax.annotation-api", "1.3")),
+                new BootClasspathLibraryOption(
+                    CoreOptions.maven("com.sun.activation", "javax.activation", "1.2.0"))),
             KarafDistributionOption.editConfigurationFilePut(
                 "etc/custom.properties",
                 "org.osgi.framework.system.packages.extra",
