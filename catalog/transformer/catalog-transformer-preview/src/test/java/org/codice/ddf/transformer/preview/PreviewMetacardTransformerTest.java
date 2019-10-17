@@ -48,13 +48,11 @@ public class PreviewMetacardTransformerTest {
           + "  <source>ddf.distribution</source>\n"
           + "  <stringxml name=\"metadata\">\n"
           + "    <value>\n"
-          + "      <REUTERS>\n"
           + "        <TEXT>\n"
           + "          <BODY>"
           + EXTRACTED_TEXT
           + "          </BODY>\n"
           + "        </TEXT>\n"
-          + "      </REUTERS>\n"
           + "    </value>\n"
           + "  </stringxml>\n"
           + "</metacard>";

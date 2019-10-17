@@ -43,7 +43,7 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
 
   private List<String> previewElements;
 
-  private List<XPathExpression> xPathExpressions;
+  private List<XPathExpression> elementXPathExpressions;
 
   private static final Logger LOGGER =
       LoggerFactory.getLogger(PreviewMetacardTransformer.class.getName());
@@ -56,31 +56,35 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     }
 
     String preview = "No preview text available.";
+    String text = "";
 
     if (metacard.getAttribute(Extracted.EXTRACTED_TEXT) != null
         && metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue() != null) {
-      preview =
-          StringEscapeUtils.escapeHtml4(
-                  metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString())
-              .replaceAll("[\n|\r]", "<br>");
+
+      text = metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString();
     } else if (previewFromMetadata
-        && xPathExpressions != null
+        && elementXPathExpressions != null
         && StringUtils.isNotEmpty(metacard.getMetadata())) {
-      String text =
-          xPathExpressions
-              .stream()
-              .map(x -> evaluateXPath(metacard.getMetadata(), x))
-              .filter(Objects::nonNull)
-              .findFirst()
-              .orElse("");
-      if (StringUtils.isNotEmpty(text)) {
-        preview = StringEscapeUtils.escapeHtml4(text).replaceAll("[\n|\r]", "<br>");
-      }
+
+      text = getPreviewTextFromMetadata(metacard);
+    }
+
+    if (StringUtils.isNotEmpty(text)) {
+      preview = StringEscapeUtils.escapeHtml4(text).replaceAll("[\n|\r]", "<br>");
     }
 
     preview = String.format("<head><meta charset=\"utf-8\"/>%s</head>", preview);
 
     return new BinaryContentImpl(IOUtils.toInputStream(preview));
+  }
+
+  private String getPreviewTextFromMetadata(Metacard metacard) {
+    return elementXPathExpressions
+                    .stream()
+                    .map(x -> evaluateXPath(metacard.getMetadata(), x))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse("");
   }
 
   private String evaluateXPath(String metadata, XPathExpression xPathExpression) {
@@ -100,20 +104,28 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     return text;
   }
 
-  private List<XPathExpression> createXPathExpressions(List<String> previewElements) {
-    XPathFactory xPathFactory = XPathFactory.newInstance();
-    List<XPathExpression> xPathExpressions = new ArrayList<>();
-
-    String xPathString = "//*[name()='%s']";
+  private XPathExpression matchElementExpressionIgnoreNamespace(XPathFactory xpf, String element) {
+    XPathExpression expression = null;
 
     try {
-      for (String element : previewElements) {
-        xPathExpressions.add(xPathFactory.newXPath().compile(String.format(xPathString, element)));
-      }
+      String matchElementXPath = String.format("//*[name()='%s']", element);
+      expression = xpf.newXPath().compile(matchElementXPath);
     } catch (XPathExpressionException e) {
-      LOGGER.error("Error compiling xpath", e);
+      LOGGER.debug("Cannot compile xpath", e);
     }
-    return xPathExpressions;
+
+    return expression;
+  }
+
+  private List<XPathExpression> createElementXPathExpressions(List<String> previewElements) {
+    XPathFactory xPathFactory = XPathFactory.newInstance();
+    List<XPathExpression> expressions = new ArrayList<>();
+
+    for (String element : previewElements) {
+      expressions.add(matchElementExpressionIgnoreNamespace(xPathFactory, element));
+    }
+
+    return expressions;
   }
 
   public Boolean getPreviewFromMetadata() {
@@ -130,6 +142,6 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
 
   public void setPreviewElements(List<String> previewElements) {
     this.previewElements = previewElements;
-    this.xPathExpressions = createXPathExpressions(previewElements);
+    this.elementXPathExpressions = createElementXPathExpressions(previewElements);
   }
 }

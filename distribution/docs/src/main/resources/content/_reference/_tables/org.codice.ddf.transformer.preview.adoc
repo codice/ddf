@@ -20,14 +20,14 @@
 |Preview From Metadata
 |previewFromMetadata
 |Boolean
-|Select whether metacard's previews should be searched when creating a preview in Inspector
+|Allow Preview to be Extracted From Metadata.
 |false
 |true
 
 |Element Names to Preview
 |previewElements
 |String
-|List of element names to search for in XML metadata. Will take the text content of the first available element for preview.
+|Specify element names to preview from XML.  Will take the text content of the first available element for preview. Note: This list will not be used unless Preview From Metadata is enabled.
 |text,TEXT
 |true
 |===
