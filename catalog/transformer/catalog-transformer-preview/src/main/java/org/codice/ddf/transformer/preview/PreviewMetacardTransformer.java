@@ -56,16 +56,7 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     }
 
     String preview = "No preview text available.";
-    String text = "";
-
-    if (metacard.getAttribute(Extracted.EXTRACTED_TEXT) != null
-        && metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue() != null) {
-
-      text = metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString();
-    } else if (canPreviewFromMetadata(metacard)) {
-
-      text = getPreviewTextFromMetadata(metacard);
-    }
+    String text = getPreviewText(metacard);
 
     if (StringUtils.isNotEmpty(text)) {
       preview = StringEscapeUtils.escapeHtml4(text).replaceAll("[\n|\r]", "<br>");
@@ -74,6 +65,20 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     preview = String.format("<head><meta charset=\"utf-8\"/>%s</head>", preview);
 
     return new BinaryContentImpl(IOUtils.toInputStream(preview));
+  }
+
+  private String getPreviewText(Metacard metacard) {
+    String text = "";
+
+    if (metacard.getAttribute(Extracted.EXTRACTED_TEXT) != null
+            && metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue() != null) {
+
+      text = metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString();
+    } else if (canPreviewFromMetadata(metacard)) {
+
+      text = getPreviewTextFromMetadata(metacard);
+    }
+    return text;
   }
 
   private boolean canPreviewFromMetadata(Metacard metacard) {
