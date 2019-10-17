@@ -87,15 +87,15 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Import-Package>
+                            !javax.activation,
+                            *
+                        </Import-Package>
                         <Embed-Dependency>
                             proxy-camel-route,
                             proxy-camel-servlet,
                             camel-core-osgi
                         </Embed-Dependency>
-                        <Import-Package>
-                            !javax.activation,
-                            *
-                        </Import-Package>
                         <Export-Package />
                     </instructions>
                 </configuration>
