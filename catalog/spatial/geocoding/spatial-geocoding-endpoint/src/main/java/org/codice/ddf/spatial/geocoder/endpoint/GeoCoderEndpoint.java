@@ -18,6 +18,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import org.apache.commons.text.StringEscapeUtils;
 import org.codice.ddf.spatial.geocoding.GeoCoderService;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.slf4j.Logger;
@@ -40,8 +41,8 @@ public class GeoCoderEndpoint {
 
     String jsonString = geoCoderService.getLocation(jsonp, query);
     if (jsonString != null) {
-      return Response.ok(jsonp + "(" + jsonString + ")").build();
-
+      return Response.ok(String.format("%s(%s)", StringEscapeUtils.escapeHtml4(jsonp), jsonString))
+          .build();
     } else {
       return Response.status(Response.Status.BAD_REQUEST).build();
     }
