@@ -48,6 +48,8 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(PreviewMetacardTransformer.class.getName());
 
+  private static final String NO_PREVIEW_TEXT = "No preview text available.";
+
   @Override
   public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
       throws CatalogTransformerException {
@@ -55,14 +57,7 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
       throw new CatalogTransformerException("Cannot transform null metacard.");
     }
 
-    String preview = "No preview text available.";
-    String text = getPreviewText(metacard);
-
-    if (StringUtils.isNotEmpty(text)) {
-      preview = StringEscapeUtils.escapeHtml4(text).replaceAll("[\n|\r]", "<br>");
-    }
-
-    preview = String.format("<head><meta charset=\"utf-8\"/>%s</head>", preview);
+    String preview = getPreviewText(metacard);
 
     return new BinaryContentImpl(IOUtils.toInputStream(preview));
   }
@@ -78,7 +73,17 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
 
       text = getPreviewTextFromMetadata(metacard);
     }
-    return text;
+    return formatPreviewText(text);
+  }
+
+  private String formatPreviewText(String text) {
+
+    if (StringUtils.isNotEmpty(text)) {
+      text = StringEscapeUtils.escapeHtml4(text).replaceAll("[\n|\r]", "<br>");
+    } else {
+      text = NO_PREVIEW_TEXT;
+    }
+    return String.format("<head><meta charset=\"utf-8\"/>%s</head>", text);
   }
 
   private boolean canPreviewFromMetadata(Metacard metacard) {
@@ -115,7 +120,7 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     return text;
   }
 
-  private XPathExpression matchElementExpressionIgnoreNamespace(XPathFactory xpf, String element) {
+  private XPathExpression expressionIgnoreNamespaceAndMatchElement(XPathFactory xpf, String element) {
     XPathExpression expression = null;
 
     try {
@@ -133,7 +138,7 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     List<XPathExpression> expressions = new ArrayList<>();
 
     for (String element : previewElements) {
-      expressions.add(matchElementExpressionIgnoreNamespace(xPathFactory, element));
+      expressions.add(expressionIgnoreNamespaceAndMatchElement(xPathFactory, element));
     }
 
     return expressions;
