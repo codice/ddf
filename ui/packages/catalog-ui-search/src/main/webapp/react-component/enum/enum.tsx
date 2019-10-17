@@ -32,7 +32,7 @@ type Props = {
 } & WithBackboneProps
 
 type State = {
-  value: any
+  propertyModel: any
 }
 
 export default hot(module)(
@@ -40,37 +40,45 @@ export default hot(module)(
     class EnumComponent extends React.Component<Props, State> {
       constructor(props: Props) {
         super(props)
-        this.state = {
-          value: this.props.value,
-        }
-        this.propertyModel = new PropertyModel({
+
+        const propertyModel = new PropertyModel({
           label: this.props.label,
           enum: this.props.options,
-          value: [this.state.value],
+          value: [this.props.value],
           isEditing: true,
         })
+
+        this.state = { propertyModel: propertyModel }
       }
-      propertyModel: any
       componentDidMount() {
         if (this.props.onChange !== undefined) {
           this.props.listenTo(
-            this.propertyModel,
+            this.state.propertyModel,
             'change:value',
             this.onChange.bind(this)
           )
         }
       }
+      componentWillReceiveProps = (nextProps: Props) => {
+        if (nextProps.value !== this.props.value) {
+          this.state.propertyModel &&
+            this.state.propertyModel.setValue([nextProps.value])
+        }
+      }
       onChange() {
         if (this.props.onChange !== undefined) {
-          this.props.onChange(this.propertyModel.getValue()[0])
+          this.props.onChange(this.state.propertyModel.getValue()[0])
         }
       }
       render() {
+        //Forces re-render otherwise the region doesn't get replaced because the view doesn't change
+        const Container = class extends MarionetteRegionContainer {}
+
         return (
-          <MarionetteRegionContainer
+          <Container
             view={PropertyView}
             viewOptions={() => ({
-              model: this.propertyModel,
+              model: this.state.propertyModel,
             })}
             replaceElement
           />

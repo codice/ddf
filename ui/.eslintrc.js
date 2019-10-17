@@ -1,8 +1,6 @@
 module.exports = {
     extends: ["@connexta/eslint-config-connexta", "eslint:recommended", "plugin:react/recommended"],
     rules: {
-        "@connexta/connexta/no-absolute-urls": "off",
-
         "no-console": "off",
         "no-case-declarations" : "off",
         "no-fallthrough" : "off",

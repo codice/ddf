@@ -252,9 +252,11 @@ export const Button = ({
       style={rootStyle}
       {...otherProps as JSX.IntrinsicAttributes}
     >
-      {children ? children : ''}
-      {!children && icon ? <Icon text={text} className={icon} /> : ''}
-      {!children && text ? <Text inText={inText}>{text}</Text> : ''}
+      <>
+        {children ? children : ''}
+        {!children && icon ? <Icon text={text} className={icon} /> : ''}
+        {!children && text ? <Text inText={inText}>{text}</Text> : ''}
+      </>
     </Root>
   )
 }
