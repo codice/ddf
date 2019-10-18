@@ -436,7 +436,7 @@ grant codeBase "file:/platform-parser-xml" {
     permission java.lang.RuntimePermission "setContextClassLoader";
 }
 
-grant codeBase "file:/catalog-core-localstorageprovider" {
+grant codeBase "file:/catalog-core-localstorageprovider/token-storage-impl" {
     permission java.io.FilePermission "${ddf.home.perm}content", "write";
     permission java.io.FilePermission "${ddf.home.perm}content${/}-", "read, write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keysets${/}-", "read, write";

@@ -199,6 +199,7 @@
     </dependencyManagement>
     <modules>
         <module>security-oidc-bundle</module>
+        <module>security-token-storage</module>
         <module>platform-security-core-api</module>
         <module>security-saml-util</module>
         <module>encryption</module>
