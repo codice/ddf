@@ -144,6 +144,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.security.storage</groupId>
+            <artifactId>token-storage-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.storage</groupId>
+            <artifactId>token-storage-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.pep</groupId>
             <artifactId>security-pep-interceptor</artifactId>
             <version>${project.version}</version>
