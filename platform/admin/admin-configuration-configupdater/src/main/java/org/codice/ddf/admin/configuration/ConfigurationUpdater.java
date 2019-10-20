@@ -225,7 +225,7 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
    * @param pid the pid pointing to the configuration to delete.
    */
   @Override
-  public void handleDelete(String pid) throws IOException {
+  public final void handleDelete(String pid) throws IOException {
     try {
       AccessController.doPrivileged(
           (PrivilegedExceptionAction<Object>)
