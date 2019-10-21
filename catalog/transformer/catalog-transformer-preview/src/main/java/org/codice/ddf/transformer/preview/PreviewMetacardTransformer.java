@@ -66,7 +66,7 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     String text = "";
 
     if (metacard.getAttribute(Extracted.EXTRACTED_TEXT) != null
-            && metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue() != null) {
+        && metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue() != null) {
 
       text = metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString();
     } else if (canPreviewFromMetadata(metacard)) {
@@ -120,7 +120,8 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
     return text;
   }
 
-  private XPathExpression expressionIgnoreNamespaceAndMatchElement(XPathFactory xpf, String element) {
+  private XPathExpression expressionIgnoreNamespaceAndMatchElement(
+      XPathFactory xpf, String element) {
     XPathExpression expression = null;
 
     try {
