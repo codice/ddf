@@ -67,13 +67,6 @@ Implementation details
                 update-strategy="container-managed"/>
     </bean>
 
-    <bean id="facetWhitelistConfiguration"
-          class="org.codice.ddf.catalog.ui.security.faceting.FacetWhitelistConfiguration">
-        <cm:managed-properties
-                persistent-id="org.codice.ddf.catalog.ui.facetwhitelist"
-                update-strategy="container-managed"/>
-    </bean>
-
     <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="uiCamelContext"/>
 
     <bean id="httpProxyService" class="org.codice.proxy.http.HttpProxyServiceImpl"
@@ -85,7 +78,6 @@ Implementation details
           class="org.codice.ddf.catalog.ui.config.ConfigurationApplication"
           destroy-method="destroy">
         <argument ref="uuidGenerator"/>
-        <argument ref="facetWhitelistConfiguration"/>
 
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui"
@@ -101,6 +93,10 @@ Implementation details
 
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui.attribute.hidden"
+                update-strategy="container-managed"/>
+
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.catalog.ui.attribute.suggestionList"
                 update-strategy="container-managed"/>
 
         <cm:managed-properties
