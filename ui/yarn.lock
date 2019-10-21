@@ -1306,22 +1306,24 @@
     webpack "4.6.0"
     webpack-cli "2.0.15"
 
-"@connexta/kanri@0.0.6":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@connexta/kanri/-/kanri-0.0.6.tgz#45ce2cc0034ead024a9add5e15cb38e9928ffdcc"
-  integrity sha512-mqJjZ5PZaEDC6FteYXspCSq+R87e0XXrYep0oBMZZ8qrzWKPLHFUIr2FM4TYaG0eiJBsAz1IWUGKPxlR/O+CiA==
+"@connexta/kanri@0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@connexta/kanri/-/kanri-0.0.7.tgz#1968587599e66e95a00ac7cb16ad9359f9568743"
+  integrity sha512-biXLNFCFu0QsKRC/SSUne9PDH9qtg7K/KbWj0COLHk5RBfSjUrJ+6BqfDNo2a3xA2SA8w+Qo5FkqstqbFhOWpA==
   dependencies:
     "@connexta/atlas" "0.0.46"
     "@connexta/logviewer" "git://github.com/connexta/logviewer.git#17e7f603fbe5ba5d8edcd64c07787d065617deaa"
     dropzone "5.5.1"
     font-awesome "4.7.0"
     formik "1.5.8"
+    fuse.js "3.4.5"
     iframe-resizer "4.1.1"
     lodash.throttle "4.1.1"
     prop-types "15.7.2"
     react "16.8.6"
     react-dom "16.8.6"
-    react-router-dom "5.0.1"
+    react-router-dom "5.1.2"
+    scroll-into-view-if-needed "2.2.20"
     styled-components "4.3.2"
     yup "0.27.0"
 
@@ -7829,6 +7831,11 @@ compression@^1.5.2:
     safe-buffer "5.1.1"
     vary "~1.1.2"
 
+compute-scroll-into-view@1.0.11:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/compute-scroll-into-view/-/compute-scroll-into-view-1.0.11.tgz#7ff0a57f9aeda6314132d8994cce7aeca794fecf"
+  integrity sha512-uUnglJowSe0IPmWOdDtrlHXof5CTIJitfJEyITHBW6zDVOGu9Pjk5puaLM73SLcwak0L4hEjO7Td88/a6P5i7A==
+
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
@@ -11096,7 +11103,7 @@ functional-red-black-tree@^1.0.0, functional-red-black-tree@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
 
-fuse.js@^3.4.4:
+fuse.js@3.4.5, fuse.js@^3.4.4:
   version "3.4.5"
   resolved "https://registry.yarnpkg.com/fuse.js/-/fuse.js-3.4.5.tgz#8954fb43f9729bd5dbcb8c08f251db552595a7a6"
   integrity sha512-s9PGTaQIkT69HaeoTVjwGsLfb8V8ScJLx5XGFcKHg0MqLUH/UZ4EKOtqtXX9k7AFqCGxD1aJmYb8Q5VYDibVRQ==
@@ -19962,16 +19969,16 @@ react-redux@6.0.0:
     prop-types "^15.6.2"
     react-is "^16.6.3"
 
-react-router-dom@5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-5.0.1.tgz#ee66f4a5d18b6089c361958e443489d6bab714be"
-  integrity sha512-zaVHSy7NN0G91/Bz9GD4owex5+eop+KvgbxXsP/O+iW1/Ln+BrJ8QiIR5a6xNPtrdTvLkxqlDClx13QO1uB8CA==
+react-router-dom@5.1.2:
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-5.1.2.tgz#06701b834352f44d37fbb6311f870f84c76b9c18"
+  integrity sha512-7BPHAaIwWpZS074UKaw1FjVdZBSVWEk8IuDXdB+OkLb8vd/WRQIpA4ag9WQk61aEfQs47wHyjWUoUGGZxpQXew==
   dependencies:
     "@babel/runtime" "^7.1.2"
     history "^4.9.0"
     loose-envify "^1.3.1"
     prop-types "^15.6.2"
-    react-router "5.0.1"
+    react-router "5.1.2"
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
 
@@ -19985,10 +19992,10 @@ react-router@3.0.2:
     loose-envify "^1.2.0"
     warning "^3.0.0"
 
-react-router@5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/react-router/-/react-router-5.0.1.tgz#04ee77df1d1ab6cb8939f9f01ad5702dbadb8b0f"
-  integrity sha512-EM7suCPNKb1NxcTZ2LEOWFtQBQRQXecLxVpdsP4DW4PbbqYWeRiLyV/Tt1SdCrvT2jcyXAXmVTmzvSzrPR63Bg==
+react-router@5.1.2:
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/react-router/-/react-router-5.1.2.tgz#6ea51d789cb36a6be1ba5f7c0d48dd9e817d3418"
+  integrity sha512-yjEuMFy1ONK246B+rsa0cUam5OeAQ8pyclRDgpxuSCrAlJ1qN9uZ5IgyKC7gQg0w8OM50NXHEegPh/ks9YuR2A==
   dependencies:
     "@babel/runtime" "^7.1.2"
     history "^4.9.0"
@@ -21503,6 +21510,13 @@ script-loader@0.7.2, script-loader@^0.7.2:
   resolved "https://registry.yarnpkg.com/script-loader/-/script-loader-0.7.2.tgz#2016db6f86f25f5cf56da38915d83378bb166ba7"
   dependencies:
     raw-loader "~0.5.1"
+
+scroll-into-view-if-needed@2.2.20:
+  version "2.2.20"
+  resolved "https://registry.yarnpkg.com/scroll-into-view-if-needed/-/scroll-into-view-if-needed-2.2.20.tgz#3a46847a72233a3af9770e55df450f2a7f2e2a0e"
+  integrity sha512-P9kYMrhi9f6dvWwTGpO5I3HgjSU/8Mts7xL3lkoH5xlewK7O9Obdc5WmMCzppln7bCVGNmf3qfoZXrpCeyNJXw==
+  dependencies:
+    compute-scroll-into-view "1.0.11"
 
 scss-tokenizer@^0.2.3:
   version "0.2.3"
