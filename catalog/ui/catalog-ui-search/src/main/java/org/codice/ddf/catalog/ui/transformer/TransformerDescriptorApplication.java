@@ -18,6 +18,7 @@ import static spark.Spark.get;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.util.Locale;
 import java.util.Map;
 import spark.servlet.SparkApplication;
 
@@ -62,15 +63,15 @@ public class TransformerDescriptorApplication implements SparkApplication {
         "/transformers/:type/:id",
         (req, res) -> {
           String id = req.params(":id");
-          String type = req.params(":type").toLowerCase();
+          String type = req.params(":type").toLowerCase(Locale.US);
 
           Map<String, String> descriptor;
 
           res.type("application/json");
 
-          if (METACARD_TRANSFORMER.equals(type)) {
+          if (METACARD_TRANSFORMER.equalsIgnoreCase(type)) {
             descriptor = descriptors.getMetacardTransformer(id);
-          } else if (QUERY_RESPONSE_TRANSFORMER.equals(type)) {
+          } else if (QUERY_RESPONSE_TRANSFORMER.equalsIgnoreCase(type)) {
             descriptor = descriptors.getQueryResponseTransformer(id);
           } else {
             res.status(404);
