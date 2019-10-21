@@ -204,18 +204,6 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
 
     <!--
     =============================================================
-    FACETING POLICY
-    =============================================================
-    -->
-
-    <service interface="ddf.catalog.plugin.AccessPlugin">
-        <bean class="org.codice.ddf.catalog.ui.security.faceting.FacetAttributeAccessPlugin">
-            <argument ref="facetWhitelistConfiguration"/>
-        </bean>
-    </service>
-
-    <!--
-    =============================================================
     SHARING POLICY
     =============================================================
     -->
