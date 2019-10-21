@@ -33,7 +33,7 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
 
     <!-- Exposing endpoint util as a service to allow for system templates to be managed through
     the means of a Karaf command (reference injection) -->
-    <service ref="endpointUtil" interface="org.codice.ddf.catalog.ui.util.EndpointUtil"/>
+    <service ref="endpointUtil" interface="org.codice.ddf.catalog.ui.api.EndpointUtility"/>
 
     <!--
     =============================================================

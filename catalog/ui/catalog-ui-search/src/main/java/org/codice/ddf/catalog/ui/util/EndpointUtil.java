@@ -79,6 +79,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.codice.ddf.catalog.ui.api.EndpointUtility;
 import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
@@ -97,7 +98,7 @@ import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 
-public class EndpointUtil {
+public class EndpointUtil implements EndpointUtility {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EndpointUtil.class);
   public static final String MESSAGE = "message";
@@ -521,6 +522,7 @@ public class EndpointUtil {
     return GSON.toJson(result);
   }
 
+  @Override
   public CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
     QueryRequest request = cqlRequest.createQueryRequest(catalogFramework.getId(), filterBuilder);

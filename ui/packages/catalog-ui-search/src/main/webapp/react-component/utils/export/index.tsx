@@ -18,4 +18,6 @@ export {
   exportResultSet,
   Transformer,
   ResultSet,
+  ExportCountInfo,
+  DownloadInfo,
 } from './export'
