@@ -12,4 +12,12 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { default as tableExport, Props } from './table-export'
+export {
+  default as tableExport,
+  Props,
+  getWarning,
+  onDownloadClick,
+  onDownloadSuccess,
+  getDownloadBody,
+  buildCqlQueryFromMetacards,
+} from './table-export'
