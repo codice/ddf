@@ -114,7 +114,7 @@ public class PreviewMetacardTransformer implements MetacardTransformer {
         text = result.getTextContent().trim();
       }
     } catch (XPathExpressionException e) {
-      LOGGER.error("Error evaluating xpath");
+      LOGGER.warn("Could not evaluate xpath");
     }
 
     return text;
