@@ -51,6 +51,14 @@ public interface SecureCxfClientFactory<T> {
   T getClientForSubject(Subject subject);
 
   /**
+   * Adds system subject to a new client and returns the client
+   *
+   * @param subject
+   * @return
+   */
+  T getClientForSystemSubject(Subject subject);
+
+  /**
    * Adds subject to a new WebClient and returns
    *
    * @param subject

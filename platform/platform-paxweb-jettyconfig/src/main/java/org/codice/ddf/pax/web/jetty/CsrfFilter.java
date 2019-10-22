@@ -54,9 +54,12 @@ public class CsrfFilter implements Filter {
   private static final String WEBSOCKET_CONTEXT = "/search/catalog/ws";
   private static final String WEBSOCKET_CONTEXT_REGEX = "/search/catalog/ws.*";
   private static final String CATALOG_CONTEXT = "/search/catalog/internal/catalog/.*";
+  private static final String OAUTH_CONTEXT = "/search/catalog/internal/oauth.*";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CsrfFilter.class);
 
+  private static final MultivaluedMap<Pattern, String> HEADER_WHITELIST =
+      new MultivaluedHashMap<>();
   private static final MultivaluedMap<Pattern, String> BROWSER_PROTECTION_WHITELIST =
       new MultivaluedHashMap<>();
   private static final MultivaluedMap<Pattern, String> SYSTEM_PROTECTION_WHITELIST =
@@ -124,6 +127,9 @@ public class CsrfFilter implements Filter {
 
     // Downloading does not allow adding headers, authority check is sufficient
     BROWSER_PROTECTION_WHITELIST.add(Pattern.compile(CATALOG_CONTEXT), HttpMethod.GET.asString());
+
+    // An Oauth Provider will need to redirect to this URL without the appropriate headers
+    HEADER_WHITELIST.add(Pattern.compile(OAUTH_CONTEXT), HttpMethod.GET.asString());
   }
 
   private List<String> getAdministratorTrustedAuthorities() {
@@ -197,6 +203,19 @@ public class CsrfFilter implements Filter {
     String sourceOrigin = httpRequest.getHeader(ORIGIN_HEADER);
     String sourceReferer = httpRequest.getHeader(REFERER_HEADER);
     String csrfHeader = httpRequest.getHeader(CSRF_HEADER);
+
+    // Check if context is part of the header whitelist that will get full access
+    Pattern key = getMultivaluedMapKey(HEADER_WHITELIST, targetContextPath);
+    if (key != null) {
+      Pattern requestMethodPattern = Pattern.compile(requestMethod);
+      if (HEADER_WHITELIST.get(key) != null
+          && HEADER_WHITELIST
+              .get(key)
+              .stream()
+              .anyMatch(method -> requestMethodPattern.matcher(method).matches())) {
+        return false;
+      }
+    }
 
     // Reject if no origin or referer header is present on the request
     if (sourceOrigin == null && sourceReferer == null) {

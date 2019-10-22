@@ -40,7 +40,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.plugin.AccessPlugin;
-import ddf.catalog.plugin.OauthPluginException;
+import ddf.catalog.plugin.OAuthPluginException;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
@@ -217,7 +217,7 @@ public class QueryOperations extends DescribableImpl {
       LOGGER.trace("AfterPostQueryFilter result size: {}", queryResponse.getResults().size());
       LOGGER.trace("Total Hit count: {}", queryResponse.getHits());
 
-    } catch (OauthPluginException e) {
+    } catch (OAuthPluginException e) {
       throw e;
     } catch (RuntimeException re) {
       throw new UnsupportedQueryException("Exception during runtime while performing query", re);
