@@ -132,6 +132,7 @@
         <feature>ddf-branding</feature>
         <feature>branding-registry</feature>
         <bundle>mvn:ddf.admin/admin-ui/${project.version}</bundle>
+        <bundle>mvn:com.sun.activation/javax.activation/${javax.activation.version}</bundle>
     </feature>
 
     <feature name="admin-modules-configuration" version="${project.version}"
