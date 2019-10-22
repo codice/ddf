@@ -100,6 +100,16 @@ public class TestCswSourceBase {
 
   protected static final String PASSWORD = "myPass";
 
+  protected static final String AUTH_TYPE = "saml";
+
+  protected static final String DISCOVERY_URL = "http://example.com/oauth/auth";
+
+  protected static final String CLIENT_ID = "clientId";
+
+  protected static final String SECRET = "secret";
+
+  protected static final String FLOW = "code";
+
   protected static final String CERT_ALIAS = "testCert";
 
   protected static final String KEYSTORE_PATH = "/path/to/keystore";
