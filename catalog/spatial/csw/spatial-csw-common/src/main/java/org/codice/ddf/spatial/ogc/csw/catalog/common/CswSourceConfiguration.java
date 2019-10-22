@@ -39,6 +39,14 @@ public class CswSourceConfiguration {
 
   private String password;
 
+  private String oauthDiscoveryUrl;
+
+  private String oauthClientId;
+
+  private String oauthClientSecret;
+
+  private String oauthFlow;
+
   private String certAlias;
 
   private String keystorePath;
@@ -124,6 +132,38 @@ public class CswSourceConfiguration {
       updatedPassword = encryptionService.decryptValue(password);
     }
     this.password = updatedPassword;
+  }
+
+  public String getOauthDiscoveryUrl() {
+    return oauthDiscoveryUrl;
+  }
+
+  public void setOauthDiscoveryUrl(String oauthDiscoveryUrl) {
+    this.oauthDiscoveryUrl = oauthDiscoveryUrl;
+  }
+
+  public String getOauthClientId() {
+    return oauthClientId;
+  }
+
+  public void setOauthClientId(String oauthClientId) {
+    this.oauthClientId = oauthClientId;
+  }
+
+  public String getOauthClientSecret() {
+    return oauthClientSecret;
+  }
+
+  public void setOauthClientSecret(String oauthClientSecret) {
+    this.oauthClientSecret = oauthClientSecret;
+  }
+
+  public String getOauthFlow() {
+    return oauthFlow;
+  }
+
+  public void setOauthFlow(String oauthFlow) {
+    this.oauthFlow = oauthFlow;
   }
 
   public void setMetacardCswMappings(Map<String, String> mapping) {

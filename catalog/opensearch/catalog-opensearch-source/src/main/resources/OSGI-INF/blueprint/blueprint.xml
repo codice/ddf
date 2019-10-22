@@ -38,8 +38,11 @@
           class="org.codice.ddf.opensearch.source.OpenSearchParserImpl"/>
 
     <cm:managed-service-factory id="DDFfederationPrototypeServiceFactory"
-                                factory-pid="OpenSearchSource"
-                                interface="ddf.catalog.source.FederatedSource">
+                                factory-pid="OpenSearchSource">
+        <interfaces>
+            <value>ddf.catalog.source.FederatedSource</value>
+            <value>ddf.catalog.source.OAuthFederatedSource</value>
+        </interfaces>
 
         <cm:managed-component class="org.codice.ddf.opensearch.source.OpenSearchSource"
                               init-method="init" destroy-method="destroy">
@@ -59,6 +62,10 @@
             <property name="authenticationType" value="saml"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
+            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
+            <property name="oauthClientId" value="ddf-client"/>
+            <property name="oauthClientSecret" value="secret"/>
+            <property name="oauthFlow" value="code"/>
             <property name="localQueryOnly" value="false"/>
             <property name="shouldConvertToBBox" value="true"/>
             <property name="numMultiPointRadiusVertices" value="32"/>
