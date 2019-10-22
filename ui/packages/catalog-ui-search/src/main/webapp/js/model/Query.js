@@ -28,9 +28,9 @@ const user = require('../../component/singletons/user-instance.js')
 const _merge = require('lodash/merge')
 require('backbone-associations')
 import PartialAssociatedModel from '../../js/extensions/backbone.partialAssociatedModel'
+import UserNotifications from '../../react-component/user-notifications'
+const wreqr = require('../wreqr.js')
 const plugin = require('plugins/query')
-import React from 'react'
-import { readableColor } from 'polished'
 
 const Query = {}
 
@@ -419,27 +419,45 @@ Query.Model = PartialAssociatedModel.extend({
             }
           },
           error(model, response, options) {
-            if (response.status === 401) {
-              const providerUrl = response.responseJSON.url
+            if (response.status === 401 || response.status === 412) {
+              const url = response.responseJSON.url
               const sourceId = response.responseJSON.id
+              const type = response.status === 401 ? 'login' : 'authorize'
+              const when = Date.now()
+              const SlideoutRightViewInstance = require('../../component/singletons/slideout.right.view-instance')
 
-              const link = React.createElement(
-                'a',
-                {
-                  href: providerUrl,
-                  target: '_blank',
-                  style: {
-                    color: `${props =>
-                      readableColor(props.theme.negativeColor)}`,
-                  },
-                },
-                `Click Here To Authenticate ${sourceId}`
-              )
-              announcement.announce({
-                title: `Source ${sourceId} is Not Authenticated`,
-                message: link,
-                type: 'error',
-              })
+              let preferences = user.get('user').getPreferences()
+              let notifications = preferences.getOauthNotificationIds()
+              if (
+                notifications !== undefined &&
+                notifications.includes(sourceId)
+              ) {
+                let detail = preferences.getOauthNotification(sourceId)
+                if (
+                  type === 'authorize' &&
+                  detail !== undefined &&
+                  detail.attributes.type === 'login'
+                ) {
+                  preferences.removeOauth(detail)
+                  wreqr.vent.trigger('oauth:add', {
+                    when,
+                    type,
+                    sourceId,
+                    url,
+                  })
+                  SlideoutRightViewInstance.updateContent(UserNotifications)
+                  SlideoutRightViewInstance.open()
+                }
+              } else {
+                wreqr.vent.trigger('oauth:add', {
+                  when,
+                  type,
+                  sourceId,
+                  url,
+                })
+                SlideoutRightViewInstance.updateContent(UserNotifications)
+                SlideoutRightViewInstance.open()
+              }
             }
 
             const srcStatus = result.get('status').get(search.src)
