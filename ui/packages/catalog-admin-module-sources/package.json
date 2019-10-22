@@ -33,7 +33,8 @@
     "backbone-poller": "1.1.3",
     "font-awesome": "4.7.0",
     "jquery": "3.2.1",
-    "lodash": "4.17.5"
+    "lodash": "4.17.5",
+    "underscore": "1.8.3"
   },
   "alias": {
     "icanhaz": "./src/main/webapp/js/ich",

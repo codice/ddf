@@ -1,0 +1,49 @@
+{
+  "name": "beta-admin-ui",
+  "author": "Codice",
+  "description": "An administration UI for DDF",
+  "version": "0.0.1",
+  "license": "LGPL-3.0",
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codice/ddf.git"
+  },
+  "engines": {
+    "node": ">=0.10.5"
+  },
+  "devDependencies": {
+    "@types/react": "16.8.23",
+    "@types/react-dom": "16.8.4",
+    "@types/styled-components": "4.0.3",
+    "@connexta/ace": "*"
+  },
+  "dependencies": {
+    "@connexta/kanri": "0.0.7",
+    "react": "16.8.6",
+    "react-dom": "16.8.6",
+    "styled-components": "4.3.2"
+  },
+  "scripts": {
+    "start": "ace start",
+    "build": "ace bundle",
+    "postbuild": "ace package",
+    "m2": "yarn install:m2"
+  },
+  "ace": {
+    "whitelist": [],
+    "resolve": [
+      "react",
+      "react-dom",
+      "@material-ui/styles",
+      "styled-components"
+    ]
+  },
+  "files": [
+    "src/main/webapp",
+    "target/webapp",
+    "src/main/resources"
+  ],
+  "main": "src/main/webapp/components/entry/entry",
+  "context-path": "/beta/admin"
+}
