@@ -38,6 +38,8 @@ public class PreviewActionProvider extends AbstractMetacardActionProvider {
 
   private static final String DESCRIPTION = "Provides a text preview of the resource";
 
+  private Boolean previewFromMetadata = false;
+
   /**
    * Constructor that accepts the values to be used when a new {@link Action} is created by this
    * {@link ddf.action.ActionProvider}.
@@ -60,7 +62,9 @@ public class PreviewActionProvider extends AbstractMetacardActionProvider {
   @Override
   protected boolean canHandleMetacard(Metacard metacard) {
     Attribute bodyText = metacard.getAttribute(Extracted.EXTRACTED_TEXT);
-    return bodyText != null && StringUtils.isNotBlank((String) bodyText.getValue());
+    boolean hasExtractedText =
+        bodyText != null && StringUtils.isNotBlank((String) bodyText.getValue());
+    return hasExtractedText || previewFromMetadata;
   }
 
   @Override
@@ -86,5 +90,13 @@ public class PreviewActionProvider extends AbstractMetacardActionProvider {
                     CONTEXT_ROOT, SOURCES_PATH, metacardSource, metacardId),
                 true))
         .toURL();
+  }
+
+  public Boolean getPreviewFromMetadata() {
+    return previewFromMetadata;
+  }
+
+  public void setPreviewFromMetadata(Boolean previewFromMetadata) {
+    this.previewFromMetadata = previewFromMetadata;
   }
 }

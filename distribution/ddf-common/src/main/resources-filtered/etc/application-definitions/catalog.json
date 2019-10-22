@@ -23,6 +23,7 @@
     "mvn:ddf.catalog.transformer/catalog-transformer-xml/${project.version}",
     "mvn:ddf.catalog.transformer/tika-input-transformer/${project.version}",
     "mvn:ddf.catalog.plugin/catalog-plugin-metacardingest-network/${project.version}",
-    "mvn:org.codice.ddf.validator/catalog-validator-metacardduplication/${project.version}"
+    "mvn:org.codice.ddf.validator/catalog-validator-metacardduplication/${project.version}",
+    "mvn:ddf.catalog.transformer/catalog-transformer-preview/${project.version}"
   ]
 }
