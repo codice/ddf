@@ -214,12 +214,12 @@
                             asm,
                             json-smart
                         </Embed-Dependency>
+                        <Include-Resource>{maven-resources},META-INF/maven=${project.build.outputDirectory}/META-INF/maven</Include-Resource>
                     </instructions>
                 </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${failsafe.pax-exam-compatible.version}</version>
                 <configuration>
                     <systemPropertyVariables>
                         <pax.exam.karaf.version>${karaf.version}</pax.exam.karaf.version>

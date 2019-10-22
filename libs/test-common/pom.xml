@@ -223,6 +223,7 @@
                             pax-exam-container-karaf,
                             platform-util
                         </Embed-Dependency>
+                        <Include-Resource>{maven-resources},META-INF/maven=${project.build.outputDirectory}/META-INF/maven</Include-Resource>
                     </instructions>
                 </configuration>
             </plugin>
@@ -248,7 +249,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${failsafe.pax-exam-compatible.version}</version>
                 <configuration>
                     <systemPropertyVariables>
                         <java.awt.headless>true</java.awt.headless>
