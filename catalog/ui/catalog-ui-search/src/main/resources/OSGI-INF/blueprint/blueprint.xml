@@ -154,6 +154,11 @@ Implementation details
         <argument ref="logoutService"/>
     </bean>
 
+    <reference id="tokenStore" interface="org.codice.ddf.security.token.storage.api.TokenStorage"/>
+    <bean id="oauthApplication" class="org.codice.ddf.catalog.ui.security.app.OAuthApplication">
+        <argument ref="tokenStore"/>
+    </bean>
+
     <bean id="sessionManagementApplication"
           class="org.codice.ddf.catalog.ui.session.SessionManagementApplication">
         <argument ref="sessionManagementService"/>
@@ -381,6 +386,7 @@ Implementation details
                 <ref component-id="userApplication"/>
                 <ref component-id="catalogApplication"/>
                 <ref component-id="logoutApplication"/>
+                <ref component-id="oauthApplication"/>
                 <ref component-id="configurationApplication"/>
                 <ref component-id="sessionManagementApplication"/>
                 <ref component-id="feedbackApplication"/>

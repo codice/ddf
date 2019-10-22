@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -16,15 +15,9 @@
 
     <reference id="tokenStore" interface="org.codice.ddf.security.token.storage.api.TokenStorage"/>
 
-    <bean id="oauthSecurity" class="org.codice.ddf.cxf.oauth.OAuthSecurityImpl">
+    <bean id="oauthPlugin" class="org.codice.ddf.catalog.plugin.oauth.OAuthPlugin">
         <argument ref="tokenStore"/>
     </bean>
 
-    <service ref="oauthSecurity" interface="org.codice.ddf.cxf.oauth.OAuthSecurity"/>
-
-    <bean id="clientFactoryFactory" class="org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl">
-        <property name="oauthSecurity" ref="oauthSecurity"/>
-    </bean>
-
-    <service ref="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+    <service ref="oauthPlugin" auto-export="interfaces" ranking="100"/>
 </blueprint>

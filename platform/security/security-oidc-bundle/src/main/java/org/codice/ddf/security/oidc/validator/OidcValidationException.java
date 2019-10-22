@@ -11,25 +11,15 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.plugin;
+package org.codice.ddf.security.oidc.validator;
 
-public class OauthPluginException extends RuntimeException {
+public class OidcValidationException extends Exception {
 
-  private final String sourceId;
-
-  private final String providerUrl;
-
-  public OauthPluginException(String sourceId, String providerUrl) {
-    super();
-    this.sourceId = sourceId;
-    this.providerUrl = providerUrl;
+  public OidcValidationException(String message) {
+    super(message);
   }
 
-  public String getSourceId() {
-    return sourceId;
-  }
-
-  public String getProviderUrl() {
-    return providerUrl;
+  public OidcValidationException(String message, Throwable cause) {
+    super(message, cause);
   }
 }

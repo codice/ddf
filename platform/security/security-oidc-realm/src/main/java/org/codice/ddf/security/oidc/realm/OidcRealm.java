@@ -26,7 +26,9 @@ import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.codice.ddf.security.handler.api.OidcAuthenticationToken;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
+import org.codice.ddf.security.oidc.resolver.OidcCredentialsResolver;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
@@ -86,10 +88,14 @@ public class OidcRealm extends AuthenticatingRealm {
     WebContext webContext = (WebContext) oidcAuthenticationToken.getContext();
     OidcClient oidcClient = oidcHandlerConfiguration.getOidcClient(webContext.getFullRequestURL());
 
-    OidcCredentialsResolver oidcCredentialsResolver =
-        new OidcCredentialsResolver(oidcConfiguration, oidcClient, oidcProviderMetadata);
+    try {
+      OidcCredentialsResolver oidcCredentialsResolver =
+          new OidcCredentialsResolver(oidcConfiguration, oidcClient, oidcProviderMetadata);
 
-    oidcCredentialsResolver.resolveIdToken(credentials, webContext);
+      oidcCredentialsResolver.resolveIdToken(credentials, webContext);
+    } catch (TechnicalException e) {
+      throw new AuthenticationException(e);
+    }
 
     // problem getting id token, invalidate credentials
     if (credentials.getIdToken() == null) {

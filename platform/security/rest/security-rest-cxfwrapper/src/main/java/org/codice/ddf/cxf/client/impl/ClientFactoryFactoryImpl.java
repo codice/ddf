@@ -19,8 +19,12 @@ import org.apache.cxf.message.Message;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.cxf.oauth.OAuthSecurity;
 
 public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
+
+  private OAuthSecurity oauthSecurity;
+
   @Override
   public <T> SecureCxfClientFactory<T> getSecureCxfClientFactory(
       String endpointUrl,
@@ -101,6 +105,38 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
       Interceptor<? extends Message> interceptor,
       boolean disableCnCheck,
       boolean allowRedirects,
+      Integer connectionTimeout,
+      Integer receiveTimeout,
+      String sourceId,
+      String discoveryUrl,
+      String clientId,
+      String clientSecret,
+      String oauthFlow) {
+    return new SecureCxfClientFactoryImpl<>(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        connectionTimeout,
+        receiveTimeout,
+        sourceId,
+        discoveryUrl,
+        clientId,
+        clientSecret,
+        oauthFlow,
+        oauthSecurity);
+  }
+
+  @Override
+  public <T> SecureCxfClientFactory<T> getSecureCxfClientFactory(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      List<?> providers,
+      Interceptor<? extends Message> interceptor,
+      boolean disableCnCheck,
+      boolean allowRedirects,
       PropertyResolver propertyResolver) {
     return new SecureCxfClientFactoryImpl<>(
         endpointUrl,
@@ -132,7 +168,31 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
 
   @Override
   public <T> SecureCxfClientFactory<T> getSecureCxfClientFactory(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      String sourceId,
+      String discoveryUrl,
+      String clientId,
+      String clientSecret,
+      String oauthFlow) {
+    return new SecureCxfClientFactoryImpl<>(
+        endpointUrl,
+        interfaceClass,
+        sourceId,
+        discoveryUrl,
+        clientId,
+        clientSecret,
+        oauthFlow,
+        oauthSecurity);
+  }
+
+  @Override
+  public <T> SecureCxfClientFactory<T> getSecureCxfClientFactory(
       String endpointUrl, Class<T> interfaceClass) {
     return new SecureCxfClientFactoryImpl<>(endpointUrl, interfaceClass);
+  }
+
+  public void setOauthSecurity(OAuthSecurity oauthSecurity) {
+    this.oauthSecurity = oauthSecurity;
   }
 }

@@ -11,19 +11,18 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security.oidc.realm;
+package org.codice.ddf.security.oidc.validator;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static org.codice.ddf.security.oidc.realm.TokenBuilder.getAccessTokenBuilder;
-import static org.codice.ddf.security.oidc.realm.TokenBuilder.getIdTokenBuilder;
-import static org.codice.ddf.security.oidc.realm.TokenBuilder.getWebContext;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.pac4j.core.context.HttpConstants.APPLICATION_JSON;
 import static org.pac4j.oidc.profile.OidcProfileDefinition.AUTH_TIME;
+import static org.pac4j.oidc.profile.OidcProfileDefinition.AZP;
 import static org.pac4j.oidc.profile.OidcProfileDefinition.EMAIL_VERIFIED;
 import static org.pac4j.oidc.profile.OidcProfileDefinition.PREFERRED_USERNAME;
 
+import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.impl.PublicClaims;
 import com.google.common.collect.ImmutableList;
@@ -54,15 +53,15 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
-import org.apache.shiro.authc.AuthenticationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.oidc.config.OidcConfiguration;
 
 public class OidcTokenValidatorTest {
 
-  private OidcTokenValidator tokenValidator;
+  private ResourceRetriever resourceRetriever;
   private OidcConfiguration configuration;
   private OIDCProviderMetadata oidcProviderMetadata;
 
@@ -95,7 +94,7 @@ public class OidcTokenValidatorTest {
         .thenReturn(
             new URI("http://localhost:8080/auth/realms/master/protocol/openid-connect/certs"));
 
-    ResourceRetriever resourceRetriever = mock(ResourceRetriever.class);
+    resourceRetriever = mock(ResourceRetriever.class);
     Resource resource = new Resource(jwk, APPLICATION_JSON);
     when(resourceRetriever.retrieveResource(any())).thenReturn(resource);
 
@@ -107,8 +106,6 @@ public class OidcTokenValidatorTest {
     when(configuration.findProviderMetadata()).thenReturn(oidcProviderMetadata);
     when(configuration.findResourceRetriever()).thenReturn(resourceRetriever);
 
-    tokenValidator = new OidcTokenValidator(configuration, oidcProviderMetadata);
-
     validAlgorithm = Algorithm.RSA256(publicKey, privateKey);
     invalidAlgorithm = Algorithm.HMAC256("WRONG");
   }
@@ -119,19 +116,19 @@ public class OidcTokenValidatorTest {
     String stringJwt = getIdTokenBuilder().withClaim("nonce", "myNonce").sign(validAlgorithm);
 
     JWT jwt = SignedJWT.parse(stringJwt);
-    tokenValidator.validateIdTokens(jwt, context);
+    OidcTokenValidator.validateIdTokens(jwt, context, configuration);
   }
 
-  @Test(expected = AuthenticationException.class)
+  @Test(expected = OidcValidationException.class)
   public void testValidateIdTokensInvalidSignature() throws Exception {
     WebContext context = getWebContext();
     String stringJwt = getIdTokenBuilder().withClaim("nonce", "myNonce").sign(invalidAlgorithm);
 
     JWT jwt = SignedJWT.parse(stringJwt);
-    tokenValidator.validateIdTokens(jwt, context);
+    OidcTokenValidator.validateIdTokens(jwt, context, configuration);
   }
 
-  @Test(expected = AuthenticationException.class)
+  @Test(expected = OidcValidationException.class)
   public void testValidateIdTokensExpiredToken() throws Exception {
     WebContext context = getWebContext();
     String stringJwt =
@@ -141,10 +138,10 @@ public class OidcTokenValidatorTest {
             .sign(invalidAlgorithm);
 
     JWT jwt = SignedJWT.parse(stringJwt);
-    tokenValidator.validateIdTokens(jwt, context);
+    OidcTokenValidator.validateIdTokens(jwt, context, configuration);
   }
 
-  @Test(expected = AuthenticationException.class)
+  @Test(expected = OidcValidationException.class)
   public void testValidateIdTokensUnsignedJwt() throws Exception {
     String[] roles = {"create-realm", "offline_access", "admin", "uma_authorization"};
 
@@ -165,37 +162,37 @@ public class OidcTokenValidatorTest {
             .build();
 
     JWT jwt = new PlainJWT(claimsSet);
-    tokenValidator.validateIdTokens(jwt, null);
+    OidcTokenValidator.validateIdTokens(jwt, null, configuration);
   }
 
-  @Test(expected = AuthenticationException.class)
+  @Test(expected = OidcValidationException.class)
   public void testValidateIdTokensInvalidNonce() throws Exception {
     WebContext context = getWebContext();
     String stringJwt = getIdTokenBuilder().withClaim("nonce", "WRONG").sign(validAlgorithm);
     JWT jwt = SignedJWT.parse(stringJwt);
-    tokenValidator.validateIdTokens(jwt, context);
+    OidcTokenValidator.validateIdTokens(jwt, context, configuration);
   }
 
-  @Test(expected = AuthenticationException.class)
+  @Test(expected = OidcValidationException.class)
   public void testValidateIdTokensNoNonce() throws Exception {
     WebContext context = getWebContext();
     String stringJwt = getIdTokenBuilder().sign(validAlgorithm);
     JWT jwt = SignedJWT.parse(stringJwt);
-    tokenValidator.validateIdTokens(jwt, context);
+    OidcTokenValidator.validateIdTokens(jwt, context, configuration);
   }
 
   @Test
   public void testValidateUserInfoIdToken() throws Exception {
     String stringJwt = getIdTokenBuilder().sign(validAlgorithm);
     JWT jwt = SignedJWT.parse(stringJwt);
-    tokenValidator.validateUserInfoIdToken(jwt);
+    OidcTokenValidator.validateUserInfoIdToken(jwt, resourceRetriever, oidcProviderMetadata);
   }
 
-  @Test(expected = AuthenticationException.class)
+  @Test(expected = OidcValidationException.class)
   public void testValidateUserInfoIdTokenInvalidSignature() throws Exception {
     String stringJwt = getIdTokenBuilder().sign(invalidAlgorithm);
     JWT jwt = SignedJWT.parse(stringJwt);
-    tokenValidator.validateUserInfoIdToken(jwt);
+    OidcTokenValidator.validateUserInfoIdToken(jwt, resourceRetriever, oidcProviderMetadata);
   }
 
   @Test
@@ -215,10 +212,11 @@ public class OidcTokenValidatorTest {
             .sign(validAlgorithm);
 
     JWT jwt = SignedJWT.parse(idToken);
-    tokenValidator.validateAccessToken(accessToken, jwt);
+    OidcTokenValidator.validateAccessToken(
+        accessToken, jwt, resourceRetriever, oidcProviderMetadata, configuration);
   }
 
-  @Test(expected = AuthenticationException.class)
+  @Test(expected = OidcValidationException.class)
   public void testValidateAccessTokenInvalidSignature() throws Exception {
     String accessTokenString = getAccessTokenBuilder().sign(invalidAlgorithm);
     AccessToken accessToken = new BearerAccessToken(accessTokenString);
@@ -235,10 +233,11 @@ public class OidcTokenValidatorTest {
             .sign(validAlgorithm);
 
     JWT jwt = SignedJWT.parse(idToken);
-    tokenValidator.validateAccessToken(accessToken, jwt);
+    OidcTokenValidator.validateAccessToken(
+        accessToken, jwt, resourceRetriever, oidcProviderMetadata, configuration);
   }
 
-  @Test(expected = AuthenticationException.class)
+  @Test(expected = OidcValidationException.class)
   public void testValidateAccessTokenInvalidAtHash() throws Exception {
     String accessTokenString = getAccessTokenBuilder().sign(validAlgorithm);
     AccessToken accessToken = new BearerAccessToken(accessTokenString);
@@ -250,6 +249,60 @@ public class OidcTokenValidatorTest {
             .sign(validAlgorithm);
 
     JWT jwt = SignedJWT.parse(idToken);
-    tokenValidator.validateAccessToken(accessToken, jwt);
+    OidcTokenValidator.validateAccessToken(
+        accessToken, jwt, resourceRetriever, oidcProviderMetadata, configuration);
+  }
+
+  private JWTCreator.Builder getIdTokenBuilder() {
+    String[] roles = {"create-realm", "offline_access", "admin", "uma_authorization"};
+
+    return com.auth0
+        .jwt
+        .JWT
+        .create()
+        .withJWTId(UUID.randomUUID().toString())
+        .withExpiresAt(new Date(Instant.now().plus(Duration.ofDays(3)).toEpochMilli()))
+        .withNotBefore(new Date(0))
+        .withIssuedAt(new Date())
+        .withIssuer("http://localhost:8080/auth/realms/master")
+        .withAudience("ddf-client")
+        .withSubject("subject")
+        .withClaim(PublicClaims.TYPE, "ID")
+        .withClaim(AUTH_TIME, new Date())
+        .withArrayClaim("roles", roles)
+        .withClaim(EMAIL_VERIFIED, false)
+        .withClaim(PREFERRED_USERNAME, "admin");
+  }
+
+  private JWTCreator.Builder getAccessTokenBuilder() {
+    String[] audience = {"master-realm", "account"};
+    String[] roles = {"create-realm", "offline_access", "admin", "uma_authorization"};
+
+    return com.auth0
+        .jwt
+        .JWT
+        .create()
+        .withJWTId(UUID.randomUUID().toString())
+        .withExpiresAt(new Date(Instant.now().plus(Duration.ofDays(3)).toEpochMilli()))
+        .withNotBefore(new Date(0))
+        .withIssuedAt(new Date())
+        .withIssuer("http://localhost:8080/auth/realms/master")
+        .withArrayClaim("aud", audience)
+        .withSubject("subject")
+        .withClaim("typ", "Bearer")
+        .withClaim(AZP, "ddf-client")
+        .withClaim("auth_time", new Date())
+        .withArrayClaim("roles", roles)
+        .withClaim(EMAIL_VERIFIED, false)
+        .withClaim(PREFERRED_USERNAME, "admin");
+  }
+
+  private WebContext getWebContext() {
+    WebContext context = mock(WebContext.class);
+    SessionStore sessionStore = mock(SessionStore.class);
+    when(sessionStore.get(context, OidcConfiguration.NONCE_SESSION_ATTRIBUTE))
+        .thenReturn("myNonce");
+    when(context.getSessionStore()).thenReturn(sessionStore);
+    return context;
   }
 }

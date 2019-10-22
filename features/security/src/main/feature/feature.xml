@@ -196,6 +196,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>util-uuidgenerator</feature>
         <feature dependency="true">oidc-dependencies</feature>
         <feature>security-token-storage</feature>
+        <feature>cxf-rs-security-oauth2</feature>
         <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.core/security-core-services/${project.version}</bundle>
         <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>

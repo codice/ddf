@@ -14,9 +14,6 @@
 package org.codice.ddf.security.oidc.realm;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static org.codice.ddf.security.oidc.realm.TokenBuilder.getAccessTokenBuilder;
-import static org.codice.ddf.security.oidc.realm.TokenBuilder.getIdTokenBuilder;
-import static org.codice.ddf.security.oidc.realm.TokenBuilder.getWebContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -26,7 +23,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.pac4j.oidc.profile.OidcProfileDefinition.AUTH_TIME;
+import static org.pac4j.oidc.profile.OidcProfileDefinition.AZP;
+import static org.pac4j.oidc.profile.OidcProfileDefinition.EMAIL_VERIFIED;
+import static org.pac4j.oidc.profile.OidcProfileDefinition.PREFERRED_USERNAME;
 
+import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.impl.PublicClaims;
 import com.google.common.collect.ImmutableList;
@@ -62,6 +63,7 @@ import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
@@ -198,6 +200,59 @@ public class OidcRealmTest {
     when(oidcCredentials.getIdToken()).thenReturn(jwt);
 
     realm.doGetAuthenticationInfo(authenticationToken);
+  }
+
+  private JWTCreator.Builder getIdTokenBuilder() {
+    String[] roles = {"create-realm", "offline_access", "admin", "uma_authorization"};
+
+    return com.auth0
+        .jwt
+        .JWT
+        .create()
+        .withJWTId(UUID.randomUUID().toString())
+        .withExpiresAt(new Date(Instant.now().plus(Duration.ofDays(3)).toEpochMilli()))
+        .withNotBefore(new Date(0))
+        .withIssuedAt(new Date())
+        .withIssuer("http://localhost:8080/auth/realms/master")
+        .withAudience("ddf-client")
+        .withSubject("subject")
+        .withClaim(PublicClaims.TYPE, "ID")
+        .withClaim(AUTH_TIME, new Date())
+        .withArrayClaim("roles", roles)
+        .withClaim(EMAIL_VERIFIED, false)
+        .withClaim(PREFERRED_USERNAME, "admin");
+  }
+
+  private JWTCreator.Builder getAccessTokenBuilder() {
+    String[] audience = {"master-realm", "account"};
+    String[] roles = {"create-realm", "offline_access", "admin", "uma_authorization"};
+
+    return com.auth0
+        .jwt
+        .JWT
+        .create()
+        .withJWTId(UUID.randomUUID().toString())
+        .withExpiresAt(new Date(Instant.now().plus(Duration.ofDays(3)).toEpochMilli()))
+        .withNotBefore(new Date(0))
+        .withIssuedAt(new Date())
+        .withIssuer("http://localhost:8080/auth/realms/master")
+        .withArrayClaim("aud", audience)
+        .withSubject("subject")
+        .withClaim("typ", "Bearer")
+        .withClaim(AZP, "ddf-client")
+        .withClaim("auth_time", new Date())
+        .withArrayClaim("roles", roles)
+        .withClaim(EMAIL_VERIFIED, false)
+        .withClaim(PREFERRED_USERNAME, "admin");
+  }
+
+  private WebContext getWebContext() {
+    WebContext context = mock(WebContext.class);
+    SessionStore sessionStore = mock(SessionStore.class);
+    when(sessionStore.get(context, OidcConfiguration.NONCE_SESSION_ATTRIBUTE))
+        .thenReturn("myNonce");
+    when(context.getSessionStore()).thenReturn(sessionStore);
+    return context;
   }
 
   private JWT getIncompleteJwt() throws ParseException {

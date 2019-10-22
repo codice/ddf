@@ -373,6 +373,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.plugin</groupId>
+            <artifactId>catalog-plugin-oauth</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.security</groupId>
             <artifactId>catalog-security-policyplugin</artifactId>
             <version>${project.version}</version>
