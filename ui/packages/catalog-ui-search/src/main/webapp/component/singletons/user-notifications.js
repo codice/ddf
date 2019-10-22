@@ -27,12 +27,19 @@ module.exports = new (Backbone.Collection.extend({
       .get('user')
       .get('preferences')
       .get('alerts')
+    const oauth = user
+      .get('user')
+      .get('preferences')
+      .get('oauth')
     this.add(uploads.models)
     this.add(alerts.models)
+    this.add(oauth.models)
     this.listenTo(uploads, 'add', this.add)
     this.listenTo(uploads, 'remove', this.remove)
     this.listenTo(alerts, 'add', this.add)
     this.listenTo(alerts, 'remove', this.remove)
+    this.listenTo(oauth, 'add', this.add)
+    this.listenTo(oauth, 'remove', this.remove)
   },
   comparator(model) {
     return -model.getTimeComparator()
