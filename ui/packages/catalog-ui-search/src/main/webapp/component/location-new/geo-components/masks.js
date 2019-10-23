@@ -20,7 +20,7 @@ const latitudeDMSMask = function(rawValue) {
   const baseMask = [/\d/, /\d/, '°', /\d/, /\d/, "'", /\d/, /\d/]
 
   const pattern = new RegExp(
-    "^[0-9_]{2,3}[°*][0-9_]{2,3}[`'’]([0-9_]{2,3}(?:[.][0-9]{0,3})?)\"?"
+    '^[0-9_]{2,3}[°*][0-9_]{2,3}[`\'’]([0-9_]{2,3}(?:[.][0-9]{0,3})?)"?'
   )
   const match = rawValue.match(pattern)
   if (match) {
@@ -36,7 +36,7 @@ const longitudeDMSMask = function(rawValue) {
   const baseMask = [/\d/, /\d/, /\d/, '°', /\d/, /\d/, "'", /\d/, /\d/]
 
   const pattern = new RegExp(
-    "^[0-9_]{3,4}[°*][0-9_]{2,3}[`'’]([0-9_]{2,3}(?:[.][0-9]{0,3})?)\"?"
+    '^[0-9_]{3,4}[°*][0-9_]{2,3}[`\'’]([0-9_]{2,3}(?:[.][0-9]{0,3})?)"?'
   )
   const match = rawValue.match(pattern)
   if (match) {
