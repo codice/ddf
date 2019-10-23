@@ -25,7 +25,7 @@ const {
 } = require('../../component/location-new/geo-components/coordinates.js')
 const DirectionInput = require('../../component/location-new/geo-components/direction.js')
 const { Direction } = require('../../component/location-new/utils/dms-utils.js')
-import styled from '../../react-component/styles/styled-components'
+import styled from 'styled-components'
 
 const ErrorBlock = styled.div`
   width: 100%;
