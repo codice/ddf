@@ -43,7 +43,7 @@
         - replaced bundles in camel-jms
         - replaced cxf-http-provider with cxf-http-jetty
         - the versions for proton-j and qpid-jms-client used in camel-amqp need to be kept in sync with the versions used in artemis-amqp
-        - updated proton and qpid-jms versions to stay in sync with Camel 2.24.2 dependencies
+        - updated proton, qpid-jms, and netty versions to stay in sync with Camel 2.24.2 dependencies
 
     DO NOT EDIT
     -->
