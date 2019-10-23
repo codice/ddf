@@ -85,21 +85,16 @@ class AttributeValueNormalizer {
     return value;
   }
 
+  @Nullable
   private String getIsoDateRangeFromEpoch(String value) {
     if (value.indexOf('/') >= 0) {
       String dates[] = value.split("/", 2);
       Instant instantFrom = instantFromEpoch(dates[0]);
       Instant instantTo = instantFromEpoch(dates[1]);
 
-      String fromDate = "";
-      String toDate = "";
+      final String fromDate = (instantFrom != null) ? instantFrom.toString() : "";
+      final String toDate = (instantTo != null) ? instantTo.toString() : "";
 
-      if (instantFrom != null) {
-        fromDate = instantFrom.toString();
-      }
-      if (instantTo != null) {
-        toDate = instantTo.toString();
-      }
       return fromDate + '/' + toDate;
     }
 
@@ -161,15 +156,10 @@ class AttributeValueNormalizer {
       Instant dateFromInstant = instantFromIso(dates[0]);
       Instant dateToInstant = instantFromIso(dates[1]);
 
-      String dateFrom = "";
-      String dateTo = "";
-
-      if (dateFromInstant != null) {
-        dateFrom = Objects.toString(dateFromInstant.toEpochMilli());
-      }
-      if (dateToInstant != null) {
-        dateTo = Objects.toString(dateToInstant.toEpochMilli());
-      }
+      final String dateFrom =
+          (dateFromInstant != null) ? Objects.toString(dateFromInstant.toEpochMilli()) : "";
+      final String dateTo =
+          (dateToInstant != null) ? Objects.toString(dateToInstant.toEpochMilli()) : "";
 
       return dateFrom + '/' + dateTo;
     }

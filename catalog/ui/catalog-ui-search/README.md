@@ -1,6 +1,6 @@
 ## Internal Documentation for the Intrigue Backend
 
-This is internal documentation. Some of the data structures documented here are either subject to 
+This is internal documentation. Some of the data structures documented here are either subject to
 change or are not publicly exposed.
 
 ### Maintaining the blueprint files
@@ -10,6 +10,7 @@ subdivided by exposed functionality. Any component that has an ID can be referen
 the different XML files.
 
 The files exist to organize components with respect to the coupling between Catalog UI Search and DDF:
+
 1. `endpoints.xml` is where exposed networking services live that the UI itself will consume.
 1. `provides.xml` is for publishing OSGi services **to** DDF to support the container itself and other distributions.
 1. `consumes.xml` is for retrieving OSGi services **from** DDF to support the UI.
@@ -22,6 +23,7 @@ Before adding more code to `EndpointUtil`, consider a separate class or splittin
 a separate class that does one thing, and one thing really well.
 
 Within the files, sections exist to organize components with respect to the functionality they enable:
+
 1. Simple apps that just proxy existing interfaces, such as catalog services or auth services.
 1. Major apps, such as querying, workspaces, search forms, and other logical groups of REST services.
 1. Plugins that define policies that Intrigue relies on.
@@ -30,40 +32,44 @@ New, refined, or refactored functionality should update the sections accordingly
 
 ### Spark Applications Overview
 
-The Intrigue backend is comprised of multiple Spark applications. 
-They represent logical groups of functions, exposed over REST, and are as follows: 
-* Configuration Application - provides access to Intrigue's configuration as set by the system administrator
-* Forms Application - provides access to custom search forms so users only work with fields they care about
-* Metacard Application - provides various CRUD operations on metacards and their respective data such as
-types, validation details, history, associations, subscriptions, and annotations; primarily designed to work 
-with non-resource metacards such as workspaces
-* Query Application - provides support for querying the catalog with CQL
-* Feedback Application - allows users to submit feedback about queries
+The Intrigue backend is comprised of multiple Spark applications.
+They represent logical groups of functions, exposed over REST, and are as follows:
+
+- Configuration Application - provides access to Intrigue's configuration as set by the system administrator
+- Forms Application - provides access to custom search forms so users only work with fields they care about
+- Metacard Application - provides various CRUD operations on metacards and their respective data such as
+  types, validation details, history, associations, subscriptions, and annotations; primarily designed to work
+  with non-resource metacards such as workspaces
+- Query Application - provides support for querying the catalog with CQL
+- Feedback Application - allows users to submit feedback about queries
 
 ### CXF Endpoints
 
-Some functionality is defined using JAX-RS instead of Spark. 
-* Metacard Edit Endpoint - allows the updating of metacards
+Some functionality is defined using JAX-RS instead of Spark.
+
+- Metacard Edit Endpoint - allows the updating of metacards
 
 ### Intrigue Data Expectations
 
 #### Filters
 
 Intrigue currently represents a filter using the tokens of CQL in a JSON object hierarchy. The
-key fields on each terminal node in the hierarchy are: 
-* `type` - name of the operation to perform as a upper-case string
-* `property` - name of the property to operate on
-* `value` - value of the property to operate on; it can be:
-    * Primitive type (int, double, boolean, or string - float not supported)
-    * Temporal data (a DateTime object) specified as a string in ISO 8601 format (GML time range not supported)
-    * Spatial data as a WKT string
+key fields on each terminal node in the hierarchy are:
+
+- `type` - name of the operation to perform as a upper-case string
+- `property` - name of the property to operate on
+- `value` - value of the property to operate on; it can be:
+  - Primitive type (int, double, boolean, or string - float not supported)
+  - Temporal data (a DateTime object) specified as a string in ISO 8601 format (GML time range not supported)
+  - Spatial data as a WKT string
 
 For nodes that are logical operations and contain other nodes, they forgo the `property` and `value`
 fields in favor of a `filters` field, which is a list of nodes.
 
-Examples of this data structure are included for reference. 
+Examples of this data structure are included for reference.
 
 ##### Bounding-Box with Temporal Range
+
 ```
 {
   "type": "AND",
@@ -138,6 +144,7 @@ Examples of this data structure are included for reference.
 ```
 
 ##### Lat-Lon
+
 ```
 {
   "type": "AND",
@@ -153,6 +160,7 @@ Examples of this data structure are included for reference.
 ```
 
 ##### Line
+
 ```
 {
   "type": "AND",
@@ -168,6 +176,7 @@ Examples of this data structure are included for reference.
 ```
 
 ##### Point-Radius
+
 ```
 {
   "type": "AND",
@@ -183,6 +192,7 @@ Examples of this data structure are included for reference.
 ```
 
 ##### USNG with Type Constraints
+
 ```
 {
   "type": "AND",
@@ -212,6 +222,7 @@ Examples of this data structure are included for reference.
 ```
 
 ##### UTM
+
 ```
 {
   "type": "AND",
@@ -229,38 +240,38 @@ Examples of this data structure are included for reference.
 
 #### Forms Application
 
-Search forms are custom query interfaces created by the system or user that only show query controls 
-that the user is interested in. They effectively hide the complexity of very large query filters while 
+Search forms are custom query interfaces created by the system or user that only show query controls
+that the user is interested in. They effectively hide the complexity of very large query filters while
 allowing a small set of values to be plugged into predetermined locations within the filter tree. Search
-forms also support the notion of "detail level" which limits what attributes are rendered when viewing 
-results. Search forms are powered by filter templates and detail levels are powered by attribute groups. 
+forms also support the notion of "detail level" which limits what attributes are rendered when viewing
+results. Search forms are powered by filter templates and detail levels are powered by attribute groups.
 
 ##### Filter XML 2.0
 
 Filter templates and attribute groups are persisted in the catalog as metacards. Attribute groups are
-simple: they only specify a set of attribute descriptor names. Filter templates store the templated 
+simple: they only specify a set of attribute descriptor names. Filter templates store the templated
 filter data as [Filter XML 2.0](http://schemas.opengis.net/filter/2.0/) and leverage functions to
-act as a placeholder when user input is needed. 
+act as a placeholder when user input is needed.
 
-Comprehensive examples can be found in `catalog-ui-search/src/test/resources/forms/filter2` for reference. 
+Comprehensive examples can be found in `catalog-ui-search/src/test/resources/forms/filter2` for reference.
 They are arranged by classification according to the bindings provided by `mvn:org.jvnet.ogc/filter-v_2_0/2.6.1`
 which scrutinize by the number of parameters needed to construct a given JAXB type and the possible values
-that can exist on a JAXB type (i.e. serializable literals vs more XML). 
+that can exist on a JAXB type (i.e. serializable literals vs more XML).
 
-Some operation types have incomplete examples. The instances of these types are listed here for reference. 
+Some operation types have incomplete examples. The instances of these types are listed here for reference.
 
 ##### Spatial Binary Ops
 
 Spatial Ops are supported by templates **only** when defined using functions for passthrough to user
 input. GML cannot yet be used to specify constant location data on a template that's hidden away from
-the user. 
+the user.
 
 Currently only `Intersects` and `Disjoint` are supported by Intrigue (from Filter 1.1):
 
 `Intersects` - Tests whether two geometries intersect (example provided)
 `Disjoint` - Tests whether two geometries are disjoint (example provided)
 
-Unsupported: 
+Unsupported:
 
 `Contains` - Tests whether a geometry contains another one
 `Within` - Tests whether a geometry is within another one
@@ -271,29 +282,28 @@ Unsupported:
 
 ##### Temporal Ops
 
-Temporal Ops are **not yet supported** by templates for any use case. 
+Temporal Ops are **not yet supported** by templates for any use case.
 
 Currently only `After` and `Before` are supported by Intrigue (from Filter 1.1):
 
- `After` - tests whether a time instant occurs _after_ another
- `Before` - tests whether a time instant occurs _before_ another
- 
- Unsupported: 
- 
- ```
- TEquals (example provided)
- Begins
- BegunBy
- TContains
- During
- EndedBy
- Ends
- Meets
- MetBy
- TOverlaps
- OverlapedBy
- AnyInteracts
- ```
- 
- Also note that Filter 2.0 adds complex temporal value support via GML, as shown in `temporal-ops/gml`
- vs the simple style shown in `temporal-ops/literal`. 
+`After` - tests whether a time instant occurs _after_ another
+`Before` - tests whether a time instant occurs _before_ another
+`During` - tests whether a time instant occurs _between_ a time range defined as `value`/`value`, exclusive
+Unsupported:
+
+```
+TEquals (example provided)
+Begins
+BegunBy
+TContains
+EndedBy
+Ends
+Meets
+MetBy
+TOverlaps
+OverlapedBy
+AnyInteracts
+```
+
+Also note that Filter 2.0 adds complex temporal value support via GML, as shown in `temporal-ops/gml`
+vs the simple style shown in `temporal-ops/literal`.
