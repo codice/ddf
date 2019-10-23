@@ -15,8 +15,8 @@
 import moment from 'moment-timezone'
 
 export const serialize = value => {
-  let from = moment(value.from)
-  let to = moment(value.to)
+  const from = moment(value.from)
+  const to = moment(value.to)
   if (from.isAfter(to)) {
     return (to.toISOString() || '') + '/' + (from.toISOString() || '')
   }

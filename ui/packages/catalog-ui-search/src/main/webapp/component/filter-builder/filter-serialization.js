@@ -68,12 +68,10 @@ const transformFilter = filter => {
   const { type, property } = filter
 
   const value = CQLUtils.isGeoFilter(filter.type) ? filter : filter.value
-  if (type === 'DURING') {
-    if (filter.value.indexOf('/') >= 0) {
-      const dates = filter.value.split('/')
-      filter.from = dates[0] || null
-      filter.to = dates[1] || null
-    }
+  if (type === 'DURING' && filter.value.includes('/')) {
+    const dates = filter.value.split('/')
+    filter.from = dates[0] || null
+    filter.to = dates[1] || null
   }
 
   if (_.isObject(property)) {
