@@ -1,0 +1,27 @@
+:title: Facet Attribute Whitelist
+:id: org.codice.ddf.catalog.plugin.facetattributeaccess.facetwhitelist
+:type: table
+:status: published
+:application: ${ddf-ui}
+:summary: Facet Attribute Whitelist
+
+.[[_org.codice.ddf.catalog.plugin.facetattributeaccess.facetwhitelist]]Facet Attribute Whitelist
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Facet Attribute Whitelist
+|facetAttributeWhitelist
+|String
+|Attributes that can be faceted against through the catalog framework.
+Caution: Suggestion values are not protected by any security. Only choose attributes whose values will be safe for all users to view.
+|
+|false
+
+|===

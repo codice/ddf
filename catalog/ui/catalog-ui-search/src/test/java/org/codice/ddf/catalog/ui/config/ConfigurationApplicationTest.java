@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.catalog.ui.security.faceting.FacetWhitelistConfiguration;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.proxy.http.HttpProxyService;
 import org.junit.Before;
@@ -56,9 +55,7 @@ public class ConfigurationApplicationTest {
 
   @Before
   public void setUp() {
-    configurationApplication =
-        new ConfigurationApplication(
-            mock(UuidGenerator.class), mock(FacetWhitelistConfiguration.class));
+    configurationApplication = new ConfigurationApplication(mock(UuidGenerator.class));
     resourceBundleLocator = mock(ResourceBundleLocator.class);
   }
 
