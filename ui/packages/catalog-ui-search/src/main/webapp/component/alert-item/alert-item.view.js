@@ -12,6 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+import fetch from '../../react-component/utils/fetch'
 
 const wreqr = require('../../js/wreqr.js')
 const Marionette = require('marionette')
@@ -19,7 +20,6 @@ const template = require('./alert-item.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const store = require('../../js/store.js')
 const Common = require('../../js/Common.js')
-const user = require('../singletons/user-instance.js')
 
 module.exports = Marionette.ItemView.extend({
   template,
@@ -47,12 +47,15 @@ module.exports = Marionette.ItemView.extend({
   },
   removeModel() {
     this.$el.toggleClass('is-destroyed', true)
+    fetch('./internal/user/notifications', {
+      method: 'delete',
+      body: JSON.stringify({ alerts: [this.model.id] }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
     setTimeout(() => {
       this.model.collection.remove(this.model)
-      user
-        .get('user')
-        .get('preferences')
-        .savePreferences()
     }, 250)
   },
   expandAlert() {

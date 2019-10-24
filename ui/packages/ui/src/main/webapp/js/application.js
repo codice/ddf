@@ -16,6 +16,7 @@
 /* jslint browser:true */
 // #Main Application
 import Theme from '../components/container/theme'
+import * as React from 'react'
 import { patchListenTo } from '@connexta/atlas/extensions/backbone'
 import {
   addOnFirstRender,
@@ -70,6 +71,7 @@ define([
     modalRegion: '#modalRegion',
     sessionTimeoutModalRegion: '#sessionTmeoutModalRegion',
     alertsRegion: '.alerts',
+    announcementsRegion: '.announcements',
     applications: '#applications',
     docs: '#docs',
     installation: '#installation',
@@ -95,6 +97,44 @@ define([
   Application.ModuleModel = new Module.Model()
   Application.ModuleModel.fetch().done(addModuleRegions)
   Application.AppModel = new Backbone.Model(Properties)
+
+  const Announcement = () => {
+    const [dismissed, setDismissed] = React.useState(false)
+    if (dismissed) {
+      return null
+    }
+    return (
+      <React.Fragment>
+        <div
+          className="panel panel-info accordion"
+          style={{ marginBottom: '10px' }}
+        >
+          <div className="panel-heading">
+            <h4 className="panel-title clearfix">
+              <i className="fa fa-bullhorn" />
+              <a href="../beta/admin/">Click here to try the new Admin UI</a>
+              <button
+                type="button"
+                className="btn btn-link dismiss"
+                onClick={() => {
+                  setDismissed(true)
+                }}
+              >
+                Dismiss
+              </button>
+            </h4>
+          </div>
+        </div>
+      </React.Fragment>
+    )
+  }
+  Application.App.announcementsRegion.show(
+    new (Backbone.Marionette.ItemView.extend({
+      template() {
+        return <Announcement />
+      },
+    }))()
+  )
   Application.App.appHeader.show(
     new (Backbone.Marionette.ItemView.extend({
       template: appHeader,

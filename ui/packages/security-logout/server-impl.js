@@ -12,6 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/* eslint-disable no-unused-vars */
 var httpProxy = require('http-proxy')
 var path = require('path')
 

@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.test.itests</groupId>
         <artifactId>itests</artifactId>
-        <version>2.19.0-SNAPSHOT</version>
+        <version>2.20.0-SNAPSHOT</version>
     </parent>
     <artifactId>test-itests-ddf</artifactId>
     <name>DDF :: Integration :: Test</name>
@@ -128,7 +128,7 @@
         <dependency>
             <groupId>ddf.distribution</groupId>
             <artifactId>sdk-app</artifactId>
-            <version>${project.version}</version>
+            <version>${ddf-sdk.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>
@@ -230,12 +230,6 @@
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-sjms2</artifactId>
             <version>${camel.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>artemis-jms-client</artifactId>
-            <version>${artemis.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

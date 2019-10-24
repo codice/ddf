@@ -19,6 +19,8 @@
 // jshint ignore: start
 const moment = require('moment')
 
+const ANYTEXT_WILDCARD = '"anyText" ILIKE \'%\''
+
 const comparisonClass = 'Comparison',
   logicalClass = 'Logical',
   spatialClass = 'Spatial',
@@ -746,4 +748,5 @@ module.exports = {
   },
   translateCqlToUserql,
   translateUserqlToCql,
+  ANYTEXT_WILDCARD,
 }

@@ -51,12 +51,6 @@ public class TestPlatform extends AbstractIntegrationTest {
   @BeforeExam
   public void beforeTest() throws Exception {
     try {
-      waitForSystemReady();
-      // Start the services needed for testing.
-      getServiceManager().startFeature(true, "metrics-reporting");
-      getServiceManager().waitForAllBundles();
-      // We need to start the Search UI to test that it redirects properly
-
       // Must explicitly add basic auth to log in with a username and password
       getSecurityPolicy().configureRestForBasic();
     } catch (Exception e) {

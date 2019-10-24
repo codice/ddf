@@ -59,10 +59,10 @@ import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.ConditionalIgnore;
 import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.hamcrest.Matchers;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -106,7 +106,9 @@ public class TestSpatial extends AbstractIntegrationTest {
 
   private String restitoStubServerPath;
 
-  private StubServer server;
+  private static StubServer server;
+
+  private static String wfs11Pid;
 
   private static Map<String, String> savedCswQueries = new HashMap<>();
 
@@ -287,9 +289,7 @@ public class TestSpatial extends AbstractIntegrationTest {
   @BeforeExam
   public void beforeExam() throws Exception {
     try {
-      waitForSystemReady();
       getSecurityPolicy().configureRestForGuest();
-      waitForSystemReady();
       setupMockServer();
 
       getCatalogBundle().waitForFederatedSource(WFS_11_SOURCE_ID);
@@ -304,9 +304,16 @@ public class TestSpatial extends AbstractIntegrationTest {
     }
   }
 
-  @Before
-  public void setup() throws Exception {
-    clearCatalogAndWait();
+  @AfterExam
+  public void afterExam() throws Exception {
+    if (server != null) {
+      server.stop();
+    }
+    if (wfs11Pid != null) {
+      getServiceManager().stopManagedService(wfs11Pid);
+    }
+    getServiceManager().stopFeature(true, "spatial-wps");
+    getServiceManager().stopFeature(true, "sample-process");
   }
 
   private void setupMockServer() throws IOException {
@@ -350,7 +357,10 @@ public class TestSpatial extends AbstractIntegrationTest {
         .match(post(WFS_11_CONTEXT), withPostBodyContaining("FeatureId"))
         .then(Action.success(), Action.stringContent(wfsResponse(sfRoad1)));
 
-    getServiceManager().createManagedService(WFS_11_FACTORY_PID, wfs11SourceProperties);
+    wfs11Pid =
+        getServiceManager()
+            .createManagedService(WFS_11_FACTORY_PID, wfs11SourceProperties)
+            .getPid();
   }
 
   private void setupWfs11GetCapabilities(String getCapabilities) {
@@ -387,7 +397,7 @@ public class TestSpatial extends AbstractIntegrationTest {
 
   @After
   public void tearDown() throws Exception {
-    clearCatalog();
+    clearCatalogAndWait();
   }
 
   @Test

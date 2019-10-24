@@ -97,7 +97,8 @@ import org.slf4j.LoggerFactory;
 @Command(
   scope = CatalogCommands.NAMESPACE,
   name = "export",
-  description = "Exports Metacards and history from the current Catalog"
+  description =
+      "Exports metacards, history, and their associated resources from the current Catalog"
 )
 public class ExportCommand extends CqlCommands {
 

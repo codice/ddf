@@ -32,13 +32,13 @@
             org.apache.cxf:cxf-rt-rs-security-sso-saml -> ehcache-2.10.4 -> jackson-databind-2.6.3.
             solr-assembly.zip -> jackson-core-asl-1.9.13.jar
             This suppression can be removed when DDF-3593 has been completed.
+             CVE-2019-16942, CVE-2019-16943 refers to an externally exposed JSON/RMI endpoint, which is not used    
         </notes>
         <cve>CVE-2016-3720</cve>
         <cve>CVE-2017-7525</cve>
         <cve>CVE-2017-15095</cve>
         <cve>CVE-2017-17485</cve>
         <cve>CVE-2018-7489</cve>
-
         <cve>CVE-2018-11307</cve>
         <cve>CVE-2018-14719</cve>
         <cve>CVE-2018-14718</cve>
@@ -47,6 +47,9 @@
         <cve>CVE-2018-19362</cve>
         <cve>CVE-2018-19361</cve>
         <cve>CVE-2018-19360</cve>
+        <cve>CVE-2019-16942</cve>
+        <cve>CVE-2019-16943</cve>
+        <cve>CVE-2019-17267</cve>
     </suppress>
     <suppress>
         <notes>
@@ -158,14 +161,6 @@
             xercesImpl-2.11.0.jar
         </notes>
         <cve>CVE-2012-0881</cve>
-    </suppress>
-    <suppress>
-        <notes>
-            These CVEs apply to the Hawtio console which is not exposed in this system.
-            artemis-core-client-2.1.0.jar and activemq-client-5.14.5.jar
-        </notes>
-        <cve>CVE-2015-5184</cve>
-        <cve>CVE-2015-5183</cve>
     </suppress>
     <suppress>
         <notes>
@@ -286,10 +281,8 @@
     </suppress>
     <suppress>
         <notes>
-            Apache httpd vulnerabilities inaccurately associated with artemis-server-osgi-2.4.0.jar
-            and cxf-rt-transports-http-netty-server-3.2.5.jar in the DDF distribution.
-            artemis-server-osgi-2.6.2.jar
-            cxf-rt-transports-http-netty-server-3.2.6.jar
+            Apache httpd vulnerabilities inaccurately associated with
+            cxf-rt-transports-http-netty-server-3.2.5.jar in the DDF distribution.
         </notes>
         <cve>CVE-1999-0236</cve>
         <cve>CVE-1999-1237</cve>

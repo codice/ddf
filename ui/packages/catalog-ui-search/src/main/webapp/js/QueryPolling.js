@@ -20,6 +20,7 @@ const cql = require('./cql.js')
 const CQLUtils = require('./CQLUtils.js')
 const sources = require('../component/singletons/sources-instance.js')
 const moment = require('moment')
+const Common = require('./Common.js')
 require('./jquery.whenAll')
 
 let checkForFailures, startSearch, addFailure, handleReattempts
@@ -195,6 +196,7 @@ startSearch = function(originalQuery, timeRange, queryToRun) {
         const when = Date.now()
         if (metacardIds.length > 0) {
           wreqr.vent.trigger('alerts:add', {
+            id: Common.generateUUID(),
             queryId: originalQuery.id,
             workspaceId: originalQuery.collection.parents[0].id,
             when,

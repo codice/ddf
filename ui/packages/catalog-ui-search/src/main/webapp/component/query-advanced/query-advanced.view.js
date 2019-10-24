@@ -28,7 +28,7 @@ import query from '../../react-component/utils/query'
 const fetchSuggestions = memoize(async attr => {
   const json = await query({
     count: 0,
-    cql: "anyText ILIKE ''",
+    cql: cql.ANYTEXT_WILDCARD,
     facets: [attr],
   })
 
@@ -50,7 +50,7 @@ const isValidFacetAttribute = (id, type) => {
   if (id === 'anyText') {
     return false
   }
-  if (!properties.facetWhitelist.includes(id)) {
+  if (!properties.attributeSuggestionList.includes(id)) {
     return false
   }
   return true
@@ -97,7 +97,7 @@ module.exports = Marionette.LayoutView.extend({
     if (this.model.get('filterTree') !== undefined) {
       filter = this.model.get('filterTree')
     } else if (this.options.isAdd) {
-      filter = cql.read("anyText ILIKE '%'")
+      filter = cql.read(cql.ANYTEXT_WILDCARD)
     } else if (this.model.get('cql')) {
       filter = cql.simplify(cql.read(this.model.get('cql')))
     }

@@ -47,7 +47,6 @@ import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.branding.BrandingPlugin;
-import org.codice.ddf.catalog.ui.security.faceting.FacetWhitelistConfiguration;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.codice.proxy.http.HttpProxyService;
@@ -83,6 +82,8 @@ public class ConfigurationApplication implements SparkApplication {
   private List imageryProviders = new ArrayList<>();
 
   private List defaultLayout = new ArrayList<>();
+
+  private List visualizations = new ArrayList<>();
 
   private List<Map> imageryProviderUrlMaps = new ArrayList<>();
 
@@ -193,6 +194,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private List<String> hiddenAttributes = Collections.emptyList();
 
+  private List<String> attributeSuggestionList = Collections.emptyList();
+
   private Map<String, String> attributeDescriptions = Collections.emptyMap();
 
   private List<String> listTemplates = Collections.emptyList();
@@ -237,8 +240,6 @@ public class ConfigurationApplication implements SparkApplication {
   private Set<String> editorAttributes = Collections.emptySet();
   private Set<String> requiredAttributes = Collections.emptySet();
   private Map<String, Set<String>> attributeEnumMap = Collections.emptyMap();
-
-  private FacetWhitelistConfiguration facetWhitelistConfiguration;
 
   private static final String INTRIGUE_BASE_NAME = "IntrigueBundle";
 
@@ -345,10 +346,8 @@ public class ConfigurationApplication implements SparkApplication {
     setAttributeEnumMap(mergedEntryMap);
   }
 
-  public ConfigurationApplication(
-      UuidGenerator uuidGenerator, FacetWhitelistConfiguration facetWhitelistConfiguration) {
+  public ConfigurationApplication(UuidGenerator uuidGenerator) {
     this.uuidGenerator = uuidGenerator;
-    this.facetWhitelistConfiguration = facetWhitelistConfiguration;
   }
 
   public List<Long> getScheduleFrequencyList() {
@@ -423,6 +422,10 @@ public class ConfigurationApplication implements SparkApplication {
     this.hiddenAttributes = hiddenAttributes;
   }
 
+  public void setAttributeSuggestionList(List<String> list) {
+    this.attributeSuggestionList = list;
+  }
+
   public void setListTemplates(List<String> listTemplates) {
     this.listTemplates = listTemplates;
   }
@@ -495,6 +498,21 @@ public class ConfigurationApplication implements SparkApplication {
     }
   }
 
+  private List<Map> getVisualizationsConfig() {
+    if (visualizations == null || visualizations.isEmpty()) {
+      // @formatter:off
+      return Arrays.asList(
+          ImmutableMap.of("name", "openlayers", "title", "2D Map", "icon", "map"),
+          ImmutableMap.of("name", "cesium", "title", "3D Map", "icon", "globe"),
+          ImmutableMap.of("name", "inspector", "title", "Inspector", "icon", "info"),
+          ImmutableMap.of("name", "histogram", "title", "Histogram", "icon", "bar-chart"),
+          ImmutableMap.of("name", "table", "title", "Table", "icon", "table"));
+      // @formatter:on
+    } else {
+      return defaultLayout;
+    }
+  }
+
   public Map<String, Object> getConfig() {
     Map<String, Object> config = new HashMap<>();
 
@@ -534,6 +552,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("zoomPercentage", zoomPercentage);
     config.put("spacingMode", spacingMode);
     config.put("defaultLayout", getDefaultLayoutConfig());
+    config.put("visualizations", getVisualizationsConfig());
     config.put("isExperimental", experimentalEnabled);
     config.put("autoMergeTime", autoMergeTime);
     config.put("webSocketsEnabled", webSocketsEnabled);
@@ -570,7 +589,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("basicSearchMatchType", basicSearchMatchType);
     config.put("useHyphensInUuid", uuidGenerator.useHyphens());
     config.put("i18n", i18n);
-    config.put("facetWhitelist", facetWhitelistConfiguration.getFacetAttributeWhitelist());
+    config.put("attributeSuggestionList", attributeSuggestionList);
     return config;
   }
 
@@ -1245,6 +1264,29 @@ public class ConfigurationApplication implements SparkApplication {
 
   public List<String> getBasicSearchTemporalSelectionDefault() {
     return basicSearchTemporalSelectionDefault;
+  }
+
+  public String getVisualizations() {
+    return GSON.toJson(visualizations);
+  }
+
+  public void setVisualizations(String visualizations) {
+    if (StringUtils.isEmpty(visualizations)) {
+      this.visualizations = Collections.emptyList();
+    } else {
+      try {
+        Object o = GSON.fromJson(visualizations, List.class);
+        if (o != null) {
+          this.visualizations = (List) o;
+        } else {
+          this.visualizations = Collections.emptyList();
+          LOGGER.warn("Could not parse visualizations config as JSON, {}", visualizations);
+        }
+      } catch (ClassCastException e) {
+        this.visualizations = Collections.emptyList();
+        LOGGER.error("Unable to parse visualizations config {} into map.", visualizations, e);
+      }
+    }
   }
 
   public String getBasicSearchMatchType() {

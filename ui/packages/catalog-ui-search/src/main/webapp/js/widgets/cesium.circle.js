@@ -123,8 +123,10 @@ DrawCircle.CircleView = Marionette.View.extend({
 
     if (
       this.isModelReset(modelProp) ||
-      modelProp.lat === undefined ||
-      modelProp.lon === undefined
+      typeof modelProp.lat !== 'number' ||
+      Number.isNaN(modelProp.lat) ||
+      typeof modelProp.lon !== 'number' ||
+      Number.isNaN(modelProp.lon)
     ) {
       return
     }

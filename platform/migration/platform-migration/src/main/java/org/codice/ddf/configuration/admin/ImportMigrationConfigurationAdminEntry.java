@@ -40,13 +40,13 @@ public class ImportMigrationConfigurationAdminEntry {
 
   private final ConfigurationAdmin configurationAdmin;
 
-  private final Dictionary<String, Object> properties;
+  private Dictionary<String, Object> properties;
 
   @Nullable private final String bundleLocation;
 
   @Nullable private final String factoryPid;
 
-  private final String pid;
+  private String pid;
 
   @Nullable private final Configuration memoryConfiguration;
 
@@ -125,6 +125,18 @@ public class ImportMigrationConfigurationAdminEntry {
 
   public String getPid() {
     return pid;
+  }
+
+  public Dictionary<String, Object> getProperties() {
+    return properties;
+  }
+
+  public void setProperties(Dictionary<String, Object> properties) {
+    this.properties = properties;
+  }
+
+  public void setPid(String pid) {
+    this.pid = pid;
   }
 
   public boolean isManagedServiceFactory() {

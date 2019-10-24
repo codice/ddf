@@ -55,7 +55,6 @@ public class TestSolrCommands extends AbstractIntegrationTest {
   @BeforeExam
   public void beforeExam() throws Exception {
     try {
-      waitForSystemReady();
       basePort = getBasePort();
       getServiceManager().startFeature(true, getDefaultRequiredApps());
       getServiceManager().waitForAllBundles();

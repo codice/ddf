@@ -17,6 +17,7 @@ import {
   Restrictions,
   Security,
 } from '../../react-component/utils/security/security'
+import fetch from '../../react-component/utils/fetch'
 
 const _ = require('underscore')
 const _get = require('lodash.get')
@@ -211,6 +212,17 @@ User.Preferences = Backbone.AssociatedModel.extend({
   },
   addAlert(alertDetails) {
     this.get('alerts').add(alertDetails)
+    /*
+    * Add alert to notification core
+    * Alert will be retrieved and sent to the UI by UserApplication.java (getSubjectPreferences()) on refresh
+    */
+    fetch('./internal/user/notifications', {
+      method: 'put',
+      body: JSON.stringify({ alerts: [alertDetails] }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
     this.savePreferences()
   },
   savePreferences() {
@@ -263,7 +275,17 @@ User.Preferences = Backbone.AssociatedModel.extend({
       const recievedAt = alert.getTimeComparator()
       return Date.now() - recievedAt > expiration
     })
+    if (expiredAlerts.length === 0) {
+      return
+    }
     this.get('alerts').remove(expiredAlerts)
+    fetch('./internal/user/notifications', {
+      method: 'delete',
+      body: JSON.stringify({ alerts: expiredAlerts.map(({ id }) => id) }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
   },
   removeExpiredUploads(expiration) {
     const expiredUploads = this.get('uploads').filter(upload => {

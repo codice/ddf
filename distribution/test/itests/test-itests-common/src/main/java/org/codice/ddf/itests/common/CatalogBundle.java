@@ -13,23 +13,19 @@
  */
 package org.codice.ddf.itests.common;
 
-import static org.junit.Assert.fail;
+import static org.awaitility.Awaitility.await;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
 import ddf.catalog.operation.impl.SourceInfoRequestLocal;
 import ddf.catalog.source.CatalogProvider;
-import ddf.catalog.source.CatalogStore;
 import ddf.catalog.source.FederatedSource;
-import ddf.catalog.source.Source;
-import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.management.NotCompliantMBeanException;
 import org.codice.ddf.configuration.DictionaryMap;
@@ -40,167 +36,102 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CatalogBundle {
+
   protected static final Logger LOGGER = LoggerFactory.getLogger(CatalogBundle.class);
 
-  public static final long CATALOG_PROVIDER_TIMEOUT =
+  private static final long CATALOG_PROVIDER_TIMEOUT =
       AbstractIntegrationTest.GENERIC_TIMEOUT_MILLISECONDS;
 
-  public static final String CATALOG_FRAMEWORK_PID = "ddf.catalog.CatalogFrameworkImpl";
+  private static final String CATALOG_FRAMEWORK_PID = "ddf.catalog.CatalogFrameworkImpl";
 
-  public static final String RESOURCE_DOWNLOAD_MANAGER_PID =
+  private static final String RESOURCE_DOWNLOAD_MANAGER_PID =
       "ddf.catalog.resource.download.ReliableResourceDownloadManager";
 
   private final ServiceManager serviceManager;
 
   private final AdminConfig adminConfig;
 
-  public CatalogBundle(ServiceManager serviceManager, AdminConfig adminConfig) {
+  CatalogBundle(ServiceManager serviceManager, AdminConfig adminConfig) {
     this.serviceManager = serviceManager;
     this.adminConfig = adminConfig;
   }
 
-  public CatalogProvider waitForCatalogProvider() throws InterruptedException {
+  public void waitForCatalogProvider() throws InterruptedException {
     LOGGER.info("Waiting for CatalogProvider to become available.");
     serviceManager.printInactiveBundlesInfo();
 
-    CatalogProvider provider = null;
-    CatalogFramework framework = null;
-    long timeoutLimit = System.currentTimeMillis() + CATALOG_PROVIDER_TIMEOUT;
-    boolean available = false;
-
-    while (!available) {
-      if (provider == null) {
-        ServiceReference<CatalogFramework> frameworkRef =
-            serviceManager.getServiceReference(CatalogFramework.class);
-        ServiceReference<CatalogProvider> providerRef =
-            serviceManager.getServiceReference(CatalogProvider.class);
-        if (providerRef != null) {
-          provider = serviceManager.getService(providerRef);
-        }
-        if (frameworkRef != null) {
-          framework = serviceManager.getService(frameworkRef);
-        }
-      }
-
-      if (framework != null && provider != null) {
-        SourceInfoRequestLocal sourceInfoRequestEnterprise = new SourceInfoRequestLocal(true);
-
-        try {
-          SourceInfoResponse sources = framework.getSourceInfo(sourceInfoRequestEnterprise);
-          Set<SourceDescriptor> sourceInfo = sources.getSourceInfo();
-          for (SourceDescriptor sourceDescriptor : sourceInfo) {
-            if (sourceDescriptor.getSourceId().equals(provider.getId())) {
-              available = sourceDescriptor.isAvailable() && provider.isAvailable();
-              LOGGER.info("CatalogProvider.isAvailable = {}", available);
-            }
-          }
-        } catch (SourceUnavailableException e) {
-          available = false;
-        }
-      }
-
-      if (!available) {
-        if (System.currentTimeMillis() > timeoutLimit) {
-          LOGGER.info("CatalogProvider.isAvailable = false");
-          serviceManager.printInactiveBundles();
-          fail(
-              String.format(
-                  "Catalog provider timed out after %d minutes.",
-                  TimeUnit.MILLISECONDS.toMinutes(CATALOG_PROVIDER_TIMEOUT)));
-        }
-        Thread.sleep(1000);
-      }
-    }
+    await("Waiting for CatalogProvider to become available.")
+        .atMost(CATALOG_PROVIDER_TIMEOUT, TimeUnit.MILLISECONDS)
+        .pollDelay(1, TimeUnit.SECONDS)
+        .until(this::isCatalogProviderReady);
 
     LOGGER.info("CatalogProvider is available.");
-    return provider;
   }
 
-  public FederatedSource waitForFederatedSource(String id)
-      throws InterruptedException, InvalidSyntaxException {
+  private boolean isCatalogProviderReady() {
+    CatalogProvider provider = getService(CatalogProvider.class);
+    CatalogFramework framework = getService(CatalogFramework.class);
+
+    if (framework != null && provider != null) {
+      SourceInfoRequestLocal sourceInfoRequestEnterprise = new SourceInfoRequestLocal(true);
+
+      try {
+        SourceInfoResponse sources = framework.getSourceInfo(sourceInfoRequestEnterprise);
+
+        return sources
+            .getSourceInfo()
+            .stream()
+            .filter(descriptor -> descriptor.getSourceId().equals(provider.getId()))
+            .map(descriptor -> descriptor.isAvailable() && provider.isAvailable())
+            .findFirst()
+            .orElse(false);
+      } catch (SourceUnavailableException ignored) {
+      }
+    }
+
+    return false;
+  }
+
+  public void waitForFederatedSource(String id) throws InvalidSyntaxException {
     LOGGER.info("Waiting for FederatedSource {} to become available.", id);
-    return waitForSource(id, FederatedSource.class);
+    await()
+        .atMost(CATALOG_PROVIDER_TIMEOUT, TimeUnit.MILLISECONDS)
+        .pollDelay(1, TimeUnit.SECONDS)
+        .until(() -> isFederatedSourceReady(id));
   }
 
-  public CatalogStore waitForCatalogStore(String id)
-      throws InterruptedException, InvalidSyntaxException {
-    LOGGER.info("Waiting for CatalogStore {} to become available.", id);
-    return waitForSource(id, CatalogStore.class);
-  }
+  private boolean isFederatedSourceReady(String id) throws InvalidSyntaxException {
+    CatalogFramework framework = getService(CatalogFramework.class);
+    FederatedSource source =
+        serviceManager
+            .getServiceReferences(FederatedSource.class, null)
+            .stream()
+            .map(serviceManager::getService)
+            .filter(src -> id.equals(src.getId()))
+            .findFirst()
+            .orElse(null);
 
-  private <T extends Source> T waitForSource(String id, Class<T> type)
-      throws InterruptedException, InvalidSyntaxException {
-    T source = null;
-    long timeoutLimit = System.currentTimeMillis() + CATALOG_PROVIDER_TIMEOUT;
-    boolean available = false;
+    if (source != null && framework != null) {
+      SourceInfoRequestEnterprise request = new SourceInfoRequestEnterprise(true);
 
-    while (!available) {
-      ServiceReference<CatalogFramework> frameworkRef =
-          serviceManager.getServiceReference(CatalogFramework.class);
-      CatalogFramework framework = null;
-      if (frameworkRef != null) {
-        framework = serviceManager.getService(frameworkRef);
-      }
-      if (source == null) {
-        source =
-            serviceManager
-                .getServiceReferences(type, null)
-                .stream()
-                .map(serviceManager::getService)
-                .filter(src -> id.equals(src.getId()))
-                .findFirst()
-                .orElse(null);
-      }
-      if (source != null && framework != null) {
-        SourceInfoRequestEnterprise sourceInfoRequestEnterprise =
-            new SourceInfoRequestEnterprise(true);
-
-        try {
-          SourceInfoResponse sources = framework.getSourceInfo(sourceInfoRequestEnterprise);
-          Set<SourceDescriptor> sourceInfo = sources.getSourceInfo();
-          for (SourceDescriptor sourceDescriptor : sourceInfo) {
-            if (sourceDescriptor.getSourceId().equals(source.getId())) {
-              available = sourceDescriptor.isAvailable() && source.isAvailable();
-              LOGGER.info(
-                  "Source.isAvailable = {} Framework.isAvailable = {}",
-                  source.isAvailable(),
-                  sourceDescriptor.isAvailable());
-            }
-          }
-        } catch (SourceUnavailableException e) {
-          available = false;
-        }
-      } else {
-        LOGGER.info(
-            "Currently no source of type {} and name {} could be found", type.getName(), id);
-      }
-      if (!available) {
-        if (System.currentTimeMillis() > timeoutLimit) {
-          fail("Source (" + id + ") was not created in a timely manner.");
-        }
-        Thread.sleep(1000);
+      try {
+        SourceInfoResponse sources = framework.getSourceInfo(request);
+        return sources
+            .getSourceInfo()
+            .stream()
+            .filter(descriptor -> descriptor.getSourceId().equals(source.getId()))
+            .map(descriptor -> descriptor.isAvailable() && source.isAvailable())
+            .findFirst()
+            .orElse(false);
+      } catch (SourceUnavailableException ignore) {
       }
     }
-    LOGGER.info("Source {} is available.", id);
-    return source;
-  }
 
-  public CatalogFramework getCatalogFramework() {
-    LOGGER.info("getting framework");
-
-    CatalogFramework catalogFramework = null;
-
-    ServiceReference<CatalogFramework> providerRef =
-        serviceManager.getServiceReference(CatalogFramework.class);
-    if (providerRef != null) {
-      catalogFramework = serviceManager.getService(providerRef);
-    }
-
-    return catalogFramework;
+    return false;
   }
 
   public void setFanout(boolean fanoutEnabled) throws IOException {
-    Map<String, Object> properties = null;
+    Map<String, Object> properties;
     try {
       properties =
           Optional.ofNullable(
@@ -210,18 +141,13 @@ public class CatalogBundle {
       properties = new DictionaryMap<>();
     }
 
-    if (fanoutEnabled) {
-      properties.put("fanoutEnabled", "True");
-    } else {
-      properties.put("fanoutEnabled", "False");
-    }
-
+    properties.put("fanoutEnabled", Boolean.toString(fanoutEnabled));
     serviceManager.startManagedService(CATALOG_FRAMEWORK_PID, properties);
   }
 
   public void setFanoutTagBlacklist(List<String> blacklist)
       throws IOException, InterruptedException {
-    Map<String, Object> properties = null;
+    Map<String, Object> properties;
     try {
       properties =
           Optional.ofNullable(
@@ -240,27 +166,26 @@ public class CatalogBundle {
   }
 
   public void setupCaching(boolean cachingEnabled) throws IOException {
-    if (cachingEnabled) {
-      setConfigProperty(RESOURCE_DOWNLOAD_MANAGER_PID, "cacheEnabled", "True");
-    } else {
-      setConfigProperty(RESOURCE_DOWNLOAD_MANAGER_PID, "cacheEnabled", "False");
-    }
+    setResourceDownloadProperty("cacheEnabled", Boolean.toString(cachingEnabled));
   }
 
   public void setDownloadRetryDelayInSeconds(int delay) throws IOException {
-    setConfigProperty(RESOURCE_DOWNLOAD_MANAGER_PID, "delayBetweenAttempts", delay);
+    setResourceDownloadProperty("delayBetweenAttempts", delay);
   }
 
   public void setupMaxDownloadRetryAttempts(int maxRetryAttempts) throws IOException {
-    setConfigProperty(RESOURCE_DOWNLOAD_MANAGER_PID, "maxRetryAttempts", maxRetryAttempts);
+    setResourceDownloadProperty("maxRetryAttempts", maxRetryAttempts);
   }
 
-  private void setConfigProperty(String pid, String propertyName, Object propertyValue)
+  private void setResourceDownloadProperty(String propertyName, Object propertyValue)
       throws IOException {
-    Map<String, Object> existingProperties = null;
+    Map<String, Object> existingProperties;
     try {
       existingProperties =
-          Optional.ofNullable(adminConfig.getAdminConsoleService().getProperties(pid))
+          Optional.ofNullable(
+                  adminConfig
+                      .getAdminConsoleService()
+                      .getProperties(CatalogBundle.RESOURCE_DOWNLOAD_MANAGER_PID))
               .orElse(new DictionaryMap<>());
     } catch (NotCompliantMBeanException e) {
       existingProperties = new DictionaryMap<>();
@@ -272,5 +197,15 @@ public class CatalogBundle {
 
     Configuration configuration = adminConfig.getConfiguration(RESOURCE_DOWNLOAD_MANAGER_PID, null);
     configuration.update(updatedProperties);
+  }
+
+  private <T> T getService(Class<T> c) {
+    ServiceReference<T> ref = serviceManager.getServiceReference(c);
+
+    if (ref != null) {
+      return serviceManager.getService(ref);
+    }
+
+    return null;
   }
 }

@@ -17,7 +17,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 
 import LogViewer from '../log-viewer/log-viewer'
-import styled from '@connexta/atlas/styled'
+import styled from 'styled-components'
 
 const Root = styled.div`
   .text-filter {

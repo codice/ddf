@@ -13,18 +13,36 @@
  */
 package org.codice.ddf.configuration.admin;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import javax.management.MBeanServerInvocationHandler;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.codice.ddf.admin.core.api.MetatypeAttribute;
+import org.codice.ddf.admin.core.api.Service;
+import org.codice.ddf.admin.core.api.jmx.AdminConsoleServiceMBean;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.platform.io.internal.PersistenceStrategy;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
@@ -46,11 +64,35 @@ public class ConfigurationAdminMigratable implements Migratable {
    */
   private static final String CURRENT_VERSION = "1.0";
 
-  private static final String CONTENT_DIRECTORY_MONITOR_FPID =
-      "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor";
+  private static final String GUEST_ACCESS = "guestAccess";
 
-  private static final String URL_RESOURCE_READER_PID =
-      "ddf.catalog.resource.impl.URLResourceReader";
+  private static final String SESSION_ACCESS = "sessionAccess";
+
+  private static final String WHITE_LISTED_CONTEXTS = "whiteListContexts";
+
+  private static final String AUTHENTICATION_TYPES = "authenticationTypes";
+
+  private static final String WEB_CONTEXT_POLICY_MANAGER_PID =
+      "org.codice.ddf.security.policy.context.impl.PolicyManager";
+
+  @VisibleForTesting
+  static final List<String> ACCEPTED_ENTRY_PIDS =
+      Arrays.asList(
+          "ddf.catalog.resource.impl.URLResourceReader",
+          WEB_CONTEXT_POLICY_MANAGER_PID,
+          "ddf.security.sts.guestclaims",
+          "ddf.security.guest.realm",
+          "ddf.security.sts",
+          "ddf.security.http.impl.HttpSessionFactory",
+          "org.codice.ddf.security.filter.login.Session",
+          "org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries",
+          "org.codice.ddf.registry.policy.RegistryPolicyPlugin",
+          "Registry_Configuration_Event_Handler",
+          "org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler");
+
+  private static final List<String> ACCEPTED_ENTRY_FACTORY_PIDS =
+      Arrays.asList(
+          "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor", "Csw_Registry_Store");
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminMigratable.class);
 
@@ -59,6 +101,8 @@ public class ConfigurationAdminMigratable implements Migratable {
   private final List<PersistenceStrategy> strategies;
 
   private final String defaultFileExtension;
+
+  private final AdminConsoleServiceMBean configAdminMBean;
 
   public ConfigurationAdminMigratable(
       ConfigurationAdmin configurationAdmin,
@@ -69,6 +113,7 @@ public class ConfigurationAdminMigratable implements Migratable {
     this.configurationAdmin = configurationAdmin;
     this.strategies = strategies;
     this.defaultFileExtension = defaultFileExtension;
+    this.configAdminMBean = getConfigAdminMBean();
   }
 
   @SuppressWarnings(
@@ -123,7 +168,11 @@ public class ConfigurationAdminMigratable implements Migratable {
     final ImportMigrationConfigurationAdminContext adminContext =
         new ImportMigrationConfigurationAdminContext(
             context, this, configurationAdmin, getConfigurations(context), true);
+
     adminContext.memoryEntries().forEach(ImportMigrationConfigurationAdminEntry::restore);
+    context
+        .getReport()
+        .doAfterCompletion(adminContext::deleteUnexportedConfigurationsAfterCompletion);
   }
 
   @Override
@@ -134,11 +183,136 @@ public class ConfigurationAdminMigratable implements Migratable {
 
     adminContext
         .memoryEntries()
-        .filter(
-            s ->
-                CONTENT_DIRECTORY_MONITOR_FPID.equals(s.getFactoryPid())
-                    || s.getPid().equals(URL_RESOURCE_READER_PID))
+        .filter(this::isAcceptedConfigurationAdminEntry)
+        .map(entry -> updateNecessaryConfigurationAdminEntries(entry, context))
         .forEach(ImportMigrationConfigurationAdminEntry::restore);
+  }
+
+  private boolean isAcceptedConfigurationAdminEntry(ImportMigrationConfigurationAdminEntry entry) {
+    return (ACCEPTED_ENTRY_PIDS.contains(entry.getPid())
+        || ACCEPTED_ENTRY_FACTORY_PIDS.contains(entry.getFactoryPid())
+        || isASource(entry.getFactoryPid()));
+  }
+
+  private boolean isASource(String factoryPid) {
+    // this is generic in order to get downstream project sources and is being handled similarly to
+    // how the CSW Registry uses the SourceConfigurationHandler class
+    return (StringUtils.containsIgnoreCase(factoryPid, "source")
+        || StringUtils.containsIgnoreCase(factoryPid, "service"));
+  }
+
+  // entries must be updated to the latest versions of themselves in order to restore correctly
+  private ImportMigrationConfigurationAdminEntry updateNecessaryConfigurationAdminEntries(
+      ImportMigrationConfigurationAdminEntry entry, ImportMigrationContext context) {
+    // this pid was updated in versions 2.16.1 and 2.17.0
+    // see https://github.com/codice/ddf/issues/5131
+    if (entry.getPid().equals("org.codice.ddf.security.filter.login.Session")) {
+      entry.setPid("ddf.security.http.impl.HttpSessionFactory");
+    }
+    // this pid was updated in version 2.17.0
+    // see https://github.com/codice/ddf/pull/5105
+    if (entry.getPid().equals("ddf.security.sts.guestclaims")) {
+      entry.setPid("ddf.security.guest.realm");
+    }
+    // this configuration was updated in version 2.17.0
+    // see https://github.com/codice/ddf/pull/5105
+    if (entry.getPid().equals(WEB_CONTEXT_POLICY_MANAGER_PID)) {
+      entry = updateWebContextPolicyManagerConfiguration(entry, context);
+    }
+    return entry;
+  }
+
+  private ImportMigrationConfigurationAdminEntry updateWebContextPolicyManagerConfiguration(
+      ImportMigrationConfigurationAdminEntry entry, ImportMigrationContext context) {
+    Map<String, Object> defaults = getDefaultProperties(WEB_CONTEXT_POLICY_MANAGER_PID);
+
+    if (defaults == null) {
+      String message =
+          String.format(
+              "There was an issue retrieving the %s configuration so it will not be upgraded.",
+              WEB_CONTEXT_POLICY_MANAGER_PID);
+
+      LOGGER.info(message);
+      context.getReport().record(new MigrationWarning(message));
+      return entry;
+    }
+
+    Dictionary<String, Object> exportedProps = entry.getProperties();
+    exportedProps.remove("realms");
+
+    String[] whiteListContexts = (String[]) exportedProps.get(WHITE_LISTED_CONTEXTS);
+    String[] whiteListContextDefaults = (String[]) defaults.get(WHITE_LISTED_CONTEXTS);
+
+    Set<String> whiteListContextsSet =
+        Stream.of(whiteListContexts, whiteListContextDefaults)
+            .flatMap(Stream::of)
+            .collect(Collectors.toSet());
+
+    exportedProps.put(WHITE_LISTED_CONTEXTS, String.join(",", whiteListContextsSet));
+
+    String[] authenticationTypes = (String[]) exportedProps.get(AUTHENTICATION_TYPES);
+
+    for (int i = 0; i < authenticationTypes.length; i++) {
+      String val = authenticationTypes[i];
+      String[] parts = val.split("=");
+
+      if (parts.length == 2) {
+        String[] auths = parts[1].split("\\|");
+        List<String> list =
+            Arrays.stream(auths)
+                .filter(a -> !StringUtils.containsIgnoreCase(a, "guest"))
+                .map(a -> a.replaceAll("(?i)idp", "SAML"))
+                .collect(Collectors.toList());
+        authenticationTypes[i] = String.format("%s=%s", parts[0], String.join("|", list));
+      }
+    }
+
+    exportedProps.put(AUTHENTICATION_TYPES, String.join(",", authenticationTypes));
+
+    if (exportedProps.get(GUEST_ACCESS) == null && defaults.get(GUEST_ACCESS) != null) {
+      exportedProps.put(GUEST_ACCESS, defaults.get(GUEST_ACCESS));
+    }
+    if (exportedProps.get(SESSION_ACCESS) == null && defaults.get(SESSION_ACCESS) != null) {
+      exportedProps.put(SESSION_ACCESS, defaults.get(SESSION_ACCESS));
+    }
+
+    entry.setProperties(exportedProps);
+    return entry;
+  }
+
+  Map<String, Object> getDefaultProperties(String pid) {
+    Optional<Service> defaultMetatypeValues =
+        configAdminMBean
+            .listServices()
+            .stream()
+            .filter(service -> service.getId() != null && service.getId().equals(pid))
+            .findFirst();
+
+    List<MetatypeAttribute> metatypes = new ArrayList<>();
+    if (defaultMetatypeValues.isPresent()) {
+      metatypes = defaultMetatypeValues.get().getAttributeDefinitions();
+    } else {
+      return null;
+    }
+
+    return metatypes
+        .stream()
+        .collect(Collectors.toMap(MetatypeAttribute::getId, MetatypeAttribute::getDefaultValue));
+  }
+
+  static AdminConsoleServiceMBean getConfigAdminMBean() {
+    ObjectName objectName = null;
+    try {
+      objectName = new ObjectName(AdminConsoleServiceMBean.OBJECT_NAME);
+    } catch (MalformedObjectNameException e) {
+      // do nothing
+    }
+
+    return MBeanServerInvocationHandler.newProxyInstance(
+        ManagementFactory.getPlatformMBeanServer(),
+        objectName,
+        AdminConsoleServiceMBean.class,
+        false);
   }
 
   @SuppressWarnings(
