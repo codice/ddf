@@ -18,7 +18,6 @@ const template = require('./result-filter.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const user = require('../singletons/user-instance.js')
 const FilterBuilderView = require('../filter-builder/filter-builder.view.js')
-const cql = require('../../js/cql.js')
 
 module.exports = Marionette.LayoutView.extend({
   template,
