@@ -68,11 +68,7 @@ const transformFilter = filter => {
   const { type, property } = filter
 
   const value = CQLUtils.isGeoFilter(filter.type) ? filter : filter.value
-  if (type === 'DURING' && filter.value.includes('/')) {
-    const dates = filter.value.split('/')
-    filter.from = dates[0] || null
-    filter.to = dates[1] || null
-  }
+
 
   if (_.isObject(property)) {
     // if the filter is something like NEAR (which maps to a CQL filter function such as 'proximity'),
@@ -105,6 +101,11 @@ const transformFilter = filter => {
 
   let parsedValue
   if (type === 'DURING') {
+    if (filter.value.includes('/')) {
+      const dates = filter.value.split('/')
+      filter.from = dates[0] || null
+      filter.to = dates[1] || null
+    }
     parsedValue = `${filter.from}/${filter.to}`
   } else if (type === 'BETWEEN') {
     parsedValue = { lower: filter.lowerBoundary, upper: filter.upperBoundary }
