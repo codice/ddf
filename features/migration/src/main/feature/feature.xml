@@ -51,6 +51,7 @@
         <feature>platform-migration-utils</feature>
         <bundle>mvn:ddf.platform.migration/platform-migration/${project.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
+        <bundle>mvn:ddf.admin.core/admin-core-api/${project.version}</bundle>
     </feature>
 
     <feature name="io" version="${project.version}" description="I/O Utilities">

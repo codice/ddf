@@ -306,7 +306,7 @@ function matchesFilter(metacard, filter) {
       filter.property = 'anyGeo'
     }
     switch (filter.property) {
-      case '"anyText"':
+      case 'anyText':
         valuesToCheck = Object.keys(metacard.properties)
           .filter(
             property =>

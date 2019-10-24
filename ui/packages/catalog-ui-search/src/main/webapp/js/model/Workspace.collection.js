@@ -77,7 +77,7 @@ module.exports = Backbone.Collection.extend({
     let cqlQuery
     let title = text
     if (text.length === 0) {
-      cqlQuery = "anyText ILIKE '%'"
+      cqlQuery = cql.ANYTEXT_WILDCARD
       title = '*'
     } else {
       cqlQuery = cql.write({
@@ -104,7 +104,7 @@ module.exports = Backbone.Collection.extend({
       title: 'Example Local',
       federation: 'local',
       excludeUnnecessaryAttributes: false,
-      cql: "anyText ILIKE '%'",
+      cql: cql.ANYTEXT_WILDCARD,
       type: 'basic',
     })
     this.create({
@@ -120,7 +120,7 @@ module.exports = Backbone.Collection.extend({
       title: 'Example Federated',
       federation: 'enterprise',
       excludeUnnecessaryAttributes: false,
-      cql: "anyText ILIKE '%'",
+      cql: cql.ANYTEXT_WILDCARD,
       type: 'basic',
     })
     this.create({

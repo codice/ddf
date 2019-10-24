@@ -14,12 +14,12 @@
  **/
 
 const Marionette = require('marionette')
+import ExtensionPoints from '../../extension-points'
 import React from 'react'
-import UserSettings from 'plugins/user-settings'
 
 module.exports = Marionette.LayoutView.extend({
   template() {
-    return <UserSettings />
+    return <ExtensionPoints.userSettings />
   },
   className: 'customElement',
   tagName: 'div',

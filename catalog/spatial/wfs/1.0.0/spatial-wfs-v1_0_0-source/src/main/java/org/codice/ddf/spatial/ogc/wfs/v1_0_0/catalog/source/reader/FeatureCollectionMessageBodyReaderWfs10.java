@@ -35,7 +35,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Provider;
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlEnvelopeConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverter;
@@ -55,8 +55,7 @@ public class FeatureCollectionMessageBodyReaderWfs10
 
   protected FeatureCollectionConverterWfs10 featureCollectionConverter;
 
-  protected Map<String, FeatureConverter> featureConverterMap =
-      new HashMap<String, FeatureConverter>();
+  protected Map<String, FeatureConverter> featureConverterMap = new HashMap<>();
 
   public FeatureCollectionMessageBodyReaderWfs10() {
     xstream = new XStream(new WstxDriver());

@@ -7,6 +7,7 @@
 
 == {title}
 
+(((Sources View)))
 ${branding} can be configured to search multiple data sources simultaneously,
 or searches can be limited to specific sources as needed.
 

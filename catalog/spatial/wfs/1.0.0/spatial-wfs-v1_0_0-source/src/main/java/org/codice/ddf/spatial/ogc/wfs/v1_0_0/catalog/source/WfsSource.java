@@ -84,10 +84,10 @@ import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
 import org.codice.ddf.spatial.ogc.catalog.common.ContentTypeFilterDelegate;
+import org.codice.ddf.spatial.ogc.wfs.catalog.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.AbstractWfsSource;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
@@ -999,10 +999,6 @@ public class WfsSource extends AbstractWfsSource {
 
   public void setFilterAdapter(FilterAdapter filterAdapter) {
     this.filterAdapter = filterAdapter;
-  }
-
-  public void setFilterDelgates(Map<QName, WfsFilterDelegate> delegates) {
-    this.featureTypeFilters = delegates;
   }
 
   public void setContext(BundleContext context) {

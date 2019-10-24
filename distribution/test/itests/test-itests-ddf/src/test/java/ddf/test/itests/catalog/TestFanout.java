@@ -15,19 +15,21 @@ package ddf.test.itests.catalog;
 
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
+import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOURCE_FACTORY_PID;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswSourceProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
-import static org.junit.Assert.fail;
 
 import com.jayway.restassured.path.json.JsonPath;
 import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.Source;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.MediaType;
 import org.apache.http.HttpStatus;
@@ -43,6 +45,7 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
+import org.osgi.framework.InvalidSyntaxException;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerSuite.class)
@@ -53,12 +56,13 @@ public class TestFanout extends AbstractIntegrationTest {
   // Using default resource tag as the one to blacklist
   private static final List<String> TAG_BLACKLIST = Collections.singletonList("resource");
 
+  private static Map<String, Object> oldPolicyManagerProps;
+
   @BeforeExam
   public void beforeExam() throws Exception {
     try {
-      waitForSystemReady();
-      getSecurityPolicy().configureWebContextPolicy("/=IDP|GUEST", null, null);
-      waitForSystemReady();
+      oldPolicyManagerProps =
+          getSecurityPolicy().configureWebContextPolicy("/=IDP|GUEST", null, null);
 
       getCatalogBundle().setFanout(true);
       getCatalogBundle().waitForCatalogProvider();
@@ -70,6 +74,9 @@ public class TestFanout extends AbstractIntegrationTest {
 
   @AfterExam
   public void afterExam() throws Exception {
+    if (oldPolicyManagerProps != null) {
+      getSecurityPolicy().updateWebContextPolicy(oldPolicyManagerProps);
+    }
     getCatalogBundle().setFanout(false);
     getCatalogBundle().setFanoutTagBlacklist(TAG_BLACKLIST);
     getCatalogBundle().waitForCatalogProvider();
@@ -100,27 +107,19 @@ public class TestFanout extends AbstractIntegrationTest {
             CSW_FEDERATED_SOURCE_FACTORY_PID,
             getCswSourceProperties(CSW_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager()));
 
-    long timeout = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(10);
-    boolean available = false;
-    FederatedSource source = null;
-    while (!available) {
-      if (source == null) {
-        source =
-            getServiceManager()
-                .getServiceReferences(FederatedSource.class, null)
-                .stream()
-                .map(getServiceManager()::getService)
-                .filter(src -> CSW_SOURCE_ID.equals(src.getId()))
-                .findFirst()
-                .orElse(null);
-      } else {
-        available = source.isAvailable();
-      }
-      if (System.currentTimeMillis() > timeout) {
-        fail("CSW source failed to initialize in time.");
-      }
-      Thread.sleep(1000);
-    }
+    await("Waiting for CSW source to initialize")
+        .atMost(10, TimeUnit.MINUTES)
+        .pollDelay(1, TimeUnit.SECONDS)
+        .until(this::areSourcesReady);
+  }
+
+  private boolean areSourcesReady() throws InvalidSyntaxException {
+    return getServiceManager()
+        .getServiceReferences(FederatedSource.class, null)
+        .stream()
+        .map(getServiceManager()::getService)
+        .filter(src -> CSW_SOURCE_ID.equals(src.getId()))
+        .anyMatch(Source::isAvailable);
   }
 
   @Test

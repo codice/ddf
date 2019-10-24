@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.ServiceManager;
+import org.osgi.service.cm.Configuration;
 
 public class OpenSearchFeature {
 
@@ -25,7 +26,7 @@ public class OpenSearchFeature {
 
   public static final String FACTORY_PID = "OpenSearchSource";
 
-  public static void createManagedService(
+  public static Configuration createManagedService(
       ServiceManager serviceManager, String sourceId, String user, String pass) throws IOException {
     Map propertyMap = new HashMap();
     propertyMap.putAll(serviceManager.getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
@@ -35,6 +36,6 @@ public class OpenSearchFeature {
     propertyMap.put("username", user);
     propertyMap.put("password", pass);
 
-    serviceManager.createManagedService(FACTORY_PID, propertyMap);
+    return serviceManager.createManagedService(FACTORY_PID, propertyMap);
   }
 }

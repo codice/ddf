@@ -78,6 +78,13 @@ Example:
 |[{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]
 |true
 
+|Visualizations
+|visualizations
+|String
+|Visualizations that should be recognized by golden layout. Example `[{"name":"openlayers","title":"2D Map","icon":"map"},{"name":"cesium","title":"3D Map","icon":"globe"},{"name":"inspector","title":"Inspector","icon":"info"},{"name":"histogram","title":"Histogram","icon":"bar-chart"},{"name":"table","title":"Table","icon":"table"}]`
+|[{"name":"openlayers","title":"2D Map","icon":"map"},{"name":"cesium","title":"3D Map","icon":"globe"},{"name":"inspector","title":"Inspector","icon":"info"},{"name":"histogram","title":"Histogram","icon":"bar-chart"},{"name":"table","title":"Table","icon":"table"}]
+|false
+
 |List Templates
 |listTemplates
 |String

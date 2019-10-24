@@ -55,7 +55,7 @@ public final class WfsTransformerProcessor {
           return metacardOptional;
         }
       } catch (IOException e) {
-        LOGGER.error(
+        LOGGER.debug(
             "Error transforming feature member:{}, with feature transformer: {}",
             featureMember,
             featureTransformer);

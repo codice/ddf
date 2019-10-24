@@ -20,6 +20,7 @@ const FilterCollectionView = require('../filter/filter.collection.view.js')
 const FilterView = require('../filter/filter.view.js')
 const DropdownView = require('../dropdown/dropdown.view.js')
 const CQLUtils = require('../../js/CQLUtils.js')
+const cql = require('../../js/cql.js')
 
 import { serialize, deserialize } from './filter-serialization'
 
@@ -136,7 +137,7 @@ module.exports = Marionette.LayoutView.extend({
     this.deleteInvalidFilters()
     const filter = this.getFilters()
     if (filter.filters.length === 0) {
-      return '("anyText" ILIKE \'%\')'
+      return `(${cql.ANYTEXT_WILDCARD})`
     } else {
       return CQLUtils.transformFilterToCQL(filter)
     }

@@ -12,6 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/* eslint-disable @connexta/connexta/no-absolute-path-references */
 
 var express = require('express'),
   server = require('./server-impl')

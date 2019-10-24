@@ -22,7 +22,6 @@
     "url": "https://github.com/codice/ddf.git"
   },
   "dependencies": {
-    "@connexta/atlas": "0.0.35",
     "es6-promise": "3.2.1",
     "event-stream": "3.3.2",
     "isomorphic-fetch": "2.2.1",
@@ -35,7 +34,8 @@
     "react-redux": "6.0.0",
     "react-visibility-sensor": "5.0.2",
     "redux": "4.0.1",
-    "redux-thunk": "2.3.0"
+    "redux-thunk": "2.3.0",
+    "styled-components": "4.3.2"
   },
   "devDependencies": {
     "babel-preset-es2015": "6.9.0",

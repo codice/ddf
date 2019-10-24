@@ -12,6 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+/* eslint-disable no-redeclare */
 var URL = require('url'),
   httpProxy = require('http-proxy'),
   proxy = new httpProxy.RoutingProxy(),

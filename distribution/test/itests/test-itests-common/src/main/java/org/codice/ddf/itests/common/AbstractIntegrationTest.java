@@ -21,6 +21,7 @@ import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SE
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_LIKE;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
+import static org.ops4j.pax.exam.CoreOptions.composite;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.options;
@@ -67,6 +68,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.apache.karaf.bundle.core.BundleService;
 import org.apache.karaf.features.BootFinished;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.api.console.SessionFactory;
@@ -75,6 +77,8 @@ import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.itests.common.security.SecurityPolicyConfigurator;
 import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.BeforeSuite;
+import org.codice.ddf.test.common.annotations.ExamResultLogger;
 import org.codice.ddf.test.common.annotations.PaxExamRule;
 import org.codice.ddf.test.common.annotations.PostTestConstruct;
 import org.junit.Rule;
@@ -86,6 +90,7 @@ import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.util.Filter;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -163,6 +168,8 @@ public abstract class AbstractIntegrationTest {
 
   @Rule public PaxExamRule paxExamRule = new PaxExamRule(this);
 
+  @Rule public ExamResultLogger resultLogger = new ExamResultLogger();
+
   @Rule public Stopwatch stopwatch = new TestMethodTimer();
 
   @Inject protected ConfigurationAdmin configAdmin;
@@ -172,6 +179,10 @@ public abstract class AbstractIntegrationTest {
   @Inject protected SessionFactory sessionFactory;
 
   @Inject protected MetaTypeService metatype;
+
+  @Inject protected BundleContext bundleContext;
+
+  @Inject protected BundleService bundleService;
 
   /** To make sure the tests run only when the boot features are fully installed */
   @Inject
@@ -370,12 +381,14 @@ public abstract class AbstractIntegrationTest {
             Proxy.newProxyInstance(
                 AbstractIntegrationTest.class.getClassLoader(),
                 ServiceManagerImpl.class.getInterfaces(),
-                new ServiceManagerProxy(new ServiceManagerImpl(metatype, adminConfig)));
+                new ServiceManagerProxy(
+                    new ServiceManagerImpl(
+                        metatype, adminConfig, bundleContext, bundleService, features)));
 
     catalogBundle = new CatalogBundle(serviceManager, adminConfig);
     securityPolicy = new SecurityPolicyConfigurator(serviceManager, configAdmin);
     urlResourceReaderConfigurator = new UrlResourceReaderConfigurator(configAdmin);
-    console = new KarafConsole(getServiceManager().getBundleContext(), features, sessionFactory);
+    console = new KarafConsole(bundleContext, features, sessionFactory);
   }
 
   @SuppressWarnings({
@@ -404,6 +417,15 @@ public abstract class AbstractIntegrationTest {
         SystemStateManager.getManager(serviceManager, features, adminConfig, console);
     manager.setSystemBaseState(this::waitForBaseSystemFeatures, false);
     manager.waitForSystemBaseState();
+  }
+
+  @BeforeSuite
+  public void beforeSuite() throws Exception {
+    try {
+      waitForSystemReady();
+    } catch (Exception e) {
+      LoggingUtils.failWithThrowableStacktrace(e, "Failed in @BeforeSuite: ");
+    }
   }
 
   /**
@@ -586,8 +608,7 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_REL_PATH,
             "org.ops4j.pax.exam.raw.extender.intern.Parser.DEFAULT_TIMEOUT",
-            "100000"),
-        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "artemis.diskusage", "100"));
+            "100000"));
   }
 
   protected Option[] configureLogLevel() {
@@ -597,6 +618,8 @@ public abstract class AbstractIntegrationTest {
     return options(
         editConfigurationFilePut(
             LOGGER_CONFIGURATION_FILE_PATH, "log4j2.rootLogger.level", globalLogLevel),
+        // Always print the start/stop/result of individual test methods
+        composite(createSetLogLevelOption("org.codice.ddf.test.common.annotations", "INFO")),
         when(StringUtils.isNotEmpty(itestLevel))
             .useOptions(
                 combineOptions(
@@ -608,11 +631,7 @@ public abstract class AbstractIntegrationTest {
                     createSetLogLevelOption(
                         "ddf.security.expansion.impl.RegexExpansion", securityLogLevel),
                     createSetLogLevelOption(
-                        "ddf.security.service.impl.AbstractAuthorizingRealm", securityLogLevel))),
-        editConfigurationFilePut(
-            LOGGER_CONFIGURATION_FILE_PATH,
-            "log4j2.logger.org_apache_activemq_artemis.additivity",
-            "true"));
+                        "ddf.security.service.impl.AbstractAuthorizingRealm", securityLogLevel))));
   }
 
   /**

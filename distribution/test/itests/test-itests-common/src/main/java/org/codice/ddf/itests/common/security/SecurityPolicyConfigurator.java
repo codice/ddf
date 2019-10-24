@@ -15,11 +15,19 @@ package org.codice.ddf.itests.common.security;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
-import static org.codice.ddf.itests.common.WaitCondition.expect;
+import static org.awaitility.Awaitility.await;
 
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
+import net.jodah.failsafe.function.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.ServiceManager;
@@ -36,18 +44,16 @@ public class SecurityPolicyConfigurator {
   private static final String FACTORY_PID =
       "org.codice.ddf.security.policy.context.impl.PolicyManager";
 
-  public static final String BROWSER_USER_AGENT =
+  private static final String BROWSER_USER_AGENT =
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
 
-  public static final String SAML_AUTH_TYPES = "/=SAML";
+  private static final String SAML_AUTH_TYPES = "/=SAML";
 
-  public static final String BASIC_AUTH_TYPES = "/=BASIC";
+  private static final String BASIC_AUTH_TYPES = "/=BASIC";
 
-  public static final String PKI_AUTH_TYPES = "/=PKI";
+  private static final String GUEST_AUTH_TYPES = "/=,/admin=basic,/system=basic";
 
-  public static final String GUEST_AUTH_TYPES = "/=,/admin=basic,/system=basic";
-
-  public static final String DEFAULT_WHITELIST =
+  private static final String DEFAULT_WHITELIST =
       "/services/SecurityTokenService,/services/internal/metrics,/services/saml,/proxy,/services/idp,/idp,/services/platform/config/ui,/login";
 
   private ServiceManager services;
@@ -59,48 +65,44 @@ public class SecurityPolicyConfigurator {
     this.configAdmin = configAdmin;
   }
 
-  public void configureRestForGuest() throws Exception {
-    configureRestForGuest(null);
+  public Map<String, Object> configureRestForGuest() throws Exception {
+    return configureRestForGuest(null);
   }
 
-  public void configureRestForGuest(String whitelist) throws Exception {
-    configureWebContextPolicy(GUEST_AUTH_TYPES, null, createWhitelist(whitelist));
+  public Map<String, Object> configureRestForGuest(String whitelist) throws Exception {
+    return configureWebContextPolicy(GUEST_AUTH_TYPES, null, createWhitelist(whitelist));
   }
 
-  public void configureRestForBasic() throws Exception {
-    configureRestForBasic(null);
+  public Map<String, Object> configureRestForBasic() throws Exception {
+    return configureRestForBasic(null);
   }
 
-  public void configureRestForBasic(String whitelist) throws Exception {
-    configureWebContextPolicy(BASIC_AUTH_TYPES, null, createWhitelist(whitelist));
+  public Map<String, Object> configureRestForBasic(String whitelist) throws Exception {
+    return configureWebContextPolicy(BASIC_AUTH_TYPES, null, createWhitelist(whitelist));
   }
 
-  public void configureRestForSaml(String whitelist) throws Exception {
-    configureWebContextPolicy(SAML_AUTH_TYPES, null, createWhitelist(whitelist));
-  }
-
-  public void configureRestForPki(String whitelist) throws Exception {
-    configureWebContextPolicy(PKI_AUTH_TYPES, null, createWhitelist(whitelist));
+  public Map<String, Object> configureRestForSaml(String whitelist) throws Exception {
+    return configureWebContextPolicy(SAML_AUTH_TYPES, null, createWhitelist(whitelist));
   }
 
   public void waitForBasicAuthReady(String url) {
-    expect("Waiting for basic auth")
-        .within(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .checkEvery(1, TimeUnit.SECONDS)
+    await("Waiting for basic auth")
+        .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .pollDelay(1, TimeUnit.SECONDS)
         .until(() -> when().get(url).then().extract().statusCode() == 401);
   }
 
   public void waitForGuestAuthReady(String url) {
-    expect("Waiting for guest auth")
-        .within(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .checkEvery(1, TimeUnit.SECONDS)
+    await("Waiting for guest auth")
+        .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .pollDelay(1, TimeUnit.SECONDS)
         .until(() -> when().get(url).then().extract().statusCode() == 200);
   }
 
   public void waitForSamlAuthReady(String url) {
-    expect("Waiting for guest auth")
-        .within(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .checkEvery(1, TimeUnit.SECONDS)
+    await("Waiting for guest auth")
+        .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .pollDelay(1, TimeUnit.SECONDS)
         .until(
             () ->
                 given()
@@ -125,25 +127,23 @@ public class SecurityPolicyConfigurator {
                         == 303);
   }
 
-  public static String createWhitelist(String whitelist) {
+  private static String createWhitelist(String whitelist) {
     return DEFAULT_WHITELIST + (StringUtils.isNotBlank(whitelist) ? "," + whitelist : "");
   }
 
-  public void configureWebContextPolicy(
+  public Map<String, Object> configureWebContextPolicy(
       String authTypes, String requiredAttributes, String whitelist) throws Exception {
 
-    Map<String, Object> policyProperties = null;
-    int retries = 0;
+    RetryPolicy retryPolicy =
+        new RetryPolicy()
+            .withDelay(2, TimeUnit.SECONDS)
+            .withMaxDuration(1, TimeUnit.MINUTES)
+            .retryWhen(null)
+            .retryIf((Predicate<Map<String, Object>>) Map::isEmpty);
 
-    while (policyProperties == null || policyProperties.isEmpty()) {
-      policyProperties = services.getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID);
-      if (retries < 5 && policyProperties.isEmpty()) {
-        Thread.sleep(10000);
-      } else {
-        break;
-      }
-      retries++;
-    }
+    Map<String, Object> policyProperties =
+        Failsafe.with(retryPolicy)
+            .get(() -> services.getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID));
 
     if (authTypes != null) {
       putPolicyValues(policyProperties, "authenticationTypes", authTypes);
@@ -159,11 +159,28 @@ public class SecurityPolicyConfigurator {
 
     putPolicyValues(policyProperties, "sessionAccess", true);
 
-    new SynchronizedConfiguration(
-            FACTORY_PID, null, policyProperties, createChecker(policyProperties), configAdmin)
-        .updateConfig();
+    return updateWebContextPolicy(policyProperties);
+  }
+
+  public Map<String, Object> updateWebContextPolicy(Map<String, Object> policyProperties)
+      throws Exception {
+    Dictionary<String, Object> oldProps =
+        new SynchronizedConfiguration(
+                FACTORY_PID, null, policyProperties, createChecker(policyProperties), configAdmin)
+            .updateConfig();
 
     services.waitForAllBundles();
+
+    return convertToMap(oldProps);
+  }
+
+  private Map<String, Object> convertToMap(Dictionary<String, Object> oldProps) {
+    if (oldProps == null || oldProps.isEmpty()) {
+      return services.getMetatypeDefaults(SYMBOLIC_NAME, FACTORY_PID);
+    } else {
+      List<String> keys = Collections.list(oldProps.keys());
+      return keys.stream().collect(Collectors.toMap(Function.identity(), oldProps::get));
+    }
   }
 
   private void putPolicyValues(Map<String, Object> properties, String key, String value) {
@@ -183,26 +200,23 @@ public class SecurityPolicyConfigurator {
     final PolicyManager targetPolicies = new PolicyManager();
     targetPolicies.setPolicies(policyProperties);
 
-    return new Callable<Boolean>() {
-      @Override
-      public Boolean call() throws Exception {
-        for (ContextPolicy policy : ctxPolicyMgr.getAllContextPolicies()) {
-          ContextPolicy targetPolicy = targetPolicies.getContextPolicy(policy.getContextPath());
+    return () -> {
+      for (ContextPolicy policy : ctxPolicyMgr.getAllContextPolicies()) {
+        ContextPolicy targetPolicy = targetPolicies.getContextPolicy(policy.getContextPath());
 
-          if (targetPolicy == null
-              || !targetPolicy.getContextPath().equals(policy.getContextPath())
-              || !targetPolicy
-                  .getAuthenticationMethods()
-                  .containsAll(policy.getAuthenticationMethods())
-              || !targetPolicy
-                  .getAllowedAttributeNames()
-                  .containsAll(policy.getAllowedAttributeNames())) {
-            return false;
-          }
+        if (targetPolicy == null
+            || !targetPolicy.getContextPath().equals(policy.getContextPath())
+            || !targetPolicy
+                .getAuthenticationMethods()
+                .containsAll(policy.getAuthenticationMethods())
+            || !targetPolicy
+                .getAllowedAttributeNames()
+                .containsAll(policy.getAllowedAttributeNames())) {
+          return false;
         }
-
-        return true;
       }
+
+      return true;
     };
   }
 }

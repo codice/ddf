@@ -26,16 +26,36 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.experimental.Extracted;
 import ddf.catalog.transform.CatalogTransformerException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 
 public class PreviewMetacardTransformerTest {
 
-  private static final String NO_PREVIEW = "No preview text available.";
+  private static final String NO_PREVIEW =
+      "<head><meta charset=\"utf-8\"/>No preview text available.</head>";
 
-  private static final String EXTRACTED_TEXT = "\nSome value";
+  private static final String EXTRACTED_TEXT = "Some value\nAnother value";
 
   private static final String TRANSFORMED_TEXT =
-      "<head><meta charset=\"utf-8\"/><br>Some value</head>";
+      "<head><meta charset=\"utf-8\"/>Some value<br>Another value</head>";
+
+  private static final String METADATA =
+      "<?xml version=\"1.0\"?>\n"
+          + "<metacard xmlns=\"urn:catalog:metacard\" xmlns:gml=\"http://www.opengis.net/gml\">\n"
+          + "  <type>ddf.metacard</type>\n"
+          + "  <source>ddf.distribution</source>\n"
+          + "  <stringxml name=\"metadata\">\n"
+          + "    <value>\n"
+          + "        <TEXT>\n"
+          + "          <BODY>"
+          + EXTRACTED_TEXT
+          + "          </BODY>\n"
+          + "        </TEXT>\n"
+          + "    </value>\n"
+          + "  </stringxml>\n"
+          + "</metacard>";
 
   private PreviewMetacardTransformer previewMetacardTransformer = new PreviewMetacardTransformer();
 
@@ -45,7 +65,7 @@ public class PreviewMetacardTransformerTest {
   }
 
   @Test
-  public void noExtractedText() throws Exception {
+  public void noExtractedText() throws CatalogTransformerException, IOException {
     Metacard metacard = mock(Metacard.class);
     BinaryContent content = previewMetacardTransformer.transform(metacard, null);
 
@@ -56,7 +76,7 @@ public class PreviewMetacardTransformerTest {
   }
 
   @Test
-  public void testTransformation() throws Exception {
+  public void testTransformation() throws CatalogTransformerException, IOException {
     Attribute extractedText = new AttributeImpl(Extracted.EXTRACTED_TEXT, EXTRACTED_TEXT);
     Metacard metacard = mock(Metacard.class);
 
@@ -68,5 +88,74 @@ public class PreviewMetacardTransformerTest {
 
     String preview = new String(content.getByteArray());
     assertThat(preview, is(equalTo(TRANSFORMED_TEXT)));
+  }
+
+  /** Test that text-based products can still have previews even without a set EXTRACTED_TEXT */
+  @Test
+  public void testMetacardTextPreviewMetadataSource()
+      throws CatalogTransformerException, IOException {
+
+    Metacard metacard = mock(Metacard.class);
+
+    doReturn(null).when(metacard).getAttribute(Extracted.EXTRACTED_TEXT);
+    doReturn(METADATA).when(metacard).getMetadata();
+
+    List<String> previewElements = new ArrayList<>();
+    previewElements.add("text");
+    previewElements.add("TEXT");
+
+    previewMetacardTransformer.setPreviewFromMetadata(true);
+    previewMetacardTransformer.setPreviewElements(previewElements);
+    BinaryContent content = previewMetacardTransformer.transform(metacard, null);
+
+    assertThat(content, notNullValue());
+
+    String preview = new String(content.getByteArray());
+    assertThat(preview, is(equalTo(TRANSFORMED_TEXT)));
+    assertThat(previewMetacardTransformer.getPreviewElements(), is(equalTo(previewElements)));
+  }
+
+  @Test
+  public void testMetacardTextPreviewMetadataNoMatchingXPath()
+      throws CatalogTransformerException, IOException {
+    Metacard metacard = mock(Metacard.class);
+
+    doReturn(null).when(metacard).getAttribute(Extracted.EXTRACTED_TEXT);
+    doReturn(METADATA).when(metacard).getMetadata();
+
+    // make specified preview elements invalid for xpath
+    List<String> previewElements = new ArrayList<>();
+    previewElements.add("no match");
+
+    previewMetacardTransformer.setPreviewFromMetadata(true);
+    previewMetacardTransformer.setPreviewElements(previewElements);
+    BinaryContent content = previewMetacardTransformer.transform(metacard, null);
+
+    assertThat(content, notNullValue());
+
+    String preview = new String(content.getByteArray());
+    assertThat(preview, is(equalTo(NO_PREVIEW)));
+  }
+
+  @Test
+  public void testMetacardTextPreviewMetadataNull()
+      throws CatalogTransformerException, IOException {
+    Metacard metacard = mock(Metacard.class);
+
+    doReturn(null).when(metacard).getAttribute(Extracted.EXTRACTED_TEXT);
+    doReturn(null).when(metacard).getMetadata();
+
+    // make specified preview elements invalid for xpath
+    List<String> previewElements = new ArrayList<>();
+    previewElements.add("TEXT");
+
+    previewMetacardTransformer.setPreviewFromMetadata(true);
+    previewMetacardTransformer.setPreviewElements(previewElements);
+    BinaryContent content = previewMetacardTransformer.transform(metacard, null);
+
+    assertThat(content, notNullValue());
+
+    String preview = new String(content.getByteArray());
+    assertThat(preview, is(equalTo(NO_PREVIEW)));
   }
 }

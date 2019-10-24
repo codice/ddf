@@ -13,6 +13,7 @@
  */
 package ddf.test.itests.catalog;
 
+import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.delete;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestXmlFromResourceAndWait;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.update;
@@ -29,7 +30,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
-import org.codice.ddf.itests.common.WaitCondition;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.junit.After;
 import org.junit.Test;
@@ -55,9 +55,7 @@ public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
 
   @BeforeExam
   public void beforeExam() throws Exception {
-    waitForSystemReady();
     getSecurityPolicy().configureRestForGuest();
-    waitForSystemReady();
   }
 
   @After
@@ -79,14 +77,14 @@ public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
     String logFilePath = System.getProperty("karaf.data") + "/log/security.log";
 
     File securityLog = new File(logFilePath);
-    WaitCondition.expect("Securitylog exists")
-        .within(2, TimeUnit.MINUTES)
-        .checkEvery(2, TimeUnit.SECONDS)
+    await("Securitylog exists")
+        .atMost(2, TimeUnit.MINUTES)
+        .pollDelay(2, TimeUnit.SECONDS)
         .until(securityLog::exists);
 
-    WaitCondition.expect("Securitylog has log message: " + configUpdateMessage)
-        .within(2, TimeUnit.MINUTES)
-        .checkEvery(2, TimeUnit.SECONDS)
+    await("Securitylog has log message: " + configUpdateMessage)
+        .atMost(2, TimeUnit.MINUTES)
+        .pollDelay(2, TimeUnit.SECONDS)
         .until(() -> getFileContent(securityLog).contains(configUpdateMessage));
 
     String id = ingestXmlFromResourceAndWait("metacard1.xml");
@@ -96,9 +94,9 @@ public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
     String expectedLogMessage =
         String.format(
             auditMessageFormat, "description", id, "My Description", "My Description (Updated)");
-    WaitCondition.expect("Securitylog has log message: " + expectedLogMessage)
-        .within(2, TimeUnit.MINUTES)
-        .checkEvery(2, TimeUnit.SECONDS)
+    await("Securitylog has log message: " + expectedLogMessage)
+        .atMost(2, TimeUnit.MINUTES)
+        .pollDelay(2, TimeUnit.SECONDS)
         .until(() -> getFileContent(securityLog).contains(expectedLogMessage));
 
     delete(id);
@@ -110,15 +108,15 @@ public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
     File securityLog = new File(logFilePath);
 
     getServiceManager().stopBundle("catalog-plugin-security-audit");
-    WaitCondition.expect("Securitylog has log message: " + stoppedMessage)
-        .within(2, TimeUnit.MINUTES)
-        .checkEvery(2, TimeUnit.SECONDS)
+    await("Securitylog has log message: " + stoppedMessage)
+        .atMost(2, TimeUnit.MINUTES)
+        .pollDelay(2, TimeUnit.SECONDS)
         .until(() -> getFileContent(securityLog).contains(stoppedMessage));
 
     getServiceManager().startBundle("catalog-plugin-security-audit");
-    WaitCondition.expect("Securitylog has log message: " + startedMessage)
-        .within(2, TimeUnit.MINUTES)
-        .checkEvery(2, TimeUnit.SECONDS)
+    await("Securitylog has log message: " + startedMessage)
+        .atMost(2, TimeUnit.MINUTES)
+        .pollDelay(2, TimeUnit.SECONDS)
         .until(() -> getFileContent(securityLog).contains(startedMessage));
   }
 

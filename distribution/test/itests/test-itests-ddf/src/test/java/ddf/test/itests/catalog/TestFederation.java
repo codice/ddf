@@ -25,11 +25,10 @@ import static com.xebialabs.restito.semantics.Action.header;
 import static com.xebialabs.restito.semantics.Action.ok;
 import static com.xebialabs.restito.semantics.Action.success;
 import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
-import static java.lang.Thread.sleep;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
-import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_CONNECTED_SOURCE_FACTORY_PID;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.CSW_FEDERATED_SOURCE_FACTORY_PID;
@@ -47,7 +46,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
@@ -77,13 +75,16 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -97,6 +98,7 @@ import org.codice.ddf.itests.common.restito.ChunkedContent;
 import org.codice.ddf.itests.common.restito.HeaderCapture;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -111,7 +113,6 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -122,7 +123,7 @@ import org.slf4j.LoggerFactory;
 @ExamReactorStrategy(PerSuite.class)
 public class TestFederation extends AbstractIntegrationTest {
 
-  protected static final Logger LOGGER = LoggerFactory.getLogger(TestFederation.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TestFederation.class);
 
   private static final String SAMPLE_DATA = "sample data";
 
@@ -154,24 +155,17 @@ public class TestFederation extends AbstractIntegrationTest {
 
   private static final DynamicPort RESTITO_STUB_SERVER_PORT = new DynamicPort(6);
 
-  public static final DynamicUrl RESTITO_STUB_SERVER =
+  private static final DynamicUrl RESTITO_STUB_SERVER =
       new DynamicUrl("https://localhost:", RESTITO_STUB_SERVER_PORT, SUBSCRIBER);
 
   private static final Path PRODUCT_CACHE = Paths.get("data", "Product_Cache");
 
   private static final DynamicPort CSW_STUB_SERVER_PORT = new DynamicPort(7);
 
-  public static final DynamicUrl CSW_STUB_SERVER_PATH =
+  private static final DynamicUrl CSW_STUB_SERVER_PATH =
       new DynamicUrl(INSECURE_ROOT, CSW_STUB_SERVER_PORT, "/services/csw");
 
   private static final int NO_RETRIES = 0;
-
-  private static final String NOTIFICATIONS_CHANNEL = "/ddf/notifications/**";
-
-  private static final String ACTIVITIES_CHANNEL = "/ddf/activities/**";
-
-  private static final String FIND_ACTION_URL_BY_TITLE_PATTERN =
-      "data.results[0].metacard.actions.find {it.title=='%s'}.url";
 
   private static final String POLL_INTERVAL = "pollInterval";
 
@@ -187,19 +181,29 @@ public class TestFederation extends AbstractIntegrationTest {
 
   private static final int MAX_DOWNLOAD_RETRY_ATTEMPTS = 3;
 
-  private static boolean fatalError = false;
-
-  private static String[] metacardIds = new String[2];
+  private static final String[] METACARD_IDS = new String[2];
 
   private static StubServer server;
 
   private static FederatedCswMockServer cswServer;
 
+  private static String openSearchPid;
+
+  private static String cswPid;
+
+  private static String cswPid2;
+
+  private static String cswPid3;
+
+  private static String gmdPid;
+
+  private static String connectedPid;
+
   @Rule public TestName testName = new TestName();
 
   @Rule public ConditionalIgnoreRule rule = new ConditionalIgnoreRule();
 
-  private List<String> resourcesToDelete = new ArrayList<>();
+  private final List<String> resourcesToDelete = new ArrayList<>();
 
   private UrlResourceReaderConfigurator urlResourceReaderConfigurator;
 
@@ -210,18 +214,19 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @BeforeExam
-  public void beforeExam() throws Exception {
+  public void beforeExam() {
     try {
-      waitForSystemReady();
       getSecurityPolicy().configureRestForGuest();
-      waitForSystemReady();
 
       getCatalogBundle().setupMaxDownloadRetryAttempts(MAX_DOWNLOAD_RETRY_ATTEMPTS);
 
       Map<String, Object> openSearchProperties =
           getOpenSearchSourceProperties(
               OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
-      getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties);
+      openSearchPid =
+          getServiceManager()
+              .createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties)
+              .getPid();
 
       cswServer =
           new FederatedCswMockServer(
@@ -232,8 +237,10 @@ public class TestFederation extends AbstractIntegrationTest {
           getCswSourceProperties(CSW_STUB_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager());
       cswStubServerProperties.put("cswUrl", CSW_STUB_SERVER_PATH.getUrl());
       cswStubServerProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
-      getServiceManager()
-          .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswStubServerProperties);
+      cswPid =
+          getServiceManager()
+              .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswStubServerProperties)
+              .getPid();
 
       getServiceManager().waitForHttpEndpoint(CSW_PATH + "?_wadl");
 
@@ -241,14 +248,20 @@ public class TestFederation extends AbstractIntegrationTest {
           getCswSourceProperties(CSW_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager());
 
       cswProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
-      getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties);
+      cswPid2 =
+          getServiceManager()
+              .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties)
+              .getPid();
 
       Map<String, Object> cswProperties2 =
           getCswSourceProperties(
               CSW_SOURCE_WITH_METACARD_XML_ID, CSW_PATH.getUrl(), getServiceManager());
       cswProperties2.put("outputSchema", "urn:catalog:metacard");
       cswProperties2.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
-      getServiceManager().createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties2);
+      cswPid3 =
+          getServiceManager()
+              .createManagedService(CSW_FEDERATED_SOURCE_FACTORY_PID, cswProperties2)
+              .getPid();
 
       Map<String, Object> gmdProperties =
           getCswSourceProperties(
@@ -258,7 +271,10 @@ public class TestFederation extends AbstractIntegrationTest {
               getServiceManager());
 
       gmdProperties.put(POLL_INTERVAL, CSW_SOURCE_POLL_INTERVAL);
-      getServiceManager().createManagedService(GMD_CSW_FEDERATED_SOURCE_FACTORY_PID, gmdProperties);
+      gmdPid =
+          getServiceManager()
+              .createManagedService(GMD_CSW_FEDERATED_SOURCE_FACTORY_PID, gmdProperties)
+              .getPid();
 
       getCatalogBundle().waitForFederatedSource(OPENSEARCH_SOURCE_ID);
       getCatalogBundle().waitForFederatedSource(CSW_STUB_SOURCE_ID);
@@ -282,6 +298,28 @@ public class TestFederation extends AbstractIntegrationTest {
     }
   }
 
+  @AfterExam
+  public void afterExam() throws Exception {
+    if (openSearchPid != null) {
+      getServiceManager().stopManagedService(openSearchPid);
+    }
+    if (cswPid != null) {
+      getServiceManager().stopManagedService(cswPid);
+    }
+    if (cswPid2 != null) {
+      getServiceManager().stopManagedService(cswPid2);
+    }
+    if (cswPid3 != null) {
+      getServiceManager().stopManagedService(cswPid3);
+    }
+    if (gmdPid != null) {
+      getServiceManager().stopManagedService(gmdPid);
+    }
+    if (cswServer != null) {
+      cswServer.stop();
+    }
+  }
+
   @Before
   public void setup() throws Exception {
 
@@ -290,20 +328,14 @@ public class TestFederation extends AbstractIntegrationTest {
     getCatalogBundle().setupCaching(false);
     urlResourceReaderConfigurator = getUrlResourceReaderConfigurator();
 
-    if (fatalError) {
-      server.stop();
-
-      fail("An unrecoverable error occurred from previous test");
-    }
-
     server = new SecureStubServer(Integer.parseInt(RESTITO_STUB_SERVER_PORT.getPort())).run();
     server.start();
 
-    metacardIds[GEOJSON_RECORD_INDEX] =
+    METACARD_IDS[GEOJSON_RECORD_INDEX] =
         ingest(
             getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
 
-    metacardIds[XML_RECORD_INDEX] = ingestXmlWithProduct(DEFAULT_SAMPLE_PRODUCT_FILE_NAME);
+    METACARD_IDS[XML_RECORD_INDEX] = ingestXmlWithProduct(DEFAULT_SAMPLE_PRODUCT_FILE_NAME);
 
     cswServer.reset();
   }
@@ -316,13 +348,11 @@ public class TestFederation extends AbstractIntegrationTest {
     urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
         DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS);
 
-    if (resourcesToDelete != null) {
-      for (String resource : resourcesToDelete) {
-        FileUtils.deleteQuietly(new File(resource));
-      }
-
-      resourcesToDelete.clear();
+    for (String resource : resourcesToDelete) {
+      FileUtils.deleteQuietly(new File(resource));
     }
+
+    resourcesToDelete.clear();
 
     cswServer.stop();
 
@@ -336,11 +366,9 @@ public class TestFederation extends AbstractIntegrationTest {
   /**
    * Given what was ingested in beforeTest(), tests that a Federated wildcard search will return all
    * appropriate record(s).
-   *
-   * @throws Exception
    */
   @Test
-  public void testFederatedQueryByWildCardSearchPhrase() throws Exception {
+  public void testFederatedQueryByWildCardSearchPhrase() {
     ValidatableResponse response =
         getOpenSearch("xml", null, null, "q=*", "src=" + OPENSEARCH_SOURCE_ID);
 
@@ -366,11 +394,9 @@ public class TestFederation extends AbstractIntegrationTest {
   /**
    * Given what was ingested in beforeTest(), tests that a Federated wildcard search will return all
    * appropriate record(s) in ATOM format.
-   *
-   * @throws Exception
    */
   @Test
-  public void testAtomFederatedQueryByWildCardSearchPhrase() throws Exception {
+  public void testAtomFederatedQueryByWildCardSearchPhrase() {
     ValidatableResponse response =
         getOpenSearch("atom", null, null, "q=*", "src=" + OPENSEARCH_SOURCE_ID);
 
@@ -385,11 +411,9 @@ public class TestFederation extends AbstractIntegrationTest {
   /**
    * Given what was ingested in beforeTest(), tests that a Federated search phrase will return the
    * appropriate record(s).
-   *
-   * @throws Exception
    */
   @Test
-  public void testFederatedQueryBySearchPhrase() throws Exception {
+  public void testFederatedQueryBySearchPhrase() {
     ValidatableResponse response =
         getOpenSearch("xml", null, null, "q=" + DEFAULT_KEYWORD, "src=" + OPENSEARCH_SOURCE_ID);
 
@@ -410,13 +434,9 @@ public class TestFederation extends AbstractIntegrationTest {
                     + "']"));
   }
 
-  /**
-   * Tests Source can retrieve based on a pure spatial query
-   *
-   * @throws Exception
-   */
+  /** Tests Source can retrieve based on a pure spatial query */
   @Test
-  public void testFederatedSpatial() throws Exception {
+  public void testFederatedSpatial() {
     ValidatableResponse response =
         getOpenSearch(
             "xml",
@@ -445,13 +465,9 @@ public class TestFederation extends AbstractIntegrationTest {
                     + "']"));
   }
 
-  /**
-   * Tests given bad spatial query, no result should be returned
-   *
-   * @throws Exception
-   */
+  /** Tests given bad spatial query, no result should be returned */
   @Test
-  public void testFederatedNegativeSpatial() throws Exception {
+  public void testFederatedNegativeSpatial() {
     ValidatableResponse response =
         getOpenSearch(
             "xml",
@@ -468,13 +484,9 @@ public class TestFederation extends AbstractIntegrationTest {
         .body(not(containsString(RECORD_TITLE_1)), not(containsString(RECORD_TITLE_2)));
   }
 
-  /**
-   * Tests that given a bad test phrase, no records should have been returned.
-   *
-   * @throws Exception
-   */
+  /** Tests that given a bad test phrase, no records should have been returned. */
   @Test
-  public void testFederatedQueryByNegativeSearchPhrase() throws Exception {
+  public void testFederatedQueryByNegativeSearchPhrase() {
     String negativeSearchPhrase = "negative";
     ValidatableResponse response =
         getOpenSearch(
@@ -485,19 +497,15 @@ public class TestFederation extends AbstractIntegrationTest {
         .body(not(containsString(RECORD_TITLE_1)), not(containsString(RECORD_TITLE_2)));
   }
 
-  /**
-   * Tests that a federated search by ID will return the right record.
-   *
-   * @throws Exception
-   */
+  /** Tests that a federated search by ID will return the right record. */
   @Test
-  public void testFederatedQueryById() throws Exception {
+  public void testFederatedQueryById() {
     String restUrl =
         REST_PATH.getUrl()
             + "sources/"
             + OPENSEARCH_SOURCE_ID
             + "/"
-            + metacardIds[GEOJSON_RECORD_INDEX];
+            + METACARD_IDS[GEOJSON_RECORD_INDEX];
 
     when()
         .get(restUrl)
@@ -541,7 +549,7 @@ public class TestFederation extends AbstractIntegrationTest {
               + "sources/"
               + newOpenSearchSourceId
               + "/"
-              + metacardIds[GEOJSON_RECORD_INDEX];
+              + METACARD_IDS[GEOJSON_RECORD_INDEX];
 
       when()
           .get(restUrl)
@@ -561,7 +569,7 @@ public class TestFederation extends AbstractIntegrationTest {
           getOpenSearchSourceProperties(
               OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
       Dictionary<String, ?> configProps = new Hashtable<>(openSearchProperties);
-      openSourceConfig.update(configProps);
+      Objects.requireNonNull(openSourceConfig).update(configProps);
       getServiceManager().waitForAllBundles();
     }
   }
@@ -574,9 +582,6 @@ public class TestFederation extends AbstractIntegrationTest {
    */
   @Test
   public void testFederatedRetrieveExistingProduct() throws Exception {
-    /**
-     * Setup Add productDirectory to the URLResourceReader's set of valid root resource directories.
-     */
     String fileName = testName.getMethodName() + ".txt";
     String metacardId = ingestXmlWithProduct(fileName);
     String productDirectory = new File(fileName).getAbsoluteFile().getParent();
@@ -603,9 +608,6 @@ public class TestFederation extends AbstractIntegrationTest {
    */
   @Test
   public void testFederatedRetrieveExistingProductWithRange() throws Exception {
-    /**
-     * Setup Add productDirectory to the URLResourceReader's set of valid root resource directories.
-     */
     String fileName = testName.getMethodName() + ".txt";
     String metacardId = ingestXmlWithProduct(fileName);
     String productDirectory = new File(fileName).getAbsoluteFile().getParent();
@@ -679,7 +681,7 @@ public class TestFederation extends AbstractIntegrationTest {
             + "sources/"
             + CSW_SOURCE_ID
             + "/"
-            + metacardIds[XML_RECORD_INDEX]
+            + METACARD_IDS[XML_RECORD_INDEX]
             + "?transform=resource";
 
     when().get(restUrl).then().assertThat().contentType("text/plain").body(is(SAMPLE_DATA));
@@ -700,7 +702,7 @@ public class TestFederation extends AbstractIntegrationTest {
             + "sources/"
             + OPENSEARCH_SOURCE_ID
             + "/"
-            + metacardIds[GEOJSON_RECORD_INDEX]
+            + METACARD_IDS[GEOJSON_RECORD_INDEX]
             + "?transform=resource";
 
     // Perform Test and Verify
@@ -708,7 +710,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testCswQueryByWildCardSearchPhrase() throws Exception {
+  public void testCswQueryByWildCardSearchPhrase() {
     String wildcardQuery =
         getCswQuery("AnyText", "*", "application/xml", "http://www.opengis.net/cat/csw/2.0.2");
 
@@ -722,11 +724,11 @@ public class TestFederation extends AbstractIntegrationTest {
         .body(
             hasXPath(
                 "/GetRecordsResponse/SearchResults/Record/identifier[text()='"
-                    + metacardIds[GEOJSON_RECORD_INDEX]
+                    + METACARD_IDS[GEOJSON_RECORD_INDEX]
                     + "']"),
             hasXPath(
                 "/GetRecordsResponse/SearchResults/Record/identifier[text()='"
-                    + metacardIds[XML_RECORD_INDEX]
+                    + METACARD_IDS[XML_RECORD_INDEX]
                     + "']"),
             hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned", is("2")),
             hasXPath(
@@ -735,7 +737,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testCswQueryWithValidationCheckerPlugin() throws Exception {
+  public void testCswQueryWithValidationCheckerPlugin() {
 
     // Construct a query to search for all metacards
     String query =
@@ -748,11 +750,11 @@ public class TestFederation extends AbstractIntegrationTest {
         new Matcher[] {
           hasXPath(
               "/GetRecordsResponse/SearchResults/Record/identifier[text()='"
-                  + metacardIds[GEOJSON_RECORD_INDEX]
+                  + METACARD_IDS[GEOJSON_RECORD_INDEX]
                   + "']"),
           hasXPath(
               "/GetRecordsResponse/SearchResults/Record/identifier[text()='"
-                  + metacardIds[XML_RECORD_INDEX]
+                  + METACARD_IDS[XML_RECORD_INDEX]
                   + "']"),
           hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned", is("2")),
           hasXPath(
@@ -782,7 +784,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testCswQueryByTitle() throws Exception {
+  public void testCswQueryByTitle() {
     String titleQuery =
         getCswQuery("title", "myTitle", "application/xml", "http://www.opengis.net/cat/csw/2.0.2");
 
@@ -796,12 +798,12 @@ public class TestFederation extends AbstractIntegrationTest {
         .body(
             hasXPath(
                 "/GetRecordsResponse/SearchResults/Record/identifier",
-                is(metacardIds[GEOJSON_RECORD_INDEX])),
+                is(METACARD_IDS[GEOJSON_RECORD_INDEX])),
             hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned", is("1")));
   }
 
   @Test
-  public void testCswQueryForMetacardXml() throws Exception {
+  public void testCswQueryForMetacardXml() {
     String titleQuery = getCswQuery("title", "myTitle", "application/xml", "urn:catalog:metacard");
 
     given()
@@ -814,14 +816,14 @@ public class TestFederation extends AbstractIntegrationTest {
         .body(
             hasXPath(
                 "/GetRecordsResponse/SearchResults/metacard/@id",
-                is(metacardIds[GEOJSON_RECORD_INDEX])),
+                is(METACARD_IDS[GEOJSON_RECORD_INDEX])),
             hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned", is("1")),
             hasXPath(
                 "/GetRecordsResponse/SearchResults/@recordSchema", is("urn:catalog:metacard")));
   }
 
   @Test
-  public void testCswQueryForJson() throws Exception {
+  public void testCswQueryForJson() {
     String titleQuery = getCswQuery("title", "myTitle", "application/json", null);
 
     given()
@@ -836,7 +838,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testOpensearchToCswSourceToCswEndpointQuerywithCswRecordXml() throws Exception {
+  public void testOpensearchToCswSourceToCswEndpointQuerywithCswRecordXml() {
     ValidatableResponse response =
         getOpenSearch("xml", null, null, "q=" + DEFAULT_KEYWORD, "src=" + CSW_SOURCE_ID);
 
@@ -851,7 +853,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testOpensearchToCswSourceToCswEndpointQuerywithMetacardXml() throws Exception {
+  public void testOpensearchToCswSourceToCswEndpointQuerywithMetacardXml() {
     ValidatableResponse response =
         getOpenSearch(
             "xml", null, null, "q=" + DEFAULT_KEYWORD, "src=" + CSW_SOURCE_WITH_METACARD_XML_ID);
@@ -867,7 +869,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testOpensearchToGmdSourceToGmdEndpointQuery() throws Exception {
+  public void testOpensearchToGmdSourceToGmdEndpointQuery() {
     ValidatableResponse response =
         getOpenSearch("xml", null, null, "q=" + RECORD_TITLE_1, "src=" + GMD_SOURCE_ID);
 
@@ -877,7 +879,7 @@ public class TestFederation extends AbstractIntegrationTest {
             containsString(RECORD_TITLE_1),
             hasXPath(
                 "/metacards/metacard/stringxml/value/MD_Metadata/fileIdentifier/CharacterString",
-                is(metacardIds[GEOJSON_RECORD_INDEX])));
+                is(METACARD_IDS[GEOJSON_RECORD_INDEX])));
   }
 
   @Test
@@ -963,7 +965,7 @@ public class TestFederation extends AbstractIntegrationTest {
     try {
       setupConnectedSources();
     } catch (IOException e) {
-      LOGGER.error("Couldn't create connected sources: {}", e);
+      LOGGER.error("Couldn't create connected sources", e);
     }
 
     try {
@@ -1003,11 +1005,12 @@ public class TestFederation extends AbstractIntegrationTest {
 
     } finally {
       getSecurityPolicy().configureRestForGuest();
+      cleanupConnectedSources();
     }
   }
 
   @Test
-  public void testCatalogEndpointExposure() throws InvalidSyntaxException {
+  public void testCatalogEndpointExposure() {
     // Check the service references
     ArrayList<String> expectedEndpoints = new ArrayList<>();
     expectedEndpoints.add("endpointUrl");
@@ -1023,7 +1026,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testCswSubscriptionByWildCardSearchPhrase() throws Exception {
+  public void testCswSubscriptionByWildCardSearchPhrase() {
     whenHttp(server).match(Condition.post(SUBSCRIBER)).then(success());
     whenHttp(server).match(Condition.get(SUBSCRIBER)).then(success());
     whenHttp(server).match(Condition.delete(SUBSCRIBER)).then(success());
@@ -1052,12 +1055,7 @@ public class TestFederation extends AbstractIntegrationTest {
         .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
         .then()
         .assertThat()
-        .body(hasXPath("/Acknowledgement/RequestId"))
-        .extract()
-        .body()
-        .xmlPath()
-        .get("Acknowledgement.RequestId")
-        .toString();
+        .body(hasXPath("/Acknowledgement/RequestId"));
 
     String metacardId =
         ingest(
@@ -1066,9 +1064,9 @@ public class TestFederation extends AbstractIntegrationTest {
     String[] subscrptionIds = {subscriptionId};
 
     verifyEvents(
-        new HashSet(Arrays.asList(metacardId)),
-        new HashSet(0),
-        new HashSet(Arrays.asList(subscrptionIds)));
+        Collections.singleton(metacardId),
+        new HashSet<>(0),
+        new HashSet<>(Arrays.asList(subscrptionIds)));
 
     given()
         .contentType(ContentType.XML)
@@ -1076,12 +1074,7 @@ public class TestFederation extends AbstractIntegrationTest {
         .delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
         .then()
         .assertThat()
-        .body(hasXPath("/Acknowledgement/RequestId"))
-        .extract()
-        .body()
-        .xmlPath()
-        .get("Acknowledgement.RequestId")
-        .toString();
+        .body(hasXPath("/Acknowledgement/RequestId"));
 
     given()
         .contentType(ContentType.XML)
@@ -1120,13 +1113,18 @@ public class TestFederation extends AbstractIntegrationTest {
     BundleService bundleService = getServiceManager().getService(BundleService.class);
     Bundle bundle = bundleService.getBundle("spatial-csw-endpoint");
     bundle.stop();
-    while (bundle.getState() != Bundle.RESOLVED) {
-      sleep(1000);
-    }
+
+    await("Waiting for bundle to resolve")
+        .atMost(1, MINUTES)
+        .pollDelay(1, SECONDS)
+        .until(() -> bundle.getState() == Bundle.RESOLVED);
+
     bundle.start();
-    while (bundle.getState() != Bundle.ACTIVE) {
-      sleep(1000);
-    }
+    await("Waiting for bundle to start")
+        .atMost(1, MINUTES)
+        .pollDelay(1, SECONDS)
+        .until(() -> bundle.getState() == Bundle.ACTIVE);
+
     getServiceManager().waitForHttpEndpoint(CSW_SUBSCRIPTION_PATH + "?_wadl");
     // get subscription
     given()
@@ -1135,12 +1133,7 @@ public class TestFederation extends AbstractIntegrationTest {
         .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
         .then()
         .assertThat()
-        .body(hasXPath("/Acknowledgement/RequestId"))
-        .extract()
-        .body()
-        .xmlPath()
-        .get("Acknowledgement.RequestId")
-        .toString();
+        .body(hasXPath("/Acknowledgement/RequestId"));
 
     String metacardId =
         ingest(
@@ -1149,9 +1142,9 @@ public class TestFederation extends AbstractIntegrationTest {
     String[] subscrptionIds = {subscriptionId};
 
     verifyEvents(
-        new HashSet(Arrays.asList(metacardId)),
-        new HashSet(0),
-        new HashSet(Arrays.asList(subscrptionIds)));
+        Collections.singleton(metacardId),
+        new HashSet<>(0),
+        new HashSet<>(Arrays.asList(subscrptionIds)));
 
     given()
         .contentType(ContentType.XML)
@@ -1159,12 +1152,7 @@ public class TestFederation extends AbstractIntegrationTest {
         .delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
         .then()
         .assertThat()
-        .body(hasXPath("/Acknowledgement/RequestId"))
-        .extract()
-        .body()
-        .xmlPath()
-        .get("Acknowledgement.RequestId")
-        .toString();
+        .body(hasXPath("/Acknowledgement/RequestId"));
 
     given()
         .contentType(ContentType.XML)
@@ -1176,7 +1164,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testCswCreateEventEndpoint() throws Exception {
+  public void testCswCreateEventEndpoint() {
     whenHttp(server).match(Condition.post(SUBSCRIBER)).then(success());
     whenHttp(server).match(Condition.get(SUBSCRIBER)).then(success());
     whenHttp(server).match(Condition.delete(SUBSCRIBER)).then(success());
@@ -1208,12 +1196,7 @@ public class TestFederation extends AbstractIntegrationTest {
         .get(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
         .then()
         .assertThat()
-        .body(hasXPath("/Acknowledgement/RequestId"))
-        .extract()
-        .body()
-        .xmlPath()
-        .get("Acknowledgement.RequestId")
-        .toString();
+        .body(hasXPath("/Acknowledgement/RequestId"));
 
     given()
         .contentType(ContentType.XML)
@@ -1227,9 +1210,9 @@ public class TestFederation extends AbstractIntegrationTest {
     String[] subscrptionIds = {subscriptionId};
 
     verifyEvents(
-        new HashSet(Arrays.asList(metacardId)),
-        new HashSet(0),
-        new HashSet(Arrays.asList(subscrptionIds)));
+        Collections.singleton(metacardId),
+        new HashSet<>(0),
+        new HashSet<>(Arrays.asList(subscrptionIds)));
 
     given()
         .contentType(ContentType.XML)
@@ -1237,12 +1220,7 @@ public class TestFederation extends AbstractIntegrationTest {
         .delete(CSW_SUBSCRIPTION_PATH.getUrl() + "/" + subscriptionId)
         .then()
         .assertThat()
-        .body(hasXPath("/Acknowledgement/RequestId"))
-        .extract()
-        .body()
-        .xmlPath()
-        .get("Acknowledgement.RequestId")
-        .toString();
+        .body(hasXPath("/Acknowledgement/RequestId"));
 
     given()
         .contentType(ContentType.XML)
@@ -1253,13 +1231,9 @@ public class TestFederation extends AbstractIntegrationTest {
         .statusCode(404);
   }
 
-  /**
-   * Tests basic download from the live federated csw source
-   *
-   * @throws Exception
-   */
+  /** Tests basic download from the live federated csw source */
   @Test
-  public void testDownloadFromFederatedCswSource() throws Exception {
+  public void testDownloadFromFederatedCswSource() {
 
     String filename = "product1.txt";
     String metacardId = generateUniqueMetacardId();
@@ -1370,11 +1344,9 @@ public class TestFederation extends AbstractIntegrationTest {
   /**
    * Tests that if the endpoint disconnects twice, the retrieval retries both times This test will
    * respond with the correct Partial Content when a range header is sent in the request
-   *
-   * @throws Exception
    */
   @Test
-  public void testRetrievalWithByteOffset() throws Exception {
+  public void testRetrievalWithByteOffset() {
 
     String filename = "product2.txt";
     String metacardId = generateUniqueMetacardId();
@@ -1427,13 +1399,9 @@ public class TestFederation extends AbstractIntegrationTest {
             Condition.parameter("id", metacardId));
   }
 
-  /**
-   * Tests that if the endpoint disconnects 3 times, the retrieval fails after 3 attempts
-   *
-   * @throws Exception
-   */
+  /** Tests that if the endpoint disconnects 3 times, the retrieval fails after 3 attempts */
   @Test
-  public void testRetrievalReliabilityFails() throws Exception {
+  public void testRetrievalReliabilityFails() {
 
     String filename = "product3.txt";
     String metacardId = generateUniqueMetacardId();
@@ -1496,9 +1464,9 @@ public class TestFederation extends AbstractIntegrationTest {
               + OPENSEARCH_SOURCE_ID
               + "\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sort\":\"modified:desc\"}";
 
-      expect("Waiting for metacard cache to clear")
-          .checkEvery(1, SECONDS)
-          .within(20, SECONDS)
+      await("Waiting for metacard cache to clear")
+          .pollDelay(1, SECONDS)
+          .atMost(20, SECONDS)
           .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) == 0);
 
       // This query will put the ingested metacards from the BeforeExam method into the cache
@@ -1519,9 +1487,9 @@ public class TestFederation extends AbstractIntegrationTest {
           .statusCode(200);
 
       // CacheBulkProcessor could take up to 10 seconds to flush the cached results into solr
-      expect("Waiting for metacards to be written to cache")
-          .checkEvery(1, SECONDS)
-          .within(20, SECONDS)
+      await("Waiting for metacards to be written to cache")
+          .pollDelay(1, SECONDS)
+          .atMost(20, SECONDS)
           .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) > 0);
 
     } finally {
@@ -1560,59 +1528,59 @@ public class TestFederation extends AbstractIntegrationTest {
   public void testDownloadFromCacheIfAvailable() throws Exception {
     getCatalogBundle().setupCaching(true);
 
-    String filename = "product4.txt";
-    String metacardId = generateUniqueMetacardId();
-    String resourceData = getResourceData(metacardId);
-    Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).build();
+    try {
+      String filename = "product4.txt";
+      String metacardId = generateUniqueMetacardId();
+      String resourceData = getResourceData(metacardId);
+      Action response = new ChunkedContent.ChunkedContentBuilder(resourceData).build();
 
-    cswServer
-        .whenHttp()
-        .match(
-            Condition.post("/services/csw"),
-            withPostBodyContaining("GetRecords"),
-            withPostBodyContaining(metacardId))
-        .then(
-            ok(),
-            contentType("text/xml"),
-            bytesContent(getCswQueryResponse(metacardId).getBytes()));
+      cswServer
+          .whenHttp()
+          .match(
+              Condition.post("/services/csw"),
+              withPostBodyContaining("GetRecords"),
+              withPostBodyContaining(metacardId))
+          .then(
+              ok(),
+              contentType("text/xml"),
+              bytesContent(getCswQueryResponse(metacardId).getBytes()));
 
-    cswServer
-        .whenHttp()
-        .match(
-            Condition.get("/services/csw"),
-            Condition.parameter("request", "GetRecordById"),
-            Condition.parameter("id", metacardId))
-        .then(getCswRetrievalHeaders(filename), response);
+      cswServer
+          .whenHttp()
+          .match(
+              Condition.get("/services/csw"),
+              Condition.parameter("request", "GetRecordById"),
+              Condition.parameter("id", metacardId))
+          .then(getCswRetrievalHeaders(filename), response);
 
-    String restUrl =
-        REST_PATH.getUrl()
-            + "sources/"
-            + CSW_STUB_SOURCE_ID
-            + "/"
-            + metacardId
-            + "?transform=resource";
+      String restUrl =
+          REST_PATH.getUrl()
+              + "sources/"
+              + CSW_STUB_SOURCE_ID
+              + "/"
+              + metacardId
+              + "?transform=resource";
 
-    // Download product twice, should only call the stub server to download once
-    when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
+      // Download product twice, should only call the stub server to download once
+      when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
 
-    when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
+      when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
 
-    cswServer
-        .verifyHttp()
-        .times(
-            1,
-            Condition.uri("/services/csw"),
-            Condition.parameter("request", "GetRecordById"),
-            Condition.parameter("id", metacardId));
+      cswServer
+          .verifyHttp()
+          .times(
+              1,
+              Condition.uri("/services/csw"),
+              Condition.parameter("request", "GetRecordById"),
+              Condition.parameter("id", metacardId));
+    } finally {
+      getCatalogBundle().setupCaching(false);
+    }
   }
 
-  /**
-   * Tests that ddf will redownload a product if the remote metacard has changed
-   *
-   * @throws Exception
-   */
+  /** Tests that ddf will redownload a product if the remote metacard has changed */
   @Test
-  public void testCacheIsUpdatedIfRemoteProductChanges() throws Exception {
+  public void testCacheIsUpdatedIfRemoteProductChanges() {
     String filename = "product5.txt";
     String metacardId = generateUniqueMetacardId();
     String resourceData = getResourceData(metacardId);
@@ -1677,57 +1645,61 @@ public class TestFederation extends AbstractIntegrationTest {
   @Test
   public void testFileCachesCorrectlyWhenRangeHeadersAreSupported() throws Exception {
     getCatalogBundle().setupCaching(true);
-    String filename = "product2.txt";
-    String metacardId = generateUniqueMetacardId();
-    String resourceData = getResourceData(metacardId);
-    HeaderCapture headerCapture = new HeaderCapture();
-    Action response =
-        new ChunkedContent.ChunkedContentBuilder(resourceData)
-            .delayBetweenChunks(Duration.ofMillis(200))
-            .fail(2)
-            .allowPartialContent(headerCapture)
-            .build();
+    try {
+      String filename = "product2.txt";
+      String metacardId = generateUniqueMetacardId();
+      String resourceData = getResourceData(metacardId);
+      HeaderCapture headerCapture = new HeaderCapture();
+      Action response =
+          new ChunkedContent.ChunkedContentBuilder(resourceData)
+              .delayBetweenChunks(Duration.ofMillis(200))
+              .fail(2)
+              .allowPartialContent(headerCapture)
+              .build();
 
-    cswServer
-        .whenHttp()
-        .match(
-            Condition.post("/services/csw"),
-            withPostBodyContaining("GetRecords"),
-            withPostBodyContaining(metacardId))
-        .then(
-            ok(),
-            contentType("text/xml"),
-            bytesContent(getCswQueryResponse(metacardId).getBytes()));
+      cswServer
+          .whenHttp()
+          .match(
+              Condition.post("/services/csw"),
+              withPostBodyContaining("GetRecords"),
+              withPostBodyContaining(metacardId))
+          .then(
+              ok(),
+              contentType("text/xml"),
+              bytesContent(getCswQueryResponse(metacardId).getBytes()));
 
-    cswServer
-        .whenHttp()
-        .match(
-            Condition.get("/services/csw"),
-            Condition.parameter("request", "GetRecordById"),
-            Condition.parameter("id", metacardId),
-            Condition.custom(headerCapture))
-        .then(getCswRetrievalHeaders(filename), response);
+      cswServer
+          .whenHttp()
+          .match(
+              Condition.get("/services/csw"),
+              Condition.parameter("request", "GetRecordById"),
+              Condition.parameter("id", metacardId),
+              Condition.custom(headerCapture))
+          .then(getCswRetrievalHeaders(filename), response);
 
-    String restUrl =
-        REST_PATH.getUrl()
-            + "sources/"
-            + CSW_STUB_SOURCE_ID
-            + "/"
-            + metacardId
-            + "?transform=resource";
+      String restUrl =
+          REST_PATH.getUrl()
+              + "sources/"
+              + CSW_STUB_SOURCE_ID
+              + "/"
+              + metacardId
+              + "?transform=resource";
 
-    // Verify that the testData from the csw stub server is returned.
-    when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
+      // Verify that the testData from the csw stub server is returned.
+      when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
 
-    when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
+      when().get(restUrl).then().assertThat().contentType("text/plain").body(is(resourceData));
 
-    cswServer
-        .verifyHttp()
-        .atLeast(
-            3,
-            Condition.uri("/services/csw"),
-            Condition.parameter("request", "GetRecordById"),
-            Condition.parameter("id", metacardId));
+      cswServer
+          .verifyHttp()
+          .atLeast(
+              3,
+              Condition.uri("/services/csw"),
+              Condition.parameter("request", "GetRecordById"),
+              Condition.parameter("id", metacardId));
+    } finally {
+      getCatalogBundle().setupCaching(false);
+    }
   }
 
   @Test
@@ -1778,15 +1750,13 @@ public class TestFederation extends AbstractIntegrationTest {
           .get(startDownloadUrl);
     } finally {
       getSecurityPolicy().configureRestForGuest();
+      getCatalogBundle().setupCaching(false);
     }
   }
 
   @Ignore
   @Test
   public void testFederatedDownloadProductToCacheOnlyCacheEnabled() throws Exception {
-    /**
-     * Setup Add productDirectory to the URLResourceReader's set of valid root resource directories.
-     */
     String fileName = testName.getMethodName() + ".txt";
     String metacardId = ingestXmlWithProduct(fileName);
     String productDirectory = new File(fileName).getAbsoluteFile().getParent();
@@ -1826,9 +1796,6 @@ public class TestFederation extends AbstractIntegrationTest {
   @Ignore
   @Test
   public void testFederatedDownloadProductToCacheOnlyCacheDisabled() throws Exception {
-    /**
-     * Setup Add productDirectory to the URLResourceReader's set of valid root resource directories.
-     */
     String fileName = testName.getMethodName() + ".txt";
     String metacardId = ingestXmlWithProduct(fileName);
     String productDirectory = new File(fileName).getAbsoluteFile().getParent();
@@ -2115,33 +2082,25 @@ public class TestFederation extends AbstractIntegrationTest {
       Set<String> metacardIdsExpected,
       Set<String> metacardIdsNotExpected,
       Set<String> subscriptionIds) {
-    long millis = 0;
 
-    boolean isAllEventsReceived = false;
-    boolean isUnexpectedEventReceived = false;
+    await("Waiting for events to be received")
+        .atMost(2, MINUTES)
+        .pollDelay(EVENT_UPDATE_WAIT_INTERVAL, TimeUnit.MILLISECONDS)
+        .until(
+            () ->
+                verifySubscriptions(subscriptionIds, metacardIdsExpected, metacardIdsNotExpected));
+  }
 
-    while (!isAllEventsReceived && !isUnexpectedEventReceived && millis < MINUTES.toMillis(2)) {
+  private boolean verifySubscriptions(
+      Set<String> subscriptionIds, Set<String> expected, Set<String> unexpected) {
+    return subscriptionIds
+        .stream()
+        .map(this::getEvents)
+        .allMatch(ids -> areIdsCorrect(ids, expected, unexpected));
+  }
 
-      Set<String> foundIds;
-
-      try {
-        sleep(EVENT_UPDATE_WAIT_INTERVAL);
-        millis += EVENT_UPDATE_WAIT_INTERVAL;
-      } catch (InterruptedException e) {
-        LOGGER.info("Interrupted exception while trying to sleep for events", e);
-      }
-      if ((millis % 1000) == 0) {
-        LOGGER.info("Waiting for events to be received...{}ms", millis);
-      }
-      for (String id : subscriptionIds) {
-        foundIds = getEvents(id);
-        isAllEventsReceived = foundIds.containsAll(metacardIdsExpected);
-
-        isUnexpectedEventReceived = foundIds.removeAll(metacardIdsNotExpected);
-      }
-    }
-    assertTrue(isAllEventsReceived);
-    assertFalse(isUnexpectedEventReceived);
+  private boolean areIdsCorrect(Set<String> result, Set<String> expected, Set<String> unexpected) {
+    return result.containsAll(expected) && !result.removeAll(unexpected);
   }
 
   private Set<String> getEvents(String subscriptionId) {
@@ -2185,11 +2144,17 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   private void setupConnectedSources() throws IOException {
-    getServiceManager()
-        .createManagedService(
-            CSW_CONNECTED_SOURCE_FACTORY_PID,
-            getCswConnectedSourceProperties(
-                CONNECTED_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager()));
+    connectedPid =
+        getServiceManager()
+            .createManagedService(
+                CSW_CONNECTED_SOURCE_FACTORY_PID,
+                getCswConnectedSourceProperties(
+                    CONNECTED_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager()))
+            .getPid();
+  }
+
+  private void cleanupConnectedSources() throws IOException {
+    getServiceManager().stopManagedService(connectedPid);
   }
 
   private String ingestXmlWithProduct(String fileName) throws IOException {
@@ -2213,10 +2178,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
   private String getResourceData(String metacardId) {
     return String.format("Data for metacard ID %s", metacardId);
-  }
-
-  private String getResourceRetrievalCompletedMessage(int bytesRetrieved) {
-    return String.format("Resource retrieval completed, %d bytes retrieved. ", bytesRetrieved);
   }
 
   private int getMetacardCacheSize(String sourceId) throws Exception {

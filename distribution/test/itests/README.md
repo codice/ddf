@@ -1,3 +1,14 @@
+# Writing Integration Tests
+
+## Cleaning up after each test
+There are several operations a test can perform that will permanently change the state of the running container. **It's the responsibility of the tests themselves to clean up after performing these state-changing operations.**
+The most common state-changing operations and the best way to clean up after them are as follows:
+
+* **Creating or updating a configuration:** Save the returned Config properties to a static field on the itest class and then update the configuration with those properties in the `AfterExam`.
+* **Creating or updating a Managed Service:** Save off the pid of the managed service, and then stop the Managed Service using that.
+* **Ingesting or updating a record:** Resetting or deleting the record
+* **Starting or stopping a configuration:** Reset it by starting or stopping the configuration.
+
 # How to Debug Integration Tests
 
 ## Remote Debugging

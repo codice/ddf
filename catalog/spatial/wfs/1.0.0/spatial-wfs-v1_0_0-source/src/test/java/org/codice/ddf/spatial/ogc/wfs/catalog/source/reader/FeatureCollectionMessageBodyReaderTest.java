@@ -20,7 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.ws.rs.WebApplicationException;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader.FeatureCollectionMessageBodyReaderWfs10;
 import org.junit.Test;
 
