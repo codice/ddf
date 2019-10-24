@@ -17,6 +17,9 @@
         <name>cellar</name>
         <password>pass</password>
     </group>
+    <rest-api enabled="true">
+        <endpoint-group name="CLUSTER_WRITE" enabled="true"/>
+    </rest-api>
     <network>
         <port auto-increment="true">5701</port>
         <join>

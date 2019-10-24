@@ -378,6 +378,12 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+            <version>${javax.cache}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -393,6 +399,7 @@
                             platform-util,
                             platform-util-unavailableurls,
                             sardine,
+                            javax.cache,
                             <!-- Embedding httpclient and httpcore instead of using the bundles -->
                             <!-- due to a downstream performance issue in itests -->
                             httpclient,
