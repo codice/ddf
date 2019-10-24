@@ -16,7 +16,7 @@ package ddf.test.itests.platform;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
-import static org.codice.ddf.itests.common.WaitCondition.expect;
+import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.OPENSEARCH_FACTORY_PID;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
@@ -51,6 +51,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -110,7 +111,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
   private static final String RECORD_TITLE_1 = "myTitle";
 
-  public static final String BROWSER_USER_AGENT =
+  private static final String BROWSER_USER_AGENT =
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
 
   public static final String IPD_METADATA_PID = "org.codice.ddf.security.idp.client.IdpMetadata";
@@ -198,7 +199,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
   }
 
   @BeforeExam
-  public void beforeTest() throws Exception {
+  public void beforeTest() {
     try {
       ingest(
           getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
@@ -250,7 +251,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     try {
       validator =
           SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
-              .newSchema(schemaURL)
+              .newSchema(Objects.requireNonNull(schemaURL))
               .newValidator();
     } catch (SAXException e) {
       LOGGER.debug("Exception creating validator. ", e);
@@ -288,8 +289,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
 
     // We have to make sure the config has been updated before we can use it
 
-    expect("Configs to update")
-        .within(2, TimeUnit.MINUTES)
+    await("Configs to update")
+        .atMost(2, TimeUnit.MINUTES)
         .until(() -> config.getProperties() != null && (config.getProperties().get(param) != null));
 
     return oldValue;
@@ -392,7 +393,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
   }
 
   private ResponseHelper performHttpRequestUsingBinding(
-      Binding binding, String relayState, String encodedRequest) throws Exception {
+      Binding binding, String relayState, String encodedRequest) {
 
     Response idpResponse =
         given()
@@ -809,7 +810,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     assertThat(activeSPs.iterator().next(), is(ddfSpMetadataEntityId));
   }
 
-  private class ResponseHelper {
+  private static class ResponseHelper {
 
     private final Response response;
 
@@ -881,7 +882,7 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
       // We're trying to parse a javascript variable that is embedded in an HTML form
       Pattern pattern =
           Pattern.compile(
-              "window.idpState\\s*=\\s*\\{\\s*(.*?)\\s?\\}",
+              "window.idpState\\s*=\\s*\\{\\s*(.*?)\\s?}",
               Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
       Matcher matcher = pattern.matcher(response.body().asString());
       if (matcher.find()) {

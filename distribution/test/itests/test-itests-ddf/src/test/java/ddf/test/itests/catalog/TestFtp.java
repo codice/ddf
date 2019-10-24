@@ -16,7 +16,7 @@ package ddf.test.itests.catalog;
 import static ddf.catalog.ftp.FtpServerManager.CLIENT_AUTH_PROPERTY_KEY;
 import static ddf.catalog.ftp.FtpServerManager.NEED;
 import static ddf.catalog.ftp.FtpServerManager.WANT;
-import static org.codice.ddf.itests.common.WaitCondition.expect;
+import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearch;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -33,6 +33,8 @@ import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLException;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
@@ -83,7 +85,7 @@ public class TestFtp extends AbstractIntegrationTest {
   private FTPClient client;
 
   @BeforeExam
-  public void beforeExam() throws Exception {
+  public void beforeExam() {
     try {
       System.setProperty(FTP_PORT_PROPERTY, FTP_PORT.getPort());
       getServiceManager().startFeature(true, FTP_ENDPOINT_FEATURE);
@@ -95,7 +97,7 @@ public class TestFtp extends AbstractIntegrationTest {
   }
 
   @AfterExam
-  public void afterExam() throws Exception {
+  public void afterExam() {
     try {
       // Turn off feature to not interfere with other tests
       getServiceManager().stopFeature(true, FTP_ENDPOINT_FEATURE);
@@ -281,20 +283,9 @@ public class TestFtp extends AbstractIntegrationTest {
   private FTPClient createInsecureClient() throws Exception {
     FTPClient ftp = new FTPClient();
 
-    int attempts = 0;
-    while (true) {
-      try {
-        ftp.connect(FTP_SERVER, Integer.parseInt(FTP_PORT.getPort()));
-        break;
-      } catch (SocketException e) {
-        // a socket exception can be thrown if the ftp server is still in the process of coming up
-        // or down
-        Thread.sleep(1000);
-        if (attempts++ > 30) {
-          throw e;
-        }
-      }
-    }
+    RetryPolicy retryPolicy = new RetryPolicy().withMaxRetries(30).withDelay(1, TimeUnit.SECONDS);
+    Failsafe.with(retryPolicy)
+        .run(() -> ftp.connect(FTP_SERVER, Integer.parseInt(FTP_PORT.getPort())));
 
     showServerReply(ftp);
     int connectionReply = ftp.getReplyCode();
@@ -326,20 +317,12 @@ public class TestFtp extends AbstractIntegrationTest {
       ftps.setKeyManager(keyManager);
     }
 
-    int attempts = 0;
-    while (true) {
-      try {
-        ftps.connect(FTP_SERVER, Integer.parseInt(FTP_PORT.getPort()));
-        break;
-      } catch (SocketException e) {
-        // a socket exception can be thrown if the ftp server is still in the process of coming up
-        // or down
-        Thread.sleep(1000);
-        if (attempts++ > 30) {
-          throw e;
-        }
-      }
-    }
+    await()
+        .atMost(30, TimeUnit.SECONDS)
+        .pollDelay(1, TimeUnit.SECONDS)
+        .dontCatchUncaughtExceptions()
+        .until(
+            () -> successfulFtpConnection(ftps, FTP_SERVER, Integer.parseInt(FTP_PORT.getPort())));
 
     showServerReply(ftps);
     int connectionReply = ftps.getReplyCode();
@@ -400,7 +383,7 @@ public class TestFtp extends AbstractIntegrationTest {
     try (InputStream is = new ByteArrayInputStream(data.getBytes());
         OutputStream os = client.storeFileStream(fileName)) {
       byte[] bytesIn = new byte[4096];
-      int read = 0;
+      int read;
 
       while ((read = is.read(bytesIn)) != -1) {
         os.write(bytesIn, 0, read);
@@ -453,54 +436,51 @@ public class TestFtp extends AbstractIntegrationTest {
     // wait until the clientAuth configuration has taken effect at the FTP server level
     switch (clientAuth) {
       case WANT:
-        expect(
+        await(
                 "SSL handshake to succeed with FTPS client without certificate because clientAuth = \"want\"")
-            .within(SET_CLIENT_AUTH_TIMEOUT_SEC, TimeUnit.SECONDS)
-            .until(
-                () -> {
-                  FTPSClient client = null;
-                  try {
-                    client = createSecureClient(false);
-                    disconnectClient(client);
-                    return true;
-                  } catch (SSLException e) {
-                    // SSL handshake failed
-                    return false;
-                  } catch (SocketException | FTPConnectionClosedException e) {
-                    // connection failed
-                    return false;
-                  }
-                });
+            .atMost(SET_CLIENT_AUTH_TIMEOUT_SEC, TimeUnit.SECONDS)
+            .until(this::clientWithWant);
         break;
       case NEED:
-        expect(
+        await(
                 "SSL handshake to fail with FTPS client without certificate because clientAuth = \"need\"")
-            .within(SET_CLIENT_AUTH_TIMEOUT_SEC, TimeUnit.SECONDS)
-            .until(
-                () -> {
-                  FTPSClient client = null;
-                  try {
-                    client = createSecureClient(false);
-                    disconnectClient(client);
-                    return false;
-                  } catch (SSLException e) {
-                    // SSL handshake failed
-                    return true;
-                  } catch (SocketException | FTPConnectionClosedException e) {
-                    // connection failed
-                    return false;
-                  }
-                });
+            .atMost(SET_CLIENT_AUTH_TIMEOUT_SEC, TimeUnit.SECONDS)
+            .until(this::clientWithNeed);
+    }
+  }
+
+  private boolean clientWithWant() throws Exception {
+    try {
+      FTPSClient client = createSecureClient(false);
+      disconnectClient(client);
+      return true;
+    } catch (SSLException | SocketException | FTPConnectionClosedException e) {
+      // SSL handshake or connection failed
+      return false;
+    }
+  }
+
+  private boolean clientWithNeed() throws Exception {
+    try {
+      FTPSClient client = createSecureClient(false);
+      disconnectClient(client);
+      return false;
+    } catch (SSLException e) {
+      // SSL handshake failed
+      return true;
+    } catch (SocketException | FTPConnectionClosedException e) {
+      // connection failed
+      return false;
     }
   }
 
   private void verifyIngest(int expectedResults, String expectedTitle) {
     // verify FTP PUT resulted in ingest, catalogued data
-    expect(
+    await(
             String.format(
                 "Failed to verify FTP ingest expectedResult(s) of %d and expectedTitle of %s",
                 expectedResults, expectedTitle))
-        .within(VERIFY_INGEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+        .atMost(VERIFY_INGEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .until(
             () -> {
               final Response response =
@@ -513,9 +493,13 @@ public class TestFtp extends AbstractIntegrationTest {
                       .xmlPath()
                       .get("metacards.metacard.string.findAll { it.@name == 'title' }.value");
 
-              boolean success = numOfResults == expectedResults && title.equals(expectedTitle);
-
-              return success;
+              return numOfResults == expectedResults && title.equals(expectedTitle);
             });
+  }
+
+  private boolean successfulFtpConnection(FTPClient client, String server, int port)
+      throws IOException {
+    client.connect(server, port);
+    return true;
   }
 }
