@@ -29,19 +29,26 @@
 |
 |Yes
 
+|Authentication Type
+|authenticationType
+|String
+|The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.
+|saml
+|true
+
 |Username
 |username
 |String
-|Username to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the Confluence endpoint requires basic authentication.
-|
-|No
+|Username for WFS Service. Required if basic authentication type is selected.
+|null
+|false
 
 |Password
 |password
 |Password
-|Password to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the Confluence endpoint requires basic authentication.
-|
-|No
+|Password for WFS Service. Required if basic authentication type is selected.
+|null
+|false
 
 |Include Page Contents In Results
 |includePageContent
