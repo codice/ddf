@@ -79,6 +79,7 @@ import org.codice.ddf.catalog.content.monitor.configurators.KeystoreTruststoreCo
 import org.codice.ddf.catalog.content.monitor.features.CamelFeatures;
 import org.codice.ddf.catalog.content.monitor.features.CxfFeatures;
 import org.codice.ddf.catalog.content.monitor.features.KarafSpringFeatures;
+import org.codice.ddf.catalog.content.monitor.features.SecurityFeatures;
 import org.codice.ddf.catalog.content.monitor.features.TinkFeatures;
 import org.codice.ddf.catalog.content.monitor.util.BundleInfo;
 import org.codice.ddf.test.common.ComponentTestRunner;
@@ -96,6 +97,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 import org.ops4j.io.FileUtils;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.tinybundles.core.TinyBundles;
@@ -238,6 +240,15 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
   @Override
   protected Option setupDistribution() {
     return composite(
+        KarafDistributionOption.editConfigurationFilePut(
+            "etc/custom.properties",
+            "org.osgi.framework.system.packages.extra",
+            new StringBuilder()
+                .append("sun.misc,")
+                .append("javax.annotation;version=1.0.0,")
+                .append("javax.annotation;version=1.3.2,")
+                .append("javax.annotation;version=3.0.2")
+                .toString()),
         KarafSpringFeatures.start("spring"),
         CamelFeatures.start("camel"),
         CxfFeatures.start(
@@ -247,6 +258,7 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
             "cxf-ws-security",
             "cxf-frontend-javascript",
             "cxf-jaxrs"),
+        SecurityFeatures.start("security-core-api"),
         TinkFeatures.start("tink-test-dependencies"),
         keystoreAndTruststoreConfig(),
         initContentDirectoryMonitorConfig(),

@@ -144,9 +144,16 @@
         <bundle start-level="25" dependency='true'>
             mvn:io.dropwizard.metrics/metrics-core/${cxf.dropwizard.version}
         </bundle>
+
+        <!--  TODO (https://github.com/codice/ddf/issues/5327)
+                Remove wrapped OpenSAML after security refactor is complete  -->
+        <!--  <bundle start-level="25" dependency="true">-->
+        <!--  mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${cxf.opensaml.osgi.version}-->
+        <!--  </bundle>-->
         <bundle start-level="25" dependency="true">
-            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.opensaml/${cxf.opensaml.osgi.version}
+            mvn:ddf.lib.bundles/libs-bundles-opensaml/${project.version}
         </bundle>
+
         <bundle start-level="25">mvn:org.jvnet.staxex/stax-ex/${cxf.stax-ex.version}</bundle>
         <bundle start-level="25">
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.saaj-impl/${cxf.saaj-impl.bundle.version}

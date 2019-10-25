@@ -225,6 +225,7 @@
                         </Export-Package>
                         <Import-Package>
                             org.opensaml.xmlsec.signature.support.provider,
+                            org.opensaml.*;version="${opensaml.version}",
                             *
                         </Import-Package>
                     </instructions>
