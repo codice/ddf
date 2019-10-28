@@ -13,24 +13,37 @@
  */
 package ddf.catalog.metrics.source;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import ddf.catalog.metrics.source.SourceMetricsImpl.SourceMetric;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.operation.ProcessingDetails;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.impl.ProcessingDetailsImpl;
+import ddf.catalog.plugin.PluginExecutionException;
+import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.FederatedSource;
-import ddf.catalog.source.SourceMetrics;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.DistributionSummary;
-import java.util.Collections;
+import ddf.catalog.source.Source;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static ddf.catalog.source.SourceMetrics.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+//import ddf.catalog.source.SourceMetrics;
 
 public class SourceMetricsImplTest {
 
@@ -42,205 +55,54 @@ public class SourceMetricsImplTest {
 
   private FederatedSource fedSource;
 
-  @Test
-  public void testAddDeleteSource() throws Exception {
-    String sourceId = "cp-1";
-    String metricName = SourceMetrics.QUERIES_SCOPE;
+  private SourceMetricsImpl sourceMetricsImpl;
 
-    sourceMetrics = configureSourceMetrics(sourceId);
-    addSource();
+  private MeterRegistry meterRegistry;
 
-    String key = sourceId + "." + metricName;
-    SourceMetric sourceMetric = sourceMetrics.metrics.get(key);
-    assertThat(sourceMetric, not(nullValue()));
-
-    sourceMetrics.deletingSource(catalogProvider, null);
-    sourceMetric = sourceMetrics.metrics.get(key);
-    assertThat(sourceMetric, is(nullValue()));
+  @Before
+  public void init() {
+    meterRegistry = new SimpleMeterRegistry();
+    MeterRegistryService meterRegistryService = mock(MeterRegistryService.class);
+    when(meterRegistryService.getMeterRegistry()).thenReturn(meterRegistry);
+    sourceMetricsImpl = new SourceMetricsImpl(meterRegistryService);
   }
 
   @Test
-  public void testNewSource() throws Exception {
-    String sourceId = "cp-1";
-    String metricName = SourceMetrics.QUERIES_SCOPE;
-
-    sourceMetrics = configureSourceMetrics(sourceId);
-    sourceMetrics.updateMetric(sourceId, metricName, 1);
-
-    assertMetricCount(sourceId, metricName, 1);
+  public void testRequestCounterForQueryRequest() throws PluginExecutionException, StopProcessingException {
+    Source source = mock(Source.class);
+    when(source.getId()).thenReturn("testSource");
+    QueryRequest queryRequest = mock(QueryRequest.class);
+    sourceMetricsImpl.process(source, queryRequest);
+    String suffix = METRICS_PREFIX + "." + QUERY_SCOPE + "." + REQUEST_TYPE;
+    assertThat(meterRegistry.counter("testSource" + "." + suffix).count(), is(1.0));
   }
 
   @Test
-  public void testSourceIdChanged() throws Exception {
-    String sourceId = "cp-1";
-    String metricName = SourceMetrics.QUERIES_SCOPE;
+  public void testExceptionCounterForQueryResponse() throws PluginExecutionException, StopProcessingException {
+    QueryResponse queryResponse = mock(QueryResponse.class);
+    Set<ProcessingDetails> processingDetails = Stream.of(
+      new ProcessingDetailsImpl("testSource", new Exception())
+    ).collect(Collectors.toSet());
+    when(queryResponse.getProcessingDetails()).thenReturn(processingDetails);
+    sourceMetricsImpl.process(queryResponse);
+    String suffix = METRICS_PREFIX + "." + QUERY_SCOPE + "." + EXCEPTION_TYPE;
+    assertThat(meterRegistry.counter("testSource" + "." + suffix).count(), is(1.0));
 
-    sourceMetrics = configureSourceMetrics(sourceId);
-
-    // Simulate initial creation of Source
-    addSource();
-
-    // Simulate changing Source's name
-    String newSourceId = "cp-new";
-    when(catalogProvider.getId()).thenReturn(newSourceId);
-
-    sourceMetrics.updateMetric(newSourceId, metricName, 1);
-
-    assertMetricCount(newSourceId, metricName, 1);
   }
 
   @Test
-  public void testSourceCreatedWithNullId() throws Exception {
-    String sourceId = null;
-    String metricName = SourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE;
-
-    sourceMetrics = configureSourceMetrics(sourceId);
-
-    // Simulate initial creation of Source
-    addSource();
-
-    // Simulate changing Source's name
-    String newSourceId = "cp-1";
-    when(catalogProvider.getId()).thenReturn(newSourceId);
-
-    sourceMetrics.updateMetric(newSourceId, metricName, 1);
-
-    assertMetricCount(newSourceId, metricName, 1);
-  }
-
-  @Test
-  public void testUpdateNonExistingSourceMetric() throws Exception {
-    String sourceId = "existing-source";
-    String metricName = SourceMetrics.QUERIES_SCOPE;
-
-    sourceMetrics = configureSourceMetrics(sourceId);
-
-    String nonExistingSourceId = "non-existing-source-id";
-    sourceMetrics.updateMetric(nonExistingSourceId, metricName, 1);
-
-    String key = nonExistingSourceId + "." + metricName;
-    SourceMetric sourceMetric = sourceMetrics.metrics.get(key);
-    assertThat(sourceMetric, is(nullValue()));
-  }
-
-  @Test
-  public void testUpdateMetricForEmptySourceId() throws Exception {
-    String sourceId = "existing-source";
-    String metricName = SourceMetrics.QUERIES_SCOPE;
-
-    sourceMetrics = configureSourceMetrics(sourceId);
-
-    sourceMetrics.updateMetric("", metricName, 1);
-
-    assertThat(sourceMetrics.metrics.size(), is(0));
-  }
-
-  @Test
-  public void testUpdateEmptyMetricForSourceId() throws Exception {
-    String sourceId = "existing-source";
-
-    sourceMetrics = configureSourceMetrics(sourceId);
-
-    sourceMetrics.updateMetric(sourceId, "", 1);
-
-    assertThat(sourceMetrics.metrics.size(), is(0));
-  }
-
-  @Test
-  public void testUpdateNonExistentMetricForExistingSourceId() throws Exception {
-    String sourceId = "existing-source";
-
-    sourceMetrics = configureSourceMetrics(sourceId);
-
-    addSource();
-
-    sourceMetrics.updateMetric(sourceId, "invalid-metric", 1);
-
-    // Verify none of the valid metrics were updated (but they were
-    // created since this is first time this sourceId was detected by
-    // the SourceMetricsImpl)
-    assertMetricCount(sourceId, SourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE, 0);
-    assertMetricCount(sourceId, SourceMetrics.QUERIES_SCOPE, 0);
-    assertMetricCount(sourceId, SourceMetrics.EXCEPTIONS_SCOPE, 0);
-  }
-
-  @Test
-  public void testUpdateNonExistentMetricForNewSourceId() throws Exception {
-    String sourceId = "new-source";
-    String metricName = "invalid-metric";
-
-    SourceMetricsImpl sourceMetrics = configureSourceMetrics(sourceId);
-
-    sourceMetrics.updateMetric(sourceId, metricName, 1);
-
-    // Verify none of the valid metrics were updated (but they were
-    // created since this is first time this sourceId was detected by
-    // the SourceMetricsImpl)
-    assertMetricCount(sourceId, SourceMetrics.QUERIES_TOTAL_RESULTS_SCOPE, 0);
-    assertMetricCount(sourceId, SourceMetrics.QUERIES_SCOPE, 0);
-    assertMetricCount(sourceId, SourceMetrics.EXCEPTIONS_SCOPE, 0);
-  }
-
-  @Test
-  public void testDeleteSourceBlankSourceId() throws Exception {
-    String sourceId = "cp-1";
-    String metricName = SourceMetrics.QUERIES_SCOPE;
-
-    sourceMetrics = configureSourceMetrics(sourceId);
-    addSource();
-
-    // Simulate Source returning empty sourceId
-    when(catalogProvider.getId()).thenReturn("");
-
-    sourceMetrics.deletingSource(catalogProvider, null);
-
-    String key = sourceId + "." + metricName;
-    SourceMetric sourceMetric = sourceMetrics.metrics.get(key);
-    assertThat(sourceMetric, not(nullValue()));
-
-    sourceMetrics.deletingSource(null, null);
-
-    key = sourceId + "." + metricName;
-    sourceMetric = sourceMetrics.metrics.get(key);
-    assertThat(sourceMetric, not(nullValue()));
-  }
-
-  /** ********************************************************************************* */
-  private SourceMetricsImpl configureSourceMetrics(String sourceId) throws Exception {
-
-    catalogProvider = mock(CatalogProvider.class);
-    when(catalogProvider.getId()).thenReturn(sourceId);
-
-    fedSource = mock(FederatedSource.class);
-    when(fedSource.getId()).thenReturn("fs-1");
-
-    sourceMetrics = new SourceMetricsImpl(mock(MeterRegistryService.class));
-    sourceMetrics.setCatalogProviders(Collections.singletonList(catalogProvider));
-    sourceMetrics.setFederatedSources(Collections.singletonList(fedSource));
-
-    assertThat(sourceMetrics, not(nullValue()));
-
-    return sourceMetrics;
-  }
-
-  private void addSource() throws Exception {
-    // Do not call addingSource() because it starts createSourceMetrics()
-    // in a separate thread hence predictable results are not assured
-    // sourceMetrics.addingSource(catalogProvider, null);
-
-    sourceMetrics.createSourceMetrics(catalogProvider);
-  }
-
-  private void assertMetricCount(String sourceId, String metricName, int expectedCount) {
-    String key = sourceId + "." + metricName;
-    SourceMetric sourceMetric = sourceMetrics.metrics.get(key);
-
-    if (sourceMetric.isHistogram()) {
-      DistributionSummary histogram = (DistributionSummary) sourceMetric.getMetric();
-      assertThat(histogram.count(), is((long) expectedCount));
-    } else {
-      Counter meter = (Counter) sourceMetric.getMetric();
-      assertThat(meter.count(), is((long) expectedCount));
-    }
+  public void testResponseCounterForQueryResponse() throws PluginExecutionException, StopProcessingException {
+    Metacard metacard = mock(Metacard.class);
+    when(metacard.getSourceId()).thenReturn("testSource");
+    Result result = mock(Result.class);
+    when(result.getMetacard()).thenReturn(metacard);
+    List<Result> results = Stream.of(
+            result
+    ).collect(Collectors.toList());
+    QueryResponse queryResponse = mock(QueryResponse.class);
+    when(queryResponse.getResults()).thenReturn(results);
+    sourceMetricsImpl.process(queryResponse);
+    String suffix = METRICS_PREFIX + "." + QUERY_SCOPE + "." + RESPONSE_TYPE;
+    assertThat(meterRegistry.find("testSource" + "." + suffix).counter().count(), is(1.0));
   }
 }
