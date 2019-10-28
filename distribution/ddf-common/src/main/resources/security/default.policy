@@ -634,7 +634,7 @@ grant
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
-grant codeBase "file:/security-servlet-session-expiry" {
+grant codeBase "file:/security-servlet-session-expiry/security-pki-realm" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}signature.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}encryption.properties", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverTruststore.jks", "read";

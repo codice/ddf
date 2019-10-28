@@ -37,6 +37,7 @@ import org.codice.ddf.platform.filter.AuthenticationFailureException;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.HandlerResult.Status;
@@ -278,7 +279,10 @@ public class WebSSOFilter implements SecurityFilter {
                 result.getToken().getClass().getName(),
                 result.getToken().getClass().getClassLoader());
           }
-          result.getToken().setAllowGuest(contextPolicyManager.getGuestAccess());
+          if (result.getToken() instanceof BaseAuthenticationToken) {
+            ((BaseAuthenticationToken) result.getToken())
+                .setAllowGuest(contextPolicyManager.getGuestAccess());
+          }
           httpRequest.setAttribute(AUTHENTICATION_TOKEN_KEY, result);
           break;
         default:

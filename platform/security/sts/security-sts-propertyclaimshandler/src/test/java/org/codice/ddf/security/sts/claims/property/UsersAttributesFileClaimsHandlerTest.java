@@ -23,20 +23,21 @@ import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.security.claims.ClaimsCollection;
+import ddf.security.claims.ClaimsParameters;
+import ddf.security.claims.impl.ClaimImpl;
+import ddf.security.claims.impl.ClaimsCollectionImpl;
+import ddf.security.claims.impl.ClaimsParametersImpl;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.security.Principal;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
-import org.apache.cxf.rt.security.claims.Claim;
-import org.apache.cxf.rt.security.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,34 +54,6 @@ public class UsersAttributesFileClaimsHandlerTest {
   }
 
   @Test
-  public void testGetSupportedClaimTypes() throws IOException {
-    // given
-    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
-
-    final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
-        new UsersAttributesFileClaimsHandler();
-    usersAttributesFileClaimsHandler.setUsersAttributesFileLocation(
-        getPathForValidTestAttributesFile());
-
-    // when
-    final List<URI> supportedClaimTypes = usersAttributesFileClaimsHandler.getSupportedClaimTypes();
-
-    // then
-    assertThat(
-        supportedClaimTypes,
-        containsInAnyOrder(
-            URI.create("Clearance"),
-            URI.create("CountryOfAffiliation"),
-            URI.create("classification"),
-            URI.create("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"),
-            URI.create("ownerProducer"),
-            URI.create("releasableTo"),
-            URI.create("FineAccessControls"),
-            URI.create("disseminationControls"),
-            URI.create("reg")));
-  }
-
-  @Test
   public void testRetrieveClaimValuesTestHostname() throws IOException {
     // given
     System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
@@ -90,49 +63,46 @@ public class UsersAttributesFileClaimsHandlerTest {
     usersAttributesFileClaimsHandler.setUsersAttributesFileLocation(
         getPathForValidTestAttributesFile());
 
-    final ClaimCollection claimCollection = getClaimCollectionForValidTestAttributesFile();
+    final ClaimsCollection ClaimsCollection = getClaimsCollectionForValidTestAttributesFile();
 
-    final ClaimsParameters testHostnameClaimsParameters = new ClaimsParameters();
     final Principal principal = mock(Principal.class);
     when(principal.getName()).thenReturn("testHostname");
-    testHostnameClaimsParameters.setPrincipal(principal);
+    final ClaimsParameters testHostnameClaimsParameters =
+        new ClaimsParametersImpl(principal, new HashSet<>(), new HashMap<>());
 
     // when
-    final ProcessedClaimCollection processedClaims =
-        usersAttributesFileClaimsHandler.retrieveClaimValues(
-            claimCollection, testHostnameClaimsParameters);
+    final ClaimsCollection processedClaims =
+        usersAttributesFileClaimsHandler.retrieveClaims(testHostnameClaimsParameters);
 
     // then
     assertThat(
         processedClaims,
         containsInAnyOrder(
             allOf(
-                hasProperty("claimType", is(URI.create("Clearance"))),
+                hasProperty("name", is("Clearance")),
                 hasProperty("values", containsInAnyOrder("U"))),
             allOf(
-                hasProperty("claimType", is(URI.create("CountryOfAffiliation"))),
+                hasProperty("name", is("CountryOfAffiliation")),
                 hasProperty("values", containsInAnyOrder("USA"))),
             allOf(
-                hasProperty("claimType", is(URI.create("classification"))),
+                hasProperty("name", is("classification")),
                 hasProperty("values", containsInAnyOrder("U"))),
             allOf(
                 hasProperty(
-                    "claimType",
-                    is(
-                        URI.create(
-                            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"))),
+                    "name",
+                    is("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")),
                 hasProperty("values", containsInAnyOrder("system@testHostname"))),
             allOf(
-                hasProperty("claimType", is(URI.create("ownerProducer"))),
+                hasProperty("name", is("ownerProducer")),
                 hasProperty("values", containsInAnyOrder("USA"))),
             allOf(
-                hasProperty("claimType", is(URI.create("releasableTo"))),
+                hasProperty("name", is("releasableTo")),
                 hasProperty("values", containsInAnyOrder("USA"))),
             allOf(
-                hasProperty("claimType", is(URI.create("FineAccessControls"))),
+                hasProperty("name", is("FineAccessControls")),
                 hasProperty("values", containsInAnyOrder("SCI1", "SCI2"))),
             allOf(
-                hasProperty("claimType", is(URI.create("disseminationControls"))),
+                hasProperty("name", is("disseminationControls")),
                 hasProperty("values", containsInAnyOrder("NF")))));
   }
 
@@ -146,18 +116,17 @@ public class UsersAttributesFileClaimsHandlerTest {
     usersAttributesFileClaimsHandler.setUsersAttributesFileLocation(
         getPathForValidTestAttributesFile());
 
-    final ClaimCollection claimCollection = getClaimCollectionForValidTestAttributesFile();
+    final ClaimsCollection ClaimsCollection = getClaimsCollectionForValidTestAttributesFile();
 
     final ClaimsParameters localhostClaimsParameters;
-    localhostClaimsParameters = new ClaimsParameters();
     final Principal principal = mock(Principal.class);
     when(principal.getName()).thenReturn("admin");
-    localhostClaimsParameters.setPrincipal(principal);
+    localhostClaimsParameters =
+        new ClaimsParametersImpl(principal, new HashSet<>(), new HashMap<>());
 
     // when
-    final ProcessedClaimCollection processedClaims =
-        usersAttributesFileClaimsHandler.retrieveClaimValues(
-            claimCollection, localhostClaimsParameters);
+    final ClaimsCollection processedClaims =
+        usersAttributesFileClaimsHandler.retrieveClaims(localhostClaimsParameters);
 
     // then
     assertThat(
@@ -165,10 +134,8 @@ public class UsersAttributesFileClaimsHandlerTest {
         contains(
             allOf(
                 hasProperty(
-                    "claimType",
-                    is(
-                        URI.create(
-                            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"))),
+                    "name",
+                    is("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")),
                 hasProperty("values", containsInAnyOrder("admin@testHostname")))));
   }
 
@@ -182,25 +149,23 @@ public class UsersAttributesFileClaimsHandlerTest {
     usersAttributesFileClaimsHandler.setUsersAttributesFileLocation(
         getPathForValidTestAttributesFile());
 
-    final ClaimCollection claimCollection = getClaimCollectionForValidTestAttributesFile();
+    final ClaimsCollection ClaimsCollection = getClaimsCollectionForValidTestAttributesFile();
 
-    final ClaimsParameters regexClaimsParameters = new ClaimsParameters();
     final Principal principal = mock(Principal.class);
     when(principal.getName()).thenReturn("myhostname");
-    regexClaimsParameters.setPrincipal(principal);
+    final ClaimsParameters regexClaimsParameters =
+        new ClaimsParametersImpl(principal, new HashSet<>(), new HashMap<>());
 
     // when
-    ProcessedClaimCollection processedClaims =
-        usersAttributesFileClaimsHandler.retrieveClaimValues(
-            claimCollection, regexClaimsParameters);
+    ClaimsCollection processedClaims =
+        usersAttributesFileClaimsHandler.retrieveClaims(regexClaimsParameters);
 
     // then
     assertThat(
         processedClaims,
         contains(
             allOf(
-                hasProperty("claimType", is(URI.create("reg"))),
-                hasProperty("values", containsInAnyOrder("ex")))));
+                hasProperty("name", is("reg")), hasProperty("values", containsInAnyOrder("ex")))));
   }
 
   @Test
@@ -213,39 +178,16 @@ public class UsersAttributesFileClaimsHandlerTest {
     usersAttributesFileClaimsHandler.setUsersAttributesFileLocation(
         getPathForValidTestAttributesFile());
 
-    final ClaimCollection claimCollection = getClaimCollectionForValidTestAttributesFile();
+    final ClaimsCollection ClaimsCollection = getClaimsCollectionForValidTestAttributesFile();
 
-    final ClaimsParameters unknownClaimsParameters = new ClaimsParameters();
     final Principal principal = mock(Principal.class);
     when(principal.getName()).thenReturn("someNameThat'sNotInTheUsersAttributesFile");
-    unknownClaimsParameters.setPrincipal(principal);
+    final ClaimsParameters unknownClaimsParameters =
+        new ClaimsParametersImpl(principal, new HashSet<>(), new HashMap<>());
 
     // when
-    final ProcessedClaimCollection processedClaims =
-        usersAttributesFileClaimsHandler.retrieveClaimValues(
-            claimCollection, unknownClaimsParameters);
-
-    // then
-    assertThat(processedClaims, is(empty()));
-  }
-
-  @Test
-  public void testRetrieveClaimsValuesNullPrincipal() throws IOException {
-    // when
-    System.setProperty(SystemBaseUrl.INTERNAL_HOST, "testHostname");
-
-    final UsersAttributesFileClaimsHandler usersAttributesFileClaimsHandler =
-        new UsersAttributesFileClaimsHandler();
-    usersAttributesFileClaimsHandler.setUsersAttributesFileLocation(
-        getPathForValidTestAttributesFile());
-
-    final ClaimsParameters claimsParameters = new ClaimsParameters();
-
-    final ClaimCollection claimCollection = new ClaimCollection();
-
-    // given
-    final ProcessedClaimCollection processedClaims =
-        usersAttributesFileClaimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
+    final ClaimsCollection processedClaims =
+        usersAttributesFileClaimsHandler.retrieveClaims(unknownClaimsParameters);
 
     // then
     assertThat(processedClaims, is(empty()));
@@ -405,7 +347,7 @@ public class UsersAttributesFileClaimsHandlerTest {
     return createAttributeFilePathFromResourceFileName("users.attributes");
   }
 
-  private static ClaimCollection getClaimCollectionForValidTestAttributesFile() {
+  private static ClaimsCollection getClaimsCollectionForValidTestAttributesFile() {
     // all attribute names in resources/users.attributes
     final String[] attributeNames = {
       "Clearance",
@@ -420,13 +362,8 @@ public class UsersAttributesFileClaimsHandlerTest {
     };
 
     return Arrays.stream(attributeNames)
-        .map(
-            attributeName -> {
-              final Claim claim = new Claim();
-              claim.setClaimType(URI.create(attributeName));
-              return claim;
-            })
-        .collect(Collectors.toCollection(ClaimCollection::new));
+        .map(ClaimImpl::new)
+        .collect(Collectors.toCollection(ClaimsCollectionImpl::new));
   }
 
   private String createAttributeFilePathFromResourceFileName(final String resourceFileName)

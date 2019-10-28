@@ -13,17 +13,14 @@
  */
 package ddf.security.sts.claimsHandler;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import ddf.security.claims.Claim;
+import ddf.security.claims.ClaimsCollection;
+import ddf.security.claims.ClaimsHandler;
+import ddf.security.claims.ClaimsParameters;
+import ddf.security.claims.impl.ClaimImpl;
+import ddf.security.claims.impl.ClaimsCollectionImpl;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import org.apache.cxf.rt.security.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsHandler;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.ProcessedClaim;
-import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.forgerock.opendj.ldap.Attribute;
 import org.forgerock.opendj.ldap.ByteString;
 import org.forgerock.opendj.ldap.Connection;
@@ -85,18 +82,6 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
   public RoleClaimsHandler(AttributeMapLoader attributeMapLoader) {
     this.attributeMapLoader = attributeMapLoader;
-  }
-
-  public URI getRoleURI() {
-    URI uri = null;
-    try {
-      uri = new URI(roleClaimType);
-    } catch (URISyntaxException e) {
-      LOGGER.info(
-          "Unable to add role claim type. Set log level for \"ddf.security.sts.claimsHandler\" to DEBUG for more information.");
-      LOGGER.debug("Unable to add role claim type.", e);
-    }
-    return uri;
   }
 
   public String getPropertyFileLocation() {
@@ -213,18 +198,9 @@ public class RoleClaimsHandler implements ClaimsHandler {
   }
 
   @Override
-  public List<URI> getSupportedClaimTypes() {
-    List<URI> uriList = new ArrayList<>();
-    uriList.add(getRoleURI());
-
-    return uriList;
-  }
-
-  @Override
-  public ProcessedClaimCollection retrieveClaimValues(
-      ClaimCollection claims, ClaimsParameters parameters) {
+  public ClaimsCollection retrieveClaims(ClaimsParameters parameters) {
     String[] attributes = {groupNameAttribute, memberNameAttribute};
-    ProcessedClaimCollection claimsColl = new ProcessedClaimCollection();
+    ClaimsCollection claimsColl = new ClaimsCollectionImpl();
     Connection connection = null;
     try {
       Principal principal = parameters.getPrincipal();
@@ -233,7 +209,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
       if (user == null) {
         LOGGER.info(
             "Could not determine user name, possible authentication error. Returning no claims.");
-        return new ProcessedClaimCollection();
+        return new ClaimsCollectionImpl();
       }
 
       connection = connectionFactory.getConnection();
@@ -308,15 +284,13 @@ public class RoleClaimsHandler implements ClaimsHandler {
               if (attr == null) {
                 LOGGER.trace("Claim '{}' is null", roleClaimType);
               } else {
-                ProcessedClaim c = new ProcessedClaim();
-                c.setClaimType(getRoleURI());
-                c.setPrincipal(principal);
+                Claim claim = new ClaimImpl(roleClaimType);
 
                 for (ByteString value : attr) {
                   String itemValue = value.toString();
-                  c.addValue(itemValue);
+                  claim.addValue(itemValue);
                 }
-                claimsColl.add(c);
+                claimsColl.add(claim);
               }
             } else {
               // Got a continuation reference

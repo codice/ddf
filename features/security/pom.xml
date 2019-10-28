@@ -29,6 +29,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.security.realm</groupId>
+            <artifactId>security-pki-realm</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.realm</groupId>
+            <artifactId>security-userpass-realm</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
             <version>${project.version}</version>

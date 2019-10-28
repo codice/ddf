@@ -65,6 +65,6 @@
         <argument value="${ddf.etc}/ws-security/server/signature.properties"/>
     </bean>
 
-    <service ref="attributeQueryHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
+    <service ref="attributeQueryHandler" interface="ddf.security.claims.ClaimsHandler"/>
 
 </blueprint>

@@ -28,15 +28,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
+import ddf.security.claims.Claim;
+import ddf.security.claims.ClaimsCollection;
+import ddf.security.claims.ClaimsParameters;
 import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.cxf.rt.security.claims.Claim;
-import org.apache.cxf.rt.security.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.ConnectionFactory;
@@ -54,11 +52,7 @@ public class LdapClaimsHandlerTest {
 
   public static final String BINDING_TYPE = "Simple";
 
-  public static final String BIND_USER_DN = "cn=admin";
-
   public static final String BIND_USER_CREDENTIALS = "test";
-
-  public static final String REALM = "kualdgalain";
 
   public static final String KCD = "Kerberos Constrained Delegation";
 
@@ -78,8 +72,6 @@ public class LdapClaimsHandlerTest {
   BindRequest mockBindRequest;
 
   Connection mockConnection;
-
-  ClaimCollection claims;
 
   ConnectionEntryReader mockEntryReader;
 
@@ -124,36 +116,28 @@ public class LdapClaimsHandlerTest {
     claimsHandler.setPropertyFileLocation("thisstringisnotempty");
     claimsHandler.setBindMethod(BINDING_TYPE);
     claimsHandler.setBindUserCredentials(BIND_USER_CREDENTIALS);
-    claimsHandler.setRealm(REALM);
     claimsHandler.setKdcAddress(KCD);
     claimsHandler.setUserBaseDN(USER_BASE_DN);
-    claims = new ClaimCollection();
-    Claim claim = new Claim();
-    claim.setClaimType(new URI(NAME_IDENTIFIER_CLAIM_URI));
-    claims.add(claim);
   }
 
   @Test
   public void testUnsuccessfulConnectionBind() throws LdapException {
     when(mockBindResult.isSuccess()).thenReturn(false);
-    ProcessedClaimCollection testClaimCollection =
-        claimsHandler.retrieveClaimValues(new ClaimCollection(), claimsParameters);
+    ClaimsCollection testClaimCollection = claimsHandler.retrieveClaims(claimsParameters);
     assertThat(testClaimCollection.isEmpty(), is(true));
   }
 
   @Test
   public void testRetrieveClaimsValuesNullPrincipal() throws LdapException {
     when(mockBindResult.isSuccess()).thenReturn(false);
-    ProcessedClaimCollection processedClaims =
-        claimsHandler.retrieveClaimValues(new ClaimCollection(), claimsParameters);
+    ClaimsCollection processedClaims = claimsHandler.retrieveClaims(claimsParameters);
     assertThat(processedClaims.size(), CoreMatchers.is(equalTo(0)));
   }
 
   @Test
   public void testRetrieveClaimsValues() throws URISyntaxException, LdapException {
     when(mockBindResult.isSuccess()).thenReturn(true);
-    ProcessedClaimCollection processedClaims =
-        claimsHandler.retrieveClaimValues(claims, claimsParameters);
+    ClaimsCollection processedClaims = claimsHandler.retrieveClaims(claimsParameters);
 
     assertThat(processedClaims, hasSize(1));
     Claim claim = processedClaims.get(0);

@@ -13,7 +13,6 @@
  */
 package ddf.security.realm.sts;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -22,7 +21,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -30,21 +28,17 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
-import org.codice.ddf.security.handler.api.STSAuthenticationToken;
-import org.codice.ddf.security.policy.context.ContextPolicy;
-import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class StsRealmTest {
+public class SamlRealmTest {
 
   @BeforeClass
   public static void setupClass() throws Exception {
@@ -67,8 +61,9 @@ public class StsRealmTest {
 
   @Test
   public void testSupports() {
-    StsRealm realm = new StsRealm();
-    AuthenticationToken authenticationToken = mock(SAMLAuthenticationToken.class);
+    SamlRealm realm = new SamlRealm();
+    org.apache.shiro.authc.AuthenticationToken authenticationToken =
+        mock(SAMLAuthenticationToken.class);
     when(authenticationToken.getCredentials()).thenReturn("creds");
     boolean supports = realm.supports(authenticationToken);
     assertTrue(supports);
@@ -78,12 +73,12 @@ public class StsRealmTest {
     supports = realm.supports(authenticationToken);
     assertFalse(supports);
 
-    authenticationToken = mock(STSAuthenticationToken.class);
+    authenticationToken = mock(SAMLAuthenticationToken.class);
     when(authenticationToken.getCredentials()).thenReturn("creds");
     supports = realm.supports(authenticationToken);
     assertTrue(supports);
 
-    authenticationToken = mock(STSAuthenticationToken.class);
+    authenticationToken = mock(SAMLAuthenticationToken.class);
     when(authenticationToken.getCredentials()).thenReturn(null);
     supports = realm.supports(authenticationToken);
     assertFalse(supports);
@@ -96,8 +91,8 @@ public class StsRealmTest {
   @Test
   public void testDoGetAuthenticationInfoSAML()
       throws ParserConfigurationException, SAXException, IOException {
-    StsRealm realm =
-        new StsRealm() {
+    SamlRealm realm =
+        new SamlRealm() {
           protected SecurityToken renewSecurityToken(SecurityToken securityToken) {
             return securityToken;
           }
@@ -109,7 +104,8 @@ public class StsRealmTest {
     Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
     String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();
     SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
-    AuthenticationToken authenticationToken = mock(SAMLAuthenticationToken.class);
+    org.apache.shiro.authc.AuthenticationToken authenticationToken =
+        mock(SAMLAuthenticationToken.class);
     when(authenticationToken.getCredentials()).thenReturn(token);
 
     AuthenticationInfo authenticationInfo = realm.doGetAuthenticationInfo(authenticationToken);
@@ -124,8 +120,8 @@ public class StsRealmTest {
     Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
     String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();
     final SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
-    StsRealm realm =
-        new StsRealm() {
+    SamlRealm realm =
+        new SamlRealm() {
           protected SecurityToken requestSecurityToken(Object obj) {
             return token;
           }
@@ -135,45 +131,13 @@ public class StsRealmTest {
           }
         };
 
-    STSAuthenticationToken authenticationToken = mock(STSAuthenticationToken.class);
+    BaseAuthenticationToken authenticationToken = mock(BaseAuthenticationToken.class);
     when(authenticationToken.getCredentialsAsString()).thenReturn("creds");
 
     AuthenticationInfo authenticationInfo = realm.doGetAuthenticationInfo(authenticationToken);
 
     assertNotNull(authenticationInfo.getCredentials());
     assertNotNull(authenticationInfo.getPrincipals());
-  }
-
-  @Test
-  public void testCreateClaimsElement() {
-    StsRealm stsRealm = new StsRealm();
-    stsRealm.setClaims(Arrays.asList("claim1", "claim2", "claim3"));
-    ContextPolicyManager contextPolicyManager = mock(ContextPolicyManager.class);
-    ContextPolicy policy1 = mock(ContextPolicy.class);
-    ContextPolicy policy2 = mock(ContextPolicy.class);
-    when(policy1.getAllowedAttributeNames()).thenReturn(Arrays.asList("claim4", "claim5"));
-    when(policy2.getAllowedAttributeNames()).thenReturn(Arrays.asList("claim6", "claim7"));
-    when(contextPolicyManager.getAllContextPolicies()).thenReturn(Arrays.asList(policy1, policy2));
-    stsRealm.setContextPolicyManager(contextPolicyManager);
-
-    Element claimsElement = stsRealm.createClaimsElement();
-    assertNotNull(claimsElement);
-    NodeList childNodes = claimsElement.getChildNodes();
-    assertEquals("claim1", childNodes.item(0).getAttributes().item(1).getTextContent());
-    assertEquals("claim2", childNodes.item(1).getAttributes().item(1).getTextContent());
-    assertEquals("claim3", childNodes.item(2).getAttributes().item(1).getTextContent());
-    assertEquals("claim4", childNodes.item(3).getAttributes().item(1).getTextContent());
-    assertEquals("claim5", childNodes.item(4).getAttributes().item(1).getTextContent());
-    assertEquals("claim6", childNodes.item(5).getAttributes().item(1).getTextContent());
-    assertEquals("claim7", childNodes.item(6).getAttributes().item(1).getTextContent());
-  }
-
-  @Test
-  public void testAddClaimsAsString() {
-    StsRealm stsRealm = new StsRealm();
-    assertEquals(0, stsRealm.getClaims().size());
-    stsRealm.setClaims("claim1,claim2,claim3");
-    assertEquals(3, stsRealm.getClaims().size());
   }
 
   private Document readDocument(String name)

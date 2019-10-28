@@ -19,65 +19,43 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 import ddf.security.SubjectUtils;
-import java.net.URI;
+import ddf.security.claims.ClaimsCollection;
+import ddf.security.claims.ClaimsParameters;
+import ddf.security.claims.impl.ClaimsParametersImpl;
 import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.cxf.rt.security.claims.Claim;
-import org.apache.cxf.rt.security.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.junit.Test;
 
 public class CertificateClaimsHandlerTest {
 
-  private ClaimCollection getClaims() throws URISyntaxException {
-    ClaimCollection claims = new ClaimCollection();
-    Claim claim = new Claim();
-    claim.setClaimType(new URI(SubjectUtils.COUNTRY_CLAIM_URI));
-    claims.add(claim);
-    Claim claim1 = new Claim();
-    claim1.setClaimType(new URI(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI));
-    claims.add(claim1);
-    return claims;
-  }
-
-  @Test
-  public void testGetSupportedClaimTypes() throws URISyntaxException {
-    CertificateClaimsHandler certificateClaimsHandler = new CertificateClaimsHandler();
-    List<URI> supportedClaimTypes = certificateClaimsHandler.getSupportedClaimTypes();
-    assertThat(supportedClaimTypes.size(), is(2));
-  }
-
   @Test
   public void testRetrieveClaimValuesNoCertValues() throws URISyntaxException {
     CertificateClaimsHandler certificateClaimsHandler = new CertificateClaimsHandler();
-    ClaimCollection claims = getClaims();
-    ClaimsParameters parameters = new ClaimsParameters();
-    parameters.setPrincipal(mock(Principal.class));
-    ProcessedClaimCollection processedClaims =
-        certificateClaimsHandler.retrieveClaimValues(claims, parameters);
+    ClaimsParameters parameters =
+        new ClaimsParametersImpl(mock(Principal.class), new HashSet<>(), new HashMap<>());
+    ClaimsCollection processedClaims = certificateClaimsHandler.retrieveClaims(parameters);
     assertThat(processedClaims.size(), is(0));
   }
 
   @Test
   public void testRetrieveClaimValuesWithCertValues() throws URISyntaxException {
     CertificateClaimsHandler certificateClaimsHandler = new CertificateClaimsHandler();
-    ClaimCollection claims = getClaims();
-    ClaimsParameters parameters = new ClaimsParameters();
-    parameters.setPrincipal(mock(Principal.class));
     Map<String, Object> map = new HashMap<>();
     map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, "local@localhost");
     map.put(SubjectUtils.COUNTRY_CLAIM_URI, "USA");
-    parameters.setAdditionalProperties(map);
-    ProcessedClaimCollection processedClaims =
-        certificateClaimsHandler.retrieveClaimValues(claims, parameters);
+    ClaimsParameters parameters =
+        new ClaimsParametersImpl(mock(Principal.class), new HashSet<>(), map);
+    ClaimsCollection processedClaims = certificateClaimsHandler.retrieveClaims(parameters);
     assertThat(processedClaims.size(), is(2));
     assertThat(
-        processedClaims.stream().map(c -> c.getClaimType().toString()).collect(Collectors.toList()),
+        processedClaims
+            .stream()
+            .map(ddf.security.claims.Claim::getName)
+            .collect(Collectors.toList()),
         containsInAnyOrder(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, SubjectUtils.COUNTRY_CLAIM_URI));
   }
 
@@ -86,75 +64,52 @@ public class CertificateClaimsHandlerTest {
     CertificateClaimsHandler certificateClaimsHandler = new CertificateClaimsHandler();
     certificateClaimsHandler.setCountryClaim("Country");
     certificateClaimsHandler.setEmailClaim("Email");
-    ClaimCollection claims = new ClaimCollection();
-    Claim claim = new Claim();
-    claim.setClaimType(new URI("Country"));
-    claims.add(claim);
-    Claim claim1 = new Claim();
-    claim1.setClaimType(new URI("Email"));
-    claims.add(claim1);
-    ClaimsParameters parameters = new ClaimsParameters();
-    parameters.setPrincipal(mock(Principal.class));
     Map<String, Object> map = new HashMap<>();
     map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, "local@localhost");
     map.put(SubjectUtils.COUNTRY_CLAIM_URI, "USA");
-    parameters.setAdditionalProperties(map);
-    ProcessedClaimCollection processedClaims =
-        certificateClaimsHandler.retrieveClaimValues(claims, parameters);
+    ClaimsParameters parameters =
+        new ClaimsParametersImpl(mock(Principal.class), new HashSet<>(), map);
+    ClaimsCollection processedClaims = certificateClaimsHandler.retrieveClaims(parameters);
     assertThat(processedClaims.size(), is(2));
     assertThat(
-        processedClaims.stream().map(c -> c.getClaimType().toString()).collect(Collectors.toList()),
+        processedClaims
+            .stream()
+            .map(ddf.security.claims.Claim::getName)
+            .collect(Collectors.toList()),
         containsInAnyOrder("Email", "Country"));
-  }
-
-  @Test
-  public void testRetrieveClaimValuesWithAltNamesNotRequested() throws URISyntaxException {
-    CertificateClaimsHandler certificateClaimsHandler = new CertificateClaimsHandler();
-    certificateClaimsHandler.setCountryClaim("Country");
-    certificateClaimsHandler.setEmailClaim("Email");
-    ClaimCollection claims = getClaims();
-    ClaimsParameters parameters = new ClaimsParameters();
-    parameters.setPrincipal(mock(Principal.class));
-    Map<String, Object> map = new HashMap<>();
-    map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, "local@localhost");
-    map.put(SubjectUtils.COUNTRY_CLAIM_URI, "USA");
-    parameters.setAdditionalProperties(map);
-    ProcessedClaimCollection processedClaims =
-        certificateClaimsHandler.retrieveClaimValues(claims, parameters);
-    assertThat(processedClaims.size(), is(0));
   }
 
   @Test
   public void testRetrieveClaimValuesWithEmail() throws URISyntaxException {
     CertificateClaimsHandler certificateClaimsHandler = new CertificateClaimsHandler();
-    ClaimCollection claims = getClaims();
-    ClaimsParameters parameters = new ClaimsParameters();
-    parameters.setPrincipal(mock(Principal.class));
     Map<String, Object> map = new HashMap<>();
     map.put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, "local@localhost");
-    parameters.setAdditionalProperties(map);
-    ProcessedClaimCollection processedClaims =
-        certificateClaimsHandler.retrieveClaimValues(claims, parameters);
+    ClaimsParameters parameters =
+        new ClaimsParametersImpl(mock(Principal.class), new HashSet<>(), map);
+    ClaimsCollection processedClaims = certificateClaimsHandler.retrieveClaims(parameters);
     assertThat(processedClaims.size(), is(1));
     assertThat(
-        processedClaims.stream().map(c -> c.getClaimType().toString()).collect(Collectors.toList()),
+        processedClaims
+            .stream()
+            .map(ddf.security.claims.Claim::getName)
+            .collect(Collectors.toList()),
         containsInAnyOrder(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI));
   }
 
   @Test
   public void testRetrieveClaimValuesWithCountry() throws URISyntaxException {
     CertificateClaimsHandler certificateClaimsHandler = new CertificateClaimsHandler();
-    ClaimCollection claims = getClaims();
-    ClaimsParameters parameters = new ClaimsParameters();
-    parameters.setPrincipal(mock(Principal.class));
     Map<String, Object> map = new HashMap<>();
     map.put(SubjectUtils.COUNTRY_CLAIM_URI, "USA");
-    parameters.setAdditionalProperties(map);
-    ProcessedClaimCollection processedClaims =
-        certificateClaimsHandler.retrieveClaimValues(claims, parameters);
+    ClaimsParameters parameters =
+        new ClaimsParametersImpl(mock(Principal.class), new HashSet<>(), map);
+    ClaimsCollection processedClaims = certificateClaimsHandler.retrieveClaims(parameters);
     assertThat(processedClaims.size(), is(1));
     assertThat(
-        processedClaims.stream().map(c -> c.getClaimType().toString()).collect(Collectors.toList()),
+        processedClaims
+            .stream()
+            .map(ddf.security.claims.Claim::getName)
+            .collect(Collectors.toList()),
         containsInAnyOrder(SubjectUtils.COUNTRY_CLAIM_URI));
   }
 }

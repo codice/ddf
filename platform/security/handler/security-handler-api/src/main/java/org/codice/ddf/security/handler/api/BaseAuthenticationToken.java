@@ -21,7 +21,9 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class BaseAuthenticationToken implements AuthenticationToken {
+public class BaseAuthenticationToken implements AuthenticationToken {
+
+  private AuthenticationTokenType type;
 
   private X509Certificate[] x509Certs;
 
@@ -69,6 +71,14 @@ public abstract class BaseAuthenticationToken implements AuthenticationToken {
     this.principal = principal;
     this.credentials = credentials;
     this.ip = formatIpAddress(ip);
+  }
+
+  public AuthenticationTokenType getType() {
+    return type;
+  }
+
+  public void setType(AuthenticationTokenType type) {
+    this.type = type;
   }
 
   public boolean getAllowGuest() {

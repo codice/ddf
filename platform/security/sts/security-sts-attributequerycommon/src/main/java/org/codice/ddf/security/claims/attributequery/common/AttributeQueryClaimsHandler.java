@@ -13,18 +13,21 @@
  */
 package org.codice.ddf.security.claims.attributequery.common;
 
-import com.google.common.collect.ImmutableList;
 import ddf.security.PropertiesLoader;
+import ddf.security.claims.Claim;
+import ddf.security.claims.ClaimsCollection;
+import ddf.security.claims.ClaimsHandler;
+import ddf.security.claims.ClaimsParameters;
+import ddf.security.claims.impl.ClaimImpl;
+import ddf.security.claims.impl.ClaimsCollectionImpl;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.samlp.SimpleSign;
 import java.net.InetAddress;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.Principal;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
@@ -33,15 +36,7 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
-import org.apache.cxf.jaxws.DispatchImpl;
 import org.apache.cxf.resource.URIResolver;
-import org.apache.cxf.rt.security.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsHandler;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.ProcessedClaim;
-import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
@@ -84,35 +79,15 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
   }
 
   /**
-   * Gets the supported claim types.
-   *
-   * @return List of supported claims.
-   */
-  @Override
-  public List<URI> getSupportedClaimTypes() {
-    LOGGER.debug("Getting supported claim types.");
-    List<URI> supportedClaimTypes = new ArrayList<>();
-    try {
-      for (String claim : supportedClaims) {
-        supportedClaimTypes.add(new URI(claim));
-      }
-    } catch (URISyntaxException e) {
-      LOGGER.info("Not a valid URI for claim type {}.", e);
-    }
-    return supportedClaimTypes;
-  }
-
-  /**
    * Retrieves claims from the external attribute store.
    *
-   * @param claims The collection of claims.
+   * @param parameters The subject to get claims for.
    * @return The collection of claims or an empty collection if there are no security claims.
    * @throws URISyntaxException
    */
   @Override
-  public ProcessedClaimCollection retrieveClaimValues(
-      ClaimCollection claims, ClaimsParameters parameters) {
-    ProcessedClaimCollection claimCollection = new ProcessedClaimCollection();
+  public ClaimsCollection retrieveClaims(ClaimsParameters parameters) {
+    ClaimsCollection claimCollection = new ClaimsCollectionImpl();
     Principal principal = parameters.getPrincipal();
     if (principal == null) {
       return claimCollection;
@@ -122,7 +97,7 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
 
     try {
       if (!StringUtils.isEmpty(nameId)) {
-        ProcessedClaimCollection securityClaimCollection = getAttributes(nameId);
+        ClaimsCollection securityClaimCollection = getAttributes(nameId);
         // If security claim collection came back empty, return an empty claim collection.
         if (!CollectionUtils.isEmpty(securityClaimCollection)) {
           claimCollection.addAll(securityClaimCollection);
@@ -156,8 +131,8 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
    * @return The collection of attributes retrieved from the external attribute store.
    * @throws URISyntaxException
    */
-  protected ProcessedClaimCollection getAttributes(String nameId) throws URISyntaxException {
-    ProcessedClaimCollection claimCollection = new ProcessedClaimCollection();
+  protected ClaimsCollection getAttributes(String nameId) throws URISyntaxException {
+    ClaimsCollection claimCollection = new ClaimsCollectionImpl();
 
     LOGGER.debug("Sending AttributeQuery Request.");
 
@@ -190,8 +165,7 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
    * @return The collection of claims.
    * @throws URISyntaxException
    */
-  protected ProcessedClaimCollection createClaims(
-      ProcessedClaimCollection claimsCollection, Assertion assertion) throws URISyntaxException {
+  protected ClaimsCollection createClaims(ClaimsCollection claimsCollection, Assertion assertion) {
 
     // Should only contain one Attribute Statement.
     AttributeStatement attributeStatement = assertion.getAttributeStatements().get(0);
@@ -204,11 +178,9 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
       for (String claimType : supportedClaims) {
         if (claimType.equalsIgnoreCase(attribute.getName())) {
           String claimValue = attribute.getDOM().getTextContent();
-          if (attributeMap.containsKey(claimValue)) {
-            claimsCollection.add(createSingleValuedClaim(claimType, attributeMap.get(claimValue)));
-          } else {
-            claimsCollection.add(createSingleValuedClaim(claimType, claimValue));
-          }
+          claimsCollection.add(
+              createSingleValuedClaim(
+                  claimType, attributeMap.getOrDefault(claimValue, claimValue)));
           break;
         }
       }
@@ -224,12 +196,9 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
    * @return The claim.
    * @throws URISyntaxException
    */
-  protected ProcessedClaim createSingleValuedClaim(String claimType, String claimValue)
-      throws URISyntaxException {
-    ProcessedClaim claim = new ProcessedClaim();
-
-    claim.setClaimType(new URI(claimType));
-    claim.setValues(ImmutableList.<Object>of(claimValue));
+  protected Claim createSingleValuedClaim(String claimType, String claimValue) {
+    Claim claim = new ClaimImpl(claimType);
+    claim.addValue(claimValue);
 
     LOGGER.debug("Created claim with type [{}] and value [{}].", claimType, claimValue);
 
@@ -306,16 +275,6 @@ public class AttributeQueryClaimsHandler implements ClaimsHandler {
           .put(Dispatch.ENDPOINT_ADDRESS_PROPERTY, externalAttributeStoreUrl);
       dispatch.getRequestContext().put("ws-security.signature.properties", signatureProperties);
       dispatch.getRequestContext().put("ws-security.encryption.properties", encryptionProperties);
-      ((DispatchImpl) dispatch)
-          .getClient()
-          .getBus()
-          .getOutInterceptors()
-          .add(new LoggingInInterceptor());
-      ((DispatchImpl) dispatch)
-          .getClient()
-          .getBus()
-          .getOutInterceptors()
-          .add(new LoggingOutInterceptor());
     }
     return dispatch;
   }

@@ -23,8 +23,7 @@
 
         <property name="authenticationTypes">
             <array value-type="java.lang.String">
-                <value>/=SAML</value>
-                <value>/admin=SAML|basic</value>
+                <value>/=PKI|BASIC</value>
             </array>
         </property>
         <property name="guestAccess" value="true" />

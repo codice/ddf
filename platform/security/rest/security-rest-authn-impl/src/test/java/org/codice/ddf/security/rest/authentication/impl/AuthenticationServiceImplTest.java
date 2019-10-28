@@ -34,9 +34,10 @@ import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.codice.ddf.security.handler.api.AuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -112,9 +113,10 @@ public class AuthenticationServiceImplTest {
 
     when(subject.getPrincipals()).thenReturn(collection);
 
-    BaseAuthenticationToken token =
-        new STSAuthenticationTokenFactory().fromUsernamePassword(username, password, "local");
-    when(securityManager.getSubject(argThat(new UsernamePasswordTokenMatcher(token))))
+    AuthenticationToken token =
+        new AuthenticationTokenFactory().fromUsernamePassword(username, password, "local");
+    when(securityManager.getSubject(
+            argThat(new UsernamePasswordTokenMatcher((BaseAuthenticationToken) token))))
         .thenReturn(subject);
   }
 

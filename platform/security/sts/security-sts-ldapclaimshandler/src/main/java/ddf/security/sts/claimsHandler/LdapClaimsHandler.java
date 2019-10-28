@@ -14,16 +14,17 @@
 package ddf.security.sts.claimsHandler;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.net.URI;
+import ddf.security.claims.Claim;
+import ddf.security.claims.ClaimsCollection;
+import ddf.security.claims.ClaimsHandler;
+import ddf.security.claims.ClaimsParameters;
+import ddf.security.claims.impl.ClaimImpl;
+import ddf.security.claims.impl.ClaimsCollectionImpl;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.security.auth.x500.X500Principal;
-import org.apache.cxf.rt.security.claims.Claim;
-import org.apache.cxf.rt.security.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.ProcessedClaim;
-import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.forgerock.opendj.ldap.Attribute;
 import org.forgerock.opendj.ldap.ByteString;
 import org.forgerock.opendj.ldap.Connection;
@@ -40,7 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
 
-public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandler {
+public class LdapClaimsHandler implements ClaimsHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(LdapClaimsHandler.class);
 
   private final AttributeMapLoader attributeMapLoader;
@@ -59,7 +60,17 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
   private String kdcAddress;
 
+  private Map<String, String> claimMapping;
+
   private boolean overrideCertDn = false;
+
+  private String objectClass;
+
+  private String userNameAttribute;
+
+  private String userBaseDn;
+
+  private boolean x500FilterEnabled = true;
 
   public LdapClaimsHandler(AttributeMapLoader attributeMapLoader) {
     super();
@@ -87,9 +98,48 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
     this.propertyFileLocation = propertyFileLocation;
   }
 
+  public Map<String, String> getClaimsLdapAttributeMapping() {
+    return this.claimMapping;
+  }
+
+  public void setClaimsLdapAttributeMapping(Map<String, String> claimMapping) {
+    this.claimMapping = claimMapping;
+  }
+
+  public String getObjectClass() {
+    return this.objectClass;
+  }
+
+  public void setObjectClass(String objectClass) {
+    this.objectClass = objectClass;
+  }
+
+  public String getUserNameAttribute() {
+    return this.userNameAttribute;
+  }
+
+  public void setUserNameAttribute(String userNameAttribute) {
+    this.userNameAttribute = userNameAttribute;
+  }
+
+  public void setUserBaseDN(String userBaseDN) {
+    this.userBaseDn = userBaseDN;
+  }
+
+  public String getUserBaseDN() {
+    return this.userBaseDn;
+  }
+
+  public boolean isX500FilterEnabled() {
+    return this.x500FilterEnabled;
+  }
+
+  public void setX500FilterEnabled(boolean x500FilterEnabled) {
+    this.x500FilterEnabled = x500FilterEnabled;
+  }
+
   @Override
-  public ProcessedClaimCollection retrieveClaimValues(
-      ClaimCollection claims, ClaimsParameters parameters) {
+  public ClaimsCollection retrieveClaims(ClaimsParameters parameters) {
 
     Principal principal = parameters.getPrincipal();
 
@@ -97,10 +147,10 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
     if (user == null) {
       LOGGER.info(
           "Could not determine user name, possible authentication error. Returning no claims.");
-      return new ProcessedClaimCollection();
+      return new ClaimsCollectionImpl();
     }
 
-    ProcessedClaimCollection claimsColl = new ProcessedClaimCollection();
+    ClaimsCollection claimsColl = new ClaimsCollectionImpl();
     Connection connection = null;
     try {
       AndFilter filter = new AndFilter();
@@ -109,13 +159,8 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
           .and(new EqualsFilter(this.getUserNameAttribute(), user));
 
       List<String> searchAttributeList = new ArrayList<String>();
-      for (Claim claim : claims) {
-        if (getClaimsLdapAttributeMapping().keySet().contains(claim.getClaimType().toString())) {
-          searchAttributeList.add(
-              getClaimsLdapAttributeMapping().get(claim.getClaimType().toString()));
-        } else {
-          LOGGER.debug("Unsupported claim: {}", claim.getClaimType());
-        }
+      for (Map.Entry<String, String> claimEntry : getClaimsLdapAttributeMapping().entrySet()) {
+        searchAttributeList.add(claimEntry.getValue());
       }
 
       String[] searchAttributes = null;
@@ -137,16 +182,15 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
           while (entryReader.hasNext()) {
             if (entryReader.isEntry()) {
               entry = entryReader.readEntry();
-              for (Claim claim : claims) {
-                URI claimType = claim.getClaimType();
-                String ldapAttribute = getClaimsLdapAttributeMapping().get(claimType.toString());
+              for (Map.Entry<String, String> claimEntry :
+                  getClaimsLdapAttributeMapping().entrySet()) {
+                String claimType = claimEntry.getKey();
+                String ldapAttribute = claimEntry.getValue();
                 Attribute attr = entry.getAttribute(ldapAttribute);
                 if (attr == null) {
-                  LOGGER.trace("Claim '{}' is null", claim.getClaimType());
+                  LOGGER.trace("Claim '{}' is null", claimType);
                 } else {
-                  ProcessedClaim c = new ProcessedClaim();
-                  c.setClaimType(claimType);
-                  c.setPrincipal(principal);
+                  Claim claim = new ClaimImpl(claimType);
 
                   for (ByteString value : attr) {
                     String itemValue = value.toString();
@@ -162,10 +206,10 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
                         LOGGER.debug("Not X500 compliant", ex);
                       }
                     }
-                    c.addValue(itemValue);
+                    claim.addValue(itemValue);
                   }
 
-                  claimsColl.add(c);
+                  claimsColl.add(claim);
                 }
               }
             } else {

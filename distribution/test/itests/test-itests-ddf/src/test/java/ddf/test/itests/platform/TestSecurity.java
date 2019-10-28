@@ -1159,7 +1159,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             SecurityConstants.SAML_HEADER_NAME,
             "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader))
         .when()
-        .get(ADMIN_PATH.getUrl())
+        .get(SECURE_ROOT_AND_PORT.getUrl())
         .then()
         .log()
         .ifValidationFails()
@@ -1212,7 +1212,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             SecurityConstants.SAML_HEADER_NAME,
             "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader))
         .when()
-        .get(ADMIN_PATH.getUrl())
+        .get(SECURE_ROOT_AND_PORT.getUrl())
         .then()
         .log()
         .ifValidationFails()
@@ -1265,7 +1265,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             SecurityConstants.SAML_HEADER_NAME,
             "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader))
         .when()
-        .get(ADMIN_PATH.getUrl())
+        .get(SECURE_ROOT_AND_PORT.getUrl())
         .then()
         .log()
         .ifValidationFails()

@@ -116,6 +116,7 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.util.Strings;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -129,12 +130,11 @@ import org.codice.ddf.security.OcspService;
 import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.Security;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.codice.ddf.security.handler.api.AuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
-import org.codice.ddf.security.handler.api.STSAuthenticationToken;
-import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.SessionHandler;
 import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
 import org.codice.ddf.security.handler.pki.PKIHandler;
@@ -203,7 +203,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
 
   private final ExecutorService asyncLogoutService;
   protected CookieCache cookieCache = new CookieCache();
-  private STSAuthenticationTokenFactory tokenFactory;
+  private AuthenticationTokenFactory tokenFactory;
   private OcspService ocspService;
   private SecurityManager securityManager;
   private AtomicReference<Map<String, EntityInformation>> serviceProviders =
@@ -927,7 +927,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
       boolean hasSignature)
       throws SecurityServiceException, WSSecurityException {
     LOGGER.debug("Performing login for user. passive: {}, cookie: {}", passive, hasCookie);
-    BaseAuthenticationToken token = null;
+    AuthenticationToken token = null;
     if (PKI.equals(authMethod)) {
       LOGGER.debug("Logging user in via PKI.");
       PKIHandler pkiHandler = new PKIHandler();
@@ -958,8 +958,8 @@ public class IdpEndpoint implements Idp, SessionHandler {
       throw new IllegalArgumentException("Auth method is not supported.");
     }
 
-    if (token != null) {
-      token.setAllowGuest(guestAccess);
+    if (token instanceof BaseAuthenticationToken) {
+      ((BaseAuthenticationToken) token).setAllowGuest(guestAccess);
     }
 
     org.w3c.dom.Element samlToken = null;
@@ -1005,7 +1005,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
   }
 
   /** Allows us to get the headers without calling the {@link BasicAuthenticationHandler} */
-  private STSAuthenticationToken getNormalizedSTSAuthenticationToken(ServletRequest request) {
+  private AuthenticationToken getNormalizedSTSAuthenticationToken(ServletRequest request) {
     String authHeader = ((HttpServletRequest) request).getHeader(HttpHeaders.AUTHORIZATION);
     if (StringUtils.isEmpty(authHeader)) {
       return null;
@@ -1612,7 +1612,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
     this.securityManager = securityManager;
   }
 
-  public void setTokenFactory(STSAuthenticationTokenFactory tokenFactory) {
+  public void setTokenFactory(AuthenticationTokenFactory tokenFactory) {
     this.tokenFactory = tokenFactory;
   }
 

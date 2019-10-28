@@ -25,24 +25,20 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import ddf.security.claims.ClaimsCollection;
+import ddf.security.claims.ClaimsParameters;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
-import org.apache.cxf.rt.security.claims.Claim;
-import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.staxutils.StaxUtils;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.junit.Before;
@@ -174,35 +170,24 @@ public class AttributeQueryClaimsHandlerTest {
 
   @Test
   public void testRetrieveClaimValues() throws Exception {
-    ProcessedClaimCollection processedClaimCollection = retrieveClaimValues();
+    ClaimsCollection processedClaimCollection = retrieveClaimValues();
 
     // Test that the claims were created and mapped correctly.
     assertThat(processedClaimCollection.size(), is(equalTo(3)));
 
-    assertThat(processedClaimCollection.get(0).getClaimType().toString(), is(equalTo("Role")));
+    assertThat(processedClaimCollection.get(0).getName(), is(equalTo("Role")));
     assertThat(
         (String) processedClaimCollection.get(0).getValues().get(0),
         is(equalTo("Guest-hasMapping")));
 
-    assertThat(
-        processedClaimCollection.get(1).getClaimType().toString(), is(equalTo("NameIdentifier")));
+    assertThat(processedClaimCollection.get(1).getName(), is(equalTo("NameIdentifier")));
     assertThat(
         (String) processedClaimCollection.get(1).getValues().get(0),
         is(equalTo("Name-hasMapping")));
 
     // Does not have an attribute mapping.
-    assertThat(processedClaimCollection.get(2).getClaimType().toString(), is(equalTo("Email")));
+    assertThat(processedClaimCollection.get(2).getName(), is(equalTo("Email")));
     assertThat((String) processedClaimCollection.get(2).getValues().get(0), is(equalTo("email")));
-  }
-
-  @Test
-  public void testRetrieveClaimValuesWithBadURI() throws Exception {
-    cannedResponse =
-        Resources.toString(
-            Resources.getResource(getClass(), "/SAMLResponseBadAttribute.xml"), Charsets.UTF_8);
-    supportedClaims.add("Bad: URI");
-
-    assertThat(retrieveClaimValues().size(), is(equalTo(0)));
   }
 
   @Test
@@ -231,46 +216,19 @@ public class AttributeQueryClaimsHandlerTest {
     ClaimsParameters claimsParameters = mock(ClaimsParameters.class);
     when(claimsParameters.getPrincipal()).thenReturn(null);
 
-    ClaimCollection claimCollection = new ClaimCollection();
-    ProcessedClaimCollection processedClaims =
-        spyAttributeQueryClaimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
+    ClaimsCollection processedClaims =
+        spyAttributeQueryClaimsHandler.retrieveClaims(claimsParameters);
 
     assertThat(processedClaims.size(), is(equalTo(0)));
   }
 
-  @Test
-  public void testSupportedClaimsTypes() {
-    List<URI> supportedClaimTypes = spyAttributeQueryClaimsHandler.getSupportedClaimTypes();
-
-    assertThat(supportedClaimTypes.size(), is(equalTo(3)));
-    assertThat(supportedClaimTypes.get(0).toString(), is(equalTo("Role")));
-    assertThat(supportedClaimTypes.get(1).toString(), is(equalTo("NameIdentifier")));
-    assertThat(supportedClaimTypes.get(2).toString(), is(equalTo("Email")));
-  }
-
-  @Test
-  public void testSupportedClaimsTypesWithBadURI() {
-    supportedClaims.add("Bad: URI");
-
-    assertThat(spyAttributeQueryClaimsHandler.getSupportedClaimTypes().size(), is(equalTo(3)));
-  }
-
-  private ProcessedClaimCollection retrieveClaimValues() {
-    ClaimCollection claimCollection = new ClaimCollection();
-    Claim claim = new Claim();
-    try {
-      claim.setClaimType(
-          new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"));
-    } catch (URISyntaxException e) {
-      fail("Could not create URI.");
-    }
-    claimCollection.add(claim);
+  private ClaimsCollection retrieveClaimValues() {
     ClaimsParameters claimsParameters = mock(ClaimsParameters.class);
     Principal principal = mock(Principal.class);
 
     when(principal.getName()).thenReturn(USERNAME);
     when(claimsParameters.getPrincipal()).thenReturn(principal);
 
-    return spyAttributeQueryClaimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
+    return spyAttributeQueryClaimsHandler.retrieveClaims(claimsParameters);
   }
 }

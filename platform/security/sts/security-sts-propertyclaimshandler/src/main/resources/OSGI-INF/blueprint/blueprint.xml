@@ -42,9 +42,9 @@
         <property name="usersAttributesFileLocation" value="${ddf.etc}/users.attributes"/>
     </bean>
 
-    <service ref="roleClaimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
+    <service ref="roleClaimsHandler" interface="ddf.security.claims.ClaimsHandler"/>
 
-    <service ref="attributeClaimsHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
+    <service ref="attributeClaimsHandler" interface="ddf.security.claims.ClaimsHandler"/>
 
     <service ref="attributeClaimsHandler" interface="org.codice.ddf.security.SystemHighAttributes"/>
 

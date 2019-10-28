@@ -13,6 +13,7 @@
  */
 package ddf.security.sts.claimsHandler;
 
+import ddf.security.claims.ClaimsHandler;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.FileInputStream;
@@ -34,7 +35,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.sts.claims.ClaimsHandler;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.forgerock.opendj.ldap.ConnectionFactory;
 import org.forgerock.opendj.ldap.Connections;
