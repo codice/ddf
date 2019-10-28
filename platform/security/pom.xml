@@ -187,11 +187,6 @@
             </dependency>
             <dependency>
                 <groupId>org.opensaml</groupId>
-                <artifactId>opensaml-core-impl</artifactId>
-                <version>${opensaml.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opensaml</groupId>
                 <artifactId>opensaml-xmlsec-api</artifactId>
                 <version>${opensaml.version}</version>
             </dependency>

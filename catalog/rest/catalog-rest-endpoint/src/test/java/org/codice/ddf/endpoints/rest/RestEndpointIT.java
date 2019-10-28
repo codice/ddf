@@ -66,7 +66,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.opengis.filter.Filter;
+import org.ops4j.pax.exam.CoreOptions;
+import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
+import org.ops4j.pax.exam.options.BootClasspathLibraryOption;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.framework.Bundle;
@@ -211,7 +215,7 @@ public class RestEndpointIT extends AbstractComponentTest {
 
         final String[] cxfFeatures = {"cxf", "cxf-commands"};
         final String[] utilitiesFeatures = {"action-core-impl"};
-        final String[] kernelFeatures = {"apache-commons"};
+        final String[] kernelFeatures = {"apache-commons, guava"};
 
         return super.getFeatureOptions()
             .addFeatures("org.apache.karaf.features", "spring", springFeatures)
@@ -224,6 +228,23 @@ public class RestEndpointIT extends AbstractComponentTest {
             .addFeatureFrom("ddf.mime.core", "mime-core-api", "feature", "mime-core-api-only")
             .addFeatureFrom(
                 "ddf.catalog.core", "catalog-core-api", "feature", "catalog-core-api-only");
+      }
+
+      @Override
+      public Option get() {
+        return CoreOptions.composite(
+            super.get(),
+            CoreOptions.bootClasspathLibraries(
+                new BootClasspathLibraryOption(
+                    CoreOptions.maven("javax.annotation", "javax.annotation-api", "1.3"))),
+            KarafDistributionOption.editConfigurationFilePut(
+                "etc/custom.properties",
+                "org.osgi.framework.system.packages.extra",
+                new StringBuilder()
+                    .append("javax.annotation;version=1.0.0,")
+                    .append("javax.annotation;version=1.3.2,")
+                    .append("javax.annotation;version=3.0.2")
+                    .toString()));
       }
     };
   }
