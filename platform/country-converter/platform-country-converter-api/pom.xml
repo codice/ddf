@@ -16,7 +16,7 @@
     <parent>
         <groupId>ddf.platform</groupId>
         <artifactId>country-converter</artifactId>
-        <version>2.16.4</version>
+        <version>2.16.5-SNAPSHOT</version>
     </parent>
     <name>DDF :: Platform :: Country :: Converter :: API</name>
     <modelVersion>4.0.0</modelVersion>
