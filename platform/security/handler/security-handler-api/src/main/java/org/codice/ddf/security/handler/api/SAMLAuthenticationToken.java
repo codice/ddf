@@ -23,7 +23,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-public class SAMLAuthenticationToken extends STSAuthenticationToken {
+public class SAMLAuthenticationToken extends BaseAuthenticationToken {
   private static final Logger LOGGER = LoggerFactory.getLogger(SAMLAuthenticationToken.class);
 
   /**

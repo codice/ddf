@@ -14,92 +14,53 @@
 package org.codice.ddf.security.claims.certificate;
 
 import ddf.security.SubjectUtils;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.Principal;
-import java.util.Arrays;
-import java.util.Collections;
+import ddf.security.claims.Claim;
+import ddf.security.claims.ClaimsCollection;
+import ddf.security.claims.ClaimsHandler;
+import ddf.security.claims.ClaimsParameters;
+import ddf.security.claims.impl.ClaimImpl;
+import ddf.security.claims.impl.ClaimsCollectionImpl;
 import java.util.List;
 import java.util.Map;
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.rt.security.claims.Claim;
-import org.apache.cxf.rt.security.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsHandler;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.ProcessedClaim;
-import org.apache.cxf.sts.claims.ProcessedClaimCollection;
-import org.apache.cxf.sts.token.realm.RealmSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class CertificateClaimsHandler implements ClaimsHandler, RealmSupport {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(CertificateClaimsHandler.class);
+public class CertificateClaimsHandler implements ClaimsHandler {
 
   private String emailClaim = SubjectUtils.EMAIL_ADDRESS_CLAIM_URI;
 
   private String countryClaim = SubjectUtils.COUNTRY_CLAIM_URI;
 
-  private List<String> supportedRealms;
-
-  private String realm;
-
   @Override
-  public List<URI> getSupportedClaimTypes() {
-    try {
-      return Arrays.asList(new URI(emailClaim), new URI(countryClaim));
-    } catch (URISyntaxException e) {
-      LOGGER.info("Unable to create claim URIs for certificate claims.", e);
-    }
-    return Collections.emptyList();
-  }
-
-  @Override
-  public ProcessedClaimCollection retrieveClaimValues(
-      ClaimCollection claims, ClaimsParameters parameters) {
-    ProcessedClaimCollection claimsColl = new ProcessedClaimCollection();
-    Principal principal = parameters.getPrincipal();
+  public ClaimsCollection retrieveClaims(ClaimsParameters parameters) {
+    ClaimsCollection claimsColl = new ClaimsCollectionImpl();
     Map<String, Object> additionalProperties = parameters.getAdditionalProperties();
-    if (additionalProperties != null
-        && (additionalProperties.containsKey(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI)
-            || additionalProperties.containsKey(SubjectUtils.COUNTRY_CLAIM_URI))) {
-      for (Claim claim : claims) {
-        URI claimType = claim.getClaimType();
-        if (emailClaim.equals(claimType.toString())) {
-          buildClaim(
-              claimsColl,
-              principal,
-              claimType,
-              additionalProperties.get(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI));
-        } else if (countryClaim.equals(claimType.toString())) {
-          buildClaim(
-              claimsColl,
-              principal,
-              claimType,
-              additionalProperties.get(SubjectUtils.COUNTRY_CLAIM_URI));
-        }
+    if (additionalProperties != null) {
+      if (additionalProperties.containsKey(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI)) {
+        buildClaim(
+            claimsColl, emailClaim, additionalProperties.get(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI));
+      }
+      if (additionalProperties.containsKey(SubjectUtils.COUNTRY_CLAIM_URI)) {
+        buildClaim(
+            claimsColl, countryClaim, additionalProperties.get(SubjectUtils.COUNTRY_CLAIM_URI));
       }
     }
     return claimsColl;
   }
 
-  private void buildClaim(
-      ProcessedClaimCollection claimsColl, Principal principal, URI claimType, Object value) {
+  private void buildClaim(ClaimsCollection claimsColl, String claimType, Object value) {
     if (value == null) {
       return;
     }
 
-    ProcessedClaim c = new ProcessedClaim();
-    c.setClaimType(claimType);
-    c.setPrincipal(principal);
+    Claim claim = new ClaimImpl(claimType);
 
     if (value instanceof List) {
-      List<?> valueList = (List<?>) value;
-      valueList.forEach(c::addValue);
+      List<String> valueList = (List<String>) value;
+      valueList.forEach(claim::addValue);
     } else {
-      c.addValue(value);
+      claim.addValue(value.toString());
     }
-    claimsColl.add(c);
+    claimsColl.add(claim);
   }
 
   public void setEmailClaim(String emailClaim) {
@@ -110,23 +71,5 @@ public class CertificateClaimsHandler implements ClaimsHandler, RealmSupport {
   public void setCountryClaim(String countryClaim) {
     this.countryClaim =
         StringUtils.isEmpty(countryClaim) ? SubjectUtils.COUNTRY_CLAIM_URI : countryClaim;
-  }
-
-  @Override
-  public List<String> getSupportedRealms() {
-    return supportedRealms;
-  }
-
-  public void setSupportedRealms(List<String> supportedRealms) {
-    this.supportedRealms = supportedRealms;
-  }
-
-  @Override
-  public String getHandlerRealm() {
-    return realm;
-  }
-
-  public void setHandlerRealm(String realm) {
-    this.realm = realm;
   }
 }

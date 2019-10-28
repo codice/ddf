@@ -117,6 +117,7 @@
                             ddf.security.assertion.saml.impl,
                             ddf.security.impl,
                             ddf.security.liberty.paos.impl,
+                            ddf.security.claims.impl
                         </Export-Package>
                     </instructions>
                 </configuration>

@@ -225,5 +225,7 @@
         <module>secure-boot</module>
         <module>security-guest-realm</module>
         <module>security-oidc-realm</module>
+        <module>security-userpass-realm</module>
+        <module>security-pki-realm</module>
     </modules>
 </project>

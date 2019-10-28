@@ -26,6 +26,6 @@
                                update-strategy="container-managed"/>
     </bean>
 
-    <service ref="certHandler" interface="org.apache.cxf.sts.claims.ClaimsHandler"/>
+    <service ref="certHandler" interface="ddf.security.claims.ClaimsHandler"/>
 
 </blueprint>

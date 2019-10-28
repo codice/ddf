@@ -21,11 +21,15 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import ddf.security.SubjectUtils;
+import ddf.security.claims.Claim;
+import ddf.security.claims.ClaimsCollection;
+import ddf.security.claims.ClaimsHandler;
+import ddf.security.claims.ClaimsParameters;
+import ddf.security.claims.impl.ClaimImpl;
+import ddf.security.claims.impl.ClaimsCollectionImpl;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -34,7 +38,6 @@ import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -42,12 +45,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import javax.security.auth.x500.X500Principal;
-import org.apache.cxf.rt.security.claims.Claim;
-import org.apache.cxf.rt.security.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsHandler;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.ProcessedClaim;
-import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.SystemHighAttributes;
 import org.slf4j.Logger;
@@ -61,8 +58,6 @@ public class UsersAttributesFileClaimsHandler implements ClaimsHandler, SystemHi
   private static final Path DDF_HOME_PATH = Paths.get(System.getProperty("ddf.home"));
 
   private String usersAttributesFileLocation;
-
-  private volatile ImmutableSet<URI> supportedClaimTypes;
 
   private volatile Map<String, Map<String, Set<String>>> json;
 
@@ -111,20 +106,12 @@ public class UsersAttributesFileClaimsHandler implements ClaimsHandler, SystemHi
       newJson.put(userToAttributesMap.getKey(), attributes);
     }
     json = newJson;
-
-    setSupportedClaimTypes();
     setSystemHighUserAttributes();
   }
 
   @Override
-  public List<URI> getSupportedClaimTypes() {
-    return supportedClaimTypes.asList();
-  }
-
-  @Override
-  public ProcessedClaimCollection retrieveClaimValues(
-      ClaimCollection claimCollection, ClaimsParameters claimsParameters) {
-    ProcessedClaimCollection claimsColl = new ProcessedClaimCollection();
+  public ClaimsCollection retrieveClaims(ClaimsParameters claimsParameters) {
+    ClaimsCollection claimsColl = new ClaimsCollectionImpl();
     Principal principal = claimsParameters.getPrincipal();
     if (principal == null) {
       return claimsColl;
@@ -144,11 +131,9 @@ public class UsersAttributesFileClaimsHandler implements ClaimsHandler, SystemHi
       return claimsColl;
     }
 
-    for (Claim claim : claimCollection) {
-      Set<String> attributeValue = userMap.get(claim.getClaimType().toString());
-      ProcessedClaim c = new ProcessedClaim();
-      c.setClaimType(claim.getClaimType());
-      c.setPrincipal(principal);
+    for (Map.Entry<String, Set<String>> claimEntry : userMap.entrySet()) {
+      Set<String> attributeValue = claimEntry.getValue();
+      Claim c = new ClaimImpl(claimEntry.getKey());
       if (attributeValue != null) {
         attributeValue.forEach(c::addValue);
         claimsColl.add(c);
@@ -188,26 +173,6 @@ public class UsersAttributesFileClaimsHandler implements ClaimsHandler, SystemHi
             usersAttributesFileLocation,
             "The location of the users attributes file may not be blank");
     init();
-  }
-
-  private void setSupportedClaimTypes() {
-    final ImmutableSet.Builder<URI> immutableSetBuilder = ImmutableSet.builder();
-
-    for (final Map<String, Set<String>> user : json.values()) {
-      for (final String attributeName : user.keySet()) {
-        try {
-          immutableSetBuilder.add(new URI(attributeName));
-        } catch (URISyntaxException e) {
-          final String reason =
-              String.format("Unable to create URI from attributeName \"%s\"", attributeName);
-          final String errorMessage = createErrorMessage(reason);
-          LOGGER.error(errorMessage);
-          throw new IllegalStateException(reason, e);
-        }
-      }
-    }
-
-    supportedClaimTypes = immutableSetBuilder.build();
   }
 
   private void setSystemHighUserAttributes() {

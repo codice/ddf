@@ -71,6 +71,7 @@ import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.codice.ddf.security.common.HttpUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -378,7 +379,10 @@ public class AssertionConsumerService {
       return false;
     }
 
-    handlerResult.getToken().setAllowGuest(contextPolicyManager.getGuestAccess());
+    if (handlerResult.getToken() instanceof BaseAuthenticationToken) {
+      ((BaseAuthenticationToken) handlerResult.getToken())
+          .setAllowGuest(contextPolicyManager.getGuestAccess());
+    }
 
     request.setAttribute(AUTHENTICATION_TOKEN_KEY, handlerResult);
     request.removeAttribute(ContextPolicy.NO_AUTH_POLICY);

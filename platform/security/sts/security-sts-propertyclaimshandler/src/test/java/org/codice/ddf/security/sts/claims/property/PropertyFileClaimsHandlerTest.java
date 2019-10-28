@@ -13,21 +13,15 @@
  */
 package org.codice.ddf.security.sts.claims.property;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
+import ddf.security.claims.ClaimsCollection;
+import ddf.security.claims.ClaimsParameters;
 import java.security.Principal;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.x500.X500Principal;
-import org.apache.cxf.rt.security.claims.Claim;
-import org.apache.cxf.rt.security.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.ProcessedClaimCollection;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class PropertyFileClaimsHandlerTest {
@@ -39,19 +33,12 @@ public class PropertyFileClaimsHandlerTest {
     propertyFileClaimsHandler.setRoleClaimType("http://myroletype");
     propertyFileClaimsHandler.setIdClaimType("http://myidtype");
 
-    ClaimCollection claimCollection = new ClaimCollection();
-    Claim claim1 = new Claim();
-    claim1.setClaimType(URI.create("http://myroletype"));
-    Claim claim2 = new Claim();
-    claim2.setClaimType(URI.create("http://myidtype"));
-    claimCollection.add(claim1);
-    claimCollection.add(claim2);
     ClaimsParameters claimsParameters = mock(ClaimsParameters.class);
     Principal principal = mock(Principal.class);
     when(principal.getName()).thenReturn("admin");
     when(claimsParameters.getPrincipal()).thenReturn(principal);
-    ProcessedClaimCollection processedClaimCollection =
-        propertyFileClaimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
+    ClaimsCollection processedClaimCollection =
+        propertyFileClaimsHandler.retrieveClaims(claimsParameters);
 
     assertEquals(2, processedClaimCollection.size());
     assertEquals(4, processedClaimCollection.get(0).getValues().size());
@@ -74,16 +61,5 @@ public class PropertyFileClaimsHandlerTest {
     principal = new KerberosPrincipal("mykman@SOMEDOMAIN.COM");
     user = propertyFileClaimsHandler.getUser(principal);
     assertEquals("mykman", user);
-  }
-
-  @Test
-  public void testRetrieveClaimsValuesNullPrincipal() {
-    PropertyFileClaimsHandler claimsHandler = new PropertyFileClaimsHandler();
-    ClaimsParameters claimsParameters = new ClaimsParameters();
-    ClaimCollection claimCollection = new ClaimCollection();
-    ProcessedClaimCollection processedClaims =
-        claimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
-
-    Assert.assertThat(processedClaims.size(), CoreMatchers.is(equalTo(0)));
   }
 }

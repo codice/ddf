@@ -34,7 +34,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import com.jayway.restassured.response.Response;
-import ddf.catalog.data.Metacard;
 import ddf.security.Subject;
 import ddf.security.samlp.MetadataConfigurationParser;
 import ddf.security.samlp.SamlProtocol;
@@ -64,16 +63,31 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
+import static org.codice.ddf.itests.common.WaitCondition.expect;
 import org.codice.ddf.itests.common.XmlSearch;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
 import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
+import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.OPENSEARCH_FACTORY_PID;
+import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearchSourceProperties;
 import org.codice.ddf.security.common.Security;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.SessionHandler;
 import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.AllOf.allOf;
+import static org.hamcrest.core.CombinableMatcher.both;
 import org.junit.After;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -688,87 +702,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     // Make sure we are logged in as admin.
     assertThat(getUserName(acsResponse.getCookies()), is(username));
     return acsResponse;
-  }
-
-  @Test
-  public void testEcpByFederatedQueryWithUsernamePassword() throws Exception {
-    String queryUrl = OPENSEARCH_PATH.getUrl() + "?q=*&format=xml&src=" + OPENSEARCH_SOURCE_ID;
-    // First time hitting search, expect to get redirected to the Identity Provider.
-    ResponseHelper searchHelper = getSearchResponse(false, queryUrl);
-
-    // Pass our credentials to the IDP, it should redirect us to the Assertion Consumer Service.
-    // The redirect is currently done via javascript and not an HTTP redirect.
-
-    Response idpResponse =
-        given()
-            .auth()
-            .preemptive()
-            .basic("admin", "admin")
-            .param("AuthMethod", "up")
-            .params(searchHelper.params)
-            .expect()
-            .statusCode(200)
-            .when()
-            .get(searchHelper.redirectUrl);
-
-    ResponseHelper idpHelper = new ResponseHelper(idpResponse);
-
-    // Perform a bunch of checks to make sure we're valid against both the spec and schema
-    assertThat(idpHelper.parseBody(), is(Binding.POST));
-    String decodedResponse = RestSecurity.base64Decode(idpHelper.postSamlResponse);
-    validateSaml(decodedResponse, SamlSchema.PROTOCOL);
-    assertThat(
-        decodedResponse,
-        allOf(
-            containsString("urn:oasis:names:tc:SAML:2.0:status:Success"),
-            containsString("ds:SignatureValue"),
-            containsString("ds:Signature"),
-            containsString("saml2:Assertion")));
-    assertThat(
-        idpHelper.postRelayState.length(),
-        is(both(greaterThanOrEqualTo(0)).and(lessThanOrEqualTo(80))));
-
-    // After passing the SAML Assertion to the ACS, we should be redirected back to Search.
-
-    String body =
-        String.format(
-            "SAMLResponse=%s&RelayState=%s",
-            URLEncoder.encode(idpHelper.postSamlResponse, StandardCharsets.UTF_8.name()),
-            URLEncoder.encode(idpHelper.postRelayState, StandardCharsets.UTF_8.name()));
-
-    Response acsResponse =
-        given()
-            .body(body)
-            .contentType("application/x-www-form-urlencoded")
-            .redirects()
-            .follow(false)
-            .expect()
-            .statusCode(anyOf(is(307), is(303)))
-            .when()
-            .post(searchHelper.params.get("ACSURL"));
-
-    ResponseHelper acsHelper = new ResponseHelper(acsResponse);
-    acsHelper.parseHeader();
-
-    Response response =
-        given().cookies(acsResponse.getCookies()).expect().statusCode(200).when().get(queryUrl);
-
-    // The federated query using username/password against the IDP auth type on all of /services
-    // would fail without ECP
-
-    response
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .body(
-            hasXPath(
-                "/metacards/metacard/string[@name='"
-                    + Metacard.TITLE
-                    + "']/value[text()='"
-                    + RECORD_TITLE_1
-                    + "']"),
-            hasXPath("/metacards/metacard/geometry/value"));
   }
 
   @Test

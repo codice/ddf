@@ -15,9 +15,7 @@ package ddf.security.sts.claimsHandler;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
@@ -26,12 +24,12 @@ import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
-import java.util.List;
-import org.apache.cxf.rt.security.claims.ClaimCollection;
-import org.apache.cxf.sts.claims.ClaimsParameters;
-import org.apache.cxf.sts.claims.ProcessedClaim;
-import org.apache.cxf.sts.claims.ProcessedClaimCollection;
+import ddf.security.claims.Claim;
+import ddf.security.claims.ClaimsCollection;
+import ddf.security.claims.ClaimsParameters;
+import ddf.security.claims.impl.ClaimsParametersImpl;
+import java.util.HashMap;
+import java.util.HashSet;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.ConnectionFactory;
@@ -48,16 +46,6 @@ public class RoleClaimsHandlerTest {
   public static final String USER_CN = "tstark";
 
   @Test
-  public void testRetrieveClaimsValuesNullPrincipal() {
-    RoleClaimsHandler claimsHandler = new RoleClaimsHandler(new AttributeMapLoader());
-    ClaimsParameters claimsParameters = new ClaimsParameters();
-    ClaimCollection claimCollection = new ClaimCollection();
-    ProcessedClaimCollection processedClaims =
-        claimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
-    assertThat(processedClaims, is(empty()));
-  }
-
-  @Test
   public void testRetrieveClaimsValuesNotNullPrincipal()
       throws LdapException, SearchResultReferenceIOException {
     BindResult bindResult = mock(BindResult.class);
@@ -67,7 +55,7 @@ public class RoleClaimsHandlerTest {
     ConnectionEntryReader groupNameReader = mock(ConnectionEntryReader.class);
     LinkedAttribute membershipAttribute = new LinkedAttribute("uid");
     LinkedAttribute groupNameAttribute = new LinkedAttribute("cn");
-    ProcessedClaimCollection processedClaims;
+    ClaimsCollection processedClaims;
     RoleClaimsHandler claimsHandler;
     SearchResultEntry membershipSearchResult = mock(SearchResultEntry.class);
     DN resultDN = DN.valueOf("uid=tstark,");
@@ -111,13 +99,11 @@ public class RoleClaimsHandlerTest {
     claimsHandler.setBindUserCredentials("foo");
     claimsHandler.setBindUserDN("bar");
 
-    claimsParameters = new ClaimsParameters();
-    claimsParameters.setPrincipal(new UserPrincipal(USER_CN));
-    ClaimCollection claimCollection = new ClaimCollection();
-    processedClaims = claimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
+    claimsParameters =
+        new ClaimsParametersImpl(new UserPrincipal(USER_CN), new HashSet<>(), new HashMap<>());
+    processedClaims = claimsHandler.retrieveClaims(claimsParameters);
     assertThat(processedClaims, hasSize(1));
-    ProcessedClaim claim = processedClaims.get(0);
-    assertThat(claim.getPrincipal(), equalTo(new UserPrincipal(USER_CN)));
+    Claim claim = processedClaims.get(0);
     assertThat(claim.getValues(), hasSize(1));
     assertThat(claim.getValues().get(0), equalTo(groupName));
   }
@@ -132,7 +118,7 @@ public class RoleClaimsHandlerTest {
     ConnectionEntryReader groupNameReader = mock(ConnectionEntryReader.class);
     LinkedAttribute membershipAttribute = new LinkedAttribute("cn");
     LinkedAttribute groupNameAttribute = new LinkedAttribute("cn");
-    ProcessedClaimCollection processedClaims;
+    ClaimsCollection processedClaims;
     RoleClaimsHandler claimsHandler;
     SearchResultEntry membershipSearchResult = mock(SearchResultEntry.class);
     DN resultDN = DN.valueOf("uid=tstark,OU=nested,");
@@ -179,13 +165,11 @@ public class RoleClaimsHandlerTest {
     claimsHandler.setMembershipUserAttribute("cn");
     claimsHandler.setLoginUserAttribute("uid");
 
-    claimsParameters = new ClaimsParameters();
-    claimsParameters.setPrincipal(new UserPrincipal(USER_CN));
-    ClaimCollection claimCollection = new ClaimCollection();
-    processedClaims = claimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
+    claimsParameters =
+        new ClaimsParametersImpl(new UserPrincipal(USER_CN), new HashSet<>(), new HashMap<>());
+    processedClaims = claimsHandler.retrieveClaims(claimsParameters);
     assertThat(processedClaims, hasSize(1));
-    ProcessedClaim claim = processedClaims.get(0);
-    assertThat(claim.getPrincipal(), equalTo(new UserPrincipal(USER_CN)));
+    Claim claim = processedClaims.get(0);
     assertThat(claim.getValues(), hasSize(1));
     assertThat(claim.getValues().get(0), equalTo(groupName));
   }
@@ -200,7 +184,7 @@ public class RoleClaimsHandlerTest {
     ConnectionEntryReader groupNameReader = mock(ConnectionEntryReader.class);
     LinkedAttribute membershipAttribute = new LinkedAttribute("uid");
     LinkedAttribute groupNameAttribute = new LinkedAttribute("cn");
-    ProcessedClaimCollection processedClaims;
+    ClaimsCollection processedClaims;
     RoleClaimsHandler claimsHandler;
     SearchResultEntry membershipSearchResult = mock(SearchResultEntry.class);
     DN resultDN = DN.valueOf("uid=tstark,");
@@ -245,21 +229,12 @@ public class RoleClaimsHandlerTest {
     claimsHandler.setBindUserCredentials("foo");
     claimsHandler.setBindUserDN("bar");
 
-    claimsParameters = new ClaimsParameters();
-    claimsParameters.setPrincipal(new UserPrincipal(USER_CN));
-    ClaimCollection claimCollection = new ClaimCollection();
-    processedClaims = claimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
+    claimsParameters =
+        new ClaimsParametersImpl(new UserPrincipal(USER_CN), new HashSet<>(), new HashMap<>());
+    processedClaims = claimsHandler.retrieveClaims(claimsParameters);
     assertThat(processedClaims, hasSize(1));
-    ProcessedClaim claim = processedClaims.get(0);
-    assertThat(claim.getPrincipal(), equalTo(new UserPrincipal(USER_CN)));
+    Claim claim = processedClaims.get(0);
     assertThat(claim.getValues(), hasSize(1));
     assertThat(claim.getValues().get(0), equalTo(groupName));
-  }
-
-  @Test
-  public void testSupportClaimTypes() {
-    RoleClaimsHandler claimsHandler = new RoleClaimsHandler(new AttributeMapLoader());
-    List<URI> uris = claimsHandler.getSupportedClaimTypes();
-    assertThat(uris, hasSize(1));
   }
 }

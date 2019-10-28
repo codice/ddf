@@ -54,10 +54,11 @@ import javax.annotation.Nullable;
 import javax.security.auth.AuthPermission;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.shiro.UnavailableSecurityManagerException;
+import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.subject.ExecutionException;
+import org.codice.ddf.security.handler.api.AuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
-import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -106,14 +107,14 @@ public class Security {
    * @return {@link Subject} associated with the user name and password provided
    */
   public Subject getSubject(String username, String password, String ip) {
-    STSAuthenticationTokenFactory tokenFactory = createBasicTokenFactory();
-    BaseAuthenticationToken token = tokenFactory.fromUsernamePassword(username, password, ip);
+    AuthenticationTokenFactory tokenFactory = createBasicTokenFactory();
+    AuthenticationToken token = tokenFactory.fromUsernamePassword(username, password, ip);
     SecurityManager securityManager = getSecurityManager();
 
     if (securityManager != null) {
       try {
         // TODO - Change when class is a service
-        token.setAllowGuest(true);
+        ((BaseAuthenticationToken) token).setAllowGuest(true);
         return securityManager.getSubject(token);
       } catch (SecurityServiceException | RuntimeException e) {
         LOGGER.info("Unable to request subject for {} user.", username, e);
@@ -242,11 +243,11 @@ public class Security {
       return null;
     }
 
-    STSAuthenticationTokenFactory tokenFactory = createBasicTokenFactory();
-    BaseAuthenticationToken token =
+    AuthenticationTokenFactory tokenFactory = createBasicTokenFactory();
+    AuthenticationToken token =
         tokenFactory.fromCertificates(new X509Certificate[] {(X509Certificate) cert}, "127.0.0.1");
     if (token != null) {
-      token.setAllowGuest(true);
+      ((BaseAuthenticationToken) token).setAllowGuest(true);
       SecurityManager securityManager = getSecurityManager();
       if (securityManager != null) {
         try {
@@ -419,8 +420,8 @@ public class Security {
     SecurityLogger.audit("Attempting to get System Subject");
   }
 
-  private STSAuthenticationTokenFactory createBasicTokenFactory() {
-    STSAuthenticationTokenFactory tokenFactory = new STSAuthenticationTokenFactory();
+  private AuthenticationTokenFactory createBasicTokenFactory() {
+    AuthenticationTokenFactory tokenFactory = new AuthenticationTokenFactory();
     tokenFactory.init();
     return tokenFactory;
   }

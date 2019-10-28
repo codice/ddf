@@ -200,6 +200,8 @@ org.ops4j.pax.web.default.realmname=DDF
         <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.core/security-core-services/${project.version}</bundle>
         <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>
+        <bundle>mvn:ddf.security.realm/security-pki-realm/${project.version}</bundle>
+        <bundle>mvn:ddf.security.realm/security-userpass-realm/${project.version}</bundle>
         <feature>security-migratable</feature>
     </feature>
 

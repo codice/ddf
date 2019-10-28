@@ -115,8 +115,9 @@ public class LoginFilter implements SecurityFilter {
     // grab token from httpRequest
     BaseAuthenticationToken token;
     Object ddfAuthToken = httpRequest.getAttribute(AUTHENTICATION_TOKEN_KEY);
-    if (ddfAuthToken instanceof HandlerResult) {
-      token = ((HandlerResult) ddfAuthToken).getToken();
+    if (ddfAuthToken instanceof HandlerResult
+        && ((HandlerResult) ddfAuthToken).getToken() instanceof BaseAuthenticationToken) {
+      token = (BaseAuthenticationToken) ((HandlerResult) ddfAuthToken).getToken();
     } else {
       LOGGER.debug("Could not attach subject to http request.");
       return;
