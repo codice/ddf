@@ -46,7 +46,7 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>1.0.5</version>
+        <version>1.0.8</version>
     </parent>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -422,17 +422,14 @@
                     <version>${dependency-check-maven.version}</version>
                     <configuration>
                         <!-- The following properties enable using a mirror for nist NVD data -->
-                        <cveUrl12Modified>${owasp.cveUrl12Modified}</cveUrl12Modified>
-                        <cveUrl20Modified>${owasp.cveUrl20Modified}</cveUrl20Modified>
-                        <cveUrl12Base>${owasp.cveUrl12Base}</cveUrl12Base>
-                        <cveUrl20Base>${owasp.cveUrl20Base}</cveUrl20Base>
+                        <cveUrlModified>${owasp.cveUrlModified}</cveUrlModified>
+                        <cveUrlBase>${owasp.cveUrlBase}</cveUrlBase>
                         <!-- End NVD mirror configuration -->
-                        <failBuildOnCVSS>7</failBuildOnCVSS>
+                        <!-- Commented out as we make a process for handling these -->
+                        <!--<failBuildOnCVSS>7</failBuildOnCVSS>-->
                         <skipTestScope>true</skipTestScope>
                         <!--Disable by plugin maintainer recommendation on https://github.com/jeremylong/DependencyCheck/issues/978#issuecomment-349620687-->
                         <centralAnalyzerEnabled>false</centralAnalyzerEnabled>
-                        <!--Disable because we have a separate NSP analysis step and this plugin has no way to suppress NSP issues as of 3.0.2-->
-                        <nspAnalyzerEnabled>false</nspAnalyzerEnabled>
                         <!--Disable .NET analyzers-->
                         <nuspecAnalyzerEnabled>false</nuspecAnalyzerEnabled>
                         <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
@@ -451,6 +448,12 @@
                                 ${highest-basedir}/dependency-check-maven-config.xml
                             </suppressionFile>
                         </suppressionFiles>
+                        <!-- This prevents a build failure on jdk tools jar -->
+                        <skipSystemScope>true</skipSystemScope>
+                        <formats>
+                            <format>HTML</format>
+                            <format>JUNIT</format>
+                        </formats>
                     </configuration>
                     <executions>
                         <execution>
