@@ -32,6 +32,7 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.claims.AccessTokenHash;
@@ -257,7 +258,8 @@ public class OidcTokenValidator {
   private void validateAccessTokenAtHash(AccessToken accessToken, JWT idToken) {
     try {
       Object atHash = idToken.getJWTClaimsSet().getClaim("at_hash");
-      if (atHash == null && !IMPLICIT_FLOWS.contains(configuration.getResponseType())) {
+      if (atHash == null
+          && !IMPLICIT_FLOWS.contains(new ResponseType(configuration.getResponseType()))) {
         return;
       }
 
