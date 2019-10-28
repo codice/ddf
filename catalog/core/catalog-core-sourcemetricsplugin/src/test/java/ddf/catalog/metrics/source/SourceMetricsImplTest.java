@@ -21,8 +21,6 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.StopProcessingException;
-import ddf.catalog.source.CatalogProvider;
-import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.Source;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -43,17 +41,12 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-//import ddf.catalog.source.SourceMetrics;
 
 public class SourceMetricsImplTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SourceMetricsImplTest.class);
 
   private SourceMetricsImpl sourceMetrics;
-
-  private CatalogProvider catalogProvider;
-
-  private FederatedSource fedSource;
 
   private SourceMetricsImpl sourceMetricsImpl;
 

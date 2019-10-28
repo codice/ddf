@@ -23,7 +23,7 @@ package ddf.catalog.source;
  * @author rodgersh
  */
 public interface SourceMetrics {
-  
+
   public static final String METRICS_PREFIX = "ddf.catalog.source";
 
   public static final String QUERY_SCOPE = "query";
