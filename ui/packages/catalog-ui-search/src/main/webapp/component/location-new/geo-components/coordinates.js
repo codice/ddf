@@ -54,6 +54,7 @@ const DmsLatitude = props => {
     <MaskedCoordinate
       placeholder="dd°mm'ss.sss&quot;"
       mask={latitudeDMSMask}
+      placeholderChar="0"
       {...props}
     />
   )
@@ -64,6 +65,7 @@ const DmsLongitude = props => {
     <MaskedCoordinate
       placeholder="ddd°mm'ss.sss&quot;"
       mask={longitudeDMSMask}
+      placeholderChar="0"
       {...props}
     />
   )
