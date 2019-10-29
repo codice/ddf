@@ -61,7 +61,11 @@ public class ConfigurationAdminMigratable implements Migratable {
           "org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries",
           "org.codice.ddf.registry.policy.RegistryPolicyPlugin",
           "Registry_Configuration_Event_Handler",
-          "org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler");
+          "org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler",
+          "ddf.catalog.federation.impl.CachingFederationStrategy",
+          "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin",
+          "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin",
+          "ddf.catalog.CatalogFrameworkImpl");
 
   private static final List<String> ACCEPTED_ENTRY_FACTORY_PIDS =
       Arrays.asList(
