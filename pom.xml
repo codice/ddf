@@ -141,6 +141,7 @@
         <restito.version>0.8.2</restito.version>
         <xmlunit.version>1.4</xmlunit.version>
         <xmlunit-matchers.version>2.5.1</xmlunit-matchers.version>
+        <auth0.jwt.version>3.8.1</auth0.jwt.version>
 
         <!--Project properties-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

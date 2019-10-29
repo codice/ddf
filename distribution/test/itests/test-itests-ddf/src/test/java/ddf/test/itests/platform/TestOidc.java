@@ -968,7 +968,7 @@ public class TestOidc extends AbstractIntegrationTest {
             .get(LOGOUT_REQUEST_URL.getUrl());
 
     // Get and verify the logout url from body
-    String body = initialLogoutResponse.getBody().prettyPrint();
+    String body = initialLogoutResponse.htmlPath().getString("body");
     List<Map<String, String>> responseJson = GSON.fromJson(body, List.class);
     Map<String, String> oidcLogoutProperties =
         responseJson

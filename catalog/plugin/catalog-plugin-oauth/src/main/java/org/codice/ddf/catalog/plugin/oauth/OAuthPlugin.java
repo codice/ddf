@@ -191,7 +191,8 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
    * @param source - the proxy
    * @return the matching {@link OAuthFederatedSource}
    */
-  private OAuthFederatedSource getSource(Source source) {
+  @VisibleForTesting
+  OAuthFederatedSource getSource(Source source) {
     Bundle bundle = FrameworkUtil.getBundle(OAuthPlugin.class);
     if (bundle == null) {
       return null;
