@@ -25,6 +25,20 @@ const {
 } = require('../../component/location-new/geo-components/coordinates.js')
 const DirectionInput = require('../../component/location-new/geo-components/direction.js')
 const { Direction } = require('../../component/location-new/utils/dms-utils.js')
+import styled from 'styled-components'
+
+const ErrorBlock = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  background: ${({ theme }) => theme.negativeColor};
+`
+
+const WarningIcon = styled.span`
+  padding: ${({ theme }) => theme.minimumSpacing};
+`
 
 const PointRadiusLatLon = props => {
   const { lat, lon, radius, radiusUnits, cursor } = props
@@ -58,14 +72,30 @@ const PointRadiusLatLon = props => {
   )
 }
 
+const usngs = require('usng.js')
+const converter = new usngs.Converter()
+
 const PointRadiusUsngMgrs = props => {
   const { usng, radius, radiusUnits, cursor } = props
+  let error = false
+  try {
+    const result = converter.USNGtoLL(usng, true)
+    error = isNaN(result.lat) || isNaN(result.lon)
+  } catch (err) {
+    error = true
+  }
   return (
     <div>
       <TextField label="USNG / MGRS" value={usng} onChange={cursor('usng')} />
       <Units value={radiusUnits} onChange={cursor('radiusUnits')}>
         <TextField label="Radius" value={radius} onChange={cursor('radius')} />
       </Units>
+      {error ? (
+        <ErrorBlock>
+          <WarningIcon className="fa fa-warning" />
+          <span>Invalid USNG / MGRS coords</span>
+        </ErrorBlock>
+      ) : null}
     </div>
   )
 }
