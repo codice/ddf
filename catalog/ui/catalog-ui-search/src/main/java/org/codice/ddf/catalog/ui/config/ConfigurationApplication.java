@@ -47,7 +47,6 @@ import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.branding.BrandingPlugin;
-import org.codice.ddf.catalog.ui.security.faceting.FacetWhitelistConfiguration;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.codice.proxy.http.HttpProxyService;
@@ -193,6 +192,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private List<String> hiddenAttributes = Collections.emptyList();
 
+  private List<String> attributeSuggestionList = Collections.emptyList();
+
   private Map<String, String> attributeDescriptions = Collections.emptyMap();
 
   private List<String> listTemplates = Collections.emptyList();
@@ -237,8 +238,6 @@ public class ConfigurationApplication implements SparkApplication {
   private Set<String> editorAttributes = Collections.emptySet();
   private Set<String> requiredAttributes = Collections.emptySet();
   private Map<String, Set<String>> attributeEnumMap = Collections.emptyMap();
-
-  private FacetWhitelistConfiguration facetWhitelistConfiguration;
 
   private static final String INTRIGUE_BASE_NAME = "IntrigueBundle";
 
@@ -345,10 +344,8 @@ public class ConfigurationApplication implements SparkApplication {
     setAttributeEnumMap(mergedEntryMap);
   }
 
-  public ConfigurationApplication(
-      UuidGenerator uuidGenerator, FacetWhitelistConfiguration facetWhitelistConfiguration) {
+  public ConfigurationApplication(UuidGenerator uuidGenerator) {
     this.uuidGenerator = uuidGenerator;
-    this.facetWhitelistConfiguration = facetWhitelistConfiguration;
   }
 
   public List<Long> getScheduleFrequencyList() {
@@ -421,6 +418,10 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setHiddenAttributes(List<String> hiddenAttributes) {
     this.hiddenAttributes = hiddenAttributes;
+  }
+
+  public void setAttributeSuggestionList(List<String> list) {
+    this.attributeSuggestionList = list;
   }
 
   public void setListTemplates(List<String> listTemplates) {
@@ -570,7 +571,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("basicSearchMatchType", basicSearchMatchType);
     config.put("useHyphensInUuid", uuidGenerator.useHyphens());
     config.put("i18n", i18n);
-    config.put("facetWhitelist", facetWhitelistConfiguration.getFacetAttributeWhitelist());
+    config.put("attributeSuggestionList", attributeSuggestionList);
     return config;
   }
 
