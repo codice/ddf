@@ -362,9 +362,7 @@
                             versioning-common,
                             catalog-core-api-impl;scope=!test,
                             lux,
-                            Saxon-HE,
-                            javax.cache,
-                            javax.cache.configuration
+                            Saxon-HE
                         </Embed-Dependency>
                         <Export-Package>
                             ddf.catalog.cache,
@@ -373,8 +371,7 @@
                             org.codice.ddf.catalog.resource.download,
                             org.codice.ddf.catalog.resource.cache,
                             org.codice.ddf.catalog.resource.download.internal,
-                            org.codice.ddf.catalog.sourcepoller,
-                            javax.cache
+                            org.codice.ddf.catalog.sourcepoller
                         </Export-Package>
                         <Import-Package>
                             <!-- excluded packages coming from lux -->
