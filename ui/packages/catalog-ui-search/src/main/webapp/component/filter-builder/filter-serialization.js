@@ -69,7 +69,6 @@ const transformFilter = filter => {
 
   const value = CQLUtils.isGeoFilter(filter.type) ? filter : filter.value
 
-
   if (_.isObject(property)) {
     // if the filter is something like NEAR (which maps to a CQL filter function such as 'proximity'),
     // there is an enclosing filter that creates the necessary '= TRUE' predicate, and the 'property'
