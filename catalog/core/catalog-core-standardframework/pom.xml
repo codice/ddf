@@ -139,11 +139,6 @@
             <artifactId>hazelcast</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>cache-api</artifactId>
-            <version>${javax.cache.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-solr</artifactId>
             <version>${project.version}</version>
@@ -380,7 +375,6 @@
                             !org.apache.solr.*,
 
                             <!--packages required for solrj -->
-                            javax.cache,
                             org.apache.jute;version=${solr.zookeeper.version},
                             org.apache.solr.client.solrj;version=${solr.version},
                             org.apache.solr.client.solrj.beans;version=${solr.version},

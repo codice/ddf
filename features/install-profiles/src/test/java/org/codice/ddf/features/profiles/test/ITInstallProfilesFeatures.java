@@ -21,16 +21,11 @@ import static org.codice.ddf.test.common.options.PortOptions.defaultPortsOptions
 import static org.codice.ddf.test.common.options.TestResourcesOptions.getTestResource;
 import static org.codice.ddf.test.common.options.TestResourcesOptions.includeTestResources;
 import static org.codice.ddf.test.common.options.VmOptions.defaultVmOptions;
-import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.options;
 
 import java.util.List;
 import javax.inject.Inject;
 import org.codice.ddf.sync.installer.api.SynchronizedInstaller;
-import org.codice.ddf.test.common.DependencyVersionResolver;
-import org.codice.ddf.test.common.features.FeatureImpl;
-import org.codice.ddf.test.common.features.FeatureRepo;
-import org.codice.ddf.test.common.features.FeatureRepoImpl;
 import org.codice.ddf.test.common.features.FeatureUtilities;
 import org.codice.ddf.test.common.features.TestUtilitiesFeatures;
 import org.junit.Test;
@@ -39,8 +34,6 @@ import org.junit.runners.Parameterized;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExamParameterized;
-import org.ops4j.pax.exam.options.MavenArtifactUrlReference;
-import org.ops4j.pax.exam.options.UrlReference;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 
@@ -49,18 +42,6 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 public class ITInstallProfilesFeatures {
 
   private static final String FEATURE_REPO_PATH = getTestResource("/features.xml");
-
-  private static Option addJavaxCache() {
-    MavenArtifactUrlReference mavenArtifactUrlReference =
-        maven()
-            .groupId("javax.cache")
-            .artifactId("cache-api")
-            .version(DependencyVersionResolver.resolver());
-    FeatureRepo featureRepo = new FeatureRepoImpl(mavenArtifactUrlReference);
-    UrlReference url = featureRepo.getFeatureFileUrl();
-
-    return addBootFeature(new FeatureImpl(url, "javax.cache"));
-  }
 
   @Configuration
   public static Option[] examConfiguration() {

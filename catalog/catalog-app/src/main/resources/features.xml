@@ -129,7 +129,7 @@
         <bundle>mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-directorymonitor/${project.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/javax-cache-api/${javax.cache.bundle.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}</bundle>
     </feature>
 
     <feature name="catalog-transformer-bootflag" version="${project.version}"
