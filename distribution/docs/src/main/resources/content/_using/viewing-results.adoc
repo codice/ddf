@@ -63,6 +63,8 @@ Results can be edited from the *Summary* or *Details* tabs in the *Inspector* vi
 
 If a preview for a result is available, an extra tab will appear in the *Inspector* visual that allows you to see a preview of the resource.
 
+Getting a preview using the metadata can be enabled through *${admin-console} -> Catalog -> Configuration -> Catalog Preview -> Preview From Metadata*
+
 ==== Editing Associations on a Record
 
 Update relationships between records through [[_associations]]((*Associations*)).

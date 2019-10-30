@@ -98,7 +98,7 @@ pipeline {
                 stage ('Linux') {
                     steps {
                         // This timeout was reduced from 3 hours after this stage was modified to no longer run the itests. In the future, we may want to reduce it further if there is confidence that the build will finish faster.
-                        timeout(time: 2, unit: 'HOURS') {
+                        timeout(time: 3, unit: 'HOURS') {
                             // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
                             withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                                 sh 'mvn clean install -B -pl !$ITESTS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
@@ -127,7 +127,7 @@ pipeline {
             parallel {
                 stage ('Linux') {
                     steps {
-                        timeout(time: 2, unit: 'HOURS') {
+                        timeout(time: 3, unit: 'HOURS') {
                             // TODO: Maven downgraded to work around a linux build issue. Falling back to system java to work around a linux build issue. re-investigate upgrading later
                             withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                                 sh '''
@@ -163,9 +163,9 @@ pipeline {
                             script {
                                 // If this build is not a pull request, run owasp scan on the distribution. Otherwise run incremental scan
                                 if (env.CHANGE_ID == null) {
-                                    sh 'mvn verify -q -B -Powasp-dist -DskipTests=true -DskipStatic=true -pl !$DOCS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                                    sh 'mvn org.commonjava.maven.plugins:directory-maven-plugin:highest-basedir@directories dependency-check:check dependency-check:aggregate -q -B -Powasp-dist -DskipTests=true -DskipStatic=true -pl !$DOCS $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                                 } else {
-                                    sh 'mvn verify -q -B -Powasp -DskipTests=true -DskipStatic=true -pl !$DOCS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
+                                    sh 'mvn org.commonjava.maven.plugins:directory-maven-plugin:highest-basedir@directories dependency-check:check -q -B -Powasp -DskipTests=true -DskipStatic=true -pl !$DOCS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                                 }
                             }
                         }

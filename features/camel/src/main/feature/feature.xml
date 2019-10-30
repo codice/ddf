@@ -27,7 +27,7 @@
     <!--START Camel Features-->
     <!-- DO NOT EDIT
         All feature definitions come from 3rd party feature file:
-        <repository>mvn:org.apache.camel.karaf/apache-camel/2.22.0/xml/features</repository>
+        <repository>mvn:org.apache.camel.karaf/apache-camel/2.24.2/xml/features</repository>
 
         All version properties for these Camel features are defined in the platform-app pom.
 
@@ -43,6 +43,7 @@
         - replaced bundles in camel-jms
         - replaced cxf-http-provider with cxf-http-jetty
         - the versions for proton-j and qpid-jms-client used in camel-amqp need to be kept in sync with the versions used in artemis-amqp
+        - updated proton, qpid-jms, and netty versions to stay in sync with Camel 2.24.2 dependencies
 
     DO NOT EDIT
     -->

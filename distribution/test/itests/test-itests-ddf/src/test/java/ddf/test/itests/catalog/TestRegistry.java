@@ -21,12 +21,12 @@ import static com.xebialabs.restito.semantics.Action.ok;
 import static com.xebialabs.restito.semantics.Condition.not;
 import static com.xebialabs.restito.semantics.Condition.post;
 import static com.xebialabs.restito.semantics.Condition.withPostBodyContaining;
+import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswInsertRequest;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswRegistryStoreProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.xml.HasXPath.hasXPath;
-import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.Response;
@@ -40,6 +40,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.awaitility.Awaitility;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.XmlSearch;
@@ -566,27 +568,22 @@ public class TestRegistry extends AbstractIntegrationTest {
     String idPath = "//*[local-name()='identifier']/text()";
     String mcardId = XmlSearch.evaluate(idPath, response.getBody().asString());
 
-    boolean foundMetacard = false;
-    long startTime = System.currentTimeMillis();
-    long metacardLookupTimeout = TimeUnit.MINUTES.toMillis(20);
-    while (!foundMetacard) {
-      LOGGER.info("Waiting for metacard to be created");
-      List entries =
-          SECURITY.runAsAdminWithException(
-              () -> {
-                FederationAdminService federationAdminServiceImpl =
-                    getServiceManager().getService(FederationAdminService.class);
-                return federationAdminServiceImpl.getRegistryMetacardsByRegistryIds(
-                    Collections.singletonList(regId));
-              });
-      if (!entries.isEmpty()) {
-        foundMetacard = true;
-      } else if (System.currentTimeMillis() - startTime > metacardLookupTimeout) {
-        fail("Registry Metacard was not created in the allowed time");
-      }
-      Thread.sleep(SLEEP_TIME);
-    }
+    await("Waiting for metacard to be created")
+        .atMost(10, TimeUnit.MINUTES)
+        .pollDelay(SLEEP_TIME, TimeUnit.MILLISECONDS)
+        .until(() -> areRegistryMetacardsPresent(regId));
+
     return mcardId;
+  }
+
+  private boolean areRegistryMetacardsPresent(String regId) throws PrivilegedActionException {
+    return !SECURITY
+        .runAsAdminWithException(
+            () ->
+                getServiceManager()
+                    .getService(FederationAdminService.class)
+                    .getRegistryMetacardsByRegistryIds(Collections.singletonList(regId)))
+        .isEmpty();
   }
 
   private String createRegistryStoreEntry(String id, String regId, String remoteRegId)
@@ -598,34 +595,27 @@ public class TestRegistry extends AbstractIntegrationTest {
   }
 
   private void waitForMockServer() throws Exception {
-    long startTime = System.currentTimeMillis();
-    long timeout = TimeUnit.MINUTES.toMillis(2);
-    boolean available = false;
-    LOGGER.info("Waiting for Csw Mock Server to come up");
-    while (!available) {
-      try {
-        given()
-            .auth()
-            .preemptive()
-            .basic(ADMIN, ADMIN)
-            .body(
-                "<csw:GetCapabilities service=\"CSW\" xmlns:csw=\"http://www.opengis.net/cat/csw\" xmlns:ows=\"http://www.opengis.net/ows\"/>")
-            .header("Content-Type", "text/xml")
-            .expect()
-            .log()
-            .ifValidationFails()
-            .statusCode(200)
-            .when()
-            .post(CSW_PATH.getUrl());
-        available = true;
-        LOGGER.info("Csw Mock Server is running");
-      } catch (Error e) {
-        if (System.currentTimeMillis() - startTime > timeout) {
-          fail("Csw mock server didn't come up within allotted time.");
-        }
-        Thread.sleep(SLEEP_TIME);
-      }
-    }
+    RetryPolicy retryPolicy =
+        new RetryPolicy()
+            .withMaxDuration(2, TimeUnit.MINUTES)
+            .withDelay(SLEEP_TIME, TimeUnit.MILLISECONDS);
+    Failsafe.with(retryPolicy).run(this::mockServerIsReady);
+  }
+
+  private void mockServerIsReady() {
+    given()
+        .auth()
+        .preemptive()
+        .basic(ADMIN, ADMIN)
+        .body(
+            "<csw:GetCapabilities service=\"CSW\" xmlns:csw=\"http://www.opengis.net/cat/csw\" xmlns:ows=\"http://www.opengis.net/ows\"/>")
+        .header("Content-Type", "text/xml")
+        .expect()
+        .log()
+        .ifValidationFails()
+        .statusCode(200)
+        .when()
+        .post(CSW_PATH.getUrl());
   }
 
   private static void waitForCatalogStoreVerify(final Callable callable)
@@ -636,16 +626,17 @@ public class TestRegistry extends AbstractIntegrationTest {
               .pollInterval(5, TimeUnit.SECONDS)
               .await()
               .atMost(5, TimeUnit.MINUTES)
-              .untilAsserted(
-                  () -> {
-                    try {
-                      callable.call();
-                    } catch (Exception e) {
-                      throw new AssertionError(
-                          "There was an error interacting with the remote registry metacard.", e);
-                    }
-                  });
+              .untilAsserted(() -> callableAssertion(callable));
           return null;
         });
+  }
+
+  private static void callableAssertion(final Callable callable) {
+    try {
+      callable.call();
+    } catch (Exception e) {
+      throw new AssertionError(
+          "There was an error interacting with the remote registry metacard.", e);
+    }
   }
 }

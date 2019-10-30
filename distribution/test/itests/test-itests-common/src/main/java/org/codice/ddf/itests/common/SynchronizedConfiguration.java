@@ -13,12 +13,13 @@
  */
 package org.codice.ddf.itests.common;
 
-import static org.junit.Assert.fail;
+import static org.awaitility.Awaitility.await;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -57,26 +58,10 @@ public class SynchronizedConfiguration {
     Dictionary<String, Object> oldProps = config.getProperties();
     config.update(new Hashtable<>(configProps));
 
-    long timeoutLimit = System.currentTimeMillis() + CONFIG_UPDATE_MAX_WAIT_MILLIS;
-    boolean retried = false;
-    while (true) {
-      if (configCallable.call()) {
-        break;
-      } else {
-        // this is a hack to retry the configuration since it sometimes fails
-        // if it still keeps failing then we should remove this
-        if (!retried
-            && System.currentTimeMillis() > timeoutLimit - CONFIG_UPDATE_MAX_WAIT_MILLIS / 2) {
-          config.update(new Hashtable<>(configProps));
-          retried = true;
-        }
-        if (System.currentTimeMillis() > timeoutLimit) {
-          fail(String.format("Timed out waiting for configuration change for %s", pid));
-        } else {
-          Thread.sleep(LOOP_SLEEP_MILLIS);
-        }
-      }
-    }
+    await("Waiting for configuration change")
+        .atMost(CONFIG_UPDATE_MAX_WAIT_MILLIS, TimeUnit.MILLISECONDS)
+        .pollDelay(LOOP_SLEEP_MILLIS, TimeUnit.MILLISECONDS)
+        .until(configCallable);
 
     return oldProps;
   }

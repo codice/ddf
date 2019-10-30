@@ -1,0 +1,33 @@
+:title: Catalog Preview
+:id: org.codice.ddf.transformer.preview
+:type: table
+:status: published
+:application: ${ddf-catalog}
+:summary: Allow Preview to be Extracted From Metadata.
+
+.[[_org.codice.ddf.transformer.preview]]Catalog Preview
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+
+|Preview From Metadata
+|previewFromMetadata
+|Boolean
+|Allow Preview to be Extracted From Metadata.
+|false
+|true
+
+|Element Names to Preview
+|previewElements
+|String
+|Specify element names to preview from XML.  Will take the text content of the first available element for preview. Note: This list will not be used unless Preview From Metadata is enabled.
+|text,TEXT
+|true
+|===

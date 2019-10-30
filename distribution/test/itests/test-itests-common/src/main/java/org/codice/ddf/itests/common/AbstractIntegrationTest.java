@@ -68,6 +68,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.apache.karaf.bundle.core.BundleService;
 import org.apache.karaf.features.BootFinished;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.api.console.SessionFactory;
@@ -89,6 +90,7 @@ import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.util.Filter;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -177,6 +179,10 @@ public abstract class AbstractIntegrationTest {
   @Inject protected SessionFactory sessionFactory;
 
   @Inject protected MetaTypeService metatype;
+
+  @Inject protected BundleContext bundleContext;
+
+  @Inject protected BundleService bundleService;
 
   /** To make sure the tests run only when the boot features are fully installed */
   @Inject
@@ -375,12 +381,14 @@ public abstract class AbstractIntegrationTest {
             Proxy.newProxyInstance(
                 AbstractIntegrationTest.class.getClassLoader(),
                 ServiceManagerImpl.class.getInterfaces(),
-                new ServiceManagerProxy(new ServiceManagerImpl(metatype, adminConfig)));
+                new ServiceManagerProxy(
+                    new ServiceManagerImpl(
+                        metatype, adminConfig, bundleContext, bundleService, features)));
 
     catalogBundle = new CatalogBundle(serviceManager, adminConfig);
     securityPolicy = new SecurityPolicyConfigurator(serviceManager, configAdmin);
     urlResourceReaderConfigurator = new UrlResourceReaderConfigurator(configAdmin);
-    console = new KarafConsole(getServiceManager().getBundleContext(), features, sessionFactory);
+    console = new KarafConsole(bundleContext, features, sessionFactory);
   }
 
   @SuppressWarnings({

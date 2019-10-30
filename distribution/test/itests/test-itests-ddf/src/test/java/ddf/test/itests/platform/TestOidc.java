@@ -28,8 +28,8 @@ import static javax.ws.rs.core.HttpHeaders.HOST;
 import static javax.ws.rs.core.HttpHeaders.LOCATION;
 import static javax.ws.rs.core.HttpHeaders.USER_AGENT;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
-import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
@@ -58,7 +58,6 @@ import com.nimbusds.jose.util.Base64URL;
 import com.xebialabs.restito.semantics.Call;
 import com.xebialabs.restito.server.StubServer;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -171,7 +170,6 @@ public class TestOidc extends AbstractIntegrationTest {
   private static Dictionary<String, Object> oldHandlerProps;
   private static Map<String, Object> oldPolicyManagerProps;
   private static StubServer server;
-  private static RSAPublicKey publicKey;
   private static Algorithm validAlgorithm;
   private static Algorithm invalidAlgorithm;
   private static String jwk;
@@ -194,7 +192,7 @@ public class TestOidc extends AbstractIntegrationTest {
       gen.initialize(2048);
       KeyPair keyPair = gen.generateKeyPair();
       RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-      publicKey = (RSAPublicKey) keyPair.getPublic();
+      RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
 
       // Convert to JSON Web Key (JWK) format
       JWK sigJwk =
@@ -325,7 +323,7 @@ public class TestOidc extends AbstractIntegrationTest {
     String accessToken = createAccessToken(true);
 
     MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-    messageDigest.update(accessToken.getBytes(Charset.forName("US-ASCII")));
+    messageDigest.update(accessToken.getBytes(StandardCharsets.US_ASCII));
     byte[] hash = messageDigest.digest();
     byte[] firstHalf = Arrays.copyOf(hash, hash.length / 2);
 
@@ -1147,7 +1145,7 @@ public class TestOidc extends AbstractIntegrationTest {
    * @param valid - whether it should be valid or not
    * @param signed - whether it should be signed or not
    */
-  private String createUserInfoJson(boolean valid, boolean signed) throws Exception {
+  private String createUserInfoJson(boolean valid, boolean signed) {
     String[] roles = {"create-realm", "offline_access", "admin", "uma_authorization"};
 
     if (!signed) {
@@ -1325,13 +1323,10 @@ public class TestOidc extends AbstractIntegrationTest {
 
     for (Enumeration<String> keys = handlerConfig.keys(); keys.hasMoreElements(); ) {
       String key = keys.nextElement();
-      expect("Wait for the OIDC Handler Configuration to be updated.")
-          .within(2, TimeUnit.MINUTES)
+      await("Wait for the OIDC Handler Configuration to be updated.")
+          .atMost(2, TimeUnit.MINUTES)
           .until(() -> config.getProperties().get(key).equals(handlerConfig.get(key)));
     }
-
-    // Wait for the OIDC Handler to test the connection, create the OIDC client etc..
-    Thread.sleep(1000);
   }
 
   private void resetConfig() throws Exception {

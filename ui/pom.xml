@@ -371,6 +371,11 @@
                                     <classifier>security-certificate-adminmodule</classifier>
                                 </artifact>
                                 <artifact>
+                                    <file>packages/beta-admin-ui/target/beta-admin-ui.jar</file>
+                                    <type>jar</type>
+                                    <classifier>beta-admin-ui</classifier>
+                                </artifact>
+                                <artifact>
                                     <file>packages/catalog-admin-module-layout/target/default-layout.jar</file>
                                     <type>jar</type>
                                     <classifier>default-layout</classifier>
