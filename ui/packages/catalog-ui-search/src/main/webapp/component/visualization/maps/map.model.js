@@ -45,8 +45,8 @@ module.exports = Backbone.AssociatedModel.extend({
     targetMetacard: undefined,
     measurementState: 'NONE',
     currentDistance: 0,
-    billboards: [],
-    linePrimitive: undefined,
+    points: [],
+    line: undefined,
   },
   /*
    * Sets the measurement state to the given new state.
@@ -67,34 +67,34 @@ module.exports = Backbone.AssociatedModel.extend({
     }
   },
   /*
-   * Appends the given Billboard to the array of Billboards being tracked.
+   * Appends the given point to the array of points being tracked.
    */
-  addBillboard(billboard) {
+  addPoint(point) {
     this.set({
-      billboards: [...this.get('billboards'), billboard],
+      points: [...this.get('points'), point],
     })
   },
   /*
-   * Sets the line Primitive to the given new line Primitive. This represents the line on the map
+   * Sets the line to the given new line. This represents the line on the map
    * being used for the ruler measurement.
    */
-  setLinePrimitive(primitive) {
-    this.set({ linePrimitive: primitive })
+  setLine(line) {
+    this.set({ line })
   },
   /*
-   * Resets the model's line Primitive and returns the old one.
+   * Resets the model's line and returns the old one.
    */
-  removeLinePrimitive() {
-    const linePrimitive = this.get('linePrimitive')
-    this.set({ linePrimitive: undefined })
+  removeLine() {
+    const line = this.get('line')
+    this.set({ line: undefined })
 
-    return linePrimitive
+    return line
   },
   /*
-   * Resets the model's array of Billboards.
+   * Resets the model's array of points.
    */
-  clearBillboards() {
-    this.set({ billboards: [] })
+  clearPoints() {
+    this.set({ points: [] })
   },
   /*
    * Sets the current distance to the new given distance (in meters).

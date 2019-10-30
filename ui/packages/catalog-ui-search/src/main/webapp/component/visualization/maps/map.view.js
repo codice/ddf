@@ -364,28 +364,26 @@ module.exports = Marionette.LayoutView.extend({
   */
   handleMeasurementStateChange() {
     const state = this.mapModel.get('measurementState')
-    let billboard = null
+    let point = null
     switch (state) {
       case 'START':
         this.clearRuler()
         // starting map marker is labeled 'A'
-        billboard = this.map.addRulerPoint(
+        point = this.map.addRulerPoint(
           this.mapModel.get('coordinateValues'),
           'A'
         )
-        this.mapModel.addBillboard(billboard)
+        this.mapModel.addPoint(point)
         break
       case 'END':
         // ending map marker is labeled 'B'
-        billboard = this.map.addRulerPoint(
+        point = this.map.addRulerPoint(
           this.mapModel.get('coordinateValues'),
           'B'
         )
-        this.mapModel.addBillboard(billboard)
-        const linePrimitive = this.map.addRulerLine(
-          this.mapModel.get('billboards')
-        )
-        this.mapModel.setLinePrimitive(linePrimitive)
+        this.mapModel.addPoint(point)
+        const line = this.map.addRulerLine(this.mapModel.get('points'))
+        this.mapModel.setLine(line)
         break
       case 'NONE':
         this.clearRuler()
@@ -395,17 +393,17 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   /*
-    Handles tasks for clearing the ruler, which include removing all billboards
-    (endpoints of the line) and the line primitive.
+    Handles tasks for clearing the ruler, which include removing all points
+    (endpoints of the line) and the line.
   */
   clearRuler() {
-    const billboards = this.mapModel.get('billboards')
-    billboards.forEach(billboard => {
-      this.map.removeRulerPoint(billboard)
+    const points = this.mapModel.get('points')
+    points.forEach(point => {
+      this.map.removeRulerPoint(point)
     })
-    this.mapModel.clearBillboards()
-    const linePrimitive = this.mapModel.removeLinePrimitive()
-    this.map.removeRulerLine(linePrimitive)
+    this.mapModel.clearPoints()
+    const line = this.mapModel.removeLine()
+    this.map.removeRulerLine(line)
   },
   onRightClick(event, mapEvent) {
     event.preventDefault()

@@ -535,7 +535,7 @@ module.exports = function CesiumMap(
         geometry: geometry,
         attributes: {
           color: Cesium.ColorGeometryInstanceAttribute.fromColor(
-            Cesium.Color.DEEPPINK
+            Cesium.Color.fromCssColorString('#506F85')
           ),
         },
       })
