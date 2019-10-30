@@ -62,7 +62,11 @@ public class JsonModelBuilder implements FlatFilterBuilder<FilterNode> {
   private static final String LIKE = "LIKE";
 
   private static final Map<String, String> BINARY_TEMPORAL_MAPPING =
-      ImmutableMap.<String, String>builder().put("Before", "BEFORE").put("After", "AFTER").build();
+      ImmutableMap.<String, String>builder()
+          .put("Before", "BEFORE")
+          .put("After", "AFTER")
+          .put("During", "DURING")
+          .build();
 
   private static final Set<String> BINARY_SPATIAL_OPS = ImmutableSet.of("INTERSECTS", "DWITHIN");
 

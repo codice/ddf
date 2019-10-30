@@ -76,7 +76,29 @@ class AttributeValueNormalizer {
     if (instant != null) {
       return instant.toString();
     }
+
+    String isoDateRange = getIsoDateRangeFromEpoch(value);
+    if (isoDateRange != null) {
+      return isoDateRange;
+    }
+
     return value;
+  }
+
+  @Nullable
+  private String getIsoDateRangeFromEpoch(String value) {
+    if (value.indexOf('/') >= 0) {
+      String dates[] = value.split("/", 2);
+      Instant instantFrom = instantFromEpoch(dates[0]);
+      Instant instantTo = instantFromEpoch(dates[1]);
+
+      final String fromDate = (instantFrom != null) ? instantFrom.toString() : "";
+      final String toDate = (instantTo != null) ? instantTo.toString() : "";
+
+      return fromDate + '/' + toDate;
+    }
+
+    return null;
   }
 
   /**
@@ -117,7 +139,31 @@ class AttributeValueNormalizer {
     if (EXPECTED_RELATIVE_FUNCTION_PATTERN.matcher(value).matches()) {
       return value;
     }
+
+    // Edge case for a during date range (ISO/ISO)
+    String normalDateRange = normalizableDateRangeForXML(value);
+    if (normalDateRange != null) {
+      return normalDateRange;
+    }
+
     throw new FilterProcessingException("Unexpected date format on search form: " + value);
+  }
+
+  @Nullable
+  private String normalizableDateRangeForXML(String dateRange) {
+    if (dateRange.indexOf('/') >= 0) {
+      String[] dates = dateRange.split("/", 2);
+      Instant dateFromInstant = instantFromIso(dates[0]);
+      Instant dateToInstant = instantFromIso(dates[1]);
+
+      final String dateFrom =
+          (dateFromInstant != null) ? Objects.toString(dateFromInstant.toEpochMilli()) : "";
+      final String dateTo =
+          (dateToInstant != null) ? Objects.toString(dateToInstant.toEpochMilli()) : "";
+
+      return dateFrom + '/' + dateTo;
+    }
+    return null;
   }
 
   private boolean eitherStringIsNull(String property, String value) {

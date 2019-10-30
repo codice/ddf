@@ -63,6 +63,7 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
           .put("DWITHIN", Mapper::dwithin)
           .put("BEFORE", Mapper::before)
           .put("AFTER", Mapper::after)
+          .put("DURING", Mapper::during)
           .build();
 
   private static final Map<String, MultiNodeReducer> LOGICAL_OPS =
@@ -447,6 +448,10 @@ public class XmlModelBuilder implements FlatFilterBuilder<JAXBElement> {
 
     private static JAXBElement<BinaryTemporalOpType> after(List<JAXBElement<?>> children) {
       return FACTORY.createAfter(binaryTemporalType(children));
+    }
+
+    private static JAXBElement<BinaryTemporalOpType> during(List<JAXBElement<?>> children) {
+      return FACTORY.createDuring(binaryTemporalType(children));
     }
 
     private static JAXBElement<BinarySpatialOpType> intersects(List<JAXBElement<?>> children) {
