@@ -24,13 +24,13 @@ package ddf.catalog.source;
  */
 public interface SourceMetrics {
 
-  public static final String METRICS_PREFIX = "ddf.catalog.source";
+  String METRICS_PREFIX = "ddf.catalog.source";
 
-  public static final String QUERY_SCOPE = "query";
+  String QUERY_SCOPE = "query";
 
-  public static final String REQUEST_TYPE = "request";
+  String REQUEST_TYPE = "request";
 
-  public static final String RESPONSE_TYPE = "response";
+  String RESPONSE_TYPE = "response";
 
-  public static final String EXCEPTION_TYPE = "exception";
+  String EXCEPTION_TYPE = "exception";
 }

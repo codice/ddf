@@ -13,6 +13,11 @@
  */
 package ddf.catalog.metrics;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
@@ -29,18 +34,12 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import java.util.*;
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.Filter;
-
-import java.util.*;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link CatalogMetrics}
@@ -253,5 +252,4 @@ public class CatalogMetricsTest {
 
     assertThat(underTest.resourceRetrival.count(), is(1.0));
   }
-
 }

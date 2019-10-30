@@ -13,6 +13,8 @@
  */
 package ddf.catalog.metrics.source;
 
+import static ddf.catalog.source.SourceMetrics.*;
+
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.ProcessingDetails;
@@ -24,14 +26,11 @@ import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.Source;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.List;
+import java.util.Set;
 import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Set;
-
-import static ddf.catalog.source.SourceMetrics.*;
 
 public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederatedQueryPlugin {
 
@@ -51,9 +50,12 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
   public QueryRequest process(Source source, QueryRequest input)
       throws PluginExecutionException, StopProcessingException {
 
-//    A DistributionSummary can be instead by replacing counter() by summary() and increment() by record(). This applies
-//    equally to any other metric set in this class and retrieved in SourceMetricImplTest
-    meterRegistry.counter(source.getId() + "." + METRICS_PREFIX + "." + QUERY_SCOPE + "." + REQUEST_TYPE).increment();
+    //    A DistributionSummary can be instead by replacing counter() by summary() and increment()
+    // by record(). This applies
+    //    equally to any other metric set in this class and retrieved in SourceMetricImplTest
+    meterRegistry
+        .counter(source.getId() + "." + METRICS_PREFIX + "." + QUERY_SCOPE + "." + REQUEST_TYPE)
+        .increment();
     return input;
   }
 
@@ -66,18 +68,26 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
       Set<ProcessingDetails> processingDetails = input.getProcessingDetails();
       List<Result> results = input.getResults();
 
-      processingDetails.stream()
-              .filter(ProcessingDetails::hasException)
-              .map(ProcessingDetails::getSourceId)
-              .forEach(id -> {
-                meterRegistry.counter(id  + "." + METRICS_PREFIX + "." + QUERY_SCOPE + "."+ EXCEPTION_TYPE).increment();
+      processingDetails
+          .stream()
+          .filter(ProcessingDetails::hasException)
+          .map(ProcessingDetails::getSourceId)
+          .forEach(
+              id -> {
+                meterRegistry
+                    .counter(id + "." + METRICS_PREFIX + "." + QUERY_SCOPE + "." + EXCEPTION_TYPE)
+                    .increment();
               });
 
-      results.stream()
-              .map(Result::getMetacard)
-              .map(Metacard::getSourceId)
-              .forEach(id -> {
-                meterRegistry.counter(id  + "." + METRICS_PREFIX + "." + QUERY_SCOPE + "."+ RESPONSE_TYPE).increment();
+      results
+          .stream()
+          .map(Result::getMetacard)
+          .map(Metacard::getSourceId)
+          .forEach(
+              id -> {
+                meterRegistry
+                    .counter(id + "." + METRICS_PREFIX + "." + QUERY_SCOPE + "." + RESPONSE_TYPE)
+                    .increment();
               });
     }
     return input;

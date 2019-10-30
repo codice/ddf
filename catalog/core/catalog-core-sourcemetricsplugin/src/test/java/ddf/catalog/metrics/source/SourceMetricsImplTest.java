@@ -13,6 +13,12 @@
  */
 package ddf.catalog.metrics.source;
 
+import static ddf.catalog.source.SourceMetrics.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.operation.ProcessingDetails;
@@ -24,29 +30,19 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.Source;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static ddf.catalog.source.SourceMetrics.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-
 public class SourceMetricsImplTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SourceMetricsImplTest.class);
-
-  private SourceMetricsImpl sourceMetrics;
 
   private SourceMetricsImpl sourceMetricsImpl;
 
@@ -61,7 +57,8 @@ public class SourceMetricsImplTest {
   }
 
   @Test
-  public void testRequestCounterForQueryRequest() throws PluginExecutionException, StopProcessingException {
+  public void testRequestCounterForQueryRequest()
+      throws PluginExecutionException, StopProcessingException {
     Source source = mock(Source.class);
     when(source.getId()).thenReturn("testSource");
     QueryRequest queryRequest = mock(QueryRequest.class);
@@ -71,27 +68,26 @@ public class SourceMetricsImplTest {
   }
 
   @Test
-  public void testExceptionCounterForQueryResponse() throws PluginExecutionException, StopProcessingException {
+  public void testExceptionCounterForQueryResponse()
+      throws PluginExecutionException, StopProcessingException {
     QueryResponse queryResponse = mock(QueryResponse.class);
-    Set<ProcessingDetails> processingDetails = Stream.of(
-      new ProcessingDetailsImpl("testSource", new Exception())
-    ).collect(Collectors.toSet());
+    Set<ProcessingDetails> processingDetails =
+        Stream.of(new ProcessingDetailsImpl("testSource", new Exception()))
+            .collect(Collectors.toSet());
     when(queryResponse.getProcessingDetails()).thenReturn(processingDetails);
     sourceMetricsImpl.process(queryResponse);
     String suffix = METRICS_PREFIX + "." + QUERY_SCOPE + "." + EXCEPTION_TYPE;
     assertThat(meterRegistry.counter("testSource" + "." + suffix).count(), is(1.0));
-
   }
 
   @Test
-  public void testResponseCounterForQueryResponse() throws PluginExecutionException, StopProcessingException {
+  public void testResponseCounterForQueryResponse()
+      throws PluginExecutionException, StopProcessingException {
     Metacard metacard = mock(Metacard.class);
     when(metacard.getSourceId()).thenReturn("testSource");
     Result result = mock(Result.class);
     when(result.getMetacard()).thenReturn(metacard);
-    List<Result> results = Stream.of(
-            result
-    ).collect(Collectors.toList());
+    List<Result> results = Stream.of(result).collect(Collectors.toList());
     QueryResponse queryResponse = mock(QueryResponse.class);
     when(queryResponse.getResults()).thenReturn(results);
     sourceMetricsImpl.process(queryResponse);

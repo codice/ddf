@@ -13,6 +13,10 @@
  */
 package ddf.metrics.interceptor;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.apache.cxf.message.Exchange;
@@ -22,10 +26,6 @@ import org.apache.cxf.phase.Phase;
 import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 /** @author willisod */
 public class MetricsInInterceptorTest {
