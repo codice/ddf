@@ -14,8 +14,10 @@
 package ddf.catalog.source.solr;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -36,6 +38,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.types.CoreAttributes;
 import ddf.catalog.source.solr.json.MetacardTypeMapperFactory;
 import java.io.IOException;
@@ -49,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.solr.common.SolrInputDocument;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
@@ -60,6 +64,35 @@ public class DynamicSchemaResolverTest {
   private static final ObjectMapper METACARD_TYPE_MAPPER =
       MetacardTypeMapperFactory.newObjectMapper();
 
+  private DynamicSchemaResolver dynamicSchemaResolver;
+
+  @Before
+  public void setup() {
+    dynamicSchemaResolver = new DynamicSchemaResolver();
+  }
+
+  @Test
+  public void testAddMetacardType() {
+
+    assertThat(dynamicSchemaResolver.getAnonymousField(Metacard.TITLE), empty());
+
+    dynamicSchemaResolver.addMetacardType(MetacardImpl.BASIC_METACARD);
+
+    assertThat(dynamicSchemaResolver.getAnonymousField(Metacard.TITLE), hasSize(1));
+  }
+
+  @Test
+  public void testRemoveMetacardType() {
+
+    dynamicSchemaResolver.addMetacardType(MetacardImpl.BASIC_METACARD);
+
+    assertThat(dynamicSchemaResolver.getAnonymousField(Metacard.TITLE), hasSize(1));
+
+    dynamicSchemaResolver.removeMetacardType(MetacardImpl.BASIC_METACARD);
+
+    assertThat(dynamicSchemaResolver.getAnonymousField(Metacard.TITLE), empty());
+  }
+
   /**
    * Verify that when a metacard type has attribute descriptors that inherit from
    * AttributeDescriptorImpl, the attribute descriptors are recreated as AttributeDescriptorsImpls
@@ -69,7 +102,7 @@ public class DynamicSchemaResolverTest {
   public void testAddFields() throws Exception {
     // Setup
     String metacardTypeName = "states";
-    Set<AttributeDescriptor> attributeDescriptors = new HashSet<AttributeDescriptor>(1);
+    Set<AttributeDescriptor> attributeDescriptors = new HashSet<>(1);
     String propertyName = "title";
     String name = metacardTypeName + "." + propertyName;
     boolean indexed = true;
@@ -88,10 +121,9 @@ public class DynamicSchemaResolverTest {
     when(mockMetacard.getAttribute(name)).thenReturn(mockAttribute);
     ArgumentCaptor<byte[]> metacardTypeBytes = ArgumentCaptor.forClass(byte[].class);
     SolrInputDocument mockSolrInputDocument = mock(SolrInputDocument.class);
-    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
 
     // Perform Test
-    resolver.addFields(mockMetacard, mockSolrInputDocument);
+    dynamicSchemaResolver.addFields(mockMetacard, mockSolrInputDocument);
 
     // Verify: Verify that TestAttributeDescriptorImpl has been recreated as a
     // AttributeDescriptorImpl.
@@ -116,7 +148,7 @@ public class DynamicSchemaResolverTest {
 
     // Setup
     String metacardTypeName = "states";
-    Set<AttributeDescriptor> attributeDescriptors = new HashSet<AttributeDescriptor>(1);
+    Set<AttributeDescriptor> attributeDescriptors = new HashSet<>(1);
     String propertyName = "title";
     String name = metacardTypeName + "." + propertyName;
     boolean indexed = true;
@@ -137,10 +169,9 @@ public class DynamicSchemaResolverTest {
     when(mockMetacard.getMetacardType().getAttributeDescriptors()).thenReturn(attributeDescriptors);
     when(mockMetacard.getAttribute(name)).thenReturn(mockAttribute);
     SolrInputDocument solrInputDocument = new SolrInputDocument();
-    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
 
     // Perform Test
-    resolver.addFields(mockMetacard, solrInputDocument);
+    dynamicSchemaResolver.addFields(mockMetacard, solrInputDocument);
     assertThat(solrInputDocument.getFieldValue("lux_xml"), is(nullValue()));
   }
 
@@ -155,7 +186,7 @@ public class DynamicSchemaResolverTest {
 
     // Setup
     String metacardTypeName = "states";
-    Set<AttributeDescriptor> attributeDescriptors = new HashSet<AttributeDescriptor>(1);
+    Set<AttributeDescriptor> attributeDescriptors = new HashSet<>(1);
     String propertyName = "title";
     String name = metacardTypeName + "." + propertyName;
     boolean indexed = true;
@@ -176,20 +207,18 @@ public class DynamicSchemaResolverTest {
     when(mockMetacard.getMetacardType().getAttributeDescriptors()).thenReturn(attributeDescriptors);
     when(mockMetacard.getAttribute(name)).thenReturn(mockAttribute);
     SolrInputDocument solrInputDocument = new SolrInputDocument();
-    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
 
     // Perform Test
-    resolver.addFields(mockMetacard, solrInputDocument);
+    dynamicSchemaResolver.addFields(mockMetacard, solrInputDocument);
     assertThat(solrInputDocument.getFieldValue("lux_xml"), is(notNullValue()));
   }
 
   @Test
-  public void testAddFieldsRevertsTo5mbMetadataSizeLimitTooLarge() throws Exception {
+  public void testAddFieldsRevertsTo5mbMetadataSizeLimitTooLarge() {
     long overflow = Integer.MAX_VALUE;
     System.setProperty("metadata.size.limit", String.valueOf(overflow + 1));
-    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
 
-    int actual = resolver.getMetadataSizeLimit();
+    int actual = DynamicSchemaResolver.getMetadataSizeLimit();
     assertThat(actual, equalTo(DynamicSchemaResolver.FIVE_MEGABYTES));
   }
   /**
@@ -197,12 +226,11 @@ public class DynamicSchemaResolverTest {
    * the metacard
    */
   @Test
-  public void testAddFieldsRevertsTo5mbMetadataSizeLimitNotNumeric() throws Exception {
+  public void testAddFieldsRevertsTo5mbMetadataSizeLimitNotNumeric() {
     // Set
     System.setProperty("metadata.size.limit", "supercalifragilisticexpialidocious");
-    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
 
-    int actual = resolver.getMetadataSizeLimit();
+    int actual = DynamicSchemaResolver.getMetadataSizeLimit();
     assertThat(actual, equalTo(DynamicSchemaResolver.FIVE_MEGABYTES));
   }
 
@@ -228,7 +256,7 @@ public class DynamicSchemaResolverTest {
     SolrInputDocument mockSolrInputDocument = mock(SolrInputDocument.class);
     DynamicSchemaResolver resolver =
         new DynamicSchemaResolver(
-            Collections.EMPTY_LIST,
+            Collections.emptyList(),
             tinyTree -> {
               throw new BufferOverflowException();
             });
@@ -245,15 +273,15 @@ public class DynamicSchemaResolverTest {
   }
 
   @Test
-  public void testAdditionalFieldConstructorWithEmptyList() throws Exception {
-    DynamicSchemaResolver resolver = new DynamicSchemaResolver(Collections.EMPTY_LIST);
+  public void testAdditionalFieldConstructorWithEmptyList() {
+    DynamicSchemaResolver resolver = new DynamicSchemaResolver(Collections.emptyList());
     int fieldsCacheSize = resolver.fieldsCache.size();
 
     assertThat(fieldsCacheSize, equalTo(INITIAL_FIELDS_CACHE_COUNT));
   }
 
   @Test
-  public void testAdditionalFieldConstructor() throws Exception {
+  public void testAdditionalFieldConstructor() {
     String someExtraField = "someExtraField";
     String anotherExtraField = "anotherExtraField";
 
@@ -276,70 +304,67 @@ public class DynamicSchemaResolverTest {
   @Test
   public void getField() {
     assertThat(
-        new DynamicSchemaResolver()
-            .getField("unknown", AttributeFormat.GEOMETRY, false, Collections.EMPTY_MAP),
+        dynamicSchemaResolver.getField(
+            "unknown", AttributeFormat.GEOMETRY, false, Collections.emptyMap()),
         is("unknown_geo_index"));
 
     assertThat(
-        new DynamicSchemaResolver()
-            .getField("unknown", AttributeFormat.XML, false, Collections.EMPTY_MAP),
+        dynamicSchemaResolver.getField(
+            "unknown", AttributeFormat.XML, false, Collections.emptyMap()),
         is("unknown_xml_tpt"));
 
     assertThat(
-        new DynamicSchemaResolver()
-            .getField("unknown", AttributeFormat.STRING, false, Collections.EMPTY_MAP),
+        dynamicSchemaResolver.getField(
+            "unknown", AttributeFormat.STRING, false, Collections.emptyMap()),
         is("unknown_txt_tokenized"));
 
-    Map<String, Serializable> enabledFeatures = new HashMap<String, Serializable>();
+    Map<String, Serializable> enabledFeatures = new HashMap<>();
     enabledFeatures.put(DynamicSchemaResolver.PHONETICS_FEATURE, Boolean.TRUE);
     assertThat(
-        new DynamicSchemaResolver()
-            .getField("unknown", AttributeFormat.STRING, false, enabledFeatures),
+        dynamicSchemaResolver.getField("unknown", AttributeFormat.STRING, false, enabledFeatures),
         is("unknown_txt_phonetics"));
 
     enabledFeatures.put(DynamicSchemaResolver.PHONETICS_FEATURE, Boolean.FALSE);
     assertThat(
-        new DynamicSchemaResolver()
-            .getField("unknown", AttributeFormat.STRING, false, enabledFeatures),
+        dynamicSchemaResolver.getField("unknown", AttributeFormat.STRING, false, enabledFeatures),
         is("unknown_txt_tokenized"));
   }
 
   @Test
   public void getFieldExactValue() {
     assertThat(
-        new DynamicSchemaResolver()
-            .getField("unknown", AttributeFormat.DOUBLE, true, Collections.EMPTY_MAP),
+        dynamicSchemaResolver.getField(
+            "unknown", AttributeFormat.DOUBLE, true, Collections.emptyMap()),
         is("unknown_dbl"));
     assertThat(
-        new DynamicSchemaResolver()
-            .getField("unknown", AttributeFormat.LONG, true, Collections.EMPTY_MAP),
+        dynamicSchemaResolver.getField(
+            "unknown", AttributeFormat.LONG, true, Collections.emptyMap()),
         is("unknown_lng"));
     assertThat(
-        new DynamicSchemaResolver()
-            .getField("unknown", AttributeFormat.INTEGER, true, Collections.EMPTY_MAP),
+        dynamicSchemaResolver.getField(
+            "unknown", AttributeFormat.INTEGER, true, Collections.emptyMap()),
         is("unknown_int"));
     assertThat(
-        new DynamicSchemaResolver()
-            .getField("unknown", AttributeFormat.SHORT, true, Collections.EMPTY_MAP),
+        dynamicSchemaResolver.getField(
+            "unknown", AttributeFormat.SHORT, true, Collections.emptyMap()),
         is("unknown_shr"));
     assertThat(
-        new DynamicSchemaResolver()
-            .getField("unknown", AttributeFormat.FLOAT, true, Collections.EMPTY_MAP),
+        dynamicSchemaResolver.getField(
+            "unknown", AttributeFormat.FLOAT, true, Collections.emptyMap()),
         is("unknown_flt"));
     assertThat(
-        new DynamicSchemaResolver()
-            .getField("anyGeo", AttributeFormat.BINARY, true, Collections.EMPTY_MAP),
+        dynamicSchemaResolver.getField(
+            "anyGeo", AttributeFormat.BINARY, true, Collections.emptyMap()),
         is("location_geo_index"));
     assertThat(
-        new DynamicSchemaResolver()
-            .getField("unknown", AttributeFormat.STRING, true, Collections.EMPTY_MAP),
+        dynamicSchemaResolver.getField(
+            "unknown", AttributeFormat.STRING, true, Collections.emptyMap()),
         is("unknown_txt"));
 
-    Map<String, Serializable> enabledFeatures = new HashMap<String, Serializable>();
+    Map<String, Serializable> enabledFeatures = new HashMap<>();
     enabledFeatures.put(DynamicSchemaResolver.PHONETICS_FEATURE, Boolean.TRUE);
     assertThat(
-        new DynamicSchemaResolver()
-            .getField("unknown", AttributeFormat.STRING, true, enabledFeatures),
+        dynamicSchemaResolver.getField("unknown", AttributeFormat.STRING, true, enabledFeatures),
         is("unknown_txt"));
   }
 }

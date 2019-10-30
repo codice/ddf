@@ -14,6 +14,7 @@
 package ddf.catalog.solr.provider;
 
 import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.source.solr.DynamicSchemaResolver;
 import ddf.catalog.source.solr.RemoteSolrCatalogProvider;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
 import org.codice.solr.factory.SolrClientFactory;
@@ -23,11 +24,12 @@ public class SolrCatalogProvider extends RemoteSolrCatalogProvider {
   public SolrCatalogProvider(
       FilterAdapter filterAdapter,
       SolrClientFactory clientFactory,
-      SolrFilterDelegateFactory solrFilterDelegateFactory) {
+      SolrFilterDelegateFactory solrFilterDelegateFactory,
+      DynamicSchemaResolver dynamicSchemaResolver) {
     super(
         filterAdapter,
         clientFactory.newClient(SOLR_CATALOG_CORE_NAME),
         solrFilterDelegateFactory,
-        null);
+        dynamicSchemaResolver);
   }
 }

@@ -40,12 +40,19 @@ class CacheSolrMetacardClient extends SolrMetacardClientImpl {
   public CacheSolrMetacardClient(
       SolrClient client,
       FilterAdapter catalogFilterAdapter,
-      SolrFilterDelegateFactory solrFilterDelegateFactory) {
+      SolrFilterDelegateFactory solrFilterDelegateFactory,
+      DynamicSchemaResolver dynamicSchemaResolver) {
     super(
         client,
         catalogFilterAdapter,
         solrFilterDelegateFactory,
-        new DynamicSchemaResolver(ADDITIONAL_FIELDS));
+        enhanceResolver(dynamicSchemaResolver));
+  }
+
+  private static DynamicSchemaResolver enhanceResolver(
+      DynamicSchemaResolver dynamicSchemaResolver) {
+    DynamicSchemaResolver.addAdditionalFields(dynamicSchemaResolver, ADDITIONAL_FIELDS);
+    return dynamicSchemaResolver;
   }
 
   @Override

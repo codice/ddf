@@ -32,7 +32,6 @@ import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.source.solr.json.MetacardTypeMapperFactory;
@@ -51,12 +50,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -99,26 +99,25 @@ import org.slf4j.LoggerFactory;
  */
 public class DynamicSchemaResolver {
 
-  public static final String LUX_XML_FIELD_NAME = "lux_xml";
+  private static final String LUX_XML_FIELD_NAME = "lux_xml";
 
-  public static final String SCORE_FIELD_NAME = "score";
+  private static final String SCORE_FIELD_NAME = "score";
 
-  public static final int TOKEN_MAXIMUM_BYTES = 32766;
+  private static final int TOKEN_MAXIMUM_BYTES = 32766;
 
-  public static final String PHONETICS_FEATURE = "phonetics";
+  static final String PHONETICS_FEATURE = "phonetics";
 
-  protected static final char FIRST_CHAR_OF_SUFFIX = '_';
+  static final char FIRST_CHAR_OF_SUFFIX = '_';
 
-  protected static final String COULD_NOT_READ_METACARD_TYPE_MESSAGE =
-      "Could not read MetacardType.";
+  private static final String COULD_NOT_READ_METACARD_TYPE_MESSAGE = "Could not read MetacardType.";
 
-  protected static final String FIELDS_KEY = "fields";
+  private static final String FIELDS_KEY = "fields";
 
-  protected static final String COULD_NOT_SERIALIZE_OBJECT_MESSAGE = "Could not serialize object";
+  private static final String COULD_NOT_SERIALIZE_OBJECT_MESSAGE = "Could not serialize object";
 
-  protected static final XMLInputFactory XML_INPUT_FACTORY;
+  private static final XMLInputFactory XML_INPUT_FACTORY;
 
-  protected static final int FIVE_MEGABYTES = 5 * 1024 * 1024;
+  static final int FIVE_MEGABYTES = 5 * 1024 * 1024;
 
   private static final String METADATA_SIZE_LIMIT = "metadata.size.limit";
 
@@ -164,19 +163,28 @@ public class DynamicSchemaResolver {
     }
   }
 
-  protected Set<String> fieldsCache = new HashSet<>();
+  Set<String> fieldsCache = new HashSet<>();
 
-  protected Set<String> anyTextFieldsCache = new HashSet<>();
+  private Set<String> anyTextFieldsCache = new HashSet<>();
 
-  protected SchemaFields schemaFields;
+  private SchemaFields schemaFields;
 
-  protected Cache<String, MetacardType> metacardTypesCache =
+  private Cache<String, MetacardType> metacardTypesCache =
       CacheBuilder.newBuilder().maximumSize(4096).initialCapacity(64).build();
 
-  protected Cache<String, byte[]> metacardTypeNameToSerialCache =
+  private Cache<String, byte[]> metacardTypeNameToSerialCache =
       CacheBuilder.newBuilder().maximumSize(4096).initialCapacity(64).build();
 
   private Processor processor = new Processor(new Config());
+
+  /**
+   * As metacard types are added via {@link #addMetacardType(MetacardType)}, this map keeps track of
+   * the number of times metacard attributes are added to the {@link #fieldsCache} and {@link
+   * #anyTextFieldsCache}. The count is decremented when {@link #removeMetacardType(MetacardType)}
+   * is called. When the count reaches zero, the attribute is removed from {@link #fieldsCache} and
+   * {@link #anyTextFieldsCache}.
+   */
+  private Map<String, AtomicInteger> countedFieldsCache = new HashMap<>();
 
   public DynamicSchemaResolver(
       List<String> additionalFields, Function<TinyTree, TinyBinary> tinyBinaryFunction) {
@@ -195,29 +203,77 @@ public class DynamicSchemaResolver {
     fieldsCache.add(Metacard.TAGS + SchemaFields.TEXT_SUFFIX);
 
     anyTextFieldsCache.add(Metacard.METADATA + SchemaFields.TEXT_SUFFIX);
-    Set<String> basicTextAttributes =
-        MetacardImpl.BASIC_METACARD
-            .getAttributeDescriptors()
-            .stream()
-            .filter(descriptor -> BasicTypes.STRING_TYPE.equals(descriptor.getType()))
-            .map(stringDescriptor -> stringDescriptor.getName() + SchemaFields.TEXT_SUFFIX)
-            .collect(Collectors.toSet());
-    anyTextFieldsCache.addAll(basicTextAttributes);
+
     fieldsCache.add(Validation.VALIDATION_ERRORS + SchemaFields.TEXT_SUFFIX);
     fieldsCache.add(Validation.VALIDATION_WARNINGS + SchemaFields.TEXT_SUFFIX);
 
     fieldsCache.add(SchemaFields.METACARD_TYPE_FIELD_NAME);
     fieldsCache.add(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
 
-    for (String field : additionalFields) {
-      if (StringUtils.isNotBlank(field)) {
-        fieldsCache.add(field);
-      }
-    }
+    addAdditionalFields(this, additionalFields);
   }
 
   public DynamicSchemaResolver() {
     this(Collections.emptyList());
+  }
+
+  public static void addAdditionalFields(
+      DynamicSchemaResolver dynamicSchemaResolver, List<String> additionalFields) {
+    additionalFields
+        .stream()
+        .filter(StringUtils::isNotBlank)
+        .forEach(field -> dynamicSchemaResolver.fieldsCache.add(field));
+  }
+
+  @SuppressWarnings("WeakerAccess" /* access needed by blueprint */)
+  public void addMetacardType(MetacardType metacardType) {
+
+    metacardType
+        .getAttributeDescriptors()
+        .forEach(
+            attribute -> {
+              countedFieldsCache
+                  .computeIfAbsent(attribute.getName(), key -> new AtomicInteger(0))
+                  .incrementAndGet();
+              addToFieldsCache(attribute);
+            });
+
+    metacardType
+        .getAttributeDescriptors()
+        .stream()
+        .filter(descriptor -> BasicTypes.STRING_TYPE.equals(descriptor.getType()))
+        .map(stringDescriptor -> stringDescriptor.getName() + SchemaFields.TEXT_SUFFIX)
+        .forEach(fieldName -> anyTextFieldsCache.add(fieldName));
+  }
+
+  @SuppressWarnings("WeakerAccess" /* access needed by blueprint */)
+  public void removeMetacardType(MetacardType metacardType) {
+
+    metacardType
+        .getAttributeDescriptors()
+        .stream()
+        .map(AttributeDescriptor::getName)
+        .filter(attributeName -> countedFieldsCache.containsKey(attributeName))
+        .forEach(attributeName -> countedFieldsCache.get(attributeName).decrementAndGet());
+
+    List<String> attributeNamesToBeRemoved =
+        countedFieldsCache
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getValue().get() == 0)
+            .map(Entry::getKey)
+            .collect(Collectors.toList());
+
+    attributeNamesToBeRemoved.forEach(
+        attributeName -> {
+          for (AttributeFormat format : AttributeFormat.values()) {
+            String fullFieldName = attributeName + schemaFields.getFieldSuffix(format);
+            fieldsCache.remove(fullFieldName);
+          }
+
+          anyTextFieldsCache.remove(attributeName + SchemaFields.TEXT_SUFFIX);
+          countedFieldsCache.remove(attributeName);
+        });
   }
 
   /**
@@ -229,7 +285,7 @@ public class DynamicSchemaResolver {
    * @throws SolrException if a Solr exception occurs
    * @throws IOException if an I/O exception occurs
    */
-  public void addFieldsFromClient(SolrClient client) throws SolrServerException, IOException {
+  void addFieldsFromClient(SolrClient client) throws SolrServerException, IOException {
     if (client == null) {
       LOGGER.debug("Solr client is null, could not add fields to cache.");
       return;
@@ -271,7 +327,7 @@ public class DynamicSchemaResolver {
   }
 
   /** Adds the fields of the Metacard into the {@link SolrInputDocument} */
-  public void addFields(Metacard metacard, SolrInputDocument solrInputDocument)
+  void addFields(Metacard metacard, SolrInputDocument solrInputDocument)
       throws MetacardCreationException {
     MetacardType schema = metacard.getMetacardType();
 
@@ -304,11 +360,7 @@ public class DynamicSchemaResolver {
             List<Serializable> truncatedValues =
                 attributeValues
                     .stream()
-                    .map(
-                        value ->
-                            value != null
-                                ? truncateAsUTF8(value.toString(), TOKEN_MAXIMUM_BYTES)
-                                : value)
+                    .map(value -> value != null ? truncateAsUTF8(value.toString()) : value)
                     .collect(Collectors.toList());
             // *_txt
             solrInputDocument.addField(
@@ -401,7 +453,7 @@ public class DynamicSchemaResolver {
    * Truncation that takes multibyte UTF-8 characters and surrogate pairs into consideration.
    * https://stackoverflow.com/questions/119328/how-do-i-truncate-a-java-string-to-fit-in-a-given-number-of-bytes-once-utf-8-en
    */
-  private String truncateAsUTF8(String value, int maximumBytes) {
+  private String truncateAsUTF8(String value) {
     int b = 0;
     int skip;
     for (int i = 0; i < value.length(); i = i + 1 + skip) {
@@ -422,7 +474,7 @@ public class DynamicSchemaResolver {
         more = 3;
       }
 
-      if (b + more > maximumBytes) {
+      if (b + more > TOKEN_MAXIMUM_BYTES) {
         return value.substring(0, i);
       }
       b += more;
@@ -450,8 +502,7 @@ public class DynamicSchemaResolver {
     Point centerPoint;
     if (geometries.size() > 1) {
       GeometryCollection geoCollection =
-          GEOMETRY_FACTORY.createGeometryCollection(
-              geometries.toArray(new Geometry[geometries.size()]));
+          GEOMETRY_FACTORY.createGeometryCollection(geometries.toArray(new Geometry[0]));
 
       centerPoint = geoCollection.getCentroid();
     } else {
@@ -498,24 +549,23 @@ public class DynamicSchemaResolver {
     int lastIndexOfUndercore = solrFieldName.lastIndexOf(FIRST_CHAR_OF_SUFFIX);
 
     if (lastIndexOfUndercore != -1) {
-      suffix = solrFieldName.substring(lastIndexOfUndercore, solrFieldName.length());
+      suffix = solrFieldName.substring(lastIndexOfUndercore);
     }
 
     return schemaFields.getFormat(suffix);
   }
 
-  public List<Serializable> getDocValues(String solrFieldName, Collection<Object> docValues) {
+  List<Serializable> getDocValues(String solrFieldName, Collection<Object> docValues) {
     ArrayList<Serializable> values = new ArrayList<>();
-    Iterator<Object> iterator = docValues.iterator();
-    while (iterator.hasNext()) {
-      values.add(getDocValue(solrFieldName, iterator.next()));
+    for (Object docValue : docValues) {
+      values.add(getDocValue(solrFieldName, docValue));
     }
     return values;
   }
 
   @SuppressWarnings(
       "squid:S2093" /* try-with-resource will throw IOException with InputStream and we do not care to get that exception */)
-  public Serializable getDocValue(String solrFieldName, Object docValue) {
+  private Serializable getDocValue(String solrFieldName, Object docValue) {
 
     AttributeFormat format = getType(solrFieldName);
 
@@ -560,7 +610,7 @@ public class DynamicSchemaResolver {
    * @param solrFieldName Solr index field name
    * @return the original field name
    */
-  public String resolveFieldName(String solrFieldName) {
+  String resolveFieldName(String solrFieldName) {
     int lastIndexOfUndercore = solrFieldName.lastIndexOf(FIRST_CHAR_OF_SUFFIX);
 
     if (lastIndexOfUndercore != -1) {
@@ -569,7 +619,7 @@ public class DynamicSchemaResolver {
     return solrFieldName;
   }
 
-  public boolean isPrivateField(String solrFieldName) {
+  boolean isPrivateField(String solrFieldName) {
     return PRIVATE_SOLR_FIELDS.contains(solrFieldName);
   }
 
@@ -580,7 +630,7 @@ public class DynamicSchemaResolver {
    * @return a list of possible Solr field names that match the given field. If none are found, then
    *     an empty list is returned
    */
-  public List<String> getAnonymousField(String field) {
+  List<String> getAnonymousField(String field) {
     ArrayList<String> list = new ArrayList<>();
 
     for (AttributeFormat format : AttributeFormat.values()) {
@@ -605,7 +655,7 @@ public class DynamicSchemaResolver {
    * @return the proper schema field name. If a schema name cannot be found in cache, returns a
    *     schema field name that matches the dynamic field type formatting.
    */
-  public String getField(
+  String getField(
       String propertyName,
       AttributeFormat format,
       boolean isSearchedAsExactValue,
@@ -644,7 +694,7 @@ public class DynamicSchemaResolver {
     return fieldName;
   }
 
-  public String getFieldSuffix(AttributeFormat format) {
+  private String getFieldSuffix(AttributeFormat format) {
     return schemaFields.getFieldSuffix(format);
   }
 
@@ -674,7 +724,7 @@ public class DynamicSchemaResolver {
     return cachedMetacardType;
   }
 
-  public String getCaseSensitiveField(
+  String getCaseSensitiveField(
       String mappedPropertyName, Map<String, Serializable> enabledFeatures) {
     if (isPhoneticsEnabled(enabledFeatures)
         && mappedPropertyName.endsWith(SchemaFields.PHONETICS)) {
@@ -684,12 +734,11 @@ public class DynamicSchemaResolver {
     return mappedPropertyName + SchemaFields.HAS_CASE;
   }
 
-  protected String getSpecialIndexSuffix(AttributeFormat format) {
-    return getSpecialIndexSuffix(format, Collections.EMPTY_MAP);
+  private String getSpecialIndexSuffix(AttributeFormat format) {
+    return getSpecialIndexSuffix(format, Collections.emptyMap());
   }
 
-  protected String getSpecialIndexSuffix(
-      AttributeFormat format, Map<String, Serializable> enabledFeatures) {
+  String getSpecialIndexSuffix(AttributeFormat format, Map<String, Serializable> enabledFeatures) {
 
     switch (format) {
       case STRING:
@@ -719,37 +768,45 @@ public class DynamicSchemaResolver {
 
   private void addToFieldsCache(Set<AttributeDescriptor> descriptors) {
     for (AttributeDescriptor ad : descriptors) {
+      addToFieldsCache(ad);
+    }
+  }
 
-      AttributeFormat format = ad.getType().getAttributeFormat();
+  private void addToFieldsCache(AttributeDescriptor descriptor) {
 
-      fieldsCache.add(ad.getName() + schemaFields.getFieldSuffix(format));
+    AttributeFormat format = descriptor.getType().getAttributeFormat();
 
-      if (!getSpecialIndexSuffix(format).equals("")) {
-        fieldsCache.add(
-            ad.getName() + schemaFields.getFieldSuffix(format) + getSpecialIndexSuffix(format));
-      }
+    fieldsCache.add(descriptor.getName() + schemaFields.getFieldSuffix(format));
 
-      if (format.equals(AttributeFormat.STRING)) {
-        fieldsCache.add(
-            ad.getName()
-                + schemaFields.getFieldSuffix(format)
-                + getSpecialIndexSuffix(format)
-                + SchemaFields.HAS_CASE);
-        fieldsCache.add(
-            ad.getName() + schemaFields.getFieldSuffix(format) + SchemaFields.PHONETICS);
-        anyTextFieldsCache.add(ad.getName() + schemaFields.getFieldSuffix(format));
-      }
+    if (!getSpecialIndexSuffix(format).equals("")) {
+      fieldsCache.add(
+          descriptor.getName()
+              + schemaFields.getFieldSuffix(format)
+              + getSpecialIndexSuffix(format));
+    }
 
-      if (format.equals(AttributeFormat.XML)) {
-        fieldsCache.add(ad.getName() + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
-        fieldsCache.add(
-            ad.getName()
-                + SchemaFields.TEXT_SUFFIX
-                + SchemaFields.TOKENIZED
-                + SchemaFields.HAS_CASE);
-        fieldsCache.add(
-            ad.getName() + schemaFields.getFieldSuffix(format) + getSpecialIndexSuffix(format));
-      }
+    if (format.equals(AttributeFormat.STRING)) {
+      fieldsCache.add(
+          descriptor.getName()
+              + schemaFields.getFieldSuffix(format)
+              + getSpecialIndexSuffix(format)
+              + SchemaFields.HAS_CASE);
+      fieldsCache.add(
+          descriptor.getName() + schemaFields.getFieldSuffix(format) + SchemaFields.PHONETICS);
+      anyTextFieldsCache.add(descriptor.getName() + schemaFields.getFieldSuffix(format));
+    }
+
+    if (format.equals(AttributeFormat.XML)) {
+      fieldsCache.add(descriptor.getName() + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED);
+      fieldsCache.add(
+          descriptor.getName()
+              + SchemaFields.TEXT_SUFFIX
+              + SchemaFields.TOKENIZED
+              + SchemaFields.HAS_CASE);
+      fieldsCache.add(
+          descriptor.getName()
+              + schemaFields.getFieldSuffix(format)
+              + getSpecialIndexSuffix(format));
     }
   }
 
@@ -796,7 +853,7 @@ public class DynamicSchemaResolver {
    */
   @SuppressWarnings(
       "squid:S2093" /* try-with-resource will throw IOException with InputStream and we do not care to get that exception */)
-  protected List<String> parseTextFrom(List<Serializable> xmlDatas) {
+  private List<String> parseTextFrom(List<Serializable> xmlDatas) {
 
     StringBuilder builder = new StringBuilder();
     List<String> parsedTexts = new ArrayList<>();
@@ -874,14 +931,14 @@ public class DynamicSchemaResolver {
     return newAttributeDescriptors;
   }
 
-  public String getSortKey(String field) {
+  String getSortKey(String field) {
     if (field.endsWith(SchemaFields.GEO_SUFFIX)) {
       field = field + SchemaFields.SORT_SUFFIX;
     }
     return field;
   }
 
-  public Stream<String> anyTextFields() {
+  Stream<String> anyTextFields() {
     return anyTextFieldsCache.stream();
   }
 

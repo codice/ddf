@@ -129,19 +129,6 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
         new ProviderSolrMetacardClient(solrClient, adapter, solrFilterDelegateFactory, resolver);
   }
 
-  /**
-   * Convenience constructor that creates a new ddf.catalog.source.solr.DynamicSchemaResolver
-   *
-   * @param solrClient Solr client
-   * @param adapter injected implementation of FilterAdapter
-   */
-  public SolrCatalogProvider(
-      SolrClient solrClient,
-      FilterAdapter adapter,
-      SolrFilterDelegateFactory solrFilterDelegateFactory) {
-    this(solrClient, adapter, solrFilterDelegateFactory, new DynamicSchemaResolver());
-  }
-
   @Override
   public Set<ContentType> getContentTypes() {
     return client.getContentTypes();
