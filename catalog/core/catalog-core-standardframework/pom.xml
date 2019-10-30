@@ -137,7 +137,11 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>${hazelcast.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+            <version>${javax.cache.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -153,7 +157,6 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>${hazelcast.version}</version>
             <type>jar</type>
             <!-- Bug in dependency-plugin 3.0.2 requires using classifier for test-jars instead of type.
                 See: https://issues.apache.org/jira/browse/MDEP-587 -->
@@ -359,7 +362,9 @@
                             versioning-common,
                             catalog-core-api-impl;scope=!test,
                             lux,
-                            Saxon-HE
+                            Saxon-HE,
+                            javax.cache,
+                            javax.cache.configuration
                         </Embed-Dependency>
                         <Export-Package>
                             ddf.catalog.cache,
@@ -368,7 +373,8 @@
                             org.codice.ddf.catalog.resource.download,
                             org.codice.ddf.catalog.resource.cache,
                             org.codice.ddf.catalog.resource.download.internal,
-                            org.codice.ddf.catalog.sourcepoller
+                            org.codice.ddf.catalog.sourcepoller,
+                            javax.cache
                         </Export-Package>
                         <Import-Package>
                             <!-- excluded packages coming from lux -->
@@ -377,6 +383,7 @@
                             !org.apache.solr.*,
 
                             <!--packages required for solrj -->
+                            javax.cache,
                             org.apache.jute;version=${solr.zookeeper.version},
                             org.apache.solr.client.solrj;version=${solr.version},
                             org.apache.solr.client.solrj.beans;version=${solr.version},

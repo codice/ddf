@@ -71,8 +71,7 @@ public class ITInstallProfilesFeatures {
         defaultLogging(),
         includeTestResources(),
         addFeatureRepo(FeatureUtilities.toFeatureRepo(FEATURE_REPO_PATH)),
-        addBootFeature(TestUtilitiesFeatures.testCommon()),
-        addJavaxCache());
+        addBootFeature(TestUtilitiesFeatures.testCommon()));
   }
 
   @Parameterized.Parameters
