@@ -93,6 +93,7 @@ module.exports = Marionette.LayoutView.extend({
     lightboxInstance.showContent(
       <ExtensionPoints.tableExport
         selectionInterface={this.options.selectionInterface}
+        filteredAttributes={this.filteredAttributes.get('filteredAttributes')}
       />
     )
   },

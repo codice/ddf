@@ -27,6 +27,20 @@ export type ResultSet = {
   args?: Object
 }
 
+export interface ExportCountInfo {
+  exportSize: string
+  selectionInterface: any
+  customExportCount: number
+}
+
+export type DownloadInfo = {
+  exportFormat: string
+  exportSize: string
+  customExportCount: number
+  selectionInterface: any
+  filteredAttributes: any[]
+}
+
 export const getExportResults = (results: any[]) => {
   return results.map(result => getExportResult(result))
 }
