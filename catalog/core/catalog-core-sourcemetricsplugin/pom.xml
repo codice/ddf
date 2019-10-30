@@ -55,6 +55,11 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -112,7 +117,6 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.54</minimum>
                                         </limit>
-                                        
                                     </limits>
                                 </rule>
                             </rules>
