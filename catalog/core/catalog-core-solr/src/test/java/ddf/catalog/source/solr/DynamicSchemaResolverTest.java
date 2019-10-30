@@ -156,9 +156,10 @@ public class DynamicSchemaResolverTest {
     when(mockMetacard.getMetacardType().getAttributeDescriptors()).thenReturn(attributeDescriptors);
     when(mockMetacard.getAttribute(name)).thenReturn(mockAttribute);
     SolrInputDocument solrInputDocument = new SolrInputDocument();
+    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
 
     // Perform Test
-    dynamicSchemaResolver.addFields(mockMetacard, solrInputDocument);
+    resolver.addFields(mockMetacard, solrInputDocument);
     assertThat(solrInputDocument.getFieldValue("lux_xml"), is(nullValue()));
   }
 
@@ -194,9 +195,10 @@ public class DynamicSchemaResolverTest {
     when(mockMetacard.getMetacardType().getAttributeDescriptors()).thenReturn(attributeDescriptors);
     when(mockMetacard.getAttribute(name)).thenReturn(mockAttribute);
     SolrInputDocument solrInputDocument = new SolrInputDocument();
+    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
 
     // Perform Test
-    dynamicSchemaResolver.addFields(mockMetacard, solrInputDocument);
+    resolver.addFields(mockMetacard, solrInputDocument);
     assertThat(solrInputDocument.getFieldValue("lux_xml"), is(notNullValue()));
   }
 
@@ -204,6 +206,7 @@ public class DynamicSchemaResolverTest {
   public void testAddFieldsRevertsTo5mbMetadataSizeLimitTooLarge() {
     long overflow = Integer.MAX_VALUE;
     System.setProperty("metadata.size.limit", String.valueOf(overflow + 1));
+    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
 
     int actual = DynamicSchemaResolver.getMetadataSizeLimit();
     assertThat(actual, equalTo(DynamicSchemaResolver.FIVE_MEGABYTES));
@@ -216,6 +219,7 @@ public class DynamicSchemaResolverTest {
   public void testAddFieldsRevertsTo5mbMetadataSizeLimitNotNumeric() {
     // Set
     System.setProperty("metadata.size.limit", "supercalifragilisticexpialidocious");
+    DynamicSchemaResolver resolver = new DynamicSchemaResolver();
 
     int actual = DynamicSchemaResolver.getMetadataSizeLimit();
     assertThat(actual, equalTo(DynamicSchemaResolver.FIVE_MEGABYTES));
