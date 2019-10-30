@@ -73,24 +73,11 @@ public class DynamicSchemaResolverTest {
 
   @Test
   public void testAddMetacardType() {
-
     assertThat(dynamicSchemaResolver.getAnonymousField(Metacard.TITLE), empty());
 
     dynamicSchemaResolver.addMetacardType(MetacardImpl.BASIC_METACARD);
 
     assertThat(dynamicSchemaResolver.getAnonymousField(Metacard.TITLE), hasSize(1));
-  }
-
-  @Test
-  public void testRemoveMetacardType() {
-
-    dynamicSchemaResolver.addMetacardType(MetacardImpl.BASIC_METACARD);
-
-    assertThat(dynamicSchemaResolver.getAnonymousField(Metacard.TITLE), hasSize(1));
-
-    dynamicSchemaResolver.removeMetacardType(MetacardImpl.BASIC_METACARD);
-
-    assertThat(dynamicSchemaResolver.getAnonymousField(Metacard.TITLE), empty());
   }
 
   /**

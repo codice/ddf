@@ -50,13 +50,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -177,15 +175,6 @@ public class DynamicSchemaResolver {
 
   private Processor processor = new Processor(new Config());
 
-  /**
-   * As metacard types are added via {@link #addMetacardType(MetacardType)}, this map keeps track of
-   * the number of times metacard attributes are added to the {@link #fieldsCache} and {@link
-   * #anyTextFieldsCache}. The count is decremented when {@link #removeMetacardType(MetacardType)}
-   * is called. When the count reaches zero, the attribute is removed from {@link #fieldsCache} and
-   * {@link #anyTextFieldsCache}.
-   */
-  private Map<String, AtomicInteger> countedFieldsCache = new HashMap<>();
-
   public DynamicSchemaResolver(
       List<String> additionalFields, Function<TinyTree, TinyBinary> tinyBinaryFunction) {
     this(additionalFields);
@@ -227,16 +216,7 @@ public class DynamicSchemaResolver {
 
   @SuppressWarnings("WeakerAccess" /* access needed by blueprint */)
   public void addMetacardType(MetacardType metacardType) {
-
-    metacardType
-        .getAttributeDescriptors()
-        .forEach(
-            attribute -> {
-              countedFieldsCache
-                  .computeIfAbsent(attribute.getName(), key -> new AtomicInteger(0))
-                  .incrementAndGet();
-              addToFieldsCache(attribute);
-            });
+    metacardType.getAttributeDescriptors().forEach(this::addToFieldsCache);
 
     metacardType
         .getAttributeDescriptors()
@@ -244,36 +224,6 @@ public class DynamicSchemaResolver {
         .filter(descriptor -> BasicTypes.STRING_TYPE.equals(descriptor.getType()))
         .map(stringDescriptor -> stringDescriptor.getName() + SchemaFields.TEXT_SUFFIX)
         .forEach(fieldName -> anyTextFieldsCache.add(fieldName));
-  }
-
-  @SuppressWarnings("WeakerAccess" /* access needed by blueprint */)
-  public void removeMetacardType(MetacardType metacardType) {
-
-    metacardType
-        .getAttributeDescriptors()
-        .stream()
-        .map(AttributeDescriptor::getName)
-        .filter(attributeName -> countedFieldsCache.containsKey(attributeName))
-        .forEach(attributeName -> countedFieldsCache.get(attributeName).decrementAndGet());
-
-    List<String> attributeNamesToBeRemoved =
-        countedFieldsCache
-            .entrySet()
-            .stream()
-            .filter(entry -> entry.getValue().get() == 0)
-            .map(Entry::getKey)
-            .collect(Collectors.toList());
-
-    attributeNamesToBeRemoved.forEach(
-        attributeName -> {
-          for (AttributeFormat format : AttributeFormat.values()) {
-            String fullFieldName = attributeName + schemaFields.getFieldSuffix(format);
-            fieldsCache.remove(fullFieldName);
-          }
-
-          anyTextFieldsCache.remove(attributeName + SchemaFields.TEXT_SUFFIX);
-          countedFieldsCache.remove(attributeName);
-        });
   }
 
   /**

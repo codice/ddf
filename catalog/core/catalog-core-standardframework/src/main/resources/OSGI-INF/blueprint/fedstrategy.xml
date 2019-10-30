@@ -38,7 +38,7 @@
     <bean id="dynamicSchemaResolver" class="ddf.catalog.source.solr.DynamicSchemaResolver"/>
 
     <reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType">
-        <reference-listener bind-method="addMetacardType" unbind-method="removeMetacardType" ref="dynamicSchemaResolver"/>
+        <reference-listener bind-method="addMetacardType" ref="dynamicSchemaResolver"/>
     </reference-list>
 
     <bean id="solrCatalogCache" class="ddf.catalog.cache.solr.impl.SolrCache"
