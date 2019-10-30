@@ -187,7 +187,7 @@ function intersects(terraformerObject, value) {
 }
 
 function matchesPOLYGON(value, filter) {
-  const polygonToCheck = TerraformerWKTParser.parse(filter.value.value)
+  const polygonToCheck = TerraformerWKTParser.parse(filter.value)
   if (intersects(polygonToCheck, value)) {
     return true
   }
@@ -196,7 +196,7 @@ function matchesPOLYGON(value, filter) {
 
 const matchesBufferedPOLYGON = (value, filter) => {
   const bufferedPolygon = createBufferedPolygon(
-    polygonStringToCoordinates(filter.value.value),
+    polygonStringToCoordinates(filter.value),
     filter.distance
   )
   const teraformedPolygon = new Terraformer.Polygon({
@@ -210,9 +210,7 @@ function matchesCIRCLE(value, filter) {
   if (filter.distance <= 0) {
     return false
   }
-  const points = filter.value.value
-    .substring(6, filter.value.value.length - 1)
-    .split(' ')
+  const points = filter.value.substring(6, filter.value.length - 1).split(' ')
   const circleToCheck = new Terraformer.Circle(points, filter.distance, 64)
   const polygonCircleToCheck = new Terraformer.Polygon(circleToCheck.geometry)
   if (intersects(polygonCircleToCheck, value)) {
@@ -222,7 +220,7 @@ function matchesCIRCLE(value, filter) {
 }
 
 function matchesLINESTRING(value, filter) {
-  let pointText = filter.value.value.substring(11)
+  let pointText = filter.value.substring(11)
   pointText = pointText.substring(0, pointText.length - 1)
   const lineWidth = filter.distance || 0
   if (lineWidth <= 0) {
