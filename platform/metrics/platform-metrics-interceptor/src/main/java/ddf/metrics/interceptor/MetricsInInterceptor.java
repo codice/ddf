@@ -29,8 +29,6 @@ import org.codice.ddf.lib.metrics.registry.MeterRegistryService;
  */
 public class MetricsInInterceptor extends AbstractMetricsInterceptor {
 
-  static final String TIME_IN = "TimeIn";
-
   public MetricsInInterceptor(MeterRegistryService meterRegistryService) {
     super(Phase.RECEIVE, meterRegistryService);
   }

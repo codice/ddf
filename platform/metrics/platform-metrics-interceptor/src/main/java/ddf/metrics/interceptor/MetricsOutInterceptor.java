@@ -45,6 +45,10 @@ public class MetricsOutInterceptor extends AbstractMetricsInterceptor {
 
     Exchange ex = message.getExchange();
 
+    if (ex == null) {
+      return;
+    }
+
     if (Boolean.TRUE.equals(message.get(Message.PARTIAL_RESPONSE_MESSAGE))) {
       return;
     }
