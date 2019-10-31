@@ -177,7 +177,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
     }
 
     tags.add(valid);
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
+    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, (List<String>) new ArrayList<>(tags)));
 
     metacard.setAttribute(
         new AttributeImpl(
