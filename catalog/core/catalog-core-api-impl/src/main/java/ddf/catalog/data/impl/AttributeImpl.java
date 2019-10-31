@@ -73,7 +73,7 @@ public class AttributeImpl implements Attribute {
    * @param name - the name of this {@link Attribute}
    * @param values - the value of this {@link Attribute}
    */
-  public AttributeImpl(String name, List<Serializable> values) {
+  public AttributeImpl(String name, List<? extends Serializable> values) {
     /*
      * If any defensive logic is added to this constructor, then that logic should be reflected
      * in the deserialization (readObject()) of this object so that the integrity of a
