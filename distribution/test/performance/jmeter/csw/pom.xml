@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.test.performance.jmeter</groupId>
         <artifactId>jmeter</artifactId>
-        <version>2.19.1-SNAPSHOT</version>
+        <version>2.19.2-SNAPSHOT</version>
     </parent>
     <artifactId>ddf-test-performance-jmeter-csw</artifactId>
     <name>DDF :: Test :: Performance :: JMeter :: CSW</name>
