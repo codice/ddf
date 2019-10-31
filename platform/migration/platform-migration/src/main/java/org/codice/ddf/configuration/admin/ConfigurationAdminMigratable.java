@@ -88,6 +88,8 @@ public class ConfigurationAdminMigratable implements Migratable {
 
   private final String defaultFileExtension;
 
+  private List<Function<ImportMigrationConfigurationAdminEntry, ImportMigrationConfigurationAdminEntry>> filters;
+
   public ConfigurationAdminMigratable(
       ConfigurationAdmin configurationAdmin,
       List<PersistenceStrategy> strategies,
@@ -97,6 +99,9 @@ public class ConfigurationAdminMigratable implements Migratable {
     this.configurationAdmin = configurationAdmin;
     this.strategies = strategies;
     this.defaultFileExtension = defaultFileExtension;
+    filters = new ArrayList<>();
+    filters.add(this::updateSessionConfiguration);
+    filters.add(this::updateMetacardValidityFilterPluginConfiguration);
   }
 
   @SuppressWarnings(
@@ -187,10 +192,6 @@ public class ConfigurationAdminMigratable implements Migratable {
   // entries must be updated to the latest versions of themselves in order to restore correctly
   private ImportMigrationConfigurationAdminEntry updateNecessaryConfigurationAdminEntries(
       ImportMigrationConfigurationAdminEntry entry) {
-    List<Function<ImportMigrationConfigurationAdminEntry, ImportMigrationConfigurationAdminEntry>>
-        filters = new ArrayList<>();
-    filters.add(this::updateSessionConfiguration);
-    filters.add(this::updateMetacardValidityFilterPluginConfiguration);
     for (Function<ImportMigrationConfigurationAdminEntry, ImportMigrationConfigurationAdminEntry>
         filter : filters) {
       entry = filter.apply(entry);
