@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.19.0. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.20.0. Copyright (c) Codice Foundation">
 <title>DDF Reference Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,7 +520,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>DDF Reference Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.19.0. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.20.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -532,25 +532,6 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_admin_application_prerequisites">Admin Application Prerequisites</a></li>
 <li><a href="#_installing_the_admin_application">Installing the Admin Application</a></li>
 <li><a href="#_configuring_the_admin_application">Configuring the Admin Application</a></li>
-</ul>
-</li>
-<li><a href="#_message_broker_application_reference">Message Broker Application Reference</a>
-<ul class="sectlevel3">
-<li><a href="#_prerequisites_for_message_broker_application">Prerequisites for Message Broker Application</a></li>
-<li><a href="#_installing_message_broker_application">Installing Message Broker Application</a></li>
-<li><a href="#_configuring_the_message_broker_application">Configuring the Message Broker Application</a>
-<ul class="sectlevel4">
-<li><a href="#_configuring_the_message_broker_for_a_highly_available_cluster">Configuring the Message Broker for a Highly Available Cluster</a></li>
-<li><a href="#_securing_the_message_broker_application">Securing the Message Broker Application</a></li>
-<li><a href="#_artemis_broker_connection_configuration">Artemis Broker Connection Configuration</a></li>
-</ul>
-</li>
-<li><a href="#_using_the_message_broker_application">Using the Message Broker Application</a>
-<ul class="sectlevel4">
-<li><a href="#_undelivered_messages_ui">Undelivered Messages UI</a></li>
-<li><a href="#_route_manager">Route Manager</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li><a href="#_catalog_application_reference">Catalog Application Reference</a>
@@ -844,368 +825,6 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 </div>
 </div>
 <div class="sect2">
-<h3 id="_message_broker_application_reference"><a class="anchor" href="#_message_broker_application_reference"></a><a class="link" href="#_message_broker_application_reference">Message Broker Application Reference</a></h3>
-<div class="paragraph">
-<p>The Message Broker application gives an administrator the ability to configure and control the behavior of the Message Broker.
-These configurations will include aspects like the graceful shutdown period of components, names of queues and topics, and routing of messages.</p>
-</div>
-<div class="sect3">
-<h4 id="_prerequisites_for_message_broker_application"><a class="anchor" href="#_prerequisites_for_message_broker_application"></a><a class="link" href="#_prerequisites_for_message_broker_application">Prerequisites for Message Broker Application</a></h4>
-<div class="paragraph">
-<p>None.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_installing_message_broker_application"><a class="anchor" href="#_installing_message_broker_application"></a><a class="link" href="#_installing_message_broker_application">Installing Message Broker Application</a></h4>
-<div class="paragraph">
-<p>Install the Message Broker application through the Admin Console.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Navigate to the <strong>Admin Console</strong>.</p>
-</li>
-<li>
-<p>Select the <strong>System</strong> tab.</p>
-</li>
-<li>
-<p>Select the <strong>Features</strong> tab.</p>
-</li>
-<li>
-<p>Install the <code>broker-app</code> feature.</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_configuring_the_message_broker_application"><a class="anchor" href="#_configuring_the_message_broker_application"></a><a class="link" href="#_configuring_the_message_broker_application">Configuring the Message Broker Application</a></h4>
-<div class="paragraph">
-<p>The standard installation of the Message Broker application has no configurable properties.</p>
-</div>
-<div class="sect4">
-<h5 id="_configuring_the_message_broker_for_a_highly_available_cluster"><a class="anchor" href="#_configuring_the_message_broker_for_a_highly_available_cluster"></a><a class="link" href="#_configuring_the_message_broker_for_a_highly_available_cluster">Configuring the Message Broker for a Highly Available Cluster</a></h5>
-<div class="paragraph">
-<p>Prior to making these configuration changes, follow the instructions in <a href="managing.html#_installing">Installing DDF</a> to install DDF on two physically-separate hosts.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Configure each of the DDF installations to point to each other in a live/backup server configuration. One server will have an additional step to be designated as the backup.</p>
-</li>
-<li>
-<p>Modify custom.system.properties:<br>
-The <code>&lt;DDF_HOME&gt;/etc/custom.system.properties</code> in each of the installations needs to be updated so that the servers know about each other. The following properties need to have the values on the right side of the <code>=</code> updated.</p>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code>artemis.live.host=&lt;Hostname.or.ip.here&gt;
-artemis.backup.host=&lt;Hostname.or.ip.here&gt;
-artemis.network.iplist=&lt;Comma,separated,IPs&gt;
-artemis.cluster.password=&lt;Common password across all nodes&gt;</code></pre>
-</div>
-</div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Important</div>
-</td>
-<td class="content">
-<div class="title">Using a Non-Local IP or Host</div>
-<div class="paragraph">
-<p><code>artemis.network.iplist</code> should contain a list of non-local IPs or host names that are not hosted on the same physical machine as either the live or backup machines. These IP addresses are pinged in the event of a network outage. If the backup cannot reach the live server but can successfully ping one of these hosts it will then take over as the live server. If the host list is incorrectly configured with a local IP it could break the cluster by causing both servers to go live. It is also recommended that the live server have the backups server&#8217;s IP in its list and the backup server have the live server&#8217;s IP in its list.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-</li>
-<li>
-<p>Configure a Backup Broker:<br>
-The installation that is going to be used as the backup needs to have an additional configuration change made so that it knows it&#8217;s the backup. The <code>&lt;DDF_HOME&gt;/etc/org.apache.activemq.artemis.cfg</code> should be modified to point to the provided <code>artemis-backup.xml</code> instead of <code>artemis.xml</code>. Once updated, the <code>config</code> value should look like this:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code>config=file:etc/artemis-backup.xml</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p>Restart Servers:<br>
-The DDF instances should be restarted in the following order:</p>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Live server</p>
-</li>
-<li>
-<p>Backup server</p>
-<div class="paragraph">
-<p>In order to maintain connectivity to the broker during a restart, only stop and start a single server at a time. See <a href="managing.html#_starting">Starting DDF</a> for detailed steps.</p>
-</div>
-</li>
-</ol>
-</div>
-</li>
-<li>
-<p>Verify Cluster Replication:<br>
-Once both servers are started, the following command can be run using curl or a <a href="https://localhost:8993/admin/jolokia/read/org.apache.activemq.artemis:broker=%22localhost%22/ReplicaSync">browser</a> to verify that the servers have successfully synced.</p>
-<div class="listingblock">
-<div class="title">Server Cluster Verification Command</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="bash">sh
-curl https://{FQDN}:{PORT}/admin/jolokia/read/org.apache.activemq.artemis:broker=%22artemis%22/ReplicaSync --user admin:admin --header &quot;Origin: https://{FQDN}:{PORT}&quot; --header &quot;X-Requested-With: XMLHttpRequest&quot; --insecure</code></pre>
-</div>
-</div>
-</li>
-</ol>
-</div>
-<div class="listingblock">
-<div class="title">Example ReplicaSync JSON Response</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="json">{
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">request</span><span class="delimiter">&quot;</span></span>: {
-                <span class="key"><span class="delimiter">&quot;</span><span class="content">mbean</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">org.apache.activemq.artemis:broker=</span><span class="char">\&quot;</span><span class="content">artemis</span><span class="char">\&quot;</span><span class="content">,
-                </span><span class="delimiter">&quot;</span></span><span class="error">a</span><span class="error">t</span><span class="error">t</span><span class="error">r</span><span class="error">i</span><span class="error">b</span><span class="error">u</span><span class="error">t</span><span class="error">e</span><span class="string"><span class="delimiter">&quot;</span><span class="content">: </span><span class="delimiter">&quot;</span></span><span class="error">R</span><span class="error">e</span><span class="error">p</span><span class="error">l</span><span class="error">i</span><span class="error">c</span><span class="error">a</span><span class="error">S</span><span class="error">y</span><span class="error">n</span><span class="error">c</span><span class="string"><span class="delimiter">&quot;</span><span class="content">,
-                </span><span class="delimiter">&quot;</span></span><span class="error">t</span><span class="error">y</span><span class="error">p</span><span class="error">e</span><span class="string"><span class="delimiter">&quot;</span><span class="content">: </span><span class="delimiter">&quot;</span></span><span class="error">r</span><span class="error">e</span><span class="error">a</span><span class="error">d</span><span class="string"><span class="delimiter">&quot;</span><span class="content">
-        },
-        </span><span class="delimiter">&quot;</span></span><span class="error">v</span><span class="error">a</span><span class="error">l</span><span class="error">u</span><span class="error">e</span><span class="string"><span class="delimiter">&quot;</span><span class="content">: true,
-        </span><span class="delimiter">&quot;</span></span><span class="error">t</span><span class="error">i</span><span class="error">m</span><span class="error">e</span><span class="error">s</span><span class="error">t</span><span class="error">a</span><span class="error">m</span><span class="error">p</span><span class="string"><span class="delimiter">&quot;</span><span class="content">: 1485967446,
-        </span><span class="delimiter">&quot;</span></span><span class="error">s</span><span class="error">t</span><span class="error">a</span><span class="error">t</span><span class="error">u</span><span class="error">s</span><span class="string"><span class="delimiter">&quot;</span><span class="content">: 200
-}</span></span></code></pre>
-</div>
-</div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Important</div>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>If LDAP has been configured then the admin user and password for the above command will need to be changed.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Important</div>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Note the <code>"value":true</code> field: if it is false, then the replication is still in progress or the logs should be consulted to see if there was an issue establishing a connection between the live and backup servers.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>Additionally, for more details about the health of the cluster, the following command can be run using curl or a https://{FQDN}:{PORT}/admin/jolokia/read/org.apache.activemq.artemis:broker=%22artemis%22,component=cluster-connections,name=%22my-cluster%22/Topologybrowser.</p>
-</div>
-<div class="listingblock">
-<div class="title">Server Health Status Command</div>
-<div class="content">
-<pre class="CodeRay highlight"><code>sh
-curl https://{FQDN}:{PORT}/admin/jolokia/read/org.apache.activemq.artemis:broker=%22artemis%22,component=cluster-connections,name=%22broker-cluster%22/Topology --user admin:admin --header "Origin: https://{FQDN}:{PORT}" --header "X-Requested-With: XMLHttpRequest" --insecure</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This endpoint returns diagnostic info about the cluster that can be used for troubleshooting. Values of interest in the response are the <code>node=2</code> value which is a count of the nodes in the cluster and the port/host values for each node.</p>
-</div>
-<div class="listingblock">
-<div class="title">Example Topology JSON Response for a Cluster of 2</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="json">{
-        <span class="key"><span class="delimiter">&quot;</span><span class="content">request</span><span class="delimiter">&quot;</span></span>: {
-                <span class="key"><span class="delimiter">&quot;</span><span class="content">mbean</span><span class="delimiter">&quot;</span></span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">org.apache.activemq.artemis:broker=</span><span class="char">\&quot;</span><span class="content">artemis</span><span class="char">\&quot;</span><span class="content">,component=cluster-connections,name=</span><span class="char">\&quot;</span><span class="content">my-cluster</span><span class="char">\&quot;</span><span class="content">,
-                </span><span class="delimiter">&quot;</span></span><span class="error">a</span><span class="error">t</span><span class="error">t</span><span class="error">r</span><span class="error">i</span><span class="error">b</span><span class="error">u</span><span class="error">t</span><span class="error">e</span><span class="string"><span class="delimiter">&quot;</span><span class="content">: </span><span class="delimiter">&quot;</span></span><span class="error">T</span><span class="error">o</span><span class="error">p</span><span class="error">o</span><span class="error">l</span><span class="error">o</span><span class="error">g</span><span class="error">y</span><span class="string"><span class="delimiter">&quot;</span><span class="content">,
-                </span><span class="delimiter">&quot;</span></span><span class="error">t</span><span class="error">y</span><span class="error">p</span><span class="error">e</span><span class="string"><span class="delimiter">&quot;</span><span class="content">: </span><span class="delimiter">&quot;</span></span><span class="error">r</span><span class="error">e</span><span class="error">a</span><span class="error">d</span><span class="string"><span class="delimiter">&quot;</span><span class="content">
-        },
-        </span><span class="delimiter">&quot;</span></span><span class="error">v</span><span class="error">a</span><span class="error">l</span><span class="error">u</span><span class="error">e</span><span class="string"><span class="delimiter">&quot;</span><span class="content">: </span><span class="delimiter">&quot;</span></span><span class="error">t</span><span class="error">o</span><span class="error">p</span><span class="error">o</span><span class="error">l</span><span class="error">o</span><span class="error">g</span><span class="error">y</span> <span class="error">o</span><span class="error">n</span> <span class="error">T</span><span class="error">o</span><span class="error">p</span><span class="error">o</span><span class="error">l</span><span class="error">o</span><span class="error">g</span><span class="error">y</span><span class="error">@</span><span class="integer">750</span><span class="error">c</span><span class="integer">2</span><span class="error">a</span><span class="integer">56</span>[<span class="error">o</span><span class="error">w</span><span class="error">n</span><span class="error">e</span><span class="error">r</span><span class="error">=</span><span class="error">C</span><span class="error">l</span><span class="error">u</span><span class="error">s</span><span class="error">t</span><span class="error">e</span><span class="error">r</span><span class="error">C</span><span class="error">o</span><span class="error">n</span><span class="error">n</span><span class="error">e</span><span class="error">c</span><span class="error">t</span><span class="error">i</span><span class="error">o</span><span class="error">n</span><span class="error">I</span><span class="error">m</span><span class="error">p</span><span class="error">l</span><span class="error">@</span><span class="integer">228651110</span>[<span class="error">n</span><span class="error">o</span><span class="error">d</span><span class="error">e</span><span class="error">U</span><span class="error">U</span><span class="error">I</span><span class="error">D</span><span class="error">=</span><span class="integer">17</span><span class="error">b</span><span class="integer">48</span><span class="error">d</span><span class="error">b</span><span class="integer">9</span><span class="error">-</span><span class="error">e</span><span class="integer">7</span><span class="error">e</span><span class="error">e</span><span class="float">-11e6</span><span class="integer">-9</span><span class="error">d</span><span class="integer">56</span><span class="integer">-38</span><span class="error">c</span><span class="integer">986025</span><span class="error">a</span><span class="integer">6</span><span class="error">f</span>, <span class="error">c</span><span class="error">o</span><span class="error">n</span><span class="error">n</span><span class="error">e</span><span class="error">c</span><span class="error">t</span><span class="error">o</span><span class="error">r</span><span class="error">=</span><span class="error">T</span><span class="error">r</span><span class="error">a</span><span class="error">n</span><span class="error">s</span><span class="error">p</span><span class="error">o</span><span class="error">r</span><span class="error">t</span><span class="error">C</span><span class="error">o</span><span class="error">n</span><span class="error">f</span><span class="error">i</span><span class="error">g</span><span class="error">u</span><span class="error">r</span><span class="error">a</span><span class="error">t</span><span class="error">i</span><span class="error">o</span><span class="error">n</span><span class="error">(</span><span class="error">n</span><span class="error">a</span><span class="error">m</span><span class="error">e</span><span class="error">=</span><span class="error">n</span><span class="error">e</span><span class="error">t</span><span class="error">t</span><span class="error">y</span><span class="error">-</span><span class="error">c</span><span class="error">o</span><span class="error">n</span><span class="error">n</span><span class="error">e</span><span class="error">c</span><span class="error">t</span><span class="error">o</span><span class="error">r</span>, <span class="error">f</span><span class="error">a</span><span class="error">c</span><span class="error">t</span><span class="error">o</span><span class="error">r</span><span class="error">y</span><span class="error">=</span><span class="error">o</span><span class="error">r</span><span class="error">g</span><span class="error">-</span><span class="error">a</span><span class="error">p</span><span class="error">a</span><span class="error">c</span><span class="error">h</span><span class="error">e</span><span class="error">-</span><span class="error">a</span><span class="error">c</span><span class="error">t</span><span class="error">i</span><span class="error">v</span><span class="error">e</span><span class="error">m</span><span class="error">q</span><span class="error">-</span><span class="error">a</span><span class="error">r</span><span class="error">t</span><span class="error">e</span><span class="error">m</span><span class="error">i</span><span class="error">s</span><span class="error">-</span><span class="error">c</span><span class="error">o</span><span class="error">r</span><span class="error">e</span><span class="error">-</span><span class="error">r</span><span class="error">e</span><span class="error">m</span><span class="error">o</span><span class="error">t</span><span class="error">i</span><span class="error">n</span><span class="error">g</span><span class="error">-</span><span class="error">i</span><span class="error">m</span><span class="error">p</span><span class="error">l</span><span class="error">-</span><span class="error">n</span><span class="error">e</span><span class="error">t</span><span class="error">t</span><span class="error">y</span><span class="error">-</span><span class="error">N</span><span class="error">e</span><span class="error">t</span><span class="error">t</span><span class="error">y</span><span class="error">C</span><span class="error">o</span><span class="error">n</span><span class="error">n</span><span class="error">e</span><span class="error">c</span><span class="error">t</span><span class="error">o</span><span class="error">r</span><span class="error">F</span><span class="error">a</span><span class="error">c</span><span class="error">t</span><span class="error">o</span><span class="error">r</span><span class="error">y</span><span class="error">)</span> <span class="error">?</span><span class="error">p</span><span class="error">o</span><span class="error">r</span><span class="error">t</span><span class="error">=</span><span class="integer">5672</span><span class="error">&amp;</span><span class="error">h</span><span class="error">o</span><span class="error">s</span><span class="error">t</span><span class="error">=</span><span class="integer">10</span><span class="integer">-101</span><span class="integer">-3</span><span class="integer">-185</span>, <span class="error">a</span><span class="error">d</span><span class="error">d</span><span class="error">r</span><span class="error">e</span><span class="error">s</span><span class="error">s</span><span class="error">=</span><span class="error">j</span><span class="error">m</span><span class="error">s</span>, <span class="error">s</span><span class="error">e</span><span class="error">r</span><span class="error">v</span><span class="error">e</span><span class="error">r</span><span class="error">=</span><span class="error">A</span><span class="error">c</span><span class="error">t</span><span class="error">i</span><span class="error">v</span><span class="error">e</span><span class="error">M</span><span class="error">Q</span><span class="error">S</span><span class="error">e</span><span class="error">r</span><span class="error">v</span><span class="error">e</span><span class="error">r</span><span class="error">I</span><span class="error">m</span><span class="error">p</span><span class="error">l</span>::<span class="error">s</span><span class="error">e</span><span class="error">r</span><span class="error">v</span><span class="error">e</span><span class="error">r</span><span class="error">U</span><span class="error">U</span><span class="error">I</span><span class="error">D</span><span class="error">=</span><span class="integer">17</span><span class="error">b</span><span class="integer">48</span><span class="error">d</span><span class="error">b</span><span class="integer">9</span><span class="error">-</span><span class="error">e</span><span class="integer">7</span><span class="error">e</span><span class="error">e</span><span class="float">-11e6</span><span class="integer">-9</span><span class="error">d</span><span class="integer">56</span><span class="integer">-38</span><span class="error">c</span><span class="integer">986025</span><span class="error">a</span><span class="integer">6</span><span class="error">f</span>]]:<span class="error">\</span><span class="error">n</span><span class="error">\</span><span class="error">t</span><span class="integer">17</span><span class="error">b</span><span class="integer">48</span><span class="error">d</span><span class="error">b</span><span class="integer">9</span><span class="error">-</span><span class="error">e</span><span class="integer">7</span><span class="error">e</span><span class="error">e</span><span class="float">-11e6</span><span class="integer">-9</span><span class="error">d</span><span class="integer">56</span><span class="integer">-38</span><span class="error">c</span><span class="integer">986025</span><span class="error">a</span><span class="integer">6</span><span class="error">f</span> <span class="error">=</span><span class="error">&gt;</span> <span class="error">T</span><span class="error">o</span><span class="error">p</span><span class="error">o</span><span class="error">l</span><span class="error">o</span><span class="error">g</span><span class="error">y</span><span class="error">M</span><span class="error">e</span><span class="error">m</span><span class="error">b</span><span class="error">e</span><span class="error">r</span>[<span class="error">i</span><span class="error">d</span> <span class="error">=</span> <span class="integer">17</span><span class="error">b</span><span class="integer">48</span><span class="error">d</span><span class="error">b</span><span class="integer">9</span><span class="error">-</span><span class="error">e</span><span class="integer">7</span><span class="error">e</span><span class="error">e</span><span class="float">-11e6</span><span class="integer">-9</span><span class="error">d</span><span class="integer">56</span><span class="integer">-38</span><span class="error">c</span><span class="integer">986025</span><span class="error">a</span><span class="integer">6</span><span class="error">f</span>, <span class="error">c</span><span class="error">o</span><span class="error">n</span><span class="error">n</span><span class="error">e</span><span class="error">c</span><span class="error">t</span><span class="error">o</span><span class="error">r</span><span class="error">=</span><span class="error">P</span><span class="error">a</span><span class="error">i</span><span class="error">r</span>[<span class="error">a</span><span class="error">=</span><span class="error">T</span><span class="error">r</span><span class="error">a</span><span class="error">n</span><span class="error">s</span><span class="error">p</span><span class="error">o</span><span class="error">r</span><span class="error">t</span><span class="error">C</span><span class="error">o</span><span class="error">n</span><span class="error">f</span><span class="error">i</span><span class="error">g</span><span class="error">u</span><span class="error">r</span><span class="error">a</span><span class="error">t</span><span class="error">i</span><span class="error">o</span><span class="error">n</span><span class="error">(</span><span class="error">n</span><span class="error">a</span><span class="error">m</span><span class="error">e</span><span class="error">=</span><span class="error">n</span><span class="error">e</span><span class="error">t</span><span class="error">t</span><span class="error">y</span><span class="error">-</span><span class="error">c</span><span class="error">o</span><span class="error">n</span><span class="error">n</span><span class="error">e</span><span class="error">c</span><span class="error">t</span><span class="error">o</span><span class="error">r</span>, <span class="error">f</span><span class="error">a</span><span class="error">c</span><span class="error">t</span><span class="error">o</span><span class="error">r</span><span class="error">y</span><span class="error">=</span><span class="error">o</span><span class="error">r</span><span class="error">g</span><span class="error">-</span><span class="error">a</span><span class="error">p</span><span class="error">a</span><span class="error">c</span><span class="error">h</span><span class="error">e</span><span class="error">-</span><span class="error">a</span><span class="error">c</span><span class="error">t</span><span class="error">i</span><span class="error">v</span><span class="error">e</span><span class="error">m</span><span class="error">q</span><span class="error">-</span><span class="error">a</span><span class="error">r</span><span class="error">t</span><span class="error">e</span><span class="error">m</span><span class="error">i</span><span class="error">s</span><span class="error">-</span><span class="error">c</span><span class="error">o</span><span class="error">r</span><span class="error">e</span><span class="error">-</span><span class="error">r</span><span class="error">e</span><span class="error">m</span><span class="error">o</span><span class="error">t</span><span class="error">i</span><span class="error">n</span><span class="error">g</span><span class="error">-</span><span class="error">i</span><span class="error">m</span><span class="error">p</span><span class="error">l</span><span class="error">-</span><span class="error">n</span><span class="error">e</span><span class="error">t</span><span class="error">t</span><span class="error">y</span><span class="error">-</span><span class="error">N</span><span class="error">e</span><span class="error">t</span><span class="error">t</span><span class="error">y</span><span class="error">C</span><span class="error">o</span><span class="error">n</span><span class="error">n</span><span class="error">e</span><span class="error">c</span><span class="error">t</span><span class="error">o</span><span class="error">r</span><span class="error">F</span><span class="error">a</span><span class="error">c</span><span class="error">t</span><span class="error">o</span><span class="error">r</span><span class="error">y</span><span class="error">)</span> <span class="error">?</span><span class="error">p</span><span class="error">o</span><span class="error">r</span><span class="error">t</span><span class="error">=</span><span class="integer">5672</span><span class="error">&amp;</span><span class="error">h</span><span class="error">o</span><span class="error">s</span><span class="error">t</span><span class="error">=</span><span class="integer">10</span><span class="integer">-101</span><span class="integer">-3</span><span class="integer">-185</span>, <span class="error">b</span><span class="error">=</span><span class="error">T</span><span class="error">r</span><span class="error">a</span><span class="error">n</span><span class="error">s</span><span class="error">p</span><span class="error">o</span><span class="error">r</span><span class="error">t</span><span class="error">C</span><span class="error">o</span><span class="error">n</span><span class="error">f</span><span class="error">i</span><span class="error">g</span><span class="error">u</span><span class="error">r</span><span class="error">a</span><span class="error">t</span><span class="error">i</span><span class="error">o</span><span class="error">n</span><span class="error">(</span><span class="error">n</span><span class="error">a</span><span class="error">m</span><span class="error">e</span><span class="error">=</span><span class="error">n</span><span class="error">e</span><span class="error">t</span><span class="error">t</span><span class="error">y</span><span class="error">-</span><span class="error">c</span><span class="error">o</span><span class="error">n</span><span class="error">n</span><span class="error">e</span><span class="error">c</span><span class="error">t</span><span class="error">o</span><span class="error">r</span>, <span class="error">f</span><span class="error">a</span><span class="error">c</span><span class="error">t</span><span class="error">o</span><span class="error">r</span><span class="error">y</span><span class="error">=</span><span class="error">o</span><span class="error">r</span><span class="error">g</span><span class="error">-</span><span class="error">a</span><span class="error">p</span><span class="error">a</span><span class="error">c</span><span class="error">h</span><span class="error">e</span><span class="error">-</span><span class="error">a</span><span class="error">c</span><span class="error">t</span><span class="error">i</span><span class="error">v</span><span class="error">e</span><span class="error">m</span><span class="error">q</span><span class="error">-</span><span class="error">a</span><span class="error">r</span><span class="error">t</span><span class="error">e</span><span class="error">m</span><span class="error">i</span><span class="error">s</span><span class="error">-</span><span class="error">c</span><span class="error">o</span><span class="error">r</span><span class="error">e</span><span class="error">-</span><span class="error">r</span><span class="error">e</span><span class="error">m</span><span class="error">o</span><span class="error">t</span><span class="error">i</span><span class="error">n</span><span class="error">g</span><span class="error">-</span><span class="error">i</span><span class="error">m</span><span class="error">p</span><span class="error">l</span><span class="error">-</span><span class="error">n</span><span class="error">e</span><span class="error">t</span><span class="error">t</span><span class="error">y</span><span class="error">-</span><span class="error">N</span><span class="error">e</span><span class="error">t</span><span class="error">t</span><span class="error">y</span><span class="error">C</span><span class="error">o</span><span class="error">n</span><span class="error">n</span><span class="error">e</span><span class="error">c</span><span class="error">t</span><span class="error">o</span><span class="error">r</span><span class="error">F</span><span class="error">a</span><span class="error">c</span><span class="error">t</span><span class="error">o</span><span class="error">r</span><span class="error">y</span><span class="error">)</span> <span class="error">?</span><span class="error">p</span><span class="error">o</span><span class="error">r</span><span class="error">t</span><span class="error">=</span><span class="integer">5672</span><span class="error">&amp;</span><span class="error">h</span><span class="error">o</span><span class="error">s</span><span class="error">t</span><span class="error">=</span><span class="integer">10</span><span class="integer">-101</span><span class="integer">-2</span><span class="integer">-97</span>], <span class="error">b</span><span class="error">a</span><span class="error">c</span><span class="error">k</span><span class="error">u</span><span class="error">p</span><span class="error">G</span><span class="error">r</span><span class="error">o</span><span class="error">u</span><span class="error">p</span><span class="error">N</span><span class="error">a</span><span class="error">m</span><span class="error">e</span><span class="error">=</span><span class="value">null</span>, <span class="error">s</span><span class="error">c</span><span class="error">a</span><span class="error">l</span><span class="error">e</span><span class="error">D</span><span class="error">o</span><span class="error">w</span><span class="error">n</span><span class="error">G</span><span class="error">r</span><span class="error">o</span><span class="error">u</span><span class="error">p</span><span class="error">N</span><span class="error">a</span><span class="error">m</span><span class="error">e</span><span class="error">=</span><span class="value">null</span>]<span class="error">\</span><span class="error">n</span><span class="error">\</span><span class="error">t</span><span class="error">n</span><span class="error">o</span><span class="error">d</span><span class="error">e</span><span class="error">s</span><span class="error">=</span><span class="integer">2</span><span class="error">\</span><span class="error">t</span><span class="error">m</span><span class="error">e</span><span class="error">m</span><span class="error">b</span><span class="error">e</span><span class="error">r</span><span class="error">s</span><span class="error">=</span><span class="integer">1</span><span class="string"><span class="delimiter">&quot;</span><span class="content">,
-        </span><span class="delimiter">&quot;</span></span><span class="error">t</span><span class="error">i</span><span class="error">m</span><span class="error">e</span><span class="error">s</span><span class="error">t</span><span class="error">a</span><span class="error">m</span><span class="error">p</span><span class="string"><span class="delimiter">&quot;</span><span class="content">: 1485971158,
-        </span><span class="delimiter">&quot;</span></span><span class="error">s</span><span class="error">t</span><span class="error">a</span><span class="error">t</span><span class="error">u</span><span class="error">s</span><span class="string"><span class="delimiter">&quot;</span><span class="content">: 200
-}</span></span></code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_securing_the_message_broker_application"><a class="anchor" href="#_securing_the_message_broker_application"></a><a class="link" href="#_securing_the_message_broker_application">Securing the Message Broker Application</a></h5>
-<div class="paragraph">
-<p>DDF can be configured to use Artemis to perform authentication and authorization against an LDAP server.</p>
-</div>
-<div class="paragraph">
-<p>Artemis provides the ability to apply role-based security to queues based on addresses
-(see <a href="https://activemq.apache.org/artemis/docs/2.6.2/security.html">the Artemis documentation</a> <span class="image"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Message Broker"></span>
-for details).
-It can be configured to use an LDAP server to perform authentication and authorization for users who connect to it.</p>
-</div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Important</div>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>If you are setting up multiple DDF instances in a cluster for high availability, then you will need to perform these steps on each instance.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>The Security STS LDAP Login and Security STS LDAP Claims Handler bundles are responsible for authenticating and authorizing users with your LDAP server.
-To configure them for your LDAP server, follow the instructions in <a href="documentation.html#_security_sts_ldap_login">STS LDAP Login</a> and <a href="documentation.html#_security_sts_ldap_claims_handler">STS LDAP Claims Handler</a>.</p>
-</div>
-<div class="paragraph">
-<p>Once the STS LDAP Login and Claims Handlers are configured, update <code>&lt;DDF_HOME&gt;/etc/org.apache.activemq.artemis.cfg</code> to use the <code>ldap</code> realm (just change <code>domain=karaf</code> to <code>domain=ldap</code>):</p>
-</div>
-<div class="listingblock">
-<div class="title">&lt;DDF_HOME&gt;/etc/org.apachc.activemq.artemis.cfg</div>
-<div class="content">
-<pre>domain=ldap</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>DDF uses two roles in the security settings for Artemis: <code>manager</code> and <code>broker-client</code>.</p>
-</div>
-<div class="listingblock">
-<div class="title">&lt;DDF_HOME&gt;/etc/artemis.xml</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="xml"><span class="tag">&lt;security-setting</span> <span class="attribute-name">match</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">#</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
-    <span class="tag">&lt;permission</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">createNonDurableQueue</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">roles</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">manager,broker-client</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
-    <span class="tag">&lt;permission</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">deleteNonDurableQueue</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">roles</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">manager,broker-client</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
-    <span class="tag">&lt;permission</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">createDurableQueue</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">roles</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">manager</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
-    <span class="tag">&lt;permission</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">deleteDurableQueue</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">roles</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">manager</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
-    <span class="tag">&lt;permission</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">consume</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">roles</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">manager,broker-client</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
-    <span class="tag">&lt;permission</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">browse</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">roles</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">manager,broker-client</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
-    <span class="tag">&lt;permission</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">send</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">roles</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">manager,broker-client</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
-    <span class="tag">&lt;permission</span> <span class="attribute-name">type</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">manage</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">roles</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">manager</span><span class="delimiter">&quot;</span></span><span class="tag">/&gt;</span>
-<span class="tag">&lt;/security-setting&gt;</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Users with the role <code>manager</code> have full permissions, but users with the role <code>broker-client</code> cannot
-create or delete durable queues or invoke management operations.</p>
-</div>
-<div class="paragraph">
-<p>Your LDAP should have groups that correspond to these roles so that members of those groups will have
-the correct permissions when connecting to Artemis to send or consume messages.
-Alternatively, you can choose roles other than <code>manager</code> and <code>broker-client</code>, which may be useful if your LDAP already
-has groups that you would like to use as Artemis roles.
-If you wish to use different roles, just replace <code>manager</code> and/or <code>broker-client</code> in the <code>&lt;security-setting&gt;</code> in <code>artemis.xml</code> with the roles you would like to use.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_artemis_broker_connection_configuration"><a class="anchor" href="#_artemis_broker_connection_configuration"></a><a class="link" href="#_artemis_broker_connection_configuration">Artemis Broker Connection Configuration</a></h5>
-<div class="paragraph">
-<p>The <code>Artemis Broker Connection Configuration</code> manages the parameters for DDF&#8217;s connection to
-Artemis. The username and password in the <code>Artemis Broker Connection Configuration</code> need to be updated
-so that they correspond to a user in your LDAP. If possible, this user should have the <code>manager</code> role
-(or the role that is being used in place of <code>manager</code> if the default Artemis role has been changed).</p>
-</div>
-<div class="paragraph">
-<p>To update the username and password:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Navigate to the <strong>Admin Console</strong></p>
-</li>
-<li>
-<p>Select the <strong>Broker App</strong> application.</p>
-</li>
-<li>
-<p>Select the <strong>Configuration</strong> tab.</p>
-</li>
-<li>
-<p>Select the <strong>Artemis Broker Connection Configuration</strong>.</p>
-</li>
-<li>
-<p>Enter the username and password and select <strong>Save changes</strong>.</p>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_using_the_message_broker_application"><a class="anchor" href="#_using_the_message_broker_application"></a><a class="link" href="#_using_the_message_broker_application">Using the Message Broker Application</a></h4>
-<div class="paragraph">
-<p>The Message Broker app can be used through the Admin Console.
-See the <a href="#_route_manager">Route Manager</a> and the <a href="#_undelivered_messages_ui">Undelivered Messages UI</a> for more information.</p>
-</div>
-<div class="sect4">
-<h5 id="_undelivered_messages_ui"><a class="anchor" href="#_undelivered_messages_ui"></a><a class="link" href="#_undelivered_messages_ui">Undelivered Messages UI</a></h5>
-<div class="paragraph">
-<p>The Undeliverable Messages tab gives an administrator the ability to view undeliverable messages and then decide whether to resend or delete those messages.</p>
-</div>
-<div class="paragraph">
-<p>The Undelivered Messages UI is installed as a part of the Message Broker.</p>
-</div>
-<div class="paragraph">
-<p>To view undelivered messages, an administrator can use the "retrieve" button, which makes an immediate call to the backend and displays all the messages.
-Alternatively, the "start polling" button makes calls to the backend every 5 seconds and updates the display accordingly.</p>
-</div>
-<div class="paragraph">
-<p>An administrator can select messages by clicking anywhere in the row of the message.
-Multiple messages can be selected simply by clicking multiple messages or by clicking the "Select all" option at the head of the table.
-Deselecting is done by clicking a message again or clicking the "Deselect all" option, next to the "Select all" option.</p>
-</div>
-<div class="paragraph">
-<p>To attempt to resend messages, select the messages, and then click the "resend" button.
-Currently, there is no way to identify if a message was successfully redelivered.</p>
-</div>
-<div class="paragraph">
-<p>To delete messages, select the messages, and then click the "delete" button.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Only 200 messages can be viewed at a time, even though there may be more than 200 undelivered messages</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>Known issues with the Undelivered Messages UI:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>If attempting to resend a message, but the listener is no longer available, the message will be "successfully" resent and removed from the UI and the Artemis DLQ but will not be successfully redelivered.</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_route_manager"><a class="anchor" href="#_route_manager"></a><a class="link" href="#_route_manager">Route Manager</a></h5>
-<div class="paragraph">
-<p>The Route Manager gives an administrator the ability to configure and deploy Camel routes, queues, and topics dynamically. The <code>sjms</code> component is available by default. If a need arises for a new route, an administrator can easily develop a new route and deploy it to satisfy the requirement, rather than spending the time to develop, compile, and test new code.</p>
-</div>
-<div class="paragraph">
-<p>The Route Manager is installed as a part of the Message Broker application.</p>
-</div>
-<div class="paragraph">
-<p>The route shutdown timeout can be configured.</p>
-</div>
-<div class="paragraph">
-<p>To deploy a new route, simply place a route <code>.XML</code> file in the <code>&lt;DDF_HOME&gt;/etc/routes</code> directory of DDF. To remove a route (or set of routes), delete the <code>.XML</code> file.</p>
-</div>
-<div class="paragraph">
-<p>There are example routes in the <code>&lt;DDF_HOME&gt;/etc/routes</code> directory by default.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect2">
 <h3 id="_catalog_application_reference"><a class="anchor" href="#_catalog_application_reference"></a><a class="link" href="#_catalog_application_reference">Catalog Application Reference</a></h3>
 <div class="paragraph">
 <p>The Catalog provides a framework for storing, searching, processing, and transforming information.</p>
@@ -1413,6 +1032,11 @@ Currently, there is no way to identify if a message was successfully redelivered
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_ddf.catalog.transformer.input.pdf.PdfInputTransformer">PDF Input Transformer</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">ddf.catalog.transformer.input.pdf.PdfInputTransformer</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">PDF Input Transformer configurations.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.transformer.preview">Catalog Preview</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.transformer.preview</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allow Preview to be Extracted From Metadata.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.security.CatalogPolicy">Catalog Policy Plugin</a></p></td>
@@ -2924,7 +2548,46 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 31. <a id="_org.codice.ddf.catalog.security.CatalogPolicy"></a>Catalog Policy Plugin</caption>
+<caption class="title">Table 31. <a id="_org.codice.ddf.transformer.preview"></a>Catalog Preview</caption>
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 37.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Id</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default Value</th>
+<th class="tableblock halign-left valign-top">Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Preview From Metadata</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>previewFromMetadata</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Allow Preview to be Extracted From Metadata.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Element Names to Preview</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>previewElements</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specify element names to preview from XML.  Will take the text content of the first available element for preview. Note: This list will not be used unless Preview From Metadata is enabled.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">text,TEXT</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 32. <a id="_org.codice.ddf.catalog.security.CatalogPolicy"></a>Catalog Policy Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -2979,7 +2642,7 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 32. <a id="_org.codice.ddf.catalog.security.ResourceUriPolicy"></a>Resource URI Policy Plugin</caption>
+<caption class="title">Table 33. <a id="_org.codice.ddf.catalog.security.ResourceUriPolicy"></a>Resource URI Policy Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3018,7 +2681,7 @@ Relative paths are assumed to be relative to <code>&lt;DDF_HOME&gt;/schematron</
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 33. <a id="_org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner"></a>Status Source Poller Runner</caption>
+<caption class="title">Table 34. <a id="_org.codice.ddf.catalog.sourcepoller.StatusSourcePollerRunner"></a>Status Source Poller Runner</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3143,7 +2806,7 @@ GeoWebCache also provides a user interface for previewing, truncating, or seedin
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 34. Add Layer</caption>
+<caption class="title">Table 35. Add Layer</caption>
 <colgroup>
 <col style="width: 16.6666%;">
 <col style="width: 16.6666%;">
@@ -3390,7 +3053,7 @@ These building blocks include subsets of:</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 35. Platform Available Configurations</caption>
+<caption class="title">Table 36. Platform Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -3447,7 +3110,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 36. <a id="_DDF_Custom_Mime_Type_Resolver"></a>MIME Custom Types</caption>
+<caption class="title">Table 37. <a id="_DDF_Custom_Mime_Type_Resolver"></a>MIME Custom Types</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3494,7 +3157,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 37. <a id="_org.codice.ddf.platform.logging.LoggingService"></a>Logging Service</caption>
+<caption class="title">Table 38. <a id="_org.codice.ddf.platform.logging.LoggingService"></a>Logging Service</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3525,7 +3188,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 38. <a id="_MetricsReporting"></a>Metrics Reporting</caption>
+<caption class="title">Table 39. <a id="_MetricsReporting"></a>Metrics Reporting</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3556,7 +3219,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 39. <a id="_org.codice.ddf.security.response.filter.ResponseHeaderConfig"></a>HTTP Response Security</caption>
+<caption class="title">Table 40. <a id="_org.codice.ddf.security.response.filter.ResponseHeaderConfig"></a>HTTP Response Security</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3603,7 +3266,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 40. <a id="_org.codice.ddf.platform.email.impl.SmtpClientImpl"></a>Email Service</caption>
+<caption class="title">Table 41. <a id="_org.codice.ddf.platform.email.impl.SmtpClientImpl"></a>Email Service</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3658,7 +3321,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 41. <a id="_org.codice.ddf.distribution.landingpage.properties"></a>Landing Page</caption>
+<caption class="title">Table 42. <a id="_org.codice.ddf.distribution.landingpage.properties"></a>Landing Page</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3753,7 +3416,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 42. <a id="_ddf.platform.ui.config"></a>Platform UI Configuration</caption>
+<caption class="title">Table 43. <a id="_ddf.platform.ui.config"></a>Platform UI Configuration</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3848,7 +3511,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 43. <a id="_ddf.platform.scheduler.Command"></a>Platform Command Scheduler</caption>
+<caption class="title">Table 44. <a id="_ddf.platform.scheduler.Command"></a>Platform Command Scheduler</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3984,7 +3647,7 @@ These objects are</p>
 <p>Each of the objects listed above is a JSON array of field objects that can be modified. There are some other objects in the JSON file like <strong>PersonName</strong>, <strong>Address</strong>, <strong>TelephoneNumber</strong>, and <strong>EmailAddress</strong> that should not be modified.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 44. Field Properties</caption>
+<caption class="title">Table 45. Field Properties</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -4085,7 +3748,7 @@ These objects are</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 45. Registry Available Configurations</caption>
+<caption class="title">Table 46. Registry Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -4117,7 +3780,7 @@ These objects are</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 46. <a id="_Csw_Registry_Store"></a>CSW Registry Store</caption>
+<caption class="title">Table 47. <a id="_Csw_Registry_Store"></a>CSW Registry Store</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4196,7 +3859,7 @@ These objects are</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 47. <a id="_org.codice.ddf.registry.policy.RegistryPolicyPlugin"></a>Registry Policy Plugin</caption>
+<caption class="title">Table 48. <a id="_org.codice.ddf.registry.policy.RegistryPolicyPlugin"></a>Registry Policy Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4283,7 +3946,7 @@ These objects are</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 48. <a id="_Registry_Configuration_Event_Handler"></a>Registry Source Configuration Handler</caption>
+<caption class="title">Table 49. <a id="_Registry_Configuration_Event_Handler"></a>Registry Source Configuration Handler</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4452,7 +4115,7 @@ This application allows an administrator to:</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 49. Resource Management Available Configurations</caption>
+<caption class="title">Table 50. Resource Management Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -4474,7 +4137,7 @@ This application allows an administrator to:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 50. <a id="_org.codice.ddf.resourcemanagement.usage"></a>Data Usage</caption>
+<caption class="title">Table 51. <a id="_org.codice.ddf.resourcemanagement.usage"></a>Data Usage</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4592,7 +4255,7 @@ These services comprise both a framework that developers and integrators can ext
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 51. Security Available Configurations</caption>
+<caption class="title">Table 52. Security Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -4684,7 +4347,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 52. <a id="_Claims_Handler_Manager"></a>Security STS LDAP and Roles Claims Handler</caption>
+<caption class="title">Table 53. <a id="_Claims_Handler_Manager"></a>Security STS LDAP and Roles Claims Handler</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4803,7 +4466,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 53. <a id="_org.codice.ddf.security.interceptor.GuestInterceptor"></a>Security SOAP Guest Interceptor</caption>
+<caption class="title">Table 54. <a id="_org.codice.ddf.security.interceptor.GuestInterceptor"></a>Security SOAP Guest Interceptor</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4834,7 +4497,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 54. <a id="_org.codice.ddf.security.idp.client.IdpMetadata"></a>IdP Client</caption>
+<caption class="title">Table 55. <a id="_org.codice.ddf.security.idp.client.IdpMetadata"></a>IdP Client</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4869,7 +4532,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 55. <a id="_org.codice.ddf.security.idp.client.LogoutRequestService"></a>Logout Page</caption>
+<caption class="title">Table 56. <a id="_org.codice.ddf.security.idp.client.LogoutRequestService"></a>Logout Page</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4897,7 +4560,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 56. <a id="_org.codice.ddf.security.handler.oidc.OidcHandler"></a>OIDC Handler</caption>
+<caption class="title">Table 57. <a id="_org.codice.ddf.security.handler.oidc.OidcHandler"></a>OIDC Handler</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4995,7 +4658,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 57. <a id="_org.codice.ddf.security.policy.context.impl.PolicyManager"></a>Web Context Policy Manager</caption>
+<caption class="title">Table 58. <a id="_org.codice.ddf.security.policy.context.impl.PolicyManager"></a>Web Context Policy Manager</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5066,7 +4729,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 58. <a id="_org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler"></a>File Based Claims Handler</caption>
+<caption class="title">Table 59. <a id="_org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler"></a>File Based Claims Handler</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5121,7 +4784,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 59. <a id="_org.codice.ddf.security.filter.login.Session"></a>Session</caption>
+<caption class="title">Table 60. <a id="_org.codice.ddf.security.filter.login.Session"></a>Session</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5154,7 +4817,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 60. <a id="_org.codice.ddf.security.idp.client.IdpHandler"></a>IdP Handler</caption>
+<caption class="title">Table 61. <a id="_org.codice.ddf.security.idp.client.IdpHandler"></a>IdP Handler</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -5182,7 +4845,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 61. <a id="_ddf.security.pdp.realm.AuthzRealm"></a>Security AuthZ Realm</caption>
+<caption class="title">Table 62. <a id="_ddf.security.pdp.realm.AuthzRealm"></a>Security AuthZ Realm</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5229,7 +4892,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 62. <a id="_ddf.security.service.SecurityManager"></a>SAML NameID Policy</caption>
+<caption class="title">Table 63. <a id="_ddf.security.service.SecurityManager"></a>SAML NameID Policy</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5260,7 +4923,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 63. <a id="_ddf.security.sts"></a>Security STS Server</caption>
+<caption class="title">Table 64. <a id="_ddf.security.sts"></a>Security STS Server</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5315,7 +4978,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 64. <a id="_ddf.security.sts.client.configuration"></a>Security STS Client</caption>
+<caption class="title">Table 65. <a id="_ddf.security.sts.client.configuration"></a>Security STS Client</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5426,7 +5089,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 65. <a id="_ddf.security.guest.realm"></a>Guest Claims Configuration</caption>
+<caption class="title">Table 66. <a id="_ddf.security.guest.realm"></a>Guest Claims Configuration</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5457,7 +5120,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 66. <a id="_org.codice.ddf.security.validator.pki"></a>Security STS PKI Token Validator</caption>
+<caption class="title">Table 67. <a id="_org.codice.ddf.security.validator.pki"></a>Security STS PKI Token Validator</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5559,7 +5222,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 67. Solr Catalog Available Configurations</caption>
+<caption class="title">Table 68. Solr Catalog Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -5581,7 +5244,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 68. <a id="_ddf.catalog.solr.provider.SolrCatalogProvider"></a>Solr Catalog Provider</caption>
+<caption class="title">Table 69. <a id="_ddf.catalog.solr.provider.SolrCatalogProvider"></a>Solr Catalog Provider</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5641,7 +5304,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <p>The <code>gazetteer</code> commands provide the ability to interact with the local GeoNames metacard collection in the core catalog. These GeoNames metacards are used by the <code>offline-gazetteer</code> feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the <code>offline-gazetteer</code> feature is installed.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 69. Gazetteer Command Descriptions</caption>
+<caption class="title">Table 70. Gazetteer Command Descriptions</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 80%;">
@@ -5761,7 +5424,7 @@ index again.</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 70. Spatial Available Configurations</caption>
+<caption class="title">Table 71. Spatial Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -5843,7 +5506,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 71. <a id="_Csw_Federated_Source"></a>CSW Specification Profile Federated Source</caption>
+<caption class="title">Table 72. <a id="_Csw_Federated_Source"></a>CSW Specification Profile Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6018,7 +5681,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 72. <a id="_Csw_Federation_Profile_Source"></a>CSW Federation Profile Source</caption>
+<caption class="title">Table 73. <a id="_Csw_Federation_Profile_Source"></a>CSW Federation Profile Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6105,7 +5768,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 73. <a id="_Csw_Transactional_Federated_Source"></a>CSW Transactional Profile Federated Source</caption>
+<caption class="title">Table 74. <a id="_Csw_Transactional_Federated_Source"></a>CSW Transactional Profile Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6280,7 +5943,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 74. <a id="_org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin"></a>GeoCoder Plugin</caption>
+<caption class="title">Table 75. <a id="_org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin"></a>GeoCoder Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6310,7 +5973,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 75. <a id="_Gmd_Csw_Federated_Source"></a>GMD CSW ISO Federated Source</caption>
+<caption class="title">Table 76. <a id="_Gmd_Csw_Federated_Source"></a>GMD CSW ISO Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6469,7 +6132,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 76. <a id="_org.codice.ddf.spatial.kml.endpoint.KmlEndpoint"></a>Spatial KML Endpoint</caption>
+<caption class="title">Table 77. <a id="_org.codice.ddf.spatial.kml.endpoint.KmlEndpoint"></a>Spatial KML Endpoint</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6548,7 +6211,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 77. <a id="_org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"></a>Metacard to WFS Feature Map</caption>
+<caption class="title">Table 78. <a id="_org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"></a>Metacard to WFS Feature Map</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6683,7 +6346,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 78. <a id="_Wfs_v1_0_0_Connected_Source"></a>WFS v1.0.0 Connected Source</caption>
+<caption class="title">Table 79. <a id="_Wfs_v1_0_0_Connected_Source"></a>WFS v1.0.0 Connected Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6786,7 +6449,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 79. <a id="_Wfs_v1_0_0_Federated_Source"></a>WFS v1.0.0 Federated Source</caption>
+<caption class="title">Table 80. <a id="_Wfs_v1_0_0_Federated_Source"></a>WFS v1.0.0 Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6897,7 +6560,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 80. <a id="_Wfs_v1_1_0_Federated_Source"></a>WFS v1.1.0 Federated Source</caption>
+<caption class="title">Table 81. <a id="_Wfs_v1_1_0_Federated_Source"></a>WFS v1.1.0 Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7024,7 +6687,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 81. <a id="_Wfs_v2_0_0_Connected_Source"></a>WFS 2.0.0 Connected Source</caption>
+<caption class="title">Table 82. <a id="_Wfs_v2_0_0_Connected_Source"></a>WFS 2.0.0 Connected Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7143,7 +6806,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 82. <a id="_Wfs_v2_0_0_Federated_Source"></a>WFS 2.0.0 Federated Source</caption>
+<caption class="title">Table 83. <a id="_Wfs_v2_0_0_Federated_Source"></a>WFS 2.0.0 Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7270,7 +6933,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 83. <a id="_org.codice.ddf.spatial.kml.style"></a>Spatial KML Style Map Entry</caption>
+<caption class="title">Table 84. <a id="_org.codice.ddf.spatial.kml.style"></a>Spatial KML Style Map Entry</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7380,7 +7043,7 @@ index again.</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 84. Search UI Available Configurations</caption>
+<caption class="title">Table 85. Search UI Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -7395,14 +7058,14 @@ index again.</p>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.security.facetwhitelist">Catalog UI Search Attribute Suggestion Whitelist</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.security.facetwhitelist</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Attribute Suggestion Whitelist</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier">Email Notifier</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Email Notifier.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.plugin.facetattributeaccess.facetwhitelist">Facet Attribute Whitelist</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.plugin.facetattributeaccess.facetwhitelist</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Facet Attribute Whitelist</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.ui.searchui.filter.RedirectServlet">Search UI Redirect</a></p></td>
@@ -7462,38 +7125,6 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 85. <a id="_org.codice.ddf.catalog.ui.security.facetwhitelist"></a>Catalog UI Search Attribute Suggestion Whitelist</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Attribute Suggestion Whitelist</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>facetAttributeWhitelist</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes that should provide autocomplete suggestions. Suggestions are typically popular values for the attribute in data storage.
-Caution: Suggestion values are not protected by any security. Only choose attributes whose values will be safe for all users to view.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 86. <a id="_org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier"></a>Catalog UI Search Email Notifier</caption>
 <colgroup>
 <col style="width: 12.5%;">
@@ -7541,7 +7172,39 @@ Caution: Suggestion values are not protected by any security. Only choose attrib
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 87. <a id="_org.codice.ddf.ui.searchui.filter.RedirectServlet"></a>Search UI Redirect</caption>
+<caption class="title">Table 87. <a id="_org.codice.ddf.catalog.plugin.facetattributeaccess.facetwhitelist"></a>Facet Attribute Whitelist</caption>
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 37.5%;">
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Id</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default Value</th>
+<th class="tableblock halign-left valign-top">Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Facet Attribute Whitelist</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>facetAttributeWhitelist</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Attributes that can be faceted against through the catalog framework.
+Caution: Suggestion values are not protected by any security. Only choose attributes whose values will be safe for all users to view.</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 88. <a id="_org.codice.ddf.ui.searchui.filter.RedirectServlet"></a>Search UI Redirect</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7572,7 +7235,7 @@ Caution: Suggestion values are not protected by any security. Only choose attrib
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 88. <a id="_org.codice.ddf.catalog.ui.transformer.TransformerDescriptors"></a>Catalog UI Search Transformer Blacklists</caption>
+<caption class="title">Table 89. <a id="_org.codice.ddf.catalog.ui.transformer.TransformerDescriptors"></a>Catalog UI Search Transformer Blacklists</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7611,7 +7274,7 @@ Caution: Suggestion values are not protected by any security. Only choose attrib
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 89. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"></a>Catalog UI Search Workspace Query Monitor</caption>
+<caption class="title">Table 90. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"></a>Catalog UI Search Workspace Query Monitor</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7651,7 +7314,7 @@ Note: This will query for results from the interval to the time the query is sen
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 90. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl"></a>Catalog UI Search Workspace Service</caption>
+<caption class="title">Table 91. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl"></a>Catalog UI Search Workspace Service</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7682,7 +7345,7 @@ Note: This will query for results from the interval to the time the query is sen
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 91. <a id="_org.codice.ddf.catalog.ui"></a>Catalog UI Search</caption>
+<caption class="title">Table 92. <a id="_org.codice.ddf.catalog.ui"></a>Catalog UI Search</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -8266,7 +7929,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 92. <a id="_org.codice.ddf.catalog.ui.attribute.aliases"></a>Catalog UI Search Attribute Aliases</caption>
+<caption class="title">Table 93. <a id="_org.codice.ddf.catalog.ui.attribute.aliases"></a>Catalog UI Search Attribute Aliases</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -8297,7 +7960,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 93. <a id="_org.codice.ddf.catalog.ui.attribute.descriptions"></a>Catalog UI Search Attribute Descriptions</caption>
+<caption class="title">Table 94. <a id="_org.codice.ddf.catalog.ui.attribute.descriptions"></a>Catalog UI Search Attribute Descriptions</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -8328,7 +7991,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 94. <a id="_org.codice.ddf.catalog.ui.attribute.hidden"></a>Catalog UI Search Hidden Attributes</caption>
+<caption class="title">Table 95. <a id="_org.codice.ddf.catalog.ui.attribute.hidden"></a>Catalog UI Search Hidden Attributes</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -8374,7 +8037,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 95. <a id="_org.codice.ddf.catalog.ui.theme"></a>Catalog UI Search Theme</caption>
+<caption class="title">Table 96. <a id="_org.codice.ddf.catalog.ui.theme"></a>Catalog UI Search Theme</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -8542,7 +8205,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 96. <a id="_org.codice.ddf.catalog.ui.whitelist"></a>Catalog UI Search Metacard Type Whitelist</caption>
+<caption class="title">Table 97. <a id="_org.codice.ddf.catalog.ui.whitelist"></a>Catalog UI Search Metacard Type Whitelist</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -8573,7 +8236,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 97. <a id="_org.codice.ddf.catalog.ui.security"></a>Catalog UI Search Workspace Security</caption>
+<caption class="title">Table 98. <a id="_org.codice.ddf.catalog.ui.security"></a>Catalog UI Search Workspace Security</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -9610,7 +9273,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>This list of DDF dependencies is automatically generated:</p>
 </div>
 <div class="ulist">
-<div class="title">DDF 2.19.0 Dependency List.</div>
+<div class="title">DDF 2.20.0 Dependency List.</div>
 <ul>
 <li>
 <p>c3p0:c3p0:jar:0.9.1.1</p>
@@ -9902,15 +9565,6 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </li>
 <li>
 <p>org.apache.activemq:activemq-all:jar:5.14.5</p>
-</li>
-<li>
-<p>org.apache.activemq:artemis-amqp-protocol:jar:2.4.0</p>
-</li>
-<li>
-<p>org.apache.activemq:artemis-jms-client:jar:2.4.0</p>
-</li>
-<li>
-<p>org.apache.activemq:artemis-server:jar:2.4.0</p>
 </li>
 <li>
 <p>org.apache.ant:ant-launcher:jar:1.9.7</p>
@@ -10839,7 +10493,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-10-02 11:53:52 MDT
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-10-31 14:26:12 MDT
 </div>
 </div>
 </body>
