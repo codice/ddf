@@ -146,7 +146,7 @@ public class Associated {
       /*Mutable*/ Map<String, Metacard> changedMetacards) {
     String id = edge.parent.get(Metacard.ID).toString();
     Metacard target = changedMetacards.getOrDefault(id, metacards.get(id));
-    ArrayList<String> values =
+    List<String> values =
         Optional.of(target)
             .map(m -> m.getAttribute(edge.relation))
             .map(Attribute::getValues)
@@ -161,7 +161,7 @@ public class Associated {
       Edge edge, Map<String, Metacard> metacards, Map<String, Metacard> changedMetacards) {
     String id = edge.parent.get(Metacard.ID).toString();
     Metacard target = changedMetacards.getOrDefault(id, metacards.get(id));
-    ArrayList<String> values =
+    List<String> values =
         Optional.of(target)
             .map(m -> m.getAttribute(edge.relation))
             .map(Attribute::getValues)

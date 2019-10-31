@@ -338,7 +338,7 @@ public class EndpointUtilTest {
 
       if (attribute != null) {
         when(metacardMock.getAttribute(attribute))
-            .thenReturn(new AttributeImpl(attribute, new ArrayList<String>()));
+            .thenReturn(new AttributeImpl(attribute, Collections.emptyList()));
       }
       resultMockList.add(resultMock);
     }
