@@ -43,6 +43,64 @@ module.exports = Backbone.AssociatedModel.extend({
     },
     target: undefined,
     targetMetacard: undefined,
+    measurementState: 'NONE',
+    currentDistance: 0,
+    points: [],
+    line: undefined,
+  },
+  /*
+   * Sets the measurement state to the given new state.
+   * Valid measurement states are:
+   *   - NONE
+   *   - START
+   *   - END
+   */
+  changeMeasurementState(state) {
+    // the current distance should be 0 when in the NONE or START state
+    if (state === 'NONE' || state === 'START') {
+      this.set({
+        measurementState: state,
+        currentDistance: 0,
+      })
+    } else {
+      this.set({ measurementState: state })
+    }
+  },
+  /*
+   * Appends the given point to the array of points being tracked.
+   */
+  addPoint(point) {
+    this.set({
+      points: [...this.get('points'), point],
+    })
+  },
+  /*
+   * Sets the line to the given new line. This represents the line on the map
+   * being used for the ruler measurement.
+   */
+  setLine(line) {
+    this.set({ line })
+  },
+  /*
+   * Resets the model's line and returns the old one.
+   */
+  removeLine() {
+    const line = this.get('line')
+    this.set({ line: undefined })
+
+    return line
+  },
+  /*
+   * Resets the model's array of points.
+   */
+  clearPoints() {
+    this.set({ points: [] })
+  },
+  /*
+   * Sets the current distance to the new given distance (in meters).
+   */
+  setCurrentDistance(distance) {
+    this.set({ currentDistance: distance })
   },
   isOffMap() {
     return this.get('mouseLat') === undefined
