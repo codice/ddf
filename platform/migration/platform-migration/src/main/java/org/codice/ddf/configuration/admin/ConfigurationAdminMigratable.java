@@ -223,7 +223,7 @@ public class ConfigurationAdminMigratable implements Migratable {
         String hostname = System.getProperty(DDF_HOSTNAME_PROP_KEY);
         attributeMap[i] = val.replaceAll("(?<!-)data-manager", hostname + "-data-manager");
       }
-      entry.setProperty(ATTRIBUTE_MAP, String.join(",", attributeMap));
+      entry.setProperty(ATTRIBUTE_MAP, attributeMap);
     }
     return entry;
   }

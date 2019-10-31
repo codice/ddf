@@ -417,16 +417,18 @@ public class ConfigurationAdminMigratableTest {
             ArgumentCaptor.forClass(Dictionary.class);
         verify(config).update(argumentCaptor.capture());
         Map<String, ?> dictionaryAsMap = convertToMap(argumentCaptor.getValue());
+        String[] attributeMap = {
+          "invalid-state=localhost-data-manager,system-user",
+          "invalid-state=hostname-data-manager,system-user"
+        };
         assertThat(
             dictionaryAsMap,
             allOf(
                 aMapWithSize(4),
-                hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2"),
-                hasEntry("filterWarnings", "false"),
-                hasEntry("filterErrors", "true"),
-                hasEntry(
-                    "attributeMap",
-                    "invalid-state=localhost-data-manager,system-user,invalid-state=hostname-data-manager,system-user")));
+                hasEntry("schema", (Object) "http://www.opengis.net/cat/csw/2.0.2"),
+                hasEntry("filterWarnings", (Object) "false"),
+                hasEntry("filterErrors", (Object) "true"),
+                hasEntry("attributeMap", (Object) attributeMap)));
       } else if (!config.getPid().contains(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)) {
         ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
             ArgumentCaptor.forClass(Dictionary.class);
