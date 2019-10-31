@@ -17,7 +17,6 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
@@ -201,17 +200,14 @@ public class ConfigurationAdminMigratable implements Migratable {
 
   private ImportMigrationConfigurationAdminEntry updateMetacardValidityFilterPluginConfiguration(
       ImportMigrationConfigurationAdminEntry entry) {
-    Dictionary<String, Object> exportedProps = entry.getProperties();
-    String[] attributeMap = (String[]) exportedProps.get(ATTRIBUTE_MAP);
+    String[] attributeMap = (String[]) entry.getProperty(ATTRIBUTE_MAP);
 
     for (int i = 0; i < attributeMap.length; i++) {
       String val = attributeMap[i];
       String hostname = System.getProperty(DDF_HOSTNAME_PROP_KEY);
-      attributeMap[i] = val.replace("data-manager", hostname + "-data-manager");
+      attributeMap[i] = val.replaceAll("(?<!-)data-manager", hostname + "-data-manager");
     }
-    exportedProps.put(ATTRIBUTE_MAP, String.join(",", attributeMap));
-
-    entry.setProperties(exportedProps);
+    entry.setProperty(ATTRIBUTE_MAP, String.join(",", attributeMap));
     return entry;
   }
 

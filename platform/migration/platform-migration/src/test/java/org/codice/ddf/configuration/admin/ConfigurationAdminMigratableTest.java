@@ -524,7 +524,7 @@ public class ConfigurationAdminMigratableTest {
     props.put("service.pid", pid);
     props.put("schema", "http://www.opengis.net/cat/csw/2.0.2");
     if (pid.equals(METACARD_VALIDITY_FILTER_PLUGIN_PID)) {
-      props.put("attributeMap", new String[] {"invalid-state=data-manager", "system-user"});
+      props.put("attributeMap", new String[] {"invalid-state=data-manager,system-user"});
       props.put("filterWarnings", "false");
       props.put("filterErrors", "true");
     }
