@@ -13,6 +13,7 @@
  */
 package ddf.catalog.source.solr;
 
+import static ddf.catalog.data.impl.MetacardImpl.BASIC_METACARD;
 import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.create;
 import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.deleteAll;
 import static ddf.catalog.source.solr.provider.SolrProviderTestUtil.getFilterBuilder;
@@ -23,7 +24,6 @@ import static org.awaitility.Awaitility.await;
 import com.google.common.collect.Lists;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.operation.CreateResponse;
@@ -105,9 +105,15 @@ public class SolrProviderRealTimeQueryTest {
         solrClient.isAvailable(30L, TimeUnit.SECONDS),
         Matchers.equalTo(true));
 
+    DynamicSchemaResolver dynamicSchemaResolver = new DynamicSchemaResolver();
+    dynamicSchemaResolver.addMetacardType(BASIC_METACARD);
+
     provider =
         new SolrCatalogProvider(
-            solrClient, new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
+            solrClient,
+            new GeotoolsFilterAdapterImpl(),
+            new SolrFilterDelegateFactoryImpl(),
+            dynamicSchemaResolver);
 
     // Mask the id, this is something that the CatalogFramework would usually do
     provider.setId(MASKED_ID);
@@ -286,8 +292,7 @@ public class SolrProviderRealTimeQueryTest {
     deleteAll(provider);
 
     MetacardType nrtMetacardType =
-        new MetacardTypeImpl(
-            COMMIT_NRT_TYPE, MetacardImpl.BASIC_METACARD.getAttributeDescriptors());
+        new MetacardTypeImpl(COMMIT_NRT_TYPE, BASIC_METACARD.getAttributeDescriptors());
 
     MockMetacard nrtMetacard = new MockMetacard(Library.getFlagstaffRecord(), nrtMetacardType);
     nrtMetacard.setTitle(nrtTitle);

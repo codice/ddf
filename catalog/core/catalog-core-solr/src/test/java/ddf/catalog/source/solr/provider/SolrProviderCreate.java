@@ -154,7 +154,7 @@ public class SolrProviderCreate {
   /** Testing that you cannot instantiate with a null Solr client. */
   @Test(expected = IllegalArgumentException.class)
   public void testSolrClientNull() {
-    new SolrCatalogProvider(null, null, null);
+    new SolrCatalogProvider(null, null, null, null);
   }
 
   /** Tests what happens when the whole request is null. */
