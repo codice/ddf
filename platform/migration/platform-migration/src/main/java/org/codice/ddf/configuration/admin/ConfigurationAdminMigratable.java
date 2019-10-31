@@ -88,7 +88,9 @@ public class ConfigurationAdminMigratable implements Migratable {
 
   private final String defaultFileExtension;
 
-  private List<Function<ImportMigrationConfigurationAdminEntry, ImportMigrationConfigurationAdminEntry>> filters;
+  private List<
+          Function<ImportMigrationConfigurationAdminEntry, ImportMigrationConfigurationAdminEntry>>
+      filters;
 
   public ConfigurationAdminMigratable(
       ConfigurationAdmin configurationAdmin,
