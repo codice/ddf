@@ -16,8 +16,10 @@ package org.codice.ddf.configuration.admin;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -185,29 +187,41 @@ public class ConfigurationAdminMigratable implements Migratable {
   // entries must be updated to the latest versions of themselves in order to restore correctly
   private ImportMigrationConfigurationAdminEntry updateNecessaryConfigurationAdminEntries(
       ImportMigrationConfigurationAdminEntry entry) {
+    List<Function<ImportMigrationConfigurationAdminEntry, ImportMigrationConfigurationAdminEntry>>
+        filters = new ArrayList<>();
+    filters.add(this::updateSessionConfiguration);
+    filters.add(this::updateMetacardValidityFilterPluginConfiguration);
+    for (Function<ImportMigrationConfigurationAdminEntry, ImportMigrationConfigurationAdminEntry>
+        filter : filters) {
+      entry = filter.apply(entry);
+    }
+    return entry;
+  }
+
+  private ImportMigrationConfigurationAdminEntry updateSessionConfiguration(
+      ImportMigrationConfigurationAdminEntry entry) {
     // this pid was updated in versions 2.16.1 and 2.17.0
     // see https://github.com/codice/ddf/issues/5131
     if (entry.getPid().equals("org.codice.ddf.security.filter.login.Session")) {
       entry.setPid("ddf.security.http.impl.HttpSessionFactory");
-    }
-    // this configuration was updated in version 2.13.6
-    // see https://github.com/codice/ddf/pull/4388
-    if (entry.getPid().equals(METACARD_VALIDITY_FILTER_PLUGIN_PID)) {
-      entry = updateMetacardValidityFilterPluginConfiguration(entry);
     }
     return entry;
   }
 
   private ImportMigrationConfigurationAdminEntry updateMetacardValidityFilterPluginConfiguration(
       ImportMigrationConfigurationAdminEntry entry) {
-    String[] attributeMap = (String[]) entry.getProperty(ATTRIBUTE_MAP);
+    // this configuration was updated in version 2.13.6
+    // see https://github.com/codice/ddf/pull/4388
+    if (entry.getPid().equals(METACARD_VALIDITY_FILTER_PLUGIN_PID)) {
+      String[] attributeMap = (String[]) entry.getProperty(ATTRIBUTE_MAP);
 
-    for (int i = 0; i < attributeMap.length; i++) {
-      String val = attributeMap[i];
-      String hostname = System.getProperty(DDF_HOSTNAME_PROP_KEY);
-      attributeMap[i] = val.replaceAll("(?<!-)data-manager", hostname + "-data-manager");
+      for (int i = 0; i < attributeMap.length; i++) {
+        String val = attributeMap[i];
+        String hostname = System.getProperty(DDF_HOSTNAME_PROP_KEY);
+        attributeMap[i] = val.replaceAll("(?<!-)data-manager", hostname + "-data-manager");
+      }
+      entry.setProperty(ATTRIBUTE_MAP, String.join(",", attributeMap));
     }
-    entry.setProperty(ATTRIBUTE_MAP, String.join(",", attributeMap));
     return entry;
   }
 
