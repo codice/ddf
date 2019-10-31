@@ -109,6 +109,8 @@ public class ConfigurationAdminMigratableTest {
 
   private static final String DDF_HOME = "ddf";
 
+  private static final String DDF_HOSTNAME_PROP_KEY = "org.codice.ddf.system.hostname";
+
   private static final String DDF_EXPORTED_TAG_TEMPLATE = "exported_from_%s";
 
   private static final String SUPPORTED_BRANDING = "test";
@@ -138,6 +140,9 @@ public class ConfigurationAdminMigratableTest {
 
   private static final String DDF_CUSTOM_MIME_TYPE_RESOLVER_FILENAME =
       String.format("%s-csw.config", DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
+
+  private static final String METACARD_VALIDITY_FILTER_PLUGIN_PID =
+      "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin";
 
   private static final List<PersistenceStrategy> STRATEGIES =
       ImmutableList.of(new CfgStrategy(), new ConfigStrategy());
@@ -299,9 +304,9 @@ public class ConfigurationAdminMigratableTest {
     ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
         ArgumentCaptor.forClass(Dictionary.class);
     verify(configurations.get(0)).update(argumentCaptor.capture());
-    Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.getValue());
+    Map<String, ?> dictionaryAsMap = convertToMap(argumentCaptor.getValue());
     assertThat(
-        dictionayAsMap,
+        dictionaryAsMap,
         allOf(
             aMapWithSize(2),
             hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2"),
@@ -400,20 +405,33 @@ public class ConfigurationAdminMigratableTest {
 
     // Verify that the config admin in the system being imported into gets the factory configuration
     // from the system being exported from.
-    // Using legacy for lops due to exception handling
+    // Using legacy for loops due to exception handling
     for (String fPid : factoryPids) {
       if (!fPid.equals(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)) {
         verify(configurationAdminForImport).createFactoryConfiguration(eq(fPid), isNull());
       }
     }
     for (Configuration config : configurations) {
-      if (!config.getPid().contains(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)) {
+      if (config.getPid().contains(METACARD_VALIDITY_FILTER_PLUGIN_PID)) {
         ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
             ArgumentCaptor.forClass(Dictionary.class);
         verify(config).update(argumentCaptor.capture());
-        Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.getValue());
+        Map<String, ?> dictionaryAsMap = convertToMap(argumentCaptor.getValue());
         assertThat(
-            dictionayAsMap,
+            dictionaryAsMap,
+            allOf(
+                aMapWithSize(4),
+                hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2"),
+                hasEntry("filterWarnings", "false"),
+                hasEntry("filterErrors", "true"),
+                hasEntry("attributeMap", "invalid-state=localhost-data-manager,system-user")));
+      } else if (!config.getPid().contains(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)) {
+        ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
+            ArgumentCaptor.forClass(Dictionary.class);
+        verify(config).update(argumentCaptor.capture());
+        Map<String, ?> dictionaryAsMap = convertToMap(argumentCaptor.getValue());
+        assertThat(
+            dictionaryAsMap,
             allOf(aMapWithSize(1), hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2")));
         // Does not have filename because felix.fileinstall is removed
       }
@@ -505,6 +523,11 @@ public class ConfigurationAdminMigratableTest {
     }
     props.put("service.pid", pid);
     props.put("schema", "http://www.opengis.net/cat/csw/2.0.2");
+    if (pid.equals(METACARD_VALIDITY_FILTER_PLUGIN_PID)) {
+      props.put("attributeMap", new String[] {"invalid-state=data-manager", "system-user"});
+      props.put("filterWarnings", "false");
+      props.put("filterErrors", "true");
+    }
     when(config.getProperties()).thenReturn(props);
     when(config.getPid()).thenReturn(pid);
     return config;
@@ -537,6 +560,7 @@ public class ConfigurationAdminMigratableTest {
   private void setup(String ddfHomeStr, String productVersion) throws IOException {
     ddfHome = tempDir.newFolder(ddfHomeStr).toPath().toRealPath();
     System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
+    System.setProperty(DDF_HOSTNAME_PROP_KEY, "localhost");
     Path etcDir = ddfHome.resolve("etc");
     Files.createDirectory(etcDir);
     setupBrandingFile(SUPPORTED_BRANDING);

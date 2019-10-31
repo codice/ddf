@@ -17,6 +17,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
@@ -49,6 +50,13 @@ public class ConfigurationAdminMigratable implements Migratable {
    */
   private static final String CURRENT_VERSION = "1.0";
 
+  private static final String ATTRIBUTE_MAP = "attributeMap";
+
+  private static final String DDF_HOSTNAME_PROP_KEY = "org.codice.ddf.system.hostname";
+
+  private static final String METACARD_VALIDITY_FILTER_PLUGIN_PID =
+      "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin";
+
   @VisibleForTesting
   static final List<String> ACCEPTED_ENTRY_PIDS =
       Arrays.asList(
@@ -63,7 +71,7 @@ public class ConfigurationAdminMigratable implements Migratable {
           "Registry_Configuration_Event_Handler",
           "org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler",
           "ddf.catalog.federation.impl.CachingFederationStrategy",
-          "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin",
+          METACARD_VALIDITY_FILTER_PLUGIN_PID,
           "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin",
           "ddf.catalog.CatalogFrameworkImpl");
 
@@ -183,6 +191,27 @@ public class ConfigurationAdminMigratable implements Migratable {
     if (entry.getPid().equals("org.codice.ddf.security.filter.login.Session")) {
       entry.setPid("ddf.security.http.impl.HttpSessionFactory");
     }
+    // this configuration was updated in version 2.13.6
+    // see https://github.com/codice/ddf/pull/4388
+    if (entry.getPid().equals(METACARD_VALIDITY_FILTER_PLUGIN_PID)) {
+      entry = updateMetacardValidityFilterPluginConfiguration(entry);
+    }
+    return entry;
+  }
+
+  private ImportMigrationConfigurationAdminEntry updateMetacardValidityFilterPluginConfiguration(
+      ImportMigrationConfigurationAdminEntry entry) {
+    Dictionary<String, Object> exportedProps = entry.getProperties();
+    String[] attributeMap = (String[]) exportedProps.get(ATTRIBUTE_MAP);
+
+    for (int i = 0; i < attributeMap.length; i++) {
+      String val = attributeMap[i];
+      String hostname = System.getProperty(DDF_HOSTNAME_PROP_KEY);
+      attributeMap[i] = val.replace("data-manager", hostname + "-data-manager");
+    }
+    exportedProps.put(ATTRIBUTE_MAP, String.join(",", attributeMap));
+
+    entry.setProperties(exportedProps);
     return entry;
   }
 
