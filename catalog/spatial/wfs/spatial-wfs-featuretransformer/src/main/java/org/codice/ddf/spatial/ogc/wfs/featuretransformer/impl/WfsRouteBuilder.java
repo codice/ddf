@@ -14,22 +14,23 @@
 package org.codice.ddf.spatial.ogc.wfs.featuretransformer.impl;
 
 import ddf.catalog.data.Metacard;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.processor.aggregate.AbstractListAggregationStrategy;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
+import org.codice.ddf.spatial.ogc.wfs.catalog.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollectionImpl;
 
 public final class WfsRouteBuilder extends RouteBuilder {
 
-  protected static final String FEATURECOLLECTION_ENDPOINT_URL =
-      "direct://wfsTransformFeatureCollection";
+  static final String FEATURECOLLECTION_ENDPOINT_URL = "direct://wfsTransformFeatureCollection";
 
-  protected static final String FEATUREMEMBER_ENDPOINT_URL = "direct://wfsTransformFeatureMember";
+  private static final String FEATUREMEMBER_ENDPOINT_URL = "direct://wfsTransformFeatureMember";
 
+  @Override
   public void configure() {
     from(FEATURECOLLECTION_ENDPOINT_URL)
         .id("TransformFeatureCollectionRoute")
@@ -43,6 +44,10 @@ public final class WfsRouteBuilder extends RouteBuilder {
             "wfsTransformerProcessor",
             "setActiveFeatureMemberNodeName(${header.metadata}, ${header.featureMemberNodeName})")
         .setBody(header("xml"))
+        .setHeader(
+            "numberOfFeatures",
+            xpath("/wfs:FeatureCollection/@numberOfFeatures", Long.class)
+                .namespace("wfs", "http://www.opengis.net/wfs"))
         .split(
             body().tokenizeXML("${header.featureMemberNodeName}", "FeatureCollection"),
             new MetacardAggregationStrategy())
@@ -51,42 +56,32 @@ public final class WfsRouteBuilder extends RouteBuilder {
         .end()
         .end()
         .choice()
-        .when(body().isInstanceOf(InputStream.class))
-        .setBody(constant(Collections.emptyList()));
+        .when(body().isInstanceOf(List.class))
+        .bean(
+            WfsCollectionFactory.class, "createWfsCollection(${body}, ${header.numberOfFeatures})")
+        .otherwise()
+        .bean(WfsCollectionFactory.class, "createEmptyWfsCollection()");
 
     from(FEATUREMEMBER_ENDPOINT_URL)
         .id("TransformFeatureMemberRoute")
         .bean("wfsTransformerProcessor", "apply(${body}, ${header.metadata})");
   }
 
-  public static class MetacardAggregationStrategy implements AggregationStrategy {
-
-    public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
-      Optional<Metacard> metacardOpt = newExchange.getIn().getBody(Optional.class);
-
-      if (oldExchange == null) {
-        final List<Metacard> metacardList = new ArrayList<>();
-        metacardOpt.ifPresent(metacardList::add);
-        newExchange.getIn().setBody(metacardList);
-        return newExchange;
-      }
-
-      final List<Metacard> metacardList =
-          Optional.ofNullable(oldExchange.getIn().getBody(List.class)).orElse(new ArrayList<>());
-
-      metacardOpt.ifPresent(metacardList::add);
-      return oldExchange;
+  private static class MetacardAggregationStrategy
+      extends AbstractListAggregationStrategy<Metacard> {
+    @Override
+    public Metacard getValue(final Exchange exchange) {
+      return (Metacard) exchange.getIn().getBody(Optional.class).orElse(null);
     }
   }
 
-  private class MetacardListAggregationStrategy implements AggregationStrategy {
-
+  private static class MetacardListAggregationStrategy implements AggregationStrategy {
     @Override
-    public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
-      List<Metacard> incomingMetacards = newExchange.getIn().getBody(List.class);
+    public Exchange aggregate(final Exchange oldExchange, final Exchange newExchange) {
+      final List<Metacard> incomingMetacards = newExchange.getIn().getBody(List.class);
 
       if (oldExchange == null) {
-        List<Metacard> metacards = new ArrayList<>();
+        final List<Metacard> metacards = new ArrayList<>();
         if (incomingMetacards != null) {
           metacards.addAll(incomingMetacards);
         }
@@ -98,8 +93,23 @@ public final class WfsRouteBuilder extends RouteBuilder {
       if (incomingMetacards != null) {
         aggregateMetacards.addAll(incomingMetacards);
       }
-
       return oldExchange;
+    }
+  }
+
+  // Must be public for Camel bean binding
+  public static class WfsCollectionFactory {
+    public static WfsFeatureCollection createEmptyWfsCollection() {
+      return new WfsFeatureCollectionImpl(0);
+    }
+
+    public static WfsFeatureCollection createWfsCollection(
+        final List<Metacard> featureMembers, final Long numberOfFeatures) {
+      if (numberOfFeatures != null) {
+        return new WfsFeatureCollectionImpl(numberOfFeatures, featureMembers);
+      } else {
+        return new WfsFeatureCollectionImpl(featureMembers.size(), featureMembers);
+      }
     }
   }
 }

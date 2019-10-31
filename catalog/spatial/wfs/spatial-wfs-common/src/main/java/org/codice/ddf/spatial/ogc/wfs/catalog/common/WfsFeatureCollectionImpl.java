@@ -14,10 +14,11 @@
 package org.codice.ddf.spatial.ogc.wfs.catalog.common;
 
 import ddf.catalog.data.Metacard;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import org.codice.ddf.spatial.ogc.wfs.catalog.WfsFeatureCollection;
 
-public class WfsFeatureCollection {
+public class WfsFeatureCollectionImpl implements WfsFeatureCollection {
   // Should reconstruct the FeatureCollection as defined in the schema
 
   // TODO namespaces? schemalocations?
@@ -28,13 +29,38 @@ public class WfsFeatureCollection {
   // Method to get a bounding box of all metacards
   // Provide a map of the metacardTypes needed to marshal / unmarshal
 
-  private List<Metacard> featureMembers = new ArrayList<Metacard>();
+  private final long numberOfFeatures;
 
+  private final List<Metacard> featureMembers;
+
+  /**
+   * For GetFeature requests with resultType='hits'
+   *
+   * @param numberOfFeatures
+   */
+  public WfsFeatureCollectionImpl(final long numberOfFeatures) {
+    this(numberOfFeatures, Collections.emptyList());
+  }
+
+  /**
+   * For GetFeature requests with resultType='results'
+   *
+   * @param numberOfFeatures
+   * @param featureMembers
+   */
+  public WfsFeatureCollectionImpl(
+      final long numberOfFeatures, final List<Metacard> featureMembers) {
+    this.numberOfFeatures = numberOfFeatures;
+    this.featureMembers = featureMembers;
+  }
+
+  @Override
   public List<Metacard> getFeatureMembers() {
     return featureMembers;
   }
 
-  public void setFeatureMembers(List<Metacard> featureMembers) {
-    this.featureMembers = featureMembers;
+  @Override
+  public long getNumberOfFeatures() {
+    return numberOfFeatures;
   }
 }

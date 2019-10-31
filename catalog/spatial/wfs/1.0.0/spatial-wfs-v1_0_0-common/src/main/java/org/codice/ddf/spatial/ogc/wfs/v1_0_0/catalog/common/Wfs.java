@@ -25,24 +25,24 @@ import ogc.schema.opengis.wfs.v_1_0_0.GetCapabilitiesType;
 import ogc.schema.opengis.wfs.v_1_0_0.GetFeatureType;
 import ogc.schema.opengis.wfs_capabilities.v_1_0_0.WFSCapabilitiesType;
 import org.apache.ws.commons.schema.XmlSchema;
+import org.codice.ddf.spatial.ogc.wfs.catalog.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 
 /** JAX-RS Interface to define a WFS server. */
 @Path("/")
 public interface Wfs {
 
-  /** GetCapabilites - HTTP GET */
+  /** GetCapabilities - HTTP GET */
   @GET
   @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   WFSCapabilitiesType getCapabilities(@QueryParam("") GetCapabilitiesRequest request)
       throws WfsException;
 
-  /** GetCapabilites - HTTP POST */
+  /** GetCapabilities - HTTP POST */
   @POST
   @Consumes({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
   @Produces({MediaType.TEXT_XML, MediaType.APPLICATION_XML})
-  WFSCapabilitiesType getCapabilities(GetCapabilitiesType getCapabilitesRequest)
+  WFSCapabilitiesType getCapabilities(GetCapabilitiesType getCapabilitiesRequest)
       throws WfsException;
 
   /** DescribeFeatureType - HTTP GET */

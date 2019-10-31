@@ -29,6 +29,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -40,9 +41,10 @@ import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.constants.Constants;
+import org.codice.ddf.spatial.ogc.wfs.catalog.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsConstants;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
+import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollectionImpl;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.EnhancedStaxDriver;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
@@ -254,8 +256,6 @@ public class GenericFeatureConverterTest {
     xstream.alias("wfs:FeatureCollection", WfsFeatureCollection.class);
 
     Metacard mc = new SampleMetacard().getMetacard();
-    WfsFeatureCollection wfc = new WfsFeatureCollection();
-    wfc.getFeatureMembers().add(mc);
     MetacardImpl mc2 = new SampleMetacard().getMetacard();
     // Ignore the hack stuff, this was just to imitate having two different
     // "MetacardTypes"
@@ -277,8 +277,8 @@ public class GenericFeatureConverterTest {
             return MetacardImpl.BASIC_METACARD.getAttributeDescriptor(arg0);
           }
         });
-    wfc.getFeatureMembers().add(mc2);
 
+    WfsFeatureCollection wfc = new WfsFeatureCollectionImpl(2, Arrays.asList(mc, mc2));
     xstream.toXML(wfc);
   }
 
