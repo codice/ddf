@@ -161,13 +161,6 @@ describe('serialize/deserialize polygon', () => {
 describe('serialize/deserialize bbox', () => {
   const deserializedBbox = {
     mode: 'bbox',
-    polygon: [
-      [-122.144963, 51.08591],
-      [-108.169324, 51.08591],
-      [-108.169324, 12.374553],
-      [-122.144963, 12.374553],
-      [-122.144963, 51.08591],
-    ],
     north: 51.08591,
     east: -108.169324,
     south: 12.374553,
