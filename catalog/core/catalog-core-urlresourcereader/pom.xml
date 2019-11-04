@@ -127,6 +127,7 @@
                             org.codice.ddf.security.common.jaxrs
                         </Private-Package>
                         <Import-Package>
+                            !javax.activation,
                             !com.rometools.utils,
                             !ddf.security.liberty.paos.impl,
                             !org.codice.ddf.security.common.jaxrs,

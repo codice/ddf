@@ -84,6 +84,10 @@
                         <Bundle-SymbolicName>
                             ${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000
                         </Bundle-SymbolicName>
+                        <Import-Package>
+                            !javax.activation,
+                            *
+                        </Import-Package>
                         <Embed-Dependency>
                             catalog-core-api-impl,
                             platform-util,

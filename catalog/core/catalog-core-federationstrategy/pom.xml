@@ -101,6 +101,7 @@
                             platform-util
                         </Embed-Dependency>
                         <Import-Package>
+                            !javax.activation,
                             sun.misc;resolution:=optional,
                             *
                         </Import-Package>

@@ -369,6 +369,8 @@
                             org.codice.ddf.catalog.sourcepoller
                         </Export-Package>
                         <Import-Package>
+                            !javax.activation,
+
                             <!-- excluded packages coming from lux -->
                             !javax.xml.xquery,
                             !org.apache.lucene.*,
