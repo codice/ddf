@@ -32,7 +32,6 @@ import org.apache.cxf.jaxrs.ext.Nullable;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -42,13 +41,14 @@ import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.RequestStatusState;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.util.NamedList;
+import org.codice.ddf.commands.catalog.CommandSupport;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class SolrCommands implements Action {
+public abstract class SolrCommands extends CommandSupport {
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(SolrCommands.class);
 
