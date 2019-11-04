@@ -48,12 +48,6 @@
             <groupId>ddf.security</groupId>
             <artifactId>ddf-security-common</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.activation</groupId>
-                    <artifactId>activation</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>ddf.mime.core</groupId>

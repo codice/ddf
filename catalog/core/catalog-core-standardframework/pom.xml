@@ -66,12 +66,6 @@
             <groupId>ddf.security.handler</groupId>
             <artifactId>security-handler-api</artifactId>
             <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.activation</groupId>
-                    <artifactId>activation</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>ddf.action.core</groupId>
