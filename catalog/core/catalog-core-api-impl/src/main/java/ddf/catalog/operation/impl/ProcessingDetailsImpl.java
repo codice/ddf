@@ -17,6 +17,7 @@ import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.SourceProcessingDetails;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl
     implements ProcessingDetails {
@@ -80,6 +81,25 @@ public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl
     List<String> warnings = new ArrayList<String>();
     warnings.add(warning);
     return warnings;
+  }
+
+  @Override
+  public boolean equals(Object processingDetails) {
+    return (processingDetails instanceof ProcessingDetails
+        && (this.warnings == null
+            ? ((ProcessingDetails) processingDetails).getWarnings() == null
+            : this.warnings.equals(((ProcessingDetails) processingDetails).getWarnings()))
+        && (!this.hasException()
+            ? !((ProcessingDetails) processingDetails).hasException()
+            : this.getException().equals(((ProcessingDetails) processingDetails).getException()))
+        && (this.getSourceId() == null
+            ? ((ProcessingDetails) processingDetails).getSourceId() == null
+            : this.getSourceId().equals(((ProcessingDetails) processingDetails).getSourceId())));
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(warnings, sourceId, exception);
   }
 
   @Override

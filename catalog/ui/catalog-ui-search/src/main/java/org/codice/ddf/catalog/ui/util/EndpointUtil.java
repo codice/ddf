@@ -538,7 +538,7 @@ public class EndpointUtil implements EndpointUtility {
       results = retrieveResults(cqlRequest, request, responses);
     }
 
-    QueryResponse response =
+    QueryResponse aggregatedResponse =
         new QueryResponseImpl(
             request,
             results,
@@ -556,12 +556,17 @@ public class EndpointUtil implements EndpointUtility {
                 .findFirst()
                 .orElse(Collections.emptyMap()));
 
+    responses
+        .stream()
+        .map(QueryResponse::getProcessingDetails)
+        .forEach(aggregatedResponse.getProcessingDetails()::addAll);
+
     stopwatch.stop();
 
     return new CqlQueryResponse(
         cqlRequest.getId(),
         request,
-        response,
+        aggregatedResponse,
         cqlRequest.getSourceResponseString(),
         stopwatch.elapsed(TimeUnit.MILLISECONDS),
         cqlRequest.isNormalize(),

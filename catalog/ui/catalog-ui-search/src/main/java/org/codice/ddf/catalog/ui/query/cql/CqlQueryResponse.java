@@ -30,6 +30,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.solr.SolrMetacardClientImpl;
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -61,6 +62,8 @@ public class CqlQueryResponse {
 
   private final List<String> showingResultsForFields, didYouMeanFields;
 
+  private final Set<String> warnings = new HashSet<>();
+
   private final Boolean userSpellcheckIsOn;
 
   // Transient so as not to be serialized to/from JSON
@@ -79,7 +82,6 @@ public class CqlQueryResponse {
     this.id = id;
 
     this.queryResponse = queryResponse;
-
     status = new Status(queryResponse, source, elapsedTime);
 
     AtomicBoolean logOnceState = new AtomicBoolean(false);
@@ -193,5 +195,43 @@ public class CqlQueryResponse {
 
   public Status getStatus() {
     return status;
+  }
+
+  public void addToWarnings(Set<String> warningsToAdd) {
+    if (warningsToAdd != null && !warningsToAdd.isEmpty()) {
+      warnings.addAll(warningsToAdd);
+    }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    CqlQueryResponse that = (CqlQueryResponse) o;
+    return Objects.equals(results, that.results)
+        && Objects.equals(id, that.id)
+        && Objects.equals(types, that.types)
+        && Objects.equals(status, that.status)
+        && Objects.equals(facets, that.facets)
+        && Objects.equals(showingResultsForFields, that.showingResultsForFields)
+        && Objects.equals(didYouMeanFields, that.didYouMeanFields)
+        && Objects.equals(warnings, that.warnings)
+        && Objects.equals(userSpellcheckIsOn, that.userSpellcheckIsOn)
+        && Objects.equals(queryResponse, that.queryResponse);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        results,
+        id,
+        types,
+        status,
+        facets,
+        showingResultsForFields,
+        didYouMeanFields,
+        warnings,
+        userSpellcheckIsOn,
+        queryResponse);
   }
 }

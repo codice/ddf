@@ -15,6 +15,7 @@ package ddf.catalog.operation.impl;
 
 import ddf.catalog.operation.SourceProcessingDetails;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The SourceProcessingDetailsImpl class represents a default implementation of a {@link
@@ -34,6 +35,19 @@ public class SourceProcessingDetailsImpl implements SourceProcessingDetails {
    */
   public SourceProcessingDetailsImpl(List<String> warnings) {
     this.warnings = warnings;
+  }
+
+  @Override
+  public boolean equals(Object processingDetails) {
+    return processingDetails instanceof SourceProcessingDetails
+        && (this.warnings == null
+            ? ((SourceProcessingDetails) processingDetails).getWarnings() == null
+            : this.warnings.equals(((SourceProcessingDetails) processingDetails).getWarnings()));
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(warnings);
   }
 
   /*

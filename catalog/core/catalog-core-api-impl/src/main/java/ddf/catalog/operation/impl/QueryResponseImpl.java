@@ -26,9 +26,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +69,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
    * @param properties
    */
   public QueryResponseImpl(QueryRequest request, Map<String, Serializable> properties) {
-    this(request, null, false, 0, properties);
+    this(request, null, false, 0, properties, null);
   }
 
   /**
@@ -78,7 +80,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
    * @param results the results
    */
   public QueryResponseImpl(QueryRequest request, List<Result> results, long totalHits) {
-    this(request, results, true, totalHits, null);
+    this(request, results, true, totalHits, null, null);
   }
 
   /**
@@ -91,7 +93,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
    */
   public QueryResponseImpl(
       QueryRequest request, List<Result> results, boolean closeResultQueue, long hits) {
-    this(request, results, closeResultQueue, hits, null);
+    this(request, results, closeResultQueue, hits, null, null);
   }
 
   /**
@@ -109,19 +111,51 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
       boolean closeResultQueue,
       long hits,
       Map<String, Serializable> properties) {
+    this(request, results, closeResultQueue, hits, properties, null);
+  }
+
+  /**
+   * Instantiates a new {@code QueryResponseImpl} with: a {@link QueryRequest}, a {@link List} of
+   * {@link Result}s from the {@link QueryRequest}, an indicator of whether to close this {@code
+   * QueryResponseImpl}'s {@link #queue} of {@link Result}s, the number of distinct {@link Result}s
+   * which this {@code QueryResponseImpl} contains, a {@link Map} which contains the keys and values
+   * of this {@code QueryResponseImpl}'s properties, and the {@link Set} of {@link
+   * ProcessingDetails} from the execution of the {@link QueryRequest}
+   *
+   * @param request the {@link QueryRequest}
+   * @param results the {@link List} of {@link Result}s
+   * @param shouldCloseResultQueue the indicator of whether to close the {@link #queue}
+   * @param hits the number of distinct {@link Result}s
+   * @param properties the {@link Map} of the properties' keys and values
+   * @param processingDetails the {@link Set} of {@link ProcessingDetails} of the {@link
+   *     QueryRequest}'s execution
+   */
+  public QueryResponseImpl(
+      QueryRequest request,
+      List<Result> results,
+      boolean shouldCloseResultQueue,
+      long hits,
+      Map<String, Serializable> properties,
+      Set<ProcessingDetails> processingDetails) {
     super(request, properties);
-    this.hits = hits;
-    queue =
-        results == null
-            ? new LinkedBlockingQueue<Result>()
-            : new LinkedBlockingQueue<Result>(results);
-    resultList = new ArrayList<Result>();
-    if (closeResultQueue) {
-      closeResultQueue();
-    }
 
     if (request != null && request.getQuery() != null) {
       timeoutMillis = request.getQuery().getTimeoutMillis();
+    }
+
+    this.hits = hits;
+
+    queue = results == null ? new LinkedBlockingQueue<>() : new LinkedBlockingQueue<>(results);
+
+    resultList = new ArrayList<>();
+
+    if (shouldCloseResultQueue) {
+      closeResultQueue();
+    }
+
+    if (processingDetails != null && !processingDetails.isEmpty()) {
+      details.addAll(
+          processingDetails.stream().filter(Objects::nonNull).collect(Collectors.toSet()));
     }
   }
 
@@ -178,8 +212,8 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
     return details;
   }
 
-  public void setProcessingDetails(Set<ProcessingDetails> set) {
-    this.details = set;
+  public void setProcessingDetails(Set<ProcessingDetails> details) {
+    this.details = details == null ? new HashSet<>() : details;
   }
 
   @Override
