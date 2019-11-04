@@ -119,11 +119,6 @@
             <version>${cxf.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.cxf.services.sts</groupId>
-            <artifactId>cxf-services-sts-core</artifactId>
-            <version>${cxf.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.handler</groupId>
             <artifactId>security-handler-api</artifactId>
             <version>${project.version}</version>
@@ -183,27 +178,6 @@
             <artifactId>security-handler-pki</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-server</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-samlvalidator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-x509validator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-usernametokenvalidator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>ddf.security.sts</groupId>
             <artifactId>security-sts-realm</artifactId>
@@ -341,26 +315,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.security.idp</groupId>
-            <artifactId>security-idp-plugin-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.idp</groupId>
-            <artifactId>security-idp-plugin-subjectconfirmation</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.idp</groupId>
-            <artifactId>security-idp-plugin-requestsubjectvalidator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.idp</groupId>
-            <artifactId>security-idp-plugin-nameidpolicy</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.idp</groupId>
             <artifactId>security-idp-client</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -370,23 +324,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.idp</groupId>
-            <artifactId>security-idp-server</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.command</groupId>
             <artifactId>security-command-listener</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.idp</groupId>
-            <artifactId>security-idp-plugin-audiencerestriction</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.idp</groupId>
-            <artifactId>security-idp-plugin-namequalifier</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -158,7 +158,6 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>oidc-dependencies</feature>
         <bundle>mvn:org.apache.cxf/cxf-rt-rs-security-jose/${cxf.version}</bundle>
         <bundle>mvn:org.apache.cxf/cxf-rt-rs-security-jose-jaxrs/${cxf.version}</bundle>
-        <bundle>mvn:org.apache.cxf.services.sts/cxf-services-sts-core/${cxf.version}</bundle>
         <bundle>mvn:ddf.security.handler/security-handler-api/${project.version}</bundle>
     </feature>
 
@@ -285,18 +284,8 @@ org.ops4j.pax.web.default.realmname=DDF
 
         <feature>cxf-frontend-javascript</feature>
         <feature>cxf-jaxrs</feature>
-        <bundle>mvn:ddf.security.sts/security-sts-server/${project.version}</bundle>
         <feature>security-sts-propertyclaimshandler</feature>
-        <bundle>
-            mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/${dom4j.bundle.version}
-        </bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.oro/2.0.8_6</bundle>
-        <bundle>mvn:org.ops4j.pax.url/pax-url-classpath/1.3.7</bundle>
-        <bundle>mvn:ddf.security.sts/security-sts-samlvalidator/${project.version}</bundle>
         <feature>security-core-api</feature>
-        <bundle>mvn:ddf.security.sts/security-sts-x509validator/${project.version}</bundle>
-        <feature>parser-xml</feature>
-        <bundle>mvn:ddf.security.sts/security-sts-usernametokenvalidator/${project.version}</bundle>
     </feature>
 
     <feature name="security-sts-realm" version="${project.version}"
@@ -589,7 +578,6 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>cxf-jaxrs</feature>
         <feature>util-uuidgenerator</feature>
         <feature>security-handler-basic</feature>
-        <feature>security-idp-plugin</feature>
         <feature dependency="true">oidc-dependencies</feature>
         <feature>security-core</feature>
         <feature>saml-validator</feature>
@@ -597,7 +585,6 @@ org.ops4j.pax.web.default.realmname=DDF
         <bundle>mvn:ddf.security.idp/security-idp-client/${project.version}</bundle>
         <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.expansion/security-expansion-api/${project.version}</bundle>
-        <bundle>mvn:ddf.security.idp/security-idp-server/${project.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
     </feature>
 
@@ -607,22 +594,6 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-core</feature>
         <bundle>mvn:ddf.security.saml/saml-assertion-validator/${project.version}</bundle>
         <bundle>mvn:ddf.security.saml/saml-assertion-validator-impl/${project.version}</bundle>
-    </feature>
-
-    <feature name="security-idp-plugin" version="${project.version}"
-            description="IDP plugin api and implementations">
-        <feature>security-core-api</feature>
-        <feature>security-expansion</feature>
-        <feature>javax-validation</feature>
-        <feature>cxf-frontend-javascript</feature>
-        <feature>security-handler-api</feature>
-        <feature dependency="true">oidc-dependencies</feature>
-        <bundle>mvn:ddf.security.idp/security-idp-plugin-api/${project.version}</bundle>
-        <bundle>mvn:ddf.security.idp/security-idp-plugin-subjectconfirmation/${project.version}</bundle>
-        <bundle>mvn:ddf.security.idp/security-idp-plugin-requestsubjectvalidator/${project.version}</bundle>
-        <bundle>mvn:ddf.security.idp/security-idp-plugin-audiencerestriction/${project.version}</bundle>
-        <bundle>mvn:ddf.security.idp/security-idp-plugin-nameidpolicy/${project.version}</bundle>
-        <bundle>mvn:ddf.security.idp/security-idp-plugin-namequalifier/${project.version}</bundle>
     </feature>
 
     <feature name="security-command-listener" version="${project.version}"
