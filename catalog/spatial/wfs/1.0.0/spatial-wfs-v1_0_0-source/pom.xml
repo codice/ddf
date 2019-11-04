@@ -143,7 +143,6 @@
         <dependency>
             <groupId>org.apache.ws.xmlschema</groupId>
             <artifactId>xmlschema-core</artifactId>
-            <version>2.2.3</version>
         </dependency>
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
@@ -152,7 +151,6 @@
         <dependency>
             <groupId>javax.xml.stream</groupId>
             <artifactId>stax-api</artifactId>
-            <version>1.0-2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>

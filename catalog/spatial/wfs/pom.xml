@@ -39,4 +39,18 @@
         <module>spatial-wfs-featuretransformer-xstream</module>
         <module>spatial-wfs-featuretransformer-handlebars</module>
     </modules>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>javax.xml.stream</groupId>
+                <artifactId>stax-api</artifactId>
+                <version>1.0-2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ws.xmlschema</groupId>
+                <artifactId>xmlschema-core</artifactId>
+                <version>2.2.3</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
