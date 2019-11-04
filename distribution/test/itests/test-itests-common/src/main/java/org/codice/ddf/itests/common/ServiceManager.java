@@ -96,6 +96,8 @@ public interface ServiceManager {
 
   void startBundle(String bundleSymbolicName) throws BundleException;
 
+  void installBundle(String locationIdentifier) throws BundleException;
+
   void uninstallBundle(String bundleSymbolicName) throws BundleException;
 
   void waitForAllBundles() throws InterruptedException;

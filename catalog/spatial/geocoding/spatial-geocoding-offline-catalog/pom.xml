@@ -174,7 +174,8 @@
                             spatial-geocoding-api-impl,
                             spatial4j,
                             noggit,
-                            platform-util
+                            platform-util,
+                            ddf-security-common
                         </Embed-Dependency>
                         <Import-Package>
                             !com.fasterxml.jackson*,
@@ -196,7 +197,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>6.7_MB</maxArtifactSize>
+                                    <maxArtifactSize>6.9_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

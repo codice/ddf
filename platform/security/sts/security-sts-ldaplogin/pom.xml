@@ -72,7 +72,6 @@
                             org.apache.karaf.jaas.config,
                             org.apache.karaf.jaas.modules,
                             ddf.security.common.audit,
-                            ddf.security.sts,
                             ddf.security.encryption,
                             org.codice.ddf.configuration,
                             org.slf4j,
@@ -170,11 +169,6 @@
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-server</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.forgerock.opendj</groupId>

@@ -15,7 +15,7 @@
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <type-converters>
-        <bean class="ddf.security.sts.PropertiesConverter"/>
+        <bean class="ddf.ldap.ldaplogin.PropertiesConverter"/>
     </type-converters>
 
     <cm:managed-service-factory

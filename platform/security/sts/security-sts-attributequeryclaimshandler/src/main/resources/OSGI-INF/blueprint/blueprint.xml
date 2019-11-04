@@ -57,11 +57,11 @@
         </property>
     </bean>
 
-    <bean id="encryptionProperties" class="ddf.security.sts.PropertiesWrapper">
+    <bean id="encryptionProperties" class="org.codice.ddf.security.claims.attributequery.common.PropertiesWrapper">
         <argument value="${ddf.etc}/ws-security/server/encryption.properties"/>
     </bean>
 
-    <bean id="signatureProperties" class="ddf.security.sts.PropertiesWrapper">
+    <bean id="signatureProperties" class="org.codice.ddf.security.claims.attributequery.common.PropertiesWrapper">
         <argument value="${ddf.etc}/ws-security/server/signature.properties"/>
     </bean>
 
