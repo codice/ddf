@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf</groupId>
@@ -389,16 +391,6 @@
                                     <file>packages/catalog-admin-module-sources/target/sources-module.jar</file>
                                     <type>jar</type>
                                     <classifier>sources-module</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>packages/catalog-ui-search/target/catalog-ui-search.jar</file>
-                                    <type>jar</type>
-                                    <classifier>catalog-ui-search</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>packages/cesium-assets/target/cesium-assets.jar</file>
-                                    <type>jar</type>
-                                    <classifier>cesium-assets</classifier>
                                 </artifact>
                                 <artifact>
                                     <file>packages/geowebcache-admin-plugin/target/geowebcache-admin-plugin.jar</file>

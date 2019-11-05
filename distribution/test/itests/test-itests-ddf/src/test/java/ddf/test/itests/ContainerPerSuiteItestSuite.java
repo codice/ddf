@@ -14,7 +14,6 @@
 package ddf.test.itests;
 
 import ddf.test.itests.catalog.TestCatalog;
-import ddf.test.itests.catalog.TestCatalogSearchUi;
 import ddf.test.itests.catalog.TestCatalogValidation;
 import ddf.test.itests.catalog.TestFanout;
 import ddf.test.itests.catalog.TestFederation;
@@ -34,7 +33,6 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  TestCatalogSearchUi.class,
   TestFederation.class,
   TestFtp.class,
   TestSpatial.class,

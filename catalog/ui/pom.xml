@@ -26,12 +26,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>search-ui</module>
-        <module>catalog-ui-enumeration</module>
-        <module>catalog-ui-search-api</module>
-        <module>catalog-ui-search</module>
-        <module>catalog-ui-oauth</module>
         <module>search-ui-app</module>
-        <module>zip-splitter</module>
+
     </modules>
     <dependencyManagement>
         <dependencies>

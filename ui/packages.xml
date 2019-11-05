@@ -28,14 +28,6 @@
             <outputDirectory>codice-icons</outputDirectory>
        </fileSet>
        <fileSet>
-            <directory>${project.basedir}/packages/catalog-ui-search/</directory>
-            <excludes>
-                <exclude>**/target/**</exclude>
-                <exclude>**/node_modules/**</exclude>
-            </excludes>
-            <outputDirectory>catalog-ui-search</outputDirectory>
-        </fileSet>
-       <fileSet>
             <directory>${project.basedir}/packages/imperio/</directory>
             <excludes>
                 <exclude>**/target/**</exclude>

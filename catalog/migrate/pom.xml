@@ -26,7 +26,6 @@
   <modules>
     <module>migration-api</module>
     <module>migration-command</module>
-    <module>workspace-query-separation</module>
   </modules>
 
 </project>

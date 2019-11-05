@@ -531,11 +531,6 @@
                 <artifactId>migration-commands</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>ddf.catalog.migrate</groupId>
-                <artifactId>workspace-query-separation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>

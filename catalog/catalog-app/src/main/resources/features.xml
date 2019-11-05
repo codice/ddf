@@ -682,10 +682,6 @@
         <bundle>mvn:ddf.catalog.migrate/migration-command/${project.version}</bundle>
     </feature>
 
-    <feature name="workspace-query-separation" version="${project.version}">
-        <bundle>mvn:ddf.catalog.migrate/workspace-query-separation/${project.version}</bundle>
-    </feature>
-
     <feature name="catalog-facet-attribute-access-plugin" version="${project.version}">
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-facet-attribute-access/${project.version}</bundle>
     </feature>

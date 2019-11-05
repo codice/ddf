@@ -1,6 +1,0 @@
-{
-  "type": "DWITHIN",
-  "property": "anyGeo",
-  "value": "WKT()",
-  "distance": 123.45
-}
