@@ -24,40 +24,44 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.function.Supplier;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.xml.Configuration;
-import org.geotools.xml.Parser;
+import org.geotools.xml.XSDParserDelegate;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 public class Gml3ToWktImpl implements Gml3ToWkt {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Gml3ToWkt.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Gml3ToWktImpl.class);
 
   private static final String EPSG_4326 = "EPSG:4326";
 
-  private final ThreadLocal<Parser> parser;
+  private static final SAXParserFactory PARSER_FACTORY =
+      XMLUtils.getInstance().getSecureSAXParserFactory();
 
-  private static final ThreadLocal<WKTWriter> WKT_WRITER = ThreadLocal.withInitial(WKTWriter::new);
-
-  public Gml3ToWktImpl(Configuration gmlConfiguration) {
-    parser =
-        ThreadLocal.withInitial(
-            () -> {
-              Parser gmlParser = new Parser(gmlConfiguration);
-              gmlParser.setStrict(false);
-              return gmlParser;
-            });
+  static {
+    PARSER_FACTORY.setNamespaceAware(true);
   }
 
+  private final Supplier<XSDParserDelegate> gmlParserDelegateSupplier;
+
+  public Gml3ToWktImpl(final Supplier<XSDParserDelegate> gmlParserDelegateSupplier) {
+    this.gmlParserDelegateSupplier = gmlParserDelegateSupplier;
+  }
+
+  @Override
   public String convert(String xml) throws ValidationException {
     try (InputStream stream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))) {
       return convert(stream);
@@ -68,6 +72,7 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
     }
   }
 
+  @Override
   public String convert(InputStream xml) throws ValidationException {
     Object parsedObject = parseXml(xml);
 
@@ -78,7 +83,7 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
     if (parsedObject instanceof Geometry) {
       try {
         Geometry geometry = convertCRS((Geometry) parsedObject);
-        return WKT_WRITER.get().write(geometry);
+        return new WKTWriter().write(geometry);
       } catch (TransformException e) {
         LOGGER.debug("Failed to transform geometry to lon/lat", e);
         throw new ValidationExceptionImpl(
@@ -92,9 +97,14 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
         "", Collections.singletonList("Couldn't not convert GML to WKT"), new ArrayList<>());
   }
 
+  @Override
   public Object parseXml(InputStream xml) throws ValidationException {
     try {
-      return parser.get().parse(xml);
+      final XMLReader reader = PARSER_FACTORY.newSAXParser().getXMLReader();
+      final XSDParserDelegate gmlParserDelegate = gmlParserDelegateSupplier.get();
+      reader.setContentHandler(gmlParserDelegate);
+      reader.parse(new InputSource(xml));
+      return gmlParserDelegate.getParsedObject();
     } catch (ParserConfigurationException | IOException e) {
       LOGGER.debug("Failed to read gml InputStream", e);
       throw new ValidationExceptionImpl(
@@ -117,5 +127,18 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
       throw new ValidationExceptionImpl(
           "Failed to find EPSG:4326 CRS, do you have the dependencies added?", e);
     }
+  }
+
+  public static Gml3ToWkt newGml2ToWkt() {
+    return new Gml3ToWktImpl(org.geotools.gml2.GMLParserDelegate::new);
+  }
+
+  public static Gml3ToWkt newGml3ToWkt() {
+    return new Gml3ToWktImpl(org.geotools.gml3.GMLParserDelegate::new);
+  }
+
+  public static Gml3ToWkt newGml32ToWkt() {
+    return new Gml3ToWktImpl(
+        () -> new XSDParserDelegate(new org.geotools.gml3.v3_2.GMLConfiguration()));
   }
 }
