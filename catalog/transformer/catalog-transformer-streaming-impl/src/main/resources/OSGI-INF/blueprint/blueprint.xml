@@ -74,14 +74,10 @@
     </cm:managed-service-factory>
 
 
-    <bean id="gml3Configuration" class="org.geotools.gml3.GMLConfiguration"/>
-    <bean id="gml3_2Configuration" class="org.geotools.gml3.v3_2.GMLConfiguration"/>
-    <bean id="gml3ToWkt" class="org.codice.ddf.transformer.xml.streaming.impl.Gml3ToWktImpl">
-        <argument ref="gml3Configuration"/>
-    </bean>
-    <bean id="gml3_2ToWkt" class="org.codice.ddf.transformer.xml.streaming.impl.Gml3ToWktImpl">
-        <argument ref="gml3_2Configuration"/>
-    </bean>
+    <bean id="gml3ToWkt" class="org.codice.ddf.transformer.xml.streaming.impl.Gml3ToWktImpl"
+        factory-method="newGml3ToWkt"/>
+    <bean id="gml3_2ToWkt" class="org.codice.ddf.transformer.xml.streaming.impl.Gml3ToWktImpl"
+        factory-method="newGml32ToWkt"/>
 
     <service id="Gml3ToWkt" ref="gml3ToWkt"
              interface="org.codice.ddf.transformer.xml.streaming.Gml3ToWkt">

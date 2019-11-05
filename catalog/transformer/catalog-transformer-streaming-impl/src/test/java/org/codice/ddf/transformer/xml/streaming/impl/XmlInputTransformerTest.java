@@ -44,7 +44,6 @@ import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
 import org.codice.ddf.transformer.xml.streaming.lib.SaxEventHandlerDelegate;
 import org.codice.ddf.transformer.xml.streaming.lib.XmlInputTransformer;
-import org.geotools.gml3.GMLConfiguration;
 import org.junit.Test;
 import org.xml.sax.Attributes;
 import org.xml.sax.ErrorHandler;
@@ -57,7 +56,7 @@ public class XmlInputTransformerTest {
 
   static GmlHandler gmlHandler;
 
-  static Gml3ToWkt gml3ToWkt = new Gml3ToWktImpl(new GMLConfiguration());
+  static Gml3ToWkt gml3ToWkt = Gml3ToWktImpl.newGml3ToWkt();
 
   static SaxEventHandlerDelegate saxEventHandlerDelegate;
 

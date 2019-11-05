@@ -20,7 +20,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import ddf.catalog.validation.ValidationException;
 import java.io.InputStream;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
-import org.geotools.gml3.GMLConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +42,7 @@ public class Gml3ToWktImplTest {
 
   @Before
   public void setUp() {
-    gtw = new Gml3ToWktImpl(new GMLConfiguration());
+    gtw = Gml3ToWktImpl.newGml3ToWkt();
   }
 
   @Test
