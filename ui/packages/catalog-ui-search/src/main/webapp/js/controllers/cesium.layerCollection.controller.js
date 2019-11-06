@@ -46,6 +46,7 @@ const Controller = CommonLayerController.extend({
   makeMap(options) {
     // must create cesium map after containing DOM is attached.
     this.map = new Cesium.Viewer(options.element, options.cesiumOptions)
+    this.map.scene.requestRenderMode = true;
     this.layerOrder = []
 
     this.collection.forEach(function(model) {
@@ -134,7 +135,7 @@ const Controller = CommonLayerController.extend({
     removing/re-adding the layers causes visible "re-render" of entire map;
     raising/lowering is smoother.
     raising means to move to a higher index.  higher indexes are displayed on top of lower indexes.
-    so we have to reverse the order property here to make it display correctly.  
+    so we have to reverse the order property here to make it display correctly.
     in other words, order 1 means highest index.
   */
   reIndexLayers() {
