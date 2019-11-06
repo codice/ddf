@@ -433,6 +433,8 @@
                         <!-- End NVD mirror configuration -->
                         <!-- Commented out as we make a process for handling these -->
                         <!--<failBuildOnCVSS>7</failBuildOnCVSS>-->
+                        <!-- occasionally seeing a "Failed to request component-reports" error -->
+                        <failOnError>false</failOnError>
                         <skipTestScope>true</skipTestScope>
                         <!--Disable by plugin maintainer recommendation on https://github.com/jeremylong/DependencyCheck/issues/978#issuecomment-349620687-->
                         <centralAnalyzerEnabled>false</centralAnalyzerEnabled>
