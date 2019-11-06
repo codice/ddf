@@ -16,6 +16,7 @@ const Backbone = require('backbone')
 const Query = require('./Query')
 const cql = require('../cql.js')
 const Common = require('../Common.js')
+const properties = require('../properties')
 const _ = require('lodash')
 require('backbone-associations')
 
@@ -73,6 +74,7 @@ module.exports = Backbone.AssociatedModel.extend(
         'list.icon': 'folder',
         'list.bookmarks': [],
         query: undefined,
+        uploadEnabled: properties.isUploadEnabled(),
       }
     },
     relations: [
