@@ -98,7 +98,6 @@ class MetacardFactorySpec extends Specification {
         metacardFactory.generateMetacard('application/xml-runtime-bad', 'idError', 'fileName', path)
 
         then:
-        !thrown(RuntimeException)
         thrown(MetacardCreationException)
     }
 
