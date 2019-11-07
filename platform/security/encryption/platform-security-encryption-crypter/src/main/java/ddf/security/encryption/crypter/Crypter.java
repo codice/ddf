@@ -29,13 +29,13 @@ import com.google.crypto.tink.streamingaead.StreamingAeadFactory;
 import com.google.crypto.tink.streamingaead.StreamingAeadKeyTemplates;
 import ddf.security.SecurityConstants;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.security.AccessController;
 import java.security.GeneralSecurityException;
 import java.security.PrivilegedAction;
@@ -249,7 +249,8 @@ public class Crypter {
         availableBytes = getAvailableBytesLessThanChunkSize(plainInputStream);
       }
       encryptedOutputStream.close(); // need to close it here in order for it to flush
-      return new FileInputStream(tmpFile);
+      return Files.newInputStream(
+          Paths.get(tmpFile.getAbsolutePath()), StandardOpenOption.DELETE_ON_CLOSE);
     } catch (GeneralSecurityException | IOException e) {
       throw new CrypterException("Problem encrypting.", e);
     } finally {

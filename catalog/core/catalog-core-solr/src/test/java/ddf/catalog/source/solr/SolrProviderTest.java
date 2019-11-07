@@ -13,6 +13,7 @@
  */
 package ddf.catalog.source.solr;
 
+import static ddf.catalog.data.impl.MetacardImpl.BASIC_METACARD;
 import static ddf.catalog.source.solr.DynamicSchemaResolver.FIVE_MEGABYTES;
 
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
@@ -102,9 +103,15 @@ public class SolrProviderTest {
         solrClient.isAvailable(30L, TimeUnit.SECONDS),
         Matchers.equalTo(true));
 
+    DynamicSchemaResolver dynamicSchemaResolver = new DynamicSchemaResolver();
+    dynamicSchemaResolver.addMetacardType(BASIC_METACARD);
+
     provider =
         new SolrCatalogProvider(
-            solrClient, new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
+            solrClient,
+            new GeotoolsFilterAdapterImpl(),
+            new SolrFilterDelegateFactoryImpl(),
+            dynamicSchemaResolver);
 
     // Mask the id, this is something that the CatalogFramework would usually do
     provider.setId(MASKED_ID);

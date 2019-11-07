@@ -21,7 +21,6 @@ const PagingView = require('../paging/paging.view.js')
 const DropdownView = require('../dropdown/result-display/dropdown.result-display.view.js')
 const ResultFilterDropdownView = require('../dropdown/result-filter/dropdown.result-filter.view.js')
 const DropdownModel = require('../dropdown/dropdown.js')
-const cql = require('../../js/cql.js')
 const ResultSortDropdownView = require('../dropdown/result-sort/dropdown.result-sort.view.js')
 const user = require('../singletons/user-instance.js')
 const ResultStatusView = require('../result-status/result-status.view.js')
@@ -63,9 +62,6 @@ const ResultSelector = Marionette.LayoutView.extend({
       .get('user')
       .get('preferences')
       .get('resultFilter')
-    if (resultFilter) {
-      resultFilter = cql.simplify(cql.read(resultFilter))
-    }
     resultFilter = mixinBlackListCQL(resultFilter)
     const filteredResults = this.model
       .get('result')

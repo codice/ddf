@@ -79,7 +79,6 @@ import org.codice.ddf.spatial.ogc.wfs.featuretransformer.WfsMetadata;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
 import org.codice.ddf.transformer.xml.streaming.impl.Gml3ToWktImpl;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
-import org.geotools.xml.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -529,19 +528,16 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
   }
 
   private String getWktFromGeometry(String geometry, String coordinateOrder) {
-    String wkt = getWktFromGml(geometry, new org.geotools.gml3.GMLConfiguration(), coordinateOrder);
+    String wkt = getWktFromGml(geometry, Gml3ToWktImpl.newGml3ToWkt(), coordinateOrder);
     if (StringUtils.isNotBlank(wkt)) {
       return wkt;
     }
     LOGGER.debug("Error converting gml to wkt using gml3 configuration. Trying gml2.");
-    return getWktFromGml(geometry, new org.geotools.gml2.GMLConfiguration(), coordinateOrder);
+    return getWktFromGml(geometry, Gml3ToWktImpl.newGml2ToWkt(), coordinateOrder);
   }
 
   private String getWktFromGml(
-      final String geometry,
-      final Configuration gmlConfiguration,
-      final String featureCoordinateOrder) {
-    final Gml3ToWkt gml3ToWkt = new Gml3ToWktImpl(gmlConfiguration);
+      final String geometry, final Gml3ToWkt gml3ToWkt, final String featureCoordinateOrder) {
     try (final InputStream gmlStream =
         new ByteArrayInputStream(geometry.getBytes(StandardCharsets.UTF_8))) {
       final Object gmlObject = gml3ToWkt.parseXml(gmlStream);
@@ -556,11 +552,7 @@ public class HandlebarsWfsFeatureTransformer implements FeatureTransformer<Featu
         return null;
       }
     } catch (Exception e) {
-      LOGGER.debug(
-          "Error converting gml to wkt using configuration {}. GML: {}.",
-          gmlConfiguration,
-          geometry,
-          e);
+      LOGGER.debug("Error converting GML '{}' to WKT.", geometry, e);
       return null;
     }
   }

@@ -100,6 +100,11 @@ const transformFilter = filter => {
 
   let parsedValue
   if (type === 'DURING') {
+    if (filter.value.includes('/')) {
+      const dates = filter.value.split('/')
+      filter.from = dates[0] || null
+      filter.to = dates[1] || null
+    }
     parsedValue = `${filter.from}/${filter.to}`
   } else if (type === 'BETWEEN') {
     parsedValue = { lower: filter.lowerBoundary, upper: filter.upperBoundary }

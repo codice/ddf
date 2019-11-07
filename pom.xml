@@ -16,7 +16,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ddf</groupId>
     <artifactId>ddf</artifactId>
-    <version>2.20.0-SNAPSHOT</version>
+    <version>2.21.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DDF Reactor</name>
     <description>Distributed Data Framework (DDF) Parent</description>
@@ -434,6 +434,8 @@
                         <!-- End NVD mirror configuration -->
                         <!-- Commented out as we make a process for handling these -->
                         <!--<failBuildOnCVSS>7</failBuildOnCVSS>-->
+                        <!-- occasionally seeing a "Failed to request component-reports" error -->
+                        <failOnError>false</failOnError>
                         <skipTestScope>true</skipTestScope>
                         <!--Disable by plugin maintainer recommendation on https://github.com/jeremylong/DependencyCheck/issues/978#issuecomment-349620687-->
                         <centralAnalyzerEnabled>false</centralAnalyzerEnabled>
