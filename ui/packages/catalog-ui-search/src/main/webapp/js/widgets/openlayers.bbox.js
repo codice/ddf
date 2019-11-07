@@ -175,6 +175,7 @@ Draw.BboxView = Marionette.View.extend({
 
     this.vectorLayer = vectorLayer
     this.map.addLayer(vectorLayer)
+    this.map.options.scene.requestRender()
   },
 
   handleRegionStop() {

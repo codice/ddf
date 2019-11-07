@@ -116,6 +116,7 @@ Draw.CircleView = Marionette.View.extend({
         this.drawBorderedPolygon(circle)
       }
     }
+    this.map.options.scene.requestRender()
   },
 
   drawBorderedPolygon(rectangle) {

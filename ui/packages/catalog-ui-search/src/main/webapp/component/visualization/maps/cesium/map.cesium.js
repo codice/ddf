@@ -713,6 +713,7 @@ module.exports = function CesiumMap(
       } else {
         geometry.show = !options.isSelected
       }
+      map.scene.requestRender()
     },
     /*
           Updates a passed in geometry to reflect whether or not it is selected.
@@ -750,6 +751,7 @@ module.exports = function CesiumMap(
       } else {
         geometry.show = !options.isSelected
       }
+      map.scene.requestRender()
     },
     /*
          Updates a passed in geometry to be hidden
