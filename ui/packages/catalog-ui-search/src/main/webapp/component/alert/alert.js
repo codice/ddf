@@ -105,6 +105,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
               : 'enterprise',
           src: alert.get('src'),
           cacheId: alertId,
+          id: alert.get('queryId'),
         })
         if (this.get('currentQuery')) {
           this.get('currentQuery').cancelCurrentSearches()
