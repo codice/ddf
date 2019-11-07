@@ -776,6 +776,7 @@ module.exports = function CesiumMap(
           polyline.show = true
         })
       }
+      map.scene.requestRender()
     },
     removeGeometry(geometry) {
       billboardCollection.remove(geometry)

@@ -295,7 +295,6 @@ module.exports = function OpenlayersMap(
 
       map.addLayer(overlayLayer)
       overlays[metacardId] = overlayLayer
-      map.scene.requestRender()
     },
     removeOverlay(metacardId) {
       if (overlays[metacardId]) {
@@ -508,7 +507,6 @@ module.exports = function OpenlayersMap(
           feature.setStyle(styles)
         }
       }
-      map.scene.requestRender()
     },
     /*
           Updates a passed in geometry to reflect whether or not it is selected.
@@ -566,21 +564,18 @@ module.exports = function OpenlayersMap(
           feature.setStyle(styles)
         }
       }
-      map.scene.requestRender()
     },
     /*
          Updates a passed in geometry to be hidden
          */
     hideGeometry(geometry) {
       geometry.setVisible(false)
-      map.scene.requestRender()
     },
     /*
          Updates a passed in geometry to be shown
          */
     showGeometry(geometry) {
       geometry.setVisible(true)
-      map.scene.requestRender()
     },
     removeGeometry(geometry) {
       map.removeLayer(geometry)
