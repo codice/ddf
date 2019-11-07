@@ -130,6 +130,7 @@ const Controller = CommonLayerController.extend({
     }
     const layer = this.layerForCid[model.id]
     layer.show = model.shouldShowLayer()
+    this.map.scene.requestRender()
   },
   /*
     removing/re-adding the layers causes visible "re-render" of entire map;
