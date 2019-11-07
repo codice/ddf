@@ -46,7 +46,7 @@ const Controller = CommonLayerController.extend({
   makeMap(options) {
     // must create cesium map after containing DOM is attached.
     this.map = new Cesium.Viewer(options.element, options.cesiumOptions)
-    this.map.scene.requestRenderMode = true;
+    this.map.scene.requestRenderMode = true
     this.layerOrder = []
 
     this.collection.forEach(function(model) {
