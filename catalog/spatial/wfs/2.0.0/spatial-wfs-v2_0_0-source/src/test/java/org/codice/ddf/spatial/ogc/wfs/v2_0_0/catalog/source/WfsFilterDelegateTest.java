@@ -13,26 +13,32 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.xmlunit.matchers.EvaluateXPathMatcher.hasXPath;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ObjectArrays;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -43,10 +49,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -94,9 +100,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,15 +134,13 @@ public class WfsFilterDelegateTest {
 
   private static final double DISTANCE = 1000.0;
 
-  @Rule public ExpectedException thrown = ExpectedException.none();
-
   private String mockMetacardAttribute = "modified";
 
   private String mockFeatureType = "mockFeatureType";
 
   private String mockFeatureProperty = "mockFeatureProperty";
 
-  private MetacardMapper mockMapper;
+  private MetacardMapper mockMapper = mock(MetacardMapper.class);
 
   private FeatureMetacardType mockFeatureMetacardType = mock(FeatureMetacardType.class);
 
@@ -177,7 +179,7 @@ public class WfsFilterDelegateTest {
             mockFeatureMetacardType,
             MockWfsServer.getFilterCapabilities(),
             GeospatialUtil.EPSG_4326_URN,
-            null,
+            mockMapper,
             GeospatialUtil.LAT_LON_ORDER);
     assertThat(delegate.isLogicalOps(), is(true));
     assertThat(delegate.isEpsg4326(), is(true));
@@ -199,7 +201,7 @@ public class WfsFilterDelegateTest {
             mockFeatureMetacardType,
             capabilities,
             GeospatialUtil.EPSG_4326_URN,
-            null,
+            mockMapper,
             GeospatialUtil.LAT_LON_ORDER);
     assertThat(delegate.isLogicalOps(), is(true));
     assertThat(delegate.isEpsg4326(), is(true));
@@ -221,7 +223,7 @@ public class WfsFilterDelegateTest {
             mockFeatureMetacardType,
             capabilities,
             GeospatialUtil.EPSG_4326_URN,
-            null,
+            mockMapper,
             GeospatialUtil.LAT_LON_ORDER);
     assertThat(delegate.isLogicalOps(), is(false));
     assertThat(delegate.isEpsg4326(), is(true));
@@ -243,7 +245,7 @@ public class WfsFilterDelegateTest {
             mockFeatureMetacardType,
             capabilities,
             GeospatialUtil.EPSG_4326_URN,
-            null,
+            mockMapper,
             GeospatialUtil.LAT_LON_ORDER);
     assertThat(delegate.isLogicalOps(), is(true));
     assertThat(delegate.isEpsg4326(), is(true));
@@ -265,7 +267,7 @@ public class WfsFilterDelegateTest {
             mockFeatureMetacardType,
             capabilities,
             GeospatialUtil.EPSG_4326_URN,
-            null,
+            mockMapper,
             GeospatialUtil.LAT_LON_ORDER);
     assertThat(delegate.isLogicalOps(), is(true));
     assertThat(delegate.isEpsg4326(), is(true));
@@ -310,7 +312,7 @@ public class WfsFilterDelegateTest {
             mockFeatureMetacardType,
             capabilities,
             GeospatialUtil.EPSG_4326_URN,
-            null,
+            mockMapper,
             GeospatialUtil.LAT_LON_ORDER);
 
     // Verify
@@ -377,6 +379,56 @@ public class WfsFilterDelegateTest {
   public void testDuringPropertyIsNotOfTemporalType() throws Throwable {
     testSequentialPropertyIsNotOfTemporalType(
         "during", new DateTime().minusDays(365).toDate(), new DateTime().minusDays(10).toDate());
+  }
+
+  @Test
+  public void testDuringFilterWithMetacardAttributeMappedToFeatureProperty() throws Exception {
+    doReturn(mockFeatureProperty).when(mockMapper).getFeatureProperty(Core.CREATED);
+    doReturn(singletonList(mockFeatureProperty))
+        .when(mockFeatureMetacardType)
+        .getTemporalProperties();
+    doReturn(true).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    final FilterType filter = delegate.during(Core.CREATED, new Date(1), new Date(2));
+    final String filterXml = getXmlFromMarshaller(filter);
+
+    final Map<String, String> namespaceContext =
+        new ImmutableMap.Builder<String, String>()
+            .put("fes", "http://www.opengis.net/fes/2.0")
+            .put("ogc", "http://www.opengis.net/ogc")
+            .build();
+
+    assertThat(
+        filterXml,
+        hasXPath("/ogc:Filter/fes:During/fes:ValueReference/text()", is(mockFeatureProperty))
+            .withNamespaceContext(namespaceContext));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testDuringFilterFeaturePropertyIsNotQueryable() {
+    doReturn(mockFeatureProperty).when(mockMapper).getFeatureProperty(Core.CREATED);
+    doReturn(singletonList(mockFeatureProperty))
+        .when(mockFeatureMetacardType)
+        .getTemporalProperties();
+    doReturn(false).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    delegate.during(Core.CREATED, new Date(1), new Date(2));
   }
 
   @Test
@@ -447,6 +499,56 @@ public class WfsFilterDelegateTest {
     testSequentialPropertyIsNotOfTemporalType("relative", 604800000L);
   }
 
+  @Test
+  public void testRelativeFilterWithMetacardAttributeMappedToFeatureProperty() throws Exception {
+    doReturn(mockFeatureProperty).when(mockMapper).getFeatureProperty(Core.CREATED);
+    doReturn(singletonList(mockFeatureProperty))
+        .when(mockFeatureMetacardType)
+        .getTemporalProperties();
+    doReturn(true).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    final FilterType filter = delegate.relative(Core.CREATED, TimeUnit.DAYS.toMillis(1));
+    final String filterXml = getXmlFromMarshaller(filter);
+
+    final Map<String, String> namespaceContext =
+        new ImmutableMap.Builder<String, String>()
+            .put("fes", "http://www.opengis.net/fes/2.0")
+            .put("ogc", "http://www.opengis.net/ogc")
+            .build();
+
+    assertThat(
+        filterXml,
+        hasXPath("/ogc:Filter/fes:During/fes:ValueReference/text()", is(mockFeatureProperty))
+            .withNamespaceContext(namespaceContext));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testRelativeFilterFeaturePropertyIsNotQueryable() {
+    doReturn(mockFeatureProperty).when(mockMapper).getFeatureProperty(Core.CREATED);
+    doReturn(singletonList(mockFeatureProperty))
+        .when(mockFeatureMetacardType)
+        .getTemporalProperties();
+    doReturn(false).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    delegate.relative(Core.CREATED, TimeUnit.DAYS.toMillis(1));
+  }
+
   /**
    * Example After filter:
    *
@@ -471,6 +573,56 @@ public class WfsFilterDelegateTest {
   @Test(expected = IllegalArgumentException.class)
   public void testAfterPropertyIsNotOfTemporalType() throws Throwable {
     testSequentialPropertyIsNotOfTemporalType("after", new DateTime().minusDays(365).toDate());
+  }
+
+  @Test
+  public void testAfterFilterWithMetacardAttributeMappedToFeatureProperty() throws Exception {
+    doReturn(mockFeatureProperty).when(mockMapper).getFeatureProperty(Core.CREATED);
+    doReturn(singletonList(mockFeatureProperty))
+        .when(mockFeatureMetacardType)
+        .getTemporalProperties();
+    doReturn(true).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    final FilterType filter = delegate.after(Core.CREATED, new Date());
+    final String filterXml = getXmlFromMarshaller(filter);
+
+    final Map<String, String> namespaceContext =
+        new ImmutableMap.Builder<String, String>()
+            .put("fes", "http://www.opengis.net/fes/2.0")
+            .put("ogc", "http://www.opengis.net/ogc")
+            .build();
+
+    assertThat(
+        filterXml,
+        hasXPath("/ogc:Filter/fes:After/fes:ValueReference/text()", is(mockFeatureProperty))
+            .withNamespaceContext(namespaceContext));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testAfterFilterFeaturePropertyIsNotQueryable() {
+    doReturn(mockFeatureProperty).when(mockMapper).getFeatureProperty(Core.CREATED);
+    doReturn(singletonList(mockFeatureProperty))
+        .when(mockFeatureMetacardType)
+        .getTemporalProperties();
+    doReturn(false).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    delegate.after(Core.CREATED, new Date());
   }
 
   /**
@@ -531,6 +683,56 @@ public class WfsFilterDelegateTest {
     testSequentialPropertyIsNotOfTemporalType("before", new DateTime().minusDays(365).toDate());
   }
 
+  @Test
+  public void testBeforeFilterWithMetacardAttributeMappedToFeatureProperty() throws Exception {
+    doReturn(mockFeatureProperty).when(mockMapper).getFeatureProperty(Core.CREATED);
+    doReturn(singletonList(mockFeatureProperty))
+        .when(mockFeatureMetacardType)
+        .getTemporalProperties();
+    doReturn(true).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    final FilterType filter = delegate.before(Core.CREATED, new Date());
+    final String filterXml = getXmlFromMarshaller(filter);
+
+    final Map<String, String> namespaceContext =
+        new ImmutableMap.Builder<String, String>()
+            .put("fes", "http://www.opengis.net/fes/2.0")
+            .put("ogc", "http://www.opengis.net/ogc")
+            .build();
+
+    assertThat(
+        filterXml,
+        hasXPath("/ogc:Filter/fes:Before/fes:ValueReference/text()", is(mockFeatureProperty))
+            .withNamespaceContext(namespaceContext));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testBeforeFilterFeaturePropertyIsNotQueryable() {
+    doReturn(mockFeatureProperty).when(mockMapper).getFeatureProperty(Core.CREATED);
+    doReturn(singletonList(mockFeatureProperty))
+        .when(mockFeatureMetacardType)
+        .getTemporalProperties();
+    doReturn(false).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    delegate.before(Core.CREATED, new Date());
+  }
+
   private void testSequentialPropertyIsNotOfTemporalType(String methName, Object... inputParams)
       throws Throwable {
     String mockMetacardAttribute = "myMetacardAttribute";
@@ -540,10 +742,9 @@ public class WfsFilterDelegateTest {
     mockProperties.add(mockFeatureProperty);
     when(mockFeatureMetacardType.getProperties()).thenReturn(mockProperties);
     when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
-    List<String> mockTemporalProperties = Collections.emptyList();
+    List<String> mockTemporalProperties = emptyList();
     when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockTemporalProperties);
     when(mockFeatureMetacardType.isQueryable(mockFeatureProperty)).thenReturn(true);
-    MetacardMapper mockMapper = mock(MetacardMapper.class);
     when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(
@@ -647,8 +848,7 @@ public class WfsFilterDelegateTest {
     String mockType = "myType";
     WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
 
-    FilterType spatialFilter1 =
-        delegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
+    FilterType spatialFilter1 = delegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", 1000);
 
     // Perform Test
     FilterType filter = delegate.not(spatialFilter1);
@@ -658,9 +858,7 @@ public class WfsFilterDelegateTest {
     UnaryLogicOpType logicOpType = (UnaryLogicOpType) filter.getLogicOps().getValue();
     DistanceBufferType spatialOpsType1 =
         (DistanceBufferType) logicOpType.getSpatialOps().getValue();
-    assertThat(
-        Double.toString(spatialOpsType1.getDistance().getValue()),
-        is(Double.valueOf(1000).toString()));
+    assertThat(spatialOpsType1.getDistance().getValue(), is(1000d));
   }
 
   @Test
@@ -678,10 +876,8 @@ public class WfsFilterDelegateTest {
     String mockType = "myType";
     WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
 
-    FilterType spatialFilter1 =
-        delegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
-    FilterType spatialFilter2 =
-        delegate.dwithin(Metacard.ANY_GEO, "POINT (50 10)", Double.valueOf(1500));
+    FilterType spatialFilter1 = delegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", 1000);
+    FilterType spatialFilter2 = delegate.dwithin(Metacard.ANY_GEO, "POINT (50 10)", 1500);
 
     List<FilterType> filtersToCombine = new ArrayList<>();
     filtersToCombine.add(spatialFilter1);
@@ -697,16 +893,12 @@ public class WfsFilterDelegateTest {
     DistanceBufferType spatialOpsType1 =
         (DistanceBufferType)
             logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
-    assertThat(
-        Double.toString(spatialOpsType1.getDistance().getValue()),
-        is(Double.valueOf(1000).toString()));
+    assertThat(spatialOpsType1.getDistance().getValue(), is(1000d));
 
     DistanceBufferType spatialOpsType2 =
         (DistanceBufferType)
             logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
-    assertThat(
-        Double.toString(spatialOpsType2.getDistance().getValue()),
-        is(Double.valueOf(1500).toString()));
+    assertThat(spatialOpsType2.getDistance().getValue(), is(1500d));
   }
 
   /** Verifies that a temporal criteria can be AND'ed to other criteria. */
@@ -717,8 +909,7 @@ public class WfsFilterDelegateTest {
     String mockType = "myType";
     WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
 
-    FilterType spatialFilter =
-        delegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
+    FilterType spatialFilter = delegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", 1000);
     FilterType temporalFilter =
         delegate.during(
             mockProperty,
@@ -772,10 +963,8 @@ public class WfsFilterDelegateTest {
     subFiltersToBeOred.add(compFilter1);
     subFiltersToBeOred.add(compFilter2);
 
-    FilterType spatialFilter1 =
-        delegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
-    FilterType spatialFilter2 =
-        delegate.dwithin(Metacard.ANY_GEO, "POINT (50 10)", Double.valueOf(1500));
+    FilterType spatialFilter1 = delegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", 1000);
+    FilterType spatialFilter2 = delegate.dwithin(Metacard.ANY_GEO, "POINT (50 10)", 1500);
     List<FilterType> subFiltersToBeAnded = new ArrayList<>();
     subFiltersToBeAnded.add(spatialFilter1);
     subFiltersToBeAnded.add(spatialFilter2);
@@ -817,16 +1006,12 @@ public class WfsFilterDelegateTest {
     DistanceBufferType spatialOpsType1 =
         (DistanceBufferType)
             logicAndType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue();
-    assertThat(
-        Double.toString(spatialOpsType1.getDistance().getValue()),
-        is(Double.valueOf(1000).toString()));
+    assertThat(spatialOpsType1.getDistance().getValue(), is(1000d));
 
     DistanceBufferType spatialOpsType2 =
         (DistanceBufferType)
             logicAndType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(1).getValue();
-    assertThat(
-        Double.toString(spatialOpsType2.getDistance().getValue()),
-        is(Double.valueOf(1500).toString()));
+    assertThat(spatialOpsType2.getDistance().getValue(), is(1500d));
   }
 
   @Test
@@ -990,7 +1175,7 @@ public class WfsFilterDelegateTest {
         mockFeatureMetacardType,
         filterCap,
         GeospatialUtil.EPSG_4326_URN,
-        null,
+        mockMapper,
         GeospatialUtil.LAT_LON_ORDER);
   }
 
@@ -1055,7 +1240,7 @@ public class WfsFilterDelegateTest {
         mockFeatureMetacardType,
         capabilities,
         GeospatialUtil.EPSG_4326_URN,
-        null,
+        mockMapper,
         GeospatialUtil.LAT_LON_ORDER);
   }
 
@@ -1240,7 +1425,7 @@ public class WfsFilterDelegateTest {
             mockFeatureMetacardType,
             capabilities,
             GeospatialUtil.EPSG_4326_URN,
-            null,
+            mockMapper,
             GeospatialUtil.LAT_LON_ORDER);
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
@@ -1269,7 +1454,7 @@ public class WfsFilterDelegateTest {
             mockFeatureMetacardType,
             capabilities,
             GeospatialUtil.EPSG_4326_URN,
-            null,
+            mockMapper,
             GeospatialUtil.LON_LAT_ORDER);
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
@@ -1305,7 +1490,7 @@ public class WfsFilterDelegateTest {
             mockFeatureMetacardType,
             capabilities,
             GeospatialUtil.EPSG_4326_URN,
-            null,
+            mockMapper,
             GeospatialUtil.LON_LAT_ORDER);
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
@@ -1461,7 +1646,7 @@ public class WfsFilterDelegateTest {
             mockFeatureMetacardType,
             capabilities,
             GeospatialUtil.EPSG_4326_URN,
-            null,
+            mockMapper,
             GeospatialUtil.LAT_LON_ORDER);
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
@@ -1497,7 +1682,7 @@ public class WfsFilterDelegateTest {
             mockFeatureMetacardType,
             MockWfsServer.getFilterCapabilities(),
             "EPSG:42304",
-            null,
+            mockMapper,
             GeospatialUtil.LAT_LON_ORDER);
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
 
@@ -1511,7 +1696,7 @@ public class WfsFilterDelegateTest {
             null,
             MockWfsServer.getFilterCapabilities(),
             GeospatialUtil.EPSG_4326_URN,
-            null,
+            mockMapper,
             GeospatialUtil.LAT_LON_ORDER);
 
     delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
@@ -1550,7 +1735,7 @@ public class WfsFilterDelegateTest {
         mockFeatureMetacardType,
         MockWfsServer.getFilterCapabilities(),
         GeospatialUtil.EPSG_4326_URN,
-        null,
+        mockMapper,
         GeospatialUtil.LAT_LON_ORDER);
   }
 
@@ -1591,8 +1776,7 @@ public class WfsFilterDelegateTest {
 
     WfsFilterDelegate spatialDelegate =
         mockFeatureMetacardCreateDelegate(mockFeatureProperty, mockFeatureType);
-    FilterType spatialFilter =
-        spatialDelegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
+    FilterType spatialFilter = spatialDelegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", 1000);
 
     List<List<FilterType>> testFilters = new ArrayList<>();
     testFilters.add(Arrays.asList(afterFilter, beforeFilter));
@@ -1883,8 +2067,173 @@ public class WfsFilterDelegateTest {
     assertThat(beginDate.equals(afterDate), is(true));
   }
 
+  @Test
+  public void testPropertyIsFilterWithMetacardAttributeMappedToFeatureProperty() throws Exception {
+    doReturn(mockFeatureProperty).when(mockMapper).getFeatureProperty(Core.TITLE);
+    doReturn(singletonList(mockFeatureProperty)).when(mockFeatureMetacardType).getProperties();
+    doReturn(true).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    final FilterType filter = delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
+    assertXMLEqual(MockWfsServer.getPropertyIsEqualToFilter(), getXmlFromMarshaller(filter));
+  }
+
+  @Test
+  public void testPropertyIsFilterCannotMapToFeatureProperty() {
+    doReturn(singletonList(mockFeatureProperty)).when(mockFeatureMetacardType).getProperties();
+    doReturn(true).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    final FilterType filter = delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
+    assertThat(
+        "The filter should have been null because 'title' is not mapped to a WFS feature property.",
+        filter,
+        is(nullValue()));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testPropertyIsFilterFeaturePropertyIsNotQueryable() {
+    doReturn(mockFeatureProperty).when(mockMapper).getFeatureProperty(Core.TITLE);
+    doReturn(singletonList(mockFeatureProperty)).when(mockFeatureMetacardType).getProperties();
+    doReturn(false).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
+  }
+
+  @Test
+  public void testPropertyIsBetweenFilterWithMetacardAttributeMappedToFeatureProperty()
+      throws Exception {
+    doReturn(mockFeatureProperty).when(mockMapper).getFeatureProperty(Core.RESOURCE_SIZE);
+    doReturn(singletonList(mockFeatureProperty)).when(mockFeatureMetacardType).getProperties();
+    doReturn(true).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    final FilterType filter = delegate.propertyIsBetween(Core.RESOURCE_SIZE, 100, 200);
+    assertXMLEqual(MockWfsServer.getPropertyIsBetweenFilter(), getXmlFromMarshaller(filter));
+  }
+
+  @Test
+  public void testPropertyIsBetweenFilterCannotMapToFeatureProperty() {
+    doReturn(singletonList(mockFeatureProperty)).when(mockFeatureMetacardType).getProperties();
+    doReturn(true).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    final FilterType filter = delegate.propertyIsBetween(Core.RESOURCE_SIZE, 100, 200);
+    assertThat(
+        "The filter should have been null because 'resource-size' is not mapped to a WFS feature property.",
+        filter,
+        is(nullValue()));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testPropertyIsBetweenFilterFeaturePropertyIsNotQueryable() {
+    doReturn(mockFeatureProperty).when(mockMapper).getFeatureProperty(Core.RESOURCE_SIZE);
+    doReturn(singletonList(mockFeatureProperty)).when(mockFeatureMetacardType).getProperties();
+    doReturn(false).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    delegate.propertyIsBetween(Core.RESOURCE_SIZE, 100, 200);
+  }
+
+  @Test
+  public void testGeospatialFilterWithMetacardAttributeMappedToFeatureProperty() throws Exception {
+    doReturn(MOCK_GEOM).when(mockMapper).getFeatureProperty(Core.LOCATION);
+    doReturn(singletonList(MOCK_GEOM)).when(mockFeatureMetacardType).getGmlProperties();
+    doReturn(true).when(mockFeatureMetacardType).isQueryable(MOCK_GEOM);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    final FilterType filter = delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
+    assertXMLEqual(MockWfsServer.getDWithinPointXmlFilter(), getXmlFromMarshaller(filter));
+  }
+
+  @Test
+  public void testGeospatialFilterCannotMapToFeatureProperty() {
+    doReturn(singletonList(MOCK_GEOM)).when(mockFeatureMetacardType).getGmlProperties();
+    doReturn(true).when(mockFeatureMetacardType).isQueryable(MOCK_GEOM);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    final FilterType filter = delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
+    assertThat(
+        "The filter should have been null because 'location' is not mapped to a WFS feature property.",
+        filter,
+        is(nullValue()));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGeospatialFilterFeaturePropertyIsNotQueryable() {
+    doReturn(MOCK_GEOM).when(mockMapper).getFeatureProperty(Core.LOCATION);
+    doReturn(singletonList(MOCK_GEOM)).when(mockFeatureMetacardType).getGmlProperties();
+    doReturn(false).when(mockFeatureMetacardType).isQueryable(mockFeatureProperty);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(
+            mockFeatureMetacardType,
+            MockWfsServer.getFilterCapabilities(),
+            GeospatialUtil.EPSG_4326_URN,
+            mockMapper,
+            GeospatialUtil.LAT_LON_ORDER);
+
+    delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
+  }
+
   private WfsFilterDelegate setupTemporalFilterDelegate() {
-    MetacardMapper mockMapper = mock(MetacardMapper.class);
     return new WfsFilterDelegate(
         mockFeatureMetacardType,
         MockWfsServer.getFilterCapabilities(),
@@ -1905,7 +2254,6 @@ public class WfsFilterDelegateTest {
     when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockProperties);
     when(mockFeatureMetacardType.isQueryable(mockFeatureProperty)).thenReturn(true);
 
-    mockMapper = mock(MetacardMapper.class);
     when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
   }
 
@@ -1954,7 +2302,7 @@ public class WfsFilterDelegateTest {
       DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); // 2014-12-14T17:14:43Z
       date = format.parse(dateTimeString);
     } catch (ParseException pe) {
-      LOGGER.debug("Parse Exception {}", pe);
+      LOGGER.debug("Parse Exception", pe);
     }
     return date;
   }
@@ -2017,7 +2365,6 @@ public class WfsFilterDelegateTest {
       when(mockFeatureMetacardType.getName()).thenReturn(mockFeatureType);
       when(mockFeatureMetacardType.getTemporalProperties()).thenReturn(mockProperties);
       when(mockFeatureMetacardType.isQueryable(mockFeatureProperty)).thenReturn(true);
-      MetacardMapper mockMapper = mock(MetacardMapper.class);
       when(mockMapper.getFeatureProperty(mockMetacardAttribute)).thenReturn(mockFeatureProperty);
       delegate =
           new WfsFilterDelegate(

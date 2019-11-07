@@ -41,7 +41,7 @@
             name="Disable Sorting" id="disableSorting" required="true"
             type="Boolean" default="false"/>
 
-        <AD description="Username for tge WFS Service (optional)" name="Username" id="username"
+        <AD description="Username for the WFS Service (optional)" name="Username" id="username"
             required="false" type="String"/>
         <AD description="Password for the WFS Service (optional)" name="Password" id="password"
             required="false" type="Password" default=""/>
