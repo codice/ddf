@@ -785,6 +785,7 @@ module.exports = function CesiumMap(
       if (geometry.constructor === Cesium.Entity) {
         map.entities.remove(geometry)
       }
+      map.scene.requestRender()
     },
     showPolygonShape(locationModel) {
       const polygon = new DrawPolygon.PolygonRenderView({
