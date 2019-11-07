@@ -40,7 +40,7 @@ class MetacardFactorySpec extends Specification {
     private InputTransformer itXml
     private InputTransformer itXml2
     private InputTransformer itBad
-    private InputTransformer itError
+    private InputTransformer itRuntimeBad
     private MetacardFactory metacardFactory
     private UuidGenerator uuidGenerator
     private Path path
@@ -60,7 +60,7 @@ class MetacardFactorySpec extends Specification {
         itBad = Mock(InputTransformer)
 
         itBad.transform(_ as InputStream) >> { throw new IOException() }
-        itError.transform(_ as InputStream) >> { throwErrorWithMetacard() }
+        itRuntimeBad.transform(_ as InputStream) >> { throw new RuntimeException() }
         itPlain.transform(_ as InputStream) >> { metacardPlain }
         itXml.transform(_ as InputStream) >> { metacardXml }
         itXml2.transform(_ as InputStream) >> { metacardXml2 }
@@ -75,17 +75,14 @@ class MetacardFactorySpec extends Specification {
                 [itBad, itXml]
             } else if (m.baseType == 'application/xml-bad') {
                 [itBad]
+            } else if (m.baseType == 'application/xml-runtime-bad') {
+                [itRuntimeBad]
             } else if (m.baseType == 'text/plain') {
                 [itPlain]
             }
         }
 
         metacardFactory = new MetacardFactory(mimeTypeToTransformerMapper, uuidGenerator)
-    }
-
-    def throwErrorWithMetacard() {
-        throw NoClassDefFoundError()
-        return metacardXml
     }
 
     def 'test metacard generation with bad xformer'() {
@@ -98,13 +95,11 @@ class MetacardFactorySpec extends Specification {
 
     def 'test that throwing an error can still create a metacard'() {
         when:
-        def metacard = metacardFactory.generateMetacard('application/xml3', 'idError', 'fileName', path)
+        metacardFactory.generateMetacard('application/xml-runtime-bad', 'idError', 'fileName', path)
 
         then:
-        1 * uuidGenerator.generateUuid()
-        1 * metacardXml.setAttribute({ it.name == Metacard.TITLE })
-
-        metacard == metacardXml
+        !thrown(RuntimeException)
+        thrown(MetacardCreationException)
     }
 
     def 'test metacard generation with xformer failure'() {
