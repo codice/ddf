@@ -161,6 +161,7 @@ DrawCircle.CircleView = Marionette.View.extend({
     })
 
     this.options.map.scene.primitives.add(this.primitive)
+    this.options.map.scene.requestRender()
   },
   handleRegionStop() {
     this.enableInput()

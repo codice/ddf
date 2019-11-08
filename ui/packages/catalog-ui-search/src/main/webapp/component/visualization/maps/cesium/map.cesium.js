@@ -799,6 +799,7 @@ module.exports = function CesiumMap(
       } else {
         geometry.show = !options.isSelected
       }
+      map.scene.requestRender()
     },
     /*
           Updates a passed in geometry to reflect whether or not it is selected.
@@ -836,6 +837,7 @@ module.exports = function CesiumMap(
       } else {
         geometry.show = !options.isSelected
       }
+      map.scene.requestRender()
     },
     /*
          Updates a passed in geometry to be hidden
@@ -860,6 +862,7 @@ module.exports = function CesiumMap(
           polyline.show = true
         })
       }
+      map.scene.requestRender()
     },
     removeGeometry(geometry) {
       billboardCollection.remove(geometry)
@@ -868,6 +871,7 @@ module.exports = function CesiumMap(
       if (geometry.constructor === Cesium.Entity) {
         map.entities.remove(geometry)
       }
+      map.scene.requestRender()
     },
     showPolygonShape(locationModel) {
       const polygon = new DrawPolygon.PolygonRenderView({
