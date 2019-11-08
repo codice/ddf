@@ -107,6 +107,7 @@ class PolygonRenderView extends GeometryRenderView {
     })
 
     this.map.scene.primitives.add(this.primitive)
+    this.map.scene.requestRender()
   }
 }
 
