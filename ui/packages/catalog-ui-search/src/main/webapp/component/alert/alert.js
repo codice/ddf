@@ -99,7 +99,13 @@ module.exports = new (Backbone.AssociatedModel.extend({
                 property: '"id"',
               }),
           }),
-          federation: 'enterprise',
+          federation:
+            alert.get('src') && alert.get('src').length > 0
+              ? 'selected'
+              : 'enterprise',
+          src: alert.get('src'),
+          cacheId: alertId,
+          id: alert.get('queryId'),
         })
         if (this.get('currentQuery')) {
           this.get('currentQuery').cancelCurrentSearches()

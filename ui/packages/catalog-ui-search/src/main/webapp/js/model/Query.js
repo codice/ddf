@@ -271,7 +271,8 @@ Query.Model = PartialAssociatedModel.extend({
       'sorts',
       'id',
       'spellcheck',
-      'phonetics'
+      'phonetics',
+      'cacheId'
     )
   },
   isOutdated() {

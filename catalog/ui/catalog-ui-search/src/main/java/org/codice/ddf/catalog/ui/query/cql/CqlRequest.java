@@ -79,6 +79,16 @@ public class CqlRequest {
 
   private Boolean phonetics;
 
+  public String getCacheId() {
+    return cacheId;
+  }
+
+  public void setCacheId(String cacheId) {
+    this.cacheId = cacheId;
+  }
+
+  private String cacheId;
+
   private List<Sort> sorts = Collections.emptyList();
 
   private Set<String> facets = Collections.emptySet();
@@ -266,6 +276,10 @@ public class CqlRequest {
 
     if (phonetics != null) {
       queryRequest.getProperties().put("phonetics", phonetics);
+    }
+
+    if (cacheId != null) {
+      queryRequest.getProperties().put("cacheId", cacheId);
     }
 
     return queryRequest;
