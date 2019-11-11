@@ -82,27 +82,29 @@ public class JsonUtilsTest {
   @Test
   public void testGetMapFrom() throws Exception {
     Assert.assertThat(
-        JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, "map"),
+        JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, "map", false),
         Matchers.equalTo(JsonUtilsTest.JSON_MAP));
   }
 
   @Test
   public void testGetMapFromWhenNotDefined() throws Exception {
     Assert.assertThat(
-        JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, "map2"),
+        JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, "map2", false),
         Matchers.equalTo(new HashMap<>()));
   }
 
   @Test
   public void testGetMapFromWithNullKey() throws Exception {
     Assert.assertThat(
-        JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, null), Matchers.equalTo(new HashMap<>()));
+        JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, null, false),
+        Matchers.equalTo(new HashMap<>()));
   }
 
   @Test
   public void testGetMapFromWithNullMap() throws Exception {
     Assert.assertThat(
-        JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, null), Matchers.equalTo(new HashMap<>()));
+        JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, null, false),
+        Matchers.equalTo(new HashMap<>()));
   }
 
   @Test
@@ -110,7 +112,7 @@ public class JsonUtilsTest {
     thrown.expect(MigrationException.class);
     thrown.expectMessage(Matchers.containsString("[list] is not a Json map"));
 
-    JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, "list");
+    JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, "list", false);
   }
 
   @Test

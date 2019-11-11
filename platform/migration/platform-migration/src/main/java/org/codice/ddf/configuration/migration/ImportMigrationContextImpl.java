@@ -67,6 +67,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
 
   private final boolean skip;
 
+  private Map<String, Object> customSystemProperties;
+
   /**
    * Creates a new migration context for an import operation representing a system context.
    *
@@ -147,6 +149,20 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
   public Stream<ImportMigrationEntry> entries(Path path, PathMatcher filter) {
     Validate.notNull(filter, "invalid null path filter");
     return entries(path).filter(e -> filter.matches(e.getPath()));
+  }
+
+  @Override
+  public void setExportedSystemProperties(Map<String, Object> props) {
+    this.customSystemProperties = props;
+  }
+
+  @Override
+  public String getExportedSystemProperty(String key) {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      sm.checkPropertyAccess(key);
+    }
+    return (String) customSystemProperties.get(key);
   }
 
   @SuppressWarnings(

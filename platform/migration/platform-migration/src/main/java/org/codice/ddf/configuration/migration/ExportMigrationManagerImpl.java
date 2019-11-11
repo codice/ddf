@@ -20,12 +20,15 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -144,6 +147,16 @@ public class ExportMigrationManagerImpl implements Closeable {
     Validate.notNull(productBranding, "invalid null product branding");
     Validate.notNull(productVersion, "invalid null product version");
     final String ddfHome = System.getProperty("ddf.home");
+    final Properties systemProperties = System.getProperties();
+    String customSystemPropertiesFile = "";
+    try {
+      customSystemPropertiesFile =
+          new String(
+              Files.readAllBytes(
+                  Paths.get(MigrationContextImpl.METADATA_CUSTOM_SYSTEM_PROPERTIES_PATH)));
+    } catch (IOException e) {
+      LOGGER.error("Could not read custom system properties file.");
+    }
 
     LOGGER.debug(
         "Exporting {} product [{}] under [{}] with version [{}] to [{}]...",
@@ -157,6 +170,9 @@ public class ExportMigrationManagerImpl implements Closeable {
     metadata.put(MigrationContextImpl.METADATA_PRODUCT_VERSION, productVersion);
     metadata.put(MigrationContextImpl.METADATA_DATE, new Date().toString());
     metadata.put(MigrationContextImpl.METADATA_DDF_HOME, ddfHome);
+    metadata.put(MigrationContextImpl.METADATA_CUSTOM_SYSTEM_PROPERTIES, systemProperties);
+    metadata.put(
+        MigrationContextImpl.METADATA_CUSTOM_SYSTEM_PROPERTIES_FILE, customSystemPropertiesFile);
     metadata.put(
         MigrationContextImpl.METADATA_MIGRATABLES,
         contexts

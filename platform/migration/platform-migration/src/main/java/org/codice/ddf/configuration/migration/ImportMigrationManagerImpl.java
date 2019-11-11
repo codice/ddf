@@ -70,6 +70,8 @@ public class ImportMigrationManagerImpl implements Closeable {
 
   private final String currentProductVersion;
 
+  private final Map<String, Object> customSystemProperties;
+
   private final Path exportFile;
 
   /**
@@ -125,7 +127,7 @@ public class ImportMigrationManagerImpl implements Closeable {
           .filter(ze -> !ze.isDirectory())
           .map(ze -> new ImportMigrationEntryImpl(this::getContextFor, ze))
           .forEach(me -> me.getContext().addEntry(me));
-      metadata = retrieveMetadata(); // do this after retreiving all exported entries
+      metadata = retrieveMetadata(); // do this after retrieving all exported entries
       this.version = JsonUtils.getStringFrom(metadata, MigrationContextImpl.METADATA_VERSION, true);
       if (!MigrationContextImpl.CURRENT_VERSION.equals(version)) {
         IOUtils.closeQuietly(zip);
@@ -140,9 +142,13 @@ public class ImportMigrationManagerImpl implements Closeable {
           JsonUtils.getStringFrom(metadata, MigrationContextImpl.METADATA_PRODUCT_VERSION, true);
       this.currentProductBranding = currentProductBranding;
       this.currentProductVersion = currentProductVersion;
+      this.customSystemProperties =
+          JsonUtils.getMapFrom(
+              metadata, MigrationContextImpl.METADATA_CUSTOM_SYSTEM_PROPERTIES, true);
       // process migratables' metadata
-      JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES)
+      JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES, false)
           .forEach((id, o) -> getContextFor(id).processMetadata(JsonUtils.convertToMap(o)));
+      contexts.forEach((id, m) -> m.setExportedSystemProperties(customSystemProperties));
     } catch (IOException e) {
       IOUtils.closeQuietly(zip);
       throw new MigrationException(Messages.IMPORT_FILE_READ_ERROR, exportFile, e);

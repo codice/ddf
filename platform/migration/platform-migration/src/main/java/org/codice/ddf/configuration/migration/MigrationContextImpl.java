@@ -180,12 +180,22 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
 
   public static final String METADATA_JAVA_PROPERTIES = "java.properties";
 
+  public static final String METADATA_CUSTOM_SYSTEM_PROPERTIES = "custom.system.properties";
+
+  public static final String METADATA_CUSTOM_SYSTEM_PROPERTIES_FILE =
+      METADATA_CUSTOM_SYSTEM_PROPERTIES + ".file";
+
+  public static final String METADATA_CUSTOM_SYSTEM_PROPERTIES_PATH =
+      "etc/" + METADATA_CUSTOM_SYSTEM_PROPERTIES;
+
   /**
    * Holds the current export version.
    *
    * <p>1.0 - initial version
+   *
+   * <p>1.1 - adds custom system properties
    */
-  protected static final String CURRENT_VERSION = "1.0";
+  protected static final String CURRENT_VERSION = "1.1";
 
   protected static final Path METADATA_FILENAME = Paths.get("export.json");
 
