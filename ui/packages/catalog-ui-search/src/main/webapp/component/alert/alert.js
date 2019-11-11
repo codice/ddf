@@ -148,8 +148,10 @@ module.exports = new (Backbone.AssociatedModel.extend({
     return this.get('selectedResults')
   },
   clearSelectedResults() {
+    this.get('selectedResults').forEach(metacard =>
+      store.removeSelectedResult(metacard)
+    )
     this.getSelectedResults().reset()
-    store.clearSelectedResults()
   },
   addSelectedResult(metacard) {
     this.getSelectedResults().add(metacard)
@@ -157,7 +159,7 @@ module.exports = new (Backbone.AssociatedModel.extend({
   },
   setSelectedResults(metacards) {
     this.set('selectedResults', metacards)
-    store.setSelectedResults(metacards)
+    metacards.forEach(metacard => store.addSelectedResult(metacard))
   },
   removeSelectedResult(metacard) {
     this.getSelectedResults().remove(metacard)
