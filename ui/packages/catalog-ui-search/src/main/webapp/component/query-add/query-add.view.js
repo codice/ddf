@@ -231,7 +231,6 @@ module.exports = Marionette.LayoutView.extend({
       : this.queryContent.currentView.setDefaultTitle()
   },
   saveRun() {
-    console.log(">>>SAVE RUN is called")
     const queryContentView = this.queryView
       ? this.queryView
       : this.queryContent.currentView
