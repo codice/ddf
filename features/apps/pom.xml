@@ -113,7 +113,7 @@
         <dependency>
             <groupId>org.codice.ddf.registry</groupId>
             <artifactId>registry-app</artifactId>
-            <version>${project.version}</version>
+            <version>${ddf-registry.version}</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
