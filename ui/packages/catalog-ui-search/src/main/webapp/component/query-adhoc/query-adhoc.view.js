@@ -210,8 +210,8 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.find('form')[0].submit()
     this.saveToModel()
   },
-  isValid() {
-    return this.textField.currentView.isValid()
+  validate() {
+    return []
   },
   setDefaultTitle() {
     let title = this.textField.currentView.model.getValue()[0]

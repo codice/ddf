@@ -20,9 +20,8 @@ const CustomElements = require('../../js/CustomElements.js')
 const QueryAdvanced = require('../query-advanced/query-advanced.view.js')
 const QueryTitle = require('../query-title/query-title.view.js')
 const store = require('../../js/store.js')
-const announcement = require('../announcement/index.jsx')
-import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
 import ExtensionPoints from '../../extension-points'
+import { validate } from '../../react-component/utils/validation'
 
 module.exports = Marionette.LayoutView.extend({
   template,
@@ -145,8 +144,7 @@ module.exports = Marionette.LayoutView.extend({
     const queryContentView = this.queryView
       ? this.queryView
       : this.queryContent.currentView
-    if (!queryContentView.isValid()) {
-      announcement.announce(InvalidSearchFormMessage)
+    if (!validate(queryContentView.validate())) {
       return
     }
     queryContentView.save()
@@ -162,8 +160,7 @@ module.exports = Marionette.LayoutView.extend({
     const queryContentView = this.queryView
       ? this.queryView
       : this.queryContent.currentView
-    if (!queryContentView.isValid()) {
-      announcement.announce(InvalidSearchFormMessage)
+    if (!validate(queryContentView.validate())) {
       return
     }
     queryContentView.save()
