@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.security.app;
+package org.codice.ddf.catalog.ui.oauth.app;
 
 import static org.codice.ddf.security.token.storage.api.TokenStorage.CLIENT_ID;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.DISCOVERY_URL;
