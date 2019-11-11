@@ -354,7 +354,7 @@ module.exports = Marionette.LayoutView.extend({
   /*
     Handles drawing or clearing the ruler as needed by the measurement state.
 
-    START indicates that a starting point should be drawn, 
+    START indicates that a starting point should be drawn,
     so the map clears any previous points drawn and draws a new start point.
 
     END indicates that an ending point should be drawn,

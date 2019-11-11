@@ -505,13 +505,12 @@ module.exports = function CesiumMap(
       const options = {
         id: markerLabel,
         title: `Selected ruler coordinate '${markerLabel}'`,
-        color: '#FC2803',
+        color: '#338B91',
         icon: null,
         view: this,
       }
-      const useCustomText = true
 
-      return this.addPointWithText(point, options, useCustomText)
+      return this.addPoint(point, options)
     },
     /*
      * Removes the given Billboard from the map.
@@ -598,6 +597,7 @@ module.exports = function CesiumMap(
           }
         })
       }
+      map.scene.requestRender()
 
       return billboardRef
     },
@@ -606,42 +606,42 @@ module.exports = function CesiumMap(
           Options are a view to relate to, and an id, and a color.
           */
     addPoint(point, options) {
-      const pointObject = convertPointCoordinate(point)
-      const cartographicPosition = Cesium.Cartographic.fromDegrees(
-        pointObject.longitude,
-        pointObject.latitude,
-        pointObject.altitude
-      )
-      const billboardRef = billboardCollection.add({
-        image: DrawingUtility.getPin({
-          fillColor: options.color,
-          icon: options.icon,
-        }),
-        position: map.scene.globe.ellipsoid.cartographicToCartesian(
-          cartographicPosition
-        ),
-        id: options.id,
-        eyeOffset,
-        pixelOffset,
-        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-      })
-      //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
-      if (!pointObject.altitude && map.scene.terrainProvider) {
-        const promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [
-          cartographicPosition,
-        ])
-        Cesium.when(promise, updatedCartographic => {
-          if (updatedCartographic[0].height && !options.view.isDestroyed) {
-            billboardRef.position = map.scene.globe.ellipsoid.cartographicToCartesian(
-              updatedCartographic[0]
-            )
+          const pointObject = convertPointCoordinate(point)
+          const cartographicPosition = Cesium.Cartographic.fromDegrees(
+            pointObject.longitude,
+            pointObject.latitude,
+            pointObject.altitude
+          )
+          let cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
+            cartographicPosition
+          )
+          const billboardRef = billboardCollection.add({
+            image: DrawingUtility.getCircle({
+              fillColor: options.color,
+              icon: options.icon,
+            }),
+            position: cartesianPosition,
+            id: options.id,
+            eyeOffset,
+          })
+          //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
+          if (!pointObject.altitude && map.scene.terrainProvider) {
+            const promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [
+              cartographicPosition,
+            ])
+            Cesium.when(promise, updatedCartographic => {
+              if (updatedCartographic[0].height && !options.view.isDestroyed) {
+                cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
+                  updatedCartographic[0]
+                )
+                billboardRef.position = cartesianPosition
+              }
+            })
           }
-        })
-      }
+          map.scene.requestRender()
 
-      return billboardRef
-    },
+          return billboardRef
+        },
     /*
           Adds a polyline utilizing the passed in line and options.
           Options are a view to relate to, and an id, and a color.
@@ -799,7 +799,6 @@ module.exports = function CesiumMap(
       } else {
         geometry.show = !options.isSelected
       }
-      map.scene.requestRender()
     },
     /*
           Updates a passed in geometry to reflect whether or not it is selected.
@@ -837,7 +836,6 @@ module.exports = function CesiumMap(
       } else {
         geometry.show = !options.isSelected
       }
-      map.scene.requestRender()
     },
     /*
          Updates a passed in geometry to be hidden
@@ -862,7 +860,6 @@ module.exports = function CesiumMap(
           polyline.show = true
         })
       }
-      map.scene.requestRender()
     },
     removeGeometry(geometry) {
       billboardCollection.remove(geometry)
@@ -871,7 +868,6 @@ module.exports = function CesiumMap(
       if (geometry.constructor === Cesium.Entity) {
         map.entities.remove(geometry)
       }
-      map.scene.requestRender()
     },
     showPolygonShape(locationModel) {
       const polygon = new DrawPolygon.PolygonRenderView({
