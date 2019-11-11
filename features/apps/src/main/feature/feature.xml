@@ -28,7 +28,6 @@
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
     <repository>mvn:ddf.catalog/catalog-app/${project.version}/xml/features</repository>
     <repository>mvn:org.codice.ddf.spatial/geowebcache-app/${project.version}/xml/features</repository>
-    <repository>mvn:org.codice.ddf.registry/registry-app/${project.version}/xml/features</repository>
     <repository>mvn:org.codice.ddf.resourcemanagement/resourcemanagement-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.ui/search-ui-app/${project.version}/xml/features</repository>
     <repository>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</repository>
