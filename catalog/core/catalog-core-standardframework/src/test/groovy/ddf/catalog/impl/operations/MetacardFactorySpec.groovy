@@ -40,6 +40,7 @@ class MetacardFactorySpec extends Specification {
     private InputTransformer itXml
     private InputTransformer itXml2
     private InputTransformer itBad
+    private InputTransformer itRuntimeBad
     private MetacardFactory metacardFactory
     private UuidGenerator uuidGenerator
     private Path path
@@ -59,6 +60,7 @@ class MetacardFactorySpec extends Specification {
         itBad = Mock(InputTransformer)
 
         itBad.transform(_ as InputStream) >> { throw new IOException() }
+        itRuntimeBad.transform(_ as InputStream) >> { throw new RuntimeException() }
         itPlain.transform(_ as InputStream) >> { metacardPlain }
         itXml.transform(_ as InputStream) >> { metacardXml }
         itXml2.transform(_ as InputStream) >> { metacardXml2 }
@@ -73,6 +75,8 @@ class MetacardFactorySpec extends Specification {
                 [itBad, itXml]
             } else if (m.baseType == 'application/xml-bad') {
                 [itBad]
+            } else if (m.baseType == 'application/xml-runtime-bad') {
+                [itRuntimeBad]
             } else if (m.baseType == 'text/plain') {
                 [itPlain]
             }
@@ -84,6 +88,14 @@ class MetacardFactorySpec extends Specification {
     def 'test metacard generation with bad xformer'() {
         when:
         metacardFactory.generateMetacard('application/xml-bad', 'idbad', 'filename', path)
+
+        then:
+        thrown(MetacardCreationException)
+    }
+
+    def 'test that throwing an error can still create a metacard'() {
+        when:
+        metacardFactory.generateMetacard('application/xml-runtime-bad', 'idError', 'fileName', path)
 
         then:
         thrown(MetacardCreationException)
