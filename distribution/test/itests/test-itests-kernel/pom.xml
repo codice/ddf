@@ -116,7 +116,6 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <!--Using version 2.17 instead of the latest (2.19.1) because everything after 2.17 has-->
                 <!--problems connecting to the container or running the tests-->
-                <version>${failsafe.pax-exam-compatible.version}</version>
                 <configuration>
                     <argLine>-Djava.awt.headless=true -noverify</argLine>
                 </configuration>

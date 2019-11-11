@@ -530,7 +530,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${failsafe.pax-exam-compatible.version}</version>
                 <configuration>
                     <includes>
                         <include>**/*Suite.java</include>
