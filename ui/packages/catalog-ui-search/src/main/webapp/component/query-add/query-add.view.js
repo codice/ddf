@@ -231,12 +231,18 @@ module.exports = Marionette.LayoutView.extend({
       : this.queryContent.currentView.setDefaultTitle()
   },
   saveRun() {
+    console.log(">>>SAVE RUN is called")
     const queryContentView = this.queryView
       ? this.queryView
       : this.queryContent.currentView
-    if (!queryContentView.isValid()) {
-      announcement.announce(InvalidSearchFormMessage)
-      return
+    var validation = queryContentView.validate()
+    if (!validation.isValid) {
+        announcement.announce({
+            title: InvalidSearchFormMessage.title,
+            message: validation.errorMessage,
+            type: InvalidSearchFormMessage.type,
+        })
+        return
     }
     queryContentView.save()
     this.queryTitle.currentView.save()
