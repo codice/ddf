@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.security.app;
+package org.codice.ddf.catalog.ui.oauth.app;
 
 import static javax.ws.rs.core.MediaType.TEXT_HTML;
 import static org.apache.http.HttpStatus.SC_OK;
@@ -21,7 +21,6 @@ import static org.codice.ddf.security.token.storage.api.TokenStorage.SECRET;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.SOURCE_ID;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.STATE;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.USER_ID;
-import static spark.Spark.after;
 import static spark.Spark.get;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -44,7 +43,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Map;
-import org.apache.http.HttpStatus;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.oidc.resolver.OidcCredentialsResolver;
 import org.codice.ddf.security.oidc.validator.OidcTokenValidator;
@@ -84,7 +82,7 @@ public class OAuthApplication implements SparkApplication {
      tab.
     */
     get(
-        "/oauth",
+        "/",
         (req, res) -> {
           QueryParamsMap paramsMap = req.queryMap();
           String state = paramsMap.get(STATE).value();
@@ -110,7 +108,7 @@ public class OAuthApplication implements SparkApplication {
      token storage under the authorized source.
     */
     get(
-        "/oauth/auth",
+        "/auth",
         (req, res) -> {
           QueryParamsMap paramsMap = req.queryMap();
           String userId = paramsMap.get(USER_ID).value();
@@ -125,8 +123,6 @@ public class OAuthApplication implements SparkApplication {
           updateAuthorizedSource(userId, sourceId, discoveryUrl);
           return "";
         });
-
-    after((req, res) -> res.type(TEXT_HTML));
   }
 
   /**
@@ -225,7 +221,7 @@ public class OAuthApplication implements SparkApplication {
   }
 
   private String closeBrowser(Response res) {
-    res.status(HttpStatus.SC_OK);
+    res.status(SC_OK);
     res.type(TEXT_HTML);
     return "<html><body><p>Thank you for signing in. Please close this window if it doesn't close automatically.</p>"
         + "<script>window.close()</script></body></html>";

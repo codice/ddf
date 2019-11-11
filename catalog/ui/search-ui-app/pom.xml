@@ -108,6 +108,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.ui</groupId>
+            <artifactId>catalog-ui-oauth</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.ui</groupId>
             <artifactId>catalog-ui-search-api</artifactId>
             <version>${project.version}</version>
         </dependency>
