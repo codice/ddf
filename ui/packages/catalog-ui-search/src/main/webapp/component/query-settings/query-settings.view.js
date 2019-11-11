@@ -28,11 +28,10 @@ const SortItemCollectionView = require('../sort/sort.view.js')
 const Common = require('../../js/Common.js')
 const properties = require('../../js/properties.js')
 const plugin = require('plugins/query-settings')
-const announcement = require('../announcement/index.jsx')
 const ResultForm = require('../result-form/result-form.js')
-import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
 import * as React from 'react'
 import RadioComponent from '../../react-component/input-wrappers/radio'
+import { validate } from '../../react-component/utils/validation'
 
 module.exports = plugin(
   Marionette.LayoutView.extend({
@@ -269,12 +268,11 @@ module.exports = plugin(
     saveToModel() {
       this.model.set(this.toJSON())
     },
-    isValid() {
-      return this.settingsSortField.currentView.collection.models.length !== 0
+    validate() {
+      return []
     },
     save() {
-      if (!this.isValid()) {
-        announcement.announce(InvalidSearchFormMessage)
+      if (!validate(this.validate())) {
         return
       }
       this.saveToModel()
@@ -282,8 +280,7 @@ module.exports = plugin(
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     },
     run() {
-      if (!this.isValid()) {
-        announcement.announce(InvalidSearchFormMessage)
+      if (!validate(this.validate())) {
         return
       }
       this.saveToModel()
