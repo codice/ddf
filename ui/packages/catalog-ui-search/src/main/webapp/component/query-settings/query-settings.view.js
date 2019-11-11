@@ -269,12 +269,20 @@ module.exports = plugin(
     saveToModel() {
       this.model.set(this.toJSON())
     },
-    isValid() {
-      return this.settingsSortField.currentView.collection.models.length !== 0
+    validate() {
+      return {
+        isValid: this.settingsSortField.currentView.collection.models.length !== 0,
+        errorMessage: ""
+      }
     },
     save() {
-      if (!this.isValid()) {
-        announcement.announce(InvalidSearchFormMessage)
+      var validation = this.validate()
+      if (!validation.isValid) {
+        let searchErrorMessage = InvalidSearchFormMessage
+        if(searchErrorMessage.errorMessage) {
+            searchErrorMessage.push(validation.errorMessage)
+        }
+        announcement.announce(searchErrorMessage)
         return
       }
       this.saveToModel()
@@ -282,8 +290,13 @@ module.exports = plugin(
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     },
     run() {
-      if (!this.isValid()) {
-        announcement.announce(InvalidSearchFormMessage)
+      var validation = this.validate()
+      if (!validation.isValid) {
+        let searchErrorMessage = InvalidSearchFormMessage
+        if(searchErrorMessage.errorMessage) {
+            searchErrorMessage.push(validation.errorMessage)
+        }
+        announcement.announce(searchErrorMessage)
         return
       }
       this.saveToModel()
