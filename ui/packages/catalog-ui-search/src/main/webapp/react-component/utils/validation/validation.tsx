@@ -12,12 +12,20 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const properties = require('../../js/properties.js')
 
-export const InvalidSearchFormMessage = {
-  title: `Validation Issues: Search ${properties.i18n['form.title'] ||
-    'Form'} cannot be run.`,
-  message:
-    ['Please verify your search criteria and settings before attempting to search again.'],
-  type: 'error',
+import { InvalidSearchFormMessage } from '../../../component/announcement/CommonMessages'
+const announcement = require('../../../component/announcement/index.jsx')
+
+
+export function validate(validation: any) {
+  if (!validation.isValid) {
+    let searchErrorMessage = JSON.parse(JSON.stringify(InvalidSearchFormMessage))
+    if(validation.errorMessage) {
+       let msg = searchErrorMessage.message
+       searchErrorMessage.message = msg.concat(validation.errorMessage)
+    }
+    announcement.announce(searchErrorMessage)
+    return false
+  }
+  return true
 }

@@ -25,10 +25,9 @@ const QueryConfirmationView = require('../confirmation/query/confirmation.query.
 const SearchForm = require('../search-form/search-form')
 const LoadingView = require('../loading/loading.view.js')
 const wreqr = require('../../js/wreqr.js')
-const announcement = require('../announcement/index.jsx')
 const user = require('../singletons/user-instance.js')
-import { InvalidSearchFormMessage } from 'component/announcement/CommonMessages'
 import ExtensionPoints from '../../extension-points'
+import { validate } from '../../react-component/utils/validation'
 
 const { createAction } = require('imperio')
 
@@ -234,13 +233,8 @@ module.exports = Marionette.LayoutView.extend({
     const queryContentView = this.queryView
       ? this.queryView
       : this.queryContent.currentView
-    var validation = queryContentView.validate()
-    if (!validation.isValid) {
-        announcement.announce({
-            title: InvalidSearchFormMessage.title,
-            message: validation.errorMessage,
-            type: InvalidSearchFormMessage.type,
-        })
+    const validation = queryContentView.validate()
+    if (!validate(validation)) {
         return
     }
     queryContentView.save()
