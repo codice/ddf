@@ -14,9 +14,8 @@
 package org.codice.ddf.platform.email.impl;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -115,9 +114,9 @@ public class SmtpClientImplITCaseTest {
     server.stop();
 
     List<SmtpMessage> emails = server.getReceivedEmails();
-    assertThat(emails, is(not(empty())));
+    assertThat(emails, hasSize(1));
     SmtpMessage email = emails.get(0);
-    assertNotNull(email);
+    assertNotNull("The email was null.", email);
     assertThat(email.getHeaderValue(SUBJECT_HEADER), is(SUBJECT));
     assertThat(email.getHeaderValue(FROM_HEADER), containsString(FROM_ADDR));
     assertThat(email.getHeaderValue(TO_HEADER), containsString(TO_ADDR));
@@ -159,9 +158,9 @@ public class SmtpClientImplITCaseTest {
     server.stop();
 
     List<SmtpMessage> emails = server.getReceivedEmails();
-    assertThat(emails, is(not(empty())));
+    assertThat(emails, hasSize(1));
     SmtpMessage email = emails.get(0);
-    assertNotNull(email);
+    assertNotNull("The email was null.", email);
     assertThat(email.getHeaderValue(SUBJECT_HEADER), is(SUBJECT));
     assertThat(email.getHeaderValue(FROM_HEADER), containsString(FROM_ADDR));
     assertThat(email.getHeaderValue(TO_HEADER), containsString(TO_ADDR));
