@@ -152,10 +152,12 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
     return entries(path).filter(e -> filter.matches(e.getPath()));
   }
 
+  @Override
   public void setImportedSystemProperties(Properties props) {
     this.customSystemProperties = props;
   }
 
+  @Override
   public String getImportedSystemProperty(String key) {
     SecurityManager sm = System.getSecurityManager();
     if (sm != null) {

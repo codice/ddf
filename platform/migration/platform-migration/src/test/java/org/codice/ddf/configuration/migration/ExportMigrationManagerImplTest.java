@@ -275,7 +275,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   }
 
   private void assertMetaData(Map<String, Object> metadata) {
-    Assert.assertThat(metadata, Matchers.aMapWithSize(6));
+    Assert.assertThat(metadata, Matchers.aMapWithSize(8));
     Assert.assertThat(
         metadata,
         Matchers.hasEntry(
