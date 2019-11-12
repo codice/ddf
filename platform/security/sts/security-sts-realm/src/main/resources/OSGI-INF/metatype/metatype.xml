@@ -15,71 +15,9 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.2.0">
 
-    <OCD description="STS Client Configuration Settings"
-         name="Security STS Client"
+    <OCD description="SAML Realm Settings"
+         name="SAML Realm"
          id="ddf.security.sts.client.configuration">
-
-        <AD name="SAML Assertion Type:" id="assertionType"
-            description="The version of SAML to use. Most services require SAML v2.0. Changing this value from the default could cause services to stop responding."
-            required="true" type="String"
-            default="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0">
-            <Option label="SAML v2.0"
-                    value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"/>
-            <Option label="SAML v1.1"
-                    value="http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV1.1"/>
-        </AD>
-
-        <AD name="SAML Key Type:" id="keyType"
-            description="The key type to use with SAML. Most services require Bearer. Changing this value from the default could cause services to stop responding."
-            required="true" type="String"
-            default="http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer">
-            <Option label="Bearer" value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer"/>
-            <Option label="PublicKey"
-                    value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey"/>
-            <Option label="SymmetricKey"
-                    value="http://docs.oasis-open.org/ws-sx/ws-trust/200512/SymmetricKey"/>
-        </AD>
-
-        <AD name="SAML Key Size:" id="keySize"
-            description="The key size to use with SAML. The default key size is 256 and this is fine for most applications. Changing this value from the default could cause services to stop responding."
-            required="true" type="String"
-            default="256"/>
-
-        <AD name="Use Key:" id="useKey"
-            description="Signals whether or not the STS Client should supply a public key to embed as the proof key. Changing this value from the default could cause services to stop responding."
-            required="true" type="Boolean"
-            default="true"/>
-
-        <AD name="STS WSDL Address:" id="address" description="STS WSDL Address" required="true"
-            type="String"
-            default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}${org.codice.ddf.system.rootContext}/SecurityTokenService?wsdl"/>
-
-        <AD name="STS Endpoint Name:" id="endpointName" description="STS Endpoint Name."
-            required="false"
-            type="String" default="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}STS_Port"/>
-
-        <AD name="STS Service Name:" id="serviceName" description="STS Service Name."
-            required="false" type="String"
-            default="{http://docs.oasis-open.org/ws-sx/ws-trust/200512/}SecurityTokenService"/>
-
-        <AD name="Signature Properties:" id="signatureProperties"
-            description="Path to Signature crypto properties. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system."
-            required="true" type="String" default="etc/ws-security/server/signature.properties"/>
-
-        <AD name="Encryption Properties:" id="encryptionProperties"
-            description="Path to Encryption crypto properties file. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system."
-            required="true" type="String" default="etc/ws-security/server/encryption.properties"/>
-
-        <AD name="STS Properties:" id="tokenProperties"
-            description="Path to STS crypto properties file. This path can be part of the classpath, relative to ddf.home, or an absolute path on the system."
-            required="true" type="String" default="etc/ws-security/server/signature.properties"/>
-
-        <AD name="Claims:" id="claims" required="true"
-            type="String"
-            cardinality="100"
-            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"
-            description="List of claims that should be requested by the STS Client.">
-        </AD>
 
         <AD name="SAML NameID Policy" id="usernameAttributeList"
             required="true"

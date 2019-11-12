@@ -187,7 +187,6 @@ public class PKIHandlerTest {
 
     PKIHandler handler = new PKIHandler();
     AuthenticationTokenFactory tokenFactory = new AuthenticationTokenFactory();
-    tokenFactory.init();
     handler.setTokenFactory(tokenFactory);
 
     OcspService ocspService = mock(OcspService.class);
