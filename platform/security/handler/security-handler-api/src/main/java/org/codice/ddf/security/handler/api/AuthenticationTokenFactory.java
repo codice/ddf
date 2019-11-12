@@ -13,55 +13,13 @@
  */
 package org.codice.ddf.security.handler.api;
 
-import static org.apache.wss4j.common.WSS4JConstants.X509TOKEN_NS;
-
-import ddf.security.PropertiesLoader;
-import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
 import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.wss4j.common.crypto.Merlin;
-import org.apache.wss4j.common.ext.WSSecurityException;
-import org.apache.wss4j.dom.WSConstants;
-import org.apache.xml.security.Init;
-import org.codice.ddf.parser.Parser;
-import org.codice.ddf.parser.xml.XmlParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AuthenticationTokenFactory {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationTokenFactory.class);
-
-  public static final String BASE64_ENCODING = WSConstants.SOAPMESSAGE_NS + "#Base64Binary";
-
-  public static final String TOKEN_VALUE_SEPARATOR = "#";
-
-  public static final String PKI_TOKEN_ID = "X509PKIPathv1";
-
-  private static final String PKI_TOKEN_VALUE = X509TOKEN_NS + TOKEN_VALUE_SEPARATOR + PKI_TOKEN_ID;
-
-  private Parser parser = new XmlParser();
-
-  private Merlin merlin;
-
-  private String signaturePropertiesPath;
-
-  /** Initializes Merlin crypto object. */
-  public void init() {
-    try {
-      merlin =
-          new Merlin(
-              PropertiesLoader.loadProperties(signaturePropertiesPath),
-              AuthenticationTokenFactory.class.getClassLoader(),
-              null);
-    } catch (WSSecurityException | IOException e) {
-      LOGGER.warn("Unable to read merlin properties file. Unable to validate certificates.", e);
-    }
-    Init.init();
-  }
 
   /**
    * Creates a {@link AuthenticationToken} from a given username and password. Uses a {@link
@@ -99,25 +57,5 @@ public class AuthenticationTokenFactory {
         new BaseAuthenticationToken(certs[0].getSubjectX500Principal(), certs, ip);
     token.setType(AuthenticationTokenType.PKI);
     return token;
-  }
-
-  /**
-   * Returns a byte array representing a certificate chain.
-   *
-   * @param certs
-   * @return byte[]
-   * @throws WSSecurityException
-   */
-  private byte[] getCertBytes(X509Certificate[] certs) throws WSSecurityException {
-    byte[] certBytes = null;
-
-    if (merlin != null) {
-      certBytes = merlin.getBytesFromCertificates(certs);
-    }
-    return certBytes;
-  }
-
-  public void setSignaturePropertiesPath(String path) {
-    this.signaturePropertiesPath = path;
   }
 }

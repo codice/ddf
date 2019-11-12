@@ -421,9 +421,7 @@ public class Security {
   }
 
   private AuthenticationTokenFactory createBasicTokenFactory() {
-    AuthenticationTokenFactory tokenFactory = new AuthenticationTokenFactory();
-    tokenFactory.init();
-    return tokenFactory;
+    return new AuthenticationTokenFactory();
   }
 
   private String getCertificateAlias() {

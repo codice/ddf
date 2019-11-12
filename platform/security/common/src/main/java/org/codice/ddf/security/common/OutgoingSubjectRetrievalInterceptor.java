@@ -50,7 +50,6 @@ public class OutgoingSubjectRetrievalInterceptor extends AbstractPhaseIntercepto
   public OutgoingSubjectRetrievalInterceptor() {
     super(Phase.PRE_STREAM);
     tokenFactory = new AuthenticationTokenFactory();
-    tokenFactory.init();
     securityManager = Security.getInstance().getSecurityManager();
   }
 

@@ -59,7 +59,7 @@ public class UsernamePasswordRealm extends AuthenticatingRealm {
 
   public static final Logger LOGGER = LoggerFactory.getLogger(UsernamePasswordRealm.class);
 
-  private final List<JaasRealm> realmList = new CopyOnWriteArrayList<>();
+  protected final List<JaasRealm> realmList = new CopyOnWriteArrayList<>();
 
   private List<ClaimsHandler> claimsHandlers = new ArrayList<>();
 
@@ -200,7 +200,8 @@ public class UsernamePasswordRealm extends AuthenticatingRealm {
     }
   }
 
-  private Subject login(String username, String password, String realmName) throws LoginException {
+  protected Subject login(String username, String password, String realmName)
+      throws LoginException {
     CallbackHandler handler = this.getCallbackHandler(username, password);
     LoginContext ctx = new LoginContext(realmName, handler);
     ctx.login();
