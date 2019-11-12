@@ -24,7 +24,7 @@ module.exports = {
     _.defaults(options, {
       diameter: 22,
       fillColor: defaultColor,
-      strokeWidth: 1,
+      strokeWidth: 2,
       strokeColor: 'white',
     })
     const radius = options.diameter / 2

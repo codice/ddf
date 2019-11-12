@@ -36,6 +36,7 @@ const User = require('../../../../js/model/User.js')
 const wreqr = require('../../../../js/wreqr.js')
 
 const defaultColor = '#3c6dd5'
+const rulerColor = '#506f85'
 
 const OpenLayerCollectionController = LayerCollectionController.extend({
   initialize() {
@@ -346,13 +347,33 @@ module.exports = function OpenlayersMap(
     addRulerPoint(coordinates, markerLabel) {
       const { lat, lon } = coordinates
       const point = [lon, lat]
-      const options = {
-        id: markerLabel,
-        color: '#FC2803',
-      }
-      const useCustomText = true
+      const pointObject = convertPointCoordinate(point)
+      const feature = new Openlayers.Feature({
+        geometry: new Openlayers.geom.Point(pointObject),
+      })
+      feature.setId(markerLabel)
 
-      return this.addPointWithText(point, options, useCustomText)
+      feature.setStyle(
+        new Openlayers.style.Style({
+          image: new Openlayers.style.Icon({
+            img: DrawingUtility.getCircle({
+              fillColor: rulerColor,
+            }),
+            imgSize: [22, 22],
+          }),
+        })
+      )
+
+      const vectorSource = new Openlayers.source.Vector({
+        features: [feature],
+      })
+
+      const vectorLayer = new Openlayers.layer.Vector({
+        source: vectorSource,
+        zIndex: 1,
+      })
+
+      return vectorLayer
     },
     /*
      * Removes the given point Layer from the map.
@@ -377,10 +398,11 @@ module.exports = function OpenlayersMap(
         Openlayers.proj.fromLonLat(coord)
       )
 
+
       const options = {
         id: 'ruler-line',
         title: 'Line for ruler measurement',
-        color: '#506F85',
+        color: rulerColor,
       }
       const line = this.addLine(coords, options)
 

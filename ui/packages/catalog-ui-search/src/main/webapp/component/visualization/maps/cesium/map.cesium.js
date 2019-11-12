@@ -33,6 +33,7 @@ const user = require('../../../singletons/user-instance.js')
 const User = require('../../../../js/model/User.js')
 
 const defaultColor = '#3c6dd5'
+const rulerColor = '#506f85'
 const eyeOffset = new Cesium.Cartesian3(0, 0, 0)
 const pixelOffset = new Cesium.Cartesian2(0.0, 0)
 
@@ -505,7 +506,7 @@ module.exports = function CesiumMap(
       const options = {
         id: markerLabel,
         title: `Selected ruler coordinate '${markerLabel}'`,
-        color: '#338B91',
+        color: rulerColor,
         icon: null,
         view: this,
       }
@@ -534,7 +535,7 @@ module.exports = function CesiumMap(
         geometry: geometry,
         attributes: {
           color: Cesium.ColorGeometryInstanceAttribute.fromColor(
-            Cesium.Color.fromCssColorString('#506F85')
+            Cesium.Color.fromCssColorString(rulerColor)
           ),
         },
       })
@@ -606,42 +607,42 @@ module.exports = function CesiumMap(
           Options are a view to relate to, and an id, and a color.
           */
     addPoint(point, options) {
-          const pointObject = convertPointCoordinate(point)
-          const cartographicPosition = Cesium.Cartographic.fromDegrees(
-            pointObject.longitude,
-            pointObject.latitude,
-            pointObject.altitude
-          )
-          let cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
-            cartographicPosition
-          )
-          const billboardRef = billboardCollection.add({
-            image: DrawingUtility.getCircle({
-              fillColor: options.color,
-              icon: options.icon,
-            }),
-            position: cartesianPosition,
-            id: options.id,
-            eyeOffset,
-          })
-          //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
-          if (!pointObject.altitude && map.scene.terrainProvider) {
-            const promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [
-              cartographicPosition,
-            ])
-            Cesium.when(promise, updatedCartographic => {
-              if (updatedCartographic[0].height && !options.view.isDestroyed) {
-                cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
-                  updatedCartographic[0]
-                )
-                billboardRef.position = cartesianPosition
-              }
-            })
+      const pointObject = convertPointCoordinate(point)
+      const cartographicPosition = Cesium.Cartographic.fromDegrees(
+        pointObject.longitude,
+        pointObject.latitude,
+        pointObject.altitude
+      )
+      let cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
+        cartographicPosition
+      )
+      const billboardRef = billboardCollection.add({
+        image: DrawingUtility.getCircle({
+          fillColor: options.color,
+          icon: options.icon,
+        }),
+        position: cartesianPosition,
+        id: options.id,
+        eyeOffset,
+      })
+      //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
+      if (!pointObject.altitude && map.scene.terrainProvider) {
+        const promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [
+          cartographicPosition,
+        ])
+        Cesium.when(promise, updatedCartographic => {
+          if (updatedCartographic[0].height && !options.view.isDestroyed) {
+            cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
+              updatedCartographic[0]
+            )
+            billboardRef.position = cartesianPosition
           }
-          map.scene.requestRender()
+        })
+      }
+      map.scene.requestRender()
 
-          return billboardRef
-        },
+      return billboardRef
+    },
     /*
           Adds a polyline utilizing the passed in line and options.
           Options are a view to relate to, and an id, and a color.
