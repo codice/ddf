@@ -216,6 +216,9 @@ module.exports = Marionette.LayoutView.extend({
     })
   },
   updateSize() {
+    if (this.isDestroyed) {
+      return
+    }
     this.goldenLayout.updateSize()
   },
   showWidgetDropdown() {
@@ -284,6 +287,9 @@ module.exports = Marionette.LayoutView.extend({
       })
   },
   handleGoldenLayoutStateChange(event) {
+    if (this.isDestroyed) {
+      return
+    }
     this.detectIfGoldenLayoutMaximised()
     this.detectIfGoldenLayoutEmpty()
     //https://github.com/deepstreamIO/golden-layout/issues/253
