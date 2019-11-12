@@ -23,7 +23,6 @@ const QueryResult = require('../../js/model/QueryResult.js')
 const router = require('../router/router.js')
 const user = require('../singletons/user-instance.js')
 const cql = require('../../js/cql.js')
-const store = require('../../js/store.js')
 
 module.exports = new (Backbone.AssociatedModel.extend({
   relations: [
@@ -148,22 +147,16 @@ module.exports = new (Backbone.AssociatedModel.extend({
     return this.get('selectedResults')
   },
   clearSelectedResults() {
-    this.get('selectedResults').forEach(metacard =>
-      store.removeSelectedResult(metacard)
-    )
     this.getSelectedResults().reset()
   },
   addSelectedResult(metacard) {
     this.getSelectedResults().add(metacard)
-    store.addSelectedResult(metacard)
   },
   setSelectedResults(metacards) {
     this.set('selectedResults', metacards)
-    metacards.forEach(metacard => store.addSelectedResult(metacard))
   },
   removeSelectedResult(metacard) {
     this.getSelectedResults().remove(metacard)
-    store.removeSelectedResult(metacard)
   },
   setCurrentQuery(query) {
     this.set('currentQuery', query)
