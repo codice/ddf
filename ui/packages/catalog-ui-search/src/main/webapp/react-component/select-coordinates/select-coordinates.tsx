@@ -82,21 +82,9 @@ const coordHandler = (
   context: ContextType,
   closeParent: () => void,
   selectCoordHandler: () => void,
-  mapModel: Backbone.Model
 ) => {
   return () => {
     selectCoordHandler()
-    const currentState = mapModel.get('measurementState')
-
-    // displays an announcement with the current distance when the end state has been reached
-    if (currentState === 'END') {
-      const distance = mapModel.get('currentDistance')
-      announcement.announce({
-        title: 'Distance between points:',
-        message: `${getDistanceText(distance, currentState)}`,
-        type: 'success',
-      })
-    }
 
     context.closeAndRefocus()
     closeParent()
@@ -215,8 +203,7 @@ const render = (props: Props) => {
             onClick={coordHandler(
               context,
               closeParent,
-              selectCoordHandler,
-              mapModel
+              selectCoordHandler
             )}
           >
             <Text>

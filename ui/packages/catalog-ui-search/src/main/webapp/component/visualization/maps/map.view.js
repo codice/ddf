@@ -33,6 +33,7 @@ const LayersDropdown = require('../../dropdown/layers/dropdown.layers.view.js')
 const DropdownModel = require('../../dropdown/dropdown.js')
 const MapContextMenuDropdown = require('../../dropdown/map-context-menu/dropdown.map-context-menu.view.js')
 const MapModel = require('./map.model')
+const Openlayers = require('openlayers')
 const properties = require('../../../js/properties.js')
 const Common = require('../../../js/Common.js')
 const announcement = require('../../announcement')
@@ -351,6 +352,24 @@ module.exports = Marionette.LayoutView.extend({
       targetMetacard,
     })
   },
+  updateDistance() {
+    if (this.mapModel.get('measurementState') !== 'START') {
+        return
+    }
+
+    // I don't like Lon-Lat, it's lat/lon dammit! I've been saying it in that order my whole life stop trying to gaslight me!
+    const reversedOriginCoordinates = [this.originCoordinates[1], this.originCoordinates[0]]
+    const mouseCoordinates = [this.mapModel.get('mouseLon'), this.mapModel.get('mouseLat')]
+    const distanceCoordinates = [reversedOriginCoordinates, mouseCoordinates]
+    const transformedCoords = distanceCoordinates.map(coord =>
+            Openlayers.proj.fromLonLat(coord)
+          )
+    const line = new Openlayers.geom.LineString(transformedCoords)
+
+    const sphereLength = Openlayers.Sphere.getLength(line)
+
+    this.mapModel.setCurrentDistance(sphereLength)
+  },
   /*
     Handles drawing or clearing the ruler as needed by the measurement state.
 
@@ -368,18 +387,19 @@ module.exports = Marionette.LayoutView.extend({
     switch (state) {
       case 'START':
         this.clearRuler()
+        const coordinateValues = this.mapModel.get('coordinateValues')
         // starting map marker is labeled 'A'
         point = this.map.addRulerPoint(
-          this.mapModel.get('coordinateValues'),
-          'A'
+          coordinateValues,
         )
         this.mapModel.addPoint(point)
+        this.originCoordinates = [coordinateValues.lat, coordinateValues.lon]
+        this.map.onMouseMove(this.updateDistance.bind(this))
         break
       case 'END':
         // ending map marker is labeled 'B'
         point = this.map.addRulerPoint(
           this.mapModel.get('coordinateValues'),
-          'B'
         )
         this.mapModel.addPoint(point)
         const line = this.map.addRulerLine(this.mapModel.get('points'))

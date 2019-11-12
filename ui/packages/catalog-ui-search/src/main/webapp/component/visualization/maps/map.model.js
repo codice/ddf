@@ -102,6 +102,12 @@ module.exports = Backbone.AssociatedModel.extend({
   setCurrentDistance(distance) {
     this.set({ currentDistance: distance })
   },
+  /*
+     * Gets the current distance to the new given distance (in meters).
+     */
+    getCurrentDistance() {
+      this.get('currentDistance')
+    },
   isOffMap() {
     return this.get('mouseLat') === undefined
   },
