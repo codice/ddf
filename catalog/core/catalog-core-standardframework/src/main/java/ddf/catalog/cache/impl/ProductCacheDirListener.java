@@ -19,6 +19,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceAware;
 import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.MapEvent;
 import com.hazelcast.query.PagingPredicate;
 import ddf.catalog.resource.data.ReliableResource;
 import ddf.catalog.resource.data.ReliableResourceComparator;
@@ -151,5 +152,15 @@ public class ProductCacheDirListener<K, V> implements EntryListener<K, V>, Hazel
 
   public synchronized void setMaxDirSizeBytes(long maxDirSizeBytes) {
     this.maxDirSizeBytes = maxDirSizeBytes;
+  }
+
+  @Override
+  public void mapCleared(MapEvent event) {
+    LOGGER.debug("Cleared map: {}", event);
+  }
+
+  @Override
+  public void mapEvicted(MapEvent event) {
+    LOGGER.debug("Evicted map: {}", event);
   }
 }

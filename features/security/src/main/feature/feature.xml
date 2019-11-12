@@ -370,7 +370,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <bundle>mvn:net.minidev/accessors-smart/1.2</bundle>
         <bundle>mvn:net.minidev/json-smart/2.3</bundle>
         <bundle>wrap:mvn:com.nimbusds/nimbus-jose-jwt/${nimbus.version}</bundle>
-        <bundle>wrap:mvn:com.nimbusds/oauth2-oidc-sdk/${nimbus.version}</bundle>
+        <bundle>wrap:mvn:com.nimbusds/oauth2-oidc-sdk/${nimbus.oidc.version}</bundle>
         <bundle>mvn:com.nimbusds/lang-tag/${nimbus.langtag.version}</bundle>
         <bundle>wrap:mvn:com.github.stephenc.jcip/jcip-annotations/1.0-1</bundle>
         <bundle>mvn:commons-codec/commons-codec/${commons-codec.version}</bundle>

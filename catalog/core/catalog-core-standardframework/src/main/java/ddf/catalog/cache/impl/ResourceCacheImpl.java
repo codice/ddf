@@ -16,6 +16,7 @@ package ddf.catalog.cache.impl;
 import static ddf.catalog.cache.impl.CachedResourceMetacardComparator.isSame;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.EvictionPolicy;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MapStoreConfig;
@@ -273,7 +274,7 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
 
     MapConfig defaultMapConfig = cfg.getMapConfig("default");
     defaultMapConfig.setBackupCount(2);
-    defaultMapConfig.setEvictionPolicy(MapConfig.EvictionPolicy.LRU);
+    defaultMapConfig.setEvictionPolicy(EvictionPolicy.LRU);
     defaultMapConfig.setMergePolicy(PassThroughMergePolicy.class.getCanonicalName());
 
     MapConfig productCacheMapConfig = cfg.getMapConfig(PRODUCT_CACHE_NAME);
