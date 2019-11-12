@@ -527,7 +527,7 @@ module.exports = function CesiumMap(
       // a PolylineGeometry allows the line to follow the curvature of the surface
       const polyline = new Cesium.PolylineGeometry({
         positions: cartesianArray,
-        width: 8,
+        width: 5,
       })
       const geometry = Cesium.PolylineGeometry.createGeometry(polyline)
       const geometryInstance = new Cesium.GeometryInstance({
