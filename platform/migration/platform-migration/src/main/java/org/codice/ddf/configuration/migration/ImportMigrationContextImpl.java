@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Consumer;
@@ -67,7 +68,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
 
   private final boolean skip;
 
-  private Map<String, Object> customSystemProperties;
+  private Properties customSystemProperties;
 
   /**
    * Creates a new migration context for an import operation representing a system context.
@@ -152,7 +153,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
   }
 
   @Override
-  public void setExportedSystemProperties(Map<String, Object> props) {
+  public void setExportedSystemProperties(Properties props) {
     this.customSystemProperties = props;
   }
 
@@ -162,7 +163,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
     if (sm != null) {
       sm.checkPropertyAccess(key);
     }
-    return (String) customSystemProperties.get(key);
+    return customSystemProperties.getProperty(key);
   }
 
   @SuppressWarnings(

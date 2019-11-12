@@ -15,8 +15,8 @@ package org.codice.ddf.migration;
 
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Stream;
 
 /**
@@ -133,7 +133,7 @@ public interface ImportMigrationContext extends MigrationContext {
    */
   public Stream<ImportMigrationEntry> entries(Path path, PathMatcher filter);
 
-  public void setExportedSystemProperties(Map<String, Object> props);
+  public void setExportedSystemProperties(Properties props);
 
   public String getExportedSystemProperty(String key);
 }

@@ -70,7 +70,7 @@ public class ImportMigrationManagerImpl implements Closeable {
 
   private final String currentProductVersion;
 
-  private final Map<String, Object> customSystemProperties;
+  private final Properties customSystemProperties;
 
   private final Path exportFile;
 
@@ -143,7 +143,7 @@ public class ImportMigrationManagerImpl implements Closeable {
       this.currentProductBranding = currentProductBranding;
       this.currentProductVersion = currentProductVersion;
       this.customSystemProperties =
-          JsonUtils.getMapFrom(
+          JsonUtils.getPropertiesFrom(
               metadata, MigrationContextImpl.METADATA_CUSTOM_SYSTEM_PROPERTIES, true);
       // process migratables' metadata
       JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES, false)
