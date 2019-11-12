@@ -139,10 +139,6 @@ public class ImportMigrationConfigurationAdminContext {
         exportedFactoryServices.values().stream().flatMap(List::stream));
   }
 
-  public String getSystemProperty(String key) {
-    return context.getExportedSystemProperty(key);
-  }
-
   @Nullable
   private Configuration getAndRemoveMemoryFactoryService(
       String factoryPid, Path exportedConfigPath) {

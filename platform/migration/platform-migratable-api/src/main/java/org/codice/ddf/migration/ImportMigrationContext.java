@@ -133,7 +133,7 @@ public interface ImportMigrationContext extends MigrationContext {
    */
   public Stream<ImportMigrationEntry> entries(Path path, PathMatcher filter);
 
-  public void setExportedSystemProperties(Properties props);
+  public void setImportedSystemProperties(Properties props);
 
-  public String getExportedSystemProperty(String key);
+  public String getImportedSystemProperty(String key);
 }

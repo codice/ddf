@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -152,8 +151,7 @@ public class ExportMigrationManagerImpl implements Closeable {
     try {
       customSystemPropertiesFile =
           new String(
-              Files.readAllBytes(
-                  Paths.get(MigrationContextImpl.METADATA_CUSTOM_SYSTEM_PROPERTIES_PATH)));
+              Files.readAllBytes(MigrationContextImpl.METADATA_CUSTOM_SYSTEM_PROPERTIES_PATH));
     } catch (IOException e) {
       LOGGER.error("Could not read custom system properties file.");
     }

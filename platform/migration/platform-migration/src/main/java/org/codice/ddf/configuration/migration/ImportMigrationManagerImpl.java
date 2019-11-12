@@ -129,7 +129,7 @@ public class ImportMigrationManagerImpl implements Closeable {
           .forEach(me -> me.getContext().addEntry(me));
       metadata = retrieveMetadata(); // do this after retrieving all exported entries
       this.version = JsonUtils.getStringFrom(metadata, MigrationContextImpl.METADATA_VERSION, true);
-      if (!MigrationContextImpl.CURRENT_VERSION.equals(version)) {
+      if (!MigrationContextImpl.SUPPORTED_VERSIONS.contains(version)) {
         IOUtils.closeQuietly(zip);
         throw new MigrationException(
             Messages.IMPORT_UNSUPPORTED_VERSION_ERROR,
@@ -142,13 +142,11 @@ public class ImportMigrationManagerImpl implements Closeable {
           JsonUtils.getStringFrom(metadata, MigrationContextImpl.METADATA_PRODUCT_VERSION, true);
       this.currentProductBranding = currentProductBranding;
       this.currentProductVersion = currentProductVersion;
-      this.customSystemProperties =
-          JsonUtils.getPropertiesFrom(
-              metadata, MigrationContextImpl.METADATA_CUSTOM_SYSTEM_PROPERTIES, true);
       // process migratables' metadata
       JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES, false)
           .forEach((id, o) -> getContextFor(id).processMetadata(JsonUtils.convertToMap(o)));
-      contexts.forEach((id, m) -> m.setExportedSystemProperties(customSystemProperties));
+      customSystemProperties = this.getImportedCustomSystemProperties(metadata);
+      contexts.forEach((id, m) -> m.setImportedSystemProperties(customSystemProperties));
     } catch (IOException e) {
       IOUtils.closeQuietly(zip);
       throw new MigrationException(Messages.IMPORT_FILE_READ_ERROR, exportFile, e);
@@ -210,6 +208,25 @@ public class ImportMigrationManagerImpl implements Closeable {
   @VisibleForTesting
   Collection<ImportMigrationContextImpl> getContexts() {
     return contexts.values();
+  }
+
+  private Properties getImportedCustomSystemProperties(Map<String, Object> metadata) {
+    if (version.equals(MigrationContextImpl.SYSTEM_PROPERTIES_MISSING_VERSION)) {
+      Properties importedProps = new Properties();
+      try {
+        importedProps.load(
+            contexts
+                .get(MigrationContextImpl.PLATFORM_MIGRATABLE_ID)
+                .getEntry(MigrationContextImpl.METADATA_CUSTOM_SYSTEM_PROPERTIES_PATH)
+                .getInputStream()
+                .orElseThrow(IOException::new));
+      } catch (IOException e) {
+        LOGGER.warn("Could not import custom system properties.");
+      }
+      return importedProps;
+    }
+    return JsonUtils.getPropertiesFrom(
+        metadata, MigrationContextImpl.METADATA_CUSTOM_SYSTEM_PROPERTIES, true);
   }
 
   private Set<String> getSupportedVersions(@Nullable String commaDelimitedVersions) {

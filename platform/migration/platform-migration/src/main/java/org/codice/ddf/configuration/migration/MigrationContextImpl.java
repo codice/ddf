@@ -14,11 +14,13 @@
 package org.codice.ddf.configuration.migration;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.Migratable;
@@ -185,8 +187,10 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
   public static final String METADATA_CUSTOM_SYSTEM_PROPERTIES_FILE =
       METADATA_CUSTOM_SYSTEM_PROPERTIES + ".file";
 
-  public static final String METADATA_CUSTOM_SYSTEM_PROPERTIES_PATH =
-      "etc/" + METADATA_CUSTOM_SYSTEM_PROPERTIES;
+  public static final Path METADATA_CUSTOM_SYSTEM_PROPERTIES_PATH =
+      Paths.get("etc", METADATA_CUSTOM_SYSTEM_PROPERTIES);
+
+  public static final String PLATFORM_MIGRATABLE_ID = "ddf.platform";
 
   /**
    * Holds the current export version.
@@ -196,6 +200,10 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
    * <p>1.1 - adds custom system properties
    */
   protected static final String CURRENT_VERSION = "1.1";
+
+  protected static final String SYSTEM_PROPERTIES_MISSING_VERSION = "1.0";
+
+  protected static final Set SUPPORTED_VERSIONS = ImmutableSet.of("1.0", "1.1");
 
   protected static final Path METADATA_FILENAME = Paths.get("export.json");
 
