@@ -272,7 +272,7 @@ module.exports = plugin(
     validate() {
       return {
         isValid: this.settingsSortField.currentView.collection.models.length !== 0,
-        errorMessage: ""
+        errorMessage: []
       }
     },
     save() {
