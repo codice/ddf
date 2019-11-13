@@ -373,6 +373,8 @@ module.exports = function OpenlayersMap(
         zIndex: 1,
       })
 
+      map.addLayer(vectorLayer)
+
       return vectorLayer
     },
     /*

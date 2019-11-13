@@ -518,6 +518,7 @@ module.exports = function CesiumMap(
      */
     removeRulerPoint(billboardRef) {
       billboardCollection.remove(billboardRef)
+      map.scene.requestRender()
     },
     /*
      * Draws a line on the map between the points in the given array of Billboards.
@@ -560,6 +561,7 @@ module.exports = function CesiumMap(
      */
     removeRulerLine(primitive) {
       map.scene.primitives.remove(primitive)
+      map.scene.requestRender()
     },
     /*
             Adds a billboard point utilizing the passed in point and options.
