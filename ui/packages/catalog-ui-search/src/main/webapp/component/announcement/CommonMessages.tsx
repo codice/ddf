@@ -14,9 +14,9 @@
  **/
 const properties = require('../../js/properties.js')
 
-export const InvalidSearchFormMessage = {
+export const InvalidSearchFormMessage: any = {
   title: `Validation Issues: Search ${properties.i18n['form.title'] ||
     'Form'} cannot be run.`,
-  message: Array(),
+  message: [],
   type: 'error',
 }
