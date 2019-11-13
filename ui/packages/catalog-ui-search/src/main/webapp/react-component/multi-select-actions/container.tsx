@@ -49,7 +49,12 @@ class MultiSelectActions extends React.Component<Props, State> {
   }
 
   render() {
-    return <MultiSelectActionsPresentation isDisabled={this.state.isDisabled} />
+    return (
+      <MultiSelectActionsPresentation
+        selectionInterface={this.props.selectionInterface}
+        isDisabled={this.state.isDisabled}
+      />
+    )
   }
 }
 

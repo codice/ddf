@@ -21,6 +21,7 @@ import ExtensionPoints from '../../extension-points'
 
 type Props = {
   isDisabled: boolean
+  selectionInterface: any
 }
 
 const Root = styled.div`
