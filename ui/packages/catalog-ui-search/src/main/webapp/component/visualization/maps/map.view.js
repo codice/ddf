@@ -352,26 +352,23 @@ module.exports = Marionette.LayoutView.extend({
       targetMetacard,
     })
   },
+  /*
+    Update the distance displayed in MapInfo every time the mouse is moved
+  */
   updateDistance() {
     if (this.mapModel.get('measurementState') !== 'START') {
       return
     }
 
-    // I don't like Lon-Lat, it's lat/lon dammit! I've been saying it in that order my whole life stop trying to gaslight me!
-    const reversedOriginCoordinates = [
-      this.originCoordinates[1],
-      this.originCoordinates[0],
-    ]
     const mouseCoordinates = [
       this.mapModel.get('mouseLon'),
       this.mapModel.get('mouseLat'),
     ]
-    const distanceCoordinates = [reversedOriginCoordinates, mouseCoordinates]
+    const distanceCoordinates = [this.originCoordinates, mouseCoordinates]
     const transformedCoords = distanceCoordinates.map(coord =>
       Openlayers.proj.fromLonLat(coord)
     )
     const line = new Openlayers.geom.LineString(transformedCoords)
-
     const sphereLength = Openlayers.Sphere.getLength(line)
 
     this.mapModel.setCurrentDistance(sphereLength)
@@ -397,7 +394,7 @@ module.exports = Marionette.LayoutView.extend({
         // starting map marker is labeled 'A'
         point = this.map.addRulerPoint(coordinateValues)
         this.mapModel.addPoint(point)
-        this.originCoordinates = [coordinateValues.lat, coordinateValues.lon]
+        this.originCoordinates = [coordinateValues.lon, coordinateValues.lat]
         this.map.onMouseMove(this.updateDistance.bind(this))
         break
       case 'END':
