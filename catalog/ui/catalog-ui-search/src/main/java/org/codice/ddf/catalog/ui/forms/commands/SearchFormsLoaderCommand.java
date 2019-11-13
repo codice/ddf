@@ -27,10 +27,10 @@ import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.codice.ddf.catalog.ui.api.EndpointUtility;
 import org.codice.ddf.catalog.ui.forms.SearchFormsLoader;
 import org.codice.ddf.catalog.ui.forms.TemplateTransformer;
 import org.codice.ddf.catalog.ui.forms.filter.FilterWriter;
-import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.commands.catalog.SubjectCommands;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -47,7 +47,7 @@ public class SearchFormsLoaderCommand extends SubjectCommands implements Action 
 
   private final AttributeRegistry registry;
 
-  private final EndpointUtil endpointUtil;
+  private final EndpointUtility endpointUtil;
 
   @Option(
     name = "--formsDirectory",
@@ -71,11 +71,11 @@ public class SearchFormsLoaderCommand extends SubjectCommands implements Action 
   protected String resultsFile = null;
 
   public SearchFormsLoaderCommand() {
-    this(get(CatalogFramework.class), get(AttributeRegistry.class), get(EndpointUtil.class));
+    this(get(CatalogFramework.class), get(AttributeRegistry.class), get(EndpointUtility.class));
   }
 
   public SearchFormsLoaderCommand(
-      CatalogFramework catalogFramework, AttributeRegistry registry, EndpointUtil endpointUtil) {
+      CatalogFramework catalogFramework, AttributeRegistry registry, EndpointUtility endpointUtil) {
     this.catalogFramework = catalogFramework;
     this.registry = registry;
     this.endpointUtil = endpointUtil;
