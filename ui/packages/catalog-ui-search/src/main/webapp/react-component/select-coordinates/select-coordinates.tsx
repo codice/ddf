@@ -103,12 +103,6 @@ const clearHandler = (
   return () => {
     clearRulerHandler()
 
-    announcement.announce({
-      title: 'Ruler markers cleared.',
-      message: '',
-      type: 'success',
-    })
-
     context.closeAndRefocus()
     closeParent()
   }
