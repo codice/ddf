@@ -269,10 +269,7 @@ module.exports = plugin(
       this.model.set(this.toJSON())
     },
     validate() {
-      return {
-        isValid: this.settingsSortField.currentView.collection.models.length !== 0,
-        errorMessage: []
-      }
+      return []
     },
     save() {
       const validation = this.validate()
