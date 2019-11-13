@@ -400,7 +400,6 @@ module.exports = function OpenlayersMap(
         Openlayers.proj.fromLonLat(coord)
       )
 
-
       const options = {
         id: 'ruler-line',
         title: 'Line for ruler measurement',

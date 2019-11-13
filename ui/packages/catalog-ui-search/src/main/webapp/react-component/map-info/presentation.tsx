@@ -55,21 +55,27 @@ const metacardInfo = ({ attributes }: Props) =>
     <MetacardInfo>{formatAttribute({ name, value })}</MetacardInfo>
   ))
 
-  /*
+/*
    * Formats the current distance value to a string with the appropriate unit of measurement.
    */
-  const getDistanceText = (distance: number) => {
-    // use meters when distance is under 1000m and convert to kilometers when ≥1000m
-    const distanceText =
-      distance < 1000 ? `${(distance).toFixed(2)} m` : `${(distance * 0.001).toFixed(2)} km`
+const getDistanceText = (distance: number) => {
+  // use meters when distance is under 1000m and convert to kilometers when ≥1000m
+  const distanceText =
+    distance < 1000
+      ? `${distance.toFixed(2)} m`
+      : `${(distance * 0.001).toFixed(2)} km`
 
-    return distanceText
-  }
+  return distanceText
+}
 
 const distanceInfo = (props: Props) => {
-    if (props.measurementState !== 'NONE') {
-        return <MetacardInfo>distance: {getDistanceText(props.currentDistance)}</MetacardInfo>
-    }
+  if (props.measurementState !== 'NONE') {
+    return (
+      <MetacardInfo>
+        distance: {getDistanceText(props.currentDistance)}
+      </MetacardInfo>
+    )
+  }
 }
 
 const render = (props: Props) => {

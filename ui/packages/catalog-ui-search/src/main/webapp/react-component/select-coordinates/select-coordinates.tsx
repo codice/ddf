@@ -81,7 +81,7 @@ const getDistanceText = (distance: number, state: string) => {
 const coordHandler = (
   context: ContextType,
   closeParent: () => void,
-  selectCoordHandler: () => void,
+  selectCoordHandler: () => void
 ) => {
   return () => {
     selectCoordHandler()
@@ -194,11 +194,7 @@ const render = (props: Props) => {
             key="add-marker"
             icon="fa fa-map-marker"
             data-help="Adds the selected coordinates to the measurement"
-            onClick={coordHandler(
-              context,
-              closeParent,
-              selectCoordHandler
-            )}
+            onClick={coordHandler(context, closeParent, selectCoordHandler)}
           >
             <Text>
               <Description>{measurementSelectText}</Description>
