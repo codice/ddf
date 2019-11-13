@@ -17,13 +17,11 @@ import { InvalidSearchFormMessage } from '../../../component/announcement/Common
 const announcement = require('../../../component/announcement/index.jsx')
 
 
-export function validate(validation: any) {
-  if (!validation.isValid) {
+export function validate(errors: any) {
+  if (errors.length != 0) {
     let searchErrorMessage = JSON.parse(JSON.stringify(InvalidSearchFormMessage))
-    if(validation.errorMessage) {
-       let msg = searchErrorMessage.message
-       searchErrorMessage.message = msg.concat(validation.errorMessage)
-    }
+    let msg = searchErrorMessage.message
+    searchErrorMessage.message = msg.concat(errors)
     announcement.announce(searchErrorMessage)
     return false
   }
