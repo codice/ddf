@@ -217,6 +217,7 @@ public class EndpointUtil implements EndpointUtility {
     return getJson(result);
   }
 
+  @Override
   public Map<String, Result> getMetacardsByTag(String tagStr) {
     Filter filter = filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(tagStr);
 
