@@ -158,6 +158,9 @@ module.exports = new (Backbone.AssociatedModel.extend({
   addSelectedResult(metacard) {
     this.getSelectedResults().add(metacard)
   },
+  setSelectedResults(metacards) {
+    this.set('selectedResults', metacards)
+  },
   removeSelectedResult(metacard) {
     this.getSelectedResults().remove(metacard)
   },
