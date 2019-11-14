@@ -43,7 +43,7 @@
   }
 
   .announcement-title {
-    text-align: center;
+    text-align: left;
     .is-bold();
     font-size: @largeFontSize;
     height: @minimumButtonSize;
@@ -53,12 +53,15 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+
   }
 
   .announcement-message {
     max-height: 168px;
     overflow: auto;
-    text-align: center;
+    text-align: left;
+    margin: 0 @minimumButtonSize;
+
   }
 
   .announcement-action {
