@@ -145,7 +145,7 @@ module.exports = Marionette.LayoutView.extend({
       ? this.queryView
       : this.queryContent.currentView
     if (!validate(queryContentView.validate())) {
-        return
+      return
     }
     queryContentView.save()
     this.queryTitle.currentView.save()
@@ -161,7 +161,7 @@ module.exports = Marionette.LayoutView.extend({
       ? this.queryView
       : this.queryContent.currentView
     if (!validate(queryContentView.validate())) {
-        return
+      return
     }
     queryContentView.save()
     this.queryTitle.currentView.save()

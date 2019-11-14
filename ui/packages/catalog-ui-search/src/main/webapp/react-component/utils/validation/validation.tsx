@@ -16,24 +16,24 @@
 import { InvalidSearchFormMessage } from '../../../component/announcement/CommonMessages'
 const announcement = require('../../../component/announcement/index.jsx')
 
-
 export function validate(errors: any) {
-      if (errors.length == 0) {
-        return true
-      }
-    let searchErrorMessage = JSON.parse(JSON.stringify(InvalidSearchFormMessage))
-    if(errors.length > 1) {
-        let msg = searchErrorMessage.message
-        searchErrorMessage.title = "Your Search Cannot Be Run due to Multiple Errors"
-        var formattedErrors = errors.map(function (error: any) {
-            return "\u2022 ".concat(error.title, ": ", error.body)
-        });
-        searchErrorMessage.message = msg.concat(formattedErrors)
-    } else {
-        const error = errors[0]
-        searchErrorMessage.title = error.title
-        searchErrorMessage.message = error.body
-    }
-    announcement.announce(searchErrorMessage)
-    return false
+  if (errors.length == 0) {
+    return true
+  }
+  let searchErrorMessage = JSON.parse(JSON.stringify(InvalidSearchFormMessage))
+  if (errors.length > 1) {
+    let msg = searchErrorMessage.message
+    searchErrorMessage.title =
+      'Your Search Cannot Be Run due to Multiple Errors'
+    var formattedErrors = errors.map(function(error: any) {
+      return '\u2022 '.concat(error.title, ': ', error.body)
+    })
+    searchErrorMessage.message = msg.concat(formattedErrors)
+  } else {
+    const error = errors[0]
+    searchErrorMessage.title = error.title
+    searchErrorMessage.message = error.body
+  }
+  announcement.announce(searchErrorMessage)
+  return false
 }

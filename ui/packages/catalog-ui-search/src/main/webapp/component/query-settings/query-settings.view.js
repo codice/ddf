@@ -273,16 +273,16 @@ module.exports = plugin(
     },
     save() {
       if (!validate(this.validate())) {
-          return
+        return
       }
       this.saveToModel()
       this.cancel()
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     },
     run() {
-    if (!validate(this.validate())) {
+      if (!validate(this.validate())) {
         return
-    }
+      }
       this.saveToModel()
       this.cancel()
       this.model.startSearch()
