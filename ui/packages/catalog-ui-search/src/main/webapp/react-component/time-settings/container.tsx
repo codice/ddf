@@ -14,12 +14,12 @@
  **/
 import * as React from 'react'
 import { hot } from 'react-hot-loader'
-import * as moment from 'moment'
 
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 
 import View from './presentation'
 
+const moment = require('moment')
 const momentTimezone = require('moment-timezone')
 const Common = require('../../js/Common')
 const Property = require('../../component/property/property')

@@ -18,6 +18,12 @@
 
 	<reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
+	<bean id="dynamicSchemaResolver" class="ddf.catalog.source.solr.DynamicSchemaResolver"/>
+
+	<reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType">
+		<reference-listener bind-method="addMetacardType" ref="dynamicSchemaResolver"/>
+	</reference-list>
+
 	<bean id="solrCatalogProvider" class="ddf.catalog.solr.provider.SolrCatalogProvider"
           destroy-method="shutdown">
 		<!-- Aries does not call my object on startup if set to component-managed. Therefore, we will use container-managed
@@ -29,6 +35,7 @@
 		<argument>
 			<bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
 		</argument>
+		<argument ref="dynamicSchemaResolver"/>
 	</bean>
 
 	<service ref="solrCatalogProvider" interface="ddf.catalog.source.CatalogProvider"/>

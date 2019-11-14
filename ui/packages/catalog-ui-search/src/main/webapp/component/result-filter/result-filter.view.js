@@ -18,7 +18,6 @@ const template = require('./result-filter.hbs')
 const CustomElements = require('../../js/CustomElements.js')
 const user = require('../singletons/user-instance.js')
 const FilterBuilderView = require('../filter-builder/filter-builder.view.js')
-const cql = require('../../js/cql.js')
 
 module.exports = Marionette.LayoutView.extend({
   template,
@@ -44,14 +43,14 @@ module.exports = Marionette.LayoutView.extend({
   onRender() {
     const resultFilter = this.getResultFilter()
     let filter
-    if (resultFilter) {
-      filter = cql.simplify(cql.read(resultFilter))
-    } else {
+    if (!resultFilter) {
       filter = {
         property: 'anyText',
         value: '',
         type: 'ILIKE',
       }
+    } else {
+      filter = resultFilter
     }
     this.editorProperties.show(
       new FilterBuilderView({
@@ -64,7 +63,7 @@ module.exports = Marionette.LayoutView.extend({
     this.handleFilter()
   },
   getFilter() {
-    return this.editorProperties.currentView.transformToCql()
+    return this.editorProperties.currentView.getFilters()
   },
   removeFilter() {
     user

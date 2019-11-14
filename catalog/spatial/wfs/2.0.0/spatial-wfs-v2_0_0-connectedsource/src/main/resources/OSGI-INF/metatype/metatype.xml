@@ -28,9 +28,15 @@
             name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>
 
-        <AD description="Force Longitude/Latitude coordinate order"
-            name="Force Longitude/Latitude coordinate order" id="isLonLatOrder" required="true"
-            type="Boolean" default="false"/>
+        <AD description="Coordinate order expected and returned by remote source"
+          name="Coordinate Order" id="coordinateOrder" required="true"
+          type="String" default="LAT_LON">
+            <Option label="Lat/Lon" value="LAT_LON"/>
+            <Option label="Lon/Lat" value="LON_LAT"/>
+        </AD>
+
+        <AD description="Force only a specific FeatureType to be queried instead of all featureTypes"
+          name="Forced Feature Type" id="forcedFeatureType" type="String" required="false"/>
 
         <AD description="When selected, the system will not specify sort criteria with the query.  This should only be used if the remote source is unable to handle sorting even when the capabilities states 'ImplementsSorting' is supported."
             name="Disable Sorting" id="disableSorting" required="true"
@@ -58,7 +64,7 @@
             <Option label="Crosses" value="Crosses"/>
             <Option label="Disjoint" value="Disjoint"/>
             <Option label="DWithin" value="DWithin"/>
-            <Option label="Intersect" value="Intersect"/>
+            <Option label="Intersects" value="Intersects"/>
             <Option label="Equals" value="Equals"/>
             <Option label="Overlaps" value="Overlaps"/>
             <Option label="Touches" value="Touches"/>
@@ -72,6 +78,10 @@
         <AD description="Amount of time to wait for a response before timing out, in milliseconds."
             name="Receive Timeout" id="receiveTimeout"
             required="true" type="Integer" default="60000"/>
+
+        <AD description="SRS Name to use in outbound GetFeature requests.  The SRS Name parameter is used to assert the specific CRS transformation to be applied to the geometries of the features returned in a response document."
+          name="SRS Name" id="srsName"
+          required="false" type="String" default="EPSG:4326"/>
 
     </OCD>
 

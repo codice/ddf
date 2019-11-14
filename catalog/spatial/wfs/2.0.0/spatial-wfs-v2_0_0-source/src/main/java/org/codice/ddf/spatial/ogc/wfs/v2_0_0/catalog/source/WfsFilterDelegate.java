@@ -31,8 +31,10 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.bind.JAXBElement;
@@ -124,9 +126,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private FeatureMetacardType featureMetacardType;
 
-  private ObjectFactory filterObjectFactory = new ObjectFactory();
+  private final ObjectFactory filterObjectFactory = new ObjectFactory();
 
-  private net.opengis.gml.v_3_2_1.ObjectFactory gml320ObjectFactory =
+  private final net.opengis.gml.v_3_2_1.ObjectFactory gml320ObjectFactory =
       new net.opengis.gml.v_3_2_1.ObjectFactory();
 
   private boolean logicalOps;
@@ -134,16 +136,14 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private Set<COMPARISON_OPERATORS> comparisonOps;
 
   private Map<SPATIAL_OPERATORS, SpatialOperatorType> spatialOps =
-      new ConcurrentHashMap<SPATIAL_OPERATORS, SpatialOperatorType>(
-          new EnumMap<SPATIAL_OPERATORS, SpatialOperatorType>(SPATIAL_OPERATORS.class));
+      new ConcurrentHashMap<>(new EnumMap<>(SPATIAL_OPERATORS.class));
 
   private List<QName> geometryOperands;
 
   private List<QName> temporalOperands;
 
   private Map<TEMPORAL_OPERATORS, TemporalOperatorType> temporalOps =
-      new ConcurrentHashMap<TEMPORAL_OPERATORS, TemporalOperatorType>(
-          new EnumMap<TEMPORAL_OPERATORS, TemporalOperatorType>(TEMPORAL_OPERATORS.class));
+      new ConcurrentHashMap<>(new EnumMap<>(TEMPORAL_OPERATORS.class));
 
   private boolean isSortingSupported;
 
@@ -155,7 +155,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private boolean isEpsg4326 = false;
 
-  private MetacardMapper metacardToFeatureMapper;
+  private final MetacardMapper metacardToFeatureMapper;
 
   public WfsFilterDelegate(
       FeatureMetacardType featureMetacardType,
@@ -179,19 +179,18 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
           srsName);
     }
     this.coordinateOrder = coordinateOrder;
-    this.allowedSortOrders = new HashSet<SortOrder>();
+    this.allowedSortOrders = new HashSet<>();
     this.isSortingSupported = false;
     updateAllowedOperations(filterCapabilities);
   }
 
-  private final void updateAllowedOperations(FilterCapabilities filterCapabilities) {
+  private void updateAllowedOperations(FilterCapabilities filterCapabilities) {
     comparisonOps =
         Collections.newSetFromMap(
-            new ConcurrentHashMap<COMPARISON_OPERATORS, Boolean>(
-                new EnumMap<COMPARISON_OPERATORS, Boolean>(COMPARISON_OPERATORS.class)));
+            new ConcurrentHashMap<>(new EnumMap<>(COMPARISON_OPERATORS.class)));
 
-    geometryOperands = new ArrayList<QName>();
-    temporalOperands = new ArrayList<QName>();
+    geometryOperands = new ArrayList<>();
+    temporalOperands = new ArrayList<>();
 
     if (filterCapabilities == null) {
       LOGGER.debug("WFS 2.0 Service doesn't support any filters");
@@ -341,11 +340,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private Set<String> getFeatureIds(List<FilterType> filters) {
-    Set<String> ids = new HashSet<String>();
+    Set<String> ids = new HashSet<>();
 
-    // This filter delegate requires that if one filter is a featureId
-    // filter, they
-    // must all be.
+    // This filter delegate requires that if one filter is a featureId filter, they must all be.
     if (!CollectionUtils.isEmpty(filters)) {
       boolean isFeatureIdFilter = filters.get(0) != null && filters.get(0).isSetId();
 
@@ -494,7 +491,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
               JAXBElement temporalExpression = binTemp.getExpression();
               TimePeriodType timePeriod = (TimePeriodType) temporalExpression.getValue();
               TimePositionType timeEndPosition = timePeriod.getEndPosition();
-              List<String> newValue = new ArrayList<String>();
+              List<String> newValue = new ArrayList<>();
               newValue.add(endDate);
               timeEndPosition.unsetValue();
               timeEndPosition.setValue(newValue);
@@ -510,7 +507,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
           JAXBElement temporalExpression = binaryTemporalOpType.getExpression();
           TimePeriodType timePeriod = (TimePeriodType) temporalExpression.getValue();
           TimePositionType timeEndPosition = timePeriod.getEndPosition();
-          List<String> newValue = new ArrayList<String>();
+          List<String> newValue = new ArrayList<>();
           newValue.add(endDate);
           timeEndPosition.unsetValue();
           timeEndPosition.setValue(newValue);
@@ -523,8 +520,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private void removeEmptyFilters(List<FilterType> filters) {
     // Loop through the filters and remove any empty filters
-    List<FilterType> filtersToBeRemoved = new ArrayList<FilterType>(filters.size());
-    Boolean foundInvalidFilter = false;
+    List<FilterType> filtersToBeRemoved = new ArrayList<>(filters.size());
+    boolean foundInvalidFilter = false;
     for (FilterType filterType : filters) {
       if (filterType == null) {
         foundInvalidFilter = true;
@@ -567,38 +564,32 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, int literal) {
-    return buildPropertyIsFilterType(
-        propertyName, Integer.valueOf(literal), PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, short literal) {
-    return buildPropertyIsFilterType(
-        propertyName, Short.valueOf(literal), PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, long literal) {
-    return buildPropertyIsFilterType(
-        propertyName, Long.valueOf(literal), PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, float literal) {
-    return buildPropertyIsFilterType(
-        propertyName, Float.valueOf(literal), PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, double literal) {
-    return buildPropertyIsFilterType(
-        propertyName, Double.valueOf(literal), PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
   }
 
   @Override
   public FilterType propertyIsEqualTo(String propertyName, boolean literal) {
-    return buildPropertyIsFilterType(
-        propertyName, Boolean.valueOf(literal), PROPERTY_IS_OPS.PropertyIsEqualTo);
+    return buildPropertyIsFilterType(propertyName, literal, PROPERTY_IS_OPS.PropertyIsEqualTo);
   }
 
   @Override
@@ -717,9 +708,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   @Override
   public FilterType during(String propertyName, Date startDate, Date endDate) {
     return buildDuringFilterType(
-        mapMetacardAttribute(propertyName),
-        convertDateToIso8601Format(startDate),
-        convertDateToIso8601Format(endDate));
+        propertyName, convertDateToIso8601Format(startDate), convertDateToIso8601Format(endDate));
   }
 
   @Override
@@ -727,21 +716,17 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     DateTime now = new DateTime();
     DateTime startDate = now.minus(duration);
     return buildDuringFilterType(
-        mapMetacardAttribute(propertyName),
-        convertDateToIso8601Format(startDate),
-        convertDateToIso8601Format(now));
+        propertyName, convertDateToIso8601Format(startDate), convertDateToIso8601Format(now));
   }
 
   @Override
   public FilterType after(String propertyName, Date date) {
-    return buildAfterFilterType(
-        mapMetacardAttribute(propertyName), convertDateToIso8601Format(date));
+    return buildAfterFilterType(propertyName, convertDateToIso8601Format(date));
   }
 
   @Override
   public FilterType before(String propertyName, Date date) {
-    return buildBeforeFilterType(
-        mapMetacardAttribute(propertyName), convertDateToIso8601Format(date));
+    return buildBeforeFilterType(propertyName, convertDateToIso8601Format(date));
   }
 
   @Override
@@ -777,6 +762,49 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     }
   }
 
+  private boolean isWfsFeatureProperty(final String featurePropertyName) {
+    return featureMetacardType.getProperties().contains(featurePropertyName);
+  }
+
+  /**
+   * Attempts to map the incoming query property {@code queryProperty} (typically a metacard
+   * attribute) to a WFS feature property using the {@link MetacardMapper}, {@link
+   * #metacardToFeatureMapper}.
+   *
+   * @param queryProperty the original property name from the query
+   * @param isWfsFeatureProperty tests whether the mapped query property (or {@code queryProperty}
+   *     if no mapping exists for {@code queryProperty}) is a valid WFS feature property. If the
+   *     test fails then this function will return {@code null} to indicate that the query clause
+   *     using this query property should be dropped. This test should be based on the feature
+   *     properties understood by the {@link FeatureMetacardType} ({@link #featureMetacardType})
+   *     such as {@link FeatureMetacardType#getProperties()}, {@link
+   *     FeatureMetacardType#getGmlProperties()}, {@link
+   *     FeatureMetacardType#getTemporalProperties()}, or {@link
+   *     FeatureMetacardType#getTextualProperties()}.
+   * @return The name of the valid and queryable WFS feature property corresponding to {@code
+   *     queryProperty}, or {@code null} if {@code queryProperty} cannot be mapped to a valid WFS
+   *     feature property.
+   * @throws IllegalArgumentException if {@code queryProperty} maps to a valid WFS feature property
+   *     but that feature property is not queryable
+   */
+  private String mapQueryPropertyToFeatureProperty(
+      final String queryProperty, final Predicate<String> isWfsFeatureProperty) {
+    final String featurePropertyName =
+        Optional.ofNullable(metacardToFeatureMapper.getFeatureProperty(queryProperty))
+            .orElse(queryProperty);
+
+    if (!isWfsFeatureProperty.test(featurePropertyName)) {
+      return null;
+    }
+
+    if (!featureMetacardType.isQueryable(featurePropertyName)) {
+      throw new IllegalArgumentException(
+          String.format(PROPERTY_NOT_QUERYABLE, featurePropertyName));
+    }
+
+    return featurePropertyName;
+  }
+
   private FilterType buildPropertyIsBetweenFilterType(
       String propertyName, Object lowerBoundary, Object upperBoundary) {
 
@@ -784,18 +812,20 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    FilterType filter = new FilterType();
-
-    if (featureMetacardType.getProperties().contains(propertyName)) {
-      if (featureMetacardType.isQueryable(propertyName)) {
-        filter.setComparisonOps(
-            createPropertyIsBetween(propertyName, lowerBoundary, upperBoundary));
-      } else {
-        throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
-      }
-    } else {
+    final String featurePropertyName =
+        mapQueryPropertyToFeatureProperty(propertyName, this::isWfsFeatureProperty);
+    if (featurePropertyName == null) {
+      LOGGER.debug(
+          "{} could not be mapped to a feature property. Its query clause will be dropped.",
+          propertyName);
       return null;
     }
+
+    LOGGER.debug("{} maps to the feature property {}.", propertyName, featurePropertyName);
+
+    FilterType filter = new FilterType();
+    filter.setComparisonOps(
+        createPropertyIsBetween(featurePropertyName, lowerBoundary, upperBoundary));
     return filter;
   }
 
@@ -818,27 +848,21 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (!isPropertyTemporalType(propertyName)) {
+    final String featurePropertyName =
+        mapQueryPropertyToFeatureProperty(propertyName, this::isPropertyTemporalType);
+
+    if (featurePropertyName == null) {
       throw new IllegalArgumentException(
           "Property ["
               + propertyName
-              + "] is not of type "
+              + "] does not map to a feature property of type "
               + timePeriodTemporalOperand.getName()
               + ".");
     }
 
     FilterType filter = filterObjectFactory.createFilterType();
-
-    if (featureMetacardType.getProperties().contains(propertyName)) {
-      if (featureMetacardType.isQueryable(propertyName)) {
-        filter.setTemporalOps(
-            createDuring(propertyName, featureMetacardType.getName(), startDate, endDate));
-      } else {
-        throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
-      }
-    } else {
-      return null;
-    }
+    filter.setTemporalOps(
+        createDuring(featurePropertyName, featureMetacardType.getName(), startDate, endDate));
     return filter;
   }
 
@@ -856,33 +880,27 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (!isPropertyTemporalType(propertyName)) {
+    final String featurePropertyName =
+        mapQueryPropertyToFeatureProperty(propertyName, this::isPropertyTemporalType);
+
+    if (featurePropertyName == null) {
       throw new IllegalArgumentException(
           "Property ["
               + propertyName
-              + "] is not of type "
+              + "] does not map to a feature property of type "
               + timeInstantTemporalOperand.getName()
               + ".");
     }
 
-    FilterType filter = filterObjectFactory.createFilterType();
-
-    if (featureMetacardType.getProperties().contains(propertyName)) {
-      if (featureMetacardType.isQueryable(propertyName)) {
-        filter.setTemporalOps(createAfter(propertyName, featureMetacardType.getName(), date));
-      } else {
-        throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
-      }
-    } else {
-      return null;
-    }
-
     if (!isTemporalOpSupported(TEMPORAL_OPERATORS.After)) {
       if (isTemporalOpSupported(TEMPORAL_OPERATORS.During)) {
-        return buildDuringFilterType(propertyName, date, convertDateToIso8601Format(new Date()));
+        return buildDuringFilterType(
+            featurePropertyName, date, convertDateToIso8601Format(new Date()));
       }
     }
 
+    FilterType filter = filterObjectFactory.createFilterType();
+    filter.setTemporalOps(createAfter(featurePropertyName, featureMetacardType.getName(), date));
     return filter;
   }
 
@@ -900,26 +918,20 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       throw new IllegalArgumentException(MISSING_PARAMETERS_MSG);
     }
 
-    if (!isPropertyTemporalType(propertyName)) {
+    final String featurePropertyName =
+        mapQueryPropertyToFeatureProperty(propertyName, this::isPropertyTemporalType);
+
+    if (featurePropertyName == null) {
       throw new IllegalArgumentException(
           "Property ["
               + propertyName
-              + "] is not of type "
+              + "] does not map to a feature property of type "
               + timeInstantTemporalOperand.getName()
               + ".");
     }
 
     FilterType filter = filterObjectFactory.createFilterType();
-
-    if (featureMetacardType.getProperties().contains(propertyName)) {
-      if (featureMetacardType.isQueryable(propertyName)) {
-        filter.setTemporalOps(createBefore(propertyName, featureMetacardType.getName(), date));
-      } else {
-        throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
-      }
-    } else {
-      return null;
-    }
+    filter.setTemporalOps(createBefore(featurePropertyName, featureMetacardType.getName(), date));
     return filter;
   }
 
@@ -951,7 +963,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
           return null;
         }
       } else {
-        List<FilterType> binaryCompOpsToBeOred = new ArrayList<FilterType>();
+        List<FilterType> binaryCompOpsToBeOred = new ArrayList<>();
         for (String property : featureMetacardType.getTextualProperties()) {
           // only build filters for queryable properties
           if (featureMetacardType.isQueryable(property)) {
@@ -969,15 +981,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
           return null;
         }
       }
-      // filter is for a specific property; check to see if it is valid
-    } else if (featureMetacardType.getProperties().contains(propertyName)) {
-      if (featureMetacardType.isQueryable(propertyName)) {
-        returnFilter.setComparisonOps(
-            createPropertyIsFilter(propertyName, literal, propertyIsType));
-      } else {
-        // blacklisted property encountered
-        throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
-      }
     } else if (Metacard.ID.equals(propertyName)) {
       LOGGER.debug("feature id query for : {}", literal);
       String[] idTokens = literal.toString().split("\\.");
@@ -992,9 +995,20 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       } else {
         returnFilter.getId().add(createFeatureIdFilter(literal.toString()));
       }
-
+      // filter is for a specific property; check to see if it is valid
     } else {
-      return null;
+      final String featurePropertyName =
+          mapQueryPropertyToFeatureProperty(propertyName, this::isWfsFeatureProperty);
+      if (featurePropertyName == null) {
+        LOGGER.debug(
+            "{} could not be mapped to a feature property. Its query clause will be dropped.",
+            propertyName);
+        return null;
+      }
+
+      LOGGER.debug("{} maps to the feature property {}.", propertyName, featurePropertyName);
+      returnFilter.setComparisonOps(
+          createPropertyIsFilter(featurePropertyName, literal, propertyIsType));
     }
     return returnFilter;
   }
@@ -1078,23 +1092,17 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private JAXBElement<BinaryTemporalOpType> createDuring(
       String property, String type, String startDate, String endDate) {
-    JAXBElement<BinaryTemporalOpType> during =
-        filterObjectFactory.createDuring(
-            createBinaryTemporalOpType(property, type, startDate, endDate));
-    return during;
+    return filterObjectFactory.createDuring(
+        createBinaryTemporalOpType(property, type, startDate, endDate));
   }
 
   private JAXBElement<BinaryTemporalOpType> createAfter(String property, String type, String date) {
-    JAXBElement<BinaryTemporalOpType> after =
-        filterObjectFactory.createAfter(createBinaryTemporalOpType(property, type, date));
-    return after;
+    return filterObjectFactory.createAfter(createBinaryTemporalOpType(property, type, date));
   }
 
   private JAXBElement<BinaryTemporalOpType> createBefore(
       String property, String type, String date) {
-    JAXBElement<BinaryTemporalOpType> before =
-        filterObjectFactory.createBefore(createBinaryTemporalOpType(property, type, date));
-    return before;
+    return filterObjectFactory.createBefore(createBinaryTemporalOpType(property, type, date));
   }
 
   private BinaryTemporalOpType createBinaryTemporalOpType(
@@ -1159,7 +1167,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private boolean isValidInputParameters(String propertyName, String literal, double distance) {
     boolean isValid = isValidInputParameters(propertyName, literal);
-    if (Double.valueOf(distance) < 0) {
+    if (distance < 0) {
       isValid = false;
     }
     return isValid;
@@ -1424,7 +1432,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         }
 
       } else {
-        List<FilterType> filtersToBeOred = new ArrayList<FilterType>();
+        List<FilterType> filtersToBeOred = new ArrayList<>();
         for (String property : featureMetacardType.getGmlProperties()) {
           if (featureMetacardType.isQueryable(property)) {
             FilterType filter = new FilterType();
@@ -1441,19 +1449,25 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
           returnFilter = null;
         }
       }
-    } else if (featureMetacardType.getGmlProperties().contains(propertyName)) {
-      if (featureMetacardType.isQueryable(propertyName)) {
-        FilterType filter = new FilterType();
-        filter.setSpatialOps(createSpatialOpType(spatialOpType, propertyName, wkt, distance));
-        return filter;
-      } else {
-        // blacklisted property encountered
-        throw new IllegalArgumentException(String.format(PROPERTY_NOT_QUERYABLE, propertyName));
-      }
     } else {
-      return null;
+      final String featurePropertyName =
+          mapQueryPropertyToFeatureProperty(propertyName, this::isWfsGeospatialFeatureProperty);
+      if (featurePropertyName == null) {
+        LOGGER.debug(
+            "{} could not be mapped to a feature property. Its query clause will be dropped.",
+            propertyName);
+        return null;
+      }
+
+      LOGGER.debug("{} maps to the feature property {}.", propertyName, featurePropertyName);
+      returnFilter.setSpatialOps(
+          createSpatialOpType(spatialOpType, featurePropertyName, wkt, distance));
     }
     return returnFilter;
+  }
+
+  private boolean isWfsGeospatialFeatureProperty(final String featurePropertyName) {
+    return featureMetacardType.getGmlProperties().contains(featurePropertyName);
   }
 
   private JAXBElement<? extends SpatialOpsType> createSpatialOpType(
@@ -1721,9 +1735,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   public void setSpatialOps(SpatialOperatorsType spatialOperators) {
-    spatialOps =
-        new ConcurrentHashMap<SPATIAL_OPERATORS, SpatialOperatorType>(
-            new EnumMap<SPATIAL_OPERATORS, SpatialOperatorType>(SPATIAL_OPERATORS.class));
+    spatialOps = new ConcurrentHashMap<>(new EnumMap<>(SPATIAL_OPERATORS.class));
 
     for (SpatialOperatorType spatialOp : spatialOperators.getSpatialOperator()) {
       LOGGER.debug("Adding key [spatialOp Name: {}]", spatialOp.getName());
@@ -1741,9 +1753,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   public void setTemporalOps(TemporalOperatorsType temporalOperators) {
-    temporalOps =
-        new ConcurrentHashMap<TEMPORAL_OPERATORS, TemporalOperatorType>(
-            new EnumMap<TEMPORAL_OPERATORS, TemporalOperatorType>(TEMPORAL_OPERATORS.class));
+    temporalOps = new ConcurrentHashMap<>(new EnumMap<>(TEMPORAL_OPERATORS.class));
 
     for (TemporalOperatorType temporalOp : temporalOperators.getTemporalOperator()) {
       LOGGER.debug("Adding key [temporalOp Name: {}]", temporalOp.getName());
@@ -1783,27 +1793,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private void areLogicalOperationsSupported() {
     if (!logicalOps) {
       throw new UnsupportedOperationException("Logical Operations are not supported.");
-    }
-  }
-
-  private String mapMetacardAttribute(String metacardAttribute) {
-    String featureProperty = null;
-    if (this.metacardToFeatureMapper != null) {
-      featureProperty = this.metacardToFeatureMapper.getFeatureProperty(metacardAttribute);
-    } else {
-      LOGGER.debug("{} is null.", MetacardMapper.class.getSimpleName());
-      return metacardAttribute;
-    }
-
-    if (featureProperty == null) {
-      LOGGER.debug("Unable to find feature property for metacard attribute {}.", metacardAttribute);
-      return metacardAttribute;
-    } else {
-      LOGGER.debug(
-          "Found feature property {} for metacard attribute {}.",
-          featureProperty,
-          metacardAttribute);
-      return featureProperty;
     }
   }
 
@@ -1851,13 +1840,13 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     return normalizedWkt;
   }
 
-  private static enum PROPERTY_IS_OPS {
+  private enum PROPERTY_IS_OPS {
     PropertyIsEqualTo,
     PropertyIsLike,
     PropertyIsNotEqualTo,
     PropertyIsGreaterThan,
     PropertyIsGreaterThanOrEqualTo,
     PropertyIsLessThan,
-    PropertyIsLessThanOrEqualTo;
+    PropertyIsLessThanOrEqualTo
   }
 }

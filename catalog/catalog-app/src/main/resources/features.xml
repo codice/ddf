@@ -78,6 +78,7 @@
         <feature>jackson</feature>
         <bundle>mvn:nu.validator.htmlparser/htmlparser/1.4</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}</bundle>
         <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-attribute/${project.version}
         </bundle>
@@ -128,6 +129,7 @@
         <bundle>mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-directorymonitor/${project.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-cache-api/${javax.cache.bundle.version}</bundle>
     </feature>
 
     <feature name="catalog-transformer-bootflag" version="${project.version}"

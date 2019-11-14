@@ -329,10 +329,78 @@ module.exports = function OpenlayersMap(
       })
     },
     /*
+     * Calculates the distance (in meters) between the two positions in the given array of
+     * Coordinates.
+     */
+    calculateDistanceBetweenPositions(coords) {
+      const line = new Openlayers.geom.LineString(coords)
+      const sphereLength = Openlayers.Sphere.getLength(line)
+
+      return sphereLength
+    },
+    /*
+     * Draws a marker on the map designating a start/end point for the ruler measurement. The given
+     * coordinates should be an object with 'lat' and 'lon' keys with degrees values. The given
+     * marker label should be a single character or digit that is displayed on the map marker.
+     */
+    addRulerPoint(coordinates, markerLabel) {
+      const { lat, lon } = coordinates
+      const point = [lon, lat]
+      const options = {
+        id: markerLabel,
+        color: '#FC2803',
+      }
+      const useCustomText = true
+
+      return this.addPointWithText(point, options, useCustomText)
+    },
+    /*
+     * Removes the given point Layer from the map.
+     */
+    removeRulerPoint(pointLayer) {
+      map.removeLayer(pointLayer)
+    },
+    /*
+     * Draws a line on the map between the points in the given array of point Vectors.
+     */
+    addRulerLine(pointVectors) {
+      // creates an array of lon/lat coordinates from the vectors array
+      const coords = pointVectors.map(vector =>
+        vector
+          .getSource()
+          .getFeatures()[0]
+          .getGeometry()
+          .getCoordinates()
+      )
+      // transforms each lon/lat coordinate to a Coordinate on the Web Mercator projection
+      const transformedCoords = coords.map(coord =>
+        Openlayers.proj.fromLonLat(coord)
+      )
+
+      const options = {
+        id: 'ruler-line',
+        title: 'Line for ruler measurement',
+        color: '#506F85',
+      }
+      const line = this.addLine(coords, options)
+
+      // calculates the distance between the two positions in the array of transformed Coordinates
+      const distance = this.calculateDistanceBetweenPositions(transformedCoords)
+      mapModel.setCurrentDistance(distance)
+
+      return line
+    },
+    /*
+     * Removes the given line Layer from the map.
+     */
+    removeRulerLine(line) {
+      map.removeLayer(line)
+    },
+    /*
             Adds a billboard point utilizing the passed in point and options.
             Options are a view to relate to, and an id, and a color.
         */
-    addPointWithText(point, options) {
+    addPointWithText(point, options, useCustomText = false) {
       const pointObject = convertPointCoordinate(point)
       const feature = new Openlayers.Feature({
         geometry: new Openlayers.geom.Point(pointObject),
@@ -344,7 +412,7 @@ module.exports = function OpenlayersMap(
           image: new Openlayers.style.Icon({
             img: DrawingUtility.getCircleWithText({
               fillColor: options.color,
-              text: options.id.length,
+              text: useCustomText ? options.id : options.id.length,
             }),
             imgSize: [44, 44],
           }),

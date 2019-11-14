@@ -234,6 +234,13 @@ module.exports = Marionette.LayoutView.extend({
     )
     this.handleCurrentQuery()
 
+    // listener for when the measurement state changes in map model
+    this.listenTo(
+      this.mapModel,
+      'change:measurementState',
+      this.handleMeasurementStateChange.bind(this)
+    )
+
     if (this.options.selectionInterface.getSelectedResults().length > 0) {
       this.map.zoomToSelected(
         this.options.selectionInterface.getSelectedResults()
@@ -343,6 +350,60 @@ module.exports = Marionette.LayoutView.extend({
       target,
       targetMetacard,
     })
+  },
+  /*
+    Handles drawing or clearing the ruler as needed by the measurement state.
+
+    START indicates that a starting point should be drawn, 
+    so the map clears any previous points drawn and draws a new start point.
+
+    END indicates that an ending point should be drawn,
+    so the map draws an end point and a line, and calculates the distance.
+
+    NONE indicates that the ruler should be cleared.
+  */
+  handleMeasurementStateChange() {
+    const state = this.mapModel.get('measurementState')
+    let point = null
+    switch (state) {
+      case 'START':
+        this.clearRuler()
+        // starting map marker is labeled 'A'
+        point = this.map.addRulerPoint(
+          this.mapModel.get('coordinateValues'),
+          'A'
+        )
+        this.mapModel.addPoint(point)
+        break
+      case 'END':
+        // ending map marker is labeled 'B'
+        point = this.map.addRulerPoint(
+          this.mapModel.get('coordinateValues'),
+          'B'
+        )
+        this.mapModel.addPoint(point)
+        const line = this.map.addRulerLine(this.mapModel.get('points'))
+        this.mapModel.setLine(line)
+        break
+      case 'NONE':
+        this.clearRuler()
+        break
+      default:
+        break
+    }
+  },
+  /*
+    Handles tasks for clearing the ruler, which include removing all points
+    (endpoints of the line) and the line.
+  */
+  clearRuler() {
+    const points = this.mapModel.get('points')
+    points.forEach(point => {
+      this.map.removeRulerPoint(point)
+    })
+    this.mapModel.clearPoints()
+    const line = this.mapModel.removeLine()
+    this.map.removeRulerLine(line)
   },
   onRightClick(event, mapEvent) {
     event.preventDefault()
@@ -454,7 +515,12 @@ module.exports = Marionette.LayoutView.extend({
       .get('preferences')
       .get('resultFilter')
     if (resultFilter) {
-      this.handleFilter(CQLUtils.transformCQLToFilter(resultFilter), '#c89600')
+      this.handleFilter(
+        CQLUtils.transformCQLToFilter(
+          CQLUtils.transformFilterToCQL(resultFilter)
+        ),
+        '#c89600'
+      )
     }
   },
   handleFilter(filter, color) {
@@ -465,14 +531,15 @@ module.exports = Marionette.LayoutView.extend({
     } else {
       let pointText
       let locationModel
+      const value = filter.value
       switch (filter.type) {
         case 'DWITHIN':
-          if (CQLUtils.isPolygonFilter(filter.value)) {
-            this.handleFilterAsPolygon(filter.value, color, filter.distance)
+          if (CQLUtils.isPolygonFilter(value)) {
+            this.handleFilterAsPolygon(value, color, filter.distance)
             break
           }
-          if (CQLUtils.isPointRadiusFilter(filter.value)) {
-            pointText = filter.value.value.substring(6)
+          if (CQLUtils.isPointRadiusFilter(value)) {
+            pointText = value.value.substring(6)
             pointText = pointText.substring(0, pointText.length - 1)
             const latLon = pointText.split(' ')
             locationModel = new LocationModel({
@@ -483,7 +550,7 @@ module.exports = Marionette.LayoutView.extend({
             })
             this.map.showCircleShape(locationModel)
           } else {
-            pointText = filter.value.value.substring(11)
+            pointText = value.value.substring(11)
             pointText = pointText.substring(0, pointText.length - 1)
             locationModel = new LocationModel({
               lineWidth: filter.distance,
@@ -498,7 +565,7 @@ module.exports = Marionette.LayoutView.extend({
           }
           break
         case 'INTERSECTS':
-          this.handleFilterAsPolygon(filter.value, color, filter.distance)
+          this.handleFilterAsPolygon(value, color, filter.distance)
           break
       }
     }

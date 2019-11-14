@@ -20,14 +20,11 @@
            http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0
            http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.1.0.xsd">
 
-
-    <!-- Get reference to Filter Adapter implementation -->
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
     <reference-list id="metacardToFeatureMappers"
                     interface="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"
                     availability="optional"/>
-
 
     <reference-list id="converterList"
                     interface="org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.FeatureConverterFactory"
@@ -63,8 +60,20 @@
             <property name="receiveTimeout" value="60000"/>
             <property name="srsName" value=""/>
 
-            <argument ref="encryptionService"/>
             <argument ref="clientFactoryFactory"/>
+            <argument ref="encryptionService"/>
+            <argument>
+                <!-- Must be instantiated inline so sources don't share the same instance -->
+                <bean class="java.util.concurrent.Executors"
+                  factory-method="newSingleThreadScheduledExecutor">
+                    <argument>
+                        <bean class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+                          factory-method="newThreadFactory">
+                            <argument value="wfsSourceThread"/>
+                        </bean>
+                    </argument>
+                </bean>
+            </argument>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>

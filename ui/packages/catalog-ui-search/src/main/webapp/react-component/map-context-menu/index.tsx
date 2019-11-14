@@ -14,6 +14,7 @@
  **/
 import * as React from 'react'
 import CopyCoordinates from '../copy-coordinates'
+import SelectCoordinates from '../select-coordinates'
 import { Menu, MenuItem } from '../menu'
 import styled from 'styled-components'
 
@@ -54,6 +55,9 @@ interface Props {
   selectionCount: number
   closeMenu: () => void
   key: number
+  selectCoordHandler: () => void
+  clearRulerHandler: () => void
+  mapModel: Backbone.Model
 }
 
 const renderCopyCoordinatesMenu = ({ coordinateValues, closeMenu }: Props) => (
@@ -61,6 +65,24 @@ const renderCopyCoordinatesMenu = ({ coordinateValues, closeMenu }: Props) => (
     <CopyCoordinates
       coordinateValues={coordinateValues}
       closeParent={closeMenu}
+    />
+  </MenuItem>
+)
+
+const renderSelectCoordinatesMenu = ({
+  coordinateValues,
+  closeMenu,
+  selectCoordHandler,
+  clearRulerHandler,
+  mapModel,
+}: Props) => (
+  <MenuItem value="SelectCoordinates">
+    <SelectCoordinates
+      coordinateValues={coordinateValues}
+      closeParent={closeMenu}
+      selectCoordHandler={selectCoordHandler}
+      clearRulerHandler={clearRulerHandler}
+      mapModel={mapModel}
     />
   </MenuItem>
 )
@@ -111,6 +133,7 @@ export const MapContextMenu = (props: Props) => {
   const menuItems = []
   if (hasMouseCoordinates) {
     menuItems.push(renderCopyCoordinatesMenu(props))
+    menuItems.push(renderSelectCoordinatesMenu(props))
   }
   menuItems.push(renderHistogramMenu())
   if (hasSelection) {

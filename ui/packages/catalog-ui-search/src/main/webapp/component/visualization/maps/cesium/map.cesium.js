@@ -476,10 +476,96 @@ module.exports = function CesiumMap(
       })
     },
     /*
+     * Calculates the distance (in meters) between the two positions in the given array of
+     * Cartesian3 points.
+     */
+    calculateDistanceBetweenPositions(cartesians) {
+      const startCartographic = new Cesium.Cartographic.fromCartesian(
+        cartesians[0]
+      )
+      const endCartographic = new Cesium.Cartographic.fromCartesian(
+        cartesians[1]
+      )
+      const ellipsoidGeodesic = new Cesium.EllipsoidGeodesic(
+        startCartographic,
+        endCartographic
+      )
+
+      return ellipsoidGeodesic.surfaceDistance
+    },
+    /*
+     * Draws a marker on the map designating a start/end point for the ruler measurement. The given
+     * coordinates should be an object with 'lat' and 'lon' keys with degrees values. The given
+     * marker label should be a single character or digit that is displayed on the map marker.
+     */
+    addRulerPoint(coordinates, markerLabel) {
+      const { lat, lon } = coordinates
+      // a point requires an altitude value so just use 0
+      const point = [lon, lat, 0]
+      const options = {
+        id: markerLabel,
+        title: `Selected ruler coordinate '${markerLabel}'`,
+        color: '#FC2803',
+        icon: null,
+        view: this,
+      }
+      const useCustomText = true
+
+      return this.addPointWithText(point, options, useCustomText)
+    },
+    /*
+     * Removes the given Billboard from the map.
+     */
+    removeRulerPoint(billboardRef) {
+      billboardCollection.remove(billboardRef)
+    },
+    /*
+     * Draws a line on the map between the points in the given array of Billboards.
+     */
+    addRulerLine(billboards) {
+      // creates an array of Cartesian3 points
+      const cartesianArray = billboards.map(billboard => billboard.position)
+      // a PolylineGeometry allows the line to follow the curvature of the surface
+      const polyline = new Cesium.PolylineGeometry({
+        positions: cartesianArray,
+        width: 8,
+      })
+      const geometry = Cesium.PolylineGeometry.createGeometry(polyline)
+      const geometryInstance = new Cesium.GeometryInstance({
+        geometry: geometry,
+        attributes: {
+          color: Cesium.ColorGeometryInstanceAttribute.fromColor(
+            Cesium.Color.fromCssColorString('#506F85')
+          ),
+        },
+      })
+      const linePrimitive = new Cesium.Primitive({
+        geometryInstances: geometryInstance,
+        appearance: new Cesium.PolylineColorAppearance(),
+      })
+      // calculates the distance between the two positions in the array of Cartesian3 points
+      const distanceBetweenPoints = this.calculateDistanceBetweenPositions(
+        cartesianArray
+      )
+      mapModel.setCurrentDistance(distanceBetweenPoints)
+      // rendering a line between two points with a distance of 0 causes an error
+      if (distanceBetweenPoints > 0) {
+        map.scene.primitives.add(linePrimitive)
+      }
+
+      return linePrimitive
+    },
+    /*
+     * Removes the given line Primitive from the map.
+     */
+    removeRulerLine(primitive) {
+      map.scene.primitives.remove(primitive)
+    },
+    /*
             Adds a billboard point utilizing the passed in point and options.
             Options are a view to relate to, and an id, and a color.
           */
-    addPointWithText(point, options) {
+    addPointWithText(point, options, useCustomText = false) {
       const pointObject = convertPointCoordinate(point)
       const cartographicPosition = Cesium.Cartographic.fromDegrees(
         pointObject.longitude,
@@ -492,7 +578,7 @@ module.exports = function CesiumMap(
       const billboardRef = billboardCollection.add({
         image: DrawingUtility.getCircleWithText({
           fillColor: options.color,
-          text: options.id.length,
+          text: useCustomText ? options.id : options.id.length,
         }),
         position: cartesianPosition,
         id: options.id,
@@ -713,6 +799,7 @@ module.exports = function CesiumMap(
       } else {
         geometry.show = !options.isSelected
       }
+      map.scene.requestRender()
     },
     /*
           Updates a passed in geometry to reflect whether or not it is selected.
@@ -750,6 +837,7 @@ module.exports = function CesiumMap(
       } else {
         geometry.show = !options.isSelected
       }
+      map.scene.requestRender()
     },
     /*
          Updates a passed in geometry to be hidden
@@ -774,6 +862,7 @@ module.exports = function CesiumMap(
           polyline.show = true
         })
       }
+      map.scene.requestRender()
     },
     removeGeometry(geometry) {
       billboardCollection.remove(geometry)
@@ -782,6 +871,7 @@ module.exports = function CesiumMap(
       if (geometry.constructor === Cesium.Entity) {
         map.entities.remove(geometry)
       }
+      map.scene.requestRender()
     },
     showPolygonShape(locationModel) {
       const polygon = new DrawPolygon.PolygonRenderView({

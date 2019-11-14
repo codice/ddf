@@ -73,7 +73,7 @@ public class MetacardFactory {
       try (InputStream transformerStream =
           com.google.common.io.Files.asByteSource(tmpContentPath.toFile()).openStream()) {
         generatedMetacard = candidate.transform(transformerStream);
-      } catch (CatalogTransformerException | IOException e) {
+      } catch (RuntimeException | CatalogTransformerException | IOException e) {
         List<String> stackTraces = Arrays.asList(ExceptionUtils.getRootCauseStackTrace(e));
         stackTraceList.add(String.format("Transformer [%s] could not create metacard.", candidate));
         stackTraceList.addAll(stackTraces);

@@ -27,7 +27,7 @@
     <!--START Camel Features-->
     <!-- DO NOT EDIT
         All feature definitions come from 3rd party feature file:
-        <repository>mvn:org.apache.camel.karaf/apache-camel/2.22.0/xml/features</repository>
+        <repository>mvn:org.apache.camel.karaf/apache-camel/2.24.2/xml/features</repository>
 
         All version properties for these Camel features are defined in the platform-app pom.
 
@@ -43,6 +43,7 @@
         - replaced bundles in camel-jms
         - replaced cxf-http-provider with cxf-http-jetty
         - the versions for proton-j and qpid-jms-client used in camel-amqp need to be kept in sync with the versions used in artemis-amqp
+        - updated proton, qpid-jms, and netty versions to stay in sync with Camel 2.24.2 dependencies
 
     DO NOT EDIT
     -->
@@ -63,6 +64,7 @@
         <feature version="${camel.version}">camel-core</feature>
         <feature version="${camel.version}">camel-blueprint</feature>
         <!-- we no longer install camel-spring by default as spring-dm is deprecated -->
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-core" version="${camel.version}" start-level="50">
@@ -74,6 +76,7 @@
             <condition>shell</condition>
             <bundle>mvn:org.apache.camel/camel-commands-core/${camel.version}</bundle>
             <bundle>mvn:org.apache.camel.karaf/camel-karaf-commands/${camel.version}</bundle>
+            <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
         </conditional>
         <!-- allow camel to access its own mbeans for karaf commands and other needs -->
         <config name="jmx.acl.org.apache.camel">
@@ -84,12 +87,14 @@
     <feature name="camel-catalog" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-core</feature>
         <bundle>mvn:org.apache.camel/camel-catalog/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-blueprint" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-core</feature>
         <bundle>mvn:org.apache.camel/camel-blueprint/${camel.version}</bundle>
         <feature>aries-blueprint</feature>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-spring" version="${camel.version}" start-level="50">
@@ -98,6 +103,7 @@
         <feature version="${spring-version-range}">spring-tx</feature>
         <feature version="${camel.version}">camel-core</feature>
         <bundle>mvn:org.apache.camel/camel-spring/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-amqp" version="${camel.version}" start-level="50">
@@ -115,6 +121,7 @@
         <bundle dependency="true">mvn:io.netty/netty-codec-http/${netty-version}</bundle>
         <bundle dependency="true">mvn:io.netty/netty-transport-native-unix-common/${netty-version}</bundle>
         <bundle>mvn:org.apache.camel/camel-amqp/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
   <feature name="camel-aws" version="${camel.version}" start-level="50">
@@ -132,11 +139,13 @@
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
 
         <bundle>mvn:org.apache.camel/camel-aws/${camel.version}</bundle>
+      <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-context" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-core</feature>
         <bundle>mvn:org.apache.camel/camel-context/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-cxf" version="${camel.version}" start-level="50">
@@ -153,18 +162,21 @@
         <bundle>mvn:org.apache.camel/camel-http-common/${camel.version}</bundle>
         <bundle>mvn:org.apache.camel/camel-cxf-transport/${camel.version}</bundle>
         <bundle>mvn:org.apache.camel/camel-cxf/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-eventadmin" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-core</feature>
         <feature>eventadmin</feature>
         <bundle>mvn:org.apache.camel/camel-eventadmin/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-freemarker" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-core</feature>
-    <bundle dependency="true">mvn:org.freemarker/freemarker/${freemarker-version}</bundle>
+        <bundle dependency="true">mvn:org.freemarker/freemarker/${freemarker-version}</bundle>
         <bundle>mvn:org.apache.camel/camel-freemarker/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-http" version="${camel.version}" start-level="50">
@@ -175,20 +187,23 @@
         <bundle dependency="true">mvn:javax.servlet/javax.servlet-api/${javax.servlet-api-version}</bundle>
         <bundle>mvn:org.apache.camel/camel-http-common/${camel.version}</bundle>
         <bundle>mvn:org.apache.camel/camel-http/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-jackson" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-core</feature>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
-    <bundle dependency="true">mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2-version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2-version}</bundle>
         <bundle>mvn:org.apache.camel/camel-jackson/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-jaxb" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-core</feature>
         <bundle>mvn:org.apache.camel/camel-jaxb/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-jetty9" version="${camel.version}" start-level="50">
@@ -197,6 +212,7 @@
         <bundle>mvn:org.apache.camel/camel-http-common/${camel.version}</bundle>
         <bundle>mvn:org.apache.camel/camel-jetty-common/${camel.version}</bundle>
         <bundle>mvn:org.apache.camel/camel-jetty9/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
     <!--
         In order to get camel-jms to work with upgraded versions of camel-amqp replaced:
@@ -214,6 +230,7 @@
         <bundle dependency="true">mvn:commons-pool/commons-pool/${commons-pool-version}</bundle>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_2.0_spec/${geronimo-jms2-spec-version}</bundle>
         <bundle>mvn:org.apache.camel/camel-jms/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
     <feature name="camel-metrics" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-core</feature>
@@ -223,6 +240,7 @@
         <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
         <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
         <bundle>mvn:org.apache.camel/camel-metrics/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
     <feature name="camel-protobuf" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-core</feature>
@@ -232,6 +250,7 @@
         <bundle dependency="true">mvn:com.google.guava/guava/${camel.guava.version}</bundle>
         <bundle dependency="true">mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>mvn:org.apache.camel/camel-protobuf/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
   <feature name="camel-quartz2" version="${camel.version}" start-level="50">
@@ -242,6 +261,7 @@
         <bundle dependency="true">wrap:mvn:org.quartz-scheduler/quartz/${quartz2-version}$overwrite=merge&amp;DynamicImport-Package=org.apache.camel.component.quartz2</bundle>
         <feature version="${camel.version}">camel-core</feature>
         <bundle>mvn:org.apache.camel/camel-quartz2/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-sjms" version="${camel.version}" start-level="50">
@@ -254,6 +274,7 @@
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/${geronimo-jms-spec-version}</bundle>
         <bundle dependency="true">mvn:commons-pool/commons-pool/${commons-pool-version}</bundle>
         <bundle>mvn:org.apache.camel/camel-sjms/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-sjms2" version="${camel.version}" start-level="50">
@@ -265,17 +286,20 @@
         <bundle dependency="true">mvn:commons-pool/commons-pool/${commons-pool-version}</bundle>
         <bundle dependency="true">mvn:org.apache.camel/camel-sjms/${camel.version}</bundle>
         <bundle>mvn:org.apache.camel/camel-sjms2/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-stax" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-core</feature>
         <bundle>mvn:org.apache.camel/camel-stax/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
 
     <feature name="camel-test" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-core</feature>
-    <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.junit/${junit-bundle-version}</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.junit/${junit-bundle-version}</bundle>
         <bundle>mvn:org.apache.camel/camel-test/${camel.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
     <!-- END Camel Features -->
 

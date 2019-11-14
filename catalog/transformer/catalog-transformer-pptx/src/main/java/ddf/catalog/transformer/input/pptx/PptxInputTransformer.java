@@ -165,6 +165,8 @@ public class PptxInputTransformer implements InputTransformer {
         LOGGER.debug("Cannot transform old style (OLE2) ppt : id = {}", metacard.getId());
       }
 
+    } catch (NoClassDefFoundError e) {
+      LOGGER.warn("Cannot extract thumbnail: ", e);
     } finally {
       Thread.currentThread().setContextClassLoader(originalContextClassLoader);
     }

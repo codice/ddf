@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.codice.ddf.spatial</groupId>
         <artifactId>wfs-v2.0.0</artifactId>
-        <version>2.20.0-SNAPSHOT</version>
+        <version>2.21.0-SNAPSHOT</version>
     </parent>
     <artifactId>spatial-wfs-v2_0_0-connectedsource</artifactId>
     <packaging>bundle</packaging>
@@ -30,25 +30,38 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.jaxb</groupId>
-            <artifactId>spatial-wfs-v1_0_0-schema-bindings</artifactId>
-            <version>${ddf.jaxb.version}</version>
+            <groupId>org.apache.ws.xmlschema</groupId>
+            <artifactId>xmlschema-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-client</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.jaxb</groupId>
             <artifactId>spatial-wfs-v2_0_0-schema-bindings</artifactId>
             <version>${ddf.jaxb.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.security</groupId>
-            <artifactId>security-rest-cxfwrapper</artifactId>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
@@ -77,19 +90,6 @@
             <artifactId>jts-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>filter-proxy</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-context</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-saxon</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-converter</artifactId>
         </dependency>
@@ -102,6 +102,11 @@
             <artifactId>spatial-wfs-source</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-v2_0_0-source</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
@@ -112,7 +117,7 @@
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
-            <version>0.11.0</version>
+            <version>0.6.0</version>
         </dependency>
         <dependency>
             <groupId>org.jvnet.ogc</groupId>
@@ -128,8 +133,12 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jvnet.ogc</groupId>
@@ -138,17 +147,52 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
+            <groupId>ddf.security.encryption</groupId>
+            <artifactId>security-encryption-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-rest-clientapi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util</artifactId>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>geospatial</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-mapper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.stream</groupId>
+            <artifactId>stax-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -168,7 +212,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package />
                         <Embed-Dependency>
-                            spatial-wfs-v1_0_0-schema-bindings,
                             spatial-wfs-v2_0_0-schema-bindings,
                             filter-v_2_0_0-schema,
                             ows-v_1_1_0-schema,
@@ -181,11 +224,16 @@
                             catalog-core-api-impl,
                             jaxb2-basics-runtime,
                             gml-v_3_2_1-schema,
-                            ddf-security-common,
-                            platform-util-unavailableurls,
+                            geospatial,
                             platform-util
                         </Embed-Dependency>
-                        <Embed-Transitive>true</Embed-Transitive>
+                        <Private-Package>
+                            <!-- Belongs to spatial-wfs-mapper but is Private-Packaged by
+                                 spatial-wfs-v2_0_0-source -->
+                            org.codice.ddf.spatial.ogc.wfs.catalog.mapper.impl;-split-package:=first,
+                            org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source,
+                            org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader
+                        </Private-Package>
                         <Include-Resource>{maven-resources},target/classes/describable.properties</Include-Resource>
                     </instructions>
                 </configuration>
@@ -203,46 +251,8 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>3.5_MB</maxArtifactSize>
+                                    <maxArtifactSize>3.0_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>default-check</id>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <haltOnFailure>true</haltOnFailure>
-                            <rules>
-                                <rule>
-                                    <element>BUNDLE</element>
-                                    <limits>
-                                        <limit implementation="org.codice.jacoco.LenientLimit">
-                                            <counter>INSTRUCTION</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.53</minimum>
-                                        </limit>
-                                        <limit implementation="org.codice.jacoco.LenientLimit">
-                                            <counter>BRANCH</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.54</minimum>
-                                        </limit>
-                                        <limit implementation="org.codice.jacoco.LenientLimit">
-                                            <counter>COMPLEXITY</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.39</minimum>
-                                        </limit>
-
-                                    </limits>
-                                </rule>
                             </rules>
                         </configuration>
                     </execution>

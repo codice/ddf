@@ -16,7 +16,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ddf</groupId>
     <artifactId>ddf</artifactId>
-    <version>2.20.0-SNAPSHOT</version>
+    <version>2.21.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DDF Reactor</name>
     <description>Distributed Data Framework (DDF) Parent</description>
@@ -46,7 +46,7 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>1.0.7</version>
+        <version>1.0.8</version>
     </parent>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -162,7 +162,7 @@
         <awaitility.version>3.1.5</awaitility.version>
         <aws-java-sdk-bundle.version>1.11.344_1</aws-java-sdk-bundle.version>
         <bouncy.version>1.61</bouncy.version>
-        <camel.version>2.22.1</camel.version>
+        <camel.version>2.24.2</camel.version>
         <cesium.version>1.34</cesium.version>
         <common-compress.version>1.18</common-compress.version>
         <commons.fileupload.version>1.3.3</commons.fileupload.version>
@@ -177,7 +177,7 @@
         <commons-exec.version>1.3</commons-exec.version>
         <commons-io.version>2.6</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-lang3.version>3.8.1</commons-lang3.version>
+        <commons-lang3.version>3.9</commons-lang3.version>
         <commons-logging.version>1.2</commons-logging.version>
         <commons-math3.version>3.6.1</commons-math3.version>
         <commons-net.version>3.5</commons-net.version>
@@ -195,7 +195,6 @@
         <dropwizard.version>3.2.6</dropwizard.version>
         <equinox.version>3.13.0</equinox.version>
         <fabric8.version>3.0.12</fabric8.version>
-        <failsafe.pax-exam-compatible.version>2.17</failsafe.pax-exam-compatible.version>
         <felix.configadmin.version>1.9.14</felix.configadmin.version>
         <felix.framework.version>5.6.12</felix.framework.version>
         <felix.scr.version>2.0.14</felix.scr.version>
@@ -217,8 +216,10 @@
         <jackson2-version>2.9.8</jackson2-version>
         <jai-imageio-core.version>1.3.1</jai-imageio-core.version>
         <JavaAPIforKml.version>2.2.1_CODICE_1</JavaAPIforKml.version>
-        <jackson.version>2.9.8</jackson.version>
+        <jackson.version>2.10.0</jackson.version>
         <javax.annotation-api.version>1.3</javax.annotation-api.version>
+        <javax.cache.version>1.1.1</javax.cache.version>
+        <javax.cache.bundle.version>1.1.0_1</javax.cache.bundle.version>
         <javax.inject.version>1</javax.inject.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
         <javax.ws.rs.version>2.1</javax.ws.rs.version>
@@ -255,18 +256,21 @@
         <lucene.version>7.7.2</lucene.version>
         <lux.version>1.2</lux.version>
         <lux.saxon.version>9.5.1-3</lux.saxon.version>
+        <maven.failsafe.version>3.0.0-M3</maven.failsafe.version>
+        <maven.surefire.version>3.0.0-M3</maven.surefire.version>
         <!-- Mina version is not the latest version due to Apache FTPServer 1.0.6 not supporting newer releases properly -->
         <mina.version>2.0.6</mina.version>
         <mpegts-streamer.version>0.1.0_2</mpegts-streamer.version>
         <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
-        <netty.version>4.1.24.Final</netty.version>
+        <netty.version>4.1.32.Final</netty.version>
         <objenesis.version>2.5.1</objenesis.version>
         <ogc-tools-gml-jts.version>1.0.3</ogc-tools-gml-jts.version>
         <opendj-embedded.app.version>1.3.3</opendj-embedded.app.version>
         <opengis.bundle.version>${opengis.version}_1</opengis.bundle.version>
         <opengis.version>19.1</opengis.version>
         <opensaml.osgi.version>3.3.0_2</opensaml.osgi.version>
-        <nimbus.version>6.5</nimbus.version>
+        <nimbus.version>8.2</nimbus.version>
+        <nimbus.oidc.version>6.18</nimbus.oidc.version>
         <nimbus.langtag.version>1.4.4</nimbus.langtag.version>
         <org.geotools.bundle.version>${org.geotools.version}_2</org.geotools.bundle.version>
         <org.geotools.version>19.1</org.geotools.version>
@@ -275,18 +279,18 @@
         <org.rrd4j.version>3.3.1</org.rrd4j.version>
         <org.slf4j.version>1.7.1</org.slf4j.version>
         <osgi.version>5.0.0</osgi.version>
-        <owasp-html-sanitizer.version>20171016.1</owasp-html-sanitizer.version>
+        <owasp-html-sanitizer.version>20191001.1</owasp-html-sanitizer.version>
         <ows-v_1_0_0-schema.version>1.1.0</ows-v_1_0_0-schema.version>
         <ogc-filter-v_1_1_0-schema.thirdparty.version>1.1.0_5</ogc-filter-v_1_1_0-schema.thirdparty.version>
-        <pac4j.version>3.6.1</pac4j.version>
+        <pac4j.version>3.8.2</pac4j.version>
         <pdfbox.version>2.0.11</pdfbox.version>
         <poi.version>3.17</poi.version>
         <protobuf.version>3.6.1</protobuf.version>
-        <proton.version>0.27.1</proton.version>
-        <qpid-jms.version>0.33.0</qpid-jms.version>
+        <proton.version>0.31.0</proton.version>
+        <qpid-jms.version>0.39.0</qpid-jms.version>
         <require-css.version>0.1.10</require-css.version>
         <sardine.version>5.7</sardine.version>
-        <hazelcast.version>3.2.1</hazelcast.version>
+        <hazelcast.version>3.12.3</hazelcast.version>
         <saxon.version>9.6.0-4</saxon.version>
         <servicemix-depends.version>1.4.0</servicemix-depends.version>
         <servicemix-json-1.1.spec.version>2.9.0</servicemix-json-1.1.spec.version>
@@ -316,9 +320,9 @@
         <xerces.version>2.11.0</xerces.version>
         <xerces.bundle.version>2.11.0_1</xerces.bundle.version>
         <xml-apis.version>1.4.01</xml-apis.version>
-        <xmlsec.version>2.1.3</xmlsec.version>
+        <xmlsec.version>2.1.4</xmlsec.version>
         <xpp3.bundle.version>1.1.4c_6</xpp3.bundle.version>
-        <xstream.version>1.4.9</xstream.version>
+        <xstream.version>1.4.11.1</xstream.version>
         <!-- Command line argument properties for the maven-surefire-plugin -->
         <surefire.argline.append />
         <surefire.argline>${jacoco.argline} ${surefire.argline.append} -Xmx1024m -Djava.awt.headless=true -noverify</surefire.argline>
@@ -428,17 +432,16 @@
                     <version>${dependency-check-maven.version}</version>
                     <configuration>
                         <!-- The following properties enable using a mirror for nist NVD data -->
-                        <cveUrl12Modified>${owasp.cveUrl12Modified}</cveUrl12Modified>
-                        <cveUrl20Modified>${owasp.cveUrl20Modified}</cveUrl20Modified>
-                        <cveUrl12Base>${owasp.cveUrl12Base}</cveUrl12Base>
-                        <cveUrl20Base>${owasp.cveUrl20Base}</cveUrl20Base>
+                        <cveUrlModified>${owasp.cveUrlModified}</cveUrlModified>
+                        <cveUrlBase>${owasp.cveUrlBase}</cveUrlBase>
                         <!-- End NVD mirror configuration -->
-                        <failBuildOnCVSS>7</failBuildOnCVSS>
+                        <!-- Commented out as we make a process for handling these -->
+                        <!--<failBuildOnCVSS>7</failBuildOnCVSS>-->
+                        <!-- occasionally seeing a "Failed to request component-reports" error -->
+                        <failOnError>false</failOnError>
                         <skipTestScope>true</skipTestScope>
                         <!--Disable by plugin maintainer recommendation on https://github.com/jeremylong/DependencyCheck/issues/978#issuecomment-349620687-->
                         <centralAnalyzerEnabled>false</centralAnalyzerEnabled>
-                        <!--Disable because we have a separate NSP analysis step and this plugin has no way to suppress NSP issues as of 3.0.2-->
-                        <nspAnalyzerEnabled>false</nspAnalyzerEnabled>
                         <!--Disable .NET analyzers-->
                         <nuspecAnalyzerEnabled>false</nuspecAnalyzerEnabled>
                         <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
@@ -457,6 +460,12 @@
                                 ${highest-basedir}/dependency-check-maven-config.xml
                             </suppressionFile>
                         </suppressionFiles>
+                        <!-- This prevents a build failure on jdk tools jar -->
+                        <skipSystemScope>true</skipSystemScope>
+                        <formats>
+                            <format>HTML</format>
+                            <format>JUNIT</format>
+                        </formats>
                     </configuration>
                     <executions>
                         <execution>
@@ -493,7 +502,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.20.1</version>
+                    <version>${maven.surefire.version}</version>
                     <configuration>
                         <argLine>${surefire.argline}</argLine>
                         <includes>
@@ -505,7 +514,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.20.1</version>
+                    <version>${maven.failsafe.version}</version>
                     <executions>
                         <execution>
                             <goals>
@@ -513,7 +522,8 @@
                                 <goal>verify</goal>
                             </goals>
                             <configuration>
-                                <argLine>${failsafe.argline}</argLine>
+                              <argLine>${failsafe.argline}</argLine>
+                              <skipAfterFailureCount>1</skipAfterFailureCount>
                             </configuration>
                         </execution>
                     </executions>

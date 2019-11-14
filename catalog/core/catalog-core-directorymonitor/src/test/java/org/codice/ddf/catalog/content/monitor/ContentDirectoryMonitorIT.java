@@ -378,7 +378,8 @@ public class ContentDirectoryMonitorIT extends AbstractComponentTest {
         new BundleInfo("commons-codec", "commons-codec"),
         new BundleInfo("org.apache.cxf", "cxf-rt-rs-security-jose"),
         new BundleInfo("org.apache.cxf", "cxf-rt-rs-security-jose-jaxrs"),
-        new BundleInfo("org.apache.cxf.services.sts", "cxf-services-sts-core"));
+        new BundleInfo("org.apache.cxf.services.sts", "cxf-services-sts-core"),
+        new BundleInfo("javax.cache", "cache-api"));
   }
 
   private CatalogFramework mockCatalogFramework() throws Exception {
