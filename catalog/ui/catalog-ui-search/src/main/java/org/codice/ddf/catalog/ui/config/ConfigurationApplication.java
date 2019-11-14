@@ -47,6 +47,7 @@ import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.branding.BrandingPlugin;
+import org.codice.ddf.catalog.ui.alias.AttributeAliases;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.codice.proxy.http.HttpProxyService;
@@ -76,6 +77,8 @@ public class ConfigurationApplication implements SparkApplication {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationApplication.class);
 
   private final UuidGenerator uuidGenerator;
+
+  private final AttributeAliases attributeAliases;
 
   private String format;
 
@@ -189,8 +192,6 @@ public class ConfigurationApplication implements SparkApplication {
   private List<String> summaryShow = Collections.emptyList();
 
   private List<String> resultShow = Collections.emptyList();
-
-  private Map<String, String> attributeAliases = Collections.emptyMap();
 
   private List<String> hiddenAttributes = Collections.emptyList();
 
@@ -346,8 +347,9 @@ public class ConfigurationApplication implements SparkApplication {
     setAttributeEnumMap(mergedEntryMap);
   }
 
-  public ConfigurationApplication(UuidGenerator uuidGenerator) {
+  public ConfigurationApplication(UuidGenerator uuidGenerator, AttributeAliases attributeAliases) {
     this.uuidGenerator = uuidGenerator;
+    this.attributeAliases = attributeAliases;
   }
 
   public List<Long> getScheduleFrequencyList() {
@@ -364,14 +366,6 @@ public class ConfigurationApplication implements SparkApplication {
 
   public List<String> getReadOnly() {
     return readOnly;
-  }
-
-  public List<String> getAttributeAliases() {
-    return attributeAliases
-        .entrySet()
-        .stream()
-        .map(pair -> String.format("%s=%s", pair.getKey(), pair.getValue()))
-        .collect(Collectors.toList());
   }
 
   public List<String> getHiddenAttributes() {
@@ -412,10 +406,6 @@ public class ConfigurationApplication implements SparkApplication {
 
   public int getMaximumUploadSize() {
     return maximumUploadSize;
-  }
-
-  public void setAttributeAliases(List<String> attributeAliases) {
-    this.attributeAliases = parseAttributeAndValuePairs(attributeAliases);
   }
 
   public void setHiddenAttributes(List<String> hiddenAttributes) {
@@ -539,7 +529,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("hiddenAttributes", hiddenAttributes);
     config.put("listTemplates", listTemplates);
     config.put("attributeDescriptions", attributeDescriptions);
-    config.put("attributeAliases", attributeAliases);
+    config.put("attributeAliases", attributeAliases.getAliasMap());
     config.put("sourcePollInterval", sourcePollInterval);
     config.put("scheduleFrequencyList", scheduleFrequencyList);
     config.put("isEditingAllowed", editingEnabled);
