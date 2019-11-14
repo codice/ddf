@@ -233,8 +233,7 @@ module.exports = Marionette.LayoutView.extend({
     const queryContentView = this.queryView
       ? this.queryView
       : this.queryContent.currentView
-    const validation = queryContentView.validate()
-    if (!validate(validation)) {
+    if (!validate(queryContentView.validate())) {
         return
     }
     queryContentView.save()

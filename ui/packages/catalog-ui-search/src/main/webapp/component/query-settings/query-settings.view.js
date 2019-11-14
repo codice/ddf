@@ -272,8 +272,7 @@ module.exports = plugin(
       return []
     },
     save() {
-      const validation = this.validate()
-      if (!validate(validation)) {
+      if (!validate(this.validate())) {
           return
       }
       this.saveToModel()
@@ -281,8 +280,7 @@ module.exports = plugin(
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     },
     run() {
-      const validation = this.validate()
-    if (!validate(validation)) {
+    if (!validate(this.validate())) {
         return
     }
       this.saveToModel()

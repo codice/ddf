@@ -17,7 +17,7 @@ import { InvalidSearchFormMessage } from '../../../component/announcement/Common
 const announcement = require('../../../component/announcement/index.jsx')
 
 
-export function validate(errors: any) {
+export function validate(errors: string[]) {
   if (errors.length != 0) {
     let searchErrorMessage = JSON.parse(JSON.stringify(InvalidSearchFormMessage))
     let msg = searchErrorMessage.message
