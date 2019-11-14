@@ -503,7 +503,7 @@ public abstract class AbstractIntegrationTest {
 
   protected Option[] configurePaxExam() {
     return options(
-        logLevel(LogLevelOption.LogLevel.WARN),
+        logLevel(LogLevelOption.LogLevel.DEBUG),
         useOwnExamBundlesStartLevel(100),
         // increase timeout for CI environment
         systemTimeout(GENERIC_TIMEOUT_MILLISECONDS),

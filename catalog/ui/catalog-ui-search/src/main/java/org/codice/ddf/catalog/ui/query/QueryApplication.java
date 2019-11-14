@@ -38,6 +38,7 @@ import org.codice.ddf.catalog.ui.query.suggestion.DmsCoordinateProcessor;
 import org.codice.ddf.catalog.ui.query.suggestion.LatLonCoordinateProcessor;
 import org.codice.ddf.catalog.ui.query.suggestion.MgrsCoordinateProcessor;
 import org.codice.ddf.catalog.ui.query.suggestion.UtmUpsCoordinateProcessor;
+import org.codice.ddf.catalog.ui.query.validate.CqlValidateHandler;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.catalog.ui.ws.JsonRpc;
 import org.codice.ddf.spatial.geocoding.Suggestion;
@@ -83,10 +84,13 @@ public class QueryApplication implements SparkApplication, Function {
 
   private CqlTransformHandler cqlTransformHandler;
 
+  private CqlValidateHandler cqlValidateHandler;
+
   private EndpointUtil util;
 
   public QueryApplication(
       CqlTransformHandler cqlTransformHandler,
+      CqlValidateHandler cqlValidateHandler,
       LatLonCoordinateProcessor latLonCoordinateProcessor,
       DmsCoordinateProcessor dmsCoordinateProcessor,
       MgrsCoordinateProcessor mgrsCoordinateProcessor,
@@ -96,6 +100,7 @@ public class QueryApplication implements SparkApplication, Function {
     this.mgrsCoordinateProcessor = mgrsCoordinateProcessor;
     this.utmUpsCoordinateProcessor = utmUpsCoordinateProcessor;
     this.cqlTransformHandler = cqlTransformHandler;
+    this.cqlValidateHandler = cqlValidateHandler;
   }
 
   @Override
@@ -117,6 +122,8 @@ public class QueryApplication implements SparkApplication, Function {
         });
 
     post("/cql/transform/:transformerId", cqlTransformHandler, GSON::toJson);
+
+    post("/cql/validate/:validatorId", cqlValidateHandler, GSON::toJson);
 
     get(
         "/geofeature/suggestions",

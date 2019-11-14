@@ -284,6 +284,25 @@ Implementation details
         <argument ref="endpointUtil"/>
     </bean>
 
+    <reference-list id="queryValidators" interface="ddf.catalog.validation.QueryValidator"
+      availability="optional">
+        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin">
+            <bean class="org.codice.ddf.platform.util.SortedServiceList"/>
+        </reference-listener>
+    </reference-list>
+
+    <bean id="queryValidatorsById" class="org.codice.ddf.catalog.ui.query.validate.QueryValidatorsById">
+        <property name="queryValidators" ref="queryValidators"/>
+    </bean>
+
+    <bean id="cqlValidateHandler"
+      class="org.codice.ddf.catalog.ui.query.validate.CqlValidateHandler">
+        <argument ref="queryValidatorsById"/>
+        <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
+        <argument ref="endpointUtil"/>
+    </bean>
+
     <bean id="latLonProcessor"
           class="org.codice.ddf.catalog.ui.query.suggestion.LatLonCoordinateProcessor"/>
 
@@ -304,6 +323,7 @@ Implementation details
         <property name="featureService" ref="featureService"/>
         <property name="endpointUtil" ref="endpointUtil"/>
         <argument ref="cqlTransformHandler"/>
+        <argument ref="cqlValidateHandler"/>
         <argument ref="latLonProcessor"/>
         <argument ref="dmsProcessor"/>
         <argument ref="mgrsProcessor"/>
