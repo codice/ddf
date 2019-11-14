@@ -723,6 +723,31 @@ module.exports = function CesiumMap(
       map.scene.primitives.add(polylineCollection)
       return polylineCollection
     },
+    addMouseLabel(coords, text) {
+        const labelCollection = new Cesium.LabelCollection()
+        labelCollection.add({
+                    position: Cesium.Cartesian3.fromDegrees(coords[0], coords[1]),
+                    text: text,
+                    font: '15px sans-serif',
+                    backgroundColor : new Cesium.Color(0.165, 0.165, 0.165, 0.8),
+                    showBackground: true,
+                })
+        map.scene.primitives.add(labelCollection)
+        map.scene.requestRender()
+        return labelCollection
+    },
+    updateMouseLabel(mouseLabelCollection, coords, distance) {
+        // use meters when distance is under 1000m and convert to kilometers when ≥1000m
+          const distanceText = distance < 1000
+              ? `${distance.toFixed(2)} m`
+              : `${(distance * 0.001).toFixed(2)} km`
+
+            const mouseLabel = mouseLabelCollection.get(0)
+            mouseLabel.position = Cesium.Cartesian3.fromDegrees(coords[0], coords[1], 0)
+            mouseLabel.text = distanceText
+
+            map.scene.requestRender()
+    },
     /*
           Adds a polygon fill utilizing the passed in polygon and options.
           Options are a view to relate to, and an id.

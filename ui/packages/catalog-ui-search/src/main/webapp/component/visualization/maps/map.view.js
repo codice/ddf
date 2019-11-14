@@ -371,6 +371,9 @@ module.exports = Marionette.LayoutView.extend({
     const line = new Openlayers.geom.LineString(transformedCoords)
     const sphereLength = Openlayers.Sphere.getLength(line)
 
+    const mouseLabelCollection = this.mapModel.getMouseLabelCollection()
+    this.map.updateMouseLabel(mouseLabelCollection, mouseCoordinates, sphereLength)
+
     this.mapModel.setCurrentDistance(sphereLength)
   },
   /*
@@ -395,6 +398,8 @@ module.exports = Marionette.LayoutView.extend({
         point = this.map.addRulerPoint(coordinateValues)
         this.mapModel.addPoint(point)
         this.originCoordinates = [coordinateValues.lon, coordinateValues.lat]
+        const labelCollection = this.map.addMouseLabel(this.originCoordinates, '')
+        this.mapModel.setMouseLabelCollection(labelCollection)
         this.map.onMouseMove(this.updateDistance.bind(this))
         break
       case 'END':
