@@ -728,8 +728,9 @@ module.exports = function CesiumMap(
         labelCollection.add({
                     position: Cesium.Cartesian3.fromDegrees(coords[0], coords[1]),
                     text: text,
-                    font: '15px sans-serif',
-                    backgroundColor : new Cesium.Color(0.165, 0.165, 0.165, 0.8),
+                    font: '25px',
+                    pixelOffset: new Cesium.ReferenceProperty(),
+                    backgroundColor : new Cesium.Color(0.216, 0.751, 0.672, 1.0),
                     showBackground: true,
                 })
         map.scene.primitives.add(labelCollection)
