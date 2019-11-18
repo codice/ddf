@@ -373,7 +373,7 @@ To receive a response to a `GetRecords` query that conforms to the GMD specifica
 
 .Querying by UTM Coordinates
 UTM coordinates can be used when making a CSW GetRecords request using an `ogc:Filter`.
-UTM coordinates should use `EPSG:326XX`as the `srsName` where `XX` is the zone within the northern hemisphere.
+UTM coordinates should use `EPSG:326XX` as the `srsName` where `XX` is the zone within the northern hemisphere.
 UTM coordinates should use `EPSG:327XX` as the `srsName` where `XX` is the zone within the southern hemisphere.
 
 [NOTE]
@@ -1279,17 +1279,17 @@ The constraint can be either an OGC or CQL filter.
 ----
 
 .Delete Error Response Examples
-[cols="2,2,3" options="header"]
+[cols="2m,2,3" options="header"]
 |===
 |Status Code
 |Error Message
 |Possible Causes
 
-|`200 OK`
+|200 OK
 |`<csw:totalDeleted>0</csw:totalDeleted>`
 |No records matched filter criteria. Verify metacard ID.
 
-|`400 Bad Request
+|400 Bad Request
 |`<ows:Exception>` with details of error.
 |XML or CSW formatting error. Verify request.
 

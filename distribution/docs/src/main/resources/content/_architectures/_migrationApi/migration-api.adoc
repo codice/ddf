@@ -232,15 +232,15 @@ The `errors()` method provides access to all recorded error messages so far. +
 The `warnings()` method provides access to all recorded warning messages so far. +
 The `infos()` method provides access to all recorded informational messages so far. +
 The `wasSuccessful()` method provides a quick check to see if the report is successful. A successful report might have warnings recorded but cannot have errors recorded. +
-The `wasSuccessful(Runnable code) method allows code to be executed. It will return true if no new errors are recorded as a result of executing the provided code. +
-The `wasIOSuccessful(ThrowingRunnable<IOException> code) method allows code to be executed which can throw I/O exceptions which are automatically recorded as errors. It will return true if no new errors are recorded as a result of executing the provided code. +
+The `wasSuccessful(Runnable code)` method allows code to be executed. It will return true if no new errors are recorded as a result of executing the provided code. +
+The `wasIOSuccessful(ThrowingRunnable<IOException> code)` method allows code to be executed which can throw I/O exceptions which are automatically recorded as errors. It will return true if no new errors are recorded as a result of executing the provided code. +
 The `hasInfos()` method will return true if at least one information message has been recorded so far. +
 The `hasWarnings()` method will return true if at least one warning message has been recorded so far. +
 The `hasErrors()` method will return true if at least one error message has been recorded so far. +
-The `verifyCompletion() method will verify if the report is successful and if not, it will throw back the first recorded exception and attach as suppressed exceptions all other recorded exceptions.
+The `verifyCompletion()` method will verify if the report is successful and if not, it will throw back the first recorded exception and attach as suppressed exceptions all other recorded exceptions.
 
 ==== `MigrationMessage`
-The `org.codice.ddf.migration.MigrationException is defined as a base class for all recordable messages during migration operations. It defines the following methods:
+The `org.codice.ddf.migration.MigrationException` is defined as a base class for all recordable messages during migration operations. It defines the following methods:
 
 - `String getMessage()`
 

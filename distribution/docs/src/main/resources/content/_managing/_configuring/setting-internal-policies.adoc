@@ -12,7 +12,7 @@
 . Click the *Configuration* tab.
 . Click on the *Security AuthZ Realm* configuration.
 . Add any attribute mappings necessary to map between subject attributes and the attributes to be asserted.
-.. For example, the above example would require two Match All mappings of `subjectAttribute1=assertedAttribute1` and `subjectAttribute2=assertedAttribute2``
+.. For example, the above example would require two Match All mappings of `subjectAttribute1=assertedAttribute1` and `subjectAttribute2=assertedAttribute2`
 .. Match One mappings would contain `subjectAttribute3=assertedAttribute3` and `subjectAttribute4=assertedAttribute4`.
 
 With the `security-pdp-authz` feature configured in this way, the above Metacard would be displayed to the user.

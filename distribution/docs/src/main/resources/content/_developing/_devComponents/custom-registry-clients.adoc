@@ -6,7 +6,7 @@
 :summary: Creating a custom Registry Client.
 
 Registry Clients create Federated Sources using the OSGi Configuration Admin.
-Developers should reference an individual `Source`'s (Federated, Connected, or Catalog Provider) documentation for the Configuration properties (such as a Factory PID, addresses, intervals, etc) necessary to establish that `Source` in the framework. 
+Developers should reference an individual ``Source``'s (Federated, Connected, or Catalog Provider) documentation for the Configuration properties (such as a Factory PID, addresses, intervals, etc) necessary to establish that `Source` in the framework. 
 
 .Creating a Source Configuration
 [source,java,linenums]

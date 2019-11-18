@@ -18,7 +18,7 @@ properties.put("RESOURCE_OPTION", "OptionA");
 ResourceRequestById resourceRequest = new ResourceRequestById("0123456789abcdef0123456789abcdef", properties);
 ----
 
-Depending on the support that the `ResourceReader` or `Source` provides for options, the `properties``Map` will be checked for the `RESOURCE_OPTION` entry. 
+Depending on the support that the `ResourceReader` or `Source` provides for options, the `properties` `Map` will be checked for the `RESOURCE_OPTION` entry. 
 If that entry is found, the option will be handled. 
 If the `ResourceReader` or `Source` does not support options, that entry will be ignored.
 
