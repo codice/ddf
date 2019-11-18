@@ -17,7 +17,7 @@
     <parent>
         <artifactId>catalog-ui</artifactId>
         <groupId>ddf.ui</groupId>
-        <version>2.19.2</version>
+        <version>2.19.3-SNAPSHOT</version>
     </parent>
     <packaging>bundle</packaging>
 
