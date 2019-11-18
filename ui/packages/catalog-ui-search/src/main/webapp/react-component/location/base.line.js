@@ -75,7 +75,7 @@ class BaseLine extends React.Component {
               type="number"
               label="Buffer width"
               min={0.000001}
-              value={props[widthKey]}
+              value={`${props[widthKey]}`}
               onChange={cursor(widthKey)}
             />
           </Units>
