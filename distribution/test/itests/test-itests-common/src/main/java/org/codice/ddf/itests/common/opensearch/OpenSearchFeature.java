@@ -26,6 +26,8 @@ public class OpenSearchFeature {
 
   public static final String FACTORY_PID = "OpenSearchSource";
 
+  public static final String BASIC_AUTH = "basic";
+
   public static Configuration createManagedService(
       ServiceManager serviceManager, String sourceId, String user, String pass) throws IOException {
     Map propertyMap = new HashMap();
@@ -33,6 +35,7 @@ public class OpenSearchFeature {
     propertyMap.put("endpointUrl", AbstractIntegrationTest.OPENSEARCH_PATH);
 
     propertyMap.put("shortname", sourceId);
+    propertyMap.put("authenticationType", BASIC_AUTH);
     propertyMap.put("username", user);
     propertyMap.put("password", pass);
 

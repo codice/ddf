@@ -55,8 +55,10 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.rs.security.oauth2.client.Consumer;
 import org.apache.cxf.rs.security.oauth2.client.OAuthClientUtils;
@@ -175,6 +177,7 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
     if (!oauthSource.getOauthDiscoveryUrl().equals(tokenEntry.getDiscoveryUrl())) {
       // the discoveryUrl is different from the one stored - the user must login
       tokenStorage.delete(userId, oauthSource.getId());
+      findExistingTokens(oauthSource, userId, metadata);
       throw createNoAuthException(
           oauthSource,
           userId,
@@ -239,11 +242,11 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
     String accessToken = tokenEntry.getAccessToken();
     String refreshToken = tokenEntry.getRefreshToken();
 
-    if (!isExpired(accessToken)) {
+    if (accessToken != null && !isExpired(accessToken)) {
       return;
     }
 
-    if (isExpired(refreshToken)) {
+    if (refreshToken == null || isExpired(refreshToken)) {
       findExistingTokens(oauthSource, userId, metadata);
       throw createNoAuthException(oauthSource, userId, metadata, "refreshing token has expired.");
     }
@@ -267,12 +270,18 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
     }
 
     // Verify that an unexpired token exists
-    TokenInformation.TokenEntry tokenEntry =
+    List<TokenInformation.TokenEntry> matchingTokenEntries =
         tokenInformation
             .getTokenEntries()
             .values()
             .stream()
             .filter(entry -> entry.getDiscoveryUrl().equals(oauthSource.getOauthDiscoveryUrl()))
+            .collect(Collectors.toList());
+
+    TokenInformation.TokenEntry tokenEntry =
+        matchingTokenEntries
+            .stream()
+            .filter(entry -> entry.getAccessToken() != null)
             .filter(entry -> !isExpired(entry.getAccessToken()))
             .findAny()
             .orElse(null);
@@ -280,11 +289,9 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
     if (tokenEntry == null) {
       // does one with a valid refresh token exist
       tokenEntry =
-          tokenInformation
-              .getTokenEntries()
-              .values()
+          matchingTokenEntries
               .stream()
-              .filter(entry -> entry.getDiscoveryUrl().equals(oauthSource.getOauthDiscoveryUrl()))
+              .filter(entry -> entry.getRefreshToken() != null)
               .filter(entry -> !isExpired(entry.getRefreshToken()))
               .findAny()
               .orElse(null);
@@ -361,6 +368,8 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
       AccessTokenGrant accessTokenGrant = new RefreshTokenGrant(refreshToken);
       clientAccessToken = OAuthClientUtils.getAccessToken(webClient, consumer, accessTokenGrant);
     } catch (OAuthServiceException e) {
+      findExistingTokens(oauthSource, userId, metadata);
+
       String error = e.getError() != null ? e.getError().getError() : "";
       throw createNoAuthException(
           oauthSource, userId, metadata, "failed to refresh access token " + error);
