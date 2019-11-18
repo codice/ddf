@@ -119,7 +119,7 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean experimentalEnabled = false;
 
-  private Boolean webSocketsEnabled = true;
+  private Boolean webSocketsEnabled = false;
 
   private Boolean localCatalogEnabled = true;
 
