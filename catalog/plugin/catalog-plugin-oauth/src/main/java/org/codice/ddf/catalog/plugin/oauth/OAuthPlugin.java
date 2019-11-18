@@ -109,6 +109,7 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
   private static final String OAUTH = "oauth";
   private static final String SCOPE = "scope";
   private static final String EXP = "exp";
+  private static final String IAT = "iat";
   private static final int STATE_EXP = 5;
 
   private TokenStorage tokenStorage;
@@ -164,7 +165,7 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
 
     if (tokenEntry == null) {
       // See if the user already logged in to the oauth provider for a different source
-      findExistingTokens(oauthSource, userId);
+      findExistingTokens(oauthSource, userId, metadata);
       throw createNoAuthException(
           oauthSource, userId, metadata, "the user's tokens were not found.");
     }
@@ -236,33 +237,18 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
       throws StopProcessingException {
 
     String accessToken = tokenEntry.getAccessToken();
+    String refreshToken = tokenEntry.getRefreshToken();
 
     if (!isExpired(accessToken)) {
       return;
     }
 
-    String refreshToken = tokenEntry.getRefreshToken();
-    ClientAccessToken clientAccessToken;
-    try {
-      clientAccessToken = refreshTokens(refreshToken, oauthSource, userId, metadata);
-    } catch (OAuthServiceException e) {
-      throw createNoAuthException(
-          oauthSource, userId, metadata, "error refreshing token. " + e.getMessage());
+    if (isExpired(refreshToken)) {
+      findExistingTokens(oauthSource, userId, metadata);
+      throw createNoAuthException(oauthSource, userId, metadata, "refreshing token has expired.");
     }
 
-    String newAccessToken = clientAccessToken.getTokenKey();
-    String newRefreshToken = clientAccessToken.getRefreshToken();
-
-    int status =
-        tokenStorage.create(
-            userId,
-            oauthSource.getId(),
-            newAccessToken,
-            newRefreshToken,
-            oauthSource.getOauthDiscoveryUrl());
-    if (status != SC_OK) {
-      LOGGER.warn("Error updating the token information.");
-    }
+    refreshTokens(refreshToken, oauthSource, userId, metadata);
   }
 
   /**
@@ -271,12 +257,43 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
    * source exception will be thrown so the user can authorize to query the new source instead of
    * logging in.
    */
-  private void findExistingTokens(OAuthFederatedSource oauthSource, String userId)
+  private void findExistingTokens(
+      OAuthFederatedSource oauthSource, String userId, OIDCProviderMetadata metadata)
       throws StopProcessingException {
     TokenInformation tokenInformation = tokenStorage.read(userId);
     if (tokenInformation == null
         || !tokenInformation.getDiscoveryUrls().contains(oauthSource.getOauthDiscoveryUrl())) {
       return;
+    }
+
+    // Verify that an unexpired token exists
+    TokenInformation.TokenEntry tokenEntry =
+        tokenInformation
+            .getTokenEntries()
+            .values()
+            .stream()
+            .filter(entry -> entry.getDiscoveryUrl().equals(oauthSource.getOauthDiscoveryUrl()))
+            .filter(entry -> !isExpired(entry.getAccessToken()))
+            .findAny()
+            .orElse(null);
+
+    if (tokenEntry == null) {
+      // does one with a valid refresh token exist
+      tokenEntry =
+          tokenInformation
+              .getTokenEntries()
+              .values()
+              .stream()
+              .filter(entry -> entry.getDiscoveryUrl().equals(oauthSource.getOauthDiscoveryUrl()))
+              .filter(entry -> !isExpired(entry.getRefreshToken()))
+              .findAny()
+              .orElse(null);
+
+      if (tokenEntry == null) {
+        return;
+      }
+
+      refreshTokens(tokenEntry.getRefreshToken(), oauthSource, userId, metadata);
     }
 
     LOGGER.debug(
@@ -299,26 +316,31 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
   }
 
   /**
-   * Checks if an access token is expired
+   * Checks if a token is expired
    *
-   * @param accessToken user's access token
-   * @return true if the access token has expired, false otherwise
+   * @param token user's token
+   * @return true if the token has expired, false otherwise
    */
-  private boolean isExpired(String accessToken) {
-    String accessTokenString = new String(Base64.getDecoder().decode(accessToken.split("\\.")[1]));
+  private boolean isExpired(String token) {
+    String accessTokenString = new String(Base64.getDecoder().decode(token.split("\\.")[1]));
     Map<String, Object> map = GSON.fromJson(accessTokenString, MAP_STRING_TO_OBJECT_TYPE);
     long exp = (Long) map.get(EXP);
-    return exp - Instant.now().getEpochSecond() <= 60;
+    long iat = (Long) map.get(IAT);
+
+    long lifetime = exp - iat;
+    long left = exp - Instant.now().getEpochSecond();
+    long min = (long) Math.min(60, lifetime * 0.5);
+    return left <= min;
   }
 
   /**
-   * Attempts to refresh the user's access token
+   * Attempts to refresh the user's access token and saves the new tokens in the token storage
    *
    * @param refreshToken refresh token used to refresh access token
    * @param oauthSource source being queried
    * @throws OAuthPluginException if the access token could not be renewed
    */
-  private ClientAccessToken refreshTokens(
+  private void refreshTokens(
       String refreshToken,
       OAuthFederatedSource oauthSource,
       String userId,
@@ -338,18 +360,37 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
           new Consumer(oauthSource.getOauthClientId(), oauthSource.getOauthClientSecret());
       AccessTokenGrant accessTokenGrant = new RefreshTokenGrant(refreshToken);
       clientAccessToken = OAuthClientUtils.getAccessToken(webClient, consumer, accessTokenGrant);
-    } catch (OAuthServiceException | MalformedURLException e) {
-      throw createNoAuthException(oauthSource, userId, metadata, "failed to refresh access token.");
+    } catch (OAuthServiceException e) {
+      String error = e.getError() != null ? e.getError().getError() : "";
+      throw createNoAuthException(
+          oauthSource, userId, metadata, "failed to refresh access token " + error);
+    } catch (MalformedURLException e) {
+      throw createNoAuthException(
+          oauthSource, userId, metadata, "malformed token endpoint URL. " + e.getMessage());
     }
 
     // Validate new access token
     try {
       AccessToken accessToken = convertCxfAccessTokenToNimbusdsToken(clientAccessToken);
       OidcTokenValidator.validateAccessToken(accessToken, null, resourceRetriever, metadata, null);
-      return clientAccessToken;
     } catch (OidcValidationException e) {
       throw createNoAuthException(
           oauthSource, userId, metadata, "failed to validate refreshed access token.");
+    }
+
+    // Store new tokens
+    String newAccessToken = clientAccessToken.getTokenKey();
+    String newRefreshToken = clientAccessToken.getRefreshToken();
+
+    int status =
+        tokenStorage.create(
+            userId,
+            oauthSource.getId(),
+            newAccessToken,
+            newRefreshToken,
+            oauthSource.getOauthDiscoveryUrl());
+    if (status != SC_OK) {
+      LOGGER.warn("Error updating the token information.");
     }
   }
 

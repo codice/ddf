@@ -61,13 +61,7 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>oauth2-oidc-sdk</artifactId>
-            <version>${nimbus.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.nimbusds</groupId>
-                    <artifactId>nimbus-jose-jwt</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>${nimbus.oidc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.pac4j</groupId>
