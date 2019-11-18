@@ -221,8 +221,16 @@ public class OAuthPluginTest {
     QueryRequest input = mock(QueryRequest.class);
     when(input.getProperties()).thenReturn(ImmutableMap.of(SECURITY_SUBJECT, subject));
 
+    String accessToken =
+        getAccessTokenBuilder()
+            .withExpiresAt(new Date(Instant.now().plus(1, ChronoUnit.MINUTES).toEpochMilli()))
+            .sign(validAlgorithm);
+    TokenInformation.TokenEntry tokenEntry =
+        new TokenInformationImpl.TokenEntryImpl(accessToken, "myRefreshToken", METADATA_ENDPOINT);
+
     TokenInformation tokenInformation = mock(TokenInformation.class);
     when(tokenInformation.getDiscoveryUrls()).thenReturn(Collections.singleton(METADATA_ENDPOINT));
+    when(tokenInformation.getTokenEntries()).thenReturn(Collections.singletonMap("OS", tokenEntry));
 
     when(tokenStorage.read(USER_EMAIL, SOURCE_ID)).thenReturn(null);
     when(tokenStorage.read(USER_EMAIL)).thenReturn(tokenInformation);
@@ -241,6 +249,46 @@ public class OAuthPluginTest {
       assertEquals(urlParams.get(USER_ID), USER_EMAIL);
       assertEquals(urlParams.get(SOURCE_ID), CSW_SOURCE);
       assertEquals(urlParams.get(DISCOVERY_URL), METADATA_ENDPOINT);
+      throw e;
+    }
+  }
+
+  @Test(expected = OAuthPluginException.class)
+  public void testNoStoredTokensExistingTokenUnderDifferentSourceExpiredTokens() throws Exception {
+    OAuthFederatedSource source = oauthPlugin.oauthSource;
+    Subject subject = getSubject();
+    QueryRequest input = mock(QueryRequest.class);
+    when(input.getProperties()).thenReturn(ImmutableMap.of(SECURITY_SUBJECT, subject));
+
+    String accessToken =
+        getAccessTokenBuilder()
+            .withExpiresAt(new Date(Instant.now().minus(1, ChronoUnit.MINUTES).toEpochMilli()))
+            .sign(validAlgorithm);
+    String refreshToken =
+        getRefreshTokenBuilder()
+            .withExpiresAt(new Date(Instant.now().minus(1, ChronoUnit.MINUTES).toEpochMilli()))
+            .sign(validAlgorithm);
+    TokenInformation.TokenEntry tokenEntry =
+        new TokenInformationImpl.TokenEntryImpl(accessToken, refreshToken, METADATA_ENDPOINT);
+
+    TokenInformation tokenInformation = mock(TokenInformation.class);
+    when(tokenInformation.getDiscoveryUrls()).thenReturn(Collections.singleton(METADATA_ENDPOINT));
+    when(tokenInformation.getTokenEntries()).thenReturn(Collections.singletonMap("OS", tokenEntry));
+
+    Map<String, Map<String, Object>> stateMap = mock(Map.class);
+    when(tokenStorage.getStateMap()).thenReturn(stateMap);
+    when(tokenStorage.read(USER_EMAIL, SOURCE_ID)).thenReturn(null);
+    when(tokenStorage.read(USER_EMAIL)).thenReturn(tokenInformation);
+    try {
+      oauthPlugin.process(source, input);
+    } catch (OAuthPluginException e) {
+      assertEquals(e.getSourceId(), CSW_SOURCE);
+      assertEquals(e.getErrorType().getStatusCode(), 401);
+
+      ArgumentCaptor<Map<String, Object>> captor = ArgumentCaptor.forClass(Map.class);
+      verify(stateMap, times(1)).put(anyString(), captor.capture());
+
+      assertUrl(e, captor.getValue());
       throw e;
     }
   }

@@ -447,6 +447,14 @@ Query.Model = PartialAssociatedModel.extend({
                   })
                   SlideoutRightViewInstance.updateContent(UserNotifications)
                   SlideoutRightViewInstance.open()
+                } else {
+                  preferences.removeOauth(detail)
+                  wreqr.vent.trigger('oauth:add', {
+                    when,
+                    type,
+                    sourceId,
+                    url,
+                  })
                 }
               } else {
                 wreqr.vent.trigger('oauth:add', {
