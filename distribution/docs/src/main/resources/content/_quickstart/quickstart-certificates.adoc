@@ -127,7 +127,7 @@ For this example, the following tools are used:
 
 * openssl
 ** Windows users can use: https://code.google.com/p/openssl-for-windows/downloads/detail?name=openssl-0.9.8k_X64.zip&can=2&q=[openssl] for windows.
-* The standard Java http://docs.oracle.com/javase/7/docs/technotes/tools/windows/keytool.html[keytool] certificate management utility.
+* The standard Java https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html[keytool certificate management utility] {external-link}.
 * http://portecle.sourceforge.net/[Portecle] can be used for *keytool* operations if a GUI if preferred over a command line interface.
 
 ==== Creating a custom CA Key and Certificate
