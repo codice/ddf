@@ -6,7 +6,7 @@
 :summary: Retrieving Resources.
 
 When a client attempts to retrieve a resource, it must provide a metacard ID or URI corresponding to a unique resource. 
-As mentioned above, the resource URI is obtained from a `Metacard`'s `getResourceUri` method. 
+As mentioned above, the resource URI is obtained from a ``Metacard``'s `getResourceUri` method. 
 The `CatalogFramework` has three methods that can be used by clients to obtain a resource: `getEnterpriseResource`, `getResource`, and `getLocalResource`.
 The `getEnterpriseResource` method invokes the `retrieveResource` method on a local `ResourceReader` as well as all the `Federated` and `Connected` Sources inthe ${branding} enterprise. 
 The second method, `getResource`, takes in a source ID as a parameter and only invokes `retrieveResource` on the specified `Source`. 
