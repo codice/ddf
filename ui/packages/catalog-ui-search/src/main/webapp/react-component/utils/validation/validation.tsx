@@ -24,8 +24,8 @@ export function validate(errors: any) {
   if (errors.length > 1) {
     let msg = searchErrorMessage.message
     searchErrorMessage.title =
-      'Your Search Cannot Be Run due to Multiple Errors'
-    var formattedErrors = errors.map(function(error: any) {
+      'Your search cannot be run due to multiple errors'
+    const formattedErrors = errors.map(function(error: any) {
       return '\u2022 '.concat(error.title, ': ', error.body)
     })
     searchErrorMessage.message = msg.concat(formattedErrors)
