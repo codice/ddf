@@ -17,7 +17,7 @@ import { InvalidSearchFormMessage } from '../../../component/announcement/Common
 const announcement = require('../../../component/announcement/index.jsx')
 
 export function validate(errors: any) {
-  if (errors.length == 0) {
+  if (errors.length === 0) {
     return true
   }
   let searchErrorMessage = JSON.parse(JSON.stringify(InvalidSearchFormMessage))
@@ -25,9 +25,7 @@ export function validate(errors: any) {
     let msg = searchErrorMessage.message
     searchErrorMessage.title =
       'Your search cannot be run due to multiple errors'
-    const formattedErrors = errors.map(function(error: any) {
-      return '\u2022 '.concat(error.title, ': ', error.body)
-    })
+    const formattedErrors =  errors.map((error:any)=>`\u2022 ${error.title}: ${error.body}`)
     searchErrorMessage.message = msg.concat(formattedErrors)
   } else {
     const error = errors[0]
