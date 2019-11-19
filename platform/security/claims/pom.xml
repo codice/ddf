@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -19,33 +19,15 @@
         <groupId>ddf.platform.security</groupId>
         <version>2.22.0-SNAPSHOT</version>
     </parent>
-    <groupId>ddf.security.handler</groupId>
-    <artifactId>handler</artifactId>
+    <artifactId>claims</artifactId>
+    <groupId>ddf.security.claims</groupId>
+    <name>DDF Security Claims</name>
     <packaging>pom</packaging>
-    <name>DDF Security Handler</name>
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-parser-xml</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-parser-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
     <modules>
-        <module>security-handler-api</module>
-        <module>security-handler-basic</module>
-        <module>security-handler-pki</module>
-        <module>security-handler-oauth</module>
-        <module>security-handler-oidc</module>
-        <module>security-handler-saml</module>
+        <module>security-claims-ldap</module>
+        <module>security-claims-attributequery</module>
+        <module>security-claims-attributequerycommon</module>
+        <module>security-claims-property</module>
+        <module>security-claims-certificate</module>
     </modules>
 </project>
