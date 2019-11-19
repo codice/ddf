@@ -42,6 +42,7 @@ const Gazetteer = require('../../../react-component/location/gazetteer.js')
 
 import MapSettings from '../../../react-component/map-settings'
 import MapInfo from '../../../react-component/map-info'
+import DistanceInfo from '../../../react-component/select-coordinates'
 
 function findExtreme({ objArray, property, comparator }) {
   if (objArray.length === 0) {
@@ -142,6 +143,7 @@ module.exports = Marionette.LayoutView.extend({
     mapDrawingPopup: '#mapDrawingPopup',
     mapContextMenu: '.map-context-menu',
     mapInfo: '.mapInfo',
+    distanceInfo: '.distanceInfo',
   },
   events: {
     'click .cluster-button': 'toggleClustering',
@@ -253,6 +255,7 @@ module.exports = Marionette.LayoutView.extend({
     this.map.onRightClick(this.onRightClick.bind(this))
     this.setupRightClickMenu()
     this.setupMapInfo()
+    this.setupDistanceInfo()
   },
   zoomToHome() {
     const home = [
@@ -460,6 +463,16 @@ module.exports = Marionette.LayoutView.extend({
 
     this.mapInfo.show(new MapInfoView())
   },
+  setupDistanceInfo() {
+      const map = this.mapModel
+      const DistanceInfoView = Marionette.ItemView.extend({
+          template() {
+              return <DistanceInfo map={map} />
+          }
+      })
+
+      this.distanceInfo.show(new DistanceInfoView())
+    },
   /*
         Map creation is deferred to this method, so that all resources pertaining to the map can be loaded lazily and
         not be included in the initial page payload.

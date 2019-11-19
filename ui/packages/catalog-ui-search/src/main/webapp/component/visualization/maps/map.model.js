@@ -82,19 +82,6 @@ module.exports = Backbone.AssociatedModel.extend({
     this.set({ line })
   },
   /*
-   * Sets the label collection needed for the mouse
-   */
-   setMouseLabelCollection(mouseLabelCollection){
-    this.set({mouseLabelCollection})
-   },
-   getMouseLabelCollection(){
-    return this.get('mouseLabelCollection')
-   },
-   removeMouseLabelCollection(){
-       const mouseLabelCollection = this.get('mouseLabelCollection')
-       this.set({ mouseLabelCollection: undefined})
-      },
-  /*
    * Resets the model's line and returns the old one.
    */
   removeLine() {

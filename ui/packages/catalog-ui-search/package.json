@@ -92,6 +92,7 @@
     "react-intl": "2.7.2",
     "react-live": "1.11.0",
     "react-redux": "5.0.7",
+    "react-sticky-mouse-tooltip": "^0.0.1",
     "react-text-mask": "5.4.1",
     "redux": "3.5.2",
     "redux-thunk": "2.1.0",
