@@ -81,7 +81,7 @@ The PKIHandler implements CRL revocation, so any web context that is configured 
 
 . After enabling revocation (see above), open the *Web Context Policy Manager*.
 . Add or modify a Web Context to use PKI in authentication. For example, enabling CRL for the search ui endpoint would require adding an authorization policy of `/search=PKI`
-. If guest access is also required, check the 'Allow Guest Access` box in the policy.
+. If guest access is also required, check the `Allow Guest Access` box in the policy.
 
 With guest access, a user with a revoked certificate will be given a 401 error, but users without a certificate will be able to access the web context as the guest user.
 

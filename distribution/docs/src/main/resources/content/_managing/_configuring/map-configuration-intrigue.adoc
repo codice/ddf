@@ -20,7 +20,7 @@ Equivalent addition and deletion of a map layer can be found in <<{managing-pref
 .. Example Imagery Provider Syntax: `{"type": "OSM", "url" "http://a.tile.openstreetmaps.org" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}`.
 ... "type": format of imagery provider.
 ... "url": location of server hosting the imagery provider.
-... "layers": names of individual layers. (enclose list in square brackets`[ ]`).
+... "layers": names of individual layers. (enclose list in square brackets `[ ]`).
 ... "parameters": (enclose in braces `{}`)
 .... "FORMAT": image type used by imagery provider.
 .... "VERSION": version of imagery provider to use.

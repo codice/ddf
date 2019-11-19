@@ -50,8 +50,8 @@ Catalog Provider:: `ddf.catalog.source.CatalogProvider` _is used to communicate 
 Federated Source:: `ddf.catalog.source.FederatedSource` _is used to communicate with remote systems and only allows query operations._
 Connected Source:: `ddf.catalog.source.ConnectedSource` _is similar to a Federated Source with the following exceptions:_
 * _Queried on all local queries_
-* _`SiteName` is hidden (masked with the ${branding} sourceId) in query results_
-* _`SiteService` does not show this Source's information separate from ${branding}'s._
+* ``SiteName`` _is hidden (masked with the ${branding} sourceId) in query results_
+* ``SiteService`` _does not show this Source's information separate from ${branding}'s._
 Catalog Store:: `catalog.store.interface` _is used to store data._
 
 The procedure for implementing any of the source types follows a similar format:

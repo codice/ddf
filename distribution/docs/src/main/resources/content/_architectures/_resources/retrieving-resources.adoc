@@ -6,7 +6,7 @@
 :summary: Retrieving Resources.
 
 When a client attempts to retrieve a resource, it must provide a metacard ID or URI corresponding to a unique resource. 
-As mentioned above, the resource URI is obtained from a `Metacard`'s `getResourceUri` method. 
+As mentioned above, the resource URI is obtained from a ``Metacard``'s `getResourceUri` method. 
 The `CatalogFramework` has three methods that can be used by clients to obtain a resource: `getEnterpriseResource`, `getResource`, and `getLocalResource`.
 The `getEnterpriseResource` method invokes the `retrieveResource` method on a local `ResourceReader` as well as all the `Federated` and `Connected` Sources inthe ${branding} enterprise. 
 The second method, `getResource`, takes in a source ID as a parameter and only invokes `retrieveResource` on the specified `Source`. 
@@ -33,16 +33,16 @@ Resource resource = resourceResponse.getResource(); //actual Resource object con
 `${ddf-branding}.catalog.resource.ResourceReader` instances can be discovered via the OSGi Service Registry.
 The system can contain multiple `ResourceReaders`. 
 The `CatalogFramework` determines which one to call based on the scheme of the resource's URI and what schemes the `ResourceReader` supports. 
-The supported schemes are obtained by a `ResourceReader`'s `getSupportedSchemes` method. 
+The supported schemes are obtained by a ``ResourceReader``'s `getSupportedSchemes` method. 
 As an example, one `ResourceReader` may know how to handle file-based URIs with the scheme `file`, whereas another `ResourceReader` may support HTTP-based URIs with the scheme `http`.
 
 The `ResourceReader` or `Source` is responsible for locating the resource, reading its bytes, adding the binary data to a `Resource` implementation, then returning that `Resource` in a `ResourceResponse`. 
-The `ResourceReader` or `Source` is also responsible for determining the `Resource`'s name and mime type, which it sends back in the `Resource` implementation.
+The `ResourceReader` or `Source` is also responsible for determining the ``Resource``'s name and mime type, which it sends back in the `Resource` implementation.
 
 ===== BinaryContent
 
 `BinaryContent` is an object used as a container to store translated or transformed ${branding} components. 
-`Resource` extends `BinaryContent` and includes a `getName` method.  `
-BinaryContent` has methods to get the `InputStream`, `byte` array, MIME type, and size of the represented binary data.
+`Resource` extends `BinaryContent` and includes a `getName` method. 
+`BinaryContent` has methods to get the `InputStream`, `byte` array, MIME type, and size of the represented binary data.
 An implementation of `BinaryContent` (`BinaryContentImpl`) can be found in the Catalog API in the `${ddf-branding}.catalog.data` package.
 
