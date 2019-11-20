@@ -80,35 +80,76 @@ public class JsonUtilsTest {
   }
 
   @Test
-  public void testGetMapFrom() throws Exception {
+  public void testGetMapFromWhenRequired() throws Exception {
+    Assert.assertThat(
+        JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, "map", true),
+        Matchers.equalTo(JsonUtilsTest.JSON_MAP));
+  }
+
+  @Test
+  public void testGetMapFromWhenNotRequired() throws Exception {
     Assert.assertThat(
         JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, "map", false),
         Matchers.equalTo(JsonUtilsTest.JSON_MAP));
   }
 
   @Test
-  public void testGetMapFromWhenNotDefined() throws Exception {
+  public void testGetMapFromWhenRequiredAndNotDefined() throws Exception {
+    thrown.expect(MigrationException.class);
+    thrown.expectMessage(Matchers.containsString("missing required [map2]"));
+
+    Assert.assertThat(
+        JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, "map2", true),
+        Matchers.equalTo(new HashMap<>()));
+  }
+
+  @Test
+  public void testGetMapFromWhenNotRequiredAndNotDefined() throws Exception {
     Assert.assertThat(
         JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, "map2", false),
         Matchers.equalTo(new HashMap<>()));
   }
 
   @Test
-  public void testGetMapFromWithNullKey() throws Exception {
+  public void testGetMapFromWhenRequiredAndWithNullKey() throws Exception {
+    thrown.expect(MigrationException.class);
+    thrown.expectMessage(Matchers.containsString("missing required [null]"));
+
+    Assert.assertThat(
+        JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, null, true),
+        Matchers.equalTo(new HashMap<>()));
+  }
+
+  @Test
+  public void testGetMapFromWhenNotRequiredAndWithNullKey() throws Exception {
     Assert.assertThat(
         JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, null, false),
         Matchers.equalTo(new HashMap<>()));
   }
 
   @Test
-  public void testGetMapFromWithNullMap() throws Exception {
-    Assert.assertThat(
-        JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, null, false),
-        Matchers.equalTo(new HashMap<>()));
+  public void testGetMapFromWhenRequiredAndWithNullMap() throws Exception {
+    thrown.expect(MigrationException.class);
+    thrown.expectMessage(Matchers.containsString("missing required [map]"));
+
+    Assert.assertThat(JsonUtils.getMapFrom(null, "map", true), Matchers.equalTo(new HashMap<>()));
   }
 
   @Test
-  public void testGetMapFromWhenValueIsNotMap() throws Exception {
+  public void testGetMapFromWhenNotRequiredAndWithNullMap() throws Exception {
+    Assert.assertThat(JsonUtils.getMapFrom(null, "map", false), Matchers.equalTo(new HashMap<>()));
+  }
+
+  @Test
+  public void testGetMapFromWhenRequiredAndWhenValueIsNotMap() throws Exception {
+    thrown.expect(MigrationException.class);
+    thrown.expectMessage(Matchers.containsString("[list] is not a Json map"));
+
+    JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, "list", true);
+  }
+
+  @Test
+  public void testGetMapFromWhenNotRequiredAndWhenValueIsNotMap() throws Exception {
     thrown.expect(MigrationException.class);
     thrown.expectMessage(Matchers.containsString("[list] is not a Json map"));
 

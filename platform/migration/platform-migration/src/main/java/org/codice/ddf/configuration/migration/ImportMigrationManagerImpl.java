@@ -17,6 +17,9 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -32,6 +35,9 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
+import org.apache.karaf.util.config.PropertiesLoader;
+import org.codice.ddf.configuration.migration.util.AccessUtils;
+import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
@@ -70,7 +76,7 @@ public class ImportMigrationManagerImpl implements Closeable {
 
   private final String currentProductVersion;
 
-  private final Properties customSystemProperties;
+  private final Map<String, ?> systemProperties;
 
   private final Path exportFile;
 
@@ -145,8 +151,12 @@ public class ImportMigrationManagerImpl implements Closeable {
       // process migratables' metadata
       JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES, false)
           .forEach((id, o) -> getContextFor(id).processMetadata(JsonUtils.convertToMap(o)));
-      customSystemProperties = this.getImportedCustomSystemProperties(metadata);
-      contexts.forEach((id, m) -> m.setImportedSystemProperties(customSystemProperties));
+      if (MigrationContextImpl.NEED_SYSTEM_PROPERTIES_VERSIONS.contains(productVersion)) {
+        systemProperties = this.getSystemProperties(metadata);
+        contexts.forEach((id, m) -> m.setSystemProperties(systemProperties));
+      } else {
+        systemProperties = new LinkedHashMap<>();
+      }
     } catch (IOException e) {
       IOUtils.closeQuietly(zip);
       throw new MigrationException(Messages.IMPORT_FILE_READ_ERROR, exportFile, e);
@@ -210,22 +220,30 @@ public class ImportMigrationManagerImpl implements Closeable {
     return contexts.values();
   }
 
-  private Properties getImportedCustomSystemProperties(Map<String, Object> metadata) {
+  private Map<String, ?> getSystemProperties(Map<String, Object> metadata) {
     if (version.equals(MigrationContextImpl.SYSTEM_PROPERTIES_MISSING_VERSION)) {
-      Properties importedProps = new Properties();
-      try {
-        importedProps.load(
-            contexts
-                .get(MigrationContextImpl.PLATFORM_MIGRATABLE_ID)
-                .getEntry(MigrationContextImpl.METADATA_CUSTOM_SYSTEM_PROPERTIES_PATH)
-                .getInputStream()
-                .orElseThrow(IOException::new));
-      } catch (IOException e) {
-        LOGGER.warn("Could not import custom system properties.");
-      }
-      return importedProps;
+      return AccessUtils.doPrivileged(
+          () -> {
+            ImportMigrationContext platformMigratable =
+                contexts.get(MigrationContextImpl.PLATFORM_MIGRATABLE_ID);
+            try {
+              URL systemPropsURL =
+                  new URL(
+                      null,
+                      MigrationURLConnection.SYSTEM_PROPERTIES_URL,
+                      new URLStreamHandler() {
+                        @Override
+                        protected URLConnection openConnection(URL u) throws IOException {
+                          return new MigrationURLConnection(u, platformMigratable);
+                        }
+                      });
+              return PropertiesLoader.loadPropertiesFile(systemPropsURL, true);
+            } catch (Exception e) {
+              throw new MigrationException(Messages.IMPORT_SYSTEM_PROPERTIES_ERROR, e);
+            }
+          });
     }
-    return JsonUtils.getPropertiesFrom(
+    return JsonUtils.getMapFrom(
         metadata, MigrationContextImpl.METADATA_CUSTOM_SYSTEM_PROPERTIES, true);
   }
 

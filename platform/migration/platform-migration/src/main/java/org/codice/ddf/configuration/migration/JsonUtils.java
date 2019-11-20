@@ -24,9 +24,7 @@ import java.io.OutputStreamWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import javax.annotation.Nullable;
-import org.apache.commons.collections4.MapUtils;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 
@@ -67,7 +65,7 @@ public class JsonUtils {
    */
   public static Map<String, Object> getMapFrom(
       @Nullable Map<String, Object> map, @Nullable String key, boolean required) {
-    final Map<String, Object> m = JsonUtils.getObjectFrom(Map.class, map, key, false);
+    final Map<String, Object> m = JsonUtils.getObjectFrom(Map.class, map, key, required);
 
     return (m != null) ? m : Collections.emptyMap();
   }
@@ -139,14 +137,6 @@ public class JsonUtils {
     final Boolean b = JsonUtils.getObjectFrom(Boolean.class, map, key, required);
 
     return b != null && b;
-  }
-
-  public static Properties getPropertiesFrom(
-      @Nullable Map<String, Object> map, @Nullable String key, boolean required) {
-    final Map<String, Object> m = getMapFrom(map, key, required);
-    final Properties p = MapUtils.toProperties(m);
-
-    return p;
   }
 
   private static <T> T getObjectFrom(

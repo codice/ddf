@@ -204,7 +204,7 @@ public class ConfigurationAdminMigratable implements Migratable {
 
     for (int i = 0; i < attributeMap.length; i++) {
       String val = attributeMap[i];
-      String hostname = context.getImportedSystemProperty(DDF_HOSTNAME_PROP_KEY);
+      String hostname = context.getSystemProperty(DDF_HOSTNAME_PROP_KEY);
       attributeMap[i] = val.replaceAll("(?<!-)data-manager", hostname + "-data-manager");
     }
     entry.setProperty(ATTRIBUTE_MAP, attributeMap);

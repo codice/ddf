@@ -52,6 +52,10 @@
             <artifactId>org.apache.felix.utils</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.karaf</groupId>
+            <artifactId>org.apache.karaf.util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.karaf.system</groupId>
             <artifactId>org.apache.karaf.system.core</artifactId>
         </dependency>
@@ -164,6 +168,7 @@
                             commons-lang,
                             platform-util,
                             gson-support,
+                            org.apache.karaf.util,
                             org.apache.felix.utils
                         </Embed-Dependency>
                         <Import-Package>

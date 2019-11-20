@@ -205,6 +205,9 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
 
   protected static final Set SUPPORTED_VERSIONS = ImmutableSet.of("1.0", "1.1");
 
+  protected static final Set NEED_SYSTEM_PROPERTIES_VERSIONS =
+      ImmutableSet.of("2.13.3", "2.13.4", "2.13.5");
+
   protected static final Path METADATA_FILENAME = Paths.get("export.json");
 
   private static final String INVALID_NULL_REPORT = "invalid null report";

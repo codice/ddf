@@ -16,8 +16,8 @@ package org.codice.ddf.migration;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 
 /**
  * The import migration context keeps track of exported migration entries for a given migratable
@@ -133,7 +133,14 @@ public interface ImportMigrationContext extends MigrationContext {
    */
   public Stream<ImportMigrationEntry> entries(Path path, PathMatcher filter);
 
-  public void setImportedSystemProperties(Properties props);
-
-  public String getImportedSystemProperty(String key);
+  /**
+   * Retrieves exported system property.
+   *
+   * @param key the key of the system property to retrieve
+   * @return the system property requested
+   * @throws SecurityException if a security manager is present and it does not permit access to the
+   *     property
+   */
+  @Nullable
+  public String getSystemProperty(String key);
 }
