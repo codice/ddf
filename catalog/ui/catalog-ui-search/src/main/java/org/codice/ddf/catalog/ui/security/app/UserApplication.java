@@ -316,6 +316,11 @@ public class UserApplication implements SparkApplication {
     } else {
       item.addProperty("metacardIds", Collections.emptySet());
     }
+    if (alert.containsKey("src")) {
+      item.addProperty("src", ImmutableSet.copyOf((List<String>) alert.get("src")));
+    } else {
+      item.addProperty("src", Collections.emptySet());
+    }
     try {
       persistentStore.add(PersistenceType.NOTIFICATION_TYPE.toString(), item);
     } catch (PersistenceException e) {
