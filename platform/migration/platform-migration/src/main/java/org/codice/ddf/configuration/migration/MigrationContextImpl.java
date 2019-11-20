@@ -197,7 +197,7 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
    *
    * <p>1.0 - initial version
    *
-   * <p>1.1 - added support for custom system properties
+   * <p>1.1 - added support for system properties and custom system properties
    */
   protected static final String CURRENT_VERSION = "1.1";
 
