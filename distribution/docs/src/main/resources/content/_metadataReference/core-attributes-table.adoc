@@ -78,13 +78,13 @@ __Coordinates must be in *lon-lat* coordinate order__
 |
 
 |[[_resource-uri]]resource-uri
-|Location of the resource for the metacard.
+|Catalog-specific location of the resource for the metacard. This URI is used for internal catalog requests.
 |String
 |Valid URI per RFC 2396
 |
 
 |[[_resource-download-url]]resource-download-url
-|URL location of the resource for the metacard. This attributes provides a resolvable URL to the download location of the resource.
+|URL location of the resource for the metacard. This attributes provides a client-resolvable URL to the download location of the resource. Clients should use this URL for download requests.
 |String
 |Valid URL per RFC 2396
 |
@@ -138,16 +138,16 @@ a|The modification date of the resource http://dublincore.org/documents/dcmi-ter
 |Alpha-3 language code(s) per ISO_639-2
 |
 
-|[[_resource.derived-download-url]]resource.derived-download-url
-|Download URL(s) for accessing the derived formats for the metacard resource.
-|List of Strings
-|Valid URL(s) per RFC 2396
-|
-
 |[[_resource.derived-uri]]resource.derived-uri
-|Location(s) for accessing the derived formats for the metacard resource.
+|Catalog-specific Location(s) for accessing the resources derived from another source (for example, an overlay of a larger image). This URI is used for internal catalog requests.
 |List of Strings
 |Valid URI per RFC 2396
+|
+
+|[[_resource.derived-download-url]]resource.derived-download-url
+|Download URL(s) for accessing the resources derived from another source (for example, an overlay of a larger image). Clients should use this URL for download requests.
+|List of Strings
+|Valid URL(s) per RFC 2396
 |
 
 |[[_datatype]]datatype
