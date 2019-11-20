@@ -13672,7 +13672,7 @@ is-extendable@^0.1.0, is-extendable@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/is-extendable/-/is-extendable-0.1.1.tgz#62b110e289a471418e3ec36a617d472e301dfc89"
 
-is-extendable@^1.0.1:
+is-extendable@^1.0.0, is-extendable@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/is-extendable/-/is-extendable-1.0.1.tgz#a7470f9e426733d81bd81e1155264e3a3507cab4"
   dependencies:
@@ -17644,6 +17644,13 @@ object.omit@^2.0.0:
     for-own "^0.1.4"
     is-extendable "^0.1.1"
 
+object.omit@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/object.omit/-/object.omit-3.0.0.tgz#0e3edc2fce2ba54df5577ff529f6d97bd8a522af"
+  integrity sha512-EO+BCv6LJfu+gBIF3ggLicFebFLN5zqzz/WWJlMFfkMyGth+oBkhxzDl0wx2W4GkLzuQs/FsSkXZb2IMWQqmBQ==
+  dependencies:
+    is-extendable "^1.0.0"
+
 object.pick@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/object.pick/-/object.pick-1.3.0.tgz#87a10ac4c1694bd2e1cbf53591a66141fb5dd747"
@@ -19661,6 +19668,15 @@ react-color@^2.17.0:
     reactcss "^1.2.0"
     tinycolor2 "^1.4.1"
 
+react-cursor-position@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/react-cursor-position/-/react-cursor-position-3.0.3.tgz#fe6be08f155a9ef2f9cd871a67a8ebd71eed44f4"
+  integrity sha512-jrmHFKQtfNdvfJ5hIH+FOb2h9+mgcD8/POOY7LngmsYCJNlg6IYdnGdbMGMTeyue/iUvY+t20t20RDrH+qW5dw==
+  dependencies:
+    object-assign "^4.1.1"
+    object.omit "^3.0.0"
+    prop-types "^15.6.0"
+
 react-dev-utils@5.0.2:
   version "5.0.2"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-5.0.2.tgz#7bb68d2c4f6ffe7ed1184c5b0124fcad692774d2"
@@ -20047,6 +20063,11 @@ react-sizeme@^2.6.7:
     invariant "^2.2.4"
     shallowequal "^1.1.0"
     throttle-debounce "^2.1.0"
+
+react-sticky-mouse-tooltip@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/react-sticky-mouse-tooltip/-/react-sticky-mouse-tooltip-0.0.1.tgz#9bf2f03f6168ffd3d9e34f42699979cf643faa80"
+  integrity sha512-nuKyvolX3Zsu48uoGXkEvEE8oAwl7jaUvJrA/SxCSmBmbzmECNBQp03Z60L6/1ImLUzLFUHh2Wul3GpkEffrPw==
 
 react-syntax-highlighter@^8.0.1:
   version "8.1.0"

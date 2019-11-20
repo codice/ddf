@@ -42,7 +42,7 @@ const Gazetteer = require('../../../react-component/location/gazetteer.js')
 
 import MapSettings from '../../../react-component/map-settings'
 import MapInfo from '../../../react-component/map-info'
-import DistanceInfo from '../../../react-component/select-coordinates'
+import DistanceInfo from '../../../react-component/distance-info'
 
 function findExtreme({ objArray, property, comparator }) {
   if (objArray.length === 0) {

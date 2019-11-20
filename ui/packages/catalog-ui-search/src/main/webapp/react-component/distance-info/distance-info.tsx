@@ -13,11 +13,10 @@
  *
  **/
 import * as React from 'react'
-import styled from 'styled-components'
 import { hot } from 'react-hot-loader'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 
-const MouseTooltip = require('react-sticky-mouse-tooltip')
+const DistanceInfoPresentation = require('./presentation').default
 
 const mapPropsToState = (props: Props) => {
   const { map } = props
@@ -46,11 +45,6 @@ type State = {
   currentDistance: Number
 }
 
-const DistanceInfoText = styled.div`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`
 
 class DistanceInfo extends React.Component<Props, State> {
     constructor(props: Props) {
@@ -73,20 +67,32 @@ class DistanceInfo extends React.Component<Props, State> {
         this.setState(mapPropsToState(this.props))
     }
 
-    render() {
-        console.log('rendered')
-        const distance = (this.state.currentDistance) ? this.state.currentDistance : 0
+    const move => (evt : Event) {
+        if (evt.target.tagName.toLowerCase() === 'svg') {
+            evt.preventDefault();
+            var svgPos = this.refs.svg.getBoundingClientRect();
+            var x = evt.clientX,
+                    y = evt.clientY;
+            if (evt.type==='touchmove') {
+                x = evt.touches[0].pageX,
+                y = evt.touches[0].pageY;
+            }
+            x = x - svgPos.left;
+            y = y - svgPos.top;
+            var points = this.state.points;
+            if (points.length > 50) {
+                points.shift();
+            }
+            points.push({
+                x: x,
+                y: y
+            });
+            this.setState(points);
+        }
+    }
 
-        return (
-            <div>
-                <MouseTooltip
-                    visible={this.state.isMeasuringDistance}
-                    offsetX={15}
-                    offsetY={10}>
-                    <DistanceInfoText>{distance}</DistanceInfoText>
-                </MouseTooltip>
-            </div>
-        )
+    render() {
+        return <DistanceInfoPresentation onMouseMove={this.move.bind(this)} {...this.state} />
     }
 }
 
