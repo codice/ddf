@@ -168,6 +168,15 @@ module.exports = Marionette.LayoutView.extend({
                       : ''
                 )
                 break
+              case 'LONG':
+              case 'DOUBLE':
+              case 'FLOAT':
+              case 'INTEGER':
+              case 'SHORT':
+                value = value.map(
+                  val => (val !== undefined && val !== '' ? Number(val) : '')
+                )
+                break
               default:
                 break
             }
