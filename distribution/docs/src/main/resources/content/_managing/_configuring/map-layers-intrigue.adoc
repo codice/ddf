@@ -21,7 +21,7 @@ Adding a Map Layer translates to adding an Imagery Provider
 . Enter a unique alphanumeric *Name* (no special characters).
 . Enter the *Provider URL* for the server hosting the map layer instance.
 . Select *Proxy* _if_ security policies _or_ the tile server does not allow Cross-Origin Resource Sharing (CORS).
-. Select *Allow Credential Formatting* if map layer server prompts for credentials.
+. Select *Allow Credential Forwarding* if map layer server prompts for credentials.
 .. _If selected, requests will fail if the server does not prompt for credentials._
 . Select from the list of available *Provider Types*.
 . Select a value for the *Alpha* to set the overall opacity of the _map layer_.
