@@ -11,7 +11,8 @@ Data can be ingested via ${catalog-ui}.
 
 [WARNING]
 ====
-The ${catalog-ui} uploader is intended for the upload of products (such as images or documents), not metadata files (such as Metacard XML). A user will not be able to specify which input transformer is used to ingest the document.
+The ${catalog-ui} uploader is intended for the upload of resources (such as images or documents), not metadata files (such as Metacard XML).
+A user will not be able to specify which input transformer is used to ingest the document.
 ====
 
 . Select the Menu icon (image:navigator-icon.png[]) in the upper left corner.
@@ -20,12 +21,12 @@ The ${catalog-ui} uploader is intended for the upload of products (such as image
 . After selecting the file(s) to be uploaded, select *Start* to begin uploading.
 
 Files are processed individually with a visual status indication of each upload.
-If there are any failures, the user is notified with a message on that specific product.
+If there are any failures, the user is notified with a message on that specific resource.
 More information about the uploads can be found in the ingest log.
 The default location of the log is `${home_directory}/data/log/ingest_error.log`.
 
 [NOTE]
 ====
-Uploaded products may be marked with Validation Warnings or Errors.
-Additional configuration may be needed to view these products in searches.
+Uploaded resources may be marked with Validation Warnings or Errors.
+Additional configuration may be needed to view these resources in searches.
 ====

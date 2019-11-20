@@ -7,7 +7,7 @@
 
 The KML Query Response Transformer translates a query response into a KML-formatted document.
 The KML will contain an HTML description for each metacard that will display in the pop-up bubble in Google Earth.
-The HTML contains links to the full metadata view as well as the product.
+The HTML contains links to the full metadata view as well as the resource.
 
 ===== Installing the KML Query Response Transformer
 

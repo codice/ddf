@@ -165,8 +165,8 @@ It is possible to have only remote Sources configured and no local `CatalogProvi
 
 ===== Product Retrieval
 
-The Query Service Endpoint, the Catalog Framework, and the `CatalogProvider` are key components for processing a retrieve product request.
-The Endpoint bundle contains a Web service that exposes the interface to retrieve products, also referred to as Resources.
+The Query Service Endpoint, the Catalog Framework, and the `CatalogProvider` are key components for processing a resource retrieval request.
+The Endpoint bundle contains a Web service that exposes the interface to retrieve resources.
 The Endpoint calls the `CatalogFramework` to execute the operations of its specification.
 The `CatalogFramework` relies on the Sources to execute the actual product retrieval.
 Optional `PreResource` and `PostResource` Catalog Plugins may be invoked by the `CatalogFramework` to modify the product retrieval request/response prior to the Catalog Provider processing the request and providing the response. 

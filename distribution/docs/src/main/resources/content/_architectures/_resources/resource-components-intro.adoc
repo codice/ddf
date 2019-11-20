@@ -9,7 +9,6 @@
 Resource components are used when working with resources
 
 A resource is a URI-addressable entity that is represented by a metacard.
-Resources may also be known as *products* or *data*.
 
 Resources may exist either locally or on a remote data store.
 

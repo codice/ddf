@@ -17,7 +17,7 @@ The PDP that is being used returns a decision, and the metacard will either be f
 How a metacard gets filtered is left up to any number of FilterStrategy implementations that might be installed.
 Each FilterStrategy will return a result to the filter plugin that says whether or not it was able to process the metacard, along with the metacard or response itself.
 This allows a metacard or entire response to be partially filtered to allow some data to pass back to the requester.
-This could also include filtering any products sent back to a requester.
+This could also include filtering any resources sent back to a requester.
 
 The security attributes populated on the metacard are completely dependent on the type of the metacard.
 Each type of metacard must have its own `PolicyPlugin` that reads the metadata being returned and then returns the appropriate attributes.

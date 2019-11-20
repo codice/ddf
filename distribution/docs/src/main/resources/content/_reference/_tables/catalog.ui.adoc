@@ -386,7 +386,7 @@ a|* `1800`
 |Maximum Endpoint Upload Size
 |maximumUploadSize
 |Integer
-|The maximum size (in bytes) to allow per client when receiving a POST/PATCH/PUT. Note: This does not affect product upload size, just the maximum size allowed for calls from Intrigue.
+|The maximum size (in bytes) to allow per client when receiving a POST/PATCH/PUT. Note: This does not affect resource upload size, just the maximum size allowed for calls from Intrigue.
 |1048576
 |true
 

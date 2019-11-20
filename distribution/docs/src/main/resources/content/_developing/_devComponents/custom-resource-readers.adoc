@@ -5,7 +5,7 @@
 :order: 15
 :summary: Creating a custom Resource Reader.
 
-A `ResourceReader` is a class that retrieves a resource or product from a native/external source and returns it to ${branding}.
+A `ResourceReader` is a class that retrieves a resource from a native/external source and returns it to ${branding}.
 A simple example is that of a File `ResourceReader`.
 It takes a file from the local file system and passes it back to ${branding}.
 New implementations can be created in order to support obtaining Resources from various Resource data stores. 

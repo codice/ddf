@@ -11,7 +11,7 @@ The plugin runs each metacard in the `CreateRequest` and `UpdateRequest` against
 
 [NOTE]
 ====
-This plugin can make it seem like ingested products are not successfully ingested if a user does not have permissions to access invalid metacards.
+This plugin can make it seem like ingested resources are not successfully ingested if a user does not have permissions to access invalid metacards.
 If an ingest did not fail, there are no errors in the ingest log, but the expected results do not show up after a query,
 verify either that the ingested data is valid or that the <<_metacard_validity_filter_plugin,Metacard Validity Filter Plugin>> is configured to show warnings and/or errors.
 ====
