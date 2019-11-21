@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.20.0. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.21.0. Copyright (c) Codice Foundation">
 <title>DDF Reference Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,7 +520,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>DDF Reference Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.20.0. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.21.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -624,7 +624,12 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_search_ui_whitelist">Search UI Whitelist</a></li>
 </ul>
 </li>
-<li><a href="#_ddf_dependency_list">DDF Dependency List</a></li>
+<li><a href="#_ddf_dependency_list">DDF Dependency List</a>
+<ul class="sectlevel2">
+<li><a href="#_ddf_2_21_0_dependency_list">DDF 2.21.0 Dependency List.</a></li>
+<li><a href="#_ddf_2_21_0_javascript_dependency_list">DDF 2.21.0 Javascript Dependency List.</a></li>
+</ul>
+</li>
 <li><a href="#_hardening_checklist">Hardening Checklist</a></li>
 </ul>
 </div>
@@ -1242,20 +1247,28 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 <td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the Confluence endpoint requires basic authentication.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username for WFS Service. Required if basic authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the Confluence endpoint requires basic authentication.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password for WFS Service. Required if basic authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Include Page Contents In Results</p></td>
@@ -1455,10 +1468,18 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication type to use when federating.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username for CSW Service (optional).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username for CSW Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -1466,7 +1487,7 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password for CSW Service (optional).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password for CSW Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -2067,10 +2088,18 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication type to use when federating.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the OpenSearch endpoint requires basic authentication.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username to use with HTTP Basic Authentication. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -2078,8 +2107,40 @@ The entry should be the format of: <code>configuration ID = "user attribute name
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the OpenSearch endpoint requires basic authentication.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password to use with HTTP Basic Authentication. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Discovery Url</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthDiscoveryUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://localhost:8443/auth/realms/master/.well-known/openid-configuration" class="bare">https://localhost:8443/auth/realms/master/.well-known/openid-configuration</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Client ID</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthClientId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Client ID registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ddf-client</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Client Secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthClientSecret</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Client Secret registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Flow</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthFlow</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The OAuth flow to use when federating. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">code</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
@@ -3817,10 +3878,18 @@ These objects are</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication type to use when federating.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username for CSW Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username for CSW Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -3828,8 +3897,40 @@ These objects are</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password for CSW Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password for CSW Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Discovery Url</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthDiscoveryUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://localhost:8443/auth/realms/master/.well-known/openid-configuration" class="bare">https://localhost:8443/auth/realms/master/.well-known/openid-configuration</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Client ID</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthClientId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Client ID registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ddf-client</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Client Secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthClientSecret</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Client Secret registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Flow</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthFlow</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The OAuth flow to use when federating. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">code</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
@@ -5559,10 +5660,18 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication type to use when federating.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username for CSW Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username for CSW Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -5570,8 +5679,40 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password for CSW Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password for CSW Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Discovery Url</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthDiscoveryUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://localhost:8443/auth/realms/master/.well-known/openid-configuration" class="bare">https://localhost:8443/auth/realms/master/.well-known/openid-configuration</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Client ID</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthClientId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Client ID registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ddf-client</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Client Secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthClientSecret</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Client Secret registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Flow</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthFlow</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The OAuth flow to use when federating. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">code</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
@@ -5734,10 +5875,18 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication type to use when federating.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username for CSW Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username for CSW Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -5745,8 +5894,40 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password for CSW Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password for CSW Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Discovery Url</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthDiscoveryUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://localhost:8443/auth/realms/master/.well-known/openid-configuration" class="bare">https://localhost:8443/auth/realms/master/.well-known/openid-configuration</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Client ID</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthClientId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Client ID registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ddf-client</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Client Secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthClientSecret</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Client Secret registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Flow</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthFlow</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The OAuth flow to use when federating. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">code</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
@@ -5821,10 +6002,18 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">username</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Username</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username for CSW Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication type to use when federating.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username for CSW Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -5832,8 +6021,40 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password for CSW Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password for CSW Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Discovery Url</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthDiscoveryUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://localhost:8443/auth/realms/master/.well-known/openid-configuration" class="bare">https://localhost:8443/auth/realms/master/.well-known/openid-configuration</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Client ID</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthClientId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Client ID registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ddf-client</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Client Secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthClientSecret</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Client Secret registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Flow</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthFlow</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The OAuth flow to use when federating. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">code</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
@@ -6010,10 +6231,18 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication type to use when federating.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username for CSW Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username for CSW Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -6021,8 +6250,40 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password for CSW Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password for CSW Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Discovery Url</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthDiscoveryUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://localhost:8443/auth/realms/master/.well-known/openid-configuration" class="bare">https://localhost:8443/auth/realms/master/.well-known/openid-configuration</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Client ID</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthClientId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Client ID registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ddf-client</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Client Secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthClientSecret</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Client Secret registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">secret</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Flow</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthFlow</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The OAuth flow to use when federating. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">code</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
@@ -6391,10 +6652,18 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username for WFS Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username for WFS Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -6402,7 +6671,7 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password for WFS Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password for WFS Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -6494,10 +6763,18 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username for WFS Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username for WFS Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -6505,7 +6782,7 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password for WFS Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password for WFS Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -6621,10 +6898,18 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username for WFS Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username for WFS Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -6632,7 +6917,7 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password for WFS Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password for WFS Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -6748,10 +7033,18 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username for the WFS Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username for WFS Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -6759,7 +7052,7 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password for the WFS Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password for WFS Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -6875,10 +7168,18 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username for tge WFS Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username for the WFS Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -6886,7 +7187,7 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password for the WFS Service (optional)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password for the WFS Service. Required if basic authentication type is selected.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 </tr>
@@ -9272,17 +9573,15 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <div class="paragraph">
 <p>This list of DDF dependencies is automatically generated:</p>
 </div>
+<div class="sect2">
+<h3 id="_ddf_2_21_0_dependency_list"><a class="anchor" href="#_ddf_2_21_0_dependency_list"></a><a class="link" href="#_ddf_2_21_0_dependency_list">DDF 2.21.0 Dependency List.</a></h3>
 <div class="ulist">
-<div class="title">DDF 2.20.0 Dependency List.</div>
 <ul>
 <li>
 <p>c3p0:c3p0:jar:0.9.1.1</p>
 </li>
 <li>
 <p>ca.juliusdavies:not-yet-commons-ssl:jar:0.3.11</p>
-</li>
-<li>
-<p>cglib:cglib-nodep:jar:3.2.6</p>
 </li>
 <li>
 <p>ch.qos.logback:logback-access:jar:1.2.3</p>
@@ -9292,6 +9591,9 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </li>
 <li>
 <p>ch.qos.logback:logback-core:jar:1.2.3</p>
+</li>
+<li>
+<p>com.auth0:java-jwt:jar:3.8.1</p>
 </li>
 <li>
 <p>com.codahale.metrics:metrics-core:jar:3.0.1</p>
@@ -9309,10 +9611,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>com.fasterxml.jackson.core:jackson-databind:jar:2.9.8</p>
 </li>
 <li>
-<p>com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.9.8</p>
-</li>
-<li>
-<p>com.fasterxml.woodstox:woodstox-core:jar:5.0.3</p>
+<p>com.fasterxml.woodstox:woodstox-core:jar:5.3.0</p>
 </li>
 <li>
 <p>com.github.drapostolos:type-parser:jar:0.5.0</p>
@@ -9324,19 +9623,10 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>com.github.jai-imageio:jai-imageio-jpeg2000:jar:1.3.1_CODICE_3</p>
 </li>
 <li>
-<p>com.github.jknack:handlebars-jackson2:jar:1.0.0</p>
-</li>
-<li>
-<p>com.github.jknack:handlebars:jar:1.1.2</p>
-</li>
-<li>
 <p>com.github.jknack:handlebars:jar:2.0.0</p>
 </li>
 <li>
 <p>com.github.lookfirst:sardine:jar:5.7</p>
-</li>
-<li>
-<p>com.github.rvesse:airline:jar:2.1.0</p>
 </li>
 <li>
 <p>com.google.code.gson:gson:jar:2.8.5</p>
@@ -9345,10 +9635,13 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>com.google.crypto.tink:tink:jar:1.2.2</p>
 </li>
 <li>
-<p>com.google.guava:guava:jar:20.0</p>
+<p>com.google.guava:guava:jar:25.1-jre</p>
 </li>
 <li>
 <p>com.google.http-client:google-http-client:jar:1.22.0</p>
+</li>
+<li>
+<p>com.google.protobuf:protobuf-java:jar:3.6.1</p>
 </li>
 <li>
 <p>com.googlecode.json-simple:json-simple:jar:1.1.1</p>
@@ -9366,6 +9659,15 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>com.jhlabs:filters:jar:2.0.235-1</p>
 </li>
 <li>
+<p>com.nimbusds:lang-tag:jar:1.4.4</p>
+</li>
+<li>
+<p>com.nimbusds:nimbus-jose-jwt:jar:6.5</p>
+</li>
+<li>
+<p>com.nimbusds:oauth2-oidc-sdk:jar:6.5</p>
+</li>
+<li>
 <p>com.rometools:rome-utils:jar:1.9.0</p>
 </li>
 <li>
@@ -9373,9 +9675,6 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </li>
 <li>
 <p>com.sparkjava:spark-core:jar:2.5.5</p>
-</li>
-<li>
-<p>com.sun.mail:javax.mail:jar:1.5.6</p>
 </li>
 <li>
 <p>com.sun.xml.bind:jaxb-core:jar:2.2.11</p>
@@ -9399,13 +9698,13 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>com.xebialabs.restito:restito:jar:0.8.2</p>
 </li>
 <li>
-<p>commons-beanutils:commons-beanutils:jar:1.9.3</p>
+<p>com.zensols.jrtf:tutego.jrtf:jar:0.1.0</p>
 </li>
 <li>
-<p>commons-codec:commons-codec:jar:1.10</p>
+<p>commons-beanutils:commons-beanutils:jar:1.9.4</p>
 </li>
 <li>
-<p>commons-codec:commons-codec:jar:1.11</p>
+<p>commons-codec:commons-codec:jar:1.12</p>
 </li>
 <li>
 <p>commons-collections:commons-collections:jar:3.2.2</p>
@@ -9417,7 +9716,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>commons-digester:commons-digester:jar:1.8.1</p>
 </li>
 <li>
-<p>commons-fileupload:commons-fileupload:jar:1.3.2</p>
+<p>commons-fileupload:commons-fileupload:jar:1.3.3</p>
 </li>
 <li>
 <p>commons-io:commons-io:jar:2.1</p>
@@ -9447,43 +9746,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>de.micromata.jak:JavaAPIforKml:jar:2.2.1_CODICE_1</p>
 </li>
 <li>
-<p>io.dropwizard.metrics:metrics-core:jar:3.1.2</p>
-</li>
-<li>
 <p>io.dropwizard.metrics:metrics-core:jar:3.2.6</p>
-</li>
-<li>
-<p>io.dropwizard.metrics:metrics-ganglia:jar:3.2.6</p>
-</li>
-<li>
-<p>io.dropwizard.metrics:metrics-graphite:jar:3.2.6</p>
-</li>
-<li>
-<p>io.dropwizard.metrics:metrics-jetty9:jar:3.2.6</p>
-</li>
-<li>
-<p>io.dropwizard.metrics:metrics-jvm:jar:3.2.6</p>
-</li>
-<li>
-<p>io.netty:netty-buffer:jar:4.1.16.Final</p>
-</li>
-<li>
-<p>io.netty:netty-codec:jar:4.1.16.Final</p>
-</li>
-<li>
-<p>io.netty:netty-common:jar:4.1.16.Final</p>
-</li>
-<li>
-<p>io.netty:netty-handler:jar:4.1.16.Final</p>
-</li>
-<li>
-<p>io.netty:netty-resolver:jar:4.1.16.Final</p>
-</li>
-<li>
-<p>io.netty:netty-transport-native-epoll:jar:4.1.16.Final</p>
-</li>
-<li>
-<p>io.netty:netty-transport:jar:4.1.16.Final</p>
 </li>
 <li>
 <p>io.sgr:s2-geometry-library-java:jar:1.0.0</p>
@@ -9495,7 +9758,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>javax.inject:javax.inject:jar:1</p>
 </li>
 <li>
-<p>javax.mail:mail:jar:1.4.5</p>
+<p>javax.mail:javax.mail-api:jar:1.6.2</p>
 </li>
 <li>
 <p>javax.servlet:javax.servlet-api:jar:3.1.0</p>
@@ -9513,16 +9776,13 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>javax.xml.bind:jaxb-api:jar:2.2.11</p>
 </li>
 <li>
-<p>joda-time:joda-time:jar:2.9.9</p>
+<p>joda-time:joda-time:jar:2.10.3</p>
 </li>
 <li>
 <p>junit:junit:jar:4.12</p>
 </li>
 <li>
 <p>log4j:log4j:jar:1.2.17</p>
-</li>
-<li>
-<p>net.iharder:base64:jar:2.3.9</p>
 </li>
 <li>
 <p>net.jodah:failsafe:jar:0.9.3</p>
@@ -9534,10 +9794,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>net.jodah:failsafe:jar:1.0.0</p>
 </li>
 <li>
-<p>net.markenwerk:commons-nulls:jar:1.0.3</p>
-</li>
-<li>
-<p>net.markenwerk:utils-data-fetcher:jar:4.0.1</p>
+<p>net.minidev:accessors-smart:jar:1.2</p>
 </li>
 <li>
 <p>net.minidev:asm:jar:1.0.2</p>
@@ -9552,9 +9809,6 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>net.sf.saxon:Saxon-HE:jar:9.6.0-4</p>
 </li>
 <li>
-<p>org.antlr:antlr4-runtime:jar:4.1</p>
-</li>
-<li>
 <p>org.antlr:antlr4-runtime:jar:4.3</p>
 </li>
 <li>
@@ -9562,9 +9816,6 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </li>
 <li>
 <p>org.apache.abdera:abdera-extensions-opensearch:jar:1.1.3</p>
-</li>
-<li>
-<p>org.apache.activemq:activemq-all:jar:5.14.5</p>
 </li>
 <li>
 <p>org.apache.ant:ant-launcher:jar:1.9.7</p>
@@ -9576,64 +9827,52 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.apache.aries.jmx:org.apache.aries.jmx.api:jar:1.1.5</p>
 </li>
 <li>
-<p>org.apache.aries.jmx:org.apache.aries.jmx.core:jar:1.1.7</p>
+<p>org.apache.aries.jmx:org.apache.aries.jmx.core:jar:1.1.8</p>
+</li>
+<li>
+<p>org.apache.aries.proxy:org.apache.aries.proxy:jar:1.1.4</p>
 </li>
 <li>
 <p>org.apache.aries:org.apache.aries.util:jar:1.1.3</p>
 </li>
 <li>
-<p>org.apache.camel:camel-amqp:jar:2.19.5</p>
+<p>org.apache.camel:camel-aws:jar:2.24.2</p>
 </li>
 <li>
-<p>org.apache.camel:camel-aws:jar:2.19.5</p>
+<p>org.apache.camel:camel-blueprint:jar:2.24.2</p>
 </li>
 <li>
-<p>org.apache.camel:camel-blueprint:jar:2.19.5</p>
+<p>org.apache.camel:camel-context:jar:2.24.2</p>
 </li>
 <li>
-<p>org.apache.camel:camel-context:jar:2.19.5</p>
+<p>org.apache.camel:camel-core-osgi:jar:2.24.2</p>
 </li>
 <li>
-<p>org.apache.camel:camel-core-osgi:jar:2.19.5</p>
+<p>org.apache.camel:camel-core:jar:2.24.2</p>
 </li>
 <li>
-<p>org.apache.camel:camel-core:jar:2.19.5</p>
+<p>org.apache.camel:camel-http-common:jar:2.24.2</p>
 </li>
 <li>
-<p>org.apache.camel:camel-cxf:jar:2.19.5</p>
+<p>org.apache.camel:camel-http4:jar:2.24.2</p>
 </li>
 <li>
-<p>org.apache.camel:camel-http-common:jar:2.19.5</p>
+<p>org.apache.camel:camel-http:jar:2.24.2</p>
 </li>
 <li>
-<p>org.apache.camel:camel-http4:jar:2.19.5</p>
+<p>org.apache.camel:camel-quartz:jar:2.24.2</p>
 </li>
 <li>
-<p>org.apache.camel:camel-http:jar:2.19.5</p>
+<p>org.apache.camel:camel-saxon:jar:2.24.2</p>
 </li>
 <li>
-<p>org.apache.camel:camel-quartz2:jar:2.19.5</p>
-</li>
-<li>
-<p>org.apache.camel:camel-quartz:jar:2.19.5</p>
-</li>
-<li>
-<p>org.apache.camel:camel-saxon:jar:2.19.5</p>
-</li>
-<li>
-<p>org.apache.camel:camel-servlet:jar:2.19.5</p>
-</li>
-<li>
-<p>org.apache.camel:camel-sjms:jar:2.19.5</p>
-</li>
-<li>
-<p>org.apache.camel:camel-stream:jar:2.19.5</p>
+<p>org.apache.camel:camel-servlet:jar:2.24.2</p>
 </li>
 <li>
 <p>org.apache.commons:commons-collections4:jar:4.1</p>
 </li>
 <li>
-<p>org.apache.commons:commons-compress:jar:1.17</p>
+<p>org.apache.commons:commons-compress:jar:1.18</p>
 </li>
 <li>
 <p>org.apache.commons:commons-csv:jar:1.4</p>
@@ -9645,79 +9884,76 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.apache.commons:commons-lang3:jar:3.0</p>
 </li>
 <li>
-<p>org.apache.commons:commons-lang3:jar:3.1</p>
-</li>
-<li>
 <p>org.apache.commons:commons-lang3:jar:3.3.2</p>
 </li>
 <li>
 <p>org.apache.commons:commons-lang3:jar:3.4</p>
 </li>
 <li>
-<p>org.apache.commons:commons-lang3:jar:3.7</p>
+<p>org.apache.commons:commons-lang3:jar:3.9</p>
+</li>
+<li>
+<p>org.apache.commons:commons-math3:jar:3.6.1</p>
 </li>
 <li>
 <p>org.apache.commons:commons-math:jar:2.2</p>
 </li>
 <li>
-<p>org.apache.commons:commons-pool2:jar:2.4.2</p>
-</li>
-<li>
 <p>org.apache.commons:commons-pool2:jar:2.5.0</p>
 </li>
 <li>
-<p>org.apache.cxf.services.sts:cxf-services-sts-core:jar:3.2.5</p>
+<p>org.apache.commons:commons-text:jar:1.6</p>
 </li>
 <li>
-<p>org.apache.cxf:cxf-core:jar:3.2.5</p>
+<p>org.apache.cxf.services.sts:cxf-services-sts-core:jar:3.2.9</p>
 </li>
 <li>
-<p>org.apache.cxf:cxf-rt-bindings-soap:jar:3.0.4</p>
+<p>org.apache.cxf:cxf-core:jar:3.2.9</p>
 </li>
 <li>
-<p>org.apache.cxf:cxf-rt-databinding-jaxb:jar:3.0.4</p>
+<p>org.apache.cxf:cxf-rt-frontend-jaxrs:jar:3.2.9</p>
 </li>
 <li>
-<p>org.apache.cxf:cxf-rt-frontend-jaxrs:jar:3.2.5</p>
+<p>org.apache.cxf:cxf-rt-frontend-jaxws:jar:3.2.9</p>
 </li>
 <li>
-<p>org.apache.cxf:cxf-rt-frontend-jaxws:jar:3.0.4</p>
+<p>org.apache.cxf:cxf-rt-rs-client:jar:3.2.9</p>
 </li>
 <li>
-<p>org.apache.cxf:cxf-rt-frontend-jaxws:jar:3.2.5</p>
+<p>org.apache.cxf:cxf-rt-rs-security-jose-jaxrs:jar:3.2.9</p>
 </li>
 <li>
-<p>org.apache.cxf:cxf-rt-rs-client:jar:3.2.5</p>
+<p>org.apache.cxf:cxf-rt-rs-security-jose:jar:3.2.9</p>
 </li>
 <li>
-<p>org.apache.cxf:cxf-rt-rs-security-sso-saml:jar:3.2.5</p>
+<p>org.apache.cxf:cxf-rt-rs-security-sso-saml:jar:3.2.9</p>
 </li>
 <li>
-<p>org.apache.cxf:cxf-rt-rs-security-xml:jar:3.0.4</p>
+<p>org.apache.cxf:cxf-rt-rs-security-xml:jar:3.2.9</p>
 </li>
 <li>
-<p>org.apache.cxf:cxf-rt-rs-security-xml:jar:3.2.5</p>
+<p>org.apache.cxf:cxf-rt-transports-http:jar:3.2.9</p>
 </li>
 <li>
-<p>org.apache.cxf:cxf-rt-transports-http:jar:3.2.5</p>
+<p>org.apache.cxf:cxf-rt-ws-policy:jar:3.2.9</p>
 </li>
 <li>
-<p>org.apache.cxf:cxf-rt-ws-policy:jar:3.2.5</p>
+<p>org.apache.cxf:cxf-rt-ws-security:jar:3.2.9</p>
 </li>
 <li>
-<p>org.apache.cxf:cxf-rt-ws-security:jar:3.2.5</p>
+<p>org.apache.felix:org.apache.felix.configadmin:jar:1.9.14</p>
 </li>
 <li>
-<p>org.apache.felix:org.apache.felix.configadmin:jar:1.8.14</p>
-</li>
-<li>
-<p>org.apache.felix:org.apache.felix.fileinstall:jar:3.6.0</p>
+<p>org.apache.felix:org.apache.felix.fileinstall:jar:3.6.4</p>
 </li>
 <li>
 <p>org.apache.felix:org.apache.felix.framework:jar:5.6.12</p>
 </li>
 <li>
-<p>org.apache.felix:org.apache.felix.utils:jar:1.10.0</p>
+<p>org.apache.felix:org.apache.felix.scr:jar:2.0.14</p>
+</li>
+<li>
+<p>org.apache.felix:org.apache.felix.utils:jar:1.11.2</p>
 </li>
 <li>
 <p>org.apache.ftpserver:ftplet-api:jar:1.0.6</p>
@@ -9726,22 +9962,19 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.apache.ftpserver:ftpserver-core:jar:1.0.6</p>
 </li>
 <li>
-<p>org.apache.geronimo.specs:geronimo-servlet_3.0_spec:jar:1.0</p>
-</li>
-<li>
 <p>org.apache.httpcomponents:httpclient:jar:4.5.3</p>
 </li>
 <li>
-<p>org.apache.httpcomponents:httpclient:jar:4.5.5</p>
+<p>org.apache.httpcomponents:httpclient:jar:4.5.6</p>
 </li>
 <li>
-<p>org.apache.httpcomponents:httpcore:jar:4.4.6</p>
+<p>org.apache.httpcomponents:httpcore:jar:4.4.10</p>
 </li>
 <li>
 <p>org.apache.httpcomponents:httpmime:jar:4.5.3</p>
 </li>
 <li>
-<p>org.apache.httpcomponents:httpmime:jar:4.5.5</p>
+<p>org.apache.httpcomponents:httpmime:jar:4.5.6</p>
 </li>
 <li>
 <p>org.apache.karaf.bundle:org.apache.karaf.bundle.core:jar:4.2.6</p>
@@ -9753,6 +9986,9 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.apache.karaf.features:standard:xml:features:4.2.6</p>
 </li>
 <li>
+<p>org.apache.karaf.itests:common:jar:4.2.6</p>
+</li>
+<li>
 <p>org.apache.karaf.jaas:org.apache.karaf.jaas.boot:jar:4.2.6</p>
 </li>
 <li>
@@ -9760,6 +9996,9 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </li>
 <li>
 <p>org.apache.karaf.jaas:org.apache.karaf.jaas.modules:jar:4.2.6</p>
+</li>
+<li>
+<p>org.apache.karaf.log:org.apache.karaf.log.core:jar:4.2.6</p>
 </li>
 <li>
 <p>org.apache.karaf.shell:org.apache.karaf.shell.console:jar:4.2.6</p>
@@ -9786,7 +10025,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.apache.logging.log4j:log4j-api:jar:2.11.0</p>
 </li>
 <li>
-<p>org.apache.logging.log4j:log4j-api:jar:2.4.1</p>
+<p>org.apache.logging.log4j:log4j-api:jar:2.8.2</p>
 </li>
 <li>
 <p>org.apache.logging.log4j:log4j-core:jar:2.11.0</p>
@@ -9795,34 +10034,31 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.apache.logging.log4j:log4j-slf4j-impl:jar:2.11.0</p>
 </li>
 <li>
-<p>org.apache.lucene:lucene-analyzers-common:jar:7.4.0</p>
+<p>org.apache.lucene:lucene-analyzers-common:jar:7.7.2</p>
 </li>
 <li>
 <p>org.apache.lucene:lucene-core:jar:3.0.2</p>
 </li>
 <li>
-<p>org.apache.lucene:lucene-core:jar:7.4.0</p>
+<p>org.apache.lucene:lucene-core:jar:7.7.2</p>
 </li>
 <li>
-<p>org.apache.lucene:lucene-queries:jar:7.4.0</p>
+<p>org.apache.lucene:lucene-queries:jar:7.7.2</p>
 </li>
 <li>
-<p>org.apache.lucene:lucene-queryparser:jar:7.4.0</p>
+<p>org.apache.lucene:lucene-queryparser:jar:7.7.2</p>
 </li>
 <li>
-<p>org.apache.lucene:lucene-sandbox:jar:7.4.0</p>
+<p>org.apache.lucene:lucene-sandbox:jar:7.7.2</p>
 </li>
 <li>
-<p>org.apache.lucene:lucene-spatial-extras:jar:7.4.0</p>
+<p>org.apache.lucene:lucene-spatial-extras:jar:7.7.2</p>
 </li>
 <li>
-<p>org.apache.lucene:lucene-spatial3d:jar:7.4.0</p>
+<p>org.apache.lucene:lucene-spatial3d:jar:7.7.2</p>
 </li>
 <li>
-<p>org.apache.lucene:lucene-spatial:jar:7.4.0</p>
-</li>
-<li>
-<p>org.apache.maven.shared:maven-invoker:jar:2.2</p>
+<p>org.apache.lucene:lucene-spatial:jar:7.7.2</p>
 </li>
 <li>
 <p>org.apache.mina:mina-core:jar:2.0.6</p>
@@ -9852,13 +10088,13 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.apache.servicemix.specs:org.apache.servicemix.specs.jsr339-api-2.0:jar:2.6.0</p>
 </li>
 <li>
-<p>org.apache.shiro:shiro-core:jar:1.3.2</p>
+<p>org.apache.shiro:shiro-core:jar:1.4.0</p>
 </li>
 <li>
-<p>org.apache.solr:solr-core:jar:7.4.0</p>
+<p>org.apache.solr:solr-core:jar:7.7.2</p>
 </li>
 <li>
-<p>org.apache.solr:solr-solrj:jar:7.4.0</p>
+<p>org.apache.solr:solr-solrj:jar:7.7.2</p>
 </li>
 <li>
 <p>org.apache.tika:tika-core:jar:1.18</p>
@@ -9873,22 +10109,28 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.apache.ws.xmlschema:xmlschema-core:jar:2.2.2</p>
 </li>
 <li>
-<p>org.apache.wss4j:wss4j-bindings:jar:2.2.2</p>
+<p>org.apache.ws.xmlschema:xmlschema-core:jar:2.2.3</p>
 </li>
 <li>
-<p>org.apache.wss4j:wss4j-policy:jar:2.2.2</p>
+<p>org.apache.wss4j:wss4j-bindings:jar:2.2.3</p>
 </li>
 <li>
-<p>org.apache.wss4j:wss4j-ws-security-common:jar:2.2.2</p>
+<p>org.apache.wss4j:wss4j-policy:jar:2.2.3</p>
 </li>
 <li>
-<p>org.apache.wss4j:wss4j-ws-security-dom:jar:2.2.2</p>
+<p>org.apache.wss4j:wss4j-ws-security-common:jar:2.2.3</p>
 </li>
 <li>
-<p>org.apache.wss4j:wss4j-ws-security-policy-stax:jar:2.2.2</p>
+<p>org.apache.wss4j:wss4j-ws-security-dom:jar:2.2.3</p>
 </li>
 <li>
-<p>org.apache.wss4j:wss4j-ws-security-stax:jar:2.2.2</p>
+<p>org.apache.wss4j:wss4j-ws-security-policy-stax:jar:2.2.3</p>
+</li>
+<li>
+<p>org.apache.wss4j:wss4j-ws-security-stax:jar:2.2.3</p>
+</li>
+<li>
+<p>org.apache.zookeeper:zookeeper:jar:3.4.14</p>
 </li>
 <li>
 <p>org.asciidoctor:asciidoctorj-diagram:jar:1.5.4.1</p>
@@ -9900,31 +10142,28 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.assertj:assertj-core:jar:2.1.0</p>
 </li>
 <li>
-<p>org.awaitility:awaitility:jar:3.0.0</p>
-</li>
-<li>
-<p>org.awaitility:awaitility:jar:3.1.0</p>
-</li>
-<li>
 <p>org.awaitility:awaitility:jar:3.1.5</p>
 </li>
 <li>
-<p>org.bouncycastle:bcmail-jdk15on:jar:1.60</p>
+<p>org.bouncycastle:bcmail-jdk15on:jar:1.61</p>
 </li>
 <li>
-<p>org.bouncycastle:bcpkix-jdk15on:jar:1.60</p>
+<p>org.bouncycastle:bcpkix-jdk15on:jar:1.61</p>
 </li>
 <li>
-<p>org.bouncycastle:bcprov-jdk15on:jar:1.60</p>
+<p>org.bouncycastle:bcprov-jdk15on:jar:1.61</p>
 </li>
 <li>
-<p>org.codehaus.groovy:groovy-all:jar:2.4.7</p>
+<p>org.codehaus.woodstox:stax2-api:jar:4.2</p>
 </li>
 <li>
-<p>org.codehaus.jackson:jackson-mapper-asl:jar:1.9.13</p>
+<p>org.codice.acdebugger:acdebugger-api:jar:1.7</p>
 </li>
 <li>
-<p>org.codice.countrycode:converter:jar:0.1.6</p>
+<p>org.codice.acdebugger:acdebugger-backdoor:jar:1.7</p>
+</li>
+<li>
+<p>org.codice.countrycode:converter:jar:0.1.8</p>
 </li>
 <li>
 <p>org.codice.geowebcache:geowebcache-server-standalone:war:0.7.0</p>
@@ -9933,10 +10172,10 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.codice.geowebcache:geowebcache-server-standalone:xml:geowebcache:0.7.0</p>
 </li>
 <li>
-<p>org.codice.httpproxy:proxy-camel-route:jar:2.14.0</p>
+<p>org.codice.httpproxy:proxy-camel-route:jar:2.21.0-SNAPSHOT</p>
 </li>
 <li>
-<p>org.codice.httpproxy:proxy-camel-servlet:jar:2.14.0</p>
+<p>org.codice.httpproxy:proxy-camel-servlet:jar:2.21.0-SNAPSHOT</p>
 </li>
 <li>
 <p>org.codice.opendj.embedded:opendj-embedded-app:xml:features:1.3.3</p>
@@ -9951,7 +10190,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.codice.thirdparty:ffmpeg:zip:bin:4.0_2</p>
 </li>
 <li>
-<p>org.codice.thirdparty:geotools-suite:jar:19.1_1</p>
+<p>org.codice.thirdparty:geotools-suite:jar:19.1_2</p>
 </li>
 <li>
 <p>org.codice.thirdparty:gt-opengis:jar:19.1_1</p>
@@ -9969,31 +10208,40 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.codice.thirdparty:picocontainer:jar:1.3_1</p>
 </li>
 <li>
-<p>org.codice.thirdparty:tika-bundle:jar:1.18.0_1</p>
+<p>org.codice.thirdparty:tika-bundle:jar:1.18.0_5</p>
 </li>
 <li>
-<p>org.codice.usng4j:usng4j-api:jar:0.1</p>
+<p>org.codice.usng4j:usng4j-api:jar:0.4</p>
 </li>
 <li>
-<p>org.codice.usng4j:usng4j-impl:jar:0.1</p>
+<p>org.codice.usng4j:usng4j-impl:jar:0.4</p>
 </li>
 <li>
 <p>org.codice:lux:jar:1.2</p>
 </li>
 <li>
-<p>org.eclipse.jetty:jetty-http:jar:9.4.11.v20180605</p>
+<p>org.cryptomator:siv-mode:jar:1.2.2</p>
 </li>
 <li>
-<p>org.eclipse.jetty:jetty-server:jar:9.4.11.v20180605</p>
+<p>org.eclipse.jetty:jetty-http:jar:9.4.18.v20190429</p>
 </li>
 <li>
-<p>org.eclipse.jetty:jetty-servlet:jar:9.4.11.v20180605</p>
+<p>org.eclipse.jetty:jetty-security:jar:9.4.18.v20190429</p>
 </li>
 <li>
-<p>org.eclipse.jetty:jetty-servlets:jar:9.4.11.v20180605</p>
+<p>org.eclipse.jetty:jetty-server:jar:9.4.18.v20190429</p>
 </li>
 <li>
-<p>org.eclipse.jetty:jetty-util:jar:9.4.11.v20180605</p>
+<p>org.eclipse.jetty:jetty-servlet:jar:9.4.18.v20190429</p>
+</li>
+<li>
+<p>org.eclipse.jetty:jetty-servlets:jar:9.2.19.v20160908</p>
+</li>
+<li>
+<p>org.eclipse.jetty:jetty-util:jar:9.4.18.v20190429</p>
+</li>
+<li>
+<p>org.eclipse.platform:org.eclipse.osgi:jar:3.13.0</p>
 </li>
 <li>
 <p>org.forgerock.commons:forgerock-util:jar:3.0.2</p>
@@ -10011,13 +10259,10 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.forgerock.opendj:opendj-grizzly:jar:3.0.0</p>
 </li>
 <li>
-<p>org.fusesource.jansi:jansi:jar:1.16</p>
+<p>org.fusesource.jansi:jansi:jar:1.18</p>
 </li>
 <li>
 <p>org.geotools.xsd:gt-xsd-gml3:jar:19.1</p>
-</li>
-<li>
-<p>org.geotools:gt-cql:jar:13.0</p>
 </li>
 <li>
 <p>org.geotools:gt-cql:jar:19.1</p>
@@ -10068,9 +10313,6 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.jasypt:jasypt:jar:1.9.2</p>
 </li>
 <li>
-<p>org.javassist:javassist:jar:3.22.0-GA</p>
-</li>
-<li>
 <p>org.jcodec:jcodec:jar:0.2.0_1</p>
 </li>
 <li>
@@ -10089,16 +10331,19 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.jscience:jscience:jar:4.3.1</p>
 </li>
 <li>
-<p>org.jsoup:jsoup:jar:1.9.2</p>
+<p>org.json:json:jar:20170516</p>
+</li>
+<li>
+<p>org.jsoup:jsoup:jar:1.11.3</p>
+</li>
+<li>
+<p>org.jvnet.jaxb2_commons:jaxb2-basics-runtime:jar:0.10.0</p>
 </li>
 <li>
 <p>org.jvnet.jaxb2_commons:jaxb2-basics-runtime:jar:0.11.0</p>
 </li>
 <li>
 <p>org.jvnet.jaxb2_commons:jaxb2-basics-runtime:jar:0.6.0</p>
-</li>
-<li>
-<p>org.jvnet.jaxb2_commons:jaxb2-basics-runtime:jar:0.9.4</p>
 </li>
 <li>
 <p>org.jvnet.ogc:filter-v_1_1_0:jar:2.6.1</p>
@@ -10158,16 +10403,19 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.locationtech.spatial4j:spatial4j:jar:0.7</p>
 </li>
 <li>
+<p>org.mindrot:jbcrypt:jar:0.4</p>
+</li>
+<li>
 <p>org.mockito:mockito-core:jar:1.10.19</p>
 </li>
 <li>
 <p>org.noggit:noggit:jar:0.6</p>
 </li>
 <li>
-<p>org.objenesis:objenesis:jar:2.5.1</p>
+<p>org.noggit:noggit:jar:0.8</p>
 </li>
 <li>
-<p>org.objenesis:objenesis:jar:2.6</p>
+<p>org.objenesis:objenesis:jar:2.5.1</p>
 </li>
 <li>
 <p>org.openexi:nagasena-rta:jar:0000.0002.0049.0</p>
@@ -10179,7 +10427,43 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.opensaml:opensaml-core:jar:3.3.0</p>
 </li>
 <li>
+<p>org.opensaml:opensaml-messaging-api:jar:3.3.0</p>
+</li>
+<li>
+<p>org.opensaml:opensaml-profile-api:jar:3.3.0</p>
+</li>
+<li>
+<p>org.opensaml:opensaml-saml-api:jar:3.3.0</p>
+</li>
+<li>
+<p>org.opensaml:opensaml-saml-impl:jar:3.3.0</p>
+</li>
+<li>
+<p>org.opensaml:opensaml-security-api:jar:3.3.0</p>
+</li>
+<li>
+<p>org.opensaml:opensaml-security-impl:jar:3.3.0</p>
+</li>
+<li>
+<p>org.opensaml:opensaml-soap-api:jar:3.3.0</p>
+</li>
+<li>
 <p>org.opensaml:opensaml-soap-impl:jar:3.3.0</p>
+</li>
+<li>
+<p>org.opensaml:opensaml-storage-api:jar:3.3.0</p>
+</li>
+<li>
+<p>org.opensaml:opensaml-xacml-api:jar:3.3.0</p>
+</li>
+<li>
+<p>org.opensaml:opensaml-xacml-impl:jar:3.3.0</p>
+</li>
+<li>
+<p>org.opensaml:opensaml-xacml-saml-api:jar:3.3.0</p>
+</li>
+<li>
+<p>org.opensaml:opensaml-xacml-saml-impl:jar:3.3.0</p>
 </li>
 <li>
 <p>org.opensaml:opensaml-xmlsec-api:jar:3.3.0</p>
@@ -10188,16 +10472,19 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.opensaml:opensaml-xmlsec-impl:jar:3.3.0</p>
 </li>
 <li>
-<p>org.ops4j.pax.exam:pax-exam-container-karaf:jar:4.11.0</p>
+<p>org.ops4j.pax.exam:pax-exam-container-karaf:jar:4.13.2.CODICE</p>
 </li>
 <li>
-<p>org.ops4j.pax.exam:pax-exam-junit4:jar:4.11.0</p>
+<p>org.ops4j.pax.exam:pax-exam-features:xml:4.13.2.CODICE</p>
 </li>
 <li>
-<p>org.ops4j.pax.exam:pax-exam-link-mvn:jar:4.11.0</p>
+<p>org.ops4j.pax.exam:pax-exam-junit4:jar:4.13.2.CODICE</p>
 </li>
 <li>
-<p>org.ops4j.pax.exam:pax-exam:jar:4.11.0</p>
+<p>org.ops4j.pax.exam:pax-exam-link-mvn:jar:4.13.2.CODICE</p>
+</li>
+<li>
+<p>org.ops4j.pax.exam:pax-exam:jar:4.13.2.CODICE</p>
 </li>
 <li>
 <p>org.ops4j.pax.swissbox:pax-swissbox-extender:jar:1.8.2</p>
@@ -10212,7 +10499,10 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.ops4j.pax.url:pax-url-wrap:jar:2.4.5</p>
 </li>
 <li>
-<p>org.ops4j.pax.web:pax-web-api:jar:6.0.9</p>
+<p>org.ops4j.pax.web:pax-web-api:jar:7.2.11</p>
+</li>
+<li>
+<p>org.ops4j.pax.web:pax-web-jsp:jar:7.2.11</p>
 </li>
 <li>
 <p>org.osgi:org.osgi.compendium:jar:4.3.1</p>
@@ -10221,25 +10511,40 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.osgi:org.osgi.compendium:jar:5.0.0</p>
 </li>
 <li>
-<p>org.osgi:org.osgi.core:jar:4.3.1</p>
-</li>
-<li>
 <p>org.osgi:org.osgi.core:jar:5.0.0</p>
 </li>
 <li>
 <p>org.osgi:org.osgi.enterprise:jar:5.0.0</p>
 </li>
 <li>
-<p>org.ow2.asm:asm:jar:5.0.2</p>
+<p>org.ow2.asm:asm-analysis:jar:6.2.1</p>
 </li>
 <li>
-<p>org.ow2.asm:asm:jar:5.0.4</p>
+<p>org.ow2.asm:asm-tree:jar:6.2.1</p>
 </li>
 <li>
-<p>org.parboiled:parboiled-core:jar:1.1.8</p>
+<p>org.ow2.asm:asm:jar:5.2</p>
 </li>
 <li>
-<p>org.parboiled:parboiled-java:jar:1.1.8</p>
+<p>org.ow2.asm:asm:jar:6.2.1</p>
+</li>
+<li>
+<p>org.pac4j:pac4j-core:jar:3.8.2</p>
+</li>
+<li>
+<p>org.pac4j:pac4j-jwt:jar:3.8.2</p>
+</li>
+<li>
+<p>org.pac4j:pac4j-oauth:jar:3.8.2</p>
+</li>
+<li>
+<p>org.pac4j:pac4j-oidc:jar:3.8.2</p>
+</li>
+<li>
+<p>org.parboiled:parboiled-core:jar:1.2.0</p>
+</li>
+<li>
+<p>org.parboiled:parboiled-java:jar:1.2.0</p>
 </li>
 <li>
 <p>org.quartz-scheduler:quartz-jobs:jar:2.2.3</p>
@@ -10251,22 +10556,13 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.quartz-scheduler:quartz:jar:2.2.3</p>
 </li>
 <li>
-<p>org.rrd4j:rrd4j:jar:2.2</p>
-</li>
-<li>
-<p>org.rrd4j:rrd4j:jar:3.2</p>
-</li>
-<li>
-<p>org.simplejavamail:simple-java-mail:jar:4.1.3</p>
+<p>org.rrd4j:rrd4j:jar:3.3.1</p>
 </li>
 <li>
 <p>org.slf4j:jcl-over-slf4j:jar:1.7.24</p>
 </li>
 <li>
 <p>org.slf4j:jul-to-slf4j:jar:1.7.24</p>
-</li>
-<li>
-<p>org.slf4j:slf4j-api:jar:1.7.12</p>
 </li>
 <li>
 <p>org.slf4j:slf4j-api:jar:1.7.1</p>
@@ -10278,22 +10574,10 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.slf4j:slf4j-ext:jar:1.7.1</p>
 </li>
 <li>
-<p>org.slf4j:slf4j-log4j12:jar:1.7.12</p>
-</li>
-<li>
 <p>org.slf4j:slf4j-log4j12:jar:1.7.24</p>
 </li>
 <li>
-<p>org.slf4j:slf4j-log4j12:jar:1.7.7</p>
-</li>
-<li>
 <p>org.slf4j:slf4j-simple:jar:1.7.1</p>
-</li>
-<li>
-<p>org.slf4j:slf4j-simple:jar:1.7.5</p>
-</li>
-<li>
-<p>org.spockframework:spock-core:jar:1.1-groovy-2.4</p>
 </li>
 <li>
 <p>org.springframework.ldap:spring-ldap-core:jar:2.3.2.RELEASE</p>
@@ -10308,13 +10592,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.taktik:mpegts-streamer:jar:0.1.0_2</p>
 </li>
 <li>
-<p>org.twitter4j:twitter4j-core:jar:4.0.4</p>
-</li>
-<li>
 <p>org.xmlunit:xmlunit-matchers:jar:2.5.1</p>
-</li>
-<li>
-<p>us.bpsm:edn-java:jar:0.4.4</p>
 </li>
 <li>
 <p>xalan:serializer:jar:2.7.2</p>
@@ -10335,6 +10613,1505 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>xpp3:xpp3:jar:1.1.4c</p>
 </li>
 </ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_ddf_2_21_0_javascript_dependency_list"><a class="anchor" href="#_ddf_2_21_0_javascript_dependency_list"></a><a class="link" href="#_ddf_2_21_0_javascript_dependency_list">DDF 2.21.0 Javascript Dependency List.</a></h3>
+<div class="ulist">
+<ul>
+<li>
+<p>amdefine: 1.0.1</p>
+</li>
+<li>
+<p>are-we-there-yet: 1.1.5</p>
+</li>
+<li>
+<p>asn1: 0.2.4</p>
+</li>
+<li>
+<p>atob: 2.1.2</p>
+</li>
+<li>
+<p>base: 0.11.2</p>
+</li>
+<li>
+<p>bcrypt-pbkdf: 1.0.2</p>
+</li>
+<li>
+<p>builtins: 1.0.3</p>
+</li>
+<li>
+<p>byline: 5.0.0</p>
+</li>
+<li>
+<p>caller-path: 2.0.0</p>
+</li>
+<li>
+<p>co: 4.6.0</p>
+</li>
+<li>
+<p>code-point-at: 1.1.0</p>
+</li>
+<li>
+<p>copy-descriptor: 0.1.1</p>
+</li>
+<li>
+<p>cyclist: 1.0.1</p>
+</li>
+<li>
+<p>dashdash: 1.14.1</p>
+</li>
+<li>
+<p>debuglog: 1.0.1</p>
+</li>
+<li>
+<p>decode-uri-component: 0.2.0</p>
+</li>
+<li>
+<p>deep-is: 0.1.3</p>
+</li>
+<li>
+<p>defaults: 1.0.3</p>
+</li>
+<li>
+<p>define-properties: 1.1.3</p>
+</li>
+<li>
+<p>dependency-tree: 7.0.2</p>
+</li>
+<li>
+<p>detect-indent: 5.0.0</p>
+</li>
+<li>
+<p>detective-amd: 3.0.0</p>
+</li>
+<li>
+<p>detective-cjs: 3.1.1</p>
+</li>
+<li>
+<p>detective-es6: 2.1.0</p>
+</li>
+<li>
+<p>detective-less: 1.0.2</p>
+</li>
+<li>
+<p>detective-postcss: 3.0.1</p>
+</li>
+<li>
+<p>detective-sass: 3.0.1</p>
+</li>
+<li>
+<p>detective-scss: 2.0.1</p>
+</li>
+<li>
+<p>detective-stylus: 1.0.0</p>
+</li>
+<li>
+<p>detective-typescript: 5.6.1</p>
+</li>
+<li>
+<p>dezalgo: 1.0.3</p>
+</li>
+<li>
+<p>doctrine: 1.5.0</p>
+</li>
+<li>
+<p>duplexer: 0.1.1</p>
+</li>
+<li>
+<p>ecc-jsbn: 0.1.2</p>
+</li>
+<li>
+<p>err-code: 1.1.2</p>
+</li>
+<li>
+<p>es-abstract: 1.16.0</p>
+</li>
+<li>
+<p>es6-set: 0.1.5</p>
+</li>
+<li>
+<p>es6-weak-map: 2.0.3</p>
+</li>
+<li>
+<p>espree: 3.5.4</p>
+</li>
+<li>
+<p>esrecurse: 4.2.1</p>
+</li>
+<li>
+<p>exit-hook: 1.1.1</p>
+</li>
+<li>
+<p>fast-levenshtein: 2.0.6</p>
+</li>
+<li>
+<p>figures: 2.0.0</p>
+</li>
+<li>
+<p>find-up: 2.1.0</p>
+</li>
+<li>
+<p>flat-cache: 1.3.0</p>
+</li>
+<li>
+<p>flatten: 1.0.2</p>
+</li>
+<li>
+<p>front-matter: 2.1.2</p>
+</li>
+<li>
+<p>fs-minipass: 1.2.6</p>
+</li>
+<li>
+<p>gauge: 2.7.4</p>
+</li>
+<li>
+<p>generate-function: 2.3.1</p>
+</li>
+<li>
+<p>generate-object-property: 1.2.0</p>
+</li>
+<li>
+<p>genfun: 5.0.0</p>
+</li>
+<li>
+<p>get-own-enumerable-property-symbols: 3.0.1</p>
+</li>
+<li>
+<p>getpass: 0.1.7</p>
+</li>
+<li>
+<p>gonzales-pe-sl: 4.2.3</p>
+</li>
+<li>
+<p>ignore: 4.0.6</p>
+</li>
+<li>
+<p>ignore-walk: 3.0.3</p>
+</li>
+<li>
+<p>indent-string: 2.1.0</p>
+</li>
+<li>
+<p>indexes-of: 1.0.1</p>
+</li>
+<li>
+<p>ip: 1.1.5</p>
+</li>
+<li>
+<p>is-finite: 1.0.2</p>
+</li>
+<li>
+<p>is-fullwidth-code-point: 2.0.0</p>
+</li>
+<li>
+<p>is-my-ip-valid: 1.0.0</p>
+</li>
+<li>
+<p>is-promise: 2.1.0</p>
+</li>
+<li>
+<p>is-regexp: 1.0.0</p>
+</li>
+<li>
+<p>is-resolvable: 1.1.0</p>
+</li>
+<li>
+<p>isexe: 2.0.0</p>
+</li>
+<li>
+<p>js-base64: 2.4.3</p>
+</li>
+<li>
+<p>jsonify: 0.0.0</p>
+</li>
+<li>
+<p>jsonpointer: 4.0.1</p>
+</li>
+<li>
+<p>known-css-properties: 0.3.0</p>
+</li>
+<li>
+<p>lcid: 1.0.0</p>
+</li>
+<li>
+<p>levn: 0.3.0</p>
+</li>
+<li>
+<p>lodash.capitalize: 4.2.1</p>
+</li>
+<li>
+<p>lodash.kebabcase: 4.1.1</p>
+</li>
+<li>
+<p>macos-release: 2.3.0</p>
+</li>
+<li>
+<p>make-dir: 1.3.0</p>
+</li>
+<li>
+<p>map-age-cleaner: 0.1.3</p>
+</li>
+<li>
+<p>merge: 1.2.0</p>
+</li>
+<li>
+<p>mimic-fn: 1.2.0</p>
+</li>
+<li>
+<p>minizlib: 1.2.1</p>
+</li>
+<li>
+<p>node-gyp: 3.8.0</p>
+</li>
+<li>
+<p>bootstrap-sass: 3.3.6</p>
+</li>
+<li>
+<p>bootswatch: 3.3.7</p>
+</li>
+<li>
+<p>compass-mixins: 0.12.10</p>
+</li>
+<li>
+<p>cpr: 3.0.1</p>
+</li>
+<li>
+<p>lerna: 3.16.4</p>
+</li>
+<li>
+<p>node-sass: 4.12.0</p>
+</li>
+<li>
+<p>npm: 6.11.3</p>
+</li>
+<li>
+<p>react: 16.8.6</p>
+</li>
+<li>
+<p>react-dom: 16.8.6</p>
+</li>
+<li>
+<p>graceful-fs: 4.1.11</p>
+</li>
+<li>
+<p>minimist: 1.2.0</p>
+</li>
+<li>
+<p>mkdirp: 0.5.1</p>
+</li>
+<li>
+<p>rimraf: 2.6.2</p>
+</li>
+<li>
+<p>: octokit/request-error</p>
+</li>
+<li>
+<p>import-local: 2.0.0</p>
+</li>
+<li>
+<p>npmlog: 0</p>
+</li>
+<li>
+<p>dedent: 0.7.0</p>
+</li>
+<li>
+<p>npm-package-arg: 6.1.0</p>
+</li>
+<li>
+<p>p-map: 2.1.0</p>
+</li>
+<li>
+<p>semver: 2</p>
+</li>
+<li>
+<p>glob: 7.1.2</p>
+</li>
+<li>
+<p>safe-buffer: 5.1.2</p>
+</li>
+<li>
+<p>bluebird: 3.7.1</p>
+</li>
+<li>
+<p>cacache: 12.0.3</p>
+</li>
+<li>
+<p>chownr: 1.1.3</p>
+</li>
+<li>
+<p>figgy-pudding: 3.5.1</p>
+</li>
+<li>
+<p>get-stream: 4.1.0</p>
+</li>
+<li>
+<p>infer-owner: 1.0.4</p>
+</li>
+<li>
+<p>lru-cache: 4.1.5</p>
+</li>
+<li>
+<p>make-fetch-happen: 5.0.1</p>
+</li>
+<li>
+<p>minimatch: 3.0.4</p>
+</li>
+<li>
+<p>minipass: 2.9.0</p>
+</li>
+<li>
+<p>mississippi: 3.0.0</p>
+</li>
+<li>
+<p>normalize-package-data: 2.5.0</p>
+</li>
+<li>
+<p>npm-packlist: 1.4.4</p>
+</li>
+<li>
+<p>npm-pick-manifest: 3.0.0</p>
+</li>
+<li>
+<p>osenv: 0</p>
+</li>
+<li>
+<p>promise-inflight: 1.0.1</p>
+</li>
+<li>
+<p>promise-retry: 1.1.1</p>
+</li>
+<li>
+<p>protoduck: 5.0.1</p>
+</li>
+<li>
+<p>ssri: 6.0.1</p>
+</li>
+<li>
+<p>tar: 4.4.10</p>
+</li>
+<li>
+<p>unique-filename: 1.1.1</p>
+</li>
+<li>
+<p>which: 1.3.1</p>
+</li>
+<li>
+<p>fs.realpath: 1.0.0</p>
+</li>
+<li>
+<p>inflight: 1.0.6</p>
+</li>
+<li>
+<p>inherits: 2.0.3</p>
+</li>
+<li>
+<p>once: 1.3.0</p>
+</li>
+<li>
+<p>path-is-absolute: 1.0.0</p>
+</li>
+<li>
+<p>move-concurrently: 1.0.1</p>
+</li>
+<li>
+<p>y18n: 4.0.0</p>
+</li>
+<li>
+<p>aproba: 2.0.0</p>
+</li>
+<li>
+<p>copy-concurrently: 1.0.5</p>
+</li>
+<li>
+<p>fs-write-stream-atomic: 1.0.10</p>
+</li>
+<li>
+<p>run-queue: 1.0.0</p>
+</li>
+<li>
+<p>iferr: 0.1.5</p>
+</li>
+<li>
+<p>imurmurhash: 0.1.4</p>
+</li>
+<li>
+<p>readable-stream: 3.4.0</p>
+</li>
+<li>
+<p>pump: 3.0.0</p>
+</li>
+<li>
+<p>yallist: 3.0.0</p>
+</li>
+<li>
+<p>agentkeepalive: 3.5.2</p>
+</li>
+<li>
+<p>http-cache-semantics: 3.8.1</p>
+</li>
+<li>
+<p>http-proxy-agent: 2.1.0</p>
+</li>
+<li>
+<p>https-proxy-agent: 2.2.3</p>
+</li>
+<li>
+<p>node-fetch-npm: 2.0.2</p>
+</li>
+<li>
+<p>socks-proxy-agent: 4.0.0</p>
+</li>
+<li>
+<p>humanize-ms: 1.2.1</p>
+</li>
+<li>
+<p>ms: 2.0.0</p>
+</li>
+<li>
+<p>agent-base: 4.3.0</p>
+</li>
+<li>
+<p>debug: 2.6.9</p>
+</li>
+<li>
+<p>es6-promisify: 5.0.0</p>
+</li>
+<li>
+<p>es6-promise: 4.2.8</p>
+</li>
+<li>
+<p>encoding: 0.1.12</p>
+</li>
+<li>
+<p>json-parse-better-errors: 1.0.2</p>
+</li>
+<li>
+<p>iconv-lite: 0.4.24</p>
+</li>
+<li>
+<p>concat-stream: 2.0.0</p>
+</li>
+<li>
+<p>duplexify: 3.7.1</p>
+</li>
+<li>
+<p>end-of-stream: 1.4.4</p>
+</li>
+<li>
+<p>flush-write-stream: 1.1.1</p>
+</li>
+<li>
+<p>from2: 2.3.0</p>
+</li>
+<li>
+<p>parallel-transform: 1.1.0</p>
+</li>
+<li>
+<p>pumpify: 1.3.3</p>
+</li>
+<li>
+<p>stream-each: 1.1.0</p>
+</li>
+<li>
+<p>through2: 2.0.0</p>
+</li>
+<li>
+<p>buffer-from: 1.1.1</p>
+</li>
+<li>
+<p>typedarray: 0.0.6</p>
+</li>
+<li>
+<p>stream-shift: 1.0.0</p>
+</li>
+<li>
+<p>core-util-is: 1.0.2</p>
+</li>
+<li>
+<p>isarray: 1.0.0</p>
+</li>
+<li>
+<p>process-nextick-args: 2.0.0</p>
+</li>
+<li>
+<p>string_decoder: 1.1.1</p>
+</li>
+<li>
+<p>util-deprecate: 1.0.1</p>
+</li>
+<li>
+<p>is-ci: 1.1.0</p>
+</li>
+<li>
+<p>execa: 1.0.0</p>
+</li>
+<li>
+<p>lodash: 4.17.15</p>
+</li>
+<li>
+<p>ci-info: 2.0.0</p>
+</li>
+<li>
+<p>globby: 9.2.0</p>
+</li>
+<li>
+<p>cosmiconfig: 5.2.1</p>
+</li>
+<li>
+<p>dot-prop: 3.0.0</p>
+</li>
+<li>
+<p>glob-parent: 3.1.0</p>
+</li>
+<li>
+<p>load-json-file: 1.1.0</p>
+</li>
+<li>
+<p>resolve-from: 4.0.0</p>
+</li>
+<li>
+<p>write-json-file: 3.2.0</p>
+</li>
+<li>
+<p>dir-glob: 2.2.2</p>
+</li>
+<li>
+<p>array-union: 1.0.2</p>
+</li>
+<li>
+<p>fast-glob: 2.2.7</p>
+</li>
+<li>
+<p>pify: 2.3.0</p>
+</li>
+<li>
+<p>slash: 1.0.0</p>
+</li>
+<li>
+<p>path-type: 1.1.0</p>
+</li>
+<li>
+<p>js-yaml: 3.13.1</p>
+</li>
+<li>
+<p>import-fresh: 2.0.0</p>
+</li>
+<li>
+<p>is-directory: 0.3.1</p>
+</li>
+<li>
+<p>parse-json: 2.2.0</p>
+</li>
+<li>
+<p>argparse: 1.0.10</p>
+</li>
+<li>
+<p>esprima: 4.0.1</p>
+</li>
+<li>
+<p>sprintf-js: 1.0.3</p>
+</li>
+<li>
+<p>caller-callsite: 2.0.0</p>
+</li>
+<li>
+<p>callsites: 2.0.0</p>
+</li>
+<li>
+<p>is-obj: 1.0.1</p>
+</li>
+<li>
+<p>is-glob: 3.1.0</p>
+</li>
+<li>
+<p>strip-bom: 2.0.0</p>
+</li>
+<li>
+<p>type-fest: 0.3.0</p>
+</li>
+<li>
+<p>write-file-atomic: 2.3.0</p>
+</li>
+<li>
+<p>cross-spawn: 3.0.1</p>
+</li>
+<li>
+<p>is-stream: 1.1.0</p>
+</li>
+<li>
+<p>npm-run-path: 2.0.0</p>
+</li>
+<li>
+<p>p-finally: 1.0.0</p>
+</li>
+<li>
+<p>signal-exit: 3.0.0</p>
+</li>
+<li>
+<p>strip-eof: 1.0.0</p>
+</li>
+<li>
+<p>nice-try: 1.0.5</p>
+</li>
+<li>
+<p>path-key: 2.0.1</p>
+</li>
+<li>
+<p>shebang-command: 1.2.0</p>
+</li>
+<li>
+<p>multimatch: 3.0.0</p>
+</li>
+<li>
+<p>array-differ: 2.1.0</p>
+</li>
+<li>
+<p>arrify: 1.0.1</p>
+</li>
+<li>
+<p>config-chain: 1.1.12</p>
+</li>
+<li>
+<p>ini: 1.3.5</p>
+</li>
+<li>
+<p>proto-list: 1.2.1</p>
+</li>
+<li>
+<p>get-port: 4.2.0</p>
+</li>
+<li>
+<p>p-map-series: 1.0.0</p>
+</li>
+<li>
+<p>p-waterfall: 1.0.0</p>
+</li>
+<li>
+<p>read-package-tree: 5.1.6</p>
+</li>
+<li>
+<p>array-uniq: 1.0.3</p>
+</li>
+<li>
+<p>fs-extra: 8.1.0</p>
+</li>
+<li>
+<p>write-pkg: 3.1.0</p>
+</li>
+<li>
+<p>path-exists: 2.1.0</p>
+</li>
+<li>
+<p>npm-lifecycle: 3.1.2</p>
+</li>
+<li>
+<p>is-windows: 1.0.2</p>
+</li>
+<li>
+<p>mkdirp-promise: 5.0.1</p>
+</li>
+<li>
+<p>mz: 2.7.0</p>
+</li>
+<li>
+<p>any-promise: 1.3.0</p>
+</li>
+<li>
+<p>object-assign: 4.0.1</p>
+</li>
+<li>
+<p>thenify-all: 1.0.0</p>
+</li>
+<li>
+<p>read-cmd-shim: 1.0.1</p>
+</li>
+<li>
+<p>chalk: 1.1.3</p>
+</li>
+<li>
+<p>columnify: 1.5.4</p>
+</li>
+<li>
+<p>strip-ansi: 3.0.0</p>
+</li>
+<li>
+<p>wcwidth: 1.0.0</p>
+</li>
+<li>
+<p>inquirer: 6.5.2</p>
+</li>
+<li>
+<p>ansi-escapes: 3.2.0</p>
+</li>
+<li>
+<p>cli-cursor: 2.1.0</p>
+</li>
+<li>
+<p>cli-width: 2.2.0</p>
+</li>
+<li>
+<p>external-editor: 3.1.0</p>
+</li>
+<li>
+<p>rxjs: 6.5.3</p>
+</li>
+<li>
+<p>string-width: 2.1.1</p>
+</li>
+<li>
+<p>mute-stream: 0.0.7</p>
+</li>
+<li>
+<p>run-async: 2.2.0</p>
+</li>
+<li>
+<p>through: &gt;=2.2.7</p>
+</li>
+<li>
+<p>restore-cursor: 2.0.0</p>
+</li>
+<li>
+<p>chardet: 0.7.0</p>
+</li>
+<li>
+<p>tmp: 0.0.33</p>
+</li>
+<li>
+<p>safer-buffer: &gt;=</p>
+</li>
+<li>
+<p>escape-string-regexp: 1.0.5</p>
+</li>
+<li>
+<p>tslib: 1.9.0</p>
+</li>
+<li>
+<p>ansi-regex: 2.1.1</p>
+</li>
+<li>
+<p>yargs: 11.0.0</p>
+</li>
+<li>
+<p>yargs-parser: 11.1.1</p>
+</li>
+<li>
+<p>cliui: 4.1.0</p>
+</li>
+<li>
+<p>decamelize: 1.2.0</p>
+</li>
+<li>
+<p>get-caller-file: 1.0.2</p>
+</li>
+<li>
+<p>os-locale: 2.1.0</p>
+</li>
+<li>
+<p>require-directory: 2.1.1</p>
+</li>
+<li>
+<p>require-main-filename: 1.0.1</p>
+</li>
+<li>
+<p>set-blocking: 2.0.0</p>
+</li>
+<li>
+<p>which-module: 2.0.0</p>
+</li>
+<li>
+<p>locate-path: 3.0.0</p>
+</li>
+<li>
+<p>p-locate: 3.0.0</p>
+</li>
+<li>
+<p>p-limit: 2.2.1</p>
+</li>
+<li>
+<p>p-try: 2.2.0</p>
+</li>
+<li>
+<p>camelcase: 2.1.1</p>
+</li>
+<li>
+<p>wrap-ansi: 2.0.0</p>
+</li>
+<li>
+<p>whatwg-url: 7.1.0</p>
+</li>
+<li>
+<p>init-package-json: 1.10.3</p>
+</li>
+<li>
+<p>p-reduce: 1.0.0</p>
+</li>
+<li>
+<p>validate-npm-package-license: 3.0.3</p>
+</li>
+<li>
+<p>validate-npm-package-name: 3.0.0</p>
+</li>
+<li>
+<p>strong-log-transformer: 2.0.0</p>
+</li>
+<li>
+<p>merge2: 1.3.0</p>
+</li>
+<li>
+<p>micromatch: 3.1.10</p>
+</li>
+<li>
+<p>call-me-maybe: 1.0.1</p>
+</li>
+<li>
+<p>glob-to-regexp: 0.3.0</p>
+</li>
+<li>
+<p>path-dirname: 1.0.0</p>
+</li>
+<li>
+<p>is-extglob: 2.1.1</p>
+</li>
+<li>
+<p>arr-diff: 4.0.0</p>
+</li>
+<li>
+<p>array-unique: 0.3.2</p>
+</li>
+<li>
+<p>braces: 2.3.2</p>
+</li>
+<li>
+<p>define-property: 2.0.2</p>
+</li>
+<li>
+<p>extend-shallow: 3.0.2</p>
+</li>
+<li>
+<p>extglob: 2.0.4</p>
+</li>
+<li>
+<p>fragment-cache: 0.2.1</p>
+</li>
+<li>
+<p>kind-of: 6.0.2</p>
+</li>
+<li>
+<p>nanomatch: 1.2.13</p>
+</li>
+<li>
+<p>object.pick: 1.3.0</p>
+</li>
+<li>
+<p>regex-not: 1.0.0</p>
+</li>
+<li>
+<p>snapdragon: 0.8.1</p>
+</li>
+<li>
+<p>to-regex: 3.0.1</p>
+</li>
+<li>
+<p>arr-flatten: 1.1.0</p>
+</li>
+<li>
+<p>fill-range: 4.0.0</p>
+</li>
+<li>
+<p>isobject: 4.0.0</p>
+</li>
+<li>
+<p>repeat-element: 1.1.2</p>
+</li>
+<li>
+<p>snapdragon-node: 2.0.1</p>
+</li>
+<li>
+<p>split-string: 3.0.2</p>
+</li>
+<li>
+<p>is-extendable: 0.1.1</p>
+</li>
+<li>
+<p>is-number: 3.0.0</p>
+</li>
+<li>
+<p>repeat-string: 1.6.1</p>
+</li>
+<li>
+<p>to-regex-range: 2.1.0</p>
+</li>
+<li>
+<p>is-buffer: 1.1.6</p>
+</li>
+<li>
+<p>is-descriptor: 1.0.2</p>
+</li>
+<li>
+<p>is-accessor-descriptor: 1.0.0</p>
+</li>
+<li>
+<p>is-data-descriptor: 1.0.0</p>
+</li>
+<li>
+<p>assign-symbols: 1.0.0</p>
+</li>
+<li>
+<p>is-plain-object: 3.0.0</p>
+</li>
+<li>
+<p>expand-brackets: 2.1.4</p>
+</li>
+<li>
+<p>posix-character-classes: 0.1.0</p>
+</li>
+<li>
+<p>map-cache: 0.2.2</p>
+</li>
+<li>
+<p>lodash.sortby: 4.7.0</p>
+</li>
+<li>
+<p>tr46: 1.0.1</p>
+</li>
+<li>
+<p>webidl-conversions: 4.0.2</p>
+</li>
+<li>
+<p>jsonfile: 4.0.0</p>
+</li>
+<li>
+<p>universalify: 0.1.0</p>
+</li>
+<li>
+<p>promzard: 0.3.0</p>
+</li>
+<li>
+<p>read: 1.0.1</p>
+</li>
+<li>
+<p>read-package-json: 2.0.13</p>
+</li>
+<li>
+<p>p-queue: 4.0.0</p>
+</li>
+<li>
+<p>p-pipe: 1.2.0</p>
+</li>
+<li>
+<p>JSONStream: 1.3.5</p>
+</li>
+<li>
+<p>jsonparse: 1.3.1</p>
+</li>
+<li>
+<p>byte-size: 5.0.1</p>
+</li>
+<li>
+<p>has-unicode: 2.0.1</p>
+</li>
+<li>
+<p>lodash.clonedeep: 4.5.0</p>
+</li>
+<li>
+<p>temp-write: 3.4.0</p>
+</li>
+<li>
+<p>conventional-changelog-angular: 5.0.5</p>
+</li>
+<li>
+<p>conventional-changelog-core: 3.2.3</p>
+</li>
+<li>
+<p>conventional-recommended-bump: 5.0.1</p>
+</li>
+<li>
+<p>lodash.template: 4.5.0</p>
+</li>
+<li>
+<p>compare-func: 1.3.2</p>
+</li>
+<li>
+<p>q: 1.5.1</p>
+</li>
+<li>
+<p>array-ify: 1.0.0</p>
+</li>
+<li>
+<p>conventional-changelog-writer: 4.0.9</p>
+</li>
+<li>
+<p>conventional-commits-parser: 3.0.5</p>
+</li>
+<li>
+<p>dateformat: 3.0.3</p>
+</li>
+<li>
+<p>get-pkg-repo: 1.4.0</p>
+</li>
+<li>
+<p>git-raw-commits: 2.0.0</p>
+</li>
+<li>
+<p>git-remote-origin-url: 2.0.0</p>
+</li>
+<li>
+<p>git-semver-tags: 2.0.3</p>
+</li>
+<li>
+<p>read-pkg: 1.1.0</p>
+</li>
+<li>
+<p>read-pkg-up: 1.0.1</p>
+</li>
+<li>
+<p>split: 1.0.1</p>
+</li>
+<li>
+<p>conventional-commits-filter: 2.0.2</p>
+</li>
+<li>
+<p>handlebars: 4.4.5</p>
+</li>
+<li>
+<p>json-stringify-safe: 5.0.1</p>
+</li>
+<li>
+<p>meow: 3.7.0</p>
+</li>
+<li>
+<p>neo-async: 2.6.1</p>
+</li>
+<li>
+<p>optimist: 0.6.1</p>
+</li>
+<li>
+<p>source-map: 0.6.1</p>
+</li>
+<li>
+<p>uglify-js: 3.1.4</p>
+</li>
+<li>
+<p>is-text-path: 2.0.0</p>
+</li>
+<li>
+<p>split2: 2.0.0</p>
+</li>
+<li>
+<p>trim-off-newlines: 1.0.0</p>
+</li>
+<li>
+<p>text-extensions: 2.0.0</p>
+</li>
+<li>
+<p>hosted-git-info: 2.6.0</p>
+</li>
+<li>
+<p>parse-github-repo-url: 1.3.0</p>
+</li>
+<li>
+<p>camelcase-keys: 2.1.0</p>
+</li>
+<li>
+<p>map-obj: 1.0.1</p>
+</li>
+<li>
+<p>redent: 1.0.0</p>
+</li>
+<li>
+<p>trim-newlines: 1.0.0</p>
+</li>
+<li>
+<p>loud-rejection: 1.6.0</p>
+</li>
+<li>
+<p>pinkie-promise: 2.0.0</p>
+</li>
+<li>
+<p>error-ex: 1.3.2</p>
+</li>
+<li>
+<p>is-utf8: 0.2.1</p>
+</li>
+<li>
+<p>strip-indent: 1.0.1</p>
+</li>
+<li>
+<p>repeating: 2.0.0</p>
+</li>
+<li>
+<p>get-stdin: 4.0.1</p>
+</li>
+<li>
+<p>dargs: 4.1.0</p>
+</li>
+<li>
+<p>number-is-nan: 1.0.0</p>
+</li>
+<li>
+<p>gitconfiglocal: 1.0.0</p>
+</li>
+<li>
+<p>conventional-changelog-preset-loader: 2.2.0</p>
+</li>
+<li>
+<p>lodash.ismatch: 4.4.0</p>
+</li>
+<li>
+<p>modify-values: 1.0.1</p>
+</li>
+<li>
+<p>decamelize-keys: 1.1.0</p>
+</li>
+<li>
+<p>minimist-options: 3.0.2</p>
+</li>
+<li>
+<p>quick-lru: 1.0.0</p>
+</li>
+<li>
+<p>is-plain-obj: 1.1.0</p>
+</li>
+<li>
+<p>lodash._reinterpolate: 3.0.0</p>
+</li>
+<li>
+<p>lodash.templatesettings: 4.2.0</p>
+</li>
+<li>
+<p>git-url-parse: 11.1.2</p>
+</li>
+<li>
+<p>atob-lite: 2.0.0</p>
+</li>
+<li>
+<p>before-after-hook: 2.1.0</p>
+</li>
+<li>
+<p>btoa-lite: 1.0.0</p>
+</li>
+<li>
+<p>deprecation: 2.3.1</p>
+</li>
+<li>
+<p>lodash.get: 4.4.2</p>
+</li>
+<li>
+<p>lodash.set: 4.3.2</p>
+</li>
+<li>
+<p>lodash.uniq: 4.5.0</p>
+</li>
+<li>
+<p>octokit-pagination-methods: 1.1.0</p>
+</li>
+<li>
+<p>universal-user-agent: 4.0.0</p>
+</li>
+<li>
+<p>node-fetch: 2.6.0</p>
+</li>
+<li>
+<p>git-up: 4.0.1</p>
+</li>
+<li>
+<p>is-ssh: 1.3.1</p>
+</li>
+<li>
+<p>parse-url: 5.0.0</p>
+</li>
+<li>
+<p>protocols: 1.1.0</p>
+</li>
+<li>
+<p>ansi-styles: 2.2.1</p>
+</li>
+<li>
+<p>supports-color: 2.0.0</p>
+</li>
+<li>
+<p>color-convert: 1.9.3</p>
+</li>
+<li>
+<p>color-name: 1.1.3</p>
+</li>
+<li>
+<p>brace-expansion: 1.1.11</p>
+</li>
+<li>
+<p>balanced-match: 1.0.0</p>
+</li>
+<li>
+<p>concat-map: 0.0.1</p>
+</li>
+<li>
+<p>pkg-dir: 3.0.0</p>
+</li>
+<li>
+<p>resolve-cwd: 2.0.0</p>
+</li>
+<li>
+<p>async-foreach: 0.1.3</p>
+</li>
+<li>
+<p>gaze: 1.1.2</p>
+</li>
+<li>
+<p>in-publish: 2.0.0</p>
+</li>
+<li>
+<p>nan: 2.14.0</p>
+</li>
+<li>
+<p>request: 2.88.0</p>
+</li>
+<li>
+<p>sass-graph: 2.2.4</p>
+</li>
+<li>
+<p>stdout-stream: 1.4.0</p>
+</li>
+<li>
+<p>true-case-path: 1.0.2</p>
+</li>
+<li>
+<p>globule: 1.2.0</p>
+</li>
+<li>
+<p>has-ansi: 2.0.0</p>
+</li>
+<li>
+<p>pseudomap: 1.0.2</p>
+</li>
+<li>
+<p>wrappy: 1</p>
+</li>
+<li>
+<p>currently-unhandled: 0.4.1</p>
+</li>
+<li>
+<p>array-find-index: 1.0.2</p>
+</li>
+<li>
+<p>is-arrayish: 0.2.1</p>
+</li>
+<li>
+<p>resolve: 1.10.0</p>
+</li>
+<li>
+<p>fstream: 1.0.12</p>
+</li>
+<li>
+<p>nopt: 3.0.6</p>
+</li>
+<li>
+<p>block-stream: 0.0.9</p>
+</li>
+<li>
+<p>abbrev: 1.1.1</p>
+</li>
+<li>
+<p>aws-sign2: 0.7.0</p>
+</li>
+<li>
+<p>aws4: 1.8.0</p>
+</li>
+<li>
+<p>caseless: 0.12.0</p>
+</li>
+<li>
+<p>combined-stream: 1.0.8</p>
+</li>
+<li>
+<p>extend: 3.0.2</p>
+</li>
+<li>
+<p>forever-agent: 0.6.1</p>
+</li>
+<li>
+<p>form-data: 2.3.3</p>
+</li>
+<li>
+<p>http-signature: 1.2.0</p>
+</li>
+<li>
+<p>is-typedarray: 1.0.0</p>
+</li>
+<li>
+<p>isstream: 0.1.2</p>
+</li>
+<li>
+<p>mime-types: 2.1.18</p>
+</li>
+<li>
+<p>har-validator: 5.1.3</p>
+</li>
+<li>
+<p>qs: 6.5.2</p>
+</li>
+<li>
+<p>uuid: 3.3.2</p>
+</li>
+<li>
+<p>oauth-sign: 0.9.0</p>
+</li>
+<li>
+<p>performance-now: 2.1.0</p>
+</li>
+<li>
+<p>tough-cookie: 2.4.3</p>
+</li>
+<li>
+<p>tunnel-agent: 0.6.0</p>
+</li>
+<li>
+<p>delayed-stream: 1.0.0</p>
+</li>
+<li>
+<p>asynckit: 0.4.0</p>
+</li>
+<li>
+<p>assert-plus: 1.0.0</p>
+</li>
+<li>
+<p>jsprim: 1.4.1</p>
+</li>
+<li>
+<p>sshpk: 1.7.0</p>
+</li>
+<li>
+<p>extsprintf: 1.3.0</p>
+</li>
+<li>
+<p>json-schema: 0.2.3</p>
+</li>
+<li>
+<p>verror: 1.10.0</p>
+</li>
+<li>
+<p>mime-db: 1.33.0</p>
+</li>
+<li>
+<p>ajv: 6.10.2</p>
+</li>
+<li>
+<p>har-schema: 2.0.0</p>
+</li>
+<li>
+<p>fast-deep-equal: 2.0.1</p>
+</li>
+<li>
+<p>fast-json-stable-stringify: 2.0.0</p>
+</li>
+<li>
+<p>json-schema-traverse: 0.4.1</p>
+</li>
+<li>
+<p>uri-js: 4.2.2</p>
+</li>
+<li>
+<p>retry: 0.12.0</p>
+</li>
+<li>
+<p>sha: 3.0.0</p>
+</li>
+<li>
+<p>slide: 1.1.3</p>
+</li>
+<li>
+<p>sorted-object: 2.0.1</p>
+</li>
+<li>
+<p>sorted-union-stream: 2.1.3</p>
+</li>
+<li>
+<p>stringify-package: 1.0.0</p>
+</li>
+<li>
+<p>text-table: 0.2.0</p>
+</li>
+<li>
+<p>tiny-relative-date: 1.3.0</p>
+</li>
+<li>
+<p>uid-number: 0.0.6</p>
+</li>
+<li>
+<p>umask: 1.1.0</p>
+</li>
+<li>
+<p>unpipe: 1.0.0</p>
+</li>
+<li>
+<p>update-notifier: 2.3.0</p>
+</li>
+<li>
+<p>worker-farm: 1.6.0</p>
+</li>
+<li>
+<p>boxen: 1.3.0</p>
+</li>
+<li>
+<p>configstore: 3.1.2</p>
+</li>
+<li>
+<p>crypto-random-string: 1.0.0</p>
+</li>
+<li>
+<p>errno: 0.1.7</p>
+</li>
+<li>
+<p>has-flag: 3.0.0</p>
+</li>
+<li>
+<p>import-lazy: 2.1.0</p>
+</li>
+<li>
+<p>is-installed-globally: 0.1.0</p>
+</li>
+<li>
+<p>is-npm: 1.0.0</p>
+</li>
+<li>
+<p>latest-version: 3.1.0</p>
+</li>
+<li>
+<p>object.getownpropertydescriptors: 2.0.3</p>
+</li>
+<li>
+<p>prepend-http: 1.0.4</p>
+</li>
+<li>
+<p>psl: 1.1.29</p>
+</li>
+<li>
+<p>punycode: 1.4.1</p>
+</li>
+<li>
+<p>spdx-correct: 3.0.0</p>
+</li>
+<li>
+<p>spdx-expression-parse: 3.0.0</p>
+</li>
+<li>
+<p>wide-align: 1.1.0</p>
+</li>
+<li>
+<p>split-on-first: 1.0.0</p>
+</li>
+<li>
+<p>strict-uri-encode: 2.0.0</p>
+</li>
+<li>
+<p>util-extend: 1.0.1</p>
+</li>
+<li>
+<p>util-promisify: 2.1.0</p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -10493,7 +12270,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-10-31 14:26:12 MDT
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-11-20 11:09:00 EST
 </div>
 </div>
 </body>
