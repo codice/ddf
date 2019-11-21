@@ -102,6 +102,15 @@ module.exports = Backbone.AssociatedModel.extend({
   setCurrentDistance(distance) {
     this.set({ currentDistance: distance })
   },
+  addDistanceInfo(distanceInfo) {
+    this.set({distanceInfo})
+  },
+  setDistanceInfoPosition(left, bottom) {
+    this.set({ distanceInfo: {left, bottom}})
+  },
+  removeDistanceInfo() {
+    this.set({distanceInfo: undefined})
+  },
   isOffMap() {
     return this.get('mouseLat') === undefined
   },

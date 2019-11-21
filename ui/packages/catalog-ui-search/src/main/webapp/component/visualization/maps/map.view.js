@@ -355,30 +355,27 @@ module.exports = Marionette.LayoutView.extend({
       targetMetacard,
     })
   },
-  /*
-    Update the distance displayed in MapInfo every time the mouse is moved
-  */
-  updateDistance() {
-    if (this.mapModel.get('measurementState') !== 'START') {
-      return
-    }
-
-    const mouseCoordinates = [
-      this.mapModel.get('mouseLon'),
-      this.mapModel.get('mouseLat'),
-    ]
-    const distanceCoordinates = [this.originCoordinates, mouseCoordinates]
-    const transformedCoords = distanceCoordinates.map(coord =>
-      Openlayers.proj.fromLonLat(coord)
-    )
-    const line = new Openlayers.geom.LineString(transformedCoords)
-    const sphereLength = Openlayers.Sphere.getLength(line)
-
-    const mouseLabelCollection = this.mapModel.getMouseLabelCollection()
-    this.map.updateMouseLabel(mouseLabelCollection, mouseCoordinates, sphereLength)
-
-    this.mapModel.setCurrentDistance(sphereLength)
-  },
+//  /*
+//    Update the distance displayed in MapInfo every time the mouse is moved
+//  */
+//  updateDistance() {
+//    if (this.mapModel.get('measurementState') !== 'START') {
+//      return
+//    }
+//
+//    const mouseCoordinates = [
+//      this.mapModel.get('mouseLon'),
+//      this.mapModel.get('mouseLat'),
+//    ]
+//    const distanceCoordinates = [this.originCoordinates, mouseCoordinates]
+//    const transformedCoords = distanceCoordinates.map(coord =>
+//      Openlayers.proj.fromLonLat(coord)
+//    )
+//    const line = new Openlayers.geom.LineString(transformedCoords)
+//    const sphereLength = Openlayers.Sphere.getLength(line)
+//
+//    this.mapModel.setCurrentDistance(sphereLength)
+//  },
   /*
     Handles drawing or clearing the ruler as needed by the measurement state.
 
@@ -400,10 +397,12 @@ module.exports = Marionette.LayoutView.extend({
         // starting map marker is labeled 'A'
         point = this.map.addRulerPoint(coordinateValues)
         this.mapModel.addPoint(point)
-        this.originCoordinates = [coordinateValues.lon, coordinateValues.lat]
-        const labelCollection = this.map.addMouseLabel(this.originCoordinates, '')
-        this.mapModel.setMouseLabelCollection(labelCollection)
-        this.map.onMouseMove(this.updateDistance.bind(this))
+//        this.originCoordinates = [coordinateValues.lon, coordinateValues.lat]
+//        const labelCollection = this.map.addMouseLabel(this.originCoordinates, '')
+//        this.mapModel.setMouseLabelCollection(labelCollection)
+//        this.map.setupDistanceInfo()
+//        this.map.onMouseMove(this.setDistanceInfoPosition.bind(this))
+//        this.map.onMouseMove(this.updateDistance.bind(this))
         break
       case 'END':
         // ending map marker is labeled 'B'
@@ -463,16 +462,29 @@ module.exports = Marionette.LayoutView.extend({
 
     this.mapInfo.show(new MapInfoView())
   },
-  setupDistanceInfo() {
-      const map = this.mapModel
-      const DistanceInfoView = Marionette.ItemView.extend({
-          template() {
-              return <DistanceInfo map={map} />
-          }
-      })
-
-      this.distanceInfo.show(new DistanceInfoView())
-    },
+  updateDistanceInfoPosition(event, mapEvent) {
+      //TODO
+      if (this.mapModel.get('measurementState') === 'START') {
+          this.mapModel.setDistanceInfoPosition(event.clientY, event.clientX)
+      } else {
+        this.mapModel.removeDistanceInfo()
+      }
+  },
+//  setupDistanceInfo() {
+//      const map = this.mapModel
+//      const move = this.move
+//      const DistanceInfoView = Marionette.ItemView.extend({
+//          template() {
+//              return <DistanceInfo onMouseMove={move.bind(this)} map={map} />
+//          }
+//      })
+//
+//      const distanceInfoView = new DistanceInfoView()
+//
+//      this.mapModel.addDistanceInfo(distanceInfoView)// TODO: implement
+//      this.map.onMouseMove(distanceInfoView.bind(this))
+//      this.distanceInfo.show(distanceInfoView)
+//    },
   /*
         Map creation is deferred to this method, so that all resources pertaining to the map can be loaded lazily and
         not be included in the initial page payload.

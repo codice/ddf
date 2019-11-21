@@ -27,6 +27,8 @@ const mapPropsToState = (props: Props) => {
     },
     isMeasuringDistance: map.get('measurementState') === 'START',
     currentDistance: map.get('currentDistance'),
+    left: (map.get('mouseLon') + 180) + 'px',
+    bottom: (map.get('mouseLat') + 180) + 'px',
   }
 }
 
@@ -43,6 +45,8 @@ type State = {
   coordinates: Coordinates
   isMeasuringDistance: Boolean
   currentDistance: Number
+  left: String
+  bottom: String
 }
 
 
@@ -50,49 +54,29 @@ class DistanceInfo extends React.Component<Props, State> {
     constructor(props: Props) {
       super(props)
       this.state = mapPropsToState(props)
-      this.listenToMap()
+      // this.listenToMap()
     }
 
     listenToMap = () => {
         const { listenTo, map } = this.props
         listenTo(
           map,
-          'change:mouseLat change:mouseLon change:currentDistance',
+          'change:currentDistance',
           this.handleChange
         )
     }
 
     handleChange = () => {
-        console.log('change handled here')
         this.setState(mapPropsToState(this.props))
     }
 
-    const move => (evt : Event) {
-        if (evt.target.tagName.toLowerCase() === 'svg') {
-            evt.preventDefault();
-            var svgPos = this.refs.svg.getBoundingClientRect();
-            var x = evt.clientX,
-                    y = evt.clientY;
-            if (evt.type==='touchmove') {
-                x = evt.touches[0].pageX,
-                y = evt.touches[0].pageY;
-            }
-            x = x - svgPos.left;
-            y = y - svgPos.top;
-            var points = this.state.points;
-            if (points.length > 50) {
-                points.shift();
-            }
-            points.push({
-                x: x,
-                y: y
-            });
-            this.setState(points);
-        }
+    move = (e : MouseEvent) => {
+        console.log(e)
     }
 
     render() {
-        return <DistanceInfoPresentation onMouseMove={this.move.bind(this)} {...this.state} />
+        console.log("in distance")
+        return <DistanceInfoPresentation {...this.state} />
     }
 }
 

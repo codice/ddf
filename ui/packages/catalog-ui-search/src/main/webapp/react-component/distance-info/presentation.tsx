@@ -25,6 +25,9 @@ type Props = {
   coordinates: Coordinates
   isMeasuringDistance: Boolean
   currentDistance: Number
+  left: String
+    bottom: String
+
 }
 
 const Root = styled.div<Props>`
@@ -33,8 +36,8 @@ const Root = styled.div<Props>`
   width: auto;
   height: auto;
   position: absolute;
-  left: 0px;
-  bottom: 0px;
+  left: 100px;
+  bottom: 100px;
   text-align: left;
   max-width: 50%;
 `
@@ -50,7 +53,7 @@ const render = (props: Props) => {
     const distance = (props.currentDistance) ? props.currentDistance : 0
 
     return (
-        <Root {...props}>
+        <Root {...props} style={{left: props.left, bottom: props.bottom}}>
                 <DistanceInfoText>{distance}</DistanceInfoText>
         </Root>
     )
