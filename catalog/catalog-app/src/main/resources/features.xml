@@ -644,6 +644,10 @@
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-facet-attribute-access/${project.version}</bundle>
     </feature>
 
+    <feature name="cache-plugin-set-default-metacardtags" version="${project.version}">
+        <bundle>mvn:ddf.catalog.plugin/cache-plugin-set-default-metacardtags/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-app" version="${project.version}"
              description="The Catalog provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.">
         <feature>admin-app</feature>
@@ -701,5 +705,6 @@
         <feature>catalog-plugin-gazetteer</feature>
         <feature>data-migration</feature>
         <feature>catalog-facet-attribute-access-plugin</feature>
+        <feature>cache-plugin-set-default-metacardtags</feature>
     </feature>
 </features>

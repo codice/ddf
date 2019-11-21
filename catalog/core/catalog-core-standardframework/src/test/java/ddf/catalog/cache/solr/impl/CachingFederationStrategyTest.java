@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import ddf.catalog.Constants;
+import ddf.catalog.cache.CachePutPlugin;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -65,9 +66,11 @@ import ddf.catalog.source.UnsupportedQueryException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorService;
@@ -81,6 +84,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.opengis.filter.sort.SortBy;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -125,10 +129,18 @@ public class CachingFederationStrategyTest {
 
   @Mock private CacheCommitPhaser cacheCommitPhaser;
 
+  @Mock private CachePutPlugin mockCachePutPlugin;
+
   private ArgumentCaptor<List<Result>> cacheArgs;
 
   @Before
   public void setup() throws Exception {
+
+    when(mockCachePutPlugin.process(any()))
+        .thenAnswer(
+            (Answer<Optional<Metacard>>)
+                invocationOnMock -> Optional.of((Metacard) invocationOnMock.getArguments()[0]));
+
     cacheExecutor = MoreExecutors.newDirectExecutorService();
     queryExecutor = MoreExecutors.newDirectExecutorService();
 
@@ -583,7 +595,7 @@ public class CachingFederationStrategyTest {
 
     when(response.getUpdatedMetacards()).thenReturn(cards);
 
-    doNothing().when(cache).create(metacardsCaptor.capture());
+    doNothing().when(cache).put(metacardsCaptor.capture());
 
     assertThat(response, is(strategy.process(response)));
 
@@ -611,7 +623,9 @@ public class CachingFederationStrategyTest {
   public void testProcessUpdateResponseSolrServiceTitle() throws Exception {
     Map<String, Serializable> testMap = new HashMap<>();
     SolrCacheSource cacheSource =
-        new SolrCacheSource(new SolrCache(mockClient, mockMetacardClient));
+        new SolrCacheSource(
+            new SolrCache(
+                mockClient, mockMetacardClient, Collections.singletonList(mockCachePutPlugin)));
 
     testMap.put(Constants.SERVICE_TITLE, cacheSource.getId());
 
@@ -659,7 +673,9 @@ public class CachingFederationStrategyTest {
   public void testProcessDeleteResponseSolrServiceTitle() throws Exception {
     Map<String, Serializable> testMap = new HashMap<>();
     SolrCacheSource cacheSource =
-        new SolrCacheSource(new SolrCache(mockClient, mockMetacardClient));
+        new SolrCacheSource(
+            new SolrCache(
+                mockClient, mockMetacardClient, Collections.singletonList(mockCachePutPlugin)));
 
     testMap.put(Constants.SERVICE_TITLE, cacheSource.getId());
 

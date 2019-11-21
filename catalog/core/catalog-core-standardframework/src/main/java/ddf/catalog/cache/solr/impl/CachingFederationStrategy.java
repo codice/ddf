@@ -377,7 +377,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     LOGGER.debug("Updating metacard(s) in cache.");
-    cache.create(metacards);
+    cache.put(metacards);
     LOGGER.debug("Updating metacard(s) in cache complete.");
 
     return input;
