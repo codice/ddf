@@ -180,15 +180,15 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
 
   public static final String METADATA_SYSTEM_PROPERTIES = "system.properties";
 
+  public static final Path METADATA_SYSTEM_PROPERTIES_PATH =
+      Paths.get("etc", METADATA_SYSTEM_PROPERTIES);
+
   public static final String METADATA_JAVA_PROPERTIES = "java.properties";
 
-  public static final String METADATA_CUSTOM_SYSTEM_PROPERTIES = "custom.system.properties";
-
-  public static final String METADATA_CUSTOM_SYSTEM_PROPERTIES_FILE =
-      METADATA_CUSTOM_SYSTEM_PROPERTIES + ".file";
+  public static final String METADATA_EXPANDED_SYSTEM_PROPERTIES = "expanded system.properties";
 
   public static final Path METADATA_CUSTOM_SYSTEM_PROPERTIES_PATH =
-      Paths.get("etc", METADATA_CUSTOM_SYSTEM_PROPERTIES);
+      Paths.get("etc", "custom.system.properties");
 
   public static final String PLATFORM_MIGRATABLE_ID = "ddf.platform";
 

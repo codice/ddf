@@ -17,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -55,6 +56,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
   @Before
   public void setup() throws Exception {
+    createSystemPropertyFiles();
     exportFile = ddfHome.resolve(createDirectory("exported")).resolve("exported.zip");
     mockCipherUtils = Mockito.mock(CipherUtils.class);
     CipherOutputStream cos = Mockito.mock(CipherOutputStream.class);
@@ -274,8 +276,12 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     mgr.close();
   }
 
+  private void createSystemPropertyFiles() throws IOException {
+    createFiles(Paths.get("etc"), "custom.system.properties", "system.properties");
+  }
+
   private void assertMetaData(Map<String, Object> metadata) {
-    Assert.assertThat(metadata, Matchers.aMapWithSize(8));
+    Assert.assertThat(metadata, Matchers.aMapWithSize(9));
     Assert.assertThat(
         metadata,
         Matchers.hasEntry(

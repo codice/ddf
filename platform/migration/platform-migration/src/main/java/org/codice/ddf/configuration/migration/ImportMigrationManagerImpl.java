@@ -244,7 +244,7 @@ public class ImportMigrationManagerImpl implements Closeable {
           });
     }
     return JsonUtils.getMapFrom(
-        metadata, MigrationContextImpl.METADATA_CUSTOM_SYSTEM_PROPERTIES, true);
+        metadata, MigrationContextImpl.METADATA_EXPANDED_SYSTEM_PROPERTIES, true);
   }
 
   private Set<String> getSupportedVersions(@Nullable String commaDelimitedVersions) {

@@ -107,15 +107,16 @@ public class ConfigurationAdminMigratableTest {
 
   private static final String DDF_HOME_SYSTEM_PROP_KEY = "ddf.home";
 
-  private static final String DDF_HOME = "ddf";
-
   private static final String DDF_HOSTNAME_PROP_KEY = "org.codice.ddf.system.hostname";
+
+  private static final String DDF_HOME = "ddf";
 
   private static final String DDF_EXPORTED_TAG_TEMPLATE = "exported_from_%s";
 
   private static final String SUPPORTED_BRANDING = "test";
 
-  private static final String SUPPORTED_VERSION = "2.0";
+  // needs to be 2.13.3, 2.13.4, or 2.13.5 in order to test hostname insertion
+  private static final String SUPPORTED_VERSION = "2.13.3";
 
   private static final String IMPORTING_PRODUCT_VERSION = "3.0";
 
@@ -418,7 +419,7 @@ public class ConfigurationAdminMigratableTest {
         verify(config).update(argumentCaptor.capture());
         Map<String, ?> dictionaryAsMap = convertToMap(argumentCaptor.getValue());
         String[] attributeMap = {
-          "invalid-state=localhost-data-manager,system-user",
+          "invalid-state=test-host-data-manager,system-user",
           "invalid-state=hostname-data-manager,system-user"
         };
         assertThat(
@@ -569,9 +570,10 @@ public class ConfigurationAdminMigratableTest {
   private void setup(String ddfHomeStr, String productVersion) throws IOException {
     ddfHome = tempDir.newFolder(ddfHomeStr).toPath().toRealPath();
     System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
-    System.setProperty(DDF_HOSTNAME_PROP_KEY, "localhost");
+    System.setProperty(DDF_HOSTNAME_PROP_KEY, "test-host");
     Path etcDir = ddfHome.resolve("etc");
     Files.createDirectory(etcDir);
+    setupSystemPropertiesFiles();
     setupBrandingFile(SUPPORTED_BRANDING);
     setupVersionFile(productVersion);
     setupMigrationPropertiesFile(SUPPORTED_VERSION);
@@ -600,6 +602,15 @@ public class ConfigurationAdminMigratableTest {
         migrationPropsFile.toFile().getCanonicalFile(),
         "supported.versions=" + version,
         StandardCharsets.UTF_8);
+  }
+
+  private void setupSystemPropertiesFiles() throws IOException {
+    final Path systemPropsFile = ddfHome.resolve(Paths.get("etc", "system.properties"));
+    Files.createFile(systemPropsFile);
+
+    final Path customSystemPropsFile =
+        ddfHome.resolve(Paths.get("etc", "custom.system.properties"));
+    Files.createFile(customSystemPropsFile);
   }
 
   private Path setupConfigFile(String tag, String configFileName) throws IOException {
