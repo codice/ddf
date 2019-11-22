@@ -625,7 +625,10 @@ public class SecurityMigratableTest {
     ddfHome = tempDir.newFolder(ddfHomeStr).toPath().toRealPath();
     Path binDir = ddfHome.resolve("bin");
     Files.createDirectory(binDir);
+    Path etcDir = ddfHome.resolve("etc");
+    Files.createDirectory(etcDir);
     System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
+    setupSystemPropertiesFiles();
     setupBrandingFile(SUPPORTED_BRANDING);
     setupVersionFile(productVersion);
     setupMigrationProperties(SUPPORTED_PRODUCT_VERSION);
@@ -650,6 +653,15 @@ public class SecurityMigratableTest {
     setupPdpFiles(tag);
     Files.createDirectory(ddfHome.resolve(SECURITY_POLICIES_DIR));
     setupPolicyFiles(tag);
+  }
+
+  private void setupSystemPropertiesFiles() throws IOException {
+    final Path systemPropsFile = ddfHome.resolve(Paths.get("etc", "system.properties"));
+    Files.createFile(systemPropsFile);
+
+    final Path customSystemPropsFile =
+        ddfHome.resolve(Paths.get("etc", "custom.system.properties"));
+    Files.createFile(customSystemPropsFile);
   }
 
   private void setupBrandingFile(String branding) throws IOException {
