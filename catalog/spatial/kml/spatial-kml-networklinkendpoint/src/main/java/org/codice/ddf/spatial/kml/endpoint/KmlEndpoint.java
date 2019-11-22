@@ -51,6 +51,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.branding.BrandingRegistry;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -433,14 +434,14 @@ public class KmlEndpoint {
       try (InputStream iconStream = this.getClass().getClassLoader().getResourceAsStream(icon)) {
 
         if (iconStream == null) {
-          LOGGER.debug("Resource not found for icon {}", icon);
+          LOGGER.debug("Resource not found for icon {}", LogSanitizer.sanitize(icon));
           throw new WebApplicationException(
               new FileNotFoundException("Resource not found for icon " + icon), Status.NOT_FOUND);
         }
 
         iconBytes = IOUtils.toByteArray(iconStream);
       } catch (IOException e) {
-        LOGGER.debug("Failed to read resource for icon {}", icon, e);
+        LOGGER.debug("Failed to read resource for icon {}", LogSanitizer.sanitize(icon), e);
         throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
       }
     } else {
@@ -449,10 +450,10 @@ public class KmlEndpoint {
       try (InputStream message = new FileInputStream(icon)) {
         iconBytes = IOUtils.toByteArray(message);
       } catch (FileNotFoundException e) {
-        LOGGER.debug("File not found for icon {}", icon, e);
+        LOGGER.debug("File not found for icon {}", LogSanitizer.sanitize(icon), e);
         throw new WebApplicationException(e, Status.NOT_FOUND);
       } catch (IOException e) {
-        LOGGER.debug("Failed to read bytes for icon {}", icon, e);
+        LOGGER.debug("Failed to read bytes for icon {}", LogSanitizer.sanitize(icon), e);
         throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
       }
     }

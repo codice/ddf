@@ -22,6 +22,7 @@ import java.security.PrivilegedAction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +63,8 @@ public class EncryptionServiceImpl implements EncryptionService {
     try {
       return crypter.decrypt(encryptedValue);
     } catch (CrypterException e) {
-      LOGGER.debug("Failed to decrypt string of value {}.", encryptedValue, e);
+      LOGGER.debug(
+          "Failed to decrypt string of value {}.", LogSanitizer.sanitize(encryptedValue), e);
       return encryptedValue;
     }
   }

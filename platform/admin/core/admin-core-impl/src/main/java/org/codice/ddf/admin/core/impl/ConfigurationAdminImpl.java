@@ -43,6 +43,7 @@ import org.codice.ddf.admin.core.api.ConfigurationStatus;
 import org.codice.ddf.admin.core.api.Metatype;
 import org.codice.ddf.admin.core.api.MetatypeAttribute;
 import org.codice.ddf.admin.core.api.Service;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.ui.admin.api.plugin.ConfigurationAdminPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -241,7 +242,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
     } catch (IOException e) {
       LOGGER.warn("Unable to obtain list of Configuration objects from ConfigurationAdmin.", e);
     } catch (InvalidSyntaxException e) {
-      LOGGER.info("Provided LDAP filter is incorrect: {}", serviceFilter, e);
+      LOGGER.info("Provided LDAP filter is incorrect: {}", LogSanitizer.sanitize(serviceFilter), e);
     }
 
     if (serviceList != null) {

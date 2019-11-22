@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTerm;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTermsDelegate;
 import org.codice.ddf.catalog.ui.transformer.TransformerDescriptors;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,10 +115,9 @@ public class CqlQueryResponse {
                                       logOnce.accept(
                                           "Removed duplicate attribute descriptor(s). For more information:\n"
                                               + "(log:set trace org.codice.ddf.catalog.ui.query.cql)");
-                                      if (LOGGER.isTraceEnabled()) {
-                                        LOGGER.trace(
-                                            "Removed duplicate attribute descriptor.({})", ad1);
-                                      }
+                                      LOGGER.trace(
+                                          "Removed duplicate attribute descriptor.({})",
+                                          LogSanitizer.sanitize(ad1));
                                       return ad1;
                                     })),
                     (mt1, mt2) -> {

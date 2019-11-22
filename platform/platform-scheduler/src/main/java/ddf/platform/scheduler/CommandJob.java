@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.console.Session;
 import org.apache.karaf.shell.api.console.SessionFactory;
 import org.apache.shiro.subject.ExecutionException;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.security.common.Security;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -129,15 +130,17 @@ public class CommandJob implements Job {
               };
           final Session session = sessionFactory.create(emptyInputStream, output, output)) {
         if (session != null) {
-          LOGGER.trace("Executing command \"{}\"", commandString);
+          LOGGER.trace("Executing command \"{}\"", LogSanitizer.sanitize(commandString));
           try {
             session.execute(commandString);
 
             try {
               final String commandOutput =
                   byteArrayOutputStream.toString(StandardCharsets.UTF_8.name());
-
-              LOGGER.info("Execution output for command \"{}\": {}", commandString, commandOutput);
+              LOGGER.info(
+                  "Execution output for command \"{}\": {}",
+                  LogSanitizer.sanitize(commandString),
+                  LogSanitizer.sanitize(commandOutput));
             } catch (UnsupportedEncodingException e) {
               LOGGER.debug("Unable to get command output.", e);
             }
@@ -180,6 +183,6 @@ public class CommandJob implements Job {
   private void logWarningMessage(String commandString) {
     LOGGER.warn(
         "Unable to execute command \"{}\". See debug log for more details. The command is still scheduled for execution according to the configured interval.",
-        commandString);
+        LogSanitizer.sanitize(commandString));
   }
 }

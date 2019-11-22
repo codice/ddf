@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +70,7 @@ public class AbsolutePathResolver {
         LOGGER.debug(
             "Root path is blank. Resolving relative path [{}] to: {}",
             path,
-            absolutePath.toAbsolutePath());
+            LogSanitizer.sanitize(absolutePath.toAbsolutePath()));
       }
     }
 

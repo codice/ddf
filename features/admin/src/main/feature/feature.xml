@@ -79,7 +79,6 @@
         <bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
     </feature>
 
-
     <feature name="platform-configuration" version="${project.version}"
              description="Shared platform configuration">
         <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0.1/2.6.0
@@ -87,6 +86,7 @@
         <feature>camel-blueprint</feature>
         <feature>camel-http</feature>
         <feature>branding-registry</feature>
+        <bundle dependency="true">mvn:ddf.platform.security/log-sanitizer/${project.version}</bundle>
         <bundle>mvn:ddf.platform/platform-configuration-service/${project.version}</bundle>
         <bundle>mvn:ddf.platform/platform-configuration/${project.version}</bundle>
         <bundle>mvn:ddf.platform/platform-configuration-endpoint/${project.version}</bundle>

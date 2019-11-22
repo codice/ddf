@@ -75,6 +75,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.security.common.Security;
 import org.opengis.filter.Filter;
@@ -521,8 +522,8 @@ public class Historian {
     } catch (StorageException e) {
       LOGGER.debug(
           "could not get storage item for metacard (id: {})(uri: {})",
-          r.getId(),
-          r.getResourceUri(),
+          LogSanitizer.sanitize(r.getId()),
+          LogSanitizer.sanitize(r.getResourceUri()),
           e);
     }
     return null;
@@ -716,7 +717,7 @@ public class Historian {
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug(
           "While merging results into a map, there was a duplicate (conflict) of metacards with the same id ({}). For full metacard set logging to trace `log:set TRACE ddf.catalog.history`.",
-          oldMetacard.getId());
+          LogSanitizer.sanitize(oldMetacard.getId()));
     }
 
     if (LOGGER.isTraceEnabled()) {
@@ -746,8 +747,8 @@ public class Historian {
                   .collect(Collectors.joining(", ", "{", "}"));
       LOGGER.trace(
           "Old Metacard: {}\nNew Metacard: {}",
-          metacardToString.apply(oldMetacard),
-          metacardToString.apply(newMetacard));
+          LogSanitizer.sanitize(metacardToString.apply(oldMetacard)),
+          LogSanitizer.sanitize(metacardToString.apply(newMetacard)));
     }
 
     // return metacard already there (the first one or "old" metacard)

@@ -19,6 +19,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import org.apache.commons.text.StringEscapeUtils;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.spatial.geocoding.GeoCoderService;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ public class GeoCoderEndpoint {
       }
 
     } catch (GeoEntryQueryException e) {
-      LOGGER.debug("Error querying GeoNames resource with wkt:{}", wkt, e);
+      LOGGER.debug("Error querying GeoNames resource with wkt:{}", LogSanitizer.sanitize(wkt), e);
       return Response.status(Response.Status.BAD_REQUEST).build();
     }
   }

@@ -144,6 +144,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
@@ -397,7 +398,7 @@ public class CswEndpoint implements Csw {
     if (request == null) {
       throw new CswException("GetRecordsRequest request is null");
     } else {
-      LOGGER.debug("{} attempting to get records.", request.getRequest());
+      LOGGER.debug("{} attempting to get records.", LogSanitizer.sanitize(request.getRequest()));
     }
     if (StringUtils.isEmpty(request.getVersion())) {
       request.setVersion(CswConstants.VERSION_2_0_2);
@@ -467,14 +468,20 @@ public class CswEndpoint implements Csw {
       String id = ids.get(0);
       // Check if the request wants to retrieve a product.
       if (isProductRetrieval(ids, outputFormat, outputSchema)) {
-        LOGGER.debug("{} is attempting to retrieve product for ID: {}", request.getService(), id);
+        LOGGER.debug(
+            "{} is attempting to retrieve product for ID: {}",
+            LogSanitizer.sanitize(request.getService()),
+            LogSanitizer.sanitize(id));
         try {
           return queryProductById(id, rangeValue);
         } catch (UnsupportedQueryException e) {
           throw new CswException(String.format(ERROR_ID_PRODUCT_RETRIEVAL, id), e);
         }
       }
-      LOGGER.debug("{} is attempting to retrieve records: {}", request.getService(), ids);
+      LOGGER.debug(
+          "{} is attempting to retrieve records: {}",
+          LogSanitizer.sanitize(request.getService()),
+          LogSanitizer.sanitize((ids)));
       CswRecordCollection response = queryById(ids, outputSchema);
       response.setOutputSchema(outputSchema);
       if (StringUtils.isNotBlank(request.getElementSetName())) {
@@ -483,7 +490,9 @@ public class CswEndpoint implements Csw {
         response.setElementSetType(ElementSetType.SUMMARY);
       }
       LOGGER.debug(
-          "{} successfully retrieved record(s): {}", request.getRequest(), request.getId());
+          "{} successfully retrieved record(s): {}",
+          LogSanitizer.sanitize(request.getRequest()),
+          LogSanitizer.sanitize(request.getId()));
       return response;
     } else {
       throw new CswException(
@@ -1603,7 +1612,7 @@ public class CswEndpoint implements Csw {
     CswRecordCollection cswRecordCollection = new CswRecordCollection();
     cswRecordCollection.setResource(resource);
     cswRecordCollection.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
-    LOGGER.debug("Successfully retrieved product for ID: {}", id);
+    LOGGER.debug("Successfully retrieved product for ID: {}", LogSanitizer.sanitize(id));
     return cswRecordCollection;
   }
 

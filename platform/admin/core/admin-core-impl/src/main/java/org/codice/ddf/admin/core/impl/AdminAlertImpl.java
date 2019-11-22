@@ -26,6 +26,7 @@ import javax.management.NotCompliantMBeanException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.admin.core.api.jmx.AdminAlertMBean;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
@@ -118,7 +119,7 @@ public class AdminAlertImpl extends BasicMBean implements AdminAlertMBean {
 
     String subjectName = SubjectUtils.getName(SecurityUtils.getSubject());
     if (subjectName == null) {
-      LOGGER.debug("No Subject Name! Could not dismiss alert {}", id);
+      LOGGER.debug("No Subject Name! Could not dismiss alert {}", LogSanitizer.sanitize(id));
       return;
     }
 

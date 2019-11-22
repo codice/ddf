@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.platform.filter.SecurityFilter;
@@ -86,7 +87,7 @@ public class AuthorizationFilter implements SecurityFilter {
       } else {
         LOGGER.warn(
             "Unable to determine policy for path {}. User is not permitted to continue. Check policy configuration!",
-            path);
+            LogSanitizer.sanitize(path));
         permitted = false;
       }
 

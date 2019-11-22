@@ -56,6 +56,7 @@ import net.opengis.cat.csw.v_2_0_2.QueryType;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.TransformerProperties;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -217,7 +218,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     if (request == null) {
       throw new CswException("GetRecordsSubscription request is null");
     } else {
-      LOGGER.debug("{} attempting to subscribe.", request.getRequest());
+      LOGGER.debug("{} attempting to subscribe.", LogSanitizer.sanitize(request.getRequest()));
     }
     if (StringUtils.isEmpty(request.getVersion())) {
       request.setVersion(CswConstants.VERSION_2_0_2);
@@ -386,7 +387,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
   }
 
   public synchronized boolean hasSubscription(String subscriptionId) {
-    LOGGER.debug("subscriptionUuid = {}", subscriptionId);
+    LOGGER.debug("subscriptionUuid = {}", LogSanitizer.sanitize(subscriptionId));
     return registeredSubscriptions.containsKey(subscriptionId);
   }
 
@@ -483,8 +484,9 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
   private synchronized CswSubscription deleteCswSubscription(String subscriptionId)
       throws CswException {
     String methodName = "deleteCswSubscription";
+    LogSanitizer logSanitizedId = LogSanitizer.sanitize(subscriptionId);
     LOGGER.trace("ENTERING: {}", methodName);
-    LOGGER.trace("subscriptionId = {}", subscriptionId);
+    LOGGER.trace("subscriptionId = {}", logSanitizedId);
 
     if (StringUtils.isEmpty(subscriptionId)) {
       throw new CswException(
@@ -493,22 +495,22 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
     CswSubscription subscription = getSubscription(subscriptionId);
     try {
-      LOGGER.debug("Removing (unregistering) subscription: {}", subscriptionId);
+      LOGGER.debug("Removing (unregistering) subscription: {}", logSanitizedId);
       ServiceRegistration sr = registeredSubscriptions.remove(subscriptionId);
       if (sr != null) {
         sr.unregister();
       } else {
-        LOGGER.debug("No ServiceRegistration found for subscription: {}", subscriptionId);
+        LOGGER.debug("No ServiceRegistration found for subscription: {}", logSanitizedId);
       }
 
       Configuration subscriptionConfig = getSubscriptionConfiguration(subscriptionId);
       try {
         if (subscriptionConfig != null) {
-          LOGGER.debug("Deleting subscription for subscriptionId = {}", subscriptionId);
+          LOGGER.debug("Deleting subscription for subscriptionId = {}", logSanitizedId);
           subscriptionConfig.delete();
 
         } else {
-          LOGGER.debug("subscriptionConfig is NULL for ID = {}", subscriptionId);
+          LOGGER.debug("subscriptionConfig is NULL for ID = {}", logSanitizedId);
         }
       } catch (IOException e) {
         LOGGER.debug(
@@ -519,7 +521,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
       LOGGER.debug("Subscription removal complete");
     } catch (Exception e) {
-      LOGGER.debug("Could not delete subscription for {}", subscriptionId, e);
+      LOGGER.debug("Could not delete subscription for {}", logSanitizedId, e);
     }
 
     LOGGER.trace("EXITING: {}    (status = {})", methodName, false);
@@ -587,7 +589,8 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     LOGGER.trace("ENTERING: {}", methodName);
 
     String filterStr = getSubscriptionUuidFilter(subscriptionUuid);
-    LOGGER.debug("filterStr = {}", filterStr);
+    LogSanitizer logSanitizedFilter = LogSanitizer.sanitize(filterStr);
+    LOGGER.debug("filterStr = {}", logSanitizedFilter);
 
     Configuration config = null;
 
@@ -601,18 +604,19 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
         Configuration[] configs = configAdmin.listConfigurations(filter.toString());
 
         if (configs == null) {
-          LOGGER.debug("Did NOT find a configuration for filter {}", filterStr);
+          LOGGER.debug("Did NOT find a configuration for filter {}", logSanitizedFilter);
         } else if (configs.length != 1) {
-          LOGGER.debug("Found multiple configurations for filter {}", filterStr);
+          LOGGER.debug("Found multiple configurations for filter {}", logSanitizedFilter);
         } else {
-          LOGGER.debug("Found exactly one configuration for filter {}", filterStr);
+          LOGGER.debug("Found exactly one configuration for filter {}", logSanitizedFilter);
           config = configs[0];
         }
       }
     } catch (InvalidSyntaxException e) {
       LOGGER.debug("Invalid syntax for filter used for searching configuration instances", e);
     } catch (IOException e) {
-      LOGGER.debug("IOException trying to list configurations for filter {}", filterStr, e);
+      LOGGER.debug(
+          "IOException trying to list configurations for filter {}", logSanitizedFilter, e);
     }
 
     LOGGER.trace("EXITING: {}", methodName);

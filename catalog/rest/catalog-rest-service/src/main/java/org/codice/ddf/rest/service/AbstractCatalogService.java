@@ -96,6 +96,7 @@ import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.rest.api.CatalogService;
@@ -187,8 +188,8 @@ public abstract class AbstractCatalogService implements CatalogService {
     LOGGER.trace("getHeaders");
 
     if (id != null) {
-      LOGGER.debug("Got id: {}", id);
-      LOGGER.debug("Map of query parameters: \n{}", queryParameters);
+      LOGGER.debug("Got id: {}", LogSanitizer.sanitize(id));
+      LOGGER.debug("Map of query parameters: \n{}", LogSanitizer.sanitize(queryParameters));
 
       Map<String, Serializable> convertedMap = convert(queryParameters);
       convertedMap.put("url", absolutePath.toString());
@@ -287,10 +288,11 @@ public abstract class AbstractCatalogService implements CatalogService {
     LOGGER.trace("GET");
 
     if (encodedId != null) {
-      LOGGER.debug("Got id: {}", encodedId);
-      LOGGER.debug("Got service: {}", transformerParam);
-      LOGGER.debug("Map of query parameters: \n{}", queryParameters);
-
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Got id: {}", LogSanitizer.sanitize(encodedId));
+        LOGGER.debug("Got service: {}", LogSanitizer.sanitize(transformerParam));
+        LOGGER.debug("Map of query parameters: \n{}", LogSanitizer.sanitize(queryParameters));
+      }
       Map<String, Serializable> convertedMap = convert(queryParameters);
       convertedMap.put("url", absolutePath.toString());
 
@@ -480,10 +482,12 @@ public abstract class AbstractCatalogService implements CatalogService {
       LOGGER.debug(
           "Transforming metacard {} to {} to be able to return it to client",
           metacardId,
-          transformer);
+          LogSanitizer.sanitize(transformer));
       final BinaryContent content = catalogFramework.transform(metacard, transformer, null);
       LOGGER.debug(
-          "Metacard to {} transform complete for {}, preparing response.", transformer, metacardId);
+          "Metacard to {} transform complete for {}, preparing response.",
+          LogSanitizer.sanitize(transformer),
+          metacardId);
 
       LOGGER.trace("EXITING: createMetacard");
       return content;
@@ -592,7 +596,7 @@ public abstract class AbstractCatalogService implements CatalogService {
         catalogFramework.update(streamUpdateRequest);
       }
 
-      LOGGER.debug("Metacard {} updated.", id);
+      LOGGER.debug("Metacard {} updated.", LogSanitizer.sanitize(id));
 
     } catch (SourceUnavailableException e) {
       String exceptionMessage = "Cannot update catalog entry: Source is unavailable: ";
@@ -1025,7 +1029,7 @@ public abstract class AbstractCatalogService implements CatalogService {
             new DeleteRequestImpl(new HtmlPolicyBuilder().toFactory().sanitize(id));
 
         catalogFramework.delete(deleteReq);
-        LOGGER.debug("Attempting to delete Metacard with id: {}", id);
+        LOGGER.debug("Attempting to delete Metacard with id: {}", LogSanitizer.sanitize(id));
       } else {
         String errorMessage = "ID of entry not specified, cannot do DELETE.";
         LOGGER.info(errorMessage);

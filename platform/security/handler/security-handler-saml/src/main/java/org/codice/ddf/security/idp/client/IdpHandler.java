@@ -63,6 +63,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.common.HttpUtils;
@@ -297,7 +298,7 @@ public class IdpHandler implements AuthenticationHandler {
         LOGGER.trace("Header retrieved");
         try {
           String tokenString = RestSecurity.inflateBase64(encodedSamlAssertion);
-          LOGGER.trace("Header value: {}", tokenString);
+          LOGGER.trace("Header value: {}", LogSanitizer.sanitize(tokenString));
           securityToken = SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(tokenString);
           SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
           simplePrincipalCollection.add(new SecurityAssertionSaml(securityToken), "default");
@@ -321,7 +322,7 @@ public class IdpHandler implements AuthenticationHandler {
       LOGGER.trace("Cookie retrieved");
       try {
         String tokenString = RestSecurity.inflateBase64(cookieValue);
-        LOGGER.trace("Cookie value: {}", tokenString);
+        LOGGER.trace("Cookie value: {}", LogSanitizer.sanitize(tokenString));
         securityToken = new SecurityToken();
         Element thisToken = StaxUtils.read(new StringReader(tokenString)).getDocumentElement();
         securityToken.setToken(thisToken);

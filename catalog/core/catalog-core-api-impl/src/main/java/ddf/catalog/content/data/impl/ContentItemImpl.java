@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,7 +143,8 @@ public class ContentItemImpl implements ContentItem {
     try {
       this.mimeType = new MimeType(this.mimeTypeRawData);
     } catch (MimeTypeParseException e) {
-      LOGGER.debug("Unable to create MimeType from raw data {}", mimeTypeRawData);
+      LOGGER.debug(
+          "Unable to create MimeType from raw data {}", LogSanitizer.sanitize(mimeTypeRawData));
     }
     try {
       uri = new URI(CONTENT_SCHEME, this.id, this.qualifier);

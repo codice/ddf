@@ -319,6 +319,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>log-sanitizer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.expansion</groupId>
             <artifactId>security-expansion-api</artifactId>
             <version>${project.version}</version>

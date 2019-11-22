@@ -46,6 +46,7 @@ import javax.xml.stream.XMLStreamReader;
 import net.opengis.wfs.v_2_0_0.FeatureCollectionType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlEnvelopeConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverter;
@@ -132,7 +133,7 @@ public class FeatureCollectionMessageBodyReaderWfs20
     // Save original input stream for any exception message that might need to be
     // created and additional attributes
     String originalInputStream = IOUtils.toString(inStream, "UTF-8");
-    LOGGER.debug("{}", originalInputStream);
+    LOGGER.debug("{}", LogSanitizer.sanitize(originalInputStream));
 
     ClassLoader ccl = Thread.currentThread().getContextClassLoader();
 

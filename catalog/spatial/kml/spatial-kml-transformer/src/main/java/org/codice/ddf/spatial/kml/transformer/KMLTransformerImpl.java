@@ -69,6 +69,7 @@ import javax.security.auth.Subject;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.spatial.kml.util.KmlMarshaller;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -346,7 +347,7 @@ public class KMLTransformerImpl implements KMLTransformer {
     String docId = UUID.randomUUID().toString();
 
     String restUriAbsolutePath = (String) arguments.get("url");
-    LOGGER.debug("rest string url arg: {}", restUriAbsolutePath);
+    LOGGER.debug("rest string url arg: {}", LogSanitizer.sanitize(restUriAbsolutePath));
 
     // Transform Metacards to KML
     Document kmlDoc = KmlFactory.createDocument();
@@ -363,7 +364,7 @@ public class KMLTransformerImpl implements KMLTransformer {
       } catch (CatalogTransformerException e) {
         LOGGER.debug(
             "Error transforming current metacard ({}) to KML and will continue with remaining query responses.",
-            result.getMetacard().getId(),
+            LogSanitizer.sanitize(result.getMetacard().getId()),
             e);
       }
     }

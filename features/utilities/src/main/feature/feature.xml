@@ -122,6 +122,7 @@
     <feature name="common-system" version="${project.version}"
              description="common system">
         <feature>apache-commons</feature>
+        <bundle dependency="true">mvn:ddf.platform.security/log-sanitizer/${project.version}</bundle>
         <bundle>mvn:ddf.lib/common-system/${project.version}</bundle>
     </feature>
 

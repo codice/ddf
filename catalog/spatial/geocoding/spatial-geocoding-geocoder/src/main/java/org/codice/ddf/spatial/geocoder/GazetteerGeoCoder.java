@@ -17,6 +17,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
@@ -64,7 +65,8 @@ public class GazetteerGeoCoder implements GeoCoder {
         return locations.get(0);
       }
     } catch (ParseException parseException) {
-      LOGGER.debug("Error parsing the supplied wkt: {}", location, parseException);
+      LOGGER.debug(
+          "Error parsing the supplied wkt: {}", LogSanitizer.sanitize(location), parseException);
     }
 
     return null;
