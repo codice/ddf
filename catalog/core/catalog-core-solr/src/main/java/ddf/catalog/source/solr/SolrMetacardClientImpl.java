@@ -261,6 +261,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
         if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
           query.set("q", findQueryToResend(query, solrResponse));
+          query.set("spellcheck", false);
           QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
           docs = solrResponseRequery.getResults();
           if (docs != null && docs.size() > originalQueryResultsSize) {
