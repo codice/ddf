@@ -84,11 +84,8 @@ public class SamlRealm extends AuthenticatingRealm {
           "Unable to authenticate credential.  A NULL credential was provided in the supplied authentication token. This may be due to an error with the SSO server that created the token.";
       LOGGER.info(msg);
       throw new AuthenticationException(msg);
-    } else {
-      // removed the credentials from the log message for now, I don't think we should be dumping
-      // user/pass into log
-      LOGGER.debug("Received credentials.");
     }
+    LOGGER.debug("Received credentials.");
 
     LOGGER.debug("Creating token authentication information with SAML.");
     SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo();

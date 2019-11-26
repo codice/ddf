@@ -15,6 +15,9 @@ package ddf.security.claims.impl;
 
 import ddf.security.claims.ClaimsParameters;
 import java.security.Principal;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,8 +32,8 @@ public class ClaimsParametersImpl implements ClaimsParameters {
   public ClaimsParametersImpl(
       Principal principal, Set<Principal> roles, Map<String, Object> additionalProperties) {
     this.principal = principal;
-    this.roles = roles;
-    this.additionalProperties = additionalProperties;
+    this.roles = new HashSet<>(roles);
+    this.additionalProperties = new HashMap<>(additionalProperties);
   }
 
   @Override
@@ -40,11 +43,11 @@ public class ClaimsParametersImpl implements ClaimsParameters {
 
   @Override
   public Set<Principal> getRoles() {
-    return roles;
+    return Collections.unmodifiableSet(roles);
   }
 
   @Override
   public Map<String, Object> getAdditionalProperties() {
-    return additionalProperties;
+    return Collections.unmodifiableMap(additionalProperties);
   }
 }

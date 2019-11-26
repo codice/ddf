@@ -114,7 +114,9 @@ public class Security {
     if (securityManager != null) {
       try {
         // TODO - Change when class is a service
-        ((BaseAuthenticationToken) token).setAllowGuest(true);
+        if (token instanceof BaseAuthenticationToken) {
+          ((BaseAuthenticationToken) token).setAllowGuest(true);
+        }
         return securityManager.getSubject(token);
       } catch (SecurityServiceException | RuntimeException e) {
         LOGGER.info("Unable to request subject for {} user.", username, e);
@@ -247,7 +249,9 @@ public class Security {
     AuthenticationToken token =
         tokenFactory.fromCertificates(new X509Certificate[] {(X509Certificate) cert}, "127.0.0.1");
     if (token != null) {
-      ((BaseAuthenticationToken) token).setAllowGuest(true);
+      if (token instanceof BaseAuthenticationToken) {
+        ((BaseAuthenticationToken) token).setAllowGuest(true);
+      }
       SecurityManager securityManager = getSecurityManager();
       if (securityManager != null) {
         try {
