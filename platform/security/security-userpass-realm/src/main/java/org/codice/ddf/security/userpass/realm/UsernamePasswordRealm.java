@@ -25,6 +25,8 @@ import ddf.security.claims.ClaimsHandler;
 import ddf.security.claims.impl.ClaimsParametersImpl;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
@@ -63,6 +65,8 @@ public class UsernamePasswordRealm extends AuthenticatingRealm {
 
   private List<ClaimsHandler> claimsHandlers = new ArrayList<>();
 
+  private Duration fourHours = Duration.ofHours(4);
+
   /** Determine if the supplied token is supported by this realm. */
   @Override
   public boolean supports(AuthenticationToken token) {
@@ -78,13 +82,17 @@ public class UsernamePasswordRealm extends AuthenticatingRealm {
 
     if (credentials == null || authToken.getType() != AuthenticationTokenType.USERNAME) {
       LOGGER.debug(
-          "The supplied authentication token has null/empty credentials. Sending back no supported.");
+          "The supplied authentication token has null/empty credentials. Sending back not supported.");
       return false;
     }
 
-    LOGGER.debug(
-        "Token {} is supported by {}.", token.getClass(), UsernamePasswordRealm.class.getName());
-    return true;
+    if (credentials instanceof String) {
+      LOGGER.debug(
+              "Token {} is supported by {}.", token.getClass(), UsernamePasswordRealm.class.getName());
+      return true;
+    }
+
+    return false;
   }
 
   @Override
@@ -93,7 +101,7 @@ public class UsernamePasswordRealm extends AuthenticatingRealm {
     String credentials = (String) token.getCredentials();
     String[] userpass = credentials.split(":");
     if (userpass.length != 2) {
-      LOGGER.debug("Credentials were not in the correct format.");
+      throw new AuthenticationException("Credentials were not in the correct format.");
     }
     String user = new String(Base64.getDecoder().decode(userpass[0]), StandardCharsets.UTF_8);
     String pass = new String(Base64.getDecoder().decode(userpass[1]), StandardCharsets.UTF_8);
@@ -141,14 +149,15 @@ public class UsernamePasswordRealm extends AuthenticatingRealm {
               new ClaimsParametersImpl(userPrincipal, rolePrincipals, new HashMap<>()));
       mergeClaimsToAttributes(attributeStatement, claims);
     }
+    final Instant now = Instant.now();
 
     assertionBuilder
         .addAttributeStatement(attributeStatement)
         .addPrincipal(userPrincipal)
         .weight(SecurityAssertion.LOCAL_AUTH_WEIGHT)
         .issuer("DDF")
-        .notBefore(new Date())
-        .notOnOrAfter(new Date(new Date().getTime() + 14400000L));
+            .notBefore(Date.from(now))
+            .notOnOrAfter(Date.from(now.plus(fourHours)));
 
     for (Principal principal : rolePrincipals) {
       assertionBuilder.addPrincipal(principal);
@@ -202,7 +211,7 @@ public class UsernamePasswordRealm extends AuthenticatingRealm {
 
   protected Subject login(String username, String password, String realmName)
       throws LoginException {
-    CallbackHandler handler = this.getCallbackHandler(username, password);
+    CallbackHandler handler = getCallbackHandler(username, password);
     LoginContext ctx = new LoginContext(realmName, handler);
     ctx.login();
     return ctx.getSubject();

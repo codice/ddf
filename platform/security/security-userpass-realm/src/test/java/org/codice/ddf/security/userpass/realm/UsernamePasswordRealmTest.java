@@ -92,7 +92,7 @@ public class UsernamePasswordRealmTest {
   @Test
   public void testSupportsGood() {
     BaseAuthenticationToken authenticationToken = mock(BaseAuthenticationToken.class);
-    when(authenticationToken.getCredentials()).thenReturn(new Object());
+    when(authenticationToken.getCredentials()).thenReturn("");
     when(authenticationToken.getType()).thenReturn(AuthenticationTokenType.USERNAME);
     boolean supports = upRealm.supports(authenticationToken);
     assertTrue(supports);
@@ -100,15 +100,24 @@ public class UsernamePasswordRealmTest {
 
   @Test
   public void testSupportsBad() {
-    AuthenticationToken authenticationToken = mock(AuthenticationToken.class);
+    BaseAuthenticationToken authenticationToken = mock(BaseAuthenticationToken.class);
     boolean supports = upRealm.supports(authenticationToken);
     assertFalse(supports);
 
+    when(authenticationToken.getType()).thenReturn(AuthenticationTokenType.PKI);
+    supports = upRealm.supports(authenticationToken);
+    assertFalse(supports);
+
+    when(authenticationToken.getType()).thenReturn(AuthenticationTokenType.USERNAME);
     authenticationToken = mock(BaseAuthenticationToken.class);
     supports = upRealm.supports(authenticationToken);
     assertFalse(supports);
 
     when(authenticationToken.getCredentials()).thenReturn(new Object());
+    supports = upRealm.supports(authenticationToken);
+    assertFalse(supports);
+
+    when(authenticationToken.getCredentials()).thenReturn("");
     supports = upRealm.supports(authenticationToken);
     assertFalse(supports);
   }

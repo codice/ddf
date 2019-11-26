@@ -13,17 +13,6 @@
  */
 package org.codice.ddf.security.pki.realm;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import ddf.security.assertion.Attribute;
 import ddf.security.assertion.AttributeStatement;
 import ddf.security.assertion.SecurityAssertion;
@@ -36,11 +25,20 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.security.auth.x500.X500Principal;
 import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
 import org.codice.ddf.security.handler.api.AuthenticationTokenType;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PKIRealmTest {
 
@@ -67,7 +65,8 @@ public class PKIRealmTest {
   @Test
   public void testSupportsGood() {
     BaseAuthenticationToken authenticationToken = mock(BaseAuthenticationToken.class);
-    when(authenticationToken.getCredentials()).thenReturn(new Object());
+    when(authenticationToken.getCredentials()).thenReturn(new X509Certificate[1]);
+    when(authenticationToken.getPrincipal()).thenReturn(new X500Principal("cn=test"));
     when(authenticationToken.getType()).thenReturn(AuthenticationTokenType.PKI);
     boolean supports = pkiRealm.supports(authenticationToken);
     assertTrue(supports);
@@ -75,15 +74,26 @@ public class PKIRealmTest {
 
   @Test
   public void testSupportsBad() {
-    AuthenticationToken authenticationToken = mock(AuthenticationToken.class);
+    BaseAuthenticationToken authenticationToken = mock(BaseAuthenticationToken.class);
     boolean supports = pkiRealm.supports(authenticationToken);
     assertFalse(supports);
 
-    authenticationToken = mock(BaseAuthenticationToken.class);
+    when(authenticationToken.getCredentials()).thenReturn(new Object());
+    when(authenticationToken.getPrincipal()).thenReturn(new Object());
+    supports = pkiRealm.supports(authenticationToken);
+    assertFalse(supports);
+
+    when(authenticationToken.getType()).thenReturn(AuthenticationTokenType.SAML);
+    supports = pkiRealm.supports(authenticationToken);
+    assertFalse(supports);
+
+    when(authenticationToken.getCredentials()).thenReturn(new X509Certificate[1]);
+    when(authenticationToken.getType()).thenReturn(AuthenticationTokenType.PKI);
     supports = pkiRealm.supports(authenticationToken);
     assertFalse(supports);
 
     when(authenticationToken.getCredentials()).thenReturn(new Object());
+    when(authenticationToken.getPrincipal()).thenReturn(new X500Principal("cn=test"));
     supports = pkiRealm.supports(authenticationToken);
     assertFalse(supports);
   }

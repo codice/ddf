@@ -25,6 +25,8 @@ import ddf.security.claims.ClaimsCollection;
 import ddf.security.claims.ClaimsHandler;
 import ddf.security.claims.impl.ClaimsParametersImpl;
 import java.security.cert.X509Certificate;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -48,6 +50,8 @@ public class PKIRealm extends AuthenticatingRealm {
 
   private List<ClaimsHandler> claimsHandlers = new ArrayList<>();
 
+  private Duration fourHours = Duration.ofHours(4);
+
   /** Determine if the supplied token is supported by this realm. */
   @Override
   public boolean supports(AuthenticationToken token) {
@@ -60,15 +64,20 @@ public class PKIRealm extends AuthenticatingRealm {
     BaseAuthenticationToken authToken = (BaseAuthenticationToken) token;
 
     Object credentials = authToken.getCredentials();
+    Object principal = authToken.getPrincipal();
 
-    if (credentials == null || authToken.getType() != AuthenticationTokenType.PKI) {
+    if (authToken.getType() != AuthenticationTokenType.PKI) {
       LOGGER.debug(
           "The supplied authentication token has null/empty credentials. Sending back no supported.");
       return false;
     }
 
-    LOGGER.debug("Token {} is supported by {}.", token.getClass(), PKIRealm.class.getName());
-    return true;
+    if (credentials instanceof X509Certificate[] && principal instanceof X500Principal) {
+      LOGGER.debug("Token {} is supported by {}.", token.getClass(), PKIRealm.class.getName());
+      return true;
+    }
+
+    return false;
   }
 
   @Override
@@ -98,6 +107,7 @@ public class PKIRealm extends AuthenticatingRealm {
               new ClaimsParametersImpl(principal, Collections.singleton(principal), properties));
       mergeClaimsToAttributes(attributeStatement, claims);
     }
+    final Instant now = Instant.now();
 
     SecurityAssertion assertion =
         assertionBuilder
@@ -105,8 +115,8 @@ public class PKIRealm extends AuthenticatingRealm {
             .addPrincipal(principal)
             .weight(SecurityAssertion.LOCAL_AUTH_WEIGHT)
             .issuer("DDF")
-            .notBefore(new Date())
-            .notOnOrAfter(new Date(new Date().getTime() + 14400000L))
+            .notBefore(Date.from(now))
+            .notOnOrAfter(Date.from(now.plus(fourHours)))
             .build();
 
     principals.add(assertion, "PKI");
