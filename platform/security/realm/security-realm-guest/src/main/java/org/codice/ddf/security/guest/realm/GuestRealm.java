@@ -97,7 +97,7 @@ public class GuestRealm extends AuthenticatingRealm {
       attributeStatement.addAttribute(attribute);
     }
     defaultSecurityAssertionBuilder.addAttributeStatement(attributeStatement);
-    defaultSecurityAssertionBuilder.addPrincipal(new GuestPrincipal(token.getIpAddress()));
+    defaultSecurityAssertionBuilder.userPrincipal(new GuestPrincipal(token.getIpAddress()));
     defaultSecurityAssertionBuilder.issuer("local");
     defaultSecurityAssertionBuilder.notBefore(new Date());
     // We don't really care how long it is "valid" for

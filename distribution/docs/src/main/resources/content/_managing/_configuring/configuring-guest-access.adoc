@@ -25,14 +25,8 @@ and unique identifier mapping will be audited in the security log.
 
 === Denying Guest User Access
 
-To disable guest access for a context, use the <<{managing-prefix}configuring_the_web_context_policy_manager, Web Context Policy Manager>> configuration to remove *Guest*.
-from the *Authentication Type* for that context.
+To disable guest access for all contexts, use the <<{managing-prefix}configuring_the_web_context_policy_manager, Web Context Policy Manager>> configuration and uncheck the Guest checkbox.
 Only authorized users are then allowed to continue to the Search UI page.
-
-[NOTE]
-====
-If using the included IdP for authentication, disable the `Allow Guest Access` option by <<{managing-prefix}configuring_the_idp_server, Configuring the IdP Server>>.
-====
 
 === Allowing Guest User Access
 

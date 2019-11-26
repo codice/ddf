@@ -29,6 +29,8 @@ public class SecurityAssertionDefault implements SecurityAssertion {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SecurityAssertionDefault.class);
 
+  Principal userPrincipal;
+
   Set<Principal> principals = new HashSet<>();
 
   String issuer;
@@ -51,7 +53,7 @@ public class SecurityAssertionDefault implements SecurityAssertion {
 
   @Override
   public Principal getPrincipal() {
-    return principals.iterator().next();
+    return userPrincipal;
   }
 
   @Override
@@ -76,7 +78,9 @@ public class SecurityAssertionDefault implements SecurityAssertion {
 
   @Override
   public Set<Principal> getPrincipals() {
-    return principals;
+    HashSet<Principal> prins = new HashSet<>(principals);
+    prins.add(userPrincipal);
+    return prins;
   }
 
   @Override

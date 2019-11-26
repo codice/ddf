@@ -81,8 +81,7 @@
         <feature>security-policy-context</feature>
         <feature>security-web-sso-defaults</feature>
         <feature>security-guest</feature>
-        <feature>security-sts-certificateclaimshandler</feature>
-        <feature>security-idp</feature>
+        <feature>security-claims-certificate</feature>
         <feature>security-certificate</feature>
         <feature>security-rest-authentication</feature>
         <feature>security-command-listener</feature>

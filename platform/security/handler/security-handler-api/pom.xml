@@ -112,7 +112,6 @@
                         <Import-Package>
                             javax.ws.rs,
                             org.codice.ddf.parser,
-                            org.apache.cxf.sts.*,
                             *
                         </Import-Package>
                     </instructions>

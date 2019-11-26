@@ -88,7 +88,7 @@ public class UsernamePasswordRealm extends AuthenticatingRealm {
 
     if (credentials instanceof String) {
       LOGGER.debug(
-              "Token {} is supported by {}.", token.getClass(), UsernamePasswordRealm.class.getName());
+          "Token {} is supported by {}.", token.getClass(), UsernamePasswordRealm.class.getName());
       return true;
     }
 
@@ -153,11 +153,11 @@ public class UsernamePasswordRealm extends AuthenticatingRealm {
 
     assertionBuilder
         .addAttributeStatement(attributeStatement)
-        .addPrincipal(userPrincipal)
+        .userPrincipal(userPrincipal)
         .weight(SecurityAssertion.LOCAL_AUTH_WEIGHT)
         .issuer("DDF")
-            .notBefore(Date.from(now))
-            .notOnOrAfter(Date.from(now.plus(fourHours)));
+        .notBefore(Date.from(now))
+        .notOnOrAfter(Date.from(now.plus(fourHours)));
 
     for (Principal principal : rolePrincipals) {
       assertionBuilder.addPrincipal(principal);

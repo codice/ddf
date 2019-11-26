@@ -110,7 +110,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
                             org.apache.commons.io;version="1.4.0",
-                            ddf.security.sts.client.configuration,
                             *
                         </Import-Package>
                         <Embed-Dependency>

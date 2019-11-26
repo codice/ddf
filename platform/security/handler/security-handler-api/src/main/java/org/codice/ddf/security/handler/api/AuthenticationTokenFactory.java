@@ -15,15 +15,12 @@ package org.codice.ddf.security.handler.api;
 
 import java.security.cert.X509Certificate;
 import java.util.Base64;
-import org.apache.cxf.ws.security.sts.provider.model.secext.BinarySecurityTokenType;
-import org.apache.cxf.ws.security.sts.provider.model.secext.UsernameTokenType;
 import org.apache.shiro.authc.AuthenticationToken;
 
 public class AuthenticationTokenFactory {
 
   /**
-   * Creates a {@link AuthenticationToken} from a given username and password. Uses a {@link
-   * UsernameTokenType} internally to store the username and password.
+   * Creates a {@link AuthenticationToken} from a given username and password.
    *
    * @param username - user's username
    * @param password - user's password
@@ -42,8 +39,7 @@ public class AuthenticationTokenFactory {
   }
 
   /**
-   * Creates a {@link AuthenticationToken} from a given list of certificates. Uses a {@link
-   * BinarySecurityTokenType} internally to store the certificates.
+   * Creates a {@link AuthenticationToken} from a given list of certificates.
    *
    * @param certs - the user's certificates
    * @return a BaseAuthenticationToken containing the given certificates

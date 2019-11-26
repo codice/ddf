@@ -112,7 +112,7 @@ public class PKIRealm extends AuthenticatingRealm {
     SecurityAssertion assertion =
         assertionBuilder
             .addAttributeStatement(attributeStatement)
-            .addPrincipal(principal)
+            .userPrincipal(principal)
             .weight(SecurityAssertion.LOCAL_AUTH_WEIGHT)
             .issuer("DDF")
             .notBefore(Date.from(now))

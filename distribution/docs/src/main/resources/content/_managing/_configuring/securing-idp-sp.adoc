@@ -1,39 +1,35 @@
-:title: Included Identity Provider/Service Provider
+:title: Included SAML Service Provider
 :type: configuration
 :status: published
 :parent: Configuring REST Services for Users
-:summary: Using the included IdP.
+:summary: Configure authentication via SAML 2.0 Web SSO.
 :order: 00
 
 == {title}
 
-The ${ddf-security} Identity Provider (IdP) application provides service provider handling that satisfies the http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile] in order to support external IdPs (Identity Providers).
+The ${ddf-security} SAML handler provides service provider handling that satisfies the http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile] in order to support external SAML IdPs (Identity Providers).
 
-Within the Identity Provider, IdP and SP (Service Provider) are used for SSO authentication purposes.
+The SAML handler is used for SSO authentication purposes.
 
-=== Installing the IdP
+=== Installing the SAML Web SSO handler
 
-The IdP bundles are installed by default with the ${ddf-security} application.
+The Web SSO bundles are installed by default with the ${ddf-security} application.
 
-. Install the `security-idp` feature either by command line: `features:install security-idp`, or by the ${admin-console}: *System* tab -> *Features* tab -> `security-idp`
+. Install the `security-handler-saml` feature either by command line: `features:install security-handler-saml`, or by the ${admin-console}: *System* tab -> *Features* tab -> `security-handler-saml`
 
-=== Security IdP Service Provider (SP)
-
-The IdP client that interacts with the specified Identity Provider.
-
-=== Configuring IdP SSO
+=== Configuring SAML Web SSO
 
 . Navigate to *${admin-console}*.
 . Select the *${ddf-security}* application.
 . Select the *Configuration* tab.
-. Select *IdP Client*.
+. Select *SAML Handler*.
 . Populate IdP Metadata field through one of the following:
 .. An HTTPS URL (https://)
 .. A file URL (file:)
 .. An XML block to refer to desired metadata
 ... (e.g., \${secure_url}/services/idp/login/metadata)
 
-.IdP Client (SP) example.xml
+.SAML 2.0 Web SSO Client (SP) example.xml
 [source,xml,linenums]
 ----
 <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="${secure_url}/services/idp/login">
@@ -73,53 +69,6 @@ The IdP client that interacts with the specified Identity Provider.
 </md:EntityDescriptor>
 ----
 
-=== Security IdP Server
-
-An internal Identity Provider solution.
-
-==== Configuring IdP Server
-
-. Navigate to *${admin-console}*.
-. Select the *${ddf-security}* application.
-. Select the *Configuration* tab.
-. Select *IdP Server*.
-. Click the + next to SP Metadata to add a new entry
-. Populate the new entry:
-.. with an HTTPS URL (https://),
-.. file URL (file:), or
-.. XML block to refer to desired metadata, e.g. (${secure_url}/services/saml/sso/metadata)
-
-.IdP Server example.xml
-[source,xml,linenums]
-----
-<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="${secure_url}/services/saml">
-  <md:SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
-  <md:KeyDescriptor use="signing">
-    <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-      <ds:X509Data>
-        <ds:X509Certificate>
-          MIIDEzCCAnygAwIBAgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYxGTAXBgNVBAMMEERERiBEZW1vIFJvb3QgQ0ExJDAiBgkqhkiG9w0BCQEWFWRkZnJvb3RjYUBleGFtcGxlLm9yZzAeFw0xNDEyMTAyMTU4MThaFw0xNTEyMTAyMTU4MThaMIGDMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQVoxETAPBgNVBAcMCEdvb2R5ZWFyMQwwCgYDVQQKDANEREYxDDAKBgNVBAsMA0RldjESMBAGA1UEAwwJbG9jYWxob3N0MSQwIgYJKoZIhvcNAQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGkz8gx3l3A99s8WtA4mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2cI5nFButabD3PYGxUSuapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVgL2CfAgMBAAGjgZkwgZYwCQYDVR0TBAIwADAnBglghkgBhvhCAQ0EGhYYRk9SIFRFU1RJTkcgUFVSUE9TRSBPTkxZMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFrsDAfBgNVHSMEGDAWgBThVMeX3wrCv6lfeF47CyvkSBe9xjAgBgNVHREEGTAXgRVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwDQYJKoZIhvcNAQEFBQADgYEAtRUp7fAxU/E6JD2Kj/+CTWqu8Elx13S0TxoIqv3gMoBW0ehyzEKjJi0bb1gUxO7n1SmOESp5sE3jGTnh0GtYV0D219z/09n90cd/imAEhknJlayyd0SjpnaL9JUd8uYxJexy8TJ2sMhsGAZ6EMTZCfT9m07XduxjsmDz0hlSGV0=
-        </ds:X509Certificate>
-      </ds:X509Data>
-    </ds:KeyInfo>
-  </md:KeyDescriptor>
-  <md:KeyDescriptor use="encryption">
-    <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-      <ds:X509Data>
-        <ds:X509Certificate>
-        MIIDEzCCAnygAwIBAgIJAIzc4FYrIp9mMA0GCSqGSIb3DQEBBQUAMHcxCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJBWjEMMAoGA1UECgwDRERGMQwwCgYDVQQLDANEZXYxGTAXBgNVBAMMEERERiBEZW1vIFJvb3QgQ0ExJDAiBgkqhkiG9w0BCQEWFWRkZnJvb3RjYUBleGFtcGxlLm9yZzAeFw0xNDEyMTAyMTU4MThaFw0xNTEyMTAyMTU4MThaMIGDMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQVoxETAPBgNVBAcMCEdvb2R5ZWFyMQwwCgYDVQQKDANEREYxDDAKBgNVBAsMA0RldjESMBAGA1UEAwwJbG9jYWxob3N0MSQwIgYJKoZIhvcNAQkBFhVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMeCyNZbCTZphHQfB5g8FrgBq1RYzV7ikVw/pVGkz8gx3l3A99s8WtA4mRAeb6n0vTR9yNBOekW4nYOiEOq//YTi/frI1kz0QbEH1s2cI5nFButabD3PYGxUSuapbc+AS7+Pklr0TDI4MRzPPkkTp4wlORQ/a6CfVsNr/mVgL2CfAgMBAAGjgZkwgZYwCQYDVR0TBAIwADAnBglghkgBhvhCAQ0EGhYYRk9SIFRFU1RJTkcgUFVSUE9TRSBPTkxZMB0GA1UdDgQWBBSA95QIMyBAHRsd0R4s7C3BreFrsDAfBgNVHSMEGDAWgBThVMeX3wrCv6lfeF47CyvkSBe9xjAgBgNVHREEGTAXgRVsb2NhbGhvc3RAZXhhbXBsZS5vcmcwDQYJKoZIhvcNAQEFBQADgYEAtRUp7fAxU/E6JD2Kj/+CTWqu8Elx13S0TxoIqv3gMoBW0ehyzEKjJi0bb1gUxO7n1SmOESp5sE3jGTnh0GtYV0D219z/09n90cd/imAEhknJlayyd0SjpnaL9JUd8uYxJexy8TJ2sMhsGAZ6EMTZCfT9m07XduxjsmDz0hlSGV0=
-        </ds:X509Certificate>
-      </ds:X509Data>
-    </ds:KeyInfo>
-  </md:KeyDescriptor>
-  <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="${secure_url}/logout"/>
-  <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="${secure_url}/logout"/>
-  <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="${secure_url}/services/saml/sso"/>
-  <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="${secure_url}/services/saml/sso"/>
-  </md:SPSSODescriptor>
-</md:EntityDescriptor>
-----
-
 === Configuring Authentication Types for SAML IdP
 
 Set the authentication types in the `WebContextPolicyManager` to SAML.
@@ -140,7 +89,3 @@ With that configuration, any clients that failed to connect using either the SAM
 ====
 If you have configured /search to use IDP, ensure to select the "External Authentication" checkbox in *Search UI* standard settings.
 ====
-
-=== Identity Provider Limitations
-
-The internal Identity Provider solution should be used in favor of any external solutions until the IdP Service Provider fully satisfies the SAML 2.0 Web SSO profile.

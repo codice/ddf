@@ -1,11 +1,11 @@
-:title: IdP Handler
+:title: SAML Handler
 :id: org.codice.ddf.security.idp.client.IdpHandler
 :type: table
 :status: published
 :application: ${ddf-security}
 :summary: IdP Handler configurations.
 
-.[[_org.codice.ddf.security.idp.client.IdpHandler]]IdP Handler
+.[[_org.codice.ddf.security.idp.client.IdpHandler]]SAML Handler
 [cols="1,1m,1,3,1" options="header"]
 |===
 
@@ -18,7 +18,7 @@
 |Authentication Context Class
 |authContextClasses
 |String
-|Authentication Context Classes that are considered acceptable means of authentication by the IdP Client.
+|Authentication Context Classes that are considered acceptable means of authentication by the SAML handler.
 |urn:oasis:names:tc:SAML:2.0:ac:classes:Password,urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport,urn:oasis:names:tc:SAML:2.0:ac:classes:X509,urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI,urn:oasis:names:tc:SAML:2.0:ac:classes:SoftwarePKI,urn:oasis:names:tc:SAML:2.0:ac:classes:SPKI,urn:oasis:names:tc:SAML:2.0:ac:classes:TLSClient
 
 |===

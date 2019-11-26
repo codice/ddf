@@ -1,4 +1,4 @@
-:title: Connecting to an External Identity Provider
+:title: Connecting to an External SAML Identity Provider
 :type: subConfiguration
 :status: published
 :parent: Configuring REST Services for Users
@@ -7,16 +7,16 @@
 
 == {title}
 
-To connect to an external Identity Provider,
+To connect to an external SAML Identity Provider,
 
-. Provide the external IdP with ${branding}'s Service Provider (SP) metadata.
+. Provide the external SAML IdP with ${branding}'s Service Provider (SP) metadata.
 The SP metadata can found at `https://<FQDN>:<PORT>/services/saml/sso/metadata`.
 
 . Replace the IdP metadata field in ${branding}.
 .. Navigate to the *${admin-console}*.
 .. Select the *${ddf-security}* application.
 .. Select the *Configuration* tab.
-.. Select *IdP Client*.
+.. Select *SAML Handler*.
 .. Populate the *IdP Metadata* field with the external IdP's metadata.
 
 [NOTE]
@@ -29,8 +29,3 @@ The certificate that the external IdP uses for signing will need to be added to 
 ${branding} may not interoperate successfully with all IdPs.
 To idenify the ones it can interoperate with use the https://github.com/codice/saml-conformance[The Security Assertion Markup Language (SAML) Conformance Test Kit (CTK)] {external-link}
 ====
-
-.Service Provider Metadata
-It is not recommended to remove or replace the included Service Provider.
-To add an additional, external Service Provider, add the SP metadata to the *IdP Server* configuration.
-See <<{managing-prefix}configuring_idp_sp, Configuring Security IdP Service Provider>> for more detail.

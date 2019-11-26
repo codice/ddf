@@ -26,7 +26,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
@@ -91,16 +90,7 @@ public class SamlRealmTest {
   @Test
   public void testDoGetAuthenticationInfoSAML()
       throws ParserConfigurationException, SAXException, IOException {
-    SamlRealm realm =
-        new SamlRealm() {
-          protected SecurityToken renewSecurityToken(SecurityToken securityToken) {
-            return securityToken;
-          }
-
-          protected STSClient configureStsClient() {
-            return null;
-          }
-        };
+    SamlRealm realm = new SamlRealm();
     Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
     String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();
     SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
@@ -115,21 +105,8 @@ public class SamlRealmTest {
 
   @Ignore
   @Test
-  public void testDoGetAuthenticationInfoBase()
-      throws ParserConfigurationException, SAXException, IOException {
-    Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
-    String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();
-    final SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
-    SamlRealm realm =
-        new SamlRealm() {
-          protected SecurityToken requestSecurityToken(Object obj) {
-            return token;
-          }
-
-          protected STSClient configureStsClient() {
-            return null;
-          }
-        };
+  public void testDoGetAuthenticationInfoBase() {
+    SamlRealm realm = new SamlRealm();
 
     BaseAuthenticationToken authenticationToken = mock(BaseAuthenticationToken.class);
     when(authenticationToken.getCredentialsAsString()).thenReturn("creds");

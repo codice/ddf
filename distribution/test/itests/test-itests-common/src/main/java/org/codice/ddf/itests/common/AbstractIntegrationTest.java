@@ -546,10 +546,6 @@ public abstract class AbstractIntegrationTest {
             "etc/org.apache.karaf.management.cfg", "rmiServerPort", RMI_SERVER_PORT.getPort()),
         installStartupFile(
             getClass().getClassLoader().getResource("hazelcast.xml"), "/etc/hazelcast.xml"),
-        KarafDistributionOption.editConfigurationFilePut(
-            "etc/ddf.security.sts.client.configuration.config",
-            "address",
-            SECURE_ROOT + HTTPS_PORT.getPort() + "/services/SecurityTokenService?wsdl"),
         installStartupFile(
             getClass()
                 .getClassLoader()

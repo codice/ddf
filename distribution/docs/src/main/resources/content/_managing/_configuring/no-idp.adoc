@@ -1,20 +1,20 @@
-:title: Configuring Without an Identity Provider
+:title: Configuring Without SAML
 :type: subConfiguration
 :status: published
 :parent: Configuring REST Services for Users
-:summary: Configuring without an IdP.
+:summary: Configuring without SAML.
 :order: 20
 
 == {title}
 
-To configure ${branding} to not use an Identity Provider (IdP),
+To configure ${branding} to not use a SAML Identity Provider (IdP),
 
-. Disable the IdP feature.
+. Disable the 'security-handler-saml' feature.
 .. Navigate to the *${admin-console}*.
 .. Select the *System* tab.
 .. Select the *Features* tab.
-.. Uninstall the `security-idp` feature.
-. Change the Authentication Type if it is IdP.
+.. Uninstall the `security-handler-saml` feature.
+. Change the Authentication Type if it is SAML.
 .. Navigate to the *${admin-console}*.
 .. Select the *${ddf-security}* application.
 .. Select the *Configuration* tab.

@@ -26,8 +26,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-attributequerycommon</artifactId>
+            <groupId>ddf.security.claims</groupId>
+            <artifactId>security-claims-attributequerycommon</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -56,7 +56,7 @@
                         <Embed-Dependency>
                             commons-collections,
                             platform-util,
-                            security-sts-attributequerycommon
+                            security-claims-attributequerycommon
                         </Embed-Dependency>
                         <Export-Package />
                     </instructions>
