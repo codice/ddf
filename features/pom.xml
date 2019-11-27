@@ -49,7 +49,9 @@
         - Removed properties that are not used
         - Replaced the value of "geronimo-jms2-spec-version" with "${geronimo-jms_2_spec.version}" to keep it in line with the rest of the project
         - Added netty41 version and removed netty40 version
-        - make camel and artemis qpid-proton-j-bundle-version and qpid-jms-client-version match -->
+        - make camel and artemis qpid-proton-j-bundle-version and qpid-jms-client-version match
+        - Removed CXF specific jackson version in favor of the DDF jackson version
+        - Removed jackson2 version property in favor of one global shared jackson version property -->
         <aws-java-sdk-bundle-version>${aws-java-sdk-bundle.version}</aws-java-sdk-bundle-version>
         <commons-codec-version>${commons-codec.version}</commons-codec-version>
         <commons-httpclient-bundle-version>3.1_7</commons-httpclient-bundle-version>
@@ -62,11 +64,9 @@
         <geronimo-jms2-spec-version>${geronimo-jms_2_spec.version}</geronimo-jms2-spec-version>
         <geronimo-jta-spec-version>1.1.1</geronimo-jta-spec-version>
         <camel.guava.version>19.0</camel.guava.version>
-        <cxf.jackson.version>2.9.9</cxf.jackson.version>
         <hikaricp-version>2.3.13</hikaricp-version>
         <httpcore4-version>4.4.10</httpcore4-version>
         <httpclient4-version>4.5.6</httpclient4-version>
-        <jackson2-version>${cxf.jackson.version}</jackson2-version>
         <javax-mail-version>1.6.1</javax-mail-version>
         <javax.servlet-api-version>3.1.0</javax.servlet-api-version>
         <junit-bundle-version>4.11_2</junit-bundle-version>

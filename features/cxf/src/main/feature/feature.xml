@@ -428,30 +428,28 @@
         <bundle start-level="10" dependency="true">
             mvn:javax.annotation/javax.annotation-api/${cxf.javax.annotation-api.version}
         </bundle>
-        <bundle start-level="35">mvn:org.yaml/snakeyaml/1.23</bundle>
+        <bundle start-level="35">mvn:org.yaml/snakeyaml/1.24</bundle>
         <bundle start-level="35">
-            mvn:com.fasterxml.jackson.core/jackson-core/${cxf.jackson.version}
+            mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}
         </bundle>
         <bundle start-level="35">
-            mvn:com.fasterxml.jackson.core/jackson-annotations/${cxf.jackson.version}
+            mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.version}
         </bundle>
         <bundle start-level="35">
-            mvn:com.fasterxml.jackson.core/jackson-databind/${cxf.jackson.version}
+            mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}
         </bundle>
         <bundle start-level="35">
-            mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/${cxf.jackson.version}
+            mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/${jackson.version}
         </bundle>
         <bundle start-level="35">
-            mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${cxf.jackson.version}
+            mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson.version}
         </bundle>
-        <!-- <bundle start-level="35">mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${cxf.jackson.version}</bundle> -->
-        <!-- <bundle start-level="35">mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${cxf.jackson.version}</bundle> -->
         <feature prerequisite="true">wrap</feature>
         <bundle>
-            wrap:mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${cxf.jackson.version}$overwrite=merge&amp;Import-Package=javax.ws.rs*;version="[2.0,3)",com.fasterxml.jackson*;version="[2.8,3)"
+            wrap:mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson.version}$overwrite=merge&amp;Import-Package=javax.ws.rs*;version="[2.0,3)",com.fasterxml.jackson*;version="[2.8,3)"
         </bundle>
         <bundle>
-            wrap:mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${cxf.jackson.version}$overwrite=merge&amp;Import-Package=javax.ws.rs*;version="[2.0,3)",com.fasterxml.jackson.module.jaxb;resolution:=optional;version="[2.8,3)",com.fasterxml.jackson*;version="[2.8,3)"
+            wrap:mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson.version}$overwrite=merge&amp;Import-Package=javax.ws.rs*;version="[2.0,3)",com.fasterxml.jackson.module.jaxb;resolution:=optional;version="[2.8,3)",com.fasterxml.jackson*;version="[2.8,3)"
         </bundle>
     </feature>
     <feature name="cxf-jsr-json" version="${cxf.version}">

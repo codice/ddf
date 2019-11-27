@@ -132,10 +132,10 @@
         <bundle dependency="true">mvn:com.sun.mail/javax.mail/${javax-mail-version}</bundle>
         <bundle dependency="true">mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson2-version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/${jackson.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle-version}</bundle>
 
         <bundle>mvn:org.apache.camel/camel-aws/${camel.version}</bundle>
@@ -192,10 +192,10 @@
 
     <feature name="camel-jackson" version="${camel.version}" start-level="50">
         <feature version="${camel.version}">camel-core</feature>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson2-version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson.version}</bundle>
         <bundle>mvn:org.apache.camel/camel-jackson/${camel.version}</bundle>
         <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
@@ -236,9 +236,9 @@
         <feature version="${camel.version}">camel-core</feature>
         <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-core/${metrics-version}</bundle>
         <bundle dependency="true">mvn:io.dropwizard.metrics/metrics-json/${metrics-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
-        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}</bundle>
+        <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.version}</bundle>
         <bundle>mvn:org.apache.camel/camel-metrics/${camel.version}</bundle>
         <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
     </feature>
