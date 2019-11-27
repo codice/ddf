@@ -5,7 +5,7 @@ The solr image has a few add-on components to make it fully compatible with DDF
 
 ## Usage
 
-To run: `docker-compose up'
+To run: `docker-compose up`
 
 ## Running DDF in Cloud mode
 
