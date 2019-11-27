@@ -1,0 +1,31 @@
+version: '3.5'
+services:
+  zk1:
+    image: zookeeper:${docker.zookeeper.version}
+    restart: always
+    ports:
+    - "${docker.zookeeper.port.1}:2181"
+    - "${docker.zookeeper.port.2}:2888"
+    - "${docker.zookeeper.port.3}:3888"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zk1:2888:3888
+      JVMFLAGS: "-Xms48m -Xmx128m"
+    hostname: zk1
+  solr1:
+    image: codice/ddf-solr:${project.version}
+    restart: always
+    ports:
+    - ${docker.solr.port.1}:${docker.solr.port.1}
+    command: ["/opt/solr/bin/solr",
+              "start",
+              "-f",
+              "-cloud",
+              "-m", "1500m",
+              "-z", "zk1:2181",
+              "-p", "${docker.solr.port.1}", "-h", "solr1"]
+    hostname: solr1
+    volumes:
+    - type: bind
+      source: ${docker.solr.backup.directory.local}
+      target: ${docker.solr.backup.directory.target}
