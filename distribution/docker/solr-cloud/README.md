@@ -8,11 +8,15 @@ The solr image has a few add-on components to make it fully compatible with DDF
 To run: `docker-compose up'
 
 ## Running DDF in Cloud mode
+
 Prior to start up DDF, edit the custom.system.properties file
-`start.solr=false
- solr.client=CloudSolrClient
- solr.cloud.zookeeper = localhost:7771
- solr.cloud.maxShardPerNode = 4`
+
+```
+start.solr=false
+solr.client=CloudSolrClient
+solr.cloud.zookeeper=localhost:7771
+solr.cloud.maxShardPerNode=4
+```
 
 DDF will create all the associate cores if not already exist on the solr cloud instance.
 
