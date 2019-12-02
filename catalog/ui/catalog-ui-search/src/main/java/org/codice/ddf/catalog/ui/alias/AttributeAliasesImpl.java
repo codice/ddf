@@ -14,9 +14,7 @@
 package org.codice.ddf.catalog.ui.alias;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +22,7 @@ public class AttributeAliasesImpl implements AttributeAliases {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AttributeAliasesImpl.class);
 
-  private Map<String, String> aliases = Collections.emptyMap();
+  private ImmutableMap<String, String> aliases = ImmutableMap.of();
 
   @Override
   public String getAlias(String attributeName) {
@@ -37,16 +35,16 @@ public class AttributeAliasesImpl implements AttributeAliases {
   }
 
   @Override
-  public Map<String, String> getAliasMap() {
+  public ImmutableMap<String, String> getAliasMap() {
     return aliases;
   }
 
   public void setAttributeAliases(List<String> attributeAliases) {
-    LOGGER.trace("Settting attribute aliases: {}", attributeAliases);
+    LOGGER.trace("Setting attribute aliases: {}", attributeAliases);
     this.aliases = parseAttributeAndValuePairs(attributeAliases);
   }
 
-  private Map<String, String> parseAttributeAndValuePairs(List<String> pairs) {
+  private ImmutableMap<String, String> parseAttributeAndValuePairs(List<String> pairs) {
     ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
     pairs
         .stream()

@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.alias;
 
-import java.util.Map;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * A collection of mappings between internal attribute names to their user-friendly aliases,
@@ -44,7 +44,7 @@ public interface AttributeAliases {
   /**
    * Gets a read-only reference to all the alias mappings. This map will never be {@code null}.
    *
-   * @return a map containing all internal attribute to alias mappings.
+   * @return an immutable map containing all internal attribute to alias mappings.
    */
-  Map<String, String> getAliasMap();
+  ImmutableMap<String, String> getAliasMap();
 }
