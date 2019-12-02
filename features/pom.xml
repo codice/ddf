@@ -49,7 +49,8 @@
         - Removed properties that are not used
         - Replaced the value of "geronimo-jms2-spec-version" with "${geronimo-jms_2_spec.version}" to keep it in line with the rest of the project
         - Added netty41 version and removed netty40 version
-        - make camel and artemis qpid-proton-j-bundle-version and qpid-jms-client-version match -->
+        - make camel and artemis qpid-proton-j-bundle-version and qpid-jms-client-version match
+        - Updated jackson to 2.9.10 and jackson databind to 2.9.10.1 -->
         <aws-java-sdk-bundle-version>${aws-java-sdk-bundle.version}</aws-java-sdk-bundle-version>
         <commons-codec-version>${commons-codec.version}</commons-codec-version>
         <commons-httpclient-bundle-version>3.1_7</commons-httpclient-bundle-version>
