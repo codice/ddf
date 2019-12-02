@@ -51,7 +51,9 @@ const foreground = (props: any) => {
   }
 }
 
-const ItemRoot = styled.div<{ active: boolean; selected: boolean }>`
+const ItemRoot = 
+
+    styled.option<{ active: boolean; selected: boolean; disabled : boolean}>`
   position: relative;
   padding: 0px ${({ theme }) => theme.minimumSpacing};
   padding-right: ${({ theme }) => theme.minimumButtonSize};
@@ -197,7 +199,10 @@ export class Menu extends React.Component<MenuProps, MenuState> {
           selected: multi
             ? value.indexOf(child.props.value) !== -1
             : value === child.props.value,
-          onClick: () => this.onChange(child.props.value),
+          onClick: () => {
+                this.onChange(child.props.value)
+                console.log(`${this.state.active} props ${child.props.value}`)
+            },
           active: this.state.active === child.props.value,
           onHover: () => this.onHover(child.props.value),
           ...child.props,
@@ -229,13 +234,16 @@ type MenuItemProps = {
   selected?: any
   active?: any
   onHover?: any
+  disabled?:any
+
 }
 
 export const MenuItem = (props: MenuItemProps) => {
-  const { value, children, selected, onClick, active, onHover, style } = props
-
+  const { value, children, selected, onClick, active, onHover, style, disabled} = props
+  console.log(active);
   return (
     <ItemRoot
+      disabled ={disabled}
       selected={selected}
       active={active}
       style={style}
@@ -243,6 +251,7 @@ export const MenuItem = (props: MenuItemProps) => {
       onFocus={() => onHover(value)}
       tabIndex={0}
       onClick={() => onClick(value)}
+      
     >
       {children || value}
     </ItemRoot>

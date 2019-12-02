@@ -19,14 +19,40 @@ import TextField from '../../text-field'
 import styled from 'styled-components'
 import { getFilteredSuggestions, inputMatchesSuggestions } from './enumHelper'
 import PropTypes from 'prop-types'
+const sources = require('../../../component/singletons/sources-instance');
 
 const TextWrapper = styled.div`
   padding: ${({ theme }) => theme.minimumSpacing};
 `
 
 const EnumMenuItem = props => (
-  <MenuItem {...props} style={{ paddingLeft: '1.5rem' }} />
+  <MenuItem {...props} style={{ paddingLeft: '1.5rem' }}/>
 )
+
+const isMenuItemDisabled = (currValue) => {
+  
+  let AllSupportedAttributes = sources.models.map(source => {
+
+    //NDL EASt is only supported in NCL-Search not in advanced search
+    if(!(source.id == "NDL-East")){
+
+      return source.attributes.supportedAttributes;
+
+    }
+    return [];
+  });
+  AllSupportedAttributes = AllSupportedAttributes.flat()
+  //AllSupportedAttributes.push("ext.acquisition-status");
+  if(AllSupportedAttributes.length == 0){
+    return false;
+  }
+  if(AllSupportedAttributes.indexOf(currValue) >= 0){
+    return false;
+  }
+
+  return true;
+
+}
 
 const EnumInput = ({
   allowCustom,
@@ -42,6 +68,10 @@ const EnumInput = ({
     suggestions,
     matchCase
   )
+  
+  console.log(filteredSuggestions)
+  console.log(sources.models);
+  console.log(filteredSuggestions);
   const displayInput = !inputMatchesSuggestions(input, suggestions, matchCase)
   return (
     <Dropdown label={(selected && selected.label) || value}>
@@ -60,7 +90,7 @@ const EnumInput = ({
           )}
         {filteredSuggestions.map(suggestion => {
           return (
-            <EnumMenuItem key={suggestion.value} value={suggestion.value}>
+            <EnumMenuItem key={suggestion.value} value={suggestion.value}  disabled={isMenuItemDisabled(suggestion.value)}>
               {suggestion.label}
             </EnumMenuItem>
           )
@@ -85,5 +115,7 @@ EnumInput.propTypes = {
 
   /** Should custom values be allowed? */
   allowCustom: PropTypes.bool,
+
+
 }
 export default EnumInput
