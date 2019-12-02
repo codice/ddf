@@ -405,7 +405,7 @@ org.ops4j.pax.web.default.realmname=DDF
     <feature name="jackson" version="${project.version}">
         <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}</bundle>
         <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.version}</bundle>
-        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.databind.version}</bundle>
     </feature>
 
     <feature name="security-oidc-realm" version="${project.version}"

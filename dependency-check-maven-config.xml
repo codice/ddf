@@ -23,32 +23,6 @@
     </suppress>
     <suppress>
         <notes>
-            FasterXML jackson-databind through 2.8.10 and 2.9.x through 2.9.3 allows unauthenticated
-            remote code execution because of an incomplete fix for the CVE-2017-7525 deserialization
-            flaw. This is exploitable by sending maliciously crafted JSON input to the
-            readValue method of the ObjectMapper, bypassing a blacklist that is ineffective
-            if the Spring libraries are available in the classpath.
-            We have upgraded to 2.9.4 which fixes the issue but version 2.6.3 is still being used by
-            org.apache.cxf:cxf-rt-rs-security-sso-saml -> ehcache-2.10.4 -> jackson-databind-2.6.3.
-            solr-assembly.zip -> jackson-core-asl-1.9.13.jar
-            This suppression can be removed when DDF-3593 has been completed.
-        </notes>
-        <cve>CVE-2016-3720</cve>
-        <cve>CVE-2017-7525</cve>
-        <cve>CVE-2017-15095</cve>
-        <cve>CVE-2017-17485</cve>
-        <cve>CVE-2018-7489</cve>
-        <cve>CVE-2018-11307</cve>
-        <cve>CVE-2018-14719</cve>
-        <cve>CVE-2018-14718</cve>
-        <cve>CVE-2018-14721</cve>
-        <cve>CVE-2018-14720</cve>
-        <cve>CVE-2018-19362</cve>
-        <cve>CVE-2018-19361</cve>
-        <cve>CVE-2018-19360</cve>
-    </suppress>
-    <suppress>
-        <notes>
             file name: solr-*.jar
             OWASP is getting confused by our version number being on a jar with solr in the name we
             are on solr 6.6+ which is not affected by this issue.
@@ -238,7 +212,6 @@
         <cve>CVE-2018-1270</cve>
         <cve>CVE-2018-1275</cve>
     </suppress>
-
     <suppress>
         <notes>
             These CVEs affect Jetty 9.3.x up to 9.3.23 and 9.4.x up to 9.4.10. DDF is using a
