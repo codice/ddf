@@ -15,12 +15,36 @@ package org.codice.ddf.catalog.ui.alias;
 
 import java.util.Map;
 
-// TODO javadocs
+/**
+ * A collection of mappings between internal attribute names to their user-friendly aliases,
+ * typically used for display in the UI.
+ *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * be removed in a future version of the library. </b>
+ */
 public interface AttributeAliases {
 
+  /**
+   * Checks if the internal attribute {@code attributeName} has a configured alias.
+   *
+   * @param attributeName - the internal name of the attribute
+   * @return true if {@code attributeName} has a configured alias, false otherwise.
+   */
   boolean hasAlias(String attributeName);
 
+  /**
+   * Gets the configured alias for the internal attribute {@code attributeName}. If no alias is
+   * configured, {@code null} is returned.
+   *
+   * @param attributeName - the internal name of the attribute
+   * @return the alias, if configured, null otherwise.
+   */
   String getAlias(String attributeName);
 
+  /**
+   * Gets a read-only reference to all the alias mappings. This map will never be {@code null}.
+   *
+   * @return a map containing all internal attribute to alias mappings.
+   */
   Map<String, String> getAliasMap();
 }
