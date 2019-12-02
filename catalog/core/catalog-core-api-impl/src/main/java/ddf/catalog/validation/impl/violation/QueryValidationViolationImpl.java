@@ -9,7 +9,6 @@ public class QueryValidationViolationImpl implements QueryValidationViolation {
 
   private String message;
 
-  // TODO make this unmodifiable?
   private Map<String, Object> extraData;
 
   public QueryValidationViolationImpl(
