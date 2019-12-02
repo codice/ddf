@@ -54,9 +54,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>dumbster</groupId>
+            <groupId>com.github.kirviq</groupId>
             <artifactId>dumbster</artifactId>
-            <version>1.6</version>
+            <version>${smtp.client.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

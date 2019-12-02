@@ -14,7 +14,9 @@
 package org.codice.ddf.platform.email.impl;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import com.dumbster.smtp.SimpleSmtpServer;
@@ -26,7 +28,7 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
-import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
@@ -111,9 +113,10 @@ public class SmtpClientImplITCaseTest {
 
     server.stop();
 
-    assertThat(server.getReceivedEmailSize(), is(1));
-    Iterator emailIterator = server.getReceivedEmail();
-    SmtpMessage email = (SmtpMessage) emailIterator.next();
+    List<SmtpMessage> emails = server.getReceivedEmails();
+    assertThat(emails, hasSize(1));
+    SmtpMessage email = emails.get(0);
+    assertNotNull("The email was null.", email);
     assertThat(email.getHeaderValue(SUBJECT_HEADER), is(SUBJECT));
     assertThat(email.getHeaderValue(FROM_HEADER), containsString(FROM_ADDR));
     assertThat(email.getHeaderValue(TO_HEADER), containsString(TO_ADDR));
@@ -154,9 +157,10 @@ public class SmtpClientImplITCaseTest {
 
     server.stop();
 
-    assertThat(server.getReceivedEmailSize(), is(1));
-    Iterator emailIterator = server.getReceivedEmail();
-    SmtpMessage email = (SmtpMessage) emailIterator.next();
+    List<SmtpMessage> emails = server.getReceivedEmails();
+    assertThat(emails, hasSize(1));
+    SmtpMessage email = emails.get(0);
+    assertNotNull("The email was null.", email);
     assertThat(email.getHeaderValue(SUBJECT_HEADER), is(SUBJECT));
     assertThat(email.getHeaderValue(FROM_HEADER), containsString(FROM_ADDR));
     assertThat(email.getHeaderValue(TO_HEADER), containsString(TO_ADDR));
