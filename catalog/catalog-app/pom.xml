@@ -710,7 +710,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>cache-plugin-set-default-metacardtags</artifactId>
+            <artifactId>cache-plugin-defaultmetacardtags</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

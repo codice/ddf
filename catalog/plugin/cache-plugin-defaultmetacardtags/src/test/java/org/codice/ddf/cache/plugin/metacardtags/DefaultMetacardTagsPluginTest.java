@@ -32,16 +32,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-public class SetDefaultMetacardTagsTest {
+public class DefaultMetacardTagsPluginTest {
 
-  private SetDefaultMetacardTags setDefaultMetacardTags;
+  private DefaultMetacardTagsPlugin setDefaultMetacardTags;
 
   private Metacard metacard;
 
   @Before
   public void setup() {
     metacard = mock(Metacard.class);
-    setDefaultMetacardTags = new SetDefaultMetacardTags();
+    setDefaultMetacardTags = new DefaultMetacardTagsPlugin();
   }
 
   @Test

@@ -13,7 +13,7 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="plugin" class="org.codice.ddf.cache.plugin.metacardtags.SetDefaultMetacardTags"/>
+    <bean id="plugin" class="org.codice.ddf.cache.plugin.metacardtags.DefaultMetacardTagsPlugin"/>
 
     <service ref="plugin" interface="ddf.catalog.cache.CachePutPlugin"/>
 

@@ -23,13 +23,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SetDefaultMetacardTags implements CachePutPlugin {
+public class DefaultMetacardTagsPlugin implements CachePutPlugin {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SetDefaultMetacardTags.class);
-
-  private static final String ATTR = Core.METACARD_TAGS;
-
-  private static final String ATTR_VALUE = Metacard.DEFAULT_TAG;
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultMetacardTagsPlugin.class);
 
   @Override
   public Optional<Metacard> process(Metacard metacard) {
@@ -37,22 +33,22 @@ public class SetDefaultMetacardTags implements CachePutPlugin {
       LOGGER.trace(
           "The metacard {} already has the {} attribute. Therefore, not modifying the metacard.",
           metacard.getId(),
-          ATTR);
+          Core.METACARD_TAGS);
       return Optional.of(metacard);
     }
 
     LOGGER.trace(
         "Setting the attribute {} with the value \"{}\" on metacard {}.",
-        ATTR,
-        ATTR_VALUE,
+        Core.METACARD_TAGS,
+        Metacard.DEFAULT_TAG,
         metacard.getId());
-    metacard.setAttribute(new AttributeImpl(ATTR, ATTR_VALUE));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, Metacard.DEFAULT_TAG));
 
     return Optional.of(metacard);
   }
 
   private boolean isMetacardTagsSet(Metacard metacard) {
-    Attribute attribute = metacard.getAttribute(ATTR);
+    Attribute attribute = metacard.getAttribute(Core.METACARD_TAGS);
     if (attribute == null) {
       return false;
     }

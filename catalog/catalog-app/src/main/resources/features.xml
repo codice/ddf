@@ -644,8 +644,8 @@
         <bundle>mvn:ddf.catalog.plugin/catalog-plugin-facet-attribute-access/${project.version}</bundle>
     </feature>
 
-    <feature name="cache-plugin-set-default-metacardtags" version="${project.version}">
-        <bundle>mvn:ddf.catalog.plugin/cache-plugin-set-default-metacardtags/${project.version}</bundle>
+    <feature name="cache-plugin-defaultmetacardtags" version="${project.version}">
+        <bundle>mvn:ddf.catalog.plugin/cache-plugin-defaultmetacardtags/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-app" version="${project.version}"
@@ -705,6 +705,6 @@
         <feature>catalog-plugin-gazetteer</feature>
         <feature>data-migration</feature>
         <feature>catalog-facet-attribute-access-plugin</feature>
-        <feature>cache-plugin-set-default-metacardtags</feature>
+        <feature>cache-plugin-defaultmetacardtags</feature>
     </feature>
 </features>
