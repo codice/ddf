@@ -52,7 +52,7 @@ create, update, and delete. 
 |Get available `Source` information.
 
 |Resource
-|Retrieve products referenced in Metacards from Sources.
+|Retrieve resources referenced in Metacards from Sources.
 
 |Transform
 |Convert common Catalog Framework data types to and from other data formats.

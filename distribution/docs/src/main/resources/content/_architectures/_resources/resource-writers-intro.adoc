@@ -6,10 +6,10 @@
 :order: 03
 :summary: Resource Writers.
 
-A resource writer stores a resource and produces a URI that can be used to retrieve the resource at a later time.
+A resource writer stores a resource and produces a URI that can be used for retrieval.
 The resource URI uniquely locates and identifies the resource.
 Resource writers can interact with an underlying data store and store the resource in the proper place.
 Each implementation can do this differently, providing flexibility in the data stores used to persist the resources.
 
-Resource Writers should be used within the Content Framework if and when implementing a custom Storage Provider to store the product.
-The default Storage Provider that comes with the ${branding} writes the products to the file system.
+Resource Writers should be used within the Content Framework if and when implementing a custom Storage Provider to store data.
+The default Storage Provider that comes with the ${branding} writes the resources to the file system.

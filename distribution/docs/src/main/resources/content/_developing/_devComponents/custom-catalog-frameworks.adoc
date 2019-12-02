@@ -79,7 +79,7 @@ Query requests process  `PolicyPlugin`, `AccessPlugin`, and `PreQueryPlugin` i
 
 ====== Resource Methods
 
-Resource methods retrieve products from Sources.
+Resource methods retrieve data resources from Sources.
 
 .Example Resource Methods
 [source,java,linenums]

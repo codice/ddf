@@ -7,7 +7,7 @@
 
 == {title}
 
-Filtering is the process of evaluating security markings on data products, comparing them to the users permissions and protecting resources from inappropriate access.
+Filtering is the process of evaluating security markings on data resources, comparing them to the users permissions and protecting resources from inappropriate access.
 
 There are two options for processing filtering policies: internally, or through the use of a policy formatted in eXtensible Access Control Markup Language (XACML).
 The procedure for setting up a policy differs depending on whether that policy is to be used internally or by the external XACML processing engine.

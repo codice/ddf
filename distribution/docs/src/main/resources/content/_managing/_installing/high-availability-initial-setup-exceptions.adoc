@@ -61,7 +61,7 @@ One way to accomplish this is to use the default <<{reference-prefix}org.codice.
 === High Availability Certificates
 
 Due to the nature of highly available environments, localhost is not suitable for use as a hostname to identify the ${branding} cluster.
-The default certificate that ships with the product uses localhost as the common name, so this certificate needs to be replaced.
+The default certificate uses localhost as the common name, so this certificate needs to be replaced.
 The following describes how to generate a certificate signed by the ${branding} Demo Certificate Authority that uses a proper hostname.
 
 [NOTE]

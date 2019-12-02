@@ -25,7 +25,7 @@ image::search-results-options.png[search results options]
 === Search Result Options
 
 .Options for each individual search result
-* *Download*: Downloads the result's associated product directly to the local machine. This option is only available for results that have products.
+* *Download*: Downloads the result's associated resource directly to the local machine. This option is only available for results that have resources.
 * *Add to List* &#43;: Adds/removes the results to/from a list.
 * [[_hiding_a_result]]*Hide from Future Searches*: Adds to a list of results that will be hidden from future searches.
 * *Expand Metacard View*: Navigates to a view that only focuses on this particular result.

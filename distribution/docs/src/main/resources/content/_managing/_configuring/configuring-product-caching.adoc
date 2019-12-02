@@ -1,0 +1,18 @@
+:title: Configuring Product Caching
+:type: configuration
+:status: published
+:parent: Configuring Data Management
+:order: 026
+:summary: Enabling or disabling product caching.
+
+== {title}
+
+To configure product caching:
+
+. Navigate to the *${admin-console}*.
+. Select ${ddf-catalog}.
+. Select *Configuration*.
+. Select *Resource Download Settings*.
+. Select / Deselect *Enable Product Caching*.
+
+See <<{reference-prefix}ddf.catalog.resource.download.ReliableResourceDownloadManager,Resource Download Settings configurations>> for all possible configurations.

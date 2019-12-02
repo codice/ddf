@@ -28,7 +28,7 @@ Results per Page:: Select the number of results to be returned by a single query
 
 ==== Results
 
-The table of results shows the details of the results found, as well as a link to download the product if applicable.
+The table of results shows the details of the results found, as well as a link to download the resource if applicable.
 
 ===== Results  Summary
 
@@ -45,7 +45,7 @@ Source:: Displays where the metadata came from, which could be the local provide
 Location:: Displays the WKT Location of the metacard, if available.
 Time:: Shows the Received (Created) and Effective times of the metacard, if available.
 Thumbnail:: Shows the thumbnail of the metacard, if available.
-Download:: A download link to retrieve the product associated with the metacard, when applicable, if available.
+Download:: A download link to retrieve the resource associated with the metacard, when applicable, if available.
 
 ==== Result View
 

@@ -17,7 +17,7 @@ An action is a URL that, when invoked, provides a resource or executes intended 
 ==== Action Component Naming Convention
 
 For each Action, a title and description should be provided to describe what the action does.
-The recommended naming convention is to use the verb 'Get' when retrieving a portion of a metacard, such as the metadata or thumbnail, or when downloading a product.
+The recommended naming convention is to use the verb 'Get' when retrieving a portion of a metacard, such as the metadata or thumbnail, or when downloading a resource.
 The verb 'Export' or the expression 'Export as' is recommended when the metacard is being exported in a different format or presented after going some transformation.
 
 ===== Action Component Taxonomy

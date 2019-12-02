@@ -46,7 +46,10 @@ If a CDM configuration is deleted, then the corresponding permissions that were 
 .Content Directory Monitor Permissions
 [IMPORTANT]
 ====
-When configuring a Content Directory Monitor, make sure to set permissions on the new directory to allow ${branding} to access it. Setting permissions should be done *before* configuring a CDM. Also, don't forget to add permissions for products outside of the monitored directory. See <<{managing-prefix}configuring_permissions_for_the_content_directory_monitor,Configuring Permissions for the Content Directory Monitor>> for in-depth instructions on configuring permissions.
+When configuring a Content Directory Monitor, make sure to set permissions on the new directory to allow ${branding} to access it.
+Setting permissions should be done *before* configuring a CDM.
+Also, don't forget to add permissions for resources outside of the monitored directory.
+See <<{managing-prefix}configuring_permissions_for_the_content_directory_monitor,Configuring Permissions for the Content Directory Monitor>> for in-depth instructions on configuring permissions.
 ====
 
 [NOTE]
@@ -57,7 +60,8 @@ If there's a metacard that points to a resource outside of the CDM, then you mus
 .Monitoring Directories In Place
 [WARNING]
 ====
-If monitoring a directory in place, then the <<{developing-prefix}url_resource_reader, URL Resource Reader>> must be configured prior to configuring the CDM to allow reading from the configured directory. This allows the ${ddf-catalog} to download the products.
+If monitoring a directory in place, then the <<{developing-prefix}url_resource_reader, URL Resource Reader>> must be configured prior to configuring the CDM to allow reading from the configured directory.
+This allows the ${ddf-catalog} to download the resources.
 ====
 
 Configure the CDM from the ${admin-console}:

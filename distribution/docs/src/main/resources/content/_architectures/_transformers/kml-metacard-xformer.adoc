@@ -7,7 +7,7 @@
 
 The KML Metacard Transformer is responsible for translating a metacard into a KML-formatted document.
 The KML will contain an HTML description that will display in the pop-up bubble in Google Earth.
-The HTML contains links to the full metadata view as well as the product.
+The HTML contains links to the full metadata view as well as the resource.
 
 ===== Installing the KML Metacard Transformer
 

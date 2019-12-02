@@ -83,7 +83,6 @@ If no sort policy is defined for a particular search, the temporal policy will a
 
 The ${branding} is used to catalog resources.
 A Resource is a URI-addressable entity that is represented by a Metacard.
-Resources may also be known as products or data.
 Resources may exist either locally or on a remote data store.
 
 .Examples of Resources
@@ -101,30 +100,16 @@ Resources may exist either locally or on a remote data store.
 * ${branding} REST
 
 The Query Service Endpoint, the Catalog Framework, and the `CatalogProvider` are key
-components for processing a retrieve product request.
-The Endpoint bundle contains a Web service that exposes the interface to retrieve products, also referred to as Resources.
+components for processing a retrieve resource request.
+The Endpoint bundle contains a Web service that exposes the interface to retrieve resources.
 The Endpoint calls the `CatalogFramework` to execute the operations of its specification.
-The `CatalogFramework` relies on the Sources to execute the actual product retrieval.
-Optional PreResource and PostResource Catalog Plugins may be invoked by the `CatalogFramework` to modify the product retrieval request/response prior to the Catalog Provider processing the request and providing the response.
-It is possible to retrieve products from specific remote Sources by specifying the site name(s) in the request.
+The `CatalogFramework` relies on the Sources to execute the actual resource retrieval.
+Optional `PreResource` and `PostResource` Catalog Plugins may be invoked by the `CatalogFramework` to modify the resource retrieval request/response prior to the Catalog Provider processing the request and providing the response.
+It is possible to retrieve resources from specific remote Sources by specifying the site name(s) in the request.
 
 .Product Caching
-[NOTE]
-====
-Existing ${branding} clients are able to leverage product caching due to the product cache being implemented in the ${branding}.
-Enabling the product cache is an administrator function.
-
 Product Caching is enabled by default.
-====
-
-To configure product caching:
-
-. Navigate to the *${admin-console}*.
-. Select ${ddf-catalog}.
-. Select *Configuration*.
-. Select *Resource Download Settings*.
-
-See <<{reference-prefix}ddf.catalog.resource.download.ReliableResourceDownloadManager,Resource Download Settings configurations>> for all possible configurations.
+Existing ${branding} clients are able to leverage product caching due to the product cache being implemented in the ${branding}.
 
 .Product Retrieval Request
 [ditaa,product_retrieval_request,png]
@@ -165,11 +150,11 @@ See <<{reference-prefix}ddf.catalog.resource.download.ReliableResourceDownloadMa
 
 ===== Notifications and Activities
 
-${branding} can send/receive notifications of "Activities" occuring in the system.
+${branding} can send/receive notifications of "Activities" occurring in the system.
 
 ====== Notifications
 
-Currently, the notifications provide information about product retrieval only.
+Currently, the notifications provide information about resource retrieval only.
 
 ====== Activities
 
