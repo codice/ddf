@@ -24,8 +24,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.cache.CachePutPlugin;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.QueryRequest;
@@ -73,18 +75,61 @@ public class SolrCacheTest {
 
   @Before
   public void setUp() {
-
-    when(mockCachePutPlugin.process(any()))
-        .thenAnswer(
-            (Answer<Optional<Metacard>>)
-                invocationOnMock -> Optional.of((Metacard) invocationOnMock.getArguments()[0]));
-
     solrCache =
         new SolrCache(
             mockSolrClient,
             mockCacheSolrMetacardClient,
             () -> mock(ScheduledExecutorService.class), // to disable configuration of the scheduler
             Collections.singletonList(mockCachePutPlugin));
+  }
+
+  /**
+   * Verify that if the CachePutPlugin returns Optional.empty(), then the metacard is not added to
+   * the cache.
+   */
+  @Test
+  public void testUncacheableMetacardsAreNotCached() {
+
+    mockEmptyCachePutPlugin();
+
+    List<Metacard> metacards = new ArrayList<>();
+    Metacard metacard = mock(Metacard.class);
+    when(metacard.getSourceId()).thenReturn(TEST_ID);
+    when(metacard.getId()).thenReturn(TEST_ID);
+    metacards.add(metacard);
+
+    solrCache.put(metacards);
+
+    Mockito.verifyNoMoreInteractions(mockSolrClient, mockCacheSolrMetacardClient);
+  }
+
+  @Test
+  public void testCachePutPluginModifiesMetacard() {
+
+    String name = "attribute";
+    String value = "value";
+
+    List<Metacard> metacards = new ArrayList<>();
+    Metacard metacard = mock(Metacard.class);
+    when(metacard.getSourceId()).thenReturn(TEST_ID);
+    when(metacard.getId()).thenReturn(TEST_ID);
+    metacards.add(metacard);
+
+    when(mockCachePutPlugin.process(any()))
+        .thenAnswer(
+            (Answer<Optional<Metacard>>)
+                invocationOnMock -> {
+                  Metacard metacardToModify = (Metacard) invocationOnMock.getArguments()[0];
+                  metacardToModify.setAttribute(new AttributeImpl(name, value));
+                  return Optional.of(metacardToModify);
+                });
+
+    solrCache.put(metacards);
+
+    ArgumentCaptor<Attribute> argumentCaptor = ArgumentCaptor.forClass(Attribute.class);
+    verify(metacard).setAttribute(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue().getName(), is(name));
+    assertThat(argumentCaptor.getValue().getValue(), is(value));
   }
 
   @Test
@@ -122,18 +167,21 @@ public class SolrCacheTest {
 
   @Test
   public void createWithANullMetacard() throws Exception {
+    mockIdentityCachePutPlugin();
+
     List<Metacard> metacards = new ArrayList<>();
     metacards.add(null);
 
     solrCache.put(metacards);
 
-    ArgumentCaptor<List> updatedMetacardsCaptor = ArgumentCaptor.forClass(List.class);
-    verify(mockCacheSolrMetacardClient).add(updatedMetacardsCaptor.capture(), eq(false));
-    assertThat(updatedMetacardsCaptor.getValue().isEmpty(), is(true));
+    Mockito.verifyNoMoreInteractions(mockSolrClient, mockCacheSolrMetacardClient);
   }
 
   @Test
   public void createWithMetacard() throws Exception {
+
+    mockIdentityCachePutPlugin();
+
     List<Metacard> metacards = new ArrayList<>();
     Metacard metacard = mock(Metacard.class);
     when(metacard.getSourceId()).thenReturn(TEST_ID);
@@ -261,5 +309,21 @@ public class SolrCacheTest {
     when(mockRequest.getAttributeValues()).thenReturn(null);
 
     return mockRequest;
+  }
+
+  /** Mock the CachePutPlugin to always return the metacard unchanged. */
+  private void mockIdentityCachePutPlugin() {
+    when(mockCachePutPlugin.process(any()))
+        .thenAnswer(
+            (Answer<Optional<Metacard>>)
+                invocationOnMock -> Optional.of((Metacard) invocationOnMock.getArguments()[0]));
+  }
+
+  /**
+   * Mock the CachePutPlugin to always return Optional.empty(), which indicates that the metacard
+   * should not be put into the cache.
+   */
+  private void mockEmptyCachePutPlugin() {
+    when(mockCachePutPlugin.process(any())).thenReturn(Optional.empty());
   }
 }

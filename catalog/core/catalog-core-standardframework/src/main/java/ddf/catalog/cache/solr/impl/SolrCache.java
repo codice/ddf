@@ -179,6 +179,10 @@ public class SolrCache implements SolrCacheMBean {
 
     List<Metacard> updatedMetacards = applyCachePutPlugins(metacards);
 
+    if (CollectionUtils.isEmpty(updatedMetacards)) {
+      return;
+    }
+
     try {
       metacardClient.add(updatedMetacards, false);
       dirty.set(true);

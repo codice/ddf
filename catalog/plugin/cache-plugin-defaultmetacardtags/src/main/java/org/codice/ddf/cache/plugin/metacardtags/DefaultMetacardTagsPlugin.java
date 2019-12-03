@@ -14,12 +14,10 @@
 package org.codice.ddf.cache.plugin.metacardtags;
 
 import ddf.catalog.cache.CachePutPlugin;
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.Core;
 import java.util.Optional;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,11 +46,6 @@ public class DefaultMetacardTagsPlugin implements CachePutPlugin {
   }
 
   private boolean isMetacardTagsSet(Metacard metacard) {
-    Attribute attribute = metacard.getAttribute(Core.METACARD_TAGS);
-    if (attribute == null) {
-      return false;
-    }
-
-    return CollectionUtils.isNotEmpty(attribute.getValues());
+    return !metacard.getTags().isEmpty();
   }
 }
