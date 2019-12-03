@@ -12,11 +12,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const properties = require('../../js/properties.js')
-
-export const InvalidSearchFormMessage: any = {
-  title: `Validation Issues: Search ${properties.i18n['form.title'] ||
-    'Form'} cannot be run.`,
-  message: [],
-  type: 'error',
-}
+export { validate } from './validation'
