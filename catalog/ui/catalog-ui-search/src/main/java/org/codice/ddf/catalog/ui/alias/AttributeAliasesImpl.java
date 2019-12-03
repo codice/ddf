@@ -49,15 +49,16 @@ public class AttributeAliasesImpl implements AttributeAliases {
     pairs
         .stream()
         .map(str -> str.split("=", 2))
-        .filter(
-            (list) -> {
-              if (list.length <= 1) {
-                LOGGER.debug("Filtered out invalid attribute/value pair: {}", list[0]);
-                return false;
-              }
-              return true;
-            })
+        .filter(AttributeAliasesImpl::isValidConfig)
         .forEach(list -> builder.put(list[0].trim(), list[1].trim()));
     return builder.build();
+  }
+
+  private static boolean isValidConfig(String[] attrValPair) {
+    if (attrValPair.length <= 1) {
+      LOGGER.debug("Filtering out invalid attribute/value pair: {}", attrValPair[0]);
+      return false;
+    }
+    return true;
   }
 }
