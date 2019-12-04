@@ -147,6 +147,7 @@ module.exports = Marionette.LayoutView.extend({
     const errorMessages = queryContentView.getErrorMessages()
     if (errorMessages.length !== 0) {
       showErrorMessages(errorMessages)
+      return
     }
     queryContentView.save()
     this.queryTitle.currentView.save()
@@ -164,6 +165,7 @@ module.exports = Marionette.LayoutView.extend({
     const errorMessages = queryContentView.getErrorMessages()
     if (errorMessages.length !== 0) {
       showErrorMessages(errorMessages)
+      return
     }
     queryContentView.save()
     this.queryTitle.currentView.save()
