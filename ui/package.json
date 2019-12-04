@@ -31,7 +31,7 @@
     "@connexta/ace": "git://github.com/connexta/ace.git#2c6fe07c23e2b4b416ed39cd82bc3f0d9218240d",
     "@connexta/eslint-config-connexta": "git://github.com/connexta/eslint-config-connexta.git#105393617ec845b009b682882c95313ba50144b1",
     "@connexta/eslint-plugin-connexta": "git://github.com/connexta/eslint-plugin-connexta.git#9b366b8924c3dbe03aedcfe6d25c8eb3567cc061",
-    "bootstrap-sass": "3.3.6",
+    "bootstrap-sass": "3.4.1",
     "bootswatch": "3.3.7",
     "compass-mixins": "0.12.10",
     "cpr": "3.0.1",
