@@ -18,7 +18,7 @@ const announcement = require('../../../component/announcement/index.jsx')
 
 export function showErrorMessages(errors: any) {
   if (errors.length === 0) {
-    throw new Error("errors should not be empty")
+    return
   }
   let searchErrorMessage = JSON.parse(JSON.stringify(InvalidSearchFormMessage))
   if (errors.length > 1) {

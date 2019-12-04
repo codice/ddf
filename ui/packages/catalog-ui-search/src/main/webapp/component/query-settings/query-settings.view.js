@@ -282,7 +282,9 @@ module.exports = plugin(
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     },
     run() {
-      if (showErrorMessages().length !== 0) {
+      const errorMessages = getErrorMessages()
+      if (errorMessages.length !== 0) {
+        showErrorMessages(errorMessages)
         return
       }
       this.saveToModel()
