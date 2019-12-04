@@ -16,7 +16,6 @@ package org.codice.ddf.cache.plugin.metacardtags;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -50,7 +49,7 @@ public class DefaultMetacardTagsPluginTest {
     Attribute attribute = mock(Attribute.class);
     when(attribute.getValues()).thenReturn(Collections.singletonList("aTag"));
 
-    when(metacard.getAttribute(eq(Core.METACARD_TAGS))).thenReturn(attribute);
+    when(metacard.getTags()).thenReturn(Collections.singleton("aTag"));
 
     Optional<Metacard> result = setDefaultMetacardTags.process(metacard);
 
