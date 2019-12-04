@@ -170,6 +170,11 @@ pipeline {
                             }
                         }
                     }
+                    post {
+                        success {
+                            archiveArtifacts artifacts: 'target/dependency-check-report.html'
+                        }
+                    }
                 }
             }
         }
