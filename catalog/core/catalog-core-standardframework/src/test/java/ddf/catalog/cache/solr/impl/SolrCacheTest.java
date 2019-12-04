@@ -15,6 +15,7 @@ package ddf.catalog.cache.solr.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -24,8 +25,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.cache.CachePutPlugin;
-import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardCreationException;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
@@ -41,6 +42,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.codice.solr.client.solrj.SolrClient;
 import org.junit.Before;
 import org.junit.Test;
@@ -104,32 +106,35 @@ public class SolrCacheTest {
   }
 
   @Test
-  public void testCachePutPluginModifiesMetacard() {
+  public void testCachePutPluginModifiesMetacard()
+      throws SolrServerException, MetacardCreationException, IOException {
 
     String name = "attribute";
     String value = "value";
 
     List<Metacard> metacards = new ArrayList<>();
-    Metacard metacard = mock(Metacard.class);
-    when(metacard.getSourceId()).thenReturn(TEST_ID);
-    when(metacard.getId()).thenReturn(TEST_ID);
+    MetacardImpl metacard = new MetacardImpl();
+    metacard.setSourceId(TEST_ID);
+    metacard.setId(TEST_ID);
     metacards.add(metacard);
 
     when(mockCachePutPlugin.process(any()))
         .thenAnswer(
-            (Answer<Optional<Metacard>>)
-                invocationOnMock -> {
-                  Metacard metacardToModify = (Metacard) invocationOnMock.getArguments()[0];
-                  metacardToModify.setAttribute(new AttributeImpl(name, value));
-                  return Optional.of(metacardToModify);
-                });
+            invocationOnMock -> {
+              Metacard metacardToModify = (Metacard) invocationOnMock.getArguments()[0];
+              metacardToModify.setAttribute(new AttributeImpl(name, value));
+              return Optional.of(metacardToModify);
+            });
 
     solrCache.put(metacards);
 
-    ArgumentCaptor<Attribute> argumentCaptor = ArgumentCaptor.forClass(Attribute.class);
-    verify(metacard).setAttribute(argumentCaptor.capture());
-    assertThat(argumentCaptor.getValue().getName(), is(name));
-    assertThat(argumentCaptor.getValue().getValue(), is(value));
+    ArgumentCaptor<List> updatedMetacardsCaptor = ArgumentCaptor.forClass(List.class);
+    verify(mockCacheSolrMetacardClient).add(updatedMetacardsCaptor.capture(), eq(false));
+    assertThat(updatedMetacardsCaptor.getValue().size(), is(1));
+    assertThat(updatedMetacardsCaptor.getValue().get(0), is(metacard));
+    Metacard capturedMetacard = (Metacard) updatedMetacardsCaptor.getValue().get(0);
+    assertThat(capturedMetacard.getAttribute(name), notNullValue());
+    assertThat(capturedMetacard.getAttribute(name).getValue(), is(value));
   }
 
   @Test
