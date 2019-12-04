@@ -68,6 +68,15 @@ public class AttributeImpl implements Attribute {
   }
 
   /**
+   * Static factory method to avoid ambiguous constructor references when passing a value that
+   * implements both {@link List} and {@link Serializable}, such as an {@link java.util.ArrayList}.
+   * See {@link #AttributeImpl(String, Serializable)}.
+   */
+  public static AttributeImpl fromSingleValue(String name, Serializable value) {
+    return new AttributeImpl(name, value);
+  }
+
+  /**
    * Multivalued Constructor
    *
    * @param name - the name of this {@link Attribute}
@@ -82,6 +91,15 @@ public class AttributeImpl implements Attribute {
      */
     this.name = name;
     this.values = new LinkedList<>(values);
+  }
+
+  /**
+   * Static factory method to avoid ambiguous constructor references when passing a value that
+   * implements both {@link List} and {@link Serializable}, such as an {@link java.util.ArrayList}.
+   * See {@link #AttributeImpl(String, List)}.
+   */
+  public static AttributeImpl fromMultipleValues(String name, List<? extends Serializable> values) {
+    return new AttributeImpl(name, values);
   }
 
   /** Copy Constructor */
