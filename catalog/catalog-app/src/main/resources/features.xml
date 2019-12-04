@@ -92,12 +92,6 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-attachment-impl/${project.version}</bundle>
     </feature>
 
-    <feature name="jackson" version="${project.version}">
-        <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}</bundle>
-        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.version}</bundle>
-        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}</bundle>
-    </feature>
-
     <feature name="catalog-core-plugins" version="${project.version}"
              description="Catalog core plugins">
         <feature>jackson</feature>
