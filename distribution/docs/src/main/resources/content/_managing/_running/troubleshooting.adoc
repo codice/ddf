@@ -45,7 +45,8 @@ Some Windows platforms are missing libraries that are required by ${branding}.  
 The following exception is thrown:
 `org.apache.cxf.BusException: No conduit initiator`
 
-|Restart ${branding}.
+a|Restart ${branding}.
+
 . Shut down ${branding}: +
 `${branding-lowercase}${at-symbol}local>shutdown`
 . Start up ${branding}:
@@ -78,5 +79,19 @@ This can be caused when another ${branding} is not properly shut down.
 * Wait for proper shutdown of ${branding} prior to starting a new instance.
 * Verify running java.exe are not ${branding} (e.g., kill/close if necessary).
 * Utilize automated start/stop scripts to run ${branding} as a service.
+
+2+^|*Troubleshooting TLS/SSL Connectivity*
+
+.6+.^|Connection error messages found in log files, for example:
+
+* `java.net.SocketException: Broken pipe`
+* `java.net.SocketException: Connection reset`
+
+|Ensure all the Certificate Authorities (CAs) and the whole trust chain (all intermediate certificates are included in the walk-up to the CA) have been added to the <<{managing-prefix}creating_a_new_keystore_truststore_with_an_existing_certificate_and_private_key,trust store>>.
+|Ensure none of the certificates or CAs have expired.
+|Ensure the alias of the private key in the <<{managing-prefix}updating_key_store_trust_store_via_the_admin_console,keystore>> matches the hostname.
+|Ensure the time on all hosts and VMs are the same (no time drifts).
+|Ensure the server's <<{managing-prefix}keystore_password,private key password>> matches the password of the keystore (if the key has a password).
+|Ensure the Subject Alternative Names (SANS) includes the fully qualified domain name (FQDN) and IP address of the system (not required but helpful).
 
 |===

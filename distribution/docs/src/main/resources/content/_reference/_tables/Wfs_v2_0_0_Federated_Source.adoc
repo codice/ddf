@@ -58,17 +58,24 @@
 |false
 |true
 
+|Authentication Type
+|authenticationType
+|String
+|The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.
+|saml
+|true
+
 |Username
 |username
 |String
-|Username for tge WFS Service (optional)
+|Username for the WFS Service. Required if basic authentication type is selected.
 |null
 |false
 
 |Password
 |password
 |Password
-|Password for the WFS Service (optional)
+|Password for the WFS Service. Required if basic authentication type is selected.
 |null
 |false
 

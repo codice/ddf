@@ -318,14 +318,14 @@ https://<FQDN>:<PORT>//sources/
 ----
 
 .Sources Error Responses
-[cols="2,2,3" options="header"]
+[cols="2,2m,3" options="header"]
 |===
 |Status Code
 |Error Message
 |Possible Causes
 
 |403
-a|<p>Problem accessing /ErrorServlet. Reason: <pre>    Forbidden</pre></p>`
+a|<p>Problem accessing /ErrorServlet. Reason: <pre>Forbidden</pre></p>
 |Connection error or service unavailable.
 
 |===

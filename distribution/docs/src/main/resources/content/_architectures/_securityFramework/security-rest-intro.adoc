@@ -37,7 +37,8 @@
 |                                                       |        |  |                    |  |  |         |   |       |                                        | | Handlers | |    |
 |                                                       v        |  \--------------------/  |  |         |   |       |                                        | \----------/ |    |
 |                                                 /-----------\  |                          |  \---------/   |       |                                        |    |   ^     |    |
-|                                                 |IdP Handler|  |                          |       |        |       |                                        |    v   |     |    |
+|                                                 |   SAML    |  |                          |       |        |       |                                        |    |   |     |    |
+|                                                 |  Handler  |  |                          |       |        |       |                                        |    v   |     |    |
 |                                                 \-----------/  |                          |       v        |       |                        /==========\    | /----------\ |    |
 |                                                       |        |                          |  /---------\   |       |                        |          |    | |   Token  | |    |
 |                                                       v        |                          |  |     cDEF|   |       |                    /-->| Expansion|    | |  Issuers | |    |
@@ -77,7 +78,7 @@ The realms will take the authentication token and attempt to return authenticati
 . If the Subject is returned, the request moves to the *AuthZ Filter* to check permissions on the user.
 If the user has the correct permissions to access that web context, the request can hit the endpoint.
 
-IdP Architecture
+SAML IdP Architecture
 [ditaa,security_idp_architecture,png]
 ....
 +---------------------------------------------------------------------------------------------------------------------------------------+
@@ -127,7 +128,7 @@ The request will proceed through the rest of the filters as any other connection
 
 Unauthenticated non-browser clients that pass the HTTP headers signaling that they understand SAML ECP can authenticate via that mechanism as explained below.
 
-.Ecp Architecture
+.SAML ECP Architecture
 [ditaa,security_ecp_architecture,png]
 ....
 +---------------------------------------------------------------------------------------------------------------------+

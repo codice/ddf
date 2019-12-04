@@ -143,7 +143,7 @@
             name="Enable Web Sockets"
             description="Enables use of Web Sockets"
             type="Boolean"
-            default="true"
+            default="false"
             required="false"/>
 
         <AD id="localCatalogEnabled"

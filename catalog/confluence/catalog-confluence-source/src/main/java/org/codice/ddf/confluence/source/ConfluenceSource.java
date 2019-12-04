@@ -76,6 +76,8 @@ public class ConfluenceSource extends MaskableImpl
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfluenceSource.class);
 
+  private static final String BASIC = "basic";
+
   private static final String USERNAME_KEY = "username";
 
   private static final String PASSWORD_KEY = "password";
@@ -85,6 +87,8 @@ public class ConfluenceSource extends MaskableImpl
   private String endpointUrl;
 
   private String configurationPid;
+
+  private String authenticationType;
 
   private String username;
 
@@ -144,7 +148,9 @@ public class ConfluenceSource extends MaskableImpl
       return;
     }
 
-    if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+    if (BASIC.equals(authenticationType)
+        && StringUtils.isNotBlank(username)
+        && StringUtils.isNotBlank(password)) {
       SecurityLogger.audit("Setting up confluence client for user {}", username);
       factory =
           clientFactoryFactory.getSecureCxfClientFactory(
@@ -317,6 +323,11 @@ public class ConfluenceSource extends MaskableImpl
       endpointUrl = endpointUrl.trim();
     }
     this.endpointUrl = PropertyResolver.resolveProperties(endpointUrl);
+    init();
+  }
+
+  public void setAuthenticationType(String authenticationType) {
+    this.authenticationType = authenticationType;
     init();
   }
 

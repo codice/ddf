@@ -193,8 +193,8 @@ module.exports = Marionette.LayoutView.extend({
       this.options.onSave()
     }
   },
-  isValid() {
-    return this.querySettings.currentView.isValid()
+  validate() {
+    return this.querySettings.currentView.validate()
   },
   setDefaultTitle() {
     this.model.set('title', this.model.get('cql'))

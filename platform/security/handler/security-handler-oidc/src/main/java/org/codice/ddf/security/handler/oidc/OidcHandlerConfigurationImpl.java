@@ -19,6 +19,7 @@ import static org.pac4j.oidc.config.OidcConfiguration.IMPLICIT_FLOWS;
 import com.google.common.annotations.VisibleForTesting;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import java.util.Map;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.oidc.client.AzureAdClient;
@@ -35,7 +36,8 @@ import org.slf4j.LoggerFactory;
 public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
   private static final Logger LOGGER = LoggerFactory.getLogger(OidcHandlerConfigurationImpl.class);
 
-  public static final String DEFAULT_CALLBACK_URL = "https://localhost:8993/search";
+  public static final String DEFAULT_CALLBACK_URL =
+      SystemBaseUrl.EXTERNAL.constructUrl("/search/catalog");
 
   public static final String IDP_TYPE_KEY = "idpType";
   public static final String CLIENT_ID_KEY = "clientId";

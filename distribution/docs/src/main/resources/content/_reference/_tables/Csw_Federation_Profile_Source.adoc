@@ -44,18 +44,53 @@
 |false
 |false
 
+|Authentication Type
+|authenticationType
+|String
+|Authentication type to use when federating.
+|saml
+|true
+
 |Username
 |username
 |String
-|Username for CSW Service (optional)
+|Username for CSW Service. Required if basic authentication type is selected.
 |null
 |false
 
 |Password
 |password
 |String
-|Password for CSW Service (optional)
+|Password for CSW Service. Required if basic authentication type is selected.
 |null
+|false
+
+|OAuth Discovery Url
+|oauthDiscoveryUrl
+|String
+|The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.
+|https://localhost:8443/auth/realms/master/.well-known/openid-configuration
+|false
+
+|OAuth Client ID
+|oauthClientId
+|String
+|Client ID registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.
+|ddf-client
+|false
+
+|OAuth Client Secret
+|oauthClientSecret
+|String
+|Client Secret registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.
+|secret
+|false
+
+|OAuth Flow
+|oauthFlow
+|String
+|The OAuth flow to use when federating. Required if OAuth 2.0 authentication type is selected.
+|code
 |false
 
 |Connection Timeout

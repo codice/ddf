@@ -435,8 +435,8 @@ module.exports = Marionette.LayoutView.extend({
       cql: generatedCQL,
     })
   },
-  isValid() {
-    return this.basicSettings.currentView.isValid()
+  validate() {
+    return this.basicSettings.currentView.validate()
   },
   constructFilter() {
     const filters = []

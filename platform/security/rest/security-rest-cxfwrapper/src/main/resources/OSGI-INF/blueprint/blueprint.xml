@@ -12,15 +12,19 @@
  *
  **/
 -->
-<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="clientFactoryFactory" class="org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl">
+    <reference id="tokenStore" interface="org.codice.ddf.security.token.storage.api.TokenStorage"/>
+
+    <bean id="oauthSecurity" class="org.codice.ddf.cxf.oauth.OAuthSecurityImpl">
+        <argument ref="tokenStore"/>
     </bean>
 
-    <service ref="clientFactoryFactory"
-             interface="org.codice.ddf.cxf.client.ClientFactoryFactory">
+    <service ref="oauthSecurity" interface="org.codice.ddf.cxf.oauth.OAuthSecurity"/>
 
-    </service>
+    <bean id="clientFactoryFactory" class="org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl">
+        <property name="oauthSecurity" ref="oauthSecurity"/>
+    </bean>
 
+    <service ref="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
 </blueprint>

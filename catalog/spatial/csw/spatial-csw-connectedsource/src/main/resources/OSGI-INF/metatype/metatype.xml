@@ -31,9 +31,15 @@
             description="Check to register for events from this connected source.">
         </AD>
 
-        <AD description="Username for CSW Service (optional)" name="Username" id="username"
+        <AD name="Authentication Type" id="authenticationType" type="String" default="saml"
+            description="The authentication type to use when federating.">
+            <Option label="SAML" value="saml"/>
+            <Option label="Basic" value="basic"/>
+        </AD>
+
+        <AD description="Username for CSW Service. Required if basic authentication type is selected." name="Username" id="username"
             required="false" type="String"/>
-        <AD description="Password for CSW Service (optional)" name="Password" id="password"
+        <AD description="Password for CSW Service. Required if basic authentication type is selected." name="Password" id="password"
             required="false" type="Password" default=""/>
 
         <AD description="Disable CN check for the server certificate. This should only be used when testing."

@@ -22,15 +22,13 @@ import static spark.Spark.post;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ddf.catalog.plugin.OauthPluginException;
+import ddf.catalog.plugin.OAuthPluginException;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
-import org.apache.http.HttpStatus;
 import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
@@ -112,11 +110,9 @@ public class QueryApplication implements SparkApplication, Function {
             CqlRequest cqlRequest = GSON.fromJson(util.safeGetBody(req), CqlRequest.class);
             CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
             return GSON.toJson(cqlQueryResponse);
-          } catch (OauthPluginException e) {
-            res.status(HttpStatus.SC_UNAUTHORIZED);
-            Map<String, String> responseMap =
-                ImmutableMap.of(ID_KEY, e.getSourceId(), URL_KEY, e.getProviderUrl());
-            return GSON.toJson(responseMap);
+          } catch (OAuthPluginException e) {
+            res.status(e.getErrorType().getStatusCode());
+            return GSON.toJson(ImmutableMap.of(ID_KEY, e.getSourceId(), URL_KEY, e.getUrl()));
           }
         });
 
@@ -201,10 +197,10 @@ public class QueryApplication implements SparkApplication, Function {
 
     try {
       return util.executeCqlQuery(cqlRequest);
-    } catch (OauthPluginException e) {
-      Map<String, String> responseMap =
-          ImmutableMap.of(ID_KEY, e.getSourceId(), URL_KEY, e.getProviderUrl());
-      return JsonRpc.error(HttpStatus.SC_UNAUTHORIZED, GSON.toJson(responseMap));
+    } catch (OAuthPluginException e) {
+      return JsonRpc.error(
+          e.getErrorType().getStatusCode(),
+          GSON.toJson(ImmutableMap.of(ID_KEY, e.getSourceId(), URL_KEY, e.getUrl())));
     } catch (UnsupportedQueryException e) {
       LOGGER.error(QUERY_ENDPOINT_FAILED, e);
       return JsonRpc.error(400, "Unsupported query request.");

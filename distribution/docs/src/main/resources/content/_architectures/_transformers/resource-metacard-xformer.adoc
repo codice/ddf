@@ -3,7 +3,7 @@
 :subtype: metacard
 :status: published
 :link: _resource_metacard_transformer
-:summary: Retrieves the resource bytes of a metacard by returning the product associated with the metacard.
+:summary: Retrieves the resource bytes of a metacard by returning the resource associated with the metacard.
 
 The Resource Metacard Transformer retrieves a resource associated with a metacard.
 

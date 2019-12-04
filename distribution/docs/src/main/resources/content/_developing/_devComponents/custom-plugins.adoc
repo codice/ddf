@@ -216,7 +216,7 @@ StopProcessingException;`
 Develop a custom Pre-Subscription Plugin.
 
 . Create a Java class that implements `PreSubscriptionPlugin`. +
-`public class SamplePreSubscriptionPlugin *implements* ddf.catalog.plugin.PreSubscriptionPlugin
+`public class SamplePreSubscriptionPlugin *implements* ddf.catalog.plugin.PreSubscriptionPlugin`
 
 . Implement the required method.
  * `public Subscription process(Subscription input) *throws* PluginExecutionException, StopProcessingException;`

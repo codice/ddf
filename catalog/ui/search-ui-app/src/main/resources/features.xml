@@ -46,6 +46,7 @@
 
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-propertyjson-metacard/${project.version}</bundle>
         <bundle>mvn:ddf.ui/catalog-ui-search/${project.version}</bundle>
+        <bundle>mvn:ddf.ui/catalog-ui-oauth/${project.version}</bundle>
         <bundle>mvn:ddf.ui/catalog-ui-enumeration/${project.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
         <bundle>mvn:ddf.ui/zip-splitter/${project.version}</bundle>

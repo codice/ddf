@@ -44,17 +44,24 @@
 |false
 |false
 
+|Authentication Type
+|authenticationType
+|String
+|Authentication type to use when federating.
+|saml
+|true
+
 |Username
 |username
 |String
-|Username for CSW Service (optional).
+|Username for CSW Service. Required if basic authentication type is selected.
 |null
 |false
 
 |Password
 |password
 |String
-|Password for CSW Service (optional).
+|Password for CSW Service. Required if basic authentication type is selected.
 |null
 |false
 

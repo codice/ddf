@@ -38,7 +38,7 @@ A `Metacard` is a container for metadata. 
 === Metacards
 
 A metacard is a single instance of metadata in the Catalog (an instance of a metacard type) which
-generally contains general information about the product, such as the title of the product, the product's geo-location, the date the product was created and/or modified, the owner or producer, and/or the security classification. 
+generally contains general information about the resource, such as the title of the resource, the resource's geo-location, the date the resource was created and/or modified, the owner or producer, and/or the security classification. 
 
 ==== Metacard Type
 

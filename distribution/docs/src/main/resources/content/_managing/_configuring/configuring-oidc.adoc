@@ -1,0 +1,48 @@
+:title: Configuring OpenID Connect (OIDC) and OAuth 2.0
+:type: subConfiguration
+:status: published
+:parent: Configuring REST Services for Users
+:summary: Configuring included IdP.
+:order: 03
+
+==== {title}
+
+To use https://openid.net/specs/openid-connect-core-1_0.html[OpenID Connect (OIDC)] and https://tools.ietf.org/html/rfc6749[OAuth 2.0],
+${branding} needs to be connected to an external Identity Provider (IdP) which supports these protocols.
+
+===== OIDC
+
+OIDC is used to authenticate (or log in) a user. To use this protocol in ${branding}, ${branding} needs the external IdP's information.
+
+To connect to an external IdP,
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-security}* application.
+. Select the *Configuration* tab.
+. Select *OIDC Handler Configuration*.
+. Populate the fields with the external IdP's information. For more detail, see the `OIDC Handler Configuration` section under <<{managing-prefix}configuring_sso,Configure Single Sign On>>.
+
+Once connected, the Web Context Policy Manager needs to be updated. to do so,
+
+. Under the *Configuration* tab in the *${ddf-security}* application
+. Select the *Web Context Policy Manager*.
+. Under `Authentication Types`, add the context type of the endpoint you wish to protect with OIDC. For example `/search=OIDC`.
+
+===== OAuth 2.0
+
+OAuth 2.0 is an authorization protocol and ${branding} can use it when federating.
+When a user queries a source that is configured to use this protocol, ${branding} will forward the user's information (access token) with the request.
+If a source can be configured to use OAuth 2.0, `OAuth 2.0` will appear as an option under `Authentication Type` in the source's configuration.
+
+To configure a source to use OAuth 2.0, under the source's configuration,
+
+. Change the `Authentication Type` to `OAuth 2.0`.
+. Set the `OAuth Discovery Url` to the discovery URL where the OAuth provider's metadata is hosted.
+. Set the `OAuth Client ID` to the ID given to ${branding} when it was registered with the OAuth provider`.
+. Set the `OAuth Client Secret` to the secret given to ${branding} when it was registered with the OAuth provider`.
+. Set the `OAuth Flow` to the OAuth 2.0 flow to use when federating.
+
+[NOTE]
+====
+If the system ${branding} is federating with is a ${branding}, the ${branding} receiving the federated request should be connected to an external IdP and have `/services` protected by that IdP (i.e. have /service=OIDC`).
+====

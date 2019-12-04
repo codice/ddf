@@ -218,7 +218,7 @@ GeoTools 8 includes implementations of the `FilterVisitor` interface.
 The `DefaultFilterVisitor`, as an example, provides only business logic to visit every node in the `Filter` tree.
 The `DefaultFilterVisitor` methods are meant to be overwritten with the correct business logic. 
 The simplest approach when using `FilterVisitor` instances is to build the appropriate query syntax for a target language as each part of the `Filter` is visited.
-For instance, when given an incoming `Filter` object to be evaluated against a RDBMS, a `CatalogProvider instance could use a `FilterVisitor` to interpret each filter operation on the `Filter` object and translate those operations into SQL.
+For instance, when given an incoming `Filter` object to be evaluated against a RDBMS, a `CatalogProvider` instance could use a `FilterVisitor` to interpret each filter operation on the `Filter` object and translate those operations into SQL.
 The `FilterVisitor` may be needed to support `Filter` functionality not currently handled by the `FilterAdapter` and `FilterDelegate` reference implementation.
 
 ===== Interpreting a Filter to Create SQL
@@ -284,12 +284,12 @@ ft:query(//inventory:book/@subject,'science').
 . `FilterAdapter` visits the `OR` filter first.
 . `OR` filter visits its children in a loop. 
 . The first child in the loop that is encountered is the LHS `PropertyIsLike`.
-. The `FilterAdapter` will call the `FilterDelegate` `PropertyIsLike`method with the LHS property and literal.
+. The `FilterAdapter` will call the `FilterDelegate` `PropertyIsLike` method with the LHS property and literal.
 . The LHS `PropertyIsLike` delegate method builds the XQuery syntax that makes sense for this particular underlying object store. In this case, the _subject_ property is specific to this XML database, and the business logic maps the _subject_ property to its index at `//inventory:book/@subject` Note that `ft:query` in this instance is a custom XQuery module for this specific XML database that does full text searches.
 . The `FilterAdapter` then moves back to the `OR` filter, which visits its second child.
 . The `FilterAdapter` will call the `FilterDelegate` `PropertyIsLike` method with the RHS property and literal.
 . The RHS `PropertyIsLike` delegate method builds the XQuery syntax that makes sense for this particular underlying object store. In this case, the _subject_ property is specific to this XML database, and the business logic maps the _subject_ property to its index at `//inventory:book/@subject` Note that `ft:query` in this instance is a custom XQuery module for this specific XML database that does full text searches.
-. The `FilterAdapter` then moves back to its `OR Filter which is now done with its children.
+. The `FilterAdapter` then moves back to its `OR` Filter which is now done with its children.
 . It then collects the output of each child and sends the list of results to the `FilterDelegate OR` method.
 . The final result object will be returned from the `FilterAdapter` adapt method.
 

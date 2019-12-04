@@ -1044,6 +1044,8 @@ public class CswSourceTest extends TestCswSourceBase {
     when(ack.getRequestId()).thenReturn(subscriptionId);
     when(cswSource.getSubscriberClientFactory().getClientForSubject(cswSource.getSubject()))
         .thenReturn(client);
+    when(cswSource.getSubscriberClientFactory().getClientForSystemSubject(cswSource.getSubject()))
+        .thenReturn(client);
 
     // Set Configuration Map
     Map<String, Object> configuration = getConfigurationMap(cswSource);
@@ -1077,6 +1079,8 @@ public class CswSourceTest extends TestCswSourceBase {
 
     when(ack.getRequestId()).thenReturn(subscriptionId);
     when(cswSource.getSubscriberClientFactory().getClientForSubject(cswSource.getSubject()))
+        .thenReturn(client);
+    when(cswSource.getSubscriberClientFactory().getClientForSystemSubject(cswSource.getSubject()))
         .thenReturn(client);
 
     cswSource.cswSourceConfiguration.setRegisterForEvents(true);
@@ -1115,6 +1119,8 @@ public class CswSourceTest extends TestCswSourceBase {
 
     when(ack.getRequestId()).thenReturn(subscriptionId);
     when(cswSource.getSubscriberClientFactory().getClientForSubject(cswSource.getSubject()))
+        .thenReturn(client);
+    when(cswSource.getSubscriberClientFactory().getClientForSystemSubject(cswSource.getSubject()))
         .thenReturn(client);
 
     cswSource.cswSourceConfiguration.setRegisterForEvents(true);
@@ -1417,6 +1423,7 @@ public class CswSourceTest extends TestCswSourceBase {
     SecureCxfClientFactory mockFactory = mock(SecureCxfClientFactory.class);
     doReturn(csw).when(mockFactory).getClient();
     doReturn(csw).when(mockFactory).getClientForSubject(any(Subject.class));
+    doReturn(csw).when(mockFactory).getClientForSystemSubject(any(Subject.class));
 
     ClientFactoryFactory clientFactoryFactory = mock(ClientFactoryFactory.class);
     when(clientFactoryFactory.getSecureCxfClientFactory(any(), any())).thenReturn(mockFactory);
@@ -1476,6 +1483,9 @@ public class CswSourceTest extends TestCswSourceBase {
       CswSourceConfiguration cswSourceConfiguration,
       CswSourceConfiguration defaultCswSourceConfiguration) {
     assertThat(
+        cswSourceConfiguration.getAuthenticationType(),
+        is(defaultCswSourceConfiguration.getAuthenticationType()));
+    assertThat(
         cswSourceConfiguration.getUsername(), is(defaultCswSourceConfiguration.getUsername()));
     assertThat(
         cswSourceConfiguration.getPassword(), is(defaultCswSourceConfiguration.getPassword()));
@@ -1516,9 +1526,21 @@ public class CswSourceTest extends TestCswSourceBase {
     assertThat(cswSourceConfiguration.getCswUrl(), is(defaultCswSourceConfiguration.getCswUrl()));
     assertThat(
         cswSourceConfiguration.isCqlForced(), is(defaultCswSourceConfiguration.isCqlForced()));
+    assertThat(
+        cswSourceConfiguration.getOauthDiscoveryUrl(),
+        is(defaultCswSourceConfiguration.getOauthDiscoveryUrl()));
+    assertThat(
+        cswSourceConfiguration.getOauthClientId(),
+        is(defaultCswSourceConfiguration.getOauthClientId()));
+    assertThat(
+        cswSourceConfiguration.getOauthClientSecret(),
+        is(defaultCswSourceConfiguration.getOauthClientSecret()));
+    assertThat(
+        cswSourceConfiguration.getOauthFlow(), is(defaultCswSourceConfiguration.getOauthFlow()));
   }
 
   private void assertConfigurationAfterRefresh(CswSourceConfiguration cswSourceConfiguration) {
+    assertThat(cswSourceConfiguration.getAuthenticationType(), is(AUTHENTICATION_TYPE));
     assertThat(cswSourceConfiguration.getUsername(), is(USERNAME));
     assertThat(cswSourceConfiguration.getPassword(), is(PASSWORD));
     assertThat(cswSourceConfiguration.getCertAlias(), is(CERT_ALIAS));
@@ -1541,10 +1563,15 @@ public class CswSourceTest extends TestCswSourceBase {
     assertThat(cswSourceConfiguration.getPollIntervalMinutes(), is(POLL_INTERVAL));
     assertThat(cswSourceConfiguration.getCswUrl(), is(URL));
     assertThat(cswSourceConfiguration.isCqlForced(), is(false));
+    assertThat(cswSourceConfiguration.getOauthDiscoveryUrl(), is(DISCOVERY_URL));
+    assertThat(cswSourceConfiguration.getOauthClientId(), is(CLIENT_ID));
+    assertThat(cswSourceConfiguration.getOauthClientSecret(), is(SECRET));
+    assertThat(cswSourceConfiguration.getOauthFlow(), is(FLOW));
   }
 
   private Map<String, Object> getConfigurationMap(AbstractCswSource cswSource) {
     Map<String, Object> configuration = new HashMap<>();
+    configuration.put(cswSource.AUTHENTICATION_TYPE, AUTHENTICATION_TYPE);
     configuration.put(cswSource.USERNAME_PROPERTY, USERNAME);
     configuration.put(cswSource.PASSWORD_PROPERTY, PASSWORD);
     configuration.put(cswSource.CERT_ALIAS_PROPERTY, CERT_ALIAS);
@@ -1563,6 +1590,10 @@ public class CswSourceTest extends TestCswSourceBase {
     configuration.put(cswSource.POLL_INTERVAL_PROPERTY, POLL_INTERVAL);
     configuration.put(cswSource.CSWURL_PROPERTY, URL);
     configuration.put(cswSource.IS_CQL_FORCED_PROPERTY, false);
+    configuration.put(cswSource.OAUTH_DISCOVERY_URL, DISCOVERY_URL);
+    configuration.put(cswSource.OAUTH_CLIENT_ID, CLIENT_ID);
+    configuration.put(cswSource.OAUTH_CLIENT_SECRET, SECRET);
+    configuration.put(cswSource.OAUTH_FLOW, FLOW);
     return configuration;
   }
 }

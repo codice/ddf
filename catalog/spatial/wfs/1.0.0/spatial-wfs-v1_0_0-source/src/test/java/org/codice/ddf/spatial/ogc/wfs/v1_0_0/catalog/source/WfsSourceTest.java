@@ -1147,6 +1147,7 @@ public class WfsSourceTest {
     final Map<String, Object> configuration =
         ImmutableMap.<String, Object>builder()
             .put("wfsUrl", wfsUrl)
+            .put("authenticationType", "basic")
             .put("username", username)
             .put("password", password)
             .put("disableCnCheck", disableCnCheck)

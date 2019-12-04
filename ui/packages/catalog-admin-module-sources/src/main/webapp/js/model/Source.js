@@ -167,7 +167,7 @@ define([
         var configPropKeys = Object.keys(configProps)
 
         var urls = configPropKeys.filter(function(item) {
-          return /.*Address|.*Url/.test(item)
+          return /.*Address|.*Url/.test(item) && !/.*oauth/.test(item)
         })
         var filteredKeys = urls.filter(function(item) {
           return /^(?!event|site).*$/.test(item)

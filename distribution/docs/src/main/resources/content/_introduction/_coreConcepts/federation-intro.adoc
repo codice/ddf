@@ -11,7 +11,7 @@ Federation is the ability of the ${branding} to query other data sources, includ
 By default, the ${branding} is able to federate using http://www.opensearch.org/Home[OpenSearch] and http://www.opengeospatial.org/standards/cat[CSW] protocols.
 The minimum configuration necessary to configure those federations is a query address.
 
-Federation enables constructing dynamic networks of data sources that can be queried individually or aggregated into specific configuration to enable a wider range of accessibility for data and data products.
+Federation enables constructing dynamic networks of data sources that can be queried individually or aggregated into specific configuration to enable a wider range of accessibility for data and data resources.
 
 Federation provides the capability to extend the ${branding} enterprise to include <<{managing-prefix}connecting_to_sources,Remote Sources>>, which may include other instances of ${branding}. 
 The Catalog handles all aspects of federated queries as they are sent to the Catalog Provider and Remote Sources, as they are processed, and as the query results are returned.

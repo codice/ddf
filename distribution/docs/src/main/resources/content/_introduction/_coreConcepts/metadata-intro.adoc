@@ -7,7 +7,7 @@
 
 == {title}
 
-In ${branding}, <<_introduction_to_resources,resources>> are the data products, files, reports, or documents of interest to users of the system.
+In ${branding}, <<_introduction_to_resources,resources>> are the files, reports, or documents of interest to users of the system.
 
 Metadata is information about those resources, organized into a schema to make search possible.
 The ${ddf-catalog} stores this metadata and allows access to it.

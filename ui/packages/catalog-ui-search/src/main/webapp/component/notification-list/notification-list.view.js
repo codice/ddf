@@ -19,6 +19,8 @@ const userNotifications = require('../singletons/user-notifications.js')
 const AlertItemView = require('../alert-item/alert-item.view.js')
 const UploadItemView = require('../upload-batch-item/upload-batch-item.view.js')
 const UploadItemModel = require('../../js/model/UploadBatch.js')
+const OauthNotificationView = require('../oauth-item/oauth-item.view.js')
+const OauthModel = require('../../js/model/Oauth.js')
 
 function matchesFilter(filter, model) {
   if (!filter) {
@@ -36,6 +38,8 @@ module.exports = Marionette.CollectionView.extend({
   getChildView(model) {
     if (model.constructor === UploadItemModel) {
       return UploadItemView
+    } else if (model.constructor === OauthModel) {
+      return OauthNotificationView
     } else {
       return AlertItemView
     }

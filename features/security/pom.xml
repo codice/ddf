@@ -16,7 +16,7 @@
     <parent>
         <artifactId>features</artifactId>
         <groupId>ddf.features</groupId>
-        <version>2.21.0-SNAPSHOT</version>
+        <version>2.22.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>DDF :: Features :: Security</name>
@@ -141,6 +141,16 @@
         <dependency>
             <groupId>ddf.security.pdp</groupId>
             <artifactId>security-pdp-authzrealm</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.storage</groupId>
+            <artifactId>token-storage-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.storage</groupId>
+            <artifactId>token-storage-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

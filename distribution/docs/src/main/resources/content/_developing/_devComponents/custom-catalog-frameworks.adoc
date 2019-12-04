@@ -79,7 +79,7 @@ Query requests process  `PolicyPlugin`, `AccessPlugin`, and `PreQueryPlugin` i
 
 ====== Resource Methods
 
-Resource methods retrieve products from Sources.
+Resource methods retrieve data resources from Sources.
 
 .Example Resource Methods
 [source,java,linenums]
@@ -88,7 +88,7 @@ public ResourceResponse getEnterpriseResource(ResourceRequest request) throwsIOE
 public ResourceResponse getLocalResource(ResourceRequest request) throws IOException, ResourceNotFoundException, ResourceNotSupportedException;
 public ResourceResponse getResource(ResourceRequest request, String resourceSiteName) throws IOException, ResourceNotFoundException, ResourceNotSupportedException;
 ----
-Resource requests process `PreResourcePlugin`s before execution and `PostResourcePlugin`s after execution.
+Resource requests process ``PreResourcePlugin``s before execution and ``PostResourcePlugin``s after execution.
 
 ====== Source Methods
 

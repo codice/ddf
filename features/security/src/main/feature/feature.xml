@@ -172,6 +172,14 @@ org.ops4j.pax.web.default.realmname=DDF
         <bundle>mvn:ddf.security.migration/security-migratable/${project.version}</bundle>
     </feature>
 
+    <feature name="security-token-storage" version="${project.version}"
+             description="OAuth token storage api and file storage implementation.">
+        <feature>apache-commons</feature>
+        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
+        <bundle>mvn:ddf.security.storage/token-storage-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.storage/token-storage-impl/${project.version}</bundle>
+    </feature>
+
     <feature name="security-core" version="${project.version}"
              description="Security Core">
         <feature>security-core-api</feature>
@@ -187,6 +195,8 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-guest-realm</feature>
         <feature>util-uuidgenerator</feature>
         <feature dependency="true">oidc-dependencies</feature>
+        <feature>security-token-storage</feature>
+        <feature>cxf-rs-security-oauth2</feature>
         <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.core/security-core-services/${project.version}</bundle>
         <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>

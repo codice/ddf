@@ -407,6 +407,11 @@
         <bundle>mvn:ddf.catalog.security/catalog-security-plugin/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-plugin-oauth" version="${project.version}"
+             description="Catalog OAuth Plugin">
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-oauth/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-security-resourceplugin" version="${project.version}"
              description="Catalog Resource URI Policy Plugins">
         <feature>security-pdp-authz</feature>
@@ -653,6 +658,7 @@
         <feature>catalog-rest</feature>
         <feature>catalog-confluence-source</feature>
         <feature>catalog-plugin-jpeg2000</feature>
+        <feature>catalog-plugin-oauth</feature>
         <feature>catalog-transformer-html</feature>
         <feature>catalog-transformer-metadata</feature>
         <feature>catalog-transformer-xsltengine</feature>

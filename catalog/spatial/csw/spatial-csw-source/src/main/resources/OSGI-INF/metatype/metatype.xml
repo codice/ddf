@@ -34,10 +34,39 @@
             description="Check to register for events from this source.">
         </AD>
 
-        <AD description="Username for CSW Service (optional)" name="Username" id="username"
+        <AD name="Authentication Type" id="authenticationType" type="String" default="saml"
+            description="The authentication type to use when federating.">
+            <Option label="SAML" value="saml"/>
+            <Option label="Basic" value="basic"/>
+            <Option label="OAuth 2.0" value="oauth"/>
+        </AD>
+
+        <AD description="Username for CSW Service. Required if basic authentication type is selected." name="Username"
+            id="username"
             required="false" type="String"/>
-        <AD description="Password for CSW Service (optional)" name="Password" id="password"
+        <AD description="Password for CSW Service. Required if basic authentication type is selected." name="Password"
+            id="password"
             required="false" type="Password" default=""/>
+
+        <AD name="OAuth Discovery Url" id="oauthDiscoveryUrl" required="false" type="String"
+            default="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"
+            description="The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted.
+            Required if OAuth 2.0 authentication type is selected."/>
+
+        <AD name="OAuth Client ID" id="oauthClientId" required="false" type="String" default="ddf-client"
+            description="Client ID registered with the OAuth provider.
+            Required if OAuth 2.0 authentication type is selected."/>
+
+        <AD name="OAuth Client Secret" id="oauthClientSecret" required="false" type="String" default="secret"
+            description="Client Secret registered with the OAuth provider.
+            Required if OAuth 2.0 authentication type is selected."/>
+
+        <AD name="OAuth Flow" id="oauthFlow" type="String" default="code"
+            description="The OAuth flow to use when federating.
+            Required if OAuth 2.0 authentication type is selected.">
+            <Option label="Authorization Code Flow - federate user's token" value="code"/>
+            <Option label="Client Credential Flow - federate system's token" value="credential"/>
+        </AD>
 
         <AD description="Disable CN check for the server certificate. This should only be used when testing."
             name="Disable CN Check" id="disableCnCheck"
@@ -130,10 +159,39 @@
             description="Check to register for events from this connected source.">
         </AD>
 
-        <AD description="Username for CSW Service (optional)" name="Username" id="username"
+        <AD name="Authentication Type" id="authenticationType" type="String" default="saml"
+            description="The authentication type to use when federating.">
+            <Option label="SAML" value="saml"/>
+            <Option label="Basic" value="basic"/>
+            <Option label="OAuth 2.0" value="oauth"/>
+        </AD>
+
+        <AD description="Username for CSW Service. Required if basic authentication type is selected." name="Username"
+            id="username"
             required="false" type="String"/>
-        <AD description="Password for CSW Service (optional)" name="Password" id="password"
+        <AD description="Password for CSW Service. Required if basic authentication type is selected." name="Password"
+            id="password"
             required="false" type="Password" default=""/>
+
+        <AD name="OAuth Discovery Url" id="oauthDiscoveryUrl" required="false" type="String"
+            default="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"
+            description="The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted.
+            Required if OAuth 2.0 authentication type is selected."/>
+
+        <AD name="OAuth Client ID" id="oauthClientId" required="false" type="String" default="ddf-client"
+            description="Client ID registered with the OAuth provider.
+            Required if OAuth 2.0 authentication type is selected."/>
+
+        <AD name="OAuth Client Secret" id="oauthClientSecret" required="false" type="String" default="secret"
+            description="Client Secret registered with the OAuth provider.
+            Required if OAuth 2.0 authentication type is selected."/>
+
+        <AD name="OAuth Flow" id="oauthFlow" type="String" default="code"
+            description="The OAuth flow to use when federating.
+            Required if OAuth 2.0 authentication type is selected.">
+            <Option label="Authorization Code Flow - federate user's token" value="code"/>
+            <Option label="Client Credential Flow - federate system's token" value="credential"/>
+        </AD>
 
         <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
             name="Connection Timeout" id="connectionTimeout"
@@ -158,10 +216,39 @@
         <AD description="URL to the endpoint implementing the Catalogue Service for Web (CSW) spec"
             name="CSW URL" id="cswUrl" type="String"/>
 
-        <AD description="Username for CSW Service (optional)" name="Username" id="username"
+        <AD name="Authentication Type" id="authenticationType" type="String" default="saml"
+            description="The authentication type to use when federating.">
+            <Option label="SAML" value="saml"/>
+            <Option label="Basic" value="basic"/>
+            <Option label="OAuth 2.0" value="oauth"/>
+        </AD>
+
+        <AD description="Username for CSW Service. Required if basic authentication type is selected." name="Username"
+            id="username"
             required="false" type="String"/>
-        <AD description="Password for CSW Service (optional)" name="Password" id="password"
+        <AD description="Password for CSW Service. Required if basic authentication type is selected." name="Password"
+            id="password"
             required="false" type="Password" default=""/>
+
+        <AD name="OAuth Discovery Url" id="oauthDiscoveryUrl" required="false" type="String"
+            default="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"
+            description="The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted.
+            Required if OAuth 2.0 authentication type is selected."/>
+
+        <AD name="OAuth Client ID" id="oauthClientId" required="false" type="String" default="ddf-client"
+            description="Client ID registered with the OAuth provider.
+            Required if OAuth 2.0 authentication type is selected."/>
+
+        <AD name="OAuth Client Secret" id="oauthClientSecret" required="false" type="String" default="secret"
+            description="Client Secret registered with the OAuth provider.
+            Required if OAuth 2.0 authentication type is selected."/>
+
+        <AD name="OAuth Flow" id="oauthFlow" type="String" default="code"
+            description="The OAuth flow to use when federating.
+            Required if OAuth 2.0 authentication type is selected.">
+            <Option label="Authorization Code Flow - federate user's token" value="code"/>
+            <Option label="Client Credential Flow - federate system's token" value="credential"/>
+        </AD>
 
         <AD description="Disable CN check for the server certificate. This should only be used when testing."
             name="Disable CN Check" id="disableCnCheck"
@@ -253,10 +340,39 @@
             description="Check to register for events from this source.">
         </AD>
 
-        <AD description="Username for CSW Service (optional)" name="Username" id="username"
+        <AD name="Authentication Type" id="authenticationType" type="String" default="saml"
+            description="The authentication type to use when federating.">
+            <Option label="SAML" value="saml"/>
+            <Option label="Basic" value="basic"/>
+            <Option label="OAuth 2.0" value="oauth"/>
+        </AD>
+
+        <AD description="Username for CSW Service. Required if basic authentication type is selected." name="Username"
+            id="username"
             required="false" type="String"/>
-        <AD description="Password for CSW Service (optional)" name="Password" id="password"
+        <AD description="Password for CSW Service. Required if basic authentication type is selected." name="Password"
+            id="password"
             required="false" type="Password" default=""/>
+
+        <AD name="OAuth Discovery Url" id="oauthDiscoveryUrl" required="false" type="String"
+            default="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"
+            description="The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted.
+            Required if OAuth 2.0 authentication type is selected."/>
+
+        <AD name="OAuth Client ID" id="oauthClientId" required="false" type="String" default="ddf-client"
+            description="Client ID registered with the OAuth provider.
+            Required if OAuth 2.0 authentication type is selected."/>
+
+        <AD name="OAuth Client Secret" id="oauthClientSecret" required="false" type="String" default="secret"
+            description="Client Secret registered with the OAuth provider.
+            Required if OAuth 2.0 authentication type is selected."/>
+
+        <AD name="OAuth Flow" id="oauthFlow" type="String" default="code"
+            description="The OAuth flow to use when federating.
+            Required if OAuth 2.0 authentication type is selected.">
+            <Option label="Authorization Code Flow - federate user's token" value="code"/>
+            <Option label="Client Credential Flow - federate system's token" value="credential"/>
+        </AD>
 
         <AD description="Disable CN check for the server certificate. This should only be used when testing."
             name="Disable CN Check" id="disableCnCheck"

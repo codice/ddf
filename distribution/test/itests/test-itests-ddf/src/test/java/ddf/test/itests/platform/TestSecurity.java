@@ -694,6 +694,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     Map<String, Object> openSearchProperties =
         getOpenSearchSourceProperties(
             OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
+    openSearchProperties.put("authenticationType", "basic");
     openSearchProperties.put("username", "admin");
     openSearchProperties.put("password", "admin");
     opensearchPid =
@@ -704,6 +705,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     try {
       Map<String, Object> cswProperties =
           getCswSourceProperties(CSW_SOURCE_ID, CSW_PATH.getUrl(), getServiceManager());
+      cswProperties.put("authenticationType", "basic");
       cswProperties.put("username", "admin");
       cswProperties.put("password", "admin");
       cswPid =
@@ -753,6 +755,7 @@ public class TestSecurity extends AbstractIntegrationTest {
       String unavailableCswSourceId = "Unavailable Csw";
       cswProperties =
           getCswSourceProperties(unavailableCswSourceId, CSW_PATH.getUrl(), getServiceManager());
+      cswProperties.put("authenticationType", "basic");
       cswProperties.put("username", "bad");
       cswProperties.put("password", "auth");
       unavailableCswPid =

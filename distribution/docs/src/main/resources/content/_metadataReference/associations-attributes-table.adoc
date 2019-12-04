@@ -3,11 +3,11 @@
 :order: 01
 :parent: Catalog Taxonomy Definitions
 :status: published
-:summary: Attributes in this group represent associations between products.
+:summary: Attributes in this group represent associations between resources.
 
 == {title}
 
-.Associations: Attributes in this group represent associations between products. *Injected by default.*
+.Associations: Attributes in this group represent associations between resources. *Injected by default.*
 [cols="1,2,1,1,1" options="header"]
 |===
 

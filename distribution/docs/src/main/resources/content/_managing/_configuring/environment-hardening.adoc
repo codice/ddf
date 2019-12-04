@@ -41,7 +41,7 @@ a|Set OS File permissions under the `${home_directory}` directory (e.g. `/deploy
 ** Select the *${ddf-catalog}* application. +
 ** Select *Resource Download Settings*. +
 ** Uncheck the `Enable Product Caching` box. +
-* Install ${ddf-security} to ensure only the appropriate users are accessing the products. +
+* Install ${ddf-security} to ensure only the appropriate users are accessing the resources. +
 ** Navigate to the ${admin-console} +
 ** Select *Manage*. +
 ** Install the ${ddf-security} application, if applicable. +

@@ -57,8 +57,11 @@
 
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.id"
-            factory-pid="Csw_Federated_Source"
-            interface="ddf.catalog.source.FederatedSource">
+            factory-pid="Csw_Federated_Source">
+        <interfaces>
+            <value>ddf.catalog.source.FederatedSource</value>
+            <value>ddf.catalog.source.OAuthFederatedSource</value>
+        </interfaces>
         <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSourceImpl"
                               init-method="init" destroy-method="destroy">
             <property name="context" ref="blueprintBundleContext"/>
@@ -66,8 +69,13 @@
             <property name="filterAdapter" ref="filterAdapter"/>
             <property name="cswUrl" value=""/>
             <property name="id" value=""/>
+            <property name="authenticationType" value="saml"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
+            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
+            <property name="oauthClientId" value="ddf-client"/>
+            <property name="oauthClientSecret" value="secret"/>
+            <property name="oauthFlow" value="code"/>
             <property name="disableCnCheck" value="false"/>
             <property name="coordinateOrder" value="LON_LAT"/>
             <property name="usePosList" value="false"/>
@@ -102,14 +110,23 @@
 
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederationProfileSource.id"
-            factory-pid="Csw_Federation_Profile_Source"
-            interface="ddf.catalog.source.FederatedSource">
+            factory-pid="Csw_Federation_Profile_Source">
+        <interfaces>
+            <value>ddf.catalog.source.FederatedSource</value>
+            <value>ddf.catalog.source.OAuthFederatedSource</value>
+        </interfaces>
         <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSourceImpl"
                               init-method="init" destroy-method="destroy">
             <!-- These are the only configurable properties -->
             <property name="cswUrl" value=""/>
             <property name="id" value=""/>
+            <property name="authenticationType" value="saml"/>
+            <property name="username" value=""/>
             <property name="password" value=""/>
+            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
+            <property name="oauthClientId" value="ddf-client"/>
+            <property name="oauthClientSecret" value="secret"/>
+            <property name="oauthFlow" value="code"/>
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
 
@@ -149,8 +166,11 @@
 
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswFederatedSource.gmd"
-            factory-pid="Gmd_Csw_Federated_Source"
-            interface="ddf.catalog.source.FederatedSource">
+            factory-pid="Gmd_Csw_Federated_Source">
+        <interfaces>
+            <value>ddf.catalog.source.FederatedSource</value>
+            <value>ddf.catalog.source.OAuthFederatedSource</value>
+        </interfaces>
         <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.CswSourceImpl"
                               init-method="init" destroy-method="destroy">
             <property name="context" ref="blueprintBundleContext"/>
@@ -158,8 +178,13 @@
             <property name="filterAdapter" ref="filterAdapter"/>
             <property name="cswUrl" value=""/>
             <property name="id" value=""/>
+            <property name="authenticationType" value="saml"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
+            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
+            <property name="oauthClientId" value="ddf-client"/>
+            <property name="oauthClientSecret" value="secret"/>
+            <property name="oauthFlow" value="code"/>
             <property name="disableCnCheck" value="false"/>
             <property name="coordinateOrder" value="LON_LAT"/>
             <property name="usePosList" value="false"/>
@@ -194,8 +219,11 @@
 
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.csw.catalog.source.CswTransactionalFederatedSource.id"
-            factory-pid="Csw_Transactional_Federated_Source"
-            interface="ddf.catalog.source.FederatedSource">
+            factory-pid="Csw_Transactional_Federated_Source">
+        <interfaces>
+            <value>ddf.catalog.source.FederatedSource</value>
+            <value>ddf.catalog.source.OAuthFederatedSource</value>
+        </interfaces>
         <cm:managed-component class="org.codice.ddf.spatial.ogc.csw.catalog.source.TransactionalCswStoreImpl"
                               init-method="init" destroy-method="destroy">
             <property name="context" ref="blueprintBundleContext"/>
@@ -203,8 +231,13 @@
             <property name="filterAdapter" ref="filterAdapter"/>
             <property name="cswUrl" value=""/>
             <property name="id" value=""/>
+            <property name="authenticationType" value="saml"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
+            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
+            <property name="oauthClientId" value="ddf-client"/>
+            <property name="oauthClientSecret" value="secret"/>
+            <property name="oauthFlow" value="code"/>
             <property name="disableCnCheck" value="false"/>
             <property name="coordinateOrder" value="LON_LAT"/>
             <property name="usePosList" value="false"/>

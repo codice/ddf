@@ -28,9 +28,14 @@
             name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>
 
-        <AD description="Username for WFS Service (optional)" name="Username" id="username"
+        <AD name="Authentication Type" id="authenticationType" type="String" default="saml"
+            description="The authentication type to use when federating.">
+            <Option label="SAML" value="saml"/>
+            <Option label="Basic" value="basic"/>
+        </AD>
+        <AD description="Username for WFS Service. Required if basic authentication type is selected." name="Username" id="username"
             required="false" type="String"/>
-        <AD description="Password for WFS Service (optional)" name="Password" id="password"
+        <AD description="Password for WFS Service. Required if basic authentication type is selected." name="Password" id="password"
             required="false" type="Password" default=""/>
         <AD description="Force only a specific FeatureType to be queried instead of all featureTypes"
           name="Forced Feature Type" id="forcedFeatureType" type="String" required="false"/>

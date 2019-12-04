@@ -11,9 +11,9 @@ The `URLResourceReader` will connect to the provided Resource URL and read the
 
 [WARNING]
 ====
-When a resource linked using a file-based URL is in the product cache, the `URLResourceReader`&#8217;s rootResourceDirectories is not checked when downloading the product.
+When a resource linked using a file-based URL is in the product cache, the ``URLResourceReader``'s `rootResourceDirectories` is not checked when downloading.
 It is downloaded from the product cache which bypasses the `URLResourceReader`.
-For example, if path `/my/valid/path` is configured in the `URLResourceReader`&#8217;s rootResourceDirectories and one downloads the product with resource-uri `file:///my/valid/path/product.txt` and then one removes `/my/valid/path` from the `URLResourceReader`&#8217;s `rootResourceDirectories` configuration, the product will still be accessible via the product cache.
+For example, if path `/my/valid/path` is configured in the ``URLResourceReader``'s `rootResourceDirectories` and one downloads the product with resource-uri `file:///my/valid/path/product.txt` and then one removes `/my/valid/path` from the ``URLResourceReader``'s `rootResourceDirectories` configuration, the product will still be accessible via the product cache.
 ====
 
 ===== Installing the URL Resource Reader
@@ -54,7 +54,7 @@ See <<{reference-prefix}ddf.catalog.resource.impl.URLResourceReader,URL Resource
 `URLResourceReader` will be used by the Catalog Framework to obtain a resource whose metacard is cataloged in the local data store.
 This particular `ResourceReader` will be chosen by the `CatalogFramework` if the requested resource's URL has a protocol of `http`, `https`, or `file`.  
 
-For example, requesting a resource with the following URL will make the Catalog Framework invoke the `URLResourceReader` to retrieve the product.
+For example, requesting a resource with the following URL will make the Catalog Framework invoke the `URLResourceReader` for retrieval.
 
 .Example
 [source,http]

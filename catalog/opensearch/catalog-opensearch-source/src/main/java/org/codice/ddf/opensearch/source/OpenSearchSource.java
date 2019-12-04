@@ -40,7 +40,7 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.service.ConfiguredService;
-import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.OAuthFederatedSource;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -107,7 +107,7 @@ import org.slf4j.LoggerFactory;
  * Federated site that talks via OpenSearch to the DDF platform. Communication is usually performed
  * via https which requires a keystore and trust store to be provided.
  */
-public class OpenSearchSource implements FederatedSource, ConfiguredService {
+public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService {
 
   private static final String COULD_NOT_RETRIEVE_RESOURCE_MESSAGE = "Could not retrieve resource";
 
@@ -128,6 +128,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   private static final int MIN_NUM_POINT_RADIUS_VERTICES = 4;
 
   private static final int MAX_NUM_POINT_RADIUS_VERTICES = 32;
+
+  private static final String BASIC_AUTH_TYPE = "basic";
+
+  private static final String OAUTH_AUTH_TYPE = "oauth";
 
   private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
 
@@ -162,9 +166,19 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   protected Set<String> markUpSet;
 
+  protected String authenticationType = "";
+
   protected String username = "";
 
   protected String password = "";
+
+  protected String oauthDiscoveryUrl = "";
+
+  protected String oauthClientId = "";
+
+  protected String oauthClientSecret = "";
+
+  protected String oauthFlow = "";
 
   private XMLInputFactory xmlInputFactory;
 
@@ -292,7 +306,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   protected SecureCxfClientFactory<OpenSearch> createClientFactory(
       String url, String username, String password) {
-    if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+    if (BASIC_AUTH_TYPE.equals(authenticationType)
+        && StringUtils.isNotBlank(username)
+        && StringUtils.isNotBlank(password)) {
       return clientFactoryFactory.getSecureCxfClientFactory(
           url,
           OpenSearch.class,
@@ -304,6 +320,24 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
           receiveTimeout,
           username,
           password);
+    } else if (OAUTH_AUTH_TYPE.equals(authenticationType)
+        && StringUtils.isNotBlank(oauthDiscoveryUrl)
+        && StringUtils.isNotBlank(oauthClientId)
+        && StringUtils.isNotBlank(oauthClientSecret)) {
+      return clientFactoryFactory.getSecureCxfClientFactory(
+          url,
+          OpenSearch.class,
+          null,
+          null,
+          disableCnCheck,
+          allowRedirects,
+          connectionTimeout,
+          receiveTimeout,
+          shortname,
+          oauthDiscoveryUrl,
+          oauthClientId,
+          oauthClientSecret,
+          oauthFlow);
     } else {
       return clientFactoryFactory.getSecureCxfClientFactory(
           url,
@@ -937,6 +971,15 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     this.parameters = parameters;
   }
 
+  public String getAuthenticationType() {
+    return authenticationType;
+  }
+
+  public void setAuthenticationType(String authenticationType) {
+    this.authenticationType = authenticationType;
+    updateFactory();
+  }
+
   public String getUsername() {
     return username;
   }
@@ -952,6 +995,42 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   public void setPassword(String password) {
     this.password = encryptionService.decryptValue(password);
+    updateFactory();
+  }
+
+  public String getOauthDiscoveryUrl() {
+    return oauthDiscoveryUrl;
+  }
+
+  public void setOauthDiscoveryUrl(String oauthDiscoveryUrl) {
+    this.oauthDiscoveryUrl = oauthDiscoveryUrl;
+    updateFactory();
+  }
+
+  public String getOauthClientId() {
+    return oauthClientId;
+  }
+
+  public void setOauthClientId(String oauthClientId) {
+    this.oauthClientId = oauthClientId;
+    updateFactory();
+  }
+
+  public String getOauthClientSecret() {
+    return oauthClientSecret;
+  }
+
+  public void setOauthClientSecret(String oauthClientSecret) {
+    this.oauthClientSecret = oauthClientSecret;
+    updateFactory();
+  }
+
+  public String getOauthFlow() {
+    return oauthFlow;
+  }
+
+  public void setOauthFlow(String oauthFlow) {
+    this.oauthFlow = oauthFlow;
     updateFactory();
   }
 

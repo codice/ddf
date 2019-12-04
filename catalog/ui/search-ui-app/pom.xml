@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.ui</groupId>
         <artifactId>catalog-ui</artifactId>
-        <version>2.21.0-SNAPSHOT</version>
+        <version>2.22.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>DDF :: UI :: Search UI :: App</name>
@@ -104,6 +104,11 @@
         <dependency>
             <groupId>ddf.ui</groupId>
             <artifactId>catalog-ui-search</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.ui</groupId>
+            <artifactId>catalog-ui-oauth</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
