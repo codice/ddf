@@ -27,7 +27,7 @@ const LoadingView = require('../loading/loading.view.js')
 const wreqr = require('../../js/wreqr.js')
 const user = require('../singletons/user-instance.js')
 import ExtensionPoints from '../../extension-points'
-import { validate } from '../../react-component/utils/validation'
+import { showErrorMessages } from '../../react-component/utils/validation'
 
 const { createAction } = require('imperio')
 
@@ -233,7 +233,9 @@ module.exports = Marionette.LayoutView.extend({
     const queryContentView = this.queryView
       ? this.queryView
       : this.queryContent.currentView
-    if (!validate(queryContentView.validate())) {
+    const errorMessages = queryContentView.getErrorMessages()
+    if (errorMessages.length !== 0) {
+      showErrorMessages(errorMessages)
       return
     }
     queryContentView.save()

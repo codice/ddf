@@ -210,7 +210,7 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.find('form')[0].submit()
     this.saveToModel()
   },
-  validate() {
+  getErrorMessages() {
     return []
   },
   setDefaultTitle() {
