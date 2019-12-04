@@ -22,7 +22,7 @@ const cql = require('../../js/cql.js')
 const store = require('../../js/store.js')
 const QuerySettingsView = require('../query-settings/query-settings.view.js')
 const properties = require('../../js/properties.js')
-import { validateFilters } from '../../react-component/utils/validation'
+import { getFilterErrors } from '../../react-component/utils/validation'
 
 import query from '../../react-component/utils/query'
 
@@ -194,11 +194,11 @@ module.exports = Marionette.LayoutView.extend({
       this.options.onSave()
     }
   },
-  validate() {
+  getErrorMessages() {
     return this.querySettings.currentView
-      .validate()
+      .getErrorMessages()
       .concat(
-        validateFilters(
+        getFilterErrors(
           this.queryAdvanced.currentView.getFilters().filters || []
         )
       )

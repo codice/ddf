@@ -16,9 +16,9 @@
 import { InvalidSearchFormMessage } from '../../../component/announcement/CommonMessages'
 const announcement = require('../../../component/announcement/index.jsx')
 
-export function validate(errors: any) {
+export function showErrorMessages(errors: any) {
   if (errors.length === 0) {
-    return true
+    throw new Error("errors should not be empty")
   }
   let searchErrorMessage = JSON.parse(JSON.stringify(InvalidSearchFormMessage))
   if (errors.length > 1) {
@@ -35,10 +35,9 @@ export function validate(errors: any) {
     searchErrorMessage.message = error.body
   }
   announcement.announce(searchErrorMessage)
-  return false
 }
 
-export function validateFilters(filters: any) {
+export function getFilterErrors(filters: any) {
   const errors: any[] = []
   for (let i = 0; i < filters.length; i++) {
     const filter = filters[i]

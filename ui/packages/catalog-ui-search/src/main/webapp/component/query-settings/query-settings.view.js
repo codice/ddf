@@ -31,7 +31,7 @@ const plugin = require('plugins/query-settings')
 const ResultForm = require('../result-form/result-form.js')
 import * as React from 'react'
 import RadioComponent from '../../react-component/input-wrappers/radio'
-import { validate } from '../../react-component/utils/validation'
+import { showErrorMessages } from '../../react-component/utils/validation'
 
 module.exports = plugin(
   Marionette.LayoutView.extend({
@@ -268,11 +268,13 @@ module.exports = plugin(
     saveToModel() {
       this.model.set(this.toJSON())
     },
-    validate() {
+    getErrorMessages() {
       return []
     },
     save() {
-      if (!validate(this.validate())) {
+      const errorMessages = getErrorMessages()
+      if (errorMessages.length !== 0) {
+        showErrorMessages(errorMessages)
         return
       }
       this.saveToModel()
@@ -280,7 +282,7 @@ module.exports = plugin(
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     },
     run() {
-      if (!validate(this.validate())) {
+      if (showErrorMessages().length !== 0) {
         return
       }
       this.saveToModel()

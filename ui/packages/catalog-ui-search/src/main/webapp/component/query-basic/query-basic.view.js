@@ -29,7 +29,7 @@ const sources = require('../singletons/sources-instance.js')
 const CQLUtils = require('../../js/CQLUtils.js')
 const QuerySettingsView = require('../query-settings/query-settings.view.js')
 const QueryTimeView = require('../query-time/query-time.view.js')
-import { validateFilters } from '../../react-component/utils/validation'
+import { getFilterErrors } from '../../react-component/utils/validation'
 
 function isNested(filter) {
   let nested = false
@@ -436,10 +436,10 @@ module.exports = Marionette.LayoutView.extend({
       cql: generatedCQL,
     })
   },
-  validate() {
+  getErrorMessages() {
     return this.basicSettings.currentView
-      .validate()
-      .concat(validateFilters(this.constructFilter()))
+      .getErrorMessages()
+      .concat(getFilterErrors(this.constructFilter()))
   },
   constructFilter() {
     const filters = []
