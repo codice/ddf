@@ -16,11 +16,13 @@ package org.codice.ddf.configuration.migration;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationContext;
 
 /**
@@ -46,10 +48,15 @@ public class MigrationURLConnection extends URLConnection {
           SYSTEM_PROPERTIES_PATH, Paths.get("etc", "system.properties"),
           CUSTOM_SYSTEM_PROPERTIES_PATH, Paths.get("etc", "custom.system.properties"));
 
-  public MigrationURLConnection(URL url, ImportMigrationContext context) {
+  public MigrationURLConnection(URL url, ImportMigrationContext context)
+      throws MalformedURLException {
     super(url);
+    Validate.notNull(url, "invalid null URL");
     this.context = context;
     this.path = URL_TO_PATHS.get(url.getPath());
+    if (this.path == null) {
+      throw new MalformedURLException(String.format("Could not resolve URL <%s>.", url.toString()));
+    }
   }
 
   @Override

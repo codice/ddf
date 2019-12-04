@@ -52,6 +52,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
 
   private static final String INVALID_NULL_PATH = "invalid null path";
 
+  @VisibleForTesting static final String INVALID_NULL_SYS_PROPS = "system properties map is null";
+
   /** Holds exported migration entries keyed by the exported path. */
   private final Map<Path, ImportMigrationEntryImpl> entries = new TreeMap<>();
 
@@ -151,6 +153,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
     return entries(path).filter(e -> filter.matches(e.getPath()));
   }
 
+  @VisibleForTesting
   void setSystemProperties(Map<String, ?> props) {
     this.importedSystemProperties = props;
   }
@@ -161,7 +164,11 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
     if (sm != null) {
       sm.checkPropertyAccess(key);
     }
-    return Objects.toString(importedSystemProperties.get(key), null);
+    try {
+      return Objects.toString(importedSystemProperties.get(key), null);
+    } catch (NullPointerException e) {
+      throw new MigrationException(ImportMigrationContextImpl.INVALID_NULL_SYS_PROPS, e);
+    }
   }
 
   @SuppressWarnings(

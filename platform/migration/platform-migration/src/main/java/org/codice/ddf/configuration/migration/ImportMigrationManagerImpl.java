@@ -224,7 +224,7 @@ public class ImportMigrationManagerImpl implements Closeable {
     if (version.equals(MigrationContextImpl.SYSTEM_PROPERTIES_MISSING_VERSION)) {
       return AccessUtils.doPrivileged(
           () -> {
-            ImportMigrationContext platformMigratable =
+            ImportMigrationContext platformMigrationContext =
                 contexts.get(MigrationContextImpl.PLATFORM_MIGRATABLE_ID);
             try {
               URL systemPropsURL =
@@ -234,7 +234,7 @@ public class ImportMigrationManagerImpl implements Closeable {
                       new URLStreamHandler() {
                         @Override
                         protected URLConnection openConnection(URL u) throws IOException {
-                          return new MigrationURLConnection(u, platformMigratable);
+                          return new MigrationURLConnection(u, platformMigrationContext);
                         }
                       });
               return PropertiesLoader.loadPropertiesFile(systemPropsURL, true);

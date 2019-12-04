@@ -48,6 +48,8 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
       Mockito.mock(
           Migratable.class, Mockito.withSettings().extraInterfaces(OptionalMigratable.class));
 
+  private final Migratable platformMigratable = Mockito.mock(Migratable.class);
+
   private final Migratable[] migratables = new Migratable[] {migratable, migratable2, migratable3};
 
   private Path exportFile;
@@ -76,12 +78,15 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     initMigratableMock();
     initMigratableMock(migratable2, MIGRATABLE_ID2);
     initMigratableMock(migratable3, MIGRATABLE_ID3);
+    initMigratableMock(platformMigratable, MigrationContextImpl.PLATFORM_MIGRATABLE_ID);
 
     zipEntry =
         getMetadataZipEntry(
             Optional.of(MigrationContextImpl.CURRENT_VERSION),
             Optional.of(PRODUCT_BRANDING),
-            Optional.of(PRODUCT_VERSION));
+            Optional.of(PRODUCT_VERSION),
+            true,
+            true);
 
     // use answer to ensure we create a new stream each time if called multiple times
     Mockito.doAnswer(
@@ -105,7 +110,11 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   }
 
   private MigrationZipEntry getMetadataZipEntry(
-      Optional<String> version, Optional<String> productBranding, Optional<String> productVersion)
+      Optional<String> version,
+      Optional<String> productBranding,
+      Optional<String> productVersion,
+      boolean includeSysProps,
+      boolean includeSysPropsFile)
       throws IOException {
     final StringBuilder sb = new StringBuilder();
 
@@ -127,8 +136,17 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
             sb.append("\",\"")
                 .append(MigrationContextImpl.METADATA_PRODUCT_VERSION)
                 .append("\":\"")
-                .append(v));
-    sb.append("\",\"").append(MigrationContextImpl.METADATA_MIGRATABLES).append("\":{");
+                .append(v)
+                .append("\""));
+    if (includeSysProps) {
+      sb.append(",\"")
+          .append(MigrationContextImpl.METADATA_EXPANDED_SYSTEM_PROPERTIES)
+          .append("\":{\"test\":\"test\"}");
+    }
+    if (includeSysPropsFile) {
+      sb.append(",\"etc\\/system.properties\":\"test:test\"");
+    }
+    sb.append(",\"").append(MigrationContextImpl.METADATA_MIGRATABLES).append("\":{");
     boolean first = true;
 
     for (final Migratable m : migratables) {
@@ -356,7 +374,11 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   public void testConstructorWhenZipIsOfInvalidVersion() throws Exception {
     zipEntry =
         getMetadataZipEntry(
-            Optional.of(VERSION), Optional.of(PRODUCT_BRANDING), Optional.of(PRODUCT_VERSION));
+            Optional.of(VERSION),
+            Optional.of(PRODUCT_BRANDING),
+            Optional.of(PRODUCT_VERSION),
+            true,
+            true);
 
     thrown.expect(MigrationException.class);
     thrown.expectMessage("unsupported exported version");
@@ -368,6 +390,58 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
         Stream.empty(),
         PRODUCT_BRANDING,
         PRODUCT_VERSION);
+  }
+
+  @Test
+  public void testConstructorWhenNeedSystemPropertiesVersion() throws Exception {
+    zipEntry =
+        getMetadataZipEntry(
+            Optional.of("1.1"),
+            Optional.of(PRODUCT_BRANDING),
+            Optional.of(NEED_SYSTEM_PROPS_PRODUCT_VERSION),
+            true,
+            true);
+
+    mgr =
+        new ImportMigrationManagerImpl(
+            report,
+            mockMigrationZipFile,
+            Collections.emptySet(),
+            Stream.of(migratables),
+            PRODUCT_BRANDING,
+            NEED_SYSTEM_PROPS_PRODUCT_VERSION);
+
+    Assert.assertThat(
+        mgr.getContexts().stream().map(context -> context.getSystemProperty("test")).toArray(),
+        Matchers.arrayContaining(
+            (Object) "test", (Object) "test", (Object) "test", (Object) "test"));
+  }
+
+  @Test
+  public void testConstructorWhenNeedSysPropsVersionAndSysPropsMissing() throws Exception {
+    zipEntry =
+        getMetadataZipEntry(
+            Optional.of("1.1"),
+            Optional.of(PRODUCT_BRANDING),
+            Optional.of(NEED_SYSTEM_PROPS_PRODUCT_VERSION),
+            false,
+            false);
+
+    thrown.expect(MigrationException.class);
+    thrown.expectMessage(
+        Matchers.containsString(
+            "missing required ["
+                + ImportMigrationContextImpl.METADATA_EXPANDED_SYSTEM_PROPERTIES
+                + "]"));
+
+    mgr =
+        new ImportMigrationManagerImpl(
+            report,
+            mockMigrationZipFile,
+            Collections.emptySet(),
+            Stream.of(migratables),
+            PRODUCT_BRANDING,
+            NEED_SYSTEM_PROPS_PRODUCT_VERSION);
   }
 
   @Test

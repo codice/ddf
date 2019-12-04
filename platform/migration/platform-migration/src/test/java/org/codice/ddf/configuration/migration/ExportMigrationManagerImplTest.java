@@ -16,6 +16,7 @@ package org.codice.ddf.configuration.migration;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -201,6 +202,16 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expectMessage(Matchers.containsString("null product version"));
 
     mgr.doExport(PRODUCT_BRANDING, null);
+  }
+
+  @Test
+  public void testDoExportWithoutSystemPropertiesFile() throws Exception {
+    thrown.expect(MigrationException.class);
+    thrown.expectMessage(Matchers.containsString("failed to get system properties"));
+
+    Files.delete(ddfHome.resolve("etc").resolve("custom.system.properties").toRealPath());
+
+    mgr.doExport(PRODUCT_BRANDING, PRODUCT_VERSION);
   }
 
   @Test
