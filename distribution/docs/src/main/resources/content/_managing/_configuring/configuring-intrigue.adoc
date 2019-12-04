@@ -1,9 +1,0 @@
-:title: Configuring ${catalog-ui}
-:type: configuration
-:status: published
-:parent: Configuring User Interfaces
-:order: 00
-
-== {title}
-
-Start here to configure ${catalog-ui}.
