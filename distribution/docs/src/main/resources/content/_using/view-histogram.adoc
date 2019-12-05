@@ -1,0 +1,10 @@
+:title: View Histogram
+:type: subUsing
+:status: published
+:parent: Map Context Menu
+:summary: View a search histogram
+:order: 02
+
+== {title}
+
+Select a search, right click on the map view, and select *View Histogram* to view a histogram for the search.
