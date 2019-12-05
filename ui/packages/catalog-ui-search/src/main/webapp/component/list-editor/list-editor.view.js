@@ -68,7 +68,10 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-template', this.listTemplateId !== 'custom')
   },
   showListTemplate() {
-    if (this.options.showListTemplates === true) {
+    if (
+      this.options.showListTemplates === true &&
+      properties.listTemplates.length !== 0
+    ) {
       const propertyModel = new Property({
         label: 'Template',
         value: [this.listTemplateId],
