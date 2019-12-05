@@ -1,0 +1,12 @@
+:title: Copy Coordinates
+:type: subUsing
+:status: published
+:parent: Map Context Menu
+:summary: Copy the current mouse coordinates
+:order: 00
+
+== {title}
+
+Copy the current mouse coordinates.
+
+image::copy-coordinates.png[Copy Coordinates]

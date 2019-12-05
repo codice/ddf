@@ -1,0 +1,14 @@
+:title: Map Context Menu
+:type: using
+:status: published
+:parent: Using ${catalog-ui}
+:summary: Using the Map Context Menu
+:order: 08
+
+== {title}
+
+Interact with the map view with the ((Map Context Menu)).
+
+Right click on the map view to display the ((Map Context Menu)).
+
+image::map-context-menu.png[Map Context Menu]
