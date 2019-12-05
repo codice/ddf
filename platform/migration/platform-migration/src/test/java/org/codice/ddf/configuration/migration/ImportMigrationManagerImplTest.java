@@ -398,7 +398,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
         getMetadataZipEntry(
             Optional.of("1.1"),
             Optional.of(PRODUCT_BRANDING),
-            Optional.of(NEED_SYSTEM_PROPS_PRODUCT_VERSION),
+            Optional.of(PRODUCT_VERSION),
             true,
             true);
 
@@ -409,7 +409,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
             Collections.emptySet(),
             Stream.of(migratables),
             PRODUCT_BRANDING,
-            NEED_SYSTEM_PROPS_PRODUCT_VERSION);
+            PRODUCT_VERSION);
 
     Assert.assertThat(
         mgr.getContexts().stream().map(context -> context.getSystemProperty("test")).toArray(),
@@ -423,7 +423,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
         getMetadataZipEntry(
             Optional.of("1.1"),
             Optional.of(PRODUCT_BRANDING),
-            Optional.of(NEED_SYSTEM_PROPS_PRODUCT_VERSION),
+            Optional.of(PRODUCT_VERSION),
             false,
             false);
 
@@ -441,7 +441,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
             Collections.emptySet(),
             Stream.of(migratables),
             PRODUCT_BRANDING,
-            NEED_SYSTEM_PROPS_PRODUCT_VERSION);
+            PRODUCT_VERSION);
   }
 
   @Test

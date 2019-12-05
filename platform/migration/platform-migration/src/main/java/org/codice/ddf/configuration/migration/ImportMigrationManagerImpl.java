@@ -151,12 +151,8 @@ public class ImportMigrationManagerImpl implements Closeable {
       // process migratables' metadata
       JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES, false)
           .forEach((id, o) -> getContextFor(id).processMetadata(JsonUtils.convertToMap(o)));
-      if (MigrationContextImpl.NEED_SYSTEM_PROPERTIES_VERSIONS.contains(productVersion)) {
-        systemProperties = this.getSystemProperties(metadata);
-        contexts.forEach((id, m) -> m.setSystemProperties(systemProperties));
-      } else {
-        systemProperties = new LinkedHashMap<>();
-      }
+      systemProperties = this.getSystemProperties(metadata);
+      contexts.forEach((id, m) -> m.setSystemProperties(systemProperties));
     } catch (IOException e) {
       IOUtils.closeQuietly(zip);
       throw new MigrationException(Messages.IMPORT_FILE_READ_ERROR, exportFile, e);
@@ -221,7 +217,7 @@ public class ImportMigrationManagerImpl implements Closeable {
   }
 
   private Map<String, ?> getSystemProperties(Map<String, Object> metadata) {
-    if (version.equals(MigrationContextImpl.SYSTEM_PROPERTIES_MISSING_VERSION)) {
+    if (version.equals(MigrationContextImpl.SYSTEM_PROPERTIES_NOT_EXPORTED_VERSION)) {
       return AccessUtils.doPrivileged(
           () -> {
             ImportMigrationContext platformMigrationContext =

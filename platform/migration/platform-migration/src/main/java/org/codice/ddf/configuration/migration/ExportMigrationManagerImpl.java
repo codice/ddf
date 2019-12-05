@@ -14,6 +14,7 @@
 package org.codice.ddf.configuration.migration;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.FileNotFoundException;
@@ -149,7 +150,7 @@ public class ExportMigrationManagerImpl implements Closeable {
    *     </code> is <code>null</code>
    * @throws MigrationException to stop the export operation
    */
-  public void doExport(String productBranding, String productVersion) {
+  public final void doExport(String productBranding, String productVersion) {
     Validate.notNull(productBranding, "invalid null product branding");
     Validate.notNull(productVersion, "invalid null product version");
     final String ddfHome = System.getProperty("ddf.home");
@@ -244,7 +245,7 @@ public class ExportMigrationManagerImpl implements Closeable {
     return AccessUtils.doPrivileged(
         () -> {
           try {
-            return new String(Files.readAllBytes(path));
+            return new String(Files.readAllBytes(path), Charsets.UTF_8);
           } catch (IOException e) {
             throw new MigrationException(Messages.EXPORT_SYSTEM_PROPERTIES_ERROR, e);
           }

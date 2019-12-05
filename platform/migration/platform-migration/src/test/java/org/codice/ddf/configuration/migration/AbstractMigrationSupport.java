@@ -70,8 +70,6 @@ public class AbstractMigrationSupport {
 
   protected static final String VERSION = "3.1415";
 
-  protected static final String NEED_SYSTEM_PROPS_PRODUCT_VERSION = "2.13.3";
-
   protected static final String PRODUCT_BRANDING = "test";
 
   protected static final String PRODUCT_VERSION = "test-1.0";

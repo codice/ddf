@@ -201,12 +201,9 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
    */
   protected static final String CURRENT_VERSION = "1.1";
 
-  protected static final String SYSTEM_PROPERTIES_MISSING_VERSION = "1.0";
+  protected static final String SYSTEM_PROPERTIES_NOT_EXPORTED_VERSION = "1.0";
 
   protected static final Set SUPPORTED_VERSIONS = ImmutableSet.of("1.0", "1.1");
-
-  protected static final Set NEED_SYSTEM_PROPERTIES_VERSIONS =
-      ImmutableSet.of("2.13.3", "2.13.4", "2.13.5");
 
   protected static final Path METADATA_FILENAME = Paths.get("export.json");
 

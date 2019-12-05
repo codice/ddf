@@ -137,7 +137,7 @@ public interface ImportMigrationContext extends MigrationContext {
    * Retrieves exported system property.
    *
    * @param key the key of the system property to retrieve
-   * @return the system property requested
+   * @return the system property requested or null if the system property was not exported
    * @throws SecurityException if a security manager is present and it does not permit access to the
    *     property
    */
