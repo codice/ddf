@@ -65,6 +65,13 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
         </service-properties>
         <bean class="org.codice.ddf.catalog.ui.metacard.impl.IdentitySplitter"/>
     </service>
+    <!--
+    =============================================================
+    CONFIGURATION APPLICATION
+    =============================================================
+    -->
+
+    <service ref="attributeAliasesImpl" interface="org.codice.ddf.catalog.ui.alias.AttributeAliases"/>
 
     <!--
     =============================================================

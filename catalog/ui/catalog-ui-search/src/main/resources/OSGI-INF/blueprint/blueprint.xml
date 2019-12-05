@@ -74,10 +74,20 @@ Implementation details
         <argument ref="uiCamelContext"/>
     </bean>
 
+    <bean id="attributeAliasesImpl" class="org.codice.ddf.catalog.ui.alias.AttributeAliasesImpl">
+        <cm:managed-properties
+          persistent-id="org.codice.ddf.catalog.ui.attribute.aliases"
+          update-strategy="container-managed"/>
+        <property name="attributeAliases">
+            <array/>
+        </property>
+    </bean>
+
     <bean id="configurationApplication"
           class="org.codice.ddf.catalog.ui.config.ConfigurationApplication"
           destroy-method="destroy">
         <argument ref="uuidGenerator"/>
+        <argument ref="attributeAliasesImpl"/>
 
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui"
@@ -85,10 +95,6 @@ Implementation details
 
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui.theme"
-                update-strategy="container-managed"/>
-
-        <cm:managed-properties
-                persistent-id="org.codice.ddf.catalog.ui.attribute.aliases"
                 update-strategy="container-managed"/>
 
         <cm:managed-properties
