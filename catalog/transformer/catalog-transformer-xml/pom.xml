@@ -59,7 +59,7 @@
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-runtime</artifactId>
-            <version>0.6.0</version>
+            <version>${jvnet.jaxb2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jvnet.ogc</groupId>
