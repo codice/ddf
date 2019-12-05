@@ -28,12 +28,10 @@
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
-            <version>${tika.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>tika-bundle</artifactId>
-            <version>${tika.thirdparty.bundle.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
@@ -111,6 +109,11 @@
                     <artifactId>poi-ooxml-schemas</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.opengis</groupId>
+            <artifactId>geoapi</artifactId>
+            <version>3.0.1</version>
         </dependency>
     </dependencies>
     <build>
