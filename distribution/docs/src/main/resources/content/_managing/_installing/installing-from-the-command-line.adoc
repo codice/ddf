@@ -17,12 +17,8 @@ This only installs the desired Setup Type. There are other components that can b
 After installing the Setup Type, these other components can be set up as described below.
 ====
 
-===== Configuring Guest Claim Attributes
-
 The Guest Claim Attributes can be configured via the ${admin-console} after running the `profile:install` command.
 See <<{managing-prefix}configuring_guest_claim_attributes,Configuring Guest Claim Attributes>>.
-
-===== System Configuration Settings
 
 System Settings and Contact Info, as described in <<{managing-prefix}configuring_system_settings, System Configuration Settings>>, can be changed in `${home_directory}/etc/custom.system.properties`.
 The certificates must be set up manually as described in <<{managing-prefix}managing_keystores_and_certificates,Managing Keystores and Certificates>>.
