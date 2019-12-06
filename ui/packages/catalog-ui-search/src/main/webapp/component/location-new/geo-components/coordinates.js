@@ -56,10 +56,9 @@ const DmsLatitude = props => {
       mask={latitudeDMSMask}
       placeholderChar="_"
       {...props}
-      onBlur={ () => {
+      onBlur={() => {
         props.onChange(pad(props.value))
-      }
-      }
+      }}
     />
   )
 }
@@ -71,10 +70,9 @@ const DmsLongitude = props => {
       mask={longitudeDMSMask}
       placeholderChar="_"
       {...props}
-      onBlur={ () => {
+      onBlur={() => {
         props.onChange(pad(props.value))
-      }
-      }
+      }}
     />
   )
 }
@@ -115,7 +113,7 @@ const UsngCoordinate = props => {
   )
 }
 
-const pad = (coordinate="") => {
+const pad = (coordinate = '') => {
   const matches = dmsRegex.exec(coordinate)
   let deg = matches[1]
   let min = matches[2]
@@ -123,16 +121,16 @@ const pad = (coordinate="") => {
   deg = padComponent(deg)
   min = padComponent(min)
   sec = padComponent(sec)
-  return deg + "°" + min + "'" + sec + '"'
+  return deg + '°' + min + "'" + sec + '"'
 }
 
-const padComponent = (numString="") => {
-  while(numString.includes('_')) {
+const padComponent = (numString = '') => {
+  while (numString.includes('_')) {
     if (numString.includes('.')) {
       numString = numString.replace('_', '0')
     } else {
       numString = numString.replace('_', '')
-      numString = "0" + numString
+      numString = '0' + numString
     }
     // numString = numString.replace('_', '')
     // numString = numString.includes('.') ? numString + "0" : "0" + numString
