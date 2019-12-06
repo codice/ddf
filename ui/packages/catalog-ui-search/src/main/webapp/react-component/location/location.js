@@ -15,7 +15,6 @@
 const React = require('react')
 
 const CustomElements = require('../../js/CustomElements.js')
-
 const Button = require('../button')
 const Dropdown = require('../dropdown')
 const { Menu, MenuItem } = require('../menu')
@@ -23,7 +22,6 @@ import styled from 'styled-components'
 const {
   validateInput,
 } = require('../../component/location-new/utils/dms-utils')
-
 const Line = require('./line')
 const Polygon = require('./polygon')
 const PointRadius = require('./point-radius')
@@ -194,6 +192,12 @@ module.exports = ({ state, setState, options }) => (
     onDraw={options.onDraw}
     setState={setState}
     cursor={key => value => {
+      console.log('>>>>>>>>STATE CHANGE - KEY: ', key)
+
+      console.log('>>>>>>>>STATE CHANGE - VALUE: ', value)
+      console.log('>>>>>>>>STATE CHANGE - STATE: ', state)
+      console.log('>>>>>>>>STATE CHANGE - SET STATE: ', setState)
+
       isDms = false
       let coordValidator = ddValidators[key]
       if (coordValidator === undefined) {
@@ -220,6 +224,7 @@ module.exports = ({ state, setState, options }) => (
           errors = true
           inValidInput = value
           inValidKey = readableNames[key]
+          console.log('WITH PLACEHOLDERS: ', value)
           defaultCoord = coordValidator(value)
           value = defaultCoord
           setState(key, value)
