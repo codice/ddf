@@ -128,8 +128,14 @@ const pad = (coordinate="") => {
 
 const padComponent = (numString="") => {
   while(numString.includes('_')) {
-    numString = numString.replace('_', '')
-    numString = numString.includes('.') ? numString + "0" : "0" + numString
+    if (numString.includes('.')) {
+      numString = numString.replace('_', '0')
+    } else {
+      numString = numString.replace('_', '')
+      numString = "0" + numString
+    }
+    // numString = numString.replace('_', '')
+    // numString = numString.includes('.') ? numString + "0" : "0" + numString
   }
   return numString
 }
