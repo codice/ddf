@@ -14,7 +14,7 @@ then select *Measure Distance* and *Select start point*.
 . Right click on the end point location,
 then select *Measure Distance* and *Select end point*.
 . The distance is announced as soon as the end point is selected.
-The distance can be viewed and copied with *Copy current distance*.
-. *Clear all coordinates* clears the points and line.
+Select *Copy current distance* to view and copy the distance.
+. Select *Clear all coordinates* to clear the points and line.
 
 image::measure-distance.png[Measure Distance]

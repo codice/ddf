@@ -7,4 +7,7 @@
 
 == {title}
 
-Select a search, right click on the map view, and select *View Histogram* to view a histogram for the search.
+. Select a search, right click on the map view, and select *View Histogram* to view a histogram for the search.
+. Select an attribute to group and compare entries by.
+
+image::view-histogram.png[View Histogram]
