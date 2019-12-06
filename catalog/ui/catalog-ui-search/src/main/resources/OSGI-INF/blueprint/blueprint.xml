@@ -295,12 +295,16 @@ Implementation details
         <property name="queryValidators" ref="queryValidators"/>
     </bean>
 
-    <bean id="cqlValidateHandler"
-      class="org.codice.ddf.catalog.ui.query.validate.CqlValidateHandler">
-        <argument ref="queryValidatorsById"/>
+    <bean id="cqlRequestParser" class="org.codice.ddf.catalog.ui.query.validate.CqlRequestParser">
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
         <argument ref="endpointUtil"/>
+    </bean>
+
+    <bean id="cqlValidateHandler"
+      class="org.codice.ddf.catalog.ui.query.validate.CqlValidateHandler">
+        <argument ref="queryValidatorsById"/>
+        <argument ref="cqlRequestParser"/>
     </bean>
 
     <bean id="latLonProcessor"
