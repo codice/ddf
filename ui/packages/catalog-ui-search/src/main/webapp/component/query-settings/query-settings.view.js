@@ -146,6 +146,8 @@ module.exports = plugin(
     },
     setupSrcDropdown() {
       const sources = this.model.get('src')
+      console.log(sources)
+      window.sourcesSelected = sources;
       this._srcDropdownModel = new DropdownModel({
         value: sources ? sources : [],
         federation: this.model.get('federation'),

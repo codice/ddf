@@ -53,7 +53,7 @@ const foreground = (props: any) => {
 
 const ItemRoot = 
 
-    styled.option<{ active: boolean; selected: boolean; disabled : boolean}>`
+    styled.div<{ active: boolean; selected: boolean}>`
   position: relative;
   padding: 0px ${({ theme }) => theme.minimumSpacing};
   padding-right: ${({ theme }) => theme.minimumButtonSize};
@@ -201,15 +201,19 @@ export class Menu extends React.Component<MenuProps, MenuState> {
             : value === child.props.value,
           onClick: () => {
                 this.onChange(child.props.value)
-                console.log(`${this.state.active} props ${child.props.value}`)
+                console.log(`${JSON.stringify(this.state.active)} props ${JSON.stringify(child.props.value)}`)
+                
             },
+
           active: this.state.active === child.props.value,
           onHover: () => this.onHover(child.props.value),
+         
           ...child.props,
         })
       }
     )
-
+    console.log(childrenWithProps);
+      
     return (
       <MenuRoot className={this.props.className}>
         {childrenWithProps}
@@ -234,16 +238,14 @@ type MenuItemProps = {
   selected?: any
   active?: any
   onHover?: any
-  disabled?:any
+  
 
 }
 
 export const MenuItem = (props: MenuItemProps) => {
-  const { value, children, selected, onClick, active, onHover, style, disabled} = props
-  console.log(active);
+  const { value, children, selected, onClick, active, onHover, style} = props
   return (
     <ItemRoot
-      disabled ={disabled}
       selected={selected}
       active={active}
       style={style}
