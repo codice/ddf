@@ -285,6 +285,11 @@ public class ServiceManagerImpl implements ServiceManager {
   }
 
   @Override
+  public void installBundle(String locationIdentifier) throws BundleException {
+    bundleContext.installBundle(locationIdentifier);
+  }
+
+  @Override
   public void uninstallBundle(String bundleSymbolicName) throws BundleException {
     for (Bundle bundle : bundleContext.getBundles()) {
       if (bundleSymbolicName.equals(bundle.getSymbolicName())) {

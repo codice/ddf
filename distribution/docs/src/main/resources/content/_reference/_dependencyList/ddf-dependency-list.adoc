@@ -115,7 +115,6 @@
 * org.apache.commons:commons-math:jar:2.2
 * org.apache.commons:commons-pool2:jar:2.5.0
 * org.apache.commons:commons-text:jar:1.6
-* org.apache.cxf.services.sts:cxf-services-sts-core:jar:3.2.9
 * org.apache.cxf:cxf-core:jar:3.2.9
 * org.apache.cxf:cxf-rt-frontend-jaxrs:jar:3.2.9
 * org.apache.cxf:cxf-rt-frontend-jaxws:jar:3.2.9

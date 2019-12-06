@@ -1,4 +1,4 @@
-:title: STS Claims Handlers
+:title: Claims Handlers
 :type: subSecurityFramework
 :status: published
 :parent: Security Token Service
@@ -7,7 +7,7 @@
 
 == {title}
 
-Claims handlers are classes that convert the incoming user credentials into a set of attribute claims that will be populated in the SAML assertion.
+Claims handlers are classes that convert the incoming user credentials into a set of attribute claims that will be populated in the user Subject object.
 An example in action would be the LDAPClaimsHandler that takes in the user's credentials and retrieves the user's attributes from a backend LDAP server.
-These attributes are then mapped and added to the SAML assertion being created.
+These attributes are then mapped and added to the Subject being created.
 Integrators and developers can add more claims handlers that can handle other types of external services that store user attributes.

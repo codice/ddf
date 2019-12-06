@@ -50,10 +50,7 @@
             <artifactId>platform-util</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.cxf.services.sts</groupId>
-            <artifactId>cxf-services-sts-core</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>

@@ -77,7 +77,10 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
   @BeforeExam
   public void beforeExam() {
     try {
-      getServiceManager().startFeature(true, SAMPLE_VALIDATOR);
+      getServiceManager()
+          .installBundle(
+              "mvn:org.codice.ddf.sdk.validation.metacard/sdk-sample-metacard-validator/2.19.0");
+      getServiceManager().startBundle("sdk-sample-metacard-validator");
 
       // start test with validation errors/warnings allowed in catalog/search results
       oldValidationMarkerPluginProps =
@@ -106,7 +109,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
       if (oldValidityFilterPluginProps != null) {
         configureMetacardValidityFilterPlugin(oldValidityFilterPluginProps, getAdminConfig());
       }
-      getServiceManager().stopFeature(true, SAMPLE_VALIDATOR);
+      getServiceManager().uninstallBundle("sdk-sample-metacard-validator");
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed in @AfterExam: ");
     }

@@ -15,36 +15,36 @@
 |                                                                   /--------------------\                                   /--------------------------------------------------\ |
 | /==========\ Request  /----------\ Request  /----------\ Request  |               cDEF |                                   |                Authenticating Realms             | |
 | | External |--------->|          |--------->|  Jetty   |--------->|      Web SSO       |                                   |   /----------\   /----------\   /----------\     | |
-| |   DDF    |          |  Jetty   |          |  Auth.   |          |      Filter        |                             /---->|==>|  Guest   |==>|   Oidc   |==>|   STS    |==\  | |
+| |   DDF    |          |  Jetty   |          |  Auth.   |          |      Filter        |                             /---->|==>|  Guest   |==>|   Oidc   |==>|   SAML   |==\  | |
 | |  Client  |          |          |<---------|     cEEE |<---------|                    |                             |     |   |  Realm   |   |   Realm  |   |   Realm  |  :  | |
 | \==========/          \----------/ Response \----------/ Response |  /------------\    |                             |     |   \----------/   \----------/   \----------/  :  | |
-|      ^                     |                                      |  |Whitelisted?|<---|--------\                    |     |                                     |   ^     :  | |
+|      ^                     |                                      |  |Whitelisted?|<---|--------\                    |     |                                               :  | |
 |      |                     | Response        /-----------\        |  \------------/    |        |        /-----------+ /---|===============================================/  | |
-|      |                     |                 |c5F5       |  Yes   |    :    :          |        v        |Auth. Token| |   |                                     |   |   cDEF | |
+|      |                     |                 |c5F5       |  Yes   |    :    :          |        v        |Auth. Token| |   |                                             cDEF | |
 |      |       /-------------+------------\    |  Endpoint |<-------|====/    :No        |     /=======\   \-----------+ |   \--------------------------------------------------/ |
-|      |       |             |            |    \-----------/        |         :        /-|---->|Web Ctx|               | |                                         |   |          |
-|      |       v             v            v                         |         :        | |     |Policy |               | |                                         v   |          |
-|      | /-----------\  /--------\  /-----------\                   |         :        | |  /->|Manager|               | +-------\                            /--------------\    |
-|      | |   c5F5    |  | cF55   |  | cF55      | /-----------\     |         :        | |  |  \=======/               | |Subject|                            |cDEF|   ^     |    |
-|      \-|  Endpoint |  |  Not   |  |    Not    | |Basic Auth.|<-\  |         v        | |  |  /---------\   /-------\ | +-------/                            |    v   |     |    |
-|        |           |  |Handled |  | Authorized| |  Handler  |  |  |  /------------\  | |  |  |    cDEF |   | Shiro | | |                                    | /----------\ |    |
-|        \-----------/  \--------/  \-----------/ \-----------/  \--|--|loop through|<-/ |  |  |         |   |       | | |                                    | |Validators| |    |
-|                                                       |           |  | configured |    |  |  |         |-->|======>|-/ |                                    | \----------/ |    |
-|                                                       v        /--|->|  handlers  |    |  |  |  Login  |   |       |   |                                    |    |   ^     |    |
-|                                                 /-----------\  |  |  \------------/    |  |  |  Filter |   |       |   |                                    |    v   |     |    |
-|                                                 |PKI Handler|  |  |        :           |  |  |         |<--|<======|<--/                                    | /----------\ |    |
-|                                                 \-----------/  |  |        \==========>|--|->|         |   |       |                                        | |  Claims  | |    |
-|                                                       |        |  |                    |  |  |         |   |       |                                        | | Handlers | |    |
-|                                                       v        |  \--------------------/  |  |         |   |       |                                        | \----------/ |    |
-|                                                 /-----------\  |                          |  \---------/   |       |                                        |    |   ^     |    |
-|                                                 |   SAML    |  |                          |       |        |       |                                        |    |   |     |    |
-|                                                 |  Handler  |  |                          |       |        |       |                                        |    v   |     |    |
-|                                                 \-----------/  |                          |       v        |       |                        /==========\    | /----------\ |    |
-|                                                       |        |                          |  /---------\   |       |                        |          |    | |   Token  | |    |
-|                                                       v        |                          |  |     cDEF|   |       |                    /-->| Expansion|    | |  Issuers | |    |
-|                                                 /-----------\  |                          |  |         |   |       |                    |   |  Service |    | \----------/ |    |
-|                                                 |   OAuth   |  |                          |  |         |   |       |       /----------\ | /-|          |    |   STS Realm  |    |
-|                                                 |  Handler  |  |                          \->|         |-->|======>|------>|          |-/ | \==========/    \--------------/    |
+|      |       |             |            |    \-----------/        |         :        /-|---->|Web Ctx|               | |                                                        |
+|      |       v             v            v                         |         :        | |     |Policy |               | |                                                        |
+|      | /-----------\  /--------\  /-----------\                   |         :        | |  /->|Manager|               | +-------\                                                |
+|      | |   c5F5    |  | cF55   |  | cF55      | /-----------\     |         :        | |  |  \=======/               | |Subject|                                                |
+|      \-|  Endpoint |  |  Not   |  |    Not    | |Basic Auth.|<-\  |         v        | |  |  /---------\   /-------\ | +-------/                                                |
+|        |           |  |Handled |  | Authorized| |  Handler  |  |  |  /------------\  | |  |  |    cDEF |   | Shiro | | |                                                        |
+|        \-----------/  \--------/  \-----------/ \-----------/  \--|--|loop through|<-/ |  |  |         |   |       | | |                                                        |
+|                                                       |           |  | configured |    |  |  |         |-->|======>|-/ |                                                        |
+|                                                       v        /--|->|  handlers  |    |  |  |  Login  |   |       |   |                                                        |
+|                                                 /-----------\  |  |  \------------/    |  |  |  Filter |   |       |   |                                                        |
+|                                                 |PKI Handler|  |  |        :           |  |  |         |<--|<======|<--/                                                        |
+|                                                 \-----------/  |  |        \==========>|--|->|         |   |       |                                                            |
+|                                                       |        |  |                    |  |  |         |   |       |                                                            |
+|                                                       v        |  \--------------------/  |  |         |   |       |                                                            |
+|                                                 /-----------\  |                          |  \---------/   |       |                                                            |
+|                                                 |   SAML    |  |                          |       |        |       |                                                            |
+|                                                 |  Handler  |  |                          |       |        |       |                                                            |
+|                                                 \-----------/  |                          |       v        |       |                        /==========\                        |
+|                                                       |        |                          |  /---------\   |       |                        |          |                        |
+|                                                       v        |                          |  |     cDEF|   |       |                    /-->| Expansion|                        |
+|                                                 /-----------\  |                          |  |         |   |       |                    |   |  Service |                        |
+|                                                 |   OAuth   |  |                          |  |         |   |       |       /----------\ | /-|          |                        |
+|                                                 |  Handler  |  |                          \->|         |-->|======>|------>|          |-/ | \==========/                        |
 |                                                 \-----------/  |                             |  Authz  |   |       |       |  Authz   |<--/                                     |
 |                                                       |        |                             |  Filter |   |       |       |  Realm   |                                         |
 |                                                       v        |                             |         |   |       |       |          |<--\                                     |
@@ -86,24 +86,24 @@ SAML IdP Architecture
 |                                                      /---------------------------------------------------------------------------\    |
 |                                                      |                                                                           |    |
 |                                                      v                                                                           |    |
-|  +--------------+         +--------------------------+-------+       +-------------+        +----------------------------+       |    |
-|  |              |         |                                  |       |             |        |                            |       |    |
-|  |   Web SSO    +----+    |   IdP Client                     |       |  Endpoint   |        |                            |       |    |
-|  |   Filter     |    |    |                                  |       |             |        |       STS Server           |       |    |
-|  |              |    |    |                                  |       |c5F5         |        |                            |       |    |
-|  +--------------+    |    +-----------------+----------------+       +------+------+        |                            |       |    |
-|         ^            |    |   IdP Handler   |   Assertion    |              ^               +----+------+----------------+       |    |
-|         |            \--->+ cDEF            |   Consumer     |              |                    ^      |                        |    |
-|         |    Yes          |  +------------+ |   Service (ACS)|              |                    |      |                        |    |
-|         \-----------------|--+  Has SAML  | |                |  Logged In   |                    |      |                        |    |
-|                           |  |            | |                +--------------/                    |      |                        |    |
-|                           |  +-------+----+ |                |                             Token |      | SAML                   |    |
-|                           |          | No   |                |                                   |      |                        |    |
-|                           |          v      |                |                                   |      v                        |    |
+|  +--------------+         +--------------------------+-------+       +-------------+                                             |    |
+|  |              |         |                                  |       |             |                                             |    |
+|  |   Web SSO    +----+    |   SAML Client                    |       |  Endpoint   |                                             |    |
+|  |   Filter     |    |    |                                  |       |             |                                             |    |
+|  |              |    |    |                                  |       |c5F5         |                                             |    |
+|  +--------------+    |    +-----------------+----------------+       +------+------+                                             |    |
+|         ^            |    |   IdP Handler   |   Assertion    |              ^                                                    |    |
+|         |            \--->+ cDEF            |   Consumer     |              |                                                    |    |
+|         |    Yes          |  +------------+ |   Service (ACS)|              |                                                    |    |
+|         \-----------------|--+  Has SAML  | |                |  Logged In   |                                                    |    |
+|                           |  |            | |                +--------------/                                                    |    |
+|                           |  +-------+----+ |                |                                                                   |    |
+|                           |          | No   |                |                                                                   |    |
+|                           |          v      |                |                                                                   |    |
 |                           |  +-------+----+ |                |                         +---------+----------+--------------+     |    |
 |                      Yes  |  | Is Broswer | |                | Redirect back via POST  |                    |   Metadata   |     |    |
 |                   /-------|--+            | |                |<------------------------+                    |   Endpoint   +<----/    |
-|                   |       |  +-------+----+ |                |                         |      IdP Server    |cDEF          |          |
+|                   |       |  +-------+----+ |                |                         |      SAML Server   |cDEF          |          |
 |                   |       |          | No   |                |              /--------->|                    +--------------+          |
 |                   |       |          v      |                |              |          |                                   |          |
 |                   |       |  +------------+ |                |              |          |                                   |          |
@@ -117,11 +117,11 @@ SAML IdP Architecture
 
 ....
 
-The IdP Handler is a configured handler on the Web SSO Filter just like the other handlers in the previous diagram.
-The IdP Handler and the Assertion Consumer Service are both part of the IdP client that can be used to interface with any compliant SAML 2.0 Web SSO Identity Provider.
+The SAML Handler is a configured handler on the Web SSO Filter just like the other handlers in the previous diagram.
+The SAML Handler and the Assertion Consumer Service are both part of the IdP client that can be used to interface with any compliant SAML 2.0 Web SSO Identity Provider.
 
 The Metadata Exchange happens asynchronously from any login event.
-The exchange can happen via HTTP or File, or the metadata XML itself can be pasted into the configuration for either the IdP client or the IdP server that the system ships with.
+The exchange can happen via HTTP or File, or the metadata XML itself can be pasted into the configuration for the SAML client.
 The metadata contains information about what bindings are accepted by the client or server and whether or not either expects messages to be signed, etc.
 The redirect from the Assertion Consumer Service to the Endpoint will cause the client to pass back through the entire filter chain, which will get caught at the `Has Session` point of the `WebSsoFilter`.
 The request will proceed through the rest of the filters as any other connection would in the previous diagram.
@@ -181,9 +181,9 @@ Unauthenticated non-browser clients that pass the HTTP headers signaling that th
 
 SAML ECP can be used to authenticate a non-browser client or non-person entity (NPE).
 This method of authentication is useful when there is no human in the loop, but authentication with an IdP is still desired.
-The IdP Handler will send a PAOS (Reverse SOAP) request as an initial response back to the Secure Client, assuming the client has sent the necessary HTTP headers to declare that it supports this function.
+The SAML Handler will send a PAOS (Reverse SOAP) request as an initial response back to the Secure Client, assuming the client has sent the necessary HTTP headers to declare that it supports this function.
 That response does not complete the request/response loop, but is instead caught by a SOAP intermediary, which is implemented through a CXF interceptor.
-The PAOS response contains an `<AuthNRequest>` request message, which is intended to be rerouted to an IdP via SOAP.
+The PAOS response contains an `<AuthNRequest>` request message, which is intended to be rerouted to a SAML IdP via SOAP.
 The SOAP intermediary will then contact an IdP (selection of the IdP is not covered by the spec).
 The IdP will either reject the login attempt, or issue a Signed `<Response>` that is to be delivered to the Assertion Consumer Service by the intermediary.
 The method of logging into the IdP is not covered by the spec and is up to the implementation.

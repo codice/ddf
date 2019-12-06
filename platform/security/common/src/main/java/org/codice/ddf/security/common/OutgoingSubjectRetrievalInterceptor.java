@@ -30,8 +30,8 @@ import org.apache.cxf.transport.http.MessageTrustDecider;
 import org.apache.cxf.transport.http.URLConnectionInfo;
 import org.apache.cxf.transport.http.UntrustedURLConnectionIOException;
 import org.apache.cxf.transport.https.HttpsURLConnectionInfo;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.codice.ddf.security.handler.api.AuthenticationTokenFactory;
 
 /**
  * OutgoingSubjectRetrievalInterceptor provides a implementation of {@link AbstractPhaseInterceptor}
@@ -43,14 +43,13 @@ public class OutgoingSubjectRetrievalInterceptor extends AbstractPhaseIntercepto
 
   private final SecurityManager securityManager;
 
-  private final STSAuthenticationTokenFactory tokenFactory;
+  private final AuthenticationTokenFactory tokenFactory;
 
   private EventSecurityEndingInterceptor ending = new EventSecurityEndingInterceptor();
 
   public OutgoingSubjectRetrievalInterceptor() {
     super(Phase.PRE_STREAM);
-    tokenFactory = new STSAuthenticationTokenFactory();
-    tokenFactory.init();
+    tokenFactory = new AuthenticationTokenFactory();
     securityManager = Security.getInstance().getSecurityManager();
   }
 
@@ -115,7 +114,7 @@ public class OutgoingSubjectRetrievalInterceptor extends AbstractPhaseIntercepto
 
       X509Certificate[] certs = ((X509Certificate[]) info.getServerCertificates());
       try {
-        BaseAuthenticationToken token =
+        AuthenticationToken token =
             tokenFactory.fromCertificates(certs, urlConnectionInfo.getURI().getHost());
 
         Subject receiverSubject = securityManager.getSubject(token);

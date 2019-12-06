@@ -208,7 +208,7 @@ public abstract class AbstractIntegrationTest {
   private static final String DDF_ITESTS_GROUP_ID = "ddf.test.itests";
 
   protected static final String[] DEFAULT_REQUIRED_APPS = {
-    "catalog-app", "solr-app", "spatial-app", "sdk-app"
+    "catalog-app", "solr-app", "spatial-app", "sdk-rest", "sample-storageplugins"
   };
 
   protected KarafConsole console;
@@ -546,10 +546,6 @@ public abstract class AbstractIntegrationTest {
             "etc/org.apache.karaf.management.cfg", "rmiServerPort", RMI_SERVER_PORT.getPort()),
         installStartupFile(
             getClass().getClassLoader().getResource("hazelcast.xml"), "/etc/hazelcast.xml"),
-        KarafDistributionOption.editConfigurationFilePut(
-            "etc/ddf.security.sts.client.configuration.config",
-            "address",
-            SECURE_ROOT + HTTPS_PORT.getPort() + "/services/SecurityTokenService?wsdl"),
         installStartupFile(
             getClass()
                 .getClassLoader()

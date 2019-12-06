@@ -303,7 +303,6 @@ platform/security/platform-security-core-api/src/main/java/ddf/security/sts/clie
 platform/security/platform-security-core-api/src/main/java/ddf/security/ws/policy/AbstractOverrideInterceptor.java @codice/whitelist
 platform/security/platform-security-core-api/src/main/java/ddf/security/ws/policy/PolicyLoader.java @codice/whitelist
 
-platform/security/platform-security-core-api/src/main/java/ddf/security/ws/proxy/ProxyServiceFactory.java @codice/whitelist
 
 platform/security/handler/security-handler-api/src/main/java/org/codice/ddf/security/handler/api/AuthenticationHandler.java @codice/whitelist
 

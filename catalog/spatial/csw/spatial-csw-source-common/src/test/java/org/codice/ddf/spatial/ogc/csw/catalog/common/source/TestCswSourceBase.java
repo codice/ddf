@@ -30,7 +30,6 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.transform.CatalogTransformerException;
-import ddf.security.sts.client.configuration.STSClientConfiguration;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -264,9 +263,6 @@ public class TestCswSourceBase {
     try {
       when(mockContext.getServiceReferences(eq(MetadataTransformer.class.getName()), anyString()))
           .thenReturn(serviceRefs);
-      when(mockContext.getServiceReferences(
-              eq(STSClientConfiguration.class.getName()), anyString()))
-          .thenReturn(null);
     } catch (InvalidSyntaxException e) {
       LOGGER.error(e.getMessage(), e);
     }

@@ -21,8 +21,8 @@ import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.codice.ddf.security.handler.api.AuthenticationTokenFactory;
 import org.codice.ddf.security.rest.authentication.service.AuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,12 +35,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   private SessionFactory sessionFactory;
 
-  private STSAuthenticationTokenFactory tokenFactory;
+  private AuthenticationTokenFactory tokenFactory;
 
   public AuthenticationServiceImpl(SecurityManager securityManager, SessionFactory sessionFactory) {
     this.securityManager = securityManager;
     this.sessionFactory = sessionFactory;
-    tokenFactory = new STSAuthenticationTokenFactory();
+    tokenFactory = new AuthenticationTokenFactory();
   }
 
   @Override
@@ -58,7 +58,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     // Create an authentication token
-    BaseAuthenticationToken authenticationToken =
+    AuthenticationToken authenticationToken =
         tokenFactory.fromUsernamePassword(username, password, request.getRemoteAddr());
 
     // Authenticate

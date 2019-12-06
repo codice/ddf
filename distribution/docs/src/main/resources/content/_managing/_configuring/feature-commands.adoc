@@ -22,10 +22,9 @@ State         Version            Name                                     Reposi
 [uninstalled] [${project.version}  ] security-pep-serviceauthz                security-services-app-${project.version} DDF Security PEP Service AuthZ
 [uninstalled] [${project.version}  ] security-expansion-user-attributes       security-services-app-${project.version} DDF Security Expansion User Attributes Expansion
 [uninstalled] [${project.version}  ] security-expansion-metacard-attributes   security-services-app-${project.version} DDF Security Expansion Metacard Attributes Expansion
-[installed  ] [${project.version}  ] security-sts-server                      security-services-app-${project.version} DDF Security STS.
-[installed  ] [${project.version}  ] security-sts-realm                       security-services-app-${project.version} DDF Security STS Realm.
-[uninstalled] [${project.version}  ] security-sts-ldaplogin                   security-services-app-${project.version} DDF Security STS JAAS LDAP Login.
-[uninstalled] [${project.version}  ] security-sts-ldapclaimshandler           security-services-app-${project.version} Retrieves claims attributes from an LDAP store.
+[installed  ] [${project.version}  ] security-realm-saml                       security-services-app-${project.version} DDF Security SAML Realm.
+[uninstalled] [${project.version}  ] security-jaas-ldap                   security-services-app-${project.version} DDF Security JAAS LDAP Login.
+[uninstalled] [${project.version}  ] security-claims-ldap           security-services-app-${project.version} Retrieves claims attributes from an LDAP store.
 ----
 . Check the bundle status to verify the service is started. +
 `${branding-lowercase}${at-symbol}local>list`

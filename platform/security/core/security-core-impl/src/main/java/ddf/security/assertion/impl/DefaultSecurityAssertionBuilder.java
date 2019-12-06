@@ -27,6 +27,11 @@ public class DefaultSecurityAssertionBuilder {
     securityAssertion = new SecurityAssertionDefault();
   }
 
+  public DefaultSecurityAssertionBuilder userPrincipal(Principal principal) {
+    securityAssertion.userPrincipal = principal;
+    return this;
+  }
+
   public DefaultSecurityAssertionBuilder addPrincipal(Principal principal) {
     securityAssertion.principals.add(principal);
     return this;

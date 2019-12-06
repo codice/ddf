@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.itests.common.security;
 
-import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
 import static org.awaitility.Awaitility.await;
 
@@ -54,7 +53,7 @@ public class SecurityPolicyConfigurator {
   private static final String GUEST_AUTH_TYPES = "/=,/admin=basic,/system=basic";
 
   private static final String DEFAULT_WHITELIST =
-      "/services/SecurityTokenService,/services/internal/metrics,/services/saml,/proxy,/services/idp,/idp,/services/platform/config/ui,/login";
+      "/services/SecurityTokenService,/services/internal/metrics,/services/saml,/proxy,/services/platform/config/ui,/login";
 
   private ServiceManager services;
 
@@ -97,34 +96,6 @@ public class SecurityPolicyConfigurator {
         .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .pollDelay(1, TimeUnit.SECONDS)
         .until(() -> when().get(url).then().extract().statusCode() == 200);
-  }
-
-  public void waitForSamlAuthReady(String url) {
-    await("Waiting for guest auth")
-        .atMost(AbstractIntegrationTest.GENERIC_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .pollDelay(1, TimeUnit.SECONDS)
-        .until(
-            () ->
-                given()
-                            .header("User-Agent", BROWSER_USER_AGENT)
-                            .redirects()
-                            .follow(false)
-                            .when()
-                            .get(url)
-                            .then()
-                            .extract()
-                            .statusCode()
-                        == 302
-                    || given()
-                            .header("User-Agent", BROWSER_USER_AGENT)
-                            .redirects()
-                            .follow(false)
-                            .when()
-                            .get(url)
-                            .then()
-                            .extract()
-                            .statusCode()
-                        == 303);
   }
 
   private static String createWhitelist(String whitelist) {

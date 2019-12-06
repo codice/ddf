@@ -18,12 +18,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.shiro.authc.AuthenticationToken;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.OcspService;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.api.AuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public class PKIHandler implements AuthenticationHandler {
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(PKIHandler.class);
 
-  protected STSAuthenticationTokenFactory tokenFactory;
+  protected AuthenticationTokenFactory tokenFactory;
 
   protected CrlChecker crlChecker;
 
@@ -77,7 +77,7 @@ public class PKIHandler implements AuthenticationHandler {
     // doesn't matter what the resolve flag is set to, we do the same action
     X509Certificate[] certs =
         (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
-    BaseAuthenticationToken token = tokenFactory.fromCertificates(certs, request.getRemoteAddr());
+    AuthenticationToken token = tokenFactory.fromCertificates(certs, request.getRemoteAddr());
 
     HttpServletResponse httpResponse =
         response instanceof HttpServletResponse ? (HttpServletResponse) response : null;
@@ -128,7 +128,7 @@ public class PKIHandler implements AuthenticationHandler {
     return result;
   }
 
-  public void setTokenFactory(STSAuthenticationTokenFactory factory) {
+  public void setTokenFactory(AuthenticationTokenFactory factory) {
     tokenFactory = factory;
   }
 
