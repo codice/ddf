@@ -60,8 +60,7 @@ file `${home_directory}/etc/custom.system.properties`
 [NOTE]
 ====
 If ${branding} has generated an encrypted password, the password must be reset before
-proceeding. Follow the procedure in <<_restore_the_default_password_in_solr,
-Restore the Default Password in Solr>> before proceeding.
+proceeding.
 ====
 
 . To change the Solr password to a specific string, send Solr an HTTP POST request.
@@ -69,7 +68,7 @@ This is covered in the official http://lucene.apache.org/solr/resources.html[Sol
  {external-link}. Here is an example that uses the
 command line utility `curl` to change the password from `admin` to `newpassword`:
 
- curl -k -u "admin:admin" "${secure_url}/solr/admin/authentication" -H 'Content-type:application/json' -d "{ 'set-user': {'admin' : 'newpassword'}}"
+ curl -k -u "admin:admin" "https://{FQDN}:{PORT}/solr/admin/authentication" -H 'Content-type:application/json' -d "{ 'set-user': {'admin' : 'newpassword'}}"
 +
 . Encrypt the password using the <<{integrating-prefix}encrypting_passwords,Encryption Service>>.
 The encryption command enciphers the password. It is safe to save the peristed password in a file.
@@ -79,38 +78,6 @@ the encryption comand. Note that the default password is not enclosed in `ENC()`
 is not necessary for cleartext. Cleartext is used by the system exactly as it appears.
 <<_do_not_autogenerate_a_solr_password, follow these instructions>>.
 . Finally, restart ${branding}
-
-==== Restore the Default Password in Solr
-
-. Restore the `${home_directory}/solr/server/solr/security.json` from a zip file of the
-${branding} distribution.
-
-**OR**
-
-. Edit the `${home_directory}/solr/server/solr/security.json` file. Solr stores a salted hash of
-the user passwords in this file.
-. Assuming the Solr username is `admin`, change the credentials section to match
-this string:
-+
-```
- "credentials": {
-      "admin": "EjjOS/zyQ1KQQdSXFb/rFm7w6MItU5pmdthM35ZiJaA= ZZI7d4jf/8hz5oZz7ljBE6+uv1wqncj+VudX3arbib4="}
-```
-The quoted string following the username `admin` is the salted hash for the password `admin`.
-+
-. Edit the file `${home_directory}/etc/custom.system.properties` and change the value of
-`solr.password` to `admin`.
-. Optional: <<_do_not_autogenerate_a_solr_password, Prevent ${branding} from automatically changing the Solr password>>.
-
-==== Removing Basic Authentication from Solr
-
-To disable Solr's basic authentication mechanism, rename or remove the file
-`${home_directory}/solr/server/solr/security.json` and restart Solr. The file `security.json`
-configures Solr to use basic authetnication and defines Solr users. If the file is not present,
-Solr requires no login. This could a security issue in many environments and it is recommended
-to never disable Solr authentication in an operational environment. If authentication is disabled,
-the system property <<{managing-prefix}solr_usebasicauth, `solr.useBasicAuth`>> may be set to
-`false`.
 
 === Configuring Solr Encryption
 

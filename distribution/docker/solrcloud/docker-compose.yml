@@ -1,0 +1,94 @@
+# a docker-compose.yml to start a simple cluster with one ZooKeeper node and two Solr nodes.
+#
+version: '3.7'
+
+# run the following command to create the network
+# docker network create --subnet=172.28.0.0/16 solr 
+networks:
+  solr:
+    external: "true"
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  solr1_data:
+  solr2_data:
+  zoo_data:
+
+services:
+
+  solr1:
+    image: codice/ddf-solr:2.22.0-SNAPSHOT
+    container_name: solr1
+    hostname: solr1.localhost
+    entrypoint: docker-entrypoint.sh
+    command: solr-fg
+    ports:
+      - "8994:8994"
+    environment:
+      - SOLR_HOME=/opt/solr/server/solr/mycores
+      - SOLR_HOST=solr1.localhost
+      - SOLR_PORT=8994
+      - ZK_HOST=zoo.localhost:2181
+    volumes:
+      - ./solr.xml:/opt/solr/server/solr/mycores/solr.xml
+      - solr1_data:/opt/solr/server/solr/mycores/
+    extra_hosts:
+      - "zoo.localhost:172.28.0.100"
+      - "solr1.localhost:172.28.0.101"
+      - "solr2.localhost:172.28.0.102"
+    networks:
+      solr:
+        ipv4_address: 172.28.0.101
+    depends_on:
+      - zoo
+
+  solr2:
+    image: codice/ddf-solr:2.22.0-SNAPSHOT
+    container_name: solr2
+    hostname: solr2.localhost
+    entrypoint: docker-entrypoint.sh
+    command: solr-fg
+    ports:
+      - "8995:8995"
+    environment:
+      - SOLR_HOME=/opt/solr/server/solr/mycores
+      - SOLR_HOST=solr2.localhost
+      - SOLR_PORT=8995
+      - ZK_HOST=zoo.localhost:2181
+    volumes:
+      - ./solr.xml:/opt/solr/server/solr/mycores/solr.xml
+      - solr2_data:/opt/solr/server/solr/mycores/
+    extra_hosts:
+      - "zoo.localhost:172.28.0.100"
+      - "solr1.localhost:172.28.0.101"
+      - "solr2.localhost:172.28.0.102"
+    networks:
+      solr:
+        ipv4_address: 172.28.0.102
+    depends_on:
+      - zoo
+      - solr1
+
+  zoo:
+    image: zookeeper:3.4
+    container_name: zoo
+    restart: always
+    hostname: zoo.localhost
+    ports:
+      - "2181:2181"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zoo.localhost:2888:3888
+    volumes:
+      - ./zoo.cfg:/conf/zoo.cfg
+      - zoo_data:/data
+    extra_hosts:
+      - "zoo.localhost:172.28.0.100"
+      - "solr1.localhost:172.28.0.101"
+      - "solr2.localhost:172.28.0.102"
+    networks:
+      solr:
+        ipv4_address: 172.28.0.100

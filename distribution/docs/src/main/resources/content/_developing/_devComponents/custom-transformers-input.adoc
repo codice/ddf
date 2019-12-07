@@ -123,7 +123,7 @@ Additionally, see the source code for the `org.codice.ddf.transformer.xml.stream
 ====
 1. The `XmlInputTransformer` & `SaxEventHandlerDelegate` create and configure themselves based on String matches of the configuration ids with the `SaxEventHandlerFactory` ids, so ensure these match.
 2. The `XmlInputTransformer` uses a `DynamicMetacardType`.
-This is pertinent because a metacards attributes are only stored in Solr if they are declared on the `MetacardType`.
+This is pertinent because a metacards attributes are only stored in the `CatalogProvider` if they are declared on the `MetacardType`.
 Since the `DynamicMetacardType` is constructed dynamically, attributes are declared by the `SaxEventHandlerFactory` that parses them, as opposed to the `MetacardType`. See `org.codice.ddf.transformer.xml.streaming.impl.XmlSaxEventHandlerFactoryImpl.java` vs `ddf.catalog.data.impl.BasicTypes.java`
 ====
 

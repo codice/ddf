@@ -18,17 +18,17 @@ In these command URLs, `metacard_cache` is the name of the Solr query cache.
 
 .Deletion of all records in Solr query cache
 ----
-${secure_url}/solr/metacard_cache/update?stream.body=<delete><query>*:*</query></delete>&commit=true
+https://{FQDN}:{PORT}/solr/metacard_cache/update?stream.body=<delete><query>*:*</query></delete>&commit=true
 ----
 * To delete a specific record in the Solr cache by ID (specified by the original_id_txt field):
 
 .Deletion of record in Solr query cache by ID
 ----
-${secure_url}/solr/metacard_cache/update?stream.body=<delete><query>original_id_txt:50ffd32b21254c8a90c15fccfb98f139</query></delete>&commit=true
+https://{FQDN}:{PORT}/solr/metacard_cache/update?stream.body=<delete><query>original_id_txt:50ffd32b21254c8a90c15fccfb98f139</query></delete>&commit=true
 ----
 * To delete record(s) in the Solr cache using a query on a field in the record(s) - in this example, the `title_txt` field is being used with wildcards to search for any records with word remote in the title:
 
 .Deletion of records in Solr query cache using search criteria
 ----
-${secure_url}/solr/metacard_cache/update?stream.body=<delete><query>title_txt:*remote*</query></delete>&commit=true
+https://{FQDN}:{PORT}/solr/metacard_cache/update?stream.body=<delete><query>title_txt:*remote*</query></delete>&commit=true
 ----

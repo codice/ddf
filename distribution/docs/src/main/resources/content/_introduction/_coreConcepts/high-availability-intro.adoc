@@ -18,7 +18,7 @@ Though there are multiple systems running with the Highly Available Cluster, it 
 perspective or from other ${branding}s' perspectives.
 ====
 
-This setup consists of a Solr Cloud instance, 2 ${branding} nodes connected to that Solr Cloud, and a failover proxy that sits in front of those 2 nodes.
+This setup consists of a SolrCloud instance, 2 ${branding} nodes connected to that SolrCloud, and a failover proxy that sits in front of those 2 nodes.
 One of the ${branding} nodes will be arbitrarily chosen to be the active node, and the other will be the "hot standby" node.
 It is called a "hot standby" node because it is ready to receive traffic even though it's not currently receiving any.
 The failover proxy will route all traffic to the active node.
@@ -34,7 +34,7 @@ See the below diagrams for more detail.
                                 /-->+  (active)   +--\
 /---------\     /-------------\ |   |             |  |   +----------+
 |cDEF     |     |cDEF         +-/   \-------------/  \-->+ {s} cDEF |
-| Browser +---->|    Proxy    |                          |Solr Cloud|
+| Browser +---->|    Proxy    |                          |SolrCloud |
 |         |     |             |     /-------------\  /-->+          |
 \---------/     \-------------/     |cYEL         |  |   +----------+
                                     |  (standby)  +--/
@@ -51,7 +51,7 @@ See the below diagrams for more detail.
                                     |   (failed)  |
 /---------\     /-------------\     |             |      +----------+
 |cDEF     |     |cDEF         |     \-------------/      | {s} cDEF |
-| Browser +---->|    Proxy    |                          |Solr Cloud|
+| Browser +---->|    Proxy    |                          |SolrCloud |
 |         |     |             +--\  /-------------\  /-->+          |
 \---------/     \-------------/  |  |cDEF         |  |   +----------+
                                  \->+   (active)  +--/

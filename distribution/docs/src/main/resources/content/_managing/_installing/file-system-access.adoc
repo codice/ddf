@@ -26,7 +26,7 @@ System administrators MUST perform the following steps prior to deploying bundle
 [IMPORTANT]
 ====
 The system administrator must restrict certain directories to ensure that the application (user) cannot access restricted directories on the system.
-For example the `${branding}USER` should have read-only access to `${home_directory}`, except for the sub-directories `etc`, `data`, `solr` and `instances`.
+For example the `${branding}USER` should have read-only access to `${home_directory}`, except for the sub-directories `etc`, `data` and `instances`.
 ====
 
 .Setting Directory Permissions on Windows
@@ -59,9 +59,9 @@ Set directory permissions to protect the ${branding} from unauthorized access.
 * Create instances sub-directory if does not exist
 ** `mkdir -p ${home_directory}/instances`
 * Change group ownership on sub-directories
-** `chgrp -R ${branding}GROUP ${home_directory}/etc ${home_directory}/data ${home_directory}/instances ${home_directory}/solr`
+** `chgrp -R ${branding}GROUP ${home_directory}/etc ${home_directory}/data ${home_directory}/instances`
 * Change group permissions
-** `chmod -R g-w ${home_directory}/etc ${home_directory}/data ${home_directory}/instances ${home_directory}/solr`
+** `chmod -R g-w ${home_directory}/etc ${home_directory}/data ${home_directory}/instances`
 * Remove permissions for other users
 ** `chmod -R o-rwx ${home_directory}/etc ${home_directory}/data ${home_directory}/instances`
 ****
@@ -110,14 +110,3 @@ Remove -XX:+DisableAttachMechanism from JAVA_OPTS
 ${home_directory}/bin/setenv-windows-wrapper.conf
 Comment out the -XX:+DisableAttachMechanism line and re-number remainder lines appropriately
 ----
-
-=== Configuring Memory for the Solr Server
-
-[NOTE]
-====
-This section applies only to configurations that manage the lifecycle of the Solr server.
-It does not apply to Solr Cloud configurations.
-====
-The Solr server consumes large amount of memory when it ingests documents. If the Solr server
-runs out of memory, it terminates its process. To allocate more memory to the Solr server,
-increase the value of the <<{managing-prefix}managed_solr_properties,`solr.mem`>> property.

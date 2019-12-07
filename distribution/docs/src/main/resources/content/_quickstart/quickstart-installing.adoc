@@ -31,6 +31,16 @@ Follow the instructions outlined here: <<{managing-prefix}java_requirements, Jav
 Prior to installing ${branding}, ensure the system time is accurate to prevent federation issues.
 ====
 
+=== Quick Install of SolrCloud
+
+. Download a preconfigured Solr distribution http://artifacts.codice.org/service/local/repositories/releases/content/ddf/solr-distro/${ddf.version}/solr-distro-${ddf.version}-assembly.zip[zip file] {external-link}.
+. Unzip the Solr zip file.
+. Run `<solr_directory>/bin/solr -e cloud`.
+.. Press enter to default to 2 nodes.
+.. Enter 8994 for node 1 port.
+.. Enter 8995 for node 2 port.
+.. Press enter for all other prompts to accept defaults.
+
 === Quick Install of ${branding}
 
 . Download the ${branding} {download-url}[zip file] {external-link}.
@@ -54,6 +64,7 @@ Note: If and only if a JDK is installed, the jar command may be used; otherwise,
 . This will create an installation directory, which is typically created with the name and version of the application.
 This installation directory will be referred to as `${home_directory}`.
 (Substitute the actual directory name.)
+. Edit `${home_directory}/etc/custom.system.properties` and update `solr.cloud.zookeeper=localhost:2181` to `solr.cloud.zookeeper=localhost:9994`
 . Start ${branding} by running the `${home_directory}/bin/${branding-lowercase}` script (or `${branding-lowercase}.bat` on Windows).
 . Startup may take a few minutes.
 .. Optionally, a `system:wait-for-ready` command (aliased to `wfr`) can be used to wait for startup to complete.

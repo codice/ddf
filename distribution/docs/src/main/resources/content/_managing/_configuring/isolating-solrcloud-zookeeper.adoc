@@ -1,23 +1,21 @@
-:title: Isolating Solr Cloud and Zookeeper
+:title: Isolating SolrCloud and Zookeeper
 :type: subConfiguration
 :status: published
 :parent: Multiple Installations
-:summary: Isolating Solr Cloud and Zookeeper.
+:summary: Isolating SolrCloud and Zookeeper.
 :order: 01
 
 == {title}
 
-* *{hardening-step}* (if using Solr Cloud/Zookeeper)
+* *{hardening-step}* (if using SolrCloud/Zookeeper)
 
-Zookeeper cannot use secure (SSL/TLS) connection.
+Zookeeper clients cannot use secure (SSL/TLS) connections.
 The configuration information that Zookeeper sends and receives is vulnerable to network sniffing.
-Also, the connections between the local ${ddf-solr} service and the Solr Cloud is not necessarily secure.
-The connections between Solr Cloud nodes are not necessarily secure.
 Any unencrypted network traffic is vulnerable to sniffing attacks.
-To use Solr Cloud and Zookeeper securely, these processes must be isolated on the network, or their communications must be encrypted by other means.
+To use SolrCloud with Zookeeper securely, these processes must be isolated on the network, or their communications must be encrypted by other means.
 The ${branding} process must be visible on the network to allow authorized parties to interact with it.
 
 .Examples of Isolation:
-* Create a private network for Solr Cloud and Zookeeper. Only ${branding} is allowed to contact devices inside the private network.
-* Use IPsec to encrypt the connections between ${branding}, Solr Cloud nodes, and Zookeeper nodes.
-* Put ${branding}, Solr Cloud and Zookeeper behind a firewall that only allows access to ${branding}.
+* Create a private network for SolrCloud and Zookeeper. Only ${branding} is allowed to contact devices inside the private network.
+* Use IPsec to encrypt the connections between ${branding}, SolrCloud nodes, and Zookeeper nodes.
+* Put ${branding}, SolrCloud and Zookeeper behind a firewall that only allows access to ${branding}.

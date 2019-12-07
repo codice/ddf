@@ -25,5 +25,4 @@ To harden a new system, perform configuration as <<{managing-prefix}configuring,
 * [ ] <<{managing-prefix}removing_default_users,Remove Default Users>>
 * [ ] <<{managing-prefix}hardening_solr,Harden Solr>>
 * [ ] <<{managing-prefix}environment_hardening,Environment Hardening>>
-* [ ] <<{managing-prefix}isolating_solr_cloud_and_zookeeper,Isolate Solr Cloud and Zookeeper>>. (If using)
 

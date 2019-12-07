@@ -103,25 +103,6 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack-solr</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>ddf</groupId>
-                                    <artifactId>solr-distro</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>${setup.folder}</outputDirectory>
-                                    <type>zip</type>
-                                    <classifier>assembly</classifier>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>minimal-copy</id>
                         <phase>generate-resources</phase>
                         <goals>
@@ -421,13 +402,6 @@
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf</groupId>
-            <artifactId>solr-distro</artifactId>
-            <version>${project.version}</version>
-            <classifier>assembly</classifier>
-            <type>zip</type>
         </dependency>
         <dependency>
             <groupId>com.google.crypto.tink</groupId>
