@@ -11,74 +11,55 @@
 
 == {title}
 
-The Solr Catalog Provider is included with a standard installation of ${branding}. There are two configurations available:
+The Solr Catalog Provider is included with a standard installation of ${branding}.
 
-.[[_internal_solr]]Solr Server (default)::
-${branding} is bundled with a distribution
-of Apache Solr. This distribution includes special JAR libraries used by ${branding}.
-This ${branding} scripts manage the starting and stopping of the Solr server.
-Considerations include:
-
-* No configuration necessary. Simply start ${branding} and ${branding} manages starting and
-stopping the Solr server.
-* Backup can be performed using ${branding} console's `backup` command.
-* This configuration cannot be scaled larger than the single Solr server.
-* All data is located inside the {$branding} home directory. If the Solr index grows
-  large, the storage volume may run low on space.
-
-.Installing Solr Server
-No installation is required because ${branding} includes a distribution of Apache Solr.
-
-.Configuring Solr Server
-No configuration.
-
-.[[_solr_cloud]]Solr Cloud
-Solr Cloud is a cluster of distributed Solr servers used for high
-availability and scalability. If the ${branding} needs to be available with little or no downtime,
- then the Solr Cloud configuration should be used. The general considerations for selecting
-  this configuration are:
-
- * SolrCloud can scale to support over 2 billion indexed documents.
- * Has network overhead and requires additional protection to be secure.
- * Installation is more involved (requires Zookeeper)
- * Configuration and administration is more complex due to replication, sharding, etc.
- * No way to backup currently, but will automatically recover from system failure.
-
+.[[_solr_cloud]]SolrCloud
+SolrCloud is a cluster of distributed Solr servers used for high availability and scalability.
 Configuration shared between Solr Server instances is managed by Zookeeper.
-Zookeeper helps manage the overall structure.
 
-.Solr Cloud Deployment
+.SolrCloud Deployment
 [ditaa,solrcloud-diagram,png]
 ....
-  Container(JVM)         Solr Cloud
+  Container(JVM)         SolrCloud
  +=-----------------+   +=--------------------+
  |                  |   |                     |
  | /-----------\    |   | +---------+         |
- | |cDEF       |    |   | |Solr cFF0|         |
+ | |cDEF       |    |   | |Solr     |         |
  | | DDF       |    |   | +---------+         |
  | |           |    |   |                     |
  | |           |  http  |         +---------+ |
- | |           +------->|         |Solr cFF0| |
+ | |           +------->|         |Solr     | |
  | |           |    |   |         +---------+ |
  | |           |    |   |                     |
  | |           |    |   | +---------+         |
- | |           |    |   | |Solr cFF0|         |
- | \-----------/    |   | +---------+         |
- |                  |   |                     |
- +------------------+   +---------------------+
+ | |           |    |   | |Solr     |         |
+ | \---------+-/    |   | +---------+         |
+ |           |      |   |                     |
+ +---------+-+------+   +---------------------+
+             |tcp
+   Zookeeper V
+ +=--------------------+
+ |                     |
+ | +---------+         |
+ | |Zookeeper|         |
+ | +---------+         |
+ |                     |
+ |         +---------+ |
+ |         |Zookeeper| |
+ |         +---------+ |
+ |                     |
+ | +---------+         |
+ | |Zookeeper|         |
+ | +---------+         |
+ |                     |
+ +---------------------+
 ....
 
-[NOTE]
-====
-The instructions on setting up Solr Cloud for ${branding} only include setup in a *NIX environment.
-====
+.SolrCloud Prerequisites
 
-.Solr Cloud Prerequisites
-Before Solr Cloud can be installed:
-
-* ZooKeeper 3.4.5 (Refer to https://zookeeper.apache.org/doc/r3.1.2/zookeeperStarted.html#sc_Download for installation instructions.)
-* *NIX environment
-* JDK 8 or greater
+* https://lucene.apache.org/solr/downloads.html[Solr ${solr.version}] {external-link}
+* https://zookeeper.apache.org/releases.html#download[ZooKeeper ${solr.zookeeper.version}] {external-link}
+* JRE 8 or greater
 
 [NOTE]
 ====
@@ -86,26 +67,19 @@ A minimum of three Zookeeper nodes required.
 Three Zookeeper nodes are needed to form a quorum.
 A three Zookeeper ensemble allows for a single server to fail and the service will still be available.
 More Zookeeper nodes can be added to achieve greater fault tolerance. The total number of nodes must always be an odd number.
-See https://lucene.apache.org/solr/guide/7_4/setting-up-an-external-zookeeper-ensemble.html#SettingUpanExternalZooKeeperEnsemble-SettingupaZooKeeperEnsemble[
+See https://lucene.apache.org/solr/guide/${solr.docs.version}/setting-up-an-external-zookeeper-ensemble.html#SettingUpanExternalZooKeeperEnsemble-SettingupaZooKeeperEnsemble[
 Setting Up an External Zoo Keeper Ensemble] for more information.
 ====
 
-.Installing Solr Cloud
+.Installing SolrCloud
 
-Before starting the install procedure, download the extension jars. The jars are needed to support
-geospatial and xpath queries and need to be installed on every Solr server instance after the Solr
-Cloud installation instructions have been followed.
+Review and complete the following Zookeeper and Solr documentation:
 
-The JARs can be found here:
-
-.. http://artifacts.codice.org/content/groups/public/org/locationtech/jts/jts-core/1.15.0/jts-core-1.15.0.jar
-.. http://artifacts.codice.org/service/local/artifact/maven/content?r=public&g=ddf.platform.solr&a=solr-xpath&v=${ddf.version}
-
-Repeat the following procedure for each Solr server instance that will be part of the Solr Cloud cluster:
-
-. Refer to https://cwiki.apache.org/confluence/display/solr/Apache+Solr+Reference+Guide for installation instructions.
-. Copy `jts-core-1.15.0.jar` to: `<SOLR_INSTALL_DIR>/server/solr-webapp/webapp/WEB-INF/lib/`.
-. Copy `solr-xpath-${ddf.version}.jar` to: `<SOLR_INSTALL_DIR>/plugins/`.
+* https://lucene.apache.org/solr/guide/${solr.docs.version}/getting-started.html[Getting Started] {external-link}
+* https://zookeeper.apache.org/doc/r${solr.zookeeper.version}/zookeeperStarted.html[ZooKeeper Getting Started Guide] {external-link}
+* https://lucene.apache.org/solr/guide/${solr.docs.version}/setting-up-an-external-zookeeper-ensemble.html#SettingUpanExternalZooKeeperEnsemble-SettingupaZooKeeperEnsemble[Setting Up an External Zookeeper Ensemble] {external-link}
+* https://lucene.apache.org/solr/guide/${solr.docs.version}/taking-solr-to-production.html[Taking Solr to Production] {external-link}
+* https://lucene.apache.org/solr/guide/${solr.docs.version}/securing-solr.html[Securing Solr] {external-link}
 
 [NOTE]
 ====
@@ -114,14 +88,31 @@ Having two Solr server instances guarantees that at least one Solr server is ava
 The two shards enables the document mapping to be restored if one shard becomes unavailable.
 ====
 
-.Configuring Solr Cloud
+.Configuring SolrCloud
+
+The following jars are needed to support geospatial and XPath queries and need to be installed on every Solr server instance.
+The `jute.maxbuffer` property needs to be set on Zookeeper and SolrCloud nodes to support large dictionary files.
+
+The JARs can be downloaded from:
+
+.. http://artifacts.codice.org/content/groups/public/org/locationtech/jts/jts-core/${jts.spatial4j.version}/jts-core-${jts.spatial4j.version}.jar[jts-core-${jts.spatial4j.version}.jar] {external-link}
+.. http://artifacts.codice.org/service/local/repositories/releases/content/ddf/platform/solr/solr-xpath/${ddf.version}/solr-xpath-${ddf.version}.jar[solr-xpath-${ddf.version}.jar] {external-link}
+
+Repeat the following procedure for each Zookeeper and SolrCloud node instance:
+
+. Add `jute.maxbuffer=0x30D40` to `<ZOOKEEPER_INSTALL_DIR>/conf/zoo.cfg`.
+. Add `SOLR_OPTS="$SOLR_OPTS -Djute.maxbuffer=0x30D40"` to `<SOLR_INSTALL_DIR>/bin/solr.in.cmd`.
+. Copy `jts-core-${jts.spatial4j.version}.jar` to: `<SOLR_INSTALL_DIR>/server/solr-webapp/webapp/WEB-INF/lib/`.
+. Copy `solr-xpath-${ddf.version}.jar` to: `<SOLR_INSTALL_DIR>/plugins/`.
+
+.Configuring ${branding} for SolrCloud
 . On the ${branding} server, edit `${home_directory}/etc/custom.system.properties`:
 .. Comment out the Solr Client Configuration for *Http Solr Client* section.
 .. Uncomment the section for the *Cloud Solr Client*:
 .. Set `solr.cloud.zookeeper` to `<ZOOKEEPER_1_HOSTNAME>:<PORT_NUMBER>`, `<ZOOKEEPER_2_HOSTNAME>:<PORT_NUMBER>`, `<ZOOKEEPER_n_HOSTNAME>:<PORT_NUMBER>`
 .. Set `solr.data.dir` to the desired data directory.
 
-.Solr Cloud System Properties
+.SolrCloud System Properties
 ----
 solr.client = CloudSolrClient
 solr.data.dir = ${karaf.home}/data/solr

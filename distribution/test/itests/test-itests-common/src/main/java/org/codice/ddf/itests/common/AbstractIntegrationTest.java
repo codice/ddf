@@ -750,20 +750,13 @@ public abstract class AbstractIntegrationTest {
   private Option[] configureSolr() {
 
     return options(
-        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.client", "HttpSolrClient"),
-        editConfigurationFilePut(
-            SYSTEM_PROPERTIES_REL_PATH, "solr.http.url", "http://localhost:9784/solr"),
-        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.http.port", "9784"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.client", "CloudSolrClient"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.useBasicAuth", "true"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.username", "admin"),
         editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.password", "admin"),
         editConfigurationFilePut(
-            SYSTEM_PROPERTIES_REL_PATH, "solr.attemptAutoPasswordChange", "false"),
-        editConfigurationFilePut(
-            SYSTEM_PROPERTIES_REL_PATH,
-            "solr.data.dir",
-            new File("target/solr/server/solr").getAbsolutePath()),
-        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.zookeeper", ""));
+            SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.zookeeper", "localhost:10784"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_REL_PATH, "solr.cloud.maxShardPerNode", "4"));
   }
 
   /**

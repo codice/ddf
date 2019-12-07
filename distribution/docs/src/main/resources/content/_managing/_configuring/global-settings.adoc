@@ -442,7 +442,7 @@ Thumbs.db
 |HttpSolrClient
 |Yes
 
-6+^h|Solr Cloud Properties
+6+^h|SolrCloud Properties
 
 |Zookeeper Nodes
 |solr.cloud.zookeeper
@@ -513,13 +513,6 @@ and the `solrBasicAuth` property is `true`.
 |Boolean
 |If true, the HTTP Solr Client sends a username and password when sending requests to Solr server.
 This property is only used if the `solr.client` property is `HttpSolrClient`.
-|true
-|Yes
-
-|Start Solr server
-|start.solr
-|Boolean
-|If true, application manages Solr server lifecycle
 |true
 |Yes
 

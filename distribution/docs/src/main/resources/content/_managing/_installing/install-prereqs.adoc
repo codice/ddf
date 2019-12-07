@@ -13,12 +13,3 @@ For security reasons, ${branding} cannot be started from a user's home directory
 ====
 
 These are the system/environment requirements to configure _prior_ to an installation.
-
-[NOTE]
-====
-The ${branding} process or user under which the ${branding} process runs must have permission
-to create and write files in the directories where the Solr cores are installed,
-If this permission is missing,
-${branding} will not be able to create new Solr cores and the system will not function
-correctly.
-====

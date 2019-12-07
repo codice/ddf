@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.test.common.options;
 
-import static org.codice.ddf.test.common.options.SystemProperties.SYSTEM_PROPERTIES_FILE_PATH;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 
@@ -52,15 +51,12 @@ public class DistributionOptions extends BasicOptions {
                   KarafDistributionKitConfigurationOption.Platform.WINDOWS)
               .executable("bin\\ddf.bat")
               .filesToMakeExecutable(
-                  "bin\\ddfsolr.bat",
                   "bin\\karaf.bat",
                   "bin\\setenv.bat",
                   "bin\\start.bat",
                   "bin\\client.bat",
                   "bin\\shell.bat",
-                  "bin\\stop.bat",
-                  "solr\\bin\\solr",
-                  "bin\\solr.bat")
+                  "bin\\stop.bat")
               .unpackDirectory(UNPACK_DIRECTORY)
               .useDeployFolder(false);
     } else {
@@ -69,22 +65,11 @@ public class DistributionOptions extends BasicOptions {
                   mavenArtifactUrlReference, KarafDistributionKitConfigurationOption.Platform.NIX)
               .executable("bin/ddf")
               .filesToMakeExecutable(
-                  "bin/karaf",
-                  "bin/setenv",
-                  "bin/start",
-                  "bin/client",
-                  "bin/shell",
-                  "bin/stop",
-                  "bin/solr",
-                  "solr/bin/solr")
+                  "bin/karaf", "bin/setenv", "bin/start", "bin/client", "bin/shell", "bin/stop")
               .unpackDirectory(UNPACK_DIRECTORY)
               .useDeployFolder(false);
     }
-    return new DefaultCompositeOption(
-        distroOption,
-        mavenRepos(),
-        editConfigurationFilePut(
-            SYSTEM_PROPERTIES_FILE_PATH, "start.solr", Boolean.toString(startSolr)));
+    return new DefaultCompositeOption(distroOption, mavenRepos());
   }
 
   public static Option kernelDistributionOption() {

@@ -127,6 +127,7 @@ mvn fmt:format
 For additional information about building DDF, see [Building DDF](https://codice.atlassian.net/wiki/spaces/DDF/pages/70986756).
 
 ## How to Run
+* Start SolrCloud based on the README in <ddf_repo_src>/distribution/docker/solrcloud
 * Unzip the distribution. 
 * Run the executable at <distribution_home>/bin/ddf.bat or <distribution_home>/bin/ddf
 

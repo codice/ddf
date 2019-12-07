@@ -103,12 +103,6 @@ During ${branding} installation, the major directories and files shown in the ta
 |`licenses`
 |Licensing information related to the system.
 
-|`solr`
-|Apache Solr server used when ${branding} manages Solr
-
-|`solr/server/logs/solr.log`
-|Log file for Solr.
-
 |`system`
 |Local bundle repository. Contains all of the JARs required by ${branding}, including third-party JARs.
 

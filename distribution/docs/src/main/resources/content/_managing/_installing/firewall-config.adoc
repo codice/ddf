@@ -28,10 +28,6 @@ Firewalls will need to be configured to open these ports in order for external s
 |44444
 |RMI Server Port
 
-|8994
-|Solr Server Port. ${branding} does not listen on this port, but the Solr process does and it
-must be able to receive requests from ${branding} on this port.
-
 |===
 
 

@@ -14,19 +14,7 @@ HOME_DIR=$(cd "${SCRIPTDIR}/.."; pwd -P)
 # Useful files
 PROPERTIES_FILE=$HOME_DIR/etc/custom.system.properties
 RESTART_FILE="$SCRIPTDIR/restart.jvm"
-SOLR_EXEC=${SCRIPTDIR}/ddfsolr
 GET=${SCRIPTDIR}/get_property
-
-# Flags
-START_KARAF="false"
-START_SOLR="false"
-
-refresh_properties() {
-    # Extract values from Java properties file
-    START_KARAF=$($GET "start.ddf")
-    START_SOLR=$($GET "start.solr")
-}
-
 
 # Return 0 (success/true) if a restart.jvm file was created to request a restart
 is_restarting() {
@@ -42,15 +30,6 @@ clear_restart_flag() {
   rm -f $RESTART_FILE
 }
 
-# Return 0 (success/true) if this script should start and stop Solr
-managing_solr() {
-    local RC=1
-    if [ "$START_SOLR" = "true" ]; then
-        RC=0
-    fi
-    return $RC
-}
-
 shutdown_no_java_home_or_jre_home() {
     # Shutdown if JAVA_HOME and JRE_HOME is not set
     if [ -z $JAVA_HOME ] && [ -z $JRE_HOME ]; then
@@ -60,24 +39,12 @@ shutdown_no_java_home_or_jre_home() {
 }
 
 attempt_startup() {
-    if managing_solr; then
-        echo "Checking for running Solr instance..."
-        $SOLR_EXEC stop
-        $SOLR_EXEC start
-    fi
-
-    if [ "$START_KARAF" = "true" ]; then
-        # Process suspended while Karaf is running
-        ${SCRIPTDIR}/karaf ${ALL_ARGUMENTS}
-        KARAF_EXEC_RC=$?
-    fi
+    # Process suspended while Karaf is running
+    ${SCRIPTDIR}/karaf ${ALL_ARGUMENTS}
+    KARAF_EXEC_RC=$?
 }
 
 attempt_shutdown() {
-    if managing_solr; then
-        $SOLR_EXEC stop
-    fi
-
     if is_restarting; then
         echo "Restarting processes..."
     else
@@ -87,7 +54,6 @@ attempt_shutdown() {
 
 while true; do
     clear_restart_flag
-    refresh_properties
     shutdown_no_java_home_or_jre_home
     attempt_startup
     attempt_shutdown

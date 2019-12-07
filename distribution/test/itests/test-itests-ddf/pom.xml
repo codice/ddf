@@ -26,6 +26,7 @@
             ${project.build.directory}/solr/bin/
         </solr.script.dir>
         <solr.port>9784</solr.port>
+        <zookeeper.port>10784</zookeeper.port>
         <acdebugger.enabled>true</acdebugger.enabled>
         <acdebugger.port>5505</acdebugger.port>
     </properties>
@@ -445,6 +446,7 @@
                             </executable>
                             <arguments>
                                 <argument>start</argument>
+                                <argument>-c</argument>
                                 <argument>-p</argument>
                                 <argument>${solr.port}</argument>
                                 <argument>-m</argument>
