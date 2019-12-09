@@ -132,8 +132,6 @@ const padComponent = (numString = '') => {
       numString = numString.replace('_', '')
       numString = '0' + numString
     }
-    // numString = numString.replace('_', '')
-    // numString = numString.includes('.') ? numString + "0" : "0" + numString
   }
   return numString
 }

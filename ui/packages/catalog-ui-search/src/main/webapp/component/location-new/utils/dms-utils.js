@@ -15,6 +15,7 @@
 const wkx = require('wkx')
 const { computeCircle, toKilometers } = require('./geo-helper')
 const errorMessages = require('./errors')
+
 const dmsRegex = new RegExp('^([0-9]*)°([0-9]*)\'([0-9]*\\.?[0-9]*)"$')
 const minimumDifference = 0.0001
 
