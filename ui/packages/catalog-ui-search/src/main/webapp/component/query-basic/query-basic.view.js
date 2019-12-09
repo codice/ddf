@@ -439,7 +439,7 @@ module.exports = Marionette.LayoutView.extend({
   getErrorMessages() {
     return this.basicSettings.currentView
       .getErrorMessages()
-      .concat(getFilterErrors(this.constructFilter()))
+      .concat(getFilterErrors(this.constructFilter().filters))
   },
   constructFilter() {
     const filters = []
