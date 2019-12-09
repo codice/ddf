@@ -3,7 +3,7 @@
 :status: published
 :parent: Using ${catalog-ui}
 :summary: Configuring User preferences and settings
-:order: 09
+:order: 10
 
 == {title}
 

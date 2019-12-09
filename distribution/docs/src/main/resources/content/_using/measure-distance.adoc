@@ -1,0 +1,20 @@
+:title: Measure Distance
+:type: subUsing
+:status: published
+:parent: Map Context Menu
+:summary: Measure the distance between two points
+:order: 01
+
+== {title}
+
+Select two points on the map and measure the distance between them.
+
+. Right click on the start point location,
+then select *Measure Distance* and *Select start point*.
+. Right click on the end point location,
+then select *Measure Distance* and *Select end point*.
+. The distance is announced as soon as the end point is selected.
+Select *Copy current distance* to view and copy the distance.
+. Select *Clear all coordinates* to clear the points and line.
+
+image::measure-distance.png[Measure Distance]
