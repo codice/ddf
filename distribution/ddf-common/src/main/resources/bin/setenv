@@ -44,7 +44,11 @@ LINUX="Linux"
 
 if [ "$OS" != "${OS%$LINUX*}" ]; then
    if [ -e /dev/urandom ]; then
-      EXTRA_JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom"
+      if [ -z "$EXTRA_JAVA_OPTS" ]; then
+         EXTRA_JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom"
+      else
+         EXTRA_JAVA_OPTS="$EXTRA_JAVA_OPTS -Djava.security.egd=file:/dev/./urandom"
+      fi
    fi
 fi
 
