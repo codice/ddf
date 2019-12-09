@@ -102,8 +102,8 @@ public class ReindexCommandTest extends SolrCommandTest {
     command.setSolrjClient(cloudClient);
     command.setMetacardClient(solrMetacardClient);
     command.setNumThread(1);
-    command.setSourceCollection("catalog");
-    command.setSourceSolrHost("http://localhost:8994/solr");
+    command.setCollection("catalog");
+    command.setSolrHost("http://localhost:8994/solr");
     command.setCatalogFramework(catalogFramework);
     command.setSecurity(security);
     command.execute();

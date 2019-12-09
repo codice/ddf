@@ -93,20 +93,20 @@ public class ReindexCommand extends SolrCommands {
 
   @Option(
     name = "-s",
-    aliases = {"--source"},
+    aliases = {"--solr"},
     description =
         "The source Solr system to retrieve data. Should be in the form of http://host:port.",
     required = true
   )
-  private String sourceSolrHost;
+  private String solrHost;
 
   @Option(
     name = "-c",
-    aliases = {"--sourceCollection"},
+    aliases = {"--collection"},
     description = "The source collection (or alias) to migrate data from.",
     required = true
   )
-  private String sourceCollection;
+  private String collection;
 
   @Option(
     name = "-f",
@@ -115,7 +115,7 @@ public class ReindexCommand extends SolrCommands {
         "Field used for date comparisons. Default (Date of indexing): metacard.created_tdt",
     required = false
   )
-  private String field = "metacard.created_tdt";
+  private String field = "metacard.modified_tdt";
 
   @Option(
     name = "-a",
@@ -136,12 +136,12 @@ public class ReindexCommand extends SolrCommands {
   private String beforeDate;
 
   @Option(
-    name = "-p",
-    aliases = {"--practice"},
+    name = "-d",
+    aliases = {"--dryrun"},
     description = "Display the query that would run and exit. No data will be migrated",
     required = false
   )
-  private boolean practice = false;
+  private boolean dryrun = false;
 
   @Option(
     name = "-t",
@@ -154,17 +154,17 @@ public class ReindexCommand extends SolrCommands {
 
   @Override
   public Object execute() throws Exception {
-    if (StringUtils.isEmpty(sourceSolrHost) || StringUtils.isEmpty(sourceCollection)) {
+    if (StringUtils.isEmpty(solrHost) || StringUtils.isEmpty(collection)) {
       throw new IllegalArgumentException(
           "Source Solr Host and Source Collection need to be provided");
     }
-    if (practice) {
+    if (dryrun) {
       printInfoMessage("Solr Query: " + getQuery());
       return null;
     }
 
     if (solrjClient == null) {
-      solrjClient = clientFactory.newClient(sourceCollection);
+      solrjClient = clientFactory.newClient(collection);
     }
 
     try {
@@ -212,13 +212,13 @@ public class ReindexCommand extends SolrCommands {
   }
 
   @VisibleForTesting
-  protected void setSourceSolrHost(String sourceSolrHost) {
-    this.sourceSolrHost = sourceSolrHost;
+  protected void setSolrHost(String solrHost) {
+    this.solrHost = solrHost;
   }
 
   @VisibleForTesting
-  protected void setSourceCollection(String sourceCollection) {
-    this.sourceCollection = sourceCollection;
+  protected void setCollection(String collection) {
+    this.collection = collection;
   }
 
   @VisibleForTesting
@@ -366,9 +366,13 @@ public class ReindexCommand extends SolrCommands {
 
     SortClause sort = new SortClause("metacard.created_tdt", ORDER.desc);
     query.setSort(sort);
+    /**
+     * Primary sort of dates might not guarantee the sort order, as many record could have the same
+     * created date. Adding a secondary sort by ID to ensure consistency.
+     */
     query.addSort(new SortClause("id_txt", ORDER.desc));
     query.setParam(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark);
-    query.setRows(Math.max(PAGE_SIZE, WRITE_TXN_SIZE));
+    query.setRows(PAGE_SIZE);
     return query;
   }
 
@@ -415,7 +419,7 @@ public class ReindexCommand extends SolrCommands {
 
         if (CollectionUtils.isEmpty(data)) {
           running = false;
-          LOGGER.trace("No more data to be retrieved from: {}", sourceSolrHost);
+          LOGGER.trace("No more data to be retrieved from: {}", solrHost);
         }
 
         if (!running) {
