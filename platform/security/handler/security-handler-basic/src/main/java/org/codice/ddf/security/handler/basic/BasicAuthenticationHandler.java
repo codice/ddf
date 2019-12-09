@@ -22,11 +22,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.authc.AuthenticationToken;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
+import org.codice.ddf.security.handler.api.AuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.STSAuthenticationToken;
-import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,10 +40,10 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(BasicAuthenticationHandler.class);
 
-  private final STSAuthenticationTokenFactory tokenFactory;
+  private final AuthenticationTokenFactory tokenFactory;
 
   public BasicAuthenticationHandler() {
-    tokenFactory = new STSAuthenticationTokenFactory();
+    tokenFactory = new AuthenticationTokenFactory();
     LOGGER.debug("Creating basic username/token bst handler.");
   }
 
@@ -78,7 +78,7 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
 
     LOGGER.debug("Doing authentication and authorization for path {}", path);
 
-    STSAuthenticationToken token = extractAuthenticationInfo(httpRequest);
+    AuthenticationToken token = extractAuthenticationInfo(httpRequest);
 
     // we found credentials, attach to result and return with completed status
     if (token != null) {
@@ -119,7 +119,7 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
     }
   }
 
-  protected STSAuthenticationToken extractAuthenticationInfo(HttpServletRequest request) {
+  protected AuthenticationToken extractAuthenticationInfo(HttpServletRequest request) {
     String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
     if (StringUtils.isEmpty(authHeader)) {
       return null;
@@ -135,8 +135,8 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
    * @return the initialized STSAuthenticationToken for this username and password combination (or
    *     null)
    */
-  protected STSAuthenticationToken extractAuthInfo(String authHeader, String ip) {
-    STSAuthenticationToken token = null;
+  protected AuthenticationToken extractAuthInfo(String authHeader, String ip) {
+    AuthenticationToken token = null;
     authHeader = authHeader.trim();
     String[] parts = authHeader.split(" ");
     if (parts.length == 2) {

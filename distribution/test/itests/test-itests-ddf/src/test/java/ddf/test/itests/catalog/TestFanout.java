@@ -61,9 +61,6 @@ public class TestFanout extends AbstractIntegrationTest {
   @BeforeExam
   public void beforeExam() throws Exception {
     try {
-      oldPolicyManagerProps =
-          getSecurityPolicy().configureWebContextPolicy("/=IDP|GUEST", null, null);
-
       getCatalogBundle().setFanout(true);
       getCatalogBundle().waitForCatalogProvider();
       LOGGER.info("Source status: \n{}", get(REST_PATH.getUrl() + "sources").body().prettyPrint());

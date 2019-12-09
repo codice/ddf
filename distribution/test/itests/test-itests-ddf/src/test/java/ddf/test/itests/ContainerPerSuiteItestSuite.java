@@ -24,7 +24,6 @@ import ddf.test.itests.catalog.TestSpatial;
 import ddf.test.itests.platform.TestOidc;
 import ddf.test.itests.platform.TestPlatform;
 import ddf.test.itests.platform.TestSecurity;
-import ddf.test.itests.platform.TestSingleSignOn;
 import ddf.test.itests.platform.TestSolrCommands;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -41,7 +40,6 @@ import org.junit.runners.Suite;
   TestSpatial.class,
   TestCatalogValidation.class,
   TestCatalog.class,
-  TestSingleSignOn.class,
   TestSolrCommands.class,
   TestSecurity.class,
   TestOidc.class,

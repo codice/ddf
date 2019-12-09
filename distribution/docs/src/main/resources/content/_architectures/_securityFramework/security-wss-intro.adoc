@@ -2,7 +2,7 @@
 :type: securityFramework
 :status: published
 :parent: Security Framework
-:children: Securing REST, Securing SOAP
+:children: Securing REST
 :order: 05
 :summary: Web Service Security architecture.
 

@@ -96,13 +96,13 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-ldapclaimshandler</artifactId>
+            <groupId>ddf.security.claims</groupId>
+            <artifactId>security-claims-ldap</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security.sts</groupId>
-            <artifactId>security-sts-attributequerycommon</artifactId>
+            <groupId>ddf.security.claims</groupId>
+            <artifactId>security-claims-attributequerycommon</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

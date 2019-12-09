@@ -16,14 +16,16 @@ package ddf.security.assertion.impl;
 import ddf.security.assertion.Attribute;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AttributeDefault implements Attribute {
   private String name;
 
   private String nameFormat;
 
-  private List<String> values = new ArrayList<>();
+  private Set<String> values = new HashSet<>();
 
   @Override
   public String getName() {
@@ -47,12 +49,13 @@ public class AttributeDefault implements Attribute {
 
   @Override
   public List<String> getValues() {
-    return Collections.unmodifiableList(values);
+    return Collections.unmodifiableList(new ArrayList<>(values));
   }
 
   @Override
   public void setValues(List<String> values) {
-    this.values = values;
+    this.values.clear();
+    this.values.addAll(values);
   }
 
   @Override

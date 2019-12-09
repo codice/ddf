@@ -195,6 +195,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
   private RequestSpecification asGuest() throws Exception {
     Map<String, Object> policyManagerProps = getSecurityPolicy().configureRestForGuest();
+    getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
     if (originalPolicyManagerProps == null) {
       originalPolicyManagerProps = policyManagerProps;
     }
@@ -208,6 +209,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
   private RequestSpecification asUser(String username, String password) throws Exception {
     Map<String, Object> policyManagerProps = getSecurityPolicy().configureRestForBasic();
+    getSecurityPolicy().waitForBasicAuthReady(SERVICE_ROOT.getUrl());
     if (originalPolicyManagerProps == null) {
       originalPolicyManagerProps = policyManagerProps;
     }
@@ -223,6 +225,7 @@ public class TestCatalogSearchUi extends AbstractIntegrationTest {
 
   private RequestSpecification asAdmin() throws Exception {
     Map<String, Object> policyManagerProps = getSecurityPolicy().configureRestForBasic();
+    getSecurityPolicy().waitForBasicAuthReady(SERVICE_ROOT.getUrl());
     if (originalPolicyManagerProps == null) {
       originalPolicyManagerProps = policyManagerProps;
     }

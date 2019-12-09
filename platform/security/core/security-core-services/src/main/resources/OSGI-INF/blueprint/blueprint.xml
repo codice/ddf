@@ -86,9 +86,4 @@
     <service id="subjectIdentity" ref="subjectIdentityImpl"
              interface="ddf.security.SubjectIdentity"/>
 
-    <bean id="proxyServiceFactoryFactory" class="ddf.security.soap.impl.SecureProxyServiceFactoryFactoryImpl"/>
-
-    <service id="proxyServiceFactoryFactoryService" ref="proxyServiceFactoryFactory"
-             interface="ddf.security.ws.proxy.ProxyServiceFactoryFactory"/>
-
 </blueprint>

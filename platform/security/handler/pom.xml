@@ -46,5 +46,6 @@
         <module>security-handler-pki</module>
         <module>security-handler-oauth</module>
         <module>security-handler-oidc</module>
+        <module>security-handler-saml</module>
     </modules>
 </project>

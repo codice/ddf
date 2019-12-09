@@ -11,13 +11,11 @@ These services comprise both a framework that developers and integrators can ext
 
 This section documents the installation, maintenance, and support of this application.
 
-.Applications Included in ${ddf-security}
+.Features Included in ${ddf-security}
 * Security Core
 * Security Encryption
-* Security IdP
 * Security PEP
 * Security PDP
-* Security STS
 
 ===  ${ddf-security} Prerequisites
 

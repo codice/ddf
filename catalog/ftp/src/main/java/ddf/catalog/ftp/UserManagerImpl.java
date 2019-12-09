@@ -32,8 +32,9 @@ import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
 import org.apache.ftpserver.usermanager.impl.ConcurrentLoginPermission;
 import org.apache.ftpserver.usermanager.impl.TransferRatePermission;
 import org.apache.ftpserver.usermanager.impl.WritePermission;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.codice.ddf.security.handler.api.AuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.STSAuthenticationTokenFactory;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,14 +97,14 @@ public class UserManagerImpl implements UserManager {
    * @throws AuthenticationFailedException upon unsuccessful authorization
    */
   public User authenticate(Authentication authentication) throws AuthenticationFailedException {
-    BaseAuthenticationToken authenticationToken;
+    AuthenticationToken authenticationToken;
     String username;
     User user;
 
     if (authentication instanceof UsernamePasswordAuthentication) {
       username = ((UsernamePasswordAuthentication) authentication).getUsername();
       authenticationToken =
-          new STSAuthenticationTokenFactory()
+          new AuthenticationTokenFactory()
               .fromUsernamePassword(
                   username,
                   ((UsernamePasswordAuthentication) authentication).getPassword(),
@@ -111,7 +112,10 @@ public class UserManagerImpl implements UserManager {
                       .getUserMetadata()
                       .getInetAddress()
                       .getHostAddress());
-      authenticationToken.setAllowGuest(contextPolicyManager.getGuestAccess());
+      if (authenticationToken instanceof BaseAuthenticationToken) {
+        ((BaseAuthenticationToken) authenticationToken)
+            .setAllowGuest(contextPolicyManager.getGuestAccess());
+      }
 
       try {
         Subject subject = securityManager.getSubject(authenticationToken);

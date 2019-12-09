@@ -19,7 +19,6 @@ import com.google.common.hash.Hashing;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
-import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
 import ddf.security.common.SecurityTokenHolder;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.http.SessionFactory;
@@ -47,8 +46,6 @@ import org.codice.ddf.platform.filter.SecurityFilter;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
-import org.codice.ddf.security.handler.api.SessionToken;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
@@ -115,8 +112,9 @@ public class LoginFilter implements SecurityFilter {
     // grab token from httpRequest
     BaseAuthenticationToken token;
     Object ddfAuthToken = httpRequest.getAttribute(AUTHENTICATION_TOKEN_KEY);
-    if (ddfAuthToken instanceof HandlerResult) {
-      token = ((HandlerResult) ddfAuthToken).getToken();
+    if (ddfAuthToken instanceof HandlerResult
+        && ((HandlerResult) ddfAuthToken).getToken() instanceof BaseAuthenticationToken) {
+      token = (BaseAuthenticationToken) ((HandlerResult) ddfAuthToken).getToken();
     } else {
       LOGGER.debug("Could not attach subject to http request.");
       return;
@@ -125,9 +123,6 @@ public class LoginFilter implements SecurityFilter {
     token.setX509Certs(
         (X509Certificate[]) httpRequest.getAttribute("javax.servlet.request.X509Certificate"));
     token.setRequestURI(httpRequest.getRequestURI());
-
-    // TODO - temporary method call should be removed once the STS is removed
-    token = checkSessionTokenExpiration(token);
 
     // get subject from the token
     Subject subject;
@@ -185,29 +180,6 @@ public class LoginFilter implements SecurityFilter {
           }
           return null;
         });
-  }
-
-  // TODO - temporary method should be removed once the STS is removed
-  private BaseAuthenticationToken checkSessionTokenExpiration(BaseAuthenticationToken token) {
-    if (token instanceof SessionToken) {
-      Collection<SecurityAssertion> securityAssertions =
-          ((PrincipalCollection) token.getCredentials()).byType(SecurityAssertion.class);
-      SecurityAssertionSaml securityAssertionSaml =
-          (SecurityAssertionSaml)
-              securityAssertions
-                  .stream()
-                  .filter(sa -> SecurityAssertionSaml.SAML2_TOKEN_TYPE.equals(sa.getTokenType()))
-                  .findFirst()
-                  .orElse(null);
-      if (securityAssertionSaml != null) {
-        SAMLAuthenticationToken authToken =
-            new SAMLAuthenticationToken(
-                null, (PrincipalCollection) token.getCredentials(), token.getIpAddress());
-        authToken.setAllowGuest(token.getAllowGuest());
-        return authToken;
-      }
-    }
-    return token;
   }
 
   /**

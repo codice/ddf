@@ -11,5 +11,4 @@ The <<{architecture-prefix}pre_ingest_plugins,Pre-Ingest Plugins>> are responsib
 
 * The <<{architecture-prefix}expiration_date_pre_ingest_plugin,Expiration Date Pre-Ingest Plugin>> adds or updates expiration dates which can be used later for archiving old data.
 * The <<{architecture-prefix}geocoder_plugin,Geocoder Plugin>> is responsible for populating the metacard’s `Location.COUNTRY_CODE` attribute if the metacard has an associated location. If the metacard’s country code is already populated, the plugin will not override it.
-* The <<{architecture-prefix}identification_plugin,Identification Plugin>> assigns IDs to registry metacards and adds/updates IDs on create and update.
 * The <<{architecture-prefix}metacard_groomer,Metacard Groomer>> plugin adds/updates IDs and timestamps to the created metacard.

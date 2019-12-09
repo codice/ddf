@@ -55,7 +55,7 @@ If the location is left blank, the default base LDIF file will be used that come
 
 === Connecting to Standalone LDAP Servers
 
-${branding} instances can connect to external LDAP servers by installing and configuring the `security-sts-ldaplogin` and `security-sts-ldapclaimshandler` features detailed here.
+${branding} instances can connect to external LDAP servers by installing and configuring the `security-jaas-ldap` and `security-claims-ldap` features detailed here.
 
 In order to connect to more than one LDAP server, configure these features for each LDAP server.
 

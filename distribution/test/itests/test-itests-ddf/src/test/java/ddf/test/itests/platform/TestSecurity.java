@@ -16,7 +16,6 @@ package ddf.test.itests.platform;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
-import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.awaitility.Awaitility.await;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.TRANSFORMER_XML;
@@ -44,7 +43,6 @@ import static org.junit.Assert.assertTrue;
 
 import com.jayway.restassured.path.json.JsonPath;
 import ddf.catalog.data.Metacard;
-import ddf.security.SecurityConstants;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -52,16 +50,12 @@ import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
@@ -73,18 +67,15 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
 import org.codice.ddf.itests.common.opensearch.OpenSearchFeature;
-import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.AfterExam;
 import org.codice.ddf.test.common.annotations.BeforeExam;
-import org.hamcrest.xml.HasXPath;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -114,7 +105,7 @@ public class TestSecurity extends AbstractIntegrationTest {
           "org.codice.ddf.admin.config.policy.AdminConfigPolicy");
 
   protected static final List<String> FEATURES_TO_FILTER =
-      Arrays.asList("catalog-security-plugin", "security-sts-propertyclaimshandler");
+      Arrays.asList("catalog-security-plugin", "security-claims-property");
 
   protected static final String ADD_SDK_APP_JOLOKIA_REQ =
       "{\"type\":\"EXEC\",\"mbean\":\"org.codice.ddf.admin.application.service.ApplicationService:service=application-service\",\"operation\":\"addApplications\",\"arguments\":[[{\"value\":\"mvn:ddf.distribution/sdk-app/"
@@ -162,8 +153,6 @@ public class TestSecurity extends AbstractIntegrationTest {
           + "        </wst:RequestSecurityToken>\n"
           + "    </soap:Body>\n"
           + "</soap:Envelope>";
-
-  private static final String SDK_SOAP_CONTEXT = "/services/sdk";
 
   /** ************* USERS *************** */
   private static final String USER_PASSWORD = "password1";
@@ -408,7 +397,7 @@ public class TestSecurity extends AbstractIntegrationTest {
   public void testGuestRestAccess() throws Exception {
     String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
-    configureRestForGuest(SDK_SOAP_CONTEXT);
+    configureRestForGuest(SERVICE_ROOT.getUrl());
 
     waitForSecurityHandlers(url);
 
@@ -453,7 +442,7 @@ public class TestSecurity extends AbstractIntegrationTest {
   public void testBasicRestAccess() throws Exception {
     String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
-    configureRestForBasic(SDK_SOAP_CONTEXT);
+    configureRestForBasic(SERVICE_ROOT.getUrl());
 
     waitForSecurityHandlers(url);
 
@@ -512,7 +501,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .assertThat()
         .statusCode(equalTo(200));
 
-    configureRestForGuest(SDK_SOAP_CONTEXT);
+    configureRestForGuest(SERVICE_ROOT.getUrl());
     getSecurityPolicy().waitForGuestAuthReady(url);
   }
 
@@ -633,7 +622,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
   @Test
   public void testSamlFederatedAuth() throws Exception {
-    configureRestForGuest(SDK_SOAP_CONTEXT);
+    configureRestForGuest(SERVICE_ROOT.getUrl());
     getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
     String recordId =
         ingest(
@@ -682,13 +671,13 @@ public class TestSecurity extends AbstractIntegrationTest {
     String unavailableCswPid = null;
     String unavailableOpenSearchPid = null;
 
-    configureRestForGuest(SDK_SOAP_CONTEXT);
+    configureRestForGuest(SERVICE_ROOT.getUrl());
     getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
 
     String recordId =
         ingest(
             getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
-    configureRestForBasic(SDK_SOAP_CONTEXT);
+    configureRestForBasic(SERVICE_ROOT.getUrl());
 
     // Positive tests
     Map<String, Object> openSearchProperties =
@@ -805,7 +794,7 @@ public class TestSecurity extends AbstractIntegrationTest {
                           + Metacard.TITLE
                           + "']/value[text()='myTitle']")));
 
-      configureRestForGuest(SDK_SOAP_CONTEXT);
+      configureRestForGuest(SERVICE_ROOT.getUrl());
       getSecurityPolicy().waitForGuestAuthReady(openSearchQuery);
       delete(recordId);
     } finally {
@@ -822,475 +811,6 @@ public class TestSecurity extends AbstractIntegrationTest {
         getServiceManager().stopManagedService(unavailableOpenSearchPid);
       }
     }
-  }
-
-  @Test
-  public void testGuestSoapAccess() throws Exception {
-    String body =
-        "<soapenv:Envelope xmlns:hel=\"http://ddf.sdk/soap/hello\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
-            + "   <soapenv:Header>\n"
-            + "   </soapenv:Header>\n"
-            + "   <soapenv:Body>\n"
-            + "      <hel:helloWorld/>\n"
-            + "   </soapenv:Body>\n"
-            + "</soapenv:Envelope>";
-    // we are only testing guest because that hits the most code, testing with an assertion would be
-    // mostly testing the same stuff that this is hitting
-    given()
-        .log()
-        .ifValidationFails()
-        .body(body)
-        .header("Content-Type", "text/xml; charset=utf-8")
-        .header("SOAPAction", "helloWorld")
-        .expect()
-        .statusCode(equalTo(200))
-        .when()
-        .post(SERVICE_ROOT.getUrl() + "/sdk/SoapService")
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .body(
-            HasXPath.hasXPath(
-                "//*[local-name()='helloWorldResponse']/result/text()", containsString("Guest")));
-  }
-
-  @Test
-  public void testGuestSoapAccessHttp() throws Exception {
-    getServiceManager().startFeature(true, "platform-http-proxy");
-
-    try {
-      String body =
-          "<soapenv:Envelope xmlns:hel=\"http://ddf.sdk/soap/hello\" xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
-              + "   <soapenv:Header>\n"
-              + "   </soapenv:Header>\n"
-              + "   <soapenv:Body>\n"
-              + "      <hel:helloWorld/>\n"
-              + "   </soapenv:Body>\n"
-              + "</soapenv:Envelope>";
-      // we are only testing guest because that hits the most code, testing with an assertion would
-      // be
-      // mostly testing the same stuff that this is hitting
-      given()
-          .log()
-          .ifValidationFails()
-          .body(body)
-          .header("Content-Type", "text/xml; charset=utf-8")
-          .header("SOAPAction", "helloWorld")
-          .expect()
-          .statusCode(equalTo(200))
-          .when()
-          .post(INSECURE_SERVICE_ROOT.getUrl() + "/sdk/SoapService")
-          .then()
-          .log()
-          .ifValidationFails()
-          .assertThat()
-          .body(
-              HasXPath.hasXPath(
-                  "//*[local-name()='helloWorldResponse']/result/text()", containsString("Guest")));
-    } finally {
-      getServiceManager().stopFeature(false, "platform-http-proxy");
-    }
-  }
-
-  /* These STS tests are here to prove out functionality that doesn't get hit when accessing internal services. The standard UsernameToken and BinarySecurityToken elements are supported
-   * by DDF, but not used internally. These elements need to be checked for functionality independently since going through our REST security framework won't touch these validators. */
-
-  @Test
-  public void testUsernameTokenSTS() throws Exception {
-    String onBehalfOf =
-        "<wst:OnBehalfOf>"
-            + "                    <wsse:UsernameToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">\n"
-            + "                        <wsse:Username>admin</wsse:Username>\n"
-            + "                        <wsse:Password Type=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText\">admin</wsse:Password>\n"
-            + "                   </wsse:UsernameToken>\n"
-            + "                </wst:OnBehalfOf>\n";
-    String body = getSoapEnvelope(onBehalfOf);
-
-    given()
-        .auth()
-        .certificate(
-            KEY_STORE_PATH,
-            PASSWORD,
-            certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
-        .log()
-        .ifValidationFails()
-        .body(body)
-        .header("Content-Type", "text/xml; charset=utf-8")
-        .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-        .expect()
-        .statusCode(equalTo(200))
-        .when()
-        .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
-  }
-
-  @Test
-  public void testBadUsernameTokenSTS() throws Exception {
-    String onBehalfOf =
-        "<wst:OnBehalfOf>"
-            + "                    <wsse:UsernameToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">\n"
-            + "                        <wsse:Username>admin</wsse:Username>\n"
-            + "                        <wsse:Password Type=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText\">blah</wsse:Password>\n"
-            + "                   </wsse:UsernameToken>\n"
-            + "                </wst:OnBehalfOf>\n";
-    String body = getSoapEnvelope(onBehalfOf);
-
-    given()
-        .auth()
-        .certificate(
-            KEY_STORE_PATH,
-            PASSWORD,
-            certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
-        .log()
-        .ifValidationFails()
-        .body(body)
-        .header("Content-Type", "text/xml; charset=utf-8")
-        .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-        .expect()
-        .statusCode(equalTo(500))
-        .when()
-        .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
-        .then()
-        .log()
-        .ifValidationFails();
-  }
-
-  @Test
-  public void testBadX509TokenSTS() throws Exception {
-    String onBehalfOf =
-        "<wst:OnBehalfOf>\n"
-            + "                    <wsse:BinarySecurityToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3\" >\n"
-            + BAD_X509_TOKEN
-            + "                   </wsse:BinarySecurityToken>\n"
-            + "                </wst:OnBehalfOf>\n";
-    String body = getSoapEnvelope(onBehalfOf);
-
-    given()
-        .auth()
-        .certificate(
-            KEY_STORE_PATH,
-            PASSWORD,
-            certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
-        .log()
-        .ifValidationFails()
-        .body(body)
-        .header("Content-Type", "text/xml; charset=utf-8")
-        .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-        .expect()
-        .statusCode(equalTo(500))
-        .when()
-        .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
-        .then()
-        .log()
-        .ifValidationFails();
-  }
-
-  @Test
-  public void testX509TokenSTS() throws Exception {
-    String onBehalfOf =
-        "<wst:OnBehalfOf>\n"
-            + "<wsse:BinarySecurityToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" "
-            + "EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" "
-            + "ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3\" >"
-            + GOOD_X509_TOKEN
-            + "</wsse:BinarySecurityToken>\n"
-            + "</wst:OnBehalfOf>\n";
-    String body = getSoapEnvelope(onBehalfOf);
-
-    given()
-        .auth()
-        .certificate(
-            KEY_STORE_PATH,
-            PASSWORD,
-            certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
-        .log()
-        .ifValidationFails()
-        .body(body)
-        .header("Content-Type", "text/xml; charset=utf-8")
-        .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-        .expect()
-        .statusCode(equalTo(200))
-        .when()
-        .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
-  }
-
-  @Test
-  public void testX509PathSTS() throws Exception {
-    String onBehalfOf =
-        "<wst:OnBehalfOf>\n"
-            + "<wsse:BinarySecurityToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" "
-            + "EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" "
-            + "ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1\" >"
-            + GOOD_X509_PATH_TOKEN
-            + "</wsse:BinarySecurityToken>\n"
-            + "</wst:OnBehalfOf>\n";
-    String body = getSoapEnvelope(onBehalfOf);
-
-    given()
-        .auth()
-        .certificate(
-            KEY_STORE_PATH,
-            PASSWORD,
-            certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
-        .log()
-        .ifValidationFails()
-        .body(body)
-        .header("Content-Type", "text/xml; charset=utf-8")
-        .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-        .expect()
-        .statusCode(equalTo(200))
-        .when()
-        .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .body(HasXPath.hasXPath("//*[local-name()='Assertion']"));
-  }
-
-  @Test
-  public void testX509TokenWithPathSTS() throws Exception {
-    String onBehalfOf =
-        "<wst:OnBehalfOf>\n"
-            + "<wsse:BinarySecurityToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" "
-            + "EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" "
-            + "ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3\" >\n"
-            + GOOD_X509_PATH_TOKEN
-            + "</wsse:BinarySecurityToken>\n"
-            + "</wst:OnBehalfOf>\n";
-    String body = getSoapEnvelope(onBehalfOf);
-
-    given()
-        .log()
-        .ifValidationFails()
-        .body(body)
-        .header("Content-Type", "text/xml; charset=utf-8")
-        .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-        .expect()
-        .statusCode(equalTo(500))
-        .when()
-        .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
-        .then()
-        .log()
-        .ifValidationFails();
-  }
-
-  @Test
-  public void testX509PathWithTokenSTS() throws Exception {
-    String onBehalfOf =
-        "<wst:OnBehalfOf>\n"
-            + "<wsse:BinarySecurityToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" "
-            + "EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" "
-            + "ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1\" >"
-            + GOOD_X509_TOKEN
-            + "</wsse:BinarySecurityToken>\n"
-            + "</wst:OnBehalfOf>\n";
-    String body = getSoapEnvelope(onBehalfOf);
-
-    given()
-        .log()
-        .ifValidationFails()
-        .body(body)
-        .header("Content-Type", "text/xml; charset=utf-8")
-        .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-        .expect()
-        .statusCode(equalTo(500))
-        .when()
-        .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
-        .then()
-        .log()
-        .ifValidationFails();
-  }
-
-  @Test
-  public void testSamlAssertionInHeaders() throws Exception {
-    String onBehalfOf =
-        "<wst:OnBehalfOf>"
-            + "                    <wsse:UsernameToken xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">\n"
-            + "                        <wsse:Username>admin</wsse:Username>\n"
-            + "                        <wsse:Password Type=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText\">admin</wsse:Password>\n"
-            + "                   </wsse:UsernameToken>\n"
-            + "                </wst:OnBehalfOf>\n";
-    String body = getSoapEnvelope(onBehalfOf);
-
-    String assertionHeader =
-        given()
-            .auth()
-            .certificate(
-                KEY_STORE_PATH,
-                PASSWORD,
-                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
-            .log()
-            .ifValidationFails()
-            .body(body)
-            .header("Content-Type", "text/xml; charset=utf-8")
-            .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-            .expect()
-            .statusCode(equalTo(200))
-            .when()
-            .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
-            .then()
-            .extract()
-            .response()
-            .asString();
-    assertionHeader =
-        assertionHeader.substring(
-            assertionHeader.indexOf("<saml2:Assertion"),
-            assertionHeader.indexOf("</saml2:Assertion>") + "</saml2:Assertion>".length());
-
-    LOGGER.trace(assertionHeader);
-
-    configureRestForSaml(SDK_SOAP_CONTEXT);
-    getSecurityPolicy().waitForSamlAuthReady(ADMIN_PATH.getUrl());
-
-    // try that admin level assertion token on a restricted resource
-    given()
-        .header(
-            SecurityConstants.SAML_HEADER_NAME,
-            "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader))
-        .when()
-        .get(ADMIN_PATH.getUrl())
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .statusCode(equalTo(200));
-  }
-
-  @Test
-  public void testGoodHokSamlAssertionInHeaders() throws Exception {
-    String body = getSoapEnvelope(GOOD_HOK_EXAMPLE, null);
-
-    String assertionHeader =
-        given()
-            .auth()
-            .certificate(
-                KEY_STORE_PATH,
-                PASSWORD,
-                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
-            .log()
-            .ifValidationFails()
-            .body(body)
-            .header("Content-Type", "text/xml; charset=utf-8")
-            .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-            .expect()
-            .statusCode(equalTo(200))
-            .when()
-            .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
-            .then()
-            .extract()
-            .response()
-            .asString();
-    assertionHeader =
-        assertionHeader.substring(
-            assertionHeader.indexOf("<saml2:Assertion"),
-            assertionHeader.indexOf("</saml2:Assertion>") + "</saml2:Assertion>".length());
-
-    LOGGER.trace(assertionHeader);
-
-    configureRestForSaml(SDK_SOAP_CONTEXT);
-    getSecurityPolicy().waitForSamlAuthReady(ADMIN_PATH.getUrl());
-
-    // try that admin level assertion token on a restricted resource
-    given()
-        .auth()
-        .certificate(
-            KEY_STORE_PATH,
-            PASSWORD,
-            certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
-        .header(
-            SecurityConstants.SAML_HEADER_NAME,
-            "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader))
-        .when()
-        .get(ADMIN_PATH.getUrl())
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .statusCode(equalTo(200));
-  }
-
-  @Test
-  public void testBadHokSamlAssertionInHeaders() throws Exception {
-    String body = getSoapEnvelope(BAD_HOK_EXAMPLE, null);
-
-    String assertionHeader =
-        given()
-            .auth()
-            .certificate(
-                KEY_STORE_PATH,
-                PASSWORD,
-                certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
-            .log()
-            .ifValidationFails()
-            .body(body)
-            .header("Content-Type", "text/xml; charset=utf-8")
-            .header("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
-            .expect()
-            .statusCode(equalTo(200))
-            .when()
-            .post(SERVICE_ROOT.getUrl() + "/SecurityTokenService")
-            .then()
-            .extract()
-            .response()
-            .asString();
-    assertionHeader =
-        assertionHeader.substring(
-            assertionHeader.indexOf("<saml2:Assertion"),
-            assertionHeader.indexOf("</saml2:Assertion>") + "</saml2:Assertion>".length());
-
-    LOGGER.trace(assertionHeader);
-
-    configureRestForSaml(SDK_SOAP_CONTEXT);
-    getSecurityPolicy().waitForSamlAuthReady(ADMIN_PATH.getUrl());
-
-    // try that admin level assertion token on a restricted resource
-    given()
-        .auth()
-        .certificate(
-            KEY_STORE_PATH,
-            PASSWORD,
-            certAuthSettings().sslSocketFactory(SSLSocketFactory.getSystemSocketFactory()))
-        .header(
-            SecurityConstants.SAML_HEADER_NAME,
-            "SAML " + RestSecurity.deflateAndBase64Encode(assertionHeader))
-        .when()
-        .get(ADMIN_PATH.getUrl())
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        .statusCode(equalTo(400));
-  }
-
-  private String getSoapEnvelope(String onBehalfOf) {
-    return getSoapEnvelope(SOAP_ENV, onBehalfOf);
-  }
-
-  private String getSoapEnvelope(String body, String onBehalfOf) {
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.500Z'");
-    format.setCalendar(calendar);
-    String created = format.format(new Date(calendar.getTimeInMillis()));
-    long now = calendar.getTimeInMillis();
-    now += 60000;
-    String expires = format.format(new Date(now));
-    if (onBehalfOf != null) {
-      body = body.replace("ON_BEHALF_OF", onBehalfOf);
-    }
-    body = body.replace("CREATED", created);
-    body = body.replace("EXPIRES", expires);
-    return body;
   }
 
   String getKeystoreFilename() {
@@ -1402,7 +922,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         JsonPath.given(getAllFeaturesResponsePermitted).getString("value.AllFeatures.name");
 
     for (String app : getDefaultRequiredApps()) {
-      if (!"sdk-app".equals(app)) {
+      if (!"sdk-rest".equals(app) && !"sample-storageplugins".equals(app)) {
         assertThat(filteredApplications, containsString(app));
       }
     }
@@ -1449,7 +969,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
     try {
-      configureRestForGuest(SDK_SOAP_CONTEXT);
+      configureRestForGuest(SERVICE_ROOT.getUrl());
       getSecurityPolicy().waitForGuestAuthReady(url);
 
       authZProperties =
@@ -1474,7 +994,7 @@ public class TestSecurity extends AbstractIntegrationTest {
       assertThat(response, containsString("Lady Liberty"));
 
       // configure for basic
-      configureRestForBasic(SDK_SOAP_CONTEXT);
+      configureRestForBasic(SERVICE_ROOT.getUrl());
       waitForSecurityHandlers(url);
       getSecurityPolicy().waitForBasicAuthReady(url);
 
@@ -1494,7 +1014,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         configureMetacardAttributeSecurityFiltering(
             metacardAttributeSecurityFilterProperties, getAdminConfig());
       }
-      configureRestForGuest(SDK_SOAP_CONTEXT);
+      configureRestForGuest(SERVICE_ROOT.getUrl());
       getSecurityPolicy().waitForGuestAuthReady(url);
     }
   }
@@ -1506,7 +1026,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
 
-    configureRestForGuest(SDK_SOAP_CONTEXT);
+    configureRestForGuest(SERVICE_ROOT.getUrl());
     getSecurityPolicy().waitForGuestAuthReady(url);
 
     String testData = getFileContent(XML_RECORD_RESOURCE_PATH + "/accessGroupTokenMetacard.xml");
@@ -1528,7 +1048,7 @@ public class TestSecurity extends AbstractIntegrationTest {
               getAdminConfig());
 
       // configure for basic auth
-      configureRestForBasic(SDK_SOAP_CONTEXT);
+      configureRestForBasic(SERVICE_ROOT.getUrl());
       waitForSecurityHandlers(url);
       getSecurityPolicy().waitForBasicAuthReady(url);
 
@@ -1540,7 +1060,7 @@ public class TestSecurity extends AbstractIntegrationTest {
       assertThat(response, containsString("Lady Liberty"));
 
       // configure for guest
-      configureRestForGuest(SDK_SOAP_CONTEXT);
+      configureRestForGuest(SERVICE_ROOT.getUrl());
       getSecurityPolicy().waitForGuestAuthReady(url);
 
       // guest cannot get results
@@ -1554,7 +1074,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         configureMetacardAttributeSecurityFiltering(
             metacardAttributeSecurityFilterProperties, getAdminConfig());
       }
-      configureRestForGuest(SDK_SOAP_CONTEXT);
+      configureRestForGuest(SERVICE_ROOT.getUrl());
       waitForSecurityHandlers(url);
       getSecurityPolicy().waitForGuestAuthReady(url);
     }
@@ -1594,7 +1114,7 @@ public class TestSecurity extends AbstractIntegrationTest {
   }
 
   private void assertBasicAuth(HttpClient client, String url, int statusCode) throws Exception {
-    configureRestForBasic(SDK_SOAP_CONTEXT);
+    configureRestForBasic(SERVICE_ROOT.getUrl());
     waitForSecurityHandlers(url);
 
     try {
@@ -1603,7 +1123,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
       assertThat(result, equalTo(statusCode));
     } finally {
-      configureRestForGuest(SDK_SOAP_CONTEXT);
+      configureRestForGuest(SERVICE_ROOT.getUrl());
       getSecurityPolicy().waitForGuestAuthReady(url);
     }
   }

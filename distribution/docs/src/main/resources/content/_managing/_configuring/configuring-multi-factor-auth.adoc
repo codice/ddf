@@ -12,7 +12,7 @@ It does this by requiring users to provide multiple proofs of identity, typicall
 The IdP that comes with ${branding} does not support multi-factor authentication by default.
 
 Keycloak can be used to help setup and configure multi-factor authentication.
-See <<{managing-prefix}connecting_to_an_external_identity_provider,Connecting to an External Identity Provider>> on how to initially hookup Keycloak.
+See <<{managing-prefix}connecting_to_an_external_saml_identity_provider,Connecting to an External Identity Provider>> on how to initially hookup Keycloak.
 
 .Configuring Keycloak for MFA
 . Download and install Keycloak from here: https://www.keycloak.org/downloads.html[Keycloak Downloads^] {external link}

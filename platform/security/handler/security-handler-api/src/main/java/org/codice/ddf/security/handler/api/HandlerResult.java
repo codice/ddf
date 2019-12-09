@@ -14,6 +14,7 @@
 package org.codice.ddf.security.handler.api;
 
 import java.util.Objects;
+import org.apache.shiro.authc.AuthenticationToken;
 
 /**
  * Encapsulates the return status for each handler. Consists of the status of any action taken by
@@ -25,7 +26,7 @@ public class HandlerResult {
 
   private String source;
 
-  private BaseAuthenticationToken token;
+  private AuthenticationToken token;
 
   public HandlerResult() {
     status = Status.NO_ACTION;
@@ -45,11 +46,11 @@ public class HandlerResult {
     this.status = status;
   }
 
-  public BaseAuthenticationToken getToken() {
+  public AuthenticationToken getToken() {
     return this.token;
   }
 
-  public void setToken(BaseAuthenticationToken token) {
+  public void setToken(AuthenticationToken token) {
     this.token = token;
   }
 

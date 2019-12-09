@@ -73,10 +73,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.cxf.services.sts</groupId>
-            <artifactId>cxf-services-sts-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.pac4j</groupId>
             <artifactId>pac4j-core</artifactId>
             <version>${pac4j.version}</version>
@@ -116,7 +112,6 @@
                         <Import-Package>
                             javax.ws.rs,
                             org.codice.ddf.parser,
-                            org.apache.cxf.sts.*,
                             *
                         </Import-Package>
                     </instructions>

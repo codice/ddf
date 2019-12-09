@@ -207,8 +207,10 @@
         <module>common</module>
         <module>core</module>
         <module>policy</module>
+        <module>claims</module>
+        <module>security-jaas-ldap</module>
         <module>saml</module>
-        <module>sts</module>
+        <module>realm</module>
         <module>pdp</module>
         <module>pep</module>
         <module>handler</module>
@@ -218,12 +220,9 @@
         <module>servlet</module>
         <module>interceptor</module>
         <module>certificate</module>
-        <module>idp</module>
         <module>rest</module>
         <module>security-migratable</module>
         <module>command</module>
         <module>secure-boot</module>
-        <module>security-guest-realm</module>
-        <module>security-oidc-realm</module>
     </modules>
 </project>

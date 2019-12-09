@@ -436,7 +436,7 @@
             mvn:com.fasterxml.jackson.core/jackson-annotations/${cxf.jackson.version}
         </bundle>
         <bundle start-level="35">
-            mvn:com.fasterxml.jackson.core/jackson-databind/${cxf.jackson.version}
+            mvn:com.fasterxml.jackson.core/jackson-databind/${cxf.jackson.databind.version}
         </bundle>
         <bundle start-level="35">
             mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/${cxf.jackson.version}

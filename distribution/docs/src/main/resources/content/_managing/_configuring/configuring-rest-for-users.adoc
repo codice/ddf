@@ -9,28 +9,23 @@
 
 If using REST services or connecting to REST sources, several configuration options are available.
 
-${branding} includes an <<{managing-prefix}configuring_included_identity_provider,Identity Provider (IdP)>>, but can also be configured to support an <<{managing-prefix}connecting_to_an_external_identity_provider,external IdP>> or <<{managing-prefix}configuring_without_an_identity_provider,no IdP>> at all.
+${branding} can be configured to support an <<{managing-prefix}connecting_to_an_external_saml_identity_provider,external SAML IdP>> or no IdP at all.
 The following diagram shows the configuration options.
 
 .REST Services Configuration Options
 [ditaa, rest_config_options, png, ${image-width}]
 ....
-+------------------------------------------------------------------------------------------------------------+
-|                                       /---------------------------\                                        |
-|                                       | Configuring REST Services |                                        |
-|                   /-------------------|         for Users         |-------------------\                    |
-|                   |                   \---------------------------/                   |                    |
-|                   |                                 |                                 |                    |
-|                   v                                 v                                 v                    |
-|       /----------------------\        /---------------------------\         /-----------------------\      |
-|       | Configuring Included |        | Connecting to an External |         | Configuring without an|      |
-|    /--|   Identity Provider  |---\    |      Identity Provider    |     /---|   Identity Provider   |--\   |
-|    |  \----------------------/   |    \---------------------------/     |   \-----------------------/  |   |
-|    v                             v                                      v                              v   |
-| /--------------\    /---------------\                             /-------------\      /-----------------\ |
-| | Configuring  |    | Connecting to |                             |  Using STS  |      |  Connecting to  | |
-| | Included STS |    | External STS  |                             | without IdP |      | an External STS | |
-| \--------------/    \---------------/                             \-------------/      |   without IdP   | |
-|                                                                                        \-----------------/ |
-+------------------------------------------------------------------------------------------------------------+
++-------------------------------------------------------------------------+
+|    /---------------------------\                                        |
+|    | Configuring REST Services |                                        |
+|    |         for Users         |-------------------\                    |
+|    \---------------------------/                   |                    |
+|                  |                                 |                    |
+|                  v                                 v                    |
+|    /---------------------------\         /-----------------------\      |
+|    | Connecting to an External |         | Configuring without an|      |
+|    |      Identity Provider    |         |   Identity Provider   |      |
+|    \---------------------------/         \-----------------------/      |
+|                                                                         |
++-------------------------------------------------------------------------+
 ....

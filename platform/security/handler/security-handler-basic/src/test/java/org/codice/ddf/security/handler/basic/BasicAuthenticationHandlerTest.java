@@ -22,23 +22,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.apache.shiro.authc.AuthenticationToken;
 import org.codice.ddf.platform.filter.FilterChain;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class BasicAuthenticationHandlerTest {
@@ -94,8 +89,8 @@ public class BasicAuthenticationHandlerTest {
 
     assertNotNull(result);
     assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
-    assertEquals("admin", getXmlAttributeValue(result.getToken(), USERNAME_ATTR));
-    assertEquals("password", getXmlAttributeValue(result.getToken(), PASSWORD_ATTR));
+    assertEquals("admin", getAttributeValue(result.getToken(), USERNAME_ATTR));
+    assertEquals("password", getAttributeValue(result.getToken(), PASSWORD_ATTR));
 
     // confirm that no responses were sent through the HttpResponse
     Mockito.verify(response, never()).setHeader(anyString(), anyString());
@@ -123,7 +118,7 @@ public class BasicAuthenticationHandlerTest {
 
     assertNotNull(result);
     assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
-    assertEquals("admin", getXmlAttributeValue(result.getToken(), USERNAME_ATTR));
+    assertEquals("admin", getAttributeValue(result.getToken(), USERNAME_ATTR));
   }
 
   /**
@@ -146,18 +141,18 @@ public class BasicAuthenticationHandlerTest {
 
     assertNotNull(result);
     assertEquals(HandlerResult.Status.COMPLETED, result.getStatus());
-    assertEquals("admin", getXmlAttributeValue(result.getToken(), USERNAME_ATTR));
+    assertEquals("admin", getAttributeValue(result.getToken(), USERNAME_ATTR));
   }
 
   @Test
   public void testExtractAuthInfo() throws Exception {
     BasicAuthenticationHandler handler = new BasicAuthenticationHandler();
-    BaseAuthenticationToken result =
+    AuthenticationToken result =
         handler.extractAuthInfo(
             "Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()), "127.0.0.1");
     assertNotNull(result);
-    assertEquals("admin", getXmlAttributeValue(result, USERNAME_ATTR));
-    assertEquals("password", getXmlAttributeValue(result, PASSWORD_ATTR));
+    assertEquals("admin", getAttributeValue(result, USERNAME_ATTR));
+    assertEquals("password", getAttributeValue(result, PASSWORD_ATTR));
 
     handler = new BasicAuthenticationHandler();
     result =
@@ -169,15 +164,15 @@ public class BasicAuthenticationHandlerTest {
         handler.extractAuthInfo(
             "Basic " + Base64.getEncoder().encodeToString(":password".getBytes()), "127.0.0.1");
     assertNotNull(result);
-    assertEquals("", getXmlAttributeValue(result, USERNAME_ATTR));
-    assertEquals("password", getXmlAttributeValue(result, PASSWORD_ATTR));
+    assertEquals("", getAttributeValue(result, USERNAME_ATTR));
+    assertEquals("password", getAttributeValue(result, PASSWORD_ATTR));
 
     result =
         handler.extractAuthInfo(
             "Basic " + Base64.getEncoder().encodeToString("user:".getBytes()), "127.0.0.1");
     assertNotNull(result);
-    assertEquals("user", getXmlAttributeValue(result, USERNAME_ATTR));
-    assertEquals("", getXmlAttributeValue(result, PASSWORD_ATTR));
+    assertEquals("user", getAttributeValue(result, USERNAME_ATTR));
+    assertEquals("", getAttributeValue(result, PASSWORD_ATTR));
 
     result =
         handler.extractAuthInfo(
@@ -200,41 +195,30 @@ public class BasicAuthenticationHandlerTest {
     when(request.getHeader(HttpHeaders.AUTHORIZATION))
         .thenReturn("Basic " + Base64.getEncoder().encodeToString(CREDENTIALS.getBytes()));
 
-    BaseAuthenticationToken result = handler.extractAuthenticationInfo(request);
+    AuthenticationToken result = handler.extractAuthenticationInfo(request);
     assertNotNull(result);
-    assertEquals("admin", getXmlAttributeValue(result, USERNAME_ATTR));
-    assertEquals("password", getXmlAttributeValue(result, PASSWORD_ATTR));
+    assertEquals("admin", getAttributeValue(result, USERNAME_ATTR));
+    assertEquals("password", getAttributeValue(result, PASSWORD_ATTR));
 
     result = handler.extractAuthenticationInfo(request);
     assertNotNull(result);
-    assertEquals("admin", getXmlAttributeValue(result, USERNAME_ATTR));
-    assertEquals("password", getXmlAttributeValue(result, PASSWORD_ATTR));
+    assertEquals("admin", getAttributeValue(result, USERNAME_ATTR));
+    assertEquals("password", getAttributeValue(result, PASSWORD_ATTR));
 
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
     result = handler.extractAuthenticationInfo(request);
     assertNull(result);
   }
 
-  private String getXmlAttributeValue(BaseAuthenticationToken token, String attribute)
+  private String getAttributeValue(AuthenticationToken token, String attribute)
       throws ParserConfigurationException, IOException, SAXException {
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder builder = factory.newDocumentBuilder();
-    ByteArrayInputStream input =
-        new ByteArrayInputStream(token.getCredentialsAsString().getBytes("UTF-8"));
-    Document doc = builder.parse(input);
-    NodeList children = doc.getDocumentElement().getChildNodes();
-
-    int childIndex = 0;
-    while (childIndex < children.getLength()) {
-      Node child = children.item(childIndex);
-      if (child.getNodeName().contains(attribute)) {
-        if (child.getFirstChild() != null) {
-          return child.getFirstChild().getNodeValue();
-        } else {
-          return "";
-        }
-      }
-      childIndex++;
+    String creds = (String) token.getCredentials();
+    String[] credArr = creds.split(":");
+    if (attribute.equals(USERNAME_ATTR) && credArr.length > 0) {
+      return new String(Base64.getDecoder().decode(credArr[0]), StandardCharsets.UTF_8);
+    }
+    if (attribute.equals(PASSWORD_ATTR) && credArr.length > 1) {
+      return new String(Base64.getDecoder().decode(credArr[1]), StandardCharsets.UTF_8);
     }
     return "";
   }

@@ -23,36 +23,6 @@
     </suppress>
     <suppress>
         <notes>
-            FasterXML jackson-databind through 2.8.10 and 2.9.x through 2.9.3 allows unauthenticated
-            remote code execution because of an incomplete fix for the CVE-2017-7525 deserialization
-            flaw. This is exploitable by sending maliciously crafted JSON input to the
-            readValue method of the ObjectMapper, bypassing a blacklist that is ineffective
-            if the Spring libraries are available in the classpath.
-            We have upgraded to 2.9.4 which fixes the issue but version 2.6.3 is still being used by
-            org.apache.cxf:cxf-rt-rs-security-sso-saml -> ehcache-2.10.4 -> jackson-databind-2.6.3.
-            solr-assembly.zip -> jackson-core-asl-1.9.13.jar
-            This suppression can be removed when DDF-3593 has been completed.
-             CVE-2019-16942, CVE-2019-16943 refers to an externally exposed JSON/RMI endpoint, which is not used    
-        </notes>
-        <cve>CVE-2016-3720</cve>
-        <cve>CVE-2017-7525</cve>
-        <cve>CVE-2017-15095</cve>
-        <cve>CVE-2017-17485</cve>
-        <cve>CVE-2018-7489</cve>
-        <cve>CVE-2018-11307</cve>
-        <cve>CVE-2018-14719</cve>
-        <cve>CVE-2018-14718</cve>
-        <cve>CVE-2018-14721</cve>
-        <cve>CVE-2018-14720</cve>
-        <cve>CVE-2018-19362</cve>
-        <cve>CVE-2018-19361</cve>
-        <cve>CVE-2018-19360</cve>
-        <cve>CVE-2019-16942</cve>
-        <cve>CVE-2019-16943</cve>
-        <cve>CVE-2019-17267</cve>
-    </suppress>
-    <suppress>
-        <notes>
             file name: solr-*.jar
             OWASP is getting confused by our version number being on a jar with solr in the name we
             are on solr 6.6+ which is not affected by this issue.
@@ -242,7 +212,6 @@
         <cve>CVE-2018-1270</cve>
         <cve>CVE-2018-1275</cve>
     </suppress>
-
     <suppress>
         <notes>
             These CVEs affect Jetty 9.3.x up to 9.3.23 and 9.4.x up to 9.4.10. DDF is using a
@@ -325,23 +294,6 @@
         <!-- Remove this once Solr is upgraded to 8.2 -->
         <cve>CVE-2019-0193</cve>
     </suppress>
-    <suppress>
-        <notes>
-            This CVE affects jackson-databind up to version 2.9.9.1. This is pulled in primarily by
-            ehcache, which cannot be upgraded until DDF's other dependencies (such as CXF) upgrade.
-            This CVE will be addressed by upgrading from ehcache2 to latest ehcache3, once the other
-            dependencies have upgraded.
-        </notes>
-        <cve>CVE-2019-14379</cve>
-    </suppress>
-
-    <suppress>
-        <notes><![CDATA[
-      This is a false positive due to our module name matching the OWASP regex for this CVE
-    ]]></notes>
-        <gav regex="true">^ddf\.security\.idp:security-idp-plugin-requestsubjectvalidator:.*$</gav>
-        <cve>CVE-2017-16026</cve>
-    </suppress>
 
     <suppress>
         <notes>
@@ -350,20 +302,6 @@
         </notes>
         <gav regex="true">^commons-beanutils:commons-beanutils:.*$</gav>
         <cve>CVE-2019-10086</cve>
-    </suppress>
-
-    <suppress>
-        <notes>
-            filename: jackson-databind-2.9.8.jar
-            filename: jackson-databind-2.9.7.jar
-            filename: jackson-databind-2.7.7.jar
-            filename: ehcache-2.10.5.jar
-
-            These CVEs list 2.9.10 as the unaffected version, which does not exist.
-        </notes>
-
-        <cve>CVE-2019-16335</cve>
-        <cve>CVE-2019-14540</cve>
     </suppress>
 
 </suppressions>
