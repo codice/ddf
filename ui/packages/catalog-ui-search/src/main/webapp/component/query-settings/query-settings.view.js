@@ -272,7 +272,7 @@ module.exports = plugin(
       return []
     },
     save() {
-      const errorMessages = getErrorMessages()
+      const errorMessages = this.getErrorMessages()
       if (errorMessages.length !== 0) {
         showErrorMessages(errorMessages)
         return
@@ -282,7 +282,7 @@ module.exports = plugin(
       this.$el.trigger('closeDropdown.' + CustomElements.getNamespace())
     },
     run() {
-      const errorMessages = getErrorMessages()
+      const errorMessages = this.getErrorMessages()
       if (errorMessages.length !== 0) {
         showErrorMessages(errorMessages)
         return
