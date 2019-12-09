@@ -135,8 +135,6 @@ class LocationInput extends React.Component {
   }
   getCurrentValue() {
     const modelJSON = this.locationModel.toJSON()
-    console.log('IN GET CURRENT VALUE')
-    console.log(modelJSON)
     let type
     if (modelJSON.polygon !== undefined) {
       type = ShapeUtils.isArray3D(modelJSON.polygon)
