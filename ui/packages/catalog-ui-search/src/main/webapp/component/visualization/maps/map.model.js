@@ -46,6 +46,7 @@ module.exports = Backbone.AssociatedModel.extend({
     measurementState: 'NONE',
     currentDistance: 0,
     points: [],
+    labels: [],
     line: undefined,
   },
   /*
@@ -72,6 +73,14 @@ module.exports = Backbone.AssociatedModel.extend({
   addPoint(point) {
     this.set({
       points: [...this.get('points'), point],
+    })
+  },
+  /*
+   * Appends the given label to the array of labels being tracked.
+   */
+  addLabel(label) {
+    this.set({
+      labels: [...this.get('labels'), label],
     })
   },
   /*

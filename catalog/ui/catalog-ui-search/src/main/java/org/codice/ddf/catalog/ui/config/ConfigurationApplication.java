@@ -138,6 +138,10 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean metacardPreviewEnabled = true;
 
+  private Boolean customTextNotationEnabled = false;
+
+  private String customTextNotationAttribute = "title";
+
   private Boolean spellcheckEnabled = false;
 
   private Boolean phoneticsEnabled = false;
@@ -554,6 +558,8 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("isHistoricalSearchDisabled", !historicalSearchEnabled);
     config.put("isArchiveSearchDisabled", !archiveSearchEnabled);
     config.put("isMetacardPreviewDisabled", !metacardPreviewEnabled);
+    config.put("isCustomTextNotationEnabled", customTextNotationEnabled);
+    config.put("customTextNotationAttribute", customTextNotationAttribute);
     config.put("isSpellcheckEnabled", spellcheckEnabled);
     config.put("isPhoneticsEnabled", phoneticsEnabled);
     config.put(
@@ -1124,6 +1130,22 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setMetacardPreviewEnabled(Boolean metacardPreviewEnabled) {
     this.metacardPreviewEnabled = metacardPreviewEnabled;
+  }
+
+  public Boolean getCustomTextNotationEnabled() {
+    return customTextNotationEnabled;
+  }
+
+  public void setCustomTextNotationEnabled(Boolean customTextNotationEnabled) {
+    this.customTextNotationEnabled = customTextNotationEnabled;
+  }
+
+  public String getCustomTextNotationAttribute() {
+    return customTextNotationAttribute;
+  }
+
+  public void setCustomTextNotationAttribute(String customTextNotationAttribute) {
+    this.customTextNotationAttribute = customTextNotationAttribute;
   }
 
   public Boolean getSpellcheckEnabled() {
