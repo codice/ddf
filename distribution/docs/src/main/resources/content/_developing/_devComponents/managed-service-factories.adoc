@@ -5,8 +5,6 @@
 :summary: Configuring Managed Service Factory bundles.
 :order: 20
 
-==== Configuring Managed Service Factory Bundles
-
 Services that are created using a Managed Service Factory can be configured using `.config` files as well.
 These configuration files, however, follow a different naming convention than `.cfg` files.
 The filenames must start with the Managed Service Factory PID, be followed by a dash and a unique identifier, and have a `.config` extension.
@@ -18,7 +16,7 @@ Also, a new service will be created and configured every time a configuration fi
 
 Any `service.factoryPid` and `service.pid` values in these `.config` files will be overridden by the values parsed from the file name, so `.config` files should not contain these properties.
 
-===== File Format
+==== File Format
 
 The basic syntax of the `.config` configuration files is similar to the older `.cfg` files but introduces support for lists and types other than simple strings.
 The type associated with a property must match the type attribute used in the corresponding `metatype.xml` file when applicable.

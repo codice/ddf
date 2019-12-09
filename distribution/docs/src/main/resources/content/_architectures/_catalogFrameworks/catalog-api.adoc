@@ -152,11 +152,7 @@ Existing ${branding} clients are able to leverage product caching due to the pro
 
 ${branding} can send/receive notifications of "Activities" occurring in the system.
 
-====== Notifications
-
 Currently, the notifications provide information about resource retrieval only.
-
-====== Activities
 
 Activity events include the status and progress of actions that are being performed by the user, such as searches and downloads.
 

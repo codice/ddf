@@ -8,7 +8,7 @@
 The Catalog Metrics Plugin captures metrics on catalog operations.
 These metrics can be viewed and analyzed using the <<_metrics_reporting_application,Metrics Reporting Application>> in the ${admin-console}.
 
-===== Related Components to the Source Metrics Plugin
+===== Related Components to the Catalog Metrics Plugin
 
 * <<_source_metrics_plugin,Source Metrics Plugin>>.
 
