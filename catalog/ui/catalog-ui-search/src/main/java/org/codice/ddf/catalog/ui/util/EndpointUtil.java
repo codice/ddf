@@ -65,6 +65,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
@@ -276,9 +277,8 @@ public class EndpointUtil {
 
     List<Filter> attributeFilters = new ArrayList<>();
 
-    for (String attributeName : attributeMap.keySet()) {
-      attributeFilters.add(
-          buildAttributeFilter(attributeName, attributeMap.get(attributeName), false));
+    for (Entry<String, Collection<String>> entry : attributeMap.entrySet()) {
+      attributeFilters.add(buildAttributeFilter(entry.getKey(), entry.getValue(), false));
     }
 
     Filter filter = filterBuilder.allOf(filterBuilder.anyOf(attributeFilters), tagFilter);
