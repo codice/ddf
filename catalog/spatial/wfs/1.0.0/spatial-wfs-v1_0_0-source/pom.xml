@@ -34,8 +34,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-client</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.jaxb</groupId>
@@ -73,22 +81,10 @@
             <artifactId>jts-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.security</groupId>
-            <artifactId>security-rest-cxfwrapper</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-context</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-saxon</artifactId>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
@@ -111,19 +107,6 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
@@ -132,9 +115,79 @@
             <artifactId>security-encryption-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-rest-clientapi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>geospatial</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.xmlschema</groupId>
+            <artifactId>xmlschema-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.stream</groupId>
+            <artifactId>stax-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-mapper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-matchers</artifactId>
+            <version>${xmlunit-matchers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>${xml-apis.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jscience</groupId>
+            <artifactId>jscience</artifactId>
+            <version>4.3.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -162,35 +215,17 @@
                             spatial-wfs-converter;scope=compile|runtime,
                             spatial-wfs-v1_0_0-converter;scope=compile|runtime,
                             catalog-core-api-impl,
-                            ddf-security-common,
                             platform-util,
-                            platform-util-unavailableurls,
                             geospatial
                         </Embed-Dependency>
-                        <Embed-Transitive>true</Embed-Transitive>
+                        <Private-Package>
+                            org.codice.ddf.spatial.ogc.wfs.catalog.mapper.impl,
+                            <!-- This bundle's packages -->
+                            {local-packages}
+                        </Private-Package>
                         <Include-Resource>{maven-resources},target/classes/describable.properties</Include-Resource>
                     </instructions>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>check-artifact-size</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>1.3_MB</maxArtifactSize>
-                                </ArtifactSizeEnforcerRule>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -210,17 +245,17 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.73</minimum>
+                                            <minimum>0.77</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.63</minimum>
+                                            <minimum>0.65</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.58</minimum>
+                                            <minimum>0.61</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

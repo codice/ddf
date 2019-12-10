@@ -31,6 +31,10 @@
 
     <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
 
+    <reference-list id="metacardMappers"
+      interface="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"
+      availability="optional"/>
+
     <cm:managed-service-factory
             id="org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.WfsConnectedSource.id"
             factory-pid="Wfs_v1_0_0_Connected_Source"
@@ -45,16 +49,30 @@
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="disableCnCheck" value="false"/>
+            <property name="forcedFeatureType" value=""/>
             <property name="nonQueryableProperties">
-                <list></list>
+                <list/>
             </property>
             <property name="featureConverterFactoryList" ref="converterList"/>
             <property name="pollInterval" value="5"/>
-            <property name="forceSpatialFilter" value=""/>
+            <property name="forceSpatialFilter" value="NO_FILTER"/>
             <property name="connectionTimeout" value="30000"/>
             <property name="receiveTimeout" value="60000"/>
-            <argument ref="encryptionService"/>
+            <property name="metacardMappers" ref="metacardMappers"/>
             <argument ref="clientFactoryFactory"/>
+            <argument ref="encryptionService"/>
+            <argument>
+                <!-- Must be instantiated inline so sources don't share the same instance -->
+                <bean class="java.util.concurrent.Executors"
+                  factory-method="newSingleThreadScheduledExecutor">
+                    <argument>
+                        <bean class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+                          factory-method="newThreadFactory">
+                            <argument value="wfsSourceThread"/>
+                        </bean>
+                    </argument>
+                </bean>
+            </argument>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>

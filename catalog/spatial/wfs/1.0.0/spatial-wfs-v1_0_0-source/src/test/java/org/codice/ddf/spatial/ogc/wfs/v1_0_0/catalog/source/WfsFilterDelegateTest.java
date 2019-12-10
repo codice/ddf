@@ -13,15 +13,22 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source;
 
+import static java.util.Collections.singletonList;
 import static javolution.testing.TestContext.assertTrue;
 import static junit.framework.TestCase.assertNull;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -42,6 +49,7 @@ import ogc.schema.opengis.filter.v_1_0_0.DistanceBufferType;
 import ogc.schema.opengis.filter.v_1_0_0.FilterType;
 import ogc.schema.opengis.filter.v_1_0_0.UnaryLogicOpType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.Wfs10Constants.SPATIAL_OPERATORS;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.joda.time.DateTime;
@@ -304,34 +312,28 @@ public class WfsFilterDelegateTest {
 
   private FeatureMetacardType featureMetacardType = mock(FeatureMetacardType.class);
 
-  private List<String> mockGmlProps = new ArrayList<String>();
+  private MetacardMapper metacardMapper = mock(MetacardMapper.class);
+
+  private List<String> mockGmlProps = new ArrayList<>();
 
   @Before
   public void setUp() {
     when(featureMetacardType.getGmlProperties()).thenReturn(mockGmlProps);
   }
 
-  @Test
-  public void testWFSFilterDelegate() {
-    WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
-
-    assertNotNull(delegate);
-  }
-
   @Test(expected = IllegalArgumentException.class)
-  public void testWFSFilterDelegateNullSchema() {
-    new WfsFilterDelegate(null, null, null);
+  public void testWfsFilterDelegateNullFeatureMetacardType() {
+    new WfsFilterDelegate(null, metacardMapper, null, null);
   }
 
   @Test
   public void testAnd() {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
     FilterType filterToCheck = delegate.and(Arrays.asList(filter, filter));
     assertNotNull(filterToCheck);
@@ -340,14 +342,14 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testAndSingleFilter() {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
-    ArrayList<FilterType> filters = new ArrayList<FilterType>();
+    ArrayList<FilterType> filters = new ArrayList<>();
     filters.add(filter);
     filters.add(new FilterType());
     FilterType filterToCheck = delegate.and(filters);
@@ -358,12 +360,12 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testOr() {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
     FilterType filterToCheck = delegate.or(Arrays.asList(filter, filter));
     assertNotNull(filterToCheck);
@@ -372,14 +374,14 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testOrSingleFilter() {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
-    ArrayList<FilterType> filters = new ArrayList<FilterType>();
+    ArrayList<FilterType> filters = new ArrayList<>();
     filters.add(filter);
     filters.add(new FilterType());
     FilterType filterToCheck = delegate.or(filters);
@@ -390,12 +392,12 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testNot() {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
     FilterType filterToCheck = delegate.not(filter);
     assertNotNull(filterToCheck);
@@ -405,95 +407,78 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsEqualToStringStringBoolean()
       throws JAXBException, SAXException, IOException {
-    List<String> mockProps = new ArrayList<String>();
+    List<String> mockProps = new ArrayList<>();
     mockProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, LITERAL, true);
+    String filterXml = marshal(filter);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-
-    LOGGER.debug(writer.toString());
-    assertXMLEqual(propertyIsEqualToXmlLiteral, writer.toString());
+    LOGGER.debug(filterXml);
+    assertXMLEqual(propertyIsEqualToXmlLiteral, filterXml);
   }
 
   @Test
   public void testPropertyIsEqualToStringStringBooleanAnyText() {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
     // 1 property will produce a ComparisonOp
     assertTrue(filter.isSetComparisonOps());
     assertNotNull(filter.getComparisonOps());
-    assertTrue(filter.getComparisonOps() instanceof JAXBElement<?>);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testPropertyIsEqualToStringStringBooleanAnyTextNullMetacardType() {
-    WfsFilterDelegate delegate = new WfsFilterDelegate(null, SUPPORTED_GEO, SRS_NAME);
-    delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
   }
 
   @Test
   public void testPropertyIsEqualToStringStringBooleanAnyTextMultipleProperties() {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     mockTextProps.add(MOCK_PROPERTY_2);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY_2)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
-    // Mulitple properties will produce a LogicOp (OR)
+    // Multiple properties will produce a LogicOp (OR)
     assertFalse(filter.isSetComparisonOps());
     assertTrue(filter.isSetLogicOps());
     assertNotNull(filter.getLogicOps());
-    assertTrue(filter.getLogicOps() instanceof JAXBElement<?>);
   }
 
   @Test
   public void testPropertyIsEqualToDate() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, date);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    LOGGER.debug(writer.toString());
-    assertXMLEqual(propertyIsEqualToXmlDate, writer.toString());
+    LOGGER.debug(filterXml);
+    assertXMLEqual(propertyIsEqualToXmlDate, filterXml);
   }
 
   @Test
   public void testPropertyIsEqualToInt() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, 1);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    String xml = writer.toString();
+    String xml = marshal(filter);
 
     LOGGER.debug(xml);
     assertXMLEqual(propertyIsEqualToXml, xml);
@@ -501,368 +486,322 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsEqualToShort() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     short literal = 1;
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyIsEqualToXml, writer.toString());
+    assertXMLEqual(propertyIsEqualToXml, filterXml);
   }
 
   @Test
   public void testPropertyIsEqualToLong() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     long literal = 1L;
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyIsEqualToXml, writer.toString());
+    assertXMLEqual(propertyIsEqualToXml, filterXml);
   }
 
   @Test
   public void testPropertyIsEqualToFloat() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, 1.0F);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyIsEqualToXmlDecimal, writer.toString());
+    assertXMLEqual(propertyIsEqualToXmlDecimal, filterXml);
   }
 
   @Test
   public void testPropertyIsEqualToDouble() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, 1.0);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyIsEqualToXmlDecimal, writer.toString());
+    assertXMLEqual(propertyIsEqualToXmlDecimal, filterXml);
   }
 
   @Test
   public void testPropertyIsEqualToBoolean() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, false);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyIsEqualToXmlBoolean, writer.toString());
+    assertXMLEqual(propertyIsEqualToXmlBoolean, filterXml);
   }
 
   @Test
   public void testPropertyIsNotEqualToString() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, LITERAL, true);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyNotEqualToXmlLiteral, writer.toString());
+    assertXMLEqual(propertyNotEqualToXmlLiteral, filterXml);
   }
 
   @Test
   public void testPropertyIsNotEqualToDate() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, date);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyNotEqualToXmlDate, writer.toString());
+    assertXMLEqual(propertyNotEqualToXmlDate, filterXml);
   }
 
   @Test
   public void testPropertyIsNotEqualToInt() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, 1);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    String xml = writer.toString();
+    String xml = marshal(filter);
 
     assertXMLEqual(propertyNotEqualToXml, xml);
   }
 
   @Test
   public void testPropertyIsNotEqualToShort() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     short literal = 1;
 
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, literal);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    String xml = writer.toString();
+    String xml = marshal(filter);
 
     assertXMLEqual(propertyNotEqualToXml, xml);
   }
 
   @Test
   public void testPropertyIsNotEqualToLong() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     long literal = 1L;
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyNotEqualToXml, writer.toString());
+    assertXMLEqual(propertyNotEqualToXml, filterXml);
   }
 
   @Test
   public void testPropertyIsNotEqualToFloat() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     float literal = 1.0F;
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyNotEqualToXmlDecimal, writer.toString());
+    assertXMLEqual(propertyNotEqualToXmlDecimal, filterXml);
   }
 
   @Test
   public void testPropertyIsNotEqualToDouble() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     double literal = 1.0;
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyNotEqualToXmlDecimal, writer.toString());
+    assertXMLEqual(propertyNotEqualToXmlDecimal, filterXml);
   }
 
   @Test
   public void testPropertyIsNotEqualToBoolean() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsNotEqualTo(MOCK_PROPERTY, false);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyNotEqualToXmlBoolean, writer.toString());
+    assertXMLEqual(propertyNotEqualToXmlBoolean, filterXml);
   }
 
   @Test
   public void testPropertyIsGreaterThanString() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, LITERAL);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyGreaterThanXmlLiteral, writer.toString());
+    assertXMLEqual(propertyGreaterThanXmlLiteral, filterXml);
   }
 
   @Test
   public void testPropertyIsGreaterThanDate() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, date);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyGreaterThanXmlDate, writer.toString());
+    assertXMLEqual(propertyGreaterThanXmlDate, filterXml);
   }
 
   @Test
   public void testPropertyIsGreaterThanInt() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, 1);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    String xml = writer.toString();
+    String xml = marshal(filter);
 
     assertXMLEqual(propertyGreaterThanXml, xml);
   }
 
   @Test
   public void testPropertyIsGreaterThanShort() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     short literal = 1;
 
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, literal);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    String xml = writer.toString();
+    String xml = marshal(filter);
 
     assertXMLEqual(propertyGreaterThanXml, xml);
   }
 
   @Test
   public void testPropertyIsGreaterThanLong() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     long literal = 1L;
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyGreaterThanXml, writer.toString());
+    assertXMLEqual(propertyGreaterThanXml, filterXml);
   }
 
   @Test
   public void testPropertyIsGreaterThanFloat() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     float literal = 1.0F;
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyGreaterThanXmlDecimal, writer.toString());
+    assertXMLEqual(propertyGreaterThanXmlDecimal, filterXml);
   }
 
   @Test
   public void testPropertyIsGreaterThanDouble() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     double literal = 1.0;
     FilterType filter = delegate.propertyIsGreaterThan(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyGreaterThanXmlDecimal, writer.toString());
+    assertXMLEqual(propertyGreaterThanXmlDecimal, filterXml);
   }
 
   @Test
   public void testPropertyIsGreaterThanOrEqualToString()
       throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, LITERAL);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyGreaterThanOrEqualToXmlLiteral, writer.toString());
+    assertXMLEqual(propertyGreaterThanOrEqualToXmlLiteral, filterXml);
   }
 
   @Test
@@ -872,36 +811,31 @@ public class WfsFilterDelegateTest {
     LOGGER.debug("Input date: {}", date);
     LOGGER.debug("ISO 8601 formatted date: {}", convertDateToIso8601Format(getDate()));
 
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, date);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    LOGGER.debug(writer.toString());
-    assertXMLEqual(propertyGreaterThanOrEqualToXmlDate, writer.toString());
+    String filterXml = marshal(filter);
+    LOGGER.debug(filterXml);
+    assertXMLEqual(propertyGreaterThanOrEqualToXmlDate, filterXml);
   }
 
   @Test
   public void testPropertyIsGreaterThanOrEqualToInt()
       throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, 1);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    String xml = writer.toString();
+    String xml = marshal(filter);
 
     assertXMLEqual(propertyGreaterThanOrEqualToXml, xml);
   }
@@ -909,20 +843,17 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsGreaterThanOrEqualToShort()
       throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     short literal = 1;
 
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, literal);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    String xml = writer.toString();
+    String xml = marshal(filter);
 
     assertXMLEqual(propertyGreaterThanOrEqualToXml, xml);
   }
@@ -930,230 +861,201 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsGreaterThanOrEqualToLong()
       throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     long literal = 1L;
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyGreaterThanOrEqualToXml, writer.toString());
+    assertXMLEqual(propertyGreaterThanOrEqualToXml, filterXml);
   }
 
   @Test
   public void testPropertyIsGreaterThanOrEqualToFloat()
       throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     float literal = 1.0F;
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyGreaterThanOrEqualToXmlDecimal, writer.toString());
+    assertXMLEqual(propertyGreaterThanOrEqualToXmlDecimal, filterXml);
   }
 
   @Test
   public void testPropertyIsGreaterThanOrEqualToDouble()
       throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     double literal = 1.0;
     FilterType filter = delegate.propertyIsGreaterThanOrEqualTo(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyGreaterThanOrEqualToXmlDecimal, writer.toString());
+    assertXMLEqual(propertyGreaterThanOrEqualToXmlDecimal, filterXml);
   }
 
   @Test
   public void testPropertyIsLessThanString() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, LITERAL);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyLessThanXmlLiteral, writer.toString());
+    assertXMLEqual(propertyLessThanXmlLiteral, filterXml);
   }
 
   @Test
   public void testPropertyIsLessThanDate() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, date);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyLessThanXmlDate, writer.toString());
+    assertXMLEqual(propertyLessThanXmlDate, filterXml);
   }
 
   @Test
   public void testPropertyIsLessThanInt() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, 1);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    String xml = writer.toString();
+    String xml = marshal(filter);
 
     assertXMLEqual(propertyLessThanXml, xml);
   }
 
   @Test
   public void testPropertyIsLessThanShort() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     short literal = 1;
 
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, literal);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    String xml = writer.toString();
+    String xml = marshal(filter);
 
     assertXMLEqual(propertyLessThanXml, xml);
   }
 
   @Test
   public void testPropertyIsLessThanLong() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     long literal = 1L;
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyLessThanXml, writer.toString());
+    assertXMLEqual(propertyLessThanXml, filterXml);
   }
 
   @Test
   public void testPropertyIsLessThanFloat() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     float literal = 1.0F;
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyLessThanXmlDecimal, writer.toString());
+    assertXMLEqual(propertyLessThanXmlDecimal, filterXml);
   }
 
   @Test
   public void testPropertyIsLessThanDouble() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     double literal = 1.0;
     FilterType filter = delegate.propertyIsLessThan(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyLessThanXmlDecimal, writer.toString());
+    assertXMLEqual(propertyLessThanXmlDecimal, filterXml);
   }
 
   @Test
   public void testPropertyIsLessThanOrEqualToString()
       throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, LITERAL);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyLessThanOrEqualToXmlLiteral, writer.toString());
+    assertXMLEqual(propertyLessThanOrEqualToXmlLiteral, filterXml);
   }
 
   @Test
   public void testPropertyIsLessThanOrEqualToDate()
       throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, date);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyLessThanOrEqualToXmlDate, writer.toString());
+    assertXMLEqual(propertyLessThanOrEqualToXmlDate, filterXml);
   }
 
   @Test
   public void testPropertyIsLessThanOrEqualToInt() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, 1);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    String xml = writer.toString();
+    String xml = marshal(filter);
 
     assertXMLEqual(propertyLessThanOrEqualToXml, xml);
   }
@@ -1161,20 +1063,17 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsLessThanOrEqualToShort()
       throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     short literal = 1;
 
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, literal);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    String xml = writer.toString();
+    String xml = marshal(filter);
 
     assertXMLEqual(propertyLessThanOrEqualToXml, xml);
   }
@@ -1182,189 +1081,167 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsLessThanOrEqualToLong()
       throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     long literal = 1L;
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyLessThanOrEqualToXml, writer.toString());
+    assertXMLEqual(propertyLessThanOrEqualToXml, filterXml);
   }
 
   @Test
   public void testPropertyIsLessThanOrEqualToFloat()
       throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     float literal = 1.0F;
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyLessThanOrEqualToXmlDecimal, writer.toString());
+    assertXMLEqual(propertyLessThanOrEqualToXmlDecimal, filterXml);
   }
 
   @Test
   public void testPropertyIsLessThanOrEqualToDouble()
       throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     double literal = 1.0;
     FilterType filter = delegate.propertyIsLessThanOrEqualTo(MOCK_PROPERTY, literal);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyLessThanOrEqualToXmlDecimal, writer.toString());
+    assertXMLEqual(propertyLessThanOrEqualToXmlDecimal, filterXml);
   }
 
   @Test
   public void testPropertyIsBetweenString() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsBetween(MOCK_PROPERTY, LITERAL, UNLITERAL);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    LOGGER.debug(writer.toString());
-    assertXMLEqual(propertyBetweenXmlLiteral, writer.toString());
+    String filterXml = marshal(filter);
+    LOGGER.debug(filterXml);
+    assertXMLEqual(propertyBetweenXmlLiteral, filterXml);
   }
 
   @Test
   public void testPropertyIsBetweenDate() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsBetween(MOCK_PROPERTY, date, getEndDate());
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyBetweenXmlDate, writer.toString());
+    assertXMLEqual(propertyBetweenXmlDate, filterXml);
   }
 
   @Test
   public void testPropertyIsBetweenInt() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsBetween(MOCK_PROPERTY, 1, 10);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    String xml = writer.toString();
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyBetweenXml, xml);
+    assertXMLEqual(propertyBetweenXml, filterXml);
   }
 
   @Test
   public void testPropertyIsBetweenShort() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     short lower = 1;
     short upper = 10;
 
     FilterType filter = delegate.propertyIsBetween(MOCK_PROPERTY, lower, upper);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    String xml = writer.toString();
+    String xml = marshal(filter);
 
     assertXMLEqual(propertyBetweenXml, xml);
   }
 
   @Test
   public void testPropertyIsBetweenLong() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     long lower = 1L;
     long upper = 10L;
 
     FilterType filter = delegate.propertyIsBetween(MOCK_PROPERTY, lower, upper);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyBetweenXml, writer.toString());
+    assertXMLEqual(propertyBetweenXml, filterXml);
   }
 
   @Test
   public void testPropertyIsBetweenFloat() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     float lower = 1.0F;
     float upper = 10.0F;
     FilterType filter = delegate.propertyIsBetween(MOCK_PROPERTY, lower, upper);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyBetweenXmlDecimal, writer.toString());
+    assertXMLEqual(propertyBetweenXmlDecimal, filterXml);
   }
 
   @Test
   public void testPropertyIsBetweenDouble() throws JAXBException, SAXException, IOException {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     double lower = 1.0;
     double upper = 10.0;
     FilterType filter = delegate.propertyIsBetween(MOCK_PROPERTY, lower, upper);
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    String filterXml = marshal(filter);
 
-    assertXMLEqual(propertyBetweenXmlDecimal, writer.toString());
+    assertXMLEqual(propertyBetweenXmlDecimal, filterXml);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testPropertyIsBetweenNullLowerBoundary() {
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     String lower = null;
     delegate.propertyIsBetween(MOCK_PROPERTY, lower, LITERAL);
   }
@@ -1372,18 +1249,18 @@ public class WfsFilterDelegateTest {
   @Test(expected = IllegalArgumentException.class)
   public void testPropertyIsBetweenNullUpperBoundary() {
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     String upper = null;
     delegate.propertyIsBetween(MOCK_PROPERTY, LITERAL, upper);
   }
 
   @Test
   public void testPropertyIsLikeStringStringBoolean() {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsLike(PROPERTY_NAME, LITERAL, true);
     // Ensure this is an invalid FilterType
     assertTrue(filter == null);
@@ -1391,53 +1268,51 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testPropertyIsLikeStringStringBooleanAnyText() {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
     // 1 property will produce a ComparisonOp
     assertTrue(filter.isSetComparisonOps());
     assertNotNull(filter.getComparisonOps());
-    assertTrue(filter.getComparisonOps() instanceof JAXBElement<?>);
   }
 
   @Test
   public void testPropertyIsLikeStringStringBooleanAnyTextMultipleProperties() {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     mockTextProps.add(MOCK_PROPERTY_2);
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY_2)).thenReturn(true);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
-    // Mulitple properties will produce a LogicOp (OR)
+    // Multiple properties will produce a LogicOp (OR)
     assertFalse(filter.isSetComparisonOps());
     assertTrue(filter.isSetLogicOps());
     assertNotNull(filter.getLogicOps());
-    assertTrue(filter.getLogicOps() instanceof JAXBElement<?>);
   }
 
   @Test
   public void testPropertyIsLikeAnyTextNoAttributes() {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
     assertTrue(filter == null);
   }
 
   @Test
   public void testPropertyIsEqualToAnyTextNoAttributes() {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     when(featureMetacardType.getTextualProperties()).thenReturn(mockTextProps);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ANY_TEXT, LITERAL, true);
     assertTrue(filter == null);
   }
@@ -1445,7 +1320,7 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsEqualToMetacardId() {
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     when(featureMetacardType.getName()).thenReturn("test");
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ID, "test.123", true);
     assertNotNull(filter);
@@ -1454,7 +1329,7 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsEqualToMetacardIdSimpleId() {
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     when(featureMetacardType.getName()).thenReturn("test");
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ID, "123", true);
     assertNotNull(filter);
@@ -1463,7 +1338,7 @@ public class WfsFilterDelegateTest {
   @Test
   public void testPropertyIsEqualToMetacardIdMismatchFeature() {
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     when(featureMetacardType.getName()).thenReturn("badType");
     FilterType filter = delegate.propertyIsEqualTo(Metacard.ID, "test.123", true);
     assertNull(filter);
@@ -1471,21 +1346,21 @@ public class WfsFilterDelegateTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testPropertyIsLikePropertyBlacklisted() {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
 
     when(featureMetacardType.getProperties()).thenReturn(mockTextProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(false);
 
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     delegate.propertyIsLike(MOCK_PROPERTY, LITERAL, false);
   }
 
   @Test
   public void testAllTextualPropertiesBlacklisted() {
-    List<String> mockTextProps = new ArrayList<String>();
+    List<String> mockTextProps = new ArrayList<>();
     mockTextProps.add(MOCK_PROPERTY);
     mockTextProps.add(MOCK_PROPERTY_2);
 
@@ -1493,7 +1368,7 @@ public class WfsFilterDelegateTest {
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(false);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY_2)).thenReturn(false);
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
 
     FilterType filter = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, false);
     assertNull(filter);
@@ -1501,48 +1376,163 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testNonTextualPropertyIsLike() {
-    List<String> mockProps = new ArrayList<String>();
+    List<String> mockProps = new ArrayList<>();
     mockProps.add(MOCK_PROPERTY);
 
     when(featureMetacardType.getProperties()).thenReturn(mockProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
 
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsLike(MOCK_PROPERTY, LITERAL, false);
     assertNotNull(filter);
   }
 
   @Test
   public void testNonTextualPropertyIsEqual() throws JAXBException, SAXException, IOException {
-    List<String> mockProps = new ArrayList<String>();
+    List<String> mockProps = new ArrayList<>();
     mockProps.add(MOCK_PROPERTY);
 
     when(featureMetacardType.getProperties()).thenReturn(mockProps);
     when(featureMetacardType.isQueryable(MOCK_PROPERTY)).thenReturn(true);
 
     WfsFilterDelegate delegate =
-        new WfsFilterDelegate(featureMetacardType, SUPPORTED_GEO, SRS_NAME);
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
     FilterType filter = delegate.propertyIsEqualTo(MOCK_PROPERTY, false);
 
-    Writer writer = new StringWriter();
-    Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
-
-    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
-    String xml = writer.toString();
+    String xml = marshal(filter);
 
     assertXMLEqual(propertyIsEqualToXmlBoolean, xml);
   }
 
+  @Test
+  public void testPropertyIsFilterWithMetacardAttributeMappedToFeatureProperty() throws Exception {
+    final List<String> featureProperties = singletonList(MOCK_PROPERTY);
+    doReturn(featureProperties).when(featureMetacardType).getProperties();
+    doReturn(true).when(featureMetacardType).isQueryable(MOCK_PROPERTY);
+
+    doReturn(MOCK_PROPERTY).when(metacardMapper).getFeatureProperty(Core.TITLE);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
+
+    final FilterType filter = delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
+    final String filterXml = marshal(filter);
+    assertXMLEqual(propertyIsEqualToXmlLiteral, filterXml);
+  }
+
+  @Test
+  public void testPropertyIsFilterCannotMapToFeatureProperty() {
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
+    final FilterType filter = delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
+    assertThat(
+        "The filter should have been null because 'title' is not mapped to a WFS feature property.",
+        filter,
+        is(nullValue()));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testPropertyIsFilterFeaturePropertyIsNotQueryable() {
+    final List<String> featureProperties = singletonList(MOCK_PROPERTY);
+    doReturn(featureProperties).when(featureMetacardType).getProperties();
+
+    doReturn(MOCK_PROPERTY).when(metacardMapper).getFeatureProperty(Core.TITLE);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
+
+    delegate.propertyIsEqualTo(Core.TITLE, LITERAL, true);
+  }
+
+  @Test
+  public void testPropertyIsBetweenFilterWithMetacardAttributeMappedToFeatureProperty()
+      throws Exception {
+    final List<String> featureProperties = singletonList(MOCK_PROPERTY);
+    doReturn(featureProperties).when(featureMetacardType).getProperties();
+    doReturn(true).when(featureMetacardType).isQueryable(MOCK_PROPERTY);
+
+    doReturn(MOCK_PROPERTY).when(metacardMapper).getFeatureProperty(Core.CREATED);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
+
+    final FilterType filter = delegate.propertyIsBetween(Core.CREATED, date, endDate);
+    final String filterXml = marshal(filter);
+    assertXMLEqual(propertyBetweenXmlDate, filterXml);
+  }
+
+  @Test
+  public void testPropertyIsBetweenFilterCannotMapToFeatureProperty() {
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
+    final FilterType filter = delegate.propertyIsBetween(Core.CREATED, date, endDate);
+    assertThat(
+        "The filter should have been null because 'created' is not mapped to a WFS feature property.",
+        filter,
+        is(nullValue()));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testPropertyIsBetweenFilterFeaturePropertyIsNotQueryable() {
+    final List<String> featureProperties = singletonList(MOCK_PROPERTY);
+    doReturn(featureProperties).when(featureMetacardType).getProperties();
+
+    doReturn(MOCK_PROPERTY).when(metacardMapper).getFeatureProperty(Core.CREATED);
+
+    final WfsFilterDelegate delegate =
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, SUPPORTED_GEO, SRS_NAME);
+
+    delegate.propertyIsBetween(Core.CREATED, date, endDate);
+  }
+
+  @Test
+  public void testGeospatialFilterWithMetacardAttributeMappedToFeatureProperty() {
+    doReturn(MOCK_GEOM).when(metacardMapper).getFeatureProperty(Core.LOCATION);
+
+    final WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWithin.getValue());
+
+    final FilterType filter = delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
+    assertThat("The filter is not spatial.", filter.isSetSpatialOps(), is(true));
+    assertThat(filter.getSpatialOps().getValue(), is(instanceOf(DistanceBufferType.class)));
+
+    final DistanceBufferType distanceBufferType =
+        (DistanceBufferType) filter.getSpatialOps().getValue();
+    assertThat(
+        String.format("'%s' was not mapped to '%s' in the query.", Core.LOCATION, MOCK_GEOM),
+        distanceBufferType.getPropertyName().getContent(),
+        is(MOCK_GEOM));
+  }
+
+  @Test
+  public void testGeospatialFilterCannotMapToFeatureProperty() {
+    final WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWithin.getValue());
+    final FilterType filter = delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
+    assertThat(
+        "The filter should have been null because 'location' is not mapped to a WFS feature property.",
+        filter,
+        is(nullValue()));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGeospatialFilterFeaturePropertyIsNotQueryable() {
+    doReturn(MOCK_GEOM).when(metacardMapper).getFeatureProperty(Core.LOCATION);
+
+    final WfsFilterDelegate delegate = setupFilterDelegate(SPATIAL_OPERATORS.DWithin.getValue());
+    doReturn(false).when(featureMetacardType).isQueryable(MOCK_GEOM);
+
+    delegate.dwithin(Core.LOCATION, POINT, DISTANCE);
+  }
+
   private WfsFilterDelegate setupFilterDelegate(String spatialOpType) {
-    List<String> gmlProps = new ArrayList<String>();
+    List<String> gmlProps = new ArrayList<>();
     gmlProps.add(MOCK_GEOM);
 
     when(featureMetacardType.getGmlProperties()).thenReturn(gmlProps);
     when(featureMetacardType.isQueryable(MOCK_GEOM)).thenReturn(true);
 
     List<String> supportedGeo = Arrays.asList(spatialOpType);
-    return new WfsFilterDelegate(featureMetacardType, supportedGeo, SRS_NAME);
+    return new WfsFilterDelegate(featureMetacardType, metacardMapper, supportedGeo, SRS_NAME);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -1791,7 +1781,7 @@ public class WfsFilterDelegateTest {
   @Test
   public void testIntersectsMultipleProperties() {
 
-    List<String> gmlProps = new ArrayList<String>();
+    List<String> gmlProps = new ArrayList<>();
     gmlProps.add(MOCK_GEOM);
     gmlProps.add(MOCK_GEOM2);
     when(featureMetacardType.getGmlProperties()).thenReturn(gmlProps);
@@ -1799,7 +1789,8 @@ public class WfsFilterDelegateTest {
     when(featureMetacardType.isQueryable(MOCK_GEOM2)).thenReturn(true);
 
     List<String> supportedGeo = Arrays.asList(SPATIAL_OPERATORS.Intersect.toString());
-    WfsFilterDelegate delegate = new WfsFilterDelegate(featureMetacardType, supportedGeo, SRS_NAME);
+    WfsFilterDelegate delegate =
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, supportedGeo, SRS_NAME);
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
     assertNotNull(filter);
@@ -1809,7 +1800,7 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testAllGmlPropertiesBlacklisted() {
-    List<String> gmlProps = new ArrayList<String>();
+    List<String> gmlProps = new ArrayList<>();
     gmlProps.add(MOCK_GEOM);
     gmlProps.add(MOCK_GEOM2);
     when(featureMetacardType.getGmlProperties()).thenReturn(gmlProps);
@@ -1817,7 +1808,8 @@ public class WfsFilterDelegateTest {
     when(featureMetacardType.isQueryable(MOCK_GEOM2)).thenReturn(false);
 
     List<String> supportedGeo = Arrays.asList(SPATIAL_OPERATORS.Intersect.toString());
-    WfsFilterDelegate delegate = new WfsFilterDelegate(featureMetacardType, supportedGeo, SRS_NAME);
+    WfsFilterDelegate delegate =
+        new WfsFilterDelegate(featureMetacardType, metacardMapper, supportedGeo, SRS_NAME);
 
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
     assertNull(filter);
@@ -1837,13 +1829,14 @@ public class WfsFilterDelegateTest {
 
   @Test
   public void testNonEpsg4326Srs() {
-    List<String> gmlProps = new ArrayList<String>();
+    List<String> gmlProps = new ArrayList<>();
     gmlProps.add(MOCK_GEOM);
     when(featureMetacardType.getGmlProperties()).thenReturn(gmlProps);
 
     WfsFilterDelegate delegate =
         new WfsFilterDelegate(
             featureMetacardType,
+            metacardMapper,
             Arrays.asList(SPATIAL_OPERATORS.Intersect.toString()),
             "EPSG:42304");
     FilterType filter = delegate.intersects(Metacard.ANY_GEO, POLYGON);
@@ -1851,22 +1844,18 @@ public class WfsFilterDelegateTest {
     assertTrue(filter == null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testGeoFilterNullMetacardType() {
-    List<String> supportedGeo = Arrays.asList(SPATIAL_OPERATORS.Beyond.toString());
-
-    WfsFilterDelegate delegate = new WfsFilterDelegate(null, supportedGeo, SRS_NAME);
-
-    delegate.beyond(Metacard.ANY_GEO, POLYGON, DISTANCE);
+  private JAXBElement<FilterType> getFilterTypeJaxbElement(FilterType filterType) {
+    return new JAXBElement<>(
+        new QName("http://www.opengis.net/ogc", FILTER_QNAME_LOCAL_PART),
+        FilterType.class,
+        filterType);
   }
 
-  private JAXBElement<FilterType> getFilterTypeJaxbElement(FilterType filterType) {
-    JAXBElement<FilterType> filterTypeJaxbElement =
-        new JAXBElement<FilterType>(
-            new QName("http://www.opengis.net/ogc", FILTER_QNAME_LOCAL_PART),
-            FilterType.class,
-            filterType);
-    return filterTypeJaxbElement;
+  private String marshal(final FilterType filter) throws JAXBException {
+    final Writer writer = new StringWriter();
+    final Marshaller marshaller = JAXB_CONTEXT.createMarshaller();
+    marshaller.marshal(getFilterTypeJaxbElement(filter), writer);
+    return writer.toString();
   }
 
   private static JAXBContext initJaxbContext() {
@@ -1909,8 +1898,7 @@ public class WfsFilterDelegateTest {
   }
 
   private DateTime convertDateToIso8601Format(Date inputDate) {
-    DateTime outputDate = new DateTime(inputDate);
-    return outputDate;
+    return new DateTime(inputDate);
   }
 
   private String getPropertyEqualToXmlDate() {

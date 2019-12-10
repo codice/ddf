@@ -31,14 +31,11 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.security.encryption.EncryptionService;
-import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -57,10 +54,10 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import javax.net.ssl.SSLHandshakeException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -83,7 +80,6 @@ import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
-import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
@@ -94,6 +90,8 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GenericFeatureConverter;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.impl.MetacardMapperImpl;
 import org.codice.ddf.spatial.ogc.wfs.catalog.source.MarkableStreamInterceptor;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.DescribeFeatureTypeRequest;
 import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common.GetCapabilitiesRequest;
@@ -178,8 +176,7 @@ public class WfsSource extends AbstractWfsSource {
 
   private String wfsVersion;
 
-  private Map<QName, WfsFilterDelegate> featureTypeFilters =
-      new HashMap<QName, WfsFilterDelegate>();
+  private Map<QName, WfsFilterDelegate> featureTypeFilters = new HashMap<>();
 
   private String authenticationType;
 
@@ -193,8 +190,7 @@ public class WfsSource extends AbstractWfsSource {
 
   private BundleContext context;
 
-  private Map<String, ServiceRegistration> metacardTypeServiceRegistrations =
-      new HashMap<String, ServiceRegistration>();
+  private Map<String, ServiceRegistration> metacardTypeServiceRegistrations = new HashMap<>();
 
   private String[] nonQueryableProperties;
 
@@ -216,7 +212,7 @@ public class WfsSource extends AbstractWfsSource {
 
   private AvailabilityTask availabilityTask;
 
-  private Set<SourceMonitor> sourceMonitors = new HashSet<SourceMonitor>();
+  private Set<SourceMonitor> sourceMonitors = new HashSet<>();
 
   private SecureCxfClientFactory<Wfs> factory;
 
@@ -226,31 +222,15 @@ public class WfsSource extends AbstractWfsSource {
 
   private FeatureCollectionMessageBodyReaderWfs10 featureCollectionReader;
 
+  private List<MetacardMapper> metacardMappers;
+
   public WfsSource(
-      FilterAdapter filterAdapter,
-      BundleContext context,
-      AvailabilityTask task,
       ClientFactoryFactory clientFactoryFactory,
-      EncryptionService encryptionService)
-      throws SecurityServiceException {
-
-    this.filterAdapter = filterAdapter;
-    this.context = context;
-    this.availabilityTask = task;
-    this.clientFactoryFactory = clientFactoryFactory;
-    this.encryptionService = encryptionService;
-    initProviders();
-    createClientFactory();
-    configureWfsFeatures();
-  }
-
-  public WfsSource(EncryptionService encryptionService, ClientFactoryFactory clientFactoryFactory) {
-    // Required for bean creation
-    scheduler =
-        Executors.newSingleThreadScheduledExecutor(
-            StandardThreadFactoryBuilder.newThreadFactory("wfsSourceThread"));
+      EncryptionService encryptionService,
+      ScheduledExecutorService scheduler) {
     this.encryptionService = encryptionService;
     this.clientFactoryFactory = clientFactoryFactory;
+    this.scheduler = scheduler;
   }
 
   /**
@@ -280,7 +260,7 @@ public class WfsSource extends AbstractWfsSource {
    *
    * @param configuration
    */
-  public void refresh(Map<String, Object> configuration) throws SecurityServiceException {
+  public void refresh(Map<String, Object> configuration) {
 
     LOGGER.debug("WfsSource {}: Refresh called", getId());
     String wfsUrl = (String) configuration.get(WFSURL_PROPERTY);
@@ -385,11 +365,11 @@ public class WfsSource extends AbstractWfsSource {
     }
   }
 
-  private List<? extends Object> initProviders() {
+  private List<?> initProviders() {
     // We need to tell the JAXBElementProvider to marshal the GetFeatureType
     // class as an element because it is missing the @XmlRootElement Annotation
-    JAXBElementProvider<GetFeatureType> provider = new JAXBElementProvider<GetFeatureType>();
-    Map<String, String> jaxbClassMap = new HashMap<String, String>();
+    JAXBElementProvider<GetFeatureType> provider = new JAXBElementProvider<>();
+    Map<String, String> jaxbClassMap = new HashMap<>();
 
     // Ensure a namespace is used when the GetFeature request is generated
     String expandedName =
@@ -454,25 +434,7 @@ public class WfsSource extends AbstractWfsSource {
     }
   }
 
-  private void availabilityChanged(boolean isAvailable) {
-    if (isAvailable) {
-      LOGGER.info("WFS source {} is available.", getId());
-    } else {
-      LOGGER.info("WFS source {} is unavailable.", getId());
-    }
-
-    for (SourceMonitor monitor : this.sourceMonitors) {
-      if (isAvailable) {
-        LOGGER.debug("Notifying source monitor that WFS source {} is available.", getId());
-        monitor.setAvailable();
-      } else {
-        LOGGER.debug("Notifying source monitor that WFS source {} is unavailable.", getId());
-        monitor.setUnavailable();
-      }
-    }
-  }
-
-  private WFSCapabilitiesType getCapabilities() throws SecurityServiceException {
+  private WFSCapabilitiesType getCapabilities() {
     WFSCapabilitiesType capabilities = null;
     Wfs wfs = factory.getClient();
     try {
@@ -491,7 +453,7 @@ public class WfsSource extends AbstractWfsSource {
     return capabilities;
   }
 
-  private void configureWfsFeatures() throws SecurityServiceException {
+  private void configureWfsFeatures() {
     WFSCapabilitiesType capabilities = getCapabilities();
 
     if (capabilities != null) {
@@ -513,7 +475,7 @@ public class WfsSource extends AbstractWfsSource {
   }
 
   private List<String> getSupportedGeo(WFSCapabilitiesType capabilities) {
-    supportedGeoFilters = new ArrayList<String>();
+    supportedGeoFilters = new ArrayList<>();
     List<Object> geoTypes =
         capabilities
             .getFilterCapabilities()
@@ -531,13 +493,11 @@ public class WfsSource extends AbstractWfsSource {
   }
 
   @SuppressWarnings("squid:S1149" /* Constrained by contract */)
-  private void buildFeatureFilters(List<FeatureTypeType> featureTypes, List<String> supportedGeo)
-      throws SecurityServiceException {
+  private void buildFeatureFilters(List<FeatureTypeType> featureTypes, List<String> supportedGeo) {
 
     // Use local Map for metacardtype registrations and once they are populated with latest
     // MetacardTypes, then do actual registration
-    Map<String, MetacardTypeRegistration> mcTypeRegs =
-        new HashMap<String, MetacardTypeRegistration>();
+    Map<String, MetacardTypeRegistration> mcTypeRegs = new HashMap<>();
     Wfs wfs = factory.getClient();
 
     for (FeatureTypeType featureTypeType : featureTypes) {
@@ -561,7 +521,7 @@ public class WfsSource extends AbstractWfsSource {
         XmlSchema schema =
             wfs.describeFeatureType(new DescribeFeatureTypeRequest(featureTypeType.getName()));
 
-        if ((schema != null)) {
+        if (schema != null) {
           FeatureMetacardType ftMetacard =
               new FeatureMetacardType(
                   schema,
@@ -595,21 +555,16 @@ public class WfsSource extends AbstractWfsSource {
                 break;
               }
             }
+          }
 
-            if (featureConverter == null) {
-              LOGGER.debug(
-                  "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
-                  getId(),
-                  ftName);
-              featureConverter = new GenericFeatureConverter(featureTypeType.getSRS());
-            }
-          } else {
+          if (featureConverter == null) {
             LOGGER.debug(
                 "WfsSource {}: Unable to find a feature specific converter; {} will be converted using the GenericFeatureConverter",
                 getId(),
-                ftName);
-            featureConverter = new GenericFeatureConverter(featureTypeType.getSRS());
+                featureTypeType.getName());
+            featureConverter = createGenericFeatureConverter(featureTypeType);
           }
+
           featureConverter.setSourceId(getId());
           featureConverter.setMetacardType(ftMetacard);
           featureConverter.setWfsUrl(wfsUrl);
@@ -643,9 +598,10 @@ public class WfsSource extends AbstractWfsSource {
         ServiceRegistration serviceRegistration =
             context.registerService(MetacardType.class.getName(), ftMetacard, mcTypeReg.getProps());
         this.metacardTypeServiceRegistrations.put(entry.getKey(), serviceRegistration);
+        MetacardMapper metacardMapper = getMetacardMapper(ftMetacard.getFeatureType());
         this.featureTypeFilters.put(
             ftMetacard.getFeatureType(),
-            new WfsFilterDelegate(ftMetacard, supportedGeo, mcTypeReg.getSrs()));
+            new WfsFilterDelegate(ftMetacard, metacardMapper, supportedGeo, mcTypeReg.getSrs()));
       }
     }
 
@@ -656,6 +612,40 @@ public class WfsSource extends AbstractWfsSource {
     }
     LOGGER.debug(
         "Wfs Source {}: Number of validated Features = {}", getId(), featureTypeFilters.size());
+  }
+
+  private GenericFeatureConverter createGenericFeatureConverter(final FeatureTypeType featureType) {
+    final MetacardMapper featurePropertyToMetacardAttributeMapper =
+        getMetacardMapper(featureType.getName());
+    if (featurePropertyToMetacardAttributeMapper != null) {
+      LOGGER.debug(
+          "WFS Source {}: Created generic feature converter for feature type {} with feature property to metacard attribute mapper.",
+          getId(),
+          featureType.getName());
+      return new GenericFeatureConverter(featurePropertyToMetacardAttributeMapper);
+    } else {
+      LOGGER.debug(
+          "WFS Source {}: Created generic feature converter for feature type {} with no feature property to metacard attribute mapper.",
+          getId(),
+          featureType.getName());
+      return new GenericFeatureConverter(featureType.getSRS());
+    }
+  }
+
+  private MetacardMapper getMetacardMapper(final QName featureTypeName) {
+    final Predicate<MetacardMapper> matchesFeatureType =
+        mapper -> mapper.getFeatureType().equals(featureTypeName.toString());
+    return metacardMappers
+        .stream()
+        .filter(matchesFeatureType)
+        .findAny()
+        .orElseGet(
+            () -> {
+              LOGGER.debug(
+                  "Could not find a MetacardMapper for featureType {}. Returning a default implementation.",
+                  featureTypeName);
+              return new MetacardMapperImpl();
+            });
   }
 
   @Override
@@ -745,7 +735,7 @@ public class WfsSource extends AbstractWfsSource {
       // original page size.
       int numberOfResultsToReturn =
           Math.min(origPageSize, featureCollection.getFeatureMembers().size());
-      List<Result> results = new ArrayList<Result>(numberOfResultsToReturn);
+      List<Result> results = new ArrayList<>(numberOfResultsToReturn);
 
       int stopIndex =
           Math.min(
@@ -880,7 +870,7 @@ public class WfsSource extends AbstractWfsSource {
       LOGGER.debug("WFS Source {}: Unable to get content types from query.", getId(), e);
     }
 
-    return contentTypes != null ? contentTypes : new ArrayList<ContentType>();
+    return contentTypes != null ? contentTypes : new ArrayList<>();
   }
 
   private void unregisterAllMetacardTypes() {
@@ -896,7 +886,7 @@ public class WfsSource extends AbstractWfsSource {
   @Override
   public Set<ContentType> getContentTypes() {
     Set<QName> typeNames = featureTypeFilters.keySet();
-    Set<ContentType> contentTypes = new HashSet<ContentType>();
+    Set<ContentType> contentTypes = new HashSet<>();
     for (QName featureName : typeNames) {
       contentTypes.add(new ContentTypeImpl(featureName.getLocalPart(), getVersion()));
     }
@@ -950,8 +940,7 @@ public class WfsSource extends AbstractWfsSource {
   }
 
   @Override
-  public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> arguments)
-      throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
+  public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> arguments) {
     StringBuilder strBuilder = new StringBuilder();
     strBuilder.append("<html><script type=\"text/javascript\">window.location.replace(\"");
     strBuilder.append(uri);
@@ -969,13 +958,13 @@ public class WfsSource extends AbstractWfsSource {
   @Override
   public Set<String> getSupportedSchemes() {
     // TODO Auto-generated method stub -
-    return null;
+    return new HashSet<>();
   }
 
   @Override
   public Set<String> getOptions(Metacard metacard) {
     // TODO Auto-generated method stub
-    return null;
+    return new HashSet<>();
   }
 
   public String getWfsUrl() {
@@ -1103,7 +1092,7 @@ public class WfsSource extends AbstractWfsSource {
         marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
         marshallerObj.marshal(new ObjectFactory().createGetFeature(getFeature), writer);
-        LOGGER.debug("WfsSource {}: {}", getId(), writer.toString());
+        LOGGER.debug("WfsSource {}: {}", getId(), writer);
       } catch (JAXBException e) {
         LOGGER.debug("An error occurred debugging the GetFeature request", e);
       }
@@ -1125,7 +1114,7 @@ public class WfsSource extends AbstractWfsSource {
       sb.append("\nmetadata:\t").append(result.getMetacard().getMetadata());
       sb.append("\nlocation:\t").append(result.getMetacard().getLocation());
 
-      LOGGER.debug("Transform complete. Metacard: {}", sb.toString());
+      LOGGER.debug("Transform complete. Metacard: {}", sb);
     }
   }
 
@@ -1177,24 +1166,38 @@ public class WfsSource extends AbstractWfsSource {
    * @author kcwire
    */
   private class WfsSourceAvailabilityCommand implements AvailabilityCommand {
+    private void availabilityChangedToAvailable() {
+      LOGGER.info("WFS source {} is available.", getId());
+
+      for (SourceMonitor monitor : WfsSource.this.sourceMonitors) {
+        LOGGER.debug("Notifying source monitor that WFS source {} is available.", getId());
+        monitor.setAvailable();
+      }
+    }
+
+    private void availabilityChangedToUnavailable() {
+      LOGGER.info("WFS source {} is unavailable.", getId());
+
+      for (SourceMonitor monitor : WfsSource.this.sourceMonitors) {
+        LOGGER.debug("Notifying source monitor that WFS source {} is unavailable.", getId());
+        monitor.setUnavailable();
+      }
+    }
 
     @Override
     public boolean isAvailable() {
       LOGGER.debug("Checking availability for source {} ", getId());
       boolean oldAvailability = WfsSource.this.isAvailable();
-      boolean newAvailability = false;
-      try {
-        // Simple "ping" to ensure the source is responding
-        newAvailability = (null != getCapabilities());
-        if (oldAvailability != newAvailability) {
-          availabilityChanged(newAvailability);
-          // If the source becomes available, configure it.
-          if (newAvailability) {
-            configureWfsFeatures();
-          }
+      // Simple "ping" to ensure the source is responding
+      boolean newAvailability = (null != getCapabilities());
+      if (oldAvailability != newAvailability) {
+        // If the source becomes available, configure it.
+        if (newAvailability) {
+          availabilityChangedToAvailable();
+          configureWfsFeatures();
+        } else {
+          availabilityChangedToUnavailable();
         }
-      } catch (SecurityServiceException sse) {
-        LOGGER.info("Could not get a client to connect to the endpointUrl.", sse);
       }
       return newAvailability;
     }
@@ -1202,5 +1205,9 @@ public class WfsSource extends AbstractWfsSource {
 
   public void setForcedFeatureType(String featureType) {
     this.forcedFeatureType = featureType;
+  }
+
+  public void setMetacardMappers(final List<MetacardMapper> metacardMappers) {
+    this.metacardMappers = metacardMappers;
   }
 }
