@@ -55,6 +55,8 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
       ThreadLocal.withInitial(WKTWriter::new);
 
   private static final String NAME_KEY = "name";
+  public static final String GEO_ENTRY_METACARD_TYPE_MISSING_ERROR_MSG =
+      "GeoEntryMetacardType not available. Make sure offline-gazetteer-index feature is installed.";
 
   private Security security = Security.getInstance();
 
@@ -62,17 +64,19 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
 
   private CatalogHelper catalogHelper;
 
-  private MetacardType metacardType;
+  private List<MetacardType> metacardTypes;
 
   public void setSecurity(Security security) {
     this.security = security;
   }
 
   public CatalogFeatureIndexer(
-      CatalogFramework catalogFramework, CatalogHelper catalogHelper, MetacardType metacardType) {
+      CatalogFramework catalogFramework,
+      CatalogHelper catalogHelper,
+      List<MetacardType> metacardTypes) {
     this.catalogFramework = catalogFramework;
     this.catalogHelper = catalogHelper;
-    this.metacardType = metacardType;
+    this.metacardTypes = metacardTypes;
   }
 
   @Override
@@ -80,6 +84,7 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
       String resource, FeatureExtractor featureExtractor, boolean create, IndexCallback callback)
       throws FeatureExtractionException, FeatureIndexingException {
     Validate.notNull(featureExtractor, "featureExtractor can't be null");
+    Validate.notEmpty(metacardTypes, GEO_ENTRY_METACARD_TYPE_MISSING_ERROR_MSG);
 
     if (create) {
       removeExistingMetacards();
@@ -125,7 +130,13 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
   }
 
   private Metacard createMetacardForFeature(SimpleFeature feature) throws FeatureIndexingException {
-    Metacard metacard = new MetacardImpl(metacardType);
+    Metacard metacard =
+        new MetacardImpl(
+            metacardTypes
+                .stream()
+                .findFirst()
+                .orElseThrow(
+                    () -> new FeatureIndexingException(GEO_ENTRY_METACARD_TYPE_MISSING_ERROR_MSG)));
     String countryCode = feature.getID();
 
     Object nameObject = feature.getAttribute(NAME_KEY);

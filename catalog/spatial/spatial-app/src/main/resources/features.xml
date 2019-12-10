@@ -155,6 +155,11 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-plugin/${project.version}</bundle>
     </feature>
 
+    <feature name="offline-gazetteer-index" version="${project.version}"
+             description="Offline gazetteer index service to build GeoNames index.">
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-offline-index/${project.version}</bundle>
+    </feature>
+
     <feature name="spatial-process-api" version="${project.version}"
              description="Spatial Process API">
         <bundle>mvn:org.codice.ddf.spatial/spatial-process-api/${project.version}</bundle>

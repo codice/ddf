@@ -13,7 +13,7 @@ The ${ddf-spatial} Application provides KML transformer and a KML network link e
 In the ${ddf-spatial} Application, the `offline-gazetteer` is installed by default.
 This feature enables you to use an offline source of GeoNames data (as an alternative to the GeoNames Web service enabled by the `webservice-gazetteer` feature) to perform searches via the gazetteer search box in the Search UI.
 
-By default a small set of GeoNames data is included with the offline gazetteer. The GeoNames data is stored as metacards in the core catalog and are tagged with `geonames` and `gazetteer`. This collection of GeoNames metacards can be expanded or updated by using the `gazetteer:update` command.
+Installing the `offline-gazetteer-index` feature will provide a small set of GeoNames data to use with the offline gazetteer. The GeoNames data is stored as metacards in the core catalog and are tagged with `geonames` and `gazetteer`. This collection of GeoNames metacards can be expanded or updated by using the `gazetteer:update` command.
 
 ==== ${ddf-spatial} Gazetteer Console Commands
 
