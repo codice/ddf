@@ -25,6 +25,8 @@ type State = {
   coordinates: Coordinates
   format: Format
   attributes: Attribute[]
+  measurementState: String
+  currentDistance: number
 }
 
 type Props = {
@@ -40,6 +42,8 @@ const mapPropsToState = (props: Props) => {
     },
     format: getCoordinateFormat(),
     attributes: getAttributes(map),
+    measurementState: map.get('measurementState'),
+    currentDistance: map.get('currentDistance'),
   }
 }
 
@@ -53,6 +57,8 @@ const getAttributes = (map: Backbone.Model) => {
         .get('targetMetacard')
         .get('metacard')
         .get('properties')
+        .get('measurementState')
+        .get('currentDistance')
         .get(attribute)
       return { name: attribute, value }
     })
@@ -76,7 +82,7 @@ class MapInfo extends React.Component<Props, State> {
     const { listenTo, map } = this.props
     listenTo(
       map,
-      'change:mouseLat change:mouseLon change:targetMetacard',
+      'change:mouseLat change:mouseLon change:targetMetacard change:currentDistance',
       this.handleChange
     )
     listenTo(

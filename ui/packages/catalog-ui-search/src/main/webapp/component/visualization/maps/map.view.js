@@ -41,6 +41,7 @@ const Gazetteer = require('../../../react-component/location/gazetteer.js')
 
 import MapSettings from '../../../react-component/map-settings'
 import MapInfo from '../../../react-component/map-info'
+import DistanceInfo from '../../../react-component/distance-info'
 
 function findExtreme({ objArray, property, comparator }) {
   if (objArray.length === 0) {
@@ -141,6 +142,7 @@ module.exports = Marionette.LayoutView.extend({
     mapDrawingPopup: '#mapDrawingPopup',
     mapContextMenu: '.map-context-menu',
     mapInfo: '.mapInfo',
+    distanceInfo: '.distanceInfo',
   },
   events: {
     'click .cluster-button': 'toggleClustering',
@@ -252,6 +254,7 @@ module.exports = Marionette.LayoutView.extend({
     this.map.onRightClick(this.onRightClick.bind(this))
     this.setupRightClickMenu()
     this.setupMapInfo()
+    this.setupDistanceInfo()
   },
   zoomToHome() {
     const home = [
@@ -435,6 +438,28 @@ module.exports = Marionette.LayoutView.extend({
     })
 
     this.mapInfo.show(new MapInfoView())
+  },
+  setupDistanceInfo() {
+    const map = this.mapModel
+    const update = this.updateDistanceInfoPosition
+    const DistanceInfoView = Marionette.ItemView.extend({
+      template() {
+        return <DistanceInfo onMouseMove={update.bind(this)} map={map} />
+      },
+    })
+
+    const distanceInfoView = new DistanceInfoView()
+
+    this.mapModel.addDistanceInfo(distanceInfoView)
+    this.distanceInfo.show(distanceInfoView)
+  },
+  updateDistanceInfoPosition(event, mapEvent) {
+    //TODO
+    if (this.mapModel.get('measurementState') === 'START') {
+      this.mapModel.setDistanceInfoPosition(event.clientY, event.clientX)
+    } else {
+      this.mapModel.removeDistanceInfo()
+    }
   },
   /*
         Map creation is deferred to this method, so that all resources pertaining to the map can be loaded lazily and

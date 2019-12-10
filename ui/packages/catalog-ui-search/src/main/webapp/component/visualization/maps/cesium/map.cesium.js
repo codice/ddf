@@ -33,6 +33,7 @@ const user = require('../../../singletons/user-instance.js')
 const User = require('../../../../js/model/User.js')
 
 const defaultColor = '#3c6dd5'
+const rulerColor = '#506f85'
 const eyeOffset = new Cesium.Cartesian3(0, 0, 0)
 const pixelOffset = new Cesium.Cartesian2(0.0, 0)
 
@@ -507,24 +508,51 @@ module.exports = function CesiumMap(
      */
     addRulerPoint(coordinates, markerLabel) {
       const { lat, lon } = coordinates
+
       // a point requires an altitude value so just use 0
       const point = [lon, lat, 0]
-      const options = {
+      const pointObject = convertPointCoordinate(point)
+      const cartographicPosition = Cesium.Cartographic.fromDegrees(
+        pointObject.longitude,
+        pointObject.latitude,
+        pointObject.altitude
+      )
+      let cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
+        cartographicPosition
+      )
+      const billboardRef = billboardCollection.add({
+        image: DrawingUtility.getCircle({
+          fillColor: rulerColor,
+          icon: null,
+        }),
+        position: cartesianPosition,
         id: markerLabel,
-        title: `Selected ruler coordinate '${markerLabel}'`,
-        color: '#FC2803',
-        icon: null,
-        view: this,
+        eyeOffset,
+      })
+      //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
+      if (!pointObject.altitude && map.scene.terrainProvider) {
+        const promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [
+          cartographicPosition,
+        ])
+        Cesium.when(promise, updatedCartographic => {
+          if (updatedCartographic[0].height && !this.isDestroyed) {
+            cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
+              updatedCartographic[0]
+            )
+            billboardRef.position = cartesianPosition
+          }
+        })
       }
-      const useCustomText = true
+      map.scene.requestRender()
 
-      return this.addPointWithText(point, options, useCustomText)
+      return billboardRef
     },
     /*
      * Removes the given Billboard from the map.
      */
     removeRulerPoint(billboardRef) {
       billboardCollection.remove(billboardRef)
+      map.scene.requestRender()
     },
     /*
      * Draws a line on the map between the points in the given array of Billboards.
@@ -535,14 +563,14 @@ module.exports = function CesiumMap(
       // a PolylineGeometry allows the line to follow the curvature of the surface
       const polyline = new Cesium.PolylineGeometry({
         positions: cartesianArray,
-        width: 8,
+        width: 5,
       })
       const geometry = Cesium.PolylineGeometry.createGeometry(polyline)
       const geometryInstance = new Cesium.GeometryInstance({
         geometry: geometry,
         attributes: {
           color: Cesium.ColorGeometryInstanceAttribute.fromColor(
-            Cesium.Color.fromCssColorString('#506F85')
+            Cesium.Color.fromCssColorString(rulerColor)
           ),
         },
       })
@@ -567,6 +595,7 @@ module.exports = function CesiumMap(
      */
     removeRulerLine(primitive) {
       map.scene.primitives.remove(primitive)
+      map.scene.requestRender()
     },
     /*
             Adds a billboard point utilizing the passed in point and options.
@@ -605,6 +634,7 @@ module.exports = function CesiumMap(
           }
         })
       }
+      map.scene.requestRender()
 
       return billboardRef
     },
@@ -646,6 +676,7 @@ module.exports = function CesiumMap(
           }
         })
       }
+      map.scene.requestRender()
 
       return billboardRef
     },

@@ -36,6 +36,7 @@ const User = require('../../../../js/model/User.js')
 const wreqr = require('../../../../js/wreqr.js')
 
 const defaultColor = '#3c6dd5'
+const rulerColor = '#506f85'
 
 const OpenLayerCollectionController = LayerCollectionController.extend({
   initialize() {
