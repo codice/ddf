@@ -43,5 +43,6 @@
         <module>catalog-plugin-gazetteer</module>
         <module>catalog-plugin-oauth</module>
         <module>catalog-plugin-facet-attribute-access</module>
+        <module>cache-plugin-defaultmetacardtags</module>
     </modules>
 </project>

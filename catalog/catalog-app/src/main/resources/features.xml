@@ -84,6 +84,7 @@
         </bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-defaultvalues/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardtype/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.plugin/cache-plugin-defaultmetacardtags/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-core-attachment" version="${project.version}"
