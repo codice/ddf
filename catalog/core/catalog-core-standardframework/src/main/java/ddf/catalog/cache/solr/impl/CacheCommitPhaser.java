@@ -61,7 +61,7 @@ class CacheCommitPhaser extends Phaser {
     // block next phase
     this.register();
     // add results to cache
-    cache.create(getMetacards(results));
+    cache.put(getMetacards(results));
     // unblock phase and wait for all other parties to unblock phase
     this.awaitAdvance(this.arriveAndDeregister());
   }

@@ -16,6 +16,7 @@ package ddf.catalog.cache.solr.impl;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import com.google.common.annotations.VisibleForTesting;
+import ddf.catalog.cache.CachePutPlugin;
 import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -40,6 +41,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -82,6 +84,15 @@ public class SolrCache implements SolrCacheMBean {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrCache.class);
 
+  private static final CachePutPlugin REQUIRED_ATTRIBUTES_PUT_PLUGIN =
+      metacard -> {
+        if (StringUtils.isNotBlank(metacard.getSourceId())
+            && StringUtils.isNotBlank(metacard.getId())) {
+          return Optional.of(metacard);
+        }
+        return Optional.empty();
+      };
+
   private final SolrClient client;
 
   private final SolrMetacardClient metacardClient;
@@ -96,6 +107,8 @@ public class SolrCache implements SolrCacheMBean {
 
   private long expirationAgeInMinutes = TimeUnit.DAYS.toMinutes(7);
 
+  private final List<CachePutPlugin> cachePutPlugins;
+
   /**
    * Constructor.
    *
@@ -109,27 +122,34 @@ public class SolrCache implements SolrCacheMBean {
       FilterAdapter adapter,
       SolrClientFactory solrClientFactory,
       SolrFilterDelegateFactory solrFilterDelegateFactory,
-      DynamicSchemaResolver dynamicSchemaResolver) {
+      DynamicSchemaResolver dynamicSchemaResolver,
+      List<CachePutPlugin> cachePutPlugins) {
     this(
         adapter,
         solrClientFactory.newClient(METACARD_CACHE_CORE_NAME),
         solrFilterDelegateFactory,
-        dynamicSchemaResolver);
-  }
-
-  @VisibleForTesting
-  SolrCache(SolrClient client, CacheSolrMetacardClient metacardClient) {
-    this(client, metacardClient, SolrCache::createScheduler);
+        dynamicSchemaResolver,
+        cachePutPlugins);
   }
 
   @VisibleForTesting
   SolrCache(
       SolrClient client,
       CacheSolrMetacardClient metacardClient,
-      Supplier<ScheduledExecutorService> schedulerCreator) {
+      List<CachePutPlugin> cachePutPlugins) {
+    this(client, metacardClient, SolrCache::createScheduler, cachePutPlugins);
+  }
+
+  @VisibleForTesting
+  SolrCache(
+      SolrClient client,
+      CacheSolrMetacardClient metacardClient,
+      Supplier<ScheduledExecutorService> schedulerCreator,
+      List<CachePutPlugin> cachePutPlugins) {
     this.client = client;
     this.metacardClient = metacardClient;
     this.schedulerCreator = schedulerCreator;
+    this.cachePutPlugins = cachePutPlugins;
     configureCacheExpirationScheduler();
     configureMBean();
   }
@@ -140,11 +160,13 @@ public class SolrCache implements SolrCacheMBean {
       FilterAdapter adapter,
       SolrClient client,
       SolrFilterDelegateFactory solrFilterDelegateFactory,
-      DynamicSchemaResolver dynamicSchemaResolver) {
+      DynamicSchemaResolver dynamicSchemaResolver,
+      List<CachePutPlugin> cachePutPlugins) {
     this(
         client,
         new CacheSolrMetacardClient(
-            client, adapter, solrFilterDelegateFactory, dynamicSchemaResolver));
+            client, adapter, solrFilterDelegateFactory, dynamicSchemaResolver),
+        cachePutPlugins);
   }
 
   /**
@@ -169,21 +191,15 @@ public class SolrCache implements SolrCacheMBean {
     return metacardClient.query(request);
   }
 
-  public void create(Collection<Metacard> metacards) {
+  public void put(Collection<Metacard> metacards) {
     if (CollectionUtils.isEmpty(metacards)) {
       return;
     }
 
-    List<Metacard> updatedMetacards = new ArrayList<>();
-    for (Metacard metacard : metacards) {
-      if (metacard != null) {
-        if (StringUtils.isNotBlank(metacard.getSourceId())
-            && StringUtils.isNotBlank(metacard.getId())) {
-          updatedMetacards.add(metacard);
-        }
-      } else {
-        LOGGER.debug("metacard in result was null");
-      }
+    List<Metacard> updatedMetacards = applyCachePutPlugins(metacards);
+
+    if (CollectionUtils.isEmpty(updatedMetacards)) {
+      return;
     }
 
     try {
@@ -225,6 +241,31 @@ public class SolrCache implements SolrCacheMBean {
 
   public void setExpirationAgeInMinutes(long expirationAgeInMinutes) {
     this.expirationAgeInMinutes = expirationAgeInMinutes;
+  }
+
+  private List<Metacard> applyCachePutPlugins(Collection<Metacard> metacards) {
+    List<Metacard> updatedMetacards = new ArrayList<>();
+    for (Metacard metacard : metacards) {
+      if (metacard != null) {
+        applyCachePutPlugins(metacard).ifPresent(updatedMetacards::add);
+      } else {
+        LOGGER.debug("metacard in result was null");
+      }
+    }
+    return updatedMetacards;
+  }
+
+  private Optional<Metacard> applyCachePutPlugins(Metacard metacard) {
+    Optional<Metacard> updatedMetacard = REQUIRED_ATTRIBUTES_PUT_PLUGIN.process(metacard);
+    if (updatedMetacard.isPresent()) {
+      for (CachePutPlugin cachePutPlugin : cachePutPlugins) {
+        updatedMetacard = cachePutPlugin.process(updatedMetacard.get());
+        if (!updatedMetacard.isPresent()) {
+          return updatedMetacard;
+        }
+      }
+    }
+    return updatedMetacard;
   }
 
   private void configureCacheExpirationScheduler() {

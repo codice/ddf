@@ -41,7 +41,9 @@
         <reference-listener bind-method="addMetacardType" ref="dynamicSchemaResolver"/>
     </reference-list>
 
-    <bean id="solrCatalogCache" class="ddf.catalog.cache.solr.impl.SolrCache"
+    <bean id="solrCatalogCache"
+          depends-on="cachePutSortedList"
+          class="ddf.catalog.cache.solr.impl.SolrCache"
           destroy-method="shutdown">
         <cm:managed-properties persistent-id="ddf.catalog.solr.provider.SolrCacheProvider"
                                update-strategy="container-managed"/>
@@ -51,6 +53,7 @@
             <bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
         </argument>
         <argument ref="dynamicSchemaResolver"/>
+        <argument ref="cachePutSortedList"/>
     </bean>
 
     <bean id="cacheQueryFactory" class="ddf.catalog.cache.solr.impl.CacheQueryFactory">

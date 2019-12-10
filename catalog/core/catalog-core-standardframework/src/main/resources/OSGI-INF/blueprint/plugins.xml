@@ -109,6 +109,12 @@
                             unbind-method="unbindPlugin" ref="accessSortedList"/>
     </reference-list>
 
+    <reference-list id="cachePutPlugins" interface="ddf.catalog.cache.CachePutPlugin"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin"
+                            unbind-method="unbindPlugin" ref="cachePutSortedList"/>
+    </reference-list>
+
     <bean id="preCreateStorageSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <bean id="postCreateStorageSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <bean id="preUpdateStorageSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
@@ -124,5 +130,6 @@
     <bean id="preAuthSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <bean id="policySortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
     <bean id="accessSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <bean id="cachePutSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
 
 </blueprint>
