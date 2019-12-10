@@ -19,7 +19,8 @@
 
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
 
-    <reference id="geoEntryMetacardType" interface="ddf.catalog.data.MetacardType" filter="(id=GeoEntryMetacardType)"/>
+    <reference-list id="geoEntryMetacardType" interface="ddf.catalog.data.MetacardType"
+                    filter="(id=GeoEntryMetacardType)" availability="optional"/>
 
     <bean id="catalogHelper" class="org.codice.ddf.spatial.geocoding.feature.CatalogHelper">
         <argument ref="filterBuilder"/>

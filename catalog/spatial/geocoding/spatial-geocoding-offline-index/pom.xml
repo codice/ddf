@@ -13,17 +13,24 @@
  **/
 
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>geocoding</artifactId>
         <groupId>org.codice.ddf.spatial</groupId>
         <version>2.22.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>spatial-geocoding-offline-catalog</artifactId>
-    <name>DDF :: Spatial :: Geocoding :: Offline Catalog</name>
+    <artifactId>spatial-geocoding-offline-index</artifactId>
+    <name>DDF :: Spatial :: Geocoding :: Offline Index</name>
     <packaging>bundle</packaging>
+
     <dependencies>
+        <dependency>
+            <groupId>ddf.security</groupId>
+            <artifactId>ddf-security-common</artifactId>
+        </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
@@ -62,10 +69,32 @@
             <version>${commons-io.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>util-uuidgenerator-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
         </dependency>
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-geocoding-extract</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-geocoding-api</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+            <!-- Bug in dependency-plugin 3.0.2 requires using classifier for test-jars instead of type.
+                See: https://issues.apache.org/jira/browse/MDEP-587 -->
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -80,7 +109,8 @@
                             jts-core,
                             spatial-geocoding-api-impl,
                             spatial4j,
-                            platform-util
+                            platform-util,
+                            ddf-security-common
                         </Embed-Dependency>
                         <Import-Package>
                             !com.fasterxml.jackson*,
@@ -152,4 +182,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

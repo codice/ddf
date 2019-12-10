@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
+import com.google.common.collect.Lists;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTWriter;
@@ -204,8 +205,9 @@ public class CatalogFeatureIndexerTest {
     return metacard;
   }
 
-  private MetacardType generateMetacardType() {
-    return new MetacardTypeImpl(
-        "testType", Arrays.asList(new GeoEntryAttributes(), new LocationAttributes()));
+  private List<MetacardType> generateMetacardType() {
+    return Lists.newArrayList(
+        new MetacardTypeImpl(
+            "testType", Arrays.asList(new GeoEntryAttributes(), new LocationAttributes())));
   }
 }

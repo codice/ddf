@@ -143,11 +143,11 @@ grant codeBase "file:/org.apache.servicemix.bundles.commons-httpclient/org.apach
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
 }
 
-grant codeBase "file:/org.apache.servicemix.bundles.wsdl4j/spatial-commands/spatial-geocoding-offline-catalog" {
+grant codeBase "file:/org.apache.servicemix.bundles.wsdl4j/spatial-commands/spatial-geocoding-offline-catalog/spatial-geocoding-offline-index" {
     permission java.io.FilePermission "<<ALL FILES>>", "read";
 }
 
-grant codeBase "file:/org.eclipse.jetty.http/security-realm-saml/security-core-services/org.apache.felix.configadmin/service-atom-transformer/spatial-commands/spatial-geocoding-feature/org.apache.karaf.shell.core/registry-federation-admin-service-impl/catalog-core-commands/spatial-geocoding-offline-catalog/spatial-geocoding-geocoder/spatial-geocoding-plugin/spatial-wfs-v1_0_0-source/spatial-wfs-v1_0_0-connectedsource/spatial-wfs-v2_0_0-source/spatial-wfs-v2_0_0-connectedsource/spatial-wfs-v1_1_0-source/spatial-wfs-featuretransformer/spatial-wfs-featuretransformer-xstream/resourcemanagement-usage-ui/catalog-rest-endpoint/catalog-core-camelcomponent/org.eclipse.jetty.websocket.server/catalog-rest-service" {
+grant codeBase "file:/org.eclipse.jetty.http/security-realm-saml/security-core-services/org.apache.felix.configadmin/service-atom-transformer/spatial-commands/spatial-geocoding-feature/org.apache.karaf.shell.core/registry-federation-admin-service-impl/catalog-core-commands/spatial-geocoding-offline-catalog/spatial-geocoding-offline-index/spatial-geocoding-geocoder/spatial-geocoding-plugin/spatial-wfs-v1_0_0-source/spatial-wfs-v1_0_0-connectedsource/spatial-wfs-v2_0_0-source/spatial-wfs-v2_0_0-connectedsource/spatial-wfs-v1_1_0-source/spatial-wfs-featuretransformer/spatial-wfs-featuretransformer-xstream/resourcemanagement-usage-ui/catalog-rest-endpoint/catalog-core-camelcomponent/org.eclipse.jetty.websocket.server/catalog-rest-service" {
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
@@ -167,7 +167,7 @@ grant codeBase "file:/solr-factory-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverKeystore.jks", "read";
 }
 
-grant codeBase "file:/jetty-server/catalog-core-directorymonitor/catalog-security-filter/spatial-geocoding-plugin/spatial-geocoding-geocoder/spatial-geocoding-offline-catalog/registry-identification-plugin/registry-federation-admin-service-impl" {
+grant codeBase "file:/jetty-server/catalog-core-directorymonitor/catalog-security-filter/spatial-geocoding-plugin/spatial-geocoding-geocoder/spatial-geocoding-offline-catalog/spatial-geocoding-offline-index/registry-identification-plugin/registry-federation-admin-service-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}custom.system.properties", "read,write";

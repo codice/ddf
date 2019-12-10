@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<blueprint xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+    <ext:property-placeholder/>
+
+    <bean id="geonamesIndexer" class="org.codice.ddf.spatial.geocoding.index.GeoNamesCatalogIndexer">
+        <argument ref="catalogFramework" />
+        <argument ref="uuidGenerator"/>
+        <argument ref="geoEntryMetacardType"/>
+        <argument ref="filterBuilder"/>
+        <argument ref="catalogProviderSortedList"/>
+    </bean>
+
+    <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework" />
+
+    <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder" />
+
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator"/>
+
+    <bean id="geoEntryMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="GeoEntryMetacardType"/>
+        <argument>
+            <list>
+                <bean class="ddf.catalog.data.impl.types.LocationAttributes"/>
+                <bean class="org.codice.ddf.spatial.geocoding.GeoEntryAttributes"/>
+            </list>
+        </argument>
+    </bean>
+
+    <reference-list id="catalogProviders" interface="ddf.catalog.source.CatalogProvider"
+                    availability="optional">
+        <reference-listener
+                ref="catalogProviderSortedList"
+                bind-method="bindPlugin"
+                unbind-method="unbindPlugin"/>
+    </reference-list>
+
+    <bean id="catalogProviderSortedList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+
+    <service ref="geoEntryMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="id" value="GeoEntryMetacardType"/>
+        </service-properties>
+    </service>
+
+    <bean id="indexInitializer" class="org.codice.ddf.spatial.geocoding.index.IndexInitializer"
+        init-method="init" destroy-method="destroy">
+        <property name="defaultGeoNamesDataPath" value="${ddf.data}/default_geonames_data.zip"/>
+        <property name="indexer" ref="geonamesIndexer"/>
+        <property name="extractor" ref="geoExtractor"/>
+        <property name="executor" ref="executorService"/>
+    </bean>
+
+    <service ref="geonamesIndexer" interface="org.codice.ddf.spatial.geocoding.GeoEntryIndexer"/>
+
+    <reference id="geoExtractor" interface="org.codice.ddf.spatial.geocoding.GeoEntryExtractor"/>
+
+    <bean id="executorService" class="java.util.concurrent.Executors"
+          factory-method="newSingleThreadExecutor">
+        <argument ref="geocodingThreadFactory"/>
+    </bean>
+
+    <bean id="geocodingThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="geocodingThread"/>
+    </bean>
+
+</blueprint>
