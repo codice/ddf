@@ -53,6 +53,7 @@ import org.apache.camel.http.common.HttpHelper;
 import org.apache.camel.http.common.HttpMessage;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +91,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
       // always log so people can see it easier
       String msg =
           "Invalid parameter value for init-parameter ignoreDuplicateServletName with value: "
-              + ignore;
+              + LogSanitizer.sanitize(ignore);
       LOGGER.debug(msg);
       throw new ServletException(msg);
     }
@@ -142,16 +143,16 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
     // Wrap request and clean the query String
     HttpProxyWrappedCleanRequest request = new HttpProxyWrappedCleanRequest(oldRequest);
 
-    log.trace("Service: {}", request);
+    log.trace("Service: {}", LogSanitizer.sanitize(request));
 
     // Is there a consumer registered for the request.
     HttpConsumer consumer = resolve(request);
 
     if (consumer == null) {
       String path = request.getPathInfo();
-      log.trace("Service Request Path = {}", path);
+      log.trace("Service Request Path = {}", LogSanitizer.sanitize(path));
       String endpointName = getEndpointNameFromPath(path);
-      log.trace("Endpoint Name = {}", endpointName);
+      log.trace("Endpoint Name = {}", LogSanitizer.sanitize(endpointName));
 
       Route route = camelContext.getRoute(endpointName);
       try {
@@ -166,14 +167,14 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
 
     try {
       if (consumer == null) {
-        log.debug("No consumer to service request {}", request);
+        log.debug("No consumer to service request {}", LogSanitizer.sanitize(request));
         response.sendError(HttpServletResponse.SC_NOT_FOUND);
         return;
       }
 
       // are we suspended?
       if (consumer.getEndpoint().isSuspended()) {
-        log.debug("Consumer suspended, cannot service request {}", request);
+        log.debug("Consumer suspended, cannot service request {}", LogSanitizer.sanitize(request));
         response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         return;
       }
@@ -274,9 +275,9 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
   @Override
   protected HttpConsumer resolve(HttpServletRequest request) {
     String path = request.getPathInfo();
-    log.trace("Request path is: {}", path);
+    log.trace("Request path is: {}", LogSanitizer.sanitize(path));
     String endpointName = getEndpointNameFromPath(path);
-    log.trace("Looking up consumer for endpoint: {}", endpointName);
+    log.trace("Looking up consumer for endpoint: {}", LogSanitizer.sanitize(endpointName));
     HttpConsumer answer = consumers.get(endpointName);
 
     if (answer == null) {

@@ -67,6 +67,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.codice.ddf.security.common.HttpUtils;
@@ -331,7 +332,7 @@ public class AssertionConsumerService {
 
   public Response processSamlResponse(
       String authnResponse, String relayState, boolean wasRedirectSigned) {
-    LOGGER.trace(authnResponse);
+    LOGGER.trace("{}", LogSanitizer.sanitize(authnResponse));
 
     org.opensaml.saml.saml2.core.Response samlResponse = extractSamlResponse(authnResponse);
     boolean responseHasSignature = samlResponse != null && samlResponse.getSignature() != null;

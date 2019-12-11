@@ -39,6 +39,7 @@ import net.opengis.filter.v_1_1_0.SortByType;
 import net.opengis.filter.v_1_1_0.SortOrderType;
 import net.opengis.filter.v_1_1_0.SortPropertyType;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -288,7 +289,10 @@ public class GetRecordsRequest extends CswRequest {
       try {
         getRecords.setResultType(ResultType.fromValue(getResultType()));
       } catch (IllegalArgumentException iae) {
-        LOGGER.debug("Failed to find \"{}\" as a valid ResultType", getResultType(), iae);
+        LOGGER.debug(
+            "Failed to find \"{}\" as a valid ResultType",
+            LogSanitizer.sanitize(getResultType()),
+            iae);
         throw new CswException(
             "A CSW getRecords request ResultType must be \"hits\", \"results\", or \"validate\"");
       }
@@ -325,7 +329,7 @@ public class GetRecordsRequest extends CswRequest {
       } catch (IllegalArgumentException iae) {
         LOGGER.debug(
             "Failed to find \"{}\" as a valid elementSetType, Exception {}",
-            getElementSetName(),
+            LogSanitizer.sanitize(getElementSetName()),
             iae);
         throw new CswException(
             "A CSW getRecords request ElementSetType must be \"brief\", \"summary\", or \"full\"");

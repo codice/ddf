@@ -92,6 +92,11 @@
             <artifactId>platform-util</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>log-sanitizer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -101,7 +106,13 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>rrd4j,joda-time, commons-math, platform-util, poi-scratchpad, poi
+                        <Embed-Dependency>
+                            rrd4j,
+                            joda-time,
+                            commons-math,
+                            platform-util,
+                            poi-scratchpad,
+                            poi
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Import-Package>

@@ -35,7 +35,7 @@
         <feature>cxf-rt-security</feature>
         <feature>security-filter-api</feature>
         <feature>cxf-jaxrs</feature>
-
+        <bundle dependency="true">mvn:ddf.platform.security/log-sanitizer/${project.version}</bundle>
         <bundle dependency="true">mvn:org.apache.commons/commons-configuration2/${commons-configuration2.version}</bundle>
         <bundle dependency="true">mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
 
@@ -80,6 +80,7 @@
         <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
         <bundle>mvn:ddf.security.encryption/security-encryption-api/${project.version}</bundle>
         <bundle>mvn:ddf.security.encryption/security-encryption-impl/${project.version}</bundle>
+        <bundle dependency="true">mvn:ddf.platform.security/log-sanitizer/${project.version}</bundle>
         <bundle>mvn:ddf.security.encryption/security-encryption-commands/${project.version}</bundle>
     </feature>
 

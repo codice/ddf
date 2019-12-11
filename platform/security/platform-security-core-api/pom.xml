@@ -158,6 +158,11 @@
             <artifactId>alerts</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>log-sanitizer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>

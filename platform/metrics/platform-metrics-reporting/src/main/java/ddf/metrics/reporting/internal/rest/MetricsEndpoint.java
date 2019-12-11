@@ -54,6 +54,7 @@ import org.apache.commons.lang.time.FastDateFormat;
 import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.json.simple.JSONValue;
@@ -177,11 +178,14 @@ public class MetricsEndpoint {
       throws MetricsEndpointException {
     LOGGER.trace(
         "ENTERING: getMetricsData  -  metricName = {},    outputFormat = {}",
-        metricName,
-        outputFormat);
-    LOGGER.trace("request url: {}", uriInfo.getRequestUri());
-    LOGGER.trace("startDate = {},     endDate = {}", startDate, endDate);
-    LOGGER.trace("dateOffset = {}", dateOffset);
+        LogSanitizer.sanitize(metricName),
+        LogSanitizer.sanitize(outputFormat));
+    LOGGER.trace("request url: {}", LogSanitizer.sanitize(uriInfo.getRequestUri()));
+    LOGGER.trace(
+        "startDate = {},     endDate = {}",
+        LogSanitizer.sanitize(startDate),
+        LogSanitizer.sanitize(endDate));
+    LOGGER.trace("dateOffset = {}", LogSanitizer.sanitize(dateOffset));
 
     Response response = null;
 
@@ -233,7 +237,10 @@ public class MetricsEndpoint {
       startDate = dateFormatter.format(cal.getTime());
     }
 
-    LOGGER.trace("startDate = {},   endDate = {}", startDate, endDate);
+    LOGGER.trace(
+        "startDate = {},   endDate = {}",
+        LogSanitizer.sanitize(startDate),
+        LogSanitizer.sanitize(endDate));
 
     if (StringUtils.isBlank(yAxisLabel)) {
       yAxisLabel = RrdMetricsRetriever.convertCamelCase(metricName);
@@ -249,7 +256,8 @@ public class MetricsEndpoint {
     String rrdFilename = metricsDir + metricName + RRD_FILE_EXTENSION;
 
     if (outputFormat.equalsIgnoreCase(PNG_FORMAT)) {
-      LOGGER.trace("Retrieving PNG-formatted data for metric {}", metricName);
+      LOGGER.trace(
+          "Retrieving PNG-formatted data for metric {}", LogSanitizer.sanitize(metricName));
       try {
         byte[] metricsGraphBytes =
             metricsRetriever.createGraph(
@@ -273,7 +281,8 @@ public class MetricsEndpoint {
             "Cannot create CSV data for specified metric.", Response.Status.BAD_REQUEST);
       }
     } else if (outputFormat.equalsIgnoreCase("xls")) {
-      LOGGER.trace("Retrieving XLS-formatted data for metric {}", metricName);
+      LOGGER.trace(
+          "Retrieving XLS-formatted data for metric {}", LogSanitizer.sanitize(metricName));
       try (OutputStream os =
           metricsRetriever.createXlsData(metricName, rrdFilename, startTime, endTime)) {
         InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
@@ -286,7 +295,8 @@ public class MetricsEndpoint {
             "Cannot create XLS data for specified metric.", Response.Status.BAD_REQUEST);
       }
     } else if (outputFormat.equalsIgnoreCase("xml")) {
-      LOGGER.trace("Retrieving XML-formatted data for metric {}", metricName);
+      LOGGER.trace(
+          "Retrieving XML-formatted data for metric {}", LogSanitizer.sanitize(metricName));
       try {
         String xmlData =
             metricsRetriever.createXmlData(metricName, rrdFilename, startTime, endTime);
@@ -299,7 +309,8 @@ public class MetricsEndpoint {
             "Cannot create XML data for specified metric.", Response.Status.BAD_REQUEST);
       }
     } else if (outputFormat.equalsIgnoreCase("json")) {
-      LOGGER.trace("Retrieving JSON-formatted data for metric {}", metricName);
+      LOGGER.trace(
+          "Retrieving JSON-formatted data for metric {}", LogSanitizer.sanitize(metricName));
       try {
         String jsonData =
             metricsRetriever.createJsonData(metricName, rrdFilename, startTime, endTime);
@@ -394,10 +405,14 @@ public class MetricsEndpoint {
       @QueryParam("summaryInterval") String summaryInterval,
       @Context UriInfo uriInfo)
       throws MetricsEndpointException {
-    LOGGER.debug("ENTERING: getMetricsReport  -  outputFormat = {}", outputFormat);
-    LOGGER.debug("request url: {}", uriInfo.getRequestUri());
-    LOGGER.debug("startDate = {},     endDate = {}", startDate, endDate);
-    LOGGER.debug("dateOffset = {}", dateOffset);
+    LOGGER.debug(
+        "ENTERING: getMetricsReport  -  outputFormat = {}", LogSanitizer.sanitize(outputFormat));
+    LOGGER.debug("request url: {}", LogSanitizer.sanitize(uriInfo.getRequestUri()));
+    LOGGER.debug(
+        "startDate = {},     endDate = {}",
+        LogSanitizer.sanitize(startDate),
+        LogSanitizer.sanitize(endDate));
+    LOGGER.debug("dateOffset = {}", LogSanitizer.sanitize(dateOffset));
 
     Response response = null;
 
@@ -449,7 +464,10 @@ public class MetricsEndpoint {
       startDate = dateFormatter.format(cal.getTime());
     }
 
-    LOGGER.debug("startDate = {},   endDate = {}", startDate, endDate);
+    LOGGER.debug(
+        "startDate = {},   endDate = {}",
+        LogSanitizer.sanitize(startDate),
+        LogSanitizer.sanitize(endDate));
 
     List<String> metricNames = getMetricsNames();
 
@@ -477,7 +495,7 @@ public class MetricsEndpoint {
         }
       }
     } catch (IOException | MetricsGraphException e) {
-      LOGGER.debug("Could not create {} report", outputFormat, e);
+      LOGGER.debug("Could not create {} report", LogSanitizer.sanitize(outputFormat), e);
       throw new MetricsEndpointException(
           "Could not create report in specified output format.", Response.Status.BAD_REQUEST);
     }

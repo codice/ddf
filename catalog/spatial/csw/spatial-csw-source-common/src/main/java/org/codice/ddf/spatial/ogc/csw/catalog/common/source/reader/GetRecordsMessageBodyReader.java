@@ -42,6 +42,7 @@ import javax.ws.rs.ext.MessageBodyReader;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
@@ -131,7 +132,8 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
     // Save original input stream for any exception message that might need to be
     // created
     String originalInputStream = IOUtils.toString(inStream, "UTF-8");
-    LOGGER.debug("Converting to CswRecordCollection: \n {}", originalInputStream);
+    LOGGER.debug(
+        "Converting to CswRecordCollection: \n {}", LogSanitizer.sanitize(originalInputStream));
 
     // Re-create the input stream (since it has already been read for potential
     // exception message creation)

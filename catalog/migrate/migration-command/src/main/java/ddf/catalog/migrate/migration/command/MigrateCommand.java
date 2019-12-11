@@ -25,6 +25,7 @@ import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.SubjectCommands;
+import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -71,7 +72,7 @@ public class MigrateCommand extends SubjectCommands {
         console.println(String.format("\t%s\n", serviceRef.getProperty("description")));
       }
     } else {
-      LOGGER.info("Running data migration task [{}]", serviceId);
+      LOGGER.info("Running data migration task [{}]", LogSanitizer.sanitize(serviceId));
 
       ServiceReference<DataMigratable> serviceRef =
           services

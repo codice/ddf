@@ -243,6 +243,11 @@
             <classifier>features</classifier>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>log-sanitizer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

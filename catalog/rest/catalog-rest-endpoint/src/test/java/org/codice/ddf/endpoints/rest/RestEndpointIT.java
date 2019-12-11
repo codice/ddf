@@ -214,7 +214,7 @@ public class RestEndpointIT extends AbstractComponentTest {
         };
 
         final String[] cxfFeatures = {"cxf", "cxf-commands"};
-        final String[] utilitiesFeatures = {"action-core-impl"};
+        final String[] utilitiesFeatures = {"action-core-impl", "common-system"};
         final String[] kernelFeatures = {"apache-commons, guava"};
 
         return super.getFeatureOptions()
