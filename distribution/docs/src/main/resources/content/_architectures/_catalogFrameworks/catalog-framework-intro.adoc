@@ -163,15 +163,6 @@ Optional PreQuery and PostQuery Catalog Plugins may be invoked by the `CatalogFr
 If a `CatalogProvider` is not configured and no other remote Sources are configured, a fault will be returned.
 It is possible to have only remote Sources configured and no local `CatalogProvider` configured and be able to execute queries to specific remote Sources by specifying the site name(s) in the query request.
 
-===== Product Retrieval
-
-The Query Service Endpoint, the Catalog Framework, and the `CatalogProvider` are key components for processing a resource retrieval request.
-The Endpoint bundle contains a Web service that exposes the interface to retrieve resources.
-The Endpoint calls the `CatalogFramework` to execute the operations of its specification.
-The `CatalogFramework` relies on the Sources to execute the actual product retrieval.
-Optional `PreResource` and `PostResource` Catalog Plugins may be invoked by the `CatalogFramework` to modify the product retrieval request/response prior to the Catalog Provider processing the request and providing the response. 
-It is possible to retrieve products from specific remote Sources by specifying the site name(s) in the request.
-
 ===== Product Caching
 
 The Catalog Framework optionally provides caching of products, so future requests to retrieve the same product will be serviced much quicker.

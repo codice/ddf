@@ -735,6 +735,7 @@ This is used to prove that the client can possess the SAML assertion returned by
 
 ==== X.509 PublicKey SAML Security Token Sample
 
+.X.509 PublicKey SAML Security Token Request
 The STS that comes with ${branding} requires the following to be in the RequestSecurityToken request in order to issue a valid SAML assertion.
 See the request block below for an example of how these components should be populated.
 
@@ -823,8 +824,7 @@ hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
 </soapenv:Envelope>
 ----
 
-==== X.509 PublicKey SAML Security Token Sample
-
+.X.509 PublicKey SAML Security Token Response
 This is the response from the STS containing the SAML assertion to be used in subsequent requests to QCRUD endpoints.
 
 The `saml2:Assertion` block contains the entire SAML assertion.

@@ -12,10 +12,7 @@ The Catalog Framework Camel Component supports creating, updating, and deleting 
 catalog:framework
 ----
 
-===== Message Headers
-
-====== Catalog Framework Producer
-
+.Catalog Framework Producer Message Headers
 [cols="1,5" options="header"]
 |===
 |Header
@@ -27,9 +24,8 @@ catalog:framework
 
 ===== Sending Messages to Catalog Framework Endpoint
 
-====== Catalog Framework Producer
-
-In Producer mode, the component provides the ability to provide different inputs and have the Catalog framework perform different operations based upon the header values.  
+.Catalog Framework Producer
+In Producer mode, the component provides the ability to supply different inputs and have the Catalog Framework perform different operations based upon the header values.  
 
 For the CREATE and UPDATE operation, the message body can contain a list of metacards or a single metacard object. 
 
@@ -68,8 +64,7 @@ FrameworkProducerException will be thrown causing the route to fail
 with a CamelExecutionException.
 ====
 
-====== Samples
-
+.Example Route
 This example demonstrates:
 
 . Reading in some sample data from the file system.
