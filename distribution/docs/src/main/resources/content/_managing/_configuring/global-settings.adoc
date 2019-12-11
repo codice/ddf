@@ -439,7 +439,7 @@ Thumbs.db
 |solr.client
 |String
 |Type of Solr configuration
-|HttpSolrClient
+|CloudSolrClient
 |Yes
 
 6+^h|SolrCloud Properties
@@ -448,21 +448,10 @@ Thumbs.db
 |solr.cloud.zookeeper
 |String
 |Zookeeper hostnames and port numbers
-|zookeeperhost1:2181,
-zookeeperhost2:2181,
-zookeeperhost3:2181
+|localhost:2181
 |Yes
 
 6+^h|[[_managed_solr_properties]]Managed Solr Server Properties
-
-|[[_solr_autopassword]]Allow ${branding} to change the Solr server password if it detects the default password is in use
-|solr.attemptAutoPasswordChange
-|Boolean
-|If true, ${branding} attempts to change the default Solr server password to a randomly
-generated UUID. This property is only used if the `solr.client` property is `HttpSolrClient`
-and the `solrBasicAuth` property is `true`.
-|true
-|Yes
 
 |Solr Data Directory
 |solr.data.dir

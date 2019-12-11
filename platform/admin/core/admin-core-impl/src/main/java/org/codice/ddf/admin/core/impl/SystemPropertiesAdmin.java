@@ -38,7 +38,6 @@ import javax.management.StandardMBean;
 import org.apache.commons.io.FileUtils;
 import org.apache.felix.utils.properties.Properties;
 import org.codice.ddf.admin.core.api.SystemPropertyDetails;
-import org.codice.ddf.admin.core.api.jmx.SystemPropertiesAdminInterceptor;
 import org.codice.ddf.admin.core.api.jmx.SystemPropertiesAdminMBean;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
@@ -111,16 +110,6 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     PROTOCOL_OPTIONS.add(HTTP_PROTOCOL);
   }
 
-  public List<SystemPropertiesAdminInterceptor> getSystemPropertiesAdminInterceptors() {
-    return systemPropertiesAdminInterceptors;
-  }
-
-  public void setSystemPropertiesAdminInterceptors(
-      List<SystemPropertiesAdminInterceptor> systemPropertiesAdminInterceptors) {
-    this.systemPropertiesAdminInterceptors = systemPropertiesAdminInterceptors;
-  }
-
-  private List<SystemPropertiesAdminInterceptor> systemPropertiesAdminInterceptors;
   private MBeanServer mbeanServer;
   private ObjectName objectName;
   private String oldHostName = SystemBaseUrl.INTERNAL.getHost();
@@ -243,8 +232,6 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
           systemDotProperties.put(key, value);
         });
 
-    callInterceptors(systemDotProperties);
-
     try {
       systemDotProperties.save();
     } catch (IOException e) {
@@ -253,16 +240,6 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
 
     writeOutUsersDotPropertiesFile(userPropertiesFile);
     writeOutUsersDotAttributesFile(userAttributesFile);
-  }
-
-  private void callInterceptors(Properties systemPropertiesFile) {
-    if (getSystemPropertiesAdminInterceptors() != null) {
-      for (SystemPropertiesAdminInterceptor each : getSystemPropertiesAdminInterceptors()) {
-        if (each != null) {
-          each.updateSystemProperties(systemPropertiesFile);
-        }
-      }
-    }
   }
 
   /*
