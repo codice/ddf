@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationContext;
@@ -69,7 +70,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
 
   private final boolean skip;
 
-  private Map<String, ?> importedSystemProperties;
+  private Map<String, ?> importedSystemProperties = new TreeMap<>();
 
   /**
    * Creates a new migration context for an import operation representing a system context.
@@ -153,22 +154,19 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
     return entries(path).filter(e -> filter.matches(e.getPath()));
   }
 
-  @VisibleForTesting
+  /** Called from ImportMigrationManagerImpl to set system properties for each context */
   void setSystemProperties(Map<String, ?> props) {
     this.importedSystemProperties = props;
   }
 
   @Override
+  @Nullable
   public String getSystemProperty(String key) {
     SecurityManager sm = System.getSecurityManager();
     if (sm != null) {
       sm.checkPropertyAccess(key);
     }
-    try {
-      return Objects.toString(importedSystemProperties.get(key), null);
-    } catch (NullPointerException e) {
-      throw new MigrationException(ImportMigrationContextImpl.INVALID_NULL_SYS_PROPS, e);
-    }
+    return Objects.toString(importedSystemProperties.get(key), null);
   }
 
   @SuppressWarnings(

@@ -190,6 +190,7 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
   public static final Path METADATA_CUSTOM_SYSTEM_PROPERTIES_PATH =
       Paths.get("etc", "custom.system.properties");
 
+  /** Must match the ID returned by PlatformMigratable */
   public static final String PLATFORM_MIGRATABLE_ID = "ddf.platform";
 
   /**

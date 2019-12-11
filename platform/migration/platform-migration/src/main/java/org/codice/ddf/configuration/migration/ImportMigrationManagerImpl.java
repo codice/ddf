@@ -218,29 +218,37 @@ public class ImportMigrationManagerImpl implements Closeable {
 
   private Map<String, ?> getSystemProperties(Map<String, Object> metadata) {
     if (version.equals(MigrationContextImpl.SYSTEM_PROPERTIES_NOT_EXPORTED_VERSION)) {
+      ImportMigrationContext platformMigrationContext =
+          contexts.get(MigrationContextImpl.PLATFORM_MIGRATABLE_ID);
       return AccessUtils.doPrivileged(
-          () -> {
-            ImportMigrationContext platformMigrationContext =
-                contexts.get(MigrationContextImpl.PLATFORM_MIGRATABLE_ID);
-            try {
-              URL systemPropsURL =
-                  new URL(
-                      null,
-                      MigrationURLConnection.SYSTEM_PROPERTIES_URL,
-                      new URLStreamHandler() {
-                        @Override
-                        protected URLConnection openConnection(URL u) throws IOException {
-                          return new MigrationURLConnection(u, platformMigrationContext);
-                        }
-                      });
-              return PropertiesLoader.loadPropertiesFile(systemPropsURL, true);
-            } catch (Exception e) {
-              throw new MigrationException(Messages.IMPORT_SYSTEM_PROPERTIES_ERROR, e);
-            }
-          });
+          () -> getSystemPropertiesFromContext(platformMigrationContext));
     }
     return JsonUtils.getMapFrom(
         metadata, MigrationContextImpl.METADATA_EXPANDED_SYSTEM_PROPERTIES, true);
+  }
+
+  @VisibleForTesting
+  Map<String, ?> getSystemPropertiesFromContext(ImportMigrationContext platformMigrationContext) {
+    if (platformMigrationContext == null) {
+      throw new MigrationException(
+          Messages.IMPORT_SYSTEM_PROPERTIES_ERROR, "Platform migration context does not exist");
+    }
+
+    try {
+      URL systemPropsURL =
+          new URL(
+              null,
+              "http://ddf/system.properties",
+              new URLStreamHandler() {
+                @Override
+                protected URLConnection openConnection(URL u) throws IOException {
+                  return new MigrationURLConnection(u, platformMigrationContext);
+                }
+              });
+      return PropertiesLoader.loadPropertiesFile(systemPropsURL, true);
+    } catch (Exception e) {
+      throw new MigrationException(Messages.IMPORT_SYSTEM_PROPERTIES_ERROR, e);
+    }
   }
 
   private Set<String> getSupportedVersions(@Nullable String commaDelimitedVersions) {

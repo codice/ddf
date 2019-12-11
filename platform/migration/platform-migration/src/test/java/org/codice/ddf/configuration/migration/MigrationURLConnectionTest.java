@@ -14,9 +14,9 @@
 package org.codice.ddf.configuration.migration;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -48,7 +48,8 @@ public class MigrationURLConnectionTest {
 
   @Before
   public void setup() throws Exception {
-    Mockito.when(context.getEntry(sysPropsPath)).thenReturn(entry);
+    Mockito.when(context.getEntry(Mockito.any(Path.class))).thenReturn(null);
+    Mockito.when(context.getEntry(Mockito.eq(sysPropsPath))).thenReturn(entry);
     Mockito.when(entry.getInputStream()).thenReturn(Optional.of(stream));
   }
 
@@ -57,7 +58,7 @@ public class MigrationURLConnectionTest {
     URL systemPropsURL =
         new URL(
             null,
-            MigrationURLConnection.SYSTEM_PROPERTIES_URL,
+            "http://ddf/system.properties",
             new URLStreamHandler() {
               @Override
               protected URLConnection openConnection(URL u) throws IOException {
@@ -77,11 +78,39 @@ public class MigrationURLConnectionTest {
   }
 
   @Test
-  public void testConstructorWhenUnsupportedURL() throws Exception {
-    thrown.expect(MalformedURLException.class);
-    thrown.expectMessage(Matchers.containsString("Could not resolve URL"));
+  public void testConstructorWhenNoEntry() throws Exception {
+    thrown.expect(FileNotFoundException.class);
 
-    URL url = new URL("http://ddf/unsupported.path");
-    new MigrationURLConnection(url, context);
+    URL systemPropsURL =
+        new URL(
+            null,
+            "http://ddf/unsupported.path",
+            new URLStreamHandler() {
+              @Override
+              protected URLConnection openConnection(URL u) throws IOException {
+                return new MigrationURLConnection(u, context);
+              }
+            });
+
+    systemPropsURL.openConnection();
+  }
+
+  @Test
+  public void testGetInputStreamWhenNoInputStream() throws Exception {
+    Mockito.when(entry.getInputStream()).thenReturn(Optional.empty());
+    thrown.expect(FileNotFoundException.class);
+
+    URL systemPropsURL =
+        new URL(
+            null,
+            "http://ddf/system.properties",
+            new URLStreamHandler() {
+              @Override
+              protected URLConnection openConnection(URL u) throws IOException {
+                return new MigrationURLConnection(u, context);
+              }
+            });
+
+    systemPropsURL.openStream();
   }
 }

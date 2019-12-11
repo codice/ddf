@@ -15,14 +15,20 @@ package org.codice.ddf.configuration.migration;
 
 import com.github.npathai.hamcrestopt.OptionalMatchers;
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableMap;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
+import org.codice.ddf.migration.ImportMigrationContext;
+import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
@@ -49,6 +55,19 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
           Migratable.class, Mockito.withSettings().extraInterfaces(OptionalMigratable.class));
 
   private final Migratable platformMigratable = Mockito.mock(Migratable.class);
+
+  private final ImportMigrationContext platformMigrationContext =
+      Mockito.mock(ImportMigrationContext.class);
+
+  private final ImportMigrationEntry sysPropsMigrationEntry =
+      Mockito.mock(ImportMigrationEntry.class);
+
+  private final InputStream sysPropsInputStream =
+      new ByteArrayInputStream(("test:test").getBytes());
+
+  private final Path sysPropsPath = Paths.get("etc", "system.properties");
+
+  private final Map<String, ?> expectedSysProps = ImmutableMap.of("test", "test");
 
   private final Migratable[] migratables = new Migratable[] {migratable, migratable2, migratable3};
 
@@ -79,6 +98,12 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     initMigratableMock(migratable2, MIGRATABLE_ID2);
     initMigratableMock(migratable3, MIGRATABLE_ID3);
     initMigratableMock(platformMigratable, MigrationContextImpl.PLATFORM_MIGRATABLE_ID);
+
+    Mockito.when(platformMigrationContext.getEntry(Mockito.any(Path.class))).thenReturn(null);
+    Mockito.when(platformMigrationContext.getEntry(Mockito.eq(sysPropsPath)))
+        .thenReturn(sysPropsMigrationEntry);
+    Mockito.when(sysPropsMigrationEntry.getInputStream())
+        .thenReturn(Optional.of(sysPropsInputStream));
 
     zipEntry =
         getMetadataZipEntry(
@@ -442,6 +467,21 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
             Stream.of(migratables),
             PRODUCT_BRANDING,
             PRODUCT_VERSION);
+  }
+
+  @Test
+  public void testGetSystemPropertiesFromPlatformMigratable() throws Exception {
+    Map<String, ?> sysProps = mgr.getSystemPropertiesFromContext(platformMigrationContext);
+
+    Assert.assertEquals(sysProps, expectedSysProps);
+  }
+
+  @Test
+  public void testGetSystemPropertiesFromPlatformContextAndNoPlatformContext() throws Exception {
+    thrown.expect(MigrationException.class);
+    thrown.expectMessage(Matchers.containsString("Platform migration context does not exist"));
+
+    mgr.getSystemPropertiesFromContext(null);
   }
 
   @Test

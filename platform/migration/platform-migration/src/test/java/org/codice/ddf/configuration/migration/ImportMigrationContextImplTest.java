@@ -872,15 +872,6 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
   }
 
   @Test
-  public void testGetSystemPropertyWhenMapIsNull() throws Exception {
-    thrown.expect(MigrationException.class);
-    thrown.expectMessage(
-        Matchers.containsString(ImportMigrationContextImpl.INVALID_NULL_SYS_PROPS));
-
-    Assert.assertThat(context.getSystemProperty("key"), Matchers.nullValue());
-  }
-
-  @Test
   public void testGetSystemPropertyWhenKeyDoesNotExist() throws Exception {
     final Map<String, String> props = new HashMap<>(1);
     props.put("key", "value");

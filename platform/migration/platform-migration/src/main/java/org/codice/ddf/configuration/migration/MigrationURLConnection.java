@@ -13,59 +13,47 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import com.google.common.collect.ImmutableMap;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationContext;
+import org.codice.ddf.migration.ImportMigrationEntry;
 
 /**
  * Custom URLConnection used in {@link ImportMigrationManagerImpl}. It is used to translate dummy
- * URLs to a {@link Path} to an exported file.
+ * URLs to a {@link ImportMigrationEntry} of an exported file.
  */
 public class MigrationURLConnection extends URLConnection {
 
-  private final ImportMigrationContext context;
-
-  private final Path path;
-
-  public static final String URL_BASE = "http://ddf";
-
-  public static final String SYSTEM_PROPERTIES_PATH = "/system.properties";
-
-  public static final String CUSTOM_SYSTEM_PROPERTIES_PATH = "/custom.system.properties";
-
-  public static final String SYSTEM_PROPERTIES_URL = URL_BASE + SYSTEM_PROPERTIES_PATH;
-
-  public static final Map<String, Path> URL_TO_PATHS =
-      ImmutableMap.of(
-          SYSTEM_PROPERTIES_PATH, Paths.get("etc", "system.properties"),
-          CUSTOM_SYSTEM_PROPERTIES_PATH, Paths.get("etc", "custom.system.properties"));
+  private final ImportMigrationEntry entry;
 
   public MigrationURLConnection(URL url, ImportMigrationContext context)
-      throws MalformedURLException {
+      throws FileNotFoundException {
     super(url);
     Validate.notNull(url, "invalid null URL");
-    this.context = context;
-    this.path = URL_TO_PATHS.get(url.getPath());
-    if (this.path == null) {
-      throw new MalformedURLException(String.format("Could not resolve URL <%s>.", url.toString()));
-    }
+    final Path path = Paths.get("etc" + url.getPath());
+    this.entry =
+        Optional.ofNullable(context.getEntry(path)).orElseThrow(FileNotFoundException::new);
   }
 
   @Override
-  public void connect() throws IOException {
-    throw new IOException();
-  }
+  public void connect() throws IOException {}
 
+  /**
+   * Gets the input stream of the entry specified by the URL.
+   *
+   * @return the input stream requested
+   * @throws FileNotFoundException if the entry could not be found or the entry does not have an
+   *     input stream
+   */
   @Override
   public InputStream getInputStream() throws IOException {
-    return context.getEntry(path).getInputStream().get();
+    return entry.getInputStream().orElseThrow(FileNotFoundException::new);
   }
 }
