@@ -63,6 +63,10 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
     }
   }
 
+  public Map<String, SessionData> getSessionDataMap() {
+    return sessionDataMap;
+  }
+
   @Override
   public void initialize(SessionContext context) throws Exception {
     super.initialize(context);
@@ -95,7 +99,7 @@ public class AttributeSharingSessionDataStore extends AbstractSessionDataStore {
             maxInactiveMs);
 
     Map<String, Object> sessionAttributes =
-        attributeSharingHashSessionIdManager.getLatestSessionAttributes(id);
+        attributeSharingHashSessionIdManager.sessionAttributes(id);
     if (sessionAttributes != null) sessionData.putAllAttributes(sessionAttributes);
 
     return sessionData;
