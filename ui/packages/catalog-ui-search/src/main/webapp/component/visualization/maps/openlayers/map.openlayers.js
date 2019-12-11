@@ -649,12 +649,12 @@ module.exports = function OpenlayersMap(
     },
     setGeometryStyle(geometry, options, feature) {
       const geometryInstance = feature.getGeometry()
-      if (geometryInstance.constructor === Openlayers.geom.Point) {
-        let x = 39,
-          y = 40
+      if (geometryInstance.getType() === 'Point') {
+        let pointWidth = 39
+        let pointHeight = 40
         if (options.size) {
-          x = options.size.x
-          y = options.size.y
+          pointWidth = options.size.x
+          pointHeight = options.size.y
         }
         geometry.setZIndex(options.isSelected ? 2 : 1)
         if (!feature.getProperties().isLabel) {
@@ -666,8 +666,8 @@ module.exports = function OpenlayersMap(
                   strokeColor: options.isSelected ? 'black' : 'white',
                   icon: options.icon,
                 }),
-                imgSize: [x, y],
-                anchor: [x / 2, 0],
+                imgSize: [pointWidth, pointHeight],
+                anchor: [pointWidth / 2, 0],
                 anchorOrigin: 'bottom-left',
                 anchorXUnits: 'pixels',
                 anchorYUnits: 'pixels',
@@ -684,7 +684,7 @@ module.exports = function OpenlayersMap(
             })
           )
         }
-      } else if (geometryInstance.constructor === Openlayers.geom.LineString) {
+      } else if (geometryInstance.getType() === 'LineString') {
         const styles = [
           new Openlayers.style.Style({
             stroke: new Openlayers.style.Stroke({

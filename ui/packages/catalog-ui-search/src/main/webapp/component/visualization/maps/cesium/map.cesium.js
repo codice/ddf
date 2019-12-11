@@ -194,8 +194,8 @@ module.exports = function CesiumMap(
   let shapes = []
   const map = createMap(insertionElement)
   const drawHelper = new DrawHelper(map)
-  const billboardCollection = setupBillboard()
-  const labelCollection = setupLabel()
+  const billboardCollection = setupBillboardCollection()
+  const labelCollection = setupLabelCollection()
   const drawingTools = setupDrawingTools(map)
   setupTooltip(map, selectionInterface)
 
@@ -249,13 +249,13 @@ module.exports = function CesiumMap(
     }
   }
 
-  function setupBillboard() {
+  function setupBillboardCollection() {
     const billboardCollection = new Cesium.BillboardCollection()
     map.scene.primitives.add(billboardCollection)
     return billboardCollection
   }
 
-  function setupLabel() {
+  function setupLabelCollection() {
     const labelCollection = new Cesium.LabelCollection()
     map.scene.primitives.add(labelCollection)
     return labelCollection
