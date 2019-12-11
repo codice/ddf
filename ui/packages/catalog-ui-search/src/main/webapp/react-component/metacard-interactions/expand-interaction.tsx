@@ -48,8 +48,10 @@ const handleExpand = (props: Props) => {
 
   id = encodeURIComponent(id)
 
+  const federation = props.model.first().get('src') === 'Local Content Stores' ? 'local' : 'enterprise'
+
   wreqr.vent.trigger('router:navigate', {
-    fragment: 'metacards/' + id,
+    fragment: 'metacards/' + id + '/' + federation,
     options: {
       trigger: true,
     },

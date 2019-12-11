@@ -15,7 +15,7 @@
 // eslint-disable-next-line no-extra-semi
 ;({
   openMetacard: {
-    patterns: ['metacards/:id'],
+    patterns: ['metacards/:id/:federation'],
     component: 'component/metacard/metacard.view',
     menu: {
       component: 'component/metacard-menu/metacard-menu.view',
