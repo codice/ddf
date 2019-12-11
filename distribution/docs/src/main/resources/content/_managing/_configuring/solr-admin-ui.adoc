@@ -7,18 +7,5 @@
 
 == {title}
 
-The Solr Admin UI for Solr server configurations can be accessed from a web browser with
-a username and password.
-
-=== Solr Admin UI's URL
-
-The Solr server's URL is configured in ${branding}'s `custom.system.properties` file. See
-<<{managing-prefix}solr_server_url,solr.http.url>> for more information.
-An _example_ of a typical URL for the Solr Admin UI is `https://hostname:8994`.
-
-=== Solr Admin UI's Username and Password
-The Solr admin username is configured in the `custom.system.properties` file. See
-<<{managing-prefix}solr_username,solr.username>>. The password is also stored in the
-`custom.system.properties` file, but the password is encrypted and not recoverable. See
-<<{managing-prefix}solr_server_password_management, Solr Server Password Management>>.
-
+The Solr Admin UI for Solr server configurations can be accessed from a web browser.
+See https://lucene.apache.org/solr/guide/${solr.docs.version}/using-the-solr-administration-user-interface.html[Using the Solr Administration User Interface] {external-link} for more details.

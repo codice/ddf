@@ -34,16 +34,6 @@
         <bundle>mvn:ddf.persistence.core/persistence-core-api/${project.version}</bundle>
     </feature>
 
-    <feature name="solr-password" version="${project.version}"
-        description="Automatically change Solr password if the default password is in use.">
-        <feature>security-core</feature>
-        <feature>security-encryption</feature>
-        <feature>util-uuidgenerator</feature>
-        <bundle>mvn:ddf.admin.core/admin-core-api/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.solr/solr-password/${project.version}</bundle>
-    </feature>
-
-
     <feature name="persistence-core" version="${project.version}"
              description="Internal Persistence Core Implementation">
         <feature>persistence-core-api</feature>
@@ -80,10 +70,10 @@
 
     <feature name="solr-factory-impl" version="${project.version}"
              description="Solr factory">
+        <feature>security-encryption</feature>
         <feature>common-system</feature>
         <feature>spring</feature>
         <feature>solr-factory-api</feature>
-        <feature>solr-password</feature>
         <bundle>mvn:ddf.platform.solr/solr-factory-impl/${project.version}</bundle>
     </feature>
 </features>

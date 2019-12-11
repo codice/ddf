@@ -7,77 +7,7 @@
 
 == {title}
 
-The following sections provide hardening guidance for Solr; however, they are provided only as
-reference and additional security requirements may be added.
-
-=== Hardening Solr Server Configuration
-
-The Solr server configuration is configured to be secure by default. No additional
-hardening should be necessary. The default configuration starts Solr with TLS enabled and
-basic authentication required. That means ${branding} must trust Solr's PKI certificate.
-
-=== Solr Server Password Management
-
-By default, ${branding} is configured to use Solr server. To verify this, view the property
-<<{managing-prefix}solr_client,`solr.client`>>. If the property is set to `HttpSolrClient`,
-${branding} is configured to use Solr server.
-
-To ensure the security of its communication with Solr server, ${branding} sends HTTP requests
-over TLS. Solr is configured to use basic authentication to further ensure the requests
-originated from ${branding}. There are several system properties that control basic authentication
-and password management.
-
-* <<{managing-prefix}solr_usebasicauth, `solr.useBasicAuth`>>Send basic authentication header
-if property is `true`
-* <<{managing-prefix}solr_username,`solr.username`>>Username for basic authentication with Solr server.
-* <<{managing-prefix}solr_password,`solr.password`>>Password for basic authentication.
-* <<{managing-prefix}solr_autopassword,`solr.attemptAutoPasswordChange`>>
-If this property is `true`, ${branding} attempts to change the default password to a randomly
-generated secure password if it detects the default password is in use.
-The new password is encrypted and then stored in the system properties.
-
-The Solr distrubition included with ${branding} comes already configured with a user. To see the
-username or default password, either inspect the file
-`${home_directory}/etc/custom.system.properties` or refer to the properties
-<<{managing-prefix}managed_solr_properties,here>>.
-
-A limitation of the current implementation is that the Solr password is not recoverable. Further,
-the migration command does not currently migrate the password. It may
-be necessary to reset the password:
-
-* After a migration.
-* If the administator needs access to the Solr admin UI.
-* If the administator wants to use their own password.
-
-==== Do not Autogenerate a Solr Password
-
-. **To prevent ${branding} from attempting to change the password** set the property
-<<{managing-prefix}solr_autopassword,`solr.attemptAutoPasswordChange`>> to `false` in the
-file `${home_directory}/etc/custom.system.properties`
-
-==== Change the Password to a Specific String
-
-[NOTE]
-====
-If ${branding} has generated an encrypted password, the password must be reset before
-proceeding.
-====
-
-. To change the Solr password to a specific string, send Solr an HTTP POST request.
-This is covered in the official http://lucene.apache.org/solr/resources.html[Solr documentation]
- {external-link}. Here is an example that uses the
-command line utility `curl` to change the password from `admin` to `newpassword`:
-
- curl -k -u "admin:admin" "https://{FQDN}:{PORT}/solr/admin/authentication" -H 'Content-type:application/json' -d "{ 'set-user': {'admin' : 'newpassword'}}"
-+
-. Encrypt the password using the <<{integrating-prefix}encrypting_passwords,Encryption Service>>.
-The encryption command enciphers the password. It is safe to save the peristed password in a file.
-. Update property `solr.password` in the file `${home_directory}/etc/custom.system.properties` to
-be the ouput from the encryption command. Be sure to include `ENC(` and `)` characters produced by
-the encryption comand. Note that the default password is not enclosed in `ENC()` because that
-is not necessary for cleartext. Cleartext is used by the system exactly as it appears.
-<<_do_not_autogenerate_a_solr_password, follow these instructions>>.
-. Finally, restart ${branding}
+Follow instructions on https://lucene.apache.org/solr/guide/${solr.docs.version}/securing-solr.html[Securing Solr] {external-link}.
 
 === Configuring Solr Encryption
 
