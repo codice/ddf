@@ -17,7 +17,7 @@
     <parent>
         <artifactId>action</artifactId>
         <groupId>ddf.action</groupId>
-        <version>2.19.3-SNAPSHOT</version>
+        <version>2.19.3</version>
     </parent>
     <artifactId>action-core-pom</artifactId>
     <groupId>ddf.action.core</groupId>
