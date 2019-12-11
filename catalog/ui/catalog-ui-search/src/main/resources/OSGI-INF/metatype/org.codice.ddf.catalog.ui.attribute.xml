@@ -14,15 +14,6 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD name="Catalog UI Search Attribute Aliases" id="org.codice.ddf.catalog.ui.attribute.aliases">
-        <AD id="attributeAliases"
-            name="Attribute Aliases"
-            description='List of attribute aliases. Separate the attribute name and alias with an equals (=) sign. Example: "title=Title".'
-            type="String"
-            cardinality="10000"
-            required="false"/>
-    </OCD>
-
     <OCD name="Catalog UI Search Hidden Attributes" id="org.codice.ddf.catalog.ui.attribute.hidden">
         <AD id="hiddenAttributes"
             name="Hidden Attributes"
@@ -56,11 +47,7 @@ Note: Attributes must also be listed under the Facet Attribute Whitelist for thi
     <Designate pid="org.codice.ddf.catalog.ui.attribute.suggestionList">
         <Object ocdref="org.codice.ddf.catalog.ui.attribute.suggestionList"/>
     </Designate>
-
-    <Designate pid="org.codice.ddf.catalog.ui.attribute.aliases">
-        <Object ocdref="org.codice.ddf.catalog.ui.attribute.aliases"/>
-    </Designate>
-
+    
     <Designate pid="org.codice.ddf.catalog.ui.attribute.hidden">
         <Object ocdref="org.codice.ddf.catalog.ui.attribute.hidden"/>
     </Designate>
