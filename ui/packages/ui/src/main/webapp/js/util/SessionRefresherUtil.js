@@ -14,7 +14,6 @@
  **/
 
 define(['backbone', 'jquery'], function(Backbone, $) {
-  var sessionRenewUrl = '../services/internal/session/renew'
   var sessionExpiryUrl = '../services/internal/session/expiry'
 
   var sessionAutoRenewModel = new (Backbone.Model.extend({
@@ -54,7 +53,7 @@ define(['backbone', 'jquery'], function(Backbone, $) {
       clearTimeout(this.sessionRenewTimer)
     },
     renewSession: function() {
-      $.get(sessionRenewUrl).done(this.handleExpiryTimeResponse.bind(this))
+      $.get(sessionExpiryUrl).done(this.handleExpiryTimeResponse.bind(this))
     },
   }))()
 

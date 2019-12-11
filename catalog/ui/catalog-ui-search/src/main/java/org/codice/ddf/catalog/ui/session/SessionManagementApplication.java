@@ -38,20 +38,6 @@ public class SessionManagementApplication implements SparkApplication {
         });
 
     get(
-        "/session/renew",
-        (req, res) -> {
-          String body = sessionManagement.getRenewal(req.raw());
-
-          if (body == null) {
-            res.status(500);
-            return "";
-          }
-
-          res.status(200);
-          return body;
-        });
-
-    get(
         "/session/invalidate",
         (req, res) -> {
           URI uri = sessionManagement.getInvalidate(req.raw());
