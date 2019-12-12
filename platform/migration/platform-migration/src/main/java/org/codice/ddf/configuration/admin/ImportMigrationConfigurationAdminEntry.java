@@ -40,7 +40,7 @@ public class ImportMigrationConfigurationAdminEntry {
 
   private final ConfigurationAdmin configurationAdmin;
 
-  private final Dictionary<String, Object> properties;
+  private Dictionary<String, Object> properties;
 
   @Nullable private final String bundleLocation;
 
@@ -125,6 +125,14 @@ public class ImportMigrationConfigurationAdminEntry {
 
   public String getPid() {
     return pid;
+  }
+
+  public Object getProperty(String propName) {
+    return properties.get(propName);
+  }
+
+  public void setProperty(String propName, Object propValue) {
+    this.properties.put(propName, propValue);
   }
 
   public void setPid(String pid) {

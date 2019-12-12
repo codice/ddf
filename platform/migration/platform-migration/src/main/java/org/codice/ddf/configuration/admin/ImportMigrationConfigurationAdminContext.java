@@ -280,7 +280,7 @@ public class ImportMigrationConfigurationAdminContext {
       } finally {
         Closeables.closeQuietly(is);
       }
-      // note: we also remove bunde location, factory pid, and pid from the dictionary as we do not
+      // note: we also remove bundle location, factory pid, and pid from the dictionary as we do not
       // want to restore those later
       final String pid = Objects.toString(properties.remove(Constants.SERVICE_PID), null);
 

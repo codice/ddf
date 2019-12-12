@@ -17,6 +17,9 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -32,6 +35,9 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
+import org.apache.karaf.util.config.PropertiesLoader;
+import org.codice.ddf.configuration.migration.util.AccessUtils;
+import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
@@ -69,6 +75,8 @@ public class ImportMigrationManagerImpl implements Closeable {
   private final String currentProductBranding;
 
   private final String currentProductVersion;
+
+  private final Map<String, ?> systemProperties;
 
   private final Path exportFile;
 
@@ -125,9 +133,9 @@ public class ImportMigrationManagerImpl implements Closeable {
           .filter(ze -> !ze.isDirectory())
           .map(ze -> new ImportMigrationEntryImpl(this::getContextFor, ze))
           .forEach(me -> me.getContext().addEntry(me));
-      metadata = retrieveMetadata(); // do this after retreiving all exported entries
+      metadata = retrieveMetadata(); // do this after retrieving all exported entries
       this.version = JsonUtils.getStringFrom(metadata, MigrationContextImpl.METADATA_VERSION, true);
-      if (!MigrationContextImpl.CURRENT_VERSION.equals(version)) {
+      if (!MigrationContextImpl.SUPPORTED_VERSIONS.contains(version)) {
         IOUtils.closeQuietly(zip);
         throw new MigrationException(
             Messages.IMPORT_UNSUPPORTED_VERSION_ERROR,
@@ -141,8 +149,10 @@ public class ImportMigrationManagerImpl implements Closeable {
       this.currentProductBranding = currentProductBranding;
       this.currentProductVersion = currentProductVersion;
       // process migratables' metadata
-      JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES)
+      JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES, false)
           .forEach((id, o) -> getContextFor(id).processMetadata(JsonUtils.convertToMap(o)));
+      systemProperties = this.getSystemProperties(metadata);
+      contexts.forEach((id, m) -> m.setSystemProperties(systemProperties));
     } catch (IOException e) {
       IOUtils.closeQuietly(zip);
       throw new MigrationException(Messages.IMPORT_FILE_READ_ERROR, exportFile, e);
@@ -204,6 +214,41 @@ public class ImportMigrationManagerImpl implements Closeable {
   @VisibleForTesting
   Collection<ImportMigrationContextImpl> getContexts() {
     return contexts.values();
+  }
+
+  private Map<String, ?> getSystemProperties(Map<String, Object> metadata) {
+    if (version.equals(MigrationContextImpl.SYSTEM_PROPERTIES_NOT_EXPORTED_VERSION)) {
+      ImportMigrationContext platformMigrationContext =
+          contexts.get(MigrationContextImpl.PLATFORM_MIGRATABLE_ID);
+      return AccessUtils.doPrivileged(
+          () -> getSystemPropertiesFromContext(platformMigrationContext));
+    }
+    return JsonUtils.getMapFrom(
+        metadata, MigrationContextImpl.METADATA_EXPANDED_SYSTEM_PROPERTIES, true);
+  }
+
+  @VisibleForTesting
+  Map<String, ?> getSystemPropertiesFromContext(ImportMigrationContext platformMigrationContext) {
+    if (platformMigrationContext == null) {
+      throw new MigrationException(
+          Messages.IMPORT_SYSTEM_PROPERTIES_ERROR, "Platform migration context does not exist");
+    }
+
+    try {
+      URL systemPropsURL =
+          new URL(
+              null,
+              "http://ddf/system.properties",
+              new URLStreamHandler() {
+                @Override
+                protected URLConnection openConnection(URL u) throws IOException {
+                  return new MigrationURLConnection(u, platformMigrationContext);
+                }
+              });
+      return PropertiesLoader.loadPropertiesFile(systemPropsURL, true);
+    } catch (Exception e) {
+      throw new MigrationException(Messages.IMPORT_SYSTEM_PROPERTIES_ERROR, e);
+    }
   }
 
   private Set<String> getSupportedVersions(@Nullable String commaDelimitedVersions) {

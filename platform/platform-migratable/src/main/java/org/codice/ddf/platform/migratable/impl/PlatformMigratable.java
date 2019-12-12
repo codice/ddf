@@ -105,6 +105,7 @@ public class PlatformMigratable implements Migratable {
     return PlatformMigratable.CURRENT_VERSION;
   }
 
+  /** Must match the platform migratable ID in MigrationContextImpl */
   @Override
   public String getId() {
     return "ddf.platform";

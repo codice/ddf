@@ -16,8 +16,10 @@ package org.codice.ddf.configuration.admin;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -49,6 +51,13 @@ public class ConfigurationAdminMigratable implements Migratable {
    */
   private static final String CURRENT_VERSION = "1.0";
 
+  private static final String ATTRIBUTE_MAP = "attributeMap";
+
+  private static final String DDF_HOSTNAME_PROP_KEY = "org.codice.ddf.system.hostname";
+
+  private static final String METACARD_VALIDITY_FILTER_PLUGIN_PID =
+      "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin";
+
   @VisibleForTesting
   static final List<String> ACCEPTED_ENTRY_PIDS =
       Arrays.asList(
@@ -61,7 +70,11 @@ public class ConfigurationAdminMigratable implements Migratable {
           "org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries",
           "org.codice.ddf.registry.policy.RegistryPolicyPlugin",
           "Registry_Configuration_Event_Handler",
-          "org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler");
+          "org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler",
+          "ddf.catalog.federation.impl.CachingFederationStrategy",
+          METACARD_VALIDITY_FILTER_PLUGIN_PID,
+          "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin",
+          "ddf.catalog.CatalogFrameworkImpl");
 
   private static final List<String> ACCEPTED_ENTRY_FACTORY_PIDS =
       Arrays.asList(
@@ -75,6 +88,12 @@ public class ConfigurationAdminMigratable implements Migratable {
 
   private final String defaultFileExtension;
 
+  private List<
+          BiFunction<
+              ImportMigrationConfigurationAdminEntry, ImportMigrationContext,
+              ImportMigrationConfigurationAdminEntry>>
+      filters;
+
   public ConfigurationAdminMigratable(
       ConfigurationAdmin configurationAdmin,
       List<PersistenceStrategy> strategies,
@@ -84,6 +103,9 @@ public class ConfigurationAdminMigratable implements Migratable {
     this.configurationAdmin = configurationAdmin;
     this.strategies = strategies;
     this.defaultFileExtension = defaultFileExtension;
+    filters = new ArrayList<>();
+    filters.add(this::updateSessionConfiguration);
+    filters.add(this::updateMetacardValidityFilterPluginConfiguration);
   }
 
   @SuppressWarnings(
@@ -154,7 +176,7 @@ public class ConfigurationAdminMigratable implements Migratable {
     adminContext
         .memoryEntries()
         .filter(this::isAcceptedConfigurationAdminEntry)
-        .map(this::updateNecessaryConfigurationAdminEntries)
+        .map(entry -> updateNecessaryConfigurationAdminEntries(entry, context))
         .forEach(ImportMigrationConfigurationAdminEntry::restore);
   }
 
@@ -173,11 +195,39 @@ public class ConfigurationAdminMigratable implements Migratable {
 
   // entries must be updated to the latest versions of themselves in order to restore correctly
   private ImportMigrationConfigurationAdminEntry updateNecessaryConfigurationAdminEntries(
-      ImportMigrationConfigurationAdminEntry entry) {
-    // this pid was updated in versions 2.16.1 and 2.17.0
-    // see https://github.com/codice/ddf/issues/5131
+      ImportMigrationConfigurationAdminEntry entry, ImportMigrationContext context) {
+    for (BiFunction<
+            ImportMigrationConfigurationAdminEntry, ImportMigrationContext,
+            ImportMigrationConfigurationAdminEntry>
+        filter : filters) {
+      entry = filter.apply(entry, context);
+    }
+    return entry;
+  }
+
+  // this pid was updated in versions 2.16.1 and 2.17.0
+  // see https://github.com/codice/ddf/issues/5131
+  private ImportMigrationConfigurationAdminEntry updateSessionConfiguration(
+      ImportMigrationConfigurationAdminEntry entry, ImportMigrationContext context) {
     if (entry.getPid().equals("org.codice.ddf.security.filter.login.Session")) {
       entry.setPid("ddf.security.http.impl.HttpSessionFactory");
+    }
+    return entry;
+  }
+
+  // this configuration was updated in version 2.13.6
+  // see https://github.com/codice/ddf/pull/4388
+  private ImportMigrationConfigurationAdminEntry updateMetacardValidityFilterPluginConfiguration(
+      ImportMigrationConfigurationAdminEntry entry, ImportMigrationContext context) {
+    if (entry.getPid().equals(METACARD_VALIDITY_FILTER_PLUGIN_PID)) {
+      String[] attributeMap = (String[]) entry.getProperty(ATTRIBUTE_MAP);
+
+      for (int i = 0; i < attributeMap.length; i++) {
+        String val = attributeMap[i];
+        String hostname = context.getSystemProperty(DDF_HOSTNAME_PROP_KEY);
+        attributeMap[i] = val.replaceAll("(?<!-)data-manager", hostname + "-data-manager");
+      }
+      entry.setProperty(ATTRIBUTE_MAP, attributeMap);
     }
     return entry;
   }

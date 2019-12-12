@@ -107,13 +107,16 @@ public class ConfigurationAdminMigratableTest {
 
   private static final String DDF_HOME_SYSTEM_PROP_KEY = "ddf.home";
 
+  private static final String DDF_HOSTNAME_PROP_KEY = "org.codice.ddf.system.hostname";
+
   private static final String DDF_HOME = "ddf";
 
   private static final String DDF_EXPORTED_TAG_TEMPLATE = "exported_from_%s";
 
   private static final String SUPPORTED_BRANDING = "test";
 
-  private static final String SUPPORTED_VERSION = "2.0";
+  // needs to be 2.13.3, 2.13.4, or 2.13.5 in order to test hostname insertion
+  private static final String SUPPORTED_VERSION = "2.13.3";
 
   private static final String IMPORTING_PRODUCT_VERSION = "3.0";
 
@@ -138,6 +141,9 @@ public class ConfigurationAdminMigratableTest {
 
   private static final String DDF_CUSTOM_MIME_TYPE_RESOLVER_FILENAME =
       String.format("%s-csw.config", DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
+
+  private static final String METACARD_VALIDITY_FILTER_PLUGIN_PID =
+      "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin";
 
   private static final List<PersistenceStrategy> STRATEGIES =
       ImmutableList.of(new CfgStrategy(), new ConfigStrategy());
@@ -299,9 +305,9 @@ public class ConfigurationAdminMigratableTest {
     ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
         ArgumentCaptor.forClass(Dictionary.class);
     verify(configurations.get(0)).update(argumentCaptor.capture());
-    Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.getValue());
+    Map<String, ?> dictionaryAsMap = convertToMap(argumentCaptor.getValue());
     assertThat(
-        dictionayAsMap,
+        dictionaryAsMap,
         allOf(
             aMapWithSize(2),
             hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2"),
@@ -400,20 +406,37 @@ public class ConfigurationAdminMigratableTest {
 
     // Verify that the config admin in the system being imported into gets the factory configuration
     // from the system being exported from.
-    // Using legacy for lops due to exception handling
+    // Using legacy for loops due to exception handling
     for (String fPid : factoryPids) {
       if (!fPid.equals(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)) {
         verify(configurationAdminForImport).createFactoryConfiguration(eq(fPid), isNull());
       }
     }
     for (Configuration config : configurations) {
-      if (!config.getPid().contains(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)) {
+      if (config.getPid().contains(METACARD_VALIDITY_FILTER_PLUGIN_PID)) {
         ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
             ArgumentCaptor.forClass(Dictionary.class);
         verify(config).update(argumentCaptor.capture());
-        Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.getValue());
+        Map<String, ?> dictionaryAsMap = convertToMap(argumentCaptor.getValue());
+        String[] attributeMap = {
+          "invalid-state=test-host-data-manager,system-user",
+          "invalid-state=hostname-data-manager,system-user"
+        };
         assertThat(
-            dictionayAsMap,
+            dictionaryAsMap,
+            allOf(
+                aMapWithSize(4),
+                hasEntry("schema", (Object) "http://www.opengis.net/cat/csw/2.0.2"),
+                hasEntry("filterWarnings", (Object) "false"),
+                hasEntry("filterErrors", (Object) "true"),
+                hasEntry("attributeMap", (Object) attributeMap)));
+      } else if (!config.getPid().contains(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)) {
+        ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
+            ArgumentCaptor.forClass(Dictionary.class);
+        verify(config).update(argumentCaptor.capture());
+        Map<String, ?> dictionaryAsMap = convertToMap(argumentCaptor.getValue());
+        assertThat(
+            dictionaryAsMap,
             allOf(aMapWithSize(1), hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2")));
         // Does not have filename because felix.fileinstall is removed
       }
@@ -505,6 +528,16 @@ public class ConfigurationAdminMigratableTest {
     }
     props.put("service.pid", pid);
     props.put("schema", "http://www.opengis.net/cat/csw/2.0.2");
+    if (pid.equals(METACARD_VALIDITY_FILTER_PLUGIN_PID)) {
+      props.put(
+          "attributeMap",
+          new String[] {
+            "invalid-state=data-manager,system-user",
+            "invalid-state=hostname-data-manager,system-user"
+          });
+      props.put("filterWarnings", "false");
+      props.put("filterErrors", "true");
+    }
     when(config.getProperties()).thenReturn(props);
     when(config.getPid()).thenReturn(pid);
     return config;
@@ -537,8 +570,10 @@ public class ConfigurationAdminMigratableTest {
   private void setup(String ddfHomeStr, String productVersion) throws IOException {
     ddfHome = tempDir.newFolder(ddfHomeStr).toPath().toRealPath();
     System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
+    System.setProperty(DDF_HOSTNAME_PROP_KEY, "test-host");
     Path etcDir = ddfHome.resolve("etc");
     Files.createDirectory(etcDir);
+    setupSystemPropertiesFiles();
     setupBrandingFile(SUPPORTED_BRANDING);
     setupVersionFile(productVersion);
     setupMigrationPropertiesFile(SUPPORTED_VERSION);
@@ -567,6 +602,15 @@ public class ConfigurationAdminMigratableTest {
         migrationPropsFile.toFile().getCanonicalFile(),
         "supported.versions=" + version,
         StandardCharsets.UTF_8);
+  }
+
+  private void setupSystemPropertiesFiles() throws IOException {
+    final Path systemPropsFile = ddfHome.resolve(Paths.get("etc", "system.properties"));
+    Files.createFile(systemPropsFile);
+
+    final Path customSystemPropsFile =
+        ddfHome.resolve(Paths.get("etc", "custom.system.properties"));
+    Files.createFile(customSystemPropsFile);
   }
 
   private Path setupConfigFile(String tag, String configFileName) throws IOException {

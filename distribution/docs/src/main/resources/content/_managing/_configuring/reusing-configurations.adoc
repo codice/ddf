@@ -72,6 +72,7 @@ The same step-by-step process above can be followed when migrating configuration
 ** Files under `etc/pdp`
 ** `etc/users.attributes` and `etc/users.properties`
 ** `security/configurations.policy`
+** `etc/system.properties`
 ** `etc/custom.system.properties` (the `solr.password` property will be preserved)
 ** Keystores
 ** Truststores
@@ -83,6 +84,10 @@ The same step-by-step process above can be followed when migrating configuration
 *** Security STS Guest Claims Handler
 *** Security STS Server
 *** Session
+*** Catalog Federation Strategy
+*** Catalog Standard Framework
+*** Metacard Validation Filter Plugin
+*** Metacard Validation Marker Plugin
 *** All Catalog Source configurations
 *** All Registry configurations
 [WARNING]
