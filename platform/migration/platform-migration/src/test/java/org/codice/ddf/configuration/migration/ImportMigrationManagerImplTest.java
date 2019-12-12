@@ -470,6 +470,30 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   }
 
   @Test
+  public void testGetSystemPropertiesSysPropsNotExportedVersionAndNoPlatformContext()
+      throws Exception {
+    thrown.expect(MigrationException.class);
+    thrown.expectMessage(Matchers.containsString("Platform migration context does not exist"));
+
+    zipEntry =
+        getMetadataZipEntry(
+            Optional.of("1.0"),
+            Optional.of(PRODUCT_BRANDING),
+            Optional.of(PRODUCT_VERSION),
+            false,
+            false);
+
+    mgr =
+        new ImportMigrationManagerImpl(
+            report,
+            mockMigrationZipFile,
+            Collections.emptySet(),
+            Stream.of(migratables),
+            PRODUCT_BRANDING,
+            PRODUCT_VERSION);
+  }
+
+  @Test
   public void testGetSystemPropertiesFromPlatformMigratable() throws Exception {
     Map<String, ?> sysProps = mgr.getSystemPropertiesFromContext(platformMigrationContext);
 
@@ -477,11 +501,11 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   }
 
   @Test
-  public void testGetSystemPropertiesFromPlatformContextAndNoPlatformContext() throws Exception {
-    thrown.expect(MigrationException.class);
-    thrown.expectMessage(Matchers.containsString("Platform migration context does not exist"));
+  public void testGetSystemPropertiesFromPlatformMigratableAndNoSysProps() throws Exception {
+    Mockito.when(sysPropsMigrationEntry.getInputStream()).thenReturn(Optional.empty());
 
-    mgr.getSystemPropertiesFromContext(null);
+    thrown.expect(MigrationException.class);
+    mgr.getSystemPropertiesFromContext(platformMigrationContext);
   }
 
   @Test

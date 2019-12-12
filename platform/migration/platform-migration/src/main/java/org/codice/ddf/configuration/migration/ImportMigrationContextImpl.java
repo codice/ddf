@@ -162,7 +162,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
   @Override
   @Nullable
   public String getSystemProperty(String key) {
-    SecurityManager sm = System.getSecurityManager();
+    final SecurityManager sm = System.getSecurityManager();
     if (sm != null) {
       sm.checkPropertyAccess(key);
     }
