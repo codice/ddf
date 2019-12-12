@@ -32,6 +32,11 @@ ENV CONFIG_SRC=/seed
 ENV CORE_DEST=/opt/solr/server/solr/cores
 RUN mkdir -p $CORE_DEST
 
+# Create directory for SolrCloud nodes
+ENV NODE_DEST=/opt/solr/server/solr/nodes
+RUN mkdir -p $NODE_DEST/node1 $NODE_DEST/node2
+RUN chown -R solr:solr $NODE_DEST
+
 # Add ddf-solr entrypoint
 COPY maven/docker-ddf-solr-entrypoint.sh /usr/local/bin/docker-ddf-solr-entrypoint
 ENTRYPOINT ["/usr/local/bin/docker-ddf-solr-entrypoint"]
