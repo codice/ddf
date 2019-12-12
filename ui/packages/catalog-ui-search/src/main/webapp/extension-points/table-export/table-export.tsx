@@ -56,15 +56,16 @@ export function buildCqlQueryFromMetacards(metacards: any, count: any) {
   }
   return `(${queryParts.join(' OR ')})`
 }
-const visibleData = (selectionInterface: any) =>
+const visibleData = (exportSize: int, selectionInterface: any) =>
   buildCqlQueryFromMetacards(
     selectionInterface.getActiveSearchResults().toJSON(),
-    null
+    exportSize
   )
+const limit = 10
 const allData = (selectionInterface: any) =>
   selectionInterface.getCurrentQuery().get('cql')
-function getCqlForSize(exportSize: string, selectionInterface: any) {
-  return exportSize === 'visible'
+function getCqlForSize(exportSize: number, selectionInterface: any) {
+  return exportSize <= limit 
     ? visibleData(selectionInterface)
     : allData(selectionInterface)
 }
