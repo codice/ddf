@@ -36,6 +36,7 @@ const Root = styled.div`
     display: inline-block;
     padding: 0px 18px 0px 10px;
     height: calc(100% - 4px);
+    max-width: 600px;
     transition: padding ${props => props.theme.coreTransitionTime} ease-out;
     transition-delay: ${props => props.theme.coreTransitionTime};
     visibility: hidden;
@@ -78,6 +79,7 @@ const Root = styled.div`
     vertical-align: top;
     height: calc(100% - 4px);
     min-width: 1px;
+    max-width: 600px;
     background: ${props => props.theme.backgroundNavigation} !important;
     border: none !important;
     font-size: ${props => props.theme.mediumFontSize};
