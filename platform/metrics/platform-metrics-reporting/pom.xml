@@ -113,6 +113,11 @@
                             com.sun.image.codec.jpeg;resolution:=optional,
                             org.apache.cxf.jaxrs.utils,
                             org.joda.convert;resolution:=optional,
+                            org.apache.commons.collections4;resolution:=optional,
+                            org.apache.commons.collections4.bidimap;resolution:=optional,
+                            org.apache.commons.math3.exception;resolution:=optional,
+                            org.apache.commons.math3.linear;resolution:=optional,
+                            org.apache.commons.math3.stat.regression;resolution:=optional,
                             *
                         </Import-Package>
                         <Export-Package />

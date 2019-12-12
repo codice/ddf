@@ -42,6 +42,7 @@
         <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>tika-bundle</artifactId>
+            <version>${tika.thirdparty.bundle.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
