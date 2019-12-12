@@ -20,7 +20,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationEntry;
@@ -38,8 +37,10 @@ public class MigrationURLConnection extends URLConnection {
     super(url);
     Validate.notNull(url, "invalid null URL");
     final Path path = Paths.get("etc" + url.getPath());
-    this.entry =
-        Optional.ofNullable(context.getEntry(path)).orElseThrow(FileNotFoundException::new);
+    this.entry = context.getEntry(path);
+    if (this.entry == null) {
+      throw new FileNotFoundException();
+    }
   }
 
   @Override
