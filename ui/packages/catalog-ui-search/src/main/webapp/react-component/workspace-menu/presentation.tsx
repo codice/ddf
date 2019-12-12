@@ -107,6 +107,9 @@ const Grouping = styled.div`
   > ${StyledSaveButton /* sc-selector */} {
     flex-shrink: 0;
   }
+  > .content-adhoc {
+    flex-shrink: 0;
+  }
 `
 
 const Icon = styled.span`
