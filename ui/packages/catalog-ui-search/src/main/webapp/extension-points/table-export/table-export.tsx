@@ -65,7 +65,7 @@ const limit = 10
 const allData = (selectionInterface: any) =>
   selectionInterface.getCurrentQuery().get('cql')
 function getCqlForSize(exportSize: number, selectionInterface: any) {
-  return exportSize <= limit 
+  return exportSize <= limit
     ? visibleData(selectionInterface)
     : allData(selectionInterface)
 }
