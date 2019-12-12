@@ -3,10 +3,7 @@ This docker compose will start one Zookeeper and two DDF compatible SolrCloud no
 
 ## How to use this
 
-Initial setup:
-```
-docker network create --subnet=172.28.0.0/16 solr 
-```
+Note: You may be asked to enabled file sharing in Docker with this directory on Windows or MacOS.
 
 To run:
 ```
@@ -14,9 +11,9 @@ docker-compose up
 ```
 
 Services are available locally at:
-* zoo.localhost:2181
-* <http://solr1.localhost:8994/solr/>
-* <http://solr2.localhost:8995/solr/>
+* Zookeeper at localhost:2181
+* <http://localhost:8994/solr/>
+* <http://localhost:8995/solr/>
 
 To remove volume data:
 ```
