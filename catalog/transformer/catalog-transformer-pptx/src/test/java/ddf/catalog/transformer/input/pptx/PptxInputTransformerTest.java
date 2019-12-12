@@ -32,8 +32,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import org.apache.poi.openxml4j.util.Nullable;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -163,7 +163,7 @@ public class PptxInputTransformerTest {
       ss.createSlide();
       Date d = createOneSecondPrecisionDate();
 
-      ss.getProperties().getCoreProperties().setCreated(new Nullable<>(d));
+      ss.getProperties().getCoreProperties().setCreated(Optional.ofNullable(d));
       try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
         ss.write(os);
 
@@ -184,7 +184,7 @@ public class PptxInputTransformerTest {
       ss.createSlide();
       Date d = createOneSecondPrecisionDate();
 
-      ss.getProperties().getCoreProperties().setModified(new Nullable<>(d));
+      ss.getProperties().getCoreProperties().setModified(Optional.ofNullable(d));
       try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
         ss.write(os);
 

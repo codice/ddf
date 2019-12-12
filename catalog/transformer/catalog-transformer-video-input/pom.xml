@@ -46,12 +46,13 @@
             <artifactId>Saxon-HE</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
         </dependency>
     </dependencies>
     <build>
@@ -72,6 +73,14 @@
                             ddf.catalog.transformer.input.video,
                             ddf.catalog.data.impl.*
                         </Private-Package>
+                        <Import-Package>
+                            javax.activation;resolution:=optional,
+                            org.bouncycastle.crypto;resolution:=optional,
+                            org.bouncycastle.crypto.digests;resolution:=optional,
+                            org.bouncycastle.crypto.prng;resolution:=optional,
+                            org.bouncycastle.crypto.prng.drbg;resolution:=optional,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
