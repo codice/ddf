@@ -58,12 +58,15 @@ public class JsonUtils {
    *
    * @param map the map to retrieve an entry from
    * @param key the key for the entry to retrieve
+   * @param required <code>true</code> if the entry must exist in the map otherwise an error is
+   *     generated; <code>false</code> to return <code>null</code> if it doesn't exist
    * @return the corresponding Json map or an empty one if none defined
-   * @throws MigrationException if the specified entry is not a Json map
+   * @throws MigrationException if the specified entry is not a Json map or if it doesn't exist and
+   *     <code>required</code> is true
    */
   public static Map<String, Object> getMapFrom(
-      @Nullable Map<String, Object> map, @Nullable String key) {
-    final Map<String, Object> m = JsonUtils.getObjectFrom(Map.class, map, key, false);
+      @Nullable Map<String, Object> map, @Nullable String key, boolean required) {
+    final Map<String, Object> m = JsonUtils.getObjectFrom(Map.class, map, key, required);
 
     return (m != null) ? m : Collections.emptyMap();
   }

@@ -110,6 +110,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         .registerMBean(
             mockWrapperManager, new ObjectName("org.tanukisoftware.wrapper:type=WrapperManager"));
     doNothing().when(mockWrapperManager).restart();
+    createSystemPropertiesFiles();
     createBrandingFile();
     createVersionFile();
     createMigrationPropsFile();
@@ -863,6 +864,10 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
                 .collect(Collectors.joining("\",\n\t\"", "[\n\t\"", "\"\n]")),
         count,
         equalTo(1L));
+  }
+
+  private void createSystemPropertiesFiles() throws IOException {
+    createFiles(Paths.get("etc"), "custom.system.properties", "system.properties");
   }
 
   private void createBrandingFile(String branding) throws IOException {

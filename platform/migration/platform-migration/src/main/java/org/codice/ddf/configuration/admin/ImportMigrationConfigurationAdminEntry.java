@@ -127,12 +127,16 @@ public class ImportMigrationConfigurationAdminEntry {
     return pid;
   }
 
-  public Dictionary<String, Object> getProperties() {
-    return properties;
+  public Object getProperty(String propName) {
+    return properties.get(propName);
   }
 
-  public void setProperties(Dictionary<String, Object> properties) {
-    this.properties = properties;
+  public void setProperty(String propName, Object propValue) {
+    this.properties.put(propName, propValue);
+  }
+
+  public void removeProperty(String propName) {
+    this.properties.remove(propName);
   }
 
   public void setPid(String pid) {

@@ -14,11 +14,13 @@
 package org.codice.ddf.configuration.migration;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.Migratable;
@@ -178,14 +180,31 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
 
   public static final String METADATA_SYSTEM_PROPERTIES = "system.properties";
 
+  public static final Path METADATA_SYSTEM_PROPERTIES_PATH =
+      Paths.get("etc", METADATA_SYSTEM_PROPERTIES);
+
   public static final String METADATA_JAVA_PROPERTIES = "java.properties";
+
+  public static final String METADATA_EXPANDED_SYSTEM_PROPERTIES = "expanded system.properties";
+
+  public static final Path METADATA_CUSTOM_SYSTEM_PROPERTIES_PATH =
+      Paths.get("etc", "custom.system.properties");
+
+  /** Must match the ID returned by PlatformMigratable */
+  public static final String PLATFORM_MIGRATABLE_ID = "ddf.platform";
 
   /**
    * Holds the current export version.
    *
    * <p>1.0 - initial version
+   *
+   * <p>1.1 - added support for system properties and custom system properties
    */
-  protected static final String CURRENT_VERSION = "1.0";
+  protected static final String CURRENT_VERSION = "1.1";
+
+  protected static final String SYSTEM_PROPERTIES_NOT_EXPORTED_VERSION = "1.0";
+
+  protected static final Set SUPPORTED_VERSIONS = ImmutableSet.of("1.0", "1.1");
 
   protected static final Path METADATA_FILENAME = Paths.get("export.json");
 
