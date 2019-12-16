@@ -26,7 +26,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -390,13 +389,18 @@ public class ConfigurationAdminMigratableTest {
     ConfigurationAdminMigratable iCam =
         spy(
             new ConfigurationAdminMigratable(
-                configurationAdminForImport, STRATEGIES, DEFAULT_FILE_EXT));
-    doReturn(
-            ImmutableMap.of("whiteListContexts", new String[] {"/login", "/logout", "/idp"}),
-            ImmutableMap.of("guestAccess", "true"),
-            ImmutableMap.of("sessionAccess", "true"))
-        .when(iCam)
-        .getDefaultProperties(WEB_CONTEXT_POLICY_MANAGER_PID);
+                configurationAdminForImport, STRATEGIES, DEFAULT_FILE_EXT) {
+              @Override
+              Map<String, Object> getDefaultProperties(String pid) {
+                return ImmutableMap.of(
+                    "whiteListContexts",
+                    new String[] {"/login", "/logout", "/idp"},
+                    "guestAccess",
+                    "true",
+                    "sessionAccess",
+                    "true");
+              }
+            });
     List<Migratable> iMigratables = Collections.singletonList(iCam);
     ConfigurationMigrationManager iConfigurationMigrationManager =
         new ConfigurationMigrationManager(iMigratables, systemService);
