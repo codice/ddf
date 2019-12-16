@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.codice.ddf.spatial</groupId>
         <artifactId>spatial</artifactId>
-        <version>2.21.2-SNAPSHOT</version>
+        <version>2.21.2</version>
     </parent>
  
     <artifactId>wps</artifactId>
