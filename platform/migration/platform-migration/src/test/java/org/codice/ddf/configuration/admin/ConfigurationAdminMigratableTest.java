@@ -22,15 +22,17 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -387,24 +389,17 @@ public class ConfigurationAdminMigratableTest {
 
     // intercept doImport() to verify exported files from etc
     ConfigurationAdminMigratable iCam =
-        spy(
-            new ConfigurationAdminMigratable(
-                configurationAdminForImport, STRATEGIES, DEFAULT_FILE_EXT) {
-              @Override
-              Map<String, Object> getDefaultProperties(String pid) {
-                if (pid.equals(WEB_CONTEXT_POLICY_MANAGER_PID)) {
-                  return ImmutableMap.of(
-                      "whiteListContexts",
-                      new String[] {"/login", "/logout", "/idp"},
-                      "guestAccess",
-                      "true",
-                      "sessionAccess",
-                      "true");
-                } else {
-                  return null;
-                }
-              }
-            });
+        mock(
+            ConfigurationAdminMigratable.class,
+            withSettings()
+                .useConstructor(configurationAdminForImport, STRATEGIES, DEFAULT_FILE_EXT)
+                .defaultAnswer(CALLS_REAL_METHODS));
+    doReturn(
+            ImmutableMap.of("whiteListContexts", new String[] {"/login", "/logout", "/idp"}),
+            ImmutableMap.of("guestAccess", "true"),
+            ImmutableMap.of("sessionAccess", "true"))
+        .when(iCam)
+        .getDefaultProperties(WEB_CONTEXT_POLICY_MANAGER_PID);
     List<Migratable> iMigratables = Collections.singletonList(iCam);
     ConfigurationMigrationManager iConfigurationMigrationManager =
         new ConfigurationMigrationManager(iMigratables, systemService);
