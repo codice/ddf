@@ -27,7 +27,10 @@ import com.nimbusds.jose.util.ResourceRetriever;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.oauth2.sdk.token.TypelessAccessToken;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import ddf.security.Subject;
 import ddf.security.SubjectUtils;
@@ -36,12 +39,21 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import javax.ws.rs.core.Form;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.rs.security.oauth2.client.Consumer;
+import org.apache.cxf.rs.security.oauth2.client.OAuthClientUtils;
+import org.apache.cxf.rs.security.oauth2.common.AccessTokenGrant;
+import org.apache.cxf.rs.security.oauth2.common.ClientAccessToken;
+import org.apache.cxf.rs.security.oauth2.grants.refresh.RefreshTokenGrant;
+import org.apache.cxf.rs.security.oauth2.provider.OAuthServiceException;
 import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.util.Strings;
 import org.codice.ddf.security.oidc.validator.OidcTokenValidator;
@@ -63,12 +75,16 @@ public class OAuthSecurityImpl implements OAuthSecurity {
           .create();
 
   private static final String CLIENT_CREDENTIALS = "client_credentials";
+  private static final String REFRESH_TOKEN = "refresh_token";
   private static final String ACCESS_TOKEN = "access_token";
   private static final String GRANT_TYPE = "grant_type";
   private static final String ID_TOKEN = "id_token";
+  private static final String USERNAME = "username";
+  private static final String PASSWORD = "password";
   private static final String BEARER = "Bearer ";
   private static final String BASIC = "Basic ";
   private static final String EXP = "exp";
+  private static final String IAT = "iat";
 
   private ResourceRetriever resourceRetriever;
   private TokenStorage tokenStorage;
@@ -84,17 +100,8 @@ public class OAuthSecurityImpl implements OAuthSecurity {
    * @param client Non-null client to set the access token on.
    * @param subject subject used to get the user's id (email or username)
    * @param sourceId the id of the source using OAuth needed to get the correct tokens
-   * @param clientId The client ID registered with the OAuth provider
-   * @param clientSecret The client secret registered with the OAuth provider
-   * @param discoveryUrl the metadata URL of the OAuth provider
    */
-  public void setUserTokenOnClient(
-      Client client,
-      Subject subject,
-      String sourceId,
-      String clientId,
-      String clientSecret,
-      String discoveryUrl) {
+  public void setUserTokenOnClient(Client client, Subject subject, String sourceId) {
     if (client == null || subject == null || Strings.isBlank(sourceId)) {
       return;
     }
@@ -111,6 +118,108 @@ public class OAuthSecurityImpl implements OAuthSecurity {
 
     LOGGER.debug("Adding access token to OAUTH header.");
     client.header(OAUTH, BEARER + tokenEntry.getAccessToken());
+  }
+
+  /**
+   * Gets the user's access token from the token storage to set it to the OAUTH header. If one is
+   * not available, make a call to the OAuth provider to get tokens.
+   *
+   * @param client Non-null client to set the access token on.
+   * @param sourceId the id of the source using OAuth needed to get the correct tokens
+   * @param clientId The client ID registered with the OAuth provider
+   * @param clientSecret The client secret registered with the OAuth provider
+   * @param username The user's username
+   * @param password The user's password
+   * @param discoveryUrl the metadata URL of the OAuth provider
+   */
+  public void setUserTokenOnClient(
+      Client client,
+      String sourceId,
+      String clientId,
+      String clientSecret,
+      String username,
+      String password,
+      String discoveryUrl,
+      Map<String, String> additionalParameters) {
+
+    if (client == null || Strings.isBlank(sourceId) || Strings.isBlank(username)) {
+      return;
+    }
+
+    TokenInformation.TokenEntry tokenEntry = tokenStorage.read(username, sourceId);
+
+    if (tokenEntry != null
+        && discoveryUrl.equalsIgnoreCase(tokenEntry.getDiscoveryUrl())
+        && !isExpired(tokenEntry.getAccessToken())) {
+      LOGGER.debug("Adding access token to OAUTH header.");
+      client.header(OAUTH, BEARER + tokenEntry.getAccessToken());
+      return;
+    }
+
+    if (Strings.isBlank(clientId)
+        || Strings.isBlank(clientSecret)
+        || Strings.isBlank(username)
+        || Strings.isBlank(password)
+        || Strings.isBlank(discoveryUrl)) {
+      return;
+    }
+
+    OIDCProviderMetadata metadata;
+    try {
+      metadata =
+          OIDCProviderMetadata.parse(
+              resourceRetriever.retrieveResource(new URL(discoveryUrl)).getContent());
+    } catch (IOException | ParseException e) {
+      LOGGER.error("Unable to retrieve OAuth provider's metadata.", e);
+      return;
+    }
+
+    if (tokenEntry != null
+        && discoveryUrl.equalsIgnoreCase(tokenEntry.getDiscoveryUrl())
+        && isExpired(tokenEntry.getAccessToken())
+        && !isExpired(tokenEntry.getRefreshToken())) {
+
+      // refresh token
+      String accessToken =
+          refreshToken(
+              sourceId,
+              clientId,
+              clientSecret,
+              username,
+              discoveryUrl,
+              tokenEntry.getRefreshToken(),
+              metadata);
+
+      if (accessToken != null) {
+        LOGGER.debug("Adding access token to OAUTH header.");
+        client.header(OAUTH, BEARER + accessToken);
+        return;
+      }
+    }
+
+    // Make a call to get a token
+    String encodedClientIdSecret =
+        Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes(UTF_8));
+
+    Map<String, String> queryParameters =
+        additionalParameters == null ? new HashMap<>() : new HashMap<>(additionalParameters);
+    queryParameters.put(USERNAME, username);
+    queryParameters.put(PASSWORD, password);
+
+    String accessToken =
+        getNewAccessToken(
+            username,
+            sourceId,
+            encodedClientIdSecret,
+            discoveryUrl,
+            PASSWORD,
+            queryParameters,
+            metadata);
+    if (accessToken == null) {
+      return;
+    }
+
+    client.header(OAUTH, BEARER + accessToken);
   }
 
   /**
@@ -137,8 +246,27 @@ public class OAuthSecurityImpl implements OAuthSecurity {
     TokenInformation.TokenEntry tokenEntry =
         tokenStorage.read(encodedClientIdSecret, CLIENT_CREDENTIALS);
 
+    OIDCProviderMetadata metadata;
+    try {
+      metadata =
+          OIDCProviderMetadata.parse(
+              resourceRetriever.retrieveResource(new URL(discoveryUrl)).getContent());
+    } catch (IOException | ParseException e) {
+      LOGGER.error("Unable to retrieve OAuth provider's metadata.", e);
+      return;
+    }
+
+    Map<String, String> queryParameters = Collections.singletonMap(GRANT_TYPE, CLIENT_CREDENTIALS);
     if (tokenEntry == null || !discoveryUrl.equalsIgnoreCase(tokenEntry.getDiscoveryUrl())) {
-      String accessToken = getNewAccessToken(encodedClientIdSecret, discoveryUrl);
+      String accessToken =
+          getNewAccessToken(
+              encodedClientIdSecret,
+              CLIENT_CREDENTIALS,
+              encodedClientIdSecret,
+              discoveryUrl,
+              CLIENT_CREDENTIALS,
+              queryParameters,
+              metadata);
       if (accessToken == null) {
         return;
       }
@@ -148,7 +276,15 @@ public class OAuthSecurityImpl implements OAuthSecurity {
     }
 
     if (isExpired(tokenEntry.getAccessToken())) {
-      String accessToken = getNewAccessToken(encodedClientIdSecret, discoveryUrl);
+      String accessToken =
+          getNewAccessToken(
+              encodedClientIdSecret,
+              CLIENT_CREDENTIALS,
+              encodedClientIdSecret,
+              discoveryUrl,
+              CLIENT_CREDENTIALS,
+              queryParameters,
+              metadata);
       if (accessToken == null) {
         return;
       }
@@ -165,26 +301,29 @@ public class OAuthSecurityImpl implements OAuthSecurity {
    * Gets an access token from the configured OAuth provider, saves it to the token storage and
    * returns it
    *
+   * @param userId the user id to use when storing tokens
+   * @param sourceId the id of the source using OAuth to use when storing tokens
    * @param encodedClientIdSecret - the base 64 encoded clientId:secret
    * @param discoveryUrl - the URL where the Oauth provider's metadata is hosted
+   * @param grantType - the OAuth grand type to use
+   * @param queryParameters - query parameters to send
    * @return a client access token or null if one could not be returned
    */
-  private String getNewAccessToken(String encodedClientIdSecret, String discoveryUrl) {
-    OIDCProviderMetadata metadata;
-    try {
-      metadata =
-          OIDCProviderMetadata.parse(
-              resourceRetriever.retrieveResource(new URL(discoveryUrl)).getContent());
-    } catch (IOException | ParseException e) {
-      LOGGER.error("Unable to retrieve OAuth provider's metadata.", e);
-      return null;
-    }
+  private String getNewAccessToken(
+      String userId,
+      String sourceId,
+      String encodedClientIdSecret,
+      String discoveryUrl,
+      String grantType,
+      Map<String, String> queryParameters,
+      OIDCProviderMetadata metadata) {
 
     WebClient webClient = createWebClient(metadata.getTokenEndpointURI());
     webClient.header(AUTHORIZATION, BASIC + encodedClientIdSecret);
     webClient.accept(APPLICATION_JSON);
 
-    Form formParam = new Form(GRANT_TYPE, CLIENT_CREDENTIALS);
+    Form formParam = new Form(GRANT_TYPE, grantType);
+    queryParameters.forEach(formParam::param);
     javax.ws.rs.core.Response response = webClient.form(formParam);
 
     String body;
@@ -203,6 +342,7 @@ public class OAuthSecurityImpl implements OAuthSecurity {
     Map<String, String> map = GSON.fromJson(body, MAP_STRING_TO_OBJECT_TYPE);
     String idToken = map.get(ID_TOKEN);
     String accessToken = map.get(ACCESS_TOKEN);
+    String refreshToken = map.get(REFRESH_TOKEN);
 
     JWT jwt = null;
     try {
@@ -222,9 +362,7 @@ public class OAuthSecurityImpl implements OAuthSecurity {
     }
 
     LOGGER.debug("Successfully retrieved system access token.");
-    int status =
-        tokenStorage.create(
-            encodedClientIdSecret, CLIENT_CREDENTIALS, accessToken, null, discoveryUrl);
+    int status = tokenStorage.create(userId, sourceId, accessToken, refreshToken, discoveryUrl);
     if (status != SC_OK) {
       LOGGER.debug("Error storing user token.");
     }
@@ -232,16 +370,101 @@ public class OAuthSecurityImpl implements OAuthSecurity {
   }
 
   /**
-   * Checks if an access token is expired
+   * Checks if a token is expired
    *
-   * @param accessToken user's access token
-   * @return true if the access token has expired, false otherwise
+   * @param token user's token
+   * @return true if the token has expired, false otherwise
    */
-  private boolean isExpired(String accessToken) {
-    String accessTokenString = new String(Base64.getDecoder().decode(accessToken.split("\\.")[1]));
+  private boolean isExpired(String token) {
+    if (token == null) {
+      return true;
+    }
+
+    String accessTokenString = new String(Base64.getDecoder().decode(token.split("\\.")[1]));
     Map<String, Object> map = GSON.fromJson(accessTokenString, MAP_STRING_TO_OBJECT_TYPE);
     long exp = (Long) map.get(EXP);
-    return exp - Instant.now().getEpochSecond() <= 60;
+    long iat = (Long) map.get(IAT);
+
+    long lifetime = exp - iat;
+    long left = exp - Instant.now().getEpochSecond();
+    long min = (long) Math.min(60, lifetime * 0.5);
+    return left <= min;
+  }
+
+  /**
+   * Attempts to refresh an expired access token
+   *
+   * @param userId the user id to use when storing tokens
+   * @param sourceId The id of the source using OAuth to use when storing tokens
+   * @param clientId The client ID registered with the OAuth provider
+   * @param clientSecret The client secret registered with the OAuth provider
+   * @param discoveryUrl The URL where the OAuth provider's metadata is hosted
+   * @param refreshToken The unexpired refresh token to use
+   * @param metadata The OAuh provider's metadata
+   * @return refreshed access token
+   */
+  private String refreshToken(
+      String userId,
+      String sourceId,
+      String clientId,
+      String clientSecret,
+      String discoveryUrl,
+      String refreshToken,
+      OIDCProviderMetadata metadata) {
+
+    if (refreshToken == null || isExpired(refreshToken)) {
+      LOGGER.debug("Error refreshing access token: unable to find an unexpired refresh token.");
+      return null;
+    }
+
+    ClientAccessToken clientAccessToken;
+    try {
+      LOGGER.debug("Attempting to refresh the user's access token.");
+
+      WebClient webClient = createWebClient(metadata.getTokenEndpointURI());
+      Consumer consumer = new Consumer(clientId, clientSecret);
+      AccessTokenGrant accessTokenGrant = new RefreshTokenGrant(refreshToken);
+      clientAccessToken = OAuthClientUtils.getAccessToken(webClient, consumer, accessTokenGrant);
+    } catch (OAuthServiceException e) {
+      LOGGER.debug("Error refreshing access token.", e);
+      return null;
+    }
+
+    // Validate new access token
+    try {
+      AccessToken accessToken = convertCxfAccessTokenToNimbusdsToken(clientAccessToken);
+      OidcTokenValidator.validateAccessToken(accessToken, null, resourceRetriever, metadata, null);
+    } catch (OidcValidationException e) {
+      LOGGER.debug("Error validating access token.");
+      return null;
+    }
+
+    // Store new tokens
+    String newAccessToken = clientAccessToken.getTokenKey();
+    String newRefreshToken = clientAccessToken.getRefreshToken();
+
+    int status =
+        tokenStorage.create(userId, sourceId, newAccessToken, newRefreshToken, discoveryUrl);
+    if (status != SC_OK) {
+      LOGGER.warn("Error updating the token information.");
+    }
+
+    return newAccessToken;
+  }
+
+  /** Converts a {@link ClientAccessToken} to an {@link AccessToken} */
+  private AccessToken convertCxfAccessTokenToNimbusdsToken(ClientAccessToken clientAccessToken) {
+    Scope scope = new Scope();
+    if (clientAccessToken.getApprovedScope() != null) {
+      Arrays.stream(clientAccessToken.getApprovedScope().split("\\s+")).forEach(scope::add);
+    }
+
+    if (BEARER.equalsIgnoreCase(clientAccessToken.getTokenType())) {
+      return new BearerAccessToken(
+          clientAccessToken.getTokenKey(), clientAccessToken.getExpiresIn(), scope);
+    } else {
+      return new TypelessAccessToken(clientAccessToken.getTokenKey());
+    }
   }
 
   @VisibleForTesting
