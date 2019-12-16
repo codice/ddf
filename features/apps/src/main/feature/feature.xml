@@ -16,80 +16,82 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <repository>mvn:ddf.features/admin/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
-    <repository>mvn:ddf.features/camel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/karaf/${project.version}/xml/features</repository>
-    <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
-    <repository>mvn:ddf.features/migration/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/solr/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.catalog.solr/solr-app/${project.version}/xml/features</repository>
+
+    <feature name="ddf-core" version="${project.version}"
+             description="Features that will be started on container startup.">
+        <feature>kernel</feature>
+        <feature>platform-paxweb-jettyconfig</feature>
+        <feature>war</feature>
+        <feature>ddf-branding</feature>
+    </feature>
+
+    <feature name="platform-core" version="${project.version}"
+             description="Installs the platform boot features which all other applications depend upon.\nPlatform Core features installed by default include Actions, MIME, Security Logger, Error Pages, and UUID generator.">
+        <feature>action-core-api</feature>
+        <feature>action-core-impl</feature>
+        <feature>mime-core</feature>
+        <feature>mime-tika-resolver</feature>
+        <feature>security-logger</feature>
+        <feature>error-api</feature>
+        <feature>error-impl</feature>
+        <feature>util-uuidgenerator</feature>
+    </feature>
+
+    <feature name="branding-app" version="${project.version}">
+        <feature>ddf-branding</feature>
+        <feature>branding-registry</feature>
+    </feature>
+
+    <!-- Start of app features -->
+
+    <repository>mvn:ddf.features/admin/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.features/camel/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.features/migration/${project.version}/xml/features</repository>
     <repository>mvn:ddf.catalog/catalog-app/${project.version}/xml/features</repository>
     <repository>mvn:org.codice.ddf.spatial/geowebcache-app/${project.version}/xml/features</repository>
     <repository>mvn:org.codice.ddf.resourcemanagement/resourcemanagement-app/${project.version}/xml/features</repository>
     <repository>mvn:ddf.ui/search-ui-app/${project.version}/xml/features</repository>
     <repository>mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features</repository>
-    <repository>mvn:ddf.catalog.solr/solr-app/${project.version}/xml/features</repository>
     <repository>mvn:org.codice.opendj.embedded/opendj-embedded-app/${opendj-embedded.app.version}/xml/features</repository>
 
     <feature name="ddf-boot-features" version="${project.version}"
              description="Features that will be started on container startup.">
-        <feature>kernel</feature>
-        <feature>platform-paxweb-jettyconfig</feature>
+        <feature>ddf-core</feature>
         <feature>security-services-app</feature>
-        <feature>ddf-branding</feature>
         <feature>platform-app</feature>
         <feature>admin-app</feature>
     </feature>
 
     <feature name="platform-app" version="${project.version}"
              description="Installs the platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::Platform">
+        <feature>platform-core</feature>
         <feature>platform-api</feature>
+        <feature>tika</feature>
         <feature>platform-logging</feature>
         <feature>platform-migrate-all</feature>
         <feature>platform-scheduler</feature>
         <feature>platform-commands</feature>
         <feature>platform-configuration</feature>
-        <feature>action-core-api</feature>
-        <feature>action-core-impl</feature>
-        <feature>mime-core</feature>
-        <feature>mime-tika-resolver</feature>
         <feature>security-encryption</feature>
         <feature>security-core-api</feature>
         <feature>metrics-reporting</feature>
         <feature>metrics-services</feature>
-        <feature>security-logger</feature>
         <feature>persistence-core</feature>
-        <feature>error-api</feature>
-        <feature>error-impl</feature>
         <feature>io</feature>
         <feature>parser-xml</feature>
         <feature>landing-page</feature>
         <feature>platform-email</feature>
-        <feature>util-uuidgenerator</feature>
         <feature>platform-alerts</feature>
         <feature>session-manager-command</feature>
         <feature>resource-bundle-locator</feature>
-    </feature>
-
-    <feature name="security-services-app" version="${project.version}"
-             description="The Security Application provides Authentication, Authorization, and Auditing services.\nThey comprise both a framework that developers and integrators can extend and also a reference implementation that can be used which meets security requirements.::Security">
-        <feature>web-container</feature>
-        <feature>security-core</feature>
-        <feature>security-policy-context</feature>
-        <feature>security-web-sso-defaults</feature>
-        <feature>security-guest</feature>
-        <feature>security-claims-certificate</feature>
-        <feature>security-certificate</feature>
-        <feature>security-rest-authentication</feature>
-        <feature>security-command-listener</feature>
-    </feature>
-
-    <feature name="branding-app" version="${project.version}">
-        <feature>ddf-branding</feature>
-        <feature>branding-registry</feature>
     </feature>
 
     <feature name="admin-app" version="${project.version}"

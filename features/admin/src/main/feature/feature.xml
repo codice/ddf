@@ -16,10 +16,8 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <repository>
-        mvn:org.apache.karaf.decanter/apache-karaf-decanter/${decanter.version}/xml/features
-    </repository>
-
+    <repository>mvn:org.apache.karaf.decanter/apache-karaf-decanter/${decanter.version}/xml/features</repository>
+    <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
@@ -100,6 +98,7 @@
 
     <feature name="admin-core" version="${project.version}"
              description="Administration Tools">
+        <feature>sync-installer</feature>
         <feature>security-core-api</feature>
         <feature>camel-core</feature>
         <feature>security-expansion</feature>
@@ -150,6 +149,7 @@
 
     <feature name="admin-modules-installer" version="${project.version}"
              description="Installer Module">
+        <feature>sync-installer</feature>
         <feature>admin-ui</feature>
         <bundle>mvn:ddf.admin.modules/admin-modules-installer/${project.version}</bundle>
     </feature>

@@ -27,7 +27,6 @@
         <feature version="${karaf.version}">jasypt-encryption</feature>
         <feature version="${pax.web.version}">pax-web-core</feature>
         <bundle>mvn:javax.servlet/javax.servlet-api/${javax.servlet-api.version}</bundle>
-        <feature>sync-installer</feature>
         <!--Added wrap at the end so features before this can startup up while we block on the wrap feature-->
         <feature prerequisite="true">wrap</feature>
     </feature>

@@ -21,6 +21,7 @@
     <feature name="test-common" version="${project.version}"
              description="Common utilities for testing">
         <feature>guava</feature>
+        <feature>sync-installer</feature>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-inject/${javax.inject.bundle.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-compress/1.18</bundle>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
