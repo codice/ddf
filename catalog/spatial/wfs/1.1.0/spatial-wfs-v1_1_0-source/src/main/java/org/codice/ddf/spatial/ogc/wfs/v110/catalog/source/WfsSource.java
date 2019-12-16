@@ -162,6 +162,12 @@ public class WfsSource extends AbstractWfsSource {
 
   private static final String SRS_NAME_KEY = "srsName";
 
+  private static final String WILDCARD_CHAR_KEY = "wildcardChar";
+
+  private static final String SINGLE_CHAR_KEY = "singleChar";
+
+  private static final String ESCAPE_CHAR_KEY = "escapeChar";
+
   private static final Properties DESCRIBABLE_PROPERTIES = new Properties();
 
   private static final String SOURCE_MSG = " Source '";
@@ -219,6 +225,12 @@ public class WfsSource extends AbstractWfsSource {
   private String srsName;
 
   private boolean allowRedirects;
+
+  private Character wildcardChar;
+
+  private Character singleChar;
+
+  private Character escapeChar;
 
   private WfsMetadata<FeatureTypeType> wfsMetadata;
 
@@ -303,6 +315,9 @@ public class WfsSource extends AbstractWfsSource {
     setConnectionTimeout((Integer) configuration.get(CONNECTION_TIMEOUT_KEY));
     setReceiveTimeout((Integer) configuration.get(RECEIVE_TIMEOUT_KEY));
     setSrsName((String) configuration.get(SRS_NAME_KEY));
+    setWildcardChar((Character) configuration.get(WILDCARD_CHAR_KEY));
+    setSingleChar((Character) configuration.get(SINGLE_CHAR_KEY));
+    setEscapeChar((Character) configuration.get(ESCAPE_CHAR_KEY));
 
     createClientFactory();
     configureWfsFeatures();
@@ -518,7 +533,13 @@ public class WfsSource extends AbstractWfsSource {
           this.featureTypeFilters.put(
               featureMetacardType.getFeatureType(),
               new WfsFilterDelegate(
-                  featureMetacardType, metacardMapper, supportedGeo, getCoordinateStrategy()));
+                  featureMetacardType,
+                  metacardMapper,
+                  supportedGeo,
+                  getCoordinateStrategy(),
+                  wildcardChar,
+                  singleChar,
+                  escapeChar));
 
           mcTypeRegs.put(ftSimpleName, featureMetacardType);
 
@@ -1052,6 +1073,18 @@ public class WfsSource extends AbstractWfsSource {
 
   public void setCoordinateOrder(String coordinateOrder) {
     this.coordinateOrder = coordinateOrder;
+  }
+
+  public void setWildcardChar(final Character wildcardChar) {
+    this.wildcardChar = wildcardChar;
+  }
+
+  public void setSingleChar(final Character singleChar) {
+    this.singleChar = singleChar;
+  }
+
+  public void setEscapeChar(final Character escapeChar) {
+    this.escapeChar = escapeChar;
   }
 
   @Override

@@ -67,7 +67,7 @@
             <Option label="Overlaps" value="Overlaps"/>
             <Option label="Touches" value="Touches"/>
             <Option label="Within" value="Within"/>
-		</AD>
+        </AD>
         <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
             name="Connection Timeout" id="connectionTimeout"
             required="true" type="Integer" default="30000"/>
@@ -77,6 +77,12 @@
         <AD description="SRS Name to use in outbound GetFeature requests. The SRS Name parameter is used to assert the specific CRS transformation to be applied to the geometries of the features returned in a response document."
             name="SRS Name" id="srsName"
             required="false" type="String" default="EPSG:4326"/>
+        <AD description="Wildcard character to use in PropertyIsLike filters."
+          name="Wildcard Character" id="wildcardChar" required="false" type="Char" default="*"/>
+        <AD description="Single-character wildcard character to use in PropertyIsLike filters."
+          name="Single-Character Wildcard Character" id="singleChar" required="false" type="Char" default="?"/>
+        <AD description="Escape character to use in PropertyIsLike filters."
+          name="Escape Character" id="escapeChar" required="false" type="Char" default="\\"/>
     </OCD>
 
     <Designate pid="Wfs_v110_Federated_Source" factoryPid="Wfs_v110_Federated_Source">

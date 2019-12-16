@@ -109,6 +109,12 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private final CoordinateStrategy coordinateStrategy;
 
+  private final String wildcardChar;
+
+  private final String singleChar;
+
+  private final String escapeChar;
+
   private List<String> supportedGeo;
 
   private List<QName> geometryOperands;
@@ -117,7 +123,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       FeatureMetacardType featureMetacardType,
       MetacardMapper metacardMapper,
       List<String> supportedGeo,
-      CoordinateStrategy coordinateStrategy) {
+      CoordinateStrategy coordinateStrategy,
+      Character wildcardChar,
+      Character singleChar,
+      Character escapeChar) {
     if (featureMetacardType == null) {
       throw new IllegalArgumentException("FeatureMetacardType can not be null");
     }
@@ -127,6 +136,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     setSupportedGeometryOperands(Wfs11Constants.wktOperandsAsList());
 
     this.coordinateStrategy = coordinateStrategy;
+
+    this.wildcardChar = wildcardChar == null ? WfsConstants.WILD_CARD : wildcardChar.toString();
+    this.singleChar = singleChar == null ? SINGLE_CHAR : singleChar.toString();
+    this.escapeChar = escapeChar == null ? WfsConstants.ESCAPE : escapeChar.toString();
   }
 
   public void setSupportedGeometryOperands(List<QName> geometryOperands) {
@@ -703,16 +716,35 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         JAXBElement<PropertyIsLikeType> propIsLike =
             filterObjectFactory.createPropertyIsLike(new PropertyIsLikeType());
         propIsLike.getValue().setPropertyName(createPropertyNameType(property).getValue());
-        propIsLike.getValue().setEscapeChar(WfsConstants.ESCAPE);
-        propIsLike.getValue().setSingleChar(SINGLE_CHAR);
-        propIsLike.getValue().setWildCard(WfsConstants.WILD_CARD);
-        propIsLike.getValue().setLiteral(createLiteralType(literal).getValue());
+        propIsLike.getValue().setEscapeChar(escapeChar);
+        propIsLike.getValue().setSingleChar(singleChar);
+        propIsLike.getValue().setWildCard(wildcardChar);
+        final String literalReplaced = replaceSpecialPropertyIsLikeChars((String) literal);
+        propIsLike.getValue().setLiteral(createLiteralType(literalReplaced).getValue());
         propIsLike.getValue().setMatchCase(isCaseSensitive);
         return propIsLike;
 
       default:
         throw new UnsupportedOperationException("Unsupported Property Comparison Type");
     }
+  }
+
+  private String replaceSpecialPropertyIsLikeChars(final String literal) {
+    final char[] chars = literal.toCharArray();
+    int i = 0;
+    while (i < chars.length) {
+      if (chars[i] == ESCAPE_CHAR.charAt(0)) {
+        chars[i] = escapeChar.charAt(0);
+        // Since this char is an escape the next is a literal so we should skip it.
+        ++i;
+      } else if (chars[i] == WILDCARD_CHAR.charAt(0)) {
+        chars[i] = wildcardChar.charAt(0);
+      } else if (chars[i] == SINGLE_CHAR.charAt(0)) {
+        chars[i] = singleChar.charAt(0);
+      }
+      ++i;
+    }
+    return new String(chars);
   }
 
   private JAXBElement<PropertyIsBetweenType> createPropertyIsBetween(
