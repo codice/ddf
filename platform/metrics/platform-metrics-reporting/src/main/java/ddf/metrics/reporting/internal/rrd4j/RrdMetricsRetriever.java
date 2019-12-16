@@ -693,7 +693,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
 
     CellStyle bannerStyle = wb.createCellStyle();
     bannerStyle.setFont(headerFont);
-    bannerStyle.setFillForegroundColor(HSSFColor.PALE_BLUE.index);
+    bannerStyle.setFillForegroundColor(HSSFColor.HSSFColorPredefined.PALE_BLUE.getIndex());
     bannerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
     int rowCount = 0;
