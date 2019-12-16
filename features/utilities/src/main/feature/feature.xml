@@ -16,7 +16,6 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
 
     <feature name="util-uuidgenerator-api" version="${project.version}"
@@ -29,12 +28,6 @@
         <feature>util-uuidgenerator-api</feature>
         <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
         <bundle>mvn:ddf.platform.util/util-uuidgenerator-impl/${project.version}</bundle>
-    </feature>
-
-    <feature name="platform-usng4j" version="${project.version}"
-             description="Service to convert coordinates between various coordinate systems.">
-        <bundle>mvn:ddf.platform.usng4j/platform-usng4j-api/${project.version}</bundle>
-        <bundle>mvn:ddf.platform.usng4j/platform-usng4j-impl/${project.version}</bundle>
     </feature>
 
     <feature name="parser-xml" version="${project.version}"
@@ -84,7 +77,6 @@
         <feature>slf4j</feature>
         <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
-        <bundle>mvn:org.codice.thirdparty/tika-bundle/${tika.thirdparty.bundle.version}</bundle>
         <configfile finalname="${ddf.etc}/DDF_Custom_Mime_Type_Resolver-csw.config">
             mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}/config/default-mimetype-csw
         </configfile>
@@ -106,6 +98,28 @@
         <bundle>mvn:ddf.mime.tika/mime-tika-resolver/${project.version}</bundle>
     </feature>
 
+    <feature name="common-system" version="${project.version}"
+             description="common system">
+        <feature>apache-commons</feature>
+        <bundle dependency="true">mvn:ddf.platform.security/log-sanitizer/${project.version}</bundle>
+        <bundle>mvn:ddf.lib/common-system/${project.version}</bundle>
+    </feature>
+
+    <feature name="bootflag-api" version="${project.version}"
+             description="API for registering services to indicate a boot condition in the system has been met.">
+        <bundle>mvn:ddf.platform/bootflag-api/${project.version}</bundle>
+    </feature>
+
+    <!-- Start of app features -->
+
+    <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
+
+    <feature name="platform-usng4j" version="${project.version}"
+             description="Service to convert coordinates between various coordinate systems.">
+        <bundle>mvn:ddf.platform.usng4j/platform-usng4j-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.usng4j/platform-usng4j-impl/${project.version}</bundle>
+    </feature>
+
     <feature name="compression-exi" version="${project.version}"
              description="Adds EXI compression support for CXF services.">
         <feature>cxf-core</feature>
@@ -116,14 +130,6 @@
              description="Adds GZip compression support for CXF services.">
         <feature>cxf-core</feature>
         <bundle>mvn:ddf.compression/compression-gzip/${project.version}</bundle>
-    </feature>
-
-
-    <feature name="common-system" version="${project.version}"
-             description="common system">
-        <feature>apache-commons</feature>
-        <bundle dependency="true">mvn:ddf.platform.security/log-sanitizer/${project.version}</bundle>
-        <bundle>mvn:ddf.lib/common-system/${project.version}</bundle>
     </feature>
 
     <feature name="platform-logging" version="${project.version}"
@@ -138,8 +144,11 @@
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
     </feature>
 
-    <feature name="bootflag-api" version="${project.version}"
-             description="API for registering services to indicate a boot condition in the system has been met.">
-        <bundle>mvn:ddf.platform/bootflag-api/${project.version}</bundle>
+    <feature name="tika" version="${project.version}"
+             description="Provides Tika as a bundle.">
+        <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
+        <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
+        <bundle>mvn:org.codice.thirdparty/tika-bundle/${tika.thirdparty.bundle.version}</bundle>
     </feature>
+
 </features>

@@ -16,6 +16,37 @@
     xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
     xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
+    <feature name="solr-dependencies" version="${project.version}" >
+        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${solr.httpcore.version}</bundle>
+        <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${solr.httpclient.version}</bundle>
+        <bundle>mvn:com.sun.mail/javax.mail/${javax-mail.version}</bundle>
+        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0.1/2.6.0</bundle>
+        <bundle>mvn:ddf.platform.solr/solr-dependencies/${project.version}</bundle>
+    </feature>
+
+    <feature name="solr-factory-api" version="${project.version}" >
+        <feature>solr-dependencies</feature>
+        <bundle>mvn:ddf.platform.solr/solr-factory/${project.version}</bundle>
+    </feature>
+
+    <feature name="solr-factory-impl" version="${project.version}"
+             description="Solr factory">
+        <feature>security-encryption</feature>
+        <feature>common-system</feature>
+        <feature>spring</feature>
+        <feature>solr-factory-api</feature>
+        <bundle>mvn:ddf.platform.solr/solr-factory-impl/${project.version}</bundle>
+    </feature>
+
+    <feature name="solr-core" version="${project.version}"
+             description="Core Solr features">
+        <feature>solr-dependencies</feature>
+        <feature>solr-factory-api</feature>
+        <feature>solr-factory-impl</feature>
+    </feature>
+
+    <!-- Start of app features -->
+
     <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
     <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
@@ -55,25 +86,11 @@
         </bundle>
     </feature>
 
-    <feature name="solr-dependencies" version="${project.version}" >
-        <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${solr.httpcore.version}</bundle>
-        <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${solr.httpclient.version}</bundle>
-        <bundle>mvn:com.sun.mail/javax.mail/${javax-mail.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.jsr339-api-2.0.1/2.6.0</bundle>
-        <bundle>mvn:ddf.platform.solr/solr-dependencies/${project.version}</bundle>
+    <feature name="solr-app" version="${project.version}"
+             description="All Solr features">
+        <feature>solr-core</feature>
+        <feature>persistence-core-api</feature>
+        <feature>persistence-core</feature>
     </feature>
 
-    <feature name="solr-factory-api" version="${project.version}" >
-        <feature>solr-dependencies</feature>
-        <bundle>mvn:ddf.platform.solr/solr-factory/${project.version}</bundle>
-    </feature>
-
-    <feature name="solr-factory-impl" version="${project.version}"
-             description="Solr factory">
-        <feature>security-encryption</feature>
-        <feature>common-system</feature>
-        <feature>spring</feature>
-        <feature>solr-factory-api</feature>
-        <bundle>mvn:ddf.platform.solr/solr-factory-impl/${project.version}</bundle>
-    </feature>
 </features>
