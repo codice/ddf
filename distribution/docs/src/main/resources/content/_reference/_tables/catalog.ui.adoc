@@ -155,13 +155,6 @@ Example:
 |true
 |false
 
-|Use External Authentication
-|externalAuthenticationEnabled
-|Boolean
-|Use an external authentication point, such as IdP.
-|false
-|false
-
 |Enable Cache
 |cacheEnabled
 |Boolean

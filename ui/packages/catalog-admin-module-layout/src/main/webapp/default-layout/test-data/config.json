@@ -40,7 +40,6 @@
           "imageryProviders": "{}",
           "defaultLayout": "[{\"type\":\"row\",\"title\":\"\",\"content\":[{\"type\":\"column\",\"title\":\"\",\"width\":50,\"content\":[{\"type\":\"stack\",\"title\":\"\",\"width\":50,\"height\":50,\"content\":[{\"type\":\"component\",\"component\":\"histogram\",\"componentName\":\"histogram\",\"title\":\"Histogram\"}]},{\"type\":\"stack\",\"title\":\"\",\"height\":50,\"content\":[{\"type\":\"component\",\"component\":\"inspector\",\"componentName\":\"inspector\",\"title\":\"Inspector\"}]}]},{\"type\":\"column\",\"title\":\"\",\"width\":50,\"content\":[{\"type\":\"stack\",\"title\":\"\",\"width\":50,\"height\":50,\"content\":[{\"type\":\"component\",\"component\":\"inspector\",\"componentName\":\"inspector\",\"title\":\"Inspector\"}]},{\"type\":\"stack\",\"title\":\"\",\"height\":50,\"content\":[{\"type\":\"component\",\"component\":\"table\",\"componentName\":\"table\",\"title\":\"Table\"}]}]}]}]",
           "projection": "EPSG:4326",
-          "externalAuthentication": false,
           "tableColumns": [
             "title",
             "thumbnail",
@@ -210,16 +209,6 @@
         "name": "Show Uploader",
         "description": "Show upload menu for adding new record.",
         "id": "ingest",
-        "type": 11,
-        "cardinality": 0,
-        "optionValues": []
-      },
-      {
-        "defaultValue": ["false"],
-        "optionLabels": [],
-        "name": "Use External Authentication",
-        "description": "Use an external authentication point, such as IdP",
-        "id": "externalAuthentication",
         "type": 11,
         "cardinality": 0,
         "optionValues": []

@@ -118,8 +118,6 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean unknownErrorBoxEnabled = true;
 
-  private Boolean externalAuthenticationEnabled = false;
-
   private Boolean experimentalEnabled = false;
 
   private Boolean webSocketsEnabled = false;
@@ -522,7 +520,6 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("showIngest", ingestEnabled);
     config.put("projection", projection);
     config.put("bingKey", bingKey);
-    config.put("externalAuthentication", externalAuthenticationEnabled);
     config.put("readOnly", readOnly);
     config.put("summaryShow", summaryShow);
     config.put("resultShow", resultShow);
@@ -974,14 +971,6 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setBingKey(String bingKey) {
     this.bingKey = bingKey;
-  }
-
-  public Boolean getExternalAuthenticationEnabled() {
-    return externalAuthenticationEnabled;
-  }
-
-  public void setExternalAuthenticationEnabled(Boolean externalAuthenticationEnabled) {
-    this.externalAuthenticationEnabled = externalAuthenticationEnabled;
   }
 
   public Boolean getLocalCatalogEnabled() {
