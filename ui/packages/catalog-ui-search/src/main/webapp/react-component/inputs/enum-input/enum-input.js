@@ -23,16 +23,13 @@ import { getFilteredSuggestions, inputMatchesSuggestions } from './enumHelper'
 import PropTypes from 'prop-types'
 const Backbone = require('backbone')
 const sources = require('../../../component/singletons/sources-instance');
-//const QuerySettingsView = require('../../../component/query-settings/query-settings.view')
+
 /*
-module.exports = Backbone.Model.extend({
+module.exports = Backbone.Collection.extend({
 
     initialize: function() {
-
-      let querySettingsView = new QuerySettingsView()
-      this.listenTo(querySettingsView,' change:src',EnumInput);
+      this.listenTo(querySettingsView,'change:src',EnumInput);
     }
-
 
 })
 */
@@ -115,24 +112,32 @@ const styles = {
 
 }
 
+
+
+
+
 const EnumInput = ({
   allowCustom,
   matchCase,
   onChange,
   suggestions,
   value,
+  settingsModel
+
 }) => {
   const [input, setInput] = useState('')
   const selected = suggestions.find(suggestion => suggestion.value === value)
-  console.log(selected);
   const filteredSuggestions = getFilteredSuggestions(
     input,
     suggestions,
     matchCase
   )
+  console.log(settingsModel)
   console.log(filteredSuggestions)
   console.log(sources.models);
   console.log(window.sourcesSelected);
+  
+  
   const displayInput = !inputMatchesSuggestions(input, suggestions, matchCase)
   return (
     

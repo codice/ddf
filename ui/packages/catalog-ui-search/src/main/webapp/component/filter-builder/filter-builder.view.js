@@ -43,6 +43,7 @@ module.exports = Marionette.LayoutView.extend({
       isResultFilter = false,
       isForm,
       isFormBuilder,
+      settingsModel
     } = this.options
     if (this.model === undefined) {
       this.model = deserialize(filter, isResultFilter)
@@ -58,6 +59,9 @@ module.exports = Marionette.LayoutView.extend({
       this.turnOffNesting()
       this.turnOffRootOperator()
     }
+
+    console.log(this.options.settingsModel);
+    
   },
   onBeforeShow() {
     this.$el.toggleClass('is-sortable', this.options.isSortable || false)
@@ -97,7 +101,9 @@ module.exports = Marionette.LayoutView.extend({
         isFormBuilder: this.options.isFormBuilder || false,
         suggester: this.options.suggester,
         includedAttributes: this.options.includedAttributes,
+        settingsModel : this.options.settingsModel
       })
+      
     )
     this.handleEditing()
   },
