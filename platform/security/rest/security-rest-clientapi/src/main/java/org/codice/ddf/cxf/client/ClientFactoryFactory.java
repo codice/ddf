@@ -14,6 +14,7 @@
 package org.codice.ddf.cxf.client;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.codice.ddf.configuration.PropertyResolver;
@@ -144,6 +145,45 @@ public interface ClientFactoryFactory {
       String clientId,
       String clientSecret,
       String oauthFlow);
+
+  /**
+   * Returns an initialized SecureCxfClientFactory
+   *
+   * @param endpointUrl
+   * @param interfaceClass
+   * @param providers
+   * @param interceptor
+   * @param disableCnCheck
+   * @param allowRedirects
+   * @param connectionTimeout
+   * @param receiveTimeout
+   * @param sourceId
+   * @param discoveryUrl
+   * @param clientId
+   * @param clientSecret
+   * @param username
+   * @param password
+   * @param additionalParameters
+   * @param <T>
+   * @return
+   */
+  @SuppressWarnings("squid:S00107")
+  <T> SecureCxfClientFactory<T> getSecureCxfClientFactory(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      List<?> providers,
+      Interceptor<? extends Message> interceptor,
+      boolean disableCnCheck,
+      boolean allowRedirects,
+      Integer connectionTimeout,
+      Integer receiveTimeout,
+      String sourceId,
+      String discoveryUrl,
+      String clientId,
+      String clientSecret,
+      String username,
+      String password,
+      Map<String, String> additionalParameters);
 
   /**
    * Returns an initialized SecureCxfClientFactory

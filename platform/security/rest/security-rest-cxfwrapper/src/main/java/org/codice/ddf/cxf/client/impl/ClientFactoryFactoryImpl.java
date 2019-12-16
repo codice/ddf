@@ -14,6 +14,7 @@
 package org.codice.ddf.cxf.client.impl;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.codice.ddf.configuration.PropertyResolver;
@@ -126,6 +127,42 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
         clientId,
         clientSecret,
         oauthFlow,
+        oauthSecurity);
+  }
+
+  @Override
+  public <T> SecureCxfClientFactory<T> getSecureCxfClientFactory(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      List<?> providers,
+      Interceptor<? extends Message> interceptor,
+      boolean disableCnCheck,
+      boolean allowRedirects,
+      Integer connectionTimeout,
+      Integer receiveTimeout,
+      String sourceId,
+      String discoveryUrl,
+      String clientId,
+      String clientSecret,
+      String username,
+      String password,
+      Map<String, String> additionalOauthParameters) {
+    return new SecureCxfClientFactoryImpl<>(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        connectionTimeout,
+        receiveTimeout,
+        sourceId,
+        discoveryUrl,
+        clientId,
+        clientSecret,
+        username,
+        password,
+        additionalOauthParameters,
         oauthSecurity);
   }
 

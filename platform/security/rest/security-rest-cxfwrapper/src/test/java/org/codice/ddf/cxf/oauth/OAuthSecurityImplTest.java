@@ -137,8 +137,7 @@ public class OAuthSecurityImplTest {
         new TokenInformationImpl.TokenEntryImpl(accessToken, "refresh_token", METADATA_ENDPOINT);
     when(tokenStorage.read(USERNAME, SOURCE_ID)).thenReturn(tokenEntry);
 
-    oauthSecurity.setUserTokenOnClient(
-        client, subject, SOURCE_ID, DDF_CLIENT, SECRET, METADATA_ENDPOINT);
+    oauthSecurity.setUserTokenOnClient(client, subject, SOURCE_ID);
     verify(client, times(1)).header(OAUTH, "Bearer " + accessToken);
   }
 
@@ -147,7 +146,6 @@ public class OAuthSecurityImplTest {
     Client client = mock(Client.class);
     URI uri = new URI("https://localhost:8993/search/catalog");
     when(client.getCurrentURI()).thenReturn(uri);
-    Subject subject = getSubject();
 
     String accessToken = getAccessTokenBuilder().sign(validAlgorithm);
     TokenInformation.TokenEntry tokenEntry =
@@ -230,6 +228,144 @@ public class OAuthSecurityImplTest {
     verify(webClient, times(1)).form(captor.capture());
     Form form = captor.getValue();
     assertTrue(form.asMap().get("grant_type").contains("client_credentials"));
+  }
+
+  @Test
+  public void testUserTokensOnClientPasswordFlow() throws Exception {
+    Client client = mock(Client.class);
+    URI uri = new URI("https://localhost:8993/search/catalog");
+    when(client.getCurrentURI()).thenReturn(uri);
+
+    String accessToken = getAccessTokenBuilder().sign(validAlgorithm);
+    TokenInformation.TokenEntry tokenEntry =
+        new TokenInformationImpl.TokenEntryImpl(accessToken, "refresh_token", METADATA_ENDPOINT);
+    when(tokenStorage.read("lcage", SOURCE_ID)).thenReturn(tokenEntry);
+
+    oauthSecurity.setUserTokenOnClient(
+        client,
+        SOURCE_ID,
+        DDF_CLIENT,
+        SECRET,
+        "lcage",
+        "mypass",
+        METADATA_ENDPOINT,
+        ImmutableMap.of("totp", "123456"));
+
+    verify(client, times(1)).header(OAUTH, "Bearer " + accessToken);
+  }
+
+  @Test
+  public void testSettingSystemTokensOnClientNoSavedTokensPasswordFlow() {
+    Client client = mock(Client.class);
+
+    when(tokenStorage.read(anyString(), anyString())).thenReturn(null);
+
+    String accessToken = getAccessTokenBuilder().sign(validAlgorithm);
+    Response response = mock(Response.class);
+    when(response.getStatus()).thenReturn(200);
+    when(response.getEntity())
+        .thenReturn(new ByteArrayInputStream(getResponse(accessToken).getBytes()));
+
+    WebClient webClient = oauthSecurity.webClient;
+    when(webClient.form(any(Form.class))).thenReturn(response);
+
+    ArgumentCaptor<Form> captor = ArgumentCaptor.forClass(Form.class);
+    oauthSecurity.setUserTokenOnClient(
+        client,
+        SOURCE_ID,
+        DDF_CLIENT,
+        SECRET,
+        "lcage",
+        "mypass",
+        METADATA_ENDPOINT,
+        ImmutableMap.of("totp", "123456"));
+
+    verify(client, times(1)).header(OAUTH, "Bearer " + accessToken);
+    verify(webClient, times(1)).header(AUTHORIZATION, ENCODED_CRED);
+    verify(webClient, times(1)).accept(MediaType.APPLICATION_JSON);
+    verify(webClient, times(1)).form(captor.capture());
+
+    Form form = captor.getValue();
+    assertTrue(form.asMap().get("grant_type").contains("password"));
+    assertTrue(form.asMap().get("username").contains("lcage"));
+    assertTrue(form.asMap().get("password").contains("mypass"));
+    assertTrue(form.asMap().get("totp").contains("123456"));
+  }
+
+  @Test
+  public void testSettingSystemTokensOnClientInvalidAccessTokenPasswordFlow() {
+    Client client = mock(Client.class);
+    Subject subject = getSubject();
+
+    when(tokenStorage.read(anyString(), anyString())).thenReturn(null);
+
+    Response response = mock(Response.class);
+    String accessToken = getAccessTokenBuilder().sign(invalidAlgorithm);
+    when(response.getStatus()).thenReturn(200);
+    when(response.getEntity())
+        .thenReturn(new ByteArrayInputStream(getResponse(accessToken).getBytes()));
+
+    WebClient webClient = oauthSecurity.webClient;
+    when(webClient.form(any(Form.class))).thenReturn(response);
+
+    ArgumentCaptor<Form> captor = ArgumentCaptor.forClass(Form.class);
+    oauthSecurity.setUserTokenOnClient(
+        client,
+        SOURCE_ID,
+        DDF_CLIENT,
+        SECRET,
+        "lcage",
+        "mypass",
+        METADATA_ENDPOINT,
+        ImmutableMap.of("totp", "123456"));
+
+    verify(client, times(0)).header(any(), any());
+    verify(webClient, times(1)).header(AUTHORIZATION, ENCODED_CRED);
+    verify(webClient, times(1)).accept(MediaType.APPLICATION_JSON);
+    verify(webClient, times(1)).form(captor.capture());
+
+    Form form = captor.getValue();
+    assertTrue(form.asMap().get("grant_type").contains("password"));
+    assertTrue(form.asMap().get("username").contains("lcage"));
+    assertTrue(form.asMap().get("password").contains("mypass"));
+    assertTrue(form.asMap().get("totp").contains("123456"));
+  }
+
+  @Test
+  public void testSettingSystemTokensOnClientErrorResponsePasswordFlow() {
+    Client client = mock(Client.class);
+    Subject subject = getSubject();
+
+    when(tokenStorage.read(anyString(), anyString())).thenReturn(null);
+
+    Response response = mock(Response.class);
+    when(response.getStatus()).thenReturn(400);
+    when(response.getEntity()).thenReturn(new ByteArrayInputStream("".getBytes()));
+
+    WebClient webClient = oauthSecurity.webClient;
+    when(webClient.form(any(Form.class))).thenReturn(response);
+
+    ArgumentCaptor<Form> captor = ArgumentCaptor.forClass(Form.class);
+    oauthSecurity.setUserTokenOnClient(
+        client,
+        SOURCE_ID,
+        DDF_CLIENT,
+        SECRET,
+        "lcage",
+        "mypass",
+        METADATA_ENDPOINT,
+        ImmutableMap.of("totp", "123456"));
+
+    verify(client, times(0)).header(any(), any());
+    verify(webClient, times(1)).header(AUTHORIZATION, ENCODED_CRED);
+    verify(webClient, times(1)).accept(MediaType.APPLICATION_JSON);
+    verify(webClient, times(1)).form(captor.capture());
+
+    Form form = captor.getValue();
+    assertTrue(form.asMap().get("grant_type").contains("password"));
+    assertTrue(form.asMap().get("username").contains("lcage"));
+    assertTrue(form.asMap().get("password").contains("mypass"));
+    assertTrue(form.asMap().get("totp").contains("123456"));
   }
 
   private JWTCreator.Builder getAccessTokenBuilder() {

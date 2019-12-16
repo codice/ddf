@@ -45,6 +45,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -97,6 +98,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
   private static final Logger LOGGER = LoggerFactory.getLogger(SecureCxfClientFactoryImpl.class);
   public static final String HTTPS = "https";
   public static final String CREDENTIAL_FLOW = "credential";
+  public static final String PASSWORD_FLOW = "password";
 
   private final JAXRSClientFactoryBean clientFactory;
 
@@ -143,6 +145,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
   private String clientSecret;
 
   private String oauthFlow;
+
+  private Map<String, String> additionalOauthParameters;
 
   private OAuthSecurity oauthSecurity = null;
 
@@ -414,6 +418,69 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
    * @param allowRedirects allow this client to follow redirects
    * @param connectionTimeout timeout for the connection
    * @param receiveTimeout timeout for receiving responses
+   * @param sourceId the id of the source
+   * @param discoveryUrl the oauth provider's discovery url
+   * @param clientId the client id registered with the oauth provider
+   * @param clientSecret the client secret registered with the oauth provider
+   * @param username the oauth flow to use
+   * @param password the oauth flow to use
+   * @param additionalOauthParameters the oauth flow to use
+   * @param oauthSecurity class used to set oauth tokens on clients
+   */
+  @SuppressWarnings("squid:S00107")
+  public SecureCxfClientFactoryImpl(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      List<?> providers,
+      Interceptor<? extends Message> interceptor,
+      boolean disableCnCheck,
+      boolean allowRedirects,
+      Integer connectionTimeout,
+      Integer receiveTimeout,
+      String sourceId,
+      String discoveryUrl,
+      String clientId,
+      String clientSecret,
+      String username,
+      String password,
+      Map<String, String> additionalOauthParameters,
+      OAuthSecurity oauthSecurity) {
+    this(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        new PropertyResolver(endpointUrl),
+        true);
+
+    this.sourceId = sourceId;
+    this.discoveryUrl = discoveryUrl;
+    this.clientId = clientId;
+    this.clientSecret = clientSecret;
+    this.oauthFlow = PASSWORD_FLOW;
+    this.clientFactory.setUsername(username);
+    this.clientFactory.setPassword(password);
+    this.additionalOauthParameters = additionalOauthParameters;
+    this.oauthSecurity = oauthSecurity;
+  }
+
+  /**
+   * Constructs a factory that will return security-aware cxf clients. Once constructed, use the
+   * getClient* methods to retrieve a fresh client with the same configuration. Providing {@link
+   * WebClient} to interfaceClass will create a generic web client.
+   *
+   * <p>This factory can and should be cached. The clients it constructs should not be.
+   *
+   * @param endpointUrl the remote url to connect to
+   * @param interfaceClass an interface representing the resource at the remote url
+   * @param providers optional list of providers to further configure the client
+   * @param interceptor optional message interceptor for the client
+   * @param disableCnCheck disable ssl check for common name / host name match
+   * @param allowRedirects allow this client to follow redirects
+   * @param connectionTimeout timeout for the connection
+   * @param receiveTimeout timeout for receiving responses
    * @param keyInfo client key info for 2-way ssl
    * @param sslProtocol SSL protocol to use (e.g. TLSv1.2)
    */
@@ -526,14 +593,19 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
                 if (CREDENTIAL_FLOW.equals(oauthFlow)) {
                   oauthSecurity.setSystemTokenOnClient(
                       WebClient.client(newClient), clientId, clientSecret, discoveryUrl);
-                } else {
+                } else if (PASSWORD_FLOW.equals(oauthFlow)) {
                   oauthSecurity.setUserTokenOnClient(
                       WebClient.client(newClient),
-                      (ddf.security.Subject) subject,
                       sourceId,
                       clientId,
                       clientSecret,
-                      discoveryUrl);
+                      this.clientFactory.getUsername(),
+                      this.clientFactory.getPassword(),
+                      discoveryUrl,
+                      additionalOauthParameters);
+                } else {
+                  oauthSecurity.setUserTokenOnClient(
+                      WebClient.client(newClient), (ddf.security.Subject) subject, sourceId);
                 }
               } else if (!basicAuth
                   && StringUtils.startsWithIgnoreCase(asciiString, HTTPS)
