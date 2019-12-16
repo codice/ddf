@@ -392,13 +392,17 @@ public class ConfigurationAdminMigratableTest {
                 configurationAdminForImport, STRATEGIES, DEFAULT_FILE_EXT) {
               @Override
               Map<String, Object> getDefaultProperties(String pid) {
-                return ImmutableMap.of(
-                    "whiteListContexts",
-                    new String[] {"/login", "/logout", "/idp"},
-                    "guestAccess",
-                    "true",
-                    "sessionAccess",
-                    "true");
+                if (pid.equals(WEB_CONTEXT_POLICY_MANAGER_PID)) {
+                  return ImmutableMap.of(
+                      "whiteListContexts",
+                      new String[] {"/login", "/logout", "/idp"},
+                      "guestAccess",
+                      "true",
+                      "sessionAccess",
+                      "true");
+                } else {
+                  return null;
+                }
               }
             });
     List<Migratable> iMigratables = Collections.singletonList(iCam);
