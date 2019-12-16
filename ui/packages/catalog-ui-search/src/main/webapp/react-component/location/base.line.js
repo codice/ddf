@@ -18,6 +18,8 @@ const { Units } = require('./common')
 const TextField = require('../text-field')
 import styled from 'styled-components'
 
+const coordinatePairRegex = /\d{1,3}(\.\d*)?\s\d{1,3}(\.\d*)?/g
+
 const Invalid = styled.div`
   background-color: ${props => props.theme.negativeColor};
   height: 100%;
@@ -57,6 +59,14 @@ class BaseLine extends React.Component {
             label={label}
             value={this.state.value}
             onChange={value => {
+              value = value.trim()
+              if (value.includes('MULTI')) {
+                value = this.convertMultiWkt(value.includes('POLYGON'), value)
+              } else if (value.includes('POLYGON') && value.endsWith('))')) {
+                value = this.convertWkt(value, 4)
+              } else if (value.includes('LINESTRING') && value.endsWith(')')) {
+                value = this.convertWkt(value, 2)
+              }
               this.setState({ value })
               const fn = cursor(geometryKey)
               try {
@@ -108,28 +118,48 @@ class BaseLine extends React.Component {
       return false
     }
   }
+  validatePoint(point) {
+    if (
+      point.length !== 2 ||
+      (Number.isNaN(Number.parseFloat(point[0])) &&
+        Number.isNaN(Number.parseFloat(point[1])))
+    ) {
+      return JSON.stringify(point) + ' is not a valid point.'
+    } else if (
+      point[0] > 180 ||
+      point[0] < -180 ||
+      point[1] > 90 ||
+      point[1] < -90
+    ) {
+      return JSON.stringify(point) + ' is not a valid point.'
+    }
+    return ''
+  }
   validateListOfPoints(coordinates) {
     let message = ''
-    if (this.props.mode === 'poly' && coordinates.length < 4) {
-      message = 'Minimum of 4 points needed for polygon'
-    } else if (this.props.mode === 'line' && coordinates.length < 2) {
-      message = 'Minimum of 2 points needed for line'
+    const isLine = this.props.mode.includes('line')
+    const numPoints = isLine ? 2 : 4
+    if (
+      !this.props.mode.includes('multi') &&
+      !coordinates.some(coords => coords.length > 2) &&
+      coordinates.length < numPoints
+    ) {
+      message = `Minimum of ${numPoints} points needed for ${
+        isLine ? 'Line' : 'Polygon'
+      }`
     }
-    coordinates.forEach(point => {
-      if (
-        point.length !== 2 ||
-        (Number.isNaN(Number.parseFloat(point[0])) &&
-          Number.isNaN(Number.parseFloat(point[1])))
-      ) {
-        message = JSON.stringify(point) + ' is not a valid point.'
+    coordinates.forEach(coordinate => {
+      if (coordinate.length > 2) {
+        coordinate.forEach(coord => {
+          if (this.validatePoint(coord)) {
+            message = this.validatePoint(coord)
+          }
+        })
       } else {
-        if (
-          point[0] > 180 ||
-          point[0] < -180 ||
-          point[1] > 90 ||
-          point[1] < -90
-        ) {
-          message = JSON.stringify(point) + ' is not a valid point.'
+        if (this.props.mode.includes('multi')) {
+          message = `Switch to ${isLine ? 'Line' : 'Polygon'}`
+        } else if (this.validatePoint(coordinate)) {
+          message = this.validatePoint(coordinate)
         }
       }
     })
@@ -149,6 +179,35 @@ class BaseLine extends React.Component {
     } catch (e) {
       return false
     }
+  }
+  convertWkt(value, numCoords) {
+    const coordinatePairs = value.match(coordinatePairRegex)
+    if (!coordinatePairs || coordinatePairs.length < numCoords) {
+      return value
+    }
+    const coordinates = coordinatePairs.map(coord => coord.replace(' ', ','))
+    return `[[${coordinates.join('],[')}]]`
+  }
+  convertMultiWkt(isPolygon, value) {
+    if (isPolygon && !value.endsWith(')))')) {
+      return value
+    } else if (!value.endsWith('))')) {
+      return value
+    }
+    const splitter = isPolygon ? '))' : ')'
+    const numPoints = isPolygon ? 4 : 2
+    const shapes = value
+      .split(splitter)
+      .map(shape => shape.match(coordinatePairRegex))
+      .filter(shape => shape !== null && shape.length >= numPoints)
+      .map(shape =>
+        shape.map(coordinatePair => coordinatePair.replace(' ', ','))
+      )
+    return shapes.length === 0
+      ? value
+      : shapes.length === 1
+        ? `[[${shapes[0].join('],[')}]]`
+        : `[${shapes.map(shapeCoords => `[[${shapeCoords.join('],[')}]]`)}]`
   }
 }
 
