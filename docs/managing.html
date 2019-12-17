@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.21.1. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.21.2. Copyright (c) Codice Foundation">
 <title>Managing</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,7 +520,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>Managing</h1>
 <div class="details">
-<span id="author" class="author">Version 2.21.1. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.21.2. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1825,7 +1825,7 @@ su - DDF_USER</pre>
 </div>
 </li>
 <li>
-<p>Change the current directory to the location of the zip file (ddf-2.21.1.zip).</p>
+<p>Change the current directory to the location of the zip file (ddf-2.21.2.zip).</p>
 <div class="listingblock">
 <div class="title">*NIX (Example assumes DDF has been downloaded to a CD/DVD)</div>
 <div class="content">
@@ -1840,17 +1840,17 @@ su - DDF_USER</pre>
 </div>
 </li>
 <li>
-<p>Copy ddf-2.21.1.zip to &lt;DDF_HOME&gt;.</p>
+<p>Copy ddf-2.21.2.zip to &lt;DDF_HOME&gt;.</p>
 <div class="listingblock">
 <div class="title">*NIX</div>
 <div class="content">
-<pre>cp ddf-2.21.1.zip &lt;DDF_HOME&gt;</pre>
+<pre>cp ddf-2.21.2.zip &lt;DDF_HOME&gt;</pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Windows</div>
 <div class="content">
-<pre>copy ddf-2.21.1.zip &lt;DDF_HOME&gt;</pre>
+<pre>copy ddf-2.21.2.zip &lt;DDF_HOME&gt;</pre>
 </div>
 </div>
 </li>
@@ -1864,11 +1864,11 @@ su - DDF_USER</pre>
 </div>
 </li>
 <li>
-<p>The DDF zip is now located within the <code>&lt;DDF_HOME&gt;</code>. Unzip ddf-2.21.1.zip.</p>
+<p>The DDF zip is now located within the <code>&lt;DDF_HOME&gt;</code>. Unzip ddf-2.21.2.zip.</p>
 <div class="listingblock">
 <div class="title">*NIX</div>
 <div class="content">
-<pre>unzip ddf-2.21.1.zip</pre>
+<pre>unzip ddf-2.21.2.zip</pre>
 </div>
 </div>
 <div class="admonitionblock warning">
@@ -1887,7 +1887,7 @@ Instead, use the java jar command line utility to unzip the distribution (see ex
 <div class="listingblock">
 <div class="title">Use Java to Unzip in Windows(Replace <code>&lt;PATH_TO_JAVA&gt;</code> with correct path <code>and &lt;JAVA_VERSION&gt;</code> with current version.)</div>
 <div class="content">
-<pre>"&lt;PATH_TO_JAVA&gt;\jdk&lt;JAVA_VERSION&gt;\bin\jar.exe" xf ddf-2.21.1.zip</pre>
+<pre>"&lt;PATH_TO_JAVA&gt;\jdk&lt;JAVA_VERSION&gt;\bin\jar.exe" xf ddf-2.21.2.zip</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1907,7 +1907,7 @@ The command prompt will stop responding to input during this time.</p>
 <p>Restrict access to sensitive files by ensuring that the only users with access privileges are administrators.</p>
 </div>
 <div class="paragraph">
-<p>Within the <code>&lt;DDF_HOME&gt;</code>, a directory is created named ddf-2.21.1.
+<p>Within the <code>&lt;DDF_HOME&gt;</code>, a directory is created named ddf-2.21.2.
 This directory will be referred to in the documentation as <code>&lt;DDF_HOME&gt;</code>.</p>
 </div>
 <div class="olist arabic">
@@ -3615,17 +3615,17 @@ Features are collections of OSGi bundles, configuration data, and/or other featu
 <div class="listingblock">
 <div class="content">
 <pre>State         Version            Name                                     Repository                           Description
-[installed  ] [2.21.1  ] security-handler-api                     security-services-app-2.21.1 API for authentication handlers for web applications.
-[installed  ] [2.21.1  ] security-core                            security-services-app-2.21.1 DDF Security Core
-[uninstalled] [2.21.1  ] security-expansion                       security-services-app-2.21.1 DDF Security Expansion
-[installed  ] [2.21.1  ] security-pdp-authz                       security-services-app-2.21.1 DDF Security PDP.
-[uninstalled] [2.21.1  ] security-pep-serviceauthz                security-services-app-2.21.1 DDF Security PEP Service AuthZ
-[uninstalled] [2.21.1  ] security-expansion-user-attributes       security-services-app-2.21.1 DDF Security Expansion User Attributes Expansion
-[uninstalled] [2.21.1  ] security-expansion-metacard-attributes   security-services-app-2.21.1 DDF Security Expansion Metacard Attributes Expansion
-[installed  ] [2.21.1  ] security-sts-server                      security-services-app-2.21.1 DDF Security STS.
-[installed  ] [2.21.1  ] security-sts-realm                       security-services-app-2.21.1 DDF Security STS Realm.
-[uninstalled] [2.21.1  ] security-sts-ldaplogin                   security-services-app-2.21.1 DDF Security STS JAAS LDAP Login.
-[uninstalled] [2.21.1  ] security-sts-ldapclaimshandler           security-services-app-2.21.1 Retrieves claims attributes from an LDAP store.</pre>
+[installed  ] [2.21.2  ] security-handler-api                     security-services-app-2.21.2 API for authentication handlers for web applications.
+[installed  ] [2.21.2  ] security-core                            security-services-app-2.21.2 DDF Security Core
+[uninstalled] [2.21.2  ] security-expansion                       security-services-app-2.21.2 DDF Security Expansion
+[installed  ] [2.21.2  ] security-pdp-authz                       security-services-app-2.21.2 DDF Security PDP.
+[uninstalled] [2.21.2  ] security-pep-serviceauthz                security-services-app-2.21.2 DDF Security PEP Service AuthZ
+[uninstalled] [2.21.2  ] security-expansion-user-attributes       security-services-app-2.21.2 DDF Security Expansion User Attributes Expansion
+[uninstalled] [2.21.2  ] security-expansion-metacard-attributes   security-services-app-2.21.2 DDF Security Expansion Metacard Attributes Expansion
+[installed  ] [2.21.2  ] security-sts-server                      security-services-app-2.21.2 DDF Security STS.
+[installed  ] [2.21.2  ] security-sts-realm                       security-services-app-2.21.2 DDF Security STS Realm.
+[uninstalled] [2.21.2  ] security-sts-ldaplogin                   security-services-app-2.21.2 DDF Security STS JAAS LDAP Login.
+[uninstalled] [2.21.2  ] security-sts-ldapclaimshandler           security-services-app-2.21.2 Retrieves claims attributes from an LDAP store.</pre>
 </div>
 </div>
 <div class="olist arabic">
@@ -3657,11 +3657,11 @@ Features are collections of OSGi bundles, configuration data, and/or other featu
 <div class="listingblock">
 <div class="content">
 <pre>State         Version          Name                          Repository  		   Description
-[installed  ] [2.21.1         ] ddf-core                      ddf-2.21.1
-[uninstalled] [2.21.1         ] ddf-sts                       ddf-2.21.1
-[installed  ] [2.21.1         ] ddf-security-common           ddf-2.21.1
-[installed  ] [2.21.1         ] ddf-resource-impl             ddf-2.21.1
-[installed  ] [2.21.1         ] ddf-source-dummy              ddf-2.21.1</pre>
+[installed  ] [2.21.2         ] ddf-core                      ddf-2.21.2
+[uninstalled] [2.21.2         ] ddf-sts                       ddf-2.21.2
+[installed  ] [2.21.2         ] ddf-security-common           ddf-2.21.2
+[installed  ] [2.21.2         ] ddf-resource-impl             ddf-2.21.2
+[installed  ] [2.21.2         ] ddf-source-dummy              ddf-2.21.2</pre>
 </div>
 </div>
 <div class="olist arabic">
@@ -3697,11 +3697,11 @@ Features are collections of OSGi bundles, configuration data, and/or other featu
 <div class="listingblock">
 <div class="content">
 <pre>State         Version          Name                          Repository  Description
-[installed  ] [2.21.1         ] ddf-core                      ddf-2.21.1
-[uninstalled] [2.21.1         ] ddf-sts                       ddf-2.21.1
-[installed  ] [2.21.1         ] ddf-security-common           ddf-2.21.1
-[installed  ] [2.21.1         ] ddf-resource-impl             ddf-2.21.1
-[uninstalled] [2.21.1         ] ddf-source-dummy              ddf-2.21.1</pre>
+[installed  ] [2.21.2         ] ddf-core                      ddf-2.21.2
+[uninstalled] [2.21.2         ] ddf-sts                       ddf-2.21.2
+[installed  ] [2.21.2         ] ddf-security-common           ddf-2.21.2
+[installed  ] [2.21.2         ] ddf-resource-impl             ddf-2.21.2
+[uninstalled] [2.21.2         ] ddf-source-dummy              ddf-2.21.2</pre>
 </div>
 </div>
 </div>
@@ -4012,7 +4012,7 @@ Does not change the address the system runs on.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The version of DDF that is running.</p>
 <p class="tableblock">This value should not be changed from the factory default.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>2.21.1</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>2.21.2</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
 </tr>
 <tr>
@@ -9058,7 +9058,7 @@ Cloud installation instructions have been followed.</p>
 <p><a href="http://artifacts.codice.org/content/groups/public/org/locationtech/jts/jts-core/1.15.0/jts-core-1.15.0.jar" class="bare">http://artifacts.codice.org/content/groups/public/org/locationtech/jts/jts-core/1.15.0/jts-core-1.15.0.jar</a></p>
 </li>
 <li>
-<p><a href="http://artifacts.codice.org/service/local/artifact/maven/content?r=public&amp;g=ddf.platform.solr&amp;a=solr-xpath&amp;v=2.21.1" class="bare">http://artifacts.codice.org/service/local/artifact/maven/content?r=public&amp;g=ddf.platform.solr&amp;a=solr-xpath&amp;v=2.21.1</a></p>
+<p><a href="http://artifacts.codice.org/service/local/artifact/maven/content?r=public&amp;g=ddf.platform.solr&amp;a=solr-xpath&amp;v=2.21.2" class="bare">http://artifacts.codice.org/service/local/artifact/maven/content?r=public&amp;g=ddf.platform.solr&amp;a=solr-xpath&amp;v=2.21.2</a></p>
 </li>
 </ol>
 </div>
@@ -9074,7 +9074,7 @@ Cloud installation instructions have been followed.</p>
 <p>Copy <code>jts-core-1.15.0.jar</code> to: <code>&lt;SOLR_INSTALL_DIR&gt;/server/solr-webapp/webapp/WEB-INF/lib/</code>.</p>
 </li>
 <li>
-<p>Copy <code>solr-xpath-2.21.1.jar</code> to: <code>&lt;SOLR_INSTALL_DIR&gt;/plugins/</code>.</p>
+<p>Copy <code>solr-xpath-2.21.2.jar</code> to: <code>&lt;SOLR_INSTALL_DIR&gt;/plugins/</code>.</p>
 </li>
 </ol>
 </div>
@@ -9437,7 +9437,7 @@ In this particular case, since we mapped the state name to title in the metacard
 6
 7
 </pre></td>
-  <td class="code"><pre><span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">geoserver-states</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.21.1</span><span class="delimiter">&quot;</span></span>
+  <td class="code"><pre><span class="tag">&lt;feature</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">geoserver-states</span><span class="delimiter">&quot;</span></span> <span class="attribute-name">version</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">2.21.2</span><span class="delimiter">&quot;</span></span>
     <span class="attribute-name">description</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">WFS Feature to Metacard mappings for GeoServer Example {http://www.openplans.org/topp}states</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
     <span class="tag">&lt;config</span> <span class="attribute-name">name</span>=<span class="string"><span class="delimiter">&quot;</span><span class="content">org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper-geoserver.http://www.openplans.org/topp.states</span><span class="delimiter">&quot;</span></span><span class="tag">&gt;</span>
         featureType = {http://www.openplans.org/topp}states
@@ -10653,7 +10653,7 @@ DDF includes a whitelist of allowed shell commands in
 <p>Run the command migration:export from the Command Console.</p>
 </li>
 <li>
-<p>Files named <code>ddf-2.21.1.dar</code>, <code>ddf-2.21.1.dar.key</code>, and <code>ddf-2.21.1.dar.sha256</code> will be created in the <code>exported</code> directory underneath <code>&lt;DDF_HOME&gt;</code>.
+<p>Files named <code>ddf-2.21.2.dar</code>, <code>ddf-2.21.2.dar.key</code>, and <code>ddf-2.21.2.dar.sha256</code> will be created in the <code>exported</code> directory underneath <code>&lt;DDF_HOME&gt;</code>.
 The <code>.dar</code> file contains the encrypted information. The <code>.key</code> and <code>.sha256</code> files contains the encryption key and a validation checksum. Copy the '.dar' file to a secure location and copy the '.key' and '.sha256' to a different secure location.
 Keeping all 3 files together represents a security risk and should be avoided.</p>
 </li>
@@ -10754,7 +10754,7 @@ To decrypt the exported file:</p>
 <p>Run the command migration:decrypt from the Command Console.</p>
 </li>
 <li>
-<p>A file named <code>ddf-2.21.1.zip</code> will be created in the <code>exported</code> directory underneath <code>&lt;DDF_HOME&gt;</code>.
+<p>A file named <code>ddf-2.21.2.zip</code> will be created in the <code>exported</code> directory underneath <code>&lt;DDF_HOME&gt;</code>.
 This file represents the decrypted version of the <code>.dar</code> file.</p>
 </li>
 </ol>
@@ -12167,46 +12167,46 @@ offset            = 'Z' | (('+' | '-') HH [':' mm [':' ss [('.' | ',') SSS]]]</p
 <pre>ddf@local&gt;// Given we've ingested a few metacards
 ddf@local&gt;catalog:latest
 #       ID                                Modified Date              Title
-1       a6e9ae09c792438e92a3c9d7452a449f  2019-12-05
-2       b4aced45103a400da42f3b319e58c3ed  2019-12-05
-3       a63ab22361e14cee9970f5284e8eb4e0  2019-12-05 myTitle
+1       a6e9ae09c792438e92a3c9d7452a449f  2019-12-16
+2       b4aced45103a400da42f3b319e58c3ed  2019-12-16
+3       a63ab22361e14cee9970f5284e8eb4e0  2019-12-16 myTitle
 
 ddf@local&gt;// Filter out older files
-ddf@local&gt;catalog:dump --created-after 2019-12-05 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --created-after 2019-12-16 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.015 seconds
 
 ddf@local&gt;// Filter out new file
-ddf@local&gt;catalog:dump --created-before 2019-12-05 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --created-before 2019-12-16 /home/user/ddf-catalog-dump
  2 file(s) dumped in 0.023 seconds
 
 ddf@local&gt;// Choose middle file
-ddf@local&gt;catalog:dump --created-after 2019-12-05 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --created-after 2019-12-16 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.020 seconds
 
 ddf@local&gt;// Modified dates work the same way
-ddf@local&gt;catalog:dump --modified-after 2019-12-05 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2019-12-16 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.015 seconds
 
 ddf@local&gt;// Can mix and match, most restrictive limits apply
-ddf@local&gt;catalog:dump --modified-after 2019-12-05 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2019-12-16 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.024 seconds
 
 ddf@local&gt;// Can use UTC instead of (or in combination with) explicit time zone offset
-ddf@local&gt;catalog:dump --modified-after 2019-12-05 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2019-12-16 /home/user/ddf-catalog-dump
  2 file(s) dumped in 0.020 seconds
-ddf@local&gt;catalog:dump --modified-after 2019-12-05 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2019-12-16 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.015 seconds
 
 ddf@local&gt;// Can leave off time zone, but default (local time on server) may not match what you expect!
-ddf@local&gt;catalog:dump --modified-after 2019-12-05 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2019-12-16 /home/user/ddf-catalog-dump
  1 file(s) dumped in 0.018 seconds
 
 ddf@local&gt;// Can leave off trailing minutes / seconds
-ddf@local&gt;catalog:dump --modified-after 2019-12-05 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2019-12-16 /home/user/ddf-catalog-dump
  2 file(s) dumped in 0.024 seconds
 
 ddf@local&gt;// Can use year and day number
-ddf@local&gt;catalog:dump --modified-after 2019-12-05 /home/user/ddf-catalog-dump
+ddf@local&gt;catalog:dump --modified-after 2019-12-16 /home/user/ddf-catalog-dump
  2 file(s) dumped in 0.027 seconds</pre>
 </div>
 </div>
@@ -14066,7 +14066,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-12-05 19:39:26 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-12-16 15:53:43 UTC
 </div>
 </div>
 </body>
