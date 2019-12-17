@@ -15,6 +15,7 @@
 
 const Marionette = require('marionette')
 const _ = require('underscore')
+const memoize = require('lodash/memoize')
 const $ = require('jquery')
 const template = require('./query-basic.hbs')
 const CustomElements = require('../../js/CustomElements.js')
@@ -25,11 +26,13 @@ const Property = require('../property/property.js')
 const properties = require('../../js/properties.js')
 const cql = require('../../js/cql.js')
 const metacardDefinitions = require('../singletons/metacard-definitions.js')
-const sources = require('../singletons/sources-instance.js')
 const CQLUtils = require('../../js/CQLUtils.js')
 const QuerySettingsView = require('../query-settings/query-settings.view.js')
 const QueryTimeView = require('../query-time/query-time.view.js')
 import { getFilterErrors } from '../../react-component/utils/validation'
+import query from '../../react-component/utils/query'
+
+const METADATA_CONTENT_TYPE = 'metadata-content-type'
 
 function isNested(filter) {
   let nested = false
@@ -45,17 +48,53 @@ function getMatchTypeAttribute() {
     : 'datatype'
 }
 
-function isTypeLimiter(filter) {
-  let typesFound = {}
-  filter.filters.forEach(subfilter => {
-    typesFound[CQLUtils.getProperty(subfilter)] = true
+const getMatchTypes = memoize(async () => {
+  const matchTypeAttr = getMatchTypeAttribute()
+  const json = await query({
+    count: 0,
+    cql: "anyText ILIKE '*'",
+    facets: [matchTypeAttr],
   })
-  typesFound = Object.keys(typesFound)
-  return (
-    typesFound.length === 2 &&
-    typesFound.indexOf('metadata-content-type') >= 0 &&
-    typesFound.indexOf(getMatchTypeAttribute()) >= 0
-  )
+  const facets = json.facets[matchTypeAttr] || []
+  return facets
+    .sort((a, b) => {
+      const aValue = a.value.toLowerCase()
+      const bValue = b.value.toLowerCase()
+      if (aValue < bValue) {
+        return -1
+      } else if (aValue > bValue) {
+        return 1
+      } else {
+        return 0
+      }
+    })
+    .map(facet => ({
+      label: facet.value,
+      value: facet.value,
+      class: 'icon ' + IconHelper.getClassByName(facet.value),
+    }))
+})
+
+const NoMatchTypesView = Marionette.ItemView.extend({
+  template() {
+    return `No types found for '${getMatchTypeAttribute()}'.`
+  },
+})
+
+function isTypeLimiter(filter) {
+  const typesFound = _.uniq(filter.filters.map(CQLUtils.getProperty))
+  const metadataContentTypeSupported = !!metacardDefinitions.metacardTypes[
+    METADATA_CONTENT_TYPE
+  ]
+  if (metadataContentTypeSupported) {
+    return (
+      typesFound.length === 2 &&
+      typesFound.includes(METADATA_CONTENT_TYPE) &&
+      typesFound.includes(getMatchTypeAttribute())
+    )
+  } else {
+    return typesFound.length === 1 && typesFound[0] === getMatchTypeAttribute()
+  }
 }
 
 // strip extra quotes
@@ -239,54 +278,56 @@ module.exports = Marionette.LayoutView.extend({
       })
     )
   },
-  setupTypeSpecific() {
-    let currentValue = []
-    if (this.filter['metadata-content-type']) {
-      currentValue = _.uniq(
-        this.filter['metadata-content-type'].map(subfilter => subfilter.value)
-      )
-    }
-    this.basicTypeSpecific.show(
-      new PropertyView({
-        model: new Property({
-          enumFiltering: true,
-          showValidationIssues: false,
-          enumMulti: true,
-          enum: sources.toJSON().reduce(
-            (enumArray, source) => {
-              source.contentTypes.forEach(contentType => {
-                if (
-                  contentType.value &&
-                  enumArray.filter(option => option.value === contentType.value)
-                    .length === 0
-                ) {
-                  enumArray.push({
-                    label: contentType.name,
-                    value: contentType.value,
-                    class:
-                      'icon ' + IconHelper.getClassByName(contentType.value),
-                  })
-                }
-              })
-              return enumArray
-            },
-            metacardDefinitions.enums.datatype
-              ? metacardDefinitions.enums.datatype.map(value => ({
-                  label: value,
-                  value,
-                  class: 'icon ' + IconHelper.getClassByName(value),
-                }))
-              : []
-          ),
-          value: [currentValue],
-          id: 'Types',
-        }),
-      })
+  getFilterValuesForAttribute(attribute) {
+    return this.filter[attribute]
+      ? this.filter[attribute].map(subfilter => subfilter.value)
+      : []
+  },
+  getCurrentSpecificTypesValue() {
+    const metadataContentTypeValuesInFilter = this.getFilterValuesForAttribute(
+      METADATA_CONTENT_TYPE
     )
+    const matchTypeAttributeValuesInFilter = this.getFilterValuesForAttribute(
+      getMatchTypeAttribute()
+    )
+    const currentValue = metadataContentTypeValuesInFilter.concat(
+      matchTypeAttributeValuesInFilter
+    )
+    return _.uniq(currentValue)
+  },
+  setupTypeSpecific() {
+    const currentValue = this.getCurrentSpecificTypesValue()
+    getMatchTypes()
+      .then(enums => this.showBasicTypeSpecific(enums, [currentValue]))
+      .catch(error => this.showBasicTypeSpecific())
+  },
+  showBasicTypeSpecific(enums = [], currentValue = [[]]) {
+    if (this.basicTypeSpecific) {
+      if (enums && enums.length > 0) {
+        this.basicTypeSpecific.show(
+          new PropertyView({
+            model: new Property({
+              enumFiltering: true,
+              showValidationIssues: false,
+              enumMulti: true,
+              enum: enums,
+              value: currentValue,
+              id: 'Types',
+            }),
+          })
+        )
+        this.basicTypeSpecific.currentView.turnOnEditing()
+      } else {
+        this.basicTypeSpecific.show(new NoMatchTypesView())
+      }
+    }
   },
   setupType() {
     let currentValue = 'any'
-    if (this.filter['metadata-content-type']) {
+    if (
+      this.filter[METADATA_CONTENT_TYPE] ||
+      this.filter[getMatchTypeAttribute()]
+    ) {
       currentValue = 'specific'
     }
     this.basicType.show(
@@ -466,29 +507,30 @@ module.exports = Marionette.LayoutView.extend({
     }
 
     const types = this.basicType.currentView.model.getValue()[0]
-    const typesSpecific = this.basicTypeSpecific.currentView.model.getValue()[0]
-    if (types === 'specific' && typesSpecific.length !== 0) {
+    const specificTypes = this.basicTypeSpecific.currentView.model.getValue()[0]
+    if (types === 'specific' && specificTypes.length !== 0) {
+      const filterAttributeIsSupported = filter => filter !== null
       const typeFilter = {
         type: 'OR',
-        filters: typesSpecific
-          .map(specificType =>
+        filters: specificTypes
+          .map(specificType => [
             CQLUtils.generateFilter(
               'ILIKE',
-              'metadata-content-type',
+              METADATA_CONTENT_TYPE,
               specificType
-            )
-          )
-          .concat(
-            typesSpecific.map(specificType =>
-              CQLUtils.generateFilter(
-                'ILIKE',
-                getMatchTypeAttribute(),
-                specificType
-              )
-            )
-          ),
+            ),
+            CQLUtils.generateFilter(
+              'ILIKE',
+              getMatchTypeAttribute(),
+              specificType
+            ),
+          ])
+          .flat()
+          .filter(filterAttributeIsSupported),
       }
-      filters.push(typeFilter)
+      if (typeFilter.filters.length > 0) {
+        filters.push(typeFilter)
+      }
     }
 
     if (filters.length === 0) {
