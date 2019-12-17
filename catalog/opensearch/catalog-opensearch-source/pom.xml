@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.catalog.opensearch</groupId>
         <artifactId>catalog-opensearch</artifactId>
-        <version>2.19.3-SNAPSHOT</version>
+        <version>2.19.4-SNAPSHOT</version>
     </parent>
     <artifactId>catalog-opensearch-source</artifactId>
     <name>DDF :: Catalog :: OpenSearch :: Source</name>
@@ -51,9 +51,9 @@
             <version>${com.rometools.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jdom</groupId>
-            <artifactId>jdom2</artifactId>
-            <version>2.0.6</version>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jdom</artifactId>
+            <version>2.0.6_1</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.opensearch</groupId>
@@ -128,7 +128,6 @@
                         <Embed-Dependency>
                             rome,
                             rome-utils,
-                            jdom2,
                             catalog-opensearch-api,
                             ddf-security-common,
                             catalog-core-api-impl,

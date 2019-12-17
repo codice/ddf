@@ -21,7 +21,7 @@ const QueryAdvanced = require('../query-advanced/query-advanced.view.js')
 const QueryTitle = require('../query-title/query-title.view.js')
 const store = require('../../js/store.js')
 import ExtensionPoints from '../../extension-points'
-import { validate } from '../../react-component/utils/validation'
+import { showErrorMessages } from '../../react-component/utils/validation'
 
 module.exports = Marionette.LayoutView.extend({
   template,
@@ -144,7 +144,9 @@ module.exports = Marionette.LayoutView.extend({
     const queryContentView = this.queryView
       ? this.queryView
       : this.queryContent.currentView
-    if (!validate(queryContentView.validate())) {
+    const errorMessages = queryContentView.getErrorMessages()
+    if (errorMessages.length !== 0) {
+      showErrorMessages(errorMessages)
       return
     }
     queryContentView.save()
@@ -160,7 +162,9 @@ module.exports = Marionette.LayoutView.extend({
     const queryContentView = this.queryView
       ? this.queryView
       : this.queryContent.currentView
-    if (!validate(queryContentView.validate())) {
+    const errorMessages = queryContentView.getErrorMessages()
+    if (errorMessages.length !== 0) {
+      showErrorMessages(errorMessages)
       return
     }
     queryContentView.save()
