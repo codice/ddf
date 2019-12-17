@@ -21,18 +21,8 @@ import TextField from '../../text-field'
 import styled from 'styled-components'
 import { getFilteredSuggestions, inputMatchesSuggestions } from './enumHelper'
 import PropTypes from 'prop-types'
-const Backbone = require('backbone')
 const sources = require('../../../component/singletons/sources-instance');
 
-/*
-module.exports = Backbone.Collection.extend({
-
-    initialize: function() {
-      this.listenTo(querySettingsView,'change:src',EnumInput);
-    }
-
-})
-*/
 
 
 
@@ -46,21 +36,8 @@ const EnumMenuItem = props => (
 )
 
 
-const isIconHidden = (currValue) => {
+const isIconDisplayed = (AllSupportedAttributes,currValue) => {
 
-  
-  let AllSupportedAttributes = sources.models.map(source => {
-
-    //NDL EAST is only supported in NCL-Search not in advanced search
-    if(!(source.id == "NDL-East")){
-
-      return source.attributes.supportedAttributes;
-
-    }
-    return [];
-  });
-  AllSupportedAttributes = AllSupportedAttributes.flat()
-  AllSupportedAttributes.push("ext.acquisition-status");
   if(AllSupportedAttributes.length == 0){
     return false;
   }
@@ -72,49 +49,52 @@ const isIconHidden = (currValue) => {
 
 }
 
-const displayInfoBoxForUnsupportedAttributes = () => {
+const isIconHidden = (currValue,settingsModel) => {
+  // if no source is selected gather all supportedAttributes from all available sources
+  if(settingsModel.length == 0){
+      let AllSupportedAttributes = sources.models.map(source => {
 
+        //NDL EAST is only supported in NCL-Search not in advanced search
+        if(!(source.id == "NDL-East")){
 
+          return source.attributes.supportedAttributes;
 
+        }
+        return [];
+      });
+      AllSupportedAttributes = AllSupportedAttributes.flat()
+      AllSupportedAttributes.push("ext.acquisition-status");
+      return isIconDisplayed(AllSupportedAttributes,currValue);
 
-
-}
-
-
-const isMenuItemDisabled = (currValue) => {
-  
-  let AllSupportedAttributes = sources.models.map(source => {
-
-    //NDL EASt is only supported in NCL-Search not in advanced search
-    if(!(source.id == "NDL-East")){
-
-      return source.attributes.supportedAttributes;
-
-    }
-    return [];
-  });
-  AllSupportedAttributes = AllSupportedAttributes.flat()
-  //AllSupportedAttributes.push("ext.acquisition-status");
-  if(AllSupportedAttributes.length == 0){
-    return false;
   }
-  if(AllSupportedAttributes.indexOf(currValue) >= 0){
-    return false;
+  else{
+
+    let sourceModelsSelected = sources.models.filter(source => settingsModel.includes(source.id));
+    
+    
+
+    let AllSupportedAttributes = sourceModelsSelected.map(sourceSelected => {
+
+     
+      if(sourceSelected.id == 'GIMS_GIN'){
+        return ["ext.alternate-identifier-qualifier"];
+      }
+
+      if(!(sourceSelected.id == "NDL-East")){
+
+        return sourceSelected.attributes.supportedAttributes;
+
+      }
+      return [];
+      
+    });
+    
+    AllSupportedAttributes = AllSupportedAttributes.flat()
+    return isIconDisplayed(AllSupportedAttributes,currValue);
+
   }
 
-  return true;
-
 }
-
-const styles = {
-
-  image: {flex:1, height: "15px", width: "15px",alignItems : 'right'}
-
-}
-
-
-
-
 
 const EnumInput = ({
   allowCustom,
@@ -123,21 +103,19 @@ const EnumInput = ({
   suggestions,
   value,
   settingsModel
-
 }) => {
   const [input, setInput] = useState('')
   const selected = suggestions.find(suggestion => suggestion.value === value)
+  console.log(selected);
   const filteredSuggestions = getFilteredSuggestions(
     input,
     suggestions,
     matchCase
   )
-  console.log(settingsModel)
+  console.log(settingsModel);
   console.log(filteredSuggestions)
   console.log(sources.models);
   console.log(window.sourcesSelected);
-  
-  
   const displayInput = !inputMatchesSuggestions(input, suggestions, matchCase)
   return (
     
@@ -160,7 +138,7 @@ const EnumInput = ({
           return (
             <EnumMenuItem key={suggestion.value} value={suggestion.value}>
               {suggestion.label}
-              {isIconHidden(suggestion.value) &&
+              {isIconHidden(suggestion.value,settingsModel.attributes.src) &&
                 <span>
                   <i className="fa fa-warning"/>
                 </span>

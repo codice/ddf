@@ -118,7 +118,13 @@ module.exports = Marionette.LayoutView.extend({
         this.showAdvanced(filter)
       },
     })
-    //this.listenTo(this.querySettings.currentView.model,'change:src',this.showAdvanced(filter))
+    this.listenTo(this.querySettings.currentView.model,'change:src',function(){
+      console.log(this.queryAdvanced.currentView.model)
+      console.log(this.model)
+      
+      console.log(this.querySettings.currentView.model.attributes.src)
+      this.showAdvanced(this.queryAdvanced.currentView.getFilters())
+    })
     
   },
   onDestroy() {
