@@ -73,7 +73,7 @@ public class CommonTemplate {
     this.description = safeGet(metacard, Core.DESCRIPTION, String.class);
 
     this.created = safeGet(metacard, Core.CREATED, Date.class);
-    this.modified = safeGet(metacard, Core.MODIFIED, Date.class);
+    this.modified = safeGet(metacard, Core.METACARD_MODIFIED, Date.class);
     this.owner = safeGet(metacard, Core.METACARD_OWNER, String.class);
 
     this.accessIndividuals =
