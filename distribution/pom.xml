@@ -32,6 +32,7 @@
         <module>ddf-common</module>
         <module>kernel</module>
         <module>docs</module>
+        <module>ddf-catalog</module>
         <module>ddf</module>
         <module>docker</module>
         <!--Test needs to be the last module because it depends on artifacts from earlier modules-->

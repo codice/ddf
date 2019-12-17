@@ -1,0 +1,30 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<component>
+    <fileSets>
+        <!-- DDF Kernel Distribution -->
+        <fileSet>
+            <directory>${setup.folder}/ddf-kernel-${project.version}</directory>
+            <outputDirectory>./</outputDirectory>
+            <excludes>
+                <exclude>etc/org.apache.karaf.features.cfg</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>target/classes/etc</directory>
+            <outputDirectory>./etc</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+    </fileSets>
+</component>
