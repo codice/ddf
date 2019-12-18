@@ -22,7 +22,7 @@ const cql = require('../../js/cql.js')
 const store = require('../../js/store.js')
 const QuerySettingsView = require('../query-settings/query-settings.view.js')
 const properties = require('../../js/properties.js')
-const _ = require('lodash')
+const _sortBy = require('lodash/sortBy')
 import { getFilterErrors } from '../../react-component/utils/validation'
 
 import query from '../../react-component/utils/query'
@@ -39,7 +39,7 @@ const fetchSuggestions = memoize(async attr => {
   if (suggestions === undefined) {
     return []
   }
-  const sortedSuggestions = _.sortBy(suggestions, ['value'])
+  const sortedSuggestions = _sortBy(suggestions, ['value'])
   return sortedSuggestions.map(({ value }) => value)
 })
 
