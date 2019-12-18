@@ -907,7 +907,7 @@ public class MetacardApplication implements SparkApplication {
       String name = attDesc.getName();
       Attribute attribute = metacard.getAttribute(name);
 
-      if (attribute != null) {
+      if (attribute != null && !name.equals("metacard.version.type-binary")) {
         List<Serializable> values = metacard.getAttribute(name).getValues();
         if (values != null) {
           historyMetacardAttributes.put(name, values);
