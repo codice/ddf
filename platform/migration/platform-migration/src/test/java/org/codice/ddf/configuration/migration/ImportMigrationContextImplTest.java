@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -859,5 +860,38 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     Mockito.verify(migratable, Mockito.never()).doImport(context);
     Mockito.verify(migratable, Mockito.never()).doVersionUpgradeImport(context);
     Mockito.verify(migratable, Mockito.never()).doMissingImport(context);
+  }
+
+  @Test
+  public void testGetSystemProperty() throws Exception {
+    final Map<String, String> props = new HashMap<>(1);
+    props.put("key", "value");
+    context.setSystemProperties(props);
+
+    Assert.assertThat(context.getSystemProperty("key"), Matchers.equalTo("value"));
+  }
+
+  @Test
+  public void testGetSystemPropertyWhenKeyDoesNotExist() throws Exception {
+    final Map<String, String> props = new HashMap<>(1);
+    props.put("key", "value");
+    context.setSystemProperties(props);
+
+    Assert.assertThat(context.getSystemProperty("key1"), Matchers.nullValue());
+  }
+
+  @Test
+  public void testGetSystemPropertyWhenKeyIsNull() throws Exception {
+    context.setSystemProperties(new HashMap<>());
+    Assert.assertThat(context.getSystemProperty(null), Matchers.nullValue());
+  }
+
+  @Test
+  public void testGetSystemPropertyWhenValueIsNull() throws Exception {
+    final Map<String, String> props = new HashMap<>(1);
+    props.put("key", null);
+    context.setSystemProperties(props);
+
+    Assert.assertThat(context.getSystemProperty("key"), Matchers.nullValue());
   }
 }

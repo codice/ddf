@@ -19,11 +19,11 @@ import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -75,6 +75,13 @@ public class ConfigurationAdminMigratable implements Migratable {
   private static final String WEB_CONTEXT_POLICY_MANAGER_PID =
       "org.codice.ddf.security.policy.context.impl.PolicyManager";
 
+  private static final String ATTRIBUTE_MAP = "attributeMap";
+
+  private static final String DDF_HOSTNAME_PROP_KEY = "org.codice.ddf.system.hostname";
+
+  private static final String METACARD_VALIDITY_FILTER_PLUGIN_PID =
+      "ddf.catalog.metacard.validation.MetacardValidityFilterPlugin";
+
   @VisibleForTesting
   static final List<String> ACCEPTED_ENTRY_PIDS =
       Arrays.asList(
@@ -88,7 +95,11 @@ public class ConfigurationAdminMigratable implements Migratable {
           "org.codice.ddf.registry.federationadmin.service.impl.RefreshRegistryEntries",
           "org.codice.ddf.registry.policy.RegistryPolicyPlugin",
           "Registry_Configuration_Event_Handler",
-          "org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler");
+          "org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler",
+          "ddf.catalog.federation.impl.CachingFederationStrategy",
+          METACARD_VALIDITY_FILTER_PLUGIN_PID,
+          "ddf.catalog.metacard.validation.MetacardValidityMarkerPlugin",
+          "ddf.catalog.CatalogFrameworkImpl");
 
   private static final List<String> ACCEPTED_ENTRY_FACTORY_PIDS =
       Arrays.asList(
@@ -104,6 +115,12 @@ public class ConfigurationAdminMigratable implements Migratable {
 
   private final AdminConsoleServiceMBean configAdminMBean;
 
+  private List<
+          BiFunction<
+              ImportMigrationConfigurationAdminEntry, ImportMigrationContext,
+              ImportMigrationConfigurationAdminEntry>>
+      filters;
+
   public ConfigurationAdminMigratable(
       ConfigurationAdmin configurationAdmin,
       List<PersistenceStrategy> strategies,
@@ -114,6 +131,12 @@ public class ConfigurationAdminMigratable implements Migratable {
     this.strategies = strategies;
     this.defaultFileExtension = defaultFileExtension;
     this.configAdminMBean = getConfigAdminMBean();
+
+    filters = new ArrayList<>();
+    filters.add(this::updateSessionConfiguration);
+    filters.add(this::updateGuestClaimsConfiguration);
+    filters.add(this::updateMetacardValidityFilterPluginConfiguration);
+    filters.add(this::updateWebContextPolicyManagerConfiguration);
   }
 
   @SuppressWarnings(
@@ -204,79 +227,108 @@ public class ConfigurationAdminMigratable implements Migratable {
   // entries must be updated to the latest versions of themselves in order to restore correctly
   private ImportMigrationConfigurationAdminEntry updateNecessaryConfigurationAdminEntries(
       ImportMigrationConfigurationAdminEntry entry, ImportMigrationContext context) {
-    // this pid was updated in versions 2.16.1 and 2.17.0
-    // see https://github.com/codice/ddf/issues/5131
-    if (entry.getPid().equals("org.codice.ddf.security.filter.login.Session")) {
-      entry.setPid("ddf.security.http.impl.HttpSessionFactory");
-    }
-    // this pid was updated in version 2.17.0
-    // see https://github.com/codice/ddf/pull/5105
-    if (entry.getPid().equals("ddf.security.sts.guestclaims")) {
-      entry.setPid("ddf.security.guest.realm");
-    }
-    // this configuration was updated in version 2.17.0
-    // see https://github.com/codice/ddf/pull/5105
-    if (entry.getPid().equals(WEB_CONTEXT_POLICY_MANAGER_PID)) {
-      entry = updateWebContextPolicyManagerConfiguration(entry, context);
+    for (BiFunction<
+            ImportMigrationConfigurationAdminEntry, ImportMigrationContext,
+            ImportMigrationConfigurationAdminEntry>
+        filter : filters) {
+      entry = filter.apply(entry, context);
     }
     return entry;
   }
 
+  // this pid was updated in versions 2.16.1 and 2.17.0
+  // see https://github.com/codice/ddf/issues/5131
+  private ImportMigrationConfigurationAdminEntry updateSessionConfiguration(
+      ImportMigrationConfigurationAdminEntry entry, ImportMigrationContext context) {
+    if (entry.getPid().equals("org.codice.ddf.security.filter.login.Session")) {
+      entry.setPid("ddf.security.http.impl.HttpSessionFactory");
+    }
+    return entry;
+  }
+
+  // this pid was updated in version 2.17.0
+  // see https://github.com/codice/ddf/pull/5105
+  private ImportMigrationConfigurationAdminEntry updateGuestClaimsConfiguration(
+      ImportMigrationConfigurationAdminEntry entry, ImportMigrationContext context) {
+    if (entry.getPid().equals("ddf.security.sts.guestclaims")) {
+      entry.setPid("ddf.security.guest.realm");
+    }
+    return entry;
+  }
+
+  // this configuration was updated in version 2.13.6
+  // see https://github.com/codice/ddf/pull/4388
+  private ImportMigrationConfigurationAdminEntry updateMetacardValidityFilterPluginConfiguration(
+      ImportMigrationConfigurationAdminEntry entry, ImportMigrationContext context) {
+    if (entry.getPid().equals(METACARD_VALIDITY_FILTER_PLUGIN_PID)) {
+      String[] attributeMap = (String[]) entry.getProperty(ATTRIBUTE_MAP);
+
+      for (int i = 0; i < attributeMap.length; i++) {
+        String val = attributeMap[i];
+        String hostname = context.getSystemProperty(DDF_HOSTNAME_PROP_KEY);
+        attributeMap[i] = val.replaceAll("(?<!-)data-manager", hostname + "-data-manager");
+      }
+      entry.setProperty(ATTRIBUTE_MAP, attributeMap);
+    }
+    return entry;
+  }
+
+  // this configuration was updated in version 2.17.0
+  // see https://github.com/codice/ddf/pull/5105
   private ImportMigrationConfigurationAdminEntry updateWebContextPolicyManagerConfiguration(
       ImportMigrationConfigurationAdminEntry entry, ImportMigrationContext context) {
-    Map<String, Object> defaults = getDefaultProperties(WEB_CONTEXT_POLICY_MANAGER_PID);
+    if (entry.getPid().equals(WEB_CONTEXT_POLICY_MANAGER_PID)) {
+      Map<String, Object> defaults = getDefaultProperties(WEB_CONTEXT_POLICY_MANAGER_PID);
 
-    if (defaults == null) {
-      String message =
-          String.format(
-              "There was an issue retrieving the %s configuration so it will not be upgraded.",
-              WEB_CONTEXT_POLICY_MANAGER_PID);
+      if (defaults == null) {
+        String message =
+            String.format(
+                "There was an issue retrieving the %s configuration so it will not be upgraded.",
+                WEB_CONTEXT_POLICY_MANAGER_PID);
 
-      LOGGER.info(message);
-      context.getReport().record(new MigrationWarning(message));
-      return entry;
-    }
+        LOGGER.info(message);
+        context.getReport().record(new MigrationWarning(message));
+        return entry;
+      }
 
-    Dictionary<String, Object> exportedProps = entry.getProperties();
-    exportedProps.remove("realms");
+      entry.removeProperty("realms");
 
-    String[] whiteListContexts = (String[]) exportedProps.get(WHITE_LISTED_CONTEXTS);
-    String[] whiteListContextDefaults = (String[]) defaults.get(WHITE_LISTED_CONTEXTS);
+      String[] whiteListContexts = (String[]) entry.getProperty(WHITE_LISTED_CONTEXTS);
+      String[] whiteListContextDefaults = (String[]) defaults.get(WHITE_LISTED_CONTEXTS);
 
-    Set<String> whiteListContextsSet =
-        Stream.of(whiteListContexts, whiteListContextDefaults)
-            .flatMap(Stream::of)
-            .collect(Collectors.toSet());
+      Set<String> whiteListContextsSet =
+          Stream.of(whiteListContexts, whiteListContextDefaults)
+              .flatMap(Stream::of)
+              .collect(Collectors.toSet());
 
-    exportedProps.put(WHITE_LISTED_CONTEXTS, String.join(",", whiteListContextsSet));
+      entry.setProperty(WHITE_LISTED_CONTEXTS, String.join(",", whiteListContextsSet));
 
-    String[] authenticationTypes = (String[]) exportedProps.get(AUTHENTICATION_TYPES);
+      String[] authenticationTypes = (String[]) entry.getProperty(AUTHENTICATION_TYPES);
 
-    for (int i = 0; i < authenticationTypes.length; i++) {
-      String val = authenticationTypes[i];
-      String[] parts = val.split("=");
+      for (int i = 0; i < authenticationTypes.length; i++) {
+        String val = authenticationTypes[i];
+        String[] parts = val.split("=");
 
-      if (parts.length == 2) {
-        String[] auths = parts[1].split("\\|");
-        List<String> list =
-            Arrays.stream(auths)
-                .filter(a -> !StringUtils.containsIgnoreCase(a, "guest"))
-                .map(a -> a.replaceAll("(?i)idp", "SAML"))
-                .collect(Collectors.toList());
-        authenticationTypes[i] = String.format("%s=%s", parts[0], String.join("|", list));
+        if (parts.length == 2) {
+          String[] auths = parts[1].split("\\|");
+          List<String> list =
+              Arrays.stream(auths)
+                  .filter(a -> !StringUtils.containsIgnoreCase(a, "guest"))
+                  .map(a -> a.replaceAll("(?i)idp", "SAML"))
+                  .collect(Collectors.toList());
+          authenticationTypes[i] = String.format("%s=%s", parts[0], String.join("|", list));
+        }
+      }
+
+      entry.setProperty(AUTHENTICATION_TYPES, String.join(",", authenticationTypes));
+
+      if (entry.getProperty(GUEST_ACCESS) == null && defaults.get(GUEST_ACCESS) != null) {
+        entry.setProperty(GUEST_ACCESS, defaults.get(GUEST_ACCESS));
+      }
+      if (entry.getProperty(SESSION_ACCESS) == null && defaults.get(SESSION_ACCESS) != null) {
+        entry.setProperty(SESSION_ACCESS, defaults.get(SESSION_ACCESS));
       }
     }
-
-    exportedProps.put(AUTHENTICATION_TYPES, String.join(",", authenticationTypes));
-
-    if (exportedProps.get(GUEST_ACCESS) == null && defaults.get(GUEST_ACCESS) != null) {
-      exportedProps.put(GUEST_ACCESS, defaults.get(GUEST_ACCESS));
-    }
-    if (exportedProps.get(SESSION_ACCESS) == null && defaults.get(SESSION_ACCESS) != null) {
-      exportedProps.put(SESSION_ACCESS, defaults.get(SESSION_ACCESS));
-    }
-
-    entry.setProperties(exportedProps);
     return entry;
   }
 
@@ -288,7 +340,7 @@ public class ConfigurationAdminMigratable implements Migratable {
             .filter(service -> service.getId() != null && service.getId().equals(pid))
             .findFirst();
 
-    List<MetatypeAttribute> metatypes = new ArrayList<>();
+    List<MetatypeAttribute> metatypes;
     if (defaultMetatypeValues.isPresent()) {
       metatypes = defaultMetatypeValues.get().getAttributeDefinitions();
     } else {
