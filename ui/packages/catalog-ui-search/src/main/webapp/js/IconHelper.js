@@ -20,9 +20,11 @@ const _map = Object.keys(properties.iconConfig).reduce(
     const iconProp = properties.iconConfig[iconConfigKey]
     totalIconMap[iconConfigKey] = {
       class: iconProp.className,
-      code: iconProp.code,
-      size: iconProp.size,
-      font: iconProp.font,
+      style: {
+        code: iconProp.code,
+        font: iconProp.font,
+        size: iconProp.size,
+      },
     }
     return totalIconMap
   },
