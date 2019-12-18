@@ -29,7 +29,6 @@ import java.security.cert.X509Certificate;
 import java.util.UUID;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.wss4j.common.WSS4JConstants;
 import org.apache.wss4j.common.crypto.CryptoType;
@@ -151,7 +150,7 @@ public class SamlAssertionValidatorImplTest {
   public void testValidateBearerAssertion() throws Exception {
     Assertion assertion = createAssertion(true, true, ISSUER, new DateTime().plusDays(3));
 
-    SecurityToken securityToken =
+    Element securityToken =
         SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(samlObjectToString(assertion));
     SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
     simplePrincipalCollection.add(new SecurityAssertionSaml(securityToken), "default");
@@ -169,7 +168,7 @@ public class SamlAssertionValidatorImplTest {
   public void testValidateWithHolderOfKeyAssertion() throws Exception {
     Assertion assertion = createHolderOfKeyAssertion();
 
-    SecurityToken securityToken =
+    Element securityToken =
         SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(samlObjectToString(assertion));
     SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
     simplePrincipalCollection.add(new SecurityAssertionSaml(securityToken), "default");
@@ -187,7 +186,7 @@ public class SamlAssertionValidatorImplTest {
   public void testValidateUnsignedAssertion() throws Exception {
     Assertion assertion = createAssertion(false, true, ISSUER, new DateTime().plusDays(3));
 
-    SecurityToken securityToken =
+    Element securityToken =
         SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(samlObjectToString(assertion));
     SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
     simplePrincipalCollection.add(new SecurityAssertionSaml(securityToken), "default");
@@ -203,7 +202,7 @@ public class SamlAssertionValidatorImplTest {
     org.opensaml.saml.saml1.core.Assertion assertion =
         new org.opensaml.saml.saml1.core.impl.AssertionBuilder().buildObject();
 
-    SecurityToken securityToken =
+    Element securityToken =
         SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(samlObjectToString(assertion));
     SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
     simplePrincipalCollection.add(new SecurityAssertionSaml(securityToken), "default");
@@ -218,7 +217,7 @@ public class SamlAssertionValidatorImplTest {
   public void testValidateExpiredAssertion() throws Exception {
     Assertion assertion = createAssertion(false, true, ISSUER, new DateTime().minusSeconds(10));
 
-    SecurityToken securityToken =
+    Element securityToken =
         SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(samlObjectToString(assertion));
     SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
     simplePrincipalCollection.add(new SecurityAssertionSaml(securityToken), "default");
@@ -233,7 +232,7 @@ public class SamlAssertionValidatorImplTest {
   public void testValidateInvalidIssuer() throws Exception {
     Assertion assertion = createAssertion(false, true, "WRONG", new DateTime().minusSeconds(10));
 
-    SecurityToken securityToken =
+    Element securityToken =
         SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(samlObjectToString(assertion));
     SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
     simplePrincipalCollection.add(new SecurityAssertionSaml(securityToken), "default");
@@ -248,7 +247,7 @@ public class SamlAssertionValidatorImplTest {
   public void testValidateInvalidSignature() throws Exception {
     Assertion assertion = createAssertion(false, false, "WRONG", new DateTime().minusSeconds(10));
 
-    SecurityToken securityToken =
+    Element securityToken =
         SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(samlObjectToString(assertion));
     SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
     simplePrincipalCollection.add(new SecurityAssertionSaml(securityToken), "default");

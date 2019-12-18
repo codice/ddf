@@ -104,7 +104,7 @@ public final class SecurityAssertionStore {
           tokenStore.add(token);
         }
 
-        return new SecurityAssertionSaml(token);
+        return new SecurityAssertionSaml(samlAssertionWrapper.getElement());
       } else if (principal instanceof SecurityAssertionPrincipal) {
         return ((SecurityAssertionPrincipal) principal).getAssertion();
       }

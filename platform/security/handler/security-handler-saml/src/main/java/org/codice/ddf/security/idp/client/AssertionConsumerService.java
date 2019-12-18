@@ -58,7 +58,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.staxutils.StaxUtils;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.wss4j.common.crypto.Crypto;
 import org.apache.wss4j.common.crypto.CryptoType;
@@ -366,10 +365,9 @@ public class AssertionConsumerService {
     }
 
     HandlerResult handlerResult = new HandlerResult();
-    SecurityToken securityToken = new SecurityToken();
-    securityToken.setToken(samlResponse.getAssertions().get(0).getDOM());
     SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
-    simplePrincipalCollection.add(new SecurityAssertionSaml(securityToken), "default");
+    simplePrincipalCollection.add(
+        new SecurityAssertionSaml(samlResponse.getAssertions().get(0).getDOM()), "default");
     SAMLAuthenticationToken samlToken =
         new SAMLAuthenticationToken(null, simplePrincipalCollection, request.getRemoteAddr());
     handlerResult.setToken(samlToken);

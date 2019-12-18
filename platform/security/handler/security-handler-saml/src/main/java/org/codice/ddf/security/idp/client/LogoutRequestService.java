@@ -64,7 +64,6 @@ import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -180,7 +179,7 @@ public class LogoutRequestService {
           return buildLogoutResponse(msg);
         }
 
-        SecurityToken idpSecToken = getIdpSecurityToken();
+        Element idpSecToken = getIdpSecurityToken();
         if (idpSecToken == null) {
           LOGGER.info("Unable to logout. Please try again.");
           return buildLogoutResponse("Unable to logout. Please try again.");
@@ -518,14 +517,14 @@ public class LogoutRequestService {
     return SystemBaseUrl.EXTERNAL.constructUrl("/saml", true);
   }
 
-  private SecurityToken getIdpSecurityToken() {
+  private Element getIdpSecurityToken() {
     return getTokenHolder()
         .getPrincipals()
         .byType(SecurityAssertion.class)
         .stream()
         .map(SecurityAssertion::getToken)
-        .filter(SecurityToken.class::isInstance)
-        .map(SecurityToken.class::cast)
+        .filter(Element.class::isInstance)
+        .map(Element.class::cast)
         .findFirst()
         .orElse(null);
   }
@@ -536,7 +535,7 @@ public class LogoutRequestService {
   }
 
   private void logSecurityAuditRole() {
-    SecurityToken idpSecToken = getIdpSecurityToken();
+    Element idpSecToken = getIdpSecurityToken();
     if (idpSecToken != null) {
       if (shouldAuditSubject(idpSecToken)) {
         SecurityLogger.audit(
@@ -546,7 +545,7 @@ public class LogoutRequestService {
     }
   }
 
-  private boolean shouldAuditSubject(SecurityToken idpSecToken) {
+  private boolean shouldAuditSubject(Element idpSecToken) {
     return Arrays.stream(System.getProperty(SECURITY_AUDIT_ROLES).split(","))
         .anyMatch(
             role ->

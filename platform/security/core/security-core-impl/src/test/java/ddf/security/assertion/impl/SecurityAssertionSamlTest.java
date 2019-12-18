@@ -35,7 +35,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -97,10 +96,9 @@ public class SecurityAssertionSamlTest {
   public void testSampleAssertion() throws Exception {
     Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
     String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();
-    SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
-    SecurityAssertionSaml assertion = new SecurityAssertionSaml(token);
+    SecurityAssertionSaml assertion = new SecurityAssertionSaml(issuedAssertion);
     assertNotNull(assertion.getToken());
-    assertEquals(token, assertion.getToken());
+    assertEquals(issuedAssertion, assertion.getToken());
     assertEquals(ISSUER, assertion.getIssuer());
     assertEquals(PRINCIPAL, assertion.getPrincipal().getName());
     assertEquals(PRINCIPAL, assertion.getPrincipal().toString());
@@ -225,9 +223,7 @@ public class SecurityAssertionSamlTest {
   }
 
   private SecurityAssertionSaml getSecurityAssertion(Element issuedAssertion) {
-    String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();
-    SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
-    return new SecurityAssertionSaml(token);
+    return new SecurityAssertionSaml(issuedAssertion);
   }
 
   private String getNowWithOffset(int offset) {

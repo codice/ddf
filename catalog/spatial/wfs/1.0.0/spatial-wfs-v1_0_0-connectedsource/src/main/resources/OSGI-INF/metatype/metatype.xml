@@ -28,9 +28,9 @@
             name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>
 
-        <AD name="Authentication Type" id="authenticationType" type="String" default="saml"
-            description="The authentication type to use when federating.">
-            <Option label="SAML" value="saml"/>
+        <AD name="Authentication Type" id="authenticationType" type="String" default="none"
+            description="The authentication type to use when federating. None/Dynamic will still attempt PKI and/or SAML ECP authentication if available.">
+            <Option label="None/Dynamic" value="none"/>
             <Option label="Basic" value="basic"/>
         </AD>
         <AD description="Username for WFS Service. Required if basic authentication type is selected." name="Username" id="username"

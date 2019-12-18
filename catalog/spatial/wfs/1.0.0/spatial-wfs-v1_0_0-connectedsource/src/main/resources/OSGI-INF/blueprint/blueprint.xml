@@ -45,7 +45,7 @@
             <property name="filterAdapter" ref="filterAdapter"/>
             <property name="wfsUrl" value="http://demo.mapserver.org/cgi-bin/wfs"/>
             <property name="id" value=""/>
-            <property name="authenticationType" value="saml"/>
+            <property name="authenticationType" value="none"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="disableCnCheck" value="false"/>

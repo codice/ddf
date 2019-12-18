@@ -18,7 +18,6 @@ import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -33,6 +32,7 @@ import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.saml.assertion.validator.SamlAssertionValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
 
 public class SamlRealm extends AuthenticatingRealm {
   private static final Logger LOGGER = (LoggerFactory.getLogger(SamlRealm.class));
@@ -89,7 +89,7 @@ public class SamlRealm extends AuthenticatingRealm {
 
     LOGGER.debug("Creating token authentication information with SAML.");
     SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo();
-    SecurityToken securityToken = checkForSecurityToken(credential);
+    Element securityToken = checkForSecurityToken(credential);
     SimplePrincipalCollection principals = createPrincipalFromToken(securityToken);
     simpleAuthenticationInfo.setPrincipals(principals);
     simpleAuthenticationInfo.setCredentials(credential);
@@ -97,17 +97,17 @@ public class SamlRealm extends AuthenticatingRealm {
     return simpleAuthenticationInfo;
   }
 
-  private SecurityToken checkForSecurityToken(final Object credential) {
+  private Element checkForSecurityToken(final Object credential) {
     if (credential instanceof PrincipalCollection) {
       Optional<SecurityAssertionSaml> assertionSamlOptional =
           ((PrincipalCollection) credential)
               .byType(SecurityAssertionSaml.class)
               .stream()
-              .filter(sa -> sa.getToken() instanceof SecurityToken)
+              .filter(sa -> sa.getToken() instanceof Element)
               .findFirst();
       if (assertionSamlOptional.isPresent()) {
         SecurityAssertionSaml assertion = assertionSamlOptional.get();
-        return (SecurityToken) assertion.getToken();
+        return (Element) assertion.getToken();
       }
     }
 
@@ -120,7 +120,7 @@ public class SamlRealm extends AuthenticatingRealm {
    * @param token SecurityToken that contains the principals.
    * @return new SimplePrincipalCollection
    */
-  private SimplePrincipalCollection createPrincipalFromToken(SecurityToken token) {
+  private SimplePrincipalCollection createPrincipalFromToken(Element token) {
     SimplePrincipalCollection principals = new SimplePrincipalCollection();
     SecurityAssertion securityAssertion = null;
     try {

@@ -69,7 +69,7 @@
             <property name="filterAdapter" ref="filterAdapter"/>
             <property name="cswUrl" value=""/>
             <property name="id" value=""/>
-            <property name="authenticationType" value="saml"/>
+            <property name="authenticationType" value="none"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
@@ -120,7 +120,7 @@
             <!-- These are the only configurable properties -->
             <property name="cswUrl" value=""/>
             <property name="id" value=""/>
-            <property name="authenticationType" value="saml"/>
+            <property name="authenticationType" value="none"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
@@ -178,7 +178,7 @@
             <property name="filterAdapter" ref="filterAdapter"/>
             <property name="cswUrl" value=""/>
             <property name="id" value=""/>
-            <property name="authenticationType" value="saml"/>
+            <property name="authenticationType" value="none"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
@@ -231,7 +231,7 @@
             <property name="filterAdapter" ref="filterAdapter"/>
             <property name="cswUrl" value=""/>
             <property name="id" value=""/>
-            <property name="authenticationType" value="saml"/>
+            <property name="authenticationType" value="none"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>

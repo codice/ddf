@@ -34,7 +34,6 @@ import java.util.UUID;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.wss4j.common.crypto.Crypto;
 import org.apache.wss4j.common.crypto.CryptoFactory;
@@ -134,7 +133,7 @@ public class SamlAssertionValidatorImpl implements SamlAssertionValidator {
             "Unable to validate SAML token. Token is not SAML.");
       }
       SamlAssertionWrapper assertion =
-          new SamlAssertionWrapper(((SecurityToken) securityAssertion.getToken()).getToken());
+          new SamlAssertionWrapper((Element) securityAssertion.getToken());
 
       // get the crypto junk
       Crypto crypto = getSignatureCrypto();

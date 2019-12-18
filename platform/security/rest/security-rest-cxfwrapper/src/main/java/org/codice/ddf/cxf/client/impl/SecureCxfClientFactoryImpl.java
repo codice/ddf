@@ -79,7 +79,6 @@ import org.codice.ddf.cxf.oauth.OAuthOutInterceptor;
 import org.codice.ddf.cxf.oauth.OAuthSecurity;
 import org.codice.ddf.cxf.paos.PaosInInterceptor;
 import org.codice.ddf.cxf.paos.PaosOutInterceptor;
-import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.slf4j.Logger;
@@ -607,11 +606,6 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
                   oauthSecurity.setUserTokenOnClient(
                       WebClient.client(newClient), (ddf.security.Subject) subject, sourceId);
                 }
-              } else if (!basicAuth
-                  && StringUtils.startsWithIgnoreCase(asciiString, HTTPS)
-                  && subject instanceof ddf.security.Subject) {
-                RestSecurity.setSubjectOnClient(
-                    (ddf.security.Subject) subject, WebClient.client(newClient));
               }
 
               auditRemoteConnection(asciiString);
@@ -648,11 +642,6 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
                   && oauthSecurity != null) {
                 oauthSecurity.setSystemTokenOnClient(
                     WebClient.client(newClient), clientId, clientSecret, discoveryUrl);
-              } else if (!basicAuth
-                  && StringUtils.startsWithIgnoreCase(asciiString, HTTPS)
-                  && subject instanceof ddf.security.Subject) {
-                RestSecurity.setSubjectOnClient(
-                    (ddf.security.Subject) subject, WebClient.client(newClient));
               }
 
               auditRemoteConnection(asciiString);
