@@ -13,16 +13,19 @@
  */
 package org.codice.ddf.catalog.ui.metacard.history;
 
+import ddf.catalog.data.Metacard;
 import java.time.Instant;
 import java.util.Date;
 
 public class HistoryResponse {
   private Instant versioned;
 
-  private String resourceId, versionId, editedBy, title, created, cql;
+  private Metacard historyMetacard;
 
-  public HistoryResponse(String historyId, String editedBy, Instant versioned) {
-    this.versionId = historyId;
+  private String versionId, editedBy;
+
+  public HistoryResponse(String versionId, String editedBy, Instant versioned) {
+    this.versionId = versionId;
     this.editedBy = editedBy;
     this.versioned = versioned;
   }
@@ -31,21 +34,8 @@ public class HistoryResponse {
     this(historyId, editedBy, versioned.toInstant());
   }
 
-  public HistoryResponse(
-      String id,
-      String historyId,
-      String title,
-      String created,
-      String cql,
-      String editedBy,
-      Date versioned) {
-    this.versionId = historyId;
-    this.editedBy = editedBy;
-    this.versioned = versioned.toInstant();
-    this.resourceId = id;
-    this.title = title;
-    this.created = created;
-    this.cql = cql;
+  public HistoryResponse(Metacard metacard) {
+    historyMetacard = metacard;
   }
 
   public Instant getVersioned() {
@@ -72,35 +62,11 @@ public class HistoryResponse {
     this.editedBy = editedBy;
   }
 
-  public String getResourceId() {
-    return resourceId;
+  public Metacard getHistoryMetacard() {
+    return historyMetacard;
   }
 
-  public void setResourceId(String id) {
-    this.resourceId = id;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public String getCreated() {
-    return created;
-  }
-
-  public void setCreated(String created) {
-    this.created = created;
-  }
-
-  public String getCql() {
-    return cql;
-  }
-
-  public void setCql(String cql) {
-    this.cql = cql;
+  public void setHistoryMetacard(Metacard metacard) {
+    historyMetacard = metacard;
   }
 }

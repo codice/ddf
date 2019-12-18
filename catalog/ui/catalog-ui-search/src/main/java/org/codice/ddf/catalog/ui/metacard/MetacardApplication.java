@@ -363,22 +363,36 @@ public class MetacardApplication implements SparkApplication {
             res.status(204);
             return "[]";
           }
-
           List<HistoryResponse> response =
               queryResponse
                   .stream()
                   .map(Result::getMetacard)
                   .map(
-                      mcHistory ->
+                      mc ->
                           new HistoryResponse(
-                              id,
-                              mcHistory.getId(),
-                              mcHistory.getTitle(),
-                              mcHistory.getCreatedDate().toString(),
-                              mcHistory.getAttribute("cql").getValue().toString(),
-                              (String) mcHistory.getAttribute(MetacardVersion.EDITED_BY).getValue(),
-                              (Date)
-                                  mcHistory.getAttribute(MetacardVersion.VERSIONED_ON).getValue()))
+                              mc.getId(),
+                              (String) mc.getAttribute(MetacardVersion.EDITED_BY).getValue(),
+                              (Date) mc.getAttribute(MetacardVersion.VERSIONED_ON).getValue()))
+                  .sorted(Comparator.comparing(HistoryResponse::getVersioned))
+                  .collect(Collectors.toList());
+          return util.getJson(response);
+        });
+
+    get(
+        "/history/search/:id",
+        (req, res) -> {
+          String id = req.params(":id");
+          List<Result> queryResponse = getMetacardHistory(id);
+          if (queryResponse.isEmpty()) {
+            res.status(204);
+            return "[]";
+          }
+
+          List<HistoryResponse> response =
+              queryResponse
+                  .stream()
+                  .map(Result::getMetacard)
+                  .map(mcHistory -> new HistoryResponse(mcHistory))
                   .collect(Collectors.toList());
           return util.getJson(response);
         });
