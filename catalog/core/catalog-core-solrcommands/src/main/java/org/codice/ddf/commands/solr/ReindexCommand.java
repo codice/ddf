@@ -95,7 +95,7 @@ public class ReindexCommand extends SolrCommands {
     name = "-s",
     aliases = {"--solr"},
     description =
-        "The source Solr system to retrieve data. Should be in the form of http://host:port.",
+        "The source Solr system (local or cloud) to retrieve data. Should be in the form of 'http://host:port' of any cloud node.",
     required = true
   )
   private String solrHost;
@@ -112,7 +112,7 @@ public class ReindexCommand extends SolrCommands {
     name = "-f",
     aliases = {"--field"},
     description =
-        "Field used for date comparisons. Default (Date of indexing): metacard.created_tdt",
+        "Field used for date comparisons. Range restricts by --after and --before parameters. Default (Date of indexing): metacard.modified_tdt",
     required = false
   )
   private String field = "metacard.modified_tdt";
@@ -121,7 +121,7 @@ public class ReindexCommand extends SolrCommands {
     name = "-a",
     aliases = {"--after"},
     description =
-        "After date used to restrict data to be migrated. Should be in the format: 2019-01-01T00:00:00Z.",
+        "Optional after date used to restrict data to be migrated. Default of 1900-01-01T00:00:00.000Z. Should be in the format: 2019-01-01T00:00:00Z.",
     required = false
   )
   private String afterDate;
@@ -130,7 +130,7 @@ public class ReindexCommand extends SolrCommands {
     name = "-b",
     aliases = {"--before"},
     description =
-        "Before date used to restrict data to be migrated. Should be in the format: 2019-01-01T00:00:00Z.",
+        "Optional before date used to restrict data to be migrated. Default of NOW. Should be in the format: 2019-01-01T00:00:00Z.",
     required = false
   )
   private String beforeDate;
@@ -164,6 +164,8 @@ public class ReindexCommand extends SolrCommands {
     }
 
     if (solrjClient == null) {
+      // getting either a local or cloud client dependence on how custom.system.properties is
+      // configured.
       solrjClient = clientFactory.newClient(collection);
     }
 
@@ -364,7 +366,7 @@ public class ReindexCommand extends SolrCommands {
       query = new SolrQuery("*:*");
     }
 
-    SortClause sort = new SortClause("metacard.created_tdt", ORDER.desc);
+    SortClause sort = new SortClause("metacard.modified_tdt", ORDER.desc);
     query.setSort(sort);
     /**
      * Primary sort of dates might not guarantee the sort order, as many record could have the same
