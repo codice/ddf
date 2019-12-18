@@ -679,10 +679,8 @@ module.exports = function CesiumMap(
         translucencyByDistance: translucencyZoom,
         fillColor: Cesium.Color.BLACK,
         outlineColor: Cesium.Color.WHITE,
-        outlineWidth: 2,
+        outlineWidth: 10,
         style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-        showBackground: true,
-        backgroundColor: Cesium.Color.WHITE,
       })
       mapModel.addLabel(labelRef)
 
