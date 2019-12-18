@@ -13,112 +13,20 @@
  *
  **/
 const _get = require('lodash/get')
-const _map = {
-  default: {
-    class: 'fa fa-file',
-    style: {
-      code: 'f15b',
-      font: 'FontAwesome',
-      size: '12px',
-    },
-  },
-  interactive: {
-    class: 'fa fa-gamepad',
-    style: {
-      code: 'f11b',
-      font: 'FontAwesome',
-      size: '12px',
-    },
-  },
-  dataset: {
-    class: 'fa fa-database',
-    style: {
-      code: 'f1c0',
-      font: 'FontAwesome',
-      size: '12px',
-    },
-  },
-  video: {
-    class: 'fa fa-video-camera',
-    style: {
-      code: 'f03d',
-      font: 'FontAwesome',
-      size: '12px',
-    },
-  },
-  collection: {
-    class: 'fa fa-folder-open',
-    style: {
-      code: 'f07c',
-      font: 'FontAwesome',
-      size: '12px',
-    },
-  },
-  event: {
-    class: 'fa fa-bolt',
-    style: {
-      code: 'f0e7',
-      font: 'FontAwesome',
-      size: '12px',
-    },
-  },
-  service: {
-    class: 'fa fa-globe',
-    style: {
-      code: 'f0ac',
-      font: 'FontAwesome',
-      size: '12px',
-    },
-  },
-  software: {
-    class: 'fa fa-terminal',
-    style: {
-      code: 'f120',
-      font: 'FontAwesome',
-      size: '12px',
-    },
-  },
-  sound: {
-    class: 'fa fa-music',
-    style: {
-      code: 'f001',
-      font: 'FontAwesome',
-      size: '12px',
-    },
-  },
-  text: {
-    class: 'fa fa-file-text',
-    style: {
-      code: 'f15c',
-      font: 'FontAwesome',
-      size: '12px',
-    },
-  },
-  document: {
-    class: 'fa fa-file',
-    style: {
-      code: 'f15b',
-      font: 'FontAwesome',
-      size: '12px',
-    },
-  },
-  image: {
-    class: 'fa fa-camera',
-    style: {
-      code: 'f030',
-      font: 'FontAwesome',
-      size: '12px',
-    },
-  },
-  track: {
-    class: 'fa fa-thumb-tack',
-    style: {
-      code: 'f08d',
-      font: 'FontAwesome',
-      size: '15px',
-    },
-  },
-}
+const properties = require('../js/properties')
+
+const _map = Object.keys(properties.iconConfig).reduce(
+  (totalIconMap, iconConfigKey) => {
+    const iconProp = properties.iconConfig[iconConfigKey]
+    totalIconMap[iconConfigKey] = {
+      class: iconProp.className,
+      code: iconProp.code,
+      size: iconProp.size,
+      font: iconProp.font,
+    }
+    return totalIconMap
+  }
+, {})
 
 /* Maps top-level mime type category names to the closest icon. */
 const _mimeMap = {

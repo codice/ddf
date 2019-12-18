@@ -82,6 +82,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private String format;
 
+  private Map<String, Map<String, String>> iconConfig = new HashMap<>();
+
   private List imageryProviders = new ArrayList<>();
 
   private List defaultLayout = new ArrayList<>();
@@ -547,6 +549,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("isExperimental", experimentalEnabled);
     config.put("autoMergeTime", autoMergeTime);
     config.put("webSocketsEnabled", webSocketsEnabled);
+    config.put("iconConfig", iconConfig);
     config.put("mapHome", mapHome);
     config.put("product", uiName);
     config.put("showRelevanceScores", relevanceScoresEnabled);
@@ -824,6 +827,24 @@ public class ConfigurationApplication implements SparkApplication {
     }
 
     return config;
+  }
+
+  public void setIconConfig(List<String> icons) {
+    Map<String, Map<String, String>> iconMap = new HashMap<>();
+
+    icons.forEach(
+        icon -> {
+          String key = icon.split("=")[0];
+          String[] config = icon.split("=")[1].split(",");
+          Map<String, String> tempMap = new HashMap<>();
+          tempMap.put("className", config[0]);
+          tempMap.put("code", config[1]);
+          tempMap.put("font", config[2]);
+          tempMap.put("size", config[3]);
+          iconMap.put(key, tempMap);
+        });
+
+    this.iconConfig = iconMap;
   }
 
   private Map<String, String> parseAttributeAndValuePairs(List<String> pairs) {
