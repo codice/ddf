@@ -674,7 +674,7 @@ module.exports = function CesiumMap(
         position: cartesianPosition,
         id: options.id,
         pixelOffset: offset,
-        scale: 0.5,
+        scale: 1.0,
         scaleByDistance: scaleZoom,
         translucencyByDistance: translucencyZoom,
         fillColor: Cesium.Color.BLACK,
@@ -906,7 +906,7 @@ module.exports = function CesiumMap(
          Updates a passed in geometry to be hidden
          */
     hideGeometry(geometry) {
-      if (geometry.constructor === Cesium.Billboard) {
+      if (geometry.constructor === Cesium.Billboard || geometry.constructor === Cesium.Label) {
         geometry.show = false
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
@@ -918,7 +918,7 @@ module.exports = function CesiumMap(
          Updates a passed in geometry to be shown
          */
     showGeometry(geometry) {
-      if (geometry.constructor === Cesium.Billboard) {
+      if (geometry.constructor === Cesium.Billboard || geometry.constructor === Cesium.Label) {
         geometry.show = true
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
@@ -929,6 +929,7 @@ module.exports = function CesiumMap(
     },
     removeGeometry(geometry) {
       billboardCollection.remove(geometry)
+      labelCollection.remove(geometry)
       map.scene.primitives.remove(geometry)
       //unminified cesium chokes if you feed a geometry with id as an Array
       if (geometry.constructor === Cesium.Entity) {
