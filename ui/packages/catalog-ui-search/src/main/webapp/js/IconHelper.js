@@ -25,8 +25,9 @@ const _map = Object.keys(properties.iconConfig).reduce(
       font: iconProp.font,
     }
     return totalIconMap
-  }
-, {})
+  },
+  {}
+)
 
 /* Maps top-level mime type category names to the closest icon. */
 const _mimeMap = {
