@@ -143,7 +143,6 @@ public class UtmUpsCoordinateProcessor {
    *     {@code utmUps}
    */
   private List<LiteralSuggestion> suggestionsForSinglePoint(String utmUpsCoord) {
-    //    if (!hasNSIndicator(utmUpsCoord)) {
     final Character latBand = getLatBand(utmUpsCoord);
     if (latBand == null) {
       // A coordinate without an NS indicator and a lat band is invalid so show two suggestions,
