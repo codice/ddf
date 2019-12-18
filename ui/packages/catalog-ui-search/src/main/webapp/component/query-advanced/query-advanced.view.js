@@ -22,6 +22,7 @@ const cql = require('../../js/cql.js')
 const store = require('../../js/store.js')
 const QuerySettingsView = require('../query-settings/query-settings.view.js')
 const properties = require('../../js/properties.js')
+const _ = require('lodash')
 import { getFilterErrors } from '../../react-component/utils/validation'
 
 import query from '../../react-component/utils/query'
@@ -38,10 +39,8 @@ const fetchSuggestions = memoize(async attr => {
   if (suggestions === undefined) {
     return []
   }
-
-  suggestions.sort((a, b) => b.count - a.count)
-
-  return suggestions.map(({ value }) => value)
+  const sortedSuggestions = _.sortBy(suggestions, ['value'])
+  return sortedSuggestions.map(({ value }) => value)
 })
 
 const isValidFacetAttribute = (id, type) => {
