@@ -13,14 +13,16 @@
  */
 package org.codice.ddf.catalog.ui.metacard.history;
 
-import ddf.catalog.data.Metacard;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class HistoryResponse {
   private Instant versioned;
 
-  private Metacard historyMetacard;
+  private Map<String, List<Serializable>> historyMetacardAttributes;
 
   private String versionId, editedBy;
 
@@ -30,12 +32,19 @@ public class HistoryResponse {
     this.versioned = versioned;
   }
 
-  public HistoryResponse(String historyId, String editedBy, Date versioned) {
-    this(historyId, editedBy, versioned.toInstant());
+  public HistoryResponse(
+      String versionId,
+      String editedBy,
+      Date versioned,
+      Map<String, List<Serializable>> historyMetacardAttributes) {
+    this.versionId = versionId;
+    this.editedBy = editedBy;
+    this.versioned = versioned.toInstant();
+    this.historyMetacardAttributes = historyMetacardAttributes;
   }
 
-  public HistoryResponse(Metacard metacard) {
-    historyMetacard = metacard;
+  public HistoryResponse(String historyId, String editedBy, Date versioned) {
+    this(historyId, editedBy, versioned.toInstant());
   }
 
   public Instant getVersioned() {
@@ -62,11 +71,11 @@ public class HistoryResponse {
     this.editedBy = editedBy;
   }
 
-  public Metacard getHistoryMetacard() {
-    return historyMetacard;
+  public Map<String, List<Serializable>> getHistoryMetacard() {
+    return historyMetacardAttributes;
   }
 
-  public void setHistoryMetacard(Metacard metacard) {
-    historyMetacard = metacard;
+  public void setHistoryMetacard(Map<String, List<Serializable>> historyMetacardAttributes) {
+    this.historyMetacardAttributes = historyMetacardAttributes;
   }
 }
