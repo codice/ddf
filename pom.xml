@@ -269,7 +269,7 @@
         <asciidoctor.source.highlighter>coderay</asciidoctor.source.highlighter>
         <jbake.maven.plugin.version>0.0.9</jbake.maven.plugin.version>
         <jruby.version>9.0.4.0</jruby.version>
-        <dependency-check-maven.version>3.1.1</dependency-check-maven.version>
+        <dependency-check-maven.version>5.2.2</dependency-check-maven.version>
         <maven-war-plugin.version>2.2</maven-war-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
@@ -290,7 +290,6 @@
         <spark.version>2.5.5</spark.version>
         <sardine.version>5.7</sardine.version>
         <xerces.version>2.11.0</xerces.version>
-        <dependency-check-maven.version>3.1.1</dependency-check-maven.version>
         <jsr305.version>3.0.2_1</jsr305.version>
 
         <!-- gitflow-incremental-builder -->
@@ -410,17 +409,16 @@ are essentially embedding a slightly modified version of felix -->
                     <version>${dependency-check-maven.version}</version>
                     <configuration>
                         <!-- The following properties enable using a mirror for nist NVD data -->
-                        <cveUrl12Modified>${owasp.cveUrl12Modified}</cveUrl12Modified>
-                        <cveUrl20Modified>${owasp.cveUrl20Modified}</cveUrl20Modified>
-                        <cveUrl12Base>${owasp.cveUrl12Base}</cveUrl12Base>
-                        <cveUrl20Base>${owasp.cveUrl20Base}</cveUrl20Base>
+                        <cveUrlModified>${owasp.cveUrlModified}</cveUrlModified>
+                        <cveUrlBase>${owasp.cveUrlBase}</cveUrlBase>
                         <!-- End NVD mirror configuration -->
-                        <failBuildOnCVSS>7</failBuildOnCVSS>
+                        <!-- Commented out as we make a process for handling these -->
+                        <!--<failBuildOnCVSS>7</failBuildOnCVSS>-->
+                        <!-- occasionally seeing a "Failed to request component-reports" error -->
+                        <failOnError>false</failOnError>
                         <skipTestScope>true</skipTestScope>
                         <!--Disable by plugin maintainer recommendation on https://github.com/jeremylong/DependencyCheck/issues/978#issuecomment-349620687-->
                         <centralAnalyzerEnabled>false</centralAnalyzerEnabled>
-                        <!--Disable because we have a separate NSP analysis step and this plugin has no way to suppress NSP issues as of 3.0.2-->
-                        <nspAnalyzerEnabled>false</nspAnalyzerEnabled>
                         <!--Disable .NET analyzers-->
                         <nuspecAnalyzerEnabled>false</nuspecAnalyzerEnabled>
                         <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
@@ -439,6 +437,12 @@ are essentially embedding a slightly modified version of felix -->
                                 ${highest-basedir}/dependency-check-maven-config.xml
                             </suppressionFile>
                         </suppressionFiles>
+                        <!-- This prevents a build failure on jdk tools jar -->
+                        <skipSystemScope>true</skipSystemScope>
+                        <formats>
+                            <format>HTML</format>
+                            <format>JUNIT</format>
+                        </formats>
                     </configuration>
                     <executions>
                         <execution>
