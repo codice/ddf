@@ -301,8 +301,8 @@ Implementation details
         <argument ref="endpointUtil"/>
     </bean>
 
-    <bean id="cqlValidateHandler"
-      class="org.codice.ddf.catalog.ui.query.validate.CqlValidateHandler">
+    <bean id="cqlValidationHandler"
+      class="org.codice.ddf.catalog.ui.query.validate.CqlValidationHandler">
         <argument ref="queryValidatorsById"/>
         <argument ref="cqlRequestParser"/>
     </bean>
@@ -327,7 +327,7 @@ Implementation details
         <property name="featureService" ref="featureService"/>
         <property name="endpointUtil" ref="endpointUtil"/>
         <argument ref="cqlTransformHandler"/>
-        <argument ref="cqlValidateHandler"/>
+        <argument ref="cqlValidationHandler"/>
         <argument ref="latLonProcessor"/>
         <argument ref="dmsProcessor"/>
         <argument ref="mgrsProcessor"/>

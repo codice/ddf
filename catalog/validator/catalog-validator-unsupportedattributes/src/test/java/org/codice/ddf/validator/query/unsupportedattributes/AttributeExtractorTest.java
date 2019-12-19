@@ -29,16 +29,14 @@ import org.opengis.filter.Filter;
 
 public class AttributeExtractorTest {
 
-  private AttributeExtractor attributeExtractor;
-
   private FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
 
   private FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
+  private AttributeExtractor attributeExtractor = new AttributeExtractor(filterAdapter);
+
   @Test
   public void testExtractAttributesComparisonFilter() throws UnsupportedQueryException {
-    attributeExtractor = new AttributeExtractor(filterAdapter);
-
     Filter filter = filterBuilder.attribute("attr").is().text("text");
     Set<String> attributes = attributeExtractor.extractAttributes(filter);
 
@@ -47,8 +45,6 @@ public class AttributeExtractorTest {
 
   @Test
   public void testExtractAttributesTemporalFilter() throws UnsupportedQueryException {
-    attributeExtractor = new AttributeExtractor(filterAdapter);
-
     Filter filter = filterBuilder.attribute("attr").before().date(new Date(1562112000L));
     Set<String> attributes = attributeExtractor.extractAttributes(filter);
 
@@ -57,8 +53,6 @@ public class AttributeExtractorTest {
 
   @Test
   public void testExtractAttributesSpatialFilter() throws UnsupportedQueryException {
-    attributeExtractor = new AttributeExtractor(filterAdapter);
-
     Filter filter =
         filterBuilder.attribute("attr").within().wkt("POLYGON((51 11,42 0,41 10,51 11))");
     Set<String> attributes = attributeExtractor.extractAttributes(filter);
@@ -68,8 +62,6 @@ public class AttributeExtractorTest {
 
   @Test
   public void testExtractAttributesAndFilter() throws UnsupportedQueryException {
-    attributeExtractor = new AttributeExtractor(filterAdapter);
-
     Filter filter =
         filterBuilder.allOf(
             filterBuilder.attribute("attr-1").is().text("text-1"),
@@ -81,8 +73,6 @@ public class AttributeExtractorTest {
 
   @Test
   public void testExtractAttributesOrFilter() throws UnsupportedQueryException {
-    attributeExtractor = new AttributeExtractor(filterAdapter);
-
     Filter filter =
         filterBuilder.anyOf(
             filterBuilder.attribute("attr-1").is().text("text-1"),
@@ -94,8 +84,6 @@ public class AttributeExtractorTest {
 
   @Test
   public void testExtractAttributesNotFilter() throws UnsupportedQueryException {
-    attributeExtractor = new AttributeExtractor(filterAdapter);
-
     Filter filter = filterBuilder.not(filterBuilder.attribute("attr").is().text("text"));
     Set<String> attributes = attributeExtractor.extractAttributes(filter);
 

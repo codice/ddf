@@ -39,9 +39,9 @@ import org.opengis.filter.Filter;
 import spark.Request;
 import spark.Response;
 
-public class CqlValidateHandlerTest {
+public class CqlValidationHandlerTest {
 
-  private CqlValidateHandler cqlValidateHandler;
+  private CqlValidationHandler cqlValidationHandler;
 
   private CqlRequestParser parser = mock(CqlRequestParser.class);
 
@@ -59,8 +59,8 @@ public class CqlValidateHandlerTest {
     when(request.params(":validatorId")).thenReturn("invalidId");
     Response response = mock(Response.class);
 
-    cqlValidateHandler = new CqlValidateHandler(queryValidatorsById, parser);
-    Object objResponse = cqlValidateHandler.handle(request, response);
+    cqlValidationHandler = new CqlValidationHandler(queryValidatorsById, parser);
+    Object objResponse = cqlValidationHandler.handle(request, response);
 
     verify(response).status(404);
     Map<String, Object> jsonResponse = (Map<String, Object>) objResponse;
@@ -85,8 +85,8 @@ public class CqlValidateHandlerTest {
     when(request.params(":validatorId")).thenReturn("id");
     Response response = mock(Response.class);
 
-    cqlValidateHandler = new CqlValidateHandler(queryValidatorsById, parser);
-    Object objResponse = cqlValidateHandler.handle(request, response);
+    cqlValidationHandler = new CqlValidationHandler(queryValidatorsById, parser);
+    Object objResponse = cqlValidationHandler.handle(request, response);
 
     Map<String, Object> jsonResponse = (Map<String, Object>) objResponse;
     List<Object> violations = (List<Object>) jsonResponse.get("validationViolations");
@@ -117,8 +117,8 @@ public class CqlValidateHandlerTest {
     when(request.params(":validatorId")).thenReturn("id");
     Response response = mock(Response.class);
 
-    cqlValidateHandler = new CqlValidateHandler(queryValidatorsById, parser);
-    Object objResponse = cqlValidateHandler.handle(request, response);
+    cqlValidationHandler = new CqlValidationHandler(queryValidatorsById, parser);
+    Object objResponse = cqlValidationHandler.handle(request, response);
 
     Map<String, Object> jsonResponse = (Map<String, Object>) objResponse;
     List<Object> violations = (List<Object>) jsonResponse.get("validationViolations");

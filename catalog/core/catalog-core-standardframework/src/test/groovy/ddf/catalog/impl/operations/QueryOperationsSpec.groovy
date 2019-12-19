@@ -164,7 +164,7 @@ class QueryOperationsSpec extends Specification {
                 constructorArgs: [frameworkProperties, mockSourceOps, opsSecurity, opsMetacard])
         mockForQueryOps.hasCatalogProvider() >> { true }
         mockForQueryOps.canAccessSource(_, _) >> { src, req ->
-            src.getValidatorId == 'fed1'
+            src.id == 'fed1'
         }
         def request = Mock(QueryRequest)
         request.isEnterprise() >> { true }

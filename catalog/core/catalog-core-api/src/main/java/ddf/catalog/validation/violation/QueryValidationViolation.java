@@ -50,7 +50,7 @@ public interface QueryValidationViolation {
    * Returns supplemental information about the violation. This is structured data that is more
    * easily parsable than the message. Cannot return null.
    *
-   * @return the set of names
+   * @return a map of supplemental information
    */
   Map<String, Object> getExtraData();
 }

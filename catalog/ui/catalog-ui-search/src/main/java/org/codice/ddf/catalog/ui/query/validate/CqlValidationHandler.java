@@ -28,15 +28,15 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-public class CqlValidateHandler implements Route {
+public class CqlValidationHandler implements Route {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CqlValidateHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CqlValidationHandler.class);
 
   private QueryValidatorsById queryValidatorsById;
 
   private CqlRequestParser parser;
 
-  public CqlValidateHandler(QueryValidatorsById queryValidatorsById, CqlRequestParser parser) {
+  public CqlValidationHandler(QueryValidatorsById queryValidatorsById, CqlRequestParser parser) {
     this.queryValidatorsById = queryValidatorsById;
     this.parser = parser;
   }
