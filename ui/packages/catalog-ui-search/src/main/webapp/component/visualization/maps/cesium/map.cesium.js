@@ -882,8 +882,6 @@ module.exports = function CesiumMap(
           geometry.id !== labelWithSamePosition.id
         ) {
           geometry.show = false
-          // ensures that the top-most label matches the top-most billboard
-          geometry.eyeOffset.z = labelWithSamePosition.eyeOffset.z + 1
         }
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
@@ -921,11 +919,25 @@ module.exports = function CesiumMap(
          Updates a passed in geometry to be shown
          */
     showGeometry(geometry) {
-      if (
-        geometry.constructor === Cesium.Billboard ||
-        geometry.constructor === Cesium.Label
-      ) {
+      if (geometry.constructor === Cesium.Billboard) {
         geometry.show = true
+      } else if (geometry.constructor === Cesium.Label) {
+        const geometryPosition = geometry.position
+        // finds an existing label that has the same position; returns undefined if none
+        const labelWithSamePosition = _.find(
+          mapModel.get('labels'),
+          label =>
+            label.position.x === geometryPosition.x &&
+            label.position.y === geometryPosition.y
+        )
+        // only show one label at each location
+        // the first label also matches the top-most metacard
+        if (
+          labelWithSamePosition !== undefined &&
+          geometry.id == labelWithSamePosition.id
+        ) {
+          geometry.show = true
+        }
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
           polyline.show = true
