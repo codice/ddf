@@ -882,6 +882,8 @@ module.exports = function CesiumMap(
           geometry.id !== labelWithSamePosition.id
         ) {
           geometry.show = false
+          // ensures that the top-most label matches the top-most billboard
+          geometry.eyeOffset.z = labelWithSamePosition.eyeOffset.z + 1
         }
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
