@@ -188,7 +188,7 @@ public class UtmUpsCoordinateProcessorTest {
   public void testUtmFollowedByUtm() {
     assertSuggestion(
         "13N 234789mE 234789mN 22X 234789mE 8592442mN",
-        "UTM/UPS: [ 13N 234789mE 234789mN ] [ 22X 234789mE 8592442mN ]",
+        "UTM: [ 13N 234789mE 234789mN ] [ 22X 234789mE 8592442mN ]",
         2.122350,
         -107.384318,
         77.190666,
@@ -199,7 +199,7 @@ public class UtmUpsCoordinateProcessorTest {
   public void testUtmWithoutUnitLabelFollowedByUtm() {
     assertSuggestion(
         "13N 234789mE 234789 22X 234789mE 8592442mN",
-        "UTM/UPS: [ 13N 234789mE 234789mN ] [ 22X 234789mE 8592442mN ]",
+        "UTM: [ 13N 234789mE 234789mN ] [ 22X 234789mE 8592442mN ]",
         2.122350,
         -107.384318,
         77.190666,
@@ -210,7 +210,7 @@ public class UtmUpsCoordinateProcessorTest {
   public void testUpsFollowedByUps() {
     assertSuggestion(
         "A 2347891mE 2347891mN B 1077891mE 1077891mN",
-        "UTM/UPS: [ A 2347891mE 2347891mN ] [ B 1077891mE 1077891mN ]",
+        "UPS: [ A 2347891mE 2347891mN ] [ B 1077891mE 1077891mN ]",
         -85.570691,
         45.0,
         -78.293449,
@@ -221,7 +221,7 @@ public class UtmUpsCoordinateProcessorTest {
   public void testUpsWithoutUnitLabelFollowedByUps() {
     assertSuggestion(
         "A 2347891mE 2347891 B 1077891mE 1077891mN",
-        "UTM/UPS: [ A 2347891mE 2347891mN ] [ B 1077891mE 1077891mN ]",
+        "UPS: [ A 2347891mE 2347891mN ] [ B 1077891mE 1077891mN ]",
         -85.570691,
         45.0,
         -78.293449,

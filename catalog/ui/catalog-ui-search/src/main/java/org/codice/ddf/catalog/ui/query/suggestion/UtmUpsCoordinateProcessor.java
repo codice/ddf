@@ -230,7 +230,16 @@ public class UtmUpsCoordinateProcessor {
   }
 
   private static String makeSuggestionText(List<UtmUpsCoordinate> utmUpsList) {
-    final StringBuilder nameBuilder = new StringBuilder("UTM/UPS:");
+    final StringBuilder nameBuilder = new StringBuilder();
+    long numberOfUtmCoords = utmUpsList.stream().filter(UtmUpsCoordinate::isUTM).count();
+    int total = utmUpsList.size();
+    if (numberOfUtmCoords == total) {
+      nameBuilder.append("UTM:");
+    } else if (numberOfUtmCoords == 0) {
+      nameBuilder.append("UPS:");
+    } else {
+      nameBuilder.append("UTM/UPS:");
+    }
     for (UtmUpsCoordinate utmUps : utmUpsList) {
       nameBuilder.append(" [ ").append(utmUps.toString()).append(" ]");
     }
