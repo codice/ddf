@@ -15,14 +15,10 @@ package org.codice.ddf.security.session.management.impl;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.security.SecurityConstants;
@@ -38,13 +34,10 @@ import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.security.Principal;
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -53,13 +46,11 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.commons.io.IOUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
-import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -140,20 +131,7 @@ public class SessionManagementServiceImplTest {
     when(subject.getPrincipals()).thenReturn(refreshedPrincipalCollection);
 
     sessionManagementServiceImpl = new SessionManagementServiceImpl();
-    sessionManagementServiceImpl.setSecurityManager(manager);
     sessionManagementServiceImpl.setSessionFactory(sessionFactory);
-    sessionManagementServiceImpl.setClock(
-        Clock.fixed(
-            Instant.parse("2113-04-24T00:09:54.788Z").minus(Duration.ofHours(5)),
-            ZoneId.of("UTC")));
-  }
-
-  @Test
-  public void testGetExpiryAssertionExpiresFirst() throws Exception {
-    setSecurityAssertions(getSamlAssertion());
-
-    String expiryString = sessionManagementServiceImpl.getExpiry(request);
-    assertThat(expiryString, is(Long.toString(Duration.ofHours(5).toMillis())));
   }
 
   @Test
@@ -164,76 +142,6 @@ public class SessionManagementServiceImplTest {
 
     String expiryString = sessionManagementServiceImpl.getExpiry(request);
     assertThat(expiryString, is(Long.toString(Duration.ofHours(1).toMillis())));
-  }
-
-  @Test
-  public void testGetExpiryMultipleAssertions() throws Exception {
-    SecurityToken soonerToken = mock(SecurityToken.class);
-    String saml =
-        IOUtils.toString(
-            new InputStreamReader(getClass().getClassLoader().getResourceAsStream("saml.xml")));
-    saml = saml.replace("2113-04-24", "2113-04-25");
-    when(soonerToken.getToken())
-        .thenReturn(readXml(IOUtils.toInputStream(saml, "UTF-8")).getDocumentElement());
-    SecurityToken laterToken = mock(SecurityToken.class);
-    saml =
-        IOUtils.toString(
-            new InputStreamReader(getClass().getClassLoader().getResourceAsStream("saml.xml")));
-    saml = saml.replace("2113-04-24", "2113-04-26");
-    when(laterToken.getToken())
-        .thenReturn(readXml(IOUtils.toInputStream(saml, "UTF-8")).getDocumentElement());
-    SecurityAssertion securityAssertion = new SecurityAssertionSaml(soonerToken);
-    principalCollection.add(securityAssertion, "realm");
-
-    String expiryString = sessionManagementServiceImpl.getExpiry(request);
-
-    assertThat(expiryString, is(Long.toString(Duration.ofHours(29).toMillis())));
-  }
-
-  @Test
-  public void testGetRenewalGuest() throws Exception {
-    setSecurityAssertions(getGuestAssertion());
-
-    String renewalString = sessionManagementServiceImpl.getRenewal(request);
-    assertNotNull(renewalString);
-    verify(tokenHolder).setPrincipals(refreshedPrincipalCollection);
-  }
-
-  @Test
-  public void testGetRenewalSamlOnly() throws Exception {
-    setSecurityAssertions(getSamlAssertion());
-
-    String renewalString = sessionManagementServiceImpl.getRenewal(request);
-    assertNotNull(renewalString);
-    verify(tokenHolder).setPrincipals(refreshedPrincipalCollection);
-  }
-
-  @Test
-  public void testGetRenewalSamlAndGuest() throws Exception {
-    setSecurityAssertions(getSamlAssertion(), getGuestAssertion());
-
-    String renewalString = sessionManagementServiceImpl.getRenewal(request);
-    assertNotNull(renewalString);
-    verify(tokenHolder).setPrincipals(refreshedPrincipalCollection);
-  }
-
-  @Test
-  public void testGetRenewalNonRenewableAssertion() throws Exception {
-    setSecurityAssertions(getOidcAssertion());
-
-    String renewalString = sessionManagementServiceImpl.getRenewal(request);
-    assertNotNull(renewalString);
-    verify(tokenHolder, never()).setPrincipals(principalCollection);
-  }
-
-  @Test
-  public void testGetRenewalFails() throws Exception {
-    setSecurityAssertions(getSamlAssertion());
-
-    when(manager.getSubject(isA(SAMLAuthenticationToken.class)))
-        .thenThrow(new SecurityServiceException());
-    String renewalString = sessionManagementServiceImpl.getRenewal(request);
-    assertEquals("0", renewalString);
   }
 
   @Test

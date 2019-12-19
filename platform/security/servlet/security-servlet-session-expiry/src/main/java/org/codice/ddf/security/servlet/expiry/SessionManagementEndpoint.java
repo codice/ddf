@@ -38,16 +38,6 @@ public class SessionManagementEndpoint {
   }
 
   @GET
-  @Path("/renew")
-  public Response getRenewal(@Context HttpServletRequest request) {
-    String body = sessionManagementService.getRenewal(request);
-    if (body == null) {
-      return Response.serverError().build();
-    }
-    return Response.ok(body).build();
-  }
-
-  @GET
   @Path("/invalidate")
   public Response getInvalidate(@Context HttpServletRequest request) {
     URI uri = sessionManagementService.getInvalidate(request);

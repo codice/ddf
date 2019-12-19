@@ -20,7 +20,5 @@ public interface SessionManagementService {
 
   String getExpiry(HttpServletRequest request);
 
-  String getRenewal(HttpServletRequest request);
-
   URI getInvalidate(HttpServletRequest request);
 }
