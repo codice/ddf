@@ -36,13 +36,13 @@ public class UtmUpsCoordinateProcessorTest {
   @Test
   public void testUtmStringNorthernHemisphere() {
     assertSuggestion(
-        "17R 522908mE 2853543mN", "UTM/UPS: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
+        "17R 522908mE 2853543mN", "UTM: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
   }
 
   @Test
   public void testUtmStringNorthernHemisphereWithMultipleSpaces() {
     assertSuggestion(
-        "17R   522908mE   2853543mN", "UTM/UPS: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
+        "17R   522908mE   2853543mN", "UTM: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
   }
 
   @Test
@@ -53,7 +53,7 @@ public class UtmUpsCoordinateProcessorTest {
   @Test
   public void testUtmStringSouthernHemisphere() {
     assertSuggestion(
-        "13M 604276mE 9805713mN", "UTM/UPS: [ 13M 604276mE 9805713mN ]", -1.757537, -104.062500);
+        "13M 604276mE 9805713mN", "UTM: [ 13M 604276mE 9805713mN ]", -1.757537, -104.062500);
   }
 
   @Test
@@ -64,7 +64,7 @@ public class UtmUpsCoordinateProcessorTest {
   @Test
   public void testUtmStringZoneTooBig() {
     assertSuggestion(
-        "61P 508378mE 967744mN", "UTM/UPS: [ 1P 508378mE 967744mN ]", 8.754795, -176.923828);
+        "61P 508378mE 967744mN", "UTM: [ 1P 508378mE 967744mN ]", 8.754795, -176.923828);
   }
 
   @Test
@@ -80,12 +80,12 @@ public class UtmUpsCoordinateProcessorTest {
 
     assertSuggestion(
         (LiteralSuggestion) list.get(0),
-        "UTM/UPS: [ 13 234789mE 234789mN N ]",
+        "UTM: [ 13 234789mE 234789mN ] (Northern)",
         2.122350,
         -107.384318);
     assertSuggestion(
         (LiteralSuggestion) list.get(1),
-        "UTM/UPS: [ 13 234789mE 234789mN S ]",
+        "UTM: [ 13 234789mE 234789mN ] (Southern)",
         -86.716923,
         -164.055897);
   }
@@ -102,13 +102,10 @@ public class UtmUpsCoordinateProcessorTest {
     assertThat(list, hasSize(2));
 
     assertSuggestion(
-        (LiteralSuggestion) list.get(0),
-        "UTM/UPS: [ 13N 234789mE 234789mN ]",
-        2.122350,
-        -107.384318);
+        (LiteralSuggestion) list.get(0), "UTM: [ 13N 234789mE 234789mN ]", 2.122350, -107.384318);
     assertSuggestion(
         (LiteralSuggestion) list.get(1),
-        "UTM/UPS: [ 13 234789mE 234789mN N ]",
+        "UTM: [ 13 234789mE 234789mN ] (Northern)",
         2.122350,
         -107.384318);
   }
@@ -120,13 +117,10 @@ public class UtmUpsCoordinateProcessorTest {
     assertThat(list, hasSize(2));
 
     assertSuggestion(
-        (LiteralSuggestion) list.get(0),
-        "UTM/UPS: [ 19S 634900mE 4004219mN ]",
-        36.173357,
-        -67.500000);
+        (LiteralSuggestion) list.get(0), "UTM: [ 19S 634900mE 4004219mN ]", 36.173357, -67.500000);
     assertSuggestion(
         (LiteralSuggestion) list.get(1),
-        "UTM/UPS: [ 19 634900mE 4004219mN S ]",
+        "UTM: [ 19 634900mE 4004219mN ] (Southern)",
         -54.092504,
         -66.937300);
   }
@@ -134,25 +128,25 @@ public class UtmUpsCoordinateProcessorTest {
   @Test
   public void testUtmStringWithNorthernHemisphereIndicator() {
     assertSuggestion(
-        "17R 522908mE 2853543mN N", "UTM/UPS: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
+        "17R 522908mE 2853543mN N", "UTM: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
   }
 
   @Test
   public void testUtmStringWithSouthernHemisphereIndicator() {
     assertSuggestion(
-        "17R 522908mE 2853543mN S", "UTM/UPS: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
+        "17R 522908mE 2853543mN S", "UTM: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
   }
 
   @Test
   public void testUtmStringWithInvalidNSIndicator() {
     assertSuggestion(
-        "17R 522908mE 2853543mN R", "UTM/UPS: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
+        "17R 522908mE 2853543mN R", "UTM: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
   }
 
   @Test
   public void testUtmStringWithLowerCaseLatBand() {
     assertSuggestion(
-        "17r 522908mE 2853543mN", "UTM/UPS: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
+        "17r 522908mE 2853543mN", "UTM: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
   }
 
   @Test
@@ -162,36 +156,32 @@ public class UtmUpsCoordinateProcessorTest {
 
   @Test
   public void testUpsString() {
-    assertSuggestion(
-        "A 2347891mE 2347891mN", "UTM/UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
+    assertSuggestion("A 2347891mE 2347891mN", "UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
   }
 
   @Test
   public void testUpsStringWithoutEastingUnits() {
-    assertSuggestion("A 2347891 2347891mN", "UTM/UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
+    assertSuggestion("A 2347891 2347891mN", "UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
   }
 
   @Test
   public void testUpsStringWithoutNorthingUnits() {
-    assertSuggestion("A 2347891mE 2347891", "UTM/UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
+    assertSuggestion("A 2347891mE 2347891", "UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
   }
 
   @Test
   public void testUpsStringWithRedundantZoneZero() {
-    assertSuggestion(
-        "0A 2347891mE 2347891mN", "UTM/UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
+    assertSuggestion("0A 2347891mE 2347891mN", "UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
   }
 
   @Test
   public void testUpsStringDisregardsNorthIndicator() {
-    assertSuggestion(
-        "A 2347891mE 2347891mN N", "UTM/UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
+    assertSuggestion("A 2347891mE 2347891mN N", "UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
   }
 
   @Test
   public void testUpsStringDisregardsSouthIndicator() {
-    assertSuggestion(
-        "A 2347891mE 2347891mN S", "UTM/UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
+    assertSuggestion("A 2347891mE 2347891mN S", "UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
   }
 
   @Test

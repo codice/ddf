@@ -212,15 +212,21 @@ public class UtmUpsCoordinateProcessor {
   }
 
   private static String makeSuggestionText(UtmUpsCoordinate utmUps) {
-    final StringBuilder nameBuilder = new StringBuilder("UTM/UPS: [ ").append(utmUps.toString());
-    if (utmUps.getLatitudeBand() == null) {
-      if (utmUps.getNSIndicator() == NSIndicator.SOUTH) {
-        nameBuilder.append(" S");
-      } else {
-        nameBuilder.append(" N");
+    final StringBuilder nameBuilder = new StringBuilder();
+    if (utmUps.isUTM()) {
+      // TODO add (hemisphere) / (latitude bands)
+      nameBuilder.append("UTM: [ ").append(utmUps.toString()).append(" ]");
+      if (utmUps.getLatitudeBand() == null) {
+        if (utmUps.getNSIndicator() == NSIndicator.SOUTH) {
+          nameBuilder.append(" (Southern)");
+        } else {
+          nameBuilder.append(" (Northern)");
+        }
       }
+    } else {
+      nameBuilder.append("UPS: [ ").append(utmUps.toString()).append(" ]");
     }
-    return nameBuilder.append(" ]").toString();
+    return nameBuilder.toString();
   }
 
   private static String makeSuggestionText(List<UtmUpsCoordinate> utmUpsList) {
