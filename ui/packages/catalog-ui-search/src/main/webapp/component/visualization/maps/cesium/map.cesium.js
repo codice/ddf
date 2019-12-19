@@ -904,7 +904,10 @@ module.exports = function CesiumMap(
          Updates a passed in geometry to be hidden
          */
     hideGeometry(geometry) {
-      if (geometry.constructor === Cesium.Billboard || geometry.constructor === Cesium.Label) {
+      if (
+        geometry.constructor === Cesium.Billboard ||
+        geometry.constructor === Cesium.Label
+      ) {
         geometry.show = false
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
@@ -916,7 +919,10 @@ module.exports = function CesiumMap(
          Updates a passed in geometry to be shown
          */
     showGeometry(geometry) {
-      if (geometry.constructor === Cesium.Billboard || geometry.constructor === Cesium.Label) {
+      if (
+        geometry.constructor === Cesium.Billboard ||
+        geometry.constructor === Cesium.Label
+      ) {
         geometry.show = true
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
