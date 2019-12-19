@@ -836,12 +836,16 @@ public class ConfigurationApplication implements SparkApplication {
         icon -> {
           String key = icon.split("=")[0];
           String[] config = icon.split("=")[1].split(",");
-          Map<String, String> tempMap = new HashMap<>();
-          tempMap.put("className", config[0]);
-          tempMap.put("code", config[1]);
-          tempMap.put("font", config[2]);
-          tempMap.put("size", config[3]);
-          iconMap.put(key, tempMap);
+          if (config.length != 4) {
+            LOGGER.debug("Icon Configuration entry [{}] malformed, discarding.", icon);
+          } else {
+            Map<String, String> tempMap = new HashMap<>();
+            tempMap.put("className", config[0]);
+            tempMap.put("code", config[1]);
+            tempMap.put("font", config[2]);
+            tempMap.put("size", config[3]);
+            iconMap.put(key, tempMap);
+          }
         });
 
     this.iconConfig = iconMap;
