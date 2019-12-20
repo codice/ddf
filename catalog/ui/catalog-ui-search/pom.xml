@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.ui</groupId>
         <artifactId>catalog-ui</artifactId>
-        <version>2.19.3-SNAPSHOT</version>
+        <version>2.19.4-SNAPSHOT</version>
     </parent>
     <artifactId>catalog-ui-search</artifactId>
     <name>DDF :: Catalog :: UI :: Catalog UI Search</name>
@@ -464,6 +464,7 @@
                         </Import-Package>
                         <Export-Package>
                             org.codice.ddf.catalog.ui.metacard.internal,
+                            org.codice.ddf.catalog.ui.alias,
                             org.codice.ddf.catalog.ui.api,
                             org.codice.ddf.catalog.ui.query.cql,
                             org.codice.ddf.catalog.ui.metacard.transform,

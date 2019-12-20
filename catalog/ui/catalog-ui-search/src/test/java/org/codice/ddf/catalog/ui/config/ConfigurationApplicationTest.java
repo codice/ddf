@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.catalog.ui.alias.AttributeAliases;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.proxy.http.HttpProxyService;
 import org.junit.Before;
@@ -55,7 +56,8 @@ public class ConfigurationApplicationTest {
 
   @Before
   public void setUp() {
-    configurationApplication = new ConfigurationApplication(mock(UuidGenerator.class));
+    configurationApplication =
+        new ConfigurationApplication(mock(UuidGenerator.class), mock(AttributeAliases.class));
     resourceBundleLocator = mock(ResourceBundleLocator.class);
   }
 
@@ -162,12 +164,6 @@ public class ConfigurationApplicationTest {
     assertThat(
         configurationApplication.getTypeNameMapping(),
         hasEntry("alpha", Sets.newSet("beta", "omega")));
-  }
-
-  @Test
-  public void testsetAttributeAliases() throws Exception {
-    configurationApplication.setAttributeAliases(Arrays.asList(" a = b ", " x = y "));
-    assertThat(configurationApplication.getAttributeAliases(), is(Arrays.asList("a=b", "x=y")));
   }
 
   @Test

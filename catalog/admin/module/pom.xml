@@ -17,7 +17,7 @@
     <parent>
         <groupId>ddf.catalog.admin</groupId>
         <artifactId>catalog-admin</artifactId>
-        <version>2.19.3-SNAPSHOT</version>
+        <version>2.19.4-SNAPSHOT</version>
     </parent>
     <artifactId>catalog-admin-module</artifactId>
     <packaging>pom</packaging>
