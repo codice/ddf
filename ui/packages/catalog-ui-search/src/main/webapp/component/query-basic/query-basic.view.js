@@ -57,21 +57,12 @@ const getMatchTypes = memoize(async () => {
   })
   const facets = json.facets[matchTypeAttr] || []
   return facets
-    .sort((a, b) => {
-      const aValue = a.value.toLowerCase()
-      const bValue = b.value.toLowerCase()
-      if (aValue < bValue) {
-        return -1
-      } else if (aValue > bValue) {
-        return 1
-      } else {
-        return 0
-      }
-    })
-    .map(facet => ({
-      label: facet.value,
-      value: facet.value,
-      class: 'icon ' + IconHelper.getClassByName(facet.value),
+    .map(facet => facet.value)
+    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+    .map(value => ({
+      label: value,
+      value,
+      class: 'icon ' + IconHelper.getClassByName(value),
     }))
 })
 
