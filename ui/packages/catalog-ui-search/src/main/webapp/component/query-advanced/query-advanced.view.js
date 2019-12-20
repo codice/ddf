@@ -39,9 +39,7 @@ const fetchSuggestions = memoize(async attr => {
     return []
   }
 
-  const values = suggestions.map(({ value }) => value)
-  values.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-  return values
+  return suggestions.map(({ value }) => value)
 })
 
 const isValidFacetAttribute = (id, type) => {
