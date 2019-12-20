@@ -16,9 +16,9 @@
 import { InvalidSearchFormMessage } from '../../../component/announcement/CommonMessages'
 const announcement = require('../../../component/announcement/index.jsx')
 
-export function validate(errors: any) {
+export function showErrorMessages(errors: any) {
   if (errors.length === 0) {
-    return true
+    return
   }
   let searchErrorMessage = JSON.parse(JSON.stringify(InvalidSearchFormMessage))
   if (errors.length > 1) {
@@ -35,5 +35,34 @@ export function validate(errors: any) {
     searchErrorMessage.message = error.body
   }
   announcement.announce(searchErrorMessage)
-  return false
+}
+
+export function getFilterErrors(filters: any) {
+  const errors: any[] = []
+  for (let i = 0; i < filters.length; i++) {
+    const filter = filters[i]
+    const geometry = filter.geojson && filter.geojson.geometry
+    if (
+      geometry &&
+      geometry.type === 'Polygon' &&
+      geometry.coordinates[0].length < 4
+    ) {
+      errors.push({
+        title: 'Invalid geometry filter',
+        body:
+          'Polygon coordinates must be in the form [[x,y],[x,y],[x,y],[x,y], ... ]',
+      })
+    }
+    if (
+      geometry &&
+      geometry.type === 'LineString' &&
+      geometry.coordinates.length < 2
+    ) {
+      errors.push({
+        title: 'Invalid geometry filter',
+        body: 'Line coordinates must be in the form [[x,y],[x,y], ... ]',
+      })
+    }
+  }
+  return errors
 }
