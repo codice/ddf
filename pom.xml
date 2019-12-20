@@ -46,7 +46,7 @@
     <parent>
         <groupId>ddf</groupId>
         <artifactId>ddf-parent</artifactId>
-        <version>1.0.5</version>
+        <version>1.0.8</version>
     </parent>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -250,6 +250,9 @@
         <lucene.version>7.4.0</lucene.version>
         <lux.version>1.2</lux.version>
         <lux.saxon.version>9.5.1-3</lux.saxon.version>
+        <mariadb.version>2.4.1</mariadb.version>
+        <maven.failsafe.version>3.0.0-M3</maven.failsafe.version>
+        <maven.surefire.version>3.0.0-M3</maven.surefire.version>
         <!-- Mina version is not the latest version due to Apache FTPServer 1.0.6 not supporting newer releases properly -->
         <mina.version>2.0.6</mina.version>
         <mpegts-streamer.version>0.1.0_2</mpegts-streamer.version>
@@ -404,19 +407,29 @@
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
                     <version>${dependency-check-maven.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>ddf.support</groupId>
+                            <artifactId>support-owasp</artifactId>
+                            <version>${ddf.support.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.mariadb.jdbc</groupId>
+                            <artifactId>mariadb-java-client</artifactId>
+                            <version>${mariadb.version}</version>
+                        </dependency>
+                    </dependencies>
                     <configuration>
-                        <!-- The following properties enable using a mirror for nist NVD data -->
-                        <cveUrl12Modified>${owasp.cveUrl12Modified}</cveUrl12Modified>
-                        <cveUrl20Modified>${owasp.cveUrl20Modified}</cveUrl20Modified>
-                        <cveUrl12Base>${owasp.cveUrl12Base}</cveUrl12Base>
-                        <cveUrl20Base>${owasp.cveUrl20Base}</cveUrl20Base>
-                        <!-- End NVD mirror configuration -->
-                        <failBuildOnCVSS>7</failBuildOnCVSS>
+                        <!-- The following properties enable using a centralized nvd server -->
+                        <autoUpdate>${owasp.autoUpdate}</autoUpdate>
+                        <databaseDriverName>${owasp.database.driverName}</databaseDriverName>
+                        <connectionString>${owasp.database.url}</connectionString>
+                        <serverId>${owasp.serverId}</serverId>
+                        <!-- End Centralized NVD Server Configuration -->
+                        <failOnError>false</failOnError>
                         <skipTestScope>true</skipTestScope>
                         <!--Disable by plugin maintainer recommendation on https://github.com/jeremylong/DependencyCheck/issues/978#issuecomment-349620687-->
                         <centralAnalyzerEnabled>false</centralAnalyzerEnabled>
-                        <!--Disable because we have a separate NSP analysis step and this plugin has no way to suppress NSP issues as of 3.0.2-->
-                        <nspAnalyzerEnabled>false</nspAnalyzerEnabled>
                         <!--Disable .NET analyzers-->
                         <nuspecAnalyzerEnabled>false</nuspecAnalyzerEnabled>
                         <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
@@ -435,6 +448,12 @@
                                 ${highest-basedir}/dependency-check-maven-config.xml
                             </suppressionFile>
                         </suppressionFiles>
+                        <!-- This prevents a build failure on jdk tools jar -->
+                        <skipSystemScope>true</skipSystemScope>
+                        <formats>
+                            <format>HTML</format>
+                            <format>JUNIT</format>
+                        </formats>
                     </configuration>
                     <executions>
                         <execution>
