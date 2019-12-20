@@ -225,14 +225,16 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
         new MetacardImpl(
             source, getMetacardTypeBinary(source).orElseThrow(cannotDeserializeException));
     result.setId(id);
-    result.setTags(getVersionTags(source));
-    try {
-      result.setResourceURI(
-          new URI(String.valueOf(source.getAttribute(VERSIONED_RESOURCE_URI).getValue())));
-    } catch (URISyntaxException e) {
-      LOGGER.debug("Could not replace the versioned resource URI, It might not be valid", e);
+    Set<String> tags = getVersionTags(source);
+    result.setTags(tags);
+    if (tags.contains("resource")) {
+      try {
+        result.setResourceURI(
+            new URI(String.valueOf(source.getAttribute(VERSIONED_RESOURCE_URI).getValue())));
+      } catch (URISyntaxException e) {
+        LOGGER.debug("Could not replace the versioned resource URI, It might not be valid", e);
+      }
     }
-
     sanitizeVersionAttributes(result);
     return result;
   }
