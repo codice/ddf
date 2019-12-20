@@ -40,7 +40,7 @@ const fetchSuggestions = memoize(async attr => {
   }
 
   const values = suggestions.map(({ value }) => value)
-  values.sort()
+  values.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
   return values
 })
 
