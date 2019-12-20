@@ -102,6 +102,27 @@ module.exports = function OpenlayersMap(
   listenToResize()
   setupTooltip(map)
   const drawingTools = setupDrawingTools(map)
+  const labelVectorLayer = setupLabelLayer(map)
+
+  /*
+   * Sets up a new Vector Layer for holding labels with the declutter property.
+   * Declutter is used for making sure the label texts don't overlap on each
+   * other.
+   */
+  function setupLabelLayer(map) {
+    const vectorSource = new Openlayers.source.Vector({
+      features: [],
+    })
+    const vectorLayer = new Openlayers.layer.Vector({
+      source: vectorSource,
+      zIndex: 1,
+      declutter: true,
+    })
+
+    map.addLayer(vectorLayer)
+
+    return vectorLayer
+  }
 
   function setupTooltip(map) {
     map.on('pointermove', e => {
@@ -465,7 +486,6 @@ module.exports = function OpenlayersMap(
           }),
         })
       )
-
       const vectorSource = new Openlayers.source.Vector({
         features: [feature],
       })
@@ -478,6 +498,41 @@ module.exports = function OpenlayersMap(
       map.addLayer(vectorLayer)
 
       return vectorLayer
+    },
+    /*
+     * Draws a label on the map by adding to the features in the label Vector
+     * Layer.
+     */
+    addLabel(point, options) {
+      const pointObject = convertPointCoordinate(point)
+      const feature = new Openlayers.Feature({
+        geometry: new Openlayers.geom.Point(pointObject),
+        name: options.text,
+        isLabel: true,
+      })
+      feature.setId(options.id)
+
+      feature.setStyle(
+        new Openlayers.style.Style({
+          text: new Openlayers.style.Text({
+            text: options.text,
+            overflow: true,
+          }),
+        })
+      )
+
+      const labelVectorLayerFeatures = labelVectorLayer
+        .getSource()
+        .getFeatures()
+      // creates a new source with the new feature appended to the current list
+      // of features
+      const newVectorSource = new Openlayers.source.Vector({
+        features: [...labelVectorLayerFeatures, feature],
+      })
+      // updates the vector layer containing the labels with the new source
+      labelVectorLayer.setSource(newVectorSource)
+
+      return labelVectorLayer
     },
     /*
           Adds a polyline utilizing the passed in line and options.
@@ -586,16 +641,23 @@ module.exports = function OpenlayersMap(
           this.updateGeometry(innerGeometry, options)
         })
       } else {
-        const feature = geometry.getSource().getFeatures()[0]
-        const geometryInstance = feature.getGeometry()
-        if (geometryInstance.constructor === Openlayers.geom.Point) {
-          let x = 39,
-            y = 40
-          if (options.size) {
-            x = options.size.x
-            y = options.size.y
-          }
-          geometry.setZIndex(options.isSelected ? 2 : 1)
+        const features = geometry.getSource().getFeatures()
+        features.forEach(feature =>
+          this.setGeometryStyle(geometry, options, feature)
+        )
+      }
+    },
+    setGeometryStyle(geometry, options, feature) {
+      const geometryInstance = feature.getGeometry()
+      if (geometryInstance.getType() === 'Point') {
+        let pointWidth = 39
+        let pointHeight = 40
+        if (options.size) {
+          pointWidth = options.size.x
+          pointHeight = options.size.y
+        }
+        geometry.setZIndex(options.isSelected ? 2 : 1)
+        if (!feature.getProperties().isLabel) {
           feature.setStyle(
             new Openlayers.style.Style({
               image: new Openlayers.style.Icon({
@@ -604,34 +666,73 @@ module.exports = function OpenlayersMap(
                   strokeColor: options.isSelected ? 'black' : 'white',
                   icon: options.icon,
                 }),
-                imgSize: [x, y],
-                anchor: [x / 2, 0],
+                imgSize: [pointWidth, pointHeight],
+                anchor: [pointWidth / 2, 0],
                 anchorOrigin: 'bottom-left',
                 anchorXUnits: 'pixels',
                 anchorYUnits: 'pixels',
               }),
             })
           )
-        } else if (
-          geometryInstance.constructor === Openlayers.geom.LineString
-        ) {
-          const styles = [
+        } else {
+          feature.setStyle(
             new Openlayers.style.Style({
-              stroke: new Openlayers.style.Stroke({
-                color: options.isSelected ? 'black' : 'white',
-                width: 8,
-              }),
-            }),
-            new Openlayers.style.Style({
-              stroke: new Openlayers.style.Stroke({
-                color: options.color || defaultColor,
-                width: 4,
-              }),
-            }),
-          ]
-          feature.setStyle(styles)
+              text: this.createTextStyle(
+                feature,
+                map.getView().getResolution()
+              ),
+            })
+          )
         }
+      } else if (geometryInstance.getType() === 'LineString') {
+        const styles = [
+          new Openlayers.style.Style({
+            stroke: new Openlayers.style.Stroke({
+              color: options.isSelected ? 'black' : 'white',
+              width: 8,
+            }),
+          }),
+          new Openlayers.style.Style({
+            stroke: new Openlayers.style.Stroke({
+              color: options.color || defaultColor,
+              width: 4,
+            }),
+          }),
+        ]
+        feature.setStyle(styles)
       }
+    },
+    createTextStyle(feature, resolution) {
+      const fillColor = '#000000'
+      const outlineColor = '#ffffff'
+      const outlineWidth = 3
+
+      return new Openlayers.style.Text({
+        text: this.getText(feature, resolution),
+        fill: new Openlayers.style.Fill({ color: fillColor }),
+        stroke: new Openlayers.style.Stroke({
+          color: outlineColor,
+          width: outlineWidth,
+        }),
+        offsetX: 20,
+        offsetY: -15,
+        placement: 'point',
+        maxAngle: 45,
+        overflow: true,
+        rotation: 0,
+        textAlign: 'left',
+        padding: [5, 5, 5, 5],
+      })
+    },
+    getText(feature, resolution) {
+      const maxResolution = 1200
+      const text =
+        resolution > maxResolution ? '' : this.trunc(feature.get('name'), 20)
+
+      return text
+    },
+    trunc(str, n) {
+      return str.length > n ? str.substr(0, n - 1) + '...' : str.substr(0)
     },
     /*
          Updates a passed in geometry to be hidden
