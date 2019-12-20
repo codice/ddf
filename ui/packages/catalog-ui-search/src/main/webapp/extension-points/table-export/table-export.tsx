@@ -69,7 +69,7 @@ function getCqlForSize(
   size: number,
   selectionInterface: any
 ) {
-  return exportType == 'custom' && size <= limit
+  return exportType !== 'all' && size <= limit
     ? visibleData(size, selectionInterface)
     : allData(selectionInterface)
 }
@@ -161,13 +161,13 @@ export const getDownloadBody = (downloadInfo: DownloadInfo) => {
     (property: string) =>
       filteredAttributes.includes(property) && !properties.isHidden(property)
   )
-  const cql = getCqlForSize(exportSize, customExportCount, selectionInterface)
-  const srcs = getSrcs(selectionInterface)
-  const sorts = getSorts(selectionInterface)
   const count = Math.min(
     getExportCount({ exportSize, selectionInterface, customExportCount }),
     properties.exportResultLimit
   )
+  const cql = getCqlForSize(exportSize, count, selectionInterface)
+  const srcs = getSrcs(selectionInterface)
+  const sorts = getSorts(selectionInterface)
   const args = {
     hiddenFields: hiddenFields.length > 0 ? hiddenFields : [],
     columnOrder: columnOrder.length > 0 ? columnOrder : {},
