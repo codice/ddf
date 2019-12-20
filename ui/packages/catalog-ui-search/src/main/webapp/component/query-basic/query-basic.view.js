@@ -290,10 +290,10 @@ module.exports = Marionette.LayoutView.extend({
     const matchTypeAttributeValuesInFilter = this.getFilterValuesForAttribute(
       getMatchTypeAttribute()
     )
-    const currentValue = metadataContentTypeValuesInFilter.concat(
+    return _.union(
+      metadataContentTypeValuesInFilter,
       matchTypeAttributeValuesInFilter
     )
-    return _.uniq(currentValue)
   },
   setupTypeSpecific() {
     const currentValue = this.getCurrentSpecificTypesValue()
