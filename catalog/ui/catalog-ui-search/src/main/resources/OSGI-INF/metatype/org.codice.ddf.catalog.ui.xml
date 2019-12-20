@@ -120,13 +120,6 @@
             default="true"
             required="false"/>
 
-        <AD id="externalAuthenticationEnabled"
-            name="Use External Authentication"
-            description="Use an external authentication point, such as IdP."
-            type="Boolean"
-            default="false"
-            required="false"/>
-
         <AD id="cacheEnabled"
             name="Enable Cache"
             description="Locally cached results will be returned in search results."

@@ -36,7 +36,6 @@
   "isCacheDisabled": false,
   "isVersioningEnabled": true,
   "isMetacardPreviewDisabled": false,
-  "externalAuthentication": false,
   "customBackgroundAccentContent": "#2A2A2E",
   "customNegativeColor": "#8a423c",
   "isHistoricalSearchDisabled": false,
