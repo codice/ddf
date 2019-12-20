@@ -215,6 +215,20 @@
             type="Boolean"
             default="false"/>
 
+        <AD id="customTextNotationEnabled"
+          name="Show Custom Text Notations"
+          description="Toggle the display of custom text notations next to metacard map markers."
+          type="Boolean"
+          default="false"
+          required="false"/>
+
+        <AD id="customTextNotationAttribute"
+          name="Custom Text Notation Attribute"
+          description="Set the metacard attribute to display next to the map markers. The default is 'title'."
+          type="String"
+          default="title"
+          required="false"/>
+
         <AD id="basicSearchTemporalSelectionDefault"
             name="Basic Search Temporal Selections"
             description="Enable Basic Search Temporal Selections."

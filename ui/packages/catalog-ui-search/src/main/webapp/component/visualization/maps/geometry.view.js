@@ -19,6 +19,7 @@ const _ = require('underscore')
 const _debounce = require('lodash/debounce')
 const wkx = require('wkx')
 const metacardDefinitions = require('../../singletons/metacard-definitions.js')
+const properties = require('../../../js/properties')
 
 const GeometryView = Marionette.ItemView.extend({
   template: false,
@@ -134,6 +135,20 @@ const GeometryView = Marionette.ItemView.extend({
         view: this,
       })
     )
+    // adds an additional map element to the geometry for the label
+    if (properties.isCustomTextNotationEnabled) {
+      const attribute = this.model
+        .get('metacard')
+        .get('properties')
+        .get(properties.customTextNotationAttribute)
+      // use an empty string if there is no metacard attribute set
+      this.geometry.push(
+        this.options.map.addLabel(point, {
+          id: `${this.model.id}-label`,
+          text: attribute !== undefined ? attribute : '',
+        })
+      )
+    }
   },
   handleLine(line) {
     this.geometry.push(

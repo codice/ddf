@@ -194,7 +194,8 @@ module.exports = function CesiumMap(
   let shapes = []
   const map = createMap(insertionElement)
   const drawHelper = new DrawHelper(map)
-  const billboardCollection = setupBillboard()
+  const billboardCollection = setupBillboardCollection()
+  const labelCollection = setupLabelCollection()
   const drawingTools = setupDrawingTools(map)
   setupTooltip(map, selectionInterface)
 
@@ -248,10 +249,16 @@ module.exports = function CesiumMap(
     }
   }
 
-  function setupBillboard() {
+  function setupBillboardCollection() {
     const billboardCollection = new Cesium.BillboardCollection()
     map.scene.primitives.add(billboardCollection)
     return billboardCollection
+  }
+
+  function setupLabelCollection() {
+    const labelCollection = new Cesium.LabelCollection()
+    map.scene.primitives.add(labelCollection)
+    return labelCollection
   }
 
   const exposedMethods = _.extend({}, Map, {
@@ -643,6 +650,43 @@ module.exports = function CesiumMap(
       return billboardRef
     },
     /*
+     * Draws a label containing the text in the given options.
+     */
+    addLabel(point, options) {
+      const pointObject = convertPointCoordinate(point)
+      const cartographicPosition = Cesium.Cartographic.fromDegrees(
+        pointObject.longitude,
+        pointObject.latitude,
+        pointObject.altitude
+      )
+      const cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
+        cartographicPosition
+      )
+      // X, Y offset values for the label
+      const offset = new Cesium.Cartesian2(20, -15)
+      // Cesium measurement for determining how to render the size of the label based on zoom
+      const scaleZoom = new Cesium.NearFarScalar(1.5e4, 1.0, 8.0e6, 0.0)
+      // Cesium measurement for determining how to render the translucency of the label based on zoom
+      const translucencyZoom = new Cesium.NearFarScalar(1.5e6, 1.0, 8.0e6, 0.0)
+
+      const labelRef = labelCollection.add({
+        text: options.text,
+        position: cartesianPosition,
+        id: options.id,
+        pixelOffset: offset,
+        scale: 1.0,
+        scaleByDistance: scaleZoom,
+        translucencyByDistance: translucencyZoom,
+        fillColor: Cesium.Color.BLACK,
+        outlineColor: Cesium.Color.WHITE,
+        outlineWidth: 10,
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+      })
+      mapModel.addLabel(labelRef)
+
+      return labelRef
+    },
+    /*
           Adds a polyline utilizing the passed in line and options.
           Options are a view to relate to, and an id, and a color.
         */
@@ -822,6 +866,23 @@ module.exports = function CesiumMap(
           0,
           options.isSelected ? -1 : 0
         )
+      } else if (geometry.constructor === Cesium.Label) {
+        const geometryPosition = geometry.position
+        // finds an existing label that has the same position; returns undefined if none
+        const labelWithSamePosition = _.find(
+          mapModel.get('labels'),
+          label =>
+            label.position.x === geometryPosition.x &&
+            label.position.y === geometryPosition.y
+        )
+        // if there is an existing label with the same position, then this one
+        // should not be displayed
+        if (
+          labelWithSamePosition !== undefined &&
+          geometry.id !== labelWithSamePosition.id
+        ) {
+          geometry.show = false
+        }
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
           polyline.material = Cesium.Material.fromType('PolylineOutline', {
@@ -843,7 +904,10 @@ module.exports = function CesiumMap(
          Updates a passed in geometry to be hidden
          */
     hideGeometry(geometry) {
-      if (geometry.constructor === Cesium.Billboard) {
+      if (
+        geometry.constructor === Cesium.Billboard ||
+        geometry.constructor === Cesium.Label
+      ) {
         geometry.show = false
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
@@ -857,6 +921,23 @@ module.exports = function CesiumMap(
     showGeometry(geometry) {
       if (geometry.constructor === Cesium.Billboard) {
         geometry.show = true
+      } else if (geometry.constructor === Cesium.Label) {
+        const geometryPosition = geometry.position
+        // finds an existing label that has the same position; returns undefined if none
+        const labelWithSamePosition = _.find(
+          mapModel.get('labels'),
+          label =>
+            label.position.x === geometryPosition.x &&
+            label.position.y === geometryPosition.y
+        )
+        // only show one label at each location
+        // the first label also matches the top-most metacard
+        if (
+          labelWithSamePosition !== undefined &&
+          geometry.id == labelWithSamePosition.id
+        ) {
+          geometry.show = true
+        }
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
           polyline.show = true
@@ -866,6 +947,7 @@ module.exports = function CesiumMap(
     },
     removeGeometry(geometry) {
       billboardCollection.remove(geometry)
+      labelCollection.remove(geometry)
       map.scene.primitives.remove(geometry)
       //unminified cesium chokes if you feed a geometry with id as an Array
       if (geometry.constructor === Cesium.Entity) {
