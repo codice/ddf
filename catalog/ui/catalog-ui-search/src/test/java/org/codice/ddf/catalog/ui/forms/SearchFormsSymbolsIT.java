@@ -31,6 +31,7 @@ import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
@@ -254,7 +255,8 @@ public class SearchFormsSymbolsIT {
         new QueryTemplateMetacard(CANNED_TITLE, CANNED_DESCRIPTION, CANNED_ID);
     queryTemplateMetacard.setFormsFilter(formFilterXml);
     queryTemplateMetacard.setCreatedDate(Date.from(Instant.parse(CANNED_ISO_DATE)));
-    queryTemplateMetacard.setModifiedDate(Date.from(Instant.parse(CANNED_ISO_DATE)));
+    queryTemplateMetacard.setAttribute(
+        Core.METACARD_MODIFIED, Date.from(Instant.parse(CANNED_ISO_DATE)));
 
     QueryResponseImpl response =
         new QueryResponseImpl(new QueryRequestImpl(new QueryImpl(Filter.INCLUDE)));
