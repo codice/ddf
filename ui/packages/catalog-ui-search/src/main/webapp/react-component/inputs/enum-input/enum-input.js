@@ -16,25 +16,44 @@ import React, { useState } from 'react'
 
 const Marionette = require('marionette')
 import Dropdown from '../../dropdown'
-import { Menu, MenuItem } from '../../menu'
+import { Menu, MenuItem,MenuItemDisabled } from '../../menu'
 import TextField from '../../text-field'
 import styled from 'styled-components'
 import { getFilteredSuggestions, inputMatchesSuggestions } from './enumHelper'
 import PropTypes from 'prop-types'
+import IconButton from 'material-ui/IconButton'
+import getMuiTheme from 'material-ui/styles/getMuiTheme'
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import muiThemeable from 'material-ui/styles/muiThemeable'
+import IconMenu from 'material-ui/IconMenu'
 const sources = require('../../../component/singletons/sources-instance');
-
-
 
 
 const TextWrapper = styled.div`
   padding: ${({ theme }) => theme.minimumSpacing};
 `
-
-
 const EnumMenuItem = props => (
-  <MenuItem {...props} style={{ paddingLeft: '1.5rem' }}/>
+  <MenuItemDisabled {...props} style={{ paddingLeft: '1.5rem' }}/>
 )
+/*
+<IconButton style={{ color: muiTheme.palette.warningColor }} alignItems="center" tooltip="Attribute Unsupported">
+</IconButton> 
+                      
+<i className="fa fa-warning"style={{ color: muiTheme.palette.warningColor }} alignItems="center" />
+*/
+const ImageIcon = styled.i.attrs(props => ({
+  className: "fa fa-info-circle"
+}))`
+color: #000;
+:hover {
+  color: #ed1212;
+  cursor: pointer;
+}
+:hover.tooltiptext {
+  visibility : visible
+}
 
+`
 
 const isIconDisplayed = (AllSupportedAttributes,currValue) => {
 
@@ -49,7 +68,7 @@ const isIconDisplayed = (AllSupportedAttributes,currValue) => {
 
 }
 
-const isIconHidden = (currValue,settingsModel) => {
+const isAttributeUnsupported = (currValue,settingsModel) => {
   // if no source is selected gather all supportedAttributes from all available sources
   if(settingsModel.length == 0){
       let AllSupportedAttributes = sources.models.map(source => {
@@ -93,7 +112,6 @@ const isIconHidden = (currValue,settingsModel) => {
     return isIconDisplayed(AllSupportedAttributes,currValue);
 
   }
-
 }
 
 const EnumInput = ({
@@ -115,8 +133,12 @@ const EnumInput = ({
   console.log(settingsModel);
   console.log(filteredSuggestions)
   console.log(sources.models);
-  console.log(window.sourcesSelected);
+
   const displayInput = !inputMatchesSuggestions(input, suggestions, matchCase)
+
+
+  
+
   return (
     
     <Dropdown label={(selected && selected.label) || value}>
@@ -136,22 +158,25 @@ const EnumInput = ({
           )}
         {filteredSuggestions.map(suggestion => {
           return (
-            <EnumMenuItem key={suggestion.value} value={suggestion.value}>
+          
+
+            //need to figire ou hw to render disbaled without prnting object object
+            <EnumMenuItem key={suggestion.value} value={suggestion.value} disabled={isAttributeUnsupported(suggestion.value,settingsModel.attributes.src)}>
               {suggestion.label}
-              {isIconHidden(suggestion.value,settingsModel.attributes.src) &&
-                <span>
-                  <i className="fa fa-warning"/>
-                </span>
+              {settingsModel && isAttributeUnsupported(suggestion.value,settingsModel.attributes.src) &&
+                    <span>
+                        <ImageIcon className="fa fa-info-circle" ></ImageIcon>
+                    </span>
               }
             </EnumMenuItem>
-            
+        
           )
         })}
       </Menu>
     </Dropdown>
   )
 }
-
+//<ImageIcon className="fa fa-info-circle" ></ImageIcon>
 EnumInput.propTypes = {
   /** The current selected value. */
   value: PropTypes.string,
