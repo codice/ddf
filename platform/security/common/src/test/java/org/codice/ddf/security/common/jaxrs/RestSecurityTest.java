@@ -16,36 +16,21 @@ package org.codice.ddf.security.common.jaxrs;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.UUID;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.IOUtils;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
-import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.junit.Test;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class RestSecurityTest {
@@ -68,42 +53,6 @@ public class RestSecurityTest {
     // db.setErrorHandler( new MyErrorHandler());
 
     return db.parse(is);
-  }
-
-  @Test
-  public void testSetSubjectOnClient() throws Exception {
-    Element samlToken = readDocument("/saml.xml").getDocumentElement();
-    Subject subject = mock(Subject.class);
-    SecurityAssertion assertion = mock(SecurityAssertion.class);
-    SecurityToken token =
-        new SecurityToken(UUID.randomUUID().toString(), samlToken, Instant.now(), Instant.now());
-    when(assertion.getToken()).thenReturn(token);
-    when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
-    WebClient client = WebClient.create("https://example.org");
-    RestSecurity.setSubjectOnClient(subject, client);
-    assertNotNull(client.getHeaders().get(RestSecurity.AUTH_HEADER));
-    ArrayList headers = (ArrayList) client.getHeaders().get(RestSecurity.AUTH_HEADER);
-    boolean containsSaml = false;
-    for (Object header : headers) {
-      if (StringUtils.contains(header.toString(), RestSecurity.SAML_HEADER_PREFIX)) {
-        containsSaml = true;
-      }
-    }
-    assertTrue(containsSaml);
-  }
-
-  @Test
-  public void testNotSetSubjectOnClient() throws Exception {
-    Element samlToken = readDocument("/saml.xml").getDocumentElement();
-    Subject subject = mock(Subject.class);
-    SecurityAssertion assertion = mock(SecurityAssertion.class);
-    SecurityToken token =
-        new SecurityToken(UUID.randomUUID().toString(), samlToken, Instant.now(), Instant.now());
-    when(assertion.getToken()).thenReturn(token);
-    when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
-    WebClient client = WebClient.create("http://example.org");
-    RestSecurity.setSubjectOnClient(subject, client);
-    assertNull(client.getHeaders().get(RestSecurity.AUTH_HEADER));
   }
 
   @Test

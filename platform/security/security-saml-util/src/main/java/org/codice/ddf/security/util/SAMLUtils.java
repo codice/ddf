@@ -24,7 +24,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import org.apache.cxf.staxutils.StaxUtils;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
@@ -52,8 +51,7 @@ public class SAMLUtils {
     return INSTANCE;
   }
 
-  public SecurityToken getSecurityTokenFromSAMLAssertion(String samlAssertion) {
-    SecurityToken securityToken = new SecurityToken();
+  public Element getSecurityTokenFromSAMLAssertion(String samlAssertion) {
     Element thisToken;
 
     try (StringReader stringReader = new StringReader(samlAssertion)) {
@@ -64,8 +62,7 @@ public class SAMLUtils {
       thisToken = parseAssertionWithoutNamespace(samlAssertion);
     }
 
-    securityToken.setToken(thisToken);
-    return securityToken;
+    return thisToken;
   }
 
   public String getSubjectAsStringNoSignature(Element subject) {

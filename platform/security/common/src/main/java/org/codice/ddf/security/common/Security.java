@@ -17,8 +17,6 @@ import static org.apache.commons.lang.Validate.notNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.security.Subject;
-import ddf.security.SubjectUtils;
-import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
@@ -40,16 +38,11 @@ import java.security.PrivilegedExceptionAction;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.security.auth.AuthPermission;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
@@ -218,7 +211,7 @@ public class Security {
       return null;
     }
 
-    if (!tokenAboutToExpire(cachedSystemSubject)) {
+    if (cachedSystemSubject != null) {
       return cachedSystemSubject;
     }
 
@@ -284,65 +277,6 @@ public class Security {
     }
 
     return subject;
-  }
-
-  /**
-   * Determines whether a {@link Subject}'s token is about to expire or not.
-   *
-   * @param subject subject whose token needs to be checked
-   * @return {@code true} only if the {@link Subject}'s token will expire soon
-   */
-  public boolean tokenAboutToExpire(Subject subject) {
-    return !((null != subject)
-        && (null != subject.getPrincipals())
-        && (!subject.getPrincipals().byType(SecurityAssertion.class).isEmpty())
-        && (!areAnyAboutToExpire(
-            subject
-                .getPrincipals()
-                .byType(SecurityAssertion.class)
-                .stream()
-                .map(SecurityAssertion::getNotOnOrAfter)
-                .map(Date::toInstant)
-                .collect(Collectors.toList()),
-            TimeUnit.MINUTES.toSeconds(1))));
-  }
-
-  public boolean areAnyAboutToExpire(List<Instant> expireList, long secondsToExpiry) {
-    for (Instant expire : expireList) {
-      if (isAboutToExpire(expire, secondsToExpiry)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public boolean isAboutToExpire(Instant expires, long secondsToExpiry) {
-    if (expires != null && secondsToExpiry > 0) {
-      Instant now = Instant.now().plusSeconds(secondsToExpiry);
-      return expires.isBefore(now);
-    }
-    return false;
-  }
-
-  /**
-   * Get the expires time from the {@link Subject}'s token.
-   *
-   * @param subject subject whose token needs to be checked
-   * @return {@code Date} or null if subject doesn't have an expire time.
-   */
-  public Date getExpires(Subject subject) {
-    return ((null != subject)
-            && (null != subject.getPrincipals())
-            && !(subject.getPrincipals().byType(SecurityAssertion.class)).isEmpty())
-        ? subject
-            .getPrincipals()
-            .byType(SecurityAssertion.class)
-            .stream()
-            .sorted(SubjectUtils.getAssertionComparator())
-            .map(SecurityAssertion::getNotOnOrAfter)
-            .findFirst()
-            .orElse(null)
-        : null;
   }
 
   /**

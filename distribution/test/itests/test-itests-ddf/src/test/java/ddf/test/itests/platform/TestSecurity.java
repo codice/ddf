@@ -621,50 +621,6 @@ public class TestSecurity extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testSamlFederatedAuth() throws Exception {
-    configureRestForGuest(SERVICE_ROOT.getUrl());
-    getSecurityPolicy().waitForGuestAuthReady(SERVICE_ROOT.getUrl());
-    String recordId =
-        ingest(
-            getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
-
-    // Creating a new OpenSearch source with no username/password.
-    // When an OpenSearch source attempts to authenticate without a username/password it will
-    // use the subject in the request to create a SAML authentication token
-    Map<String, Object> openSearchProperties =
-        getOpenSearchSourceProperties(
-            OPENSEARCH_SAML_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
-    String opensearchPid =
-        getServiceManager()
-            .createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties)
-            .getPid();
-
-    try {
-      getCatalogBundle().waitForFederatedSource(OPENSEARCH_SAML_SOURCE_ID);
-
-      String openSearchQuery =
-          SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=" + OPENSEARCH_SAML_SOURCE_ID;
-      waitForSecurityHandlers(openSearchQuery);
-      given()
-          .when()
-          .get(openSearchQuery)
-          .then()
-          .log()
-          .ifValidationFails()
-          .assertThat()
-          .statusCode(equalTo(200))
-          .assertThat()
-          .body(
-              hasXPath(
-                  "//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
-
-      delete(recordId);
-    } finally {
-      getServiceManager().stopManagedService(opensearchPid);
-    }
-  }
-
-  @Test
   public void testBasicFederatedAuth() throws Exception {
     String opensearchPid;
     String cswPid = null;

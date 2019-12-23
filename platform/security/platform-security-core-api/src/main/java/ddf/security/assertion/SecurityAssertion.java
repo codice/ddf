@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * This class serves as a wrapper for a CXF SecurityToken
+ * This class serves as the object that underpins a Subject or user
  *
  * @author tustisos
  */
@@ -33,35 +33,35 @@ public interface SecurityAssertion extends Serializable {
   int NO_AUTH_WEIGHT = 10;
 
   /**
-   * Returns the Principal contained within the SecurityToken
+   * Returns the Principal
    *
    * @return Principal
    */
   Principal getPrincipal();
 
   /**
-   * Returns the name of the entity that issued the SecurityToken
+   * Returns the name of the entity that issued the token (if any)
    *
    * @return String - token issuer
    */
   String getIssuer();
 
   /**
-   * Returns the list of attribute statements contained in the SecurityToken
+   * Returns the list of attribute statements
    *
    * @return List<AttributeStatement>
    */
   List<AttributeStatement> getAttributeStatements();
 
   /**
-   * Returns the list of authn statements contained in the SecurityToken
+   * Returns the list of authn statements
    *
    * @return List<AuthnStatement>
    */
   List<AuthenticationStatement> getAuthnStatements();
 
   /**
-   * Returns the list of subject confirmations contained in the SecurityToken
+   * Returns the list of subject confirmations
    *
    * @return List<String>
    */

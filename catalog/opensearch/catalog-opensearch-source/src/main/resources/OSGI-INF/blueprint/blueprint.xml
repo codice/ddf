@@ -59,7 +59,7 @@
             <property name="shortname" value="DDF-OS"/>
             <property name="endpointUrl"
                       value="https://localhost:8993/services/query"/>
-            <property name="authenticationType" value="saml"/>
+            <property name="authenticationType" value="none"/>
             <property name="username" value=""/>
             <property name="password" value=""/>
             <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>

@@ -15,7 +15,6 @@ package org.codice.ddf.security.handler.api;
 
 import ddf.security.assertion.SecurityAssertion;
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,20 +41,15 @@ public class SAMLAuthenticationToken extends BaseAuthenticationToken {
    * @return the SAML token as a DOM element or null if it doesn't exist
    */
   public Element getSAMLTokenAsElement() {
-    SecurityToken token =
-        ((PrincipalCollection) getCredentials())
-            .byType(SecurityAssertion.class)
-            .stream()
-            .filter(sa -> StringUtils.containsIgnoreCase(sa.getTokenType(), "saml"))
-            .map(SecurityAssertion::getToken)
-            .filter(SecurityToken.class::isInstance)
-            .map(SecurityToken.class::cast)
-            .findFirst()
-            .orElse(null);
-    if (token != null) {
-      return token.getToken();
-    }
-    return null;
+    return ((PrincipalCollection) getCredentials())
+        .byType(SecurityAssertion.class)
+        .stream()
+        .filter(sa -> StringUtils.containsIgnoreCase(sa.getTokenType(), "saml"))
+        .map(SecurityAssertion::getToken)
+        .filter(Element.class::isInstance)
+        .map(Element.class::cast)
+        .findFirst()
+        .orElse(null);
   }
 
   @Override

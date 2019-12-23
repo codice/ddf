@@ -13,11 +13,7 @@
  */
 package org.codice.ddf.cxf;
 
-import static org.codice.ddf.security.common.jaxrs.RestSecurity.AUTH_HEADER;
-import static org.codice.ddf.security.common.jaxrs.RestSecurity.SAML_HEADER_PREFIX;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -163,18 +159,6 @@ public class SecureCxfClientFactoryTest {
   }
 
   @Test
-  public void testInsecureWebClientForSubject() throws Exception {
-    SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactoryImpl<>(INSECURE_ENDPOINT, IDummy.class);
-    Subject subject = setupMockSubject();
-    WebClient client = secureCxfClientFactory.getWebClientForSubject(subject);
-
-    assertThat(hasEcpEnabled(client), is(false));
-    assertThat(client.getBaseURI().toASCIIString().equals(INSECURE_ENDPOINT), is(true));
-    assertThat(client.getHeaders().get(AUTH_HEADER), is(nullValue()));
-  }
-
-  @Test
   public void testSecureClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
         new SecureCxfClientFactoryImpl<>(SECURE_ENDPOINT, IDummy.class);
@@ -191,31 +175,6 @@ public class SecureCxfClientFactoryTest {
 
     assertThat(hasEcpEnabled(client), is(true));
     assertThat(client.getBaseURI().toASCIIString().equals(SECURE_ENDPOINT), is(true));
-  }
-
-  @Test
-  public void testSecureClientForSubject() throws Exception {
-    SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactoryImpl<>(SECURE_ENDPOINT, IDummy.class);
-    Subject subject = setupMockSubject();
-    IDummy client = secureCxfClientFactory.getClientForSubject(subject);
-
-    assertThat(hasEcpEnabled(client), is(true));
-    assertThat(
-        WebClient.client(client).getHeaders().get(AUTH_HEADER).get(0),
-        startsWith(SAML_HEADER_PREFIX));
-  }
-
-  @Test
-  public void testSecureWebClientForSubject() throws Exception {
-    SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactoryImpl<>(SECURE_ENDPOINT, IDummy.class);
-    Subject subject = setupMockSubject();
-    WebClient client = secureCxfClientFactory.getWebClientForSubject(subject);
-
-    assertThat(hasEcpEnabled(client), is(true));
-    assertThat(client.getBaseURI().toASCIIString().equals(SECURE_ENDPOINT), is(true));
-    assertThat(client.getHeaders().get(AUTH_HEADER).get(0), startsWith(SAML_HEADER_PREFIX));
   }
 
   @Test

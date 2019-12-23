@@ -32,7 +32,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -307,14 +306,8 @@ public class SendEvent implements DeliveryMethod, Pingable {
       if (lastPing > System.currentTimeMillis() - retryTimeOffset) {
         return false;
       }
-    } else {
-      if (security.getExpires(subject) != null) {
-        if (!tokenAboutToExpire(subject)) {
-          return true;
-        }
-      } else if (lastPing > System.currentTimeMillis() - DEFAULT_PING_PERIOD) {
-        return true;
-      }
+    } else if (lastPing > System.currentTimeMillis() - DEFAULT_PING_PERIOD) {
+      return true;
     }
 
     return send(HttpMethod.HEAD, null);
@@ -326,20 +319,6 @@ public class SendEvent implements DeliveryMethod, Pingable {
     Collection<ServiceReference<AccessPlugin>> serviceCollection =
         bundleContext.getServiceReferences(AccessPlugin.class, null);
     return serviceCollection.stream().map(bundleContext::getService).collect(Collectors.toList());
-  }
-
-  private boolean tokenAboutToExpire(Subject subject) {
-    Date expires = security.getExpires(subject);
-    if (expires == null) {
-      return false;
-    }
-    long millisRemaining = expires.getTime() - System.currentTimeMillis();
-    millisRemaining = introduceJitter(millisRemaining, JITTER_PERCENT);
-    millisRemaining -= 60000L;
-    if (millisRemaining < 0) {
-      return true;
-    }
-    return false;
   }
 
   public long getLastPing() {

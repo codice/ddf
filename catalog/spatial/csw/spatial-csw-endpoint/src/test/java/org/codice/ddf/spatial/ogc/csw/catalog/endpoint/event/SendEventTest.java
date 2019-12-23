@@ -15,7 +15,6 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyObject;
@@ -38,7 +37,6 @@ import ddf.security.Subject;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -167,32 +165,6 @@ public class SendEventTest {
   public void testDeleted() throws Exception {
     sendEvent.deleted(metacard);
     verifyResults();
-  }
-
-  @Test
-  public void testIsAvailableSubjectExpiration() throws Exception {
-    when(webclient.invoke(eq("HEAD"), isNull())).thenReturn(response);
-    when(mockSecurity.getExpires(subject))
-        .thenReturn(new Date(System.currentTimeMillis() + 600000L))
-        .thenReturn(new Date(System.currentTimeMillis() + 600000L))
-        .thenReturn(new Date());
-    sendEvent.setSubject(subject);
-    boolean available;
-    while (!sendEvent.ping()) {}
-
-    long lastPing = sendEvent.getLastPing();
-    // sleep incase the test runs too fast we want to make sure their is a time difference
-    Thread.sleep(1);
-    // run within the expiration period of the assertion
-    available = sendEvent.ping();
-    assertThat(available, is(true));
-    assertThat(lastPing, not(sendEvent.getLastPing()));
-    // sleep incase the test runs too fast we want to make sure their is a time difference
-    Thread.sleep(1);
-    // run with expired assertion
-    available = sendEvent.ping();
-    assertThat(available, is(true));
-    assertThat(lastPing, not(sendEvent.getLastPing()));
   }
 
   @Test

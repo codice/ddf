@@ -37,7 +37,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.staxutils.StaxUtils;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
 import org.joda.time.DateTime;
@@ -51,6 +50,7 @@ import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
 
 /**
  * Implementation of the SecurityAssertion interface. This class wraps a SecurityToken.
@@ -71,8 +71,7 @@ public class SecurityAssertionSaml implements SecurityAssertion {
   public static final String SAML2_TOKEN_TYPE =
       "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
 
-  /** Wrapped SecurityToken. */
-  private SecurityToken securityToken;
+  private Element samlAssertion;
 
   /** Principal associated with the security token */
   private Principal principal;
@@ -106,27 +105,27 @@ public class SecurityAssertionSaml implements SecurityAssertion {
   /**
    * Constructor without usernameAttributeList
    *
-   * @param securityToken - token to wrap
+   * @param samlAssertion - token to wrap
    */
-  public SecurityAssertionSaml(SecurityToken securityToken) {
-    this(securityToken, new ArrayList<>());
+  public SecurityAssertionSaml(Element samlAssertion) {
+    this(samlAssertion, new ArrayList<>());
   }
 
   /**
    * Default Constructor
    *
-   * @param securityToken - token to wrap
+   * @param samlAssertion - token to wrap
    * @param usernameAttributeList - configurable list of attributes
    */
-  public SecurityAssertionSaml(SecurityToken securityToken, List<String> usernameAttributeList) {
+  public SecurityAssertionSaml(Element samlAssertion, List<String> usernameAttributeList) {
     init();
-    this.securityToken = securityToken;
+    this.samlAssertion = samlAssertion;
     if (usernameAttributeList == null) {
       this.usernameAttributeList = new ArrayList<>();
     } else {
       this.usernameAttributeList = new ArrayList<>(usernameAttributeList);
     }
-    parseToken(securityToken);
+    parseToken(samlAssertion);
     identifyNameIDFormat();
   }
 
@@ -146,10 +145,10 @@ public class SecurityAssertionSaml implements SecurityAssertion {
   /**
    * Parses the SecurityToken by wrapping within an AssertionWrapper.
    *
-   * @param securityToken SecurityToken
+   * @param samlAssertion SecurityToken
    */
-  private void parseToken(SecurityToken securityToken) {
-    XMLStreamReader xmlStreamReader = StaxUtils.createXMLStreamReader(securityToken.getToken());
+  private void parseToken(Element samlAssertion) {
+    XMLStreamReader xmlStreamReader = StaxUtils.createXMLStreamReader(samlAssertion);
 
     try {
       AttributeStatement attributeStatement = null;
@@ -300,7 +299,7 @@ public class SecurityAssertionSaml implements SecurityAssertion {
    */
   @Override
   public Principal getPrincipal() {
-    if (securityToken != null) {
+    if (samlAssertion != null) {
       if (principal == null || !principal.getName().equals(name)) {
         String authMethod = null;
         if (authenticationStatements != null) {
@@ -389,7 +388,7 @@ public class SecurityAssertionSaml implements SecurityAssertion {
    */
   @Override
   public Object getToken() {
-    return securityToken;
+    return samlAssertion;
   }
 
   /**

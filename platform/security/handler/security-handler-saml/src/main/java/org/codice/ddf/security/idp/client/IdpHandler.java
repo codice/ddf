@@ -56,7 +56,6 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
 import org.apache.cxf.rs.security.saml.sso.SamlpRequestComponentBuilder;
 import org.apache.cxf.staxutils.StaxUtils;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
@@ -288,7 +287,6 @@ public class IdpHandler implements AuthenticationHandler {
     String authHeader =
         ((HttpServletRequest) request).getHeader(SecurityConstants.SAML_HEADER_NAME);
     HandlerResult handlerResult = new HandlerResult();
-    SecurityToken securityToken;
 
     // check for full SAML assertions coming in (federated requests, etc.)
     if (authHeader != null) {
@@ -299,9 +297,11 @@ public class IdpHandler implements AuthenticationHandler {
         try {
           String tokenString = RestSecurity.inflateBase64(encodedSamlAssertion);
           LOGGER.trace("Header value: {}", LogSanitizer.sanitize(tokenString));
-          securityToken = SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(tokenString);
           SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
-          simplePrincipalCollection.add(new SecurityAssertionSaml(securityToken), "default");
+          simplePrincipalCollection.add(
+              new SecurityAssertionSaml(
+                  SAMLUtils.getInstance().getSecurityTokenFromSAMLAssertion(tokenString)),
+              "default");
           SAMLAuthenticationToken samlToken =
               new SAMLAuthenticationToken(
                   simplePrincipalCollection, simplePrincipalCollection, request.getRemoteAddr());
@@ -323,11 +323,9 @@ public class IdpHandler implements AuthenticationHandler {
       try {
         String tokenString = RestSecurity.inflateBase64(cookieValue);
         LOGGER.trace("Cookie value: {}", LogSanitizer.sanitize(tokenString));
-        securityToken = new SecurityToken();
         Element thisToken = StaxUtils.read(new StringReader(tokenString)).getDocumentElement();
-        securityToken.setToken(thisToken);
         SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
-        simplePrincipalCollection.add(new SecurityAssertionSaml(securityToken), "default");
+        simplePrincipalCollection.add(new SecurityAssertionSaml(thisToken), "default");
         SAMLAuthenticationToken samlToken =
             new SAMLAuthenticationToken(null, simplePrincipalCollection, request.getRemoteAddr());
         handlerResult.setToken(samlToken);

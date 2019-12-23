@@ -13,15 +13,16 @@
  */
 package org.codice.ddf.security.interceptor;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionPrincipalDefault;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
@@ -33,7 +34,6 @@ import org.apache.cxf.ws.security.wss4j.AbstractWSS4JInterceptor;
 import org.apache.cxf.ws.security.wss4j.PolicyBasedWSS4JInInterceptor;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.codice.ddf.security.common.Security;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,8 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
 
   private SecurityManager securityManager;
 
-  private Map<String, Subject> cachedGuestSubjectMap = new HashMap<>();
+  private Cache<String, Subject> guestSubjectCache =
+      CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.MINUTES).build();
 
   public GuestInterceptor(SecurityManager securityManager) {
     super();
@@ -70,34 +71,35 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
       HttpServletRequest request =
           (HttpServletRequest) message.get(AbstractHTTPDestination.HTTP_REQUEST);
       LOGGER.debug("Getting new Guest user token");
-      // synchronize the step of requesting the assertion, it is not thread safe
       Principal principal = null;
 
       Subject subject = getSubject(request.getRemoteAddr());
-      PrincipalCollection principals = subject.getPrincipals();
-      SecurityAssertion securityAssertion = principals.oneByType(SecurityAssertion.class);
-      if (securityAssertion != null) {
-        principal = new SecurityAssertionPrincipalDefault(securityAssertion);
-      } else {
-        LOGGER.debug("Subject did not contain a security assertion");
+      if (subject != null) {
+        PrincipalCollection principals = subject.getPrincipals();
+        SecurityAssertion securityAssertion = principals.oneByType(SecurityAssertion.class);
+        if (securityAssertion != null) {
+          principal = new SecurityAssertionPrincipalDefault(securityAssertion);
+        } else {
+          LOGGER.debug("Subject did not contain a security assertion");
+        }
+
+        message.put(SecurityContext.class, new DefaultSecurityContext(principal, null));
+        message.put(WSS4J_CHECK_STRING, Boolean.TRUE);
       }
-
-      message.put(SecurityContext.class, new DefaultSecurityContext(principal, null));
-      message.put(WSS4J_CHECK_STRING, Boolean.TRUE);
-
     } else {
       LOGGER.debug("Incoming SOAP message is null - guest interceptor makes no sense.");
     }
   }
 
   private synchronized Subject getSubject(String ipAddress) {
-    Subject subject = cachedGuestSubjectMap.get(ipAddress);
-    if (Security.getInstance().tokenAboutToExpire(subject)) {
+    Subject subject = guestSubjectCache.getIfPresent(ipAddress);
+    if (subject == null) {
       GuestAuthenticationToken token = new GuestAuthenticationToken(ipAddress);
       LOGGER.debug("Getting new Guest user token for {}", ipAddress);
       try {
         subject = securityManager.getSubject(token);
-        cachedGuestSubjectMap.put(ipAddress, subject);
+        // this should be a cache not a map so we can remove items, make this change
+        guestSubjectCache.put(ipAddress, subject);
       } catch (SecurityServiceException sse) {
         LOGGER.info("Unable to request subject for guest user.", sse);
       }

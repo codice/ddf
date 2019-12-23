@@ -20,7 +20,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -31,18 +30,13 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.security.PrivilegedAction;
-import java.util.Collections;
-import java.util.Date;
 import java.util.concurrent.Callable;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.ExecutionException;
-import org.apache.shiro.subject.PrincipalCollection;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -107,26 +101,6 @@ public class SecurityTest {
 
     Subject subject = security.getSubject("username", "password", "127.0.0.1");
     assertThat(subject, not(equalTo(null)));
-  }
-
-  @Test
-  public void testTokenAboutToExpire() throws Exception {
-    Subject subject = mock(Subject.class);
-    SecurityAssertion assertion = mock(SecurityAssertion.class);
-    when(assertion.getNotOnOrAfter()).thenReturn(new Date());
-    PrincipalCollection pc = mock(PrincipalCollection.class);
-    SecurityToken st = mock(SecurityToken.class);
-    when(st.isAboutToExpire(anyLong())).thenReturn(true);
-
-    assertThat(security.tokenAboutToExpire(null), equalTo(true));
-    assertThat(security.tokenAboutToExpire(subject), equalTo(true));
-    when(subject.getPrincipals()).thenReturn(pc);
-    assertThat(security.tokenAboutToExpire(subject), equalTo(true));
-    when(pc.byType(any(Class.class))).thenReturn(Collections.singletonList(assertion));
-    when(assertion.getToken()).thenReturn(st);
-    assertThat(security.tokenAboutToExpire(subject), equalTo(true));
-    when(st.isAboutToExpire(anyLong())).thenReturn(false);
-    assertThat(security.tokenAboutToExpire(subject), equalTo(true));
   }
 
   @Test

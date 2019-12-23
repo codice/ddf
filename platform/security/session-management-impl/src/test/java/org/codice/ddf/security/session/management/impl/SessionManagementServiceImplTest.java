@@ -47,7 +47,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
@@ -90,14 +89,8 @@ public class SessionManagementServiceImplTest {
   }
 
   private SecurityAssertion getSamlAssertion() throws Exception {
-    SecurityToken securityToken = mock(SecurityToken.class);
-    SecurityAssertion principal = mock(SecurityAssertion.class);
-    when(principal.getToken()).thenReturn(securityToken);
-    when(securityToken.getToken())
-        .thenReturn(
-            readXml(getClass().getClassLoader().getResourceAsStream("saml.xml"))
-                .getDocumentElement());
-    return new SecurityAssertionSaml(securityToken);
+    return new SecurityAssertionSaml(
+        readXml(getClass().getClassLoader().getResourceAsStream("saml.xml")).getDocumentElement());
   }
 
   private SecurityAssertion getOidcAssertion() throws Exception {
