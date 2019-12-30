@@ -121,11 +121,8 @@ class BaseLine extends React.Component {
   validatePoint(point) {
     if (
       point.length !== 2 ||
-      (Number.isNaN(Number.parseFloat(point[0])) &&
-        Number.isNaN(Number.parseFloat(point[1])))
-    ) {
-      return JSON.stringify(point) + ' is not a valid point.'
-    } else if (
+      Number.isNaN(Number.parseFloat(point[0])) ||
+      Number.isNaN(Number.parseFloat(point[1])) ||
       point[0] > 180 ||
       point[0] < -180 ||
       point[1] > 90 ||
@@ -180,13 +177,16 @@ class BaseLine extends React.Component {
       return false
     }
   }
+  buildWktString(coordinates) {
+    return '[[' + coordinates.join('],[') + ']]'
+  }
   convertWkt(value, numCoords) {
     const coordinatePairs = value.match(coordinatePairRegex)
     if (!coordinatePairs || coordinatePairs.length < numCoords) {
       return value
     }
     const coordinates = coordinatePairs.map(coord => coord.replace(' ', ','))
-    return `[[${coordinates.join('],[')}]]`
+    return buildWktString(coordinates)
   }
   convertMultiWkt(isPolygon, value) {
     if (isPolygon && !value.endsWith(')))')) {
@@ -206,8 +206,8 @@ class BaseLine extends React.Component {
     return shapes.length === 0
       ? value
       : shapes.length === 1
-        ? `[[${shapes[0].join('],[')}]]`
-        : `[${shapes.map(shapeCoords => `[[${shapeCoords.join('],[')}]]`)}]`
+        ? buildWktString(shapes[0])
+        : '[' + shapes.map(shapeCoords => buildWktString(shapeCoords)) + ']'
   }
 }
 
