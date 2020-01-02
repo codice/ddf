@@ -32,8 +32,8 @@ public interface PersistentStore {
     SUBSCRIPTION_TYPE("subscriptions"),
     EVENT_SUBSCRIPTIONS_TYPE("event_subscriptions"),
     ALERT_TYPE("alerts"),
-    DECANTER_TYPE("decanter");
-
+    DECANTER_TYPE("decanter"),
+    RESULTS_TYPE("result_cache");
     private String type;
 
     PersistenceType(final String type) {
