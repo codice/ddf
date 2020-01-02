@@ -21,11 +21,6 @@ import TextField from '../../text-field'
 import styled from 'styled-components'
 import { getFilteredSuggestions, inputMatchesSuggestions } from './enumHelper'
 import PropTypes from 'prop-types'
-import IconButton from 'material-ui/IconButton'
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
-import muiThemeable from 'material-ui/styles/muiThemeable'
-import IconMenu from 'material-ui/IconMenu'
 const sources = require('../../../component/singletons/sources-instance');
 
 
@@ -33,26 +28,35 @@ const TextWrapper = styled.div`
   padding: ${({ theme }) => theme.minimumSpacing};
 `
 const EnumMenuItem = props => (
-  <MenuItemDisabled {...props} style={{ paddingLeft: '1.5rem' }}/>
+  <MenuItemDisabled {...props} style={{ paddingLeft: '1.5rem'}}/>
 )
+
 /*
 <IconButton style={{ color: muiTheme.palette.warningColor }} alignItems="center" tooltip="Attribute Unsupported">
 </IconButton> 
                       
 <i className="fa fa-warning"style={{ color: muiTheme.palette.warningColor }} alignItems="center" />
 */
-const ImageIcon = styled.i.attrs(props => ({
-  className: "fa fa-info-circle"
-}))`
+const ImageIcon = styled.i`
 color: #000;
-:hover {
-  color: #ed1212;
-  cursor: pointer;
+text-align:center
+:hover .tooltiptext {
+  visibility: visible;
 }
-:hover.tooltiptext {
-  visibility : visible
-}
+`
+//div<{ active: boolean; selected: boolean; disabled: boolean}>
+const UnsupportedToolTip = styled.div`
+visibility: hidden;
+width: 120px;
+background-color: black;
+color: #fff;
+text-align: center;
+border-radius: 6px;
+padding: 5px 0;
 
+/* Position the tooltip */
+position: absolute;
+z-index: 1;
 `
 
 const isIconDisplayed = (AllSupportedAttributes,currValue) => {
@@ -114,6 +118,16 @@ const isAttributeUnsupported = (currValue,settingsModel) => {
   }
 }
 
+//const theme = 
+
+const isAttributeUnsupportedEnum = (settingsModel,suggestion) => {
+
+
+  return settingsModel && isAttributeUnsupported(suggestion.value,settingsModel.attributes.src); 
+
+
+}
+
 const EnumInput = ({
   allowCustom,
   matchCase,
@@ -123,6 +137,7 @@ const EnumInput = ({
   settingsModel
 }) => {
   const [input, setInput] = useState('')
+  
   const selected = suggestions.find(suggestion => suggestion.value === value)
   console.log(selected);
   const filteredSuggestions = getFilteredSuggestions(
@@ -130,15 +145,12 @@ const EnumInput = ({
     suggestions,
     matchCase
   )
+  console.log(sources)
   console.log(settingsModel);
   console.log(filteredSuggestions)
   console.log(sources.models);
 
   const displayInput = !inputMatchesSuggestions(input, suggestions, matchCase)
-
-
-  
-
   return (
     
     <Dropdown label={(selected && selected.label) || value}>
@@ -151,32 +163,139 @@ const EnumInput = ({
           onChange={setInput}
         />
       </TextWrapper>
-      <Menu value={value} onChange={onChange}>
+      <Menu value={value} onChange={onChange} class="fa">
         {allowCustom &&
           displayInput && (
             <EnumMenuItem value={input}>{input} (custom)</EnumMenuItem>
           )}
         {filteredSuggestions.map(suggestion => {
           return (
-          
-
-            //need to figire ou hw to render disbaled without prnting object object
-            <EnumMenuItem key={suggestion.value} value={suggestion.value} disabled={isAttributeUnsupported(suggestion.value,settingsModel.attributes.src)}>
-              {suggestion.label}
-              {settingsModel && isAttributeUnsupported(suggestion.value,settingsModel.attributes.src) &&
-                    <span>
-                        <ImageIcon className="fa fa-info-circle" ></ImageIcon>
-                    </span>
-              }
-            </EnumMenuItem>
-        
-          )
+            
+              <EnumMenuItem
+                  title={isAttributeUnsupportedEnum(settingsModel,suggestion) ? 'Attribute is unsupported by the content store' : ''}  
+                  key={suggestion.value} 
+                  value={suggestion.value} 
+                  disabled={settingsModel && isAttributeUnsupported(suggestion.value,settingsModel.attributes.src)}
+                  >
+                  {suggestion.label}
+              </EnumMenuItem>
+            
+             )
         })}
       </Menu>
     </Dropdown>
   )
 }
-//<ImageIcon className="fa fa-info-circle" ></ImageIcon>
+/*
+
+
+
+
+
+
+
+
+
+
+with pointer -event disabled and using buttons to disable 
+
+ <button disabled={settingsModel && isAttributeUnsupported(suggestion.value,settingsModel.attributes.src)}>     
+                        {suggestion.label}  
+                       </button>     
+
+                        {settingsModel && isAttributeUnsupported(suggestion.value,settingsModel.attributes.src) &&
+                            
+                            <Tooltip title="Attribute is unsupported by the current content store selected" placement="right">
+                              <span> 
+                                  <button disabled>         
+                                      <ImageIcon  className="fa fa-info-circle"></ImageIcon>
+                                  </button>
+                              </span>
+                            </Tooltip>                 
+                        }
+
+
+
+
+<div>
+                  <EnumMenuItem          
+                    key={suggestion.value} 
+                    value={suggestion.value} 
+                    disabled={settingsModel && isAttributeUnsupported(suggestion.value,settingsModel.attributes.src)}
+                    >
+                    {suggestion.label}
+                    
+                    </EnumMenuItem>
+                    <div style = {{display : 'inline-block'}}>
+                    {settingsModel && isAttributeUnsupported(suggestion.value,settingsModel.attributes.src) &&
+                        <Tooltip title="Attribute is unsupported by the current content store selected">
+                          <span>
+                          <button disabled>
+                              <ImageIcon  className="fa fa-info-circle"></ImageIcon>
+                          </button>
+                          </span>
+                        </Tooltip>
+                    }
+                    </div>
+              </div> 
+
+
+ <span>
+              
+ 
+                  <ImageIcon 
+                    className="fa fa-info-circle"
+                    aria-owns={open ? 'mouse-over-popover' : undefined}
+                    aria-haspopup="true"
+                    onMouseEnter={handlePopoverOpen}
+                    onMouseLeave={handlePopoverClose}
+                    onMouseOver={handlePopoverOpen}
+                  >
+                  </ImageIcon>
+                  <Popover
+                  id="mouse-over-popover"
+                  className={classes.popover}
+                  classes={{
+                    paper: classes.paper,
+                  }}
+                  open={open}
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                  }}
+                  onClose={handlePopoverClose}
+                  >
+                  <h3>Unsupported Attribute due to content store selection</h3>
+                </Popover>
+                <UnsupportedToolTip className="tooltiptext">Unsupported attribute</UnsupportedToolTip>
+              </span>     
+
+
+
+
+              <Tooltip title="Attribute is unsupported by the current content store selected">
+                <span>
+                    <ImageIcon className="fa fa-info-circle"></ImageIcon>
+                </span>
+              </Tooltip>
+
+        onMouseEnter={handlePopoverOpen}
+        onMouseLeave={handlePopoverClose}
+
+
+{settingsModel && isAttributeUnsupported(suggestion.value,settingsModel.attributes.src) &&
+<span>    
+  <ImageIcon className="fa fa-info-circle" ></ImageIcon>
+  <UnsupportedToolTip className = "tooltiptext">Attribute is Usupported bu the Content Store selected</UnsupportedToolTip>
+</span>
+}
+*/
+//<ImageIcon className="fa fa-warning" ></ImageIcon>
 EnumInput.propTypes = {
   /** The current selected value. */
   value: PropTypes.string,
