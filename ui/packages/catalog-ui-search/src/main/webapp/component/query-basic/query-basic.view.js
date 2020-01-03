@@ -26,6 +26,7 @@ const Property = require('../property/property.js')
 const properties = require('../../js/properties.js')
 const cql = require('../../js/cql.js')
 const metacardDefinitions = require('../singletons/metacard-definitions.js')
+const sources = require('../singletons/sources-instance.js')
 const CQLUtils = require('../../js/CQLUtils.js')
 const QuerySettingsView = require('../query-settings/query-settings.view.js')
 const QueryTimeView = require('../query-time/query-time.view.js')
@@ -48,7 +49,7 @@ function getMatchTypeAttribute() {
     : 'datatype'
 }
 
-const getMatchTypes = memoize(async () => {
+const getMatchTypesPresentInResults = memoize(async () => {
   const matchTypeAttr = getMatchTypeAttribute()
   const json = await query({
     count: 0,
@@ -65,6 +66,50 @@ const getMatchTypes = memoize(async () => {
       class: 'icon ' + IconHelper.getClassByName(value),
     }))
 })
+
+function getAllValidValuesForMatchTypeAttribute() {
+  const matchTypeAttr = getMatchTypeAttribute()
+  return metacardDefinitions.enums[matchTypeAttr]
+    ? metacardDefinitions.enums[matchTypeAttr].reduce((enumMap, value) => {
+        enumMap[value] = {
+          label: value,
+          value,
+          class: 'icon ' + IconHelper.getClassByName(value),
+        }
+        return enumMap
+      }, {})
+    : {}
+}
+
+function getPredefinedMatchTypes() {
+  const matchTypesMap = sources
+    .toJSON()
+    .flatMap(source => source.contentTypes)
+    .reduce((enumMap, contentType) => {
+      if (contentType.value && !enumMap[contentType.value]) {
+        enumMap[contentType.value] = {
+          label: contentType.name,
+          value: contentType.value,
+          class: 'icon ' + IconHelper.getClassByName(contentType.value),
+        }
+      }
+      return enumMap
+    }, getAllValidValuesForMatchTypeAttribute())
+  return Object.values(matchTypesMap)
+}
+
+async function getMatchTypes() {
+  try {
+    const facetedMatchTypes = await getMatchTypesPresentInResults()
+    if (facetedMatchTypes.length > 0) {
+      return Promise.resolve(facetedMatchTypes)
+    }
+    const predefinedMatchTypes = getPredefinedMatchTypes()
+    return Promise.resolve(predefinedMatchTypes)
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
 
 const NoMatchTypesView = Marionette.ItemView.extend({
   template() {
