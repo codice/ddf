@@ -287,7 +287,7 @@ type MenutItemPropsDisabled = {
 
 const ItemRootDisabled = 
 
-    styled.option<{ active: boolean; selected: boolean; disabled: boolean}>`
+    styled.option<{ active: boolean;  disabled: boolean}>`
   position: relative;
   padding: 0px ${({ theme }) => theme.minimumSpacing};
   padding-right: ${({ theme }) => theme.minimumButtonSize};
@@ -304,37 +304,19 @@ const ItemRootDisabled =
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  ${({ theme, active }) =>
-    active ? `box-shadow: inset 0px 0px 0px 1px  ${theme.primaryColor};` : ''}
-  ${({ selected }) => (selected ? 'font-weight: bold;' : '')}
-  ${({ selected }) => (selected ? after : '')}
-  background: ${(props) => (props.active ? background(props) : 'inherit')};
+  ${({ theme, active,disabled }) =>
+    active && !disabled ? `box-shadow: inset 0px 0px 0px 1px  ${theme.primaryColor};` : ''}
+  ${({ active }) => (active ? 'font-weight: bold;' : '')}
+  ${({ active,disabled }) => (active && !disabled ? after : '')}
+  background: ${(props) => (props.active && !props.disabled? background(props) : 'inherit')};
   color: ${(props) => props.disabled ? 'lightgrey' : foreground};
-  hovertext : ${(props) => props.disabled ? 'Attribute Unsuppported' : ''}
 `
-
-export const DisbaledDiv = (props : MenutItemPropsDisabled) => {
-
-  const { value, onClick, onHover, style} = props
-  return (
-    <div
-    style={style}
-    onMouseEnter={() => onHover(value)}
-    onFocus={() => onHover(value)}
-    tabIndex={0}
-    onClick={() => onClick(value)} 
-    > </div>
-  )
-
-}
-
 export const MenuItemDisabled = (props: MenutItemPropsDisabled) => {
 
-  const { value, children, selected, onClick, active, onHover, style,disabled,title} = props
+  const { value, children, onClick, active, onHover, style,disabled,title} = props
   return (
     <ItemRootDisabled
       disabled={disabled}
-      selected={selected}
       active={active}
       style={style}
       onMouseEnter={() => onHover(value)}
