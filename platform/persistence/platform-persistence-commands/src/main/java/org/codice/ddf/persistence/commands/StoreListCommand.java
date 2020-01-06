@@ -74,15 +74,4 @@ public class StoreListCommand extends AbstractStoreCommand {
     }
     console.println("");
   }
-
-  private String createCql(String user, String cql) {
-    if (StringUtils.isNotBlank(user)) {
-      if (StringUtils.isNotBlank(cql)) {
-        cql = cql + " AND user='" + user + "'";
-      } else {
-        cql = "user='" + user + "'";
-      }
-    }
-    return cql;
-  }
 }

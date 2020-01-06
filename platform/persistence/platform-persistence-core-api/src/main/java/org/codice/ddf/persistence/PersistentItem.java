@@ -13,10 +13,13 @@
  */
 package org.codice.ddf.persistence;
 
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 
 @SuppressWarnings("unchecked")
@@ -36,7 +39,7 @@ public class PersistentItem extends HashMap<String, Object> {
 
   public static final String BINARY_SUFFIX = "_bin";
 
-  private static final String[] SUFFIXES =
+  public static final String[] SUFFIXES =
       new String[] {TEXT_SUFFIX, XML_SUFFIX, INT_SUFFIX, LONG_SUFFIX, DATE_SUFFIX, BINARY_SUFFIX};
 
   private static final long serialVersionUID = 6030726429622527480L;
@@ -140,6 +143,18 @@ public class PersistentItem extends HashMap<String, Object> {
 
   public Date getDateProperty(String name) {
     return (Date) getProperty(name + DATE_SUFFIX);
+  }
+
+  public void encodeBinaryProperties() {
+    List<String> binKey =
+        this.keySet()
+            .stream()
+            .filter(key -> key.contains(BINARY_SUFFIX))
+            .collect(Collectors.toList());
+
+    for (String key : binKey) {
+      put(key, Base64.getEncoder().encodeToString((byte[]) get(key)));
+    }
   }
 
   public String getBinaryProperty(String name) {

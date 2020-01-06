@@ -15,6 +15,7 @@ package org.codice.ddf.persistence.commands;
 
 import java.io.PrintStream;
 import java.util.Arrays;
+import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
@@ -81,4 +82,14 @@ public abstract class AbstractStoreCommand implements Action {
 
   /** Calls a command that operates on the Persistent Store service. */
   abstract void storeCommand() throws PersistenceException;
+
+  protected String createCql(String user, String cql) {
+    if (StringUtils.isBlank(user)) return cql;
+    if (StringUtils.isNotBlank(cql)) {
+      cql = cql + " AND user='" + user + "'";
+    } else {
+      cql = "user='" + user + "'";
+    }
+    return cql;
+  }
 }

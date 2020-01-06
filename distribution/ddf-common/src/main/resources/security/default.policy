@@ -199,7 +199,7 @@ grant codeBase "file:/org.apache.karaf.shell.core/org.apache.shiro.core" {
     permission java.io.FilePermission "<<ALL FILES>>", "read,write";
 }
 
-grant codeBase "file:/catalog-core-commands" {
+grant codeBase "file:/catalog-core-commands/persistence-core-commands" {
     permission java.io.FilePermission "<<ALL FILES>>", "read,write";
 }
 
