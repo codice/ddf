@@ -214,7 +214,6 @@ public class UtmUpsCoordinateProcessor {
   private static String makeSuggestionText(UtmUpsCoordinate utmUps) {
     final StringBuilder nameBuilder = new StringBuilder();
     if (utmUps.isUTM()) {
-      // TODO add (hemisphere) / (latitude bands)
       nameBuilder.append("UTM: [ ").append(utmUps.toString()).append(" ]");
       if (utmUps.getLatitudeBand() == null) {
         if (utmUps.getNSIndicator() == NSIndicator.SOUTH) {
