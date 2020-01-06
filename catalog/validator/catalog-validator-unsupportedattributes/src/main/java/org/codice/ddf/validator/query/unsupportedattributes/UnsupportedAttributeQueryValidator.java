@@ -22,6 +22,7 @@ import ddf.catalog.validation.impl.violation.QueryValidationViolationImpl;
 import ddf.catalog.validation.violation.QueryValidationViolation;
 import ddf.catalog.validation.violation.QueryValidationViolation.Severity;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class UnsupportedAttributeQueryValidator implements QueryValidator {
 
   private AttributeExtractor attributeExtractor;
 
-  private Map<String, Set<String>> sourceIdToSupportedAttributesMap = Collections.emptyMap();
+  private Map<String, Set<String>> sourceIdToSupportedAttributesMap = new HashMap<>();
 
   public UnsupportedAttributeQueryValidator(AttributeExtractor attributeExtractor) {
     this.attributeExtractor = attributeExtractor;
@@ -84,10 +85,11 @@ public class UnsupportedAttributeQueryValidator implements QueryValidator {
       }
       Set<String> supportedAttributes = sourceIdToSupportedAttributesMap.get(sourceId);
       if (!supportedAttributes.contains(attribute)) {
-        LOGGER.debug("Source {} does not support querying by attribute {}", sourceId, attribute);
+        LOGGER.debug(
+            "Source \"{}\" does not support querying by attribute {}", sourceId, attribute);
         sourcesThatDontSupportAttribute.add(sourceId);
       } else {
-        LOGGER.debug("Source {} supports querying by attribute {}", sourceId, attribute);
+        LOGGER.debug("Source \"{}\" supports querying by attribute {}", sourceId, attribute);
       }
     }
 
@@ -126,13 +128,35 @@ public class UnsupportedAttributeQueryValidator implements QueryValidator {
     }
   }
 
-  public void setSourceAttributeRestrictions(List<SourceAttributeRestriction> restrictions) {
-    this.sourceIdToSupportedAttributesMap =
-        restrictions
-            .stream()
-            .collect(
-                Collectors.toMap(
-                    r -> r.getSource().getId(),
-                    SourceAttributeRestriction::getSupportedAttributes));
+  /**
+   * Adds a new {@code SourceAttributeRestriction} to the {@code sourceIdToSupportedAttributesMap}
+   * map. Called by blueprint when a new {@code SourceAttributeRestriction} is registered as a
+   * service.
+   *
+   * @param sourceAttributeRestriction the new {@code SourceAttributeRestriction} to be registered.
+   */
+  public void bind(SourceAttributeRestriction sourceAttributeRestriction) {
+    if (sourceAttributeRestriction != null) {
+      String sourceId = sourceAttributeRestriction.getSource().getId();
+      LOGGER.trace("Binding new SourceAttributeRestriction instance with id {}", sourceId);
+      sourceIdToSupportedAttributesMap.put(
+          sourceId, sourceAttributeRestriction.getSupportedAttributes());
+    }
+  }
+
+  /**
+   * Removes an existing {@code SourceAttributeRestriction} from the {@code
+   * sourceIdToSupportedAttributesMap} map. Called by blueprint when an existing {@code
+   * SourceAttributeRestriction} service is removed.
+   *
+   * @param sourceAttributeRestriction the {@code SourceAttributeRestriction} to be removed from the
+   *     collection.
+   */
+  public void unbind(SourceAttributeRestriction sourceAttributeRestriction) {
+    if (sourceAttributeRestriction != null) {
+      String sourceId = sourceAttributeRestriction.getSource().getId();
+      LOGGER.trace("Unbinding SourceAttributeRestriction instance with id {}", sourceId);
+      sourceIdToSupportedAttributesMap.remove(sourceId);
+    }
   }
 }

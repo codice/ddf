@@ -284,16 +284,12 @@ Implementation details
         <argument ref="endpointUtil"/>
     </bean>
 
-    <reference-list id="queryValidators" interface="ddf.catalog.validation.QueryValidator"
-      availability="optional">
-        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin">
-            <bean class="org.codice.ddf.platform.util.SortedServiceList"/>
-        </reference-listener>
-    </reference-list>
+    <bean id="queryValidators" class="org.codice.ddf.catalog.ui.query.validate.QueryValidators"/>
 
-    <bean id="queryValidatorsById" class="org.codice.ddf.catalog.ui.query.validate.QueryValidatorsById">
-        <property name="queryValidators" ref="queryValidators"/>
-    </bean>
+    <reference-list interface="ddf.catalog.validation.QueryValidator"
+      availability="optional">
+        <reference-listener ref="queryValidators" bind-method="bind" unbind-method="unbind"/>
+    </reference-list>
 
     <bean id="cqlRequestParser" class="org.codice.ddf.catalog.ui.query.validate.CqlRequestParser">
         <argument ref="catalogFramework"/>
@@ -303,7 +299,7 @@ Implementation details
 
     <bean id="cqlValidationHandler"
       class="org.codice.ddf.catalog.ui.query.validate.CqlValidationHandler">
-        <argument ref="queryValidatorsById"/>
+        <argument ref="queryValidators"/>
         <argument ref="cqlRequestParser"/>
     </bean>
 

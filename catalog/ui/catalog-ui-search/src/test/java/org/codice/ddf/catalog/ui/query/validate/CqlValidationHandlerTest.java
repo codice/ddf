@@ -45,13 +45,13 @@ public class CqlValidationHandlerTest {
 
   private CqlRequestParser parser = mock(CqlRequestParser.class);
 
-  private QueryValidatorsById queryValidatorsById = mock(QueryValidatorsById.class);
+  private QueryValidators queryValidators = mock(QueryValidators.class);
 
   private FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
   @Test
   public void testHandleUnknownValidatorId() throws Exception {
-    when(queryValidatorsById.get(any())).thenReturn(null);
+    when(queryValidators.get(any())).thenReturn(null);
     QueryRequest queryRequest =
         createQueryRequest(filterBuilder.attribute("attr").is().text("val"), "src");
     when(parser.parse(any())).thenReturn(queryRequest);
@@ -59,7 +59,7 @@ public class CqlValidationHandlerTest {
     when(request.params(":validatorId")).thenReturn("invalidId");
     Response response = mock(Response.class);
 
-    cqlValidationHandler = new CqlValidationHandler(queryValidatorsById, parser);
+    cqlValidationHandler = new CqlValidationHandler(queryValidators, parser);
     Object objResponse = cqlValidationHandler.handle(request, response);
 
     verify(response).status(404);
@@ -78,14 +78,14 @@ public class CqlValidationHandlerTest {
     QueryValidator validator = mock(QueryValidator.class);
     when(validator.validate(any())).thenReturn(ImmutableSet.of(violation));
     when(validator.getValidatorId()).thenReturn("id");
-    when(queryValidatorsById.get("id")).thenReturn(validator);
+    when(queryValidators.get("id")).thenReturn(validator);
     QueryRequest queryRequest = mock(QueryRequest.class);
     when(parser.parse(any())).thenReturn(queryRequest);
     Request request = mock(Request.class);
     when(request.params(":validatorId")).thenReturn("id");
     Response response = mock(Response.class);
 
-    cqlValidationHandler = new CqlValidationHandler(queryValidatorsById, parser);
+    cqlValidationHandler = new CqlValidationHandler(queryValidators, parser);
     Object objResponse = cqlValidationHandler.handle(request, response);
 
     Map<String, Object> jsonResponse = (Map<String, Object>) objResponse;
@@ -110,14 +110,14 @@ public class CqlValidationHandlerTest {
     QueryValidator validator = mock(QueryValidator.class);
     when(validator.validate(any())).thenReturn(ImmutableSet.of(violation1, violation2));
     when(validator.getValidatorId()).thenReturn("id");
-    when(queryValidatorsById.get("id")).thenReturn(validator);
+    when(queryValidators.get("id")).thenReturn(validator);
     QueryRequest queryRequest = mock(QueryRequest.class);
     when(parser.parse(any())).thenReturn(queryRequest);
     Request request = mock(Request.class);
     when(request.params(":validatorId")).thenReturn("id");
     Response response = mock(Response.class);
 
-    cqlValidationHandler = new CqlValidationHandler(queryValidatorsById, parser);
+    cqlValidationHandler = new CqlValidationHandler(queryValidators, parser);
     Object objResponse = cqlValidationHandler.handle(request, response);
 
     Map<String, Object> jsonResponse = (Map<String, Object>) objResponse;

@@ -19,7 +19,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.source.Source;
@@ -27,8 +26,6 @@ import ddf.catalog.source.SourceAttributeRestriction;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.validation.violation.QueryValidationViolation;
 import ddf.catalog.validation.violation.QueryValidationViolation.Severity;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.hamcrest.Matchers;
@@ -48,11 +45,10 @@ public class UnsupportedAttributeQueryValidatorTest {
   }
 
   @Test
-  public void testValidateNoViolationsIfRestrictionsListIsEmpty() throws UnsupportedQueryException {
-    List<SourceAttributeRestriction> noRestrictions = Collections.emptyList();
+  public void testValidateNoViolationsIfNoRestrictionsRegistered()
+      throws UnsupportedQueryException {
     Mockito.when(attributeExtractor.extractAttributes(any())).thenReturn(ImmutableSet.of("attr-1"));
     validator = new UnsupportedAttributeQueryValidator(attributeExtractor);
-    validator.setSourceAttributeRestrictions(noRestrictions);
 
     QueryRequest request = mockQueryRequest("src-1");
     Set<QueryValidationViolation> violations = validator.validate(request);
@@ -62,12 +58,10 @@ public class UnsupportedAttributeQueryValidatorTest {
 
   @Test
   public void testValidateSingleValidAttribute() throws UnsupportedQueryException {
-    List<SourceAttributeRestriction> restrictions =
-        ImmutableList.of(mockRestriction("src-1", ImmutableSet.of("attr")));
     Mockito.when(attributeExtractor.extractAttributes(any())).thenReturn(ImmutableSet.of("attr"));
     QueryRequest request = mockQueryRequest("src-1");
     validator = new UnsupportedAttributeQueryValidator(attributeExtractor);
-    validator.setSourceAttributeRestrictions(restrictions);
+    validator.bind(mockRestriction("src-1", ImmutableSet.of("attr")));
 
     Set<QueryValidationViolation> violations = validator.validate(request);
 
@@ -76,12 +70,10 @@ public class UnsupportedAttributeQueryValidatorTest {
 
   @Test
   public void testValidateSingleInvalidAttribute() throws UnsupportedQueryException {
-    List<SourceAttributeRestriction> restrictions =
-        ImmutableList.of(mockRestriction("src-1", ImmutableSet.of("attr-1")));
     Mockito.when(attributeExtractor.extractAttributes(any())).thenReturn(ImmutableSet.of("attr-2"));
     QueryRequest request = mockQueryRequest("src-1");
     validator = new UnsupportedAttributeQueryValidator(attributeExtractor);
-    validator.setSourceAttributeRestrictions(restrictions);
+    validator.bind(mockRestriction("src-1", ImmutableSet.of("attr-1")));
 
     Set<QueryValidationViolation> violations = validator.validate(request);
 
@@ -100,12 +92,10 @@ public class UnsupportedAttributeQueryValidatorTest {
   @Test
   public void testValidateNoViolationsIfSourceDoesNotHaveRestriction()
       throws UnsupportedQueryException {
-    List<SourceAttributeRestriction> restrictions =
-        ImmutableList.of(mockRestriction("src-2", ImmutableSet.of("attr-2")));
     Mockito.when(attributeExtractor.extractAttributes(any())).thenReturn(ImmutableSet.of("attr-2"));
     QueryRequest request = mockQueryRequest("src-1");
     validator = new UnsupportedAttributeQueryValidator(attributeExtractor);
-    validator.setSourceAttributeRestrictions(restrictions);
+    validator.bind(mockRestriction("src-2", ImmutableSet.of("attr-2")));
 
     Set<QueryValidationViolation> violations = validator.validate(request);
 
@@ -115,13 +105,11 @@ public class UnsupportedAttributeQueryValidatorTest {
   @Test
   public void testValidateNoViolationsIfFailedToGetAttributesFromQuery()
       throws UnsupportedQueryException {
-    List<SourceAttributeRestriction> restrictions =
-        ImmutableList.of(mockRestriction("src-1", ImmutableSet.of("attr-1")));
     Mockito.when(attributeExtractor.extractAttributes(any()))
         .thenThrow(UnsupportedQueryException.class);
     QueryRequest request = mockQueryRequest("src-1");
     validator = new UnsupportedAttributeQueryValidator(attributeExtractor);
-    validator.setSourceAttributeRestrictions(restrictions);
+    validator.bind(mockRestriction("src-1", ImmutableSet.of("attr-1")));
 
     Set<QueryValidationViolation> violations = validator.validate(request);
 
@@ -130,13 +118,11 @@ public class UnsupportedAttributeQueryValidatorTest {
 
   @Test
   public void testValidateMultipleInvalidAttributes() throws UnsupportedQueryException {
-    List<SourceAttributeRestriction> restrictions =
-        ImmutableList.of(mockRestriction("src-1", ImmutableSet.of("attr-1")));
     Mockito.when(attributeExtractor.extractAttributes(any()))
         .thenReturn(ImmutableSet.of("attr-2", "attr-3"));
     QueryRequest request = mockQueryRequest("src-1");
     validator = new UnsupportedAttributeQueryValidator(attributeExtractor);
-    validator.setSourceAttributeRestrictions(restrictions);
+    validator.bind(mockRestriction("src-1", ImmutableSet.of("attr-1")));
 
     Set<QueryValidationViolation> violations = validator.validate(request);
 
@@ -162,14 +148,11 @@ public class UnsupportedAttributeQueryValidatorTest {
 
   @Test
   public void testValidateTwoSourcesProduceCorrectMessage() throws UnsupportedQueryException {
-    List<SourceAttributeRestriction> restrictions =
-        ImmutableList.of(
-            mockRestriction("src-1", ImmutableSet.of("attr-1")),
-            mockRestriction("src-2", ImmutableSet.of("attr-1")));
     Mockito.when(attributeExtractor.extractAttributes(any())).thenReturn(ImmutableSet.of("attr-2"));
     QueryRequest request = mockQueryRequest("src-1", "src-2");
     validator = new UnsupportedAttributeQueryValidator(attributeExtractor);
-    validator.setSourceAttributeRestrictions(restrictions);
+    validator.bind(mockRestriction("src-1", ImmutableSet.of("attr-1")));
+    validator.bind(mockRestriction("src-2", ImmutableSet.of("attr-1")));
 
     Set<QueryValidationViolation> violations = validator.validate(request);
 
@@ -187,15 +170,12 @@ public class UnsupportedAttributeQueryValidatorTest {
 
   @Test
   public void testValidateThreeSourcesProduceCorrectMessage() throws UnsupportedQueryException {
-    List<SourceAttributeRestriction> restrictions =
-        ImmutableList.of(
-            mockRestriction("src-1", ImmutableSet.of("attr-1")),
-            mockRestriction("src-2", ImmutableSet.of("attr-1")),
-            mockRestriction("src-3", ImmutableSet.of("attr-1")));
     Mockito.when(attributeExtractor.extractAttributes(any())).thenReturn(ImmutableSet.of("attr-2"));
     QueryRequest request = mockQueryRequest("src-1", "src-2", "src-3");
     validator = new UnsupportedAttributeQueryValidator(attributeExtractor);
-    validator.setSourceAttributeRestrictions(restrictions);
+    validator.bind(mockRestriction("src-1", ImmutableSet.of("attr-1")));
+    validator.bind(mockRestriction("src-2", ImmutableSet.of("attr-1")));
+    validator.bind(mockRestriction("src-3", ImmutableSet.of("attr-1")));
 
     Set<QueryValidationViolation> violations = validator.validate(request);
 
@@ -211,6 +191,35 @@ public class UnsupportedAttributeQueryValidatorTest {
       assertThat(
           (Set<String>) extraData.get("sources"), Matchers.hasItems("src-1", "src-2", "src-3"));
     }
+  }
+
+  @Test
+  public void testBindNullSourceAttributeRestrictionDoesNotErrorOut() {
+    validator = new UnsupportedAttributeQueryValidator(attributeExtractor);
+    validator.bind(null);
+  }
+
+  @Test
+  public void testUnbindNullSourceAttributeRestrictionDoesNotErrorOut() {
+    validator = new UnsupportedAttributeQueryValidator(attributeExtractor);
+    validator.unbind(null);
+  }
+
+  @Test
+  public void testUnbind() throws UnsupportedQueryException {
+    Mockito.when(attributeExtractor.extractAttributes(any())).thenReturn(ImmutableSet.of("attr-2"));
+    QueryRequest request = mockQueryRequest("src-1");
+    validator = new UnsupportedAttributeQueryValidator(attributeExtractor);
+
+    // There is one violation because a SourceAttributeViolation was bound
+    validator.bind(mockRestriction("src-1", ImmutableSet.of("attr-1")));
+    Set<QueryValidationViolation> violations = validator.validate(request);
+    assertThat(violations, hasSize(1));
+
+    // There are no violations because the SourceAttributeViolation was unbound
+    validator.unbind(mockRestriction("src-1", ImmutableSet.of("attr-1")));
+    Set<QueryValidationViolation> violationsAfterUnbind = validator.validate(request);
+    assertThat(violationsAfterUnbind, hasSize(0));
   }
 
   private QueryRequest mockQueryRequest(String... sourceIds) {

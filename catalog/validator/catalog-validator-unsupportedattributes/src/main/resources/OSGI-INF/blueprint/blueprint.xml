@@ -20,18 +20,15 @@
     <argument ref="filterAdapter"/>
   </bean>
 
-  <reference-list id="attributeRestrictions" interface="ddf.catalog.source.SourceAttributeRestriction"
+  <bean id="unsupportedAttributeQueryValidator" class="org.codice.ddf.validator.query.unsupportedattributes.UnsupportedAttributeQueryValidator">
+    <argument ref="attributeExtractor"/>
+  </bean>
+
+  <reference-list interface="ddf.catalog.source.SourceAttributeRestriction"
     availability="optional">
-    <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin">
-      <bean class="org.codice.ddf.platform.util.SortedServiceList"/>
-    </reference-listener>
+    <reference-listener ref="unsupportedAttributeQueryValidator" bind-method="bind" unbind-method="unbind"/>
   </reference-list>
 
-  <service interface="ddf.catalog.validation.QueryValidator">
-    <bean class="org.codice.ddf.validator.query.unsupportedattributes.UnsupportedAttributeQueryValidator">
-      <argument ref="attributeExtractor"/>
-      <property name="sourceAttributeRestrictions" ref="attributeRestrictions"/>
-    </bean>
-  </service>
+  <service  ref="unsupportedAttributeQueryValidator" interface="ddf.catalog.validation.QueryValidator"/>
 
 </blueprint>

@@ -32,12 +32,12 @@ public class CqlValidationHandler implements Route {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CqlValidationHandler.class);
 
-  private QueryValidatorsById queryValidatorsById;
+  private QueryValidators queryValidators;
 
   private CqlRequestParser parser;
 
-  public CqlValidationHandler(QueryValidatorsById queryValidatorsById, CqlRequestParser parser) {
-    this.queryValidatorsById = queryValidatorsById;
+  public CqlValidationHandler(QueryValidators queryValidators, CqlRequestParser parser) {
+    this.queryValidators = queryValidators;
     this.parser = parser;
   }
 
@@ -45,7 +45,7 @@ public class CqlValidationHandler implements Route {
   public Object handle(Request request, Response response) throws Exception {
     String validatorId = request.params(":validatorId");
 
-    QueryValidator validator = queryValidatorsById.get(validatorId);
+    QueryValidator validator = queryValidators.get(validatorId);
     if (validator == null) {
       LOGGER.debug(
           "No query validator could be found with id \"{}\". Skipping validation.", validatorId);
