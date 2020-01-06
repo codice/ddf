@@ -36,7 +36,7 @@ public class PersistentItem extends HashMap<String, Object> {
 
   public static final String BINARY_SUFFIX = "_bin";
 
-  private static final String[] SUFFIXES =
+  public static final String[] SUFFIXES =
       new String[] {TEXT_SUFFIX, XML_SUFFIX, INT_SUFFIX, LONG_SUFFIX, DATE_SUFFIX, BINARY_SUFFIX};
 
   private static final long serialVersionUID = 6030726429622527480L;

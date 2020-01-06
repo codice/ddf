@@ -14,7 +14,12 @@
 package org.codice.ddf.persistence.commands;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
@@ -81,4 +86,34 @@ public abstract class AbstractStoreCommand implements Action {
 
   /** Calls a command that operates on the Persistent Store service. */
   abstract void storeCommand() throws PersistenceException;
+
+  protected String createCql(String user, String cql) {
+    if (StringUtils.isNotBlank(user)) {
+      if (StringUtils.isNotBlank(cql)) {
+        cql = cql + " AND user='" + user + "'";
+      } else {
+        cql = "user='" + user + "'";
+      }
+    }
+    return cql;
+  }
+
+  protected long getResults(Consumer<List<Map<String, Object>>> storeFunction)
+      throws PersistenceException {
+
+    List<Map<String, Object>> results = new ArrayList<>();
+    List<Map<String, Object>> pagedResults;
+    int startIndex = 0;
+    int pageSize = 1000;
+    long resultCount = 0L;
+
+    do {
+      pagedResults = persistentStore.get(type, cql, startIndex, pageSize);
+      storeFunction.accept(pagedResults);
+      resultCount += pagedResults.size();
+      startIndex += pageSize;
+    } while (pagedResults.size() > 0);
+
+    return resultCount;
+  }
 }

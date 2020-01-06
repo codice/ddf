@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import org.apache.commons.lang.StringUtils;
+import java.util.function.Consumer;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
@@ -42,47 +42,35 @@ public class StoreListCommand extends AbstractStoreCommand {
   )
   private String user;
 
-  private Set<String> headerSet = new TreeSet<String>();
+  private Set<String> headerSet = new TreeSet<>();
 
   @Override
   public void storeCommand() throws PersistenceException {
 
-    List<Map<String, Object>> storeResults;
-
     cql = createCql(user, cql);
 
-    if (StringUtils.isNotBlank(cql)) {
-      storeResults = persistentStore.get(type, cql);
-    } else {
-      storeResults = persistentStore.get(type);
-    }
-    console.println("Results found: " + storeResults.size() + "\n");
-
     // output the entries
-    for (int i = 0; i < storeResults.size(); i++) {
-      Map<String, Object> curStore = PersistentItem.stripSuffixes(storeResults.get(i));
-      console.println("Result {" + i + "}:");
-      if (headerSet.isEmpty()) {
-        // populates the header with the keys from the first entry
-        headerSet.addAll(curStore.keySet());
-      }
+    // populates the header with the keys from the first entry
+    Consumer<List<Map<String, Object>>> listFunction =
+        results -> {
+          for (int i = 0; i < results.size(); i++) {
+            Map<String, Object> curStore = PersistentItem.stripSuffixes(results.get(i));
+            console.println("Result {" + i + "}:");
+            if (headerSet.isEmpty()) {
+              // populates the header with the keys from the first entry
+              headerSet.addAll(curStore.keySet());
+            }
 
-      for (String curKey : headerSet) {
-        console.println(curKey + ":");
-        console.println("\t" + curStore.get(curKey).toString());
-      }
-    }
+            for (String curKey : headerSet) {
+              console.println(curKey + ":");
+              console.println("\t" + curStore.get(curKey).toString());
+            }
+          }
+        };
+
+    long totalCount = getResults(listFunction);
+
     console.println("");
-  }
-
-  private String createCql(String user, String cql) {
-    if (StringUtils.isNotBlank(user)) {
-      if (StringUtils.isNotBlank(cql)) {
-        cql = cql + " AND user='" + user + "'";
-      } else {
-        cql = "user='" + user + "'";
-      }
-    }
-    return cql;
+    console.println("Results found: " + totalCount + "\n");
   }
 }

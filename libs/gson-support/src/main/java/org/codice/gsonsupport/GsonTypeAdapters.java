@@ -14,6 +14,13 @@
 package org.codice.gsonsupport;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
@@ -23,6 +30,7 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -231,6 +239,18 @@ public class GsonTypeAdapters {
       }
 
       out.endArray();
+    }
+  }
+
+  public static class ByteArrayToBase64TypeAdapter
+      implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
+    public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        throws JsonParseException {
+      return Base64.getDecoder().decode(json.getAsString());
+    }
+
+    public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(Base64.getEncoder().encodeToString(src));
     }
   }
 }

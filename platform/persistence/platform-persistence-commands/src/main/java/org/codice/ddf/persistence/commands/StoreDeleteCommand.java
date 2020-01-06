@@ -16,6 +16,7 @@ package org.codice.ddf.persistence.commands;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
@@ -35,15 +36,21 @@ public class StoreDeleteCommand extends AbstractStoreCommand {
   @Override
   public void storeCommand() throws PersistenceException {
 
-    List<Map<String, Object>> results = persistentStore.get(type, cql);
-    if (!results.isEmpty()) {
-      console.println(results.size() + " results matched cql.");
+    Consumer<List<Map<String, Object>>> noOp =
+        results -> {
+          return;
+        };
+
+    long totalCount = getResults(noOp);
+
+    if (totalCount > 0) {
+      console.println(totalCount + " results matched cql.");
       String message = "\nAre you sure you want to delete? (yes/no): ";
       while (true) {
         try {
           String confirmation = session.readLine(message, null);
           if ("yes".equalsIgnoreCase(confirmation.toLowerCase())) {
-            int numDeleted = persistentStore.delete(type, cql);
+            int numDeleted = pagingDelete();
             console.println("Successfully deleted " + numDeleted + " items.");
             break;
           } else if ("no".equalsIgnoreCase(confirmation)) {
@@ -58,5 +65,20 @@ public class StoreDeleteCommand extends AbstractStoreCommand {
     } else {
       console.println("0 results matched cql statement. No items were deleted.");
     }
+  }
+
+  private int pagingDelete() throws PersistenceException {
+    int totalCount = 0;
+    int currentCount = 0;
+    int startIndex = 0;
+    int pageSize = 1000;
+
+    do {
+      currentCount = persistentStore.delete(type, cql, startIndex, pageSize);
+      startIndex += pageSize;
+      totalCount += currentCount;
+    } while (currentCount > 0);
+
+    return totalCount;
   }
 }
