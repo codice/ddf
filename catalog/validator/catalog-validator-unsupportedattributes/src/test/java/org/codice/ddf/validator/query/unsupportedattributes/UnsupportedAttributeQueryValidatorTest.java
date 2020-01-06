@@ -14,21 +14,23 @@
 package org.codice.ddf.validator.query.unsupportedattributes;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceAttributeRestriction;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.validation.impl.violation.QueryValidationViolationImpl;
 import ddf.catalog.validation.violation.QueryValidationViolation;
 import ddf.catalog.validation.violation.QueryValidationViolation.Severity;
 import java.util.Map;
 import java.util.Set;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -77,16 +79,13 @@ public class UnsupportedAttributeQueryValidatorTest {
 
     Set<QueryValidationViolation> violations = validator.validate(request);
 
+    QueryValidationViolation violation =
+        makeViolation(
+            "The field \"attr-2\" is not supported by the src-1 Content Store(s)",
+            "attr-2",
+            "src-1");
     assertThat(violations, hasSize(1));
-    for (QueryValidationViolation violation : violations) {
-      assertThat(violation.getSeverity(), is(Severity.ERROR));
-      assertThat(
-          violation.getMessage(),
-          is("The field \"attr-2\" is not supported by the src-1 Content Store(s)"));
-      Map<String, Object> extraData = violation.getExtraData();
-      assertThat(extraData.get("attribute"), is("attr-2"));
-      assertThat((Set<String>) extraData.get("sources"), Matchers.hasItems("src-1"));
-    }
+    assertThat(violations, hasItem(violation));
   }
 
   @Test
@@ -126,24 +125,18 @@ public class UnsupportedAttributeQueryValidatorTest {
 
     Set<QueryValidationViolation> violations = validator.validate(request);
 
+    QueryValidationViolation violation1 =
+        makeViolation(
+            "The field \"attr-2\" is not supported by the src-1 Content Store(s)",
+            "attr-2",
+            "src-1");
+    QueryValidationViolation violation2 =
+        makeViolation(
+            "The field \"attr-3\" is not supported by the src-1 Content Store(s)",
+            "attr-3",
+            "src-1");
     assertThat(violations, hasSize(2));
-    for (QueryValidationViolation violation : violations) {
-      assertThat(violation.getSeverity(), is(Severity.ERROR));
-      Map<String, Object> extraData = violation.getExtraData();
-      assertThat((Set<String>) extraData.get("sources"), Matchers.hasItems("src-1"));
-      String attribute = (String) extraData.get("attribute");
-      if (attribute.equals("attr-2")) {
-        assertThat(
-            violation.getMessage(),
-            is("The field \"attr-2\" is not supported by the src-1 Content Store(s)"));
-      } else if (attribute.equals("attr-3")) {
-        assertThat(
-            violation.getMessage(),
-            is("The field \"attr-3\" is not supported by the src-1 Content Store(s)"));
-      } else {
-        fail("Unknown attribute found in violations");
-      }
-    }
+    assertThat(violations, hasItems(violation1, violation2));
   }
 
   @Test
@@ -156,16 +149,14 @@ public class UnsupportedAttributeQueryValidatorTest {
 
     Set<QueryValidationViolation> violations = validator.validate(request);
 
+    QueryValidationViolation violation =
+        makeViolation(
+            "The field \"attr-2\" is not supported by the src-1 and src-2 Content Store(s)",
+            "attr-2",
+            "src-1",
+            "src-2");
     assertThat(violations, hasSize(1));
-    for (QueryValidationViolation violation : violations) {
-      assertThat(violation.getSeverity(), is(Severity.ERROR));
-      assertThat(
-          violation.getMessage(),
-          is("The field \"attr-2\" is not supported by the src-1 and src-2 Content Store(s)"));
-      Map<String, Object> extraData = violation.getExtraData();
-      assertThat(extraData.get("attribute"), is("attr-2"));
-      assertThat((Set<String>) extraData.get("sources"), Matchers.hasItems("src-1", "src-2"));
-    }
+    assertThat(violations, hasItem(violation));
   }
 
   @Test
@@ -179,18 +170,15 @@ public class UnsupportedAttributeQueryValidatorTest {
 
     Set<QueryValidationViolation> violations = validator.validate(request);
 
+    QueryValidationViolation violation =
+        makeViolation(
+            "The field \"attr-2\" is not supported by the src-1, src-2, and src-3 Content Store(s)",
+            "attr-2",
+            "src-1",
+            "src-2",
+            "src-3");
     assertThat(violations, hasSize(1));
-    for (QueryValidationViolation violation : violations) {
-      assertThat(violation.getSeverity(), is(Severity.ERROR));
-      assertThat(
-          violation.getMessage(),
-          is(
-              "The field \"attr-2\" is not supported by the src-1, src-2, and src-3 Content Store(s)"));
-      Map<String, Object> extraData = violation.getExtraData();
-      assertThat(extraData.get("attribute"), is("attr-2"));
-      assertThat(
-          (Set<String>) extraData.get("sources"), Matchers.hasItems("src-1", "src-2", "src-3"));
-    }
+    assertThat(violations, hasItem(violation));
   }
 
   @Test
@@ -236,5 +224,12 @@ public class UnsupportedAttributeQueryValidatorTest {
     Mockito.when(restriction.getSource()).thenReturn(source);
     Mockito.when(restriction.getSupportedAttributes()).thenReturn(supportedAttributes);
     return restriction;
+  }
+
+  private QueryValidationViolation makeViolation(
+      String message, String attribute, String... sources) {
+    Map<String, Object> extraData =
+        ImmutableMap.of("attribute", attribute, "sources", ImmutableSet.copyOf(sources));
+    return new QueryValidationViolationImpl(Severity.ERROR, message, extraData);
   }
 }

@@ -15,6 +15,7 @@ package ddf.catalog.validation.impl.violation;
 
 import ddf.catalog.validation.violation.QueryValidationViolation;
 import java.util.Map;
+import java.util.Objects;
 
 public class QueryValidationViolationImpl implements QueryValidationViolation {
 
@@ -44,5 +45,37 @@ public class QueryValidationViolationImpl implements QueryValidationViolation {
   @Override
   public Map<String, Object> getExtraData() {
     return extraData;
+  }
+
+  @Override
+  public String toString() {
+    return "QueryValidationViolationImpl{"
+        + "severity="
+        + severity
+        + ", message='"
+        + message
+        + '\''
+        + ", extraData="
+        + extraData
+        + '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    QueryValidationViolationImpl that = (QueryValidationViolationImpl) o;
+    return severity == that.severity
+        && Objects.equals(message, that.message)
+        && Objects.equals(extraData, that.extraData);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(severity, message, extraData);
   }
 }
