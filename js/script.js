@@ -80,7 +80,7 @@ $(function() {
     if (window.location.href.indexOf("Documentation-versions") > -1 ) {
         // disabling until repo transition is complete; Uncomment
         // getLatestStableVersion(setPreviousVersionList);
-        getLatestStableVersion(setPreviousVersionList);
+        getLatestStableVersion();
     } else {
         getLatestStableVersion(setNewsAndEvents);
     }
