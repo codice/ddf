@@ -14,8 +14,8 @@
 package org.codice.ddf.catalog.ui.query.validate;
 
 import ddf.catalog.validation.QueryValidator;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +27,7 @@ public class QueryValidators {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryValidators.class);
 
-  private Map<String, QueryValidator> validators = new HashMap<>();
+  private Map<String, QueryValidator> validators = new ConcurrentHashMap<>();
 
   /**
    * Gets a registered {@code QueryValidator} instance by it's id.

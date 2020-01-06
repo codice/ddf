@@ -22,12 +22,12 @@ import ddf.catalog.validation.impl.violation.QueryValidationViolationImpl;
 import ddf.catalog.validation.violation.QueryValidationViolation;
 import ddf.catalog.validation.violation.QueryValidationViolation.Severity;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ public class UnsupportedAttributeQueryValidator implements QueryValidator {
 
   private AttributeExtractor attributeExtractor;
 
-  private Map<String, Set<String>> sourceIdToSupportedAttributesMap = new HashMap<>();
+  private Map<String, Set<String>> sourceIdToSupportedAttributesMap = new ConcurrentHashMap<>();
 
   public UnsupportedAttributeQueryValidator(AttributeExtractor attributeExtractor) {
     this.attributeExtractor = attributeExtractor;
