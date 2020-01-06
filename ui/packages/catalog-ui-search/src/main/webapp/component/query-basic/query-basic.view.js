@@ -119,9 +119,9 @@ const NoMatchTypesView = Marionette.ItemView.extend({
 
 function isTypeLimiter(filter) {
   const typesFound = _.uniq(filter.filters.map(CQLUtils.getProperty))
-  const metadataContentTypeSupported = !!metacardDefinitions.metacardTypes[
-    METADATA_CONTENT_TYPE
-  ]
+  const metadataContentTypeSupported = Boolean(
+    metacardDefinitions.metacardTypes[METADATA_CONTENT_TYPE]
+  )
   if (metadataContentTypeSupported) {
     return (
       typesFound.length === 2 &&
