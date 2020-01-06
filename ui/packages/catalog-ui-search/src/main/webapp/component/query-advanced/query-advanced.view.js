@@ -39,8 +39,6 @@ const fetchSuggestions = memoize(async attr => {
     return []
   }
 
-  suggestions.sort((a, b) => b.count - a.count)
-
   return suggestions.map(({ value }) => value)
 })
 

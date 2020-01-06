@@ -141,6 +141,11 @@ class Filter extends React.Component {
         value: suggestion,
       }))
     }
+
+    suggestions.sort((a, b) =>
+      a.label.toLowerCase().localeCompare(b.label.toLowerCase())
+    )
+
     this.setState({ suggestions })
   }
 
