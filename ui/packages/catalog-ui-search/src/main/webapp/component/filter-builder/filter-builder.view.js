@@ -101,7 +101,8 @@ module.exports = Marionette.LayoutView.extend({
         isFormBuilder: this.options.isFormBuilder || false,
         suggester: this.options.suggester,
         includedAttributes: this.options.includedAttributes,
-        settingsModel : this.options.settingsModel
+        settingsModel : this.options.settingsModel,
+        
       })
       
     )
