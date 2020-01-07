@@ -339,7 +339,7 @@
         <ehcache.version>2.10.6</ehcache.version>
 
         <!--temporary solr download url> -->
-        <solr.download.url>https://archive.apache.org/dist/</solr.download.url>
+        <solr.download.url>https://archive.apache.org/dist</solr.download.url>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
