@@ -31,12 +31,7 @@ const EnumMenuItem = props => (
   <MenuItemDisabled {...props} style={{ paddingLeft: '1.5rem'}}/>
 )
 
-/*
-<IconButton style={{ color: muiTheme.palette.warningColor }} alignItems="center" tooltip="Attribute Unsupported">
-</IconButton> 
-                      
-<i className="fa fa-warning"style={{ color: muiTheme.palette.warningColor }} alignItems="center" />
-*/
+
 const ImageIcon = styled.i`
 color: #000;
 text-align:center
@@ -44,7 +39,12 @@ text-align:center
   visibility: visible;
 }
 `
-//div<{ active: boolean; selected: boolean; disabled: boolean}>
+
+const UnsupportedAttribute = styled.div`
+border-style: solid
+border-color: red
+`
+
 const UnsupportedToolTip = styled.div`
 visibility: hidden;
 width: 120px;
@@ -118,9 +118,7 @@ const isAttributeUnsupported = (currValue,settingsModel) => {
   }
 }
 
-//const theme = 
-
-const isAttributeUnsupportedEnum = (settingsModel,suggestion) => {
+const isAttributeUnsupportedHelper = (settingsModel,suggestion) => {
 
 
   return settingsModel && isAttributeUnsupported(suggestion.value,settingsModel.attributes.src); 
@@ -139,7 +137,7 @@ const EnumInput = ({
   const [input, setInput] = useState('')
   
   const selected = suggestions.find(suggestion => suggestion.value === value)
-  console.log(selected);
+  console.log(selected.value);
   const filteredSuggestions = getFilteredSuggestions(
     input,
     suggestions,
@@ -151,39 +149,50 @@ const EnumInput = ({
   console.log(sources.models);
 
   const displayInput = !inputMatchesSuggestions(input, suggestions, matchCase)
-  return (
-    
+
+  const attributeDropdown = (
+
     <Dropdown label={(selected && selected.label) || value}>
 
-      <TextWrapper>
-        <TextField
-          autoFocus
-          value={input}
-          placeholder={'Type to Filter'}
-          onChange={setInput}
-        />
-      </TextWrapper>
-      <Menu value={value} onChange={onChange} class="fa">
-        {allowCustom &&
-          displayInput && (
-            <EnumMenuItem value={input}>{input} (custom)</EnumMenuItem>
-          )}
-        {filteredSuggestions.map(suggestion => {
-          return (
-            
-              <EnumMenuItem
-                  title={isAttributeUnsupportedEnum(settingsModel,suggestion) ? 'Attribute is unsupported by the content store' : ''}  
-                  key={suggestion.value} 
-                  value={suggestion.value} 
-                  disabled={settingsModel && isAttributeUnsupported(suggestion.value,settingsModel.attributes.src)}
-                  >
-                  {suggestion.label}
-              </EnumMenuItem>
-            
-             )
-        })}
-      </Menu>
-    </Dropdown>
+    <TextWrapper>
+      <TextField
+        autoFocus
+        value={input}
+        placeholder={'Type to Filter'}
+        onChange={setInput}
+      />
+    </TextWrapper>
+    <Menu value={value} onChange={onChange} class="fa">
+      {allowCustom &&
+        displayInput && (
+          <EnumMenuItem value={input}>{input} (custom)</EnumMenuItem>
+        )}
+      {filteredSuggestions.map(suggestion => {
+        return (
+          
+            <EnumMenuItem
+                title={isAttributeUnsupportedHelper(settingsModel,suggestion) ? 'Attribute is unsupported by the content store selected' : ''}  
+                key={suggestion.value} 
+                value={suggestion.value} 
+                disabled={isAttributeUnsupportedHelper(settingsModel,suggestion)}
+                >
+                {suggestion.label}
+            </EnumMenuItem>
+          
+           )
+      })}
+    </Menu>
+  </Dropdown>
+
+  )
+  return (
+  <div>
+   {isAttributeUnsupportedHelper(settingsModel,selected) ? (
+    <UnsupportedAttribute title = "Attribute is unsupported by the content store">
+      {attributeDropdown}
+    </UnsupportedAttribute>) : (<div>{attributeDropdown}</div>)
+   }
+   </div>
   )
 }
 /*
