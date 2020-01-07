@@ -103,9 +103,8 @@
                             </url>
                             <unpack>true</unpack>
                             <failOnError>true</failOnError>
-                            <!--temporarily disable check so the zip can be obtained from multiple sources 
-                            <sha512>f63157ae606a081a48513d5d9ae0a5d0d9741ce2</sha512>
-                            <checkSignature>true</checkSignature> -->
+                            <sha512>aca27ff6942872a571160f49f5e4d43090dbe9bb37da0d1999557e1655f25055173ef999bfb8eba8f19f19b9c438b43205c805d0d294b9756cf5c0aaf66a656a</sha512>
+                            <checkSignature>true</checkSignature>
                         </configuration>
                     </execution>
                 </executions>
