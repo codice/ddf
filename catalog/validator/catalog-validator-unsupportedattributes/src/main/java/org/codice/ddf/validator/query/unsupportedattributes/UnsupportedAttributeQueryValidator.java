@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +40,14 @@ public class UnsupportedAttributeQueryValidator implements QueryValidator {
 
   private AttributeExtractor attributeExtractor;
 
+  private Supplier<String> messageFormatSupplier;
+
   private Map<String, Set<String>> sourceIdToSupportedAttributesMap = new ConcurrentHashMap<>();
 
-  public UnsupportedAttributeQueryValidator(AttributeExtractor attributeExtractor) {
+  public UnsupportedAttributeQueryValidator(
+      AttributeExtractor attributeExtractor, Supplier<String> messageFormatSupplier) {
     this.attributeExtractor = attributeExtractor;
+    this.messageFormatSupplier = messageFormatSupplier;
   }
 
   @Override
@@ -109,9 +114,10 @@ public class UnsupportedAttributeQueryValidator implements QueryValidator {
   }
 
   private String createMessage(String invalidAttribute, Set<String> sourceIds) {
-    return String.format(
-        "The field \"%s\" is not supported by the %s Content Store(s)",
-        invalidAttribute, prettyPrintSources(sourceIds));
+    String messageFormat = messageFormatSupplier.get();
+    return messageFormat
+        .replace("{attribute}", invalidAttribute)
+        .replace("{sources}", prettyPrintSources(sourceIds));
   }
 
   private String prettyPrintSources(Set<String> sourceIds) {

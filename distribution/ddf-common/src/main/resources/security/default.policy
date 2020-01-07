@@ -614,7 +614,7 @@ grant codeBase "file:/landing-page" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}i18n${/}LandingPageBundle${/}-", "read";
 }
 
-grant codeBase "file:/catalog-ui-search" {
+grant codeBase "file:/catalog-ui-search/catalog-validator-unsupportedattributes" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}i18n${/}IntrigueBundle", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}i18n${/}IntrigueBundle${/}-", "read";
 }

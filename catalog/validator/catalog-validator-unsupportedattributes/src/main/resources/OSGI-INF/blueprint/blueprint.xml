@@ -20,8 +20,16 @@
     <argument ref="filterAdapter"/>
   </bean>
 
+  <reference id="resourceBundleLocator"
+    interface="ddf.platform.resource.bundle.locator.ResourceBundleLocator"/>
+
+  <bean id="messageFormatSupplier" class="org.codice.ddf.validator.query.unsupportedattributes.MessageFormatSupplier">
+    <argument ref="resourceBundleLocator"/>
+  </bean>
+
   <bean id="unsupportedAttributeQueryValidator" class="org.codice.ddf.validator.query.unsupportedattributes.UnsupportedAttributeQueryValidator">
     <argument ref="attributeExtractor"/>
+    <argument ref="messageFormatSupplier"/>
   </bean>
 
   <reference-list interface="ddf.catalog.source.SourceAttributeRestriction"
