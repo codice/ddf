@@ -231,7 +231,8 @@
 
         <AD id="basicSearchMatchType"
             name="Basic Search Match Type Metacard Attribute"
-            description="Metacard attribute used for Basic Search Type Match."
+            description="Metacard attribute used for Basic Search Type Match. Make sure to add this
+            attribute to the Facet Attribute Whitelist."
             type="String"
             default="datatype"/>
 

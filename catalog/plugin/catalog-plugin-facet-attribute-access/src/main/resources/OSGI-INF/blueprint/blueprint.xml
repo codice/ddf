@@ -16,6 +16,11 @@
 
     <bean id="facetWhitelistConfiguration"
           class="ddf.catalog.plugin.facetattributeaccess.FacetWhitelistConfiguration">
+        <property name="facetAttributeWhitelist">
+            <list>
+                <value>datatype</value>
+            </list>
+        </property>
         <cm:managed-properties
                 persistent-id="ddf.catalog.plugin.facetattributeaccess.facetwhitelist"
                 update-strategy="container-managed"/>
