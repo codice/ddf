@@ -92,7 +92,6 @@ public class UtmUpsCoordinateProcessor {
     LOGGER.trace("(UTM/UPS) Done");
   }
 
-  @Nullable
   private List<LiteralSuggestion> getUtmUpsSuggestions(final String query) {
     final Matcher matcher = PATTERN_UTM_OR_UPS_COORDINATE.matcher(query);
     final List<String> utmUpsMatches = new ArrayList<>();
