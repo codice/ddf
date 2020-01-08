@@ -78,7 +78,11 @@ module.exports = Marionette.ItemView.extend({
       query = workspace.get('queries').get(modelJSON.queryId)
     }
     return {
-      amount: modelJSON.metacardIds.length,
+      amount:
+        modelJSON.count && modelJSON.count > -1
+          ? modelJSON.count
+          : modelJSON.metacardIds.length,
+      overCount: modelJSON.count > 1000,
       when: Common.getMomentDate(modelJSON.when),
       queryName: query ? query.get('title') : 'Unknown Search',
       workspaceName: workspace ? workspace.get('title') : 'Unknown Workspace',

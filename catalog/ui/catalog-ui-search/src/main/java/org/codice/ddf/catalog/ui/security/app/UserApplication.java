@@ -278,6 +278,7 @@ public class UserApplication implements SparkApplication {
         .put("serverGenerated", persistentItem.getOrDefault("serverGenerated", "true"))
         .put("when", persistentItem.getOrDefault("when", DateTime.now().toInstant().getMillis()))
         .put("unseen", Boolean.parseBoolean((String) persistentItem.getOrDefault("unseen", "true")))
+        .put("count", persistentItem.getOrDefault("count", -1))
         .build();
   }
 
@@ -311,6 +312,7 @@ public class UserApplication implements SparkApplication {
     item.addProperty("queryId", alert.getOrDefault("queryId", ""));
     item.addProperty("serverGenerated", alert.getOrDefault("serverGenerated", false));
     item.addProperty("unseen", alert.getOrDefault("unseen", true));
+    item.addProperty("count", alert.getOrDefault("count", -1));
     if (alert.containsKey("metacardIds")) {
       item.addProperty("metacardIds", ImmutableSet.copyOf((List<String>) alert.get("metacardIds")));
     } else {
@@ -342,6 +344,8 @@ public class UserApplication implements SparkApplication {
       persistentStore.delete(
           PersistenceType.NOTIFICATION_TYPE.toString(),
           ECQL.toCQL(filterBuilder.anyOf(idsToDelete)));
+      persistentStore.delete(
+          PersistenceType.RESULTS_TYPE.toString(), ECQL.toCQL(filterBuilder.anyOf(idsToDelete)));
     } catch (PersistenceException e) {
       LOGGER.debug(
           "PersistenceException while trying to delete persisted notifications with ids {} ",
