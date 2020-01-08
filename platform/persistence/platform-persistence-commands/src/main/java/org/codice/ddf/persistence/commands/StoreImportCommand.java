@@ -29,7 +29,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
@@ -94,8 +92,8 @@ public class StoreImportCommand extends AbstractStoreCommand {
 
     try (Stream<Path> ingestStream = Files.walk(inputFile.toPath(), FileVisitOption.FOLLOW_LINKS)) {
       ingestStream
+          .filter(Files::isRegularFile)
           .map(Path::toFile)
-          .filter(file -> !file.isDirectory())
           .map(this::processFile)
           .filter(Objects::nonNull)
           .forEach(importResults::add);
@@ -147,12 +145,8 @@ public class StoreImportCommand extends AbstractStoreCommand {
 
   private int totalFileCount(File inputFile) throws IOException {
     if (inputFile.isDirectory()) {
-      try (DirectoryStream<Path> stream = Files.newDirectoryStream(inputFile.toPath())) {
-        return (int)
-            StreamSupport.stream(stream.spliterator(), false)
-                .map(Path::toFile)
-                .filter(file -> !file.isHidden())
-                .count();
+      try (Stream<Path> stream = Files.walk(inputFile.toPath(), FileVisitOption.FOLLOW_LINKS)) {
+        return (int) stream.filter(Files::isRegularFile).count();
       }
     }
     return inputFile.isHidden() ? 0 : 1;

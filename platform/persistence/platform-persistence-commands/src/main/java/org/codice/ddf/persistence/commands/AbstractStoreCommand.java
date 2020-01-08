@@ -14,7 +14,10 @@
 package org.codice.ddf.persistence.commands;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Option;
@@ -84,12 +87,28 @@ public abstract class AbstractStoreCommand implements Action {
   abstract void storeCommand() throws PersistenceException;
 
   protected String createCql(String user, String cql) {
-    if (StringUtils.isBlank(user)) return cql;
+    if (StringUtils.isBlank(user)) return "";
     if (StringUtils.isNotBlank(cql)) {
-      cql = cql + " AND user='" + user + "'";
+      cql = "( " + cql + ") AND user='" + user + "'";
     } else {
       cql = "user='" + user + "'";
     }
     return cql;
+  }
+
+  protected List<Map<String, Object>> getResults() throws PersistenceException {
+
+    List<Map<String, Object>> results = new ArrayList<>();
+    List<Map<String, Object>> pagedResults;
+    int startIndex = 0;
+    int pageSize = 1000;
+
+    do {
+      pagedResults = persistentStore.get(type, cql, startIndex, pageSize);
+      results.addAll(pagedResults);
+      startIndex += pageSize;
+    } while (pagedResults.size() > 0);
+
+    return results;
   }
 }

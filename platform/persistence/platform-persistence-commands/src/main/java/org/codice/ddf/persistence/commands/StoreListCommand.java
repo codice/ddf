@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
@@ -42,22 +41,13 @@ public class StoreListCommand extends AbstractStoreCommand {
   )
   private String user;
 
-  private Set<String> headerSet = new TreeSet<String>();
+  private Set<String> headerSet = new TreeSet<>();
 
   @Override
   public void storeCommand() throws PersistenceException {
 
-    List<Map<String, Object>> storeResults;
-
     cql = createCql(user, cql);
-
-    if (StringUtils.isNotBlank(cql)) {
-      storeResults = persistentStore.get(type, cql);
-    } else {
-      storeResults = persistentStore.get(type);
-    }
-    console.println("Results found: " + storeResults.size() + "\n");
-
+    List<Map<String, Object>> storeResults = getResults();
     // output the entries
     for (int i = 0; i < storeResults.size(); i++) {
       Map<String, Object> curStore = PersistentItem.stripSuffixes(storeResults.get(i));
@@ -73,5 +63,6 @@ public class StoreListCommand extends AbstractStoreCommand {
       }
     }
     console.println("");
+    console.println("Results found: " + storeResults.size() + "\n");
   }
 }

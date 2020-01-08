@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
@@ -80,14 +79,8 @@ public class StoreExportCommand extends AbstractStoreCommand {
       return;
     }
 
-    List<Map<String, Object>> storeResults;
     cql = createCql(user, cql);
-
-    if (StringUtils.isNotBlank(cql)) {
-      storeResults = persistentStore.get(type, cql);
-    } else {
-      storeResults = persistentStore.get(type);
-    }
+    List<Map<String, Object>> storeResults = getResults();
     console.println("Results found: " + storeResults.size() + "\n");
 
     int count =
