@@ -437,12 +437,8 @@ public class IngestCommand extends CatalogCommands {
 
   private int totalFileCount(File inputFile) throws IOException {
     if (inputFile.isDirectory()) {
-      try (DirectoryStream<Path> stream = Files.newDirectoryStream(inputFile.toPath())) {
-        return (int)
-            StreamSupport.stream(stream.spliterator(), false)
-                .map(Path::toFile)
-                .filter(file -> !file.isHidden())
-                .count();
+      try (Stream<Path> stream = Files.walk(inputFile.toPath(), FileVisitOption.FOLLOW_LINKS)) {
+        return (int) stream.filter(Files::isRegularFile).count();
       }
     }
     return inputFile.isHidden() ? 0 : 1;
