@@ -120,18 +120,6 @@
         <bundle>mvn:ddf.platform.usng4j/platform-usng4j-impl/${project.version}</bundle>
     </feature>
 
-    <feature name="compression-exi" version="${project.version}"
-             description="Adds EXI compression support for CXF services.">
-        <feature>cxf-core</feature>
-        <bundle>mvn:ddf.compression/compression-exi/${project.version}</bundle>
-    </feature>
-
-    <feature name="compression-gzip" version="${project.version}"
-             description="Adds GZip compression support for CXF services.">
-        <feature>cxf-core</feature>
-        <bundle>mvn:ddf.compression/compression-gzip/${project.version}</bundle>
-    </feature>
-
     <feature name="platform-logging" version="${project.version}"
              description="platform-logging">
         <feature>guava</feature>

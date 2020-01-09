@@ -101,16 +101,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.compression</groupId>
-            <artifactId>compression-exi</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.compression</groupId>
-            <artifactId>compression-gzip</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>common-system</artifactId>
             <version>${project.version}</version>
