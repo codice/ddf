@@ -285,8 +285,6 @@
 * org.noggit:noggit:jar:0.6
 * org.noggit:noggit:jar:0.8
 * org.objenesis:objenesis:jar:2.5.1
-* org.openexi:nagasena-rta:jar:0000.0002.0049.0
-* org.openexi:nagasena:jar:0000.0002.0049.0
 * org.opensaml:opensaml-core:jar:3.3.0
 * org.opensaml:opensaml-messaging-api:jar:3.3.0
 * org.opensaml:opensaml-profile-api:jar:3.3.0
