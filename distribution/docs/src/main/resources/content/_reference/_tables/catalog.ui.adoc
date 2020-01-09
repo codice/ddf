@@ -274,7 +274,7 @@ a|* `created`
 |Basic Search Match Type Metacard Attribute
 |basicSearchMatchType
 |String
-|Metacard attribute used for Basic Search Type Match.
+|Metacard attribute used for Basic Search Type Match. Make sure to add this attribute to the <<_org.codice.ddf.catalog.plugin.facetattributeaccess.facetwhitelist,Facet Attribute Whitelist>>.
 |datatype
 |true
 
