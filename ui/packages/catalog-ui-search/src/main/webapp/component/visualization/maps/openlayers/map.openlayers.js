@@ -370,11 +370,11 @@ module.exports = function OpenlayersMap(
       const point = [lon, lat]
       const options = {
         id: markerLabel,
-        color: '#FC2803',
+        color: rulerColor,
       }
       const useCustomText = true
 
-      return this.addPointWithText(point, options, useCustomText)
+      return this.addPoint(point, options)
     },
     /*
      * Removes the given point Layer from the map.
@@ -419,9 +419,9 @@ module.exports = function OpenlayersMap(
       map.removeLayer(line)
     },
     /*
-            Adds a billboard point utilizing the passed in point and options.
-            Options are a view to relate to, and an id, and a color.
-        */
+        Adds a billboard point utilizing the passed in point and options.
+        Options are a view to relate to, and an id, and a color.
+    */
     addPointWithText(point, options, useCustomText = false) {
       const pointObject = convertPointCoordinate(point)
       const feature = new Openlayers.Feature({
@@ -460,45 +460,34 @@ module.exports = function OpenlayersMap(
         */
     addPoint(point, options) {
       const pointObject = convertPointCoordinate(point)
-      const feature = new Openlayers.Feature({
-        geometry: new Openlayers.geom.Point(pointObject),
-        name: options.title,
-      })
-      feature.setId(options.id)
+            const feature = new Openlayers.Feature({
+              geometry: new Openlayers.geom.Point(pointObject),
+            })
+            feature.setId(options.id)
 
-      let x = 39,
-        y = 40
-      if (options.size) {
-        x = options.size.x
-        y = options.size.y
-      }
-      feature.setStyle(
-        new Openlayers.style.Style({
-          image: new Openlayers.style.Icon({
-            img: DrawingUtility.getPin({
-              fillColor: options.color,
-              icon: options.icon,
-            }),
-            imgSize: [x, y],
-            anchor: [x / 2, 0],
-            anchorOrigin: 'bottom-left',
-            anchorXUnits: 'pixels',
-            anchorYUnits: 'pixels',
-          }),
-        })
-      )
-      const vectorSource = new Openlayers.source.Vector({
-        features: [feature],
-      })
+            feature.setStyle(
+              new Openlayers.style.Style({
+                image: new Openlayers.style.Icon({
+                  img: DrawingUtility.getCircle({
+                    fillColor: options.color,
+                  }),
+                  imgSize: [22, 22],
+                }),
+              })
+            )
 
-      const vectorLayer = new Openlayers.layer.Vector({
-        source: vectorSource,
-        zIndex: 1,
-      })
+            const vectorSource = new Openlayers.source.Vector({
+              features: [feature],
+            })
 
-      map.addLayer(vectorLayer)
+            const vectorLayer = new Openlayers.layer.Vector({
+              source: vectorSource,
+              zIndex: 1,
+            })
 
-      return vectorLayer
+            map.addLayer(vectorLayer)
+
+            return vectorLayer
     },
     /*
      * Draws a label on the map by adding to the features in the label Vector

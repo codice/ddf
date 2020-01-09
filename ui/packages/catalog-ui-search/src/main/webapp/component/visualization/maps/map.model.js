@@ -108,11 +108,14 @@ module.exports = Backbone.AssociatedModel.extend({
   setCurrentDistance(distance) {
     this.set({ currentDistance: distance })
   },
+  setStartingCoordinates(coordinates) {
+    this.set({startingCoordinates: coordinates})
+  },
   addDistanceInfo(distanceInfo) {
     this.set({ distanceInfo })
   },
-  setDistanceInfoPosition(left, bottom) {
-    this.set({ distanceInfo: { left, bottom } })
+  setDistanceInfoPosition(left, top) {
+    this.set({ distanceInfo: { left, top } })
   },
   removeDistanceInfo() {
     this.set({ distanceInfo: undefined })

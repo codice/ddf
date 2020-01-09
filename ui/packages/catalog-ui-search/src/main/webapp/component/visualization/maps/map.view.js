@@ -42,6 +42,7 @@ const Gazetteer = require('../../../react-component/location/gazetteer.js')
 import MapSettings from '../../../react-component/map-settings'
 import MapInfo from '../../../react-component/map-info'
 import DistanceInfo from '../../../react-component/distance-info'
+import getDistance from 'geolib/es/getDistance'
 
 function findExtreme({ objArray, property, comparator }) {
   if (objArray.length === 0) {
@@ -354,6 +355,22 @@ module.exports = Marionette.LayoutView.extend({
       targetMetacard,
     })
   },
+  updateDistance() {
+    let lat = this.mapModel.get('mouseLat')
+    let lon = this.mapModel.get('mouseLon')
+    console.log('lat ' + this.mapModel.get('mouseLat') + ' lon ' + this.mapModel.get('mouseLon'))
+
+    if (lat && lon && this.mapModel.get('measurementState') === 'START') {
+        let dist  = getDistance(
+            {latitude: lat, longitude: lon },
+            this.mapModel.get('startingCoordinates')
+        )
+        console.log(dist)
+        this.mapModel.setCurrentDistance(dist)
+        this.mapModel.setDistanceInfoPosition(event.clientX, event.clientY)
+        console.log('x: ' + event.clientX + '  y: ' + event.clientY)
+    }
+  },
   /*
     Handles drawing or clearing the ruler as needed by the measurement state.
 
@@ -377,6 +394,8 @@ module.exports = Marionette.LayoutView.extend({
           'A'
         )
         this.mapModel.addPoint(point)
+        this.mapModel.setStartingCoordinates({latitude: this.mapModel.get('coordinateValues')['lat'], longitude: this.mapModel.get('coordinateValues')['lon']})
+        this.listenTo(this.mapModel, 'change:mouseLat change:mouseLon', this.updateDistance.bind(this))
         break
       case 'END':
         // ending map marker is labeled 'B'
@@ -441,10 +460,9 @@ module.exports = Marionette.LayoutView.extend({
   },
   setupDistanceInfo() {
     const map = this.mapModel
-    const update = this.updateDistanceInfoPosition
     const DistanceInfoView = Marionette.ItemView.extend({
       template() {
-        return <DistanceInfo onMouseMove={update.bind(this)} map={map} />
+        return <DistanceInfo map={map} />
       },
     })
 
@@ -452,14 +470,6 @@ module.exports = Marionette.LayoutView.extend({
 
     this.mapModel.addDistanceInfo(distanceInfoView)
     this.distanceInfo.show(distanceInfoView)
-  },
-  updateDistanceInfoPosition(event, mapEvent) {
-    //TODO
-    if (this.mapModel.get('measurementState') === 'START') {
-      this.mapModel.setDistanceInfoPosition(event.clientY, event.clientX)
-    } else {
-      this.mapModel.removeDistanceInfo()
-    }
   },
   /*
         Map creation is deferred to this method, so that all resources pertaining to the map can be loaded lazily and

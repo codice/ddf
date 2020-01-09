@@ -21,39 +21,30 @@ const DistanceInfoPresentation = require('./presentation').default
 const mapPropsToState = (props: Props) => {
   const { map } = props
   return {
-    coordinates: {
-      lat: map.get('mouseLat'),
-      lon: map.get('mouseLon'),
-    },
     isMeasuringDistance: map.get('measurementState') === 'START',
     currentDistance: map.get('currentDistance'),
-    left: map.get('mouseLon') + 180 + 'px',
-    bottom: map.get('mouseLat') + 180 + 'px',
+    left: map.get('distanceInfo')['left'] - 390 + 'px',
+    top: map.get('distanceInfo')['top'] - 180 + 'px',
   }
 }
 
-type Coordinates = {
-  lat: number
-  lon: number
-}
 
 type Props = {
   map: Backbone.Model
 } & WithBackboneProps
 
 type State = {
-  coordinates: Coordinates
   isMeasuringDistance: Boolean
   currentDistance: Number
   left: String
-  bottom: String
+  top: String
 }
 
 class DistanceInfo extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = mapPropsToState(props)
-    // this.listenToMap()
+    this.listenToMap()
   }
 
   listenToMap = () => {
@@ -65,9 +56,6 @@ class DistanceInfo extends React.Component<Props, State> {
     this.setState(mapPropsToState(this.props))
   }
 
-  move = (e: MouseEvent) => {
-    console.log(e)
-  }
 
   render() {
     console.log('in distance')

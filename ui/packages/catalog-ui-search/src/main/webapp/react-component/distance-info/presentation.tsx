@@ -15,28 +15,24 @@
 import * as React from 'react'
 import styled from 'styled-components'
 
-type Coordinates = {
-  lat: number
-  lon: number
-}
 
 type Props = {
-  coordinates: Coordinates
   isMeasuringDistance: Boolean
-  currentDistance: Number
+  currentDistance: number
   left: String
-  bottom: String
+  top: String
 }
 
 const Root = styled.div<Props>`
   font-family: 'Inconsolata', 'Lucida Console', monospace;
+  background: ${props => props.theme.backgroundModal};
   display: block;
   width: auto;
   height: auto;
+  font-size: ${props => props.theme.mediumFontSize};
   position: absolute;
-  left: 100px;
-  bottom: 100px;
   text-align: left;
+  padding: ${props => props.theme.minimumSpacing};
   max-width: 50%;
 `
 
@@ -46,13 +42,24 @@ const DistanceInfoText = styled.div`
   text-overflow: ellipsis;
 `
 
+/*
+ * Formats the current distance value to a string with the appropriate unit of measurement.
+ */
+const getDistanceText = (distance: number) => {
+  // use meters when distance is under 1000m and convert to kilometers when ≥1000m
+  const distanceText =
+    distance < 1000 ? `${distance} m` : `${(distance * 0.001).toFixed(2)} km`
+
+  return distanceText
+}
+
 const render = (props: Props) => {
   console.log('rendered')
   const distance = props.currentDistance ? props.currentDistance : 0
 
   return (
-    <Root {...props} style={{ left: props.left, bottom: props.bottom }}>
-      <DistanceInfoText>{distance}</DistanceInfoText>
+    <Root {...props} style={{ left: props.left, top: props.top}}>
+      <DistanceInfoText>{getDistanceText(distance)}</DistanceInfoText>
     </Root>
   )
 }
