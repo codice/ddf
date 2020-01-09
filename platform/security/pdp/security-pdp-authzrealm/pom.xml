@@ -73,11 +73,6 @@
             <artifactId>httpclient</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security</groupId>
             <artifactId>ddf-security-common</artifactId>
             <version>${project.version}</version>
@@ -147,9 +142,7 @@
                             commons-io,
                             httpclient,
                             httpcore,
-                            platform-util-unavailableurls,
                             ddf-security-common,
-                            platform-util,
                             commons-beanutils,
                             commons-validator,
                             commons-collections,

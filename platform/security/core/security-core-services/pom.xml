@@ -141,11 +141,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
         <dependency>
@@ -256,9 +251,7 @@
                         <Embed-Dependency>
                             httpclient,
                             httpcore,
-                            platform-util-unavailableurls,
                             ddf-security-common,
-                            platform-util,
                             siv-mode,
                             jbcrypt
                         </Embed-Dependency>

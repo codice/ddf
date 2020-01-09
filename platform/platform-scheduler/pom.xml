@@ -68,11 +68,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
         <dependency>
@@ -111,9 +106,7 @@
                             c3p0,
                             httpclient,
                             httpcore,
-                            platform-util-unavailableurls,
-                            ddf-security-common,
-                            platform-util
+                            ddf-security-common
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>

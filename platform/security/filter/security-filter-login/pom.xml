@@ -126,11 +126,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -141,10 +136,8 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            platform-util,
                             ddf-security-common,
-                            httpclient,httpcore,
-                            platform-util-unavailableurls
+                            httpclient,httpcore
                         </Embed-Dependency>
                         <Export-Package>
                             org.codice.ddf.security.filter.login

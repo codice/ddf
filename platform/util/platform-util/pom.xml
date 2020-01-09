@@ -22,7 +22,7 @@
 
     <artifactId>platform-util</artifactId>
     <name>DDF :: Platform :: Util :: Utilities</name>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
@@ -157,6 +157,15 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                    </instructions>
+                </configuration>
             </plugin>
         </plugins>
     </build>

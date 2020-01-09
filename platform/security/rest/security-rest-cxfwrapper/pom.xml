@@ -116,11 +116,6 @@
             <artifactId>platform-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.security</groupId>
             <artifactId>security-oidc-bundle</artifactId>
             <version>${project.version}</version>
@@ -172,9 +167,7 @@
                             httpclient,
                             gson-support,
                             google-http-client,
-                            ddf-security-common,
-                            platform-util,
-                            platform-util-unavailableurls
+                            ddf-security-common
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

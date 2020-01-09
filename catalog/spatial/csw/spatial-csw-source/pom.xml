@@ -164,11 +164,6 @@
             <artifactId>validation-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
@@ -210,8 +205,6 @@
                             commons-collections4,
                             ogc-tools-gml-jts,
                             ddf-security-common,
-                            platform-util,
-                            platform-util-unavailableurls,
                             jaxb2-basics-runtime,
                             commons-lang3,
                             geospatial

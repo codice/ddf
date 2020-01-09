@@ -64,11 +64,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
     </dependencies>
@@ -81,9 +76,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            ddf-security-common,
-                            platform-util,
-                            platform-util-unavailableurls
+                            ddf-security-common
                         </Embed-Dependency>
                         <Import-Package>
                             *

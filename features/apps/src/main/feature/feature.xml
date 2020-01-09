@@ -75,6 +75,7 @@
         <feature>platform-core</feature>
         <feature>platform-api</feature>
         <feature>tika</feature>
+        <feature>platform-util</feature>
         <feature>platform-logging</feature>
         <feature>platform-migrate-all</feature>
         <feature>platform-scheduler</feature>

@@ -56,11 +56,6 @@
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -72,9 +67,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-api-impl;scope=!test,
-                            ddf-security-common,
-                            platform-util,
-                            platform-util-unavailableurls
+                            ddf-security-common
                         </Embed-Dependency>
                         <Export-Package />
                     </instructions>
