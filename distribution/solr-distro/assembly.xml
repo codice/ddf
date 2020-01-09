@@ -56,9 +56,24 @@
             </directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>bin/*</include>
+                <include>bin/solr.cmd</include>
+                <include>bin/solr.in.cmd</include>
             </includes>
             <fileMode>0750</fileMode>
+            <lineEnding>dos</lineEnding>
+        </fileSet>
+
+        <!-- Files with executable permissions -->
+        <fileSet>
+            <directory>src/main/resources
+            </directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>bin/solr</include>
+                <include>bin/solr.in.sh</include>
+            </includes>
+            <fileMode>0750</fileMode>
+            <lineEnding>unix</lineEnding>
         </fileSet>
 
         <!-- The rest of the files. No executable permissions. -->
@@ -66,6 +81,7 @@
             <fileMode>0644</fileMode>
             <directory>src/main/resources</directory>
             <outputDirectory>/</outputDirectory>
+            <lineEnding>unix</lineEnding>
         </fileSet>
 
         <!--The files from the Apache Solr distribution-->
