@@ -112,7 +112,7 @@ public class UtmUpsCoordinateProcessor {
   }
 
   /**
-   * Generates a list of {@code LiteralSuggestion}s based on the given {@code utmUpsCoord} string.
+   * Generates a list of {@link LiteralSuggestion}s based on the given {@code utmUpsCoord} string.
    * This method is only used to generate suggestions when the user enters a single UTM/UPS
    * coordinate. The following suggestions are returned depending on the information provided in the
    * coordinate:
@@ -138,8 +138,8 @@ public class UtmUpsCoordinateProcessor {
    *
    * @param utmUpsCoord the user-provided gazetteer query text. It must match the {@code
    *     PATTERN_UTM_OR_UPS_COORDINATE} pattern.
-   * @return a list of either one or two {@LiteralSuggestion}s, depending on the latitude band of
-   *     {@code utmUps}
+   * @return a list of either one or two {@link LiteralSuggestion}s, depending on the latitude band
+   *     of {@code utmUpsCoord}
    */
   private List<LiteralSuggestion> suggestionsForSinglePoint(String utmUpsCoord) {
     final Character latBand = getLatBand(utmUpsCoord);
@@ -182,7 +182,7 @@ public class UtmUpsCoordinateProcessor {
   }
 
   /**
-   * Generates one {@code LiteralSuggestion} by combining the latitude/longitude values of each
+   * Generates one {@link LiteralSuggestion} by combining the latitude/longitude values of each
    * UTM/UPS coordinate in the {@code utmUpsCoords} list. This method is used to generate a
    * suggestion when the user enters multiple UTM/UPS coordinates. No additional suggestions are
    * made for each point for simplicity since the map will pan to the extent or bounding box of all
@@ -193,7 +193,7 @@ public class UtmUpsCoordinateProcessor {
    *
    * @param utmUpsCoords a list of strings matching the {@code PATTERN_UTM_OR_UPS_COORDINATE}
    *     pattern, created from the user-provided gazetteer query text.
-   * @return a singleton list with one {@code LiteralSuggestion} with the combined list of
+   * @return a singleton list with one {@link LiteralSuggestion} with the combined list of
    *     latitude/longitude values.
    */
   private LiteralSuggestion suggestionForMultiplePoints(final List<String> utmUpsCoords) {
