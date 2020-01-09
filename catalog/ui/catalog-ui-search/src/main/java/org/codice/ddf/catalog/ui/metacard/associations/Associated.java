@@ -153,7 +153,7 @@ public class Associated {
             .map(util::getStringList)
             .orElseGet(ArrayList::new);
     values.remove(edge.child.get(Metacard.ID).toString());
-    target.setAttribute(new AttributeImpl(edge.relation, values));
+    target.setAttribute(AttributeImpl.fromMultipleValues(edge.relation, values));
     changedMetacards.put(id, target);
   }
 
@@ -168,7 +168,7 @@ public class Associated {
             .map(util::getStringList)
             .orElseGet(ArrayList::new);
     values.add(edge.child.get(Metacard.ID).toString());
-    target.setAttribute(new AttributeImpl(edge.relation, values));
+    target.setAttribute(AttributeImpl.fromMultipleValues(edge.relation, values));
     changedMetacards.put(id, target);
   }
 

@@ -178,7 +178,7 @@ public class MetacardValidityMarkerPluginTest {
 
     Set<String> tags = m1.getTags();
     tags.add(INVALID_TAG);
-    m1.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
+    m1.setAttribute(AttributeImpl.fromMultipleValues(Metacard.TAGS, new ArrayList<>(tags)));
 
     CreateRequest filteredRequest = plugin.process(request);
     assertThat(filteredRequest.getMetacards().get(0).getTags(), hasItem(VALID_TAG));
@@ -194,7 +194,7 @@ public class MetacardValidityMarkerPluginTest {
 
     Set<String> tags = m1.getTags();
     tags.add(VALID_TAG);
-    m1.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
+    m1.setAttribute(AttributeImpl.fromMultipleValues(Metacard.TAGS, new ArrayList<>(tags)));
 
     CreateRequest filteredRequest = plugin.process(request);
     assertThat(filteredRequest.getMetacards().get(0).getTags(), hasItem(INVALID_TAG));
