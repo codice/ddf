@@ -867,21 +867,38 @@ module.exports = function CesiumMap(
           options.isSelected ? -1 : 0
         )
       } else if (geometry.constructor === Cesium.Label) {
-        const geometryPosition = geometry.position
-        // finds an existing label that has the same position; returns undefined if none
-        const labelWithSamePosition = _.find(
-          mapModel.get('labels'),
-          label =>
-            label.position.x === geometryPosition.x &&
-            label.position.y === geometryPosition.y
-        )
-        // if there is an existing label with the same position, then this one
-        // should not be displayed
-        if (
-          labelWithSamePosition !== undefined &&
-          geometry.id !== labelWithSamePosition.id
-        ) {
-          geometry.show = false
+        geometry.isSelected = options.isSelected
+        if (options.isSelected) {
+          // if there is another label at that position, hide it
+          const labelWithSamePosition = _.find(
+            mapModel.get('labels'),
+            label =>
+              label.position.x === geometry.position.x &&
+              label.position.y === geometry.position.y &&
+              label.show === true
+          )
+          if (labelWithSamePosition !== undefined) {
+            labelWithSamePosition.show = false
+            labelWithSamePosition.isSelected = false
+          }
+          geometry.show = true
+        } else {
+          // display one label and hide all others
+          const labelWithSamePosition = _.find(
+            mapModel.get('labels'),
+            label =>
+              label.position.x === geometry.position.x &&
+              label.position.y === geometry.position.y &&
+              label.show === true
+          )
+          if (
+            labelWithSamePosition === undefined ||
+            geometry.id === labelWithSamePosition.id
+          ) {
+            geometry.show = true
+          } else {
+            geometry.show = false
+          }
         }
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
@@ -921,19 +938,17 @@ module.exports = function CesiumMap(
     showGeometry(geometry) {
       if (geometry.constructor === Cesium.Billboard) {
         geometry.show = true
-      } else if (geometry.constructor === Cesium.Label) {
-        const geometryPosition = geometry.position
-        // finds an existing label that has the same position; returns undefined if none
+      } else if (showLabels && geometry.constructor === Cesium.Label) {
+        // only show one label at one location
         const labelWithSamePosition = _.find(
           mapModel.get('labels'),
           label =>
-            label.position.x === geometryPosition.x &&
-            label.position.y === geometryPosition.y
+            label.position.x === geometry.position.x &&
+            label.position.y === geometry.position.y &&
+            (label.isSelected === true || label.show === true)
         )
-        // only show one label at each location
-        // the first label also matches the top-most metacard
         if (
-          labelWithSamePosition !== undefined &&
+          labelWithSamePosition === undefined ||
           geometry.id == labelWithSamePosition.id
         ) {
           geometry.show = true
