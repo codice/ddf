@@ -14,6 +14,7 @@ import ddf.catalog.data.impl.types.CoreAttributes
 import ddf.catalog.validation.AttributeValidatorRegistry
 import ddf.catalog.validation.MetacardValidator
 import ddf.catalog.validation.ReportingMetacardValidator
+import ddf.catalog.validation.ValidationException
 import ddf.catalog.validation.impl.AttributeValidatorRegistryImpl
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -448,19 +449,36 @@ class DefinitionParserSpec extends Specification {
                 MetacardValidator.class,
                 _,
                 _)
-
-
     }
 
-    def "test metacard validators"() {
+    def "test required attribute metacard validator"() {
         setup:
         file.withPrintWriter { it.write(metacardValidator) }
+        MetacardValidator validator
+        def fallbackMetacardType = new MetacardTypeImpl("fallback.common", [] as Set)
+        def fallbackMetacard = new MetacardImpl(fallbackMetacardType)
+        def otherMetacardType = new MetacardTypeImpl("other", [] as Set)
+        def otherMetacard = new MetacardImpl(otherMetacardType)
 
         when:
         definitionParser.install(file)
 
         then:
-        1 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, isNull())
+        1 * mockBundleContext.registerService(MetacardValidator.class, _ as MetacardValidator, isNull()) >> {
+            arguments -> validator = arguments.get(1)
+        }
+
+        when:
+        validator.validate(fallbackMetacard)
+
+        then:
+        thrown(ValidationException)
+
+        when:
+        validator.validate(otherMetacard)
+
+        then:
+        noExceptionThrown()
     }
 
     def "test invalid required attribute metacard validator"() {
