@@ -14,65 +14,46 @@
 package org.codice.ddf.catalog.ui.query.suggestion;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 
-import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.codice.usng4j.CoordinateSystemTranslator;
-import org.codice.usng4j.DecimalDegreesCoordinate;
-import org.codice.usng4j.UtmUpsCoordinate;
-import org.junit.Before;
+import org.codice.usng4j.impl.CoordinateSystemTranslatorImpl;
 import org.junit.Test;
 
 public class UtmUpsCoordinateProcessorTest {
-  private CoordinateSystemTranslator translatorMock;
 
-  private UtmUpsCoordinateProcessor processor;
+  private CoordinateSystemTranslator translator = new CoordinateSystemTranslatorImpl();
 
-  @Before
-  public void setup() {
-    translatorMock = mock(CoordinateSystemTranslator.class);
-    processor = new UtmUpsCoordinateProcessor(translatorMock);
+  private UtmUpsCoordinateProcessor processor = new UtmUpsCoordinateProcessor(translator);
+
+  @Test
+  public void testUtmStringNorthernHemisphere() {
+    assertSuggestion(
+        "17R 522908mE 2853543mN", "UTM: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
   }
 
   @Test
-  public void testUtmStringNorthernHemisphere() throws Exception {
-    setupMocks("13N 234789mE 234789mN", 1.0, 2.0);
+  public void testUtmStringNorthernHemisphereWithMultipleSpaces() {
     assertSuggestion(
-        "13N 234789mE 234789mN",
-        "UTM/UPS: [ 13N 234789mE 234789mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
-  }
-
-  @Test
-  public void testUtmStringNorthernHemisphereWithMultipleSpaces() throws Exception {
-    setupMocks("13N   234789mE   234789mN", 1.0, 2.0);
-    assertSuggestion(
-        "13N   234789mE   234789mN",
-        "UTM/UPS: [ 13N   234789mE   234789mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        "17R   522908mE   2853543mN", "UTM: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
   }
 
   @Test
   public void testUtmStringNorthernHemisphereWithTabs() {
-    assertSuggestionDoesNotExist(String.format("%s\t%s\t%s", "13N", "234789mE", "234789mN"));
+    assertSuggestionDoesNotExist(String.format("%s\t%s\t%s", "17R", "522908mE", "2853543mN"));
   }
 
   @Test
-  public void testUtmStringSouthernHemisphere() throws Exception {
-    setupMocks("13M 234789mE 234789mN", 1.0, 2.0);
+  public void testUtmStringSouthernHemisphere() {
     assertSuggestion(
-        "13M 234789mE 234789mN",
-        "UTM/UPS: [ 13M 234789mE 234789mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        "13M 604276mE 9805713mN", "UTM: [ 13M 604276mE 9805713mN ]", -1.757537, -104.062500);
   }
 
   @Test
@@ -81,12 +62,9 @@ public class UtmUpsCoordinateProcessorTest {
   }
 
   @Test
-  public void testUtmStringZoneTooBig() throws Exception {
-    setupMocks("1N 234789mE 234789mN", 1.0, 2.0);
+  public void testUtmStringZoneTooBig() {
     assertSuggestion(
-        "61N 234789mE 234789mN",
-        "UTM/UPS: [ 1N 234789mE 234789mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        "61P 508378mE 967744mN", "UTM: [ 1P 508378mE 967744mN ]", 8.754795, -176.923828);
   }
 
   @Test
@@ -95,12 +73,21 @@ public class UtmUpsCoordinateProcessorTest {
   }
 
   @Test
-  public void testUtmStringWithoutLatBand() throws Exception {
-    setupMocks("13N 234789mE 234789mN", 1.0, 2.0);
+  public void testUtmStringWithoutLatBand() {
+    List<Suggestion> list = new ArrayList<>();
+    processor.enhanceResults(list, "13 234789mE 234789mN");
+    assertThat(list, hasSize(2));
+
     assertSuggestion(
-        "13 234789mE 234789mN",
-        "UTM/UPS: [ 13N 234789mE 234789mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        (LiteralSuggestion) list.get(0),
+        "UTM: [ 13 234789mE 234789mN ] (Northern)",
+        2.122350,
+        -107.384318);
+    assertSuggestion(
+        (LiteralSuggestion) list.get(1),
+        "UTM: [ 13 234789mE 234789mN ] (Southern)",
+        -86.716923,
+        -164.055897);
   }
 
   @Test
@@ -109,39 +96,57 @@ public class UtmUpsCoordinateProcessorTest {
   }
 
   @Test
-  public void testUtmStringWithNorthernHemisphereIndicator() throws Exception {
-    setupMocks("13N 234789mE 234789mN", 1.0, 2.0);
+  public void testUtmStringWithNLatitudeBand() {
+    List<Suggestion> list = new ArrayList<>();
+    processor.enhanceResults(list, "13N 234789mE 234789mN");
+    assertThat(list, hasSize(2));
+
     assertSuggestion(
-        "13N 234789mE 234789mN N",
-        "UTM/UPS: [ 13N 234789mE 234789mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        (LiteralSuggestion) list.get(0), "UTM: [ 13N 234789mE 234789mN ]", 2.122350, -107.384318);
+    assertSuggestion(
+        (LiteralSuggestion) list.get(1),
+        "UTM: [ 13 234789mE 234789mN ] (Northern)",
+        2.122350,
+        -107.384318);
   }
 
   @Test
-  public void testUtmStringWithSouthernHemisphereIndicator() throws Exception {
-    setupMocks("13N 234789mE 234789mN", 1.0, 2.0);
+  public void testUtmStringWithSLatitudeBand() {
+    List<Suggestion> list = new ArrayList<>();
+    processor.enhanceResults(list, "19S 634900mE 4004219mN");
+    assertThat(list, hasSize(2));
+
     assertSuggestion(
-        "13N 234789mE 234789mN S",
-        "UTM/UPS: [ 13N 234789mE 234789mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        (LiteralSuggestion) list.get(0), "UTM: [ 19S 634900mE 4004219mN ]", 36.173357, -67.500000);
+    assertSuggestion(
+        (LiteralSuggestion) list.get(1),
+        "UTM: [ 19 634900mE 4004219mN ] (Southern)",
+        -54.092504,
+        -66.937300);
   }
 
   @Test
-  public void testUtmStringWithInvalidNSIndicator() throws Exception {
-    setupMocks("13N 234789mE 234789mN", 1.0, 2.0);
+  public void testUtmStringWithNorthernHemisphereIndicator() {
     assertSuggestion(
-        "13N 234789mE 234789mN R",
-        "UTM/UPS: [ 13N 234789mE 234789mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        "17R 522908mE 2853543mN N", "UTM: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
   }
 
   @Test
-  public void testUtmStringWithLowerCaseLatBand() throws Exception {
-    setupMocks("13M 234789mE 234789mN", 1.0, 2.0);
+  public void testUtmStringWithSouthernHemisphereIndicator() {
     assertSuggestion(
-        "13m 234789mE 234789mN",
-        "UTM/UPS: [ 13M 234789mE 234789mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+        "17R 522908mE 2853543mN S", "UTM: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
+  }
+
+  @Test
+  public void testUtmStringWithInvalidNSIndicator() {
+    assertSuggestion(
+        "17R 522908mE 2853543mN R", "UTM: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
+  }
+
+  @Test
+  public void testUtmStringWithLowerCaseLatBand() {
+    assertSuggestion(
+        "17r 522908mE 2853543mN", "UTM: [ 17R 522908mE 2853543mN ]", 25.799891, -80.771484);
   }
 
   @Test
@@ -150,149 +155,121 @@ public class UtmUpsCoordinateProcessorTest {
   }
 
   @Test
-  public void testUpsString() throws Exception {
-    setupMocks("A 2347891mE 2347891mN", 1.0, 2.0);
-    assertSuggestion(
-        "A 2347891mE 2347891mN",
-        "UTM/UPS: [ A 2347891mE 2347891mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+  public void testUpsString() {
+    assertSuggestion("A 2347891mE 2347891mN", "UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
   }
 
   @Test
-  public void testUpsStringWithoutEastingUnits() throws Exception {
-    setupMocks("A 2347891 2347891mN", 1.0, 2.0);
-    assertSuggestion(
-        "A 2347891 2347891mN",
-        "UTM/UPS: [ A 2347891 2347891mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+  public void testUpsStringWithoutEastingUnits() {
+    assertSuggestion("A 2347891 2347891mN", "UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
   }
 
   @Test
-  public void testUpsStringWithoutNorthingUnits() throws Exception {
-    setupMocks("A 2347891mE 2347891", 1.0, 2.0);
-    assertSuggestion(
-        "A 2347891mE 2347891",
-        "UTM/UPS: [ A 2347891mE 2347891 ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+  public void testUpsStringWithoutNorthingUnits() {
+    assertSuggestion("A 2347891mE 2347891", "UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
   }
 
   @Test
-  public void testUpsStringWithRedundantZoneZero() throws Exception {
-    setupMocks("0A 2347891mE 2347891mN", 1.0, 2.0);
-    assertSuggestion(
-        "0A 2347891mE 2347891mN",
-        "UTM/UPS: [ 0A 2347891mE 2347891mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+  public void testUpsStringWithRedundantZoneZero() {
+    assertSuggestion("0A 2347891mE 2347891mN", "UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
   }
 
   @Test
-  public void testUpsStringDisregardsNorthIndicator() throws Exception {
-    setupMocks("A 2347891mE 2347891mN", 1.0, 2.0);
-    assertSuggestion(
-        "A 2347891mE 2347891mN N",
-        "UTM/UPS: [ A 2347891mE 2347891mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+  public void testUpsStringDisregardsNorthIndicator() {
+    assertSuggestion("A 2347891mE 2347891mN N", "UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
   }
 
   @Test
-  public void testUpsStringDisregardsSouthIndicator() throws Exception {
-    setupMocks("A 2347891mE 2347891mN", 1.0, 2.0);
-    assertSuggestion(
-        "A 2347891mE 2347891mN S",
-        "UTM/UPS: [ A 2347891mE 2347891mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0)));
+  public void testUpsStringDisregardsSouthIndicator() {
+    assertSuggestion("A 2347891mE 2347891mN S", "UPS: [ A 2347891mE 2347891mN ]", -85.570691, 45.0);
   }
 
   @Test
-  public void testUtmFollowedByUtm() throws Exception {
-    setupMocks("13N 234789mE 234789mN", 1.0, 2.0);
-    setupMocks("22X 234789mE 234789mN", 3.0, 4.0);
+  public void testUtmFollowedByUtm() {
     assertSuggestion(
-        "13N 234789mE 234789mN 22X 234789mE 234789mN",
-        "UTM/UPS: [ 13N 234789mE 234789mN ] [ 22X 234789mE 234789mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0), new LatLon(3.0, 4.0)));
+        "13N 234789mE 234789mN 22X 234789mE 8592442mN",
+        "UTM: [ 13N 234789mE 234789mN ] [ 22X 234789mE 8592442mN ]",
+        2.122350,
+        -107.384318,
+        77.190666,
+        -61.773164);
   }
 
   @Test
-  public void testUtmWithoutUnitLabelFollowedByUtm() throws Exception {
-    setupMocks("13N 234789mE 234789", 1.0, 2.0);
-    setupMocks("22X 234789mE 234789mN", 3.0, 4.0);
+  public void testUtmWithoutUnitLabelFollowedByUtm() {
     assertSuggestion(
-        "13N 234789mE 234789 22X 234789mE 234789mN",
-        "UTM/UPS: [ 13N 234789mE 234789 ] [ 22X 234789mE 234789mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0), new LatLon(3.0, 4.0)));
+        "13N 234789mE 234789 22X 234789mE 8592442mN",
+        "UTM: [ 13N 234789mE 234789mN ] [ 22X 234789mE 8592442mN ]",
+        2.122350,
+        -107.384318,
+        77.190666,
+        -61.773164);
   }
 
   @Test
-  public void testUpsFollowedByUps() throws Exception {
-    setupMocks("A 2347891mE 2347891mN", 1.0, 2.0);
-    setupMocks("B 1077891mE 1077891mN", 3.0, 4.0);
+  public void testUpsFollowedByUps() {
     assertSuggestion(
         "A 2347891mE 2347891mN B 1077891mE 1077891mN",
-        "UTM/UPS: [ A 2347891mE 2347891mN ] [ B 1077891mE 1077891mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0), new LatLon(3.0, 4.0)));
+        "UPS: [ A 2347891mE 2347891mN ] [ B 1077891mE 1077891mN ]",
+        -85.570691,
+        45.0,
+        -78.293449,
+        -135.0);
   }
 
   @Test
-  public void testUpsWithoutUnitLabelFollowedByUps() throws Exception {
-    setupMocks("A 2347891mE 2347891", 1.0, 2.0);
-    setupMocks("B 1077891mE 1077891mN", 3.0, 4.0);
+  public void testUpsWithoutUnitLabelFollowedByUps() {
     assertSuggestion(
         "A 2347891mE 2347891 B 1077891mE 1077891mN",
-        "UTM/UPS: [ A 2347891mE 2347891 ] [ B 1077891mE 1077891mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0), new LatLon(3.0, 4.0)));
+        "UPS: [ A 2347891mE 2347891mN ] [ B 1077891mE 1077891mN ]",
+        -85.570691,
+        45.0,
+        -78.293449,
+        -135.0);
   }
 
   @Test
-  public void testUtmFollowedByUps() throws Exception {
-    setupMocks("13N 234789mE 234789mN", 1.0, 2.0);
-    setupMocks("B 1077891mE 1077891mN", 3.0, 4.0);
+  public void testUtmFollowedByUps() {
     assertSuggestion(
         "13N 234789mE 234789mN B 1077891mE 1077891mN",
         "UTM/UPS: [ 13N 234789mE 234789mN ] [ B 1077891mE 1077891mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0), new LatLon(3.0, 4.0)));
+        2.122350,
+        -107.384318,
+        -78.293449,
+        -135.0);
   }
 
   @Test
-  public void testUtmWithoutUnitLabelFollowedByUps() throws Exception {
-    setupMocks("13N 234789mE 234789", 1.0, 2.0);
-    setupMocks("B 1077891mE 1077891mN", 3.0, 4.0);
+  public void testUtmWithoutUnitLabelFollowedByUps() {
     assertSuggestion(
         "13N 234789mE 234789 B 1077891mE 1077891mN",
-        "UTM/UPS: [ 13N 234789mE 234789 ] [ B 1077891mE 1077891mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0), new LatLon(3.0, 4.0)));
+        "UTM/UPS: [ 13N 234789mE 234789mN ] [ B 1077891mE 1077891mN ]",
+        2.122350,
+        -107.384318,
+        -78.293449,
+        -135.0);
   }
 
   @Test
-  public void testUpsFollowedByUtm() throws Exception {
-    setupMocks("B 1077891mE 1077891mN", 1.0, 2.0);
-    setupMocks("13N 234789mE 234789mN", 3.0, 4.0);
+  public void testUpsFollowedByUtm() {
     assertSuggestion(
         "B 1077891mE 1077891mN 13N 234789mE 234789mN",
         "UTM/UPS: [ B 1077891mE 1077891mN ] [ 13N 234789mE 234789mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0), new LatLon(3.0, 4.0)));
+        -78.293449,
+        -135.0,
+        2.122350,
+        -107.384318);
   }
 
   @Test
-  public void testUpsWithoutUnitLabelFollowedByUtm() throws Exception {
-    setupMocks("B 1077891mE 1077891", 1.0, 2.0);
-    setupMocks("13N 234789mE 234789mN", 3.0, 4.0);
+  public void testUpsWithoutUnitLabelFollowedByUtm() {
     assertSuggestion(
         "B 1077891mE 1077891 13N 234789mE 234789mN",
-        "UTM/UPS: [ B 1077891mE 1077891 ] [ 13N 234789mE 234789mN ]",
-        ImmutableList.of(new LatLon(1.0, 2.0), new LatLon(3.0, 4.0)));
-  }
-
-  private void setupMocks(String expectedCoordString, Double expectedLat, Double expectedLon)
-      throws Exception {
-    UtmUpsCoordinate mockUtmUps = mock(UtmUpsCoordinate.class);
-    doReturn(mockUtmUps).when(translatorMock).parseUtmUpsString(expectedCoordString);
-    doReturn(expectedCoordString).when(mockUtmUps).toString();
-
-    DecimalDegreesCoordinate ddc = mock(DecimalDegreesCoordinate.class);
-    doReturn(expectedLat).when(ddc).getLat();
-    doReturn(expectedLon).when(ddc).getLon();
-    doReturn(ddc).when(translatorMock).toLatLon(mockUtmUps);
+        "UTM/UPS: [ B 1077891mE 1077891mN ] [ 13N 234789mE 234789mN ]",
+        -78.293449,
+        -135.0,
+        2.122350,
+        -107.384318);
   }
 
   private void assertSuggestionDoesNotExist(String query) {
@@ -301,16 +278,27 @@ public class UtmUpsCoordinateProcessorTest {
     assertThat(list, is(empty()));
   }
 
-  private void assertSuggestion(String query, String expectedName, List<LatLon> expectedGeo) {
+  private void assertSuggestion(String query, String expectedName, double... expectedLatLons) {
     List<Suggestion> list = new LinkedList<>();
     processor.enhanceResults(list, query);
-    assertThat(list, is(not(empty())));
     assertThat(list, hasSize(1));
 
     LiteralSuggestion literalSuggestion = (LiteralSuggestion) list.get(0);
-    assertThat(literalSuggestion.getId(), is("LITERAL-UTM-UPS"));
-    assertThat(literalSuggestion.getName(), is(expectedName));
-    assertThat(literalSuggestion.hasGeo(), is(true));
-    assertThat(literalSuggestion.getGeo(), is(equalTo(expectedGeo)));
+    assertSuggestion(literalSuggestion, expectedName, expectedLatLons);
+  }
+
+  private void assertSuggestion(
+      LiteralSuggestion actualSuggestion, String expectedName, double... expectedLatLons) {
+    assertThat(actualSuggestion.getId(), is("LITERAL-UTM-UPS"));
+    assertThat(actualSuggestion.getName(), is(expectedName));
+    assertThat(actualSuggestion.hasGeo(), is(true));
+    assertThat(expectedLatLons.length % 2, is(0));
+    assertThat(expectedLatLons.length / 2, is(actualSuggestion.getGeo().size()));
+    int i = 0;
+    for (LatLon latLon : actualSuggestion.getGeo()) {
+      assertThat(latLon.getLat(), is(closeTo(expectedLatLons[i], 0.00001)));
+      assertThat(latLon.getLon(), is(closeTo(expectedLatLons[i + 1], 0.00001)));
+      i += 2;
+    }
   }
 }
