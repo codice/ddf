@@ -25,6 +25,12 @@
     <div class="details-amount details-detail">
         {{amount}} new items found
     </div>
+    {{#if overCount}}
+    <div class="details-overflow details-detail">
+        Only the first 1000 will be shown.
+    </div>
+    {{/if}}
+</div>
 </div>
 <button class="alert-delete is-negative">
     <span class="fa fa-minus">
