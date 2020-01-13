@@ -60,11 +60,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
         <dependency>
@@ -143,8 +138,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             ddf-security-common,
-                            platform-util,
-                            platform-util-unavailableurls,
                             siv-mode,
                             jbcrypt
                         </Embed-Dependency>

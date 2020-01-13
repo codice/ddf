@@ -65,11 +65,6 @@
             <artifactId>validation-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-impl</artifactId>
         </dependency>
@@ -83,7 +78,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>ddf-security-common,platform-util-unavailableurls,platform-util</Embed-Dependency>
+                        <Embed-Dependency>ddf-security-common</Embed-Dependency>
                         <Export-Package>
                             ddf.security.pep.interceptor;version=${project.version}
                         </Export-Package>

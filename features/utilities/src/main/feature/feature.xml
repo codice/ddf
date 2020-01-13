@@ -18,6 +18,14 @@
 
     <repository>mvn:ddf.features/kernel/${project.version}/xml/features</repository>
 
+    <feature name="platform-util" version="${project.version}"
+             description="Platform Utilities">
+        <feature>jodah-failsafe</feature>
+        <feature>common-system</feature>
+        <feature>spring</feature>
+        <bundle>mvn:ddf.platform.util/platform-util/${project.version}</bundle>
+    </feature>
+
     <feature name="util-uuidgenerator-api" version="${project.version}"
              description="UUID Generator API">
         <bundle>mvn:ddf.platform.util/util-uuidgenerator-api/${project.version}</bundle>
@@ -26,6 +34,7 @@
     <feature name="util-uuidgenerator" version="${project.version}"
              description="A UUID generator service">
         <feature>util-uuidgenerator-api</feature>
+        <feature>platform-util</feature>
         <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
         <bundle>mvn:ddf.platform.util/util-uuidgenerator-impl/${project.version}</bundle>
     </feature>

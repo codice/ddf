@@ -132,11 +132,6 @@
             <artifactId>ddf-security-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
@@ -206,8 +201,6 @@
                             platform-util,
                             ddf-security-common,
                             geospatial,
-                            platform-util,
-                            platform-util-unavailableurls,
                             commons-lang3
                         </Embed-Dependency>
                         <Private-Package>

@@ -168,6 +168,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature dependency="true">oidc-dependencies</feature>
         <feature>security-token-storage</feature>
         <feature>cxf-rs-security-oauth2</feature>
+        <feature>platform-util</feature>
         <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.core/security-core-services/${project.version}</bundle>
         <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>
@@ -197,6 +198,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>cxf-jaxrs</feature>
         <feature>parser-xml</feature>
         <feature>security-handler-api</feature>
+        <feature>platform-util</feature>
         <bundle>mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}</bundle>
     </feature>
 
@@ -238,6 +240,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-core-api</feature>
         <feature>security-handler-api</feature>
         <feature>security-core-impl</feature>
+        <feature>platform-util</feature>
         <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>
         <bundle>mvn:ddf.security.certificate/security-ocsp-checker/${project.version}</bundle>
         <bundle>mvn:ddf.security.handler/security-handler-pki/${project.version}</bundle>

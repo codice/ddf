@@ -36,11 +36,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.async</groupId>
             <artifactId>catalog-async-plugin-api</artifactId>
             <version>${project.version}</version>
@@ -83,10 +78,8 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Embed-Dependency>
-                            platform-util,
                             catalog-core-api-impl,
                             commons-lang3,
-                            platform-util-unavailableurls,
                             catalog-async-data
                         </Embed-Dependency>
                     </instructions>

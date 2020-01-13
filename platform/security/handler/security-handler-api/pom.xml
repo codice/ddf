@@ -58,11 +58,6 @@
             <artifactId>validation-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>security-filter-api</artifactId>
             <version>${project.version}</version>
@@ -105,7 +100,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>ddf-security-common,platform-util-unavailableurls</Embed-Dependency>
+                        <Embed-Dependency>ddf-security-common</Embed-Dependency>
                         <Export-Package>
                             org.codice.ddf.security.handler.api
                         </Export-Package>

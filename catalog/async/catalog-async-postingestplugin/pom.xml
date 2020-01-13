@@ -46,11 +46,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.async</groupId>
             <artifactId>catalog-async-processingframework-api</artifactId>
             <version>${project.version}</version>
@@ -86,8 +81,6 @@
                             catalog-core-api-impl,
                             ddf-security-common,
                             commons-lang3,
-                            platform-util,
-                            platform-util-unavailableurls,
                             catalog-async-data
                         </Embed-Dependency>
                     </instructions>

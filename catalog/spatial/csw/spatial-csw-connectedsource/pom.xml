@@ -158,11 +158,6 @@
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -195,8 +190,6 @@
                             commons-collections4,
                             ogc-tools-gml-jts,
                             ddf-security-common,
-                            platform-util,
-                            platform-util-unavailableurls,
                             jaxb2-basics-runtime
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>

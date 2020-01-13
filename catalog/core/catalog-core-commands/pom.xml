@@ -104,11 +104,6 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-zip</artifactId>
             <version>${project.version}</version>
@@ -139,9 +134,7 @@
                             joda-convert;scope=runtime|compile,
                             catalog-core-api-impl,
                             catalog-transformer-zip,
-                            ddf-security-common,
-                            platform-util-unavailableurls,
-                            platform-util
+                            ddf-security-common
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>

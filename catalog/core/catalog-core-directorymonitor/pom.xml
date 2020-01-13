@@ -85,11 +85,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util-unavailableurls</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
@@ -394,8 +389,6 @@
                         <Embed-Dependency>
                             catalog-core-api-impl,
                             ddf-security-common,
-                            platform-util,
-                            platform-util-unavailableurls,
                             sardine,
                             <!-- Embedding httpclient and httpcore instead of using the bundles -->
                             <!-- due to a downstream performance issue in itests -->
