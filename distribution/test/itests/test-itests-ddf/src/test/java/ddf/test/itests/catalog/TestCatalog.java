@@ -516,27 +516,6 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testCswIngest() {
-    Response response = ingestCswRecord();
-    ValidatableResponse validatableResponse = response.then();
-
-    validatableResponse.body(
-        hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("1")),
-        hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")),
-        hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
-        hasXPath(
-            "//TransactionResponse/InsertResult/BriefRecord/title",
-            is("Aliquam fermentum purus quis arcu")),
-        hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
-
-    try {
-      CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
-    } catch (IOException | XPathExpressionException e) {
-      fail("Could not retrieve the ingested record's ID from the response.");
-    }
-  }
-
-  @Test
   public void testCswIngestWithMetadataBackup() throws Exception {
     getServiceManager().startFeature(true, METACARD_BACKUP_FILE_STORAGE_FEATURE);
 

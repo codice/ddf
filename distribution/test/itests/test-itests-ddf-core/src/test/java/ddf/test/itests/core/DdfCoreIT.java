@@ -127,6 +127,9 @@ public class DdfCoreIT extends AbstractIntegrationTest {
             CSW_SOURCE_WITH_METACARD_XML_ID,
             GMD_SOURCE_ID);
 
+    getCatalogBundle().setDownloadRetryDelayInSeconds(1);
+    getCatalogBundle().setupCaching(false);
+
     LOGGER.info("Source status: \n{}", get(REST_PATH.getUrl() + "sources").body().prettyPrint());
   }
 
@@ -139,10 +142,6 @@ public class DdfCoreIT extends AbstractIntegrationTest {
 
   @Before
   public void setup() throws Exception {
-
-    getCatalogBundle().setDownloadRetryDelayInSeconds(1);
-
-    getCatalogBundle().setupCaching(false);
     urlResourceReaderConfigurator = getUrlResourceReaderConfigurator();
 
     server = new SecureStubServer(Integer.parseInt(RESTITO_STUB_SERVER_PORT.getPort())).run();
@@ -166,8 +165,6 @@ public class DdfCoreIT extends AbstractIntegrationTest {
     resourcesToDelete.clear();
 
     cswServer.stop();
-
-    getSecurityPolicy().configureRestForGuest();
 
     if (server != null) {
       server.stop();
@@ -221,11 +218,8 @@ public class DdfCoreIT extends AbstractIntegrationTest {
             hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
             hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("2")));
 
-    String firstId;
-    String secondId;
-
-    firstId = getMetacardIdFromCswInsertResponse(firstResponse);
-    secondId = getMetacardIdFromCswInsertResponse(secondResponse);
+    String firstId = getMetacardIdFromCswInsertResponse(firstResponse);
+    String secondId = getMetacardIdFromCswInsertResponse(secondResponse);
 
     String firstUrl = REST_PATH.getUrl() + firstId;
     when()
@@ -403,7 +397,7 @@ public class DdfCoreIT extends AbstractIntegrationTest {
     Path path = Paths.get(filename);
 
     if (Files.exists(path)) {
-      Files.delete(Paths.get(filename));
+      Files.delete(path);
     }
 
     Files.createFile(path);
@@ -424,7 +418,7 @@ public class DdfCoreIT extends AbstractIntegrationTest {
     Map<String, Object> openSearchProperties =
         getOpenSearchSourceProperties(
             OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
-    getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties).getPid();
+    getServiceManager().createManagedService(OPENSEARCH_FACTORY_PID, openSearchProperties);
   }
 
   private void setupCswServer() throws IOException, InterruptedException {
