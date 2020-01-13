@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.forms.data;
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_FILTER;
 import static org.codice.ddf.catalog.ui.forms.data.QueryTemplateType.QUERY_TEMPLATE_TAG;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.DETAIL_LEVEL;
+import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.FACETS;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_FEDERATION;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SORTS;
 import static org.codice.ddf.catalog.ui.metacard.query.util.QueryAttributes.QUERY_SOURCES;
@@ -96,6 +97,7 @@ public class QueryTemplateMetacard extends MetacardImpl {
     Map<String, Object> querySettings = new HashMap<>();
     querySettings.put(QUERY_SORTS, safeGetList(this, QUERY_SORTS, String.class));
     querySettings.put("src", safeGetList(this, QUERY_SOURCES, String.class));
+    querySettings.put(FACETS, safeGetList(this, FACETS, String.class));
     querySettings.put(QUERY_FEDERATION, safeGet(this, QUERY_FEDERATION, String.class));
     querySettings.put(DETAIL_LEVEL, safeGet(this, DETAIL_LEVEL, String.class));
     return querySettings;
@@ -109,6 +111,10 @@ public class QueryTemplateMetacard extends MetacardImpl {
     List<Serializable> sources = safeGetList(json, "src", Serializable.class);
     if (sources != null) {
       setAttribute(new AttributeImpl(QUERY_SOURCES, sources));
+    }
+    List<Serializable> facets = safeGetList(json, FACETS, Serializable.class);
+    if (facets != null) {
+      setAttribute(new AttributeImpl(FACETS, facets));
     }
     String federation = safeGet(json, QUERY_FEDERATION, String.class);
     if (federation != null) {

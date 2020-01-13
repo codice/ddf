@@ -40,6 +40,7 @@ module.exports = Backbone.Model.extend({
       title: this.get('title'),
       filterTree: this.get('filterTemplate'),
       src: (querySettings && querySettings.src) || '',
+      facets: (querySettings && querySettings.facets) || [],
       federation: (querySettings && querySettings.federation) || 'enterprise',
       sorts:
         querySettings && querySettings.sorts
