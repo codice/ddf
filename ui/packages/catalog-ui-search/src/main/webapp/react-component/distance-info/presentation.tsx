@@ -15,9 +15,7 @@
 import * as React from 'react'
 import styled from 'styled-components'
 
-
 type Props = {
-  isMeasuringDistance: Boolean
   currentDistance: number
   left: String
   top: String
@@ -58,7 +56,7 @@ const render = (props: Props) => {
   const distance = props.currentDistance ? props.currentDistance : 0
 
   return (
-    <Root {...props} style={{ left: props.left, top: props.top}}>
+    <Root {...props} style={{ left: props.left, top: props.top }}>
       <DistanceInfoText>{getDistanceText(distance)}</DistanceInfoText>
     </Root>
   )

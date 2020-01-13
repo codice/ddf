@@ -21,20 +21,19 @@ const DistanceInfoPresentation = require('./presentation').default
 const mapPropsToState = (props: Props) => {
   const { map } = props
   return {
-    isMeasuringDistance: map.get('measurementState') === 'START',
+    showDistance: map.get('measurementState') === 'START',
     currentDistance: map.get('currentDistance'),
     left: map.get('distanceInfo')['left'] - 390 + 'px',
     top: map.get('distanceInfo')['top'] - 180 + 'px',
   }
 }
 
-
 type Props = {
   map: Backbone.Model
 } & WithBackboneProps
 
 type State = {
-  isMeasuringDistance: Boolean
+  showDistance: Boolean
   currentDistance: Number
   left: String
   top: String
@@ -44,22 +43,26 @@ class DistanceInfo extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = mapPropsToState(props)
+    this.setState({ showDistance: false })
     this.listenToMap()
   }
 
   listenToMap = () => {
     const { listenTo, map } = this.props
-    listenTo(map, 'change:currentDistance', this.handleChange)
+    listenTo(map, 'change:currentDistance', this.handleDistanceChange)
+    listenTo(map, 'change:measurementState', this.handleMeasurementStateChange)
   }
 
-  handleChange = () => {
+  handleDistanceChange = () => {
     this.setState(mapPropsToState(this.props))
   }
 
+  handleMeasurementStateChange = () => {
+    this.setState(mapPropsToState(this.props))
+  }
 
   render() {
-    console.log('in distance')
-    return <DistanceInfoPresentation {...this.state} />
+    return (this.state.showDistance) ? <DistanceInfoPresentation {...this.state} /> : null
   }
 }
 

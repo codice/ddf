@@ -372,7 +372,6 @@ module.exports = function OpenlayersMap(
         id: markerLabel,
         color: rulerColor,
       }
-      const useCustomText = true
 
       return this.addPoint(point, options)
     },
@@ -460,34 +459,34 @@ module.exports = function OpenlayersMap(
         */
     addPoint(point, options) {
       const pointObject = convertPointCoordinate(point)
-            const feature = new Openlayers.Feature({
-              geometry: new Openlayers.geom.Point(pointObject),
-            })
-            feature.setId(options.id)
+      const feature = new Openlayers.Feature({
+        geometry: new Openlayers.geom.Point(pointObject),
+      })
+      feature.setId(options.id)
 
-            feature.setStyle(
-              new Openlayers.style.Style({
-                image: new Openlayers.style.Icon({
-                  img: DrawingUtility.getCircle({
-                    fillColor: options.color,
-                  }),
-                  imgSize: [22, 22],
-                }),
-              })
-            )
+      feature.setStyle(
+        new Openlayers.style.Style({
+          image: new Openlayers.style.Icon({
+            img: DrawingUtility.getCircle({
+              fillColor: options.color,
+            }),
+            imgSize: [22, 22],
+          }),
+        })
+      )
 
-            const vectorSource = new Openlayers.source.Vector({
-              features: [feature],
-            })
+      const vectorSource = new Openlayers.source.Vector({
+        features: [feature],
+      })
 
-            const vectorLayer = new Openlayers.layer.Vector({
-              source: vectorSource,
-              zIndex: 1,
-            })
+      const vectorLayer = new Openlayers.layer.Vector({
+        source: vectorSource,
+        zIndex: 1,
+      })
 
-            map.addLayer(vectorLayer)
+      map.addLayer(vectorLayer)
 
-            return vectorLayer
+      return vectorLayer
     },
     /*
      * Draws a label on the map by adding to the features in the label Vector

@@ -358,17 +358,22 @@ module.exports = Marionette.LayoutView.extend({
   updateDistance() {
     let lat = this.mapModel.get('mouseLat')
     let lon = this.mapModel.get('mouseLon')
-    console.log('lat ' + this.mapModel.get('mouseLat') + ' lon ' + this.mapModel.get('mouseLon'))
+    console.log(
+      'lat ' +
+        this.mapModel.get('mouseLat') +
+        ' lon ' +
+        this.mapModel.get('mouseLon')
+    )
 
     if (lat && lon && this.mapModel.get('measurementState') === 'START') {
-        let dist  = getDistance(
-            {latitude: lat, longitude: lon },
-            this.mapModel.get('startingCoordinates')
-        )
-        console.log(dist)
-        this.mapModel.setCurrentDistance(dist)
-        this.mapModel.setDistanceInfoPosition(event.clientX, event.clientY)
-        console.log('x: ' + event.clientX + '  y: ' + event.clientY)
+      let dist = getDistance(
+        { latitude: lat, longitude: lon },
+        this.mapModel.get('startingCoordinates')
+      )
+      console.log(dist)
+      this.mapModel.setCurrentDistance(dist)
+      this.mapModel.setDistanceInfoPosition(event.clientX, event.clientY)
+      console.log('x: ' + event.clientX + '  y: ' + event.clientY)
     }
   },
   /*
@@ -394,8 +399,15 @@ module.exports = Marionette.LayoutView.extend({
           'A'
         )
         this.mapModel.addPoint(point)
-        this.mapModel.setStartingCoordinates({latitude: this.mapModel.get('coordinateValues')['lat'], longitude: this.mapModel.get('coordinateValues')['lon']})
-        this.listenTo(this.mapModel, 'change:mouseLat change:mouseLon', this.updateDistance.bind(this))
+        this.mapModel.setStartingCoordinates({
+          latitude: this.mapModel.get('coordinateValues')['lat'],
+          longitude: this.mapModel.get('coordinateValues')['lon'],
+        })
+        this.listenTo(
+          this.mapModel,
+          'change:mouseLat change:mouseLon',
+          this.updateDistance.bind(this)
+        )
         break
       case 'END':
         // ending map marker is labeled 'B'
