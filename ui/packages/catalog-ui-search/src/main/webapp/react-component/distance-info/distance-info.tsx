@@ -20,11 +20,12 @@ const DistanceInfoPresentation = require('./presentation').default
 
 const mapPropsToState = (props: Props) => {
   const { map } = props
+  const show = map.get('measurementState') === 'START'
   return {
-    showDistance: map.get('measurementState') === 'START',
+    showDistance: show,
     currentDistance: map.get('currentDistance'),
-    left: map.get('distanceInfo')['left'] - 390 + 'px',
-    top: map.get('distanceInfo')['top'] - 180 + 'px',
+    left: show ? map.get('distanceInfo')['left'] - 390 + 'px' : '0',
+    top: show ? map.get('distanceInfo')['top'] - 180 + 'px' : '0',
   }
 }
 
@@ -62,7 +63,9 @@ class DistanceInfo extends React.Component<Props, State> {
   }
 
   render() {
-    return (this.state.showDistance) ? <DistanceInfoPresentation {...this.state} /> : null
+    return this.state.showDistance ? (
+      <DistanceInfoPresentation {...this.state} />
+    ) : null
   }
 }
 

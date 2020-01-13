@@ -358,22 +358,14 @@ module.exports = Marionette.LayoutView.extend({
   updateDistance() {
     let lat = this.mapModel.get('mouseLat')
     let lon = this.mapModel.get('mouseLon')
-    console.log(
-      'lat ' +
-        this.mapModel.get('mouseLat') +
-        ' lon ' +
-        this.mapModel.get('mouseLon')
-    )
 
     if (lat && lon && this.mapModel.get('measurementState') === 'START') {
       let dist = getDistance(
         { latitude: lat, longitude: lon },
         this.mapModel.get('startingCoordinates')
       )
-      console.log(dist)
       this.mapModel.setCurrentDistance(dist)
       this.mapModel.setDistanceInfoPosition(event.clientX, event.clientY)
-      console.log('x: ' + event.clientX + '  y: ' + event.clientY)
     }
   },
   /*

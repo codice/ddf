@@ -131,7 +131,7 @@ const generateClipboardHandler = (
     })
     clipboardInstance.on('error', (e: any) => {
       announcement.announce({
-        title: 'Press Ctrl+C to copy',
+        title: 'Could not copy distance to clipboard',
         message: e.text,
         type: 'info',
       })

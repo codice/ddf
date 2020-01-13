@@ -145,7 +145,6 @@ export const MapContextMenu = (props: Props) => {
   if (hasSelection) {
     menuItems.push(renderInspectorSelectionMenu(props))
   }
-  // TODO: add copy current distance here
   const keyedItems = menuItems.map((m, i) => ({ key: i, ...m }))
   return renderMenu(props, keyedItems)
 }

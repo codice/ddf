@@ -52,7 +52,6 @@ const getDistanceText = (distance: number) => {
 }
 
 const render = (props: Props) => {
-  console.log('rendered')
   const distance = props.currentDistance ? props.currentDistance : 0
 
   return (

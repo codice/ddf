@@ -103,22 +103,22 @@ module.exports = Backbone.AssociatedModel.extend({
     this.set({ points: [] })
   },
   /*
+   * Set coordinates of the ruler measurements starting point
+   */
+  setStartingCoordinates(coordinates) {
+    this.set({ startingCoordinates: coordinates })
+  },
+  /*
    * Sets the current distance to the new given distance (in meters).
    */
   setCurrentDistance(distance) {
     this.set({ currentDistance: distance })
-  },
-  setStartingCoordinates(coordinates) {
-    this.set({ startingCoordinates: coordinates })
   },
   addDistanceInfo(distanceInfo) {
     this.set({ distanceInfo })
   },
   setDistanceInfoPosition(left, top) {
     this.set({ distanceInfo: { left, top } })
-  },
-  removeDistanceInfo() {
-    this.set({ distanceInfo: undefined })
   },
   isOffMap() {
     return this.get('mouseLat') === undefined
