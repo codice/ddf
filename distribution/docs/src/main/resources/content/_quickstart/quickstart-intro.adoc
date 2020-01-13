@@ -21,5 +21,4 @@ These steps will demonstrate:
 
 - [*] <<{quickstart-prefix}quick_install_prerequisites,Prerequisites>>.
 - [*] <<{quickstart-prefix}quick_install_of_${branding-lowercase},Quick Install of ${branding}>>.
-- [*] <<{quickstart-prefix}ingesting_sample_data,Ingesting Data>>.
 

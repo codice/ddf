@@ -16,7 +16,6 @@ ${branding} is pre-configured with several installation profiles.
 ** <<{reference-prefix}security_application_reference,${ddf-security}>>
 ** <<{reference-prefix}solr_catalog_provider,${ddf-solr}>>
 ** <<{reference-prefix}spatial_application_reference,${ddf-spatial}>>
-** <<{reference-prefix}configuring_intrigue,${catalog-ui}>>
 
 * Minimum Installation: Includes these applications for a minimum install:
 ** <<{reference-prefix}admin_application_reference,${ddf-admin}>>
