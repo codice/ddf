@@ -13,8 +13,8 @@ services:
     environment:
       ZOO_MY_ID: 1
       ZOO_SERVERS: server.1=zoo:2888:3888
+      JVMFLAGS: -Djute.maxbuffer=2097152
     volumes:
-      - ./zoo.cfg:/conf/zoo.cfg
       - zoo_data:/data
     networks:
       - solrcloud
@@ -33,6 +33,7 @@ services:
       - SOLR_HOME=/opt/solr/server/solr/nodes/node1
       - SOLR_HOST=localhost
       - SOLR_PORT=8994
+      - SOLR_OPTS=-Djute.maxbuffer=0x200000
       - ZK_HOST=zoo:2181
     volumes:
       - ./solr.xml:/opt/solr/server/solr/nodes/node1/solr.xml
@@ -52,6 +53,7 @@ services:
       - SOLR_HOME=/opt/solr/server/solr/nodes/node2
       - SOLR_HOST=localhost
       - SOLR_PORT=8995
+      - SOLR_OPTS=-Djute.maxbuffer=0x200000
       - ZK_HOST=zoo:2181
     volumes:
       - ./solr.xml:/opt/solr/server/solr/nodes/node2/solr.xml

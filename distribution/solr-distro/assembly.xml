@@ -55,9 +55,21 @@
             <directory>src/main/resources
             </directory>
             <outputDirectory>/</outputDirectory>
+            <excludes>
+                <exclude>bin/*.cmd</exclude>
+            </excludes>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0750</fileMode>
+        </fileSet>
+
+        <fileSet>
+            <directory>src/main/resources
+            </directory>
+            <outputDirectory>/</outputDirectory>
             <includes>
-                <include>bin/*</include>
+                <include>bin/*.cmd</include>
             </includes>
+            <lineEnding>dos</lineEnding>
             <fileMode>0750</fileMode>
         </fileSet>
 
