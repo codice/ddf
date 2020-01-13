@@ -146,15 +146,15 @@ export default hot(module)(
       this.state = {
         exportSizes: [
           {
-            label: 'Visible',
+            label: 'Visible Results',
             value: 'visible',
           },
           {
-            label: 'All',
+            label: 'All Results',
             value: 'all',
           },
           {
-            label: 'Exact Number',
+            label: 'Specific Number of Results',
             value: 'custom',
           },
         ],
