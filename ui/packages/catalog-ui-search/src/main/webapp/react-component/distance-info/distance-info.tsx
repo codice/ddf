@@ -16,6 +16,9 @@ import * as React from 'react'
 import { hot } from 'react-hot-loader'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
 
+const LEFT_OFFSET = 390
+const TOP_OFFSET = 180
+
 const DistanceInfoPresentation = require('./presentation').default
 
 const mapPropsToState = (props: Props) => {
@@ -24,8 +27,8 @@ const mapPropsToState = (props: Props) => {
   return {
     showDistance: map.get('measurementState') === 'START' && distance,
     currentDistance: distance,
-    left: map.get('distanceInfo')['left'] - 390 + 'px',
-    top: map.get('distanceInfo')['top'] - 180 + 'px',
+    left: map.get('distanceInfo')['left'] - LEFT_OFFSET + 'px',
+    top: map.get('distanceInfo')['top'] - TOP_OFFSET + 'px',
   }
 }
 

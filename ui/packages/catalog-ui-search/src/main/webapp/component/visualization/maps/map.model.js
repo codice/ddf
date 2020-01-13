@@ -117,6 +117,9 @@ module.exports = Backbone.AssociatedModel.extend({
   addDistanceInfo(distanceInfo) {
     this.set({ distanceInfo })
   },
+  /*
+   * set the position of DistanceInfo in px relative to the top left of the Cesium component
+   */
   setDistanceInfoPosition(left, top) {
     this.set({ distanceInfo: { left, top } })
   },

@@ -474,7 +474,6 @@ module.exports = function OpenlayersMap(
           }),
         })
       )
-
       const vectorSource = new Openlayers.source.Vector({
         features: [feature],
       })
