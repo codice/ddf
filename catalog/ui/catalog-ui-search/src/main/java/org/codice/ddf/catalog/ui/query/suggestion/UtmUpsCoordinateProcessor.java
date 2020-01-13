@@ -13,18 +13,21 @@
  */
 package org.codice.ddf.catalog.ui.query.suggestion;
 
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.codice.usng4j.CoordinateSystemTranslator;
 import org.codice.usng4j.DecimalDegreesCoordinate;
+import org.codice.usng4j.NSIndicator;
 import org.codice.usng4j.UsngCoordinate;
 import org.codice.usng4j.UtmUpsCoordinate;
 import org.slf4j.Logger;
@@ -76,42 +79,178 @@ public class UtmUpsCoordinateProcessor {
    */
   public void enhanceResults(final List<Suggestion> results, final String query) {
     LOGGER.trace("(UTM/UPS) Adding result for query [{}]", query);
-    final LiteralSuggestion literal = getUtmUpsSuggestion(query);
-    if (literal != null && literal.hasGeo()) {
-      LOGGER.trace("Adding the UTM/UPS suggestion to results [{}]", literal);
-      results.add(0, literal);
-    }
+    final List<LiteralSuggestion> literals = getUtmUpsSuggestions(query);
+    literals
+        .stream()
+        .filter(Objects::nonNull)
+        .filter(LiteralSuggestion::hasGeo)
+        .forEach(
+            literal -> {
+              LOGGER.trace("Adding the UTM/UPS suggestion to results [{}]", literal);
+              results.add(0, literal);
+            });
     LOGGER.trace("(UTM/UPS) Done");
   }
 
-  @Nullable
-  private LiteralSuggestion getUtmUpsSuggestion(final String query) {
+  private List<LiteralSuggestion> getUtmUpsSuggestions(final String query) {
     final Matcher matcher = PATTERN_UTM_OR_UPS_COORDINATE.matcher(query);
-    final StringBuilder nameBuilder = new StringBuilder("UTM/UPS:");
-    final List<UtmUpsCoordinate> utmUpsCoords = new ArrayList<>();
+    final List<String> utmUpsMatches = new ArrayList<>();
     while (matcher.find()) {
       final String group = matcher.group();
       LOGGER.trace("Match found [{}]", group);
-      final String utmOrUpsText = normalizeCoordinate(group);
-      final UtmUpsCoordinate utmUps = parseUtmUpsString(utmOrUpsText);
-      if (utmUps != null) {
-        nameBuilder.append(" [ ").append(utmUps.toString()).append(" ]");
-        utmUpsCoords.add(utmUps);
-      }
+      utmUpsMatches.add(capitalizeLatBand(group));
     }
-    if (utmUpsCoords.isEmpty()) {
+
+    if (utmUpsMatches.isEmpty()) {
       LOGGER.trace("No valid UTM or UPS strings could be inferred from query [{}]", query);
-      return null;
+      return Collections.emptyList();
     }
+
+    return utmUpsMatches.size() == 1
+        ? suggestionsForSinglePoint(utmUpsMatches.get(0))
+        : Collections.singletonList(suggestionForMultiplePoints(utmUpsMatches));
+  }
+
+  /**
+   * Generates a list of {@link LiteralSuggestion}s based on the given {@code utmUpsCoord} string.
+   * This method is only used to generate suggestions when the user enters a single UTM/UPS
+   * coordinate. The following suggestions are returned depending on the information provided in the
+   * coordinate:
+   *
+   * <ul>
+   *   <li>If the {@code utmUpsCoord} does not have a latitude band, then two suggestions are
+   *       returned - one for each hemisphere - and the hemisphere is denoted by a "N" or "S"
+   *       suffix. Example: "18 631054mE 4776851mN" -> "UTM/UPS: [ 18N 631054mE 4776851mN N ]",
+   *       "UTM/UPS: [ 18S 631054mE 4776851mN S ]"
+   *   <li>If the {@code utmpUpsCoord} has an S latitude band, then two suggestions are also
+   *       returned: one for the S latitude band coordinate and another for the Southern hemisphere
+   *       coordinate. This is because the "S" is ambiguous - it can either refer to the latitude
+   *       band or the Southern hemisphere. Example: "15S 533427mE 3796272mN" -> "UTM/UPS: [ 15S
+   *       533427mE 3796272mN ]", "UTM/UPS: [ 15S 533427mE 3796272mN S ]"
+   *   <li>If the {@code utmUpsCoord} has an N latitude band, then two suggestions are returned: one
+   *       for the N latitude band and another for the Northern hemisphere. The "N" isn't ambiguous
+   *       in this case, but the Northern hemisphere suggestion is included for consistency and to
+   *       teach users about the N/S hemisphere syntax. Example: "9N 365103mE 659568mN" -> "UTM/UPS:
+   *       [ 9N 365103mE 659568mN ]", "UTM/UPS: [ 9N 365103mE 659568mN N ]"
+   *   <li>Otherwise, one suggestion is returned. Example: "20M 48831mE09437282mN" -> "UTM/UPS: [
+   *       20M 48831mE09437282mN ]"
+   * </ul>
+   *
+   * @param utmUpsCoord the user-provided gazetteer query text. It must match the {@code
+   *     PATTERN_UTM_OR_UPS_COORDINATE} pattern.
+   * @return a list of either one or two {@link LiteralSuggestion}s, depending on the latitude band
+   *     of {@code utmUpsCoord}
+   */
+  private List<LiteralSuggestion> suggestionsForSinglePoint(String utmUpsCoord) {
+    final Character latBand = getLatBand(utmUpsCoord);
+    if (latBand == null) {
+      // A coordinate without an NS indicator and a lat band is invalid so show two suggestions,
+      // one for the northern hemisphere and another for the southern hemisphere.
+      return Stream.of(parseUtmUpsString(utmUpsCoord + " S"), parseUtmUpsString(utmUpsCoord + " N"))
+          .filter(Objects::nonNull)
+          .map(this::suggestion)
+          .collect(toList());
+    } else if (latBand.equals('N')) {
+      // If the coordinate has a N lat band, include the northern hemisphere suggestion for
+      // convenience
+      return Stream.of(
+              parseUtmUpsString(removeLatBand(utmUpsCoord) + " N"), parseUtmUpsString(utmUpsCoord))
+          .filter(Objects::nonNull)
+          .map(this::suggestion)
+          .collect(toList());
+    } else if (latBand.equals('S')) {
+      // Similarly, if the coordinate has an S lat band, include the southern hemisphere
+      // suggestion for convenience
+      return Stream.of(
+              parseUtmUpsString(removeLatBand(utmUpsCoord) + " S"), parseUtmUpsString(utmUpsCoord))
+          .filter(Objects::nonNull)
+          .map(this::suggestion)
+          .collect(toList());
+    } else {
+      return Stream.of(parseUtmUpsString(utmUpsCoord))
+          .filter(Objects::nonNull)
+          .map(this::suggestion)
+          .collect(toList());
+    }
+  }
+
+  private LiteralSuggestion suggestion(UtmUpsCoordinate utmUps) {
     return new LiteralSuggestion(
         LITERAL_SUGGESTION_ID,
-        nameBuilder.toString(),
+        makeSuggestionText(utmUps),
+        Collections.singletonList(latLonFromUtmUtps(utmUps)));
+  }
+
+  /**
+   * Generates one {@link LiteralSuggestion} by combining the latitude/longitude values of each
+   * UTM/UPS coordinate in the {@code utmUpsCoords} list. This method is used to generate a
+   * suggestion when the user enters multiple UTM/UPS coordinates. No additional suggestions are
+   * made for each point for simplicity since the map will pan to the extent or bounding box of all
+   * the points. As a result, the N/S characters of each coordinate are always treated as latitude
+   * bands and a coordinate is considered invalid if a latitude band is not included. Example: "12S
+   * 241451mE 4101052mN 13R 37090mE 63394439mN" -> "UTM/UPS: [ 12S 241451mE 4101052mN ] [ 13R
+   * 37090mE 63394439mN ]"
+   *
+   * @param utmUpsCoords a list of strings matching the {@code PATTERN_UTM_OR_UPS_COORDINATE}
+   *     pattern, created from the user-provided gazetteer query text.
+   * @return a singleton list with one {@link LiteralSuggestion} with the combined list of
+   *     latitude/longitude values.
+   */
+  private LiteralSuggestion suggestionForMultiplePoints(final List<String> utmUpsCoords) {
+    List<UtmUpsCoordinate> utmUpsList =
         utmUpsCoords
             .stream()
-            .map(this::toLatLon)
+            .map(this::parseUtmUpsString)
             .filter(Objects::nonNull)
-            .map(d -> new LatLon(d.getLat(), d.getLon()))
-            .collect(Collectors.toList()));
+            .collect(toList());
+    List<LatLon> latLonList =
+        utmUpsList.stream().map(this::latLonFromUtmUtps).filter(Objects::nonNull).collect(toList());
+    String suggestionText = makeSuggestionText(utmUpsList);
+
+    return new LiteralSuggestion(LITERAL_SUGGESTION_ID, suggestionText, latLonList);
+  }
+
+  private static String makeSuggestionText(UtmUpsCoordinate utmUps) {
+    final StringBuilder nameBuilder = new StringBuilder();
+    if (utmUps.isUTM()) {
+      nameBuilder.append("UTM: [ ").append(utmUps.toString()).append(" ]");
+      if (utmUps.getLatitudeBand() == null) {
+        if (utmUps.getNSIndicator() == NSIndicator.SOUTH) {
+          nameBuilder.append(" (Southern)");
+        } else {
+          nameBuilder.append(" (Northern)");
+        }
+      }
+    } else {
+      nameBuilder.append("UPS: [ ").append(utmUps.toString()).append(" ]");
+    }
+    return nameBuilder.toString();
+  }
+
+  private static String makeSuggestionText(List<UtmUpsCoordinate> utmUpsList) {
+    final StringBuilder nameBuilder = new StringBuilder();
+    long numberOfUtmCoords = utmUpsList.stream().filter(UtmUpsCoordinate::isUTM).count();
+    int total = utmUpsList.size();
+    if (numberOfUtmCoords == total) {
+      nameBuilder.append("UTM:");
+    } else if (numberOfUtmCoords == 0) {
+      nameBuilder.append("UPS:");
+    } else {
+      nameBuilder.append("UTM/UPS:");
+    }
+    for (UtmUpsCoordinate utmUps : utmUpsList) {
+      nameBuilder.append(" [ ").append(utmUps.toString()).append(" ]");
+    }
+    return nameBuilder.toString();
+  }
+
+  @Nullable
+  private LatLon latLonFromUtmUtps(UtmUpsCoordinate utmUps) {
+    DecimalDegreesCoordinate d = toLatLon(utmUps);
+    if (d == null) {
+      return null;
+    }
+    return new LatLon(d.getLat(), d.getLon());
   }
 
   /**
@@ -147,19 +286,15 @@ public class UtmUpsCoordinateProcessor {
    * @param utmOrUps the UTM string to transform.
    * @return a UTM string with a single piece of data that defines hemisphere.
    */
-  private static String normalizeCoordinate(final String utmOrUps) {
+  private static String capitalizeLatBand(final String utmOrUps) {
     if (!PATTERN_UTM_COORDINATE.matcher(utmOrUps).matches()) {
       LOGGER.trace("No transform necessary, coordinate [{}] was not UTM", utmOrUps);
       return utmOrUps; // Must be UPS, do nothing
     }
     final Character latBand = getLatBand(utmOrUps);
     if (latBand == null) {
-      final String withDefaultNorthLatBand = useDefaultNorthLatBand(utmOrUps);
-      LOGGER.trace(
-          "No lat band found on input [{}], setting it to default for north hemisphere [{}]",
-          utmOrUps,
-          withDefaultNorthLatBand);
-      return withDefaultNorthLatBand;
+      LOGGER.trace("No lat band found on input [{}], skipping conversion to upper case", utmOrUps);
+      return utmOrUps;
     }
     if (Character.isLowerCase(latBand)) {
       final String asUpperCase = setLatBand(utmOrUps, Character.toUpperCase(latBand));
@@ -192,18 +327,6 @@ public class UtmUpsCoordinateProcessor {
   }
 
   /**
-   * Convenience method for setting the lat band to the default north lat band. The provided input
-   * <b>must</b> match {@link #PATTERN_UTM_COORDINATE}.
-   *
-   * @param input the UTM input with no lat band, or a lat band to replace.
-   * @return the provided input UTM string with a lat band that directs calculations to the northern
-   *     hemisphere.
-   */
-  private static String useDefaultNorthLatBand(final String input) {
-    return setLatBand(input, 'N');
-  }
-
-  /**
    * Private utility method for updating a UTM string in-place with a new latitude band. The
    * provided input <b>must</b> match {@link #PATTERN_UTM_COORDINATE}.
    *
@@ -222,6 +345,25 @@ public class UtmUpsCoordinateProcessor {
     return input
         .substring(0, indexOfFirstWhiteSpaceOrLatBand)
         .concat(Character.toString(newLatBand))
+        .concat(input.substring(indexOfFirstWhiteSpace));
+  }
+
+  /**
+   * Private utility method for removing the latitude band in a UTM string in-place. The provided
+   * input <b>must</b> match {@link #PATTERN_UTM_COORDINATE}.
+   *
+   * @param input UTM string input; must match {@link #PATTERN_UTM_COORDINATE}.
+   * @return a new UTM string with the latitude band removed, regardless if the original UTM {@code
+   *     input} had a lat band or not.
+   */
+  private static String removeLatBand(final String input) {
+    final int indexOfFirstWhiteSpace = input.indexOf(SPACE_CHAR);
+    final int indexOfFirstWhiteSpaceOrLatBand =
+        Character.isLetter(input.charAt(indexOfFirstWhiteSpace - 1))
+            ? indexOfFirstWhiteSpace - 1 // Use lat band index instead
+            : indexOfFirstWhiteSpace;
+    return input
+        .substring(0, indexOfFirstWhiteSpaceOrLatBand)
         .concat(input.substring(indexOfFirstWhiteSpace));
   }
 }
