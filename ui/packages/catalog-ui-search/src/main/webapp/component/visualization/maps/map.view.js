@@ -244,6 +244,12 @@ module.exports = Marionette.LayoutView.extend({
       this.handleMeasurementStateChange.bind(this)
     )
 
+    this.listenTo(
+      this.mapModel,
+      'change:mouseLat change:mouseLon',
+      this.updateDistance.bind(this)
+    )
+
     if (this.options.selectionInterface.getSelectedResults().length > 0) {
       this.map.zoomToSelected(
         this.options.selectionInterface.getSelectedResults()
@@ -356,16 +362,18 @@ module.exports = Marionette.LayoutView.extend({
     })
   },
   updateDistance() {
-    let lat = this.mapModel.get('mouseLat')
-    let lon = this.mapModel.get('mouseLon')
+    if (this.mapModel.get('measurementState') === 'START') {
+        let lat = this.mapModel.get('mouseLat')
+        let lon = this.mapModel.get('mouseLon')
 
-    if (lat && lon && this.mapModel.get('measurementState') === 'START') {
-      let dist = getDistance(
-        { latitude: lat, longitude: lon },
-        this.mapModel.get('startingCoordinates')
-      )
-      this.mapModel.setCurrentDistance(dist)
-      this.mapModel.setDistanceInfoPosition(event.clientX, event.clientY)
+        if (lat && lon) {
+          let dist = getDistance(
+            { latitude: lat, longitude: lon },
+            this.mapModel.get('startingCoordinates')
+          )
+          this.mapModel.setCurrentDistance(dist)
+          this.mapModel.setDistanceInfoPosition(event.clientX, event.clientY)
+        }
     }
   },
   /*
@@ -385,28 +393,15 @@ module.exports = Marionette.LayoutView.extend({
     switch (state) {
       case 'START':
         this.clearRuler()
-        // starting map marker is labeled 'A'
-        point = this.map.addRulerPoint(
-          this.mapModel.get('coordinateValues'),
-          'A'
-        )
+        point = this.map.addRulerPoint(this.mapModel.get('coordinateValues'))
         this.mapModel.addPoint(point)
         this.mapModel.setStartingCoordinates({
           latitude: this.mapModel.get('coordinateValues')['lat'],
           longitude: this.mapModel.get('coordinateValues')['lon'],
         })
-        this.listenTo(
-          this.mapModel,
-          'change:mouseLat change:mouseLon',
-          this.updateDistance.bind(this)
-        )
         break
       case 'END':
-        // ending map marker is labeled 'B'
-        point = this.map.addRulerPoint(
-          this.mapModel.get('coordinateValues'),
-          'B'
-        )
+        point = this.map.addRulerPoint(this.mapModel.get('coordinateValues'))
         this.mapModel.addPoint(point)
         const line = this.map.addRulerLine(this.mapModel.get('points'))
         this.mapModel.setLine(line)

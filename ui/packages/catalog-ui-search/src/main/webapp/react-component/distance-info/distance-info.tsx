@@ -20,12 +20,12 @@ const DistanceInfoPresentation = require('./presentation').default
 
 const mapPropsToState = (props: Props) => {
   const { map } = props
-  const show = map.get('measurementState') === 'START'
+  const distance = map.get('currentDistance')
   return {
-    showDistance: show,
-    currentDistance: map.get('currentDistance'),
-    left: show ? map.get('distanceInfo')['left'] - 390 + 'px' : '0',
-    top: show ? map.get('distanceInfo')['top'] - 180 + 'px' : '0',
+    showDistance: map.get('measurementState') === 'START' && distance,
+    currentDistance: distance,
+    left: map.get('distanceInfo')['left'] - 390 + 'px',
+    top: map.get('distanceInfo')['top'] - 180 + 'px',
   }
 }
 
