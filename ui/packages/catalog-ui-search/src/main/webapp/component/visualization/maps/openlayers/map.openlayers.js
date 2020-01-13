@@ -102,27 +102,6 @@ module.exports = function OpenlayersMap(
   listenToResize()
   setupTooltip(map)
   const drawingTools = setupDrawingTools(map)
-  const labelVectorLayer = setupLabelLayer(map)
-
-  /*
-   * Sets up a new Vector Layer for holding labels with the declutter property.
-   * Declutter is used for making sure the label texts don't overlap on each
-   * other.
-   */
-  function setupLabelLayer(map) {
-    const vectorSource = new Openlayers.source.Vector({
-      features: [],
-    })
-    const vectorLayer = new Openlayers.layer.Vector({
-      source: vectorSource,
-      zIndex: 1,
-      declutter: true,
-    })
-
-    map.addLayer(vectorLayer)
-
-    return vectorLayer
-  }
 
   function setupTooltip(map) {
     map.on('pointermove', e => {
@@ -500,9 +479,9 @@ module.exports = function OpenlayersMap(
       return vectorLayer
     },
     /*
-     * Draws a label on the map by adding to the features in the label Vector
-     * Layer.
-     */
+          Adds a label utilizing the passed in point and options.
+          Options are an id and text.
+        */
     addLabel(point, options) {
       const pointObject = convertPointCoordinate(point)
       const feature = new Openlayers.Feature({
@@ -520,19 +499,21 @@ module.exports = function OpenlayersMap(
           }),
         })
       )
-
-      const labelVectorLayerFeatures = labelVectorLayer
-        .getSource()
-        .getFeatures()
-      // creates a new source with the new feature appended to the current list
-      // of features
-      const newVectorSource = new Openlayers.source.Vector({
-        features: [...labelVectorLayerFeatures, feature],
+      const vectorSource = new Openlayers.source.Vector({
+        features: [feature],
       })
-      // updates the vector layer containing the labels with the new source
-      labelVectorLayer.setSource(newVectorSource)
 
-      return labelVectorLayer
+      const vectorLayer = new Openlayers.layer.Vector({
+        source: vectorSource,
+        zIndex: 1,
+        id: options.id,
+        isSelected: false,
+      })
+
+      map.addLayer(vectorLayer)
+      mapModel.addLabel(vectorLayer)
+
+      return vectorLayer
     },
     /*
           Adds a polyline utilizing the passed in line and options.
@@ -683,6 +664,59 @@ module.exports = function OpenlayersMap(
               ),
             })
           )
+
+          // only show one label if there are overlapping labels
+          geometry.set('isSelected', options.isSelected)
+          if (options.isSelected) {
+            const labelWithSamePosition = _.find(
+              mapModel.get('labels'),
+              label =>
+                label
+                  .getSource()
+                  .getFeatures()[0]
+                  .getGeometry()
+                  .getCoordinates()[0] ===
+                  geometryInstance.getCoordinates()[0] &&
+                label
+                  .getSource()
+                  .getFeatures()[0]
+                  .getGeometry()
+                  .getCoordinates()[1] ===
+                  geometryInstance.getCoordinates()[1] &&
+                label.getVisible()
+            )
+            if (labelWithSamePosition !== undefined) {
+              labelWithSamePosition.setVisible(false)
+              labelWithSamePosition.set('isSelected', false)
+            }
+            geometry.setVisible(true)
+          } else {
+            const labelWithSamePosition = _.find(
+              mapModel.get('labels'),
+              label =>
+                label
+                  .getSource()
+                  .getFeatures()[0]
+                  .getGeometry()
+                  .getCoordinates()[0] ===
+                  geometryInstance.getCoordinates()[0] &&
+                label
+                  .getSource()
+                  .getFeatures()[0]
+                  .getGeometry()
+                  .getCoordinates()[1] ===
+                  geometryInstance.getCoordinates()[1] &&
+                label.getVisible()
+            )
+            if (
+              labelWithSamePosition === undefined ||
+              geometry.get('id') === labelWithSamePosition.get('id')
+            ) {
+              geometry.setVisible(true)
+            } else {
+              geometry.setVisible(false)
+            }
+          }
         }
       } else if (geometryInstance.getType() === 'LineString') {
         const styles = [
@@ -744,7 +778,34 @@ module.exports = function OpenlayersMap(
          Updates a passed in geometry to be shown
          */
     showGeometry(geometry) {
-      geometry.setVisible(true)
+      const feature = geometry.getSource().getFeatures()[0]
+      if (feature.getProperties().isLabel) {
+        // only show one label at one location
+        const geometryInstance = feature.getGeometry()
+        const labelWithSamePosition = _.find(
+          mapModel.get('labels'),
+          label =>
+            label
+              .getSource()
+              .getFeatures()[0]
+              .getGeometry()
+              .getCoordinates()[0] === geometryInstance.getCoordinates()[0] &&
+            label
+              .getSource()
+              .getFeatures()[0]
+              .getGeometry()
+              .getCoordinates()[1] === geometryInstance.getCoordinates()[1] &&
+            (label.get('isSelected') || label.getVisible())
+        )
+        if (
+          labelWithSamePosition === undefined ||
+          geometry.get('id') === labelWithSamePosition.get('id')
+        ) {
+          geometry.setVisible(true)
+        }
+      } else {
+        geometry.setVisible(true)
+      }
     },
     removeGeometry(geometry) {
       map.removeLayer(geometry)

@@ -650,8 +650,9 @@ module.exports = function CesiumMap(
       return billboardRef
     },
     /*
-     * Draws a label containing the text in the given options.
-     */
+          Adds a label utilizing the passed in point and options.
+          Options are a view to an id and text.
+        */
     addLabel(point, options) {
       const pointObject = convertPointCoordinate(point)
       const cartographicPosition = Cesium.Cartographic.fromDegrees(
@@ -875,7 +876,7 @@ module.exports = function CesiumMap(
             label =>
               label.position.x === geometry.position.x &&
               label.position.y === geometry.position.y &&
-              label.show === true
+              label.show
           )
           if (labelWithSamePosition !== undefined) {
             labelWithSamePosition.show = false
@@ -889,7 +890,7 @@ module.exports = function CesiumMap(
             label =>
               label.position.x === geometry.position.x &&
               label.position.y === geometry.position.y &&
-              label.show === true
+              label.show
           )
           if (
             labelWithSamePosition === undefined ||
@@ -945,11 +946,11 @@ module.exports = function CesiumMap(
           label =>
             label.position.x === geometry.position.x &&
             label.position.y === geometry.position.y &&
-            (label.isSelected === true || label.show === true)
+            (label.isSelected || label.show)
         )
         if (
           labelWithSamePosition === undefined ||
-          geometry.id == labelWithSamePosition.id
+          geometry.id === labelWithSamePosition.id
         ) {
           geometry.show = true
         }
