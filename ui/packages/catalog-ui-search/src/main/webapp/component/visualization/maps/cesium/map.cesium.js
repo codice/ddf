@@ -939,7 +939,7 @@ module.exports = function CesiumMap(
     showGeometry(geometry) {
       if (geometry.constructor === Cesium.Billboard) {
         geometry.show = true
-      } else if (showLabels && geometry.constructor === Cesium.Label) {
+      } else if (geometry.constructor === Cesium.Label) {
         // only show one label at one location
         const labelWithSamePosition = _.find(
           mapModel.get('labels'),
