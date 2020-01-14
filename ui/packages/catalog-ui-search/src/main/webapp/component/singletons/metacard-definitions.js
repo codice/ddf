@@ -84,15 +84,21 @@ const metacardStartingTypes = {
   },
 }
 
-// needed to handle erroneous or currently unknown attributes (they could be picked up after searching a source)
-properties.basicSearchTemporalSelectionDefault.forEach(proposedType => {
-  metacardStartingTypes[proposedType] = {
-    id: proposedType,
-    type: 'DATE',
-    alias: properties.attributeAliases[proposedType],
-    hidden: properties.isHidden(proposedType),
-  }
-})
+function metacardStartingTypesWithTemporal() {
+  // needed to handle erroneous or currently unknown attributes (they could be picked up after searching a source)
+  const metacardStartingTypeWithTemporal = { ...metacardStartingTypes }
+
+  properties.basicSearchTemporalSelectionDefault.forEach(proposedType => {
+    metacardStartingTypeWithTemporal[proposedType] = {
+      id: proposedType,
+      type: 'DATE',
+      alias: properties.attributeAliases[proposedType],
+      hidden: properties.isHidden(proposedType),
+    }
+  })
+
+  return metacardStartingTypeWithTemporal
+}
 
 module.exports = new (Backbone.Model.extend({
   initialize() {
@@ -218,7 +224,7 @@ module.exports = new (Backbone.Model.extend({
   },
   metacardDefinitions: [],
   sortedMetacardTypes: [],
-  metacardTypes: _.extendOwn({}, metacardStartingTypes),
+  metacardTypes: _.extendOwn({}, metacardStartingTypesWithTemporal()),
   validation: {},
   enums: properties.enums,
 }))()
