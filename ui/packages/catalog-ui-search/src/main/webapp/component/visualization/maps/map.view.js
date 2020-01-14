@@ -363,17 +363,26 @@ module.exports = Marionette.LayoutView.extend({
   },
   updateDistance() {
     if (this.mapModel.get('measurementState') === 'START') {
-        let lat = this.mapModel.get('mouseLat')
-        let lon = this.mapModel.get('mouseLon')
+      const lat = this.mapModel.get('mouseLat')
+      const lon = this.mapModel.get('mouseLon')
 
-        if (lat && lon) {
-          let dist = getDistance(
-            { latitude: lat, longitude: lon },
-            this.mapModel.get('startingCoordinates')
-          )
-          this.mapModel.setCurrentDistance(dist)
-          this.mapModel.setDistanceInfoPosition(event.clientX, event.clientY)
-        }
+      if (lat && lon) {
+        // redraw ruler line
+        const mousePoint = { lat, lon }
+        this.map.setRulerLine(mousePoint)
+
+        // update distance info
+        const startingCoordinates = this.mapModel.get('startingCoordinates')
+        const dist = getDistance(
+          { latitude: lat, longitude: lon },
+          {
+            latitude: startingCoordinates['lat'],
+            longitude: startingCoordinates['lon'],
+          }
+        )
+        this.mapModel.setCurrentDistance(dist)
+        this.mapModel.setDistanceInfoPosition(event.clientX, event.clientY)
+      }
     }
   },
   /*
@@ -396,15 +405,21 @@ module.exports = Marionette.LayoutView.extend({
         point = this.map.addRulerPoint(this.mapModel.get('coordinateValues'))
         this.mapModel.addPoint(point)
         this.mapModel.setStartingCoordinates({
-          latitude: this.mapModel.get('coordinateValues')['lat'],
-          longitude: this.mapModel.get('coordinateValues')['lon'],
+          lat: this.mapModel.get('coordinateValues')['lat'],
+          lon: this.mapModel.get('coordinateValues')['lon'],
         })
+        const polyline = this.map.addRulerLine(
+          this.mapModel.get('coordinateValues')
+        )
+        this.mapModel.setLine(polyline)
         break
       case 'END':
         point = this.map.addRulerPoint(this.mapModel.get('coordinateValues'))
         this.mapModel.addPoint(point)
-        const line = this.map.addRulerLine(this.mapModel.get('points'))
-        this.mapModel.setLine(line)
+        this.map.setRulerLine({
+          lat: this.mapModel.get('coordinateValues')['lat'],
+          lon: this.mapModel.get('coordinateValues')['lon'],
+        })
         break
       case 'NONE':
         this.clearRuler()

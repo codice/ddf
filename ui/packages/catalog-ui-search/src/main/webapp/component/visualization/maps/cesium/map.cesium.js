@@ -33,9 +33,12 @@ const user = require('../../../singletons/user-instance.js')
 const User = require('../../../../js/model/User.js')
 
 const defaultColor = '#3c6dd5'
-const rulerColor = '#506f85'
 const eyeOffset = new Cesium.Cartesian3(0, 0, 0)
 const pixelOffset = new Cesium.Cartesian2(0.0, 0)
+
+const rulerColor = new Cesium.Color(0.31, 0.43, 0.52)
+const rulerPointColor = '#506f85'
+const rulerLineHeight = 0
 
 Cesium.BingMapsApi.defaultKey = properties.bingKey || 0
 const imageryProviderTypes =
@@ -484,29 +487,11 @@ module.exports = function CesiumMap(
       })
     },
     /*
-     * Calculates the distance (in meters) between the two positions in the given array of
-     * Cartesian3 points.
-     */
-    calculateDistanceBetweenPositions(cartesians) {
-      const startCartographic = new Cesium.Cartographic.fromCartesian(
-        cartesians[0]
-      )
-      const endCartographic = new Cesium.Cartographic.fromCartesian(
-        cartesians[1]
-      )
-      const ellipsoidGeodesic = new Cesium.EllipsoidGeodesic(
-        startCartographic,
-        endCartographic
-      )
-
-      return ellipsoidGeodesic.surfaceDistance
-    },
-    /*
      * Draws a marker on the map designating a start/end point for the ruler measurement. The given
      * coordinates should be an object with 'lat' and 'lon' keys with degrees values. The given
      * marker label should be a single character or digit that is displayed on the map marker.
      */
-    addRulerPoint(coordinates, markerLabel) {
+    addRulerPoint(coordinates) {
       const { lat, lon } = coordinates
 
       // a point requires an altitude value so just use 0
@@ -522,11 +507,10 @@ module.exports = function CesiumMap(
       )
       const billboardRef = billboardCollection.add({
         image: DrawingUtility.getCircle({
-          fillColor: rulerColor,
+          fillColor: rulerPointColor,
           icon: null,
         }),
         position: cartesianPosition,
-        id: markerLabel,
         eyeOffset,
       })
       //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
@@ -555,46 +539,52 @@ module.exports = function CesiumMap(
       map.scene.requestRender()
     },
     /*
-     * Draws a line on the map between the points in the given array of Billboards.
+     * Draws a line on the map between the points in the given array of points.
      */
-    addRulerLine(billboards) {
+    addRulerLine(point) {
+      let startingCoordinates = mapModel.get('startingCoordinates')
+
       // creates an array of Cartesian3 points
-      const cartesianArray = billboards.map(billboard => billboard.position)
       // a PolylineGeometry allows the line to follow the curvature of the surface
-      const polyline = new Cesium.PolylineGeometry({
-        positions: cartesianArray,
-        width: 5,
-      })
-      const geometry = Cesium.PolylineGeometry.createGeometry(polyline)
-      const geometryInstance = new Cesium.GeometryInstance({
-        geometry: geometry,
-        attributes: {
-          color: Cesium.ColorGeometryInstanceAttribute.fromColor(
-            Cesium.Color.fromCssColorString(rulerColor)
-          ),
+      map.coordArray = [
+        startingCoordinates['lon'],
+        startingCoordinates['lat'],
+        rulerLineHeight,
+        point['lon'],
+        point['lat'],
+        rulerLineHeight,
+      ]
+      return map.entities.add({
+        polyline: {
+          positions: new Cesium.CallbackProperty(function(time, result) {
+            return Cesium.Cartesian3.fromDegreesArrayHeights(map.coordArray)
+          }, false),
+          width: 5,
+          show: true,
+          material: rulerColor,
         },
       })
-      const linePrimitive = new Cesium.Primitive({
-        geometryInstances: geometryInstance,
-        appearance: new Cesium.PolylineColorAppearance(),
-      })
-      // calculates the distance between the two positions in the array of Cartesian3 points
-      const distanceBetweenPoints = this.calculateDistanceBetweenPositions(
-        cartesianArray
-      )
-      mapModel.setCurrentDistance(distanceBetweenPoints)
-      // rendering a line between two points with a distance of 0 causes an error
-      if (distanceBetweenPoints > 0) {
-        map.scene.primitives.add(linePrimitive)
-      }
-
-      return linePrimitive
     },
     /*
-     * Removes the given line Primitive from the map.
+     * Update the position of the ruler line
      */
-    removeRulerLine(primitive) {
-      map.scene.primitives.remove(primitive)
+    setRulerLine(point) {
+      let startingCoordinates = mapModel.get('startingCoordinates')
+      map.coordArray = [
+        startingCoordinates['lon'],
+        startingCoordinates['lat'],
+        rulerLineHeight,
+        point['lon'],
+        point['lat'],
+        rulerLineHeight,
+      ]
+      map.scene.requestRender()
+    },
+    /*
+     * Removes the given polyline entity from the map.
+     */
+    removeRulerLine(polyline) {
+      map.entities.remove(polyline)
       map.scene.requestRender()
     },
     /*

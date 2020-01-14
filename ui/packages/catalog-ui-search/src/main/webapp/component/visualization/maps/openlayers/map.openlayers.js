@@ -384,38 +384,34 @@ module.exports = function OpenlayersMap(
     /*
      * Draws a line on the map between the points in the given array of point Vectors.
      */
-    addRulerLine(pointVectors) {
-      // creates an array of lon/lat coordinates from the vectors array
-      const coords = pointVectors.map(vector =>
-        vector
-          .getSource()
-          .getFeatures()[0]
-          .getGeometry()
-          .getCoordinates()
-      )
-      // transforms each lon/lat coordinate to a Coordinate on the Web Mercator projection
-      const transformedCoords = coords.map(coord =>
-        Openlayers.proj.fromLonLat(coord)
-      )
-
+    addRulerLine(point) {
       const options = {
         id: 'ruler-line',
         title: 'Line for ruler measurement',
         color: '#506F85',
       }
-      const line = this.addLine(coords, options)
+      const startingCoordinates = mapModel.get('startingCoordinates')
 
-      // calculates the distance between the two positions in the array of transformed Coordinates
-      const distance = this.calculateDistanceBetweenPositions(transformedCoords)
-      mapModel.setCurrentDistance(distance)
+      const linePoints = [
+        [startingCoordinates['lon'], startingCoordinates['lat']],
+        [point['lon'], point['lat']],
+      ]
+      this.rulerLine = this.addLine(linePoints, options)
 
-      return line
+      return this.rulerLine
+    },
+    /*
+     * Update the position of the ruler line
+     */
+    setRulerLine(point) {
+      this.removeRulerLine(this.rulerLine)
+      this.addRulerLine(point)
     },
     /*
      * Removes the given line Layer from the map.
      */
     removeRulerLine(line) {
-      map.removeLayer(line)
+      map.removeLayer(this.rulerLine)
     },
     /*
         Adds a billboard point utilizing the passed in point and options.
