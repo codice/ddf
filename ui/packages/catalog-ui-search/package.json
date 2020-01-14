@@ -2,7 +2,7 @@
   "name": "catalog-ui-search",
   "author": "Codice",
   "description": "A frontend UI for DDF Catalog",
-  "version": "0.0.17",
+  "version": "1.0.0",
   "license": "LGPL-3.0",
   "scripts": {
     "fmt": "ace format -w",
