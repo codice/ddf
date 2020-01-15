@@ -58,10 +58,12 @@ const WMS = opts => {
 }
 
 const WMT = async opts => {
-  const { url } = opts
+  const { url, withCredentials } = opts
   const parser = new ol.format.WMTSCapabilities()
 
-  const res = await window.fetch(url)
+  const res = await window.fetch(url, {
+    credentials: withCredentials ? 'include' : 'same-origin',
+  })
   const text = await res.text()
   const result = parser.read(text)
 
