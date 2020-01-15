@@ -261,6 +261,45 @@ module.exports = function CesiumMap(
     return labelCollection
   }
 
+  /*
+   * Returns a visible label that is in the same location as the provided label (geometryInstance) if one exists.
+   * If findSelected is true, the function will also check for hidden labels in the same location but are selected.
+   */
+  function findOverlappingLabel(findSelected, geometry) {
+    return _.find(
+      mapModel.get('labels'),
+      label =>
+        label.position.x === geometry.position.x &&
+        label.position.y === geometry.position.y &&
+        ((findSelected && label.isSelected) || label.show)
+    )
+  }
+
+  /*
+    * Only shows one label if there are multiple labels in the same location.
+    * If isSelected is true, hide the existing label at that location and show the given label (geometry).
+    * If findSelected is true, look for a selected label to display (set to false when setting isSelected for labels).
+    */
+  function showHideLabel(isSelected, findSelected, geometry) {
+    const labelWithSamePosition = findOverlappingLabel(findSelected, geometry)
+    if (isSelected) {
+      if (labelWithSamePosition !== undefined) {
+        labelWithSamePosition.show = false
+        labelWithSamePosition.isSelected = false
+      }
+      geometry.show = true
+    } else {
+      if (
+        labelWithSamePosition === undefined ||
+        geometry.id === labelWithSamePosition.id
+      ) {
+        geometry.show = true
+      } else if (!findSelected) {
+        geometry.show = false
+      }
+    }
+  }
+
   const exposedMethods = _.extend({}, Map, {
     drawLine(model) {
       drawingTools.line.draw(model)
@@ -868,39 +907,8 @@ module.exports = function CesiumMap(
           options.isSelected ? -1 : 0
         )
       } else if (geometry.constructor === Cesium.Label) {
+        showHideLabel(options.isSelected, false, geometry)
         geometry.isSelected = options.isSelected
-        if (options.isSelected) {
-          // if there is another label at that position, hide it
-          const labelWithSamePosition = _.find(
-            mapModel.get('labels'),
-            label =>
-              label.position.x === geometry.position.x &&
-              label.position.y === geometry.position.y &&
-              label.show
-          )
-          if (labelWithSamePosition !== undefined) {
-            labelWithSamePosition.show = false
-            labelWithSamePosition.isSelected = false
-          }
-          geometry.show = true
-        } else {
-          // display one label and hide all others
-          const labelWithSamePosition = _.find(
-            mapModel.get('labels'),
-            label =>
-              label.position.x === geometry.position.x &&
-              label.position.y === geometry.position.y &&
-              label.show
-          )
-          if (
-            labelWithSamePosition === undefined ||
-            geometry.id === labelWithSamePosition.id
-          ) {
-            geometry.show = true
-          } else {
-            geometry.show = false
-          }
-        }
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
           polyline.material = Cesium.Material.fromType('PolylineOutline', {
@@ -940,20 +948,7 @@ module.exports = function CesiumMap(
       if (geometry.constructor === Cesium.Billboard) {
         geometry.show = true
       } else if (geometry.constructor === Cesium.Label) {
-        // only show one label at one location
-        const labelWithSamePosition = _.find(
-          mapModel.get('labels'),
-          label =>
-            label.position.x === geometry.position.x &&
-            label.position.y === geometry.position.y &&
-            (label.isSelected || label.show)
-        )
-        if (
-          labelWithSamePosition === undefined ||
-          geometry.id === labelWithSamePosition.id
-        ) {
-          geometry.show = true
-        }
+        showHideLabel(false, true, geometry)
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
           polyline.show = true
