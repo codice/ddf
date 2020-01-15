@@ -84,8 +84,7 @@
                             catalog-core-api-impl,
                             handlebars,
                             antlr4-runtime,
-                            commons-lang3,
-                            platform-util
+                            commons-lang3
                         </Embed-Dependency>
                         <Import-Package>
                             !org.abego.treelayout.*,

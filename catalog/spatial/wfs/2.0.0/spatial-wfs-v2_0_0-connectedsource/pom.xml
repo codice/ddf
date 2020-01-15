@@ -224,8 +224,7 @@
                             catalog-core-api-impl,
                             jaxb2-basics-runtime,
                             gml-v_3_2_1-schema,
-                            geospatial,
-                            platform-util
+                            geospatial
                         </Embed-Dependency>
                         <Private-Package>
                             <!-- Belongs to spatial-wfs-mapper but is Private-Packaged by

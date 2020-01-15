@@ -61,8 +61,7 @@
                         </Private-Package>
                         <Embed-Dependency>
                             catalog-core-api-impl;scope=!test,
-                            commons-lang3,
-                            platform-util
+                            commons-lang3
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

@@ -235,8 +235,7 @@
                             catalog-core-api-impl,
                             jaxb2-basics-runtime,
                             gml-v_3_2_1-schema,
-                            geospatial,
-                            platform-util
+                            geospatial
                         </Embed-Dependency>
                         <Private-Package>
                             org.codice.ddf.spatial.ogc.wfs.catalog.mapper.impl,

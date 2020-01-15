@@ -198,7 +198,6 @@
                             spatial-csw-common,
                             spatial-csw-transformer,
                             catalog-core-api-impl,
-                            platform-util,
                             ddf-security-common,
                             geospatial,
                             commons-lang3

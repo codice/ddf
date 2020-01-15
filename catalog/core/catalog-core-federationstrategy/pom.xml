@@ -97,8 +97,7 @@
                             ${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000
                         </Bundle-SymbolicName>
                         <Embed-Dependency>
-                            catalog-core-api-impl;scope=!test,
-                            platform-util
+                            catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Import-Package>
                             sun.misc;resolution:=optional,

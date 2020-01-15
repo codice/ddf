@@ -65,7 +65,6 @@
                         </Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-api-impl,
-                            platform-util,
                             httpclient,
                             httpcore
                         </Embed-Dependency>

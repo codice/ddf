@@ -82,7 +82,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-api-impl,
-                            platform-util,
                             filters,
                             la4j
                         </Embed-Dependency>

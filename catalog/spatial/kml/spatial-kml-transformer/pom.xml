@@ -119,7 +119,6 @@
                             handlebars,
                             commons-lang3,
                             antlr4-runtime,
-                            platform-util,
                             catalog-core-api-impl,
                             JavaAPIforKml,
                             catalog-core-actions,

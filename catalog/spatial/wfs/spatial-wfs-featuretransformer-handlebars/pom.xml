@@ -139,7 +139,6 @@
                         <Embed-Dependency>
                             catalog-core-api-impl,
                             spatial-wfs-common,
-                            platform-util,
                             geospatial,
                             handlebars,
                             antlr4-runtime,

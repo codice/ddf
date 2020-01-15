@@ -79,8 +79,7 @@
                             catalog-core-api-impl,
                             jts-core,
                             spatial-geocoding-api-impl,
-                            spatial4j,
-                            platform-util
+                            spatial4j
                         </Embed-Dependency>
                         <Import-Package>
                             !com.fasterxml.jackson*,

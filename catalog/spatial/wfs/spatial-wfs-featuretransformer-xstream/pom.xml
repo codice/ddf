@@ -120,7 +120,6 @@
               catalog-core-api-impl,
               geospatial,
               jaxb2-basics-runtime;version="0.11.0",
-              platform-util,
               spatial-ogc-common,
               spatial-wfs-common,
               spatial-wfs-converter,

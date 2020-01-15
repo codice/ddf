@@ -64,8 +64,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            catalog-core-api-impl,
-                            platform-util
+                            catalog-core-api-impl
                         </Embed-Dependency>
                         <Export-Package>
                             org.codice.ddf.validator.metacard.wkt;version=${project.version}

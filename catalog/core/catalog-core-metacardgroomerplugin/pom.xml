@@ -55,8 +55,7 @@
                         <Private-Package>ddf.catalog.plugin.groomer.metacard</Private-Package>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            catalog-core-api-impl;scope=!test,
-                            platform-util
+                            catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Export-Package />
                     </instructions>

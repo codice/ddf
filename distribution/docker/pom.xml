@@ -25,7 +25,7 @@
     <name>DDF :: Distribution :: Docker</name>
 
     <modules>
-        <module>ddf</module>
-        <module>solr</module>
+        <module>ddf-docker</module>
+        <module>solr-docker</module>
     </modules>
 </project>

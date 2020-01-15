@@ -106,9 +106,6 @@
                         <Bundle-SymbolicName>
                             ${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000
                         </Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            platform-util
-                        </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.data.impl.*,
                             ddf.catalog.operation.impl,

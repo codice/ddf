@@ -131,8 +131,7 @@
                             catalog-opensearch-api,
                             ddf-security-common,
                             catalog-core-api-impl,
-                            geospatial,
-                            platform-util
+                            geospatial
                         </Embed-Dependency>
                         <Import-Package>
                             !com.rometools.utils,

@@ -25,17 +25,17 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>cxf</module>
+        <module>karaf</module>
         <module>camel</module>
-        <module>branding</module>
         <module>kernel</module>
         <module>test-utilities</module>
-        <module>karaf</module>
-        <module>cxf</module>
+        <module>utilities</module>
+        <module>branding</module>
+        <module>security</module>
+        <module>solr</module>
         <module>migration</module>
         <module>admin</module>
-        <module>solr</module>
-        <module>security</module>
-        <module>utilities</module>
         <module>apps</module>
         <module>install-profiles</module>
     </modules>

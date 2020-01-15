@@ -353,7 +353,6 @@
                             ddf-security-common,
                             hazelcast;scope=runtime|compile,
                             notifications,
-                            platform-util,
                             versioning-common,
                             catalog-core-api-impl;scope=!test,
                             lux,

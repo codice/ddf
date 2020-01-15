@@ -241,7 +241,6 @@
                             spatial-wfs-source,
                             spatial-ogc-common,
                             catalog-core-api-impl,
-                            platform-util,
                             geospatial
                         </Embed-Dependency>
                         <Private-Package>

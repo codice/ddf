@@ -555,6 +555,7 @@
 
     <feature name="catalog-transformer-pptx" version="${project.version}"
              description="PPTX Input Transformer">
+        <feature dependency="true">platform-util</feature>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-pptx/${project.version}</bundle>
     </feature>
 

@@ -67,8 +67,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Karaf-Commands>org.codice.ddf.commands.spatial.gazetteer</Karaf-Commands>
                         <Embed-Dependency>
-                            catalog-core-api-impl,
-                            platform-util
+                            catalog-core-api-impl
                         </Embed-Dependency>
                         <Import-Package>
                             !javax.activation,

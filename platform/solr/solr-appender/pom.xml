@@ -64,8 +64,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            alerts,
-                            platform-util
+                            alerts
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

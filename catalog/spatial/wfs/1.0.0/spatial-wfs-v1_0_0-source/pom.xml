@@ -215,7 +215,6 @@
                             spatial-wfs-converter;scope=compile|runtime,
                             spatial-wfs-v1_0_0-converter;scope=compile|runtime,
                             catalog-core-api-impl,
-                            platform-util,
                             geospatial
                         </Embed-Dependency>
                         <Private-Package>

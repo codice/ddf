@@ -86,7 +86,6 @@
                         </Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-api-impl,
-                            platform-util,
                             security-encryption-crypter
                         </Embed-Dependency>
                     </instructions>

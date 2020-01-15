@@ -43,9 +43,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
-                        <Embed-Dependency>
-                            platform-util
-                        </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.transformer.resource,
                             ddf.catalog.operation.impl,

@@ -82,7 +82,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            platform-util,
                             org.apache.servicemix.bundles.jsr305
                         </Embed-Dependency>
                         <Export-Package />

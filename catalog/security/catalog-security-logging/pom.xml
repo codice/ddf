@@ -52,8 +52,7 @@
                             *
                         </Import-Package>
                         <Embed-Dependency>
-                            catalog-core-api-impl;scope=!test,
-                            platform-util
+                            catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Export-Package />
                     </instructions>

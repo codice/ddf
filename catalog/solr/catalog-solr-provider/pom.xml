@@ -72,7 +72,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            platform-util,
                             catalog-core-solr,
                             catalog-core-api-impl,
                             lux,

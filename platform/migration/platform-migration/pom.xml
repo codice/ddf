@@ -171,7 +171,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             commons-lang,
-                            platform-util,
                             gson-support,
                             org.apache.karaf.util,
                             org.apache.felix.utils

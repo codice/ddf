@@ -69,8 +69,7 @@
                         <Embed-Dependency>
                             catalog-core-api-impl,
                             commons-csv,
-                            catalog-transformer-csv-common,
-                            platform-util
+                            catalog-transformer-csv-common
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

@@ -76,7 +76,6 @@
                             *
                         </Import-Package>
                         <Embed-Dependency>
-                            platform-util,
                             spatial-wfs-common,
                             catalog-core-api-impl
                         </Embed-Dependency>

@@ -128,8 +128,7 @@
                             catalog-transformer-xml-binding,
                             jaxb2-basics-runtime,
                             gml-v_3_1_1-schema;inline=true,
-                            commons-lang3,
-                            platform-util
+                            commons-lang3
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>

@@ -122,7 +122,6 @@
                             catalog-core-api-impl,
                             catalog-rest-service,
                             json-smart,
-                            platform-util,
                             owasp-java-html-sanitizer
                         </Embed-Dependency>
                         <Import-Package>

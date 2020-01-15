@@ -108,7 +108,6 @@
                         </Import-Package>
                         <Export-Package />
                         <Embed-Dependency>
-                            platform-util,
                             handlebars,
                             antlr4-runtime
                         </Embed-Dependency>

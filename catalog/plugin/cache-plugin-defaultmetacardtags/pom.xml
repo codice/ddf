@@ -47,8 +47,7 @@
                         </Export-Package>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            catalog-core-api-impl,
-                            platform-util
+                            catalog-core-api-impl
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

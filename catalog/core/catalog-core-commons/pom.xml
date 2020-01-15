@@ -97,7 +97,6 @@
                             ddf.util;version=${project.version}
                         </Export-Package>
                         <Embed-Dependency>
-                            platform-util,
                             catalog-core-api-impl,
                             commons-lang3
                         </Embed-Dependency>

@@ -131,8 +131,7 @@
                             jai-imageio-core,
                             jai-imageio-jpeg2000,
                             Saxon-HE,
-                            commons-io,
-                            platform-util
+                            commons-io
                         </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.transformer.input.tika,

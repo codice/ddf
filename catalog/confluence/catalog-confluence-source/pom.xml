@@ -137,7 +137,6 @@
                             catalog-confluence-common,
                             ddf-security-common,
                             catalog-core-api-impl;scope=!test,
-                            platform-util,
                             commons-lang3,
                             gson-support
                         </Embed-Dependency>

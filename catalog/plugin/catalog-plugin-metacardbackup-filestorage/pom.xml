@@ -93,7 +93,6 @@
                     <instructions>
                         <Embed-Dependency>
                             catalog-plugin-metacardbackup-storage-common,
-                            platform-util,
                             commons-lang3,
                             commons-io,
                             handlebars,

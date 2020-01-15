@@ -95,8 +95,7 @@
                             ogc-tools-gml-jts,
                             gml-v_3_1_1-schema,
                             jaxb2-basics-runtime,
-                            catalog-transformer-streaming-lib,
-                            platform-util
+                            catalog-transformer-streaming-lib
                         </Embed-Dependency>
                         <Export-Package />
                     </instructions>

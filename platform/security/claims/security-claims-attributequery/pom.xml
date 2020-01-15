@@ -55,7 +55,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             commons-collections,
-                            platform-util,
                             security-claims-attributequerycommon
                         </Embed-Dependency>
                         <Export-Package />

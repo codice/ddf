@@ -82,6 +82,7 @@
         <feature>guava</feature>
         <feature>spring</feature>
         <feature>common-system</feature>
+        <feature>platform-util</feature>
         <bundle>mvn:ddf.mime.core/mime-core-impl/${project.version}</bundle>
         <feature>slf4j</feature>
         <bundle>mvn:ddf.mime.core/mime-core-configurableresolver/${project.version}</bundle>

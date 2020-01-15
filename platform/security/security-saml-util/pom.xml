@@ -42,7 +42,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>org.codice.ddf.security.util</Export-Package>
-                        <Embed-Dependency>platform-util</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

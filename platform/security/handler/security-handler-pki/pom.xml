@@ -67,9 +67,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            platform-util
-                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>
