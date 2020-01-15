@@ -493,43 +493,18 @@ module.exports = function CesiumMap(
      */
     addRulerPoint(coordinates) {
       const { lat, lon } = coordinates
-
       // a point requires an altitude value so just use 0
       const point = [lon, lat, 0]
-      const pointObject = convertPointCoordinate(point)
-      const cartographicPosition = Cesium.Cartographic.fromDegrees(
-        pointObject.longitude,
-        pointObject.latitude,
-        pointObject.altitude
-      )
-      let cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
-        cartographicPosition
-      )
-      const billboardRef = billboardCollection.add({
-        image: DrawingUtility.getCircle({
-          fillColor: rulerPointColor,
-          icon: null,
-        }),
-        position: cartesianPosition,
-        eyeOffset,
-      })
-      //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
-      if (!pointObject.altitude && map.scene.terrainProvider) {
-        const promise = Cesium.sampleTerrain(map.scene.terrainProvider, 5, [
-          cartographicPosition,
-        ])
-        Cesium.when(promise, updatedCartographic => {
-          if (updatedCartographic[0].height && !this.isDestroyed) {
-            cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
-              updatedCartographic[0]
-            )
-            billboardRef.position = cartesianPosition
-          }
-        })
+      const options = {
+        id: ' ',
+        title: `Selected ruler coordinate`,
+        color: rulerPointColor,
+        icon: null,
+        view: this,
       }
-      map.scene.requestRender()
+      const useCustomText = true
 
-      return billboardRef
+      return this.addPoint(point, options)
     },
     /*
      * Removes the given Billboard from the map.
@@ -639,19 +614,16 @@ module.exports = function CesiumMap(
         pointObject.latitude,
         pointObject.altitude
       )
+      let cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
+        cartographicPosition
+      )
       const billboardRef = billboardCollection.add({
-        image: DrawingUtility.getPin({
-          fillColor: options.color,
-          icon: options.icon,
+        image: DrawingUtility.getCircle({
+          fillColor: rulerPointColor,
+          icon: null,
         }),
-        position: map.scene.globe.ellipsoid.cartographicToCartesian(
-          cartographicPosition
-        ),
-        id: options.id,
+        position: cartesianPosition,
         eyeOffset,
-        pixelOffset,
-        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
       })
       //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
       if (!pointObject.altitude && map.scene.terrainProvider) {

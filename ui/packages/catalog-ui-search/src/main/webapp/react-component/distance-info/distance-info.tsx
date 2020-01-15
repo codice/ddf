@@ -46,9 +46,21 @@ type State = {
 class DistanceInfo extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props)
-    this.state = mapPropsToState(props)
-    this.setState({ showDistance: false })
+    this.state = { ...mapPropsToState(props), showDistance: false }
+  }
+
+  componentDidMount() {
     this.listenToMap()
+  }
+
+  componentWillUnmount() {
+    const { stopListening, map } = this.props
+    stopListening(map, 'change:currentDistance', this.handleDistanceChange)
+    stopListening(
+      map,
+      'change:measurementState',
+      this.handleMeasurementStateChange
+    )
   }
 
   listenToMap = () => {

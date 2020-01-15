@@ -48,6 +48,10 @@ module.exports = Backbone.AssociatedModel.extend({
     points: [],
     labels: [],
     line: undefined,
+    distanceInfo: {
+      left: 0,
+      top: 0,
+    },
   },
   /*
    * Sets the measurement state to the given new state.
