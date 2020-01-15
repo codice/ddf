@@ -150,6 +150,58 @@ module.exports = function OpenlayersMap(
     wreqr.vent.off('resize', resizeMap)
   }
 
+  /*
+   * Returns a visible label that is in the same location as the provided label (geometryInstance) if one exists.
+   * If findSelected is true, the function will also check for hidden labels in the same location but are selected.
+   */
+  function findOverlappingLabel(findSelected, geometryInstance) {
+    return _.find(
+      mapModel.get('labels'),
+      label =>
+        label
+          .getSource()
+          .getFeatures()[0]
+          .getGeometry()
+          .getCoordinates()[0] === geometryInstance.getCoordinates()[0] &&
+        label
+          .getSource()
+          .getFeatures()[0]
+          .getGeometry()
+          .getCoordinates()[1] === geometryInstance.getCoordinates()[1] &&
+        ((findSelected && label.get('isSelected')) || label.getVisible())
+    )
+  }
+
+  /*
+   * Only shows one label if there are multiple labels in the same location.
+   * If isSelected is true, hide the existing label at that location and show the given label (geometry).
+   * If findSelected is true, look for a selected label to display (set to false when setting isSelected for labels).
+   */
+  function showHideLabel(isSelected, findSelected, geometry, feature) {
+    const geometryInstance = feature.getGeometry()
+    const labelWithSamePosition = findOverlappingLabel(
+      findSelected,
+      geometryInstance
+    )
+    if (isSelected) {
+      if (labelWithSamePosition !== undefined) {
+        labelWithSamePosition.setVisible(false)
+        labelWithSamePosition.set('isSelected', false)
+      }
+      geometry.setVisible(true)
+    } else {
+      if (
+        labelWithSamePosition === undefined ||
+        geometry.get('id') === labelWithSamePosition.get('id')
+      ) {
+        geometry.setVisible(true)
+      } else if (!findSelected) {
+        // only hide geometry if not looking for selected label
+        geometry.setVisible(false)
+      }
+    }
+  }
+
   const exposedMethods = _.extend({}, Map, {
     drawLine(model) {
       drawingTools.line.draw(model)
@@ -665,58 +717,8 @@ module.exports = function OpenlayersMap(
             })
           )
 
-          // only show one label if there are overlapping labels
+          showHideLabel(options.isSelected, false, geometry, feature)
           geometry.set('isSelected', options.isSelected)
-          if (options.isSelected) {
-            const labelWithSamePosition = _.find(
-              mapModel.get('labels'),
-              label =>
-                label
-                  .getSource()
-                  .getFeatures()[0]
-                  .getGeometry()
-                  .getCoordinates()[0] ===
-                  geometryInstance.getCoordinates()[0] &&
-                label
-                  .getSource()
-                  .getFeatures()[0]
-                  .getGeometry()
-                  .getCoordinates()[1] ===
-                  geometryInstance.getCoordinates()[1] &&
-                label.getVisible()
-            )
-            if (labelWithSamePosition !== undefined) {
-              labelWithSamePosition.setVisible(false)
-              labelWithSamePosition.set('isSelected', false)
-            }
-            geometry.setVisible(true)
-          } else {
-            const labelWithSamePosition = _.find(
-              mapModel.get('labels'),
-              label =>
-                label
-                  .getSource()
-                  .getFeatures()[0]
-                  .getGeometry()
-                  .getCoordinates()[0] ===
-                  geometryInstance.getCoordinates()[0] &&
-                label
-                  .getSource()
-                  .getFeatures()[0]
-                  .getGeometry()
-                  .getCoordinates()[1] ===
-                  geometryInstance.getCoordinates()[1] &&
-                label.getVisible()
-            )
-            if (
-              labelWithSamePosition === undefined ||
-              geometry.get('id') === labelWithSamePosition.get('id')
-            ) {
-              geometry.setVisible(true)
-            } else {
-              geometry.setVisible(false)
-            }
-          }
         }
       } else if (geometryInstance.getType() === 'LineString') {
         const styles = [
@@ -780,29 +782,7 @@ module.exports = function OpenlayersMap(
     showGeometry(geometry) {
       const feature = geometry.getSource().getFeatures()[0]
       if (feature.getProperties().isLabel) {
-        // only show one label at one location
-        const geometryInstance = feature.getGeometry()
-        const labelWithSamePosition = _.find(
-          mapModel.get('labels'),
-          label =>
-            label
-              .getSource()
-              .getFeatures()[0]
-              .getGeometry()
-              .getCoordinates()[0] === geometryInstance.getCoordinates()[0] &&
-            label
-              .getSource()
-              .getFeatures()[0]
-              .getGeometry()
-              .getCoordinates()[1] === geometryInstance.getCoordinates()[1] &&
-            (label.get('isSelected') || label.getVisible())
-        )
-        if (
-          labelWithSamePosition === undefined ||
-          geometry.get('id') === labelWithSamePosition.get('id')
-        ) {
-          geometry.setVisible(true)
-        }
+        showHideLabel(false, true, geometry, feature)
       } else {
         geometry.setVisible(true)
       }
