@@ -160,7 +160,16 @@ public class AccessControlPreQueryPlugin implements PreQueryPlugin {
 
     final Filter combined = filterBuilder.allOf(query, policyBranch);
     return new QueryRequestImpl(
-        new QueryImpl(combined), input.isEnterprise(), input.getSourceIds(), input.getProperties());
+        new QueryImpl(
+            combined,
+            query.getStartIndex(),
+            query.getPageSize(),
+            query.getSortBy(),
+            query.requestsTotalResultsCount(),
+            query.getTimeoutMillis()),
+        input.isEnterprise(),
+        input.getSourceIds(),
+        input.getProperties());
   }
 
   @VisibleForTesting
