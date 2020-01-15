@@ -18,6 +18,8 @@ import { hot } from 'react-hot-loader'
 import { Attribute, Coordinates, Format, validCoordinates } from '.'
 import { formatAttribute, formatCoordinates } from './formatting'
 
+const DistanceUtils = require('../../../webapp/js/DistanceUtils.js')
+
 type Props = {
   format: Format
   attributes: Attribute[]
@@ -63,7 +65,7 @@ const getDistanceText = (distance: number) => {
   const distanceText =
     distance < 1000
       ? `${distance.toFixed(2)} m`
-      : `${(distance * 0.001).toFixed(2)} km`
+      : `${DistanceUtils.getDistanceFromMeters(distance, 'kilometers').toFixed(2)} km`
 
   return distanceText
 }
