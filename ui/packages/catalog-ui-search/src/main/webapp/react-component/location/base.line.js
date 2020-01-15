@@ -186,7 +186,7 @@ class BaseLine extends React.Component {
       return value
     }
     const coordinates = coordinatePairs.map(coord => coord.replace(' ', ','))
-    return buildWktString(coordinates)
+    return this.buildWktString(coordinates)
   }
   convertMultiWkt(isPolygon, value) {
     if (isPolygon && !value.endsWith(')))')) {
@@ -206,8 +206,8 @@ class BaseLine extends React.Component {
     return shapes.length === 0
       ? value
       : shapes.length === 1
-        ? buildWktString(shapes[0])
-        : '[' + shapes.map(shapeCoords => buildWktString(shapeCoords)) + ']'
+        ? this.buildWktString(shapes[0])
+        : '[' + shapes.map(shapeCoords => this.buildWktString(shapeCoords)) + ']'
   }
 }
 
