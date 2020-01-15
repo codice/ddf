@@ -434,37 +434,6 @@ public class TestFederation extends AbstractIntegrationTest {
                     + "']"));
   }
 
-  /** Tests Source can retrieve based on a pure spatial query */
-  @Test
-  public void testFederatedSpatial() {
-    ValidatableResponse response =
-        getOpenSearch(
-            "xml",
-            null,
-            null,
-            "lat=10.0",
-            "lon=30.0",
-            "radius=250000",
-            "spatialType=POINT_RADIUS",
-            "src=" + OPENSEARCH_SOURCE_ID);
-
-    response
-        .assertThat()
-        .body(
-            hasXPath(
-                "/metacards/metacard/string[@name='"
-                    + Metacard.TITLE
-                    + "']/value[text()='"
-                    + RECORD_TITLE_1
-                    + "']"),
-            hasXPath(
-                "/metacards/metacard/string[@name='"
-                    + Metacard.TITLE
-                    + "']/value[text()='"
-                    + RECORD_TITLE_2
-                    + "']"));
-  }
-
   /** Tests given bad spatial query, no result should be returned */
   @Test
   public void testFederatedNegativeSpatial() {
@@ -781,25 +750,6 @@ public class TestFederation extends AbstractIntegrationTest {
         .then()
         .assertThat()
         .body(assertion[0], assertion);
-  }
-
-  @Test
-  public void testCswQueryByTitle() {
-    String titleQuery =
-        getCswQuery("title", "myTitle", "application/xml", "http://www.opengis.net/cat/csw/2.0.2");
-
-    given()
-        .contentType(ContentType.XML)
-        .body(titleQuery)
-        .when()
-        .post(CSW_PATH.getUrl())
-        .then()
-        .assertThat()
-        .body(
-            hasXPath(
-                "/GetRecordsResponse/SearchResults/Record/identifier",
-                is(METACARD_IDS[GEOJSON_RECORD_INDEX])),
-            hasXPath("/GetRecordsResponse/SearchResults/@numberOfRecordsReturned", is("1")));
   }
 
   @Test

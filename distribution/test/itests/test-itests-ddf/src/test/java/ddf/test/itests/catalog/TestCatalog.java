@@ -798,23 +798,6 @@ public class TestCatalog extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testCswDeleteMultiple() {
-    ingestCswRecord();
-    ingestCswRecord();
-
-    ValidatableResponse response =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswFilterDeleteRequest"))
-            .post(CSW_PATH.getUrl())
-            .then();
-    response.body(
-        hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("2")),
-        hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
-        hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
-  }
-
-  @Test
   public void testCswUpdateByNewRecord() {
     Response response = ingestCswRecord();
 
@@ -898,71 +881,6 @@ public class TestCatalog extends AbstractIntegrationTest {
     } finally {
       CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
     }
-  }
-
-  @Test
-  public void testCswUpdateByFilterConstraint() {
-    Response firstResponse = ingestCswRecord();
-    Response secondResponse = ingestCswRecord();
-
-    ValidatableResponse validatableResponse =
-        given()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-            .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswUpdateByFilterConstraintRequest"))
-            .post(CSW_PATH.getUrl())
-            .then();
-    validatableResponse.body(
-        hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
-        hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
-        hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("2")));
-
-    String firstId;
-    String secondId;
-
-    try {
-      firstId = getMetacardIdFromCswInsertResponse(firstResponse);
-      secondId = getMetacardIdFromCswInsertResponse(secondResponse);
-    } catch (IOException | XPathExpressionException e) {
-      fail("Could not retrieve the ingested record's ID from the response.");
-      return;
-    }
-
-    String firstUrl = REST_PATH.getUrl() + firstId;
-    when()
-        .get(firstUrl)
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        // Check that the updated attributes were changed.
-        .body(
-            hasXPath("//metacard/dateTime[@name='modified']/value", startsWith("2015-08-25")),
-            hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
-            hasXPath("//metacard/string[@name='media.format']/value", is("")),
-            // Check that an attribute that was not updated was not changed.
-            hasXPath(
-                "//metacard/string[@name='topic.category']/value",
-                is("Hydrography--Dictionaries")));
-
-    String secondUrl = REST_PATH.getUrl() + secondId;
-    when()
-        .get(secondUrl)
-        .then()
-        .log()
-        .ifValidationFails()
-        .assertThat()
-        // Check that the updated attributes were changed.
-        .body(
-            hasXPath("//metacard/dateTime[@name='modified']/value", startsWith("2015-08-25")),
-            hasXPath("//metacard/string[@name='title']/value", is("Updated Title")),
-            hasXPath("//metacard/string[@name='media.format']/value", is("")),
-            // Check that an attribute that was not updated was not changed.
-            hasXPath(
-                "//metacard/string[@name='topic.category']/value",
-                is("Hydrography--Dictionaries")));
-
-    delete(firstId);
-    delete(secondId);
   }
 
   @Test
