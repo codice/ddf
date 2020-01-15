@@ -15,6 +15,7 @@ package org.codice.ddf.endpoints.rest;
 
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.plugin.OAuthPluginException;
 import ddf.catalog.resource.DataUsageLimitExceededException;
 import ddf.catalog.resource.Resource;
 import java.io.InputStream;
@@ -249,7 +250,8 @@ public class RESTEndpoint implements RESTService {
           .entity("<pre>" + e.getMessage() + "</pre>")
           .type(MediaType.TEXT_HTML)
           .build();
-
+    } catch (OAuthPluginException e) {
+      return Response.status(Status.SEE_OTHER).header(HttpHeaders.LOCATION, e.getUrl()).build();
     } catch (UnsupportedEncodingException e) {
       String exceptionMessage = "Unknown error occurred while processing request: ";
       LOGGER.info(exceptionMessage, e);

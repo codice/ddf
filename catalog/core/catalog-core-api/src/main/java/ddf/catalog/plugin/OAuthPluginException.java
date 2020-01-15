@@ -13,6 +13,11 @@
  */
 package ddf.catalog.plugin;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.util.Map;
+import org.apache.http.client.utils.URIBuilder;
+
 /** Exception thrown when an user doesn't have the appropriate OAuth tokens to federate */
 public class OAuthPluginException extends RuntimeException {
 
@@ -21,6 +26,10 @@ public class OAuthPluginException extends RuntimeException {
   private final ErrorType errorType;
 
   private final String url;
+
+  private final String baseUrl;
+
+  private final Map<String, String> parameters;
 
   public enum ErrorType {
     NO_AUTH(401),
@@ -37,15 +46,36 @@ public class OAuthPluginException extends RuntimeException {
     }
   }
 
-  public OAuthPluginException(String sourceId, String url, ErrorType errorType) {
+  public OAuthPluginException(
+      String sourceId, String baseUrl, Map<String, String> parameters, ErrorType errorType) {
     super();
     this.sourceId = sourceId;
-    this.url = url;
+    this.baseUrl = baseUrl;
+    this.parameters = parameters;
+    this.url = buildUrl(baseUrl, parameters);
     this.errorType = errorType;
+  }
+
+  private String buildUrl(String baseUrl, Map<String, String> parameters) {
+    try {
+      URIBuilder uriBuilder = new URIBuilder(baseUrl);
+      parameters.forEach(uriBuilder::addParameter);
+      return uriBuilder.build().toURL().toString();
+    } catch (URISyntaxException | MalformedURLException e) {
+      return null;
+    }
   }
 
   public String getSourceId() {
     return sourceId;
+  }
+
+  public String getBaseUrl() {
+    return baseUrl;
+  }
+
+  public Map<String, String> getParameters() {
+    return parameters;
   }
 
   public String getUrl() {

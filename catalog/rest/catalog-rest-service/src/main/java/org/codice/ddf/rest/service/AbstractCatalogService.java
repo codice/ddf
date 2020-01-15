@@ -45,6 +45,7 @@ import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
+import ddf.catalog.plugin.OAuthPluginException;
 import ddf.catalog.resource.DataUsageLimitExceededException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.InternalIngestException;
@@ -59,6 +60,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.time.Instant;
@@ -94,6 +96,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
+import org.apache.http.client.utils.URIBuilder;
 import org.codice.ddf.attachment.AttachmentInfo;
 import org.codice.ddf.attachment.AttachmentParser;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
@@ -134,6 +137,8 @@ public abstract class AbstractCatalogService implements CatalogService {
   private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
 
   private static final String NO_FILE_CONTENTS_ATT_FOUND = "No file contents attachment found";
+
+  private static final String REDIRECT_URI = "redirect_uri";
 
   private static final int MAX_INPUT_SIZE = 65_536;
 
@@ -372,6 +377,15 @@ public abstract class AbstractCatalogService implements CatalogService {
         // We need to catch this exception here or else execution will return to CXF and
         // we'll lose this message and end up with a huge stack trace in a GUI or whatever
         // else is connected to this endpoint
+      } catch (OAuthPluginException e) {
+        Map<String, String> parameters = e.getParameters();
+        String redirectUri = constructRedirectUri(httpRequest, parameters);
+        if (redirectUri != null) {
+          parameters.put(REDIRECT_URI, redirectUri);
+          throw new OAuthPluginException(
+              e.getSourceId(), e.getBaseUrl(), parameters, e.getErrorType());
+        }
+        throw e;
       } catch (RuntimeException | UnsupportedEncodingException e) {
         String exceptionMessage = "Unknown error occurred while processing request.";
         LOGGER.info(exceptionMessage, e);
@@ -1215,6 +1229,30 @@ public abstract class AbstractCatalogService implements CatalogService {
     }
 
     return response;
+  }
+
+  private String constructRedirectUri(
+      HttpServletRequest httpRequest, Map<String, String> parameters) {
+    String uri = parameters.get(REDIRECT_URI);
+
+    if (uri == null) {
+      return null;
+    }
+
+    try {
+      URIBuilder uriBuilder = new URIBuilder(httpRequest.getRequestURL().toString());
+      httpRequest
+          .getParameterMap()
+          .forEach(
+              (key, value) -> Arrays.stream(value).forEach(v -> uriBuilder.addParameter(key, v)));
+
+      uri = String.format("%s?%s=%s", uri, REDIRECT_URI, uriBuilder.build().toString());
+    } catch (URISyntaxException e) {
+      LOGGER.info("Error constructing redirect uri", e);
+      return null;
+    }
+
+    return uri;
   }
 
   public void setMimeTypeToTransformerMapper(

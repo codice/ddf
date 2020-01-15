@@ -43,6 +43,13 @@ public interface SecureCxfClientFactory<T> {
   WebClient getWebClient();
 
   /**
+   * Returns the WebClient
+   *
+   * @return
+   */
+  WebClient getWebSystemClient();
+
+  /**
    * Adds subject to a new client and returns
    *
    * @param subject
