@@ -220,7 +220,7 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
     String attributeName = attribute.getName();
     List<Serializable> values = attribute.getValues();
 
-    if (values.size() > 0) {
+    if (!values.isEmpty()) {
       // The GeometryTransformer creates an XML fragment containing
       // both the name - with namespaces declared - and the value
       if (format != AttributeType.AttributeFormat.GEOMETRY) {

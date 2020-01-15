@@ -303,7 +303,7 @@ public class FilterPlugin implements AccessPlugin {
           // returned metacards are ignored for resource requests
         }
       }
-      if (filterStrategies.size() == 0) {
+      if (filterStrategies.isEmpty()) {
         throw new StopProcessingException("Subject not permitted to receive resource");
       }
     }

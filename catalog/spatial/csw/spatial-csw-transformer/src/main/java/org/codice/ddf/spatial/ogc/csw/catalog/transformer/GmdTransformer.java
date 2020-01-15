@@ -538,7 +538,7 @@ public class GmdTransformer extends AbstractGmdTransformer implements InputTrans
 
   private void setCountryCodes(List<String> countryCodes, MetacardImpl metacard) {
     List<String> filteredCountryCodes = filterCountryCodes(countryCodes);
-    if (filteredCountryCodes.size() > 0) {
+    if (!filteredCountryCodes.isEmpty()) {
       metacard.setAttribute(Location.COUNTRY_CODE, (Serializable) filteredCountryCodes);
     }
   }

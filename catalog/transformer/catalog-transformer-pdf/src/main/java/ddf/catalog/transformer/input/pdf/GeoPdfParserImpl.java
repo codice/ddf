@@ -125,7 +125,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
       }
     }
 
-    if (polygons.size() == 0) {
+    if (polygons.isEmpty()) {
       LOGGER.debug(
           "No GeoPDF information found on PDF during transformation.  Metacard location will not be set.");
       return null;

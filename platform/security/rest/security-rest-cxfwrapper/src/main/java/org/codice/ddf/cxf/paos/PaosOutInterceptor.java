@@ -40,7 +40,7 @@ public class PaosOutInterceptor extends AbstractPhaseInterceptor<Message> {
         acceptHeaders = new ArrayList<>();
       }
 
-      if (acceptHeaders.size() == 0) {
+      if (acceptHeaders.isEmpty()) {
         acceptHeaders.add("application/vnd.paos+xml");
         acceptHeaders.add("*/*");
       } else {

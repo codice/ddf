@@ -409,7 +409,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
       errors.add("Some of the required truststore fields are missing");
     }
 
-    if (errors.size() > 0) {
+    if (!errors.isEmpty()) {
       return errors;
     }
 

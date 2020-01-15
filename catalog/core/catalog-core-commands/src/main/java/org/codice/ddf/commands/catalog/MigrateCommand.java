@@ -74,7 +74,7 @@ public class MigrateCommand extends DuplicateCommands {
     final List<CatalogProvider> providers = getCatalogProviders();
 
     if (listProviders) {
-      if (providers.size() == 0) {
+      if (providers.isEmpty()) {
         console.println("There are no available Providers.");
         return null;
       }

@@ -85,7 +85,7 @@ public class DeleteCommand extends SubscriptionsCommand {
     PrintStream console = System.out;
 
     Map<String, ServiceReference<Subscription>> subscriptionIds = getSubscriptions(id, ldapFilter);
-    if (subscriptionIds.size() == 0) {
+    if (subscriptionIds.isEmpty()) {
       console.println(RED_CONSOLE_COLOR + NO_SUBSCRIPTIONS_FOUND_MSG + DEFAULT_CONSOLE_COLOR);
     } else {
       ServiceReference[] serviceReferences =
@@ -124,7 +124,7 @@ public class DeleteCommand extends SubscriptionsCommand {
 
           // Verify the subscription was deleted and print appropriate message to console
           Map<String, ServiceReference<Subscription>> ids = getSubscriptions(subscriptionId, false);
-          if (ids.size() == 0) {
+          if (ids.isEmpty()) {
             console.println(DELETE_MSG + subscriptionId);
             deletedSubscriptionsCount++;
           } else {

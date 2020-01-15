@@ -263,7 +263,7 @@ public class CswQueryFactory {
     }
 
     SortBy normalizedSortBy = null;
-    if (sortBys.size() > 0) {
+    if (!sortBys.isEmpty()) {
       normalizedSortBy = sortBys.get(0);
     }
 

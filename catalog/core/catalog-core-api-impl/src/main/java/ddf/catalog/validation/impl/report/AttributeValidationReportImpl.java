@@ -45,7 +45,7 @@ public class AttributeValidationReportImpl implements AttributeValidationReport 
    */
   public void addViolations(Set<ValidationViolation> violations) {
     Preconditions.checkArgument(violations != null, "The violation list cannot be null.");
-    Preconditions.checkArgument(violations.size() > 0, "The violation list cannot be empty.");
+    Preconditions.checkArgument(!violations.isEmpty(), "The violation list cannot be empty.");
 
     attributeValidationViolations.addAll(violations);
   }
@@ -70,7 +70,7 @@ public class AttributeValidationReportImpl implements AttributeValidationReport 
    */
   public void addSuggestedValues(Set<String> values) {
     Preconditions.checkArgument(values != null, "The suggested values cannot be null.");
-    Preconditions.checkArgument(values.size() > 0, "The suggested values cannot be empty.");
+    Preconditions.checkArgument(!values.isEmpty(), "The suggested values cannot be empty.");
 
     suggestedValues.addAll(values);
   }

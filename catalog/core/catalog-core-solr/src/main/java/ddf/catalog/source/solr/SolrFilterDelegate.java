@@ -257,7 +257,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
       // String index = XPATH_QUERY_PARSER_PREFIX + StringUtils.join(indexes, operator);
       // query.setParam(FILTER_QUERY_PARAM_NAME, filter, index);
       query.setParam(FILTER_QUERY_PARAM_NAME, filter);
-    } else if (queryParams.size() > 0) {
+    } else if (!queryParams.isEmpty()) {
       // Pass through original filter queries if only a single XPath is present
       query.setParam(FILTER_QUERY_PARAM_NAME, queryParams.toArray(new String[queryParams.size()]));
     }

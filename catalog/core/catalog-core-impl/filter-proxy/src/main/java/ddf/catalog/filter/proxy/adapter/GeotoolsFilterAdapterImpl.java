@@ -236,7 +236,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
       if (results.size() == 1) {
         // removing unused and
         return results.get(0);
-      } else if (results.size() > 0) {
+      } else if (!results.isEmpty()) {
         return ((FilterDelegate<Object>) delegate).and(results);
       }
     }
@@ -260,7 +260,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
       for (Filter child : childList) {
         results.add(child.accept(this, delegate));
       }
-      if (results.size() > 0) {
+      if (!results.isEmpty()) {
         return ((FilterDelegate<Object>) delegate).or(results);
       }
     }
