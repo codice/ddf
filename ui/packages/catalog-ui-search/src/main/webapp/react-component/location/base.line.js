@@ -207,7 +207,9 @@ class BaseLine extends React.Component {
       ? value
       : shapes.length === 1
         ? this.buildWktString(shapes[0])
-        : '[' + shapes.map(shapeCoords => this.buildWktString(shapeCoords)) + ']'
+        : '[' +
+          shapes.map(shapeCoords => this.buildWktString(shapeCoords)) +
+          ']'
   }
 }
 
