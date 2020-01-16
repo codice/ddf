@@ -76,7 +76,8 @@ public abstract class AbstractComponentTest {
         getApplicationOptions(portFinder).get(),
         getTestBundleOptions().build(),
         editConfigurationFilePut(
-            "etc/org.apache.karaf.features.cfg", "serviceRequirements", "disable"));
+            "etc/org.apache.karaf.features.cfg", "serviceRequirements", "disable"),
+        configureMavenRepos());
   }
 
   /**
@@ -107,5 +108,19 @@ public abstract class AbstractComponentTest {
         .add("org.apache.commons", "commons-lang3")
         .add("ddf.lib", "test-common")
         .add("ddf.lib", "common-system");
+  }
+
+  protected Option configureMavenRepos() {
+    return editConfigurationFilePut(
+        "etc/org.ops4j.pax.url.mvn.cfg",
+        "org.ops4j.pax.url.mvn.repositories",
+        "https://repo1.maven.org/maven2@id=central,"
+            + "https://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
+            + "https://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
+            + "https://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
+            + "https://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
+            + "https://repository.springsource.com/maven/bundles/release@id=springsource,"
+            + "https://repository.springsource.com/maven/bundles/external@id=springsourceext,"
+            + "https://oss.sonatype.org/content/repositories/releases/@id=sonatype");
   }
 }
