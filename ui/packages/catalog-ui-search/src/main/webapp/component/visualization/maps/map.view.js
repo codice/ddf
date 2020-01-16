@@ -361,13 +361,17 @@ module.exports = Marionette.LayoutView.extend({
       targetMetacard,
     })
   },
-  updateDistance() {
+  /*
+   *  Redraw and recalculate the ruler line and distanceInfo tooltip. Will not redraw while the menu is currently
+   *  displayed updateOnMenu allows updating while the menu is up
+   */
+  updateDistance(updateOnMenu = false) {
     if (this.mapModel.get('measurementState') === 'START') {
       const openMenu = this.mapContextMenu.currentView.model.changed.isOpen
       const lat = this.mapModel.get('mouseLat')
       const lon = this.mapModel.get('mouseLon')
 
-      if (!openMenu && lat && lon) {
+      if ((updateOnMenu === true || !openMenu) && lat && lon) {
         // redraw ruler line
         const mousePoint = { lat, lon }
         this.map.setRulerLine(mousePoint)
@@ -381,8 +385,8 @@ module.exports = Marionette.LayoutView.extend({
             longitude: startingCoordinates['lon'],
           }
         )
-        this.mapModel.setCurrentDistance(dist)
         this.mapModel.setDistanceInfoPosition(event.clientX, event.clientY)
+        this.mapModel.setCurrentDistance(dist)
       }
     }
   },
@@ -450,6 +454,7 @@ module.exports = Marionette.LayoutView.extend({
       .css('top', event.offsetY)
     this.mapModel.updateClickCoordinates()
     this.mapContextMenu.currentView.model.open()
+    this.updateDistance(true)
   },
   setupRightClickMenu() {
     this.mapContextMenu.show(
