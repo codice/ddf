@@ -40,34 +40,89 @@ text-align:center
 }
 `
 
-const UnsupportedAttribute = styled.div`
-border-style: solid
-border-color: red
-`
-
-const UnsupportedToolTip = styled.div`
-visibility: hidden;
-width: 120px;
+const UnsupportedToolTip = styled.span`
+width: 160px;
 background-color: black;
 color: #fff;
 text-align: center;
 border-radius: 6px;
 padding: 5px 0;
+position: absolute;
+z-index: 0;
+top: 100%;
+left: 20%;
+margin-left: -60px
+&::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent black transparent;
+}
+`
+
+
+const outerToolTipDiv = styled.div`
+font-size: 1.2em;
+color: #00ff00;
+`
+
+const UnsupportedToolTip2 = styled.span`
+display : inline-block
+content : "";
+width: 140px;
+background-color: red;
+color: #fff;
+text-align: center;
+border-radius: 6px;
+position: absolute;
+z-index: 1;
+top: 100%;
+left: 15%;
+margin-left: -5px;
+border-width: 5px;
+border-style: solid;
+border-color: red transparent transparent transparent;
+`
+
+
+const UnsupportedToolTipTest = styled.div`
+border-style: solid
+border-color: red
+background-color: red;
+color: #fff;
+text-align: center;
+border-radius: 6px;
+padding: 5px 0;
+width: 120px;
+top: 100%;
+left: 50%;
+margin-left: -60px; 
 
 /* Position the tooltip */
 position: absolute;
 z-index: 1;
 `
 
-const isIconDisplayed = (AllSupportedAttributes,currValue) => {
+const UnsupportedAttribute = styled.div`
+border-style: solid
+border-color: red
+`
 
+const isAttributeDisabled = (AllSupportedAttributes,currValue) => {
+
+  //All attributes are supprted
   if(AllSupportedAttributes.length == 0){
     return false;
   }
+  //If attribute is in supporteed in list dont disable the option
   if(AllSupportedAttributes.indexOf(currValue) >= 0){
     return false;
   }
-
+ //attribute was not found in the supported list therefore disbale the option
   return true;
 
 }
@@ -87,7 +142,7 @@ const isAttributeUnsupported = (currValue,settingsModel) => {
       });
       AllSupportedAttributes = AllSupportedAttributes.flat()
       AllSupportedAttributes.push("ext.acquisition-status");
-      return isIconDisplayed(AllSupportedAttributes,currValue);
+      return isAttributeDisabled(AllSupportedAttributes,currValue);
 
   }
   else{
@@ -113,7 +168,7 @@ const isAttributeUnsupported = (currValue,settingsModel) => {
     });
     
     AllSupportedAttributes = AllSupportedAttributes.flat()
-    return isIconDisplayed(AllSupportedAttributes,currValue);
+    return isAttributeDisabled(AllSupportedAttributes,currValue);
 
   }
 }
@@ -187,10 +242,14 @@ const EnumInput = ({
   )
   return (
   <div>
+   
    {isAttributeUnsupportedHelper(settingsModel,selected) ? (
+   <div>
     <UnsupportedAttribute title = "Attribute is unsupported by the content store">
       {attributeDropdown}
-    </UnsupportedAttribute>) : (<div>{attributeDropdown}</div>)
+    </UnsupportedAttribute>
+    <div style={{color : 'red'}}> This selection does not work with the content store selected </div>
+    </div>) : (<div>{attributeDropdown}</div>)
    }
    </div>
   )
