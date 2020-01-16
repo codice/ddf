@@ -18,7 +18,7 @@ const { Units } = require('./common')
 const TextField = require('../text-field')
 import styled from 'styled-components'
 
-const coordinatePairRegex = /\d{1,3}(\.\d*)?\s\d{1,3}(\.\d*)?/g
+const coordinatePairRegex = /-?\d{1,3}(\.\d*)?\s-?\d{1,3}(\.\d*)?/g
 
 const Invalid = styled.div`
   background-color: ${props => props.theme.negativeColor};
