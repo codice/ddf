@@ -363,10 +363,11 @@ module.exports = Marionette.LayoutView.extend({
   },
   updateDistance() {
     if (this.mapModel.get('measurementState') === 'START') {
+      const openMenu = this.mapContextMenu.currentView.model.changed.isOpen
       const lat = this.mapModel.get('mouseLat')
       const lon = this.mapModel.get('mouseLon')
 
-      if (lat && lon) {
+      if (!openMenu && lat && lon) {
         // redraw ruler line
         const mousePoint = { lat, lon }
         this.map.setRulerLine(mousePoint)
