@@ -90,6 +90,7 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -370,8 +371,7 @@ public class MetacardApplication implements SparkApplication {
           List<HistoryResponse> historyResponses = new ArrayList<>();
 
           for (Metacard metacard : metacards) {
-            Map<String, List<Serializable>> metacardAttributes =
-                getHistoryMetacardAttributes(metacard);
+            Map<String, Object> metacardAttributes = getHistoryMetacardAttributes(metacard);
             historyResponses.add(
                 new HistoryResponse(
                     metacard.getId(),
@@ -381,6 +381,46 @@ public class MetacardApplication implements SparkApplication {
           }
 
           return util.getJson(historyResponses);
+        });
+
+    get(
+        "/history/add/:id/:revertid",
+        (req, res) -> {
+          String id = req.params(":id");
+          String revertId = req.params(":revertid");
+
+          Metacard versionMetacard = util.getMetacardById(revertId);
+
+          List<Result> queryResponse = getMetacardHistory(id);
+          if (queryResponse == null || queryResponse.isEmpty()) {
+            throw new NotFoundException("Could not find metacard with id: " + id);
+          }
+
+          Optional<Metacard> contentVersion =
+              queryResponse
+                  .stream()
+                  .map(Result::getMetacard)
+                  .filter(
+                      mc ->
+                          getVersionedOnDate(mc).isAfter(getVersionedOnDate(versionMetacard))
+                              || getVersionedOnDate(mc).equals(getVersionedOnDate(versionMetacard)))
+                  .filter(mc -> CONTENT_ACTIONS.contains(Action.ofMetacard(mc)))
+                  .filter(mc -> mc.getResourceURI() != null)
+                  .filter(mc -> ContentItem.CONTENT_SCHEME.equals(mc.getResourceURI().getScheme()))
+                  .sorted(
+                      Comparator.comparing(
+                          (Metacard mc) ->
+                              util.parseToDate(
+                                  mc.getAttribute(MetacardVersion.VERSIONED_ON).getValue())))
+                  .findFirst();
+
+          UpdateResponse updateResponse =
+              (UpdateResponse) revertMetacard(versionMetacard, id, false);
+          List<Metacard> oldAndNewMetacards =
+              Arrays.asList(
+                  updateResponse.getUpdatedMetacards().get(0).getNewMetacard(),
+                  updateResponse.getUpdatedMetacards().get(0).getOldMetacard());
+          return util.metacardsToJson(oldAndNewMetacards);
         });
 
     get(
@@ -898,17 +938,17 @@ public class MetacardApplication implements SparkApplication {
     exception(RuntimeException.class, util::handleRuntimeException);
   }
 
-  private Map<String, List<Serializable>> getHistoryMetacardAttributes(Metacard metacard) {
+  private Map<String, Object> getHistoryMetacardAttributes(Metacard metacard) {
     Set<AttributeDescriptor> attributeDescriptors =
         metacard.getMetacardType().getAttributeDescriptors();
 
-    Map<String, List<Serializable>> historyMetacardAttributes = new HashMap<>();
+    Map<String, Object> historyMetacardAttributes = new HashMap<>();
     for (AttributeDescriptor attDesc : attributeDescriptors) {
       String name = attDesc.getName();
       Attribute attribute = metacard.getAttribute(name);
 
       if (attribute != null && !name.equals("metacard.version.type-binary")) {
-        List<Serializable> values = metacard.getAttribute(name).getValues();
+        Object values = metacard.getAttribute(name).getValues();
         if (values != null) {
           historyMetacardAttributes.put(name, values);
         }
@@ -944,7 +984,7 @@ public class MetacardApplication implements SparkApplication {
     return matchedHiddenFields;
   }
 
-  private void revertMetacard(Metacard versionMetacard, String id, boolean alreadyCreated)
+  private Object revertMetacard(Metacard versionMetacard, String id, boolean alreadyCreated)
       throws SourceUnavailableException, IngestException, FederationException,
           UnsupportedQueryException {
     LOGGER.trace("Reverting metacard [{}] to version [{}]", id, versionMetacard.getId());
@@ -955,16 +995,12 @@ public class MetacardApplication implements SparkApplication {
     if (DELETE_ACTIONS.contains(action)) {
       attemptDeleteDeletedMetacard(id);
       if (!alreadyCreated) {
-        catalogFramework.create(new CreateRequestImpl(revertMetacard));
+        return catalogFramework.create(new CreateRequestImpl(revertMetacard));
       }
     } else {
-      tryUpdate(
-          4,
-          () -> {
-            catalogFramework.update(new UpdateRequestImpl(id, revertMetacard));
-            return true;
-          });
+      return tryUpdate(4, () -> catalogFramework.update(new UpdateRequestImpl(id, revertMetacard)));
     }
+    return null;
   }
 
   private void revertContentandMetacard(Metacard latestContent, Metacard versionMetacard, String id)
@@ -1024,19 +1060,19 @@ public class MetacardApplication implements SparkApplication {
     }
   }
 
-  private void tryUpdate(int retries, Callable<Boolean> func)
+  private Object tryUpdate(int retries, Callable<Object> func)
       throws IngestException, SourceUnavailableException {
     if (retries <= 0) {
       throw new IngestException("Could not update metacard!");
     }
     LOGGER.trace("Trying to update metacard.");
     try {
-      func.call();
       LOGGER.trace("Successfully updated metacard.");
+      return func.call();
     } catch (Exception e) {
       LOGGER.trace("Failed to update metacard");
       trySleep(350);
-      tryUpdate(retries - 1, func);
+      return tryUpdate(retries - 1, func);
     }
   }
 

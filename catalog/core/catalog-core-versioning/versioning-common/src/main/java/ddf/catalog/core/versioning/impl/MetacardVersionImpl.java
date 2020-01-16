@@ -215,7 +215,7 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
    * @return The original metacard this version represents
    */
   public static Metacard toMetacard(Metacard source) {
-    String id = (String) source.getAttribute(MetacardVersion.VERSION_OF_ID).getValue();
+    String id = (String) source.getAttribute("id").getValue();
     if (isNullOrEmpty(id)) {
       throw new IllegalStateException(
           "Cannot convert history metacard without the original metacard id");

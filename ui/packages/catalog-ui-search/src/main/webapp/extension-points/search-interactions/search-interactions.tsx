@@ -31,8 +31,11 @@ export type SearchInteractionProps = {
   onClose: () => void
 }
 
-const SearchInteractions = (props: SearchInteractionProps) => (
-  <SearchInteractionsContainer model={props.model} onClose={props.onClose}>
+const SearchInteractions = (originalProps: SearchInteractionProps) => (
+  <SearchInteractionsContainer
+    model={originalProps.model}
+    onClose={originalProps.onClose}
+  >
     {(props: PresentationProps) => {
       return (
         <Menu onChange={(formId: string) => props.triggerQueryForm(formId)}>

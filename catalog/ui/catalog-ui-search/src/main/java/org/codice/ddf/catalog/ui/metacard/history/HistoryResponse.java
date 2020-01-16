@@ -13,16 +13,14 @@
  */
 package org.codice.ddf.catalog.ui.metacard.history;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 public class HistoryResponse {
   private Instant versioned;
 
-  private Map<String, List<Serializable>> historyMetacardAttributes;
+  private Map<String, Object> attributes;
 
   private String versionId, editedBy;
 
@@ -33,14 +31,11 @@ public class HistoryResponse {
   }
 
   public HistoryResponse(
-      String versionId,
-      String editedBy,
-      Date versioned,
-      Map<String, List<Serializable>> historyMetacardAttributes) {
+      String versionId, String editedBy, Date versioned, Map<String, Object> attributes) {
     this.versionId = versionId;
     this.editedBy = editedBy;
     this.versioned = versioned.toInstant();
-    this.historyMetacardAttributes = historyMetacardAttributes;
+    this.attributes = attributes;
   }
 
   public HistoryResponse(String historyId, String editedBy, Date versioned) {
@@ -71,11 +66,11 @@ public class HistoryResponse {
     this.editedBy = editedBy;
   }
 
-  public Map<String, List<Serializable>> getHistoryMetacard() {
-    return historyMetacardAttributes;
+  public Map<String, Object> getAttributes() {
+    return attributes;
   }
 
-  public void setHistoryMetacard(Map<String, List<Serializable>> historyMetacardAttributes) {
-    this.historyMetacardAttributes = historyMetacardAttributes;
+  public void setAttributes(Map<String, Object> attributes) {
+    this.attributes = attributes;
   }
 }

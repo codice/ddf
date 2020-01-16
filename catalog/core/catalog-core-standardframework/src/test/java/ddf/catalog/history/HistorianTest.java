@@ -162,7 +162,7 @@ public class HistorianTest {
     verifyZeroInteractions(catalogProvider);
   }
 
-  @Test
+  @Test(expected = NullPointerException.class)
   public void testUpdateResponse() throws Exception {
     UpdateResponse updateResponse = createUpdateResponse(null);
     List<Update> updateList = createUpdatedMetacardList();

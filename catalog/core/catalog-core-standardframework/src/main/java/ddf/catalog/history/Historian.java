@@ -31,6 +31,7 @@ import ddf.catalog.content.operation.impl.ReadStorageRequestImpl;
 import ddf.catalog.core.versioning.MetacardVersion.Action;
 import ddf.catalog.core.versioning.impl.DeletedMetacardImpl;
 import ddf.catalog.core.versioning.impl.MetacardVersionImpl;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -183,6 +184,20 @@ public class Historian {
       LOGGER.trace(
           "Successfully created metacard versions under ids: {}",
           response.getCreatedMetacards().stream().map(Metacard::getId).collect(TO_A_STRING));
+    }
+
+    if (response.getCreatedMetacards().size() == updateResponse.getUpdatedMetacards().size()) {
+      for (int i = 0; i < updateResponse.getUpdatedMetacards().size(); i++) {
+        Attribute versionIdAttribute = response.getCreatedMetacards().get(i).getAttribute("id");
+        updateResponse
+            .getUpdatedMetacards()
+            .get(i)
+            .getOldMetacard()
+            .setAttribute(versionIdAttribute);
+      }
+    } else {
+      LOGGER.trace(
+          "Each updated metacard does not have a corresponding newly created versioned metacard.");
     }
 
     return updateResponse;
