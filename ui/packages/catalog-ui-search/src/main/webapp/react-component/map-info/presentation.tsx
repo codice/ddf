@@ -65,7 +65,9 @@ const getDistanceText = (distance: number) => {
   const distanceText =
     distance < 1000
       ? `${distance.toFixed(2)} m`
-      : `${DistanceUtils.getDistanceFromMeters(distance, 'kilometers').toFixed(2)} km`
+      : `${DistanceUtils.getDistanceFromMeters(distance, 'kilometers').toFixed(
+          2
+        )} km`
 
   return distanceText
 }

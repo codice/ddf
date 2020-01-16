@@ -48,7 +48,11 @@ const DistanceInfoText = styled.div`
 const getDistanceText = (distance: number) => {
   // use meters when distance is under 1000m and convert to kilometers when ≥1000m
   const distanceText =
-    distance < 1000 ? `${distance} m` : `${DistanceUtils.getDistanceFromMeters(distance, 'kilometers').toFixed(2)} km`
+    distance < 1000
+      ? `${distance} m`
+      : `${DistanceUtils.getDistanceFromMeters(distance, 'kilometers').toFixed(
+          2
+        )} km`
 
   return distanceText
 }

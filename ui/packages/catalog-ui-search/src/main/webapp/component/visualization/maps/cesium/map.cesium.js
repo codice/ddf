@@ -34,7 +34,6 @@ const User = require('../../../../js/model/User.js')
 
 const defaultColor = '#3c6dd5'
 const eyeOffset = new Cesium.Cartesian3(0, 0, 0)
-const pixelOffset = new Cesium.Cartesian2(0.0, 0)
 
 const rulerColor = new Cesium.Color(0.31, 0.43, 0.52)
 const rulerPointColor = '#506f85'
@@ -502,7 +501,6 @@ module.exports = function CesiumMap(
         icon: null,
         view: this,
       }
-      const useCustomText = true
 
       return this.addPoint(point, options)
     },
