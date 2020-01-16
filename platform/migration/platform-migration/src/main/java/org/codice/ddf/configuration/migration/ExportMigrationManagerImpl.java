@@ -14,24 +14,29 @@
 package org.codice.ddf.configuration.migration;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.output.CloseShieldOutputStream;
 import org.apache.commons.lang.Validate;
+import org.codice.ddf.configuration.migration.util.AccessUtils;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
@@ -65,6 +70,11 @@ public class ExportMigrationManagerImpl implements Closeable {
   private final CipherUtils cipherUtils;
 
   private boolean closed = false;
+
+  private static final Path SYSTEM_PROPERTIES_PATH = Paths.get("etc", "system.properties");
+
+  private static final Path CUSTOM_SYSTEM_PROPERTIES_PATH =
+      Paths.get("etc", "custom.system.properties");
 
   /**
    * Creates a new migration manager for an export operation.
@@ -140,10 +150,17 @@ public class ExportMigrationManagerImpl implements Closeable {
    *     </code> is <code>null</code>
    * @throws MigrationException to stop the export operation
    */
-  public void doExport(String productBranding, String productVersion) {
+  public final void doExport(String productBranding, String productVersion) {
     Validate.notNull(productBranding, "invalid null product branding");
     Validate.notNull(productVersion, "invalid null product version");
     final String ddfHome = System.getProperty("ddf.home");
+    final Path ddfHomePath = Paths.get(ddfHome);
+
+    final Properties systemProperties = AccessUtils.doPrivileged(() -> System.getProperties());
+    final String systemPropertiesFile =
+        getPropertiesFile(ddfHomePath.resolve(SYSTEM_PROPERTIES_PATH));
+    final String customSystemPropertiesFile =
+        getPropertiesFile(ddfHomePath.resolve(CUSTOM_SYSTEM_PROPERTIES_PATH));
 
     LOGGER.debug(
         "Exporting {} product [{}] under [{}] with version [{}] to [{}]...",
@@ -157,6 +174,12 @@ public class ExportMigrationManagerImpl implements Closeable {
     metadata.put(MigrationContextImpl.METADATA_PRODUCT_VERSION, productVersion);
     metadata.put(MigrationContextImpl.METADATA_DATE, new Date().toString());
     metadata.put(MigrationContextImpl.METADATA_DDF_HOME, ddfHome);
+    metadata.put(MigrationContextImpl.METADATA_EXPANDED_SYSTEM_PROPERTIES, systemProperties);
+    metadata.put(
+        MigrationContextImpl.METADATA_SYSTEM_PROPERTIES_PATH.toString(), systemPropertiesFile);
+    metadata.put(
+        MigrationContextImpl.METADATA_CUSTOM_SYSTEM_PROPERTIES_PATH.toString(),
+        customSystemPropertiesFile);
     metadata.put(
         MigrationContextImpl.METADATA_MIGRATABLES,
         contexts
@@ -216,5 +239,16 @@ public class ExportMigrationManagerImpl implements Closeable {
   @VisibleForTesting
   Map<String, Object> getMetadata() {
     return metadata;
+  }
+
+  private String getPropertiesFile(Path path) {
+    return AccessUtils.doPrivileged(
+        () -> {
+          try {
+            return new String(Files.readAllBytes(path), Charsets.UTF_8);
+          } catch (IOException e) {
+            throw new MigrationException(Messages.EXPORT_SYSTEM_PROPERTIES_ERROR, e);
+          }
+        });
   }
 }

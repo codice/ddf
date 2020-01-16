@@ -100,6 +100,12 @@ public final class Messages {
   public static final String EXPORT_METADATA_CREATE_ERROR =
       "Export error: failed to create metadata; %s.";
 
+  public static final String EXPORT_SYSTEM_PROPERTIES_ERROR =
+      "Export error: failed to get system properties; %s.";
+
+  public static final String IMPORT_SYSTEM_PROPERTIES_ERROR =
+      "Import error: failed to get system properties; %s.";
+
   public static final String IMPORT_METADATA_MISSING_ERROR = "Import error: missing metadata.";
 
   public static final String IMPORT_METADATA_FORMAT_ERROR = "Import error: invalid metadata; %s.";

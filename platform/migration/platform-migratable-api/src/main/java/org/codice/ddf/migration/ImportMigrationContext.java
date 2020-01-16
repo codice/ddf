@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.Optional;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 
 /**
  * The import migration context keeps track of exported migration entries for a given migratable
@@ -131,4 +132,15 @@ public interface ImportMigrationContext extends MigrationContext {
    * </code>
    */
   public Stream<ImportMigrationEntry> entries(Path path, PathMatcher filter);
+
+  /**
+   * Retrieves exported system property.
+   *
+   * @param key the key of the system property to retrieve
+   * @return the system property requested or null if the system property was not exported
+   * @throws SecurityException if a security manager is present and it does not permit access to the
+   *     property
+   */
+  @Nullable
+  public String getSystemProperty(String key);
 }
