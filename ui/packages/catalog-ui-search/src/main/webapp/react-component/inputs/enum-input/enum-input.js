@@ -52,7 +52,7 @@ z-index: 0;
 top: 100%;
 left: 20%;
 margin-left: -60px
-&::after {
+&:after {
   content: "";
   position: absolute;
   bottom: 100%;
@@ -118,7 +118,7 @@ const isAttributeDisabled = (AllSupportedAttributes,currValue) => {
   if(AllSupportedAttributes.length == 0){
     return false;
   }
-  //If attribute is in supporteed in list dont disable the option
+  //If attribute is supporteed in dont disable the option
   if(AllSupportedAttributes.indexOf(currValue) >= 0){
     return false;
   }
@@ -175,7 +175,7 @@ const isAttributeUnsupported = (currValue,settingsModel) => {
 
 const isAttributeUnsupportedHelper = (settingsModel,suggestion) => {
 
-
+ //if msettingsModel is passed down from a parent componenet , proceed to check if the  attribute is unsupported
   return settingsModel && isAttributeUnsupported(suggestion.value,settingsModel.attributes.src); 
 
 
@@ -192,16 +192,13 @@ const EnumInput = ({
   const [input, setInput] = useState('')
   
   const selected = suggestions.find(suggestion => suggestion.value === value)
-  console.log(selected.value);
+
   const filteredSuggestions = getFilteredSuggestions(
     input,
     suggestions,
     matchCase
   )
-  console.log(sources)
-  console.log(settingsModel);
-  console.log(filteredSuggestions)
-  console.log(sources.models);
+ 
 
   const displayInput = !inputMatchesSuggestions(input, suggestions, matchCase)
 
@@ -245,6 +242,7 @@ const EnumInput = ({
    
    {isAttributeUnsupportedHelper(settingsModel,selected) ? (
    <div>
+
     <UnsupportedAttribute title = "Attribute is unsupported by the content store">
       {attributeDropdown}
     </UnsupportedAttribute>
