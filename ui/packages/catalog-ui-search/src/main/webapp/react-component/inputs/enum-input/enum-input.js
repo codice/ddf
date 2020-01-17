@@ -40,73 +40,6 @@ text-align:center
 }
 `
 
-const UnsupportedToolTip = styled.span`
-width: 160px;
-background-color: black;
-color: #fff;
-text-align: center;
-border-radius: 6px;
-padding: 5px 0;
-position: absolute;
-z-index: 0;
-top: 100%;
-left: 20%;
-margin-left: -60px
-&:after {
-  content: "";
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: transparent transparent black transparent;
-}
-`
-
-
-const outerToolTipDiv = styled.div`
-font-size: 1.2em;
-color: #00ff00;
-`
-
-const UnsupportedToolTip2 = styled.span`
-display : inline-block
-content : "";
-width: 140px;
-background-color: red;
-color: #fff;
-text-align: center;
-border-radius: 6px;
-position: absolute;
-z-index: 1;
-top: 100%;
-left: 15%;
-margin-left: -5px;
-border-width: 5px;
-border-style: solid;
-border-color: red transparent transparent transparent;
-`
-
-
-const UnsupportedToolTipTest = styled.div`
-border-style: solid
-border-color: red
-background-color: red;
-color: #fff;
-text-align: center;
-border-radius: 6px;
-padding: 5px 0;
-width: 120px;
-top: 100%;
-left: 50%;
-margin-left: -60px; 
-
-/* Position the tooltip */
-position: absolute;
-z-index: 1;
-`
-
 const UnsupportedAttribute = styled.div`
 border-style: solid
 border-color: red
@@ -126,7 +59,6 @@ const isAttributeDisabled = (AllSupportedAttributes,currValue) => {
   return true;
 
 }
-
 const isAttributeUnsupported = (currValue,settingsModel) => {
   // if no source is selected gather all supportedAttributes from all available sources
   if(settingsModel.length == 0){
@@ -141,7 +73,7 @@ const isAttributeUnsupported = (currValue,settingsModel) => {
         return [];
       });
       AllSupportedAttributes = AllSupportedAttributes.flat()
-      AllSupportedAttributes.push("ext.acquisition-status");
+
       return isAttributeDisabled(AllSupportedAttributes,currValue);
 
   }
@@ -153,10 +85,6 @@ const isAttributeUnsupported = (currValue,settingsModel) => {
 
     let AllSupportedAttributes = sourceModelsSelected.map(sourceSelected => {
 
-     
-      if(sourceSelected.id == 'GIMS_GIN'){
-        return ["ext.alternate-identifier-qualifier"];
-      }
 
       if(!(sourceSelected.id == "NDL-East")){
 
@@ -175,9 +103,8 @@ const isAttributeUnsupported = (currValue,settingsModel) => {
 
 const isAttributeUnsupportedHelper = (settingsModel,suggestion) => {
 
- //if msettingsModel is passed down from a parent componenet , proceed to check if the  attribute is unsupported
+ //if settingsModel is passed down from a parent componenet , proceed to check if the  attribute is unsupported
   return settingsModel && isAttributeUnsupported(suggestion.value,settingsModel.attributes.src); 
-
 
 }
 
