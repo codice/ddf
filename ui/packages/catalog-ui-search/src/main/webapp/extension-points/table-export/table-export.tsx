@@ -56,16 +56,21 @@ export function buildCqlQueryFromMetacards(metacards: any, count: any) {
   }
   return `(${queryParts.join(' OR ')})`
 }
-const visibleData = (selectionInterface: any) =>
+const visibleData = (size: number, selectionInterface: any) =>
   buildCqlQueryFromMetacards(
     selectionInterface.getActiveSearchResults().toJSON(),
-    null
+    size
   )
+const limit = 10
 const allData = (selectionInterface: any) =>
   selectionInterface.getCurrentQuery().get('cql')
-function getCqlForSize(exportSize: string, selectionInterface: any) {
-  return exportSize === 'visible'
-    ? visibleData(selectionInterface)
+function getCqlForSize(
+  exportType: string,
+  size: number,
+  selectionInterface: any
+) {
+  return exportType !== 'all' && size <= limit
+    ? visibleData(size, selectionInterface)
     : allData(selectionInterface)
 }
 function getSrcs(selectionInterface: any) {
@@ -156,13 +161,13 @@ export const getDownloadBody = (downloadInfo: DownloadInfo) => {
     (property: string) =>
       filteredAttributes.includes(property) && !properties.isHidden(property)
   )
-  const cql = getCqlForSize(exportSize, selectionInterface)
-  const srcs = getSrcs(selectionInterface)
-  const sorts = getSorts(selectionInterface)
   const count = Math.min(
     getExportCount({ exportSize, selectionInterface, customExportCount }),
     properties.exportResultLimit
   )
+  const cql = getCqlForSize(exportSize, count, selectionInterface)
+  const srcs = getSrcs(selectionInterface)
+  const sorts = getSorts(selectionInterface)
   const args = {
     hiddenFields: hiddenFields.length > 0 ? hiddenFields : [],
     columnOrder: columnOrder.length > 0 ? columnOrder : {},
