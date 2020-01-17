@@ -42,12 +42,10 @@ import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.karaf.shell.support.completers.FileCompleter;
-import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.commands.catalog.validation.ValidateExecutor;
 import org.codice.ddf.commands.catalog.validation.ValidatePrinter;
 import org.codice.ddf.commands.catalog.validation.ValidateReport;
 import org.codice.ddf.commands.util.CatalogCommandException;
-import org.codice.ddf.security.common.Security;
 import org.geotools.filter.text.cql2.CQLException;
 
 /** Custom Karaf command to validate XML files against services that implement MetacardValidator */
@@ -135,12 +133,15 @@ public class ValidateCommand extends CqlCommands {
     return metacards;
   }
 
-  private List<Metacard> getMetacardsFromCatalog() throws CatalogCommandException {
+  private List<Metacard> getMetacardsFromCatalog() {
+    return Objects.requireNonNull(security.getSystemSubject())
+        .execute(this::getMetacardsFromCatalogInternal);
+  }
+
+  private List<Metacard> getMetacardsFromCatalogInternal() throws CatalogCommandException {
     List<Metacard> results = new ArrayList<>();
     try {
       QueryImpl query = new QueryImpl(getFilter());
-      ThreadContext.bind(Security.getInstance().getSystemSubject());
-
       SourceResponse response = getCatalog().query(new QueryRequestImpl(query));
       List<Result> resultList = response.getResults();
       if (resultList != null) {

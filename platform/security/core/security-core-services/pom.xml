@@ -76,10 +76,6 @@
             <artifactId>security-handler-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
         </dependency>
@@ -245,20 +241,15 @@
                             System bundle.
                             -->
                             javax.xml.stream;version="1.0",
-                            org.apache.commons.io;version="1.4.0",
                             *
                         </Import-Package>
                         <Embed-Dependency>
                             httpclient,
                             httpcore,
-                            ddf-security-common,
                             siv-mode,
                             jbcrypt
                         </Embed-Dependency>
                         <Export-Package>
-                            ddf.security.assertion.impl;version=${project.version},
-                            ddf.security.assertion.jwt.impl;version=${project.version},
-                            ddf.security.assertion.saml.impl;version=${project.version},
                             ddf.security.service.impl;version=${project.version},
                             ddf.security.http.impl;version=${project.version},
                             ddf.security.samlp.impl;version=${project.version}

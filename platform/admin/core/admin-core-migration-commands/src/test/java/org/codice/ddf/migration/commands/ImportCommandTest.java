@@ -20,6 +20,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.Set;
+import org.codice.ddf.security.impl.Security;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,7 +37,7 @@ public class ImportCommandTest extends AbstractMigrationCommandSupport {
 
   @Test
   public void testConstructor() throws Exception {
-    final ImportCommand command = new ImportCommand();
+    final ImportCommand command = new ImportCommand(new Security());
 
     Assert.assertThat(
         command.exportDirectory, Matchers.equalTo(ddfHome.resolve(MigrationCommand.EXPORTED)));

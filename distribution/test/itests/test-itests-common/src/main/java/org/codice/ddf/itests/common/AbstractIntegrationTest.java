@@ -76,6 +76,7 @@ import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.itests.common.security.SecurityPolicyConfigurator;
+import org.codice.ddf.security.Security;
 import org.codice.ddf.test.common.LoggingUtils;
 import org.codice.ddf.test.common.annotations.BeforeSuite;
 import org.codice.ddf.test.common.annotations.ExamResultLogger;
@@ -372,6 +373,7 @@ public abstract class AbstractIntegrationTest {
   public void initFacades() {
     ddfHome = System.getProperty(DDF_HOME_PROPERTY);
     adminConfig = new AdminConfig(configAdmin);
+    Security security = new org.codice.ddf.security.impl.Security();
 
     // This proxy runs the service manager as the system subject
     serviceManager =
@@ -381,7 +383,8 @@ public abstract class AbstractIntegrationTest {
                 ServiceManagerImpl.class.getInterfaces(),
                 new ServiceManagerProxy(
                     new ServiceManagerImpl(
-                        metatype, adminConfig, bundleContext, bundleService, features)));
+                        metatype, adminConfig, bundleContext, bundleService, features),
+                    security));
 
     catalogBundle = new CatalogBundle(serviceManager, adminConfig);
     securityPolicy = new SecurityPolicyConfigurator(serviceManager, configAdmin);

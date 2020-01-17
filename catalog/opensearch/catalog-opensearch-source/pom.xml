@@ -71,11 +71,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
             <version>${project.version}</version>
@@ -129,7 +124,6 @@
                             rome,
                             rome-utils,
                             catalog-opensearch-api,
-                            ddf-security-common,
                             catalog-core-api-impl,
                             geospatial
                         </Embed-Dependency>

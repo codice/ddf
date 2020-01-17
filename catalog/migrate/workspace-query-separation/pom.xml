@@ -57,11 +57,6 @@
       <version>${jodah-failsafe.version}</version>
     </dependency>
     <dependency>
-      <groupId>ddf.security</groupId>
-      <artifactId>ddf-security-common</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <!-- Upgrade mockito to version 2.1.0 for this module to get final mock capability -->
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>

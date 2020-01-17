@@ -25,16 +25,22 @@
           factory-method="getDefaultScheduler" init-method="start"
           destroy-method="shutdown" />
 
+    <bean id="commandJob"
+          class="ddf.platform.scheduler.CommandJob">
+        <argument ref="security" />
+    </bean>
+
     <cm:managed-service-factory id="commandSchedule" factory-pid="ddf.platform.scheduler.Command"
                                 interface="ddf.platform.scheduler.ScheduledTask">
         <cm:managed-component class="ddf.platform.scheduler.ScheduledCommandTask"
                               init-method="newTask" destroy-method="deleteTask">
             <argument ref="scheduler"/>
-            <argument type="java.lang.Class"
-                      value="ddf.platform.scheduler.CommandJob"/>
+            <argument ref="commandJob" />
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="updateTask"/>
         </cm:managed-component>
     </cm:managed-service-factory>
+
+    <reference id="security" interface="org.codice.ddf.security.Security" />
 
 </blueprint>

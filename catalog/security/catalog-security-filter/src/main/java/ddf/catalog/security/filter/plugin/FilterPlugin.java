@@ -48,7 +48,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import org.apache.shiro.subject.Subject;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -66,7 +66,11 @@ public class FilterPlugin implements AccessPlugin {
   private Map<ServiceReference, FilterStrategy> filterStrategies =
       Collections.synchronizedMap(new TreeMap<>(new ServiceComparator()));
 
-  private static final Security SECURITY = Security.getInstance();
+  private Security security;
+
+  public FilterPlugin(Security security) {
+    this.security = security;
+  }
 
   public void addStrategy(ServiceReference<FilterStrategy> filterStrategyRef) {
     Bundle bundle = FrameworkUtil.getBundle(FilterPlugin.class);
@@ -82,7 +86,7 @@ public class FilterPlugin implements AccessPlugin {
 
   protected Subject getSystemSubject() {
     return AccessController.doPrivileged(
-        (PrivilegedAction<Subject>) () -> SECURITY.runAsAdmin(SECURITY::getSystemSubject));
+        (PrivilegedAction<Subject>) () -> security.runAsAdmin(security::getSystemSubject));
   }
 
   @Override

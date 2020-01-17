@@ -257,7 +257,7 @@ public class IngestCommand extends CatalogCommands {
   private Optional<InputTransformer> transformer = null;
 
   public IngestCommand() {
-    this.verifier = new DigitalSignature();
+    this.verifier = new DigitalSignature(security);
   }
 
   public IngestCommand(DigitalSignature verifier) {

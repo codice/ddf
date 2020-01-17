@@ -20,7 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import org.apache.commons.io.FileUtils;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
@@ -45,8 +45,8 @@ public class IndexInitializer {
 
   private final Security security;
 
-  public IndexInitializer() {
-    security = Security.getInstance();
+  public IndexInitializer(Security security) {
+    this.security = security;
   }
 
   public void init() {

@@ -35,7 +35,7 @@ import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationSuccessfulInformation;
 import org.codice.ddf.migration.MigrationWarning;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.codice.ddf.system.alerts.NoticePriority;
 import org.codice.ddf.system.alerts.SystemNotice;
 import org.fusesource.jansi.Ansi;
@@ -94,8 +94,8 @@ public abstract class MigrationCommand implements Action {
     this.session = session;
   }
 
-  public MigrationCommand() {
-    this.security = Security.getInstance();
+  public MigrationCommand(Security security) {
+    this.security = security;
   }
 
   @Override

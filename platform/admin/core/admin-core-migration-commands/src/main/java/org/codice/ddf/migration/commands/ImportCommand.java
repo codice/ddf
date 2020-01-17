@@ -22,7 +22,7 @@ import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.karaf.shell.api.console.Session;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.osgi.service.event.EventAdmin;
 
 /**
@@ -56,7 +56,9 @@ public class ImportCommand extends MigrationCommand {
   )
   boolean force = false;
 
-  public ImportCommand() {}
+  public ImportCommand(Security security) {
+    super(security);
+  }
 
   @VisibleForTesting
   ImportCommand(

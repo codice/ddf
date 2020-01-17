@@ -77,7 +77,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.opengis.filter.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -633,10 +633,6 @@ public class Historian {
    * @return result of the callable func
    */
   private <T> T executeAsSystem(Callable<T> func) {
-    if (security == null) {
-      security = Security.getInstance();
-    }
-
     Subject systemSubject =
         AccessController.doPrivileged(
             (PrivilegedAction<Subject>) () -> security.runAsAdmin(security::getSystemSubject));
@@ -759,7 +755,7 @@ public class Historian {
     this.metacardTypes = metacardTypes;
   }
 
-  void setSecurity(Security security) {
+  public void setSecurity(Security security) {
     this.security = security;
   }
 

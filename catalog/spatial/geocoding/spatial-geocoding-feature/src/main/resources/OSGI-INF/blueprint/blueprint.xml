@@ -22,6 +22,8 @@
     <reference-list id="geoEntryMetacardType" interface="ddf.catalog.data.MetacardType"
                     filter="(id=GeoEntryMetacardType)" availability="optional"/>
 
+    <reference id="security" interface="org.codice.ddf.security.Security" />
+
     <bean id="catalogHelper" class="org.codice.ddf.spatial.geocoding.feature.CatalogHelper">
         <argument ref="filterBuilder"/>
     </bean>
@@ -38,6 +40,7 @@
             <argument ref="catalogFramework"/>
             <argument ref="catalogHelper"/>
             <argument ref="geoEntryMetacardType"/>
+            <argument ref="security" />
         </bean>
     </service>
 

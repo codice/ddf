@@ -47,13 +47,13 @@
             <artifactId>platform-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>geotools-suite</artifactId>
             <version>${org.geotools.bundle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -89,8 +89,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            catalog-core-api-impl;scope=!test,
-                            ddf-security-common
+                            catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Export-Package>org.codice.ddf.spatial.geocoding.feature</Export-Package>
                     </instructions>

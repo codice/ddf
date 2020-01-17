@@ -179,7 +179,7 @@ public class ExportCommand extends CqlCommands {
   boolean unsafe = false;
 
   public ExportCommand() {
-    this.signer = new DigitalSignature();
+    this.signer = new DigitalSignature(security);
   }
 
   public ExportCommand(

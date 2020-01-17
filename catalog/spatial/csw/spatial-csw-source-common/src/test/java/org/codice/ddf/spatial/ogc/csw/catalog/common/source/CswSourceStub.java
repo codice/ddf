@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
 import org.osgi.framework.BundleContext;
@@ -36,9 +37,15 @@ public class CswSourceStub extends AbstractCswSource {
       CswSourceConfiguration cswSourceConfiguration,
       Converter mockProvider,
       ClientFactoryFactory clientFactoryFactory,
-      EncryptionService encryptionService) {
+      EncryptionService encryptionService,
+      Security security) {
     super(
-        mockContext, cswSourceConfiguration, mockProvider, clientFactoryFactory, encryptionService);
+        mockContext,
+        cswSourceConfiguration,
+        mockProvider,
+        clientFactoryFactory,
+        encryptionService,
+        security);
     super.subscribeClientFactory = mock(SecureCxfClientFactory.class);
     initClientFactory();
   }

@@ -26,11 +26,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
             <version>${project.version}</version>
@@ -79,7 +74,6 @@
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Embed-Dependency>
                             catalog-core-api-impl,
-                            ddf-security-common,
                             commons-lang3,
                             catalog-async-data
                         </Embed-Dependency>

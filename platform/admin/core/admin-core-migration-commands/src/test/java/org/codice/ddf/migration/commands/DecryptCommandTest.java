@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.migration.commands;
 
+import org.codice.ddf.security.impl.Security;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -28,7 +29,7 @@ public class DecryptCommandTest extends AbstractMigrationCommandSupport {
 
   @Test
   public void testConstructor() throws Exception {
-    final DecryptCommand command = new DecryptCommand();
+    final DecryptCommand command = new DecryptCommand(new Security());
 
     Assert.assertThat(
         command.exportDirectory, Matchers.equalTo(ddfHome.resolve(MigrationCommand.EXPORTED)));

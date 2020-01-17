@@ -43,6 +43,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.security.expansion</groupId>
+            <artifactId>security-expansion-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-security</artifactId>
             <scope>provided</scope>

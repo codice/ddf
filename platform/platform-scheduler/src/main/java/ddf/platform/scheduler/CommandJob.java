@@ -26,7 +26,7 @@ import org.apache.karaf.shell.api.console.Session;
 import org.apache.karaf.shell.api.console.SessionFactory;
 import org.apache.shiro.subject.ExecutionException;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -47,10 +47,14 @@ public class CommandJob implements Job {
 
   public static final String COMMAND_KEY = "command";
 
-  private static final Security SECURITY = Security.getInstance();
+  private final Security security;
+
+  public CommandJob(Security security) {
+    this.security = security;
+  }
 
   protected Subject getSystemSubject() {
-    return SECURITY.getSystemSubject();
+    return security.getSystemSubject();
   }
 
   @Override
@@ -58,7 +62,7 @@ public class CommandJob implements Job {
     final String commandString = getCommandString(context);
     if (StringUtils.isNotBlank(commandString)) {
       try {
-        SECURITY.runAsAdmin(
+        security.runAsAdmin(
             () -> {
               final Subject subject = getSystemSubject();
 

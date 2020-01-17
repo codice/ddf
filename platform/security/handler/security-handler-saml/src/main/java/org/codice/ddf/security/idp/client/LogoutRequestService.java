@@ -71,8 +71,8 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.platform.session.api.HttpSessionInvalidator;
-import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.SessionToken;
+import org.codice.ddf.security.jaxrs.RestSecurity;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
@@ -141,6 +141,8 @@ public class LogoutRequestService {
   private SessionFactory sessionFactory;
 
   private long logOutPageTimeOut = 3600000;
+
+  private RestSecurity restSecurity;
 
   public LogoutRequestService(
       SimpleSign simpleSign, IdpMetadata idpMetadata, RelayStates<String> relayStates) {
@@ -371,7 +373,7 @@ public class LogoutRequestService {
     if (encodedSamlRequest != null) {
       try {
         LogoutRequest logoutRequest =
-            logoutMessage.extractSamlLogoutRequest(RestSecurity.base64Decode(encodedSamlRequest));
+            logoutMessage.extractSamlLogoutRequest(restSecurity.base64Decode(encodedSamlRequest));
         if (logoutRequest == null) {
           LOGGER.debug(UNABLE_TO_PARSE_LOGOUT_REQUEST);
           return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_REQUEST);
@@ -396,7 +398,7 @@ public class LogoutRequestService {
     } else {
       try {
         LogoutResponse logoutResponse =
-            logoutMessage.extractSamlLogoutResponse(RestSecurity.base64Decode(encodedSamlResponse));
+            logoutMessage.extractSamlLogoutResponse(restSecurity.base64Decode(encodedSamlResponse));
         if (logoutResponse == null) {
           LOGGER.info(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
           return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
@@ -431,7 +433,7 @@ public class LogoutRequestService {
     if (deflatedSamlRequest != null) {
       try {
         LogoutRequest logoutRequest =
-            logoutMessage.extractSamlLogoutRequest(RestSecurity.inflateBase64(deflatedSamlRequest));
+            logoutMessage.extractSamlLogoutRequest(restSecurity.inflateBase64(deflatedSamlRequest));
         if (logoutRequest == null) {
           return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_REQUEST);
         }
@@ -457,7 +459,7 @@ public class LogoutRequestService {
 
         LogoutResponse logoutResponse =
             logoutMessage.extractSamlLogoutResponse(
-                RestSecurity.inflateBase64(deflatedSamlResponse));
+                restSecurity.inflateBase64(deflatedSamlResponse));
         if (logoutResponse == null) {
           LOGGER.debug(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
           return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_RESPONSE);
@@ -684,5 +686,9 @@ public class LogoutRequestService {
 
   public void setLogOutPageTimeOut(long logOutPageTimeOut) {
     this.logOutPageTimeOut = logOutPageTimeOut;
+  }
+
+  public void setRestSecurity(RestSecurity restSecurity) {
+    this.restSecurity = restSecurity;
   }
 }

@@ -41,6 +41,8 @@
         <argument value="cdmThread"/>
     </bean>
 
+    <reference id="security" interface="org.codice.ddf.security.Security" />
+
     <cm:managed-service-factory
             id="contentDirectoryMonitor_MSF"
             factory-pid="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"
@@ -52,6 +54,7 @@
             <argument value="20"/>
             <argument value="5"/>
             <argument ref="configurationExecutor"/>
+            <argument ref="security" />
             <property name="numThreads" value="1"/>
             <property name="readLockIntervalMilliseconds" value="500"/>
             <property name="monitoredDirectoryPath" value=""/>

@@ -29,9 +29,6 @@
         <feature>catalog-core</feature>
         <feature>rest-assured</feature>
 
-        <bundle>
-            wrap:mvn:ddf.security/ddf-security-common/${project.version}$Bundle-SymbolicName=itest-test-security-common
-        </bundle>
         <bundle>mvn:ddf.test.itests/test-itests-common/${project.version}</bundle>
         <bundle>mvn:ddf.lib/test-common/${project.version}</bundle>
         <bundle>wrap:mvn:ddf.lib/gson-support/${project.version}</bundle>

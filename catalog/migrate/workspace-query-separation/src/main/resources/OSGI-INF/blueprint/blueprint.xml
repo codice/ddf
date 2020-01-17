@@ -21,7 +21,7 @@
   <reference id="xmlInputTransformer" interface="ddf.catalog.transform.InputTransformer" filter="(id=xml)"/>
 
   <bean id="security"
-    class="org.codice.ddf.security.common.Security"
+    class="org.codice.ddf.security.Security"
     factory-method="getInstance">
   </bean>
 

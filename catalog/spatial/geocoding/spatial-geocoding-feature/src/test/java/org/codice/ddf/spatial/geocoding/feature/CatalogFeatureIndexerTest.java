@@ -57,7 +57,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.geocoding.FeatureExtractionException;
 import org.codice.ddf.spatial.geocoding.FeatureExtractor;
 import org.codice.ddf.spatial.geocoding.FeatureIndexer;
@@ -117,7 +117,8 @@ public class CatalogFeatureIndexerTest {
     catalogFramework = mock(CatalogFramework.class);
     CatalogHelper catalogHelper = new CatalogHelper(FILTER_BUILDER);
     featureIndexer =
-        new CatalogFeatureIndexer(catalogFramework, catalogHelper, generateMetacardType());
+        new CatalogFeatureIndexer(
+            catalogFramework, catalogHelper, generateMetacardType(), security);
     featureIndexer.setSecurity(security);
 
     QueryResponse queryResponse = mock(QueryResponse.class);

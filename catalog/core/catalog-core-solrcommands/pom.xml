@@ -173,10 +173,6 @@
             <artifactId>Saxon-HE</artifactId>
             <version>${lux.saxon.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
       <dependency>
         <groupId>ddf.catalog.core</groupId>
         <artifactId>catalog-core-commands</artifactId>
@@ -203,7 +199,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-api-impl,
-                            ddf-security-common,
                             catalog-core-commands,
                             catalog-core-solr,
                             solr-factory-impl,

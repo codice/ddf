@@ -21,10 +21,13 @@ import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.cxf.oauth.OAuthSecurity;
+import org.codice.ddf.security.jaxrs.RestSecurity;
 
 public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
 
   private OAuthSecurity oauthSecurity;
+
+  private RestSecurity restSecurity;
 
   @Override
   public <T> SecureCxfClientFactory<T> getSecureCxfClientFactory(
@@ -48,7 +51,8 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
         connectionTimeout,
         receiveTimeout,
         username,
-        password);
+        password,
+        restSecurity);
   }
 
   @Override
@@ -74,7 +78,8 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
         connectionTimeout,
         receiveTimeout,
         new ClientKeyInfo(certAlias, keystorePath),
-        sslProtocol);
+        sslProtocol,
+        restSecurity);
   }
 
   @Override
@@ -95,7 +100,8 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
         disableCnCheck,
         allowRedirects,
         connectionTimeout,
-        receiveTimeout);
+        receiveTimeout,
+        restSecurity);
   }
 
   @Override
@@ -127,7 +133,8 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
         clientId,
         clientSecret,
         oauthFlow,
-        oauthSecurity);
+        oauthSecurity,
+        restSecurity);
   }
 
   @Override
@@ -163,7 +170,8 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
         username,
         password,
         additionalOauthParameters,
-        oauthSecurity);
+        oauthSecurity,
+        restSecurity);
   }
 
   @Override
@@ -182,7 +190,8 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
         interceptor,
         disableCnCheck,
         allowRedirects,
-        propertyResolver);
+        propertyResolver,
+        restSecurity);
   }
 
   @Override
@@ -194,13 +203,20 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
       boolean disableCnCheck,
       boolean allowRedirects) {
     return new SecureCxfClientFactoryImpl<>(
-        endpointUrl, interfaceClass, providers, interceptor, disableCnCheck, allowRedirects);
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        restSecurity);
   }
 
   @Override
   public <T> SecureCxfClientFactory<T> getSecureCxfClientFactory(
       String endpointUrl, Class<T> interfaceClass, String username, String password) {
-    return new SecureCxfClientFactoryImpl<>(endpointUrl, interfaceClass, username, password);
+    return new SecureCxfClientFactoryImpl<>(
+        endpointUrl, interfaceClass, username, password, restSecurity);
   }
 
   @Override
@@ -220,16 +236,21 @@ public class ClientFactoryFactoryImpl implements ClientFactoryFactory {
         clientId,
         clientSecret,
         oauthFlow,
-        oauthSecurity);
+        oauthSecurity,
+        restSecurity);
   }
 
   @Override
   public <T> SecureCxfClientFactory<T> getSecureCxfClientFactory(
       String endpointUrl, Class<T> interfaceClass) {
-    return new SecureCxfClientFactoryImpl<>(endpointUrl, interfaceClass);
+    return new SecureCxfClientFactoryImpl<>(endpointUrl, interfaceClass, restSecurity);
   }
 
   public void setOauthSecurity(OAuthSecurity oauthSecurity) {
     this.oauthSecurity = oauthSecurity;
+  }
+
+  public void setRestSecurity(RestSecurity restSecurity) {
+    this.restSecurity = restSecurity;
   }
 }

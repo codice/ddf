@@ -40,6 +40,7 @@ import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.service.RepositoryImpl;
 import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.ApplicationService;
+import org.codice.ddf.security.impl.Security;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
@@ -221,7 +222,7 @@ public class ApplicationServiceImplTest {
     FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
     when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
     ApplicationService appService =
-        new ApplicationServiceImpl(featuresService) {
+        new ApplicationServiceImpl(featuresService, new Security()) {
           @Override
           protected BundleContext getContext() {
             return bundleContext;
@@ -368,7 +369,7 @@ public class ApplicationServiceImplTest {
 
   private ApplicationServiceImpl createPermittedApplicationServiceImpl(
       FeaturesService featuresService) {
-    return new ApplicationServiceImpl(featuresService) {
+    return new ApplicationServiceImpl(featuresService, new Security()) {
       @Override
       protected BundleContext getContext() {
         return bundleContext;

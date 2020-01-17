@@ -77,10 +77,6 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client</artifactId>
             <version>${google-http-client.version}</version>
@@ -143,6 +139,11 @@
             <version>${auth0.jwt.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-services</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -166,8 +167,7 @@
                             httpcore,
                             httpclient,
                             gson-support,
-                            google-http-client,
-                            ddf-security-common
+                            google-http-client
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

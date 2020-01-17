@@ -14,13 +14,17 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="filterPlugin" class="ddf.catalog.security.filter.plugin.FilterPlugin"/>
+    <bean id="filterPlugin" class="ddf.catalog.security.filter.plugin.FilterPlugin">
+        <argument ref="security" />
+    </bean>
 
     <reference-list id="filterStrategies" interface="ddf.catalog.security.FilterStrategy"
                     availability="optional">
         <reference-listener bind-method="addStrategy"
                             unbind-method="removeStrategy" ref="filterPlugin"/>
     </reference-list>
+
+    <reference id="security" interface="org.codice.ddf.security.Security" />
 
     <service ref="filterPlugin" auto-export="interfaces" ranking="0"/>
 

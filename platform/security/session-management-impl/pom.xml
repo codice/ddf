@@ -26,10 +26,6 @@
     <name>DDF :: Security :: Session Management Impl</name>
     <dependencies>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.security</groupId>
             <artifactId>session-management-service</artifactId>
             <version>${project.version}</version>
@@ -42,6 +38,10 @@
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-impl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.handler</groupId>
+            <artifactId>security-handler-api</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -51,9 +51,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            ddf-security-common
-                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

@@ -65,11 +65,11 @@ import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
 import org.codice.ddf.platform.filter.FilterChain;
-import org.codice.ddf.security.common.HttpUtils;
-import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.codice.ddf.platform.util.HttpUtils;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
+import org.codice.ddf.security.jaxrs.RestSecurity;
 import org.codice.ddf.security.util.SAMLUtils;
 import org.joda.time.DateTime;
 import org.opensaml.core.config.ConfigurationService;
@@ -190,6 +190,8 @@ public class IdpHandler implements AuthenticationHandler {
 
   private List<String> authContextClasses;
 
+  private RestSecurity restSecurity;
+
   public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, RelayStates<String> relayStates)
       throws IOException {
     LOGGER.debug("Creating IdP handler.");
@@ -295,7 +297,7 @@ public class IdpHandler implements AuthenticationHandler {
         String encodedSamlAssertion = tokenizedAuthHeader[1];
         LOGGER.trace("Header retrieved");
         try {
-          String tokenString = RestSecurity.inflateBase64(encodedSamlAssertion);
+          String tokenString = restSecurity.inflateBase64(encodedSamlAssertion);
           LOGGER.trace("Header value: {}", LogSanitizer.sanitize(tokenString));
           SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
           simplePrincipalCollection.add(
@@ -321,7 +323,7 @@ public class IdpHandler implements AuthenticationHandler {
       String cookieValue = samlCookie.getValue();
       LOGGER.trace("Cookie retrieved");
       try {
-        String tokenString = RestSecurity.inflateBase64(cookieValue);
+        String tokenString = restSecurity.inflateBase64(cookieValue);
         LOGGER.trace("Cookie value: {}", LogSanitizer.sanitize(tokenString));
         Element thisToken = StaxUtils.read(new StringReader(tokenString)).getDocumentElement();
         SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
@@ -663,7 +665,7 @@ public class IdpHandler implements AuthenticationHandler {
   }
 
   private String encodeRedirectRequest(String request) throws WSSecurityException, IOException {
-    return URLEncoder.encode(RestSecurity.deflateAndBase64Encode(request), "UTF-8");
+    return URLEncoder.encode(restSecurity.deflateAndBase64Encode(request), "UTF-8");
   }
 
   private String encodePostRequest(String request) throws WSSecurityException {
@@ -717,5 +719,9 @@ public class IdpHandler implements AuthenticationHandler {
 
   public void setAuthContextClasses(List<String> authContextClasses) {
     this.authContextClasses = authContextClasses;
+  }
+
+  public void setRestSecurity(RestSecurity restSecurity) {
+    this.restSecurity = restSecurity;
   }
 }

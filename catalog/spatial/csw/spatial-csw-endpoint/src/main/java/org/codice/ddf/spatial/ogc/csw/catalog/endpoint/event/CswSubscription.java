@@ -15,9 +15,11 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.event;
 
 import ddf.catalog.event.impl.SubscriptionImpl;
 import ddf.catalog.operation.QueryRequest;
+import ddf.security.service.SecurityManager;
 import java.util.Set;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.opengis.filter.Filter;
@@ -40,12 +42,20 @@ public class CswSubscription extends SubscriptionImpl {
       TransformerManager mimeTypeTransformerManager,
       GetRecordsType request,
       QueryRequest query,
-      ClientFactoryFactory clientFactoryFactory)
+      ClientFactoryFactory clientFactoryFactory,
+      Security security,
+      SecurityManager securityManager)
       throws CswException {
     this(
         request,
         query.getQuery(),
-        new SendEvent(mimeTypeTransformerManager, request, query, clientFactoryFactory),
+        new SendEvent(
+            mimeTypeTransformerManager,
+            request,
+            query,
+            clientFactoryFactory,
+            security,
+            securityManager),
         query.getSourceIds(),
         query.isEnterprise());
   }
@@ -54,12 +64,20 @@ public class CswSubscription extends SubscriptionImpl {
       TransformerManager mimeTypeTransformerManager,
       GetRecordsType request,
       QueryRequest query,
-      ClientFactoryFactory clientFactoryFactory)
+      ClientFactoryFactory clientFactoryFactory,
+      Security security,
+      SecurityManager securityManager)
       throws CswException {
     return new CswSubscription(
         request,
         Filter.INCLUDE,
-        new SendEvent(mimeTypeTransformerManager, request, query, clientFactoryFactory),
+        new SendEvent(
+            mimeTypeTransformerManager,
+            request,
+            query,
+            clientFactoryFactory,
+            security,
+            securityManager),
         null,
         false);
   }

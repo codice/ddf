@@ -100,7 +100,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>ddf-security-common</Embed-Dependency>
                         <Export-Package>
                             org.codice.ddf.security.handler.api
                         </Export-Package>

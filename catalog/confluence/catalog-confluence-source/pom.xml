@@ -118,11 +118,6 @@
             <artifactId>gson-support</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -135,7 +130,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-confluence-common,
-                            ddf-security-common,
                             catalog-core-api-impl;scope=!test,
                             commons-lang3,
                             gson-support

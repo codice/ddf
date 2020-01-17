@@ -52,11 +52,6 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>ddf.security</groupId>
-      <artifactId>ddf-security-common</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.codice.ddf</groupId>
       <artifactId>alerts</artifactId>
       <version>${project.version}</version>
@@ -92,6 +87,12 @@
       <groupId>org.fusesource.jansi</groupId>
       <artifactId>jansi</artifactId>
     </dependency>
+    <dependency>
+      <groupId>ddf.security.core</groupId>
+      <artifactId>security-core-services</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -105,7 +106,6 @@
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Karaf-Commands>*</Karaf-Commands>
             <Embed-Dependency>
-              ddf-security-common,
               alerts
             </Embed-Dependency>
             <Export-Package />

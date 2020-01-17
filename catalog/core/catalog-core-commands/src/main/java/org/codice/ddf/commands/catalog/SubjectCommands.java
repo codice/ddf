@@ -23,7 +23,7 @@ import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.console.Session;
 import org.apache.shiro.subject.ExecutionException;
 import org.apache.shiro.subject.Subject;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +36,6 @@ public abstract class SubjectCommands extends CommandSupport {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SubjectCommands.class);
 
-  private final Security security;
-
   @Option(
     name = "--user",
     required = false,
@@ -49,13 +47,7 @@ public abstract class SubjectCommands extends CommandSupport {
 
   @Reference protected Session session;
 
-  protected SubjectCommands() {
-    this(Security.getInstance());
-  }
-
-  SubjectCommands(Security security) {
-    this.security = security;
-  }
+  @Reference protected Security security;
 
   /**
    * Executes the command once the user has been properly authorized.

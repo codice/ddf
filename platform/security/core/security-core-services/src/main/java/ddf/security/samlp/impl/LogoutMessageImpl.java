@@ -45,7 +45,7 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
-import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.codice.ddf.security.jaxrs.impl.RestSecurity;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.SignableSAMLObject;
@@ -261,9 +261,10 @@ public class LogoutMessageImpl implements LogoutMessage {
       throws WSSecurityException, SimpleSign.SignatureException, IOException {
     Document doc = DOMUtils.createDocument();
     doc.appendChild(doc.createElement("root"));
+    RestSecurity restSecurity = new RestSecurity();
     String encodedResponse =
         URLEncoder.encode(
-            RestSecurity.deflateAndBase64Encode(
+            restSecurity.deflateAndBase64Encode(
                 DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlObject, doc, false))),
             "UTF-8");
     String requestToSign =

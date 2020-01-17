@@ -28,7 +28,7 @@ import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import org.apache.commons.io.IOUtils;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +42,10 @@ public class DigitalSignature {
 
   private KeyStore keyStore;
 
-  public DigitalSignature() {
-    Security security = Security.getInstance();
+  private Security security;
+
+  public DigitalSignature(Security security) {
+    this.security = security;
     this.keyStore =
         AccessController.doPrivileged((PrivilegedAction<KeyStore>) security::getSystemKeyStore);
   }

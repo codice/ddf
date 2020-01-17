@@ -202,7 +202,7 @@ public class DumpCommand extends CqlCommands {
   String zipFileName;
 
   public DumpCommand() {
-    this.signer = new DigitalSignature();
+    this.signer = new DigitalSignature(security);
   }
 
   public DumpCommand(DigitalSignature signer) {
