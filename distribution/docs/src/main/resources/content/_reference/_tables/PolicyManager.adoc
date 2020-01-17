@@ -41,14 +41,14 @@
 |authenticationTypes
 |String
 |List of authentication types required for each context. List of default valid authentication types are: BASIC, PKI, SAML, and OIDC. Example: /context=AUTH1|AUTH2|AUTH3
-|/=SAML,/admin=SAML|BASIC
+|/=,/admin=PKI|BASIC,/beta/admin=PKI|BASIC
 |true
 
 |Required Attributes
 |requiredAttributes
 |String
 |List of attributes required for each Web Context. Example: /context={role=role1;type=type1}
-|/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}
+|/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/beta/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}
 |true
 
 |White Listed Contexts

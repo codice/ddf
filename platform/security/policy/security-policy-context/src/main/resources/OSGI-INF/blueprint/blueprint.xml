@@ -25,6 +25,7 @@
             <array value-type="java.lang.String">
                 <value>/=</value>
                 <value>/admin=PKI|BASIC</value>
+                <value>/beta/admin=PKI|BASIC</value>
             </array>
         </property>
         <property name="guestAccess" value="true" />
@@ -34,6 +35,7 @@
                 <!-- @formatter:off -->
                 <value>/=</value>
                 <value>/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
+                <value>/beta/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
                 <value>/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
                 <value>/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}</value>
                 <!-- @formatter:on -->
