@@ -14,18 +14,13 @@
  **/
 import * as React from 'react'
 import styled from 'styled-components'
-import { hot } from 'react-hot-loader'
-import { Attribute, Coordinates, Format, validCoordinates } from '.'
-import { formatAttribute, formatCoordinates } from './formatting'
 
 const DistanceUtils = require('../../../webapp/js/DistanceUtils.js')
 
 type Props = {
-  format: Format
-  attributes: Attribute[]
-  coordinates: Coordinates
-  measurementState: String
   currentDistance: number
+  left: String
+  top: String
 }
 
 const Root = styled.div<Props>`
@@ -34,37 +29,27 @@ const Root = styled.div<Props>`
   display: block;
   width: auto;
   height: auto;
-  font-size: ${props => props.theme.minimumFontSize};
+  font-size: ${props => props.theme.mediumFontSize};
   position: absolute;
-  left: 0px;
-  bottom: 0px;
   text-align: left;
   padding: ${props => props.theme.minimumSpacing};
   max-width: 50%;
 `
-const CoordinateInfo = styled.div`
-  white-space: pre;
-  display: inline-block;
-`
-const MetacardInfo = styled.div`
+
+const DistanceInfoText = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `
 
-const metacardInfo = ({ attributes }: Props) =>
-  attributes.map(({ name, value }: Attribute) => (
-    <MetacardInfo>{formatAttribute({ name, value })}</MetacardInfo>
-  ))
-
 /*
-   * Formats the current distance value to a string with the appropriate unit of measurement.
-   */
+ * Formats the current distance value to a string with the appropriate unit of measurement.
+ */
 const getDistanceText = (distance: number) => {
   // use meters when distance is under 1000m and convert to kilometers when ≥1000m
   const distanceText =
     distance < 1000
-      ? `${distance.toFixed(2)} m`
+      ? `${distance} m`
       : `${DistanceUtils.getDistanceFromMeters(distance, 'kilometers').toFixed(
           2
         )} km`
@@ -72,31 +57,14 @@ const getDistanceText = (distance: number) => {
   return distanceText
 }
 
-const distanceInfo = (props: Props) => {
-  if (props.measurementState !== 'NONE') {
-    return (
-      <MetacardInfo>
-        distance: {getDistanceText(props.currentDistance)}
-      </MetacardInfo>
-    )
-  }
-}
-
 const render = (props: Props) => {
-  if (!validCoordinates(props.coordinates)) {
-    return null
-  }
+  const distance = props.currentDistance ? props.currentDistance : 0
 
-  const coordinates = formatCoordinates(props)
   return (
-    <Root {...props}>
-      {metacardInfo(props)}
-      {distanceInfo(props)}
-      <CoordinateInfo>
-        <span>{coordinates}</span>
-      </CoordinateInfo>
+    <Root {...props} style={{ left: props.left, top: props.top }}>
+      <DistanceInfoText>{getDistanceText(distance)}</DistanceInfoText>
     </Root>
   )
 }
 
-export default hot(module)(render)
+export default render

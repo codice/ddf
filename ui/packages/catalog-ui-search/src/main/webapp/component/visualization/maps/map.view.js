@@ -41,6 +41,8 @@ const Gazetteer = require('../../../react-component/location/gazetteer.js')
 
 import MapSettings from '../../../react-component/map-settings'
 import MapInfo from '../../../react-component/map-info'
+import DistanceInfo from '../../../react-component/distance-info'
+import getDistance from 'geolib/es/getDistance'
 
 function findExtreme({ objArray, property, comparator }) {
   if (objArray.length === 0) {
@@ -141,6 +143,7 @@ module.exports = Marionette.LayoutView.extend({
     mapDrawingPopup: '#mapDrawingPopup',
     mapContextMenu: '.map-context-menu',
     mapInfo: '.mapInfo',
+    distanceInfo: '.distanceInfo',
   },
   events: {
     'click .cluster-button': 'toggleClustering',
@@ -241,6 +244,12 @@ module.exports = Marionette.LayoutView.extend({
       this.handleMeasurementStateChange.bind(this)
     )
 
+    this.listenTo(
+      this.mapModel,
+      'change:mouseLat change:mouseLon',
+      this.updateDistance.bind(this)
+    )
+
     if (this.options.selectionInterface.getSelectedResults().length > 0) {
       this.map.zoomToSelected(
         this.options.selectionInterface.getSelectedResults()
@@ -252,6 +261,7 @@ module.exports = Marionette.LayoutView.extend({
     this.map.onRightClick(this.onRightClick.bind(this))
     this.setupRightClickMenu()
     this.setupMapInfo()
+    this.setupDistanceInfo()
   },
   zoomToHome() {
     const home = [
@@ -352,6 +362,35 @@ module.exports = Marionette.LayoutView.extend({
     })
   },
   /*
+   *  Redraw and recalculate the ruler line and distanceInfo tooltip. Will not redraw while the menu is currently
+   *  displayed updateOnMenu allows updating while the menu is up
+   */
+  updateDistance(updateOnMenu = false) {
+    if (this.mapModel.get('measurementState') === 'START') {
+      const openMenu = this.mapContextMenu.currentView.model.changed.isOpen
+      const lat = this.mapModel.get('mouseLat')
+      const lon = this.mapModel.get('mouseLon')
+
+      if ((updateOnMenu === true || !openMenu) && lat && lon) {
+        // redraw ruler line
+        const mousePoint = { lat, lon }
+        this.map.setRulerLine(mousePoint)
+
+        // update distance info
+        const startingCoordinates = this.mapModel.get('startingCoordinates')
+        const dist = getDistance(
+          { latitude: lat, longitude: lon },
+          {
+            latitude: startingCoordinates['lat'],
+            longitude: startingCoordinates['lon'],
+          }
+        )
+        this.mapModel.setDistanceInfoPosition(event.clientX, event.clientY)
+        this.mapModel.setCurrentDistance(dist)
+      }
+    }
+  },
+  /*
     Handles drawing or clearing the ruler as needed by the measurement state.
 
     START indicates that a starting point should be drawn, 
@@ -368,22 +407,24 @@ module.exports = Marionette.LayoutView.extend({
     switch (state) {
       case 'START':
         this.clearRuler()
-        // starting map marker is labeled 'A'
-        point = this.map.addRulerPoint(
-          this.mapModel.get('coordinateValues'),
-          'A'
-        )
+        point = this.map.addRulerPoint(this.mapModel.get('coordinateValues'))
         this.mapModel.addPoint(point)
+        this.mapModel.setStartingCoordinates({
+          lat: this.mapModel.get('coordinateValues')['lat'],
+          lon: this.mapModel.get('coordinateValues')['lon'],
+        })
+        const polyline = this.map.addRulerLine(
+          this.mapModel.get('coordinateValues')
+        )
+        this.mapModel.setLine(polyline)
         break
       case 'END':
-        // ending map marker is labeled 'B'
-        point = this.map.addRulerPoint(
-          this.mapModel.get('coordinateValues'),
-          'B'
-        )
+        point = this.map.addRulerPoint(this.mapModel.get('coordinateValues'))
         this.mapModel.addPoint(point)
-        const line = this.map.addRulerLine(this.mapModel.get('points'))
-        this.mapModel.setLine(line)
+        this.map.setRulerLine({
+          lat: this.mapModel.get('coordinateValues')['lat'],
+          lon: this.mapModel.get('coordinateValues')['lon'],
+        })
         break
       case 'NONE':
         this.clearRuler()
@@ -413,6 +454,7 @@ module.exports = Marionette.LayoutView.extend({
       .css('top', event.offsetY)
     this.mapModel.updateClickCoordinates()
     this.mapContextMenu.currentView.model.open()
+    this.updateDistance(true)
   },
   setupRightClickMenu() {
     this.mapContextMenu.show(
@@ -435,6 +477,19 @@ module.exports = Marionette.LayoutView.extend({
     })
 
     this.mapInfo.show(new MapInfoView())
+  },
+  setupDistanceInfo() {
+    const map = this.mapModel
+    const DistanceInfoView = Marionette.ItemView.extend({
+      template() {
+        return <DistanceInfo map={map} />
+      },
+    })
+
+    const distanceInfoView = new DistanceInfoView()
+
+    this.mapModel.addDistanceInfo(distanceInfoView)
+    this.distanceInfo.show(distanceInfoView)
   },
   /*
         Map creation is deferred to this method, so that all resources pertaining to the map can be loaded lazily and

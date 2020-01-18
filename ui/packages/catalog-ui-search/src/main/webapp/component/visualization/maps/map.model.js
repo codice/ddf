@@ -48,6 +48,11 @@ module.exports = Backbone.AssociatedModel.extend({
     points: [],
     labels: [],
     line: undefined,
+    distanceInfo: {
+      left: 0,
+      top: 0,
+    },
+    startingCoordinates: undefined,
   },
   /*
    * Sets the measurement state to the given new state.
@@ -103,10 +108,25 @@ module.exports = Backbone.AssociatedModel.extend({
     this.set({ points: [] })
   },
   /*
+   * Set coordinates of the ruler measurements starting point
+   */
+  setStartingCoordinates(coordinates) {
+    this.set({ startingCoordinates: coordinates })
+  },
+  /*
    * Sets the current distance to the new given distance (in meters).
    */
   setCurrentDistance(distance) {
     this.set({ currentDistance: distance })
+  },
+  addDistanceInfo(distanceInfo) {
+    this.set({ distanceInfo })
+  },
+  /*
+   * set the position of DistanceInfo in px relative to the top left of the Cesium component
+   */
+  setDistanceInfoPosition(left, top) {
+    this.set({ distanceInfo: { left, top } })
   },
   isOffMap() {
     return this.get('mouseLat') === undefined
