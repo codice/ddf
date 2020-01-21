@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.io.UncheckedIOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -66,6 +67,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Argument;
@@ -152,7 +154,8 @@ public class IngestCommand extends CatalogCommands {
   @Argument(
     name = "File path or Directory path",
     description =
-        "Path to a file or a directory of file(s) to be ingested. Paths can be absolute or relative to installation directory.",
+        "Path to a file or a directory of file(s) to be ingested. Paths can be absolute or relative to installation directory."
+            + " This command can only detect roughly 2 billion files in one directory. Individual operating system limits might also apply.",
     index = 0,
     multiValued = false,
     required = true
@@ -435,10 +438,16 @@ public class IngestCommand extends CatalogCommands {
 
   private int totalFileCount(File inputFile) throws IOException {
     if (inputFile.isDirectory()) {
-      try (Stream<Path> stream = Files.walk(inputFile.toPath(), FileVisitOption.FOLLOW_LINKS)) {
-        return (int) stream.filter(Files::isRegularFile).count();
+      int currentFileCount = 0;
+      try (DirectoryStream<Path> stream = Files.newDirectoryStream(inputFile.toPath())) {
+        return (int)
+            StreamSupport.stream(stream.spliterator(), false)
+                .map(Path::toFile)
+                .filter(file -> !file.isHidden())
+                .count();
       }
     }
+
     return inputFile.isHidden() ? 0 : 1;
   }
 
