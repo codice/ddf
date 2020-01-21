@@ -30,5 +30,6 @@
         <module>catalog-validator-metacardwkt</module>
         <module>catalog-validator-metacardlocation</module>
         <module>catalog-validator-metacardframecenter</module>
+        <module>catalog-validator-unsupportedattributes</module>
     </modules>
 </project>
