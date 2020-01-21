@@ -12,90 +12,178 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const React = require('react')
-
+import React, { useState } from 'react'
 const { Radio, RadioItem } = require('../radio')
 const TextField = require('../text-field')
-
+import {
+  getErrorComponent,
+  validateGeo,
+  initialErrorState,
+  initialErrorStateWithDefault,
+} from '../utils/validation'
 const { Units, Zone, Hemisphere, MinimumSpacing } = require('./common')
-
 const {
   DmsLatitude,
   DmsLongitude,
 } = require('../../component/location-new/geo-components/coordinates.js')
 const DirectionInput = require('../../component/location-new/geo-components/direction.js')
 const { Direction } = require('../../component/location-new/utils/dms-utils.js')
-import styled from 'styled-components'
 
-const ErrorBlock = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  background: ${({ theme }) => theme.negativeColor};
-`
-
-const WarningIcon = styled.span`
-  padding: ${({ theme }) => theme.minimumSpacing};
-`
-
-const PointRadiusLatLon = props => {
-  const { lat, lon, radius, radiusUnits, cursor } = props
+const PointRadiusLatLonDd = props => {
+  const { lat, lon, radius, radiusUnits, setState } = props
+  const [ddError, setDdError] = useState(initialErrorStateWithDefault)
+  function onChangeDd(key, value) {
+    const { error, message, defaultValue } = validateGeo(key, value)
+    if (defaultValue) {
+      setDdError({ error, message, defaultValue })
+      setState(key, defaultValue)
+    } else {
+      setState(key, value)
+    }
+  }
+  const [radiusError, setRadiusError] = useState(initialErrorState)
   return (
     <div>
       <TextField
         type="number"
         label="Latitude"
-        value={lat}
-        onChange={cursor('lat')}
-        onBlur={props.callback}
+        value={lat !== undefined ? String(lat) : lat}
+        onChange={value => onChangeDd('lat', value)}
+        onBlur={() => setDdError(validateGeo('lat', lat))}
         addon="°"
       />
       <TextField
         type="number"
         label="Longitude"
-        value={lon}
-        onChange={cursor('lon')}
+        value={lon !== undefined ? String(lon) : lon}
+        onChange={value => onChangeDd('lon', value)}
+        onBlur={() => setDdError(validateGeo('lon', lon))}
         addon="°"
       />
-      <Units value={radiusUnits} onChange={cursor('radiusUnits')}>
+      {getErrorComponent(ddError)}
+      <Units
+        value={radiusUnits}
+        onChange={value => setState('radiusUnits', value)}
+      >
         <TextField
           type="number"
-          min="0"
           label="Radius"
-          value={radius}
-          onChange={cursor('radius')}
+          value={String(radius)}
+          onChange={value => {
+            setRadiusError(validateGeo('radius', value))
+            setState('radius', value)
+          }}
         />
       </Units>
+      {getErrorComponent(radiusError)}
     </div>
   )
 }
 
-const usngs = require('usng.js')
-const converter = new usngs.Converter()
+const PointRadiusLatLonDms = props => {
+  const {
+    dmsLat,
+    dmsLon,
+    dmsLatDirection,
+    dmsLonDirection,
+    radius,
+    radiusUnits,
+    setState,
+  } = props
+  const [dmsError, setDmsError] = useState(initialErrorStateWithDefault)
+  const [radiusError, setRadiusError] = useState(initialErrorState)
+  const latitudeDirections = [Direction.North, Direction.South]
+  const longitudeDirections = [Direction.East, Direction.West]
 
-const PointRadiusUsngMgrs = props => {
-  const { usng, radius, radiusUnits, cursor } = props
-  let error = false
-  try {
-    const result = converter.USNGtoLL(usng, true)
-    error = isNaN(result.lat) || isNaN(result.lon)
-  } catch (err) {
-    error = true
+  function validate(key, type, value) {
+    const { error, message, defaultValue } = validateGeo(key, value)
+    if (type === 'blur') {
+      setDmsError({
+        error: value !== undefined && value.length === 0,
+        message,
+        defaultValue,
+      })
+    } else if (defaultValue) {
+      setDmsError({
+        error,
+        message,
+        defaultValue,
+      })
+    }
+    defaultValue ? setState(key, defaultValue) : setState(key, value)
   }
+
   return (
     <div>
-      <TextField label="USNG / MGRS" value={usng} onChange={cursor('usng')} />
-      <Units value={radiusUnits} onChange={cursor('radiusUnits')}>
-        <TextField label="Radius" value={radius} onChange={cursor('radius')} />
+      <DmsLatitude
+        label="Latitude"
+        value={dmsLat}
+        onChange={(value, type) => validate('dmsLat', type, value)}
+      >
+        <DirectionInput
+          options={latitudeDirections}
+          value={dmsLatDirection}
+          onChange={value => setState('dmsLatDirection', value)}
+        />
+      </DmsLatitude>
+      <DmsLongitude
+        label="Longitude"
+        value={dmsLon}
+        onChange={(value, type) => validate('dmsLon', type, value)}
+      >
+        <DirectionInput
+          options={longitudeDirections}
+          value={dmsLonDirection}
+          onChange={value => setState('dmsLonDirection', value)}
+        />
+      </DmsLongitude>
+      {getErrorComponent(dmsError)}
+      <Units
+        value={radiusUnits}
+        onChange={value => setState('radiusUnits', value)}
+      >
+        <TextField
+          label="Radius"
+          type="number"
+          value={String(radius)}
+          onChange={value => {
+            setRadiusError(validateGeo('radius', value))
+            setState('radius', value)
+          }}
+        />
       </Units>
-      {error ? (
-        <ErrorBlock>
-          <WarningIcon className="fa fa-warning" />
-          <span>Invalid USNG / MGRS coords</span>
-        </ErrorBlock>
-      ) : null}
+      {getErrorComponent(radiusError)}
+    </div>
+  )
+}
+
+const PointRadiusUsngMgrs = props => {
+  const { usng, radius, radiusUnits, setState } = props
+  const [usngError, setUsngError] = useState(initialErrorState)
+  const [radiusError, setRadiusError] = useState(initialErrorState)
+  return (
+    <div>
+      <TextField
+        label="USNG / MGRS"
+        value={usng}
+        onChange={value => setState('usng', value)}
+        onBlur={() => setUsngError(validateGeo('usng', usng))}
+      />
+      {getErrorComponent(usngError)}
+      <Units
+        value={radiusUnits}
+        onChange={value => setState('radiusUnits', value)}
+      >
+        <TextField
+          label="Radius"
+          value={String(radius)}
+          onChange={value => {
+            setRadiusError(validateGeo('radius', value))
+            setState('radius', value)
+          }}
+        />
+      </Units>
+      {getErrorComponent(radiusError)}
     </div>
   )
 }
@@ -108,85 +196,106 @@ const PointRadiusUtmUps = props => {
     utmUpsHemisphere,
     radius,
     radiusUnits,
-    cursor,
+    setState,
   } = props
+  const [utmError, setUtmError] = useState(initialErrorState)
+  const [radiusError, setRadiusError] = useState(initialErrorState)
+
   return (
     <div>
       <TextField
         label="Easting"
-        value={utmUpsEasting}
-        onChange={cursor('utmUpsEasting')}
+        value={
+          utmUpsEasting !== undefined ? String(utmUpsEasting) : utmUpsEasting
+        }
+        onChange={value => setState('utmUpsEasting', value)}
+        onBlur={() =>
+          setUtmError(
+            validateGeo(
+              'utmUpsEasting',
+              utmUpsEasting,
+              utmUpsNorthing,
+              utmUpsZone,
+              utmUpsHemisphere
+            )
+          )
+        }
         addon="m"
       />
       <TextField
         label="Northing"
-        value={utmUpsNorthing}
-        onChange={cursor('utmUpsNorthing')}
+        value={
+          utmUpsNorthing !== undefined ? String(utmUpsNorthing) : utmUpsNorthing
+        }
+        onChange={value => setState('utmUpsNorthing', value)}
+        onBlur={() =>
+          setUtmError(
+            validateGeo(
+              'utmUpsNorthing',
+              utmUpsEasting,
+              utmUpsNorthing,
+              utmUpsZone,
+              utmUpsHemisphere
+            )
+          )
+        }
         addon="m"
       />
-      <Zone value={utmUpsZone} onChange={cursor('utmUpsZone')} />
+      <Zone
+        value={utmUpsZone}
+        onChange={value => setState('utmUpsZone', value)}
+        onBlur={() =>
+          setUtmError(
+            validateGeo(
+              'utmUpsZone',
+              utmUpsEasting,
+              utmUpsNorthing,
+              utmUpsZone,
+              utmUpsHemisphere
+            )
+          )
+        }
+      />
       <Hemisphere
         value={utmUpsHemisphere}
-        onChange={cursor('utmUpsHemisphere')}
+        onChange={value => setState('utmUpsHemisphere', value)}
+        onBlur={() =>
+          setUtmError(
+            validateGeo(
+              'utmUpsHemisphere',
+              utmUpsEasting,
+              utmUpsNorthing,
+              utmUpsZone,
+              utmUpsHemisphere
+            )
+          )
+        }
       />
-      <Units value={radiusUnits} onChange={cursor('radiusUnits')}>
-        <TextField label="Radius" value={radius} onChange={cursor('radius')} />
-      </Units>
-    </div>
-  )
-}
-
-const PointRadiusDms = props => {
-  const {
-    dmsLat,
-    dmsLon,
-    dmsLatDirection,
-    dmsLonDirection,
-    radius,
-    radiusUnits,
-    cursor,
-  } = props
-  const latitudeDirections = [Direction.North, Direction.South]
-  const longitudeDirections = [Direction.East, Direction.West]
-
-  return (
-    <div>
-      <DmsLatitude label="Latitude" value={dmsLat} onChange={cursor('dmsLat')}>
-        <DirectionInput
-          options={latitudeDirections}
-          value={dmsLatDirection}
-          onChange={cursor('dmsLatDirection')}
-        />
-      </DmsLatitude>
-      <DmsLongitude
-        label="Longitude"
-        value={dmsLon}
-        onChange={cursor('dmsLon')}
+      {getErrorComponent(utmError)}
+      <Units
+        value={radiusUnits}
+        onChange={value => setState('radiusUnits', value)}
       >
-        <DirectionInput
-          options={longitudeDirections}
-          value={dmsLonDirection}
-          onChange={cursor('dmsLonDirection')}
-        />
-      </DmsLongitude>
-      <Units value={radiusUnits} onChange={cursor('radiusUnits')}>
         <TextField
           label="Radius"
-          type="number"
-          value={radius}
-          onChange={cursor('radius')}
+          value={String(radius)}
+          onChange={value => {
+            setRadiusError(validateGeo('radius', value))
+            setState('radius', value)
+          }}
         />
       </Units>
+      {getErrorComponent(radiusError)}
     </div>
   )
 }
 
 const PointRadius = props => {
-  const { cursor, locationType } = props
+  const { setState, locationType } = props
 
   const inputs = {
-    latlon: PointRadiusLatLon,
-    dms: PointRadiusDms,
+    dd: PointRadiusLatLonDd,
+    dms: PointRadiusLatLonDms,
     usng: PointRadiusUsngMgrs,
     utmUps: PointRadiusUtmUps,
   }
@@ -195,8 +304,11 @@ const PointRadius = props => {
 
   return (
     <div>
-      <Radio value={locationType} onChange={cursor('locationType')}>
-        <RadioItem value="latlon">Lat / Lon (DD)</RadioItem>
+      <Radio
+        value={locationType}
+        onChange={value => setState('locationType', value)}
+      >
+        <RadioItem value="dd">Lat / Lon (DD)</RadioItem>
         <RadioItem value="dms">Lat / Lon (DMS)</RadioItem>
         <RadioItem value="usng">USNG / MGRS</RadioItem>
         <RadioItem value="utmUps">UTM / UPS</RadioItem>

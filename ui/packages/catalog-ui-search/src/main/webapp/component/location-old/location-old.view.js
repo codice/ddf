@@ -57,8 +57,6 @@ const { Direction } = require('../location-new/utils/dms-utils.js')
 import { deserialize } from './location-serialization'
 const wkx = require('wkx')
 
-const minimumBuffer = 0.000001
-
 const filterToLocationOldModel = filter => {
   if (filter === '') return filter
 
@@ -205,7 +203,7 @@ module.exports = Marionette.LayoutView.extend({
       dmsLon: '',
       dmsLatDirection: Direction.North,
       dmsLonDirection: Direction.East,
-      radius: 1,
+      radius: '',
       bbox: undefined,
       polygon: undefined,
       hasKeyword: false,
@@ -224,7 +222,7 @@ module.exports = Marionette.LayoutView.extend({
       utmUpsLowerRightZone: 1,
       utmUpsLowerRightHemisphere: 'Northern',
       line: undefined,
-      lineWidth: 1,
+      lineWidth: '',
     })
     wreqr.vent.trigger('search:drawend', this.model)
     this.$el.trigger('change')
@@ -258,8 +256,8 @@ module.exports = Marionette.LayoutView.extend({
 
     return _.extend(modelJSON, {
       type,
-      lineWidth: Math.max(modelJSON.lineWidth, minimumBuffer),
-      radius: Math.max(modelJSON.radius, minimumBuffer),
+      lineWidth: modelJSON.lineWidth,
+      radius: modelJSON.radius,
     })
   },
   onDestroy() {

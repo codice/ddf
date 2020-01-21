@@ -24,7 +24,6 @@ const DistanceUtils = require('../../js/DistanceUtils.js')
 
 const converter = new usngs.Converter()
 const minimumDifference = 0.0001
-const minimumBuffer = 0.000001
 const utmUpsLocationType = 'utmUps'
 // offset used by utmUps for southern hemisphere
 const utmUpsBoundaryNorth = 84
@@ -76,14 +75,8 @@ function convertToValid(key, model) {
     key.lon = Math.min(180, key.lon)
   }
   if (key.radius !== undefined) {
-    let tempRadius = Math.max(minimumBuffer, key.radius)
-    key.radius = isNaN(tempRadius) ? model.get('radius') : tempRadius
-  }
-  if (key.lineWidth !== undefined) {
-    key.lineWidth = Math.max(minimumBuffer, key.lineWidth)
-  }
-  if (key.polygonBufferWidth) {
-    key.polygonBufferWidth = Math.max(minimumBuffer, key.polygonBufferWidth)
+    let tempRadius = Number(key.radius)
+    key.radius = isNaN(tempRadius) ? model.get('radius') : key.radius
   }
 }
 
@@ -107,9 +100,9 @@ module.exports = Backbone.AssociatedModel.extend({
     mapWest: undefined,
     mapSouth: undefined,
     radiusUnits: 'meters',
-    radius: 1,
-    locationType: 'latlon',
-    prevLocationType: 'latlon',
+    radius: '',
+    locationType: 'dd',
+    prevLocationType: 'dd',
     lat: undefined,
     lon: undefined,
     dmsLat: '',
@@ -122,7 +115,7 @@ module.exports = Backbone.AssociatedModel.extend({
     color: undefined,
     line: undefined,
     multiline: undefined,
-    lineWidth: 1,
+    lineWidth: '',
     lineUnits: 'meters',
     polygon: undefined,
     polygonBufferWidth: 0,
@@ -242,7 +235,7 @@ module.exports = Backbone.AssociatedModel.extend({
     const locationType = this.get('locationType')
     if (locationType === 'utmUps') {
       this.set('prevLocationType', 'utmUps')
-      this.set('locationType', 'latlon')
+      this.set('locationType', 'dd')
     }
     this.drawing = true
     store.get('content').turnOnDrawing(this)
@@ -328,7 +321,7 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setLatLon() {
-    if (this.get('locationType') === 'latlon') {
+    if (this.get('locationType') === 'dd') {
       let result = {}
       result.north = this.get('mapNorth')
       result.south = this.get('mapSouth')
@@ -454,7 +447,7 @@ module.exports = Backbone.AssociatedModel.extend({
 
     if (
       (!store.get('content').get('drawing') &&
-        this.get('locationType') !== 'latlon') ||
+        this.get('locationType') !== 'dd') ||
       !this.isLatLonValid(lat, lon)
     ) {
       return
@@ -682,7 +675,7 @@ module.exports = Backbone.AssociatedModel.extend({
         lat: undefined,
         lon: undefined,
         usng: undefined,
-        radius: 1,
+        radius: '',
       })
       return
     }
@@ -878,7 +871,7 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   handleLocationType() {
-    if (this.get('locationType') === 'latlon') {
+    if (this.get('locationType') === 'dd') {
       this.set({
         north: this.get('mapNorth'),
         south: this.get('mapSouth'),

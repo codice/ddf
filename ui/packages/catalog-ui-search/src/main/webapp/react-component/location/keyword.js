@@ -55,7 +55,7 @@ class Keyword extends React.Component {
           const polygon = geometry.coordinates[0]
           this.props.setState({
             hasKeyword: true,
-            locationType: 'latlon',
+            locationType: 'dd',
             polygon,
             polyType: 'polygon',
             value: this.state.value,
@@ -70,7 +70,7 @@ class Keyword extends React.Component {
           )
           this.props.setState({
             hasKeyword: true,
-            locationType: 'latlon',
+            locationType: 'dd',
             polygon,
             polyType: 'multipolygon',
             value: this.state.value,
@@ -100,7 +100,8 @@ class Keyword extends React.Component {
     const suggester = this.props.suggester || (input => this.suggester(input))
     const {
       polygon,
-      cursor,
+      setState,
+      setBufferState,
       polygonBufferWidth,
       polygonBufferUnits,
       polyType,
@@ -124,17 +125,21 @@ class Keyword extends React.Component {
         {!loading && polygon !== undefined && polyType === 'polygon' ? (
           <Polygon
             polygon={polygon}
-            cursor={cursor}
+            setState={setState}
             polygonBufferWidth={polygonBufferWidth}
             polygonBufferUnits={polygonBufferUnits}
+            setBufferState={setBufferState}
+            polyType={polyType}
           />
         ) : null}
         {!loading && polygon !== undefined && polyType === 'multipolygon' ? (
           <MultiPolygon
             polygon={polygon}
-            cursor={cursor}
+            setState={setState}
             polygonBufferWidth={polygonBufferWidth}
             polygonBufferUnits={polygonBufferUnits}
+            setBufferState={setBufferState}
+            polyType={polyType}
           />
         ) : null}
       </div>
