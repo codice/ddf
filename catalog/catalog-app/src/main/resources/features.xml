@@ -550,6 +550,15 @@
         </bundle>
     </feature>
 
+    <feature name="catalog-validator-unsupportedattributes"
+      version="${project.version}"
+      description="Unsupported Attributes Query Validator">
+        <feature>catalog-core-api</feature>
+        <bundle>
+            mvn:org.codice.ddf.validator/catalog-validator-unsupportedattributes/${project.version}
+        </bundle>
+    </feature>
+
     <feature name="catalog-transformer-overlay" version="${project.version}"
              description="Transforms a metacard into a geographically aligned image suitable for overlaying on a map">
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-overlay/${project.version}</bundle>
@@ -685,6 +694,7 @@
         <feature>catalog-validator-metacardduplication</feature>
         <feature>catalog-validator-metacardlocation</feature>
         <feature>catalog-validator-metacardframecenter</feature>
+        <feature>catalog-validator-unsupportedattributes</feature>
         <feature>catalog-transformer-overlay</feature>
         <feature>catalog-transformer-preview</feature>
         <feature>catalog-client-info</feature>

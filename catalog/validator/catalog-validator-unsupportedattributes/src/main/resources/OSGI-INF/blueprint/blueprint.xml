@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+  <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+
+  <bean id="attributeExtractor" class="org.codice.ddf.validator.query.unsupportedattributes.AttributeExtractor">
+    <argument ref="filterAdapter"/>
+  </bean>
+
+  <reference id="resourceBundleLocator"
+    interface="ddf.platform.resource.bundle.locator.ResourceBundleLocator"/>
+
+  <bean id="messageFormatSupplier" class="org.codice.ddf.validator.query.unsupportedattributes.MessageFormatSupplier">
+    <argument ref="resourceBundleLocator"/>
+  </bean>
+
+  <bean id="unsupportedAttributeQueryValidator" class="org.codice.ddf.validator.query.unsupportedattributes.UnsupportedAttributeQueryValidator">
+    <argument ref="attributeExtractor"/>
+    <argument ref="messageFormatSupplier"/>
+  </bean>
+
+  <reference-list interface="ddf.catalog.source.SourceAttributeRestriction"
+    availability="optional">
+    <reference-listener ref="unsupportedAttributeQueryValidator" bind-method="bind" unbind-method="unbind"/>
+  </reference-list>
+
+  <service  ref="unsupportedAttributeQueryValidator" interface="ddf.catalog.validation.QueryValidator"/>
+
+</blueprint>
