@@ -311,6 +311,13 @@
             <version>${pax.exam.version}</version>
             <type>xml</type>
         </dependency>
+
+        <!-- Depend on the core-itests so these only run after them-->
+        <dependency>
+            <groupId>ddf.test.itests</groupId>
+            <artifactId>test-itests-ddf-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <profiles>
