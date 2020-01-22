@@ -50,7 +50,6 @@ class XlsxMetacardUtility {
       mimeType.setPrimaryType(OOXML_SHEET.type());
       mimeType.setSubType(OOXML_SHEET.subtype());
     } catch (MimeTypeParseException e) {
-      LOGGER.warn("Failure creating MIME type", e);
       throw new ExceptionInInitializerError(e);
     }
   }

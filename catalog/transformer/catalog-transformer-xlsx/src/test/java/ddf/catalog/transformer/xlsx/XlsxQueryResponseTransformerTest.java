@@ -13,8 +13,18 @@
  */
 package ddf.catalog.transformer.xlsx;
 
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertThat;
+
+import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import java.util.Collections;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,5 +40,18 @@ public class XlsxQueryResponseTransformerTest {
   @Test(expected = CatalogTransformerException.class)
   public void testNullMetacardTransform() throws CatalogTransformerException {
     xlsxQueryResponseTransformer.transform(null, Collections.emptyMap());
+  }
+
+  @Test
+  public void testNonNullSourceResponse() throws CatalogTransformerException {
+    MetacardImpl metacard = new MetacardImpl();
+    metacard.setId("metacardId");
+    List<Result> results = Collections.singletonList(new ResultImpl(metacard));
+    SourceResponse sourceResponse = new SourceResponseImpl(null, results);
+
+    BinaryContent binaryContent =
+        xlsxQueryResponseTransformer.transform(sourceResponse, Collections.emptyMap());
+
+    assertThat(binaryContent, notNullValue());
   }
 }
