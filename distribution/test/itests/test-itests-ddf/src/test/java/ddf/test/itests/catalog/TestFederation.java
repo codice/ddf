@@ -1450,54 +1450,6 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testMetacardCache() throws Exception {
-
-    try {
-      getSecurityPolicy().configureRestForBasic();
-
-      // Start with a clean cache
-      clearCache();
-      String cqlUrl = SEARCH_ROOT + "/catalog/internal/cql";
-
-      String srcRequest =
-          "{\"src\":\""
-              + OPENSEARCH_SOURCE_ID
-              + "\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sort\":\"modified:desc\"}";
-
-      await("Waiting for metacard cache to clear")
-          .pollDelay(1, SECONDS)
-          .atMost(20, SECONDS)
-          .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) == 0);
-
-      // This query will put the ingested metacards from the BeforeExam method into the cache
-      given()
-          .log()
-          .ifValidationFails()
-          .contentType("application/json")
-          .auth()
-          .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
-          .header("X-Requested-With", "XMLHttpRequest")
-          .header("Origin", cqlUrl)
-          .body(srcRequest)
-          .when()
-          .post(cqlUrl)
-          .then()
-          .log()
-          .ifValidationFails()
-          .statusCode(200);
-
-      // CacheBulkProcessor could take up to 10 seconds to flush the cached results into solr
-      await("Waiting for metacards to be written to cache")
-          .pollDelay(1, SECONDS)
-          .atMost(20, SECONDS)
-          .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) > 0);
-
-    } finally {
-      getSecurityPolicy().configureRestForGuest();
-    }
-  }
-
-  @Test
   public void testEnterpriseSearch() throws Exception {
 
     try {
@@ -2178,36 +2130,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
   private String getResourceData(String metacardId) {
     return String.format("Data for metacard ID %s", metacardId);
-  }
-
-  private int getMetacardCacheSize(String sourceId) throws Exception {
-    try {
-      getSecurityPolicy().configureRestForBasic();
-      String cqlUrl = SEARCH_ROOT + "/catalog/internal/cql";
-
-      String cacheRequest =
-          "{\"src\":\"cache\",\"start\":1,\"count\":250,\"cql\":\"((anyText ILIKE '*') AND ((\\\"metacard_source\\\" = '"
-              + sourceId
-              + "')))\",\"sort\":\"modified:desc\"}";
-
-      return given()
-          .contentType("application/json")
-          .auth()
-          .basic(LOCALHOST_USERNAME, LOCALHOST_PASSWORD)
-          .header("X-Requested-With", "XMLHttpRequest")
-          .header("Origin", cqlUrl)
-          .body(cacheRequest)
-          .when()
-          .post(cqlUrl)
-          .then()
-          .statusCode(200)
-          .extract()
-          .body()
-          .jsonPath()
-          .getInt("status.hits");
-    } finally {
-      getSecurityPolicy().configureRestForGuest();
-    }
   }
 
   @Override

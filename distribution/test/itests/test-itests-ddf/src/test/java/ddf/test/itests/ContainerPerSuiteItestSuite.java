@@ -14,14 +14,12 @@
 package ddf.test.itests;
 
 import ddf.test.itests.catalog.TestCatalog;
-import ddf.test.itests.catalog.TestCatalogSearchUi;
 import ddf.test.itests.catalog.TestCatalogValidation;
 import ddf.test.itests.catalog.TestFanout;
 import ddf.test.itests.catalog.TestFederation;
 import ddf.test.itests.catalog.TestFtp;
 import ddf.test.itests.catalog.TestSecurityAuditPlugin;
 import ddf.test.itests.catalog.TestSpatial;
-import ddf.test.itests.platform.TestOidc;
 import ddf.test.itests.platform.TestPlatform;
 import ddf.test.itests.platform.TestSecurity;
 import ddf.test.itests.platform.TestSolrCommands;
@@ -34,7 +32,6 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  TestCatalogSearchUi.class,
   TestFederation.class,
   TestFtp.class,
   TestSpatial.class,
@@ -42,7 +39,6 @@ import org.junit.runners.Suite;
   TestCatalog.class,
   TestSolrCommands.class,
   TestSecurity.class,
-  TestOidc.class,
   TestPlatform.class,
   TestFanout.class,
   TestSecurityAuditPlugin.class

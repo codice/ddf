@@ -331,8 +331,6 @@ public abstract class AbstractIntegrationTest {
   public static final DynamicUrl INSECURE_SERVICE_ROOT =
       new DynamicUrl(INSECURE_ROOT, HTTP_PORT, "/services");
 
-  public static final DynamicUrl SEARCH_ROOT = new DynamicUrl(SECURE_ROOT, HTTPS_PORT, "/search");
-
   public static final DynamicUrl REST_PATH = new DynamicUrl(SERVICE_ROOT, "/catalog/");
 
   public static final DynamicUrl OPENSEARCH_PATH = new DynamicUrl(REST_PATH, "query");
@@ -405,7 +403,7 @@ public abstract class AbstractIntegrationTest {
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/csw?_wadl");
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog?_wadl");
 
-      getServiceManager().startFeature(true, "search-ui-app", "catalog-ui");
+      getServiceManager().startFeature(true, "search-ui-app");
       getServiceManager().waitForAllBundles();
     } catch (Exception e) {
       throw new IllegalStateException("Failed to start up required features.", e);

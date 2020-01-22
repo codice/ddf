@@ -17,41 +17,6 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
-    <feature name="catalog-ui-search-api" version="${project.version}"
-             description="API for interacting with Catalog UI">
-        <bundle>mvn:ddf.ui/catalog-ui-search-api/${project.version}</bundle>
-    </feature>
-
-    <feature name="catalog-ui" version="${project.version}" description="Catalog UI">
-        <feature>spatial-app</feature>
-        <feature>camel-http</feature>
-        <feature>catalog-ui-search-api</feature>
-        <feature>platform-usng4j</feature>
-
-        <configfile finalname="${ddf.etc}/org.codice.ddf.catalog.ui.config" override="false">
-            mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-config
-        </configfile>
-
-        <configfile finalname="${ddf.etc}/org.codice.ddf.catalog.ui.theme.config" override="false">
-            mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-theme-config
-        </configfile>
-
-        <configfile finalname="${ddf.etc}/org.codice.ddf.catalog.ui.attribute.hidden.config" override="false">
-            mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-attribute-hidden-config
-        </configfile>
-
-        <configfile finalname="${ddf.etc}/i18n/IntrigueBundle/IntrigueBundle_en.properties" override="false">
-            mvn:ddf.ui/search-ui-app/${project.version}/config/intrigue-bundle-config
-        </configfile>
-
-        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-propertyjson-metacard/${project.version}</bundle>
-        <bundle>mvn:ddf.ui/catalog-ui-search/${project.version}</bundle>
-        <bundle>mvn:ddf.ui/catalog-ui-oauth/${project.version}</bundle>
-        <bundle>mvn:ddf.ui/catalog-ui-enumeration/${project.version}</bundle>
-        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
-        <bundle>mvn:ddf.ui/zip-splitter/${project.version}</bundle>
-    </feature>
-
     <feature name="simple-search-ui" version="${project.version}">
         <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jsp/${pax.web.version}</bundle>
         <bundle>mvn:ddf.ui.search/simple/${project.version}</bundle>
@@ -66,9 +31,6 @@
     <feature name="search-ui-app" version="${project.version}"
              description="The Search UI is an application that not only provides results in a html format but also provides a convenient, simple querying user interface.\nThe left pane of the Search UI contains basic fields to query the Catalog and other Sources. The right pane consists of a map.\nIt includes both the Catalog UI (3d globe) and Simple Search UI (text page) versions.">
         <feature>catalog-app</feature>
-        <feature>catalog-versioning-plugin</feature>
-        <feature>catalog-core-validator</feature>
-        <feature>catalog-ui</feature>
         <feature>simple-search-ui</feature>
         <feature>search-redirect</feature>
     </feature>

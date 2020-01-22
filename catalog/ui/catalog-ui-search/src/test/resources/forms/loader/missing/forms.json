@@ -1,7 +1,0 @@
-[
-  {
-    "title": "Imagery Only, but the XML file isn't here",
-    "description": "Search across all image datatypes.",
-    "filterTemplateFile": "imagery.xml"
-  }
-]

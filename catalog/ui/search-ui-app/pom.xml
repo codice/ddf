@@ -102,21 +102,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.ui</groupId>
-            <artifactId>catalog-ui-search</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.ui</groupId>
-            <artifactId>catalog-ui-oauth</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.ui</groupId>
-            <artifactId>catalog-ui-search-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.ui.search</groupId>
             <artifactId>search-redirect</artifactId>
             <version>${project.version}</version>
@@ -124,16 +109,6 @@
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-propertyjson-metacard</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.ui</groupId>
-            <artifactId>catalog-ui-enumeration</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.ui</groupId>
-            <artifactId>zip-splitter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
