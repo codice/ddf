@@ -227,9 +227,10 @@ class Dropdown extends React.Component {
     }
   }
   getRect = () => {
-    const { x, y, width, height } =
-      this.ref !== undefined ? this.ref.getBoundingClientRect() : {}
-    return { rect: { x, y, width, height } }
+    const obj = this.ref !== undefined ? this.ref.getBoundingClientRect() : {}
+    return {
+      rect: { x: obj.left, y: obj.top, width: obj.width, height: obj.height },
+    }
   }
   componentDidMount() {
     document.addEventListener('mousedown', this.onMouseDown)
