@@ -32,7 +32,6 @@ const ResultForm = require('../result-form/result-form.js')
 import * as React from 'react'
 import RadioComponent from '../../react-component/input-wrappers/radio'
 import { showErrorMessages } from '../../react-component/utils/validation'
-
 module.exports = plugin(
   Marionette.LayoutView.extend({
     template,
@@ -158,6 +157,7 @@ module.exports = plugin(
           model: this._srcDropdownModel,
         })
       )
+
       this.settingsSrc.currentView.turnOffEditing()
     },
     setupSpellcheck() {

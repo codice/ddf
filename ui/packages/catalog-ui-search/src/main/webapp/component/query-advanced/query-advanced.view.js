@@ -34,7 +34,6 @@ const fetchSuggestions = memoize(async attr => {
   })
 
   const suggestions = json.facets[attr]
-
   if (suggestions === undefined) {
     return []
   }
@@ -91,7 +90,6 @@ module.exports = Marionette.LayoutView.extend({
         isFormBuilder: this.options.isFormBuilder || false,
       })
     )
-
     let filter
     if (this.model.get('filterTree') !== undefined) {
       filter = this.model.get('filterTree')
@@ -118,6 +116,13 @@ module.exports = Marionette.LayoutView.extend({
         this.showAdvanced(filter)
       },
     })
+    this.listenTo(
+      this.querySettings.currentView.model,
+      'change:src',
+      function() {
+        this.showAdvanced(this.queryAdvanced.currentView.getFilters())
+      }
+    )
   },
   onDestroy() {
     unregister(this.action)
@@ -135,9 +140,9 @@ module.exports = Marionette.LayoutView.extend({
         filter,
         isForm: this.options.isForm || false,
         isFormBuilder: this.options.isFormBuilder || false,
+        settingsModel: this.querySettings.currentView.model
       })
     )
-
     this.queryAdvanced.currentView.turnOffEditing()
     this.edit()
   },

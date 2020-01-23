@@ -233,7 +233,6 @@ type MenuItemProps = {
 
 export const MenuItem = (props: MenuItemProps) => {
   const { value, children, selected, onClick, active, onHover, style } = props
-
   return (
     <ItemRoot
       selected={selected}
@@ -246,6 +245,79 @@ export const MenuItem = (props: MenuItemProps) => {
     >
       {children || value}
     </ItemRoot>
+  )
+}
+
+type MenutItemPropsDisabled = {
+  /** A value to represent the current Item */
+  value?: any
+  /**
+   * Children to display for menu item.
+   *
+   * @default value
+   */
+  children?: any
+  /** Optional styles for root element. */
+  style?: object
+  onClick?: any
+  selected?: any
+  active?: any
+  onHover?: any
+  disabled?: any
+  title?: any
+}
+
+const ItemRootDisabled = styled.option<{ active: boolean; disabled: boolean }>`
+  position: relative;
+  padding: 0px ${({ theme }) => theme.minimumSpacing};
+  padding-right: ${({ theme }) => theme.minimumButtonSize};
+  box-sizing: border-box;
+  height: ${({ theme }) => theme.minimumButtonSize};
+  line-height: ${({ theme }) => theme.minimumButtonSize};
+  cursor: pointer;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  ${({ theme, active, disabled }) =>
+    active && !disabled
+      ? `box-shadow: inset 0px 0px 0px 1px  ${theme.primaryColor};`
+      : ''}
+  ${({ active }) => (active ? 'font-weight: bold;' : '')}
+  ${({ active, disabled }) => (active && !disabled ? after : '')}
+  background: ${props =>
+    props.active && !props.disabled ? background(props) : 'inherit'};
+  color: ${props => (props.disabled ? 'lightgrey' : foreground)};
+`
+export const MenuItemDisabled = (props: MenutItemPropsDisabled) => {
+  const {
+    value,
+    children,
+    onClick,
+    active,
+    onHover,
+    style,
+    disabled,
+    title,
+  } = props
+  return (
+    <ItemRootDisabled
+      disabled={disabled}
+      active={active}
+      style={style}
+      onMouseEnter={() => onHover(value)}
+      onFocus={() => onHover(value)}
+      tabIndex={0}
+      onClick={() => onClick(value)}
+      title={title}
+    >
+      {children || value}
+    </ItemRootDisabled>
   )
 }
 
