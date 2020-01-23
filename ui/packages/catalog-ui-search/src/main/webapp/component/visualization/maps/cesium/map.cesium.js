@@ -276,28 +276,32 @@ module.exports = function CesiumMap(
   }
 
   /*
-    * Only shows one label if there are multiple labels in the same location.
-    * If isSelected is true, hide the existing label at that location and show the given label (geometry).
-    * If findSelected is true, look for a selected label to display (set to false when setting isSelected for labels).
-    */
-  function showHideLabel(isSelected, findSelected, geometry) {
+      Only shows one label if there are multiple labels in the same location.
+
+      Show the label in the following importance:
+        - it is selected
+        - there is no other label displayed at the same location
+        - it is the label that was found by findOverlappingLabel
+
+      Arguments are:
+        - the label to show/hide
+        - if the label is selected
+        - if the search for overlapping label should include hidden selected labels
+      */
+  function showHideLabel({
+    geometry,
+    isSelected = false,
+    findSelected = false,
+  }) {
     const labelWithSamePosition = findOverlappingLabel(findSelected, geometry)
-    if (isSelected) {
-      if (labelWithSamePosition !== undefined) {
-        labelWithSamePosition.show = false
-        labelWithSamePosition.isSelected = false
-      }
-      geometry.show = true
-    } else {
-      if (
-        labelWithSamePosition === undefined ||
-        geometry.id === labelWithSamePosition.id
-      ) {
-        geometry.show = true
-      } else if (!findSelected) {
-        geometry.show = false
-      }
+    if (isSelected && labelWithSamePosition !== undefined) {
+      labelWithSamePosition.show = false
+      labelWithSamePosition.isSelected = false
     }
+    geometry.show =
+      isSelected ||
+      !labelWithSamePosition ||
+      geometry.id === labelWithSamePosition.id
   }
 
   const exposedMethods = _.extend({}, Map, {
@@ -907,7 +911,10 @@ module.exports = function CesiumMap(
           options.isSelected ? -1 : 0
         )
       } else if (geometry.constructor === Cesium.Label) {
-        showHideLabel(options.isSelected, false, geometry)
+        showHideLabel({
+          geometry,
+          isSelected: options.isSelected,
+        })
         geometry.isSelected = options.isSelected
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
@@ -948,7 +955,10 @@ module.exports = function CesiumMap(
       if (geometry.constructor === Cesium.Billboard) {
         geometry.show = true
       } else if (geometry.constructor === Cesium.Label) {
-        showHideLabel(false, true, geometry)
+        showHideLabel({
+          geometry,
+          findSelected: true,
+        })
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
           polyline.show = true
