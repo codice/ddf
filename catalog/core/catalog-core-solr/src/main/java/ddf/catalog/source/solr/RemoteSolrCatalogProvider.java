@@ -57,7 +57,7 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
 
   protected static final String SOLR_CATALOG_CORE_NAME = "catalog";
 
-  private final SolrCatalogProvider provider;
+  private final BaseSolrCatalogProvider provider;
 
   /**
    * Constructor.
@@ -74,7 +74,7 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
       SolrFilterDelegateFactory solrFilterDelegateFactory,
       @Nullable DynamicSchemaResolver resolver) {
     this.provider =
-        new SolrCatalogProvider(
+        new BaseSolrCatalogProvider(
             client,
             filterAdapter,
             solrFilterDelegateFactory,

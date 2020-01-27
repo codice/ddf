@@ -366,7 +366,8 @@ public final class SolrClientAdapter extends SolrClientProxy
   }
 
   @Override
-  public boolean isAvailable(long timeout, TimeUnit unit) throws InterruptedException {
+  public boolean isAvailable(long timeout, long pollInterval, TimeUnit unit)
+      throws InterruptedException {
     Validate.notNull(unit, "invalid null time unit");
     if (isAvailable()) { // quick check to avoid synchronization
       return true;
@@ -374,6 +375,7 @@ public final class SolrClientAdapter extends SolrClientProxy
     // letting now be recomputed by the timedWait() method allows us to better control testing
     long now = TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis());
     final long end = now + unit.toNanos(timeout);
+    final long interval = unit.toNanos(pollInterval);
 
     synchronized (lock) {
       while (true) {
@@ -387,7 +389,7 @@ public final class SolrClientAdapter extends SolrClientProxy
         }
         final long timeRemaining = end - now;
 
-        if (timeRemaining <= 0L) { // we timed out
+        if (timeRemaining <= interval) { // we timed out
           return false;
         }
         if (LOGGER.isDebugEnabled()) {
@@ -396,7 +398,7 @@ public final class SolrClientAdapter extends SolrClientProxy
               core,
               DurationFormatUtils.formatDurationHMS(TimeUnit.NANOSECONDS.toMillis(timeRemaining)));
         }
-        now = waiter.timedWait(lock, now, timeRemaining, TimeUnit.NANOSECONDS);
+        now = waiter.timedWait(lock, now, interval, TimeUnit.NANOSECONDS);
       }
     }
   }
@@ -674,9 +676,7 @@ public final class SolrClientAdapter extends SolrClientProxy
       futureToCancel = cancelFuture ? future : null;
       previousClientToClose = realClient;
       // notify only if we were available
-      notifyAvailability =
-          shouldNotifyUnavailability(
-              newUnavailableClient.getCause(), newUnavailableClient.getCause());
+      notifyAvailability = shouldNotifyUnavailability("client hasn't been created yet", null);
       LOGGER.debug("Solr({}): starting a failsafe client creation task", core);
       this.apiClient = newUnavailableClient;
       this.pingClient = newUnavailableClient;
@@ -959,7 +959,7 @@ public final class SolrClientAdapter extends SolrClientProxy
   }
 
   private static String goingOrRemaining(boolean going) {
-    return going ? "going" : "remaining";
+    return going ? "going to be" : "remaining";
   }
 
   /** Functional interface used to create Solr clients. */

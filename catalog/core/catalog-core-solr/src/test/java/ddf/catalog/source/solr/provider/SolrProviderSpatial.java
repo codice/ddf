@@ -36,9 +36,9 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.solr.BaseSolrCatalogProvider;
+import ddf.catalog.source.solr.BaseSolrProviderTest;
 import ddf.catalog.source.solr.ConfigurationStore;
-import ddf.catalog.source.solr.SolrCatalogProvider;
-import ddf.catalog.source.solr.SolrProviderTest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,11 +67,11 @@ public class SolrProviderSpatial {
 
   private final FilterFactory filterFactory = new FilterFactoryImpl();
 
-  private static SolrCatalogProvider provider;
+  private static BaseSolrCatalogProvider provider;
 
   @BeforeClass
   public static void setUp() {
-    provider = SolrProviderTest.getProvider();
+    provider = BaseSolrProviderTest.getProvider();
   }
 
   @Test

@@ -18,8 +18,12 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -29,6 +33,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
 import org.codice.solr.factory.SolrClientFactory;
+import org.codice.solr.factory.SolrConfigurationData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,7 +141,80 @@ public final class HttpSolrClientFactory implements SolrClientFactory {
       ConfigurationStore.getInstance().setDataDirectoryPath(solrDataDir);
     }
     LOGGER.debug("Solr({}): Creating an HTTP Solr client using url [{}]", core, coreUrl);
-    return new SolrClientAdapter(core, () -> createSolrHttpClient(solrUrl, core, coreUrl));
+
+    SolrClientAdapter adaptor =
+        new SolrClientAdapter(core, () -> createSolrHttpClient(solrUrl, core, coreUrl));
+    try {
+      if (!adaptor.isAvailable(30, 5, TimeUnit.SECONDS)) {
+        LOGGER.warn("Solr Client {} is not available after 30 seconds", core);
+      }
+    } catch (InterruptedException e) {
+      LOGGER.error("Unable to connect to solr client {}: {} ", core, e.getStackTrace());
+    }
+    return adaptor;
+  }
+
+  @Override
+  public boolean isSolrCloud() {
+    return false;
+  }
+
+  @Override
+  public boolean collectionExists(String collection) {
+    // Force the configuration to be created, so the core exists and return true
+    newClient(collection);
+    return true;
+  }
+
+  @Override
+  public void removeCollection(String collection) {
+    throw new IllegalStateException("removeCollection not supported.");
+  }
+
+  @Override
+  public void removeAlias(String alias) {
+    throw new IllegalStateException("removeAlias not supported.");
+  }
+
+  @Override
+  public void addConfiguration(
+      String configurationName, List<SolrConfigurationData> configurationData) {
+    throw new IllegalStateException("addConfiguration not supported.");
+  }
+
+  @Override
+  public void addCollection(
+      String collection, Integer shardCountRequested, String configurationName) {
+    throw new IllegalStateException("addConfiguration not supported.");
+  }
+
+  @Override
+  public void addCollectionToAlias(String alias, String collection, String collectionPrefix) {
+    throw new IllegalStateException("addCollectionAlias not supported.");
+  }
+
+  @Override
+  public List<String> getCollectionsForAlias(String alias) {
+    throw new IllegalStateException("getCollectionsForAlias not supported.");
+  }
+
+  @Override
+  public boolean isAvailable() {
+    String solrUrl =
+        StringUtils.defaultIfBlank(
+            AccessController.doPrivileged(
+                (PrivilegedAction<String>) () -> System.getProperty(SOLR_HTTP_URL)),
+            getDefaultHttpsAddress());
+    final HttpClientBuilder builder = httpClientBuilder.get();
+    try (final CloseableHttpClient client = builder.build()) {
+      HttpGet get = new HttpGet(solrUrl);
+      try (CloseableHttpResponse response = client.execute(get)) {
+        return response.getStatusLine().getStatusCode() == 200;
+      }
+    } catch (IOException e) {
+      LOGGER.debug("isAvailable testing url: {} failed", solrUrl, e);
+    }
+    return false;
   }
 
   @VisibleForTesting

@@ -86,13 +86,15 @@ public interface SolrClient extends Closeable {
    * succeed as the server or the core might become unavailable at any time without notice.
    *
    * @param timeout the maximum time to wait
+   * @param pollInterval the time interval to wait between checks
    * @param unit the time unit of the timeout argument
    * @return <code>false</code> if the Solr server this client is connected or the corresponding
    *     core is not available; <code>true</code> otherwise
    * @throws InterruptedException if the current thread was interrupted while waiting
    * @throws IllegalArgumentException if <code>unit</code> is <code>null</code>
    */
-  public boolean isAvailable(long timeout, TimeUnit unit) throws InterruptedException;
+  public boolean isAvailable(long timeout, long pollInterval, TimeUnit unit)
+      throws InterruptedException;
 
   /**
    * This method is the same as {@link #isAvailable()} but allows a caller to provide a listener

@@ -18,6 +18,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardImpl;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,6 +31,8 @@ public class MockMetacard extends MetacardImpl {
   public static final String DEFAULT_TYPE = "simple";
 
   public static final String DEFAULT_LOCATION = "POINT (1 0)";
+
+  public static final String DEFAULT_TAG = "resource";
 
   public static final byte[] DEFAULT_THUMBNAIL = {-86};
 
@@ -49,6 +52,7 @@ public class MockMetacard extends MetacardImpl {
     this.setThumbnail(DEFAULT_THUMBNAIL);
     this.setTitle(DEFAULT_TITLE);
     this.setSecurity(new HashMap<>());
+    this.setTags(Collections.singleton(DEFAULT_TAG));
   }
 
   public MockMetacard(String metadata, MetacardType type) {

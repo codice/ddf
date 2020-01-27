@@ -44,7 +44,7 @@ class HttpSolrClientFactorySpec extends Specification {
   static final String CORE_URL2 = "$SOLR_URL2/$CORE"
   static final String CONFIG_XML = "solrconfig.xml"
   static final String SCHEMA_XML = "schema.xml"
-  static final int AVAILABLE_TIMEOUT_IN_SECS = 25
+  static final int AVAILABLE_TIMEOUT_IN_SECS = 40
 
   def cleanup() {
     // reset the config store
@@ -94,7 +94,7 @@ class HttpSolrClientFactorySpec extends Specification {
       // ping will be successful right away. Therefore this should all happen very quickly without
       // a hitch. Worst case scenario we have a bug and it will take about 30 seconds to detect it.
       // Best case scenario, it will return pretty much right away.
-      def available = client.isAvailable(AVAILABLE_TIMEOUT_IN_SECS + 5L, SECONDS)
+      def available = client.isAvailable(AVAILABLE_TIMEOUT_IN_SECS + 5L, 5L, SECONDS)
 
     then: "it should be"
       available
@@ -150,7 +150,7 @@ class HttpSolrClientFactorySpec extends Specification {
       // ping will be successful right away. Therefore this should all happen very quickly without
       // a hitch. Worst case scenario we have a bug and it will take about 30 seconds to detect it.
       // Best case scenario, it will return pretty much right away.
-      def available = client.isAvailable(AVAILABLE_TIMEOUT_IN_SECS + 5L, SECONDS)
+      def available = client.isAvailable(AVAILABLE_TIMEOUT_IN_SECS + 5L, 5L, SECONDS)
 
     then: "it should be"
       available

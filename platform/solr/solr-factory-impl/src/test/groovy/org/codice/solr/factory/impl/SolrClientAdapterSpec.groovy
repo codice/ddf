@@ -677,7 +677,7 @@ class SolrClientAdapterSpec extends Specification {
       def adapter = new SolrClientAdapter(CORE, creator, failsafeCreator, failsafeCreator)
 
     when: "calling isAvailable() with null time unit"
-      adapter.isAvailable(5L, null)
+      adapter.isAvailable(5L, 1L,null)
 
     then: "it should fail"
       def e = thrown(IllegalArgumentException)

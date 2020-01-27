@@ -18,9 +18,10 @@ import static org.apache.commons.lang.Validate.notNull;
 import com.google.common.annotations.VisibleForTesting;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.function.BiFunction;
+import java.util.List;
 import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
+import org.codice.solr.factory.SolrConfigurationData;
 
 /**
  * Factory class used to create the proper {@link SolrClient} based on the current {@code
@@ -28,38 +29,78 @@ import org.codice.solr.factory.SolrClientFactory;
  */
 public final class SolrClientFactoryImpl implements SolrClientFactory {
 
-  private final BiFunction<SolrClientFactory, String, SolrClient> newClientFunction;
-  private final HttpSolrClientFactory httpSolrClientFactory;
+  private String clientType;
+  private SolrClientFactory factory;
+  private boolean isCloud = false;
 
-  @SuppressWarnings("unused" /* used by blueprint */)
   public SolrClientFactoryImpl(HttpSolrClientFactory httpSolrClientFactory) {
-    this.newClientFunction = (factory, core) -> factory.newClient(core);
-    this.httpSolrClientFactory = httpSolrClientFactory;
-  }
+    this.clientType =
+        AccessController.doPrivileged(
+            (PrivilegedAction<String>) () -> System.getProperty("solr.client", "HttpSolrClient"));
 
-  @VisibleForTesting
-  SolrClientFactoryImpl(
-      HttpSolrClientFactory httpSolrClientFactory,
-      BiFunction<SolrClientFactory, String, SolrClient> newClientFunction) {
-    this.newClientFunction = newClientFunction;
-    this.httpSolrClientFactory = httpSolrClientFactory;
+    if ("CloudSolrClient".equals(clientType)) {
+      factory = new SolrCloudClientFactory();
+      isCloud = true;
+    } else { // Use HttpSolrClient by default
+      factory = httpSolrClientFactory;
+    }
   }
 
   @Override
   public SolrClient newClient(String core) {
     notNull(core, "Solr core name cannot be null");
+    return factory.newClient(core);
+  }
 
-    String clientType =
-        AccessController.doPrivileged(
-            (PrivilegedAction<String>) () -> System.getProperty("solr.client", "HttpSolrClient"));
-    SolrClientFactory factory;
+  @Override
+  public boolean isSolrCloud() {
+    return isCloud;
+  }
 
-    if ("CloudSolrClient".equals(clientType)) {
-      factory = new SolrCloudClientFactory();
-    } else { // Use HttpSolrClient by default
-      factory = httpSolrClientFactory;
-    }
+  @Override
+  public boolean collectionExists(String collection) {
+    return factory.collectionExists(collection);
+  }
 
-    return newClientFunction.apply(factory, core);
+  @Override
+  public void removeCollection(String collection) {
+    factory.removeCollection(collection);
+  }
+
+  @Override
+  public void removeAlias(String alias) {
+    factory.removeAlias(alias);
+  }
+
+  @Override
+  public void addConfiguration(
+      String configurationName, List<SolrConfigurationData> configurationData) {
+    factory.addConfiguration(configurationName, configurationData);
+  }
+
+  @Override
+  public void addCollection(
+      String collection, Integer shardCountRequested, String configurationName) {
+    factory.addCollection(collection, shardCountRequested, configurationName);
+  }
+
+  @Override
+  public void addCollectionToAlias(String alias, String collection, String collectionPrefix) {
+    factory.addCollectionToAlias(alias, collection, collectionPrefix);
+  }
+
+  @Override
+  public List<String> getCollectionsForAlias(String alias) {
+    return factory.getCollectionsForAlias(alias);
+  }
+
+  @Override
+  public boolean isAvailable() {
+    return factory.isAvailable();
+  }
+
+  @VisibleForTesting
+  SolrClientFactory getFactory() {
+    return factory;
   }
 }

@@ -62,7 +62,7 @@ public class PersistentStoreImplTest {
   @Before
   public void setup() throws Exception {
     when(solrClientFactory.newClient(any())).thenReturn(solrClient);
-    when(solrClient.isAvailable(anyLong(), any())).thenReturn(true);
+    when(solrClient.isAvailable(anyLong(), anyLong(), any())).thenReturn(true);
     persistentStore = new PersistentStoreImpl(solrClientFactory);
   }
 

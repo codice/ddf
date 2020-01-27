@@ -49,6 +49,7 @@ import ddf.catalog.impl.filter.GeoToolsFunctionFactory;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.FacetAttributeResult;
 import ddf.catalog.operation.FacetValueCount;
+import ddf.catalog.operation.IndexQueryResponse;
 import ddf.catalog.operation.Response;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.FacetedQueryRequest;
@@ -56,9 +57,9 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.source.solr.SolrCatalogProvider;
+import ddf.catalog.source.solr.BaseSolrCatalogProvider;
+import ddf.catalog.source.solr.BaseSolrProviderTest;
 import ddf.catalog.source.solr.SolrMetacardClientImpl;
-import ddf.catalog.source.solr.SolrProviderTest;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,11 +97,11 @@ public class SolrProviderQuery {
 
   private static final String DEFAULT_TEST_WILDCARD = "*";
 
-  private static SolrCatalogProvider provider;
+  private static BaseSolrCatalogProvider provider;
 
   @BeforeClass
   public static void setUp() {
-    provider = SolrProviderTest.getProvider();
+    provider = BaseSolrProviderTest.getProvider();
 
     GeoTools.addFactoryIteratorProvider(
         new FactoryIteratorProvider() {
@@ -272,6 +273,14 @@ public class SolrProviderQuery {
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
     assertEquals("Tampa should be found", 1, sourceResponse.getResults().size());
+  }
+
+  @Test
+  public void testQueryIndex() throws Exception {
+    createContextualMetacards();
+    Filter filter = getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like().text("*");
+    IndexQueryResponse response = provider.queryIndex(new QueryRequestImpl(new QueryImpl(filter)));
+    assertEquals("Found Indexes", 2, response.getHits());
   }
 
   @Test(expected = IngestException.class)

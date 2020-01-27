@@ -66,7 +66,7 @@ public class SolrProviderRealTimeQueryTest {
 
   private static MiniSolrCloudCluster miniSolrCloud;
 
-  private static SolrCatalogProvider provider;
+  private static BaseSolrCatalogProvider provider;
 
   public static final String MASKED_ID = "scp";
 
@@ -102,14 +102,14 @@ public class SolrProviderRealTimeQueryTest {
 
     Assert.assertThat(
         "Solr client is not available for testing",
-        solrClient.isAvailable(30L, TimeUnit.SECONDS),
+        solrClient.isAvailable(30L, 5L, TimeUnit.SECONDS),
         Matchers.equalTo(true));
 
     DynamicSchemaResolver dynamicSchemaResolver = new DynamicSchemaResolver();
     dynamicSchemaResolver.addMetacardType(BASIC_METACARD);
 
     provider =
-        new SolrCatalogProvider(
+        new BaseSolrCatalogProvider(
             solrClient,
             new GeotoolsFilterAdapterImpl(),
             new SolrFilterDelegateFactoryImpl(),

@@ -13,6 +13,7 @@
  */
 package org.codice.solr.factory;
 
+import java.util.List;
 import org.codice.solr.client.solrj.SolrClient;
 
 /** Interface implemented by factory classes used to create new {@link SolrClient} instances. */
@@ -30,5 +31,30 @@ public interface SolrClientFactory {
    * @return the newly created {@code SolrClient}
    * @throws IllegalArgumentException if <code>core</code> is <code>null</code>
    */
-  public SolrClient newClient(String core);
+  SolrClient newClient(String core);
+
+  boolean collectionExists(String collection);
+
+  void removeCollection(String collection);
+
+  void removeAlias(String alias);
+
+  void addConfiguration(String configurationName, List<SolrConfigurationData> configurationData);
+
+  void addCollection(String collection, Integer shardCountRequested, String configurationName);
+
+  void addCollectionToAlias(String alias, String collection, String collectionPrefix);
+
+  List<String> getCollectionsForAlias(String alias);
+
+  boolean isAvailable();
+
+  /**
+   * Returns whether or not the provider connects to SolrCloud instance or Standalone. Solr Cloud
+   * provides different capabilities that upstream Index and Storage providers need knowledged of
+   * (e.g. Collection Aliases in SolrCloud).
+   *
+   * @return Provider is a SolrCloud provider.
+   */
+  boolean isSolrCloud();
 }

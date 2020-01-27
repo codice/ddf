@@ -18,8 +18,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import ddf.catalog.source.solr.SolrCatalogProvider;
-import ddf.catalog.source.solr.SolrProviderTest;
+import ddf.catalog.source.solr.BaseSolrCatalogProvider;
+import ddf.catalog.source.solr.BaseSolrProviderTest;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -29,11 +29,11 @@ public class SolrProviderSource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrProviderSource.class);
 
-  private static SolrCatalogProvider provider;
+  private static BaseSolrCatalogProvider provider;
 
   @BeforeClass
   public static void setUp() {
-    provider = SolrProviderTest.getProvider();
+    provider = BaseSolrProviderTest.getProvider();
   }
 
   @Test
