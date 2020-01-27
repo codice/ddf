@@ -85,7 +85,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package />
                         <Embed-Dependency>
-                            catalog-core-api-impl;scope=!test,platform-util
+                            catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Import-Package>
                             !javax.activation,

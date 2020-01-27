@@ -195,8 +195,7 @@
                             admin-core-impl,
                             catalog-core-api-impl,
                             common,
-                            pax-exam-container-karaf,
-                            platform-util
+                            pax-exam-container-karaf
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

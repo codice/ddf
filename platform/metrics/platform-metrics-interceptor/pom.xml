@@ -60,7 +60,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            platform-util,
                             metrics-core,
                             metrics-collector,
                             rrd4j;scope=compile|runtime;artifactId=!slf4j-api

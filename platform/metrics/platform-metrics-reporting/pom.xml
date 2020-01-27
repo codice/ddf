@@ -110,7 +110,6 @@
                             rrd4j,
                             joda-time,
                             commons-math,
-                            platform-util,
                             poi-scratchpad,
                             poi
                         </Embed-Dependency>

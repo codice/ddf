@@ -19,7 +19,7 @@
         <artifactId>docker</artifactId>
         <version>2.22.0-SNAPSHOT</version>
     </parent>
-    <artifactId>ddf</artifactId>
+    <artifactId>ddf-docker</artifactId>
     <groupId>ddf.distribution.docker</groupId>
     <packaging>pom</packaging>
     <name>DDF :: Distribution :: Docker :: DDF</name>

@@ -129,6 +129,7 @@
     </feature>
 
     <feature name="jodah-failsafe" version="${project.version}">
+        <feature prerequisite="true">wrap</feature>
         <bundle>wrap:mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
     </feature>
 </features>

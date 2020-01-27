@@ -147,7 +147,6 @@
               ddf.catalog.transformer.html.models
             </Export-Package>
             <Embed-Dependency>
-              platform-util,
               handlebars,
               commons-lang3,
               antlr4-runtime

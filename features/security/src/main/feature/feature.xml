@@ -34,6 +34,7 @@
         <feature>cxf-rt-security</feature>
         <feature>security-filter-api</feature>
         <feature>cxf-jaxrs</feature>
+        <feature>platform-util</feature>
         <bundle dependency="true">mvn:ddf.platform.security/log-sanitizer/${project.version}</bundle>
         <bundle dependency="true">mvn:org.apache.commons/commons-configuration2/${commons-configuration2.version}</bundle>
         <bundle dependency="true">mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
@@ -114,6 +115,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <bundle>mvn:javax.el/javax.el-api/3.0.0</bundle>
         <feature>pax-jetty</feature>
         <feature>session-invalidator</feature>
+        <feature prerequisite="true">wrap</feature>
         <bundle>wrap:mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
         <feature>guava</feature>
         <feature>common-system</feature>
@@ -241,6 +243,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>security-handler-api</feature>
         <feature>security-core-impl</feature>
         <feature>platform-util</feature>
+        <feature prerequisite="true">wrap</feature>
         <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>
         <bundle>mvn:ddf.security.certificate/security-ocsp-checker/${project.version}</bundle>
         <bundle>mvn:ddf.security.handler/security-handler-pki/${project.version}</bundle>

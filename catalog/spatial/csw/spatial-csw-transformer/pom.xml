@@ -160,7 +160,6 @@
                             spatial-csw-common,
                             spatial-ogc-common,
                             catalog-core-api-impl,
-                            platform-util,
                             geospatial,
                             commons-lang3
                         </Embed-Dependency>

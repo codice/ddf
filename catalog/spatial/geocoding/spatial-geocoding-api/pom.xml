@@ -56,8 +56,7 @@
                             org.codice.ddf.spatial.geocoding.context
                         </Export-Package>
                         <Embed-Dependency>
-                            catalog-core-api-impl,
-                            platform-util
+                            catalog-core-api-impl
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

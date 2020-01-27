@@ -59,7 +59,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            catalog-core-api-impl;scope=!test,platform-util,commons-lang3,failsafe
+                            catalog-core-api-impl;scope=!test,commons-lang3,failsafe
                         </Embed-Dependency>
                         <Export-Package />
                     </instructions>

@@ -68,8 +68,7 @@
                         <Embed-Dependency>
                             catalog-core-api-impl;scope=!test,
                             commons-io,
-                            Saxon-HE,
-                            platform-util
+                            Saxon-HE
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

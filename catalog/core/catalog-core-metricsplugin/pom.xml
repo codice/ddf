@@ -89,8 +89,7 @@
                             metrics-core,
                             metrics-collector,
                             rrd4j;scope=compile|runtime;artifactId=!slf4j-api,
-                            catalog-core-api-impl;scope=!test,
-                            platform-util
+                            catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Import-Package><!-- START: imports specific for embedding rrd4j -->

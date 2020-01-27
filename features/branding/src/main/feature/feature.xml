@@ -32,6 +32,7 @@
     <feature name="branding-registry" version="${project.version}" description="Branding API">
         <feature>ddf-branding</feature>
         <feature>common-system</feature>
+        <feature>platform-util</feature>
         <bundle>mvn:ddf.platform/branding-registry-impl/${project.version}</bundle>
     </feature>
 </features>

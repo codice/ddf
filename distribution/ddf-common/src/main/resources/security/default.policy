@@ -292,7 +292,7 @@ grant codeBase "file:/security-pdp-authzrealm" {
     permission java.lang.RuntimePermission "modifyThread";
 }
 
-grant codeBase "file:/admin-core-insecuredefaults/org.apache.felix.scr/org.apache.karaf.decanter.scheduler.simple/io.netty.common/io.netty.transport" {
+grant codeBase "file:/admin-core-insecuredefaults/org.apache.felix.scr/org.apache.karaf.decanter.scheduler.simple/io.netty.common/io.netty.transport/platform-util" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
@@ -305,7 +305,7 @@ grant codeBase "file:/admin-core-insecuredefaults/org.apache.karaf.decanter.sche
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "write";
 }
 
-grant codeBase "file:/admin-core-impl/catalog-admin-poller-service/admin-core-jolokia" {
+grant codeBase "file:/admin-core-impl/catalog-admin-poller-service/admin-core-jolokia/platform-util" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";

@@ -166,6 +166,7 @@
                             org.slf4j.*,
                             org.w3c.dom.*,
                             org.xml.sax.*,
+                            org.codice.ddf.platform.util
                         </Import-Package>
                         <Embed-Dependency>
                             catalog-core-api-impl,
@@ -176,7 +177,6 @@
                             fontbox,
                             pdfbox,
                             pdfbox-tools,
-                            platform-util,
                             <!--
                             TODO Big nasty hack. Should not normally embed another bundle. But we
                             can't install this bundle separately in osgi because of a missing

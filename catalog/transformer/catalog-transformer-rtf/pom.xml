@@ -134,7 +134,6 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            platform-util,
                             commons-lang3,
                             tutego.jrtf
                         </Embed-Dependency>

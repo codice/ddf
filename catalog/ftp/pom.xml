@@ -174,7 +174,6 @@
                         <Embed-Dependency>
                             ftplet-api,
                             ftpserver-core,
-                            platform-util,
                             catalog-core-api-impl,
                             shiro-core,
                             commons-beanutils,

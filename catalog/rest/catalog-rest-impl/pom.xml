@@ -155,7 +155,6 @@
                             catalog-core-actions,
                             catalog-core-api-impl,
                             json-smart,
-                            platform-util,
                             owasp-java-html-sanitizer
                         </Embed-Dependency>
                         <Import-Package>

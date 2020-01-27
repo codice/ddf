@@ -83,7 +83,6 @@
         <configuration>
           <instructions>
             <Embed-Dependency>
-              platform-util,
               catalog-core-api-impl
             </Embed-Dependency>
           </instructions>

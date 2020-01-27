@@ -73,8 +73,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package />
                         <Embed-Dependency>
-                            alerts,
-                            platform-util
+                            alerts
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

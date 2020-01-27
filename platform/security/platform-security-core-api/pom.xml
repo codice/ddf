@@ -217,7 +217,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            platform-util,
                             httpclient;scope=!test,
                             httpcore,
                             google-http-client,

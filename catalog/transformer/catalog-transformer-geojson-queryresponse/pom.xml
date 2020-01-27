@@ -67,7 +67,6 @@
                         <Embed-Dependency>
                             json-smart,
                             catalog-core-api-impl;scope=!test,
-                            platform-util,
                             asm
                         </Embed-Dependency>
                         <Export-Package />

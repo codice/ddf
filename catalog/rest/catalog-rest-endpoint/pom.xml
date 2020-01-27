@@ -210,7 +210,6 @@
                             catalog-rest-service,
                             catalog-core-api-impl,
                             owasp-java-html-sanitizer,
-                            platform-util,
                             asm,
                             json-smart
                         </Embed-Dependency>

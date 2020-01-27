@@ -136,7 +136,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-api-impl,
-                            platform-util,
                             hazelcast,
                             handlebars,
                             antlr4-runtime

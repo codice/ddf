@@ -61,8 +61,7 @@
                         <Embed-Dependency>
                             catalog-core-api-impl,
                             jai-imageio-core,
-                            jai-imageio-jpeg2000,
-                            platform-util
+                            jai-imageio-jpeg2000
                         </Embed-Dependency>
                         <Import-Package>!sun.security.action,*</Import-Package>
                         <Export-Package />

@@ -170,7 +170,6 @@
                         <Karaf-Commands>org.codice.ddf.commands.solr</Karaf-Commands>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            platform-util,
                             solr-factory-impl
                         </Embed-Dependency>
                         <Private-Package>

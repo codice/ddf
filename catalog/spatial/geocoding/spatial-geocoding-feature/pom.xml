@@ -90,7 +90,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-api-impl;scope=!test,
-                            platform-util,
                             ddf-security-common
                         </Embed-Dependency>
                         <Export-Package>org.codice.ddf.spatial.geocoding.feature</Export-Package>

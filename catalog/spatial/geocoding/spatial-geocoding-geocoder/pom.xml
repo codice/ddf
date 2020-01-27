@@ -80,7 +80,6 @@
                             json-smart,
                             catalog-core-api-impl,
                             spatial4j,
-                            platform-util,
                             asm
                         </Embed-Dependency>
                         <Export-Package>org.codice.ddf.spatial.geocoder</Export-Package>

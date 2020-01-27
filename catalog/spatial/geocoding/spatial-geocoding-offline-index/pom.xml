@@ -109,7 +109,6 @@
                             jts-core,
                             spatial-geocoding-api-impl,
                             spatial4j,
-                            platform-util,
                             ddf-security-common
                         </Embed-Dependency>
                         <Import-Package>

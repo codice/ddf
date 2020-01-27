@@ -78,8 +78,7 @@
                         <Export-Package />
                         <Embed-Dependency>
                             commons-exec,
-                            catalog-core-api-impl,
-                            platform-util
+                            catalog-core-api-impl
                         </Embed-Dependency>
                         <Include-Resource>
                             ${ffmpeg.unpackDirectory},

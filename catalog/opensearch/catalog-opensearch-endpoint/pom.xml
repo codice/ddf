@@ -100,7 +100,6 @@
                         <Embed-Dependency>
                             catalog-core-api-impl,
                             catalog-opensearch-api,
-                            platform-util,
                             parboiled-java,
                             parboiled-core,
                             asm,
