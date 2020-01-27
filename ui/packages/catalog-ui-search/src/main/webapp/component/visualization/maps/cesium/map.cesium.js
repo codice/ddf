@@ -294,9 +294,8 @@ module.exports = function CesiumMap(
     findSelected = false,
   }) {
     const labelWithSamePosition = findOverlappingLabel(findSelected, geometry)
-    if (isSelected && labelWithSamePosition !== undefined) {
+    if (isSelected && labelWithSamePosition) {
       labelWithSamePosition.show = false
-      labelWithSamePosition.isSelected = false
     }
     geometry.show =
       isSelected ||
@@ -973,6 +972,9 @@ module.exports = function CesiumMap(
       //unminified cesium chokes if you feed a geometry with id as an Array
       if (geometry.constructor === Cesium.Entity) {
         map.entities.remove(geometry)
+      }
+      if (geometry.constructor === Cesium.Label) {
+        mapModel.clearLabels()
       }
       map.scene.requestRender()
     },
