@@ -80,6 +80,11 @@ module.exports = Backbone.AssociatedModel.extend({
       labels: [...this.get('labels'), label],
     })
   },
+  clearLabels() {
+    this.set({
+      labels: [],
+    })
+  },
   /*
    * Sets the line to the given new line. This represents the line on the map
    * being used for the ruler measurement.
