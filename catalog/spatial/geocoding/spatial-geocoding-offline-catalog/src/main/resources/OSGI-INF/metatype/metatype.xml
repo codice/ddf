@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+  <OCD name="Gazetteer Query Catalog" id="org.codice.ddf.spatial.geocoding.query.GazetteerQueryCatalog">
+    <AD description="Collection to search for GeoCoder information. Must be a single collection. Leave blank for default query to the full catalog."
+      name="GeoCoder Collection" id="geocoderCollection" required="false" type="String"
+      default="gazetteer"/>
+  </OCD>
+
+  <Designate pid="org.codice.ddf.spatial.geocoding.query.GazetteerQueryCatalog">
+    <Object ocdref="org.codice.ddf.spatial.geocoding.query.GazetteerQueryCatalog"/>
+  </Designate>
+
+</metatype:MetaData>

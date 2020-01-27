@@ -10,15 +10,22 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/ -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+    <ext:property-placeholder/>
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework" />
 
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder" />
 
     <bean id="gazetteerQueryable" class="org.codice.ddf.spatial.geocoding.query.GazetteerQueryCatalog">
+        <cm:managed-properties persistent-id="org.codice.ddf.spatial.geocoding.query.GazetteerQueryCatalog"
+          update-strategy="container-managed"/>
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
+        <property name="geocoderCollection" value="gazetteer"/>
     </bean>
 
     <service ref="gazetteerQueryable" interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable" ranking="50"/>

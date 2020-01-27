@@ -13,6 +13,7 @@
  */
 package org.codice.solr.factory;
 
+import java.util.Map;
 import org.codice.solr.client.solrj.SolrClient;
 
 /** Interface implemented by factory classes used to create new {@link SolrClient} instances. */
@@ -30,5 +31,7 @@ public interface SolrClientFactory {
    * @return the newly created {@code SolrClient}
    * @throws IllegalArgumentException if <code>core</code> is <code>null</code>
    */
-  public SolrClient newClient(String core);
+  SolrClient newClient(String core);
+
+  SolrClient newClient(String collection, Map<String, Object> properties);
 }

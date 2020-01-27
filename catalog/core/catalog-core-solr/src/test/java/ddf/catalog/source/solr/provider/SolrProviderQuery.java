@@ -56,7 +56,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.source.solr.SolrCatalogProvider;
+import ddf.catalog.source.solr.SolrCatalogProviderImpl;
 import ddf.catalog.source.solr.SolrMetacardClientImpl;
 import ddf.catalog.source.solr.SolrProviderTest;
 import java.io.Serializable;
@@ -96,7 +96,7 @@ public class SolrProviderQuery {
 
   private static final String DEFAULT_TEST_WILDCARD = "*";
 
-  private static SolrCatalogProvider provider;
+  private static SolrCatalogProviderImpl provider;
 
   @BeforeClass
   public static void setUp() {

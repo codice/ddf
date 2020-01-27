@@ -66,7 +66,7 @@ public class SolrProviderRealTimeQueryTest {
 
   private static MiniSolrCloudCluster miniSolrCloud;
 
-  private static SolrCatalogProvider provider;
+  private static SolrCatalogProviderImpl provider;
 
   public static final String MASKED_ID = "scp";
 
@@ -109,7 +109,7 @@ public class SolrProviderRealTimeQueryTest {
     dynamicSchemaResolver.addMetacardType(BASIC_METACARD);
 
     provider =
-        new SolrCatalogProvider(
+        new SolrCatalogProviderImpl(
             solrClient,
             new GeotoolsFilterAdapterImpl(),
             new SolrFilterDelegateFactoryImpl(),

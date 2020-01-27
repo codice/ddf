@@ -203,6 +203,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             .getHeader("id");
 
     delete(id);
+    deleteTemporaryFile(fileName);
   }
 
   @Test
@@ -234,6 +235,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .header(HttpHeaders.CONTENT_TYPE, Matchers.is("image/jpeg"));
 
     delete(id);
+    deleteTemporaryFile(fileName);
   }
 
   @Test
@@ -267,6 +269,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .header(HttpHeaders.CONTENT_TYPE, Matchers.is("image/jpeg"));
 
     delete(id);
+    deleteTemporaryFile(fileName);
   }
 
   @Test
@@ -879,7 +882,11 @@ public class TestCatalog extends AbstractIntegrationTest {
               .then();
       validatableResponse.assertThat().statusCode(400);
     } finally {
-      CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
+      try {
+        CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
+      } catch (IOException | XPathExpressionException e) {
+        fail("Could not retrieve the ingested record's ID from the response.");
+      }
     }
   }
 
@@ -1162,6 +1169,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     given().get(url).then().log().all().assertThat().statusCode(equalTo(200)).body(is(SAMPLE_DATA));
 
     delete(metacardId);
+    deleteTemporaryFile(fileName);
   }
 
   @Test
@@ -1178,6 +1186,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .statusCode(HttpStatus.SC_BAD_REQUEST)
         .when()
         .put(new DynamicUrl(REST_PATH, metacardId).getUrl());
+    deleteTemporaryFile(fileName);
   }
 
   @Test
@@ -1215,6 +1224,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .header(HttpHeaders.CONTENT_LENGTH, notNullValue());
 
     delete(id);
+    deleteTemporaryFile(fileName);
   }
 
   @Test
@@ -1242,6 +1252,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .body(is(SAMPLE_DATA));
 
     delete(metacardId);
+    deleteTemporaryFile(fileName);
   }
 
   @Test
@@ -1280,6 +1291,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .body(is(partialSampleData));
 
     delete(metacardId);
+    deleteTemporaryFile(fileName);
   }
 
   @Test
@@ -1309,6 +1321,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .statusCode(equalTo(400));
 
     delete(metacardId);
+    deleteTemporaryFile(fileName);
   }
 
   private void verifyGetRecordByIdResponse(
@@ -2317,6 +2330,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                 metacardPath + "/string[@name=\"" + Core.TITLE + "\"]/value", is(overrideTitle)));
 
     delete(id);
+    deleteTemporaryFile(fileName);
   }
 
   @Test
@@ -2352,6 +2366,7 @@ public class TestCatalog extends AbstractIntegrationTest {
         .put(REST_PATH.getUrl() + id);
 
     delete(id);
+    deleteTemporaryFile(fileName);
   }
 
   @Test
@@ -2420,6 +2435,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     // clean up
     delete(id);
+    deleteTemporaryFile(fileName);
   }
 
   @Test
@@ -2453,6 +2469,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     // clean up
     delete(id);
+    deleteTemporaryFile(fileName);
   }
 
   @Test
@@ -2471,6 +2488,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         .statusCode(HttpStatus.SC_BAD_REQUEST)
         .when()
         .post(REST_PATH.getUrl());
+
+    deleteTemporaryFile(fileName);
   }
 
   // TODO: Turn on this test once DDF-3340 is complete
@@ -2525,12 +2544,22 @@ public class TestCatalog extends AbstractIntegrationTest {
     return file;
   }
 
+  private static void deleteTemporaryFile(String fileName) {
+    File file = new File(fileName);
+    if (!file.delete()) {
+      fail("Unable to delete " + fileName + " file.");
+    }
+  }
+
   private void verifyMetadataBackup() {
 
     String buffer =
         OPENSEARCH_PATH.getUrl() + "?" + "format=" + "xml" + "&" + "q=*" + "&" + "count=100";
     final Response response = when().get(buffer);
     String id = XmlPath.given(response.asString()).get("metacards.metacard[0].@gml:id");
+
+    assertThat(id, is(notNullValue()));
+
     Path path =
         Paths.get("data/backup/metacard", id.substring(0, 3), id.substring(3, 6), id + ".xml");
 
