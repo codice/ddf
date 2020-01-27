@@ -13,7 +13,6 @@
  */
 package org.codice.solr.factory.impl
 
-import ddf.catalog.source.solr.api.impl.SolrConfigurationDataImpl
 import net.jodah.failsafe.FailsafeException
 import net.jodah.failsafe.RetryPolicy
 import org.apache.solr.client.solrj.SolrClient
@@ -21,7 +20,6 @@ import org.apache.solr.client.solrj.SolrServerException
 import org.apache.solr.client.solrj.impl.CloudSolrClient
 import org.apache.solr.client.solrj.impl.ZkClientClusterStateProvider
 import org.apache.solr.client.solrj.request.CollectionAdminRequest
-import org.apache.solr.client.solrj.response.CollectionAdminResponse
 import org.apache.solr.client.solrj.response.SolrPingResponse
 import org.apache.solr.common.SolrException
 import org.apache.solr.common.cloud.ClusterState
@@ -30,7 +28,7 @@ import org.apache.solr.common.cloud.SolrZkClient
 import org.apache.solr.common.cloud.ZkStateReader
 import org.apache.solr.common.util.NamedList
 import org.apache.zookeeper.KeeperException
-import org.codice.solr.factory.SolrConfigurationData
+
 import org.codice.spock.ClearInterruptions
 import org.codice.spock.Supplemental
 import org.junit.Rule
@@ -882,72 +880,5 @@ class SolrCloudClientFactorySpec extends Specification {
 
     then: "remove alias"
     1 * cloudClient.request({ it instanceof CollectionAdminRequest.DeleteAlias }, null) >> deleteAliasResponse
-  }
-
-  @Unroll
-  def 'test add configuration #add_config_because'() {
-    given:
-    def zkClient = Mock(SolrZkClient)
-    def zkStateProvider = Mock(ZkClientClusterStateProvider)
-    def cloudClient = Mock(CloudSolrClient) {
-      getZkStateReader() >> Mock(ZkStateReader) {
-        getZkClient() >> zkClient
-      }
-      request({ it instanceof CollectionAdminRequest.List }, null) >> Mock(NamedList) {
-        get("collections") >> Collections.emptyList()
-      }
-    }
-    def factory = Spy(SolrCloudClientFactory)
-    SolrConfigurationData configData = new SolrConfigurationDataImpl("test_config_file.txt", new ByteArrayInputStream());
-    System.setProperty("solr.cloud.zookeeper", SOLR_CLOUD_ZOOKEEPERS)
-
-    when: "add collection to alias"
-    factory.addConfiguration(CORE, Collections.singletonList(configData));
-
-    then: "configure client"
-    1 * factory.newCloudSolrClient(*_) >> cloudClient
-    1 * cloudClient.connect() >> null
-
-    and: "verify zookeeper is consulted to see if the configuration exists"
-    1 * zkClient.exists("/configs/$CORE", true) >> zk_config_exists
-
-    and: "check configuration uploaded"
-    upload_count * factory.newZkStateProvider(*_) >> zkStateProvider
-    upload_count * zkStateProvider.uploadConfig(*_) >> null
-
-    where:
-    add_config_because       || zk_config_exists | upload_count
-    'config does not exist'  || false            | 1
-    'config exists'          || true             | 0
-  }
-
-  def 'test add collection'() {
-    given:
-    def zkClient = Mock(SolrZkClient) {
-      exists(*_) >> true
-    }
-    def zkStateProvider = Mock(ZkClientClusterStateProvider)
-    def cloudClient = Mock(CloudSolrClient) {
-      getZkStateReader() >> Mock(ZkStateReader) {
-        getZkClient() >> zkClient
-      }
-    }
-    def factory = Spy(SolrCloudClientFactory)
-    SolrConfigurationData configData = new SolrConfigurationDataImpl("test_config_file.txt", new ByteArrayInputStream());
-    System.setProperty("solr.cloud.zookeeper", SOLR_CLOUD_ZOOKEEPERS)
-
-    when: "add collection to alias"
-    factory.addCollection(CORE, 1, CORE);
-
-    then: "configure client"
-    1 * factory.newCloudSolrClient(*_) >> cloudClient
-    1 * cloudClient.connect() >> null
-
-    and: "check that create collection called"
-    1 * cloudClient.request({ it instanceof CollectionAdminRequest.List }, null) >> Mock(NamedList) {
-      get("collections") >> Collections.emptyList()
-    }
-    1 * cloudClient.request({ it instanceof CollectionAdminRequest.ListAliases}, null) >> aliasResponseWithNullAliases
-    1 * cloudClient.request({ it instanceof CollectionAdminRequest.Create }, null) >> Mock(NamedList)
   }
 }

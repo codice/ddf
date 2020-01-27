@@ -14,15 +14,10 @@
 package org.codice.solr.factory.impl;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,20 +26,17 @@ import java.util.concurrent.TimeUnit;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.FailsafeException;
 import net.jodah.failsafe.RetryPolicy;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient.RemoteSolrException;
 import org.apache.solr.client.solrj.impl.ZkClientClusterStateProvider;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.common.SolrException;
 import org.apache.zookeeper.KeeperException;
 import org.codice.solr.factory.SolrClientFactory;
-import org.codice.solr.factory.SolrConfigurationData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,10 +55,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SolrCloudClientFactory implements SolrClientFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrCloudClientFactory.class);
-
-  private static final String SOLR_DATA_DIR_PROP = "solr.data.dir";
-
-  private static final String CONF_DIR = "conf";
 
   private final int shardCount = NumberUtils.toInt(System.getProperty("solr.cloud.shardCount"), 2);
 
@@ -127,223 +115,6 @@ public class SolrCloudClientFactory implements SolrClientFactory {
   @Override
   public boolean isSolrCloud() {
     return true;
-  }
-
-  @Override
-  public boolean collectionExists(String collection) {
-    try (final Closer closer = new Closer()) {
-      CloudSolrClient client = closer.with(newCloudSolrClient(zookeeperHosts));
-      client.connect();
-      return collectionExists(collection, client);
-    } catch (SolrServerException | SolrException | SolrFactoryException | IOException e) {
-      LOGGER.debug("Unable to verify if collection ({}) exists", collection, e);
-    }
-    return false;
-  }
-
-  @Override
-  public void removeCollection(String collection) {
-    try (final Closer closer = new Closer()) {
-      CloudSolrClient client = closer.with(newCloudSolrClient(zookeeperHosts));
-      client.connect();
-      CollectionAdminResponse response =
-          CollectionAdminRequest.deleteCollection(collection).process(client);
-      if (!response.isSuccess()) {
-        throw new SolrFactoryException(
-            "Failed to delete collection [" + collection + "]: " + response.getErrorMessages());
-      }
-    } catch (SolrServerException | SolrException | SolrFactoryException | IOException e) {
-      LOGGER.debug("Unable to remove collection ({})", collection, e);
-    }
-  }
-
-  @Override
-  public void removeAlias(String alias) {
-    try (final Closer closer = new Closer()) {
-      CloudSolrClient client = closer.with(newCloudSolrClient(zookeeperHosts));
-      client.connect();
-      CollectionAdminResponse response = CollectionAdminRequest.deleteAlias(alias).process(client);
-      if (!response.isSuccess()) {
-        throw new SolrFactoryException(
-            "Failed to delete alias [" + alias + "]: " + response.getErrorMessages());
-      }
-    } catch (SolrServerException | SolrException | SolrFactoryException | IOException e) {
-      LOGGER.debug("Unable to remove alias ({})", alias, e);
-    }
-  }
-
-  @Override
-  public void addConfiguration(
-      String configurationName, List<SolrConfigurationData> configurationData) {
-    checkConfig();
-    boolean configExistsInZk = false;
-
-    try (final Closer closer = new Closer()) {
-      CloudSolrClient client = closer.with(newCloudSolrClient(zookeeperHosts));
-      client.connect();
-      configExistsInZk =
-          client.getZkStateReader().getZkClient().exists("/configs/" + configurationName, true);
-
-      if (!configExistsInZk) {
-        String solrDataBasePath = System.getProperty(SOLR_DATA_DIR_PROP);
-        if (solrDataBasePath == null) {
-          LOGGER.debug(
-              "{} property not defined, will attempt to use Java tmpdir", SOLR_DATA_DIR_PROP);
-          solrDataBasePath = System.getProperty("java.io.tmpdir");
-        }
-        File baseDir = Paths.get(solrDataBasePath, configurationName, CONF_DIR).toFile();
-        boolean dirCreated = baseDir.mkdirs();
-        LOGGER.debug(
-            "Configuration directory {} created: {}", baseDir.getAbsolutePath(), dirCreated);
-
-        storeConfigurationFiles(configurationName, baseDir, configurationData);
-        Path configPath = baseDir.toPath();
-
-        try (ZkClientClusterStateProvider zkStateProvider = newZkStateProvider(client)) {
-          zkStateProvider.uploadConfig(configPath, configurationName);
-        } catch (IOException e) {
-          LOGGER.debug(
-              "Failed to upload configurations for configuration: {}", configurationName, e);
-        }
-      }
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      LOGGER.debug(
-          "Failed to check config status with Zookeeper for existing configuration: {}",
-          configurationName,
-          e);
-    } catch (KeeperException e) {
-      LOGGER.debug(
-          "Failed to check config status with Zookeeper for existing configuration: {}",
-          configurationName,
-          e);
-    }
-  }
-
-  @Override
-  public void addCollection(
-      String collection, Integer shardCountRequested, String configurationName) {
-    int configShardCount = shardCountMap.getOrDefault(collection, shardCount);
-    if (shardCountRequested != null) {
-      configShardCount = shardCountRequested;
-    }
-    try (final Closer closer = new Closer()) {
-      CloudSolrClient client = closer.with(newCloudSolrClient(zookeeperHosts));
-      client.connect();
-      createCollection(collection, Math.max(1, configShardCount), configurationName, client);
-    } catch (SolrFactoryException e) {
-      LOGGER.debug(
-          "Unable to create collection: {} using configuration: {} and shardCount: {}",
-          collection,
-          configurationName,
-          shardCount,
-          e);
-    }
-  }
-
-  @Override
-  public void addCollectionToAlias(String alias, String collection, String collectionPrefix) {
-    if (StringUtils.isBlank(alias) || StringUtils.isBlank(collection)) {
-      return;
-    }
-
-    try (final Closer closer = new Closer()) {
-      CloudSolrClient client = closer.with(newCloudSolrClient(zookeeperHosts));
-      client.connect();
-      CollectionAdminResponse aliasResponse =
-          new CollectionAdminRequest.ListAliases().process(client);
-      String newCollections = collection;
-      if (aliasResponse != null) {
-        Map<String, String> aliases = aliasResponse.getAliases();
-        if (aliases != null && aliases.containsKey(alias)) {
-          String aliasedCollections = aliases.get(alias);
-          String[] currentAliases = aliasedCollections.split(",");
-          boolean aliasExists = false;
-          for (String currentAlias : currentAliases) {
-            if (currentAlias.equals(collection)) {
-              aliasExists = true;
-              break;
-            }
-          }
-          if (aliasExists) {
-            return;
-          }
-
-          List<String> newAliases = new ArrayList<>(Arrays.asList(currentAliases));
-          newAliases.add(collection);
-
-          if (StringUtils.isNotBlank(collectionPrefix)) {
-            // Find existing collections in case parallel operations are creating collections
-            CollectionAdminResponse response = new CollectionAdminRequest.List().process(client);
-
-            if (response.getResponse() != null) {
-              List<String> collections = (List<String>) response.getResponse().get("collections");
-              if (collections != null) {
-                for (String existingCollection : collections) {
-                  if (existingCollection.startsWith(collectionPrefix)) {
-                    if (!newAliases.contains(existingCollection)) {
-                      newAliases.add(existingCollection);
-                    }
-                  }
-                }
-              }
-            }
-          }
-
-          newCollections = String.join(",", newAliases);
-        }
-      }
-
-      final String aliasedCollections = newCollections;
-      RetryPolicy retryPolicy =
-          new RetryPolicy()
-              .withDelay(100, TimeUnit.MILLISECONDS)
-              .withMaxDuration(3, TimeUnit.MINUTES)
-              .retryOn(RemoteSolrException.class);
-      CollectionAdminResponse response =
-          Failsafe.with(retryPolicy)
-              .get(
-                  () ->
-                      CollectionAdminRequest.createAlias(alias, aliasedCollections)
-                          .process(client));
-
-      if (response.getErrorMessages() != null && response.getErrorMessages().size() != 0) {
-        LOGGER.warn(
-            "Failed to update alias [{}}] with collections: [{}}], this will cause queries to be inconsistent. Error: {}",
-            alias,
-            newCollections,
-            response.getErrorMessages());
-      }
-      if (!isAliasReady(client, alias)) {
-        LOGGER.debug(
-            "Alias [{}] was not created during collection [{}] creation", alias, collection);
-      } else {
-        LOGGER.trace("Alias [{}] updated with new list of collections: {}", alias, newCollections);
-      }
-    } catch (SolrServerException | IOException e) {
-      LOGGER.warn("Failed to update alias [{}}]", alias, e);
-    }
-  }
-
-  @Override
-  public List<String> getCollectionsForAlias(String alias) {
-    try (final Closer closer = new Closer()) {
-      CloudSolrClient client = closer.with(newCloudSolrClient(zookeeperHosts));
-      client.connect();
-
-      CollectionAdminResponse aliasResponse =
-          new CollectionAdminRequest.ListAliases().process(client);
-      if (aliasResponse != null) {
-        Map<String, String> aliases = aliasResponse.getAliases();
-        if (aliases != null && aliases.containsKey(alias)) {
-          String aliasedCollections = aliases.get(alias);
-          return Arrays.asList(aliasedCollections.split(","));
-        }
-      }
-    } catch (SolrServerException | IOException e) {
-      LOGGER.warn("Failed to get alias information [{}}]", alias, e);
-    }
-    return Collections.emptyList();
   }
 
   @Override
@@ -571,22 +342,6 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     }
   }
 
-  private boolean isAliasReady(CloudSolrClient client, String alias) {
-    try {
-      boolean aliasReady =
-          Failsafe.with(withRetry().retryWhen(false))
-              .onFailure(
-                  failure -> LOGGER.debug("Unable to get status on alias: {}", alias, failure))
-              .get(() -> aliasExists(alias, client));
-      if (!aliasReady) {
-        LOGGER.debug("Solr ({}): Timeout while waiting for Alias to exist", alias);
-      }
-      return aliasReady;
-    } catch (FailsafeException e) {
-      LOGGER.debug("Solr({}): Failure waiting for Alias to exist", alias, e);
-    }
-    return false;
-  }
 
   protected void checkConfig() {
     if (StringUtils.isBlank(zookeeperHosts)) {
@@ -597,22 +352,6 @@ public class SolrCloudClientFactory implements SolrClientFactory {
       LOGGER.warn(
           "Cannot create Solr Cloud client without Zookeeper host list system property [solr.cloud.zookeeper] being set.");
       throw new IllegalStateException("system property 'solr.cloud.zookeeper' is not configured");
-    }
-  }
-
-  protected void storeConfigurationFiles(
-      String configurationName, File baseDir, List<SolrConfigurationData> configurationData) {
-
-    for (SolrConfigurationData configData : configurationData) {
-      File currentFile = new File(baseDir, configData.getFileName());
-      if (!currentFile.exists())
-        try (InputStream inputStream = configData.getConfigurationData();
-            FileOutputStream outputStream = new FileOutputStream(currentFile)) {
-          long byteCount = IOUtils.copyLarge(inputStream, outputStream);
-          LOGGER.debug("Wrote out {} bytes for [{}].", byteCount, currentFile.getAbsoluteFile());
-        } catch (IOException e) {
-          LOGGER.warn("Unable to copy Solr configuration file: {}" + configData.getFileName(), e);
-        }
     }
   }
 }
