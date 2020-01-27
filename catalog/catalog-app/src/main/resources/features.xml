@@ -36,6 +36,7 @@
         <feature>action-core-impl</feature>
         <bundle>mvn:ddf.platform.api/platform-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-api/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.solr/catalog-solr-collection-api/${project.version}</bundle>
         <bundle>mvn:ddf.mime.core/mime-core-api/${project.version}</bundle>
         <bundle>mvn:org.apache.tika/tika-core/${tika.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>

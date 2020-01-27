@@ -53,4 +53,14 @@
         <!--<feature>opendj-embedded</feature>-->
     </feature>
 
+    <feature name="profile-split" version="${project.version}"
+      description="This will install standard application and the Solr Split App."
+      start-level="4">
+        <feature>ddf-boot-features</feature>
+        <feature>catalog-app</feature>
+        <feature>search-ui-app</feature>
+        <feature>split-solr-app</feature>
+        <feature>spatial-app</feature>
+    </feature>
+
 </features>

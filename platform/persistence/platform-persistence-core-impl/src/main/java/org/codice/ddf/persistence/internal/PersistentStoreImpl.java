@@ -295,7 +295,7 @@ public class PersistentStoreImpl implements PersistentStore {
       final SolrClient solrClient =
           solrClients.computeIfAbsent(storeName, clientFactory::newClient);
 
-      if (solrClient.isAvailable(5, TimeUnit.SECONDS)) {
+      if (solrClient.isAvailable(30, TimeUnit.SECONDS)) {
         return solrClient;
       }
     } catch (InterruptedException e) {

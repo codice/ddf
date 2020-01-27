@@ -1,0 +1,53 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+		   xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+	<reference id="solrClientFactory" interface="org.codice.solr.factory.SolrClientFactory" />
+
+	<reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
+
+	<reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder" />
+
+	<bean id="dynamicSchemaResolver" class="ddf.catalog.source.solr.DynamicSchemaResolver"/>
+
+	<bean id="solrCollectionProviderList" class="org.codice.ddf.platform.util.SortedServiceList"/>
+
+	<reference-list id="solrCollectionProviders"
+		interface="ddf.catalog.solr.collection.SolrCollectionProvider"
+		availability="mandatory">
+		<reference-listener bind-method="bindPlugin"
+			unbind-method="unbindPlugin" ref="solrCollectionProviderList"/>
+	</reference-list>
+
+	<bean id="splitCatalogProvider" class="ddf.catalog.solr.provider.SplitCatalogProvider"
+		destroy-method="shutdown">
+		<!-- Aries does not call my object on startup if set to component-managed. Therefore, we will use container-managed
+		and have the setter call the update method. -->
+		<cm:managed-properties persistent-id="ddf.catalog.solr.provider.SplitCatalogProvider"
+			update-strategy="container-managed"/>
+		<argument ref="filterAdapter"/>
+		<argument ref="solrClientFactory" />
+		<argument>
+			<bean class="ddf.catalog.source.solr.SolrFilterDelegateFactoryImpl"/>
+		</argument>
+		<argument ref="dynamicSchemaResolver"/>
+		<argument ref="solrCollectionProviderList"/>
+		<property name="getHandlerWorkaround" value="true"/>
+		<property name="collectionAlias" value="catalog"/>
+	</bean>
+
+	<service ref="splitCatalogProvider" interface="ddf.catalog.source.CatalogProvider"/>
+
+</blueprint>

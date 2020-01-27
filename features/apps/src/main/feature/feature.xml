@@ -24,6 +24,7 @@
     <repository>mvn:ddf.features/solr/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
     <repository>mvn:ddf.catalog.solr/catalog-solr-app/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.catalog.solr/split-solr-app/${project.version}/xml/features</repository>
 
     <feature name="ddf-core" version="${project.version}"
              description="Features that will be started on container startup.">

@@ -12,6 +12,7 @@
     "mvn:org.codice.ddf.spatial/spatial-wfs-v1_0_0-source/${project.version}",
     "mvn:org.codice.ddf.spatial/spatial-wfs-v1_1_0-source/${project.version}",
     "mvn:org.codice.ddf.spatial/spatial-wfs-v2_0_0-source/${project.version}",
-    "mvn:org.codice.ddf.spatial/spatial-wfs-featuretransformer-handlebars/${project.version}"
+    "mvn:org.codice.ddf.spatial/spatial-wfs-featuretransformer-handlebars/${project.version}",
+    "mvn:org.codice.ddf.spatial/spatial-geocoding-offline-catalog/${project.version}"
   ]
 }

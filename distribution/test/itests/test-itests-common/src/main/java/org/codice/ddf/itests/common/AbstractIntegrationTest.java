@@ -16,7 +16,6 @@ package org.codice.ddf.itests.common;
 import static com.jayway.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.with;
-import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.INSECURE_ROOT;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 import static org.codice.ddf.itests.common.csw.CswQueryBuilder.PROPERTY_IS_LIKE;
 import static org.hamcrest.Matchers.hasXPath;
@@ -141,8 +140,6 @@ public abstract class AbstractIntegrationTest {
 
   public static final String REMOVE_ALL = "catalog:removeall -f -p";
 
-  public static final long REMOVE_ALL_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
-
   private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
 
   private static final File UNPACK_DIRECTORY = new File("target/exam");
@@ -190,7 +187,7 @@ public abstract class AbstractIntegrationTest {
   @Filter(timeout = 300000L)
   BootFinished bootFinished;
 
-  private AdminConfig adminConfig;
+  protected AdminConfig adminConfig;
 
   private ServiceManager serviceManager;
 
@@ -328,9 +325,6 @@ public abstract class AbstractIntegrationTest {
 
   public static final DynamicUrl SERVICE_ROOT =
       new DynamicUrl(SECURE_ROOT, HTTPS_PORT, "/services");
-
-  public static final DynamicUrl INSECURE_SERVICE_ROOT =
-      new DynamicUrl(INSECURE_ROOT, HTTP_PORT, "/services");
 
   public static final DynamicUrl REST_PATH = new DynamicUrl(SERVICE_ROOT, "/catalog/");
 
@@ -556,7 +550,12 @@ public abstract class AbstractIntegrationTest {
             getClass()
                 .getClassLoader()
                 .getResource("ddf.catalog.solr.provider.SolrCatalogProvider.config"),
-            "/etc/ddf.catalog.solr.provider.SolrCatalogProvider.config"));
+            "/etc/ddf.catalog.solr.provider.SolrCatalogProvider.config"),
+        installStartupFile(
+            getClass()
+                .getClassLoader()
+                .getResource("ddf.catalog.provider.SplitCatalogProvider.config"),
+            "/etc/ddf.catalog.provider.SplitCatalogProvider.config"));
   }
 
   protected Option[] configureMavenRepos() {

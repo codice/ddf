@@ -125,6 +125,13 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.solr</groupId>
+            <artifactId>split-solr-app</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
             <groupId>org.codice.opendj.embedded</groupId>
             <artifactId>opendj-embedded-app</artifactId>
             <version>${opendj-embedded.app.version}</version>

@@ -229,7 +229,7 @@ class SolrClientAdapterAsyncSpec extends Specification {
     and: "controllers that mocks every execution/attempts"
       // be careful here as the mocking conditions are changed based on blocking_create and blocking_ping
       // although not necessarly a good practice, I feel like this avoids duplicating this test 3 times
-      // the hope is that this comment is enough to warn developers to not use this approach all the times 
+      // the hope is that this comment is enough to warn developers to not use this approach all the times
       def createController = new FailsafeController('SolrClient Creation') >> {
         waitTo('create').onlyIf(blocking_create)
             .then().doReturn(client)

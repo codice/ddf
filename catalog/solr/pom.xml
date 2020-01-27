@@ -36,5 +36,10 @@
         <module>catalog-solr-provider</module>
         <module>catalog-solr-solrclient</module>
         <module>catalog-solr-app</module>
+        <module>catalog-solr-collection-api</module>
+        <module>catalog-solr-collection-impl</module>
+        <module>catalog-solr-defaultcollectionprovider</module>
+        <module>catalog-split-provider</module>
+        <module>split-solr-app</module>
     </modules>
 </project>

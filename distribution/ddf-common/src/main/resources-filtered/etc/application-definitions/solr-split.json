@@ -1,0 +1,10 @@
+{
+  "name": "split-solr-app",
+  "description": "The Solr Split Catalog Provider (SCP) is an implementation of the CatalogProvider interface using Apache Solr ${solr.version} as a data store.\nThe Solr Split supports the same capabilities as the Solr Provider only allows further abilities to split into multiple solr collections via this single provider.",
+  "bundleLocations": [
+    "mvn:org.codice.thirdparty/jts/${jts.bundle.version}",
+    "mvn:ddf.catalog.solr/catalog-solr-solrclient/${project.version}",
+    "mvn:ddf.catalog.solr/catalog-solr-defaultcollectionprovider/${project.version}",
+    "mvn:ddf.catalog.solr/catalog-split-provider/${project.version}"
+  ]
+}

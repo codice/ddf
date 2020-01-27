@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+
+ -->
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+
+    <OCD name="Split Catalog Provider"
+      id="ddf.catalog.solr.provider.SplitCatalogProvider">
+        <AD
+          description="WARNING: Performance Impact. Only in special cases should auto-commit be forced. Forcing auto-commit makes the search results visible immediately."
+          name="Force Auto Commit" id="forceAutoCommit" required="true" type="Boolean"
+          default="false"/>
+        <AD
+          description="Disables the ability to make Text Path queries by disabling the Text Path index. Disabling Text Path indexing typically increases ingest performance."
+          name="Disable Text Path indexing" id="disableTextPath" required="true"
+          type="Boolean" default="false"/>
+        <AD description="Enable /get handler collection alias workaround"
+          name="/get handler workaround" id="getHandlerWorkaround"
+          type="Boolean" default="true"/>
+        <AD description="Alias to use for catalog collection. Default: catalog"
+          name="Catalog Collection Alias" id="collectionAlias"
+          type="String" default="catalog"/>
+    </OCD>
+
+    <Designate pid="ddf.catalog.solr.provider.SplitCatalogProvider">
+        <Object ocdref="ddf.catalog.solr.provider.SplitCatalogProvider"/>
+    </Designate>
+
+</metatype:MetaData>

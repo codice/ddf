@@ -1,0 +1,45 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version. 
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+ -->
+
+<!--
+     NOTE: This features XML file uses the Karaf "install" attribute to specify whether a feature
+     is automatically installed when an app's KAR file is hot deployed.
+     
+     Description of the install attribute from the Karaf features XSD:
+     
+     "Installation mode. Can be either manual or auto. Specifies whether the feature should be 
+     automatically installed when dropped inside the deploy folder. Note: This attribute doesn't 
+     affect feature descriptors that are installed from the command line or as part of the 
+     org.apache.karaf.features.cfg." 
+-->
+<features name="${project.artifactId}-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
+
+    <feature name="split-solr-provider" version="${project.version}"
+      description="Split Catalog Provider to interface with Solr ${solr.version}">
+        <bundle>mvn:ddf.catalog.solr/catalog-solr-defaultcollectionprovider/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.solr/catalog-split-provider/${project.version}</bundle>
+    </feature>
+
+    <feature name="split-solr-app" version="${project.version}"
+      description="The Split Solr Catalog Provider (SSCP) is an implementation of the CatalogProvider interface using Apache Solr ${solr.version} as a data store.\nThe SSCP supports extensible metacards, fast/simple contextual searching, indexes xml attributes/CDATA sections/XML text elements, contains full XPath support, works with a standalone Solr Server or Solr Cloud instance">
+        <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>
+        <bundle>mvn:ddf.catalog.solr/catalog-solr-solrclient/${project.version}</bundle>
+        <feature>split-solr-provider</feature>
+    </feature>
+
+</features>
+    

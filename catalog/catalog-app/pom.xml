@@ -203,6 +203,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.solr</groupId>
+            <artifactId>catalog-solr-collection-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.schematron</groupId>
             <artifactId>catalog-schematron-plugin</artifactId>
             <version>${project.version}</version>
