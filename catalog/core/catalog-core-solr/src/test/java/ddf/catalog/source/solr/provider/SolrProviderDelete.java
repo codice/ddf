@@ -39,7 +39,7 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.source.solr.ConfigurationStore;
-import ddf.catalog.source.solr.SolrCatalogProvider;
+import ddf.catalog.source.solr.SolrCatalogProviderImpl;
 import ddf.catalog.source.solr.SolrMetacardClientImpl;
 import ddf.catalog.source.solr.SolrProviderTest;
 import java.io.Serializable;
@@ -56,13 +56,13 @@ import org.opengis.filter.Filter;
 
 public class SolrProviderDelete {
 
-  private static SolrCatalogProvider provider;
+  private static SolrCatalogProviderImpl provider;
 
   @BeforeClass
   public static void setUp() {
     provider = SolrProviderTest.getProvider();
   }
-  /** Testing that if records are properly deleted. */
+
   @Test
   public void testDeleteOperation() throws IngestException, UnsupportedQueryException {
 

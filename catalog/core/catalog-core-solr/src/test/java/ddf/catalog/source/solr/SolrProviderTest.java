@@ -66,7 +66,7 @@ public class SolrProviderTest {
 
   private static SolrClient solrClient;
 
-  protected static SolrCatalogProvider provider = null;
+  protected static SolrCatalogProviderImpl provider = null;
 
   private static MiniSolrCloudCluster miniSolrCloud;
 
@@ -105,7 +105,7 @@ public class SolrProviderTest {
     dynamicSchemaResolver.addMetacardType(BASIC_METACARD);
 
     provider =
-        new SolrCatalogProvider(
+        new SolrCatalogProviderImpl(
             solrClient,
             new GeotoolsFilterAdapterImpl(),
             new SolrFilterDelegateFactoryImpl(),
@@ -134,7 +134,7 @@ public class SolrProviderTest {
     }
   }
 
-  public static SolrCatalogProvider getProvider() {
+  public static SolrCatalogProviderImpl getProvider() {
     return provider;
   }
 }

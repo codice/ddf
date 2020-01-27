@@ -21,6 +21,7 @@ import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceCache;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.source.solr.SolrCatalogProviderImpl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -43,8 +44,7 @@ public class SolrCacheSource implements SourceCache {
 
   static {
     try (InputStream propertiesStream =
-        ddf.catalog.source.solr.SolrCatalogProvider.class.getResourceAsStream(
-            DESCRIBABLE_PROPERTIES_FILE)) {
+        SolrCatalogProviderImpl.class.getResourceAsStream(DESCRIBABLE_PROPERTIES_FILE)) {
       describableProperties.load(propertiesStream);
     } catch (IOException e) {
       LOGGER.info("IO exception loading describable properties", e);
