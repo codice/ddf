@@ -23,7 +23,6 @@ import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
-import ddf.catalog.operation.IndexQueryResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.Request;
 import ddf.catalog.operation.SourceResponse;
@@ -227,55 +226,6 @@ public class BaseSolrCatalogProvider extends MaskableImpl implements CatalogProv
     SourceResponse response = client.query(request);
     LOGGER.debug("Time elapsed for Query {} ms", System.currentTimeMillis() - startTime);
     return response;
-  }
-
-  /**
-   * Querying against the index collection to obtain just the metacard id.
-   *
-   * @param request
-   * @return
-   * @throws UnsupportedQueryException
-   */
-  public IndexQueryResponse queryIndex(QueryRequest request) throws UnsupportedQueryException {
-    IndexQueryResponse response = client.queryIndex(request);
-    return response;
-  }
-
-  public IndexQueryResponse queryIndexCache(QueryRequest request) throws UnsupportedQueryException {
-    return client.queryIndexCache(request);
-  }
-
-  public void deleteIndex(DeleteRequest deleteRequest) throws IngestException {
-    nonNull(deleteRequest);
-
-    String attributeName = deleteRequest.getAttributeName();
-    if (StringUtils.isBlank(attributeName)) {
-      throw new IngestException(
-          "Attribute name cannot be empty. Please provide the name of the attribute.");
-    }
-
-    @SuppressWarnings("unchecked")
-    List<? extends Serializable> identifiers = deleteRequest.getAttributeValues();
-    if (CollectionUtils.isEmpty(identifiers)) {
-      return;
-    }
-
-    if (identifiers.size() <= MAX_BOOLEAN_CLAUSES) {
-      deleteIndex(identifiers, attributeName);
-    } else {
-      List<? extends Serializable> identifierPaged;
-      int currPagingSize;
-
-      for (currPagingSize = MAX_BOOLEAN_CLAUSES;
-          currPagingSize < identifiers.size();
-          currPagingSize += MAX_BOOLEAN_CLAUSES) {
-        identifierPaged = identifiers.subList(currPagingSize - MAX_BOOLEAN_CLAUSES, currPagingSize);
-        deleteIndex(identifierPaged, attributeName);
-      }
-      identifierPaged =
-          identifiers.subList(currPagingSize - MAX_BOOLEAN_CLAUSES, identifiers.size());
-      deleteIndex(identifierPaged, attributeName);
-    }
   }
 
   @Override

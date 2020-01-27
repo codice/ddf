@@ -49,7 +49,6 @@ import ddf.catalog.impl.filter.GeoToolsFunctionFactory;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.FacetAttributeResult;
 import ddf.catalog.operation.FacetValueCount;
-import ddf.catalog.operation.IndexQueryResponse;
 import ddf.catalog.operation.Response;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.FacetedQueryRequest;
@@ -273,14 +272,6 @@ public class SolrProviderQuery {
     SourceResponse sourceResponse = provider.query(new QueryRequestImpl(new QueryImpl(filter)));
 
     assertEquals("Tampa should be found", 1, sourceResponse.getResults().size());
-  }
-
-  @Test
-  public void testQueryIndex() throws Exception {
-    createContextualMetacards();
-    Filter filter = getFilterBuilder().attribute(Metacard.ANY_TEXT).is().like().text("*");
-    IndexQueryResponse response = provider.queryIndex(new QueryRequestImpl(new QueryImpl(filter)));
-    assertEquals("Found Indexes", 2, response.getHits());
   }
 
   @Test(expected = IngestException.class)

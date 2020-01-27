@@ -62,40 +62,6 @@ public class SolrProviderDelete {
   public static void setUp() {
     provider = BaseSolrProviderTest.getProvider();
   }
-  /** Testing that if records are properly deleted. */
-  @Test
-  public void testDeleteIndex() throws IngestException, UnsupportedQueryException {
-    // Single Deletion
-
-    deleteAll(provider);
-
-    MockMetacard metacard = new MockMetacard(Library.getFlagstaffRecord());
-
-    CreateResponse createResponse = create(metacard, provider);
-
-    provider.deleteIndex(
-        new DeleteRequestImpl(createResponse.getCreatedMetacards().get(0).getId()));
-  }
-
-  /** Tests what happens when the whole request is null. */
-  @Test(expected = IngestException.class)
-  public void testDeleteIndexNull() throws IngestException, UnsupportedQueryException {
-
-    deleteAll(provider);
-
-    provider.deleteIndex(null);
-
-    fail();
-  }
-
-  /** Tests the provider will allow you to delete nothing. */
-  @Test
-  public void testDeleteIndexNothing() throws IngestException, UnsupportedQueryException {
-
-    // Single Deletion
-    deleteAll(provider);
-    provider.deleteIndex(new DeleteRequestImpl(new String[] {"no_such_record"}));
-  }
 
   @Test
   public void testDeleteById() throws IngestException, UnsupportedQueryException {
