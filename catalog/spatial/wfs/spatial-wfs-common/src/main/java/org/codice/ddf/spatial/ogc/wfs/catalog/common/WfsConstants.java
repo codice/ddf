@@ -22,8 +22,6 @@ public class WfsConstants {
   /* XML Encoded Filter Constants */
   public static final String ESCAPE = "!";
 
-  public static final String SINGLE_CHAR = "#";
-
   public static final String WILD_CARD = "*";
 
   public static final String METERS = "METERS";
