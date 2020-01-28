@@ -190,8 +190,9 @@ public class BaseSolrCatalogProvider extends MaskableImpl implements CatalogProv
       return solr.isAvailable(timeout, pollInterval, unit);
     } catch (InterruptedException e) {
       LOGGER.debug("Solr client is available interrupted exception {}", e);
-      return false;
+      Thread.currentThread().interrupt();
     }
+    return false;
   }
 
   @Override

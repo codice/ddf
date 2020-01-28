@@ -108,6 +108,7 @@ public class SolrCloudClientFactory implements SolrClientFactory {
       }
     } catch (InterruptedException e) {
       LOGGER.error("Unable to connect to solr client {}: {} ", core, e.getStackTrace());
+      Thread.currentThread().interrupt();
     }
     return adaptor;
   }

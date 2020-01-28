@@ -32,6 +32,9 @@ public interface SolrClientFactory {
    */
   SolrClient newClient(String core);
 
+  /**
+   * @return whether or not the provider can connect to the solrCloud instance or Standalone.
+   */
   boolean isAvailable();
 
   /**
