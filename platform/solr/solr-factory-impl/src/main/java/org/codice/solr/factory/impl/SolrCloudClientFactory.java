@@ -342,7 +342,6 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     }
   }
 
-
   protected void checkConfig() {
     if (StringUtils.isBlank(zookeeperHosts)) {
       zookeeperHosts = System.getProperty("solr.cloud.zookeeper");

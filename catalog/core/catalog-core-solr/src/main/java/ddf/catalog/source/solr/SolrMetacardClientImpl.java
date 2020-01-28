@@ -834,22 +834,22 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       CollectionUtils.transform(identifiers, Object::toString);
       client.deleteById((List<String>) identifiers);
     } else {
-      if (identifiers.size() < SolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
+      if (identifiers.size() < BaseSolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
         client.deleteByQuery(getIdentifierQuery(fieldName, identifiers));
       } else {
         int i;
-        for (i = SolrCatalogProvider.MAX_BOOLEAN_CLAUSES;
+        for (i = BaseSolrCatalogProvider.MAX_BOOLEAN_CLAUSES;
             i < identifiers.size();
-            i += SolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
+            i += BaseSolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
           client.deleteByQuery(
               getIdentifierQuery(
-                  fieldName, identifiers.subList(i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES, i)));
+                  fieldName, identifiers.subList(i - BaseSolrCatalogProvider.MAX_BOOLEAN_CLAUSES, i)));
         }
         client.deleteByQuery(
             getIdentifierQuery(
                 fieldName,
                 identifiers.subList(
-                    i - SolrCatalogProvider.MAX_BOOLEAN_CLAUSES, identifiers.size())));
+                    i - BaseSolrCatalogProvider.MAX_BOOLEAN_CLAUSES, identifiers.size())));
       }
     }
 
