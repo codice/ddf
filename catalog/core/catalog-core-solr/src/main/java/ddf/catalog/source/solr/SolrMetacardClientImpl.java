@@ -843,7 +843,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             i += BaseSolrCatalogProvider.MAX_BOOLEAN_CLAUSES) {
           client.deleteByQuery(
               getIdentifierQuery(
-                  fieldName, identifiers.subList(i - BaseSolrCatalogProvider.MAX_BOOLEAN_CLAUSES, i)));
+                  fieldName,
+                  identifiers.subList(i - BaseSolrCatalogProvider.MAX_BOOLEAN_CLAUSES, i)));
         }
         client.deleteByQuery(
             getIdentifierQuery(
