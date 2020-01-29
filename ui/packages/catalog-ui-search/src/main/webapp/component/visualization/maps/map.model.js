@@ -15,6 +15,7 @@
 
 import wrapNum from '../../../react-component/utils/wrap-num/wrap-num.tsx'
 
+const _ = require('underscore')
 const Backbone = require('backbone')
 const MetacardModel = require('../../../js/model/Metacard.js')
 const mtgeo = require('mt-geo')
