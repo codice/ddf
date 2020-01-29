@@ -185,25 +185,60 @@ module.exports = function OpenlayersMap(
         - if the label is selected
         - if the search for overlapping label should include hidden selected labels
       */
-  function showHideLabel({
-    geometry,
-    feature,
-    isSelected = false,
-    findSelected = false,
-  }) {
+  function showHideLabel({ geometry, feature, findSelected = false }) {
+    const isSelected = geometry.get('isSelected')
     const geometryInstance = feature.getGeometry()
     const labelWithSamePosition = findOverlappingLabel(
       findSelected,
       geometryInstance
     )
-    if (isSelected && labelWithSamePosition) {
+    if (
+      isSelected &&
+      labelWithSamePosition &&
+      !labelWithSamePosition.get('isSelected')
+    ) {
       labelWithSamePosition.setVisible(false)
     }
+    const otherLabelNotSelected = labelWithSamePosition
+      ? !labelWithSamePosition.get('isSelected')
+      : true
     const visible =
-      isSelected ||
+      (isSelected && otherLabelNotSelected) ||
       !labelWithSamePosition ||
       geometry.get('id') === labelWithSamePosition.get('id')
     geometry.setVisible(visible)
+  }
+
+  /*
+      Shows a hidden label. Used when deleting a label that is shown.
+      */
+  function showHiddenLabel(geometry) {
+    if (!geometry.getVisible()) {
+      return
+    }
+    const geometryInstance = geometry
+      .getSource()
+      .getFeatures()[0]
+      .getGeometry()
+    const hiddenLabel = _.find(
+      mapModel.get('labels'),
+      label =>
+        label
+          .getSource()
+          .getFeatures()[0]
+          .getGeometry()
+          .getCoordinates()[0] === geometryInstance.getCoordinates()[0] &&
+        label
+          .getSource()
+          .getFeatures()[0]
+          .getGeometry()
+          .getCoordinates()[1] === geometryInstance.getCoordinates()[1] &&
+        label.get('id') !== geometry.get('id') &&
+        !label.getVisible()
+    )
+    if (hiddenLabel) {
+      hiddenLabel.setVisible(true)
+    }
   }
 
   const exposedMethods = _.extend({}, Map, {
@@ -721,12 +756,11 @@ module.exports = function OpenlayersMap(
             })
           )
 
+          geometry.set('isSelected', options.isSelected)
           showHideLabel({
             geometry,
             feature,
-            isSelected: options.isSelected,
           })
-          geometry.set('isSelected', options.isSelected)
         }
       } else if (geometryInstance.getType() === 'LineString') {
         const styles = [
@@ -800,11 +834,12 @@ module.exports = function OpenlayersMap(
       }
     },
     removeGeometry(geometry) {
-      map.removeLayer(geometry)
       const feature = geometry.getSource().getFeatures()[0]
       if (feature.getProperties().isLabel) {
-        mapModel.clearLabels()
+        mapModel.removeLabel(geometry)
+        showHiddenLabel(geometry)
       }
+      map.removeLayer(geometry)
     },
     showPolygonShape(locationModel) {
       const polygon = new DrawPolygon.PolygonView({
