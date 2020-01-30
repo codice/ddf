@@ -35,12 +35,12 @@
         <AD description="List of authentication types required for each context. List of default valid authentication types are: BASIC, PKI, SAML, and OIDC. Example: /context=AUTH1|AUTH2|AUTH3"
             name="Authentication Types" id="authenticationTypes" cardinality="100"
             type="String"
-            default="/=,/admin=PKI|BASIC,/beta/admin=PKI|BASIC"/>
+            default="/=,/admin=PKI|BASIC"/>
 
         <AD description="List of attributes required for each Web Context. Example: /context={role=role1;type=type1}"
             name="Required Attributes" id="requiredAttributes" cardinality="100"
             type="String"
-            default="/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/beta/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}"/>
+            default="/=,/admin={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/solr={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/system={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin},/security-config={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin}"/>
 
         <AD description="List of contexts that will not use security. Note that sub-contexts to ones listed here will also skip security, unless authentication types are provided for it. For example: if /foo is listed here, then /foo/bar will also not require any sort of authentication. However, if /foo is listed and /foo/bar has authentication types provided in the 'Authentication Types' field, then that more specific policy will be used."
             name="White Listed Contexts" id="whiteListContexts" cardinality="100"
