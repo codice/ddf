@@ -259,6 +259,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-xlsx</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-metadata</artifactId>
             <version>${project.version}</version>
         </dependency>

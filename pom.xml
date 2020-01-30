@@ -289,6 +289,7 @@
         <pac4j.version>3.8.2</pac4j.version>
         <pdfbox.version>2.0.11</pdfbox.version>
         <poi.version>4.0.1</poi.version>
+        <xlsx.transformer.poi.version>4.1.1</xlsx.transformer.poi.version>
         <protobuf.version>3.6.1</protobuf.version>
         <proton.version>0.31.0</proton.version>
         <qpid-jms.version>0.39.0</qpid-jms.version>
@@ -325,6 +326,7 @@
         <xerces.version>2.11.0</xerces.version>
         <xerces.bundle.version>2.11.0_1</xerces.bundle.version>
         <xml-apis.version>1.4.01</xml-apis.version>
+        <xmlbeans.version>3.0.2</xmlbeans.version>
         <xmlsec.version>2.1.4</xmlsec.version>
         <xpp3.bundle.version>1.1.4c_6</xpp3.bundle.version>
         <xstream.version>1.4.11.1</xstream.version>
