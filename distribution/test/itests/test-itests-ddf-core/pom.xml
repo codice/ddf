@@ -12,13 +12,11 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>itests</artifactId>
         <groupId>ddf.test.itests</groupId>
-        <version>2.22.0-SNAPSHOT</version>
+        <version>2.22.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,7 +27,7 @@
         <solr.script.dir>${project.build.directory}/solr/bin/</solr.script.dir>
         <solr.port>9784</solr.port>
         <zookeeper.port>10784</zookeeper.port>
-        <skipTests/>
+        <skipTests />
     </properties>
 
     <dependencies>
@@ -88,7 +86,7 @@
             </activation>
             <properties>
                 <solr.script.file>solr.cmd</solr.script.file>
-                <solr.force/>
+                <solr.force />
             </properties>
         </profile>
         <profile>
