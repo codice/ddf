@@ -40,8 +40,9 @@ import javax.activation.MimeType;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
-import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
-import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
+import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponseImpl;
+import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
+import org.codice.ddf.catalog.ui.util.CqlQueryUtil;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.eclipse.jetty.http.HttpStatus;
@@ -62,8 +63,9 @@ public class CqlTransformHandlerTest {
   @Mock private ServiceReference<QueryResponseTransformer> mockServiceReference;
   @Mock private BundleContext mockBundleContext;
   @Mock private EndpointUtil mockEndpointUtil;
+  @Mock private CqlQueryUtil mockCqlQueryUtil;
   @Mock private Request mockRequest;
-  @Mock private CqlQueryResponse mockCqlQueryResponse;
+  @Mock private CqlQueryResponseImpl mockCqlQueryResponse;
   @Mock private QueryResponse mockQueryResponse;
   @Mock private QueryResponseTransformer mockQueryResponseTransformer;
   @Mock private ServletOutputStream mockServletOutputStream;
@@ -159,11 +161,12 @@ public class CqlTransformHandlerTest {
     queryResponseTransformers.add(mockServiceReference);
 
     cqlTransformHandler =
-        new CqlTransformHandler(queryResponseTransformers, mockBundleContext, mockEndpointUtil);
+        new CqlTransformHandler(
+            queryResponseTransformers, mockBundleContext, mockEndpointUtil, mockCqlQueryUtil);
 
     when(mockEndpointUtil.safeGetBody(mockRequest)).thenReturn(SAFE_BODY);
 
-    when(mockEndpointUtil.executeCqlQuery(any(CqlRequest.class))).thenReturn(mockCqlQueryResponse);
+    when(mockCqlQueryUtil.executeCqlQuery(any(CqlRequest.class))).thenReturn(mockCqlQueryResponse);
 
     when(mockCqlQueryResponse.getQueryResponse()).thenReturn(mockQueryResponse);
 

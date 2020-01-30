@@ -38,8 +38,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
-import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
-import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
+import org.codice.ddf.catalog.ui.query.utility.CqlQueryResponse;
+import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
+import org.codice.ddf.catalog.ui.util.CqlQueryUtil;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
@@ -72,14 +73,17 @@ public class CqlTransformHandler implements Route {
   private EndpointUtil util;
   private List<ServiceReference> queryResponseTransformers;
   private BundleContext bundleContext;
+  private CqlQueryUtil cqlQueryUtil;
 
   public CqlTransformHandler(
       List<ServiceReference> queryResponseTransformers,
       BundleContext bundleContext,
-      EndpointUtil endpointUtil) {
+      EndpointUtil endpointUtil,
+      CqlQueryUtil cqlQueryUtil) {
     this.queryResponseTransformers = queryResponseTransformers;
     this.bundleContext = bundleContext;
     this.util = endpointUtil;
+    this.cqlQueryUtil = cqlQueryUtil;
   }
 
   public class Arguments {
@@ -153,7 +157,7 @@ public class CqlTransformHandler implements Route {
       return ImmutableMap.of("message", "Service not found");
     }
 
-    CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
+    CqlQueryResponse cqlQueryResponse = cqlQueryUtil.executeCqlQuery(cqlRequest);
 
     Object schema = queryResponseTransformer.getProperty("schema");
 

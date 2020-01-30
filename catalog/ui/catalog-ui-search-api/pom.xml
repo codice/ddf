@@ -38,6 +38,16 @@
             <artifactId>platform-util</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>geotools-suite</artifactId>
+            <version>${org.geotools.bundle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sparkjava</groupId>
+            <artifactId>spark-core</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -56,11 +66,13 @@
                         <Export-Package>
                             org.codice.ddf.catalog.ui.metacard.workspace.transformer,
                             org.codice.ddf.catalog.ui.splitter,
-                            org.codice.ddf.catalog.ui.subscription
+                            org.codice.ddf.catalog.ui.subscription,
+                            org.codice.ddf.catalog.ui.query.utility
                         </Export-Package>
                         <Embed-Dependency>
                             catalog-core-api-impl,
-                            platform-util
+                            platform-util,
+                            spark-core
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

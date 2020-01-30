@@ -35,7 +35,7 @@ public class BuildApplicationTest {
 
   @Before
   public void setup() {
-    endpointUtil = new EndpointUtil(null, null, null, null, null, null, null, null);
+    endpointUtil = new EndpointUtil(null, null, null, null, null, null);
   }
 
   @Test

@@ -20,7 +20,7 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import java.io.IOException;
 import java.util.Date;
-import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
+import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;

@@ -25,6 +25,7 @@ import ddf.catalog.operation.QueryRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.sort.SortBy;
