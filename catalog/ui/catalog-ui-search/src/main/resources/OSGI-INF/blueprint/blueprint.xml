@@ -319,6 +319,17 @@ Implementation details
         <argument ref="coordinateSystemTranslator"/>
     </bean>
 
+    <bean id="sourceWarningsFilters" class="org.codice.ddf.platform.util.SortedServiceList"/>
+
+    <reference-list interface="ddf.catalog.security.SourceWarningsFilter"
+                    availability="optional">
+        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin" ref="sourceWarningsFilters"/>
+    </reference-list>
+
+    <bean id="sourceWarningsFilterManager" class="org.codice.ddf.catalog.ui.query.cql.SourceWarningsFilterManager">
+        <argument ref="sourceWarningsFilters"/>
+    </bean>
+
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">
         <property name="featureService" ref="featureService"/>
         <property name="endpointUtil" ref="endpointUtil"/>
@@ -328,6 +339,7 @@ Implementation details
         <argument ref="dmsProcessor"/>
         <argument ref="mgrsProcessor"/>
         <argument ref="utmUpsProcessor"/>
+        <argument ref="sourceWarningsFilterManager"/>
     </bean>
 
     <bean id="jsonRpc" class="org.codice.ddf.catalog.ui.ws.JsonRpc">
