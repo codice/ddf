@@ -505,6 +505,7 @@ module.exports = Backbone.AssociatedModel.extend({
       const { south, east } = converter.USNGtoLL(this.get('usngbbLowerRight'))
       return { north, south, east, west }
     }
+    return {}
   },
 
   setBboxUsngUL() {
