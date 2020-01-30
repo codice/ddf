@@ -1152,17 +1152,15 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@connexta/ace@*", "@connexta/ace@git://github.com/connexta/ace.git#2c6fe07c23e2b4b416ed39cd82bc3f0d9218240d":
+"@connexta/ace@*", "@connexta/ace@git://github.com/connexta/ace.git#d3294c2a70532dee1fdb01513fb86cd7f9685a28":
   version "1.0.0"
-  resolved "git://github.com/connexta/ace.git#2c6fe07c23e2b4b416ed39cd82bc3f0d9218240d"
+  resolved "git://github.com/connexta/ace.git#d3294c2a70532dee1fdb01513fb86cd7f9685a28"
   dependencies:
     "@babel/core" "^7.0.0"
     "@storybook/addon-actions" "5.2.3"
     "@storybook/addon-info" "5.2.3"
     "@storybook/addon-knobs" "5.2.3"
     "@storybook/react" "5.2.3"
-    "@types/storybook__addon-info" "^4.1.2"
-    "@types/storybook__react" "^4.0.2"
     ansi-colors "3.0.5"
     archiver "2.1.1"
     babel-core "6.26.0"
@@ -1197,6 +1195,7 @@
     less "3.0.1"
     less-loader "4.1.0"
     maven-deploy "1.5.0"
+    memory-fs "^0.5.0"
     mini-css-extract-plugin "0.4.5"
     minimist "1.2.0"
     mkdirp "^0.5.1"
@@ -1210,9 +1209,13 @@
     react-dev-utils "5.0.2"
     react-docgen-typescript-loader "^3.1.0"
     react-hot-loader "4.12.6"
+    react-loadable "^5.5.0"
+    react-loadable-ssr-addon "https://github.com/connexta/react-loadable-ssr-addon#fa05f30e1c78b1ab71ebcd6d3f584110022fcf44"
+    require-from-string "^2.0.2"
     rimraf "2.6.2"
     script-loader "0.7.2"
     simple-progress-webpack-plugin "1.1.2"
+    source-map-support "^0.5.16"
     style-loader "0.20.3"
     stylelint "9.5.0"
     stylelint-config-recommended "2.1.0"
@@ -1269,10 +1272,10 @@
   dependencies:
     requireindex "1.1.0"
 
-"@connexta/kanri@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/@connexta/kanri/-/kanri-0.0.7.tgz#1968587599e66e95a00ac7cb16ad9359f9568743"
-  integrity sha512-biXLNFCFu0QsKRC/SSUne9PDH9qtg7K/KbWj0COLHk5RBfSjUrJ+6BqfDNo2a3xA2SA8w+Qo5FkqstqbFhOWpA==
+"@connexta/kanri@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@connexta/kanri/-/kanri-0.0.8.tgz#e63a91a5c1adecd85565804f747df50dea09d065"
+  integrity sha512-uAPZ+8r0FNvqJDHx7hkiNiwqCdLCVIkHtGRDQXyj5LS4WMWFSOOo+PJvOLGMycTbIRaP9/Y0aL/mFVG32JOIkQ==
   dependencies:
     "@connexta/atlas" "0.0.46"
     "@connexta/logviewer" "git://github.com/connexta/logviewer.git#17e7f603fbe5ba5d8edcd64c07787d065617deaa"
@@ -3070,22 +3073,6 @@
   resolved "https://registry.yarnpkg.com/@types/sizzle/-/sizzle-2.3.2.tgz#a811b8c18e2babab7d542b3365887ae2e4d9de47"
   integrity sha512-7EJYyKTL7tFR8+gDbB6Wwz/arpGa0Mywk1TJbNzKzHtzbwVmY4HR9WqS5VV7dsBUKQmPNr192jHr/VpBluj/hg==
 
-"@types/storybook__addon-info@^4.1.2":
-  version "4.1.2"
-  resolved "https://registry.yarnpkg.com/@types/storybook__addon-info/-/storybook__addon-info-4.1.2.tgz#a61c0b201e23380b6ec6ed3902a87350d92652d8"
-  integrity sha512-zr2+pLF+BYHz0gNKtFj+oorXyJsOoaeyvrtOLrGUABPUKc1lv/k/7sALK0bjX8lfaYpgsukWD+k8uPf79EABtA==
-  dependencies:
-    "@types/react" "*"
-    "@types/storybook__react" "*"
-
-"@types/storybook__react@*", "@types/storybook__react@^4.0.2":
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/@types/storybook__react/-/storybook__react-4.0.2.tgz#f36fb399574c662e79c1a0cf6e429b6ff730da40"
-  integrity sha512-U/+J5qccRdKFryvHkk1a0IeZaSIZLCmTwAQhTSDGeC3SPNIYPus+EtunBqP49r870l8czbfxtjeC3IL9P66ngQ==
-  dependencies:
-    "@types/react" "*"
-    "@types/webpack-env" "*"
-
 "@types/styled-components@4.0.3":
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/@types/styled-components/-/styled-components-4.0.3.tgz#8287e54e446302369eecc521243a2f32cf9122ee"
@@ -3106,7 +3093,7 @@
   resolved "https://registry.yarnpkg.com/@types/underscore/-/underscore-1.9.4.tgz#22d1a3e6b494608e430221ec085fa0b7ccee7f33"
   integrity sha512-CjHWEMECc2/UxOZh0kpiz3lEyX2Px3rQS9HzD20lxMvx571ivOBQKeLnqEjxUY0BMgp6WJWo/pQLRBwMW5v4WQ==
 
-"@types/webpack-env@*", "@types/webpack-env@^1.13.7":
+"@types/webpack-env@^1.13.7":
   version "1.14.0"
   resolved "https://registry.yarnpkg.com/@types/webpack-env/-/webpack-env-1.14.0.tgz#8edfc5f8e6eae20eeed3ca0d02974ed4ee5e4efc"
   integrity sha512-Fv+0gYJzE/czLoRKq+gnXWr4yBpPM3tO3C8pDLFwqVKlMICQUq5OsxwwFZYDaVr7+L6mgNDp16iOcJHEz3J5RQ==
@@ -13042,6 +13029,14 @@ memory-fs@^0.4.0, memory-fs@^0.4.1, memory-fs@~0.4.1:
     errno "^0.1.3"
     readable-stream "^2.0.1"
 
+memory-fs@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/memory-fs/-/memory-fs-0.5.0.tgz#324c01288b88652966d161db77838720845a8e3c"
+  integrity sha512-jA0rdU5KoQMC0e6ppoNRtpp6vjFq6+NY7r8hywnC7V+1Xj/MtHwGIbB1QaK/dunyjWteJzmkpd7ooeWg10T7GA==
+  dependencies:
+    errno "^0.1.3"
+    readable-stream "^2.0.1"
+
 meow@^3.1.0, meow@^3.3.0, meow@^3.7.0:
   version "3.7.0"
   resolved "https://registry.yarnpkg.com/meow/-/meow-3.7.0.tgz#72cb668b425228290abbfa856892587308a801fb"
@@ -15778,7 +15773,7 @@ promzard@^0.3.0:
   dependencies:
     read "1"
 
-prop-types@15.7.2, prop-types@^15.7.2:
+prop-types@15.7.2, prop-types@^15.5.0, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   dependencies:
@@ -16408,6 +16403,17 @@ react-is@^16.6.3, react-is@^16.7.0:
 react-lifecycles-compat@^3.0.2, react-lifecycles-compat@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
+
+"react-loadable-ssr-addon@https://github.com/connexta/react-loadable-ssr-addon#fa05f30e1c78b1ab71ebcd6d3f584110022fcf44":
+  version "0.2.0"
+  resolved "https://github.com/connexta/react-loadable-ssr-addon#fa05f30e1c78b1ab71ebcd6d3f584110022fcf44"
+
+react-loadable@^5.5.0:
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/react-loadable/-/react-loadable-5.5.0.tgz#582251679d3da86c32aae2c8e689c59f1196d8c4"
+  integrity sha512-C8Aui0ZpMd4KokxRdVAm2bQtI03k2RMRNzOB+IipV3yxFTSVICv7WoUr5L9ALB5BmKO1iHgZtWM8EvYG83otdg==
+  dependencies:
+    prop-types "^15.5.0"
 
 react-popper-tooltip@^2.8.3:
   version "2.8.3"
@@ -17384,6 +17390,11 @@ require-directory@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/require-directory/-/require-directory-2.1.1.tgz#8c64ad5fd30dab1c976e2344ffe7f792a6a6df42"
 
+require-from-string@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/require-from-string/-/require-from-string-2.0.2.tgz#89a7fdd938261267318eafe14f9c32e598c36909"
+  integrity sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==
+
 require-main-filename@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/require-main-filename/-/require-main-filename-1.0.1.tgz#97f717b69d48784f5f526a6c5aa8ffdda055a4d1"
@@ -18209,6 +18220,14 @@ source-map-support@^0.4.15:
   resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.4.18.tgz#0286a6de8be42641338594e97ccea75f0a2c585f"
   dependencies:
     source-map "^0.5.6"
+
+source-map-support@^0.5.16:
+  version "0.5.16"
+  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.16.tgz#0ae069e7fe3ba7538c64c98515e35339eac5a042"
+  integrity sha512-efyLRJDr68D9hBBNIPWFjhpFzURh+KJykQwvMyW5UiZzYwoF6l4YMMDIJJEyFWxWCqfyxLzz6tSfUFR+kXXsVQ==
+  dependencies:
+    buffer-from "^1.0.0"
+    source-map "^0.6.0"
 
 source-map-support@~0.5.12:
   version "0.5.12"
