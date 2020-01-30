@@ -16,6 +16,7 @@ package org.codice.ddf.persistence;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,7 +47,10 @@ public class PersistenceItemTest {
     inMap.put("long", 1L);
     inMap.put("binary", new byte[1]);
     inMap.put("date", new Date());
-    inMap.put("set", new HashSet<String>());
+    HashSet<String> set = new HashSet<>();
+    set.add("foo");
+    set.add("bar");
+    inMap.put("set", set);
     PersistentItem item = new PersistentItem();
     inMap.forEach((name, value) -> item.addProperty(name, value));
     assertTrue(item.getPropertyNames().contains("string_txt"));
@@ -55,5 +59,31 @@ public class PersistenceItemTest {
     assertTrue(item.getPropertyNames().contains("binary_bin"));
     assertTrue(item.getPropertyNames().contains("date_tdt"));
     assertTrue(item.getPropertyNames().contains("set_txt"));
+  }
+
+  @Test
+  public void testEncodeBinaryProperties() {
+    Map<String, Object> inMap = new HashMap<>();
+    inMap.put("string", "value");
+    inMap.put("int", 1);
+    inMap.put("long", 1L);
+    inMap.put("binary", new byte[1]);
+    inMap.put("date", new Date());
+    HashSet<String> set = new HashSet<>();
+    set.add("foo");
+    set.add("bar");
+    inMap.put("set", set);
+    PersistentItem item = new PersistentItem();
+    inMap.forEach((name, value) -> item.addProperty(name, value));
+    item.encodeBinaryProperties();
+    assertTrue(item.getPropertyNames().contains("string_txt"));
+    assertTrue(item.getPropertyNames().contains("int_int"));
+    assertTrue(item.getPropertyNames().contains("long_lng"));
+    assertTrue(item.getPropertyNames().contains("binary_bin"));
+    assertTrue(item.getPropertyNames().contains("date_tdt"));
+    assertTrue(item.getPropertyNames().contains("set_txt"));
+    String encodedValue = Base64.getEncoder().encodeToString((byte[]) inMap.get("binary"));
+    assertTrue(encodedValue.equalsIgnoreCase(item.getBinaryProperty("binary")));
+    assertTrue(item.getTextProperty("string").equalsIgnoreCase(inMap.get("string").toString()));
   }
 }

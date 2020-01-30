@@ -35,7 +35,7 @@ public class StoreDeleteCommand extends AbstractStoreCommand {
   @Override
   public void storeCommand() throws PersistenceException {
 
-    List<Map<String, Object>> results = persistentStore.get(type, cql);
+    List<Map<String, Object>> results = getResults();
     if (!results.isEmpty()) {
       console.println(results.size() + " results matched cql.");
       String message = "\nAre you sure you want to delete? (yes/no): ";
@@ -43,7 +43,7 @@ public class StoreDeleteCommand extends AbstractStoreCommand {
         try {
           String confirmation = session.readLine(message, null);
           if ("yes".equalsIgnoreCase(confirmation.toLowerCase())) {
-            int numDeleted = persistentStore.delete(type, cql);
+            int numDeleted = pagingDelete();
             console.println("Successfully deleted " + numDeleted + " items.");
             break;
           } else if ("no".equalsIgnoreCase(confirmation)) {
@@ -58,5 +58,20 @@ public class StoreDeleteCommand extends AbstractStoreCommand {
     } else {
       console.println("0 results matched cql statement. No items were deleted.");
     }
+  }
+
+  private int pagingDelete() throws PersistenceException {
+    int totalCount = 0;
+    int currentCount = 0;
+    int startIndex = 0;
+    int pageSize = 1000;
+
+    do {
+      currentCount = persistentStore.delete(type, cql, startIndex, pageSize);
+      startIndex += pageSize;
+      totalCount += currentCount;
+    } while (currentCount > 0);
+
+    return totalCount;
   }
 }

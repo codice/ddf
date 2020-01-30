@@ -67,6 +67,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Argument;
@@ -439,12 +440,11 @@ public class IngestCommand extends CatalogCommands {
     if (inputFile.isDirectory()) {
       int currentFileCount = 0;
       try (DirectoryStream<Path> stream = Files.newDirectoryStream(inputFile.toPath())) {
-        for (Path entry : stream) {
-          if (!entry.toFile().isHidden()) {
-            currentFileCount++;
-          }
-        }
-        return currentFileCount;
+        return (int)
+            StreamSupport.stream(stream.spliterator(), false)
+                .map(Path::toFile)
+                .filter(file -> !file.isHidden())
+                .count();
       }
     }
 
