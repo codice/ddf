@@ -356,7 +356,6 @@
         <module>platform-migratable</module>
         <module>parser</module>
         <module>action</module>
-        <module>compression</module>
         <module>solr</module>
         <module>persistence</module>
         <module>mime</module>
