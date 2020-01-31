@@ -44,6 +44,7 @@ const readableNames = {
   dmsSouth: 'latitude',
   dmsWest: 'longitude',
   dmsEast: 'longitude',
+  lineWidth: 'buffer width',
 }
 
 const validLatLon = {
@@ -121,7 +122,7 @@ let inValidInput = ''
 let inValidKey = ''
 let defaultCoord = ''
 const LocationInput = props => {
-  const { mode, setState, cursor } = props
+  const { mode, setState } = props
   const input = inputs[mode] || {}
   const { Component: Input = null } = input
   const removeErrorBox = () => {
@@ -131,7 +132,7 @@ const LocationInput = props => {
     <Root isOpen={input.label !== undefined}>
       <Component>
         <Dropdown label={input.label || 'Select Location Option'}>
-          <Menu value={mode} onChange={cursor('mode')}>
+          <Menu value={mode} onChange={value => setState('mode', value)}>
             {Object.keys(inputs).map(key => (
               <MenuItem key={key} value={key}>
                 {inputs[key].label}
@@ -193,40 +194,5 @@ module.exports = ({ state, setState, options }) => (
     {...state}
     onDraw={options.onDraw}
     setState={setState}
-    cursor={key => value => {
-      isDms = false
-      let coordValidator = ddValidators[key]
-      if (coordValidator === undefined) {
-        coordValidator = dmsValidators[key]
-        isDms = true
-      }
-      if (!isDms) {
-        if (typeof coordValidator === 'function' && !coordValidator(value)) {
-          errors = true
-          inValidInput = value
-          inValidKey = readableNames[key]
-          defaultCoord = getNegOrPosLatLon(key, value)
-          value = defaultCoord
-          setState(key, value)
-          return
-        }
-        setState(key, value, (errors = false))
-      } else {
-        if (
-          typeof coordValidator === 'function' &&
-          coordValidator(value) !== value &&
-          value !== ''
-        ) {
-          errors = true
-          inValidInput = value
-          inValidKey = readableNames[key]
-          defaultCoord = coordValidator(value)
-          value = defaultCoord
-          setState(key, value)
-          return
-        }
-        setState(key, value, (errors = false))
-      }
-    }}
   />
 )

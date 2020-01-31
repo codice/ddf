@@ -15,6 +15,19 @@
 
 import { InvalidSearchFormMessage } from '../../../component/announcement/CommonMessages'
 const announcement = require('../../../component/announcement/index.jsx')
+import styled from 'styled-components'
+
+export const Invalid = styled.div`
+  background-color: ${props => props.theme.negativeColor};
+  height: 100%;
+  display: block;
+  overflow: hidden;
+  color: white;
+`
+
+export const WarningIcon = styled.span`
+  padding: ${({ theme }) => theme.minimumSpacing};
+`
 
 export function showErrorMessages(errors: any) {
   if (errors.length === 0) {

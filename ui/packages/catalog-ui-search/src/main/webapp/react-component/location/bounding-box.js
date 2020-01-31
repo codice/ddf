@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-const React = require('react')
+import React, { useState } from 'react'
 
 const Group = require('../group')
 const Label = require('./label')
@@ -27,11 +27,15 @@ const {
 } = require('../../component/location-new/geo-components/coordinates.js')
 const DirectionInput = require('../../component/location-new/geo-components/direction.js')
 const { Direction } = require('../../component/location-new/utils/dms-utils.js')
+import { Invalid, WarningIcon } from '../utils/validation'
+
+const usngs = require('usng.js')
+const converter = new usngs.Converter()
 
 const minimumDifference = 0.0001
 
 const BoundingBoxLatLon = props => {
-  const { north, east, south, west, cursor } = props
+  const { north, east, south, west, setState } = props
 
   const { mapEast, mapWest, mapSouth, mapNorth } = props
 
@@ -45,7 +49,7 @@ const BoundingBoxLatLon = props => {
       <TextField
         label="West"
         value={west}
-        onChange={cursor('west')}
+        onChange={value => setState('west', value)}
         type="number"
         step="any"
         min={-180}
@@ -55,7 +59,7 @@ const BoundingBoxLatLon = props => {
       <TextField
         label="South"
         value={south}
-        onChange={cursor('south')}
+        onChange={value => setState('south', value)}
         type="number"
         step="any"
         min={-90}
@@ -65,7 +69,7 @@ const BoundingBoxLatLon = props => {
       <TextField
         label="East"
         value={east}
-        onChange={cursor('east')}
+        onChange={value => setState('east', value)}
         type="number"
         step="any"
         min={eastMin || -180}
@@ -75,7 +79,7 @@ const BoundingBoxLatLon = props => {
       <TextField
         label="North"
         value={north}
-        onChange={cursor('north')}
+        onChange={value => setState('north', value)}
         type="number"
         step="any"
         min={northMin || -90}
@@ -87,21 +91,42 @@ const BoundingBoxLatLon = props => {
 }
 
 const BoundingBoxUsngMgrs = props => {
-  const { usngbbUpperLeft, usngbbLowerRight, cursor } = props
+  const { usngbbUpperLeft, usngbbLowerRight, setState } = props
+  const [error, setError] = useState(false)
+  function testValidity() {
+    if (usngbbUpperLeft !== undefined && usngbbLowerRight !== undefined) {
+      const { north, west } = converter.USNGtoLL(usngbbUpperLeft)
+      const { south, east } = converter.USNGtoLL(usngbbLowerRight)
+      setError(
+        Number.isNaN(Number.parseFloat(north)) ||
+          Number.isNaN(Number.parseFloat(south)) ||
+          Number.isNaN(Number.parseFloat(east)) ||
+          Number.isNaN(Number.parseFloat(west))
+      )
+    }
+  }
   return (
     <div className="input-location">
       <TextField
         label="Upper Left"
         style={{ minWidth: 200 }}
         value={usngbbUpperLeft}
-        onChange={cursor('usngbbUpperLeft')}
+        onChange={value => setState('usngbbUpperLeft', value)}
+        onBlur={() => testValidity()}
       />
       <TextField
         label="Lower Right"
         style={{ minWidth: 200 }}
         value={usngbbLowerRight}
-        onChange={cursor('usngbbLowerRight')}
+        onChange={value => setState('usngbbLowerRight', value)}
+        onBlur={() => testValidity()}
       />
+      {error ? (
+        <Invalid>
+          <WarningIcon className="fa fa-warning" />
+          <span>Invalid USNG / MGRS coords</span>
+        </Invalid>
+      ) : null}
     </div>
   )
 }
@@ -112,13 +137,11 @@ const BoundingBoxUtmUps = props => {
     utmUpsUpperLeftNorthing,
     utmUpsUpperLeftZone,
     utmUpsUpperLeftHemisphere,
-
     utmUpsLowerRightEasting,
     utmUpsLowerRightNorthing,
     utmUpsLowerRightZone,
     utmUpsLowerRightHemisphere,
-
-    cursor,
+    setState,
   } = props
 
   return (
@@ -130,22 +153,22 @@ const BoundingBoxUtmUps = props => {
             <TextField
               label="Easting"
               value={utmUpsUpperLeftEasting}
-              onChange={cursor('utmUpsUpperLeftEasting')}
+              onChange={value => setState('utmUpsUpperLeftEasting', value)}
               addon="m"
             />
             <TextField
               label="Northing"
               value={utmUpsUpperLeftNorthing}
-              onChange={cursor('utmUpsUpperLeftNorthing')}
+              onChange={value => ('utmUpsUpperLeftNorthing', value)}
               addon="m"
             />
             <Zone
               value={utmUpsUpperLeftZone}
-              onChange={cursor('utmUpsUpperLeftZone')}
+              onChange={value => setState('utmUpsUpperLeftZone', value)}
             />
             <Hemisphere
               value={utmUpsUpperLeftHemisphere}
-              onChange={cursor('utmUpsUpperLeftHemisphere')}
+              onChange={value => setState('utmUpsUpperLeftHemisphere', value)}
             />
           </div>
         </Group>
@@ -157,22 +180,22 @@ const BoundingBoxUtmUps = props => {
             <TextField
               label="Easting"
               value={utmUpsLowerRightEasting}
-              onChange={cursor('utmUpsLowerRightEasting')}
+              onChange={value => setState('utmUpsLowerRightEasting', value)}
               addon="m"
             />
             <TextField
               label="Northing"
               value={utmUpsLowerRightNorthing}
-              onChange={cursor('utmUpsLowerRightNorthing')}
+              onChange={value => setState('utmUpsLowerRightNorthing', value)}
               addon="m"
             />
             <Zone
               value={utmUpsLowerRightZone}
-              onChange={cursor('utmUpsLowerRightZone')}
+              onChange={value => setState('utmUpsLowerRightZone', value)}
             />
             <Hemisphere
               value={utmUpsLowerRightHemisphere}
-              onChange={cursor('utmUpsLowerRightHemisphere')}
+              onChange={value => setState('utmUpsLowerRightHemisphere',value)}
             />
           </div>
         </Group>
@@ -187,13 +210,11 @@ const BoundingBoxDms = props => {
     dmsNorth,
     dmsWest,
     dmsEast,
-
     dmsSouthDirection,
     dmsNorthDirection,
     dmsWestDirection,
     dmsEastDirection,
-
-    cursor,
+    setState,
   } = props
 
   const latitudeDirections = [Direction.North, Direction.South]
@@ -201,32 +222,32 @@ const BoundingBoxDms = props => {
 
   return (
     <div className="input-location">
-      <DmsLongitude label="West" value={dmsWest} onChange={cursor('dmsWest')}>
+      <DmsLongitude label="West" value={dmsWest} onChange={value => setState('dmsWest', value)}>
         <DirectionInput
           options={longitudeDirections}
           value={dmsWestDirection}
-          onChange={cursor('dmsWestDirection')}
+          onChange={value => setState('dmsWestDirection', value)}
         />
       </DmsLongitude>
-      <DmsLatitude label="South" value={dmsSouth} onChange={cursor('dmsSouth')}>
+      <DmsLatitude label="South" value={dmsSouth} onChange={value => ('dmsSouth', value)}>
         <DirectionInput
           options={latitudeDirections}
           value={dmsSouthDirection}
-          onChange={cursor('dmsSouthDirection')}
+          onChange={value => setState('dmsSouthDirection', value)}
         />
       </DmsLatitude>
-      <DmsLongitude label="East" value={dmsEast} onChange={cursor('dmsEast')}>
+      <DmsLongitude label="East" value={dmsEast} onChange={value => setState('dmsEast', value)}>
         <DirectionInput
           options={longitudeDirections}
           value={dmsEastDirection}
-          onChange={cursor('dmsEastDirection')}
+          onChange={value => setState('dmsEastDirection', value)}
         />
       </DmsLongitude>
-      <DmsLatitude label="North" value={dmsNorth} onChange={cursor('dmsNorth')}>
+      <DmsLatitude label="North" value={dmsNorth} onChange={value => setState('dmsNorth', value)}>
         <DirectionInput
           options={latitudeDirections}
           value={dmsNorthDirection}
-          onChange={cursor('dmsNorthDirection')}
+          onChange={value => setState('dmsNorthDirection', value)}
         />
       </DmsLatitude>
     </div>
@@ -234,7 +255,7 @@ const BoundingBoxDms = props => {
 }
 
 const BoundingBox = props => {
-  const { cursor, locationType } = props
+  const { setState, locationType } = props
 
   const inputs = {
     latlon: BoundingBoxLatLon,
@@ -247,7 +268,7 @@ const BoundingBox = props => {
 
   return (
     <div>
-      <Radio value={locationType} onChange={cursor('locationType')}>
+      <Radio value={locationType} onChange={value => setState('locationType', value)}>
         <RadioItem value="latlon">Lat/Lon (DD)</RadioItem>
         <RadioItem value="dms">Lat/Lon (DMS)</RadioItem>
         <RadioItem value="usng">USNG / MGRS</RadioItem>

@@ -16,17 +16,9 @@ const React = require('react')
 
 const { Units } = require('./common')
 const TextField = require('../text-field')
-import styled from 'styled-components'
+import { Invalid, WarningIcon } from '../utils/validation'
 
 const coordinatePairRegex = /-?\d{1,3}(\.\d*)?\s-?\d{1,3}(\.\d*)?/g
-
-const Invalid = styled.div`
-  background-color: ${props => props.theme.negativeColor};
-  height: 100%;
-  display: block;
-  overflow: hidden;
-  color: white;
-`
 
 class BaseLine extends React.Component {
   invalidMessage = ''
@@ -51,7 +43,7 @@ class BaseLine extends React.Component {
   }
   render() {
     const props = this.props
-    const { label, cursor, geometryKey, unitKey, widthKey } = props
+    const { label, setState, geometryKey, unitKey, widthKey } = props
     return (
       <React.Fragment>
         <div className="input-location">
@@ -68,9 +60,9 @@ class BaseLine extends React.Component {
                 value = this.convertWkt(value, 2)
               }
               this.setState({ value })
-              const fn = cursor(geometryKey)
+
               try {
-                fn(JSON.parse(value))
+                setState(geometryKey, JSON.parse(value))
               } catch (e) {
                 // do nothing
               }
@@ -80,26 +72,24 @@ class BaseLine extends React.Component {
               this.setState({ isValid: true })
             }}
           />
-          <Units value={props[unitKey]} onChange={cursor(unitKey)}>
+          {this.state.isValid ? (
+            ''
+          ) : (
+            <Invalid>
+              <WarningIcon className="fa fa-warning" />
+              <span>{ this.invalidMessage }</span>
+            </Invalid>
+          )}
+          <Units value={props[unitKey]} onChange={value => setState(unitKey, value)}>
             <TextField
               type="number"
               label="Buffer width"
               min={0.000001}
               value={`${props[widthKey]}`}
-              onChange={cursor(widthKey)}
+              onChange={value => setState(widthKey, value)}
             />
           </Units>
         </div>
-        {this.state.isValid ? (
-          ''
-        ) : (
-          <Invalid>
-            &nbsp;
-            <span className="fa fa-exclamation-triangle" />
-            &nbsp; {this.invalidMessage} &nbsp; &nbsp;
-            <span className="fa fa-times" onClick={this.removeErrorBox} />
-          </Invalid>
-        )}
       </React.Fragment>
     )
   }

@@ -12,4 +12,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-export { showErrorMessages, getFilterErrors } from './validation'
+export { showErrorMessages, getFilterErrors, Invalid, WarningIcon } from './validation'
