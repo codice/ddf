@@ -77,7 +77,7 @@ public class CqlQueryUtil implements CqlQueryUtility {
       results = retrieveResults(cqlRequest, request, responses);
     }
 
-    QueryResponse response =
+    QueryResponse aggregatedResponse =
         new QueryResponseImpl(
             request,
             results,
@@ -95,12 +95,17 @@ public class CqlQueryUtil implements CqlQueryUtility {
                 .findFirst()
                 .orElse(Collections.emptyMap()));
 
+    responses
+        .stream()
+        .map(QueryResponse::getProcessingDetails)
+        .forEach(aggregatedResponse.getProcessingDetails()::addAll);
+
     stopwatch.stop();
 
     return new CqlQueryResponseImpl(
         cqlRequest.getId(),
         request,
-        response,
+        aggregatedResponse,
         cqlRequest.getSourceResponseString(),
         stopwatch.elapsed(TimeUnit.MILLISECONDS),
         cqlRequest.isNormalize(),

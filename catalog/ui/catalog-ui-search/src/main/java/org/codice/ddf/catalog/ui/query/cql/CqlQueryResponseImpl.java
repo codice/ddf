@@ -211,7 +211,7 @@ public class CqlQueryResponseImpl implements CqlQueryResponse {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    CqlQueryResponse that = (CqlQueryResponse) o;
+    CqlQueryResponseImpl that = (CqlQueryResponseImpl) o;
     return Objects.equals(results, that.results)
         && Objects.equals(id, that.id)
         && Objects.equals(types, that.types)

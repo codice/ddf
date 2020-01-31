@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.ui.query.utility;
 import ddf.catalog.operation.QueryResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface CqlQueryResponse {
 
@@ -28,4 +29,6 @@ public interface CqlQueryResponse {
   String getId();
 
   Status getStatus();
+
+  void addToWarnings(Set<String> warningsToAdd);
 }
