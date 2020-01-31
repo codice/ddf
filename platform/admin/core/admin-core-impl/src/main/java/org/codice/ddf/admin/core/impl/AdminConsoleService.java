@@ -69,9 +69,6 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   private static final String IDP_CLIENT_CONFIG_PID =
       "(service.pid=org.codice.ddf.security.idp.client.IdpMetadata)";
 
-  private static final String IDP_SERVER_CONFIG_PID =
-      "(service.pid=org.codice.ddf.security.idp.server.IdpEndpoint)";
-
   private static final String OIDC_HANDLER_CONFIG_PID =
       "(service.pid=org.codice.ddf.security.handler.api.OidcHandlerConfiguration)";
 
@@ -484,9 +481,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   @Override
   public Map<String, Object>[] getSsoConfigurations() {
     return new Map[] {
-      this.getService(IDP_CLIENT_CONFIG_PID),
-      this.getService(IDP_SERVER_CONFIG_PID),
-      this.getService(OIDC_HANDLER_CONFIG_PID)
+      this.getService(IDP_CLIENT_CONFIG_PID), this.getService(OIDC_HANDLER_CONFIG_PID)
     };
   }
 

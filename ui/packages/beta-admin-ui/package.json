@@ -19,7 +19,7 @@
     "@connexta/ace": "*"
   },
   "dependencies": {
-    "@connexta/kanri": "0.0.7",
+    "@connexta/kanri": "0.0.8",
     "react": "16.8.6",
     "react-dom": "16.8.6",
     "styled-components": "4.3.2"
@@ -34,9 +34,7 @@
     "whitelist": [],
     "resolve": [
       "react",
-      "react-dom",
-      "@material-ui/styles",
-      "styled-components"
+      "react-dom"
     ]
   },
   "files": [
@@ -45,5 +43,5 @@
     "src/main/resources"
   ],
   "main": "src/main/webapp/components/entry/entry",
-  "context-path": "/beta/admin"
+  "context-path": "/admin/beta"
 }

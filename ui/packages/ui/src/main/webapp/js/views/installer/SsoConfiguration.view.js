@@ -38,7 +38,6 @@ define([
   SsoConfigMultiple
 ) {
   var IDP_CLIENT_METATYPE_ID = 'org.codice.ddf.security.idp.client.IdpMetadata'
-  var IDP_SERVER_METATYPE_ID = 'org.codice.ddf.security.idp.server.IdpEndpoint'
   var OIDC_HANDLER_METATYPE_ID =
     'org.codice.ddf.security.handler.api.OidcHandlerConfiguration'
 
@@ -95,7 +94,6 @@ define([
       _.each(self.metatypes, function(metatype) {
         switch (metatype.get('id')) {
           case IDP_CLIENT_METATYPE_ID:
-          case IDP_SERVER_METATYPE_ID:
             self.samlMetatypes.push(metatype)
             break
           case OIDC_HANDLER_METATYPE_ID:
