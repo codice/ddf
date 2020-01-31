@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.21.2. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.22.0. Copyright (c) Codice Foundation">
 <title>DDF Metadata Reference Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,7 +520,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>DDF Metadata Reference Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.21.2. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.22.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -3531,14 +3531,14 @@ While ingest is possible for these files, metadata will be limited unless otherw
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a id="_resource-uri"></a>resource-uri</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Location of the resource for the metacard.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog-specific location of the resource for the metacard. This URI is used for internal catalog requests.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Valid URI per RFC 2396</p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a id="_resource-download-url"></a>resource-download-url</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL location of the resource for the metacard. This attributes provides a resolvable URL to the download location of the resource.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL location of the resource for the metacard. This attributes provides a client-resolvable URL to the download location of the resource. Clients should use this URL for download requests.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Valid URL per RFC 2396</p></td>
 <td class="tableblock halign-left valign-top"></td>
@@ -3606,17 +3606,17 @@ While ingest is possible for these files, metadata will be limited unless otherw
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a id="_resource.derived-download-url"></a>resource.derived-download-url</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Download URL(s) for accessing the derived formats for the metacard resource.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a id="_resource.derived-uri"></a>resource.derived-uri</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog-specific Location(s) for accessing the resources derived from another source (for example, an overlay of a larger image). This URI is used for internal catalog requests.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List of Strings</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Valid URL(s) per RFC 2396</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Valid URI per RFC 2396</p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a id="_resource.derived-uri"></a>resource.derived-uri</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Location(s) for accessing the derived formats for the metacard resource.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a id="_resource.derived-download-url"></a>resource.derived-download-url</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Download URL(s) for accessing the resources derived from another source (for example, an overlay of a larger image). Clients should use this URL for download requests.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List of Strings</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Valid URI per RFC 2396</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Valid URL(s) per RFC 2396</p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
@@ -3634,7 +3634,7 @@ While ingest is possible for these files, metadata will be limited unless otherw
 <div class="sect3">
 <h4 id="_associations_attributes"><a class="anchor" href="#_associations_attributes"></a><a class="link" href="#_associations_attributes">Associations Attributes</a></h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 12. Associations: Attributes in this group represent associations between products. <strong>Injected by default.</strong></caption>
+<caption class="title">Table 12. Associations: Attributes in this group represent associations between resources. <strong>Injected by default.</strong></caption>
 <colgroup>
 <col style="width: 16.6666%;">
 <col style="width: 33.3333%;">
@@ -4429,7 +4429,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-12-16 15:54:15 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2020-01-31 13:43:59 MST
 </div>
 </div>
 </body>

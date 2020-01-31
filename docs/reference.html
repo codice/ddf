@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.21.2. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.22.0. Copyright (c) Codice Foundation">
 <title>DDF Reference Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,7 +520,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>DDF Reference Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.21.2. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.22.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -561,14 +561,6 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_platform_application_prerequisites">Platform Application Prerequisites</a></li>
 <li><a href="#_installing_platform">Installing Platform</a></li>
 <li><a href="#_configuring_the_platform_application">Configuring the Platform Application</a></li>
-</ul>
-</li>
-<li><a href="#_registry_application_reference">Registry Application Reference</a>
-<ul class="sectlevel3">
-<li><a href="#_registry_prerequisites">Registry Prerequisites</a></li>
-<li><a href="#_installing_registry">Installing Registry</a></li>
-<li><a href="#_customizing_registry_fields">Customizing Registry Fields</a></li>
-<li><a href="#_configuring_the_registry_application">Configuring the Registry Application</a></li>
 </ul>
 </li>
 <li><a href="#_resource_management_application_reference">Resource Management Application Reference</a>
@@ -618,7 +610,6 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_packages_removed_from_whitelist">Packages Removed From Whitelist</a></li>
 <li><a href="#_catalog_whitelist">Catalog Whitelist</a></li>
 <li><a href="#_platform_whitelist">Platform Whitelist</a></li>
-<li><a href="#_registry_whitelist">Registry Whitelist</a></li>
 <li><a href="#_security_whitelist">Security Whitelist</a></li>
 <li><a href="#_solr_catalog_whitelist">Solr Catalog Whitelist</a></li>
 <li><a href="#_search_ui_whitelist">Search UI Whitelist</a></li>
@@ -626,8 +617,8 @@ table.CodeRay td.code>pre{padding:0}
 </li>
 <li><a href="#_ddf_dependency_list">DDF Dependency List</a>
 <ul class="sectlevel2">
-<li><a href="#_ddf_2_21_2_dependency_list">DDF 2.21.2 Dependency List.</a></li>
-<li><a href="#_ddf_2_21_2_javascript_dependency_list">DDF 2.21.2 Javascript Dependency List.</a></li>
+<li><a href="#_ddf_2_22_0_dependency_list">DDF 2.22.0 Dependency List.</a></li>
+<li><a href="#_ddf_2_22_0_javascript_dependency_list">DDF 2.22.0 Javascript Dependency List.</a></li>
 </ul>
 </li>
 <li><a href="#_hardening_checklist">Hardening Checklist</a></li>
@@ -3621,505 +3612,6 @@ These building blocks include subsets of:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_registry_application_reference"><a class="anchor" href="#_registry_application_reference"></a><a class="link" href="#_registry_application_reference">Registry Application Reference</a></h3>
-<div class="paragraph">
-<p>Registry contains the base registry components, plugins, sources, and interfaces needed for DDF to function as a registry connecting multiple nodes.</p>
-</div>
-<div class="sect3">
-<h4 id="_registry_prerequisites"><a class="anchor" href="#_registry_prerequisites"></a><a class="link" href="#_registry_prerequisites">Registry Prerequisites</a></h4>
-<div class="paragraph">
-<p>To use the Registry, the following apps/features must be installed:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Catalog</p>
-</li>
-<li>
-<p>Admin</p>
-</li>
-<li>
-<p>Spatial</p>
-</li>
-<li>
-<p>Platform</p>
-</li>
-<li>
-<p>Security</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_installing_registry"><a class="anchor" href="#_installing_registry"></a><a class="link" href="#_installing_registry">Installing Registry</a></h4>
-<div class="paragraph">
-<p>Install the Registry application through the Admin Console.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Navigate to the <strong>Admin Console</strong>.</p>
-</li>
-<li>
-<p>Select the <strong>System</strong> tab.</p>
-</li>
-<li>
-<p>Select the <strong>Features</strong> tab.</p>
-</li>
-<li>
-<p>Install the <code>registry-app</code> feature.</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_customizing_registry_fields"><a class="anchor" href="#_customizing_registry_fields"></a><a class="link" href="#_customizing_registry_fields">Customizing Registry Fields</a></h4>
-<div class="paragraph">
-<p>All the fields that appear in a registry node are customizable. This is done through a JSON configuration file located at <code>&lt;DDF_HOME&gt;/etc/registry/registry-custom-slots.json</code> that defines the registry fields. In this file there are JSON objects that relate to each part of the edit registry modal.
-These objects are</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>General</p>
-</li>
-<li>
-<p>Service</p>
-<div class="ulist">
-<ul>
-<li>
-<p>ServiceBinding</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Organization</p>
-</li>
-<li>
-<p>Person (Contact)</p>
-</li>
-<li>
-<p>Content (Content Collection)</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Each of the objects listed above is a JSON array of field objects that can be modified. There are some other objects in the JSON file like <strong>PersonName</strong>, <strong>Address</strong>, <strong>TelephoneNumber</strong>, and <strong>EmailAddress</strong> that should not be modified.</p>
-</div>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 45. Field Properties</caption>
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Property Key</th>
-<th class="tableblock halign-left valign-top">Required</th>
-<th class="tableblock halign-left valign-top">Property Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">key</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The string value that will be used to identify this field. Must be unique within field grouping array. This value is what will show up in the generated EBRIM xml.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">displayName</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The string name that will be displayed in the edit node dialog for this field</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">description</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A brief description of what the field represents or is used for. Shown when user hovers or click the question mark icon for the field.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">value</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The initial or default value of the field. For most cases this should be left as an empty array or string.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Identifies what type of field this is. Value must be one of <strong>string</strong>, <strong>date</strong>, <strong>number</strong>, <strong>boolean</strong>, <strong>point</strong>, or <strong>bounds</strong></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">required</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates if this field must be filled out. <strong>Default is false</strong>. If true an asterisk will be displayed next to the field name.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">possibleValues</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">An array of values that could be used for this field. If <strong>multiValued=true</strong> this list will be used for suggestions for autocomplete. If <strong>multiValued=false</strong> this list will be used to populate a dropdown.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">multiValued</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Flag indicating if this field accepts multiple values or not. <strong>Default is false</strong>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">isSlot</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Indicates that this field represents a slot value in the EBRIM document. If this is false the key must match a valid EBRIM attribute for the parent object. <strong>Default is true</strong>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">advanced</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A flag indicating if this field should be placed under the <strong>Advanced</strong> section of the edit modal ui. <strong>Default is false</strong>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">regex</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A regular expression for validating users input.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">regexMessage</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A message to show the user if the regular expression test fails.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">isGroup, constructTitle</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">These fields are used for nesting objects and should not be modified</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="_configuring_the_registry_application"><a class="anchor" href="#_configuring_the_registry_application"></a><a class="link" href="#_configuring_the_registry_application">Configuring the Registry Application</a></h4>
-<div class="paragraph">
-<p>To configure the Registry Application:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Navigate to the Admin Console.</p>
-</li>
-<li>
-<p>Select the <strong>Registry</strong> application.</p>
-</li>
-<li>
-<p>Select the <strong>Configuration</strong> tab.</p>
-</li>
-</ol>
-</div>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 46. Registry Available Configurations</caption>
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Property</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_Csw_Registry_Store">CSW Registry Store</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Csw_Registry_Store</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Registry CSW Store.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.registry.policy.RegistryPolicyPlugin">Registry Policy Plugin</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.registry.policy.RegistryPolicyPlugin</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Registry Policy Plugin.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_Registry_Configuration_Event_Handler">Registry Source Configuration Handler</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Registry_Configuration_Event_Handler</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Registry Source Configuration Handler configurations.</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 47. <a id="_Csw_Registry_Store"></a>CSW Registry Store</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Registry ID</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The unique name of the store</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Registry Service URL</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cswUrl</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL to the endpoint implementing CSW spec capable of returning ebrim formatted records</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication type to use when federating.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username for CSW Service. Required if basic authentication type is selected.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password for CSW Service. Required if basic authentication type is selected.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Discovery Url</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthDiscoveryUrl</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://localhost:8443/auth/realms/master/.well-known/openid-configuration" class="bare">https://localhost:8443/auth/realms/master/.well-known/openid-configuration</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Client ID</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthClientId</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Client ID registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ddf-client</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Client Secret</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthClientSecret</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Client Secret registered with the OAuth provider. Required if OAuth 2.0 authentication type is selected.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">secret</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth Flow</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>oauthFlow</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The OAuth flow to use when federating. Required if OAuth 2.0 authentication type is selected.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">code</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Allow Push</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pushAllowed</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable push (write) to this registry</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Allow Pull</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pullAllowed</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable pull (read) from this registry</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Push Identity Node</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>autoPush</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable an automatic publish from the local identity node to this registry. Setting this to Off will have the effect of unpublishing the identity from this registry.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 48. <a id="_org.codice.ddf.registry.policy.RegistryPolicyPlugin"></a>Registry Policy Plugin</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Registry Create Attributes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>createAccessPolicyStrings</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Roles/attributes required for Create operations on registry entries. Example: {role=role1;type=type1}</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest" class="bare">http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Registry Update Attributes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>updateAccessPolicyStrings</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Roles/attributes required for Update operations on registry entries. Example: {role=role1;type=type1}</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest" class="bare">http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Registry Delete Attributes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>deleteAccessPolicyStrings</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Roles/attributes required for Delete operations on registry entries. Example: {role=role1;type=type1}</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest" class="bare">http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Registry Read Attributes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>readAccessPolicyStrings</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Roles/attributes required for reading registry entries. Example: {role=role1;type=type1}</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest" class="bare">http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Registry Admin Attributes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>registryBypassPolicyStrings</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Roles/attributes required for an admin to bypass all filtering/access controls. Example: {role=role1;type=type1}</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin" class="bare">http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=system-admin</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Disable Registry Write Access</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>registryDisabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Disables all write access to registry entries in the catalog. Only users with Registry Admin Attributes will be able to write registry entries</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Entries are White List</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>whiteList</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A flag indicating whether or not the Registry Entry Ids represent a 'white list' (allowed - checked) or a 'black list' (blocked - unchecked) ids</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Registry Entries Ids</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>registryEntryIds</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of registry entry ids to be used in the white/black list.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 49. <a id="_Registry_Configuration_Event_Handler"></a>Registry Source Configuration Handler</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Url Binding Name</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>urlBindingName</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The url name for communicating with the specific instance.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">urlBindingName</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">BindingType to Factory PID</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bindingTypeFactoryPid</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Key/Value mappings of binding type to factory PID</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">CSW_2.0.2=Csw_Federated_Source,WFS_1.0.0=Wfs_v1_0_0_Federated_Source,OpenSearch_1.0.0=OpenSearchSource</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Remove Configurations on Metacard Delete</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cleanUpOnDelete</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Flag used to determine if configurations should be deleted when the metacard is deleted.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Activate Configurations</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>activateConfigurations</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Flag used to determine if a configuration should be activated on creation</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Preserve Active Configuration</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>preserveActiveConfigurations</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Flag used to determine if configurations should be preserved. If true will only allow auto activation on creation. If false auto activation will happen on updates as well. Only applicable if activateConfigurations is true.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Source Activation Priority Order</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sourceActivationPriorityOrder</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This is the priority list used to determine which source should be activated on creation</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">100CSW_2.0.2,WFS_1.0.0,OpenSearch_1.0.0</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="sect2">
 <h3 id="_resource_management_application_reference"><a class="anchor" href="#_resource_management_application_reference"></a><a class="link" href="#_resource_management_application_reference">Resource Management Application Reference</a></h3>
 <div class="paragraph">
 <p>The Resource Management Application provides administrative functionality to monitor and manage data usage on the system.
@@ -4216,7 +3708,7 @@ This application allows an administrator to:</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 50. Resource Management Available Configurations</caption>
+<caption class="title">Table 45. Resource Management Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -4238,7 +3730,7 @@ This application allows an administrator to:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 51. <a id="_org.codice.ddf.resourcemanagement.usage"></a>Data Usage</caption>
+<caption class="title">Table 46. <a id="_org.codice.ddf.resourcemanagement.usage"></a>Data Usage</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4280,7 +3772,7 @@ These services comprise both a framework that developers and integrators can ext
 <p>This section documents the installation, maintenance, and support of this application.</p>
 </div>
 <div class="ulist">
-<div class="title">Applications Included in Security</div>
+<div class="title">Features Included in Security</div>
 <ul>
 <li>
 <p>Security Core</p>
@@ -4289,16 +3781,10 @@ These services comprise both a framework that developers and integrators can ext
 <p>Security Encryption</p>
 </li>
 <li>
-<p>Security IdP</p>
-</li>
-<li>
 <p>Security PEP</p>
 </li>
 <li>
 <p>Security PDP</p>
-</li>
-<li>
-<p>Security STS</p>
 </li>
 </ul>
 </div>
@@ -4356,7 +3842,7 @@ These services comprise both a framework that developers and integrators can ext
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 52. Security Available Configurations</caption>
+<caption class="title">Table 47. Security Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -4411,7 +3897,7 @@ These services comprise both a framework that developers and integrators can ext
 <td class="tableblock halign-left valign-top"><p class="tableblock">Session configurations.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.security.idp.client.IdpHandler">IdP Handler</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.security.idp.client.IdpHandler">SAML Handler</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.security.idp.client.IdpHandler</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IdP Handler configurations.</p></td>
 </tr>
@@ -4448,7 +3934,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 53. <a id="_Claims_Handler_Manager"></a>Security STS LDAP and Roles Claims Handler</caption>
+<caption class="title">Table 48. <a id="_Claims_Handler_Manager"></a>Security STS LDAP and Roles Claims Handler</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4567,7 +4053,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 54. <a id="_org.codice.ddf.security.interceptor.GuestInterceptor"></a>Security SOAP Guest Interceptor</caption>
+<caption class="title">Table 49. <a id="_org.codice.ddf.security.interceptor.GuestInterceptor"></a>Security SOAP Guest Interceptor</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4598,7 +4084,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 55. <a id="_org.codice.ddf.security.idp.client.IdpMetadata"></a>IdP Client</caption>
+<caption class="title">Table 50. <a id="_org.codice.ddf.security.idp.client.IdpMetadata"></a>IdP Client</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4633,7 +4119,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 56. <a id="_org.codice.ddf.security.idp.client.LogoutRequestService"></a>Logout Page</caption>
+<caption class="title">Table 51. <a id="_org.codice.ddf.security.idp.client.LogoutRequestService"></a>Logout Page</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4655,13 +4141,13 @@ These services comprise both a framework that developers and integrators can ext
 <td class="tableblock halign-left valign-top"><p class="tableblock">Logout Page Time Out</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>logOutPageTimeOut</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Long</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This is the time limit that the IDP client will wait for a user to click log out on the logout page. Any requests that take longer than this time for the user to submit will be rejected."/&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is the time limit that the SAML client will wait for a user to click log out on the logout page. Any requests that take longer than this time for the user to submit will be rejected."/&gt;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">3600000</p></td>
 </tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 57. <a id="_org.codice.ddf.security.handler.oidc.OidcHandler"></a>OIDC Handler</caption>
+<caption class="title">Table 52. <a id="_org.codice.ddf.security.handler.oidc.OidcHandler"></a>OIDC Handler</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4759,7 +4245,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 58. <a id="_org.codice.ddf.security.policy.context.impl.PolicyManager"></a>Web Context Policy Manager</caption>
+<caption class="title">Table 53. <a id="_org.codice.ddf.security.policy.context.impl.PolicyManager"></a>Web Context Policy Manager</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4830,7 +4316,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 59. <a id="_org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler"></a>File Based Claims Handler</caption>
+<caption class="title">Table 54. <a id="_org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler"></a>File Based Claims Handler</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4885,7 +4371,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 60. <a id="_org.codice.ddf.security.filter.login.Session"></a>Session</caption>
+<caption class="title">Table 55. <a id="_org.codice.ddf.security.filter.login.Session"></a>Session</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4918,7 +4404,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 61. <a id="_org.codice.ddf.security.idp.client.IdpHandler"></a>IdP Handler</caption>
+<caption class="title">Table 56. <a id="_org.codice.ddf.security.idp.client.IdpHandler"></a>SAML Handler</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4940,13 +4426,13 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 <td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Context Class</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>authContextClasses</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Context Classes that are considered acceptable means of authentication by the IdP Client.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Context Classes that are considered acceptable means of authentication by the SAML handler.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">urn:oasis:names:tc:SAML:2.0:ac:classes:Password,urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport,urn:oasis:names:tc:SAML:2.0:ac:classes:X509,urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI,urn:oasis:names:tc:SAML:2.0:ac:classes:SoftwarePKI,urn:oasis:names:tc:SAML:2.0:ac:classes:SPKI,urn:oasis:names:tc:SAML:2.0:ac:classes:TLSClient</p></td>
 </tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 62. <a id="_ddf.security.pdp.realm.AuthzRealm"></a>Security AuthZ Realm</caption>
+<caption class="title">Table 57. <a id="_ddf.security.pdp.realm.AuthzRealm"></a>Security AuthZ Realm</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4993,7 +4479,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 63. <a id="_ddf.security.service.SecurityManager"></a>SAML NameID Policy</caption>
+<caption class="title">Table 58. <a id="_ddf.security.service.SecurityManager"></a>SAML NameID Policy</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5024,7 +4510,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 64. <a id="_ddf.security.sts"></a>Security STS Server</caption>
+<caption class="title">Table 59. <a id="_ddf.security.sts"></a>Security STS Server</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5079,7 +4565,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 65. <a id="_ddf.security.sts.client.configuration"></a>Security STS Client</caption>
+<caption class="title">Table 60. <a id="_ddf.security.sts.client.configuration"></a>Security STS Client</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5190,7 +4676,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 66. <a id="_ddf.security.guest.realm"></a>Guest Claims Configuration</caption>
+<caption class="title">Table 61. <a id="_ddf.security.guest.realm"></a>Guest Claims Configuration</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5221,7 +4707,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 67. <a id="_org.codice.ddf.security.validator.pki"></a>Security STS PKI Token Validator</caption>
+<caption class="title">Table 62. <a id="_org.codice.ddf.security.validator.pki"></a>Security STS PKI Token Validator</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5323,7 +4809,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 68. Solr Catalog Available Configurations</caption>
+<caption class="title">Table 63. Solr Catalog Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -5345,7 +4831,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 69. <a id="_ddf.catalog.solr.provider.SolrCatalogProvider"></a>Solr Catalog Provider</caption>
+<caption class="title">Table 64. <a id="_ddf.catalog.solr.provider.SolrCatalogProvider"></a>Solr Catalog Provider</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5397,7 +4883,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 This feature enables you to use an offline source of GeoNames data (as an alternative to the GeoNames Web service enabled by the <code>webservice-gazetteer</code> feature) to perform searches via the gazetteer search box in the Search UI.</p>
 </div>
 <div class="paragraph">
-<p>By default a small set of GeoNames data is included with the offline gazetteer. The GeoNames data is stored as metacards in the core catalog and are tagged with <code>geonames</code> and <code>gazetteer</code>. This collection of GeoNames metacards can be expanded or updated by using the <code>gazetteer:update</code> command.</p>
+<p>Installing the <code>offline-gazetteer-index</code> feature will provide a small set of GeoNames data to use with the offline gazetteer. The GeoNames data is stored as metacards in the core catalog and are tagged with <code>geonames</code> and <code>gazetteer</code>. This collection of GeoNames metacards can be expanded or updated by using the <code>gazetteer:update</code> command.</p>
 </div>
 <div class="sect4">
 <h5 id="_spatial_gazetteer_console_commands"><a class="anchor" href="#_spatial_gazetteer_console_commands"></a><a class="link" href="#_spatial_gazetteer_console_commands">Spatial Gazetteer Console Commands</a></h5>
@@ -5405,7 +4891,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <p>The <code>gazetteer</code> commands provide the ability to interact with the local GeoNames metacard collection in the core catalog. These GeoNames metacards are used by the <code>offline-gazetteer</code> feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the <code>offline-gazetteer</code> feature is installed.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 70. Gazetteer Command Descriptions</caption>
+<caption class="title">Table 65. Gazetteer Command Descriptions</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 80%;">
@@ -5525,7 +5011,7 @@ index again.</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 71. Spatial Available Configurations</caption>
+<caption class="title">Table 66. Spatial Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -5607,7 +5093,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 72. <a id="_Csw_Federated_Source"></a>CSW Specification Profile Federated Source</caption>
+<caption class="title">Table 67. <a id="_Csw_Federated_Source"></a>CSW Specification Profile Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5822,7 +5308,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 73. <a id="_Csw_Federation_Profile_Source"></a>CSW Federation Profile Source</caption>
+<caption class="title">Table 68. <a id="_Csw_Federation_Profile_Source"></a>CSW Federation Profile Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5949,7 +5435,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 74. <a id="_Csw_Transactional_Federated_Source"></a>CSW Transactional Profile Federated Source</caption>
+<caption class="title">Table 69. <a id="_Csw_Transactional_Federated_Source"></a>CSW Transactional Profile Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6164,7 +5650,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 75. <a id="_org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin"></a>GeoCoder Plugin</caption>
+<caption class="title">Table 70. <a id="_org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin"></a>GeoCoder Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6194,7 +5680,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 76. <a id="_Gmd_Csw_Federated_Source"></a>GMD CSW ISO Federated Source</caption>
+<caption class="title">Table 71. <a id="_Gmd_Csw_Federated_Source"></a>GMD CSW ISO Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6393,7 +5879,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 77. <a id="_org.codice.ddf.spatial.kml.endpoint.KmlEndpoint"></a>Spatial KML Endpoint</caption>
+<caption class="title">Table 72. <a id="_org.codice.ddf.spatial.kml.endpoint.KmlEndpoint"></a>Spatial KML Endpoint</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6472,7 +5958,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 78. <a id="_org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"></a>Metacard to WFS Feature Map</caption>
+<caption class="title">Table 73. <a id="_org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"></a>Metacard to WFS Feature Map</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6607,7 +6093,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 79. <a id="_Wfs_v1_0_0_Connected_Source"></a>WFS v1.0.0 Connected Source</caption>
+<caption class="title">Table 74. <a id="_Wfs_v1_0_0_Connected_Source"></a>WFS v1.0.0 Connected Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6718,7 +6204,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 80. <a id="_Wfs_v1_0_0_Federated_Source"></a>WFS v1.0.0 Federated Source</caption>
+<caption class="title">Table 75. <a id="_Wfs_v1_0_0_Federated_Source"></a>WFS v1.0.0 Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6837,7 +6323,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 81. <a id="_Wfs_v1_1_0_Federated_Source"></a>WFS v1.1.0 Federated Source</caption>
+<caption class="title">Table 76. <a id="_Wfs_v1_1_0_Federated_Source"></a>WFS v1.1.0 Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6972,7 +6458,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 82. <a id="_Wfs_v2_0_0_Connected_Source"></a>WFS 2.0.0 Connected Source</caption>
+<caption class="title">Table 77. <a id="_Wfs_v2_0_0_Connected_Source"></a>WFS 2.0.0 Connected Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7099,7 +6585,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 83. <a id="_Wfs_v2_0_0_Federated_Source"></a>WFS 2.0.0 Federated Source</caption>
+<caption class="title">Table 78. <a id="_Wfs_v2_0_0_Federated_Source"></a>WFS 2.0.0 Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7234,7 +6720,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 84. <a id="_org.codice.ddf.spatial.kml.style"></a>Spatial KML Style Map Entry</caption>
+<caption class="title">Table 79. <a id="_org.codice.ddf.spatial.kml.style"></a>Spatial KML Style Map Entry</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7344,7 +6830,7 @@ index again.</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 85. Search UI Available Configurations</caption>
+<caption class="title">Table 80. Search UI Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -7389,36 +6875,6 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Workspace Service.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui">Catalog UI Search</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.attribute.aliases">Catalog UI Search Attribute Aliases</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.attribute.aliases</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Attribute Aliases.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.attribute.descriptions">Catalog UI Search Attribute Descriptions</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.attribute.descriptions</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Attribute Descriptions.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.attribute.hidden">Catalog UI Search Hidden Attributes</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.attribute.hidden</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Hidden Attributes.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.theme">Catalog UI Search Theme</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.theme</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Theme.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.whitelist">Catalog UI Search Metacard Type Whitelist</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.whitelist</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Metacard Type Whitelist.</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_org.codice.ddf.catalog.ui.security">Catalog UI Search Workspace Security</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">org.codice.ddf.catalog.ui.security</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Catalog UI Search Workspace Security.</p></td>
@@ -7426,7 +6882,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 86. <a id="_org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier"></a>Catalog UI Search Email Notifier</caption>
+<caption class="title">Table 81. <a id="_org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier"></a>Catalog UI Search Email Notifier</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7473,7 +6929,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 87. <a id="_org.codice.ddf.catalog.plugin.facetattributeaccess.facetwhitelist"></a>Facet Attribute Whitelist</caption>
+<caption class="title">Table 82. <a id="_org.codice.ddf.catalog.plugin.facetattributeaccess.facetwhitelist"></a>Facet Attribute Whitelist</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7505,7 +6961,7 @@ Caution: Suggestion values are not protected by any security. Only choose attrib
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 88. <a id="_org.codice.ddf.ui.searchui.filter.RedirectServlet"></a>Search UI Redirect</caption>
+<caption class="title">Table 83. <a id="_org.codice.ddf.ui.searchui.filter.RedirectServlet"></a>Search UI Redirect</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7536,7 +6992,7 @@ Caution: Suggestion values are not protected by any security. Only choose attrib
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 89. <a id="_org.codice.ddf.catalog.ui.transformer.TransformerDescriptors"></a>Catalog UI Search Transformer Blacklists</caption>
+<caption class="title">Table 84. <a id="_org.codice.ddf.catalog.ui.transformer.TransformerDescriptors"></a>Catalog UI Search Transformer Blacklists</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7575,7 +7031,7 @@ Caution: Suggestion values are not protected by any security. Only choose attrib
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 90. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"></a>Catalog UI Search Workspace Query Monitor</caption>
+<caption class="title">Table 85. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"></a>Catalog UI Search Workspace Query Monitor</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7615,7 +7071,7 @@ Note: This will query for results from the interval to the time the query is sen
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 91. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl"></a>Catalog UI Search Workspace Service</caption>
+<caption class="title">Table 86. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl"></a>Catalog UI Search Workspace Service</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7646,898 +7102,7 @@ Note: This will query for results from the interval to the time the query is sen
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 92. <a id="_org.codice.ddf.catalog.ui"></a>Catalog UI Search</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Result Count</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>resultCount</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the number of results to request from each source.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>250</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Export Result Limit</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>exportResultLimit</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the max number of results that can be exported.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>1000</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Imagery Providers</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>imageryProviders</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><div><div class="paragraph">
-<p>List of imagery providers to use.</p>
-</div>
-<div class="paragraph">
-<p>The valid types are:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>OSM</strong> (OpenStreetMap)</p>
-</li>
-<li>
-<p><strong>AGM</strong> (ArcGisMap)</p>
-</li>
-<li>
-<p><strong>BM</strong> (BingMap)</p>
-</li>
-<li>
-<p><strong>WMS</strong> (WebMapService)</p>
-</li>
-<li>
-<p><strong>WMT</strong> (WebMapTile)</p>
-</li>
-<li>
-<p><strong>TMS</strong> (TileMapService)</p>
-</li>
-<li>
-<p><strong>GE</strong> (GoogleEarth)</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p><strong>OSM example</strong>: <code>{"name": "Example OSM", "show": true, "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "order": 0, "alpha": 1, "proxyEnabled": false}</code></p>
-</div>
-<div class="paragraph">
-<p><strong>AGM example</strong>: <code>{"name": "Example AGM", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", "order": 0, "proxyEnabled": false, "alpha": 1}</code></p>
-</div>
-<div class="paragraph">
-<p><strong>WMS example</strong>: <code>{"name": "Example WMS", "show": true, "type": "WMS", "url": "http://suite.opengeo.org/geoserver/gwc/service/wms", "layers" : ["opengeo:countries"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "order": 0, "alpha":1, "proxyEnabled": false}</code></p>
-</div>
-<div class="paragraph">
-<p><strong>WMT example</strong>: <code>{ "parameters": { "transparent": false, "format": "image/jpeg" }, "name": "Example WMT", "tileMatrixLabels": [ "EPSG:4326:0", "EPSG:4326:1", "EPSG:4326:2", "EPSG:4326:3", "EPSG:4326:4", "EPSG:4326:5", "EPSG:4326:6", "EPSG:4326:7", "EPSG:4326:8", "EPSG:4326:9", "EPSG:4326:10", "EPSG:4326:11", "EPSG:4326:12", "EPSG:4326:13", "EPSG:4326:14", "EPSG:4326:15", "EPSG:4326:16", "EPSG:4326:17", "EPSG:4326:18", "EPSG:4326:19", "EPSG:4326:20", "EPSG:4326:21" ], "tileMatrixSetID": "EPSG:4326", "order": 0, "url": "http://suite.opengeo.org/geoserver/gwc/service/wmts", "layer": "opengeo:countries", "style": "", "proxyEnabled": false, "type": "WMT", "show": true, "alpha": 1}</code></p>
-</div>
-<div class="paragraph">
-<p><strong>TMS example</strong> (3d map support only): <code>{ "name": "Example TMS", "show": true, "type": "TMS", "order": 0, "url": "https://cesiumjs.org/tilesets/imagery/blackmarble", "proxyEnabled": false, "alpha": 1}</code></p>
-</div>
-<div class="paragraph">
-<p><strong>Multiple layer example</strong>:<br>
-<em>Topmost Layer</em>: <code>{ "name": "Example AGM", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer", "order": 0, "proxyEnabled": false, "alpha": 1}</code><br>
-<em>Bottommost Layer</em>: <code>{ "name": "Example AGM 2", "show": true, "type": "AGM", "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer", "order": 1, "proxyEnabled": false, "alpha": 1}</code></p>
-</div></div></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Terrain Provider</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>terrainProvider</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Terrain provider to use for height data. Valid types are: <strong>CT</strong> (CesiumTerrain), <strong>AGS</strong> (ArcGisImageServer), and <strong>VRW</strong> (VRTheWorld).</p>
-<p class="tableblock">Example:
-<code>{"type": "CT", "url": "http://example.com"}</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{ "type": "CT"\, "url": "http://assets.agi.com/stk-terrain/tilesets/world/tiles" }</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Default Layout</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>defaultLayout</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The default UI layout and visualization configuration used in the Catalog UI. See <a href="http://golden-layout.com/docs/Config.html" class="bare">http://golden-layout.com/docs/Config.html</a> <span class="image"><a class="image" href="developing.adoc#_url_resource_reader"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="Catalog UI Search"></a></span> for more information. Example: <code>[{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]</code>.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Visualizations</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>visualizations</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Visualizations that should be recognized by golden layout. Example <code>[{"name":"openlayers","title":"2D Map","icon":"map"},{"name":"cesium","title":"3D Map","icon":"globe"},{"name":"inspector","title":"Inspector","icon":"info"},{"name":"histogram","title":"Histogram","icon":"bar-chart"},{"name":"table","title":"Table","icon":"table"}]</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[{"name":"openlayers","title":"2D Map","icon":"map"},{"name":"cesium","title":"3D Map","icon":"globe"},{"name":"inspector","title":"Inspector","icon":"info"},{"name":"histogram","title":"Histogram","icon":"bar-chart"},{"name":"table","title":"Table","icon":"table"}]</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List Templates</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>listTemplates</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Templates for users to quickly create lists that already specify an icon and a filter. Example: {"id":"Pizza Deliveries", "list.icon": "tasks", "list.cql": "(\"anyText\"ILIKE &apos;pizza&apos;)"}</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Map Projection</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>projection</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Projection of imagery providers (e.g. <code>EPSG:3857</code>, <code>EPSG:4326</code>).</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>EPSG:4326</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Bing Maps Key</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>bingKey</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Bing Maps API key. This should only be set if you are using Bing Maps Imagery or Terrain Providers.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Connection Timeout</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>timeout</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the client-side connection timeout in milliseconds.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>300000</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Source Poll Interval</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sourcePollInterval</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the interval to poll for sources in milliseconds.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>60000</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show Sign In</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>signInEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show Tasks</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>taskEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show task menu area for long running actions.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show Gazetteer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>gazetteerEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show gazetteer for searching place names.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Use Online Gazetteer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>onlineGazetteerEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Should the online gazetteer be used? If unchecked a local gazetteer service will be used. This only applies to the search gazetteer in Intrigue.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show Uploader</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ingestEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show upload menu for adding new record.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Use External Authentication</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>externalAuthenticationEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Use an external authentication point, such as IdP.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Cache</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cacheEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Locally cached results will be returned in search results.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Allow Editing</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>editingEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Allow editing capability to be visible in the UI.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Web Sockets</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>webSocketsEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enables use of Web Sockets</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Local Catalog</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>localCatalogEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enables queries to the local catalog.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Historical Search</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>historicalSearchEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable searching for historical metacards.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Archive Search</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>archiveSearchEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable searching for archived metacards.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Query Feedback</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>queryFeedbackEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable the query comments option.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Experimental Features</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>experimentalEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">WARNING: Enables experimental features in the UI. This allows users to preview upcoming features.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show Relevance Scores</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>relevanceScoresEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Toggle the display of relevance scores of search results.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Relevance Score Precision</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>relevancePrecision</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Set the number of digits to display in for each relevance score. The default is 5 (i.e. 12.345).</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>5</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Show Logo in Title Bar</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>logoEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Toggles the visibility of the logo in the menu bar.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Unknown Error Box</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>unknownErrorBoxEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Unknown Error Box visibility.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Metacard Preview</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>metacardPreviewEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Metacard Preview in the Inspector.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Spellcheck</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>spellcheckEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable spellcheck for searches.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Similar Word Matching</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>phoneticsEnabled</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable phonetic and synonym matching for searches.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Basic Search Temporal Selections</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>basicSearchTemporalSelectionDefault</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enable Basic Search Temporal Selections.</p></td>
-<td class="tableblock halign-left valign-top"><div><div class="ulist">
-<ul>
-<li>
-<p><code>created</code></p>
-</li>
-<li>
-<p><code>effective</code></p>
-</li>
-<li>
-<p><code>modified</code></p>
-</li>
-<li>
-<p><code>metacard.created</code></p>
-</li>
-<li>
-<p><code>metacard.modified</code></p>
-</li>
-</ul>
-</div></div></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Basic Search Match Type Metacard Attribute</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>basicSearchMatchType</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Metacard attribute used for Basic Search Type Match.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>datatype</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Type Name Mapping</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>typeNameMapping</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Mapping of display names to content types in the form name=type.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Read Only Metacard Attributes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>readOnly</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of metacard attributes that are read-only. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes.</p></td>
-<td class="tableblock halign-left valign-top"><div><div class="ulist">
-<ul>
-<li>
-<p><code>^checksum$</code></p>
-</li>
-<li>
-<p><code>^checksum-algorithm$</code></p>
-</li>
-<li>
-<p><code>^id$</code></p>
-</li>
-<li>
-<p><code>^resource-download-url$</code></p>
-</li>
-<li>
-<p><code>^resource-uri$</code></p>
-</li>
-<li>
-<p><code>^resource.derived-uri$</code></p>
-</li>
-<li>
-<p><code>^resource.derived-download-url$</code></p>
-</li>
-<li>
-<p><code>^modified$</code></p>
-</li>
-<li>
-<p><code>^metacard-tags$</code></p>
-</li>
-<li>
-<p><code>^metadata$</code></p>
-</li>
-<li>
-<p><code>^metacard-type$</code></p>
-</li>
-<li>
-<p><code>^source-id$</code></p>
-</li>
-<li>
-<p><code>^point-of-contact$</code></p>
-</li>
-<li>
-<p><code>^metacard.</code></p>
-</li>
-<li>
-<p><code>^version.</code></p>
-</li>
-<li>
-<p><code>^validation.</code></p>
-</li>
-</ul>
-</div></div></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Summary Metacard Attributes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>summaryShow</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of metacard attributes to display in the summary view.</p></td>
-<td class="tableblock halign-left valign-top"><div><div class="ulist">
-<ul>
-<li>
-<p><code>created</code></p>
-</li>
-<li>
-<p><code>modified</code></p>
-</li>
-<li>
-<p><code>thumbnail</code></p>
-</li>
-</ul>
-</div></div></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Result Preview Metacard Attributes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>resultShow</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of metacard attributes to display in the result preview.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Query Schedule Frequencies</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>scheduleFrequencyList</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Long</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Custom list of schedule frequencies in seconds. This will override the frequency list in the query schedule tab. Leave this empty to use the frequency list on the Catalog UI.</p></td>
-<td class="tableblock halign-left valign-top"><div><div class="ulist">
-<ul>
-<li>
-<p><code>1800</code></p>
-</li>
-<li>
-<p><code>3600</code></p>
-</li>
-<li>
-<p><code>7200</code></p>
-</li>
-<li>
-<p><code>14400</code></p>
-</li>
-<li>
-<p><code>28800</code></p>
-</li>
-<li>
-<p><code>57600</code></p>
-</li>
-<li>
-<p><code>86400</code></p>
-</li>
-</ul>
-</div></div></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Auto Merge Time</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>autoMergeTime</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the interval during which new results can be merged automatically. This is the time allowed since last merge (in milliseconds).</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>1000</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Query Feedback Email Subject Template</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>queryFeedbackEmailSubjectTemplate</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">See <a href="managing.html#_configuring_query_feedback_for_intrigue">Configuring Query Feedback for Intrigue</a> for more details about Query Feedback templates.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Query Feedback from {{username}}</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Query Feedback Email Body Template</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>queryFeedbackEmailBodyTemplate</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">See <a href="managing.html#_configuring_query_feedback_for_intrigue">Configuring Query Feedback for Intrigue</a> for more details about Query Feedback templates.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>&lt;h2&gt;Query Feedback&lt;/h2&gt;<br>
-&lt;p&gt;&lt;br&gt;<br>
-	&lt;b&gt;Authenticated User&lt;/b&gt;: {{{auth_username}}}&lt;br&gt;&lt;br&gt;<br>
-	&lt;b&gt;User&lt;/b&gt;: {{{username}}}&lt;br&gt;&lt;br&gt;<br>
-	&lt;b&gt;Email&lt;/b&gt;: {{{email}}}&lt;br&gt;&lt;br&gt;<br>
-	&lt;b&gt;Workspace&lt;/b&gt;: {{{workspace_name}}} ({{{workspace_id}}})&lt;br&gt;&lt;br&gt;<br>
-	&lt;b&gt;Query&lt;/b&gt;: {{{query}}}&lt;br&gt;&lt;br&gt;<br>
-	&lt;b&gt;Query time&lt;/b&gt;: {{{query_initiated_time}}}&lt;br&gt;&lt;br&gt;<br>
-	&lt;b&gt;Query status&lt;/b&gt;: {{{query_status}}}&lt;br&gt;&lt;br&gt;<br>
-	&lt;b&gt;Comments&lt;/b&gt;: {{{comments}}}&lt;br&gt;&lt;br&gt;<br>
-	&lt;b&gt;Query_results&lt;/b&gt;: &lt;pre&gt;{{{query_results}}}&lt;/pre&gt;<br>
-&lt;/p&gt;</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Query Feedback Email Destination</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>queryFeedbackEmailDestination</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Email destination to send Query Feedback results.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum Endpoint Upload Size</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>maximumUploadSize</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum size (in bytes) to allow per client when receiving a POST/PATCH/PUT. Note: This does not affect product upload size, just the maximum size allowed for calls from Intrigue.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>1048576</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Map Home</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mapHome</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the default home view for the map by bounding box. The format is "West, South, East, North", where North, East, South, and West are coordinates in degrees. An example is: <code>-124, 60, -100, 40</code>.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">UI Branding Name</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>uiName</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies a custom UI branding name in the UI.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Intrigue</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Upload Editor: Attribute Configuration</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>attributeEnumMap</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes to show in the upload editor. See <a href="metadata.html#_catalog_taxonomy_definitions">Catalog Taxonomy</a>
-for a list of supported attributes.</p>
-<p class="tableblock">Supported entry syntax:<br>
-1. <code>attribute</code><br>
-2. <code>attribute=value1,value2,&#8230;&#8203;</code></p>
-<p class="tableblock">Using the first syntax, the editor will attempt to determine the appropriate control to display
-based on the attribute datatype.
-The second syntax will force the editor to use a dropdown selector populated with the provided
-values. This is intended for use with String datatypes, which by default may be assigned any value.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Upload Editor: Required Attributes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>requiredAttributes</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes which must be set before an upload is permitted. If an attribute is
-listed as required but not shown in the editor, it will be ignored.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 93. <a id="_org.codice.ddf.catalog.ui.attribute.aliases"></a>Catalog UI Search Attribute Aliases</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Attribute Aliases</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>attributeAliases</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of attribute aliases. Separate the attribute name and alias with an equals (=) sign. Example: <code>title=Title</code>.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 94. <a id="_org.codice.ddf.catalog.ui.attribute.descriptions"></a>Catalog UI Search Attribute Descriptions</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Attribute Descriptions</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>attributeDescriptions</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of friendly attribute descriptions. Separate the attribute name and description with an equals (=) sign. Example: <code>checksum-algorithm=Method for generating a small-sized datum from a block of digital data for the purpose of detecting errors</code>.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 95. <a id="_org.codice.ddf.catalog.ui.attribute.hidden"></a>Catalog UI Search Hidden Attributes</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Hidden Attributes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>hiddenAttributes</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of attributes to be hidden. NOTE: the provided values will be evaluated as JavaScript regular expressions when matched against metacard attributes.</p></td>
-<td class="tableblock halign-left valign-top"><div><div class="ulist">
-<ul>
-<li>
-<p><code>^sorts$</code></p>
-</li>
-<li>
-<p><code>^cql$</code></p>
-</li>
-<li>
-<p><code>^polling$</code></p>
-</li>
-<li>
-<p><code>^cached$</code></p>
-</li>
-</ul>
-</div></div></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 96. <a id="_org.codice.ddf.catalog.ui.theme"></a>Catalog UI Search Theme</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Theme</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>theme</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><div><div class="paragraph">
-<p>Specifies the default theme:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>Dark</code></p>
-</li>
-<li>
-<p><code>Light</code></p>
-</li>
-<li>
-<p><code>Sea</code></p>
-</li>
-<li>
-<p><code>Custom</code>, which consists of the colors below</p>
-</li>
-</ul>
-</div></div></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Dark</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Primary Color</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>customPrimaryColor</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>#3c6dd5</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Positive Color</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>customPositiveColor</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>#428442</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Negative Color</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>customNegativeColor</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>#8a423c</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Warning Color</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>customWarningColor</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>#c89600</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Favorite Color</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>customFavoriteColor</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>#d1d179</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Background Navigation Color</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>customBackgroundNavigation</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>#252529</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Background Accent Content Color</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>customBackgroundAccentContent</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>#2A2A2E</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Background Dropdown Color</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>customBackgroundDropdown</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>#35353a</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Background Content Color</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>customBackgroundContent</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>#35353a</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Background Modal Color</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>customBackgroundModal</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>#252529</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Background Slideout Color</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>customBackgroundSlideout</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>#252529</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Theme Spacing Mode</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>spacingMode</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><div><div class="paragraph">
-<p>Specifies the default theme spacing mode:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>Comfortable</code></p>
-</li>
-<li>
-<p><code>Cozy</code></p>
-</li>
-<li>
-<p><code>Compact</code></p>
-</li>
-</ul>
-</div></div></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Comfortable</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Theme Zoom</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>zoomPercentage</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Specifies the default theme zoom percentage.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>100</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 97. <a id="_org.codice.ddf.catalog.ui.whitelist"></a>Catalog UI Search Metacard Type Whitelist</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Metacard Type Whitelist</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>whiteListedMetacardTypes</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of metacard types that are whitelisted and not filtered. NOTE: This will directly filter out metacard types rendered from metacard application. An empty list will whitelist everything.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 98. <a id="_org.codice.ddf.catalog.ui.security"></a>Catalog UI Search Workspace Security</caption>
+<caption class="title">Table 87. <a id="_org.codice.ddf.catalog.ui.security"></a>Catalog UI Search Workspace Security</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -9379,15 +7944,6 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_registry_whitelist"><a class="anchor" href="#_registry_whitelist"></a><a class="link" href="#_registry_whitelist">Registry Whitelist</a></h3>
-<div class="paragraph">
-<p>The following classes have been exported by the Registry Application and are approved for use by third parties:</p>
-</div>
-<div class="paragraph">
-<p>None.</p>
-</div>
-</div>
-<div class="sect2">
 <h3 id="_security_whitelist"><a class="anchor" href="#_security_whitelist"></a><a class="link" href="#_security_whitelist">Security Whitelist</a></h3>
 <div class="paragraph">
 <p>The following classes have been exported by the Security application and are approved for use by third parties:</p>
@@ -9504,16 +8060,6 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </ul>
 </div>
 <div class="paragraph">
-<p>In package <code>ddf.security.ws.proxy</code></p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>ProxyServiceFactory</code></p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
 <p>In package <code>org.codice.ddf.security.handler.api</code></p>
 </div>
 <div class="ulist">
@@ -9574,7 +8120,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>This list of DDF dependencies is automatically generated:</p>
 </div>
 <div class="sect2">
-<h3 id="_ddf_2_21_2_dependency_list"><a class="anchor" href="#_ddf_2_21_2_dependency_list"></a><a class="link" href="#_ddf_2_21_2_dependency_list">DDF 2.21.2 Dependency List.</a></h3>
+<h3 id="_ddf_2_22_0_dependency_list"><a class="anchor" href="#_ddf_2_22_0_dependency_list"></a><a class="link" href="#_ddf_2_22_0_dependency_list">DDF 2.22.0 Dependency List.</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -9903,9 +8449,6 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </li>
 <li>
 <p>org.apache.commons:commons-text:jar:1.6</p>
-</li>
-<li>
-<p>org.apache.cxf.services.sts:cxf-services-sts-core:jar:3.2.9</p>
 </li>
 <li>
 <p>org.apache.cxf:cxf-core:jar:3.2.9</p>
@@ -10418,12 +8961,6 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 <p>org.objenesis:objenesis:jar:2.5.1</p>
 </li>
 <li>
-<p>org.openexi:nagasena-rta:jar:0000.0002.0049.0</p>
-</li>
-<li>
-<p>org.openexi:nagasena:jar:0000.0002.0049.0</p>
-</li>
-<li>
 <p>org.opensaml:opensaml-core:jar:3.3.0</p>
 </li>
 <li>
@@ -10616,7 +9153,7 @@ listed as required but not shown in the editor, it will be ignored.</p></td>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_ddf_2_21_2_javascript_dependency_list"><a class="anchor" href="#_ddf_2_21_2_javascript_dependency_list"></a><a class="link" href="#_ddf_2_21_2_javascript_dependency_list">DDF 2.21.2 Javascript Dependency List.</a></h3>
+<h3 id="_ddf_2_22_0_javascript_dependency_list"><a class="anchor" href="#_ddf_2_22_0_javascript_dependency_list"></a><a class="link" href="#_ddf_2_22_0_javascript_dependency_list">DDF 2.22.0 Javascript Dependency List.</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -12159,9 +10696,6 @@ To harden a new system, perform configuration as <a href="managing.html#_configu
 <p>&#10063; <a href="managing.html#_hiding_errors_and_warnings_from_users_based_on_role">Create unique user role</a></p>
 </li>
 <li>
-<p>&#10063; <a href="managing.html#_limiting_access_to_the_sts">Limit Access to the STS</a></p>
-</li>
-<li>
 <p>&#10063; <a href="managing.html#_restricting_access_to_admin_console">Restricting Access to Admin Console</a></p>
 </li>
 <li>
@@ -12175,9 +10709,6 @@ To harden a new system, perform configuration as <a href="managing.html#_configu
 </li>
 <li>
 <p>&#10063; <a href="managing.html#_environment_hardening">Environment Hardening</a></p>
-</li>
-<li>
-<p>&#10063; <a href="managing.html#_isolating_solr_cloud_and_zookeeper">Isolate Solr Cloud and Zookeeper</a>. (If using)</p>
 </li>
 </ul>
 </div>
@@ -12270,7 +10801,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2019-12-16 15:54:07 UTC
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2020-01-31 13:43:55 MST
 </div>
 </div>
 </body>
