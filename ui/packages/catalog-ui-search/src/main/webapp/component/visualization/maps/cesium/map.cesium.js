@@ -194,7 +194,8 @@ module.exports = function CesiumMap(
   let shapes = []
   const map = createMap(insertionElement)
   const drawHelper = new DrawHelper(map)
-  const billboardCollection = setupBillboard()
+  const billboardCollection = setupBillboardCollection()
+  const labelCollection = setupLabelCollection()
   const drawingTools = setupDrawingTools(map)
   setupTooltip(map, selectionInterface)
 
@@ -248,10 +249,82 @@ module.exports = function CesiumMap(
     }
   }
 
-  function setupBillboard() {
+  function setupBillboardCollection() {
     const billboardCollection = new Cesium.BillboardCollection()
     map.scene.primitives.add(billboardCollection)
     return billboardCollection
+  }
+
+  function setupLabelCollection() {
+    const labelCollection = new Cesium.LabelCollection()
+    map.scene.primitives.add(labelCollection)
+    return labelCollection
+  }
+
+  /*
+   * Returns a visible label that is in the same location as the provided label (geometryInstance) if one exists.
+   * If findSelected is true, the function will also check for hidden labels in the same location but are selected.
+   */
+  function findOverlappingLabel(findSelected, geometry) {
+    return _.find(
+      mapModel.get('labels'),
+      label =>
+        label.position.x === geometry.position.x &&
+        label.position.y === geometry.position.y &&
+        ((findSelected && label.isSelected) || label.show)
+    )
+  }
+
+  /*
+      Only shows one label if there are multiple labels in the same location.
+
+      Show the label in the following importance:
+        - it is selected and the existing label is not
+        - there is no other label displayed at the same location
+        - it is the label that was found by findOverlappingLabel
+
+      Arguments are:
+        - the label to show/hide
+        - if the label is selected
+        - if the search for overlapping label should include hidden selected labels
+      */
+  function showHideLabel({ geometry, findSelected = false }) {
+    const isSelected = geometry.isSelected
+    const labelWithSamePosition = findOverlappingLabel(findSelected, geometry)
+    if (
+      isSelected &&
+      labelWithSamePosition &&
+      !labelWithSamePosition.isSelected
+    ) {
+      labelWithSamePosition.show = false
+    }
+    const otherLabelNotSelected = labelWithSamePosition
+      ? !labelWithSamePosition.isSelected
+      : true
+    geometry.show =
+      (isSelected && otherLabelNotSelected) ||
+      !labelWithSamePosition ||
+      geometry.id === labelWithSamePosition.id
+  }
+
+  /*
+      Shows a hidden label. Used when deleting a label that is shown.
+      */
+  function showHiddenLabel(geometry) {
+    if (!geometry.show) {
+      return
+    }
+    const hiddenLabel = _.find(
+      mapModel.get('labels'),
+      label =>
+        label.position.x === geometry.position.x &&
+        label.position.y === geometry.position.y &&
+        label.id !== geometry.id &&
+        !label.show
+    )
+    if (hiddenLabel) {
+      hiddenLabel.show = true
+    }
   }
 
   const exposedMethods = _.extend({}, Map, {
@@ -643,6 +716,44 @@ module.exports = function CesiumMap(
       return billboardRef
     },
     /*
+          Adds a label utilizing the passed in point and options.
+          Options are a view to an id and text.
+        */
+    addLabel(point, options) {
+      const pointObject = convertPointCoordinate(point)
+      const cartographicPosition = Cesium.Cartographic.fromDegrees(
+        pointObject.longitude,
+        pointObject.latitude,
+        pointObject.altitude
+      )
+      const cartesianPosition = map.scene.globe.ellipsoid.cartographicToCartesian(
+        cartographicPosition
+      )
+      // X, Y offset values for the label
+      const offset = new Cesium.Cartesian2(20, -15)
+      // Cesium measurement for determining how to render the size of the label based on zoom
+      const scaleZoom = new Cesium.NearFarScalar(1.5e4, 1.0, 8.0e6, 0.0)
+      // Cesium measurement for determining how to render the translucency of the label based on zoom
+      const translucencyZoom = new Cesium.NearFarScalar(1.5e6, 1.0, 8.0e6, 0.0)
+
+      const labelRef = labelCollection.add({
+        text: options.text,
+        position: cartesianPosition,
+        id: options.id,
+        pixelOffset: offset,
+        scale: 1.0,
+        scaleByDistance: scaleZoom,
+        translucencyByDistance: translucencyZoom,
+        fillColor: Cesium.Color.BLACK,
+        outlineColor: Cesium.Color.WHITE,
+        outlineWidth: 10,
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+      })
+      mapModel.addLabel(labelRef)
+
+      return labelRef
+    },
+    /*
           Adds a polyline utilizing the passed in line and options.
           Options are a view to relate to, and an id, and a color.
         */
@@ -822,6 +933,11 @@ module.exports = function CesiumMap(
           0,
           options.isSelected ? -1 : 0
         )
+      } else if (geometry.constructor === Cesium.Label) {
+        geometry.isSelected = options.isSelected
+        showHideLabel({
+          geometry,
+        })
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
           polyline.material = Cesium.Material.fromType('PolylineOutline', {
@@ -843,7 +959,10 @@ module.exports = function CesiumMap(
          Updates a passed in geometry to be hidden
          */
     hideGeometry(geometry) {
-      if (geometry.constructor === Cesium.Billboard) {
+      if (
+        geometry.constructor === Cesium.Billboard ||
+        geometry.constructor === Cesium.Label
+      ) {
         geometry.show = false
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
@@ -857,6 +976,11 @@ module.exports = function CesiumMap(
     showGeometry(geometry) {
       if (geometry.constructor === Cesium.Billboard) {
         geometry.show = true
+      } else if (geometry.constructor === Cesium.Label) {
+        showHideLabel({
+          geometry,
+          findSelected: true,
+        })
       } else if (geometry.constructor === Cesium.PolylineCollection) {
         geometry._polylines.forEach(polyline => {
           polyline.show = true
@@ -866,10 +990,15 @@ module.exports = function CesiumMap(
     },
     removeGeometry(geometry) {
       billboardCollection.remove(geometry)
+      labelCollection.remove(geometry)
       map.scene.primitives.remove(geometry)
       //unminified cesium chokes if you feed a geometry with id as an Array
       if (geometry.constructor === Cesium.Entity) {
         map.entities.remove(geometry)
+      }
+      if (geometry.constructor === Cesium.Label) {
+        mapModel.removeLabel(geometry)
+        showHiddenLabel(geometry)
       }
       map.scene.requestRender()
     },

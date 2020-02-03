@@ -15,6 +15,7 @@
 
 import wrapNum from '../../../react-component/utils/wrap-num/wrap-num.tsx'
 
+const _ = require('lodash')
 const Backbone = require('backbone')
 const MetacardModel = require('../../../js/model/Metacard.js')
 const mtgeo = require('mt-geo')
@@ -46,6 +47,7 @@ module.exports = Backbone.AssociatedModel.extend({
     measurementState: 'NONE',
     currentDistance: 0,
     points: [],
+    labels: [],
     line: undefined,
   },
   /*
@@ -73,6 +75,14 @@ module.exports = Backbone.AssociatedModel.extend({
     this.set({
       points: [...this.get('points'), point],
     })
+  },
+  addLabel(label) {
+    this.set({
+      labels: [...this.get('labels'), label],
+    })
+  },
+  removeLabel(label) {
+    _.remove(this.get('labels'), e => e === label)
   },
   /*
    * Sets the line to the given new line. This represents the line on the map
