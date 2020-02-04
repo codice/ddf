@@ -37,7 +37,7 @@ Services (OSGi) that catalog-ui-search PROVIDES to DDF
              interface="org.codice.ddf.catalog.ui.query.utility.EndpointUtility"/>
 
     <service ref="cqlQueryUtil"
-             interface="org.codice.ddf.catalog.ui.query.utility.CqlQueryUtility"/>
+             interface="org.codice.ddf.catalog.ui.query.utility.CqlQueries"/>
 
     <!--
     =============================================================

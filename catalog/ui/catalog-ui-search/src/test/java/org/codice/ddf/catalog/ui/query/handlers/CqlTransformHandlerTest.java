@@ -42,7 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponseImpl;
 import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
-import org.codice.ddf.catalog.ui.util.CqlQueryUtil;
+import org.codice.ddf.catalog.ui.util.CqlQueriesImpl;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.eclipse.jetty.http.HttpStatus;
@@ -63,7 +63,7 @@ public class CqlTransformHandlerTest {
   @Mock private ServiceReference<QueryResponseTransformer> mockServiceReference;
   @Mock private BundleContext mockBundleContext;
   @Mock private EndpointUtil mockEndpointUtil;
-  @Mock private CqlQueryUtil mockCqlQueryUtil;
+  @Mock private CqlQueriesImpl mockCqlQueryUtil;
   @Mock private Request mockRequest;
   @Mock private CqlQueryResponseImpl mockCqlQueryResponse;
   @Mock private QueryResponse mockQueryResponse;

@@ -34,12 +34,12 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponseImpl;
+import org.codice.ddf.catalog.ui.query.utility.CqlQueries;
 import org.codice.ddf.catalog.ui.query.utility.CqlQueryResponse;
-import org.codice.ddf.catalog.ui.query.utility.CqlQueryUtility;
 import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
 import org.codice.ddf.catalog.ui.transformer.TransformerDescriptors;
 
-public class CqlQueryUtil implements CqlQueryUtility {
+public class CqlQueriesImpl implements CqlQueries {
 
   private final CatalogFramework catalogFramework;
 
@@ -51,7 +51,7 @@ public class CqlQueryUtil implements CqlQueryUtility {
 
   private FilterAdapter filterAdapter;
 
-  public CqlQueryUtil(
+  public CqlQueriesImpl(
       CatalogFramework catalogFramework,
       FilterBuilder filterBuilder,
       FilterAdapter filterAdapter,

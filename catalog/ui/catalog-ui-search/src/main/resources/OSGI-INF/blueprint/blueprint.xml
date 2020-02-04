@@ -57,7 +57,7 @@ Implementation details
         </property>
     </bean>
 
-    <bean id="cqlQueryUtil" class="org.codice.ddf.catalog.ui.util.CqlQueryUtil">
+    <bean id="cqlQueryUtil" class="org.codice.ddf.catalog.ui.util.CqlQueriesImpl">
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
         <argument ref="filterAdapter"/>

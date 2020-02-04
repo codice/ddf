@@ -40,7 +40,7 @@ import org.apache.tika.mime.MimeTypes;
 import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
 import org.codice.ddf.catalog.ui.query.utility.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
-import org.codice.ddf.catalog.ui.util.CqlQueryUtil;
+import org.codice.ddf.catalog.ui.util.CqlQueriesImpl;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
@@ -73,13 +73,13 @@ public class CqlTransformHandler implements Route {
   private EndpointUtil util;
   private List<ServiceReference> queryResponseTransformers;
   private BundleContext bundleContext;
-  private CqlQueryUtil cqlQueryUtil;
+  private CqlQueriesImpl cqlQueryUtil;
 
   public CqlTransformHandler(
       List<ServiceReference> queryResponseTransformers,
       BundleContext bundleContext,
       EndpointUtil endpointUtil,
-      CqlQueryUtil cqlQueryUtil) {
+      CqlQueriesImpl cqlQueryUtil) {
     this.queryResponseTransformers = queryResponseTransformers;
     this.bundleContext = bundleContext;
     this.util = endpointUtil;

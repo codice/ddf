@@ -39,9 +39,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 
-public class CqlQueryUtilTest {
+public class CqlQueriesImplTest {
 
-  private CqlQueryUtil cqlQueryUtil;
+  private CqlQueriesImpl cqlQueryUtil;
 
   private FilterBuilder filterBuilderMock;
 
@@ -80,7 +80,7 @@ public class CqlQueryUtilTest {
     when(configurationApplicationMock.getMaximumUploadSize()).thenReturn(1 << 20);
 
     cqlQueryUtil =
-        new CqlQueryUtil(
+        new CqlQueriesImpl(
             catalogFrameworkMock, filterBuilderMock, filterAdapterMock, actionRegistryMock);
   }
 
