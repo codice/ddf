@@ -104,8 +104,7 @@ public class TestOidc extends AbstractIntegrationTest {
 
   private static final DynamicUrl LOGOUT_URL = new DynamicUrl(SERVICE_ROOT, "/oidc/logout");
 
-  // TODO (RCZ) - Try services/csw
-  private static final DynamicUrl ADMIN_URL = new DynamicUrl(SERVICE_ROOT, "/catalog/query");
+  private static final DynamicUrl ROOT_URL = new DynamicUrl(DynamicUrl.SECURE_ROOT, HTTPS_PORT);
 
   private static final DynamicUrl WHO_AM_I_URL =
       new DynamicUrl(DynamicUrl.SECURE_ROOT, HTTPS_PORT, "/whoami");
@@ -178,11 +177,9 @@ public class TestOidc extends AbstractIntegrationTest {
   @BeforeExam
   public void beforeTest() {
     try {
-      getServiceManager().startFeature(false, "ui");
       getServiceManager().waitForAllBundles();
       getServiceManager().waitForHttpEndpoint(WHO_AM_I_URL.getUrl());
       getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
-      getServiceManager().waitForHttpEndpoint(ADMIN_URL.getUrl());
       oldPolicyManagerProps =
           getSecurityPolicy().configureWebContextPolicy(OIDC_AUTH_TYPES, null, null);
 
@@ -294,12 +291,9 @@ public class TestOidc extends AbstractIntegrationTest {
             .redirects()
             .follow(false)
             .expect()
-            .statusCode(302)
+            .statusCode(200)
             .when()
             .post(initialResponseParams.get(REDIRECT_URI));
-
-    // Verify that we're redirected to Intrigue
-    assertThat(searchResponse.header(LOCATION), is(ADMIN_URL.getUrl()));
 
     // Verify that we're logged in as admin
     Map<String, Object> userInfoList = getUserInfo(initialResponseParams.get(JSESSIONID));
@@ -349,12 +343,9 @@ public class TestOidc extends AbstractIntegrationTest {
             .redirects()
             .follow(false)
             .expect()
-            .statusCode(302)
+            .statusCode(200)
             .when()
             .post(initialResponseParams.get(REDIRECT_URI));
-
-    // Verify that we're redirected to Intrigue
-    assertThat(searchResponse.header(LOCATION), is(ADMIN_URL.getUrl()));
 
     // Verify that we're logged in as admin
     Map<String, Object> userInfoList = getUserInfo(initialResponseParams.get(JSESSIONID));
@@ -638,11 +629,9 @@ public class TestOidc extends AbstractIntegrationTest {
             .redirects()
             .follow(false)
             .expect()
-            .statusCode(302)
+            .statusCode(200)
             .when()
             .post(initialResponseParams.get(REDIRECT_URI));
-
-    assertThat(searchResponse.header(LOCATION), is(ADMIN_URL.getUrl()));
 
     // Verify that the stub server was hit
     List<Call> tokenEndpointCalls =
@@ -836,10 +825,7 @@ public class TestOidc extends AbstractIntegrationTest {
     String accessToken = createAccessToken(true);
     String userInfo = createUserInfoJson(true, false);
 
-    Response response =
-        processCredentialFlow(accessToken, userInfo, false, HttpStatus.SC_MOVED_TEMPORARILY, true);
-
-    assertThat(response.header(LOCATION), is(ADMIN_URL.getUrl()));
+    Response response = processCredentialFlow(accessToken, userInfo, false, HttpStatus.SC_OK, true);
 
     // Verify that we're logged in as admin
     Map<String, Object> userInfoList = getUserInfo(response.cookies().get(JSESSIONID));
@@ -854,10 +840,7 @@ public class TestOidc extends AbstractIntegrationTest {
     String signedUserInfo = createUserInfoJson(true, true);
 
     Response response =
-        processCredentialFlow(
-            accessToken, signedUserInfo, true, HttpStatus.SC_MOVED_TEMPORARILY, true);
-
-    assertThat(response.header(LOCATION), is(ADMIN_URL.getUrl()));
+        processCredentialFlow(accessToken, signedUserInfo, true, HttpStatus.SC_OK, true);
 
     // Verify that we're logged in as admin
     Map<String, Object> userInfoList = getUserInfo(response.cookies().get(JSESSIONID));
@@ -930,7 +913,7 @@ public class TestOidc extends AbstractIntegrationTest {
             .expect()
             .statusCode(expectedStatusCode)
             .when()
-            .get(ADMIN_URL.getUrl() + "?access_token=" + accessToken);
+            .get(ROOT_URL.getUrl() + "?access_token=" + accessToken);
 
     List<Call> endpointCalls =
         server
@@ -960,7 +943,7 @@ public class TestOidc extends AbstractIntegrationTest {
         given()
             .cookie(JSESSIONID, jsessionidValue)
             .header(USER_AGENT, BROWSER_USER_AGENT)
-            .header("Referer", ADMIN_URL + "?client_name=" + DDF_CLIENT_ID)
+            .header("Referer", ROOT_URL + "?client_name=" + DDF_CLIENT_ID)
             .header(HOST, "localhost:" + HTTPS_PORT.getPort())
             .header("X-Requested-With", "XMLHttpRequest")
             .redirects()
@@ -1036,7 +1019,7 @@ public class TestOidc extends AbstractIntegrationTest {
             .expect()
             .statusCode(302)
             .when()
-            .get(ADMIN_URL.getUrl());
+            .get(ROOT_URL.getUrl());
 
     URI locationUri = new URI(initialResponse.header(LOCATION));
     assertThat(locationUri.getPath(), is("/auth/realms/master/protocol/openid-connect/auth"));
@@ -1070,7 +1053,7 @@ public class TestOidc extends AbstractIntegrationTest {
         .redirects()
         .follow(false)
         .expect()
-        .statusCode(302)
+        .statusCode(200)
         .when()
         .post(requestParams.get(REDIRECT_URI));
 
@@ -1187,9 +1170,7 @@ public class TestOidc extends AbstractIntegrationTest {
     long exp = Instant.now().plus(Duration.ofDays(3)).toEpochMilli();
     String[] audience = {"master-realm", "account"};
     String[] allowed = {SECURE_ROOT + HTTPS_PORT.getPort()};
-    String[] roles = {
-      "create-realm", "offline_access", "admin", "uma_authorization"
-    };
+    String[] roles = {"create-realm", "offline_access", "admin", "uma_authorization"};
 
     JSONObject realmAccess = new JSONObject();
     realmAccess.put(
