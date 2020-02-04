@@ -31,6 +31,12 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * OSGI <code>ServiceListener</code> implementation that listens for <code>InjectableAttribute
+ * </code>s that are registered in the OSGI service registry. Upon notification that a new attribute
+ * has been registered, this listener will update its <code>DynamicSchemaResolver</code> with the
+ * additional <code>AttributeDescriptor</code> that was added to the <code>AttributeRegistry</code>.
+ */
 public class InjectedAttributeListener implements ServiceListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(InjectedAttributeListener.class);
@@ -75,8 +81,7 @@ public class InjectedAttributeListener implements ServiceListener {
     ServiceReference serviceRef = event.getServiceReference();
     Object service = context.getService(serviceRef);
     if (service instanceof InjectableAttribute) {
-      int eventType = event.getType();
-      if (eventType == ServiceEvent.REGISTERED) {
+      if (event.getType() == ServiceEvent.REGISTERED) {
         registerAttribute(((InjectableAttribute) service).attribute());
       }
     }
