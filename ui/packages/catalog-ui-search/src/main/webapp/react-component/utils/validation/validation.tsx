@@ -281,12 +281,6 @@ function upsValidDistance(distance: number) {
   return distance >= 800000 && distance <= 3200000
 }
 
-function validateLatLon(lat: string, lon: string) {
-  const latitude = parseFloat(lat)
-  const longitude = parseFloat(lon)
-  return latitude > -90 && latitude < 90 && longitude > -180 && longitude < 180
-}
-
 function validateUtmUps(
   key: string,
   utmUpsEasting: string,
@@ -331,23 +325,21 @@ function validateUtmUps(
   if (lon > 180) {
     lon = lon - 360
   }
-  // we want to validate using the validate lat lon method, but only if they're both defined
+  // we want to validate using the hasPointError method, but only if they're both defined
   // if one or more is undefined, we want to return true
   const isLatLonValid =
-    validateLatLon(lat, lon) ||
+    !hasPointError([lon, lat]) ||
     (utmUpsNorthing === undefined || utmUpsEasting === undefined)
   if ((isNorthingInvalid && isEastingInvalid) || !isLatLonValid) {
     error = { error: true, message: 'Invalid UTM/UPS coordinates' }
   } else if (
     key === 'utmUpsNorthing' &&
-    isNaN(utmUpsParts.northing) &&
-    utmUpsNorthing !== undefined
+    isNorthingInvalid
   ) {
     error = { error: true, message: 'Northing value is invalid' }
   } else if (
     key === 'utmUpsEasting' &&
-    isNaN(utmUpsParts.easting) &&
-    utmUpsEasting !== undefined
+    isEastingInvalid
   ) {
     error = { error: true, message: 'Easting value is invalid' }
   } else if (
