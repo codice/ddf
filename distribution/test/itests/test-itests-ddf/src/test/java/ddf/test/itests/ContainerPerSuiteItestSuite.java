@@ -20,6 +20,7 @@ import ddf.test.itests.catalog.TestFederation;
 import ddf.test.itests.catalog.TestFtp;
 import ddf.test.itests.catalog.TestSecurityAuditPlugin;
 import ddf.test.itests.catalog.TestSpatial;
+import ddf.test.itests.platform.TestOidc;
 import ddf.test.itests.platform.TestPlatform;
 import ddf.test.itests.platform.TestSecurity;
 import ddf.test.itests.platform.TestSolrCommands;
@@ -41,6 +42,7 @@ import org.junit.runners.Suite;
   TestSecurity.class,
   TestPlatform.class,
   TestFanout.class,
-  TestSecurityAuditPlugin.class
+  TestOidc.class,
+  TestSecurityAuditPlugin.class,
 })
 public class ContainerPerSuiteItestSuite {}
