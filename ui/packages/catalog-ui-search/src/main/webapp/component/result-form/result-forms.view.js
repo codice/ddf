@@ -31,7 +31,7 @@ module.exports = SearchFormViews.extend({
           title: 'Error',
           message:
             'You have read-only permission on result form ' +
-            this.model.get('name') +
+            this.model.get('title') +
             '.',
           type: 'error',
         },
