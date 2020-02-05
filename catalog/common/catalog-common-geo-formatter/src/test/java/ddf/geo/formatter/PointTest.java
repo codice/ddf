@@ -17,11 +17,11 @@ import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import com.vividsolutions.jts.io.ParseException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
+import org.locationtech.jts.io.ParseException;
 import org.xml.sax.SAXException;
 
 public class PointTest extends AbstractTestCompositeGeometry {

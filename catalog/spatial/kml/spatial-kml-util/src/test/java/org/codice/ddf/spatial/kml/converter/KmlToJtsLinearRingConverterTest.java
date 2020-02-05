@@ -40,34 +40,34 @@ public class KmlToJtsLinearRingConverterTest {
 
   @Test
   public void testConversion() {
-    com.vividsolutions.jts.geom.LinearRing jtsLinearRing =
+    org.locationtech.jts.geom.LinearRing jtsLinearRing =
         KmlToJtsLinearRingConverter.from(testKmlLinearRing);
     assertJtsLinearRing(jtsLinearRing);
   }
 
   @Test
   public void testNullKmlLinearRingReturnsNullJtsLinearRing() {
-    com.vividsolutions.jts.geom.LinearRing jtsLinearRing = KmlToJtsLinearRingConverter.from(null);
+    org.locationtech.jts.geom.LinearRing jtsLinearRing = KmlToJtsLinearRingConverter.from(null);
 
     assertThat(jtsLinearRing, nullValue());
   }
 
   @Test
   public void testKmlLinearRingWithNoCoordinatesReturnsNull() {
-    com.vividsolutions.jts.geom.LinearRing jtsLinearRing =
+    org.locationtech.jts.geom.LinearRing jtsLinearRing =
         KmlToJtsLinearRingConverter.from(new LinearRing());
 
     assertThat(jtsLinearRing, nullValue());
   }
 
   static void assertJtsLinearRing(
-      LinearRing kmlLinearRing, com.vividsolutions.jts.geom.LinearRing jtsLinearRing) {
+      LinearRing kmlLinearRing, org.locationtech.jts.geom.LinearRing jtsLinearRing) {
     assertThat(jtsLinearRing, notNullValue());
     KmlToJtsCoordinateConverterTest.assertJtsCoordinatesFromKmlCoordinates(
         kmlLinearRing.getCoordinates(), jtsLinearRing.getCoordinates());
   }
 
-  private void assertJtsLinearRing(com.vividsolutions.jts.geom.LinearRing jtsLinearRing) {
+  private void assertJtsLinearRing(org.locationtech.jts.geom.LinearRing jtsLinearRing) {
     assertJtsLinearRing(testKmlLinearRing, jtsLinearRing);
   }
 }

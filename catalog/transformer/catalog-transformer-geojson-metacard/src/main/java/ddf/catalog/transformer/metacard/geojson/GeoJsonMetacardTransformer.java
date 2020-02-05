@@ -13,9 +13,6 @@
  */
 package ddf.catalog.transformer.metacard.geojson;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
@@ -39,6 +36,9 @@ import javax.activation.MimeTypeParseException;
 import javax.xml.bind.DatatypeConverter;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

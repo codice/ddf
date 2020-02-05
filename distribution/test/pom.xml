@@ -26,6 +26,9 @@
     <modules>
         <module>features-xml</module>
         <module>test-input-transformer-stubs</module>
+        <module>test-rest-endpoint</module>
+        <module>test-storageplugins</module>
+        <module>test-metacard-validator</module>
         <module>itests</module>
         <module>performance</module>
         <module>example-bundle</module>

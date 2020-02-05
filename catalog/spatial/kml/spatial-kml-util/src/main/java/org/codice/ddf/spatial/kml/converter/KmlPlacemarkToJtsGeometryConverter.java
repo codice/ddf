@@ -13,8 +13,8 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import com.vividsolutions.jts.geom.Geometry;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
+import org.locationtech.jts.geom.Geometry;
 
 public class KmlPlacemarkToJtsGeometryConverter {
   private KmlPlacemarkToJtsGeometryConverter() {}

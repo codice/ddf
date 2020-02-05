@@ -13,12 +13,12 @@
  */
 package ddf.geo.formatter;
 
-import com.vividsolutions.jts.geom.Geometry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.abdera.ext.geo.Line;
 import org.apache.abdera.ext.geo.Position;
+import org.locationtech.jts.geom.Geometry;
 
 public class MultiLineString extends LineString {
 
@@ -30,8 +30,8 @@ public class MultiLineString extends LineString {
 
   public static CompositeGeometry toCompositeGeometry(List coordinates) {
 
-    com.vividsolutions.jts.geom.LineString[] allLineStrings =
-        new com.vividsolutions.jts.geom.LineString[coordinates.size()];
+    org.locationtech.jts.geom.LineString[] allLineStrings =
+        new org.locationtech.jts.geom.LineString[coordinates.size()];
 
     for (int i = 0; i < allLineStrings.length; i++) {
       allLineStrings[i] =

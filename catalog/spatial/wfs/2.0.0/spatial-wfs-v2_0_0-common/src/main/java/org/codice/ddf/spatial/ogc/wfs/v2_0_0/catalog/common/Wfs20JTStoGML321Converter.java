@@ -13,17 +13,6 @@
  */
 package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.gml2.GMLWriter;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import net.opengis.gml.v_3_2_1.AbstractRingPropertyType;
@@ -42,6 +31,17 @@ import net.opengis.gml.v_3_2_1.PointType;
 import net.opengis.gml.v_3_2_1.PolygonType;
 import net.opengis.gml.v_3_2_1.RingType;
 import net.opengis.gml.v_3_2_1.SurfacePropertyType;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.io.gml2.GMLWriter;
 
 public class Wfs20JTStoGML321Converter {
 
@@ -159,7 +159,7 @@ public class Wfs20JTStoGML321Converter {
   }
 
   /**
-   * Converts a @link com.vividsolutions.jts.geom.MultiPolygon to a @link
+   * Converts a @link org.locationtech.jts.geom.MultiPolygon to a @link
    * net.opengis.gml.v_3_2_1.MultiSurfaceType Note: MultiPolygon maps to gml MultiSurfaceType
    *
    * @param multiPolygon

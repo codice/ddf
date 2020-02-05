@@ -25,7 +25,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
-import com.vividsolutions.jts.geom.Geometry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.impl.LiteralImpl;
@@ -48,6 +47,7 @@ import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.junit.Before;
 import org.junit.Test;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;

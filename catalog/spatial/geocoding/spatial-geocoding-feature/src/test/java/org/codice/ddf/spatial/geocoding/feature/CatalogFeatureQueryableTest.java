@@ -24,7 +24,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.vividsolutions.jts.geom.Geometry;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -50,6 +49,7 @@ import org.geotools.filter.LikeFilterImpl;
 import org.geotools.filter.LiteralExpressionImpl;
 import org.junit.Before;
 import org.junit.Test;
+import org.locationtech.jts.geom.Geometry;
 import org.mockito.ArgumentCaptor;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.And;

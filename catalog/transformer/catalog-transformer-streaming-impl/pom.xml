@@ -30,14 +30,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-io</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-streaming-api</artifactId>
             <version>${project.version}</version>

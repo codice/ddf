@@ -13,12 +13,12 @@
  */
 package ddf.geo.formatter;
 
-import com.vividsolutions.jts.geom.Geometry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.abdera.ext.geo.Position;
+import org.locationtech.jts.geom.Geometry;
 
 public class GeometryCollection extends MultiPolygon {
 

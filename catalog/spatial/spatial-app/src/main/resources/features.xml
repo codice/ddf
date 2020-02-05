@@ -102,6 +102,7 @@
     <feature name="spatial-csw" version="${project.version}"
              description="Catalogue Service for Web (CSW) v2.0.2 Source and Endpoint.">
         <feature>catalog-transformer-xml</feature>
+        <feature>catalog-core-api</feature>
         <bundle>
             mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/${xstream.bundle.version}
         </bundle>

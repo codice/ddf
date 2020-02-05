@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.spatial.geocoding.feature;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,6 +24,8 @@ import org.codice.ddf.spatial.geocoding.FeatureExtractor;
 import org.codice.ddf.spatial.geocoding.FeatureIndexingException;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.geojson.feature.FeatureJSON;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

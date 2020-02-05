@@ -26,6 +26,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>geotools-suite</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
@@ -36,16 +40,6 @@
         <dependency>
             <groupId>ddf.action.core</groupId>
             <artifactId>action-core-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-core</artifactId>
-            <version>${jts.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-io</artifactId>
-            <version>${jts.version}</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>

@@ -17,8 +17,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
 import de.micromata.opengis.kml.v_2_2_0.Document;
 import de.micromata.opengis.kml.v_2_2_0.Feature;
 import de.micromata.opengis.kml.v_2_2_0.Folder;
@@ -28,6 +26,8 @@ import de.micromata.opengis.kml.v_2_2_0.PhotoOverlay;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import java.io.InputStream;
 import org.junit.Test;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
 
 public class KmlFeatureToJtsGeometryConverterTest {
 

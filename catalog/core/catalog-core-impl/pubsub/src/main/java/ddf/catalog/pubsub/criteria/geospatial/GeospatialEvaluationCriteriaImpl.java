@@ -13,9 +13,9 @@
  */
 package ddf.catalog.pubsub.criteria.geospatial;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
 import org.geotools.geometry.jts.WKTReader2;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
 
 public class GeospatialEvaluationCriteriaImpl implements GeospatialEvaluationCriteria {
   private Geometry criteria;

@@ -13,14 +13,14 @@
  */
 package ddf.geo.formatter;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.abdera.ext.geo.Coordinates;
 import org.apache.abdera.ext.geo.Line;
 import org.apache.abdera.ext.geo.Position;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 
 public class LineString extends MultiPoint {
 

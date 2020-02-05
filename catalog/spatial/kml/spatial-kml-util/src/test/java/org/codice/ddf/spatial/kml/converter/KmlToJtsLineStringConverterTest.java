@@ -39,7 +39,7 @@ public class KmlToJtsLineStringConverterTest {
 
   @Test
   public void testConversion() {
-    com.vividsolutions.jts.geom.LineString jtsLineString =
+    org.locationtech.jts.geom.LineString jtsLineString =
         KmlToJtsLineStringConverter.from(testKmlLineString);
 
     assertTestKmlLineString(jtsLineString);
@@ -47,25 +47,25 @@ public class KmlToJtsLineStringConverterTest {
 
   @Test
   public void testNullKmlLineStringReturnsNullJtsLineString() {
-    com.vividsolutions.jts.geom.LineString jtsLineString = KmlToJtsLineStringConverter.from(null);
+    org.locationtech.jts.geom.LineString jtsLineString = KmlToJtsLineStringConverter.from(null);
 
     assertThat(jtsLineString, nullValue());
   }
 
   @Test
   public void testKmlLineStringWithNoCoordinatesReturnsNull() {
-    com.vividsolutions.jts.geom.LineString jtsLineString =
+    org.locationtech.jts.geom.LineString jtsLineString =
         KmlToJtsLineStringConverter.from(new LineString());
 
     assertThat(jtsLineString, nullValue());
   }
 
-  private void assertTestKmlLineString(com.vividsolutions.jts.geom.LineString lineString) {
+  private void assertTestKmlLineString(org.locationtech.jts.geom.LineString lineString) {
     assertTestKmlLineString(testKmlLineString, lineString);
   }
 
   static void assertTestKmlLineString(
-      LineString kmlLineString, com.vividsolutions.jts.geom.LineString jtsLineString) {
+      LineString kmlLineString, org.locationtech.jts.geom.LineString jtsLineString) {
     assertThat(jtsLineString, notNullValue());
 
     KmlToJtsCoordinateConverterTest.assertJtsCoordinatesFromKmlCoordinates(

@@ -38,26 +38,26 @@ public class KmlToJtsPointConverterTest {
 
   @Test
   public void testPointConversion() {
-    com.vividsolutions.jts.geom.Point jtsPoint = KmlToJtsPointConverter.from(testKmlPoint);
+    org.locationtech.jts.geom.Point jtsPoint = KmlToJtsPointConverter.from(testKmlPoint);
 
     assertJtsPoint(testKmlPoint, jtsPoint);
   }
 
   @Test
   public void testNullKmlPointReturnsNullJtsPoint() {
-    com.vividsolutions.jts.geom.Point jtsPoint = KmlToJtsPointConverter.from(null);
+    org.locationtech.jts.geom.Point jtsPoint = KmlToJtsPointConverter.from(null);
 
     assertThat(jtsPoint, nullValue());
   }
 
   @Test
   public void testKmlPointWithNoCoordinatesReturnsNullJtsPoint() {
-    com.vividsolutions.jts.geom.Point jtsPoint = KmlToJtsPointConverter.from(new Point());
+    org.locationtech.jts.geom.Point jtsPoint = KmlToJtsPointConverter.from(new Point());
 
     assertThat(jtsPoint, nullValue());
   }
 
-  static void assertJtsPoint(Point kmlPoint, com.vividsolutions.jts.geom.Point jtsPoint) {
+  static void assertJtsPoint(Point kmlPoint, org.locationtech.jts.geom.Point jtsPoint) {
     assertThat(jtsPoint, notNullValue());
 
     KmlToJtsCoordinateConverterTest.assertJtsCoordinatesFromKmlCoordinates(

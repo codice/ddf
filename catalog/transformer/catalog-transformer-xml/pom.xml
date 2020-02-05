@@ -24,23 +24,13 @@
     <name>DDF :: Catalog :: Transformer :: XML</name>
     <dependencies>
         <dependency>
-            <groupId>org.jvnet.ogc</groupId>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>geotools-suite</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.soc</groupId>
             <artifactId>ogc-tools-gml-jts</artifactId>
             <version>${ogc-tools-gml-jts.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.vividsolutions</groupId>
-                    <artifactId>jts</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-io</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.core</groupId>

@@ -15,8 +15,6 @@ package org.codice.ddf.spatial.geocoding.feature;
 
 import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.GAZETTEER_METACARD_TAG;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -48,6 +46,8 @@ import org.codice.ddf.spatial.geocoding.FeatureIndexer;
 import org.codice.ddf.spatial.geocoding.FeatureIndexingException;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
 import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.WKTWriter;
 import org.opengis.feature.simple.SimpleFeature;
 
 public class CatalogFeatureIndexer implements FeatureIndexer {

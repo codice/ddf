@@ -13,10 +13,6 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -68,6 +64,10 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants.BinarySpatialO
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswJAXBElementProvider;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311GeometryConverter;
 import org.jvnet.ogc.gml.v_3_1_1.jts.MarshallerImpl;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

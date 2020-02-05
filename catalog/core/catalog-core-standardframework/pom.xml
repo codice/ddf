@@ -213,14 +213,6 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-io</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.measure</groupId>
             <artifactId>measure-api</artifactId>
         </dependency>

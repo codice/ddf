@@ -13,7 +13,6 @@
  */
 package ddf.geo.formatter;
 
-import com.vividsolutions.jts.io.WKTReader;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -27,6 +26,7 @@ import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.BeforeClass;
+import org.locationtech.jts.io.WKTReader;
 
 public abstract class AbstractTestCompositeGeometry {
 
@@ -49,7 +49,7 @@ public abstract class AbstractTestCompositeGeometry {
    *
    * @param composite
    * @return Atom entry as text
-   * @throws com.vividsolutions.jts.io.ParseException
+   * @throws org.locationtech.jts.io.ParseException
    * @throws IOException
    */
   protected String getSampleAtomEntry(CompositeGeometry composite) throws IOException {

@@ -15,10 +15,6 @@ package org.codice.ddf.spatial.geocoding.index;
 
 import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.GAZETTEER_METACARD_TAG;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -67,6 +63,10 @@ import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexingException;
 import org.codice.ddf.spatial.geocoding.GeoNamesRemoteDownloadException;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.io.WKTWriter;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;

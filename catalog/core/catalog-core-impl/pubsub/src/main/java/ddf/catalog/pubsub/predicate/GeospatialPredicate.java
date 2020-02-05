@@ -13,8 +13,6 @@
  */
 package ddf.catalog.pubsub.predicate;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.pubsub.criteria.geospatial.GeospatialEvaluationCriteria;
 import ddf.catalog.pubsub.criteria.geospatial.GeospatialEvaluationCriteriaImpl;
@@ -23,6 +21,8 @@ import ddf.catalog.pubsub.internal.PubSubConstants;
 import java.util.Iterator;
 import java.util.Map;
 import org.geotools.geometry.jts.WKTReader2;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
 import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

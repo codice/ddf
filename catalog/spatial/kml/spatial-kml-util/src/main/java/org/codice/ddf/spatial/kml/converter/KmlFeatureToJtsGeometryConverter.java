@@ -13,13 +13,13 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import com.vividsolutions.jts.geom.Geometry;
 import de.micromata.opengis.kml.v_2_2_0.Document;
 import de.micromata.opengis.kml.v_2_2_0.Feature;
 import de.micromata.opengis.kml.v_2_2_0.Folder;
 import de.micromata.opengis.kml.v_2_2_0.GroundOverlay;
 import de.micromata.opengis.kml.v_2_2_0.PhotoOverlay;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
+import org.locationtech.jts.geom.Geometry;
 
 public class KmlFeatureToJtsGeometryConverter {
   private KmlFeatureToJtsGeometryConverter() {}

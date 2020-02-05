@@ -54,6 +54,7 @@
         <bundle>mvn:ddf.measure/measure-api/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.3_1</bundle>
         <!-- for GeoTools -->
+        <bundle>mvn:javax.measure/unit-api/1.0</bundle>
         <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
         <bundle>mvn:com.googlecode.json-simple/json-simple/${json-simple.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/jts/${jts.bundle.version}</bundle>

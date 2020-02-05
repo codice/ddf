@@ -17,9 +17,9 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import org.junit.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
 
 public class LonLatCoordinateStrategyTest {
   private final LonLatCoordinateStrategy lonLatCoordinateStrategy = new LonLatCoordinateStrategy();

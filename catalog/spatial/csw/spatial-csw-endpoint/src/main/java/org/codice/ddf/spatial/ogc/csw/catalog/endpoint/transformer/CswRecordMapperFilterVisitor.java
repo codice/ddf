@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
 
-import com.vividsolutions.jts.geom.Geometry;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.AttributeType;
@@ -39,6 +38,7 @@ import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;

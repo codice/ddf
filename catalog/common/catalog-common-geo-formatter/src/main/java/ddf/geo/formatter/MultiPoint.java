@@ -13,12 +13,12 @@
  */
 package ddf.geo.formatter;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.abdera.ext.geo.Position;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 
 public class MultiPoint extends Point {
 
@@ -29,8 +29,8 @@ public class MultiPoint extends Point {
   }
 
   public static CompositeGeometry toCompositeGeometry(List coordinates) {
-    com.vividsolutions.jts.geom.Point[] allPoints =
-        new com.vividsolutions.jts.geom.Point[coordinates.size()];
+    org.locationtech.jts.geom.Point[] allPoints =
+        new org.locationtech.jts.geom.Point[coordinates.size()];
 
     for (int i = 0; i < allPoints.length; i++) {
       allPoints[i] = GEOMETRY_FACTORY.createPoint(getCoordinate((List) coordinates.get(i)));

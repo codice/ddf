@@ -24,6 +24,16 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
+            <groupId>javax.measure</groupId>
+            <artifactId>unit-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>geotools-suite</artifactId>
+            <version>${org.geotools.bundle.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
         </dependency>

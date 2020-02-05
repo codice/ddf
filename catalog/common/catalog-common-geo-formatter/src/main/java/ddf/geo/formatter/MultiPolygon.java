@@ -13,12 +13,12 @@
  */
 package ddf.geo.formatter;
 
-import com.vividsolutions.jts.geom.Geometry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.abdera.ext.geo.Position;
+import org.locationtech.jts.geom.Geometry;
 
 public class MultiPolygon extends Polygon {
 
@@ -29,8 +29,8 @@ public class MultiPolygon extends Polygon {
   }
 
   public static CompositeGeometry toCompositeGeometry(List coordinates) {
-    com.vividsolutions.jts.geom.Polygon[] allPolygons =
-        new com.vividsolutions.jts.geom.Polygon[coordinates.size()];
+    org.locationtech.jts.geom.Polygon[] allPolygons =
+        new org.locationtech.jts.geom.Polygon[coordinates.size()];
 
     for (int i = 0; i < allPolygons.length; i++) {
       allPolygons[i] = buildPolygon((List) coordinates.get(i));
@@ -55,7 +55,7 @@ public class MultiPolygon extends Polygon {
 
       for (int i = 0; i < geometry.getNumGeometries(); i++) {
         List polygon =
-            buildJsonPolygon((com.vividsolutions.jts.geom.Polygon) geometry.getGeometryN(i));
+            buildJsonPolygon((org.locationtech.jts.geom.Polygon) geometry.getGeometryN(i));
         listOfPolygons.add(polygon);
       }
 

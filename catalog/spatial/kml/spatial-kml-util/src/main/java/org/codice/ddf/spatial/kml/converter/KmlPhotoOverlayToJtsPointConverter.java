@@ -13,8 +13,8 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import com.vividsolutions.jts.geom.Point;
 import de.micromata.opengis.kml.v_2_2_0.PhotoOverlay;
+import org.locationtech.jts.geom.Point;
 
 public class KmlPhotoOverlayToJtsPointConverter {
   private KmlPhotoOverlayToJtsPointConverter() {}

@@ -13,12 +13,6 @@
  */
 package org.codice.ddf.spatial.kml.converter;
 
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 import ddf.catalog.transform.CatalogTransformerException;
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 import de.micromata.opengis.kml.v_2_2_0.Geometry;
@@ -27,6 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
+import org.locationtech.jts.geom.GeometryCollection;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 
 public class MetacardToKml {
 
@@ -52,19 +52,19 @@ public class MetacardToKml {
           "WKT was null or empty. Unable to preform KML Transform on Metacard.");
     }
 
-    com.vividsolutions.jts.geom.Geometry geo = getJtsGeoFromWkt(wkt);
+    org.locationtech.jts.geom.Geometry geo = getJtsGeoFromWkt(wkt);
     return getKmlGeoFromJtsGeo(geo);
   }
 
   public static Geometry addJtsGeoPointsToKmlGeo(
-      com.vividsolutions.jts.geom.Geometry jtsGeo, Geometry kmlGeo) {
+      org.locationtech.jts.geom.Geometry jtsGeo, Geometry kmlGeo) {
     if (!POINT_TYPE.equals(jtsGeo.getGeometryType())) {
       kmlGeo = addJtsCoordinateToKmlGeo(kmlGeo, jtsGeo.getCoordinate());
     }
     return kmlGeo;
   }
 
-  public static Geometry getKmlGeoFromJtsGeo(com.vividsolutions.jts.geom.Geometry jtsGeometry)
+  public static Geometry getKmlGeoFromJtsGeo(org.locationtech.jts.geom.Geometry jtsGeometry)
       throws CatalogTransformerException {
     Geometry kmlGeometry;
     if (POINT_TYPE.equals(jtsGeometry.getGeometryType())) {
@@ -84,7 +84,7 @@ public class MetacardToKml {
     return kmlGeometry;
   }
 
-  private static Geometry createGeometryCollectionGeo(com.vividsolutions.jts.geom.Geometry jtsGeo)
+  private static Geometry createGeometryCollectionGeo(org.locationtech.jts.geom.Geometry jtsGeo)
       throws CatalogTransformerException {
     List<Geometry> kmlGeos = new ArrayList<>();
     for (int i = 0; i < jtsGeo.getNumGeometries(); i++) {
@@ -97,7 +97,7 @@ public class MetacardToKml {
     de.micromata.opengis.kml.v_2_2_0.Polygon kmlPoly = KmlFactory.createPolygon();
     List<Coordinate> kmlCoords =
         kmlPoly.createAndSetOuterBoundaryIs().createAndSetLinearRing().createAndSetCoordinates();
-    for (com.vividsolutions.jts.geom.Coordinate coord : jtsPoly.getCoordinates()) {
+    for (org.locationtech.jts.geom.Coordinate coord : jtsPoly.getCoordinates()) {
       kmlCoords.add(new Coordinate(coord.x, coord.y));
     }
     return kmlPoly;
@@ -106,7 +106,7 @@ public class MetacardToKml {
   private static Geometry createLineStringGeo(LineString jtsLS) {
     de.micromata.opengis.kml.v_2_2_0.LineString kmlLS = KmlFactory.createLineString();
     List<Coordinate> kmlCoords = kmlLS.createAndSetCoordinates();
-    for (com.vividsolutions.jts.geom.Coordinate coord : jtsLS.getCoordinates()) {
+    for (org.locationtech.jts.geom.Coordinate coord : jtsLS.getCoordinates()) {
       kmlCoords.add(new Coordinate(coord.x, coord.y));
     }
     return kmlLS;
@@ -116,7 +116,7 @@ public class MetacardToKml {
     return KmlFactory.createPoint().addToCoordinates(jtsPoint.getX(), jtsPoint.getY());
   }
 
-  public static com.vividsolutions.jts.geom.Geometry getJtsGeoFromWkt(@Nullable final String wkt)
+  public static org.locationtech.jts.geom.Geometry getJtsGeoFromWkt(@Nullable final String wkt)
       throws CatalogTransformerException {
 
     if (StringUtils.isBlank(wkt)) {
@@ -132,7 +132,7 @@ public class MetacardToKml {
   }
 
   private static Geometry addJtsCoordinateToKmlGeo(
-      Geometry kmlGeo, com.vividsolutions.jts.geom.Coordinate vertex) {
+      Geometry kmlGeo, org.locationtech.jts.geom.Coordinate vertex) {
     if (null != vertex) {
       de.micromata.opengis.kml.v_2_2_0.Point kmlPoint =
           KmlFactory.createPoint().addToCoordinates(vertex.x, vertex.y);

@@ -1452,7 +1452,7 @@ public class CswCqlFilterTest {
 
   @Test
   public void testIntersectsPolygonLonLatIsConvertedToLatLon()
-      throws UnsupportedQueryException, com.vividsolutions.jts.io.ParseException {
+      throws UnsupportedQueryException, org.locationtech.jts.io.ParseException {
     String propName = CswConstants.BBOX_PROP;
     FilterType filterType = cswFilterDelegate.intersects(propName, polygonWkt);
     String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);
@@ -1502,7 +1502,7 @@ public class CswCqlFilterTest {
 
   @Test
   public void testWithinPropertyOwsBoundingBoxPolygon()
-      throws UnsupportedQueryException, com.vividsolutions.jts.io.ParseException {
+      throws UnsupportedQueryException, org.locationtech.jts.io.ParseException {
     String propName = CswConstants.BBOX_PROP;
     FilterType filterType = cswFilterDelegate.within(propName, polygonWkt);
     String cqlText = CswCqlTextFilter.getInstance().getCqlText(filterType);

@@ -76,6 +76,7 @@
         <bundle>mvn:org.codice.thirdparty/gt-opengis/${opengis.bundle.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.3_1</bundle>
         <!-- for GeoTools -->
+        <bundle>mvn:javax.measure/unit-api/1.0</bundle>
         <bundle>mvn:org.codice.thirdparty/geotools-suite/${org.geotools.bundle.version}</bundle>
         <bundle>mvn:ddf.persistence.core/persistence-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.persistence.core/persistence-core-commands/${project.version}</bundle>

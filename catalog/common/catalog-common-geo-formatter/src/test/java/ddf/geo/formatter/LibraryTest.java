@@ -13,10 +13,10 @@
  */
 package ddf.geo.formatter;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
 import java.io.StringReader;
 import org.junit.Test;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
 
 public class LibraryTest extends AbstractTestCompositeGeometry {
 

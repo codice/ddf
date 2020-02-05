@@ -15,9 +15,9 @@ package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
 import static java.util.Arrays.asList;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import java.util.List;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
 
 class LonLatCoordinateStrategy implements CoordinateStrategy {
   @Override
