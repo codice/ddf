@@ -185,13 +185,11 @@ export default Marionette.LayoutView.extend({
     return { createdOn: Common.getMomentDate(createdOn), ...json }
   },
   onRender() {
-    const type = this.model.get('type')
-    if (
-      type === 'new-result' ||
-      (type === 'result' &&
-        (!user.canWrite(this.model) ||
-          this.model.get('createdBy') === 'system'))
-    ) {
+    const newResult = this.model.get('type') === 'new-result'
+    const noActions =
+      this.model.get('type') === 'result' &&
+      (!user.canWrite(this.model) || this.model.get('createdBy') === 'system')
+    if (newResult || noActions) {
       this.$el.addClass('is-static')
     } else {
       this.searchFormActions.show(
