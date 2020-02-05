@@ -198,14 +198,14 @@ function getGeometryErrors(filter: any): Set<string> {
   }
   switch (filter.geojson.properties.type) {
     case 'Polygon':
-      if (geometry.coordinates[0].length < 4) {
+      if (!geometry.coordinates[0].length || geometry.coordinates[0].length < 4) {
         errors.add(
           'Polygon coordinates must be in the form [[x,y],[x,y],[x,y],[x,y], ... ]'
         )
       }
       break
     case 'LineString':
-      if (geometry.coordinates.length < 2) {
+      if (!geometry.coordinates.length || geometry.coordinates.length < 2) {
         errors.add('Line coordinates must be in the form [[x,y],[x,y], ... ]')
       }
       if (!bufferWidth || bufferWidth == 0) {

@@ -78,6 +78,13 @@ function generateAnyGeoFilter(property, model) {
 
   switch (model.type) {
     case 'LINE':
+      if(!Array.isArray(model.line)) {
+        return {
+          type: 'INTERSECTS',
+          property,
+          value: '',
+        }
+      }
       return {
         type: 'DWITHIN',
         property,
@@ -90,6 +97,13 @@ function generateAnyGeoFilter(property, model) {
         ),
       }
     case 'POLYGON':
+      if(!Array.isArray(model.polygon)) {
+        return {
+          type: 'INTERSECTS',
+          property,
+          value: '',
+        }
+      }
       return {
         type: model.polygonBufferWidth > 0 ? 'DWITHIN' : 'INTERSECTS',
         property,
@@ -104,6 +118,13 @@ function generateAnyGeoFilter(property, model) {
         }),
       }
     case 'MULTIPOLYGON':
+      if(!Array.isArray(model.polygon)) {
+        return {
+          type: 'INTERSECTS',
+          property,
+          value: '',
+        }
+      }
       const poly =
         'MULTIPOLYGON' +
         sanitizeForCql(JSON.stringify(polygonToCQLMultiPolygon(model.polygon)))
