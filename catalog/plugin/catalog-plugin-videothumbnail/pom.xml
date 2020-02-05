@@ -121,9 +121,9 @@
                         </goals>
                         <configuration>
                             <rules>
-                                <!-- slightly larger for Linux -->
+                                <!-- slightly larger as ffmpeg binary has grown-->
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>27.4_MB</maxArtifactSize>
+                                    <maxArtifactSize>37.0_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

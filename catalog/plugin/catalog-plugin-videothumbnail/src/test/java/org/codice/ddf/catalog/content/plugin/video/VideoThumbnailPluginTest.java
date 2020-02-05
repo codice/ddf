@@ -353,7 +353,7 @@ public class VideoThumbnailPluginTest {
       ffmpegResourcePath = "osx/ffmpeg-4.2.2";
       //      Skip unit tests on Windows. See DDF-3503.
       //    } else if (SystemUtils.IS_OS_WINDOWS) {
-      //      ffmpegResourcePath = "windows/ffmpeg.exe";
+      //      ffmpegResourcePath = "windows/ffmpeg-4.2.2.exe";
     } else {
       fail(
           "Platform is not Linux, Mac, or Windows. No FFmpeg binaries are provided for this platform.");

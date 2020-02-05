@@ -107,7 +107,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
     } else if (SystemUtils.IS_OS_MAC) {
       return "osx/ffmpeg-4.2.2";
     } else if (SystemUtils.IS_OS_WINDOWS) {
-      return "windows/ffmpeg-4.0.exe";
+      return "windows/ffmpeg-4.2.2.exe";
     } else {
       throw new IllegalStateException(
           "OS is not Linux, Mac, or Windows."
