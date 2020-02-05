@@ -14,6 +14,8 @@
 package org.codice.ddf.catalog.ui.util;
 
 import com.google.common.base.Stopwatch;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
@@ -29,15 +31,18 @@ import ddf.catalog.util.impl.QueryFunction;
 import ddf.catalog.util.impl.ResultIterable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponseImpl;
+import org.codice.ddf.catalog.ui.query.cql.CqlRequestImpl;
 import org.codice.ddf.catalog.ui.query.utility.CqlQueries;
 import org.codice.ddf.catalog.ui.query.utility.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
 import org.codice.ddf.catalog.ui.transformer.TransformerDescriptors;
+import org.codice.gsonsupport.GsonTypeAdapters;
 
 public class CqlQueriesImpl implements CqlQueries {
 
@@ -50,6 +55,14 @@ public class CqlQueriesImpl implements CqlQueries {
   private ActionRegistry actionRegistry;
 
   private FilterAdapter filterAdapter;
+
+  private static final Gson GSON =
+      new GsonBuilder()
+          .disableHtmlEscaping()
+          .serializeNulls()
+          .registerTypeAdapterFactory(GsonTypeAdapters.LongDoubleTypeAdapter.FACTORY)
+          .registerTypeAdapter(Date.class, new GsonTypeAdapters.DateLongFormatTypeAdapter())
+          .create();
 
   public CqlQueriesImpl(
       CatalogFramework catalogFramework,
@@ -137,5 +150,10 @@ public class CqlQueriesImpl implements CqlQueries {
   @SuppressWarnings("WeakerAccess" /* setter must be public for blueprint access */)
   public void setDescriptors(TransformerDescriptors descriptors) {
     this.descriptors = descriptors;
+  }
+
+  @Override
+  public CqlRequest getCqlRequestFromJson(String jsonBody) {
+    return GSON.fromJson(jsonBody, CqlRequestImpl.class);
   }
 }

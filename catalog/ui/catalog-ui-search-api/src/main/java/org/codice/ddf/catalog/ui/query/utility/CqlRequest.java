@@ -13,357 +13,86 @@
  */
 package org.codice.ddf.catalog.ui.query.utility;
 
-import static ddf.catalog.Constants.ADDITIONAL_SORT_BYS;
-import static spark.Spark.halt;
-
-import com.google.common.collect.Sets;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.FilterDelegate;
-import ddf.catalog.filter.impl.SortByImpl;
-import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.impl.FacetedQueryRequest;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.operation.impl.TermFacetPropertiesImpl;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
-import java.util.stream.Collectors;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.geotools.filter.text.cql2.CQLException;
-import org.geotools.filter.text.ecql.ECQL;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
-import org.opengis.filter.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class CqlRequest {
+/**
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ */
+public interface CqlRequest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CqlRequest.class);
+  String getCacheId();
 
-  private static final String DEFAULT_SORT_ORDER = "desc";
+  void setCacheId(String cacheId);
 
-  private static final String LOCAL_SOURCE = "local";
+  Set<String> getFacets();
 
-  private static final String CACHE_SOURCE = "cache";
+  void setFacets(Set<String> facets);
 
-  private static final String MODE = "mode";
+  List<String> getSrcs();
 
-  private static final String UPDATE = "update";
+  String getSrc();
 
-  private String id;
+  void setQueryType(String queryType);
 
-  private String src;
+  String getQueryType();
 
-  private List<String> srcs = Collections.emptyList();
+  void setBatchId(String batchId);
 
-  private long timeout = 300000L;
+  String getBatchId();
 
-  private int start = 1;
+  void setSpellcheck(boolean spellcheck);
 
-  private int count = 10;
+  boolean getSpellcheck();
 
-  private String cql;
+  void setPhonetics(boolean phonetics);
 
-  private String queryType;
+  boolean getPhonetics();
 
-  private String batchId;
+  void setSrc(String src);
 
-  private Boolean spellcheck;
+  void setSrcs(List<String> srcs);
 
-  private Boolean phonetics;
+  long getTimeout();
 
-  public String getCacheId() {
-    return cacheId;
-  }
+  void setTimeout(long timeout);
 
-  public void setCacheId(String cacheId) {
-    this.cacheId = cacheId;
-  }
+  int getStart();
 
-  private String cacheId;
+  void setStart(int start);
 
-  private List<Sort> sorts = Collections.emptyList();
+  int getCount();
 
-  private Set<String> facets = Collections.emptySet();
+  void setCount(int count);
 
-  public Set<String> getFacets() {
-    return facets;
-  }
+  String getCql();
 
-  public void setFacets(Set<String> facets) {
-    this.facets = facets;
-  }
+  void setCql(String cql);
 
-  private boolean normalize = false;
+  List<CqlRequest.Sort> getSorts();
 
-  private boolean excludeUnnecessaryAttributes = true;
+  void setSorts(List<CqlRequest.Sort> sorts);
 
-  public List<String> getSrcs() {
-    return srcs;
-  }
+  boolean isNormalize();
 
-  public String getSrc() {
-    return src;
-  }
+  void setNormalize(boolean normalize);
 
-  public void setQueryType(String queryType) {
-    this.queryType = queryType;
-  }
+  QueryRequest createQueryRequest(String localSource, FilterBuilder filterBuilder);
 
-  public String getQueryType() {
-    return queryType;
-  }
+  String getSourceResponseString();
 
-  public void setBatchId(String batchId) {
-    this.batchId = batchId;
-  }
+  String getSource();
 
-  public String getBatchId() {
-    return batchId;
-  }
+  String getId();
 
-  public void setSpellcheck(boolean spellcheck) {
-    this.spellcheck = spellcheck;
-  }
+  void setId(String id);
 
-  public boolean getSpellcheck() {
-    return spellcheck;
-  }
-
-  public void setPhonetics(boolean phonetics) {
-    this.phonetics = phonetics;
-  }
-
-  public boolean getPhonetics() {
-    return phonetics;
-  }
-
-  public void setSrc(String src) {
-    this.src = src;
-  }
-
-  public void setSrcs(List<String> srcs) {
-    this.srcs = srcs;
-  }
-
-  public long getTimeout() {
-    return timeout;
-  }
-
-  public void setTimeout(long timeout) {
-    this.timeout = timeout;
-  }
-
-  public int getStart() {
-    return start;
-  }
-
-  public void setStart(int start) {
-    this.start = start;
-  }
-
-  public int getCount() {
-    return count;
-  }
-
-  public void setCount(int count) {
-    this.count = count;
-  }
-
-  public String getCql() {
-    return cql;
-  }
-
-  public void setCql(String cql) {
-    this.cql = cql;
-  }
-
-  public List<Sort> getSorts() {
-    return sorts;
-  }
-
-  public void setSorts(List<Sort> sorts) {
-    this.sorts = sorts;
-  }
-
-  public boolean isNormalize() {
-    return normalize;
-  }
-
-  public void setNormalize(boolean normalize) {
-    this.normalize = normalize;
-  }
-
-  private QueryRequest facetQueryRequest(QueryRequest request) {
-    if (facets.isEmpty()) {
-      return request;
-    }
-
-    return new FacetedQueryRequest(
-        request.getQuery(),
-        request.isEnterprise(),
-        request.getSourceIds(),
-        request.getProperties(),
-        new TermFacetPropertiesImpl(facets));
-  }
-
-  public QueryRequest createQueryRequest(String localSource, FilterBuilder filterBuilder) {
-    List<SortBy> sortBys =
-        sorts
-            .stream()
-            .filter(
-                s ->
-                    StringUtils.isNotEmpty(s.getAttribute())
-                        && StringUtils.isNotEmpty(s.getDirection()))
-            .map(s -> parseSort(s.getAttribute(), s.getDirection()))
-            .collect(Collectors.toList());
-    if (sortBys.isEmpty()) {
-      sortBys.add(new SortByImpl(Result.TEMPORAL, DEFAULT_SORT_ORDER));
-    }
-    Query query =
-        new QueryImpl(createFilter(filterBuilder), start, count, sortBys.get(0), true, timeout);
-
-    QueryRequest queryRequest;
-    if (!CollectionUtils.isEmpty(srcs)) {
-      parseSrcs(localSource);
-      queryRequest = new QueryRequestImpl(query, srcs);
-      queryRequest.getProperties().put(MODE, UPDATE);
-    } else {
-      String source = parseSrc(localSource);
-      if (CACHE_SOURCE.equals(source)) {
-        queryRequest = new QueryRequestImpl(query, true);
-        queryRequest.getProperties().put(MODE, CACHE_SOURCE);
-      } else {
-        queryRequest = new QueryRequestImpl(query, Collections.singleton(source));
-        queryRequest.getProperties().put(MODE, UPDATE);
-      }
-    }
-
-    queryRequest = facetQueryRequest(queryRequest);
-
-    if (excludeUnnecessaryAttributes) {
-      queryRequest
-          .getProperties()
-          .put("excludeAttributes", Sets.newHashSet(Metacard.METADATA, "lux"));
-    }
-
-    if (sortBys.size() > 1) {
-      queryRequest
-          .getProperties()
-          .put(ADDITIONAL_SORT_BYS, sortBys.subList(1, sortBys.size()).toArray(new SortBy[0]));
-    }
-
-    queryRequest.getProperties().put("requestId", id);
-
-    if (StringUtils.isNotEmpty(batchId)) {
-      queryRequest.getProperties().put("batchId", batchId);
-    }
-
-    if (StringUtils.isNotEmpty(queryType)) {
-      queryRequest.getProperties().put("queryType", queryType);
-    }
-
-    if (spellcheck != null) {
-      queryRequest.getProperties().put("spellcheck", spellcheck);
-    }
-
-    if (phonetics != null) {
-      queryRequest.getProperties().put("phonetics", phonetics);
-    }
-
-    if (cacheId != null) {
-      queryRequest.getProperties().put("cacheId", cacheId);
-    }
-
-    return queryRequest;
-  }
-
-  private String parseSrc(String localSource) {
-    if (StringUtils.equalsIgnoreCase(src, LOCAL_SOURCE) || StringUtils.isBlank(src)) {
-      src = localSource;
-    }
-
-    return src;
-  }
-
-  private void parseSrcs(String localSource) {
-    for (int i = 0; i < srcs.size(); i++) {
-      if (StringUtils.equalsIgnoreCase(srcs.get(i), LOCAL_SOURCE)) {
-        srcs.set(i, localSource);
-      }
-    }
-  }
-
-  public String getSourceResponseString() {
-    if (!CollectionUtils.isEmpty(srcs)) {
-      return String.join(", ", srcs);
-    } else {
-      return src;
-    }
-  }
-
-  private Filter createFilter(FilterBuilder filterBuilder) {
-    Filter filter = null;
-    try {
-      filter = ECQL.toFilter(cql);
-    } catch (CQLException e) {
-      halt(400, "Unable to parse CQL filter");
-    }
-
-    if (filter == null) {
-      LOGGER.debug("Received an empty filter. Using a wildcard contextual filter instead.");
-      filter =
-          filterBuilder.attribute(Metacard.ANY_TEXT).is().like().text(FilterDelegate.WILDCARD_CHAR);
-    }
-
-    return filter;
-  }
-
-  private SortBy parseSort(String sortField, String sortOrder) {
-    SortBy sort;
-    switch (sortOrder.toLowerCase(Locale.getDefault())) {
-      case "ascending":
-      case "asc":
-        sort = new SortByImpl(sortField, SortOrder.ASCENDING);
-        break;
-      case "descending":
-      case "desc":
-        sort = new SortByImpl(sortField, SortOrder.DESCENDING);
-        break;
-      default:
-        throw new IllegalArgumentException(
-            "Incorrect sort order received, must be 'asc', 'ascending', 'desc', or 'descending'");
-    }
-
-    return sort;
-  }
-
-  public String getSource() {
-    return src;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public boolean isExcludeUnnecessaryAttributes() {
-    return excludeUnnecessaryAttributes;
-  }
-
-  public void setExcludeUnnecessaryAttributes(boolean excludeUnnecessaryAttributes) {
-    this.excludeUnnecessaryAttributes = excludeUnnecessaryAttributes;
-  }
+  boolean isExcludeUnnecessaryAttributes();
+
+  void setExcludeUnnecessaryAttributes(boolean excludeUnnecessaryAttributes);
 
   public static class Sort {
 

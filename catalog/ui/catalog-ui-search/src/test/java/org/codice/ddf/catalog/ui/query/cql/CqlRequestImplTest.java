@@ -25,16 +25,15 @@ import ddf.catalog.operation.QueryRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import spark.HaltException;
 
-public class CqlRequestTest {
+public class CqlRequestImplTest {
 
-  private CqlRequest cqlRequest;
+  private CqlRequestImpl cqlRequest;
 
   private static final String LOCAL_SOURCE = "local";
 
@@ -55,16 +54,16 @@ public class CqlRequestTest {
   private static final String BAD_CQL = "unknownFunction(1,2)";
 
   private FilterBuilder filterBuilder;
-  private List<CqlRequest.Sort> sorts;
+  private List<CqlRequestImpl.Sort> sorts;
 
   @Before
   public void setUp() {
-    cqlRequest = new CqlRequest();
+    cqlRequest = new CqlRequestImpl();
     cqlRequest.setCql(CQL);
     cqlRequest.setCount(10);
     cqlRequest.setId("anId");
     cqlRequest.setNormalize(true);
-    sorts = Collections.singletonList(new CqlRequest.Sort(SORT_PROPERTY, ASC_SORT_ORDER));
+    sorts = Collections.singletonList(new CqlRequestImpl.Sort(SORT_PROPERTY, ASC_SORT_ORDER));
     cqlRequest.setSorts(sorts);
     cqlRequest.setSrc("source");
     cqlRequest.setStart(1);
@@ -86,9 +85,9 @@ public class CqlRequestTest {
 
   @Test
   public void testMultipleSorts() {
-    List<CqlRequest.Sort> sorts = new ArrayList<>();
-    sorts.add(new CqlRequest.Sort(SORT_PROPERTY, ASC_SORT_ORDER));
-    sorts.add(new CqlRequest.Sort("foobar", DESC_SORT_ORDER));
+    List<CqlRequestImpl.Sort> sorts = new ArrayList<>();
+    sorts.add(new CqlRequestImpl.Sort(SORT_PROPERTY, ASC_SORT_ORDER));
+    sorts.add(new CqlRequestImpl.Sort("foobar", DESC_SORT_ORDER));
     cqlRequest.setSorts(sorts);
     QueryRequest queryRequest = cqlRequest.createQueryRequest("ddf.distribution", filterBuilder);
     SortBy firstSort = queryRequest.getQuery().getSortBy();
@@ -113,7 +112,7 @@ public class CqlRequestTest {
   @Test
   public void testCreateQueryWithCacheSource() {
     cqlRequest.setSorts(
-        Collections.singletonList(new CqlRequest.Sort(SORT_PROPERTY, DESC_SORT_ORDER)));
+        Collections.singletonList(new CqlRequestImpl.Sort(SORT_PROPERTY, DESC_SORT_ORDER)));
     cqlRequest.setSrc(CACHE_SOURCE);
     QueryRequest queryRequest = cqlRequest.createQueryRequest(CACHE_SOURCE, filterBuilder);
     SortBy sortBy = queryRequest.getQuery().getSortBy();
@@ -124,13 +123,13 @@ public class CqlRequestTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testBadSortOrder() {
-    cqlRequest.setSorts(Collections.singletonList(new CqlRequest.Sort(SORT_PROPERTY, "bad")));
+    cqlRequest.setSorts(Collections.singletonList(new CqlRequestImpl.Sort(SORT_PROPERTY, "bad")));
     cqlRequest.createQueryRequest(CACHE_SOURCE, filterBuilder);
   }
 
   @Test
   public void testBadSortOrderString() {
-    cqlRequest.setSorts(Collections.singletonList(new CqlRequest.Sort(SORT_PROPERTY, null)));
+    cqlRequest.setSorts(Collections.singletonList(new CqlRequestImpl.Sort(SORT_PROPERTY, null)));
     QueryRequest queryRequest = cqlRequest.createQueryRequest(LOCAL_SOURCE, filterBuilder);
     assertDefaultSortBy(queryRequest);
   }

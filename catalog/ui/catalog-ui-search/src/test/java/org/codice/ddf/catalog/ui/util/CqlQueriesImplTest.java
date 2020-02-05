@@ -32,8 +32,8 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import java.util.Collections;
 import java.util.List;
 import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
+import org.codice.ddf.catalog.ui.query.cql.CqlRequestImpl;
 import org.codice.ddf.catalog.ui.query.utility.CqlQueryResponse;
-import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
 import org.codice.ddf.catalog.ui.query.utility.CqlResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,8 +84,8 @@ public class CqlQueriesImplTest {
             catalogFrameworkMock, filterBuilderMock, filterAdapterMock, actionRegistryMock);
   }
 
-  private CqlRequest generateCqlRequest(int count) {
-    CqlRequest cqlRequest = new CqlRequest();
+  private CqlRequestImpl generateCqlRequest(int count) {
+    CqlRequestImpl cqlRequest = new CqlRequestImpl();
     cqlRequest.setCount(count);
     cqlRequest.setCql("anyText ILIKE '*'");
 

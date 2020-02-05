@@ -24,4 +24,6 @@ import ddf.catalog.source.UnsupportedQueryException;
 public interface CqlQueries {
   CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException;
+
+  CqlRequest getCqlRequestFromJson(String jsonBody);
 }

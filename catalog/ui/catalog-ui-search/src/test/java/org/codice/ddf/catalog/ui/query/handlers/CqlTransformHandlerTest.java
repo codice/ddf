@@ -41,7 +41,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponseImpl;
-import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
+import org.codice.ddf.catalog.ui.query.cql.CqlRequestImpl;
 import org.codice.ddf.catalog.ui.util.CqlQueriesImpl;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
@@ -166,7 +166,8 @@ public class CqlTransformHandlerTest {
 
     when(mockEndpointUtil.safeGetBody(mockRequest)).thenReturn(SAFE_BODY);
 
-    when(mockCqlQueryUtil.executeCqlQuery(any(CqlRequest.class))).thenReturn(mockCqlQueryResponse);
+    when(mockCqlQueryUtil.executeCqlQuery(any(CqlRequestImpl.class)))
+        .thenReturn(mockCqlQueryResponse);
 
     when(mockCqlQueryResponse.getQueryResponse()).thenReturn(mockQueryResponse);
 

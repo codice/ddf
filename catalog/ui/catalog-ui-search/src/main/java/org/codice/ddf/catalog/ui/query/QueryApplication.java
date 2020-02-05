@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.function.Function;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
+import org.codice.ddf.catalog.ui.query.cql.CqlRequestImpl;
 import org.codice.ddf.catalog.ui.query.cql.SourceWarningsFilterManager;
 import org.codice.ddf.catalog.ui.query.geofeature.FeatureService;
 import org.codice.ddf.catalog.ui.query.handlers.CqlTransformHandler;
@@ -40,7 +41,6 @@ import org.codice.ddf.catalog.ui.query.suggestion.LatLonCoordinateProcessor;
 import org.codice.ddf.catalog.ui.query.suggestion.MgrsCoordinateProcessor;
 import org.codice.ddf.catalog.ui.query.suggestion.UtmUpsCoordinateProcessor;
 import org.codice.ddf.catalog.ui.query.utility.CqlQueryResponse;
-import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
 import org.codice.ddf.catalog.ui.query.validate.CqlValidationHandler;
 import org.codice.ddf.catalog.ui.util.CqlQueriesImpl;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
@@ -122,7 +122,7 @@ public class QueryApplication implements SparkApplication, Function {
         APPLICATION_JSON,
         (req, res) -> {
           try {
-            CqlRequest cqlRequest = GSON.fromJson(util.safeGetBody(req), CqlRequest.class);
+            CqlRequestImpl cqlRequest = GSON.fromJson(util.safeGetBody(req), CqlRequestImpl.class);
             CqlQueryResponse cqlQueryResponse = cqlQueryUtil.executeCqlQuery(cqlRequest);
             if (sourceWarningsFilterManager != null
                 && cqlQueryResponse != null
@@ -216,10 +216,10 @@ public class QueryApplication implements SparkApplication, Function {
       return JsonRpc.invalidParams("parameter not a string", param);
     }
 
-    CqlRequest cqlRequest;
+    CqlRequestImpl cqlRequest;
 
     try {
-      cqlRequest = GSON.fromJson((String) param, CqlRequest.class);
+      cqlRequest = GSON.fromJson((String) param, CqlRequestImpl.class);
     } catch (RuntimeException e) {
       return JsonRpc.invalidParams("parameter not valid json", param);
     }
