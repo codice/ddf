@@ -16,7 +16,7 @@ import React, { useState, useEffect } from 'react'
 import {
   getErrorComponent,
   validateGeo,
-  validateListOfPoints,
+  validateLinePolygon,
   initialErrorState,
 } from '../utils/validation'
 const { Units } = require('./common')
@@ -69,15 +69,6 @@ function convertMultiWkt(isPolygon, value) {
       : '[' + shapes.map(shapeCoords => buildWktString(shapeCoords)) + ']'
 }
 
-function is2DArray(coordinates) {
-  try {
-    const parsedCoords = JSON.parse(coordinates)
-    return Array.isArray(parsedCoords) && Array.isArray(parsedCoords[0])
-  } catch (e) {
-    return false
-  }
-}
-
 const BaseLine = props => {
   const { label, geometryKey, setState, setBufferState, unitKey, widthKey, mode, polyType } = props
   const [currentValue, setCurrentValue] = useState(
@@ -93,18 +84,6 @@ const BaseLine = props => {
     },
     [props.polygon, props.line]
   )
-
-  function testValidity() {
-    if (!is2DArray(currentValue)) {
-      return { error: true, message: 'Not an acceptable value' }
-    }
-    try {
-      const pointsValid = validateListOfPoints(JSON.parse(currentValue), mode || polyType) 
-      return pointsValid === undefined ? initialErrorState : pointsValid
-    } catch (e) {
-      return initialErrorState
-    }
-  }
 
   return (
     <div>
@@ -126,7 +105,7 @@ const BaseLine = props => {
               // do nothing
             }
           }}
-          onBlur={() => setBaseLineError(testValidity())}
+          onBlur={() => setBaseLineError(validateLinePolygon(currentValue, mode || polyType))}
         />
         {getErrorComponent(baseLineError)}
         <Units

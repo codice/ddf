@@ -138,6 +138,18 @@ export function validateListOfPoints(coordinates: any[], mode: string) {
   return { error: message.length > 0, message }
 }
 
+export function validateLinePolygon(currentValue: string, mode: string) {
+  if (!is2DArray(currentValue)) {
+    return { error: true, message: 'Not an acceptable value' }
+  }
+  try {
+    const pointsValid = validateListOfPoints(JSON.parse(currentValue), mode) 
+    return pointsValid === undefined ? initialErrorState : pointsValid
+  } catch (e) {
+    return initialErrorState
+  }
+}
+
 export const initialErrorState = {
   error: false,
   message: '',
@@ -147,6 +159,15 @@ export const initialErrorStateWithDefault = {
   error: false,
   message: '',
   defaultValue: '',
+}
+
+function is2DArray(coordinates: string) {
+  try {
+    const parsedCoords = JSON.parse(coordinates)
+    return Array.isArray(parsedCoords) && Array.isArray(parsedCoords[0])
+  } catch (e) {
+    return false
+  }
 }
 
 function hasPointError(point: any[]) {
@@ -275,12 +296,10 @@ function validateUtmUps(
 ) {
   let error = { error: false, message: '' }
   zoneNumber = Number.parseInt(zoneNumber)
-  // casting to Number() will return NaN if it's not a number, i.e. "3e".
-  //Except for empty string, which is why we have to do this check below
+  // Number('') returns 0, so we can't just blindly cast to number
+  // since we want to differentiate '' from 0
   let easting = utmUpsEasting === '' ? NaN : Number(utmUpsEasting)
   let northing = utmUpsNorthing === '' ? NaN : Number(utmUpsNorthing)
-  // isNaN will try to parse anything into a number
-  // have to check this because parseFloat will be able to parse things with letters, i.e. "12.3w"
   if (!isNaN(easting)) {
     easting = Number.parseFloat(utmUpsEasting)
   }
@@ -298,6 +317,8 @@ function validateUtmUps(
   }
   utmUpsParts.northing =
     isUps || northernHemisphere ? northing : northing - northingOffset
+  // These checks are to ensure that we only mark a value as "invalid" 
+  // if the user has entered something already
   const isNorthingInvalid =
     isNaN(utmUpsParts.northing) && utmUpsNorthing !== undefined
   const isEastingInvalid =
