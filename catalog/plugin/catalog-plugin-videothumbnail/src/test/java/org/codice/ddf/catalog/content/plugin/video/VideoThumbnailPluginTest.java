@@ -348,7 +348,7 @@ public class VideoThumbnailPluginTest {
     URL ffmpegBinaryUrl;
 
     if (SystemUtils.IS_OS_LINUX) {
-      ffmpegResourcePath = "linux/ffmpeg-4.0";
+      ffmpegResourcePath = "linux/ffmpeg-4.2.2";
     } else if (SystemUtils.IS_OS_MAC) {
       ffmpegResourcePath = "osx/ffmpeg-4.2.2";
       //      Skip unit tests on Windows. See DDF-3503.

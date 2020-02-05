@@ -121,8 +121,9 @@
                         </goals>
                         <configuration>
                             <rules>
+                                <!-- slightly larger for Linux -->
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>26.4_MB</maxArtifactSize>
+                                    <maxArtifactSize>27.4_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>
