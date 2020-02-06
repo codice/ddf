@@ -81,6 +81,10 @@ const BaseLine = props => {
     () => {
       const { geometryKey } = props
       setCurrentValue(JSON.stringify(props[geometryKey]))
+      if(props.drawing) {
+        setBaseLineError(initialErrorState)
+        setBufferError(initialErrorState)
+      }
     },
     [props.polygon, props.line]
   )

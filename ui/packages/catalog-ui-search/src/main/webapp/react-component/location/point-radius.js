@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 const { Radio, RadioItem } = require('../radio')
 const TextField = require('../text-field')
 import {
@@ -32,6 +32,15 @@ const { Direction } = require('../../component/location-new/utils/dms-utils.js')
 const PointRadiusLatLonDd = props => {
   const { lat, lon, radius, radiusUnits, setState } = props
   const [ddError, setDdError] = useState(initialErrorStateWithDefault)
+  const [radiusError, setRadiusError] = useState(initialErrorState)
+
+  useEffect(() => {
+    if(props.drawing) {
+      setDdError(initialErrorStateWithDefault)
+      setRadiusError(initialErrorState)
+    }
+  }, [props.lat, props.lon, props.radius])
+
   function onChangeDd(key, value) {
     const { error, message, defaultValue } = validateGeo(key, value)
     if (defaultValue) {
@@ -41,7 +50,7 @@ const PointRadiusLatLonDd = props => {
       setState({[key]: value})
     }
   }
-  const [radiusError, setRadiusError] = useState(initialErrorState)
+
   return (
     <div>
       <TextField
@@ -94,6 +103,13 @@ const PointRadiusLatLonDms = props => {
   const [radiusError, setRadiusError] = useState(initialErrorState)
   const latitudeDirections = [Direction.North, Direction.South]
   const longitudeDirections = [Direction.East, Direction.West]
+
+  useEffect(() => {
+    if(props.drawing) {
+      setDmsError(initialErrorStateWithDefault)
+      setRadiusError(initialErrorState)
+    }
+  }, [props.dmsLat, props.dmsLon, props.radius])
 
   function validate(key, type, value) {
     const { error, message, defaultValue } = validateGeo(key, value)
@@ -161,6 +177,14 @@ const PointRadiusUsngMgrs = props => {
   const { usng, radius, radiusUnits, setState } = props
   const [usngError, setUsngError] = useState(initialErrorState)
   const [radiusError, setRadiusError] = useState(initialErrorState)
+
+  useEffect(() => {
+    if(props.drawing) {
+      setUsngError(initialErrorState)
+      setRadiusError(initialErrorState)
+    }
+  }, [props.usng, props.radius])
+
   return (
     <div>
       <TextField
@@ -200,6 +224,13 @@ const PointRadiusUtmUps = props => {
   } = props
   const [utmError, setUtmError] = useState(initialErrorState)
   const [radiusError, setRadiusError] = useState(initialErrorState)
+
+  useEffect(() => {
+    if(props.drawing) {
+      setUtmError(initialErrorState)
+      setRadiusError(initialErrorState)
+    }
+  }, [props.utmUpsEasting, props.utmUpsNorthing, props.utmUpsZone, props.utmUpsHemisphere, props.radius])
 
   return (
     <div>

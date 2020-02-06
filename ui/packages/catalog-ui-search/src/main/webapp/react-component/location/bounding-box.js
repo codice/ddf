@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   validateGeo,
   getErrorComponent,
@@ -50,6 +50,13 @@ const BoundingBoxLatLonDd = props => {
   const eastMin = parseFloat(mapWest) + minimumDifference
   const northMin = parseFloat(mapSouth) + minimumDifference
   const southMax = parseFloat(mapNorth) - minimumDifference
+
+  useEffect(() => {
+    if(props.drawing) {
+      setDdError(initialErrorStateWithDefault)
+    }
+  }, [props.east, props.west, props.south, props.north])
+
   function onChangeDd(key, label, value) {
     const { error, message, defaultValue } = validateGeo(label, value)
     if (defaultValue) {
@@ -126,6 +133,13 @@ const BoundingBoxLatLonDms = props => {
   const latitudeDirections = [Direction.North, Direction.South]
   const longitudeDirections = [Direction.East, Direction.West]
 
+  useEffect(() => {
+    console.log(props.drawing)
+    if(props.drawing) {
+      setDmsError(initialErrorStateWithDefault)
+    }
+  }, [props.dmsWest, props.dmsSouth, props.dmsEast, props.dmsNorth])
+
   function validate(key, type, value) {
     const label =
       key.includes('East') || key.includes('West') ? 'dmsLon' : 'dmsLat'
@@ -200,6 +214,13 @@ const BoundingBoxLatLonDms = props => {
 const BoundingBoxUsngMgrs = props => {
   const { usngbbUpperLeft, usngbbLowerRight, setState } = props
   const [usngError, setUsngError] = useState(initialErrorState)
+
+  useEffect(() => {
+    if(props.drawing) {
+      setUsngError(initialErrorState)
+    }
+  }, [props.usngbbUpperLeft, props.usngbbLowerRight])
+
   return (
     <div className="input-location">
       <TextField
@@ -235,6 +256,14 @@ const BoundingBoxUtmUps = props => {
   } = props
   const [upperLeftError, setUpperLeftError] = useState(initialErrorState)
   const [lowerRightError, setLowerRightError] = useState(initialErrorState)
+
+  useEffect(() => {
+    if(props.drawing) {
+      setUpperLeftError(initialErrorState)
+      setLowerRightError(initialErrorState)
+    }
+  }, [props.utmUpsUpperLeftEasting, props.utmUpsUpperLeftNorthing, props.utmUpsUpperLeftZone, props.utmUpsUpperLeftHemisphere, props.utmUpsLowerRightEasting, props.utmUpsLowerRightNorthing, props.utmUpsLowerRightZone, props.utmUpsLowerRightHemisphere])
+
   return (
     <div>
       <div className="input-location">
