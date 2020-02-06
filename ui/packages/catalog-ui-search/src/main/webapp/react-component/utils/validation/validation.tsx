@@ -298,7 +298,7 @@ function validateUtmUps(
     easting = Number.parseFloat(utmUpsEasting)
   }
   if (!isNaN(northing)) {
-    northing = Number.parseFloat(utmUpsEasting)
+    northing = Number.parseFloat(utmUpsNorthing)
   }
   const northernHemisphere = hemisphere.toUpperCase() === 'NORTHERN'
   const isUps = zoneNumber === 0
@@ -330,16 +330,14 @@ function validateUtmUps(
   const isLatLonValid =
     !hasPointError([lon, lat]) ||
     (utmUpsNorthing === undefined || utmUpsEasting === undefined)
-  if ((isNorthingInvalid && isEastingInvalid) || !isLatLonValid) {
-    error = { error: true, message: 'Invalid UTM/UPS coordinates' }
-  } else if (
+   if (
     key === 'utmUpsNorthing' &&
-    isNorthingInvalid
+    isNorthingInvalid && !isEastingInvalid
   ) {
     error = { error: true, message: 'Northing value is invalid' }
   } else if (
     key === 'utmUpsEasting' &&
-    isEastingInvalid
+    isEastingInvalid && !isNorthingInvalid
   ) {
     error = { error: true, message: 'Easting value is invalid' }
   } else if (
@@ -347,6 +345,8 @@ function validateUtmUps(
     (!upsValidDistance(northing) || !upsValidDistance(easting))
   ) {
     error = { error: true, message: 'Invalid UPS distance' }
+  } else if ((isNorthingInvalid && isEastingInvalid) || !isLatLonValid) {
+    error = { error: true, message: 'Invalid UTM/UPS coordinates' }
   }
   return error
 }
