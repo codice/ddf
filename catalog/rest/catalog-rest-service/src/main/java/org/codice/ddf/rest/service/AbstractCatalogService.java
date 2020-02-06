@@ -59,10 +59,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -373,19 +376,19 @@ public abstract class AbstractCatalogService implements CatalogService {
         String errorMessage = "Unable to process request. Data usage limit exceeded: ";
         LOGGER.debug(errorMessage, e);
         throw new DataUsageLimitExceededException(errorMessage);
+      } catch (OAuthPluginException e) {
+        Map<String, String> parameters = e.getParameters();
+        String url = constructUrl(httpRequest, e.getBaseUrl(), parameters);
+        if (url != null) {
+          parameters.put(REDIRECT_URI, url);
+          throw new OAuthPluginException(
+              e.getSourceId(), url, e.getBaseUrl(), parameters, e.getErrorType());
+        }
+        throw e;
         // The catalog framework will throw this if any of the transformers blow up.
         // We need to catch this exception here or else execution will return to CXF and
         // we'll lose this message and end up with a huge stack trace in a GUI or whatever
         // else is connected to this endpoint
-      } catch (OAuthPluginException e) {
-        Map<String, String> parameters = e.getParameters();
-        String redirectUri = constructRedirectUri(httpRequest, parameters);
-        if (redirectUri != null) {
-          parameters.put(REDIRECT_URI, redirectUri);
-          throw new OAuthPluginException(
-              e.getSourceId(), e.getBaseUrl(), parameters, e.getErrorType());
-        }
-        throw e;
       } catch (RuntimeException | UnsupportedEncodingException e) {
         String exceptionMessage = "Unknown error occurred while processing request.";
         LOGGER.info(exceptionMessage, e);
@@ -1231,8 +1234,8 @@ public abstract class AbstractCatalogService implements CatalogService {
     return response;
   }
 
-  private String constructRedirectUri(
-      HttpServletRequest httpRequest, Map<String, String> parameters) {
+  private String constructUrl(
+      HttpServletRequest httpRequest, String baseUrl, Map<String, String> parameters) {
     String uri = parameters.get(REDIRECT_URI);
 
     if (uri == null) {
@@ -1240,14 +1243,27 @@ public abstract class AbstractCatalogService implements CatalogService {
     }
 
     try {
-      URIBuilder uriBuilder = new URIBuilder(httpRequest.getRequestURL().toString());
+      URIBuilder redirectUriBuilder = new URIBuilder(httpRequest.getRequestURL().toString());
       httpRequest
           .getParameterMap()
           .forEach(
-              (key, value) -> Arrays.stream(value).forEach(v -> uriBuilder.addParameter(key, v)));
+              (key, value) ->
+                  Arrays.stream(value).forEach(v -> redirectUriBuilder.addParameter(key, v)));
 
-      uri = String.format("%s?%s=%s", uri, REDIRECT_URI, uriBuilder.build().toString());
-    } catch (URISyntaxException e) {
+      String redirectUri =
+          String.format(
+              "%s?%s=%s",
+              uri,
+              REDIRECT_URI,
+              URLEncoder.encode(
+                  redirectUriBuilder.build().toString(), StandardCharsets.UTF_8.name()));
+      parameters.put(REDIRECT_URI, redirectUri);
+
+      URIBuilder uriBuilder = new URIBuilder(baseUrl);
+      parameters.forEach(uriBuilder::addParameter);
+      uri = uriBuilder.build().toURL().toString();
+
+    } catch (URISyntaxException | MalformedURLException | UnsupportedEncodingException e) {
       LOGGER.info("Error constructing redirect uri", e);
       return null;
     }

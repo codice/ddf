@@ -47,6 +47,7 @@ import ddf.security.Subject;
 import ddf.security.SubjectUtils;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -65,6 +66,7 @@ import org.apache.cxf.rs.security.oauth2.common.AccessTokenGrant;
 import org.apache.cxf.rs.security.oauth2.common.ClientAccessToken;
 import org.apache.cxf.rs.security.oauth2.grants.refresh.RefreshTokenGrant;
 import org.apache.cxf.rs.security.oauth2.provider.OAuthServiceException;
+import org.apache.http.client.utils.URIBuilder;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.oidc.validator.OidcTokenValidator;
 import org.codice.ddf.security.oidc.validator.OidcValidationException;
@@ -310,7 +312,11 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
     parameters.put(SOURCE_ID, oauthSource.getId());
     parameters.put(DISCOVERY_URL, oauthSource.getOauthDiscoveryUrl());
     throw new OAuthPluginException(
-        oauthSource.getId(), AUTHORIZE_SOURCE_ENDPOINT, parameters, AUTH_SOURCE);
+        oauthSource.getId(),
+        buildUrl(AUTHORIZE_SOURCE_ENDPOINT, parameters),
+        AUTHORIZE_SOURCE_ENDPOINT,
+        parameters,
+        AUTH_SOURCE);
   }
 
   /**
@@ -440,11 +446,20 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
     parameters.put(SCOPE, OPENID_SCOPE);
     parameters.put(REDIRECT_URI, OAUTH_REDIRECT_URL);
     parameters.put(STATE, state);
+
+    String url = metadata.getAuthorizationEndpointURI().toString();
     return new OAuthPluginException(
-        oauthSource.getId(),
-        metadata.getAuthorizationEndpointURI().toString(),
-        parameters,
-        NO_AUTH);
+        oauthSource.getId(), buildUrl(url, parameters), url, parameters, NO_AUTH);
+  }
+
+  private String buildUrl(String baseUrl, Map<String, String> parameters) {
+    try {
+      URIBuilder uriBuilder = new URIBuilder(baseUrl);
+      parameters.forEach(uriBuilder::addParameter);
+      return uriBuilder.build().toURL().toString();
+    } catch (URISyntaxException | MalformedURLException e) {
+      return null;
+    }
   }
 
   @VisibleForTesting

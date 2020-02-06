@@ -13,10 +13,7 @@
  */
 package ddf.catalog.plugin;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.util.Map;
-import org.apache.http.client.utils.URIBuilder;
 
 /** Exception thrown when an user doesn't have the appropriate OAuth tokens to federate */
 public class OAuthPluginException extends RuntimeException {
@@ -47,23 +44,17 @@ public class OAuthPluginException extends RuntimeException {
   }
 
   public OAuthPluginException(
-      String sourceId, String baseUrl, Map<String, String> parameters, ErrorType errorType) {
+      String sourceId,
+      String url,
+      String baseUrl,
+      Map<String, String> parameters,
+      ErrorType errorType) {
     super();
     this.sourceId = sourceId;
+    this.url = url;
     this.baseUrl = baseUrl;
     this.parameters = parameters;
-    this.url = buildUrl(baseUrl, parameters);
     this.errorType = errorType;
-  }
-
-  private String buildUrl(String baseUrl, Map<String, String> parameters) {
-    try {
-      URIBuilder uriBuilder = new URIBuilder(baseUrl);
-      parameters.forEach(uriBuilder::addParameter);
-      return uriBuilder.build().toURL().toString();
-    } catch (URISyntaxException | MalformedURLException e) {
-      return null;
-    }
   }
 
   public String getSourceId() {
