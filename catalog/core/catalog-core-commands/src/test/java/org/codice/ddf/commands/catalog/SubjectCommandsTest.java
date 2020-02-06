@@ -29,7 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 import org.apache.karaf.shell.api.console.Session;
 import org.apache.shiro.subject.ExecutionException;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -153,8 +153,8 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
   private class SubjectCommandsUnderTest extends SubjectCommands {
 
     SubjectCommandsUnderTest() {
-      super(security);
       this.session = SubjectCommandsTest.this.session;
+      this.security = SubjectCommandsTest.this.security;
     }
 
     @Override

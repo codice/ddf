@@ -128,10 +128,6 @@
             <artifactId>security-rest-cxfwrapper</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
@@ -198,7 +194,6 @@
                             spatial-csw-common,
                             spatial-csw-transformer,
                             catalog-core-api-impl,
-                            ddf-security-common,
                             geospatial,
                             commons-lang3
                         </Embed-Dependency>

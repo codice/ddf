@@ -20,6 +20,7 @@ import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
+import org.codice.ddf.security.impl.Security;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
 import org.junit.Before;
@@ -46,7 +47,7 @@ public class IndexInitializerTest {
     GeoEntryExtractor extractor = mock(GeoEntryExtractor.class);
     indexer = mock(GeoEntryIndexer.class);
     executor = mock(ExecutorService.class);
-    indexInitializer = new IndexInitializer();
+    indexInitializer = new IndexInitializer(new Security());
     indexInitializer.setExecutor(executor);
     indexInitializer.setExtractor(extractor);
     indexInitializer.setIndexer(indexer);

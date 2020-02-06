@@ -18,7 +18,7 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.karaf.shell.api.console.Session;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.osgi.service.event.EventAdmin;
 
 /** Command class used to export the system configuration and data. */
@@ -31,7 +31,9 @@ import org.osgi.service.event.EventAdmin;
 )
 public class DecryptCommand extends MigrationCommand {
 
-  public DecryptCommand() {}
+  public DecryptCommand(Security security) {
+    super(security);
+  }
 
   @VisibleForTesting
   DecryptCommand(

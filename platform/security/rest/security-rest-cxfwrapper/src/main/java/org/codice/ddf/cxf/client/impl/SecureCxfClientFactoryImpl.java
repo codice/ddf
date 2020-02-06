@@ -79,6 +79,7 @@ import org.codice.ddf.cxf.oauth.OAuthOutInterceptor;
 import org.codice.ddf.cxf.oauth.OAuthSecurity;
 import org.codice.ddf.cxf.paos.PaosInInterceptor;
 import org.codice.ddf.cxf.paos.PaosOutInterceptor;
+import org.codice.ddf.security.jaxrs.RestSecurity;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.slf4j.Logger;
@@ -149,6 +150,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
 
   private OAuthSecurity oauthSecurity = null;
 
+  private RestSecurity restSecurity;
+
   static {
     OpenSAMLUtil.initSamlEngine();
     XMLObjectProviderRegistry xmlObjectProviderRegistry =
@@ -168,13 +171,29 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
   /**
    * @see #SecureCxfClientFactoryImpl(String, Class, java.util.List, Interceptor, boolean, boolean)
    */
-  public SecureCxfClientFactoryImpl(String endpointUrl, Class<T> interfaceClass) {
-    this(endpointUrl, interfaceClass, null, null, false, false);
+  public SecureCxfClientFactoryImpl(
+      String endpointUrl, Class<T> interfaceClass, RestSecurity restSecurity) {
+    this(endpointUrl, interfaceClass, null, null, false, false, restSecurity);
   }
 
   public SecureCxfClientFactoryImpl(
-      String endpointUrl, Class<T> interfaceClass, String username, String password) {
-    this(endpointUrl, interfaceClass, null, null, false, false, null, null, username, password);
+      String endpointUrl,
+      Class<T> interfaceClass,
+      String username,
+      String password,
+      RestSecurity restSecurity) {
+    this(
+        endpointUrl,
+        interfaceClass,
+        null,
+        null,
+        false,
+        false,
+        null,
+        null,
+        username,
+        password,
+        restSecurity);
   }
 
   public SecureCxfClientFactoryImpl(
@@ -185,7 +204,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       String clientId,
       String clientSecret,
       String oauthFlow,
-      OAuthSecurity oauthSecurity) {
+      OAuthSecurity oauthSecurity,
+      RestSecurity restSecurity) {
     this(
         endpointUrl,
         interfaceClass,
@@ -200,24 +220,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         clientId,
         clientSecret,
         oauthFlow,
-        oauthSecurity);
-  }
-
-  public SecureCxfClientFactoryImpl(
-      String endpointUrl,
-      Class<T> interfaceClass,
-      List<?> providers,
-      Interceptor<? extends Message> interceptor,
-      boolean disableCnCheck,
-      boolean allowRedirects) {
-    this(
-        endpointUrl,
-        interfaceClass,
-        providers,
-        interceptor,
-        disableCnCheck,
-        allowRedirects,
-        new PropertyResolver(endpointUrl));
+        oauthSecurity,
+        restSecurity);
   }
 
   public SecureCxfClientFactoryImpl(
@@ -227,7 +231,27 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       Interceptor<? extends Message> interceptor,
       boolean disableCnCheck,
       boolean allowRedirects,
-      PropertyResolver propertyResolver) {
+      RestSecurity restSecurity) {
+    this(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        new PropertyResolver(endpointUrl),
+        restSecurity);
+  }
+
+  public SecureCxfClientFactoryImpl(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      List<?> providers,
+      Interceptor<? extends Message> interceptor,
+      boolean disableCnCheck,
+      boolean allowRedirects,
+      PropertyResolver propertyResolver,
+      RestSecurity restSecurity) {
     this(
         endpointUrl,
         interfaceClass,
@@ -236,7 +260,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         disableCnCheck,
         allowRedirects,
         propertyResolver,
-        false);
+        false,
+        restSecurity);
   }
 
   /**
@@ -262,7 +287,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       boolean disableCnCheck,
       boolean allowRedirects,
       PropertyResolver propertyResolver,
-      boolean useOauth) {
+      boolean useOauth,
+      RestSecurity restSecurity) {
     if (StringUtils.isEmpty(endpointUrl) || interfaceClass == null) {
       throw new IllegalArgumentException(
           "Called without a valid URL, will not be able to connect.");
@@ -292,7 +318,9 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
             .getOutInterceptors()
             .add(new OAuthOutInterceptor(Phase.PRE_PROTOCOL));
       } else {
-        jaxrsClientFactoryBean.getInInterceptors().add(new PaosInInterceptor(Phase.RECEIVE));
+        jaxrsClientFactoryBean
+            .getInInterceptors()
+            .add(new PaosInInterceptor(Phase.RECEIVE, restSecurity));
         jaxrsClientFactoryBean.getOutInterceptors().add(new PaosOutInterceptor(Phase.POST_LOGICAL));
       }
     }
@@ -307,6 +335,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
 
     this.useOauth = useOauth;
     this.clientFactory = jaxrsClientFactoryBean;
+    this.restSecurity = restSecurity;
   }
 
   /**
@@ -334,9 +363,17 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       boolean disableCnCheck,
       boolean allowRedirects,
       Integer connectionTimeout,
-      Integer receiveTimeout) {
+      Integer receiveTimeout,
+      RestSecurity restSecurity) {
 
-    this(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck, allowRedirects);
+    this(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        restSecurity);
 
     this.connectionTimeout = connectionTimeout;
 
@@ -380,7 +417,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       String clientId,
       String clientSecret,
       String oauthFlow,
-      OAuthSecurity oauthSecurity) {
+      OAuthSecurity oauthSecurity,
+      RestSecurity restSecurity) {
 
     this(
         endpointUrl,
@@ -390,7 +428,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         disableCnCheck,
         allowRedirects,
         new PropertyResolver(endpointUrl),
-        true);
+        true,
+        restSecurity);
 
     this.connectionTimeout = connectionTimeout;
     this.receiveTimeout = receiveTimeout;
@@ -400,6 +439,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     this.clientSecret = clientSecret;
     this.oauthFlow = oauthFlow;
     this.oauthSecurity = oauthSecurity;
+    this.restSecurity = restSecurity;
   }
 
   /**
@@ -443,7 +483,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       String username,
       String password,
       Map<String, String> additionalOauthParameters,
-      OAuthSecurity oauthSecurity) {
+      OAuthSecurity oauthSecurity,
+      RestSecurity restSecurity) {
     this(
         endpointUrl,
         interfaceClass,
@@ -452,7 +493,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         disableCnCheck,
         allowRedirects,
         new PropertyResolver(endpointUrl),
-        true);
+        true,
+        restSecurity);
 
     this.sourceId = sourceId;
     this.discoveryUrl = discoveryUrl;
@@ -463,6 +505,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     this.clientFactory.setPassword(password);
     this.additionalOauthParameters = additionalOauthParameters;
     this.oauthSecurity = oauthSecurity;
+    this.restSecurity = restSecurity;
   }
 
   /**
@@ -494,9 +537,17 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       Integer connectionTimeout,
       Integer receiveTimeout,
       ClientKeyInfo keyInfo,
-      String sslProtocol) {
+      String sslProtocol,
+      RestSecurity restSecurity) {
 
-    this(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck, allowRedirects);
+    this(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        restSecurity);
 
     this.connectionTimeout = connectionTimeout;
 
@@ -538,7 +589,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       Integer connectionTimeout,
       Integer receiveTimeout,
       String username,
-      String password) {
+      String password,
+      RestSecurity restSecurity) {
 
     this(
         endpointUrl,
@@ -548,7 +600,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         disableCnCheck,
         allowRedirects,
         connectionTimeout,
-        receiveTimeout);
+        receiveTimeout,
+        restSecurity);
 
     this.clientFactory.setPassword(password);
     this.clientFactory.setUsername(username);

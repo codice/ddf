@@ -37,7 +37,7 @@ import org.apache.solr.client.solrj.response.SolrPingResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.codice.solr.client.solrj.SolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -105,7 +105,7 @@ public class ReindexCommandTest extends SolrCommandTest {
     command.setCollection("catalog");
     command.setSolrHost("http://localhost:8994/solr");
     command.setCatalogFramework(catalogFramework);
-    command.setSecurity(security);
+    command.security = security;
     command.execute();
 
     verify(catalogFramework, times(1)).create(any(CreateRequest.class));

@@ -22,17 +22,18 @@ import java.lang.reflect.Method;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 import org.apache.shiro.subject.Subject;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 
 /** Runs the ServiceManager methods as the system subject */
 public class ServiceManagerProxy implements InvocationHandler {
 
-  private static final Security SECURITY = Security.getInstance();
+  private Security security;
 
   private ServiceManager serviceManager;
 
-  ServiceManagerProxy(ServiceManager serviceManager) {
+  ServiceManagerProxy(ServiceManager serviceManager, Security security) {
     this.serviceManager = serviceManager;
+    this.security = security;
   }
 
   @Override
@@ -47,7 +48,7 @@ public class ServiceManagerProxy implements InvocationHandler {
     RetryPolicy retryPolicy =
         new RetryPolicy().withMaxRetries(10).withDelay(1, SECONDS).retryWhen(null);
     Subject subject =
-        Failsafe.with(retryPolicy).get(() -> SECURITY.runAsAdmin(SECURITY::getSystemSubject));
+        Failsafe.with(retryPolicy).get(() -> security.runAsAdmin(security::getSystemSubject));
     return subject.execute(() -> method.invoke(serviceManager, args));
   }
 }

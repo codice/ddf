@@ -57,7 +57,7 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
-import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.codice.ddf.security.jaxrs.RestSecurity;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.IDPEntry;
@@ -113,7 +113,9 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
 
   private String usernameToken;
 
-  public PaosInInterceptor(String phase) {
+  private RestSecurity restSecurity;
+
+  public PaosInInterceptor(String phase, RestSecurity restSecurity) {
     super(phase);
     try (InputStream soapMessageStream =
             PaosInInterceptor.class.getResourceAsStream("/templates/soap.handlebars");
@@ -127,6 +129,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
       soapfaultMessage = IOUtils.toString(soapfaultMessageStream);
       securityHeader = IOUtils.toString(securityHeaderStream);
       usernameToken = IOUtils.toString(userTokenStream);
+      this.restSecurity = restSecurity;
     } catch (IOException e) {
       LOGGER.info("Unable to load templates for PAOS");
     }
@@ -301,7 +304,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
           }
         }
       } else if (StringUtils.startsWithIgnoreCase(authorization, SAML)) {
-        token = RestSecurity.inflateBase64(authorization.split("\\s")[1]);
+        token = restSecurity.inflateBase64(authorization.split("\\s")[1]);
       }
     }
     return token;

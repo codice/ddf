@@ -36,6 +36,7 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.SecurityConstants;
+import ddf.security.service.SecurityManager;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -55,6 +56,7 @@ import net.opengis.cat.csw.v_2_0_2.SearchResultsType;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
@@ -135,6 +137,10 @@ public class CswSubscriptionEndpointTest {
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private ClientFactoryFactory clientFactoryFactory;
+
+  private Security security;
+
+  private SecurityManager securityManager;
 
   @Before
   public void setUp() throws Exception {
@@ -217,7 +223,12 @@ public class CswSubscriptionEndpointTest {
     defaultRequest = createDefaultGetRecordsRequest();
     subscription =
         new CswSubscription(
-            mockMimeTypeManager, defaultRequest.get202RecordsType(), query, clientFactoryFactory);
+            mockMimeTypeManager,
+            defaultRequest.get202RecordsType(),
+            query,
+            clientFactoryFactory,
+            security,
+            securityManager);
 
     when(osgiFilter.toString()).thenReturn(FILTER_STR);
     doReturn(serviceRegistration)
@@ -247,7 +258,9 @@ public class CswSubscriptionEndpointTest {
             validator,
             queryFactory,
             mockContext,
-            clientFactoryFactory);
+            clientFactoryFactory,
+            security,
+            securityManager);
   }
 
   @Test
@@ -495,7 +508,9 @@ public class CswSubscriptionEndpointTest {
         Validator validator,
         CswQueryFactory queryFactory,
         BundleContext context,
-        ClientFactoryFactory clientFactoryFactory) {
+        ClientFactoryFactory clientFactoryFactory,
+        Security security,
+        SecurityManager securityManager) {
       super(
           eventProcessor,
           mimeTypeTransformerManager,
@@ -503,7 +518,9 @@ public class CswSubscriptionEndpointTest {
           inputTransformerManager,
           validator,
           queryFactory,
-          clientFactoryFactory);
+          clientFactoryFactory,
+          security,
+          securityManager);
       this.bundleContext = context;
     }
 

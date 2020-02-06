@@ -136,11 +136,6 @@
             </dependency>
 
             <dependency>
-                <groupId>ddf.security</groupId>
-                <artifactId>ddf-security-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>ddf.security.handler</groupId>
                 <artifactId>security-handler-api</artifactId>
                 <version>${project.version}</version>
@@ -204,7 +199,6 @@
         <module>security-saml-util</module>
         <module>encryption</module>
         <module>expansion</module>
-        <module>common</module>
         <module>core</module>
         <module>policy</module>
         <module>claims</module>

@@ -78,7 +78,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import org.apache.shiro.subject.ExecutionException;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

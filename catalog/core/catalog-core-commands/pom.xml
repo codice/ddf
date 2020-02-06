@@ -37,11 +37,6 @@
             <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
@@ -133,8 +128,7 @@
                             joda-time;scope=runtime|compile,
                             joda-convert;scope=runtime|compile,
                             catalog-core-api-impl,
-                            catalog-transformer-zip,
-                            ddf-security-common
+                            catalog-transformer-zip
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Private-Package>

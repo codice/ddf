@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -20,6 +21,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
@@ -29,17 +31,26 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.ValidationException;
+import ddf.security.Subject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
+import org.apache.karaf.shell.api.console.Session;
 import org.codice.ddf.commands.catalog.validation.ValidatePrinter;
+import org.codice.ddf.security.Security;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ValidateCommandTest {
 
   @Rule public TemporaryFolder testFolder = new TemporaryFolder();
@@ -53,6 +64,12 @@ public class ValidateCommandTest {
   CatalogFramework mockCatalog = mock(CatalogFramework.class);
 
   ValidatePrinter mockPrinter = mock(ValidatePrinter.class);
+
+  @Mock Subject subject;
+
+  @Mock Security security;
+
+  @Mock Session session;
 
   @Before
   public void setup() throws Exception {
@@ -85,8 +102,15 @@ public class ValidateCommandTest {
         .validate(anyObject());
 
     // mock out catalog
-    validateCommand = new ValidateCommand(mockPrinter);
+    validateCommand = new ValidateCommandUnderTest(mockPrinter);
     validateCommand.catalogFramework = mockCatalog;
+
+    when(security.getSystemSubject()).thenReturn(subject);
+    when(subject.execute(any(Callable.class))).thenAnswer(this::executeCommand);
+  }
+
+  private Object executeCommand(InvocationOnMock invocationOnMock) throws Throwable {
+    return ((Callable) invocationOnMock.getArguments()[0]).call();
   }
 
   // test having no validators
@@ -239,5 +263,14 @@ public class ValidateCommandTest {
 
     validateCommand.executeWithSubject();
     verify(mockPrinter).printSummary(1, 1);
+  }
+
+  private class ValidateCommandUnderTest extends ValidateCommand {
+
+    ValidateCommandUnderTest(ValidatePrinter printer) {
+      super(printer);
+      this.session = ValidateCommandTest.this.session;
+      this.security = ValidateCommandTest.this.security;
+    }
   }
 }

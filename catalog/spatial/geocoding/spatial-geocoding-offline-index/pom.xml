@@ -26,10 +26,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
@@ -75,6 +71,10 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
@@ -89,6 +89,12 @@
             <!-- Bug in dependency-plugin 3.0.2 requires using classifier for test-jars instead of type.
                 See: https://issues.apache.org/jira/browse/MDEP-587 -->
             <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-services</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -106,8 +112,7 @@
                             catalog-core-api-impl,
                             jts-core,
                             spatial-geocoding-api-impl,
-                            spatial4j,
-                            ddf-security-common
+                            spatial4j
                         </Embed-Dependency>
                         <Import-Package>
                             !com.fasterxml.jackson*,

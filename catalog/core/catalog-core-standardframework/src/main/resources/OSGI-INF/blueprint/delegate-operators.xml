@@ -16,6 +16,8 @@
         xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
         xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
+    <reference id="security" interface="org.codice.ddf.security.Security" />
+
     <bean id="historian" class="ddf.catalog.history.Historian" init-method="init">
         <cm:managed-properties persistent-id="ddf.catalog.history.Historian"
                                update-strategy="container-managed"/>
@@ -27,6 +29,7 @@
         <property name="metacardTypes">
             <reference-list interface="ddf.catalog.data.MetacardType"/>
         </property>
+        <property name="security" ref="security" />
     </bean>
 
     <service interface="ddf.catalog.configuration.HistorianConfiguration">

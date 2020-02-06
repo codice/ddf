@@ -118,7 +118,7 @@ import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
@@ -202,7 +202,6 @@ public abstract class AbstractCswSource extends MaskableImpl
   private static final String OCTET_STREAM_OUTPUT_SCHEMA =
       "http://www.iana.org/assignments/media-types/application/octet-stream";
   private static final String ERROR_ID_PRODUCT_RETRIEVAL = "Error retrieving resource for ID: %s";
-  private static final Security SECURITY = Security.getInstance();
   private static Properties describableProperties = new Properties();
   private static Map<String, Consumer<Object>> consumerMap = new HashMap<>();
 
@@ -214,6 +213,8 @@ public abstract class AbstractCswSource extends MaskableImpl
       LOGGER.info("Failed to load properties", e);
     }
   }
+
+  private Security security;
 
   protected final ClientFactoryFactory clientFactoryFactory;
 
@@ -263,42 +264,31 @@ public abstract class AbstractCswSource extends MaskableImpl
       CswSourceConfiguration cswSourceConfiguration,
       Converter provider,
       ClientFactoryFactory clientFactoryFactory,
-      EncryptionService encryptionService) {
+      EncryptionService encryptionService,
+      Security security) {
     this.encryptionService = encryptionService;
     this.context = context;
     this.cswSourceConfiguration = cswSourceConfiguration;
+    this.security = security;
+    this.clientFactoryFactory = clientFactoryFactory;
     scheduler =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
-    this.clientFactoryFactory = clientFactoryFactory;
     setConsumerMap();
-  }
-
-  /** @deprecated */
-  @Deprecated
-  public AbstractCswSource(
-      BundleContext context,
-      CswSourceConfiguration cswSourceConfiguration,
-      Converter provider,
-      ClientFactoryFactory clientFactoryFactory) {
-    this(context, cswSourceConfiguration, provider, clientFactoryFactory, null);
   }
 
   /** Instantiates a CswSource. */
   public AbstractCswSource(
-      EncryptionService encryptionService, ClientFactoryFactory clientFactoryFactory) {
+      EncryptionService encryptionService,
+      ClientFactoryFactory clientFactoryFactory,
+      Security security) {
     this.encryptionService = encryptionService;
     cswSourceConfiguration = new CswSourceConfiguration(encryptionService);
     scheduler =
         Executors.newSingleThreadScheduledExecutor(
             StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
     this.clientFactoryFactory = clientFactoryFactory;
-  }
-
-  /** @deprecated */
-  @Deprecated
-  public AbstractCswSource() {
-    this(null, null);
+    this.security = security;
   }
 
   private static JAXBContext initJaxbContext() {
@@ -1527,7 +1517,7 @@ public abstract class AbstractCswSource extends MaskableImpl
   }
 
   protected Subject getSystemSubject() {
-    return SECURITY.runAsAdmin(SECURITY::getSystemSubject);
+    return security.runAsAdmin(security::getSystemSubject);
   }
 
   public void configureCswSource() {

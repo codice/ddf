@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.AbstractCswSource;
 import org.osgi.framework.BundleContext;
@@ -29,13 +30,22 @@ public class CswSourceImpl extends AbstractCswSource {
       CswSourceConfiguration cswSourceConfiguration,
       Converter provider,
       ClientFactoryFactory clientFactoryFactory,
-      EncryptionService encryptionService) {
-    super(context, cswSourceConfiguration, provider, clientFactoryFactory, encryptionService);
+      EncryptionService encryptionService,
+      Security security) {
+    super(
+        context,
+        cswSourceConfiguration,
+        provider,
+        clientFactoryFactory,
+        encryptionService,
+        security);
   }
 
   public CswSourceImpl(
-      EncryptionService encryptionService, ClientFactoryFactory clientFactoryFactory) {
-    super(encryptionService, clientFactoryFactory);
+      EncryptionService encryptionService,
+      ClientFactoryFactory clientFactoryFactory,
+      Security security) {
+    super(encryptionService, clientFactoryFactory, security);
   }
 
   @Override

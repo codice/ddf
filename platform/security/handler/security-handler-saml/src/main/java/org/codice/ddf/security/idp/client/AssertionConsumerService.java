@@ -69,11 +69,11 @@ import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.SecurityFilter;
-import org.codice.ddf.security.common.HttpUtils;
-import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.codice.ddf.platform.util.HttpUtils;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
+import org.codice.ddf.security.jaxrs.RestSecurity;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.opensaml.core.xml.XMLObject;
@@ -121,6 +121,8 @@ public class AssertionConsumerService {
     OpenSAMLUtil.initSamlEngine();
   }
 
+  private RestSecurity restSecurity;
+
   public AssertionConsumerService(
       SimpleSign simpleSign,
       IdpMetadata metadata,
@@ -139,7 +141,7 @@ public class AssertionConsumerService {
       @FormParam(SAML_RESPONSE) String encodedSamlResponse,
       @FormParam(RELAY_STATE) String relayState) {
 
-    return processSamlResponse(RestSecurity.base64Decode(encodedSamlResponse), relayState, false);
+    return processSamlResponse(restSecurity.base64Decode(encodedSamlResponse), relayState, false);
   }
 
   @POST
@@ -221,7 +223,7 @@ public class AssertionConsumerService {
 
     try {
       return processSamlResponse(
-          RestSecurity.inflateBase64(deflatedSamlResponse), relayState, signature != null);
+          restSecurity.inflateBase64(deflatedSamlResponse), relayState, signature != null);
 
     } catch (IOException e) {
       String msg = "Unable to decode and inflate AuthN response.";
@@ -474,5 +476,9 @@ public class AssertionConsumerService {
 
   public void setContextPolicyManager(ContextPolicyManager contextPolicyManager) {
     this.contextPolicyManager = contextPolicyManager;
+  }
+
+  public void setRestSecurity(RestSecurity restSecurity) {
+    this.restSecurity = restSecurity;
   }
 }

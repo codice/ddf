@@ -24,12 +24,13 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-api-impl</artifactId>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

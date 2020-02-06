@@ -39,7 +39,7 @@ import org.apache.camel.model.ThreadsDefinition;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.util.ThreadContext;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +63,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private static final int MIN_READLOCK_INTERVAL_MILLISECONDS = 100;
 
-  private static final Security SECURITY = Security.getInstance();
+  private Security security;
 
   private final int maxRetries;
 
@@ -91,7 +91,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   private Integer readLockIntervalMilliseconds;
 
-  Processor systemSubjectBinder = new SystemSubjectBinder();
+  Processor systemSubjectBinder;
 
   /**
    * Constructs a monitor that uses the given RetryPolicy while waiting for the content scheme, and
@@ -111,12 +111,15 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       AttributeRegistry attributeRegistry,
       int maxRetries,
       int delayBetweenRetries,
-      Executor configurationExecutor) {
+      Executor configurationExecutor,
+      Security security) {
     this.camelContext = camelContext;
     this.attributeRegistry = attributeRegistry;
     this.maxRetries = maxRetries;
     this.delayBetweenRetries = delayBetweenRetries;
     this.configurationExecutor = configurationExecutor;
+    this.security = security;
+    systemSubjectBinder = new SystemSubjectBinder(security);
     setBlacklist();
   }
 
@@ -169,7 +172,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
    * called whenever an existing route is updated.
    */
   public void init() {
-    SECURITY.runAsAdmin(
+    security.runAsAdmin(
         () -> {
           CompletableFuture.runAsync(this::configure, configurationExecutor);
           return null;
@@ -436,6 +439,12 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
 
   public static class SystemSubjectBinder implements Processor {
 
+    private Security security;
+
+    public SystemSubjectBinder(Security security) {
+      this.security = security;
+    }
+
     /**
      * Adds the system subject to the {@link ThreadContext} to allow proper authentication with the
      * catalog framework.
@@ -444,7 +453,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
      */
     @Override
     public void process(Exchange exchange) {
-      ThreadContext.bind(SECURITY.getSystemSubject());
+      ThreadContext.bind(security.getSystemSubject());
     }
   }
 }

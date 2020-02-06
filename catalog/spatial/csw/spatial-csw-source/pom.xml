@@ -33,10 +33,6 @@
             <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
         </dependency>
@@ -204,7 +200,6 @@
                             catalog-core-api-impl,
                             commons-collections4,
                             ogc-tools-gml-jts,
-                            ddf-security-common,
                             jaxb2-basics-runtime,
                             commons-lang3,
                             geospatial

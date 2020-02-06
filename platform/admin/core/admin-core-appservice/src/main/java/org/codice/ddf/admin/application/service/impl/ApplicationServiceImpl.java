@@ -43,7 +43,7 @@ import org.codice.ddf.admin.application.rest.model.FeatureDetails;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.migratable.JsonUtils;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -71,8 +71,11 @@ public class ApplicationServiceImpl implements ApplicationService {
   private static final Path APPLICATION_DEFINITIONS_FOLDER =
       Paths.get("etc", "application-definitions");
 
-  public ApplicationServiceImpl(FeaturesService featuresService) {
+  private final Security security;
+
+  public ApplicationServiceImpl(FeaturesService featuresService, Security security) {
     this.featuresService = featuresService;
+    this.security = security;
   }
 
   @Override
@@ -178,8 +181,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             "view-feature.name",
             new KeyValuePermission("feature.name", Sets.newHashSet(featureName)));
     try {
-      return Security.getInstance()
-          .runWithSubjectOrElevate(() -> SecurityUtils.getSubject().isPermitted(serviceToCheck));
+      return security.runWithSubjectOrElevate(
+          () -> SecurityUtils.getSubject().isPermitted(serviceToCheck));
     } catch (SecurityServiceException | InvocationTargetException e) {
       LOGGER.warn("Failed to elevate subject", e);
       return false;

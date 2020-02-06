@@ -29,6 +29,7 @@ import java.util.concurrent.Callable;
 import org.apache.karaf.shell.api.console.Session;
 import org.apache.karaf.shell.api.console.SessionFactory;
 import org.apache.shiro.subject.ExecutionException;
+import org.codice.ddf.security.impl.Security;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.quartz.JobDataMap;
@@ -47,7 +48,7 @@ public class CommandJobTest {
   @Test
   public void testNullCommand() {
     // given
-    CommandJob commandJob = new CommandJob();
+    CommandJob commandJob = new CommandJob(new Security());
 
     String command = null;
 
@@ -59,7 +60,7 @@ public class CommandJobTest {
   @Test
   public void testEmptyCommand() {
     // given
-    CommandJob commandJob = new CommandJob();
+    CommandJob commandJob = new CommandJob(new Security());
 
     String command = "";
 
@@ -75,7 +76,7 @@ public class CommandJobTest {
     when(session.execute(isA(CharSequence.class))).then(captureInput);
 
     CommandJob commandJob =
-        new CommandJob() {
+        new CommandJob(new Security()) {
           @Override
           public Subject getSystemSubject() {
             return createMockSubject();
@@ -106,7 +107,7 @@ public class CommandJobTest {
   @Test
   public void testNullContext() {
     // given
-    CommandJob commandJob = new CommandJob();
+    CommandJob commandJob = new CommandJob(new Security());
 
     // when
     commandJob.execute(null);
@@ -119,7 +120,7 @@ public class CommandJobTest {
   @Test
   public void testNullMergedJobDataMap() {
     // given
-    CommandJob commandJob = new CommandJob();
+    CommandJob commandJob = new CommandJob(new Security());
 
     JobExecutionContext jobExecutionContext = mock(JobExecutionContext.class);
     when(jobExecutionContext.getMergedJobDataMap()).thenReturn(null);
@@ -133,7 +134,7 @@ public class CommandJobTest {
   public void testUnableToGetSessionFactory() {
     // given
     CommandJob commandJob =
-        new CommandJob() {
+        new CommandJob(new Security()) {
           @Override
           public Subject getSystemSubject() {
             return createMockSubject();
@@ -160,7 +161,7 @@ public class CommandJobTest {
   public void testUnableToGetSystemSubject() {
     // given
     CommandJob commandJob =
-        new CommandJob() {
+        new CommandJob(new Security()) {
           @Override
           public Subject getSystemSubject() {
             return null;
@@ -175,14 +176,14 @@ public class CommandJobTest {
 
   /**
    * Tests that there is no exception when {@link
-   * org.codice.ddf.security.common.Security#getSystemSubject()} fails. This might happen when the
-   * system is very slow to start up where not all of the required security bundles are started yet.
+   * org.codice.ddf.security.Security#getSystemSubject()} fails. This might happen when the system
+   * is very slow to start up where not all of the required security bundles are started yet.
    */
   @Test
   public void testExceptionGettingSystemSubject() {
     // given
     CommandJob commandJob =
-        new CommandJob() {
+        new CommandJob(new Security()) {
           @Override
           public Subject getSystemSubject() {
             throw new RuntimeException();
@@ -200,7 +201,7 @@ public class CommandJobTest {
   public void testUnableToExecuteWithSubject() {
     // given
     CommandJob commandJob =
-        new CommandJob() {
+        new CommandJob(new Security()) {
           @Override
           public Subject getSystemSubject() {
             Subject subject = mock(Subject.class);

@@ -55,8 +55,11 @@
         </service-properties>
     </service>
 
+    <reference id="security" interface="org.codice.ddf.security.Security" />
+
     <bean id="indexInitializer" class="org.codice.ddf.spatial.geocoding.index.IndexInitializer"
         init-method="init" destroy-method="destroy">
+        <argument ref="security" />
         <property name="defaultGeoNamesDataPath" value="${ddf.data}/default_geonames_data.zip"/>
         <property name="indexer" ref="geonamesIndexer"/>
         <property name="extractor" ref="geoExtractor"/>

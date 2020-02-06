@@ -132,6 +132,11 @@
             <artifactId>test-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-services</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -195,7 +200,8 @@
                             admin-core-impl,
                             catalog-core-api-impl,
                             common,
-                            pax-exam-container-karaf
+                            pax-exam-container-karaf,
+                            security-core-services
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
@@ -224,7 +230,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>3_MB</maxArtifactSize>
+                                    <maxArtifactSize>4_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

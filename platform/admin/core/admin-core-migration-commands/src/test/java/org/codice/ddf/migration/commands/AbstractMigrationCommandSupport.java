@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import org.apache.karaf.shell.api.console.Session;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.codice.ddf.system.alerts.NoticePriority;
 import org.codice.ddf.system.alerts.SystemNotice;
 import org.fusesource.jansi.Ansi;

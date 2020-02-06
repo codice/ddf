@@ -41,7 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang.Validate;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.geocoding.FeatureExtractionException;
 import org.codice.ddf.spatial.geocoding.FeatureExtractor;
 import org.codice.ddf.spatial.geocoding.FeatureIndexer;
@@ -58,7 +58,7 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
   public static final String GEO_ENTRY_METACARD_TYPE_MISSING_ERROR_MSG =
       "GeoEntryMetacardType not available. Make sure offline-gazetteer-index feature is installed.";
 
-  private Security security = Security.getInstance();
+  private Security security;
 
   private CatalogFramework catalogFramework;
 
@@ -73,10 +73,12 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
   public CatalogFeatureIndexer(
       CatalogFramework catalogFramework,
       CatalogHelper catalogHelper,
-      List<MetacardType> metacardTypes) {
+      List<MetacardType> metacardTypes,
+      Security security) {
     this.catalogFramework = catalogFramework;
     this.catalogHelper = catalogHelper;
     this.metacardTypes = metacardTypes;
+    this.security = security;
   }
 
   @Override

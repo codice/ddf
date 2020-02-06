@@ -53,6 +53,7 @@ import org.codice.ddf.cxf.client.impl.SecureCxfClientFactoryImpl;
 import org.codice.ddf.cxf.client.impl.SecureCxfClientFactoryImpl.AliasSelectorKeyManager;
 import org.codice.ddf.cxf.paos.PaosInInterceptor;
 import org.codice.ddf.cxf.paos.PaosOutInterceptor;
+import org.codice.ddf.security.jaxrs.impl.RestSecurity;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -70,6 +71,8 @@ public class SecureCxfClientFactoryTest {
   File systemTruststoreFile = null;
 
   String password = "changeit";
+
+  private RestSecurity restSecurity = new RestSecurity();
 
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -102,28 +105,29 @@ public class SecureCxfClientFactoryTest {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory;
     boolean invalid = false;
     try { // test empty string for url
-      secureCxfClientFactory = new SecureCxfClientFactoryImpl<>("", IDummy.class);
+      secureCxfClientFactory = new SecureCxfClientFactoryImpl<>("", IDummy.class, restSecurity);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
     assertThat(invalid, is(true));
     invalid = false;
     try { // null for url
-      secureCxfClientFactory = new SecureCxfClientFactoryImpl<>(null, IDummy.class);
+      secureCxfClientFactory = new SecureCxfClientFactoryImpl<>(null, IDummy.class, restSecurity);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
     assertThat(invalid, is(true));
     invalid = false;
     try { // null for url and class
-      secureCxfClientFactory = new SecureCxfClientFactoryImpl<>(null, null);
+      secureCxfClientFactory = new SecureCxfClientFactoryImpl<>(null, null, restSecurity);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
     assertThat(invalid, is(true));
     invalid = false;
     try { // null for class
-      secureCxfClientFactory = new SecureCxfClientFactoryImpl<>(INSECURE_ENDPOINT, null);
+      secureCxfClientFactory =
+          new SecureCxfClientFactoryImpl<>(INSECURE_ENDPOINT, null, restSecurity);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
@@ -141,7 +145,8 @@ public class SecureCxfClientFactoryTest {
               0,
               0,
               new ClientKeyInfo("alias", "keystore"),
-              "TLSv1.1");
+              "TLSv1.1",
+              restSecurity);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
@@ -151,7 +156,7 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void testInsecureWebClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactoryImpl<>(INSECURE_ENDPOINT, IDummy.class);
+        new SecureCxfClientFactoryImpl<>(INSECURE_ENDPOINT, IDummy.class, restSecurity);
     WebClient client = secureCxfClientFactory.getWebClient();
 
     assertThat(hasEcpEnabled(client), is(false));
@@ -161,7 +166,7 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void testSecureClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactoryImpl<>(SECURE_ENDPOINT, IDummy.class);
+        new SecureCxfClientFactoryImpl<>(SECURE_ENDPOINT, IDummy.class, restSecurity);
     IDummy client = secureCxfClientFactory.getClient();
 
     assertThat(hasEcpEnabled(client), is(true));
@@ -170,7 +175,7 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void testSecureWebClient() {
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
-        new SecureCxfClientFactoryImpl<>(SECURE_ENDPOINT, IDummy.class);
+        new SecureCxfClientFactoryImpl<>(SECURE_ENDPOINT, IDummy.class, restSecurity);
     WebClient client = secureCxfClientFactory.getWebClient();
 
     assertThat(hasEcpEnabled(client), is(true));
@@ -180,7 +185,8 @@ public class SecureCxfClientFactoryTest {
   @Test
   public void validateConduit() {
     IDummy clientForSubject =
-        new SecureCxfClientFactoryImpl<>(SECURE_ENDPOINT, IDummy.class, null, null, true, true)
+        new SecureCxfClientFactoryImpl<>(
+                SECURE_ENDPOINT, IDummy.class, null, null, true, true, restSecurity)
             .getClient();
     HTTPConduit httpConduit =
         WebClient.getConfig(WebClient.client(clientForSubject)).getHttpConduit();
@@ -193,7 +199,14 @@ public class SecureCxfClientFactoryTest {
     when(mockPropertyResolver.getResolvedString()).thenReturn(SECURE_ENDPOINT);
     SecureCxfClientFactory<IDummy> secureCxfClientFactory =
         new SecureCxfClientFactoryImpl<>(
-            SECURE_ENDPOINT, IDummy.class, null, null, false, false, mockPropertyResolver);
+            SECURE_ENDPOINT,
+            IDummy.class,
+            null,
+            null,
+            false,
+            false,
+            mockPropertyResolver,
+            restSecurity);
     Client unsecuredClient = WebClient.client(secureCxfClientFactory.getClient());
     assertThat(unsecuredClient.getBaseURI().toASCIIString(), is(SECURE_ENDPOINT));
     verify(mockPropertyResolver).getResolvedString();

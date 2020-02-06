@@ -80,6 +80,7 @@ import net.opengis.filter.v_1_1_0.SortOrderType;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
+import org.codice.ddf.security.impl.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -1468,7 +1469,8 @@ public class CswSourceTest extends TestCswSourceBase {
             cswSourceConfiguration,
             mockProvider,
             clientFactoryFactory,
-            encryptionService);
+            encryptionService,
+            new Security());
     cswSource.setFilterAdapter(new GeotoolsFilterAdapterImpl());
     cswSource.setFilterBuilder(builder);
     cswSource.setContext(context);

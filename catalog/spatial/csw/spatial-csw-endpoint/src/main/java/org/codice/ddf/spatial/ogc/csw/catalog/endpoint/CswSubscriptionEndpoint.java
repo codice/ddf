@@ -20,6 +20,7 @@ import ddf.catalog.event.Subscription;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
+import ddf.security.service.SecurityManager;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -59,6 +60,7 @@ import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.util.TransformerProperties;
 import org.codice.ddf.platform.util.XMLUtils;
+import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
@@ -108,6 +110,10 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
   private Map<String, ServiceRegistration<Subscription>> registeredSubscriptions = new HashMap<>();
 
+  private Security security;
+
+  private SecurityManager securityManager;
+
   public CswSubscriptionEndpoint(
       EventProcessor eventProcessor,
       TransformerManager mimeTypeTransformerManager,
@@ -115,7 +121,9 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
       TransformerManager inputTransformerManager,
       Validator validator,
       CswQueryFactory queryFactory,
-      ClientFactoryFactory clientFactoryFactory) {
+      ClientFactoryFactory clientFactoryFactory,
+      Security security,
+      SecurityManager securityManager) {
     this.eventProcessor = eventProcessor;
     this.mimeTypeTransformerManager = mimeTypeTransformerManager;
     this.schemaTransformerManager = schemaTransformerManager;
@@ -123,6 +131,8 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     this.validator = validator;
     this.queryFactory = queryFactory;
     this.clientFactoryFactory = clientFactoryFactory;
+    this.security = security;
+    this.securityManager = securityManager;
 
     try {
       this.datatypeFactory = DatatypeFactory.newInstance();
@@ -413,9 +423,20 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     // if it is an empty query we need to create a filterless subscription
     if (((QueryType) request.getAbstractQuery().getValue()).getConstraint() == null) {
       return CswSubscription.getFilterlessSubscription(
-          mimeTypeTransformerManager, request, query, clientFactoryFactory);
+          mimeTypeTransformerManager,
+          request,
+          query,
+          clientFactoryFactory,
+          security,
+          securityManager);
     }
-    return new CswSubscription(mimeTypeTransformerManager, request, query, clientFactoryFactory);
+    return new CswSubscription(
+        mimeTypeTransformerManager,
+        request,
+        query,
+        clientFactoryFactory,
+        security,
+        securityManager);
   }
 
   public synchronized String addOrUpdateSubscription(

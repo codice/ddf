@@ -86,4 +86,12 @@
     <service id="subjectIdentity" ref="subjectIdentityImpl"
              interface="ddf.security.SubjectIdentity"/>
 
+    <bean id="security" class="org.codice.ddf.security.impl.Security" />
+
+    <service ref="security" interface="org.codice.ddf.security.Security" />
+
+    <bean id="restSecurity" class="org.codice.ddf.security.jaxrs.impl.RestSecurity" />
+
+    <service ref="restSecurity" interface="org.codice.ddf.security.jaxrs.RestSecurity" />
+
 </blueprint>

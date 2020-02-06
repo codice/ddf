@@ -65,6 +65,7 @@ import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.support.DelegatingSubject;
+import org.codice.ddf.security.impl.Security;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -119,7 +120,7 @@ public class FilterPluginTest {
     Subject systemSubject = new MockSubject(manager, principalCollection);
 
     plugin =
-        new FilterPlugin() {
+        new FilterPlugin(new Security()) {
           @Override
           protected Subject getSystemSubject() {
             return systemSubject;
@@ -203,7 +204,7 @@ public class FilterPluginTest {
 
   @Test
   public void testPluginFilterNoStrategies() {
-    plugin = new FilterPlugin();
+    plugin = new FilterPlugin(new Security());
     try {
       QueryResponse response = plugin.processPostQuery(incomingResponse);
       verifyFilterResponse(response);
@@ -219,7 +220,7 @@ public class FilterPluginTest {
 
   @Test
   public void testPluginFilterResourceNoStrategiesGood() throws StopProcessingException {
-    plugin = new FilterPlugin();
+    plugin = new FilterPlugin(new Security());
     plugin.processPostResource(resourceResponse, getExactRolesMetacard());
   }
 
@@ -246,7 +247,7 @@ public class FilterPluginTest {
 
   @Test(expected = StopProcessingException.class)
   public void testPluginFilterResourceNoStrategiesBad() throws StopProcessingException {
-    plugin = new FilterPlugin();
+    plugin = new FilterPlugin(new Security());
     plugin.processPostResource(resourceResponse, getMoreRolesMetacard());
   }
 
@@ -274,7 +275,7 @@ public class FilterPluginTest {
   @Test(expected = StopProcessingException.class)
   public void testNoRequestSubjectNoStrategies() throws Exception {
     QueryResponseImpl response = new QueryResponseImpl(null);
-    plugin = new FilterPlugin();
+    plugin = new FilterPlugin(new Security());
     plugin.processPostQuery(response);
     fail("Plugin should have thrown exception when no subject was sent in.");
   }

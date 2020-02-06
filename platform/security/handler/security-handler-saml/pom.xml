@@ -57,10 +57,6 @@
             <artifactId>cxf-rt-ws-security</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-api</artifactId>
         </dependency>
@@ -194,7 +190,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            ddf-security-common,
                             httpclient,
                             httpcore
                         </Embed-Dependency>

@@ -33,11 +33,6 @@
             <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-api</artifactId>
         </dependency>
@@ -137,7 +132,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            ddf-security-common,
                             siv-mode,
                             jbcrypt
                         </Embed-Dependency>

@@ -24,7 +24,10 @@
 
     <bean id="clientFactoryFactory" class="org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl">
         <property name="oauthSecurity" ref="oauthSecurity"/>
+        <property name="restSecurity" ref="restSecurity" />
     </bean>
 
     <service ref="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
+
+    <reference id="restSecurity" interface="org.codice.ddf.security.jaxrs.RestSecurity" />
 </blueprint>

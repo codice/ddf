@@ -77,7 +77,7 @@ public class ImportCommand extends CatalogCommands {
 
   @Reference private StorageProvider storageProvider;
 
-  private DigitalSignature verifier = new DigitalSignature();
+  private DigitalSignature verifier;
 
   @Argument(
     name = "Import File",
@@ -161,6 +161,9 @@ public class ImportCommand extends CatalogCommands {
 
       try (FileInputStream fileIs = new FileInputStream(file);
           FileInputStream sigFileIs = new FileInputStream(signatureFile)) {
+        if (verifier == null) {
+          verifier = new DigitalSignature(security);
+        }
         if (!verifier.verifyDigitalSignature(fileIs, sigFileIs, alias)) {
           throw new CatalogCommandRuntimeException("The provided data could not be verified");
         }

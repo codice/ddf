@@ -50,7 +50,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.CursorMarkParams;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.codice.solr.client.solrj.SolrClient;
 import org.codice.solr.factory.SolrClientFactory;
 
@@ -67,8 +67,6 @@ public class ReindexCommand extends SolrCommands {
   private static final int WRITE_TXN_SIZE = 100;
 
   @VisibleForTesting protected static final String EARLY_TIME = "1900-01-01T00:00:00.000Z";
-
-  private Security security = Security.getInstance();
 
   private String cursorMark = CursorMarkParams.CURSOR_MARK_START;
 
@@ -90,6 +88,8 @@ public class ReindexCommand extends SolrCommands {
   @Reference private CatalogFramework catalogFramework;
 
   @Reference private SolrClientFactory clientFactory;
+
+  @Reference Security security;
 
   @Option(
     name = "-s",
@@ -221,11 +221,6 @@ public class ReindexCommand extends SolrCommands {
   @VisibleForTesting
   protected void setCollection(String collection) {
     this.collection = collection;
-  }
-
-  @VisibleForTesting
-  protected void setSecurity(Security security) {
-    this.security = security;
   }
 
   @VisibleForTesting

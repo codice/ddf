@@ -15,8 +15,11 @@
 
     <ext:property-placeholder/>
 
+    <reference id="security" interface="org.codice.ddf.security.Security" />
+
     <bean id="appService" class="org.codice.ddf.admin.application.service.impl.ApplicationServiceImpl">
         <argument ref="featuresService"/>
+        <argument ref="security" />
     </bean>
 
     <service ref="appService"

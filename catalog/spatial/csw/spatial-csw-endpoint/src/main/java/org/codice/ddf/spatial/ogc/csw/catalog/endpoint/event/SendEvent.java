@@ -26,6 +26,7 @@ import ddf.catalog.plugin.AccessPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.service.SecurityManager;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -47,8 +48,7 @@ import net.opengis.cat.csw.v_2_0_2.ResultType;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
 import org.codice.ddf.cxf.client.SecureCxfClientFactory;
-import org.codice.ddf.security.common.OutgoingSubjectRetrievalInterceptor;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSubscribe;
@@ -99,7 +99,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
 
   private final Random random = new Random();
 
-  Security security = Security.getInstance();
+  Security security;
 
   volatile Subject subject;
 
@@ -109,7 +109,9 @@ public class SendEvent implements DeliveryMethod, Pingable {
       TransformerManager transformerManager,
       GetRecordsType request,
       QueryRequest query,
-      ClientFactoryFactory clientFactoryFactory)
+      ClientFactoryFactory clientFactoryFactory,
+      Security security,
+      SecurityManager securityManager)
       throws CswException {
 
     URL deliveryMethodUrl;
@@ -131,6 +133,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
       LOGGER.debug(msg);
       throw new CswException(msg);
     }
+    this.security = security;
     this.query = query;
     this.callbackUrl = deliveryMethodUrl;
     this.request = request;
@@ -147,7 +150,7 @@ public class SendEvent implements DeliveryMethod, Pingable {
     cxfClientFactory =
         clientFactoryFactory.getSecureCxfClientFactory(
             callbackUrl.toString(), CswSubscribe.class, providers, null, false, false);
-    cxfClientFactory.addOutInterceptors(new OutgoingSubjectRetrievalInterceptor());
+    cxfClientFactory.addOutInterceptors(new OutgoingSubjectRetrievalInterceptor(securityManager));
     try {
       InetAddress address = InetAddress.getByName(callbackUrl.getHost());
       ip = address.getHostAddress();

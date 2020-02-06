@@ -49,10 +49,6 @@
             <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
@@ -68,8 +64,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             catalog-core-api-impl,
-                            versioning-common,
-                            ddf-security-common
+                            versioning-common
                         </Embed-Dependency>
                         <Export-Package />
 

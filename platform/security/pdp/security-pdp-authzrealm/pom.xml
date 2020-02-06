@@ -73,11 +73,6 @@
             <artifactId>httpclient</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
         </dependency>
@@ -105,6 +100,10 @@
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
             <version>${commons-digester.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-impl</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -142,7 +141,6 @@
                             commons-io,
                             httpclient,
                             httpcore,
-                            ddf-security-common,
                             commons-beanutils,
                             commons-validator,
                             commons-collections,

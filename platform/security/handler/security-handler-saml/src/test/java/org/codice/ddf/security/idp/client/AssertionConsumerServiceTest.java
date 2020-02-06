@@ -46,6 +46,7 @@ import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.http.HttpStatus;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.codice.ddf.platform.filter.SecurityFilter;
+import org.codice.ddf.security.jaxrs.impl.RestSecurity;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -156,6 +157,7 @@ public class AssertionConsumerServiceTest {
     assertionConsumerService.setLoginFilter(loginFilter);
     assertionConsumerService.setSessionFactory(sessionFactory);
     assertionConsumerService.setContextPolicyManager(contextPolicyManager);
+    assertionConsumerService.setRestSecurity(new RestSecurity());
   }
 
   @Test

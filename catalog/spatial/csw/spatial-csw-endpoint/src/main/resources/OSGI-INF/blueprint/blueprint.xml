@@ -20,6 +20,8 @@
 
     <reference id="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
     <reference id="queryFilterTransformerProvider" interface="ddf.catalog.transform.QueryFilterTransformerProvider"/>
+    <reference id="security" interface="org.codice.ddf.security.Security" />
+    <reference id="securityManager" interface="ddf.security.service.SecurityManager" />
 
     <bean id="CswResourceComparator"
           class="org.codice.ddf.spatial.ogc.catalog.common.EndpointOperationInfoResourceComparator">
@@ -226,6 +228,8 @@
         <argument ref="validator"/>
         <argument ref="cswFilterFactory"/>
         <argument ref="clientFactoryFactory"/>
+        <argument ref="security"/>
+        <argument ref="securityManager" />
     </bean>
 
     <service ref="ddf.catalog.endpoint.csw" interface="ddf.catalog.endpoint.CatalogEndpoint"/>

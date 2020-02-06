@@ -77,10 +77,6 @@
             <artifactId>cxf-rt-rs-client</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
@@ -114,9 +110,6 @@
                         <Bundle-SymbolicName>
                             ${project.artifactId};blueprint.graceperiod:=true;blueprint.timeout:=604800000
                         </Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            ddf-security-common
-                        </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.resource.impl,
                             ddf.catalog.operation.impl,

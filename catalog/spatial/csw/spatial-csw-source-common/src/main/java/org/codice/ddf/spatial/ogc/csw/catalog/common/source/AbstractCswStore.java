@@ -62,6 +62,7 @@ import net.opengis.cat.csw.v_2_0_2.TransactionResponseType;
 import net.opengis.cat.csw.v_2_0_2.dc.elements.SimpleLiteral;
 import net.opengis.filter.v_1_1_0.FilterType;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.security.Security;
 import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -95,14 +96,23 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
       CswSourceConfiguration cswSourceConfiguration,
       Converter provider,
       ClientFactoryFactory clientFactoryFactory,
-      EncryptionService encryptionService) {
-    super(context, cswSourceConfiguration, provider, clientFactoryFactory, encryptionService);
+      EncryptionService encryptionService,
+      Security security) {
+    super(
+        context,
+        cswSourceConfiguration,
+        provider,
+        clientFactoryFactory,
+        encryptionService,
+        security);
   }
 
   /** Instantiates a CswStore. */
   public AbstractCswStore(
-      EncryptionService encryptionService, ClientFactoryFactory clientFactoryFactory) {
-    super(encryptionService, clientFactoryFactory);
+      EncryptionService encryptionService,
+      ClientFactoryFactory clientFactoryFactory,
+      Security security) {
+    super(encryptionService, clientFactoryFactory, security);
   }
 
   @Override
