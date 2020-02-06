@@ -23,6 +23,7 @@ import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.SourceProcessingDetails;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
@@ -41,6 +42,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -119,7 +121,7 @@ class SortedQueryMonitor implements Runnable {
         SortOrder sortOrder =
             (sort.getSortOrder() == null) ? SortOrder.DESCENDING : sort.getSortOrder();
         LOGGER.debug("Sorting type: {}", sortType);
-        LOGGER.debug("Sorting order: {}", sort.getSortOrder());
+        LOGGER.debug("Sorting order: {}", sortOrder);
 
         // Temporal searches are currently sorted by the effective time
         if (Metacard.EFFECTIVE.equals(sortType) || Result.TEMPORAL.equals(sortType)) {
@@ -131,7 +133,7 @@ class SortedQueryMonitor implements Runnable {
         } else {
           comparator =
               Comparator.comparing(
-                  r -> getAttributeValue((Result) r, sortingProp.getPropertyName()),
+                  r -> getAttributeValue((Result) r, sortType),
                   ((sortOrder == SortOrder.ASCENDING)
                       ? Comparator.nullsFirst(Comparator.<Comparable>naturalOrder())
                       : Comparator.nullsLast(Comparator.<Comparable>reverseOrder())));
@@ -145,7 +147,7 @@ class SortedQueryMonitor implements Runnable {
 
     List<Result> resultList = new ArrayList<>();
     long totalHits = 0;
-    Set<ProcessingDetails> processingDetails = returnResults.getProcessingDetails();
+    Set<ProcessingDetails> detailsOfReturnResults = returnResults.getProcessingDetails();
 
     Map<String, Serializable> returnProperties = returnResults.getProperties();
     HashMap<String, Long> hitsPerSource = new HashMap<>();
@@ -161,7 +163,7 @@ class SortedQueryMonitor implements Runnable {
         } else {
           future = completionService.poll(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
           if (future == null) {
-            timeoutRemainingSources(processingDetails);
+            timeoutRemainingSources(detailsOfReturnResults);
             break;
           }
         }
@@ -174,12 +176,11 @@ class SortedQueryMonitor implements Runnable {
         sourceId = getSourceIdFromRequest(queryRequest);
 
         sourceResponse = future.get();
-
         if (sourceResponse == null) {
           LOGGER.debug("Source {} returned null response", sourceId);
           executePostFederationQueryPluginsWithSourceError(
-              queryRequest, sourceId, new NullPointerException(), processingDetails);
-        } else if (queryRequest != null) {
+              queryRequest, sourceId, new NullPointerException(), detailsOfReturnResults);
+        } else {
           sourceResponse = executePostFederationQueryPlugins(sourceResponse, queryRequest);
           resultList.addAll(sourceResponse.getResults());
           long hits = sourceResponse.getHits();
@@ -188,24 +189,30 @@ class SortedQueryMonitor implements Runnable {
 
           Map<String, Serializable> properties = sourceResponse.getProperties();
           returnProperties.putAll(properties);
+
+          for (SourceProcessingDetails detailsOfSourceResponse :
+              sourceResponse.getProcessingDetails()) {
+            detailsOfReturnResults.add(
+                new ProcessingDetailsImpl(detailsOfSourceResponse, sourceId));
+          }
         }
       } catch (InterruptedException e) {
         if (queryRequest != null) {
           // First, add interrupted processing detail for this source
           LOGGER.debug("Search interrupted for {}", sourceId);
           executePostFederationQueryPluginsWithSourceError(
-              queryRequest, sourceId, e, processingDetails);
+              queryRequest, sourceId, e, detailsOfReturnResults);
         }
 
         // Then add the interrupted exception for the remaining sources
-        interruptRemainingSources(processingDetails, e);
+        interruptRemainingSources(detailsOfReturnResults, e);
         Thread.currentThread().interrupt();
         break;
       } catch (ExecutionException e) {
         LOGGER.info(
             "Couldn't get results from completed federated query for sourceId = {}", sourceId, e);
         executePostFederationQueryPluginsWithSourceError(
-            queryRequest, sourceId, e, processingDetails);
+            queryRequest, sourceId, e, detailsOfReturnResults);
       }
     }
     returnProperties.put("hitsPerSource", hitsPerSource);
@@ -321,10 +328,16 @@ class SortedQueryMonitor implements Runnable {
     } catch (StopProcessingException e) {
       LOGGER.info("Plugin stopped processing", e);
     }
+
+    Set<SourceProcessingDetails> detailsOfResponseAfterPlugins =
+        new HashSet<>(queryResponse.getProcessingDetails());
+    detailsOfResponseAfterPlugins.addAll(sourceResponse.getProcessingDetails());
+
     return new SourceResponseImpl(
         queryRequest,
         sourceResponse.getProperties(),
         queryResponse.getResults(),
-        queryResponse.getHits());
+        queryResponse.getHits(),
+        detailsOfResponseAfterPlugins);
   }
 }

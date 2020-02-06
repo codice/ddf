@@ -13,8 +13,12 @@
  */
 package ddf.catalog.operation.impl;
 
+import static org.apache.commons.lang.Validate.notNull;
+
 import ddf.catalog.operation.SourceProcessingDetails;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The SourceProcessingDetailsImpl class represents a default implementation of a {@link
@@ -22,10 +26,12 @@ import java.util.List;
  */
 public class SourceProcessingDetailsImpl implements SourceProcessingDetails {
 
-  protected List<String> warnings = null;
+  protected List<String> warnings;
 
-  /** Instantiates a new SourceProcessingDetailsImpl. */
-  public SourceProcessingDetailsImpl() {}
+  /** Instantiates a new SourceProcessingDetailsImpl */
+  public SourceProcessingDetailsImpl() {
+    warnings = Collections.emptyList();
+  }
 
   /**
    * Instantiates a new SourceProcessingDetailsImpl.
@@ -33,7 +39,29 @@ public class SourceProcessingDetailsImpl implements SourceProcessingDetails {
    * @param warnings the warnings associated with the {@link Source}
    */
   public SourceProcessingDetailsImpl(List<String> warnings) {
+    notNull(
+        warnings, "the constructor of SourceProcessingDetailsImpl does not accept null warnings");
     this.warnings = warnings;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    SourceProcessingDetailsImpl that = (SourceProcessingDetailsImpl) o;
+
+    return this.warnings.size() == that.warnings.size() && this.warnings.containsAll(that.warnings);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(warnings);
   }
 
   /*
@@ -52,6 +80,7 @@ public class SourceProcessingDetailsImpl implements SourceProcessingDetails {
    * @param warnings the new warnings associated with the {@link Source}
    */
   public void setWarnings(List<String> warnings) {
+    notNull(warnings, "setWarnings(List<String> warnings) does not accept null warnings");
     this.warnings = warnings;
   }
 }

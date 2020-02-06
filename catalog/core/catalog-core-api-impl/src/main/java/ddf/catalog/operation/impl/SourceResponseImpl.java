@@ -28,7 +28,7 @@ public class SourceResponseImpl extends ResponseImpl<QueryRequest> implements So
 
   protected long hits;
 
-  protected Set<SourceProcessingDetails> sourceProcessingDetails = null;
+  protected Set<SourceProcessingDetails> sourceProcessingDetails;
 
   ResponseImpl<QueryRequest> queryResponse;
 
@@ -42,7 +42,7 @@ public class SourceResponseImpl extends ResponseImpl<QueryRequest> implements So
    * @param results the results associated with the query
    */
   public SourceResponseImpl(QueryRequest request, List<Result> results) {
-    this(request, null, results, results != null ? results.size() : 0);
+    this(request, null, results, results != null ? results.size() : 0, null);
   }
 
   /**
@@ -53,7 +53,7 @@ public class SourceResponseImpl extends ResponseImpl<QueryRequest> implements So
    * @param totalHits the total results associated with the query.
    */
   public SourceResponseImpl(QueryRequest request, List<Result> results, Long totalHits) {
-    this(request, null, results, totalHits != null ? totalHits.longValue() : 0);
+    this(request, null, results, totalHits != null ? totalHits : 0, null);
   }
 
   /**
@@ -65,12 +65,11 @@ public class SourceResponseImpl extends ResponseImpl<QueryRequest> implements So
    */
   public SourceResponseImpl(
       QueryRequest request, Map<String, Serializable> properties, List<Result> results) {
-    this(request, properties, results, results != null ? results.size() : 0);
+    this(request, properties, results, results != null ? results.size() : 0, null);
   }
 
   /**
-   * Instantiates a new SourceResponseImpl with properties and when the total number of hits is
-   * known.
+   * Instantiates a new SourceResponseImpl with properties and the total number of hits
    *
    * @param request the original request
    * @param properties the properties associated with the operation
@@ -82,10 +81,31 @@ public class SourceResponseImpl extends ResponseImpl<QueryRequest> implements So
       Map<String, Serializable> properties,
       List<Result> results,
       long totalHits) {
+    this(request, properties, results, totalHits, null);
+  }
+
+  /**
+   * Instantiates a new SourceResponseImpl with properties, the total number of hits, and details.
+   *
+   * @param request the original request
+   * @param properties the properties associated with the operation
+   * @param results the results associated with the query
+   * @param totalHits the number of distinct results from the query
+   * @param sourceProcessingDetails the set of details which contain applicable warnings about how
+   *     the source processed the query
+   */
+  public SourceResponseImpl(
+      QueryRequest request,
+      Map<String, Serializable> properties,
+      List<Result> results,
+      long totalHits,
+      Set<SourceProcessingDetails> sourceProcessingDetails) {
     super(request, properties);
-    queryResponse = new ResponseImpl<QueryRequest>(request, properties);
+    queryResponse = new ResponseImpl<>(request, properties);
     this.results = results;
     this.hits = totalHits;
+    this.sourceProcessingDetails =
+        sourceProcessingDetails == null ? new HashSet<>() : sourceProcessingDetails;
   }
 
   /*

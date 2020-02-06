@@ -19,11 +19,13 @@ import static ddf.catalog.cache.solr.impl.CachingFederationStrategy.NATIVE_QUERY
 import static ddf.catalog.cache.solr.impl.CachingFederationStrategy.QUERY_MODE;
 import static ddf.catalog.cache.solr.impl.CachingFederationStrategy.UPDATE_QUERY_MODE;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,6 +44,7 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
@@ -52,6 +55,7 @@ import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateResponseImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.DeleteResponseImpl;
+import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
@@ -68,9 +72,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorService;
@@ -191,7 +197,7 @@ public class CachingFederationStrategyTest {
 
     Result mockResult = new ResultImpl(metacard);
 
-    List<Result> results = Arrays.asList(mockResult);
+    List<Result> results = Collections.singletonList(mockResult);
     when(mockResponse.getResults()).thenReturn(results);
 
     // Set general properties
@@ -566,6 +572,38 @@ public class CachingFederationStrategyTest {
   public void testStartIndexGreaterThanZero() throws Exception {
     strategy.setMaxStartIndex(5);
     assertThat(strategy.getMaxStartIndex(), is(5));
+  }
+
+  @Test
+  public void testResponseWithProcessingDetails() throws UnsupportedQueryException {
+
+    Source mockSource = mock(Source.class);
+
+    String testSource = "test source";
+    when(mockSource.getId()).thenReturn(testSource);
+
+    SourceResponse mockResponseWithProcessingDetails = mock(SourceResponse.class);
+
+    ProcessingDetails processingDetailsForNullPointer =
+        new ProcessingDetailsImpl(testSource, null, "Look! A null pointer!");
+
+    ProcessingDetails processingDetailsForUnsupportedQuery =
+        new ProcessingDetailsImpl(testSource, null, "We do not support this query.");
+
+    Set<ProcessingDetails> processingDetails = new HashSet<>();
+    processingDetails.add(processingDetailsForNullPointer);
+    processingDetails.add(processingDetailsForUnsupportedQuery);
+    doReturn(processingDetails).when(mockResponseWithProcessingDetails).getProcessingDetails();
+
+    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, properties);
+    when(mockSource.query(any(QueryRequest.class))).thenReturn(mockResponseWithProcessingDetails);
+
+    SourceResponse federatedResponse =
+        federateStrategy.federate(Collections.singletonList(mockSource), fedQueryRequest);
+
+    assertThat(
+        federatedResponse.getProcessingDetails(),
+        containsInAnyOrder(processingDetailsForNullPointer, processingDetailsForUnsupportedQuery));
   }
 
   @Test
