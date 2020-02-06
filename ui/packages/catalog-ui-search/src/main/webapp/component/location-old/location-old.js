@@ -634,8 +634,8 @@ module.exports = Backbone.AssociatedModel.extend({
     } else {
       this.clearUtmUpsPointRadius(true)
       this.set({
-        lat: 0,
-        lon: 0,
+        lat: undefined,
+        lon: undefined,
       })
     }
   },

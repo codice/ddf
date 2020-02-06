@@ -97,9 +97,9 @@ const BaseLine = props => {
             try {
               //handle case where user clears input; JSON.parse('') would throw an error and maintain previous state
               if (value === '') {
-                setState(geometryKey, undefined)
+                setState({[geometryKey]: undefined})
               } else {
-                setState(geometryKey, JSON.parse(value))
+                setState({[geometryKey]: JSON.parse(value)})
               }
             } catch (e) {
               // do nothing
@@ -111,8 +111,7 @@ const BaseLine = props => {
         <Units
           value={props[unitKey]}
           onChange={value => {
-            setState(unitKey, value)
-            typeof setBufferState === 'function' ? setBufferState(unitKey, value) : setState(unitKey, value)
+            typeof setBufferState === 'function' ? setBufferState(unitKey, value) : setState({ [unitKey]: value })
           }}
         >
           <TextField
@@ -123,7 +122,7 @@ const BaseLine = props => {
               if (widthKey === 'lineWidth') {
                 setBufferError(validateGeo('lineWidth', value))
               }
-              typeof setBufferState === 'function' ? setBufferState(widthKey, value) : setState(widthKey, value)
+              typeof setBufferState === 'function' ? setBufferState(widthKey, value) : setState({ [widthKey]: value })
             }}
           />
         </Units>
