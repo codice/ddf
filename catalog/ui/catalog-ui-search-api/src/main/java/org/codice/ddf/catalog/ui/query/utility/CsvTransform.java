@@ -13,19 +13,38 @@
  */
 package org.codice.ddf.catalog.ui.query.utility;
 
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.data.AttributeRegistry;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  */
-public interface CqlQueries {
-  CqlQueryResponse executeCqlQuery(CqlRequest cqlRequest)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException;
+public interface CsvTransform {
+  Set<String> getHiddenFields();
 
-  CqlRequest getCqlRequestFromJson(String jsonBody);
+  void setHiddenFields(Set<String> hiddenFields);
 
-  CsvTransform getCsvTransformFromJson(String jsonBody);
+  List<String> getColumnOrder();
+
+  void setColumnOrder(List<String> columnOrder);
+
+  Map<String, String> getColumnAliasMap();
+
+  void setColumnAliasMap(Map<String, String> columnAliasMap);
+
+  List<Map<String, Object>> getMetacards();
+
+  void setMetacards(List<Map<String, Object>> metacards);
+
+  boolean isApplyGlobalHidden();
+
+  void setApplyGlobalHidden(boolean applyGlobalHidden);
+
+  List<Metacard> getTransformedMetacards(
+      List<MetacardType> metacardTypes, AttributeRegistry attributeRegistry);
 }

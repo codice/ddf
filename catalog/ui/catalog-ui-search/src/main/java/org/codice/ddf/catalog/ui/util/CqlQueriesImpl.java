@@ -36,11 +36,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.codice.ddf.catalog.ui.metacard.transform.CsvTransformImpl;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponseImpl;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequestImpl;
 import org.codice.ddf.catalog.ui.query.utility.CqlQueries;
 import org.codice.ddf.catalog.ui.query.utility.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
+import org.codice.ddf.catalog.ui.query.utility.CsvTransform;
 import org.codice.ddf.catalog.ui.transformer.TransformerDescriptors;
 import org.codice.gsonsupport.GsonTypeAdapters;
 
@@ -147,13 +149,18 @@ public class CqlQueriesImpl implements CqlQueries {
         .collect(Collectors.toList());
   }
 
-  @SuppressWarnings("WeakerAccess" /* setter must be public for blueprint access */)
-  public void setDescriptors(TransformerDescriptors descriptors) {
-    this.descriptors = descriptors;
-  }
-
   @Override
   public CqlRequest getCqlRequestFromJson(String jsonBody) {
     return GSON.fromJson(jsonBody, CqlRequestImpl.class);
+  }
+
+  @Override
+  public CsvTransform getCsvTransformFromJson(String jsonBody) {
+    return GSON.fromJson(jsonBody, CsvTransformImpl.class);
+  }
+
+  @SuppressWarnings("WeakerAccess" /* setter must be public for blueprint access */)
+  public void setDescriptors(TransformerDescriptors descriptors) {
+    this.descriptors = descriptors;
   }
 }

@@ -37,7 +37,7 @@ import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
-import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
+import org.codice.ddf.catalog.ui.metacard.transform.CsvTransformImpl;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequestImpl;
 import org.codice.ddf.catalog.ui.query.utility.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
@@ -267,7 +267,7 @@ public class CqlTransformHandler implements Route {
     String columnAliasMap = "\"columnAliasMap\":" + GSON.toJson(arguments.get("columnAliasMap"));
     String csvBody = String.format("{%s,%s,%s}", columnOrder, columnAliasMap, hiddenFields);
 
-    CsvTransform queryTransform = GSON.fromJson(csvBody, CsvTransform.class);
+    CsvTransformImpl queryTransform = GSON.fromJson(csvBody, CsvTransformImpl.class);
 
     Set<String> hiddenFieldsSet =
         queryTransform.getHiddenFields() != null

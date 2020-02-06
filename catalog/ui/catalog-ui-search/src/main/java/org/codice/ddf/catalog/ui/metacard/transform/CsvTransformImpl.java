@@ -30,8 +30,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.codice.ddf.catalog.ui.query.utility.CsvTransform;
 
-public class CsvTransform {
+public class CsvTransformImpl implements CsvTransform {
   private boolean applyGlobalHidden = false;
 
   private Set<String> hiddenFields;
