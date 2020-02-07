@@ -90,7 +90,6 @@
         <admin-console>Admin Console</admin-console>
         <command-console>Command Console</command-console>
         <ddf-catalog>Catalog</ddf-catalog>
-        <ddf-geowebcache>GeoWebCache</ddf-geowebcache>
         <ddf-platform>Platform</ddf-platform>
         <ddf-registry>Registry</ddf-registry>
         <ddf-resource-management>Resource Management</ddf-resource-management>

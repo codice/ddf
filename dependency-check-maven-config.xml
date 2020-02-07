@@ -61,38 +61,6 @@
     </suppress>
     <suppress>
         <notes>
-            <!-- these are the geowebcache vulnerabilities it is not installed by default and it is only
-            experimental these security issues would need to be resolved before geowebcache can be
-            installed in a production environment-->
-            gwc-web-1.5.0.war: com.noelios.restlet-1.0.8.jar
-            gwc-web-1.5.0.war: commons-beanutils-1.7.0.jar
-            gwc-web-1.5.0.war: commons-collections-3.1.jar
-            gwc-web-1.5.0.war: postgresql-8.4-701.jdbc3.jar
-            gwc-web-1.9.1.war: commons-fileupload-1.2.1.jar, suppressing because the vulnerable class DiskFileItem is not used in the project
-            gwc-web-1.9.1.war: gwc-sqlite-1.9.1.jar
-            geowebcache-server-standalone-0.7.0.war: gwc-sqlite-1.9.1.jar
-            geowebcache-server-standalone-0.7.0.war: sqlite-jdbc-3.8.6.jar
-            geowebcache-server-standalone-0.7.0.war: commons-fileupload-1.2.1.jar
-            solr-dependencies -> commons-configuration -> commons-beanutils
-            org.codice:lux -> solr-core -> org.restlet-2.1.1.jar
-        </notes>
-        <cve>CVE-2016-3092</cve>
-        <cve>CVE-2014-0050</cve>
-        <cve>CVE-2013-4271</cve>
-        <cve>CVE-2013-4221</cve>
-        <cve>CVE-2014-0114</cve>
-        <cve>CVE-2015-5895</cve>
-        <cve>CVE-2015-3717</cve>
-        <cve>CVE-2015-3416</cve>
-        <cve>CVE-2015-3415</cve>
-        <cve>CVE-2015-3414</cve>
-        <cve>CVE-2017-10989</cve>
-        <cve>CVE-2016-7048</cve>
-        <cve>CVE-2019-8457</cve>
-        <cve>CVE-2016-1000031</cve>
-    </suppress>
-    <suppress>
-        <notes>
             These CVEs are incorrectly attributing a CXF vulnerability to Camel
             camel-cxf-2.19.0.jar.
             The CVEs are in CXF versions in this case the camel version is incorrectly being used
