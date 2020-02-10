@@ -465,9 +465,6 @@
                         <Export-Package>
                             org.codice.ddf.catalog.ui.metacard.internal,
                             org.codice.ddf.catalog.ui.alias,
-                            org.codice.ddf.catalog.ui.api,
-                            org.codice.ddf.catalog.ui.query.cql,
-                            org.codice.ddf.catalog.ui.metacard.transform,
                         </Export-Package>
                         <Karaf-Commands>org.codice.ddf.catalog.ui.forms.commands.*</Karaf-Commands>
                     </instructions>

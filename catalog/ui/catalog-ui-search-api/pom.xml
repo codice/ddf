@@ -56,7 +56,8 @@
                         <Export-Package>
                             org.codice.ddf.catalog.ui.metacard.workspace.transformer,
                             org.codice.ddf.catalog.ui.splitter,
-                            org.codice.ddf.catalog.ui.subscription
+                            org.codice.ddf.catalog.ui.subscription,
+                            org.codice.ddf.catalog.ui.query.utility
                         </Export-Package>
                         <Embed-Dependency>
                             catalog-core-api-impl,

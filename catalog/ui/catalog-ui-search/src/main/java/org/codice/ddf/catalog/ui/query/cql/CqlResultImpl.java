@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.catalog.ui.query.delegate.SearchTerm;
 import org.codice.ddf.catalog.ui.query.delegate.WktQueryDelegate;
+import org.codice.ddf.catalog.ui.query.utility.CqlResult;
 import org.codice.ddf.catalog.ui.transformer.TransformerDescriptors;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -57,9 +58,9 @@ import org.locationtech.spatial4j.shape.Shape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CqlResult {
+public class CqlResultImpl implements CqlResult {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CqlQueryResponse.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CqlResultImpl.class);
 
   // For queries we use repairConvexHull which my cause false positives to be returned but this
   // is better than potentially missing some results due to false negatives.
@@ -74,7 +75,7 @@ public class CqlResult {
 
   private static final SpatialContext SPATIAL_CONTEXT =
       SpatialContextFactory.makeSpatialContext(
-          SPATIAL_CONTEXT_ARGUMENTS, CqlResult.class.getClassLoader());
+          SPATIAL_CONTEXT_ARGUMENTS, CqlResultImpl.class.getClassLoader());
 
   private static final ShapeReader WKT_READER = SPATIAL_CONTEXT.getFormats().getWktReader();
 
@@ -99,7 +100,7 @@ public class CqlResult {
 
   private boolean isResourceLocal;
 
-  public CqlResult(CqlResult result, TransformerDescriptors descriptors) {
+  public CqlResultImpl(CqlResult result, TransformerDescriptors descriptors) {
     this.hasThumbnail = result.getHasThumbnail();
     this.isResourceLocal = result.getIsResourceLocal();
     this.distance = result.getDistance();
@@ -117,7 +118,7 @@ public class CqlResult {
             .collect(Collectors.toList());
   }
 
-  public CqlResult(
+  public CqlResultImpl(
       Result result,
       Set<SearchTerm> searchTerms,
       QueryRequest queryRequest,
@@ -177,7 +178,7 @@ public class CqlResult {
             .getAttributeDescriptors()
             .stream()
             .filter(Objects::nonNull)
-            .filter(CqlResult::isTextAttribute)
+            .filter(CqlResultImpl::isTextAttribute)
             .map(descriptor -> mc.getAttribute(descriptor.getName()))
             .filter(Objects::nonNull)
             .map(attribute -> Optional.ofNullable(attribute.getValue()))

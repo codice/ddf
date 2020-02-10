@@ -24,13 +24,13 @@ import ddf.catalog.operation.QueryResponse;
 import java.util.Collections;
 import org.junit.Test;
 
-public class CqlQueryResponseTest {
+public class CqlQueryResponseImplTest {
 
   @Test
   public void testChangeInWarningsAfterAdditionOfNewWarning() {
 
-    CqlQueryResponse response =
-        new CqlQueryResponse(
+    CqlQueryResponseImpl response =
+        new CqlQueryResponseImpl(
             null,
             mock(QueryRequest.class),
             mock(QueryResponse.class),
@@ -53,8 +53,8 @@ public class CqlQueryResponseTest {
   @Test
   public void testStabilityOfWarningsAfterAdditionOfNullWarning() {
 
-    CqlQueryResponse response =
-        new CqlQueryResponse(
+    CqlQueryResponseImpl response =
+        new CqlQueryResponseImpl(
             null,
             mock(QueryRequest.class),
             mock(QueryResponse.class),
@@ -77,8 +77,8 @@ public class CqlQueryResponseTest {
   @Test
   public void testStabilityOfWarningsAfterAdditionOfEmptyWarning() {
 
-    CqlQueryResponse response =
-        new CqlQueryResponse(
+    CqlQueryResponseImpl response =
+        new CqlQueryResponseImpl(
             null,
             mock(QueryRequest.class),
             mock(QueryResponse.class),

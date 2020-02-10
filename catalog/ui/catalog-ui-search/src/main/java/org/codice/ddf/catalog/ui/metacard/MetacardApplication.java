@@ -123,7 +123,7 @@ import org.codice.ddf.catalog.ui.metacard.notes.NoteConstants;
 import org.codice.ddf.catalog.ui.metacard.notes.NoteMetacard;
 import org.codice.ddf.catalog.ui.metacard.notes.NoteUtil;
 import org.codice.ddf.catalog.ui.metacard.query.data.metacard.QueryMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
+import org.codice.ddf.catalog.ui.metacard.transform.CsvTransformImpl;
 import org.codice.ddf.catalog.ui.metacard.validation.Validator;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceConstants;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
@@ -663,7 +663,7 @@ public class MetacardApplication implements SparkApplication {
         APPLICATION_JSON,
         (req, res) -> {
           String body = util.safeGetBody(req);
-          CsvTransform queryTransform = GSON.fromJson(body, CsvTransform.class);
+          CsvTransformImpl queryTransform = GSON.fromJson(body, CsvTransformImpl.class);
           Map<String, Object> transformMap = GSON.fromJson(body, MAP_STRING_TO_OBJECT_TYPE);
           queryTransform.setMetacards((List<Map<String, Object>>) transformMap.get("metacards"));
 

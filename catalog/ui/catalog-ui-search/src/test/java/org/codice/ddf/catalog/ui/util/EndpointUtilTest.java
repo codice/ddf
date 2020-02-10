@@ -34,7 +34,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
-import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
@@ -49,7 +48,6 @@ import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.AttributeBuilder;
 import ddf.catalog.filter.ContextualExpressionBuilder;
 import ddf.catalog.filter.EqualityExpressionBuilder;
-import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -68,10 +66,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
-import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
-import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
-import org.codice.ddf.catalog.ui.query.cql.CqlResult;
-import org.codice.ddf.catalog.ui.transformer.TransformerDescriptors;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -84,10 +78,6 @@ public class EndpointUtilTest {
   private EndpointUtil endpointUtil;
 
   private FilterBuilder filterBuilderMock;
-
-  private FilterAdapter filterAdapterMock;
-
-  private ActionRegistry actionRegistryMock;
 
   private QueryResponse responseMock;
 
@@ -132,8 +122,6 @@ public class EndpointUtilTest {
         mock(ContextualExpressionBuilder.class);
 
     filterBuilderMock = mock(FilterBuilder.class);
-    filterAdapterMock = mock(FilterAdapter.class);
-    actionRegistryMock = mock(ActionRegistry.class);
     responseMock = mock(QueryResponse.class);
     metacardMock = mock(Metacard.class);
     resultMock = mock(Result.class);
@@ -159,14 +147,9 @@ public class EndpointUtilTest {
             metacardTypeList,
             catalogFrameworkMock,
             filterBuilderMock,
-            filterAdapterMock,
-            actionRegistryMock,
             injectableAttributeList,
             attributeRegistryMock,
             configurationApplicationMock);
-
-    endpointUtil.setDescriptors(
-        new TransformerDescriptors(Collections.emptyList(), Collections.emptyList()));
   }
 
   @Test
@@ -353,19 +336,6 @@ public class EndpointUtilTest {
   }
 
   @Test
-  public void testHitCountOnlyQuery() throws Exception {
-    long hitCount = 12L;
-    when(responseMock.getResults()).thenReturn(Collections.emptyList());
-    when(responseMock.getHits()).thenReturn(hitCount);
-    when(catalogFrameworkMock.query(any(QueryRequestImpl.class))).thenReturn(responseMock);
-
-    CqlQueryResponse cqlQueryResponse = endpointUtil.executeCqlQuery(generateCqlRequest(0));
-    List<CqlResult> results = cqlQueryResponse.getResults();
-    assertThat(results, hasSize(0));
-    assertThat(cqlQueryResponse.getQueryResponse().getHits(), is(hitCount));
-  }
-
-  @Test
   public void testCopyAttributes() {
 
     AttributeDescriptor firstAttributeDescriptor = mock(AttributeDescriptor.class);
@@ -397,14 +367,6 @@ public class EndpointUtilTest {
     assertThat(
         Collections.singletonList(secondValue),
         is(destinationMetacard.getAttribute(secondAttributeDescriptor.getName()).getValues()));
-  }
-
-  private CqlRequest generateCqlRequest(int count) {
-    CqlRequest cqlRequest = new CqlRequest();
-    cqlRequest.setCount(count);
-    cqlRequest.setCql("anyText ILIKE '*'");
-
-    return cqlRequest;
   }
 
   @Test

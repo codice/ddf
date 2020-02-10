@@ -49,14 +49,19 @@ Implementation details
         <argument ref="metacardTypes"/>
         <argument ref="catalogFramework"/>
         <argument ref="filterBuilder"/>
-        <argument ref="filterAdapter"/>
-        <argument ref="metacardActionRegistry"/>
         <argument ref="injectableAttributes"/>
         <argument ref="attributeRegistry"/>
         <argument ref="configurationApplication"/>
         <property name="whiteListedMetacardTypes">
             <array/>
         </property>
+    </bean>
+
+    <bean id="cqlQueryUtil" class="org.codice.ddf.catalog.ui.util.CqlQueriesImpl">
+        <argument ref="catalogFramework"/>
+        <argument ref="filterBuilder"/>
+        <argument ref="filterAdapter"/>
+        <argument ref="metacardActionRegistry"/>
         <property name="descriptors" ref="transformerDescriptors"/>
     </bean>
 
@@ -282,6 +287,7 @@ Implementation details
         <argument ref="queryResponseTransformers"/>
         <argument ref="blueprintBundleContext"/>
         <argument ref="endpointUtil"/>
+        <argument ref="cqlQueryUtil"/>
     </bean>
 
     <bean id="queryValidators" class="org.codice.ddf.catalog.ui.query.validate.QueryValidators"/>
@@ -333,6 +339,7 @@ Implementation details
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">
         <property name="featureService" ref="featureService"/>
         <property name="endpointUtil" ref="endpointUtil"/>
+        <property name="cqlQueryUtil" ref="cqlQueryUtil"/>
         <argument ref="cqlTransformHandler"/>
         <argument ref="cqlValidationHandler"/>
         <argument ref="latLonProcessor"/>

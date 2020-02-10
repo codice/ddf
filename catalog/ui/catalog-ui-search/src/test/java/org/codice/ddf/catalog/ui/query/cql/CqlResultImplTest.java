@@ -32,7 +32,7 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import java.util.Collections;
 import org.junit.Test;
 
-public class CqlResultTest {
+public class CqlResultImplTest {
 
   private FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
 
@@ -62,8 +62,8 @@ public class CqlResultTest {
     QueryRequest request =
         new QueryRequestImpl(
             new QueryImpl(filterBuilder.attribute("test").equalTo().text("value")));
-    CqlResult cqlResult =
-        new CqlResult(result, null, request, false, filterAdapter, actionRegistry);
+    CqlResultImpl cqlResult =
+        new CqlResultImpl(result, null, request, false, filterAdapter, actionRegistry);
     assertThat(cqlResult.getDistance(), is(output));
   }
 }

@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.catalog.ui.query.utility.CqlRequest;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.opengis.filter.Filter;
@@ -43,9 +44,9 @@ import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CqlRequest {
+public class CqlRequestImpl implements CqlRequest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CqlRequest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CqlRequestImpl.class);
 
   private static final String DEFAULT_SORT_ORDER = "desc";
 
@@ -363,32 +364,5 @@ public class CqlRequest {
 
   public void setExcludeUnnecessaryAttributes(boolean excludeUnnecessaryAttributes) {
     this.excludeUnnecessaryAttributes = excludeUnnecessaryAttributes;
-  }
-
-  public static class Sort {
-
-    private String attribute;
-    private String direction;
-
-    public Sort(String attribute, String direction) {
-      this.attribute = attribute;
-      this.direction = direction;
-    }
-
-    public String getAttribute() {
-      return attribute;
-    }
-
-    public void setAttribute(String attribute) {
-      this.attribute = attribute;
-    }
-
-    public String getDirection() {
-      return direction;
-    }
-
-    public void setDirection(String direction) {
-      this.direction = direction;
-    }
   }
 }

@@ -158,8 +158,6 @@ public class SearchFormsSymbolsIT {
           FILTER_BUILDER,
           null, // No interaction
           null, // No interaction
-          null, // No interaction
-          null, // No interaction
           MOCK_CONFIG);
 
   private static final SearchFormsApplication APPLICATION =

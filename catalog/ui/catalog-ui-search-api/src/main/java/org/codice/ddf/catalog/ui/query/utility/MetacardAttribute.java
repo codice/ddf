@@ -11,33 +11,17 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.query.cql;
+package org.codice.ddf.catalog.ui.query.utility;
 
-import ddf.catalog.data.AttributeDescriptor;
+/**
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ */
+public interface MetacardAttribute {
 
-public class MetacardAttribute {
+  boolean getMultivalued();
 
-  private final String format;
+  boolean getIndexed();
 
-  private final boolean multivalued;
-
-  private final boolean indexed;
-
-  public MetacardAttribute(AttributeDescriptor descriptor) {
-    format = descriptor.getType().getAttributeFormat().toString();
-    indexed = descriptor.isIndexed();
-    multivalued = descriptor.isMultiValued();
-  }
-
-  public boolean getMultivalued() {
-    return multivalued;
-  }
-
-  public boolean getIndexed() {
-    return indexed;
-  }
-
-  public String getFormat() {
-    return format;
-  }
+  String getFormat();
 }
