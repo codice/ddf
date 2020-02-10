@@ -16,7 +16,6 @@ import React, { useState, useEffect } from 'react'
 import {
   getErrorComponent,
   validateGeo,
-  validateLinePolygon,
   initialErrorState,
 } from '../utils/validation'
 const { Units } = require('./common')
@@ -70,7 +69,16 @@ function convertMultiWkt(isPolygon, value) {
 }
 
 const BaseLine = props => {
-  const { label, geometryKey, setState, setBufferState, unitKey, widthKey, mode, polyType } = props
+  const {
+    label,
+    geometryKey,
+    setState,
+    setBufferState,
+    unitKey,
+    widthKey,
+    mode,
+    polyType,
+  } = props
   const [currentValue, setCurrentValue] = useState(
     JSON.stringify(props[geometryKey])
   )
@@ -81,7 +89,7 @@ const BaseLine = props => {
     () => {
       const { geometryKey } = props
       setCurrentValue(JSON.stringify(props[geometryKey]))
-      if(props.drawing) {
+      if (props.drawing) {
         setBaseLineError(initialErrorState)
         setBufferError(initialErrorState)
       }
@@ -101,21 +109,25 @@ const BaseLine = props => {
             try {
               //handle case where user clears input; JSON.parse('') would throw an error and maintain previous state
               if (value === '') {
-                setState({[geometryKey]: undefined})
+                setState({ [geometryKey]: undefined })
               } else {
-                setState({[geometryKey]: JSON.parse(value)})
+                setState({ [geometryKey]: JSON.parse(value) })
               }
             } catch (e) {
               // do nothing
             }
           }}
-          onBlur={() => setBaseLineError(validateLinePolygon(currentValue, mode || polyType))}
+          onBlur={() =>
+            setBaseLineError(validateGeo(mode || polyType, currentValue))
+          }
         />
         {getErrorComponent(baseLineError)}
         <Units
           value={props[unitKey]}
           onChange={value => {
-            typeof setBufferState === 'function' ? setBufferState(unitKey, value) : setState({ [unitKey]: value })
+            typeof setBufferState === 'function'
+              ? setBufferState(unitKey, value)
+              : setState({ [unitKey]: value })
           }}
         >
           <TextField
@@ -126,7 +138,9 @@ const BaseLine = props => {
               if (widthKey === 'lineWidth') {
                 setBufferError(validateGeo('lineWidth', value))
               }
-              typeof setBufferState === 'function' ? setBufferState(widthKey, value) : setState({ [widthKey]: value })
+              typeof setBufferState === 'function'
+                ? setBufferState(widthKey, value)
+                : setState({ [widthKey]: value })
             }}
           />
         </Units>

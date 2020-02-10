@@ -95,6 +95,9 @@ export function validateGeo(
     case 'radius':
     case 'lineWidth':
       return validateRadiusLineBuffer(key, value)
+    case 'line':
+    case 'polygon':
+      return validateLinePolygon(key, value)
     default:
   }
 }
@@ -138,12 +141,12 @@ export function validateListOfPoints(coordinates: any[], mode: string) {
   return { error: message.length > 0, message }
 }
 
-export function validateLinePolygon(currentValue: string, mode: string) {
+function validateLinePolygon(mode: string, currentValue: string) {
   if (!is2DArray(currentValue)) {
     return { error: true, message: 'Not an acceptable value' }
   }
   try {
-    const pointsValid = validateListOfPoints(JSON.parse(currentValue), mode) 
+    const pointsValid = validateListOfPoints(JSON.parse(currentValue), mode)
     return pointsValid === undefined ? initialErrorState : pointsValid
   } catch (e) {
     return initialErrorState
@@ -198,7 +201,10 @@ function getGeometryErrors(filter: any): Set<string> {
   }
   switch (filter.geojson.properties.type) {
     case 'Polygon':
-      if (!geometry.coordinates[0].length || geometry.coordinates[0].length < 4) {
+      if (
+        !geometry.coordinates[0].length ||
+        geometry.coordinates[0].length < 4
+      ) {
         errors.add(
           'Polygon coordinates must be in the form [[x,y],[x,y],[x,y],[x,y], ... ]'
         )
@@ -311,7 +317,7 @@ function validateUtmUps(
   }
   utmUpsParts.northing =
     isUps || northernHemisphere ? northing : northing - northingOffset
-  // These checks are to ensure that we only mark a value as "invalid" 
+  // These checks are to ensure that we only mark a value as "invalid"
   // if the user has entered something already
   const isNorthingInvalid =
     isNaN(utmUpsParts.northing) && utmUpsNorthing !== undefined
@@ -330,14 +336,12 @@ function validateUtmUps(
   const isLatLonValid =
     !hasPointError([lon, lat]) ||
     (utmUpsNorthing === undefined || utmUpsEasting === undefined)
-   if (
-    key === 'utmUpsNorthing' &&
-    isNorthingInvalid && !isEastingInvalid
-  ) {
+  if (key === 'utmUpsNorthing' && isNorthingInvalid && !isEastingInvalid) {
     error = { error: true, message: 'Northing value is invalid' }
   } else if (
     key === 'utmUpsEasting' &&
-    isEastingInvalid && !isNorthingInvalid
+    isEastingInvalid &&
+    !isNorthingInvalid
   ) {
     error = { error: true, message: 'Easting value is invalid' }
   } else if (

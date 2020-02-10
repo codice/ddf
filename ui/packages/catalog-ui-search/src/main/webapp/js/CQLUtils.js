@@ -83,7 +83,7 @@ function generateAnyGeoFilter(property, model) {
 
   switch (model.type) {
     case 'LINE':
-      if(!Array.isArray(model.line)) {
+      if (!Array.isArray(model.line)) {
         return defaultGeoFilter
       }
       return {
@@ -98,7 +98,7 @@ function generateAnyGeoFilter(property, model) {
         ),
       }
     case 'POLYGON':
-      if(!Array.isArray(model.polygon)) {
+      if (!Array.isArray(model.polygon)) {
         return defaultGeoFilter
       }
       return {
@@ -115,7 +115,7 @@ function generateAnyGeoFilter(property, model) {
         }),
       }
     case 'MULTIPOLYGON':
-      if(!Array.isArray(model.polygon)) {
+      if (!Array.isArray(model.polygon)) {
         return defaultGeoFilter
       }
       const poly =
