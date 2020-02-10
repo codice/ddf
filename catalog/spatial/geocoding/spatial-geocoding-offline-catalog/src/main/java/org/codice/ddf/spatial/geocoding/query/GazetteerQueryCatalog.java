@@ -21,12 +21,6 @@ import static ddf.catalog.Constants.SUGGESTION_RESULT_KEY;
 import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.GAZETTEER_METACARD_TAG;
 import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.SUGGEST_PLACE_KEY;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.io.WKTReader;
-import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -64,6 +58,12 @@ import org.codice.ddf.spatial.geocoding.Suggestion;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.context.impl.NearbyLocationImpl;
 import org.codice.ddf.spatial.geocoding.context.impl.SuggestionImpl;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.io.WKTWriter;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.impl.PointImpl;
 import org.opengis.filter.Filter;
@@ -248,7 +248,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
         Double lon = coordinate.x;
         geoEntryBuilder.latitude(lat);
         geoEntryBuilder.longitude(lon);
-      } catch (com.vividsolutions.jts.io.ParseException e) {
+      } catch (org.locationtech.jts.io.ParseException e) {
         LOGGER.debug("GeoEntry metacard does not contain location attribute.");
       }
     }
@@ -316,7 +316,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
       Point center = WKT_READER_THREAD_LOCAL.get().read(location).getCentroid();
       centerPoint = new PointImpl(center.getY(), center.getX(), SPATIAL_CONTEXT);
 
-    } catch (com.vividsolutions.jts.io.ParseException e) {
+    } catch (org.locationtech.jts.io.ParseException e) {
       LOGGER.debug("GeoEntry metacard does not contain location attribute.");
       return null;
     }
@@ -333,7 +333,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
       Point center = WKT_READER_THREAD_LOCAL.get().read(wktLocation).getCentroid();
       Geometry geometry = GEOMETRY_FACTORY.createPoint(center.getCoordinate());
       wkt = WKT_WRITER_THREAD_LOCAL.get().write(geometry);
-    } catch (com.vividsolutions.jts.io.ParseException e) {
+    } catch (org.locationtech.jts.io.ParseException e) {
       return Optional.empty();
     }
 

@@ -13,13 +13,13 @@
  */
 package ddf.catalog.impl.filter;
 
-import com.vividsolutions.jts.io.WKTReader;
 import java.text.ParseException;
 import java.util.Locale;
 import org.geotools.geometry.GeometryBuilder;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PrimitiveFactoryImpl;
 import org.geotools.geometry.text.WKTParser;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.locationtech.jts.io.WKTReader;
 import org.opengis.geometry.Geometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ public class SpatialFilter {
           || geometryWkt.toLowerCase(Locale.US).trim().indexOf("geometrycollection") != -1) {
         // WKTParser does not currently support MultiPolygon,
         // MultiLineString, or MultiPoint
-        com.vividsolutions.jts.geom.Geometry geo = reader.read(geometryWkt);
+        org.locationtech.jts.geom.Geometry geo = reader.read(geometryWkt);
 
         geometry = new JTSGeometryWrapper(geo);
       } else {
@@ -74,7 +74,7 @@ public class SpatialFilter {
 
     } catch (ParseException e) {
       LOGGER.debug("Unable to compute geometry for WKT = {}", this.geometryWkt, e);
-    } catch (com.vividsolutions.jts.io.ParseException e) {
+    } catch (org.locationtech.jts.io.ParseException e) {
       LOGGER.debug("Unable to read multi geometry for WKT = {}", this.geometryWkt, e);
     }
 

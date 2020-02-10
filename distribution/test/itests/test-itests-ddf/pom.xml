@@ -122,9 +122,9 @@
             <version>${org.slf4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.distribution</groupId>
-            <artifactId>sdk-app</artifactId>
-            <version>${ddf-sdk.version}</version>
+            <groupId>ddf.test</groupId>
+            <artifactId>features-xml</artifactId>
+            <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>

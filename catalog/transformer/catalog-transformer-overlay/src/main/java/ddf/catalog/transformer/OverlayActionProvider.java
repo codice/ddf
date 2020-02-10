@@ -13,7 +13,6 @@
  */
 package ddf.catalog.transformer;
 
-import com.vividsolutions.jts.geom.Geometry;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.action.impl.ActionImpl;
@@ -29,6 +28,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.locationtech.jts.geom.Geometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -13,10 +13,10 @@
  */
 package org.codice.ddf.opensearch.source;
 
-import com.vividsolutions.jts.geom.Geometry;
 import ddf.catalog.impl.filter.TemporalFilter;
 import java.util.LinkedList;
 import java.util.Queue;
+import org.locationtech.jts.geom.Geometry;
 
 public class OpenSearchFilterVisitorObject {
 

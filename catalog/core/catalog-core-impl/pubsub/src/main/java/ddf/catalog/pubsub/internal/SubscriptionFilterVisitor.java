@@ -265,7 +265,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     LOGGER.debug("Must have received point/radius query criteria.");
 
     double radius = filter.getDistance();
-    com.vividsolutions.jts.geom.Geometry jtsGeometry =
+    org.locationtech.jts.geom.Geometry jtsGeometry =
         getJtsGeometery((LiteralExpressionImpl) filter.getExpression2());
 
     double radiusInDegrees = (radius * 180.0) / (Math.PI * EQUATORIAL_RADIUS_IN_METERS);
@@ -285,7 +285,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     LOGGER.debug("ENTERING: Within filter");
     LOGGER.debug("Must have received CONTAINS query criteria: {}", filter.getExpression2());
 
-    com.vividsolutions.jts.geom.Geometry jtsGeometry =
+    org.locationtech.jts.geom.Geometry jtsGeometry =
         getJtsGeometery((LiteralExpressionImpl) filter.getExpression2());
 
     Predicate predicate =
@@ -302,7 +302,7 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     LOGGER.debug("ENTERING: Intersects filter");
     LOGGER.debug("Must have received OVERLAPS query criteria.");
 
-    com.vividsolutions.jts.geom.Geometry jtsGeometry =
+    org.locationtech.jts.geom.Geometry jtsGeometry =
         getJtsGeometery((LiteralExpressionImpl) filter.getExpression2());
 
     Predicate predicate =
@@ -545,15 +545,14 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
     return returnSearchPhrase;
   }
 
-  private com.vividsolutions.jts.geom.Geometry getJtsGeometery(
-      LiteralExpressionImpl geoExpression) {
-    com.vividsolutions.jts.geom.Geometry jtsGeometry;
+  private org.locationtech.jts.geom.Geometry getJtsGeometery(LiteralExpressionImpl geoExpression) {
+    org.locationtech.jts.geom.Geometry jtsGeometry;
 
     if (geoExpression.getValue() instanceof GeometryImpl) {
       GeometryImpl geo = (GeometryImpl) geoExpression.getValue();
-      jtsGeometry = (com.vividsolutions.jts.geom.Geometry) geo.getJTSGeometry();
-    } else if (geoExpression.getValue() instanceof com.vividsolutions.jts.geom.Geometry) {
-      jtsGeometry = (com.vividsolutions.jts.geom.Geometry) geoExpression.getValue();
+      jtsGeometry = geo.getJTSGeometry();
+    } else if (geoExpression.getValue() instanceof org.locationtech.jts.geom.Geometry) {
+      jtsGeometry = (org.locationtech.jts.geom.Geometry) geoExpression.getValue();
     } else {
       throw new UnsupportedOperationException(
           "Unsupported implementation of Geometry for spatial filters.");

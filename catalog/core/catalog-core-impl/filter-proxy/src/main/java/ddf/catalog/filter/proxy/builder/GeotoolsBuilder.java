@@ -13,8 +13,6 @@
  */
 package ddf.catalog.filter.proxy.builder;
 
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.catalog.impl.filter.JTSGeometryWrapper;
@@ -33,6 +31,8 @@ import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPeriodDuration;
 import org.geotools.temporal.object.DefaultPosition;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.expression.Expression;
@@ -365,7 +365,7 @@ class GeotoolsBuilder {
           || wkt.toLowerCase(Locale.US).trim().indexOf("geometrycollection") != -1) {
         // WKTParser does not currently support MultiPolygon,
         // MultiLineString, or MultiPoint
-        com.vividsolutions.jts.geom.Geometry geo = reader.read(wkt);
+        org.locationtech.jts.geom.Geometry geo = reader.read(wkt);
 
         geometry = new JTSGeometryWrapper(geo);
       } else {

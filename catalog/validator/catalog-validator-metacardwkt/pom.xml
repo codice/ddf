@@ -43,16 +43,6 @@
             <artifactId>catalog-validator-wkt</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-io</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

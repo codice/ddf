@@ -17,8 +17,6 @@ import static ddf.catalog.transformer.GeometryUtils.canHandleGeometry;
 import static ddf.catalog.transformer.GeometryUtils.parseGeometry;
 
 import com.jhlabs.image.PerspectiveFilter;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
@@ -42,6 +40,8 @@ import javax.imageio.ImageIO;
 import org.apache.commons.lang.Validate;
 import org.la4j.Vector;
 import org.la4j.vector.dense.BasicVector;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 
 public class OverlayMetacardTransformer implements MetacardTransformer {
   private static final String PNG = "png";

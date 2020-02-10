@@ -14,9 +14,6 @@
 package org.codice.ddf.opensearch.source;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.data.Result;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.Query;
@@ -35,6 +32,9 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.opensearch.OpenSearchConstants;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.io.WKTWriter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;

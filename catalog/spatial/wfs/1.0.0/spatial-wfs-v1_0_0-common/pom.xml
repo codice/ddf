@@ -65,6 +65,10 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>geotools-suite</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
         </dependency>
@@ -86,14 +90,6 @@
             <artifactId>gml-v_3_2_1</artifactId>
             <version>1.1.0</version>
             <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-io</artifactId>
         </dependency>
     </dependencies>
 </project>

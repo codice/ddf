@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import com.vividsolutions.jts.geom.Geometry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.types.Core;
@@ -55,6 +54,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.lucene.store.Directory;
 import org.geotools.filter.FilterTransformer;
 import org.junit.Test;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.filter.Filter;
 import org.osgi.service.event.Event;
 import org.slf4j.Logger;

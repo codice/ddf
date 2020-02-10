@@ -21,7 +21,6 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import com.vividsolutions.jts.geom.LineString;
 import de.micromata.opengis.kml.v_2_2_0.Boundary;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.LinearRing;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.locationtech.jts.geom.LineString;
 
 public class KmlToJtsPolygonConverterTest {
 
@@ -48,7 +48,7 @@ public class KmlToJtsPolygonConverterTest {
 
   @Test
   public void testConvertPolygon() {
-    com.vividsolutions.jts.geom.Polygon jtsPolygon = KmlToJtsPolygonConverter.from(testKmlPolygon);
+    org.locationtech.jts.geom.Polygon jtsPolygon = KmlToJtsPolygonConverter.from(testKmlPolygon);
 
     assertJtsPolygon(testKmlPolygon, jtsPolygon);
   }
@@ -56,7 +56,7 @@ public class KmlToJtsPolygonConverterTest {
   @Test
   public void testConvertPolygonWithHoles() {
     Polygon kmlPolygonWithHoles = getTestKmlPolygonWithHoles();
-    com.vividsolutions.jts.geom.Polygon jtsPolygon =
+    org.locationtech.jts.geom.Polygon jtsPolygon =
         KmlToJtsPolygonConverter.from(kmlPolygonWithHoles);
 
     assertJtsPolygon(kmlPolygonWithHoles, jtsPolygon);
@@ -64,19 +64,19 @@ public class KmlToJtsPolygonConverterTest {
 
   @Test
   public void testNullKmlPolygonReturnsNullJtsPolygon() {
-    com.vividsolutions.jts.geom.Polygon jtsPolygon = KmlToJtsPolygonConverter.from(null);
+    org.locationtech.jts.geom.Polygon jtsPolygon = KmlToJtsPolygonConverter.from(null);
 
     assertThat(jtsPolygon, nullValue());
   }
 
   @Test
   public void testEmptyKmlPolygonReturnsNull() {
-    com.vividsolutions.jts.geom.Polygon jtsPolygon = KmlToJtsPolygonConverter.from(new Polygon());
+    org.locationtech.jts.geom.Polygon jtsPolygon = KmlToJtsPolygonConverter.from(new Polygon());
 
     assertThat(jtsPolygon, nullValue());
   }
 
-  static void assertJtsPolygon(Polygon kmlPolygon, com.vividsolutions.jts.geom.Polygon jtsPolygon) {
+  static void assertJtsPolygon(Polygon kmlPolygon, org.locationtech.jts.geom.Polygon jtsPolygon) {
     assertThat(jtsPolygon, notNullValue());
 
     assertThat(

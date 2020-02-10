@@ -188,10 +188,6 @@
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
         <countryconverter.version>0.1.8</countryconverter.version>
         <cxf.version>3.2.11</cxf.version>
-        <!--
-           NOTE: ddf-sdk.version should be removed if itests no longer require the sdk
-         -->
-        <ddf-sdk.version>2.19.0</ddf-sdk.version>
         <decanter.version>1.3.0</decanter.version>
         <dropwizard.version>3.2.6</dropwizard.version>
         <equinox.version>3.13.0</equinox.version>
@@ -200,7 +196,6 @@
         <felix.framework.version>5.6.12</felix.framework.version>
         <felix.scr.version>2.0.14</felix.scr.version>
         <ftpserver-version>1.0.6</ftpserver-version>
-        <geotools.version>19.1</geotools.version>
         <geronimo-jms_2_spec.version>1.0-alpha-2</geronimo-jms_2_spec.version>
         <geronimo-servlet-api.artifact>geronimo-servlet_3.0_spec</geronimo-servlet-api.artifact>
         <geronimo-servlet-api.group>org.apache.geronimo.specs</geronimo-servlet-api.group>
@@ -246,9 +241,9 @@
         <jsoup.version>1.11.3</jsoup.version>
         <jsr305.version>3.0.2_1</jsr305.version>
         <jsr339-api.bundle.version>2.6.0</jsr339-api.bundle.version>
-        <jts.bundle.version>1.14.0_1</jts.bundle.version>
+        <jts.bundle.version>1.16.0_2</jts.bundle.version>
         <jts.spatial4j.version>1.15.0</jts.spatial4j.version>
-        <jts.version>1.14.0</jts.version>
+        <jts.version>1.16.0</jts.version>
         <jvnet-ogc.version>2.6.1</jvnet-ogc.version>
         <karaf.version>4.2.6</karaf.version>
         <la4j.version>0.6.0</la4j.version>
@@ -268,16 +263,16 @@
         <net.minidev.asm.version>1.0.2</net.minidev.asm.version>
         <netty.version>4.1.32.Final</netty.version>
         <objenesis.version>2.5.1</objenesis.version>
-        <ogc-tools-gml-jts.version>1.0.3</ogc-tools-gml-jts.version>
+        <ogc-tools-gml-jts.version>1.1.90</ogc-tools-gml-jts.version>
         <opendj-embedded.app.version>1.3.3</opendj-embedded.app.version>
-        <opengis.bundle.version>${opengis.version}_1</opengis.bundle.version>
-        <opengis.version>19.1</opengis.version>
+        <opengis.bundle.version>${opengis.version}_3</opengis.bundle.version>
+        <opengis.version>20.1</opengis.version>
         <opensaml.osgi.version>3.3.0_2</opensaml.osgi.version>
         <nimbus.version>8.2</nimbus.version>
         <nimbus.oidc.version>6.18</nimbus.oidc.version>
         <nimbus.langtag.version>1.4.4</nimbus.langtag.version>
         <org.geotools.bundle.version>${org.geotools.version}_2</org.geotools.bundle.version>
-        <org.geotools.version>19.1</org.geotools.version>
+        <org.geotools.version>20.1</org.geotools.version>
         <!-- Note: The swissbox version needs to match the version used by pax-exam . -->
         <org.ops4j.pax.swissbox.version>1.8.2</org.ops4j.pax.swissbox.version>
         <org.rrd4j.version>3.3.1</org.rrd4j.version>
@@ -313,7 +308,7 @@
         <spatial4j.version>0.7</spatial4j.version>
         <spring.version>5.1.7.RELEASE</spring.version>
         <spring-osgi.version>1.2.1</spring-osgi.version>
-        <tika.thirdparty.bundle.version>1.22.0_1</tika.thirdparty.bundle.version>
+        <tika.thirdparty.bundle.version>1.22.0_2</tika.thirdparty.bundle.version>
         <tika.version>1.22</tika.version>
         <usng4j.version>0.4</usng4j.version>
         <validation.version>1.1.0.Final</validation.version>
@@ -400,6 +395,11 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.databind.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codice.thirdparty</groupId>
+                <artifactId>geotools-suite</artifactId>
+                <version>${org.geotools.bundle.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -13,16 +13,16 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import de.micromata.opengis.kml.v_2_2_0.LinearRing;
 import org.geotools.geometry.jts.JTSFactoryFinder;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.util.CollectionUtils;
 
 public class KmlToJtsLinearRingConverter {
   private KmlToJtsLinearRingConverter() {}
 
-  public static com.vividsolutions.jts.geom.LinearRing from(LinearRing kmlLinearRing) {
+  public static org.locationtech.jts.geom.LinearRing from(LinearRing kmlLinearRing) {
     if (!isValidKmlLinearRing(kmlLinearRing)) {
       return null;
     }

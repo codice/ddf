@@ -15,10 +15,10 @@ package org.codice.ddf.spatial.ogc.wfs.v110.catalog.source;
 
 import static java.util.stream.Collectors.joining;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import java.util.Arrays;
 import java.util.List;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
 
 interface CoordinateStrategy {
   String toString(Coordinate coordinate);

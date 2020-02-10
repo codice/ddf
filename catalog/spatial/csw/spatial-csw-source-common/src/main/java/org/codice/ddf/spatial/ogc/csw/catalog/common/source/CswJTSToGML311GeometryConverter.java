@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Polygon;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.JAXBElement;
@@ -31,6 +28,9 @@ import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311CoordinateConverter;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311GeometryConverter;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311PolygonConverter;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311SRSReferenceGroupConverterInterface;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LinearRing;
 import java.util.ArrayList;
 import java.util.List;
 import net.opengis.gml.v_3_1_1.DirectPositionListType;
@@ -23,6 +21,8 @@ import org.jvnet.ogc.gml.v_3_1_1.ObjectFactoryInterface;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311CoordinateConverter;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311LinearRingConverter;
 import org.jvnet.ogc.gml.v_3_1_1.jts.JTSToGML311SRSReferenceGroupConverterInterface;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LinearRing;
 
 /**
  * An implementation of {@link JTSToGML311LinearRingConverter} that provides a means of customizing

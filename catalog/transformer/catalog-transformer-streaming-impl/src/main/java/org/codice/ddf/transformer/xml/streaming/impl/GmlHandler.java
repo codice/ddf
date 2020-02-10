@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.transformer.xml.streaming.impl;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.WKTWriter;
-import com.vividsolutions.jts.io.gml2.GMLHandler;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
@@ -36,6 +33,9 @@ import org.codice.ddf.transformer.xml.streaming.AbstractSaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
 import org.codice.ddf.transformer.xml.streaming.lib.SaxEventHandlerUtils;
 import org.codice.ddf.transformer.xml.streaming.lib.SaxEventToXmlElementConverter;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.WKTWriter;
+import org.locationtech.jts.io.gml2.GMLHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
@@ -43,8 +43,8 @@ import org.xml.sax.SAXException;
 
 /**
  * A sax event handler to handle GML sax events and stores the data as a WKT. Delegates GML events
- * to {@link com.vividsolutions.jts.io.gml2.GMLHandler}. Uses {@link
- * com.vividsolutions.jts.io.WKTWriter} to write the Geometries to WKT. Note: ONLY CAN PARSE GML2
+ * to {@link org.locationtech.jts.io.gml2.GMLHandler}. Uses {@link
+ * org.locationtech.jts.io.WKTWriter} to write the Geometries to WKT. Note: ONLY CAN PARSE GML2
  * points. Will throw hard-to-debug Null Pointer Exceptions if used with GML3 or other GML2
  * geometries. {@inheritDoc}
  */

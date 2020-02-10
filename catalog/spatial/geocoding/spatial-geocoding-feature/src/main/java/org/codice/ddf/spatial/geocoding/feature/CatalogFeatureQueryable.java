@@ -13,9 +13,6 @@
  */
 package org.codice.ddf.spatial.geocoding.feature;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -34,6 +31,9 @@ import org.apache.commons.lang.Validate;
 import org.codice.ddf.spatial.geocoding.FeatureQueryException;
 import org.codice.ddf.spatial.geocoding.FeatureQueryable;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

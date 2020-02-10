@@ -13,11 +13,11 @@
  */
 package ddf.catalog.transformer;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 import ddf.catalog.transform.CatalogTransformerException;
 import org.apache.commons.lang.StringUtils;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 
 class GeometryUtils {
   static Geometry parseGeometry(String wkt) throws CatalogTransformerException {

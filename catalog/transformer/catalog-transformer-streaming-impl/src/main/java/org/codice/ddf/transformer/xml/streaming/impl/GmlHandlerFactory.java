@@ -13,11 +13,11 @@
  */
 package org.codice.ddf.transformer.xml.streaming.impl;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.gml2.GMLHandler;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.io.gml2.GMLHandler;
 import org.xml.sax.ErrorHandler;
 
 public class GmlHandlerFactory implements SaxEventHandlerFactory {

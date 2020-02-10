@@ -811,7 +811,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         JsonPath.given(getAllFeaturesResponsePermitted).getString("value.AllFeatures.name");
 
     for (String app : getDefaultRequiredApps()) {
-      if (!"sdk-rest".equals(app) && !"sample-storageplugins".equals(app)) {
+      if (!"test-rest-endpoint".equals(app) && !"test-storageplugins".equals(app)) {
         assertThat(filteredApplications, containsString(app));
       }
     }

@@ -92,20 +92,6 @@
             <artifactId>spatial-csw-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-core</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>xercesImpl</artifactId>
-                    <groupId>xerces</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts-io</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
             <scope>test</scope>
@@ -127,19 +113,9 @@
             <artifactId>gt-xml</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jvnet.ogc</groupId>
+            <groupId>io.github.soc</groupId>
             <artifactId>ogc-tools-gml-jts</artifactId>
             <version>${ogc-tools-gml-jts.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.vividsolutions</groupId>
-                    <artifactId>jts</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jvnet.ogc</groupId>
-                    <artifactId>gml-v_3_1_1-schema</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>xmlunit</groupId>

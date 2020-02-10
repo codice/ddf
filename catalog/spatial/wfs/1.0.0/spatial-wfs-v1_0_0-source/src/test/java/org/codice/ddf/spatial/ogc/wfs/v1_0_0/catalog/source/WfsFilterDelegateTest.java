@@ -14,7 +14,6 @@
 package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source;
 
 import static java.util.Collections.singletonList;
-import static javolution.testing.TestContext.assertTrue;
 import static junit.framework.TestCase.assertNull;
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.Matchers.instanceOf;
@@ -23,6 +22,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

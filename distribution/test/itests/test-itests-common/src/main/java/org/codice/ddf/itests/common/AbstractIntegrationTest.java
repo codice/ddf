@@ -209,7 +209,7 @@ public abstract class AbstractIntegrationTest {
   private static final String DDF_ITESTS_GROUP_ID = "ddf.test.itests";
 
   protected static final String[] DEFAULT_REQUIRED_APPS = {
-    "catalog-app", "solr-app", "spatial-app", "sdk-rest", "sample-storageplugins"
+    "catalog-app", "solr-app", "spatial-app", "test-rest-endpoint", "test-storageplugins"
   };
 
   protected KarafConsole console;
@@ -700,7 +700,7 @@ public abstract class AbstractIntegrationTest {
             "ddf-boot-features"),
         // Adds sdk-app to the features repo
         features(
-            maven("ddf.distribution", "sdk-app")
+            maven("ddf.test", "features-xml")
                 .classifier("features")
                 .type("xml")
                 .versionAsInProject()));

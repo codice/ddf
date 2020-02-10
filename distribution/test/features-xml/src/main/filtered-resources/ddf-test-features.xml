@@ -11,10 +11,24 @@
  *
  **/
  -->
-<features name="ddf-test-${project.version}">
+<features xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		  name="${project.artifactId}-${project.version}"
+		  xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+		  xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
 	<feature name="ddf-test-input-transformer-stubs" version="${project.version}">
 		<bundle start-level='60'>mvn:ddf.test/test-input-transformer-stubs/${project.version}</bundle>
 	</feature>
 
+	<feature name="test-rest-endpoint" version="${project.version}">
+		<bundle>mvn:ddf.test/test-rest-endpoint/${project.version}</bundle>
+	</feature>
+
+	<feature name="test-storageplugins" version="${project.version}">
+		<bundle>mvn:ddf.test/test-storageplugins/${project.version}</bundle>
+	</feature>
+
+	<feature name="test-metacard-validator" version="${project.version}">
+		<bundle>mvn:ddf.test/test-metacard-validator/${project.version}</bundle>
+	</feature>
 </features>
