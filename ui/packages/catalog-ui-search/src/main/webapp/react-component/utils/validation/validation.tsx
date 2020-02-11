@@ -171,23 +171,30 @@ function hasPointError(point: any[]) {
 
 function getGeometryErrors(filter: any): Set<string> {
   const geometry = filter.geojson && filter.geojson.geometry
+  const properties = filter.geojson.properties
   const bufferWidth =
-    filter.geojson.properties.buffer && filter.geojson.properties.buffer.width
+    properties.buffer && properties.buffer.width
   const errors = new Set<string>()
   if (!geometry) {
     return errors
   }
-  switch (filter.geojson.properties.type) {
+  switch (properties.type) {
     case 'Polygon':
-      if (
-        !geometry.coordinates[0].length ||
-        geometry.coordinates[0].length < 4
-      ) {
-        errors.add(
-          'Polygon coordinates must be in the form [[x,y],[x,y],[x,y],[x,y], ... ]'
-        )
-      }
-      break
+        if (!geometry.coordinates[0].length) {
+          errors.add(
+            'Polygon coordinates must be in the form [[x,y],[x,y],[x,y],[x,y], ... ]'
+          )
+        } else if (geometry.coordinates[0].length < 4) {
+          // check for MultiPolygon
+          geometry.coordinates[0].forEach((shape: number[]) => {
+          if(shape.length < 4) {
+            errors.add(
+            'Polygon coordinates must be in the form [[x,y],[x,y],[x,y],[x,y], ... ]'
+          )
+        }
+        })
+        }
+        break
     case 'LineString':
       if (!geometry.coordinates.length || geometry.coordinates.length < 2) {
         errors.add('Line coordinates must be in the form [[x,y],[x,y], ... ]')
