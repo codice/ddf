@@ -17,14 +17,11 @@ const React = require('react')
 import { InvalidSearchFormMessage } from '../../../component/announcement/CommonMessages'
 import styled from 'styled-components'
 const announcement = require('../../../component/announcement/index.jsx')
-const {
-  validateInput,
-} = require('../../../component/location-new/utils/dms-utils')
 const usngs = require('usng.js')
 const converter = new usngs.Converter()
-const northingOffset = 10000000
-const latitude = 'latitude'
-const longitude = 'longitude'
+const NORTHING_OFFSET = 10000000
+const LATITUDE = 'latitude'
+const LONGITUDE = 'longitude'
 interface ErrorState {
   error: boolean
   message: string
@@ -78,13 +75,13 @@ export function validateGeo(
 ) {
   switch (key) {
     case 'lat':
-      return validateDDLatLon(latitude, 90, value)
+      return validateDDLatLon(LATITUDE, 90, value)
     case 'lon':
-      return validateDDLatLon(longitude, 180, value)
+      return validateDDLatLon(LONGITUDE, 180, value)
     case 'dmsLat':
-      return validateDmsLatLon(latitude, value)
+      return validateDmsLatLon(LATITUDE, value)
     case 'dmsLon':
-      return validateDmsLatLon(longitude, value)
+      return validateDmsLatLon(LONGITUDE, value)
     case 'usng':
       return validateUsng(value)
     case 'utmUpsEasting':
@@ -259,13 +256,14 @@ function validateDDLatLon(label: string, defaultCoord: number, value: string) {
 function validateDmsLatLon(label: string, value: string) {
   let message = ''
   let defaultValue
-  const validator = label === latitude ? 'dd°mm\'ss.s"' : 'ddd°mm\'ss.s"'
+  const validator = label === LATITUDE ? 'dd°mm\'ss.s"' : 'ddd°mm\'ss.s"'
   if (value !== undefined && value.length === 0) {
     message = getEmptyErrorMessage(label)
     return { error: true, message, defaultValue }
   }
-  if (validateInput(value, validator) !== value) {
-    defaultValue = validateInput(value, validator)
+  const dmsValidation = validateDmsInput(value, validator) 
+  if (dmsValidation.error) {
+    defaultValue = dmsValidation.defaultValue
     message = getDefaultingErrorMessage(value, label, defaultValue)
     return { error: true, message, defaultValue }
   }
@@ -317,7 +315,7 @@ function validateUtmUps(
     northPole: northernHemisphere,
   }
   utmUpsParts.northing =
-    isUps || northernHemisphere ? northing : northing - northingOffset
+    isUps || northernHemisphere ? northing : northing - NORTHING_OFFSET
   // These checks are to ensure that we only mark a value as "invalid"
   // if the user has entered something already
   const isNorthingInvalid =
@@ -365,6 +363,110 @@ function validateRadiusLineBuffer(key: string, value: string) {
     }
   }
   return { error: false, message: '' }
+}
+
+const validateDmsInput = (input: any, placeHolder: string) => {
+  if (input !== undefined && placeHolder === 'dd°mm\'ss.s"') {
+    const corrected = getCorrectedDmsLatInput(input)
+    return { error: corrected !== input, defaultValue: corrected}
+  } else if (input !== undefined && placeHolder === 'ddd°mm\'ss.s"') {
+    const corrected = getCorrectedDmsLonInput(input)
+    return { error: corrected !== input, defaultValue: corrected }
+  }
+  return { error: false }
+}
+
+const lat = {
+  degreesBegin: 0,
+  degreesEnd: 2,
+  minutesBegin: 3,
+  minutesEnd: 5,
+  secondsBegin: 6,
+  secondsEnd: -1,
+}
+const lon = {
+  degreesBegin: 0,
+  degreesEnd: 3,
+  minutesBegin: 4,
+  minutesEnd: 6,
+  secondsBegin: 7,
+  secondsEnd: -1,
+}
+
+const getCorrectedDmsLatInput = (input: any) => {
+  const degrees = input.slice(lat.degreesBegin, lat.degreesEnd)
+  const minutes = input.slice(lat.minutesBegin, lat.minutesEnd)
+  const seconds = input.slice(lat.secondsBegin, lat.secondsEnd)
+  const maxDmsLat = '90°00\'00"'
+  if (degrees > 90) {
+    return maxDmsLat
+  } else if (minutes >= 60) {
+    if (degrees < 90) {
+      return (Number.parseInt(degrees) + 1).toString() + '°00\'00"'
+    } else {
+      return maxDmsLat
+    }
+  } else if (seconds >= 60) {
+    if (minutes < 59) {
+      return degrees + '°' + (Number.parseInt(minutes) + 1).toString() + '\'00"'
+    } else {
+      if (degrees >= '90') {
+        return maxDmsLat
+      } else {
+        return (Number.parseInt(degrees) + 1).toString() + '°00\'00"'
+      }
+    }
+  } else if (
+    input.slice(lat.degreesBegin, lat.degreesEnd) === '9_' &&
+    input.slice(lat.degreesEnd) === '°00\'00"'
+  ) {
+    return '9_°__\'__"'
+  } else if (
+    input.slice(lat.minutesBegin, lat.minutesEnd) === '6_' &&
+    input.slice(lat.minutesEnd) === '\'00"'
+  ) {
+    return input.slice(lat.degreesBegin, lat.degreesEnd) + '°6_\'__"'
+  } else {
+    return input
+  }
+}
+
+const getCorrectedDmsLonInput = (input: any) => {
+  const degrees = input.slice(lon.degreesBegin, lon.degreesEnd)
+  const minutes = input.slice(lon.minutesBegin, lon.minutesEnd)
+  const seconds = input.slice(lon.secondsBegin, lon.secondsEnd)
+  const maxDmsLon = '180°00\'00"'
+  if (degrees > 180) {
+    return maxDmsLon
+  } else if (minutes >= 60) {
+    if (degrees < 180) {
+      return (Number.parseInt(degrees) + 1).toString() + '°00\'00"'
+    } else {
+      return maxDmsLon
+    }
+  } else if (seconds > 60) {
+    if (minutes < 59) {
+      return degrees + '°' + (Number.parseInt(minutes) + 1).toString() + '\'00"'
+    } else {
+      if (degrees >= '180') {
+        return maxDmsLon
+      } else {
+        return (Number.parseInt(degrees) + 1).toString() + '°00\'00"'
+      }
+    }
+  } else if (
+    input.slice(lon.degreesBegin, lon.degreesEnd) === '18_' &&
+    input.slice(lon.degreesEnd) === '°00\'00"'
+  ) {
+    return '18_°__\'__"'
+  } else if (
+    input.slice(lon.minutesBegin, lon.minutesEnd) === '6_' &&
+    input.slice(lon.minutesEnd) === '\'00"'
+  ) {
+    return input.slice(lon.degreesBegin, lon.degreesEnd) + '°6_\'__"'
+  } else {
+    return input
+  }
 }
 
 function getDefaultingErrorMessage(
