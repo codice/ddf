@@ -110,15 +110,6 @@ export const ErrorComponent = props => {
   ) : null
 }
 
-export function getErrorComponent(errorState: ErrorState) {
-  return errorState.error ? (
-    <Invalid>
-      <WarningIcon className="fa fa-warning" />
-      <span>{errorState.message}</span>
-    </Invalid>
-  ) : null
-}
-
 export function validateListOfPoints(coordinates: any[], mode: string) {
   let message = ''
   const isLine = mode.includes('line')

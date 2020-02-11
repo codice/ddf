@@ -15,7 +15,6 @@
 export {
   showErrorMessages,
   getFilterErrors,
-  getErrorComponent,
   ErrorComponent,
   validateGeo,
   initialErrorState,
