@@ -30,11 +30,6 @@ Standards marked *Experimental* are functional and have been tested, but are sub
 |<<{managing-prefix}wfs_1_0_source,WFS 1.0 Source>>, <<{managing-prefix}wfs_1_1_source,WFS 1.1 Source>>, <<{managing-prefix}wfs_2_0_source,WFS 2.0 Source>>
 |Supported
 
-|http://www.opengeospatial.org/standards/wps[OGC WPS 2.0] {external-link} Web Processing Service
-|<<{integrating-prefix}configuring_wps_endpoint,WPS Endpoint>>
-|
-|Experimental
-
 |http://www.opensearch.org/Home[OpenSearch] {external-link}
 |<<{integrating-prefix}opensearch_endpoint,OpenSearch Endpoint>>
 |<<{managing-prefix}opensearch_source,OpenSearch Source>>

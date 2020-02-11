@@ -162,27 +162,6 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-offline-index/${project.version}</bundle>
     </feature>
 
-    <feature name="spatial-process-api" version="${project.version}"
-             description="Spatial Process API">
-        <bundle>mvn:org.codice.ddf.spatial/spatial-process-api/${project.version}</bundle>
-    </feature>
-
-    <feature name="spatial-wps-api" version="${project.version}" description="Spatial WPS API">
-        <feature>spatial-common-ogc</feature>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wps-api/${project.version}</bundle>
-        <bundle>wrap:mvn:org.hisrc.w3c/xmlschema-v_1_0/1.4.0$Bundle-Name=xmlschema-v_1_0&amp;Bundle-SymbolicName=xmlschema-v_1_0&amp;Bundle-Version=1.4.0&amp;Export-Package=*;version="1.4.0"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",*</bundle>
-        <bundle>wrap:mvn:org.jvnet.ogc/ows-v_2_0/${jvnet-ogc.version}$Bundle-Name=ows-v_2_0&amp;Bundle-SymbolicName=ows-v_2_0&amp;Bundle-Version=${jvnet-ogc.version}&amp;Export-Package=*;version="${jvnet-ogc.version}"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",org.hisrc.w3c.xlink.v_1_0.*;version="1.4.0",*</bundle>
-        <bundle>wrap:mvn:org.jvnet.ogc/wps-v_2_0/${jvnet-ogc.version}$Bundle-Name=wps-v_2_0&amp;Bundle-SymbolicName=wps-v_2_0&amp;Bundle-Version=${jvnet-ogc.version}&amp;Export-Package=*;version="${jvnet-ogc.version}"&amp;Import-Package=org.jvnet.jaxb2_commons.*;version="0.11.0",net.opengis.ows.v_2_0.*;version="${jvnet-ogc.version}",*</bundle>
-    </feature>
-
-    <feature name="spatial-wps" version="${project.version}"
-        description="Spatial WPS Endpoint">
-        <feature>spatial-wps-api</feature>
-        <feature>spatial-process-api</feature>
-        <feature>apache-commons</feature>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-wps-endpoint/${project.version}</bundle>
-    </feature>
-
     <feature name="spatial-app" version="${project.version}"
              description="Spatial contains standards-based, geospatial endpoints, sources, and transforms.">
         <feature>catalog-app</feature>
@@ -195,8 +174,6 @@
         <feature>spatial-wfs-core</feature>
         <feature>spatial-csw</feature>
         <feature>offline-gazetteer</feature>
-        <feature>spatial-process-api</feature>
-        <feature>spatial-wps-api</feature>
         <feature>spatial-wfs-feature-transformer-xstream</feature>
         <feature>spatial-wfs-feature-transformer-handlebars</feature>
         <feature>spatial-wfs-v1_0_0</feature>
