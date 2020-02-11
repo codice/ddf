@@ -228,7 +228,8 @@ module.exports = Backbone.AssociatedModel.extend({
       this.set('locationType', 'utmUps')
     }
     this.drawing = false
-    store.get('content').turnOffDrawing(this)
+    this.set('drawing', false)
+    store.get('content').turnOffDrawing()
   },
 
   drawingOn() {

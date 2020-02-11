@@ -96,6 +96,7 @@ export function validateGeo(
     case 'lineWidth':
       return validateRadiusLineBuffer(key, value)
     case 'line':
+    case 'poly':
     case 'polygon':
       return validateLinePolygon(key, value)
     default:
