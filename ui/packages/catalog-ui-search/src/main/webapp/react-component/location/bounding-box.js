@@ -60,7 +60,7 @@ const BoundingBoxLatLonDd = props => {
     [props.east, props.west, props.south, props.north]
   )
 
-  function onChangeDd(key, value) {
+  function validateDd(key, value) {
     const label =
       key.includes('east') || key.includes('west') ? 'lon' : 'lat'
     const { error, message, defaultValue } = validateGeo(label, value)
@@ -76,7 +76,7 @@ const BoundingBoxLatLonDd = props => {
       <TextField
         label="West"
         value={west !== undefined ? String(west) : west}
-        onChange={value => onChangeDd('west', value)}
+        onChange={value => validateDd('west', value)}
         onBlur={() => setDdError(validateGeo('lon', west))}
         type="number"
         step="any"
@@ -87,7 +87,7 @@ const BoundingBoxLatLonDd = props => {
       <TextField
         label="South"
         value={south !== undefined ? String(south) : south}
-        onChange={value => onChangeDd('south', value)}
+        onChange={value => validateDd('south', value)}
         onBlur={() => setDdError(validateGeo('lat', south))}
         type="number"
         step="any"
@@ -98,7 +98,7 @@ const BoundingBoxLatLonDd = props => {
       <TextField
         label="East"
         value={east !== undefined ? String(east) : east}
-        onChange={value => onChangeDd('east', value)}
+        onChange={value => validateDd('east', value)}
         onBlur={() => setDdError(validateGeo('lon', east))}
         type="number"
         step="any"
@@ -109,7 +109,7 @@ const BoundingBoxLatLonDd = props => {
       <TextField
         label="North"
         value={north !== undefined ? String(north) : north}
-        onChange={value => onChangeDd('north', value)}
+        onChange={value => validateDd('north', value)}
         onBlur={() => setDdError(validateGeo('lat', north))}
         type="number"
         step="any"
@@ -147,7 +147,7 @@ const BoundingBoxLatLonDms = props => {
     [props.dmsWest, props.dmsSouth, props.dmsEast, props.dmsNorth]
   )
 
-  function validate(key, type, value) {
+  function validateDms(key, type, value) {
     const label =
       key.includes('East') || key.includes('West') ? 'dmsLon' : 'dmsLat'
     const { error, message, defaultValue } = validateGeo(label, value)
@@ -174,7 +174,7 @@ const BoundingBoxLatLonDms = props => {
       <DmsLongitude
         label="West"
         value={dmsWest}
-        onChange={(value, type) => validate('dmsWest', type, value)}
+        onChange={(value, type) => validateDms('dmsWest', type, value)}
       >
         <DirectionInput
           options={longitudeDirections}
@@ -185,7 +185,7 @@ const BoundingBoxLatLonDms = props => {
       <DmsLatitude
         label="South"
         value={dmsSouth}
-        onChange={(value, type) => validate('dmsSouth', type, value)}
+        onChange={(value, type) => validateDms('dmsSouth', type, value)}
       >
         <DirectionInput
           options={latitudeDirections}
@@ -196,7 +196,7 @@ const BoundingBoxLatLonDms = props => {
       <DmsLongitude
         label="East"
         value={dmsEast}
-        onChange={(value, type) => validate('dmsEast', type, value)}
+        onChange={(value, type) => validateDms('dmsEast', type, value)}
       >
         <DirectionInput
           options={longitudeDirections}
@@ -207,7 +207,7 @@ const BoundingBoxLatLonDms = props => {
       <DmsLatitude
         label="North"
         value={dmsNorth}
-        onChange={(value, type) => validate('dmsNorth', type, value)}
+        onChange={(value, type) => validateDms('dmsNorth', type, value)}
       >
         <DirectionInput
           options={latitudeDirections}

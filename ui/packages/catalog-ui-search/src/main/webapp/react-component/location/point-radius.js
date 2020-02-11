@@ -44,7 +44,7 @@ const PointRadiusLatLonDd = props => {
     [props.lat, props.lon, props.radius]
   )
 
-  function onChangeDd(key, value) {
+  function validateDd(key, value) {
     const { error, message, defaultValue } = validateGeo(key, value)
     if (defaultValue) {
       setDdError({ error, message, defaultValue })
@@ -60,7 +60,7 @@ const PointRadiusLatLonDd = props => {
         type="number"
         label="Latitude"
         value={lat !== undefined ? String(lat) : lat}
-        onChange={value => onChangeDd('lat', value)}
+        onChange={value => validateDd('lat', value)}
         onBlur={() => setDdError(validateGeo('lat', lat))}
         addon="°"
       />
@@ -68,7 +68,7 @@ const PointRadiusLatLonDd = props => {
         type="number"
         label="Longitude"
         value={lon !== undefined ? String(lon) : lon}
-        onChange={value => onChangeDd('lon', value)}
+        onChange={value => validateDd('lon', value)}
         onBlur={() => setDdError(validateGeo('lon', lon))}
         addon="°"
       />
@@ -117,7 +117,7 @@ const PointRadiusLatLonDms = props => {
     [props.dmsLat, props.dmsLon, props.radius]
   )
 
-  function validate(key, type, value) {
+  function validateDms(key, type, value) {
     const { error, message, defaultValue } = validateGeo(key, value)
     if (type === 'blur') {
       setDmsError({
@@ -142,7 +142,7 @@ const PointRadiusLatLonDms = props => {
       <DmsLatitude
         label="Latitude"
         value={dmsLat}
-        onChange={(value, type) => validate('dmsLat', type, value)}
+        onChange={(value, type) => validateDms('dmsLat', type, value)}
       >
         <DirectionInput
           options={latitudeDirections}
@@ -153,7 +153,7 @@ const PointRadiusLatLonDms = props => {
       <DmsLongitude
         label="Longitude"
         value={dmsLon}
-        onChange={(value, type) => validate('dmsLon', type, value)}
+        onChange={(value, type) => validateDms('dmsLon', type, value)}
       >
         <DirectionInput
           options={longitudeDirections}
