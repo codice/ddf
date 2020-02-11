@@ -53,11 +53,11 @@ export function getFilterErrors(filters: any) {
   let geometryErrors = new Set<string>()
   for (let i = 0; i < filters.length; i++) {
     const filter = filters[i]
-    getGeometryErrors(filter).forEach(function(msg) {
+    getGeometryErrors(filter).forEach(msg => {
       geometryErrors.add(msg)
     })
   }
-  geometryErrors.forEach(function(err) {
+  geometryErrors.forEach(err => {
     errors.add({
       title: 'Invalid geometry filter',
       body: err,
@@ -126,13 +126,15 @@ export function validateListOfPoints(coordinates: any[], mode: string) {
     if (coordinate.length > 2) {
       coordinate.forEach((coord: any) => {
         if (hasPointError(coord))
-          message = JSON.stringify(coord) + ' is not a valid point.'
+          message = JSON.stringify(coord) + ' is not a valid point'
       })
     } else {
       if (mode.includes('multi')) {
+        // Handle the case where the user has selected a "multi" mode but 
+        // one or more shapes were invalid and therefore eliminated
         message = `Switch to ${isLine ? 'Line' : 'Polygon'}`
       } else if (hasPointError(coordinate)) {
-        message = JSON.stringify(coordinate) + ' is not a valid point.'
+        message = JSON.stringify(coordinate) + ' is not a valid point'
       }
     }
   })
@@ -144,10 +146,9 @@ function validateLinePolygon(mode: string, currentValue: string) {
     return { error: true, message: 'Not an acceptable value' }
   }
   try {
-    const pointsValid = validateListOfPoints(JSON.parse(currentValue), mode)
-    return pointsValid === undefined ? initialErrorState : pointsValid
+    return validateListOfPoints(JSON.parse(currentValue), mode)
   } catch (e) {
-    return initialErrorState
+    return { error: true, message: 'Not an acceptable value' }
   }
 }
 
@@ -174,19 +175,12 @@ function is2DArray(coordinates: string) {
 function hasPointError(point: any[]) {
   if (
     point.length !== 2 ||
-    (Number.isNaN(Number.parseFloat(point[0])) &&
-      Number.isNaN(Number.parseFloat(point[1])))
-  ) {
-    return true
-  } else if (
-    point[0] > 180 ||
-    point[0] < -180 ||
-    point[1] > 90 ||
-    point[1] < -90
+    Number.isNaN(Number.parseFloat(point[0])) ||
+      Number.isNaN(Number.parseFloat(point[1]))
   ) {
     return true
   }
-  return false
+  return point[0] > 180 || point[0] < -180 || point[1] > 90 || point[1] < -90
 }
 
 function getGeometryErrors(filter: any): Set<string> {
@@ -212,17 +206,17 @@ function getGeometryErrors(filter: any): Set<string> {
       if (!geometry.coordinates.length || geometry.coordinates.length < 2) {
         errors.add('Line coordinates must be in the form [[x,y],[x,y], ... ]')
       }
-      if (!bufferWidth || bufferWidth == 0) {
-        errors.add('Line buffer width must be greater than 0.000001')
+      if (!bufferWidth) {
+        errors.add('Line buffer width must be greater than 0')
       }
       break
     case 'Point':
-      if (!bufferWidth || bufferWidth < 0.000001) {
-        errors.add('Radius must be greater than 0.000001')
+      if (!bufferWidth) {
+        errors.add('Radius must be greater than 0')
       }
       if (
         geometry.coordinates.some(
-          (coord: any) => !coord || coord.toString().length == 0
+          (coord: any) => !coord || coord.toString().length === 0
         )
       ) {
         errors.add('Coordinates must not be empty')
@@ -359,7 +353,7 @@ function validateRadiusLineBuffer(key: string, value: string) {
   if ((value !== undefined && value.length === 0) || Number(value) < 0.000001) {
     return {
       error: true,
-      message: label + 'cannot be less than 0.000001',
+      message: label + 'must be greater than 0',
     }
   }
   return { error: false, message: '' }
