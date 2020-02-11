@@ -211,7 +211,7 @@ const PointRadiusUsngMgrs = props => {
       >
         <TextField
           label="Radius"
-          type='number'
+          type="number"
           value={String(radius)}
           onChange={value => {
             setRadiusError(validateGeo('radius', value))
@@ -330,7 +330,7 @@ const PointRadiusUtmUps = props => {
       >
         <TextField
           label="Radius"
-          type='number'
+          type="number"
           value={String(radius)}
           onChange={value => {
             setRadiusError(validateGeo('radius', value))

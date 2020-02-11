@@ -130,7 +130,7 @@ export function validateListOfPoints(coordinates: any[], mode: string) {
       })
     } else {
       if (mode.includes('multi')) {
-        // Handle the case where the user has selected a "multi" mode but 
+        // Handle the case where the user has selected a "multi" mode but
         // one or more shapes were invalid and therefore eliminated
         message = `Switch to ${isLine ? 'Line' : 'Polygon'}`
       } else if (hasPointError(coordinate)) {
@@ -176,7 +176,7 @@ function hasPointError(point: any[]) {
   if (
     point.length !== 2 ||
     Number.isNaN(Number.parseFloat(point[0])) ||
-      Number.isNaN(Number.parseFloat(point[1]))
+    Number.isNaN(Number.parseFloat(point[1]))
   ) {
     return true
   }
@@ -255,7 +255,7 @@ function validateDmsLatLon(label: string, value: string) {
     message = getEmptyErrorMessage(label)
     return { error: true, message, defaultValue }
   }
-  const dmsValidation = validateDmsInput(value, validator) 
+  const dmsValidation = validateDmsInput(value, validator)
   if (dmsValidation.error) {
     defaultValue = dmsValidation.defaultValue
     message = getDefaultingErrorMessage(value, label, defaultValue)
@@ -362,7 +362,7 @@ function validateRadiusLineBuffer(key: string, value: string) {
 const validateDmsInput = (input: any, placeHolder: string) => {
   if (input !== undefined && placeHolder === 'dd°mm\'ss.s"') {
     const corrected = getCorrectedDmsLatInput(input)
-    return { error: corrected !== input, defaultValue: corrected}
+    return { error: corrected !== input, defaultValue: corrected }
   } else if (input !== undefined && placeHolder === 'ddd°mm\'ss.s"') {
     const corrected = getCorrectedDmsLonInput(input)
     return { error: corrected !== input, defaultValue: corrected }

@@ -61,8 +61,7 @@ const BoundingBoxLatLonDd = props => {
   )
 
   function validateDd(key, value) {
-    const label =
-      key.includes('east') || key.includes('west') ? 'lon' : 'lat'
+    const label = key.includes('east') || key.includes('west') ? 'lon' : 'lat'
     const { error, message, defaultValue } = validateGeo(label, value)
     if (defaultValue) {
       setDdError({ error, message, defaultValue })
