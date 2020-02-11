@@ -227,7 +227,6 @@ module.exports = Backbone.AssociatedModel.extend({
       this.set('prevLocationType', '')
       this.set('locationType', 'utmUps')
     }
-    this.drawing = false
     this.set('drawing', false)
     store.get('content').turnOffDrawing()
   },
@@ -238,7 +237,6 @@ module.exports = Backbone.AssociatedModel.extend({
       this.set('prevLocationType', 'utmUps')
       this.set('locationType', 'dd')
     }
-    this.drawing = true
     store.get('content').turnOnDrawing(this)
   },
 
@@ -417,7 +415,7 @@ module.exports = Backbone.AssociatedModel.extend({
       this.setUtmUpsLowerRight(utmUpsParts, !this.isLocationTypeUtmUps())
     }
 
-    if (this.isLocationTypeUtmUps() && this.drawing) {
+    if (this.isLocationTypeUtmUps() && this.get('drawing')) {
       this.repositionLatLon()
     }
 
@@ -437,7 +435,7 @@ module.exports = Backbone.AssociatedModel.extend({
       silent: this.get('locationType') !== 'usng',
     })
 
-    if (this.get('locationType') === 'usng' && this.drawing) {
+    if (this.get('locationType') === 'usng' && this.get('drawing')) {
       this.repositionLatLon()
     }
   },
@@ -598,7 +596,7 @@ module.exports = Backbone.AssociatedModel.extend({
         silent:
           (this.get('locationType') === 'usng' ||
             this.isLocationTypeUtmUps()) &&
-          !this.drawing,
+          !this.get('drawing'),
       })
     }
     if (this.get('locationType') !== 'usng' && !this.isLocationTypeUtmUps()) {

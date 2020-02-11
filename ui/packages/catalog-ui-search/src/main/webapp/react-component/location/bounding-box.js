@@ -60,7 +60,9 @@ const BoundingBoxLatLonDd = props => {
     [props.east, props.west, props.south, props.north]
   )
 
-  function onChangeDd(key, label, value) {
+  function onChangeDd(key, value) {
+    const label =
+      key.includes('east') || key.includes('west') ? 'lon' : 'lat'
     const { error, message, defaultValue } = validateGeo(label, value)
     if (defaultValue) {
       setDdError({ error, message, defaultValue })
@@ -74,7 +76,7 @@ const BoundingBoxLatLonDd = props => {
       <TextField
         label="West"
         value={west !== undefined ? String(west) : west}
-        onChange={value => onChangeDd('west', 'lon', value)}
+        onChange={value => onChangeDd('west', value)}
         onBlur={() => setDdError(validateGeo('lon', west))}
         type="number"
         step="any"
@@ -85,7 +87,7 @@ const BoundingBoxLatLonDd = props => {
       <TextField
         label="South"
         value={south !== undefined ? String(south) : south}
-        onChange={value => onChangeDd('south', 'lat', value)}
+        onChange={value => onChangeDd('south', value)}
         onBlur={() => setDdError(validateGeo('lat', south))}
         type="number"
         step="any"
@@ -96,7 +98,7 @@ const BoundingBoxLatLonDd = props => {
       <TextField
         label="East"
         value={east !== undefined ? String(east) : east}
-        onChange={value => onChangeDd('east', 'lon', value)}
+        onChange={value => onChangeDd('east', value)}
         onBlur={() => setDdError(validateGeo('lon', east))}
         type="number"
         step="any"
@@ -107,7 +109,7 @@ const BoundingBoxLatLonDd = props => {
       <TextField
         label="North"
         value={north !== undefined ? String(north) : north}
-        onChange={value => onChangeDd('north', 'lat', value)}
+        onChange={value => onChangeDd('north', value)}
         onBlur={() => setDdError(validateGeo('lat', north))}
         type="number"
         step="any"
@@ -138,7 +140,6 @@ const BoundingBoxLatLonDms = props => {
 
   useEffect(
     () => {
-      console.log(props.drawing)
       if (props.drawing) {
         setDmsError(initialErrorStateWithDefault)
       }
