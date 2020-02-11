@@ -22,10 +22,6 @@ const converter = new usngs.Converter()
 const NORTHING_OFFSET = 10000000
 const LATITUDE = 'latitude'
 const LONGITUDE = 'longitude'
-interface ErrorState {
-  error: boolean
-  message: string
-}
 
 export function showErrorMessages(errors: any) {
   if (errors.length === 0) {
@@ -100,7 +96,7 @@ export function validateGeo(
   }
 }
 
-export const ErrorComponent = props => {
+export const ErrorComponent = (props: any) => {
   const { errorState } = props
   return errorState.error ? (
     <Invalid>

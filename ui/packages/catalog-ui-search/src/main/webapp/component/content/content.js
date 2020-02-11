@@ -110,11 +110,7 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   turnOnDrawing(model) {
     this.set('drawing', true)
-    model.set('drawing', true)
     this.set('drawingModel', model)
-    if (model.get('mode') === 'line' && !model.get('lineWidth')) {
-      model.set('lineWidth', 1)
-    }
     $('html').toggleClass('is-drawing', true)
   },
   turnOffDrawing() {
