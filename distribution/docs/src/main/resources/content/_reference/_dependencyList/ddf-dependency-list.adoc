@@ -201,8 +201,6 @@
 * org.codice.acdebugger:acdebugger-api:jar:1.7
 * org.codice.acdebugger:acdebugger-backdoor:jar:1.7
 * org.codice.countrycode:converter:jar:0.1.8
-* org.codice.geowebcache:geowebcache-server-standalone:war:0.7.0
-* org.codice.geowebcache:geowebcache-server-standalone:xml:geowebcache:0.7.0
 * org.codice.httpproxy:proxy-camel-route:jar:2.21.0-SNAPSHOT
 * org.codice.httpproxy:proxy-camel-servlet:jar:2.21.0-SNAPSHOT
 * org.codice.opendj.embedded:opendj-embedded-app:xml:features:1.3.3

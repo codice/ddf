@@ -374,11 +374,6 @@
                                     <classifier>sources-module</classifier>
                                 </artifact>
                                 <artifact>
-                                    <file>packages/geowebcache-admin-plugin/target/geowebcache-admin-plugin.jar</file>
-                                    <type>jar</type>
-                                    <classifier>geowebcache-admin-plugin</classifier>
-                                </artifact>
-                                <artifact>
                                     <file>packages/registry-admin-local-ui/target/registry-module.jar</file>
                                     <type>jar</type>
                                     <classifier>registry-module</classifier>

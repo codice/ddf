@@ -363,12 +363,6 @@ grant codeBase "file:/opendj-embedded-server/org.apache.aries.blueprint.core" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}serverTruststore.jks", "read";
 }
 
-grant codeBase "file:/geowebcache-server-standalone/org.eclipse.jetty.server/org.eclipse.jetty.servlet/org.eclipse.jetty.util/org.ops4j.pax.web.pax-web-extender-war/org.ops4j.pax.web.pax-web-jetty/org.ops4j.pax.web.pax-web-runtime/javax.servlet-api/org.ops4j.pax.web.pax-web-spi" {
-    permission java.lang.RuntimePermission "createClassLoader";
-    permission java.io.FilePermission "${ddf.home.perm}etc", "read, write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}geowebcache.xml", "read, write";
-}
-
 grant codeBase "file:/org.apache.karaf.webconsole.console" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
