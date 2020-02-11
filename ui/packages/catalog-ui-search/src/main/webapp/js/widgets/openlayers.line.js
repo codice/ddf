@@ -97,14 +97,14 @@ Draw.LineView = Marionette.View.extend({
   updatePrimitive(model) {
     const polygon = this.modelToPolygon(model)
     // make sure the current model has width and height before drawing
-    if (polygon && polygon[0] && !_.isUndefined(polygon)) {
+    if (polygon && polygon[0] !== undefined && !_.isUndefined(polygon)) {
       this.drawBorderedPolygon(polygon)
     }
   },
 
   updateGeometry(model) {
     const rectangle = this.modelToPolygon(model)
-    if (rectangle && rectangle[0]) {
+    if (rectangle && rectangle[0] !== undefined) {
       this.drawBorderedPolygon(rectangle)
     }
   },
