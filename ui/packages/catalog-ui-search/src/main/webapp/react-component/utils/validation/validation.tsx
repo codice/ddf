@@ -328,7 +328,8 @@ function validateUtmUps(
   // if one or more is undefined, we want to return true
   const isLatLonValid =
     !hasPointError([lon, lat]) ||
-    (utmUpsNorthing === undefined || utmUpsEasting === undefined)
+    utmUpsNorthing === undefined || 
+    utmUpsEasting === undefined
   if (key === 'utmUpsNorthing' && isNorthingInvalid && !isEastingInvalid) {
     error = { error: true, message: 'Northing value is invalid' }
   } else if (
@@ -350,7 +351,7 @@ function validateUtmUps(
 
 function validateRadiusLineBuffer(key: string, value: string) {
   const label = key === 'lineWidth' ? 'Buffer ' : 'Radius '
-  if ((value !== undefined && value.length === 0) || Number(value) < 0.000001) {
+  if ((value !== undefined && value.length === 0) || Number(value) <= 0) {
     return {
       error: true,
       message: label + 'must be greater than 0',
