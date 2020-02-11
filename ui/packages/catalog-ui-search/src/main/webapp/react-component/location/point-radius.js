@@ -16,10 +16,10 @@ import React, { useState, useEffect } from 'react'
 const { Radio, RadioItem } = require('../radio')
 const TextField = require('../text-field')
 import {
-  getErrorComponent,
   validateGeo,
   initialErrorState,
   initialErrorStateWithDefault,
+  ErrorComponent,
 } from '../utils/validation'
 const { Units, Zone, Hemisphere, MinimumSpacing } = require('./common')
 const {
@@ -72,7 +72,7 @@ const PointRadiusLatLonDd = props => {
         onBlur={() => setDdError(validateGeo('lon', lon))}
         addon="°"
       />
-      {getErrorComponent(ddError)}
+      <ErrorComponent errorState={ddError}/>
       <Units
         value={radiusUnits}
         onChange={value => setState({ ['radiusUnits']: value })}
@@ -87,7 +87,7 @@ const PointRadiusLatLonDd = props => {
           }}
         />
       </Units>
-      {getErrorComponent(radiusError)}
+      <ErrorComponent errorState={radiusError}/>
     </div>
   )
 }
@@ -161,7 +161,7 @@ const PointRadiusLatLonDms = props => {
           onChange={value => setState({ ['dmsLonDirection']: value })}
         />
       </DmsLongitude>
-      {getErrorComponent(dmsError)}
+      <ErrorComponent errorState={dmsError}/>
       <Units
         value={radiusUnits}
         onChange={value => setState({ ['radiusUnits']: value })}
@@ -176,7 +176,7 @@ const PointRadiusLatLonDms = props => {
           }}
         />
       </Units>
-      {getErrorComponent(radiusError)}
+      <ErrorComponent errorState={radiusError}/>
     </div>
   )
 }
@@ -204,7 +204,7 @@ const PointRadiusUsngMgrs = props => {
         onChange={value => setState({ ['usng']: value })}
         onBlur={() => setUsngError(validateGeo('usng', usng))}
       />
-      {getErrorComponent(usngError)}
+      <ErrorComponent errorState={usngError}/>
       <Units
         value={radiusUnits}
         onChange={value => setState({ ['radiusUnits']: value })}
@@ -219,7 +219,7 @@ const PointRadiusUsngMgrs = props => {
           }}
         />
       </Units>
-      {getErrorComponent(radiusError)}
+      <ErrorComponent errorState={radiusError}/>
     </div>
   )
 }
@@ -323,7 +323,7 @@ const PointRadiusUtmUps = props => {
           )
         }
       />
-      {getErrorComponent(utmError)}
+      <ErrorComponent errorState={utmError}/>
       <Units
         value={radiusUnits}
         onChange={value => setState({ ['radiusUnits']: value })}
@@ -338,7 +338,7 @@ const PointRadiusUtmUps = props => {
           }}
         />
       </Units>
-      {getErrorComponent(radiusError)}
+      <ErrorComponent errorState={radiusError}/>
     </div>
   )
 }

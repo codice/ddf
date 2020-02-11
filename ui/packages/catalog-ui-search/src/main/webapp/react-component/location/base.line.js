@@ -14,7 +14,7 @@
  **/
 import React, { useState, useEffect } from 'react'
 import {
-  getErrorComponent,
+  ErrorComponent,
   validateGeo,
   initialErrorState,
 } from '../utils/validation'
@@ -121,7 +121,7 @@ const BaseLine = props => {
             setBaseLineError(validateGeo(mode || polyType, currentValue))
           }
         />
-        {getErrorComponent(baseLineError)}
+        <ErrorComponent errorState={baseLineError}/>
         <Units
           value={props[unitKey]}
           onChange={value => {
@@ -144,7 +144,7 @@ const BaseLine = props => {
             }}
           />
         </Units>
-        {getErrorComponent(bufferError)}
+        <ErrorComponent errorState={bufferError}/>
       </div>
     </div>
   )

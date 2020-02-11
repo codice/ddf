@@ -100,6 +100,16 @@ export function validateGeo(
   }
 }
 
+export const ErrorComponent = props => {
+  const { errorState } = props
+  return errorState.error ? (
+    <Invalid>
+      <WarningIcon className="fa fa-warning" />
+      <span>{errorState.message}</span>
+    </Invalid>
+  ) : null
+}
+
 export function getErrorComponent(errorState: ErrorState) {
   return errorState.error ? (
     <Invalid>
@@ -139,17 +149,6 @@ export function validateListOfPoints(coordinates: any[], mode: string) {
     }
   })
   return { error: message.length > 0, message }
-}
-
-function validateLinePolygon(mode: string, currentValue: string) {
-  if (!is2DArray(currentValue)) {
-    return { error: true, message: 'Not an acceptable value' }
-  }
-  try {
-    return validateListOfPoints(JSON.parse(currentValue), mode)
-  } catch (e) {
-    return { error: true, message: 'Not an acceptable value' }
-  }
 }
 
 export const initialErrorState = {
@@ -230,6 +229,17 @@ function getGeometryErrors(filter: any): Set<string> {
       break
   }
   return errors
+}
+
+function validateLinePolygon(mode: string, currentValue: string) {
+  if (!is2DArray(currentValue)) {
+    return { error: true, message: 'Not an acceptable value' }
+  }
+  try {
+    return validateListOfPoints(JSON.parse(currentValue), mode)
+  } catch (e) {
+    return { error: true, message: 'Not an acceptable value' }
+  }
 }
 
 function validateDDLatLon(label: string, defaultCoord: number, value: string) {

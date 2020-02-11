@@ -15,7 +15,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   validateGeo,
-  getErrorComponent,
+  ErrorComponent,
   initialErrorState,
   initialErrorStateWithDefault,
 } from '../utils/validation'
@@ -116,7 +116,7 @@ const BoundingBoxLatLonDd = props => {
         max={90}
         addon="°"
       />
-      {getErrorComponent(ddError)}
+      <ErrorComponent errorState={ddError}/>
     </div>
   )
 }
@@ -214,7 +214,7 @@ const BoundingBoxLatLonDms = props => {
           onChange={value => setState({ ['dmsNorthDirection']: value })}
         />
       </DmsLatitude>
-      {getErrorComponent(dmsError)}
+      <ErrorComponent errorState={dmsError}/>
     </div>
   )
 }
@@ -248,7 +248,7 @@ const BoundingBoxUsngMgrs = props => {
         onChange={value => setState({ ['usngbbLowerRight']: value })}
         onBlur={() => setUsngError(validateGeo('usng', usngbbLowerRight))}
       />
-      {getErrorComponent(usngError)}
+      <ErrorComponent errorState={usngError}/>
     </div>
   )
 }
@@ -373,7 +373,7 @@ const BoundingBoxUtmUps = props => {
             />
           </div>
         </Group>
-        {getErrorComponent(upperLeftError)}
+        <ErrorComponent errorState={upperLeftError}/>
       </div>
       <div className="input-location">
         <Group>
@@ -459,7 +459,7 @@ const BoundingBoxUtmUps = props => {
             />
           </div>
         </Group>
-        {getErrorComponent(lowerRightError)}
+       <ErrorComponent errorState={lowerRightError}/>
       </div>
     </div>
   )
