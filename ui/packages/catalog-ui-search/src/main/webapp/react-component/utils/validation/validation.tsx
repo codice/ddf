@@ -216,8 +216,8 @@ function getGeometryErrors(filter: any): Set<string> {
       }
       break
     case 'BoundingBox':
-      const box = filter.geojson.properties
-      if (!box.east || !box.west || !box.north || !box.south) {
+      const {east, west, north, south} = filter.geojson.properties
+      if ([east, west, north, south].some(direction => direction=== '' || direction === undefined)) {
         errors.add('Bounding box must have valid values')
       }
       break
