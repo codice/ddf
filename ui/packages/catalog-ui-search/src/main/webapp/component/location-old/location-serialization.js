@@ -106,7 +106,7 @@ const Point = {
     }
   },
   'location->json': location => {
-    const { lat = '', lon = '', radius = '', radiusUnits = 'meters' } = location
+    const { lat = '', lon = '', radius = 1, radiusUnits = 'meters' } = location
 
     return {
       type: 'Feature',

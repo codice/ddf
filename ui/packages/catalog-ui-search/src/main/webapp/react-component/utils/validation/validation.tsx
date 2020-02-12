@@ -284,20 +284,34 @@ function upsValidDistance(distance: number) {
 
 function validateUtmUps(key: string, value: any) {
   let { utmUpsEasting, utmUpsNorthing, zoneNumber, hemisphere } = value
-  let error = { error: false, message: '' }
+  const northernHemisphere = hemisphere.toUpperCase() === 'NORTHERN'
   zoneNumber = Number.parseInt(zoneNumber)
+  const isUps = zoneNumber === 0
+  let error = { error: false, message: '' }
   // Number('') returns 0, so we can't just blindly cast to number
   // since we want to differentiate '' from 0
   let easting = utmUpsEasting === '' ? NaN : Number(utmUpsEasting)
   let northing = utmUpsNorthing === '' ? NaN : Number(utmUpsNorthing)
+  const isNorthingInvalid =
+      isNaN(northing) && utmUpsNorthing !== undefined
+  const isEastingInvalid =
+    isNaN(easting) && utmUpsEasting !== undefined
   if (!isNaN(easting)) {
     easting = Number.parseFloat(utmUpsEasting)
+  } else if(key === 'utmUpsEasting' && utmUpsEasting !== undefined && !isNorthingInvalid) {
+    return { error: true, message: 'Easting value is invalid' }
   }
   if (!isNaN(northing)) {
     northing = Number.parseFloat(utmUpsNorthing)
+    northing = isUps || northernHemisphere ? northing : northing - NORTHING_OFFSET
+  } else if(key === 'utmUpsNorthing'  && utmUpsNorthing !== undefined && !isEastingInvalid ) {
+    return { error: true, message: 'Northing value is invalid' }
   }
-  const northernHemisphere = hemisphere.toUpperCase() === 'NORTHERN'
-  const isUps = zoneNumber === 0
+  if(isUps &&
+    (!upsValidDistance(northing) || !upsValidDistance(easting))
+  ) {
+    return { error: true, message: 'Invalid UPS distance' }
+  }
   const utmUpsParts = {
     easting,
     northing,
@@ -305,14 +319,8 @@ function validateUtmUps(key: string, value: any) {
     hemisphere,
     northPole: northernHemisphere,
   }
-  utmUpsParts.northing =
-    isUps || northernHemisphere ? northing : northing - NORTHING_OFFSET
   // These checks are to ensure that we only mark a value as "invalid"
   // if the user has entered something already
-  const isNorthingInvalid =
-    isNaN(utmUpsParts.northing) && utmUpsNorthing !== undefined
-  const isEastingInvalid =
-    isNaN(utmUpsParts.easting) && utmUpsEasting !== undefined
   let { lat, lon } = converter.UTMUPStoLL(utmUpsParts)
   lon = lon % 360
   if (lon < -180) {
@@ -325,36 +333,12 @@ function validateUtmUps(key: string, value: any) {
   // if one or more is undefined, we want to return true
   const isLatLonValid =
     !hasPointError([lon, lat]) ||
-    utmUpsNorthing === undefined ||
+    utmUpsNorthing === undefined || 
     utmUpsEasting === undefined
-  if (key === 'utmUpsNorthing' && isNorthingInvalid && !isEastingInvalid) {
-    error = { error: true, message: 'Northing value is invalid' }
-  } else if (
-    key === 'utmUpsEasting' &&
-    isEastingInvalid &&
-    !isNorthingInvalid
-  ) {
-    error = { error: true, message: 'Easting value is invalid' }
-  } else if (
-    isUps &&
-    (!upsValidDistance(northing) || !upsValidDistance(easting))
-  ) {
-    error = { error: true, message: 'Invalid UPS distance' }
-  } else if ((isNorthingInvalid && isEastingInvalid) || !isLatLonValid) {
-    error = { error: true, message: 'Invalid UTM/UPS coordinates' }
+  if ((isNorthingInvalid && isEastingInvalid) || !isLatLonValid) {
+    return { error: true, message: 'Invalid UTM/UPS coordinates' }
   }
   return error
-}
-
-function validateRadiusLineBuffer(key: string, value: string) {
-  const label = key === 'lineWidth' ? 'Buffer ' : 'Radius '
-  if ((value !== undefined && value.length === 0) || Number(value) <= 0) {
-    return {
-      error: true,
-      message: label + 'must be greater than 0',
-    }
-  }
-  return { error: false, message: '' }
 }
 
 const validateDmsInput = (input: any, placeHolder: string) => {
