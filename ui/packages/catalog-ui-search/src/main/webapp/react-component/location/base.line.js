@@ -121,7 +121,7 @@ const BaseLine = props => {
             setBaseLineError(validateGeo(mode || polyType, currentValue))
           }
         />
-        <ErrorComponent errorState={baseLineError}/>
+        <ErrorComponent errorState={baseLineError} />
         <Units
           value={props[unitKey]}
           onChange={value => {
@@ -144,7 +144,7 @@ const BaseLine = props => {
             }}
           />
         </Units>
-        <ErrorComponent errorState={bufferError}/>
+        <ErrorComponent errorState={bufferError} />
       </div>
     </div>
   )

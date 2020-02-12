@@ -62,13 +62,7 @@ export function getFilterErrors(filters: any) {
   return Array.from(errors)
 }
 
-export function validateGeo(
-  key: string,
-  value: string,
-  value1?: any,
-  value2?: any,
-  value3?: any
-) {
+export function validateGeo(key: string, value: any) {
   switch (key) {
     case 'lat':
       return validateDDLatLon(LATITUDE, value, 90)
@@ -84,7 +78,7 @@ export function validateGeo(
     case 'utmUpsNorthing':
     case 'utmUpsZone':
     case 'utmUpsHemisphere':
-      return validateUtmUps(key, value, value1, value2, value3)
+      return validateUtmUps(key, value)
     case 'radius':
     case 'lineWidth':
       return validateRadiusLineBuffer(key, value)
@@ -172,29 +166,28 @@ function hasPointError(point: any[]) {
 function getGeometryErrors(filter: any): Set<string> {
   const geometry = filter.geojson && filter.geojson.geometry
   const properties = filter.geojson.properties
-  const bufferWidth =
-    properties.buffer && properties.buffer.width
+  const bufferWidth = properties.buffer && properties.buffer.width
   const errors = new Set<string>()
   if (!geometry) {
     return errors
   }
   switch (properties.type) {
     case 'Polygon':
-        if (!geometry.coordinates[0].length) {
-          errors.add(
-            'Polygon coordinates must be in the form [[x,y],[x,y],[x,y],[x,y], ... ]'
-          )
-        } else if (geometry.coordinates[0].length < 4) {
-          // check for MultiPolygon
-          geometry.coordinates[0].forEach((shape: number[]) => {
-          if(shape.length < 4) {
+      if (!geometry.coordinates[0].length) {
+        errors.add(
+          'Polygon coordinates must be in the form [[x,y],[x,y],[x,y],[x,y], ... ]'
+        )
+      } else if (geometry.coordinates[0].length < 4) {
+        // check for MultiPolygon
+        geometry.coordinates[0].forEach((shape: number[]) => {
+          if (shape.length < 4) {
             errors.add(
-            'Polygon coordinates must be in the form [[x,y],[x,y],[x,y],[x,y], ... ]'
-          )
-        }
+              'Polygon coordinates must be in the form [[x,y],[x,y],[x,y],[x,y], ... ]'
+            )
+          }
         })
-        }
-        break
+      }
+      break
     case 'LineString':
       if (!geometry.coordinates.length || geometry.coordinates.length < 2) {
         errors.add('Line coordinates must be in the form [[x,y],[x,y], ... ]')
@@ -217,8 +210,12 @@ function getGeometryErrors(filter: any): Set<string> {
       }
       break
     case 'BoundingBox':
-      const {east, west, north, south} = filter.geojson.properties
-      if ([east, west, north, south].some(direction => direction=== '' || direction === undefined)) {
+      const { east, west, north, south } = filter.geojson.properties
+      if (
+        [east, west, north, south].some(
+          direction => direction === '' || direction === undefined
+        )
+      ) {
         errors.add('Bounding box must have valid values')
       }
       break
@@ -285,13 +282,8 @@ function upsValidDistance(distance: number) {
   return distance >= 800000 && distance <= 3200000
 }
 
-function validateUtmUps(
-  key: string,
-  utmUpsEasting: string,
-  utmUpsNorthing: string,
-  zoneNumber: any,
-  hemisphere: any
-) {
+function validateUtmUps(key: string, value: any) {
+  let { utmUpsEasting, utmUpsNorthing, zoneNumber, hemisphere } = value
   let error = { error: false, message: '' }
   zoneNumber = Number.parseInt(zoneNumber)
   // Number('') returns 0, so we can't just blindly cast to number
@@ -333,7 +325,7 @@ function validateUtmUps(
   // if one or more is undefined, we want to return true
   const isLatLonValid =
     !hasPointError([lon, lat]) ||
-    utmUpsNorthing === undefined || 
+    utmUpsNorthing === undefined ||
     utmUpsEasting === undefined
   if (key === 'utmUpsNorthing' && isNorthingInvalid && !isEastingInvalid) {
     error = { error: true, message: 'Northing value is invalid' }

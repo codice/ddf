@@ -72,7 +72,7 @@ const PointRadiusLatLonDd = props => {
         onBlur={() => setDdError(validateGeo('lon', lon))}
         addon="°"
       />
-      <ErrorComponent errorState={ddError}/>
+      <ErrorComponent errorState={ddError} />
       <Units
         value={radiusUnits}
         onChange={value => setState({ ['radiusUnits']: value })}
@@ -87,7 +87,7 @@ const PointRadiusLatLonDd = props => {
           }}
         />
       </Units>
-      <ErrorComponent errorState={radiusError}/>
+      <ErrorComponent errorState={radiusError} />
     </div>
   )
 }
@@ -161,7 +161,7 @@ const PointRadiusLatLonDms = props => {
           onChange={value => setState({ ['dmsLonDirection']: value })}
         />
       </DmsLongitude>
-      <ErrorComponent errorState={dmsError}/>
+      <ErrorComponent errorState={dmsError} />
       <Units
         value={radiusUnits}
         onChange={value => setState({ ['radiusUnits']: value })}
@@ -176,7 +176,7 @@ const PointRadiusLatLonDms = props => {
           }}
         />
       </Units>
-      <ErrorComponent errorState={radiusError}/>
+      <ErrorComponent errorState={radiusError} />
     </div>
   )
 }
@@ -204,7 +204,7 @@ const PointRadiusUsngMgrs = props => {
         onChange={value => setState({ ['usng']: value })}
         onBlur={() => setUsngError(validateGeo('usng', usng))}
       />
-      <ErrorComponent errorState={usngError}/>
+      <ErrorComponent errorState={usngError} />
       <Units
         value={radiusUnits}
         onChange={value => setState({ ['radiusUnits']: value })}
@@ -219,7 +219,7 @@ const PointRadiusUsngMgrs = props => {
           }}
         />
       </Units>
-      <ErrorComponent errorState={radiusError}/>
+      <ErrorComponent errorState={radiusError} />
     </div>
   )
 }
@@ -263,13 +263,12 @@ const PointRadiusUtmUps = props => {
         onChange={value => setState({ ['utmUpsEasting']: value })}
         onBlur={() =>
           setUtmError(
-            validateGeo(
-              'utmUpsEasting',
+            validateGeo('utmUpsEasting', {
               utmUpsEasting,
               utmUpsNorthing,
-              utmUpsZone,
-              utmUpsHemisphere
-            )
+              zoneNumber: utmUpsZone,
+              hemisphere: utmUpsHemisphere,
+            })
           )
         }
         addon="m"
@@ -282,13 +281,12 @@ const PointRadiusUtmUps = props => {
         onChange={value => setState({ ['utmUpsNorthing']: value })}
         onBlur={() =>
           setUtmError(
-            validateGeo(
-              'utmUpsNorthing',
+            validateGeo('utmUpsNorthing', {
               utmUpsEasting,
               utmUpsNorthing,
-              utmUpsZone,
-              utmUpsHemisphere
-            )
+              zoneNumber: utmUpsZone,
+              hemisphere: utmUpsHemisphere,
+            })
           )
         }
         addon="m"
@@ -298,13 +296,12 @@ const PointRadiusUtmUps = props => {
         onChange={value => setState({ ['utmUpsZone']: value })}
         onBlur={() =>
           setUtmError(
-            validateGeo(
-              'utmUpsZone',
+            validateGeo('utmUpsZone', {
               utmUpsEasting,
               utmUpsNorthing,
-              utmUpsZone,
-              utmUpsHemisphere
-            )
+              zoneNumber: utmUpsZone,
+              hemisphere: utmUpsHemisphere,
+            })
           )
         }
       />
@@ -313,17 +310,16 @@ const PointRadiusUtmUps = props => {
         onChange={value => setState({ ['utmUpsHemisphere']: value })}
         onBlur={() =>
           setUtmError(
-            validateGeo(
-              'utmUpsHemisphere',
+            validateGeo('utmUpsHemisphere', {
               utmUpsEasting,
               utmUpsNorthing,
-              utmUpsZone,
-              utmUpsHemisphere
-            )
+              zoneNumber: utmUpsZone,
+              hemisphere: utmUpsHemisphere,
+            })
           )
         }
       />
-      <ErrorComponent errorState={utmError}/>
+      <ErrorComponent errorState={utmError} />
       <Units
         value={radiusUnits}
         onChange={value => setState({ ['radiusUnits']: value })}
@@ -338,7 +334,7 @@ const PointRadiusUtmUps = props => {
           }}
         />
       </Units>
-      <ErrorComponent errorState={radiusError}/>
+      <ErrorComponent errorState={radiusError} />
     </div>
   )
 }
