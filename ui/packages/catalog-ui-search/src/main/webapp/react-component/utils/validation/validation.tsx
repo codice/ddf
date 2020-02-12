@@ -71,9 +71,9 @@ export function validateGeo(
 ) {
   switch (key) {
     case 'lat':
-      return validateDDLatLon(LATITUDE, 90, value)
+      return validateDDLatLon(LATITUDE, value, 90)
     case 'lon':
-      return validateDDLatLon(LONGITUDE, 180, value)
+      return validateDDLatLon(LONGITUDE, value, 180)
     case 'dmsLat':
       return validateDmsLatLon(LATITUDE, value)
     case 'dmsLon':
@@ -236,7 +236,7 @@ function validateLinePolygon(mode: string, currentValue: string) {
   }
 }
 
-function validateDDLatLon(label: string, defaultCoord: number, value: string) {
+function validateDDLatLon(label: string, value: string, defaultCoord: number) {
   let message = ''
   let defaultValue
   if (value !== undefined && value.length === 0) {
