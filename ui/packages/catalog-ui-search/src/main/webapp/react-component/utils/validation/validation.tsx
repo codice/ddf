@@ -292,24 +292,29 @@ function validateUtmUps(key: string, value: any) {
   // since we want to differentiate '' from 0
   let easting = utmUpsEasting === '' ? NaN : Number(utmUpsEasting)
   let northing = utmUpsNorthing === '' ? NaN : Number(utmUpsNorthing)
-  const isNorthingInvalid =
-      isNaN(northing) && utmUpsNorthing !== undefined
-  const isEastingInvalid =
-    isNaN(easting) && utmUpsEasting !== undefined
+  const isNorthingInvalid = isNaN(northing) && utmUpsNorthing !== undefined
+  const isEastingInvalid = isNaN(easting) && utmUpsEasting !== undefined
   if (!isNaN(easting)) {
     easting = Number.parseFloat(utmUpsEasting)
-  } else if(key === 'utmUpsEasting' && utmUpsEasting !== undefined && !isNorthingInvalid) {
+  } else if (
+    key === 'utmUpsEasting' &&
+    utmUpsEasting !== undefined &&
+    !isNorthingInvalid
+  ) {
     return { error: true, message: 'Easting value is invalid' }
   }
   if (!isNaN(northing)) {
     northing = Number.parseFloat(utmUpsNorthing)
-    northing = isUps || northernHemisphere ? northing : northing - NORTHING_OFFSET
-  } else if(key === 'utmUpsNorthing'  && utmUpsNorthing !== undefined && !isEastingInvalid ) {
+    northing =
+      isUps || northernHemisphere ? northing : northing - NORTHING_OFFSET
+  } else if (
+    key === 'utmUpsNorthing' &&
+    utmUpsNorthing !== undefined &&
+    !isEastingInvalid
+  ) {
     return { error: true, message: 'Northing value is invalid' }
   }
-  if(isUps &&
-    (!upsValidDistance(northing) || !upsValidDistance(easting))
-  ) {
+  if (isUps && (!upsValidDistance(northing) || !upsValidDistance(easting))) {
     return { error: true, message: 'Invalid UPS distance' }
   }
   const utmUpsParts = {
@@ -333,7 +338,7 @@ function validateUtmUps(key: string, value: any) {
   // if one or more is undefined, we want to return true
   const isLatLonValid =
     !hasPointError([lon, lat]) ||
-    utmUpsNorthing === undefined || 
+    utmUpsNorthing === undefined ||
     utmUpsEasting === undefined
   if ((isNorthingInvalid && isEastingInvalid) || !isLatLonValid) {
     return { error: true, message: 'Invalid UTM/UPS coordinates' }
