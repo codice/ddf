@@ -193,12 +193,12 @@ function getGeometryErrors(filter: any): Set<string> {
         errors.add('Line coordinates must be in the form [[x,y],[x,y], ... ]')
       }
       // Can't just check !bufferWidth because of the case of the string "0"
-      if (bufferWidth === undefined || Number(bufferWidth) === 0) {
+      if (bufferWidth === undefined || Number(bufferWidth) <= 0) {
         errors.add('Line buffer width must be greater than 0')
       }
       break
     case 'Point':
-      if (bufferWidth === undefined || Number(bufferWidth) === 0) {
+      if (bufferWidth === undefined || Number(bufferWidth) <= 0) {
         errors.add('Radius must be greater than 0')
       }
       if (
@@ -339,6 +339,17 @@ function validateUtmUps(key: string, value: any) {
     return { error: true, message: 'Invalid UTM/UPS coordinates' }
   }
   return error
+}
+
+function validateRadiusLineBuffer(key: string, value: string) {
+  const label = key === 'lineWidth' ? 'Buffer ' : 'Radius '
+  if ((value !== undefined && value.length === 0) || Number(value) <= 0) {
+    return {
+      error: true,
+      message: label + 'must be greater than 0',
+    }
+  }
+  return { error: false, message: '' }
 }
 
 const validateDmsInput = (input: any, placeHolder: string) => {
