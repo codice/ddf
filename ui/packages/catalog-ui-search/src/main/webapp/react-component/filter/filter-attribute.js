@@ -30,7 +30,6 @@ const FilterAttributeDropdown = ({
   value,
   settingsModel,
 }) => {
-  console.log(settingsModel)
   return (
     <Root>
       {editing ? (
