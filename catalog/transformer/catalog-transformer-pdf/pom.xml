@@ -106,6 +106,7 @@
                         <Import-Package>
                             !com.ibm.icu.text,
                             !org.apache.pdfbox.debugger.*,
+                            sun.java2d.cmm.kcms;resolution:=optional,
                             *
                         </Import-Package>
                         <Embed-Dependency>

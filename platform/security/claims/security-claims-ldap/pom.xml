@@ -111,6 +111,8 @@
                         </Embed-Dependency>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Import-Package>
+                            !android.os,
+                            sun.net.util;resolution:=optional,
                             javax.net.ssl,
                             *
                         </Import-Package>

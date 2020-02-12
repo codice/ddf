@@ -114,7 +114,11 @@
                             org.apache.karaf.shell.security.impl
                         </Private-Package>
                         <Export-Package />
-                        <Import-Package>javax.ejb;resolution:=optional,*</Import-Package>
+                        <Import-Package>
+                            cubrid.jdbc.driver;resolution:=optional,
+                            javax.ejb;resolution:=optional,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

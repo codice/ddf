@@ -162,6 +162,7 @@
                             org.osgi.framework; version="1.5.0",
                             org.slf4j*; version="1.6.0",
                             !org.abego.treelayout.*,
+                            com.hazelcast.client;resolution:=optional,
                             *
                         </Import-Package>
                     </instructions>

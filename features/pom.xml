@@ -174,7 +174,7 @@
         <!--  Third-party bundle versions. These should only be used in the features.xml file.
       Any bundle dependent on classes from these jars should depend on the jar itself -
       not on the bundlized version. -->
-        <javax.inject.bundle.version>${javax.inject.version}_2</javax.inject.bundle.version>
+        <javax.inject.bundle.version>${javax.inject.version}_3</javax.inject.bundle.version>
         <commons.fileupload.version>1.3.2</commons.fileupload.version>
 
         <pax.url.version>2.5.2</pax.url.version>

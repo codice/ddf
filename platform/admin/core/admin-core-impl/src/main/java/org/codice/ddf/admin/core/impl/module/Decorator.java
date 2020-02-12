@@ -22,7 +22,7 @@ import org.codice.ddf.ui.admin.api.module.AdminModule;
  * Decorator - wraps the {@link AdminModule} interface and adds useful methods such as comparison
  * and conversion to maps.
  */
-public abstract class Decorator implements AdminModule, Comparable {
+public abstract class Decorator implements AdminModule, Comparable<AdminModule> {
 
   private AdminModule module;
 
@@ -56,8 +56,8 @@ public abstract class Decorator implements AdminModule, Comparable {
    * @param o
    * @return
    */
-  public int compareTo(Object o) {
-    return getName().compareTo(((AdminModule) o).getName());
+  public int compareTo(AdminModule o) {
+    return getName().compareTo(o.getName());
   }
 
   private String uriToString(URI uri) {

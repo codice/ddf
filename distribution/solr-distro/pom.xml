@@ -115,7 +115,9 @@
                     <execution>
                         <configuration>
                             <finalName>solr</finalName>
-                            <descriptor>assembly.xml</descriptor>
+                            <descriptors>
+                                <descriptor>assembly.xml</descriptor>
+                            </descriptors>
                         </configuration>
                         <phase>process-resources</phase>
                         <goals>
