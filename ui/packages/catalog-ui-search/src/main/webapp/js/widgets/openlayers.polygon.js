@@ -102,7 +102,7 @@ Draw.PolygonView = Marionette.View.extend({
 
   modelToPolygon(model) {
     const coords = model.get('polygon')
-    if (!coords) {
+    if (!Array.isArray(coords)) {
       return
     }
     const isMultiPolygon = ShapeUtils.isArray3D(coords)

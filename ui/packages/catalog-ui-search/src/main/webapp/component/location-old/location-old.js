@@ -227,8 +227,7 @@ module.exports = Backbone.AssociatedModel.extend({
       this.set('prevLocationType', '')
       this.set('locationType', 'utmUps')
     }
-    this.set('drawing', false)
-    store.get('content').turnOffDrawing()
+    store.get('content').turnOffDrawing(this)
   },
 
   drawingOn() {
@@ -236,10 +235,6 @@ module.exports = Backbone.AssociatedModel.extend({
     if (locationType === 'utmUps') {
       this.set('prevLocationType', 'utmUps')
       this.set('locationType', 'dd')
-    }
-    this.set('drawing', true)
-    if (this.get('mode') === 'line' && !this.get('lineWidth')) {
-      this.set('lineWidth', 1)
     }
     store.get('content').turnOnDrawing(this)
   },

@@ -87,9 +87,12 @@ const BaseLine = props => {
 
   useEffect(
     () => {
-      const { geometryKey } = props
-      setCurrentValue(JSON.stringify(props[geometryKey]))
+      const { geometryKey, lineWidth } = props
+      setCurrentValue(typeof(props[geometryKey]) === 'string' ? props[geometryKey] : JSON.stringify(props[geometryKey]))
       if (props.drawing) {
+        if(lineWidth === undefined || Number(lineWidth) === 0) {
+          setState({ [widthKey]: 1 })
+        }
         setBaseLineError(initialErrorState)
         setBufferError(initialErrorState)
       }
@@ -115,6 +118,7 @@ const BaseLine = props => {
               }
             } catch (e) {
               // do nothing
+              setState({ [geometryKey]: value })
             }
           }}
           onBlur={() =>

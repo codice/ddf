@@ -173,7 +173,7 @@ function getGeometryErrors(filter: any): Set<string> {
   }
   switch (properties.type) {
     case 'Polygon':
-      if (!geometry.coordinates[0].length) {
+      if (!Array.isArray(geometry.coordinates[0]) || !geometry.coordinates[0].length) {
         errors.add(
           'Polygon coordinates must be in the form [[x,y],[x,y],[x,y],[x,y], ... ]'
         )
@@ -189,7 +189,7 @@ function getGeometryErrors(filter: any): Set<string> {
       }
       break
     case 'LineString':
-      if (!geometry.coordinates.length || geometry.coordinates.length < 2) {
+      if (!Array.isArray(geometry.coordinates) || !geometry.coordinates.length || geometry.coordinates.length < 2) {
         errors.add('Line coordinates must be in the form [[x,y],[x,y], ... ]')
       }
       // Can't just check !bufferWidth because of the case of the string "0"
