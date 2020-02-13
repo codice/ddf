@@ -25,6 +25,7 @@ const Turf = require('@turf/turf')
 const DrawingController = require('./drawing.controller')
 const olUtils = require('../OpenLayersGeometryUtils')
 const DistanceUtils = require('../DistanceUtils.js')
+import { validateGeo } from '../../react-component/utils/validation'
 
 const translateFromOpenlayersCoordinates = coords => {
   return coords
@@ -102,7 +103,7 @@ Draw.PolygonView = Marionette.View.extend({
 
   modelToPolygon(model) {
     const coords = model.get('polygon')
-    if (!Array.isArray(coords)) {
+    if (validateGeo('polygon', JSON.stringify(coords)).error) {
       return
     }
     const isMultiPolygon = ShapeUtils.isArray3D(coords)
@@ -120,7 +121,7 @@ Draw.PolygonView = Marionette.View.extend({
   updatePrimitive(model) {
     const polygon = this.modelToPolygon(model)
     // make sure the current model has width and height before drawing
-    if (polygon && polygon[0] !== undefined && !_.isUndefined(polygon)) {
+    if (polygon !== undefined) {
       this.drawBorderedPolygon(polygon)
     }
   },

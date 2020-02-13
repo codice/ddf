@@ -17,6 +17,7 @@ const Cesium = require('cesium')
 const ShapeUtils = require('../ShapeUtils.js')
 const Turf = require('@turf/turf')
 const DistanceUtils = require('../DistanceUtils.js')
+import { validateGeo } from '../../react-component/utils/validation'
 
 const { GeometryRenderView, GeometryController } = require('./cesium.base.line')
 
@@ -75,11 +76,7 @@ class PolygonRenderView extends GeometryRenderView {
     this.primitive = new Cesium.PolylineCollection()
     this.cameraMagnitude = this.map.camera.getMagnitude()
     ;(polygons || []).forEach(polygonPoints => {
-      if (
-        !Array.isArray(polygonPoints) ||
-        polygonPoints[0] === undefined ||
-        polygonPoints.length < 3
-      ) {
+      if (validateGeo('polygon', polygonPoints).error) {
         return
       }
       if (

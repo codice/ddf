@@ -17,7 +17,7 @@ const Cesium = require('cesium')
 const _ = require('underscore')
 const Turf = require('@turf/turf')
 const DistanceUtils = require('../DistanceUtils.js')
-
+import { validateGeo } from '../../react-component/utils/validation'
 const {
   GeometryRenderView,
   GeometryController,
@@ -53,7 +53,7 @@ class LineRenderView extends GeometryRenderView {
         json.lineWidth,
         model.get('lineUnits')
       ) || 1
-    if (!linePoints || !Array.isArray(linePoints[0])) {
+    if (linePoints === undefined || validateGeo('line', JSON.stringify(linePoints)).error) {
       return
     }
 
