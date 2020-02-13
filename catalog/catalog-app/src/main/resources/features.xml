@@ -671,22 +671,6 @@
         <bundle>mvn:org.apache.mina/mina-core/${mina.version}</bundle>
     </feature>
 
-    <feature name="catalog-async-api" version="${project.version}"
-             description="Asynchronous Processing Framework API">
-        <feature>catalog-core-api</feature>
-        <bundle>mvn:ddf.catalog.async/catalog-async-data-api/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.async/catalog-async-plugin-api/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.async/catalog-async-processingframework-api/${project.version}
-        </bundle>
-    </feature>
-
-    <feature name="catalog-async-inmemory" version="${project.version}">
-        <feature>catalog-app</feature>
-        <feature>catalog-async-api</feature>
-        <bundle>mvn:ddf.catalog.async/catalog-async-postingestplugin/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.async/catalog-async-processingframework/${project.version}</bundle>
-    </feature>
-
     <feature name="catalog-plugin-gazetteer" version="${project.version}"
              description="Post-ingest plugin for updating the offline gazetteer's suggester index when
           gazetteer metacards are created, updated, or deleted.">

@@ -593,31 +593,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.catalog.async</groupId>
-            <artifactId>catalog-async-data-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.async</groupId>
-            <artifactId>catalog-async-plugin-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.async</groupId>
-            <artifactId>catalog-async-processingframework</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.async</groupId>
-            <artifactId>catalog-async-processingframework-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.catalog.async</groupId>
-            <artifactId>catalog-async-postingestplugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>tika-bundle</artifactId>
             <version>${tika.thirdparty.bundle.version}</version>
