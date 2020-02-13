@@ -165,12 +165,12 @@ function hasPointError(point: any[]) {
 
 function getGeometryErrors(filter: any): Set<string> {
   const geometry = filter.geojson && filter.geojson.geometry
-  const properties = filter.geojson.properties
-  const bufferWidth = properties.buffer && properties.buffer.width
   const errors = new Set<string>()
   if (!geometry) {
     return errors
   }
+  const properties = filter.geojson.properties
+  const bufferWidth = properties.buffer && properties.buffer.width
   switch (properties.type) {
     case 'Polygon':
       if (!Array.isArray(geometry.coordinates[0]) || !geometry.coordinates[0].length) {
