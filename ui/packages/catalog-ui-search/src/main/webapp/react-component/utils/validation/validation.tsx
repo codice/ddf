@@ -270,6 +270,9 @@ function validateUsng(value: string) {
   if (value === '') {
     return { error: true, message: 'USNG / MGRS coordinates cannot be empty' }
   }
+  if (value === undefined) {
+    return { error: false, message: '' }
+  }
   const result = converter.USNGtoLL(value, true)
   const isInvalid = Number.isNaN(result.lat) || Number.isNaN(result.lon)
   return {
