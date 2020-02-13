@@ -171,7 +171,7 @@
                 <executions>
                     <execution>
                         <id>ensure-solr-is-stopped</id>
-                        <phase>pre-clean</phase>
+                        <phase>post-integration-test</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
