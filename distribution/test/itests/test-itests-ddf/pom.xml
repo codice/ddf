@@ -415,27 +415,6 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>ensure-solr-is-stopped</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>${solr.script.dir}${solr.script.file}</executable>
-                            <arguments>
-                                <argument>stop</argument>
-                                <argument>-p</argument>
-                                <argument>${solr.port}</argument>
-                            </arguments>
-                            <async>true</async>
-                            <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
-                            <successCodes>
-                                <successCode>0</successCode>
-                                <successCode>1</successCode>
-                            </successCodes>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>start-solr</id>
                         <phase>pre-integration-test</phase>
                         <goals>
