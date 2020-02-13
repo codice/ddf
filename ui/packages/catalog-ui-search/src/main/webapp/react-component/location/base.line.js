@@ -90,7 +90,7 @@ const BaseLine = props => {
       const { geometryKey, lineWidth } = props
       setCurrentValue(typeof(props[geometryKey]) === 'string' ? props[geometryKey] : JSON.stringify(props[geometryKey]))
       if (props.drawing) {
-        if(geometryKey === 'line' && (lineWidth === undefined || Number(lineWidth) === 0)) {
+        if(geometryKey === 'line' && (lineWidth === undefined || Number(lineWidth) <= 0)) {
           setState({ [widthKey]: 1 })
         }
         setBaseLineError(initialErrorState)
@@ -117,7 +117,7 @@ const BaseLine = props => {
                 setState({ [geometryKey]: JSON.parse(value) })
               }
             } catch (e) {
-              // do nothing
+              // Set state with invalid value to trigger error messaging
               setState({ [geometryKey]: value })
             }
           }}

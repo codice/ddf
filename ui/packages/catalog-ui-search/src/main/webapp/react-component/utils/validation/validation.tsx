@@ -350,7 +350,7 @@ function validateUtmUps(key: string, value: any) {
 }
 
 function validateRadiusLineBuffer(key: string, value: string) {
-  const label = key === 'lineWidth' ? 'Buffer ' : 'Radius '
+  const label = key === 'lineWidth' ? 'Buffer width ' : 'Radius '
   if ((value !== undefined && value.length === 0) || Number(value) <= 0) {
     return {
       error: true,
