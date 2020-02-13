@@ -128,7 +128,7 @@ const comparisonClass = 'Comparison',
     DURING: ['TIME_PERIOD'],
     TIME: ['LOGICAL', 'RPAREN', 'END'],
     TIME_PERIOD: ['LOGICAL', 'RPAREN', 'END'],
-    RELATIVE: ['RPAREN'],
+    RELATIVE: ['RPAREN', 'END'],
     FILTER_FUNCTION: ['LPAREN', 'PROPERTY', 'VALUE', 'RPAREN'],
   },
   precedence = {
