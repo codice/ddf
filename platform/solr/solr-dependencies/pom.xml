@@ -99,7 +99,7 @@
         <dependency>
             <groupId>org.locationtech.spatial4j</groupId>
             <artifactId>spatial4j</artifactId>
-            <version>0.7</version>
+            <version>${spatial4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.locationtech.jts</groupId>
@@ -144,11 +144,7 @@
                             org.apache.lucene.search.spans;version=${solr.version},
                             org.apache.lucene.store;version=${solr.version},
                             org.apache.lucene.util;version=${solr.version},
-                            org.apache.solr.parser;version=${solr.version},
-
-                            <!-- dependencies used by catalog-core-solr-->
-                            org.locationtech.spatial4j.*;version=${solr.spatial4j.version},
-                            org.locationtech.jts.*;version=${jts.spatial4j.version}
+                            org.apache.solr.parser;version=${solr.version}
                         </Export-Package>
                         <Embed-Dependency>
                             solr-core,

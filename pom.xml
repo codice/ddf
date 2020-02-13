@@ -241,8 +241,7 @@
         <jsr305.version>3.0.2_1</jsr305.version>
         <jsr339-api.bundle.version>2.6.0</jsr339-api.bundle.version>
         <jts.bundle.version>1.16.0_2</jts.bundle.version>
-        <jts.spatial4j.version>1.15.0</jts.spatial4j.version>
-        <jts.version>1.16.0</jts.version>
+        <jts.spatial4j.version>1.16.0</jts.spatial4j.version>
         <jvnet-ogc.version>2.6.1</jvnet-ogc.version>
         <karaf.version>4.2.6</karaf.version>
         <la4j.version>0.6.0</la4j.version>
