@@ -88,9 +88,16 @@ const BaseLine = props => {
   useEffect(
     () => {
       const { geometryKey, lineWidth } = props
-      setCurrentValue(typeof(props[geometryKey]) === 'string' ? props[geometryKey] : JSON.stringify(props[geometryKey]))
+      setCurrentValue(
+        typeof props[geometryKey] === 'string'
+          ? props[geometryKey]
+          : JSON.stringify(props[geometryKey])
+      )
       if (props.drawing) {
-        if(geometryKey === 'line' && (lineWidth === undefined || Number(lineWidth) <= 0)) {
+        if (
+          geometryKey === 'line' &&
+          (lineWidth === undefined || Number(lineWidth) <= 0)
+        ) {
           setState({ [widthKey]: 1 })
         }
         setBaseLineError(initialErrorState)

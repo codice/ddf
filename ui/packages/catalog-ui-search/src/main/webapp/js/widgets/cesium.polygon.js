@@ -62,7 +62,7 @@ class PolygonRenderView extends GeometryRenderView {
 
   drawGeometry = model => {
     const json = model.toJSON()
-    if(!Array.isArray(json.polygon)) {
+    if (!Array.isArray(json.polygon)) {
       return
     }
     const isMultiPolygon = ShapeUtils.isArray3D(json.polygon)
@@ -85,7 +85,7 @@ class PolygonRenderView extends GeometryRenderView {
       ) {
         polygonPoints.push(polygonPoints[0])
       }
-      if(validateGeo('polygon', JSON.stringify(polygonPoints)).error) {
+      if (validateGeo('polygon', JSON.stringify(polygonPoints)).error) {
         return
       }
       polygonPoints.forEach(point => {

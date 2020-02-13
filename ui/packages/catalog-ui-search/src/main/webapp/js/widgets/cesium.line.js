@@ -53,7 +53,10 @@ class LineRenderView extends GeometryRenderView {
         json.lineWidth,
         model.get('lineUnits')
       ) || 1
-    if (linePoints === undefined || validateGeo('line', JSON.stringify(linePoints)).error) {
+    if (
+      linePoints === undefined ||
+      validateGeo('line', JSON.stringify(linePoints)).error
+    ) {
       return
     }
 

@@ -113,7 +113,7 @@ const UsngCoordinate = props => {
   )
 }
 
-const pad = (coordinate) => {
+const pad = coordinate => {
   if (coordinate === undefined) {
     return coordinate
   }

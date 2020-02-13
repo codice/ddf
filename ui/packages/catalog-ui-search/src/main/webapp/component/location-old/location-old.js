@@ -815,13 +815,13 @@ module.exports = Backbone.AssociatedModel.extend({
     )
     this.set(
       {
-        dmsNorth: (dmsNorth && dmsNorth.coordinate),
+        dmsNorth: dmsNorth && dmsNorth.coordinate,
         dmsNorthDirection: (dmsNorth && dmsNorth.direction) || Direction.North,
-        dmsSouth: (dmsSouth && dmsSouth.coordinate),
+        dmsSouth: dmsSouth && dmsSouth.coordinate,
         dmsSouthDirection: (dmsSouth && dmsSouth.direction) || Direction.North,
-        dmsWest: (dmsWest && dmsWest.coordinate),
+        dmsWest: dmsWest && dmsWest.coordinate,
         dmsWestDirection: (dmsWest && dmsWest.direction) || Direction.East,
-        dmsEast: (dmsEast && dmsEast.coordinate),
+        dmsEast: dmsEast && dmsEast.coordinate,
         dmsEastDirection: (dmsEast && dmsEast.direction) || Direction.East,
       },
       { silent: true }
@@ -839,9 +839,9 @@ module.exports = Backbone.AssociatedModel.extend({
     )
     this.set(
       {
-        dmsLat: (dmsLat && dmsLat.coordinate),
+        dmsLat: dmsLat && dmsLat.coordinate,
         dmsLatDirection: (dmsLat && dmsLat.direction) || Direction.North,
-        dmsLon: (dmsLon && dmsLon.coordinate),
+        dmsLon: dmsLon && dmsLon.coordinate,
         dmsLonDirection: (dmsLon && dmsLon.direction) || Direction.East,
       },
       { silent: true }
