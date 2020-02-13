@@ -143,10 +143,9 @@ export const initialErrorStateWithDefault = {
   defaultValue: '',
 }
 
-function is2DArray(coordinates: string) {
+function is2DArray(coordinates: any[]) {
   try {
-    const parsedCoords = JSON.parse(coordinates)
-    return Array.isArray(parsedCoords) && Array.isArray(parsedCoords[0])
+    return Array.isArray(coordinates) && Array.isArray(coordinates[0])
   } catch (e) {
     return false
   }
@@ -224,11 +223,12 @@ function getGeometryErrors(filter: any): Set<string> {
 }
 
 function validateLinePolygon(mode: string, currentValue: string) {
-  if (!is2DArray(currentValue)) {
-    return { error: true, message: 'Not an acceptable value' }
-  }
   try {
-    return validateListOfPoints(JSON.parse(currentValue), mode)
+    const parsedCoords = JSON.parse(currentValue)
+    if (!is2DArray(parsedCoords)) {
+      return { error: true, message: 'Not an acceptable value' }
+    }
+    return validateListOfPoints(parsedCoords, mode)
   } catch (e) {
     return { error: true, message: 'Not an acceptable value' }
   }
