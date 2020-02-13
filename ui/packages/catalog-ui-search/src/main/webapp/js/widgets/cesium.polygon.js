@@ -76,7 +76,7 @@ class PolygonRenderView extends GeometryRenderView {
     this.primitive = new Cesium.PolylineCollection()
     this.cameraMagnitude = this.map.camera.getMagnitude()
     ;(polygons || []).forEach(polygonPoints => {
-      if (validateGeo('polygon', polygonPoints).error) {
+      if (!polygonPoints || polygonPoints.length < 3) {
         return
       }
       if (
@@ -84,6 +84,9 @@ class PolygonRenderView extends GeometryRenderView {
         polygonPoints[polygonPoints.length - 1].toString()
       ) {
         polygonPoints.push(polygonPoints[0])
+      }
+      if(validateGeo('polygon', JSON.stringify(polygonPoints)).error) {
+        return
       }
       polygonPoints.forEach(point => {
         point[0] = DistanceUtils.coordinateRound(point[0])
