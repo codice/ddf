@@ -396,6 +396,9 @@ function ddToDmsCoordinateLon(
 }
 
 function getSecondsPrecision(dmsCoordinate) {
+  if (dmsCoordinate === undefined) {
+    return
+  }
   const decimalIndex = dmsCoordinate.indexOf('.')
   // Must subtract 2 instead of 1 because the DMS coordinate ends with "
   const lastNumberIndex = dmsCoordinate.length - 2

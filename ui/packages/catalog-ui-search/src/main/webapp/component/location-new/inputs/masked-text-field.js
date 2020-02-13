@@ -21,7 +21,7 @@ const Component = CustomElements.registerReact('text-field')
 class MaskedTextField extends React.Component {
   render() {
     // eslint-disable-next-line no-unused-vars
-    const { label, addon, onChange, value = '', ...args } = this.props
+    const { label, addon, onChange, value, ...args } = this.props
     return (
       <Component>
         <Group>

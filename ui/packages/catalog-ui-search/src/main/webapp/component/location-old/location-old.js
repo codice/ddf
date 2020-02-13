@@ -87,10 +87,10 @@ module.exports = Backbone.AssociatedModel.extend({
     east: undefined,
     south: undefined,
     west: undefined,
-    dmsNorth: '',
-    dmsSouth: '',
-    dmsEast: '',
-    dmsWest: '',
+    dmsNorth: undefined,
+    dmsSouth: undefined,
+    dmsEast: undefined,
+    dmsWest: undefined,
     dmsNorthDirection: Direction.North,
     dmsSouthDirection: Direction.North,
     dmsEastDirection: Direction.East,
@@ -105,8 +105,8 @@ module.exports = Backbone.AssociatedModel.extend({
     prevLocationType: 'dd',
     lat: undefined,
     lon: undefined,
-    dmsLat: '',
-    dmsLon: '',
+    dmsLat: undefined,
+    dmsLon: undefined,
     dmsLatDirection: Direction.North,
     dmsLonDirection: Direction.East,
     bbox: undefined,
@@ -815,13 +815,13 @@ module.exports = Backbone.AssociatedModel.extend({
     )
     this.set(
       {
-        dmsNorth: (dmsNorth && dmsNorth.coordinate) || '',
+        dmsNorth: (dmsNorth && dmsNorth.coordinate),
         dmsNorthDirection: (dmsNorth && dmsNorth.direction) || Direction.North,
-        dmsSouth: (dmsSouth && dmsSouth.coordinate) || '',
+        dmsSouth: (dmsSouth && dmsSouth.coordinate),
         dmsSouthDirection: (dmsSouth && dmsSouth.direction) || Direction.North,
-        dmsWest: (dmsWest && dmsWest.coordinate) || '',
+        dmsWest: (dmsWest && dmsWest.coordinate),
         dmsWestDirection: (dmsWest && dmsWest.direction) || Direction.East,
-        dmsEast: (dmsEast && dmsEast.coordinate) || '',
+        dmsEast: (dmsEast && dmsEast.coordinate),
         dmsEastDirection: (dmsEast && dmsEast.direction) || Direction.East,
       },
       { silent: true }
@@ -839,9 +839,9 @@ module.exports = Backbone.AssociatedModel.extend({
     )
     this.set(
       {
-        dmsLat: (dmsLat && dmsLat.coordinate) || '',
+        dmsLat: (dmsLat && dmsLat.coordinate),
         dmsLatDirection: (dmsLat && dmsLat.direction) || Direction.North,
-        dmsLon: (dmsLon && dmsLon.coordinate) || '',
+        dmsLon: (dmsLon && dmsLon.coordinate),
         dmsLonDirection: (dmsLon && dmsLon.direction) || Direction.East,
       },
       { silent: true }

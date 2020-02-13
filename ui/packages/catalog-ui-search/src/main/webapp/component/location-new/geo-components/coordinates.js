@@ -113,7 +113,10 @@ const UsngCoordinate = props => {
   )
 }
 
-const pad = (coordinate = '') => {
+const pad = (coordinate) => {
+  if (coordinate === undefined) {
+    return coordinate
+  }
   const matches = dmsRegex.exec(coordinate)
   if (!matches) {
     return coordinate
