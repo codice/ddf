@@ -98,7 +98,7 @@ Draw.LineView = Marionette.View.extend({
   updatePrimitive(model) {
     const polygon = this.modelToPolygon(model)
     // make sure the current model has width and height before drawing
-    if (polygon !== undefined && validateGeo('polygon', polygon.getCoordinates())) {
+    if (polygon !== undefined && !validateGeo('polygon', polygon.getCoordinates()).error) {
       this.drawBorderedPolygon(polygon)
     }
   },
