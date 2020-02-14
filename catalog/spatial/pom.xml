@@ -28,11 +28,6 @@
         <dependencies>
             <dependency>
                 <groupId>ddf.jaxb</groupId>
-                <artifactId>spatial-wfs-v1_0_0-schema-bindings</artifactId>
-                <version>${ddf.jaxb.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ddf.jaxb</groupId>
                 <artifactId>spatial-wfs-v2_0_0-schema-bindings</artifactId>
                 <version>${ddf.jaxb.version}</version>
             </dependency>
@@ -63,22 +58,12 @@
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
-                <artifactId>spatial-wfs-v1_0_0-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-wfs-v2_0_0-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>
                 <artifactId>spatial-wfs-converter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codice.ddf.spatial</groupId>
-                <artifactId>spatial-wfs-v1_0_0-converter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

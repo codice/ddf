@@ -33,7 +33,6 @@
         <module>spatial-wfs-mapper</module>
         <module>spatial-wfs-featuretransformer</module>
         <module>spatial-wfs-metacardtype-registry</module>
-        <module>1.0.0</module>
         <module>1.1.0</module>
         <module>2.0.0</module>
         <module>spatial-wfs-featuretransformer-xstream</module>
