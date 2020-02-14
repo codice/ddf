@@ -34,16 +34,8 @@ border-color: red
 `
 
 const isAttributeDisabled = (allSupportedAttributes, currValue) => {
-  //All attributes are supported
-  if (allSupportedAttributes.length == 0) {
-    return false
-  }
-  //If attribute is supported  dont disable the option
-  if (allSupportedAttributes.indexOf(currValue) >= 0) {
-    return false
-  }
-  //attribute was not found in the supported list therefore disable the option
-  return true
+  
+  return allSupportedAttributes.length > 0 && allSupportedAttributes.indexOf(currValue) == -1;
 }
 
 const EnumInput = ({
