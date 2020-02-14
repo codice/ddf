@@ -35,49 +35,15 @@ border-color: red
 
 const isAttributeDisabled = (allSupportedAttributes, currValue) => {
   //All attributes are supported
-  if (AllSupportedAttributes.length == 0) {
+  if (allSupportedAttributes.length == 0) {
     return false
   }
   //If attribute is supported  dont disable the option
-  if (AllSupportedAttributes.indexOf(currValue) >= 0) {
+  if (allSupportedAttributes.indexOf(currValue) >= 0) {
     return false
   }
   //attribute was not found in the supported list therefore disable the option
   return true
-}
-const isAttributeUnsupported = (currValue, settingsModel) => {
-  // if no source is selected and settingsModel is present from parent component we want to present all attributes as available
-  if (settingsModel != undefined && settingsModel.length == 0) {
-        return false;
-  } else {
-    // if settingsModel is not available treat it as all attributes are supported
-    if (settingsModel == undefined) {
-      return false;
-    }
-
-    let sourceModelsSelected = sources.models.filter(source =>
-      settingsModel.includes(source.id)
-    )
-
-    let AllSupportedAttributes = sourceModelsSelected.map(sourceSelected => {
-      if (sourceSelected.id == 'GIMS_GIN') {
-        return ['ext.alternate-identifier-qualifier']
-      }
-
-      return sourceSelected.attributes.supportedAttributes
-    })
-
-    AllSupportedAttributes = AllSupportedAttributes.flat()
-    return isAttributeDisabled(AllSupportedAttributes, currValue)
-  }
-}
-
-const isAttributeUnsupportedHelper = (settingsModel, suggestion) => {
-  //if settingsModel is passed down from a parent component , proceed to check if the attribute is unsupported
-  return (
-    settingsModel &&
-    isAttributeUnsupported(suggestion.value, settingsModel)
-  )
 }
 
 const EnumInput = ({
@@ -118,13 +84,13 @@ const EnumInput = ({
           return (
             <EnumMenuItem
               title={
-                isAttributeUnsupportedHelper(settingsModel, suggestion)
+                isAttributeDisabled(settingsModel,suggestion.value)
                   ? 'Attribute is unsupported by the content store(s) selected'
                   : ''
               }
               key={suggestion.value}
               value={suggestion.value}
-              disabled={isAttributeUnsupportedHelper(settingsModel, suggestion)}
+              disabled={isAttributeDisabled(settingsModel,suggestion.value)}
             >
               {suggestion.label}
             </EnumMenuItem>
@@ -136,7 +102,7 @@ const EnumInput = ({
   
   return (
     <div>
-      {isAttributeUnsupportedHelper(settingsModel, selected) ? (
+      {isAttributeDisabled(settingsModel,selected.value) ? (
         <div>
           <UnsupportedAttribute title="Attribute is unsupported by the content store(s) selected">
             {attributeDropdown}

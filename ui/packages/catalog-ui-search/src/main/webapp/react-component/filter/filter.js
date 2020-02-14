@@ -23,7 +23,7 @@ import FilterAttribute from './filter-attribute'
 import FilterComparator from './filter-comparator'
 import FilterInput from './filter-input'
 import { getAttributeType } from './filterHelper'
-
+const sources = require('../../component/singletons/sources-instance')
 const Root = styled.div`
   width: auto;
   height: 100%;
@@ -57,7 +57,6 @@ const FilterRemove = styled(Button)`
   line-height: ${({ theme }) => theme.minimumButtonSize};
   display: ${({ editing }) => (editing ? 'inline-block' : 'none')};
 `
-
 class Filter extends React.Component {
   constructor(props) {
     super(props)
@@ -82,7 +81,20 @@ class Filter extends React.Component {
   componentDidMount() {
     this.updateSuggestions()
   }
+  getListofSupportedAttributes = (settingsModel) => {
+    // if no source is selected and settingsModel is present from parent component we want to present all attributes as available 
+    if(settingsModel.length == 0){
+        return [];
+    }
+    if (settingsModel.includes('GIMS_GIN')) {
+      return ['ext.alternate-identifier-qualifier']
+    }
 
+    let allSupportedAttributes = sources.models.filter(source => settingsModel.includes(source.id))
+    .map(sourceSelected => sourceSelected.attributes.supportedAttributes)
+    .flat();
+    return allSupportedAttributes;
+  }
   render() {
     return (
       <Root>
@@ -100,7 +112,7 @@ class Filter extends React.Component {
           includedAttributes={this.props.includedAttributes}
           editing={this.props.editing}
           onChange={this.updateAttribute}
-          settingsModel={this.props.settingsModel}
+          settingsModel={this.getListofSupportedAttributes(this.props.settingsModel)}
         />
         <FilterComparator
           comparator={this.state.comparator}
