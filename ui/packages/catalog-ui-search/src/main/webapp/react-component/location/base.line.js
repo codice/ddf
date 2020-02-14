@@ -117,12 +117,7 @@ const BaseLine = props => {
             value = convertWktString(value.trim())
             setCurrentValue(value)
             try {
-              //handle case where user clears input; JSON.parse('') would throw an error and maintain previous state
-              if (value === '') {
-                setState({ [geometryKey]: undefined })
-              } else {
-                setState({ [geometryKey]: JSON.parse(value) })
-              }
+              setState({ [geometryKey]: JSON.parse(value) })
             } catch (e) {
               // Set state with invalid value to trigger error messaging
               setState({ [geometryKey]: value })
