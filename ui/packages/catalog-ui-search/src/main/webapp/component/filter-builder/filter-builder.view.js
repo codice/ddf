@@ -98,7 +98,6 @@ module.exports = Marionette.LayoutView.extend({
         suggester: this.options.suggester,
         includedAttributes: this.options.includedAttributes,
         settingsModel: this.options.settingsModel,
-
       })
     )
     this.handleEditing()
