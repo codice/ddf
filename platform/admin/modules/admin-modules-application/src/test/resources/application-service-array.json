@@ -67,9 +67,9 @@
       ],
       "dependencies": [],
       "description": "The Solr Catalog Provider (SCP) is an implementation of the CatalogProvider interface using Apache Solr 4.7.2 as a data store.\\nThe SCP supports extensible metacards, fast/simple contextual searching, indexes xml attributes/CDATA sections/XML text elements, contains full XPath support, works with an embedded local Solr Server, and also works with a standalone Solr Server.::Solr Catalog",
-      "name": "solr-app",
+      "name": "catalog-solr-app",
       "state": "INACTIVE",
-      "uri": "mvn:ddf.catalog.solr/solr-app/2.4.1/xml/features",
+      "uri": "mvn:ddf.catalog.solr/catalog-solr-app/2.4.1/xml/features",
       "version": "2.4.1"
     },
     {
@@ -91,7 +91,7 @@
       "dependencies": [
         "content-app",
         "search-ui-app",
-        "solr-app",
+        "catalog-solr-app",
         "spatial-app"
       ],
       "description": "The Catalog provides a framework for storing, searching, processing, and transforming information.\\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.::Catalog",
@@ -118,7 +118,7 @@
         "catalog-app",
         "content-app",
         "search-ui-app",
-        "solr-app",
+        "catalog-solr-app",
         "spatial-app",
         "security-services-app"
       ],

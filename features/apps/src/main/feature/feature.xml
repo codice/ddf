@@ -23,7 +23,7 @@
     <repository>mvn:ddf.features/security/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/solr/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
-    <repository>mvn:ddf.catalog.solr/solr-app/${project.version}/xml/features</repository>
+    <repository>mvn:ddf.catalog.solr/catalog-solr-app/${project.version}/xml/features</repository>
 
     <feature name="ddf-core" version="${project.version}"
              description="Features that will be started on container startup.">
@@ -43,6 +43,7 @@
         <feature>error-api</feature>
         <feature>error-impl</feature>
         <feature>util-uuidgenerator</feature>
+        <feature>solr-core</feature>
     </feature>
 
     <feature name="branding-app" version="${project.version}">
@@ -73,6 +74,7 @@
              description="Installs the platform boot features which all other applications depend upon.\nPlatform features installed by default include Apache CXF, Apache Camel, Action Framework, MIME Framework, Metrics, Security Core API and Security Encryption::Platform">
         <feature>platform-core</feature>
         <feature>platform-api</feature>
+        <feature>platform-solr-app</feature>
         <feature>tika</feature>
         <feature>platform-util</feature>
         <feature>platform-logging</feature>

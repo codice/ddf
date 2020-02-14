@@ -29,7 +29,7 @@
         <feature>security-core</feature>
         <feature>platform-core</feature>
         <feature>catalog-core</feature>
-        <feature>solr-app</feature>
+        <feature>catalog-solr-app</feature>
         <feature>spatial-csw</feature>
     </feature>
 
@@ -40,7 +40,7 @@
         <feature>ddf-boot-features</feature>
         <feature>catalog-app</feature>
         <feature>search-ui-app</feature>
-        <feature>solr-app</feature>
+        <feature>catalog-solr-app</feature>
         <feature>spatial-app</feature>
     </feature>
 

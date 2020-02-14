@@ -209,7 +209,7 @@ public abstract class AbstractIntegrationTest {
   private static final String DDF_ITESTS_GROUP_ID = "ddf.test.itests";
 
   protected static final String[] DEFAULT_REQUIRED_APPS = {
-    "catalog-app", "solr-app", "spatial-app", "test-rest-endpoint", "test-storageplugins"
+    "catalog-app", "catalog-solr-app", "spatial-app", "test-rest-endpoint", "test-storageplugins"
   };
 
   protected KarafConsole console;

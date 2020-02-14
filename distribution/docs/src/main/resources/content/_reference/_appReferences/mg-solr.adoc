@@ -22,4 +22,4 @@ Install the ${ddf-solr} application through the ${admin-console}.
 . Navigate to the *${admin-console}*.
 . Select the *System* tab.
 . Select the *Features* tab.
-. Install the `solr-app` feature.
+. Install the `catalog-solr-app` feature.
