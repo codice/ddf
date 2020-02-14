@@ -312,4 +312,14 @@
         <cve>CVE-2019-10086</cve>
     </suppress>
 
+    <suppress>
+    <notes>
+        This CVE comes from Spring, resolved in 5.1.13. Once we upgrade to that version this block can be removed.
+        This is being excluded and not upgraded at present for two reasons
+        1) There is no current upgrade path for 5.1.13 - Spring has no native feature, we use the one provided by
+        Karaf. Karaf has no version that uses newer Spring, and without ServiceMix having updated versions we can
+        not create our own feature without forking their repo and updating Spring versions.
+        2) Because we do input validation on filenames, this CVE is not applicable to us and our usages.
+    </notes>
+    <cve>CVE-2020-5398</cve>
 </suppressions>
