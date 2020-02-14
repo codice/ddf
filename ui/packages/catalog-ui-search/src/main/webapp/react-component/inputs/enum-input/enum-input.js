@@ -33,7 +33,7 @@ border-style: solid
 border-color: red
 `
 
-const isAttributeDisabled = (AllSupportedAttributes, currValue) => {
+const isAttributeDisabled = (allSupportedAttributes, currValue) => {
   //All attributes are supported
   if (AllSupportedAttributes.length == 0) {
     return false
