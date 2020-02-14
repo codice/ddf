@@ -229,22 +229,7 @@
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-process-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-wps-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-wps-endpoint</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

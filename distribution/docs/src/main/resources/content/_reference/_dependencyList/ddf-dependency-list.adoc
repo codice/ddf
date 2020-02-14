@@ -273,7 +273,6 @@
 * org.jvnet.ogc:ows-v_2_0:jar:2.6.1
 * org.jvnet.ogc:wcs-v_1_0_0-schema:jar:1.1.0
 * org.jvnet.ogc:wfs-v_1_1_0:jar:2.6.1
-* org.jvnet.ogc:wps-v_2_0:jar:2.6.1
 * org.la4j:la4j:jar:0.6.0
 * org.locationtech.jts:jts-core:jar:1.15.0
 * org.locationtech.spatial4j:spatial4j:jar:0.6
