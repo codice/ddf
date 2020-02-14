@@ -60,6 +60,10 @@ const isAttributeUnsupported = (currValue, settingsModel) => {
     )
 
     let AllSupportedAttributes = sourceModelsSelected.map(sourceSelected => {
+      if (sourceSelected.id == 'GIMS_GIN') {
+        return ['ext.alternate-identifier-qualifier']
+      }
+
       return sourceSelected.attributes.supportedAttributes
     })
 
@@ -72,7 +76,7 @@ const isAttributeUnsupportedHelper = (settingsModel, suggestion) => {
   //if settingsModel is passed down from a parent component , proceed to check if the attribute is unsupported
   return (
     settingsModel &&
-    isAttributeUnsupported(suggestion.value, settingsModel.attributes.src)
+    isAttributeUnsupported(suggestion.value, settingsModel)
   )
 }
 
