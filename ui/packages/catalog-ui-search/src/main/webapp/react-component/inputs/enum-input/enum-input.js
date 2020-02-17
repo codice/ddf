@@ -85,7 +85,7 @@ const EnumInput = ({
               }
               key={suggestion.value}
               value={suggestion.value}
-              disabled={isAttributeDisabled(settingsModel,suggestion.value)}
+              disabled={isAttributeDisabled(settingsModel, suggestion.value)}
             >
               {suggestion.label}
             </EnumMenuItem>
