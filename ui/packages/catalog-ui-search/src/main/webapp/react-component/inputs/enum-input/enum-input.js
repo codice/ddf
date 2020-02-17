@@ -79,7 +79,7 @@ const EnumInput = ({
           return (
             <EnumMenuItem
               title={
-                isAttributeDisabled(settingsModel,suggestion.value)
+                isAttributeDisabled(settingsModel, suggestion.value)
                   ? 'Attribute is unsupported by the content store(s) selected'
                   : ''
               }
