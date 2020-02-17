@@ -126,7 +126,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.solr</groupId>
-            <artifactId>solr-app</artifactId>
+            <artifactId>catalog-solr-app</artifactId>
             <version>${project.version}</version>
             <type>xml</type>
             <classifier>features</classifier>

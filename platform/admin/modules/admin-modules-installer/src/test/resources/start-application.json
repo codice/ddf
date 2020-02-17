@@ -4,7 +4,7 @@
   "request": {
     "operation": "startApplication",
     "mbean": "org.codice.ddf.admin.application.service.ApplicationService:service=application-service",
-    "arguments": ["solr-app"],
+    "arguments": ["catalog-solr-app"],
     "type": "exec"
   },
   "value": true

@@ -144,7 +144,9 @@
                             org.apache.lucene.search.spans;version=${solr.version},
                             org.apache.lucene.store;version=${solr.version},
                             org.apache.lucene.util;version=${solr.version},
-                            org.apache.solr.parser;version=${solr.version}
+                            org.apache.solr.parser;version=${solr.version},
+
+                            org.locationtech.spatial4j.*;version=${solr.spatial4j.version}
                         </Export-Package>
                         <Embed-Dependency>
                             solr-core,

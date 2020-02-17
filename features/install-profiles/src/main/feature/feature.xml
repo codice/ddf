@@ -24,12 +24,12 @@
     </feature>
 
     <feature name="profile-catalog" version="${project.version}"
-             description="This will install the standard set of DDF applications." start-level="1">
+             description="This will install the core set of DDF catalog features." start-level="1">
         <feature>ddf-core</feature>
         <feature>security-core</feature>
         <feature>platform-core</feature>
         <feature>catalog-core</feature>
-        <feature>solr-app</feature>
+        <feature>catalog-solr-app</feature>
         <feature>spatial-csw</feature>
     </feature>
 
@@ -40,7 +40,7 @@
         <feature>ddf-boot-features</feature>
         <feature>catalog-app</feature>
         <feature>search-ui-app</feature>
-        <feature>solr-app</feature>
+        <feature>catalog-solr-app</feature>
         <feature>spatial-app</feature>
     </feature>
 
