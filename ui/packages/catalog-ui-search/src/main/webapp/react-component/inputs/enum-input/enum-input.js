@@ -68,7 +68,7 @@ const EnumInput = ({
           onChange={setInput}
         />
       </TextWrapper>
-      <Menu value={value} onChange={onChange} class="fa">
+      <Menu value={value} onChange={onChange}>
         {allowCustom &&
           displayInput && (
             <EnumMenuItem value={input}>{input} (custom)</EnumMenuItem>
