@@ -1,7 +1,0 @@
-{
-  "name": "resourcemanagement-app",
-  "description": "The Resource Management App provides administrative functionality to impose data usage limits on users, as well as the ability to view and terminate searches that are in progress.::Resource Management",
-  "bundleLocations": [
-    "mvn:org.codice.ddf.resourcemanagement/resourcemanagement-usage-plugin/${project.version}"
-  ]
-}
