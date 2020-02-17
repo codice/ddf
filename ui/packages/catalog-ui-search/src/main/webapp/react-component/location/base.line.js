@@ -20,6 +20,7 @@ import {
 } from '../utils/validation'
 const { Units } = require('./common')
 const TextField = require('../text-field')
+const _ = require('underscore')
 
 const coordinatePairRegex = /-?\d{1,3}(\.\d*)?\s-?\d{1,3}(\.\d*)?/g
 
@@ -68,6 +69,23 @@ function convertMultiWkt(isPolygon, value) {
       : '[' + shapes.map(shapeCoords => buildWktString(shapeCoords)) + ']'
 }
 
+function getPolygonValue(currentValue, value) {
+    // if current value's 1st coord is different
+    // from value's first coord, then delete value's last coord
+    try {
+    const parsedValue = JSON.parse(value)
+    const parsedCurrentValue = JSON.parse(currentValue)
+    if (Array.isArray(parsedValue) && Array.isArray(parsedCurrentValue) && !_.isEqual(parsedValue[0], parsedCurrentValue[0])) {
+      parsedValue.splice(-1,1)
+      return JSON.stringify(parsedValue)
+    } else {
+      return value
+    }
+    } catch (e) {
+      return value
+    }
+}
+
 const BaseLine = props => {
   const {
     label,
@@ -114,6 +132,9 @@ const BaseLine = props => {
           value={currentValue}
           onChange={value => {
             value = convertWktString(value.trim())
+            if (geometryKey.includes('poly')) {
+              value = getPolygonValue(currentValue, value)
+            }
             setCurrentValue(value)
             try {
               setState({ [geometryKey]: JSON.parse(value) })
