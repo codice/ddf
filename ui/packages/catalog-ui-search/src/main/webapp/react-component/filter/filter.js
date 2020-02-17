@@ -112,7 +112,9 @@ class Filter extends React.Component {
           includedAttributes={this.props.includedAttributes}
           editing={this.props.editing}
           onChange={this.updateAttribute}
-          settingsModel={this.getListofSupportedAttributes(this.props.settingsModel)}
+          settingsModel={this.getListOfSupportedAttributes(
+            this.props.settingsModel
+          )}
         />
         <FilterComparator
           comparator={this.state.comparator}
