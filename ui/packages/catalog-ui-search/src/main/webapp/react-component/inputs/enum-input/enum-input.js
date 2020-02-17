@@ -35,7 +35,10 @@ border-color: red
 
 const isAttributeDisabled = (allSupportedAttributes, currValue) => {
   
-  return allSupportedAttributes.length > 0 && allSupportedAttributes.indexOf(currValue) == -1;
+  return (
+    allSupportedAttributes.length > 0 &&
+    allSupportedAttributes.indexOf(currValue) == -1
+  )
 }
 
 const EnumInput = ({
