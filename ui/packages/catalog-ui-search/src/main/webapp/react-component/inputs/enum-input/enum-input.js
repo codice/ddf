@@ -97,7 +97,7 @@ const EnumInput = ({
   
   return (
     <div>
-      {isAttributeDisabled(settingsModel,selected.value) ? (
+      {isAttributeDisabled(settingsModel, selected.value) ? (
         <div>
           <UnsupportedAttribute title="Attribute is unsupported by the content store(s) selected">
             {attributeDropdown}
