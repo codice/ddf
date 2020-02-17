@@ -140,7 +140,7 @@ module.exports = Marionette.LayoutView.extend({
         filter,
         isForm: this.options.isForm || false,
         isFormBuilder: this.options.isFormBuilder || false,
-        settingsModel: this.querySettings.currentView.model.attributes.src
+        settingsModel: this.querySettings.currentView.model.attributes.src,
       })
     )
     this.queryAdvanced.currentView.turnOffEditing()
