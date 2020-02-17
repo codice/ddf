@@ -81,19 +81,20 @@ class Filter extends React.Component {
   componentDidMount() {
     this.updateSuggestions()
   }
-  getListofSupportedAttributes = (settingsModel) => {
-    // if no source is selected and settingsModel is present from parent component we want to present all attributes as available 
+  getListofSupportedAttributes = settingsModel => {
+    // if no source is selected and settingsModel is present from parent component we want to present all attributes as available
     if (settingsModel.length == 0) {
-        return [];
+      return []
     }
     if (settingsModel.includes('GIMS_GIN')) {
       return ['ext.alternate-identifier-qualifier']
     }
 
-    let allSupportedAttributes = sources.models.filter(source => settingsModel.includes(source.id))
-    .map(sourceSelected => sourceSelected.attributes.supportedAttributes)
-    .flat();
-    return allSupportedAttributes;
+    let allSupportedAttributes = sources.models
+      .filter(source => settingsModel.includes(source.id))
+      .map(sourceSelected => sourceSelected.attributes.supportedAttributes)
+      .flat()
+    return allSupportedAttributes
   }
   render() {
     return (

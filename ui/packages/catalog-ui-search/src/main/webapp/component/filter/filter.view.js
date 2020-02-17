@@ -47,7 +47,7 @@ module.exports = Marionette.LayoutView.extend({
       type: attribute,
       comparator,
       value: [value],
-      settingsModel
+      settingsModel,
     })
   },
   turnOnEditing() {

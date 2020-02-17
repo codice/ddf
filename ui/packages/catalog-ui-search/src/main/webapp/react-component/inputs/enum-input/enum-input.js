@@ -20,7 +20,6 @@ import TextField from '../../text-field'
 import styled from 'styled-components'
 import { getFilteredSuggestions, inputMatchesSuggestions } from './enumHelper'
 import PropTypes from 'prop-types'
-const sources = require('../../../component/singletons/sources-instance')
 const TextWrapper = styled.div`
   padding: ${({ theme }) => theme.minimumSpacing};
 `
@@ -34,7 +33,6 @@ border-color: red
 `
 
 const isAttributeDisabled = (allSupportedAttributes, currValue) => {
-  
   return (
     allSupportedAttributes.length > 0 &&
     allSupportedAttributes.indexOf(currValue) == -1
@@ -94,7 +92,7 @@ const EnumInput = ({
       </Menu>
     </Dropdown>
   )
-  
+
   return (
     <div>
       {isAttributeDisabled(settingsModel, selected.value) ? (
