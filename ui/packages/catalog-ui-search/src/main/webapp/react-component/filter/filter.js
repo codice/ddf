@@ -83,7 +83,7 @@ class Filter extends React.Component {
   }
   getListofSupportedAttributes = (settingsModel) => {
     // if no source is selected and settingsModel is present from parent component we want to present all attributes as available 
-    if(settingsModel.length == 0){
+    if (settingsModel.length == 0) {
         return [];
     }
     if (settingsModel.includes('GIMS_GIN')) {
