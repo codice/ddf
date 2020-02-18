@@ -56,7 +56,7 @@ module.exports = {
         return distance * METERS_NAUTICAL_MILES
       case 'meters':
       default:
-        return distance
+        return Number(distance)
     }
   },
   getDistanceFromMeters(distance, units) {
