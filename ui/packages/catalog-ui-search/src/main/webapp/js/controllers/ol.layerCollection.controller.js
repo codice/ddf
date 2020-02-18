@@ -149,8 +149,7 @@ const Controller = CommonLayerController.extend({
     const view = new ol.View({
       projection: ol.proj.get(properties.projection),
       center: ol.proj.transform([0, 0], 'EPSG:4326', properties.projection),
-      zoom: options.zoom,
-      minZoom: options.minZoom,
+      ...options.cameraOptions,
     })
 
     const config = {

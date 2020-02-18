@@ -47,9 +47,13 @@ const Controller = CommonLayerController.extend({
     // must create cesium map after containing DOM is attached.
     this.map = new Cesium.Viewer(options.element, options.cesiumOptions)
     this.map.scene.requestRenderMode = true
-    this.map.scene.screenSpaceCameraController.maximumZoomDistance =
-      options.cesiumOptions.maximumZoomDistance
     this.layerOrder = []
+
+    if (options.cesiumOptions.cameraOptions)
+      Object.entries(options.cesiumOptions.cameraOptions).forEach(
+        entry =>
+          (this.map.scene.screenSpaceCameraController[entry[0]] = entry[1])
+      )
 
     this.collection.forEach(function(model) {
       if (model.get('show')) {

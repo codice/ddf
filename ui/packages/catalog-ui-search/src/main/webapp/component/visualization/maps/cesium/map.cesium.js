@@ -70,7 +70,7 @@ function setupTerrainProvider(viewer, terrainProvider) {
   viewer.scene.terrainProvider = customTerrainProvider
 }
 
-function createMap(insertionElement, maximumZoomDistance) {
+function createMap(insertionElement, cameraOptions) {
   const layerPrefs = user.get('user>preferences>mapLayers')
   User.updateMapLayers(layerPrefs)
   const layerCollectionController = new CesiumLayerCollectionController({
@@ -95,7 +95,7 @@ function createMap(insertionElement, maximumZoomDistance) {
       baseLayerPicker: false, // Hide the base layer picker,
       imageryProvider: false, // prevent default imagery provider
       mapMode2D: 0,
-      ...maximumZoomDistance,
+      cameraOptions,
     },
   })
 
@@ -190,11 +190,11 @@ module.exports = function CesiumMap(
   notificationEl,
   componentElement,
   mapModel,
-  zoomOptions
+  cameraOptions
 ) {
   let overlays = {}
   let shapes = []
-  const map = createMap(insertionElement, zoomOptions && zoomOptions.cesium)
+  const map = createMap(insertionElement, cameraOptions && cameraOptions.cesium)
   const drawHelper = new DrawHelper(map)
   const billboardCollection = setupBillboard()
   const drawingTools = setupDrawingTools(map)

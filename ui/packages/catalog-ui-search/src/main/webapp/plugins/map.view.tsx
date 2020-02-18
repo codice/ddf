@@ -12,8 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-type MapViewZoomExtension = {
-  getZoomOptions: () => { [key: string]: string }
+type MapViewCameraExtension = {
+  getCameraOptions: () => { [key: string]: {} }
 }
 
-export default (mapView: any) => mapView as MapViewZoomExtension
+export default (mapView: any) => mapView as MapViewCameraExtension

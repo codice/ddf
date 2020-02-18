@@ -249,9 +249,9 @@ const View = Marionette.LayoutView.extend({
     this.setupMapInfo()
   },
   /**
-   * Returns a map of zoom options for Open layers and Cesium map views
+   * Returns a map of camera options (such as min/max zoom, etc) for Open layers and Cesium map views
    */
-  getZoomOptions() {},
+  getCameraOptions() {},
   zoomToHome() {
     const home = [
       user
@@ -398,7 +398,7 @@ const View = Marionette.LayoutView.extend({
       this.mapDrawingPopup.el,
       this.el,
       this.mapModel,
-      this.getZoomOptions()
+      this.getCameraOptions()
     )
     this.setupCollections()
     this.setupListeners()
