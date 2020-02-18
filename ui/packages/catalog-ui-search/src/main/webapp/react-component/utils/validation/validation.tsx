@@ -85,6 +85,8 @@ export function validateGeo(key: string, value: any) {
     case 'line':
     case 'poly':
     case 'polygon':
+    case 'multiline':
+    case 'multipolygon':
       return validateLinePolygon(key, value)
     default:
   }
