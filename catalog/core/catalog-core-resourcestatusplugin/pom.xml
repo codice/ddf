@@ -80,6 +80,10 @@
                         </Private-Package>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Export-Package />
+                        <Import-Package>
+                            com.hazelcast.client;resolution:=optional,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

@@ -72,6 +72,23 @@
                             catalog-core-api-impl
                         </Embed-Dependency>
                         <Export-Package />
+                        <Import-Package>
+                            com.sun.tools.apt;resolution:=optional,
+                            com.sun.tools.javac;resolution:=optional,
+                            com.sun.tools.javah;resolution:=optional,
+                            com.sun.tools.javah.oldjavah;resolution:=optional,
+                            gnu.classpath;resolution:=optional,
+                            gnu.gcj;resolution:=optional,
+                            kaffe.util;resolution:=optional,
+                            org.apache.env;resolution:=optional,
+                            org.apache.harmony.luni.util;resolution:=optional,
+                            sun.rmi.rmic;resolution:=optional,
+                            sun.tools.javac;resolution:=optional,
+                            sun.tools.native2ascii;resolution:=optional,
+                            weblogic;resolution:=optional,
+                            com.hazelcast.client;resolution:=optional,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

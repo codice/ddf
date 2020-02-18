@@ -249,6 +249,8 @@
                             <!-- dependencies used by catalog-core-solr-->
                             org.locationtech.spatial4j.*;version=${solr.spatial4j.version},
                             org.locationtech.jts.*;version=${jts.spatial4j.version},
+                            com.saxonica.config;resolution:=optional,
+                            org.expath.pkg.saxon;resolution:=optional,
                             *
                         </Import-Package>
                         <Export-Package />

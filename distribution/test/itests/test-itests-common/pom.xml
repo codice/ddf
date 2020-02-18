@@ -176,6 +176,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.5.1</version>
                 <executions>
                     <execution>
                         <phase>compile</phase>

@@ -64,6 +64,8 @@
                             org.apache.felix.utils
                         </Embed-Dependency>
                         <Import-Package>
+                            !android.os,
+                            sun.net.util;resolution:=optional,
                             org.osgi.service.blueprint,
                             org.osgi.framework,
                             javax.security.auth.callback,

@@ -55,6 +55,10 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>jolokia-osgi</Embed-Dependency>
                         <Export-Package />
+                        <Import-Package>
+                            org.jboss.mx.util;resolution:=optional,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
