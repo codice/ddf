@@ -65,19 +65,6 @@ function convertToValid(key, model) {
     key.mapEast = Math.max(-180, key.mapEast)
     key.mapEast = Math.min(180, key.mapEast)
   }
-  // Leave the value alone if it is an empty string, otherwise it will be converted to 0
-  if (key.lat) {
-    key.lat = Math.max(-90, key.lat)
-    key.lat = Math.min(90, key.lat)
-  }
-  if (key.lon) {
-    key.lon = Math.max(-180, key.lon)
-    key.lon = Math.min(180, key.lon)
-  }
-  if (key.radius !== undefined) {
-    let tempRadius = Number(key.radius)
-    key.radius = isNaN(tempRadius) ? model.get('radius') : key.radius
-  }
 }
 
 module.exports = Backbone.AssociatedModel.extend({
@@ -227,7 +214,7 @@ module.exports = Backbone.AssociatedModel.extend({
       this.set('prevLocationType', '')
       this.set('locationType', 'utmUps')
     }
-    store.get('content').turnOffDrawing(this)
+    store.get('content').turnOffDrawing()
   },
 
   drawingOn() {
