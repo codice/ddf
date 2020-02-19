@@ -232,6 +232,9 @@ function getGeometryErrors(filter: any): Set<string> {
 }
 
 function validateLinePolygon(mode: string, currentValue: string) {
+  if (currentValue === undefined) {
+    return initialErrorState
+  }
   try {
     const parsedCoords = JSON.parse(currentValue)
     if (!is2DArray(parsedCoords)) {
@@ -255,7 +258,7 @@ function validateDDLatLon(label: string, value: string, defaultCoord: number) {
     message = getDefaultingErrorMessage(value, label, defaultValue)
     return { error: true, message, defaultValue }
   }
-  return { error: false, message, defaultValue }
+  return initialErrorStateWithDefault
 }
 
 function validateDmsLatLon(label: string, value: string) {

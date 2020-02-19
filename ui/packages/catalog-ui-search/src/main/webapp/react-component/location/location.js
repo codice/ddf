@@ -69,7 +69,7 @@ const Form = ({ children }) => (
 )
 
 const DrawButton = ({ onDraw }) => (
-  <Button className="location-draw is-primary" onClick={onDraw}>
+  <Button className="location-draw is-primary" onMouseDown={onDraw}>
     <span className="fa fa-globe" />
     <span>Draw</span>
   </Button>
