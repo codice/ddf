@@ -111,7 +111,7 @@ module.exports = Backbone.AssociatedModel.extend({
   turnOnDrawing(model) {
     this.set('drawing', true)
     this.set('drawingModel', model)
-    model.set('drawing', true)
+    this.get('drawingModel').set('drawing', true)
     $('html').toggleClass('is-drawing', true)
   },
   turnOffDrawing() {
