@@ -77,11 +77,6 @@ The host and port which the test server binds to is project specific, but
 is most likely [http://localhost:8080](http://localhost:8080) or
 [http://localhost:8282](http://localhost:8282).
 
-#### End-to-End Testing
-
-To learn about DDF's E2E testing, go to
-[catalog-ui-search-e2e](./packages/catalog-ui-search-e2e).
-
 ### Formatting
 
 To format the code in all sub-packages, do:
