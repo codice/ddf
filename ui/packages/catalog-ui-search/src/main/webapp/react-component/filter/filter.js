@@ -127,6 +127,11 @@ class Filter extends React.Component {
   getListofSupportedAttributes = () => {
     // if no source is selected and settingsModel is present from parent component we want to present all attributes as available
     let settingsModel = this.props.settingsModel
+    // if settingsModel is not paased down from another parentConponent (other than advanced) return emoty list
+    if (!settingsModel) {
+      return []
+    }
+
     if (settingsModel.length == 0) {
       return []
     }

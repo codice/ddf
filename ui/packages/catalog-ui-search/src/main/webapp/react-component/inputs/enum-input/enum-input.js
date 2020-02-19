@@ -20,6 +20,7 @@ import TextField from '../../text-field'
 import styled from 'styled-components'
 import { getFilteredSuggestions, inputMatchesSuggestions } from './enumHelper'
 import PropTypes from 'prop-types'
+const properties = require('catalog-ui-search/src/main/webapp/js/properties.js')
 const TextWrapper = styled.div`
   padding: ${({ theme }) => theme.minimumSpacing};
 `
@@ -33,9 +34,13 @@ border-color: red
 `
 
 const isAttributeDisabled = (allSupportedAttributes, currValue) => {
+  //if the parent component does not pass down the attributes then return false
+  if (!allSupportedAttributes) {
+    return false
+  }
   return (
     allSupportedAttributes.length > 0 &&
-    allSupportedAttributes.indexOf(currValue) == -1
+    allSupportedAttributes.indexOf(currValue.value) == -1
   )
 }
 
@@ -49,7 +54,6 @@ const EnumInput = ({
 }) => {
   const [input, setInput] = useState('')
   const selected = suggestions.find(suggestion => suggestion.value === value)
-
   const filteredSuggestions = getFilteredSuggestions(
     input,
     suggestions,
@@ -57,7 +61,7 @@ const EnumInput = ({
   )
 
   const displayInput = !inputMatchesSuggestions(input, suggestions, matchCase)
-
+  const SOURCES = properties.i18n['sources'] || 'source(s)'
   const attributeDropdown = (
     <Dropdown label={(selected && selected.label) || value}>
       <TextWrapper>
@@ -77,13 +81,13 @@ const EnumInput = ({
           return (
             <EnumMenuItem
               title={
-                isAttributeDisabled(settingsModel, suggestion.value)
-                  ? 'Attribute is unsupported by the content store(s) selected'
+                isAttributeDisabled(settingsModel, suggestion)
+                  ? `Attribute is unsupported by the ${SOURCES} selected`
                   : ''
               }
               key={suggestion.value}
               value={suggestion.value}
-              disabled={isAttributeDisabled(settingsModel, suggestion.value)}
+              disabled={isAttributeDisabled(settingsModel, suggestion)}
             >
               {suggestion.label}
             </EnumMenuItem>
@@ -92,17 +96,16 @@ const EnumInput = ({
       </Menu>
     </Dropdown>
   )
-
   return (
     <div>
-      {isAttributeDisabled(settingsModel, selected.value) ? (
+      {isAttributeDisabled(settingsModel, selected) ? (
         <div>
           <UnsupportedAttribute title="Attribute is unsupported by the content store(s) selected">
             {attributeDropdown}
           </UnsupportedAttribute>
           <div style={{ color: 'red' }}>
             {' '}
-            This selection does not work with the content store selected{' '}
+            This selection does not work with the {SOURCES} selected{' '}
           </div>
         </div>
       ) : (
