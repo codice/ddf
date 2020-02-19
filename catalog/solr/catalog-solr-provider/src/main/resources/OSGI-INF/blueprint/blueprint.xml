@@ -20,6 +20,15 @@
 
 	<bean id="dynamicSchemaResolver" class="ddf.catalog.source.solr.DynamicSchemaResolver"/>
 
+	<reference id="attributeRegistry" interface="ddf.catalog.data.AttributeRegistry"/>
+
+	<bean id="injectedAttributeListener"
+		  class="ddf.catalog.solr.provider.InjectedAttributeListener"
+		  init-method="init" destroy-method="close">
+		<argument ref="dynamicSchemaResolver"/>
+		<argument ref="attributeRegistry"/>
+	</bean>
+
 	<reference-list id="metacardTypeList" interface="ddf.catalog.data.MetacardType">
 		<reference-listener bind-method="addMetacardType" ref="dynamicSchemaResolver"/>
 	</reference-list>
