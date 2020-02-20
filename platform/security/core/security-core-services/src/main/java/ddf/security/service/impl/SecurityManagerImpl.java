@@ -60,9 +60,9 @@ public class SecurityManagerImpl implements SecurityManager {
     AuthenticationToken authenticationToken = null;
     if (token instanceof SessionToken) {
       return new SubjectImpl(
-          ((PrincipalCollection) ((SessionToken) token).getCredentials()),
+          ((PrincipalCollection) ((SessionToken) token).getPrincipal()),
           true,
-          new SimpleSession(UUID.randomUUID().toString()),
+          new SimpleSession((String) ((SessionToken) token).getCredentials()),
           internalManager);
     } else if (token instanceof AuthenticationToken) {
       authenticationToken = (AuthenticationToken) token;

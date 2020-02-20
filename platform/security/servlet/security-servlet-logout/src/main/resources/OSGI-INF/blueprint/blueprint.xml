@@ -34,7 +34,11 @@
 
     <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
 
-    <bean id="logoutServlet" class="org.codice.ddf.security.servlet.logout.LocalLogoutServlet"/>
+    <reference id="tokenStorage" interface="org.codice.ddf.security.token.storage.api.TokenStorage"/>
+
+    <bean id="logoutServlet" class="org.codice.ddf.security.servlet.logout.LocalLogoutServlet">
+        <property name="tokenStorage" ref="tokenStorage"/>
+    </bean>
 
     <service ref="logoutServlet" interface="javax.servlet.Servlet">
         <service-properties>

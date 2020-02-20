@@ -16,36 +16,30 @@ package org.codice.ddf.security.token.storage.api;
 import java.util.Map;
 import java.util.Set;
 
-/** Storage for a user's information */
+/** Storage for OAuth tokens */
 public interface TokenInformation {
 
-  /** @return the user's email address or username (if an email address is not available) hashed */
+  /** @return the ID associated with the tokens */
   String getId();
-
-  /**
-   * @return the user's unique id. Using email address or username (if an email address is not
-   *     available)
-   */
-  String getUserId();
 
   /** @return a map of sources with their corresponding tokens */
   Map<String, TokenEntry> getTokenEntries();
 
-  /** @return a list of the metadata urls of all the oauth providers of all the sources */
+  /** @return a list of the metadata urls of all the OAuth providers of all the sources */
   Set<String> getDiscoveryUrls();
 
-  /** @return a JSON representation of the user's token */
+  /** @return a JSON representation of the token */
   String getTokenJson();
 
   interface TokenEntry {
 
-    /** @return the user's access token */
+    /** @return the access token */
     String getAccessToken();
 
-    /** @return the user's refresh token */
+    /** @return the refresh token */
     String getRefreshToken();
 
-    /** @return the oauth provider's url */
+    /** @return the OAuth provider's url */
     String getDiscoveryUrl();
   }
 }

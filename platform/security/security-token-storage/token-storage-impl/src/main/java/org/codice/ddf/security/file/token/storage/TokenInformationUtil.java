@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.codice.ddf.security.token.storage.api.TokenInformation;
+import org.codice.ddf.security.token.storage.api.TokenInformation.TokenEntry;
 import org.codice.ddf.security.token.storage.api.TokenInformationImpl;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 
@@ -39,10 +40,15 @@ final class TokenInformationUtil {
 
   private TokenInformationUtil() {}
 
-  /** Creates a token information from a json representation */
-  static TokenInformationImpl fromJson(String id, String userId, String json) {
+  /**
+   * Creates a token information from a json representation
+   *
+   * @param idHash - the ID's hash
+   * @param json - the JSON representation of the data
+   */
+  static TokenInformation fromJson(String idHash, String json) {
     Map<String, Object> jsonMap = GSON.fromJson(json, MAP_STRING_TO_OBJECT_TYPE);
-    Map<String, TokenInformation.TokenEntry> tokenEntryMap = new HashMap<>();
+    Map<String, TokenEntry> tokenEntryMap = new HashMap<>();
     Set<String> discoveryUrls = new HashSet<>();
 
     for (Map.Entry<String, Object> sourceVal : jsonMap.entrySet()) {
@@ -56,22 +62,17 @@ final class TokenInformationUtil {
               (String) tokens.get(DISCOVERY_URL)));
     }
 
-    return new TokenInformationImpl(id, userId, tokenEntryMap, discoveryUrls, json);
+    return new TokenInformationImpl(idHash, tokenEntryMap, discoveryUrls, json);
   }
 
   /**
-   * @return a Json representation of the given source information and the contents of the given
+   * @return a JSON representation of the given source information and the contents of the given
    *     token information.
    */
   static String getJson(
-      TokenInformation tokenInformation,
-      String sourceId,
-      String accessToken,
-      String refreshToken,
-      String discoveryUrl) {
+      String json, String sourceId, String accessToken, String refreshToken, String discoveryUrl) {
 
-    Map<String, Object> jsonMap =
-        GSON.fromJson(tokenInformation.getTokenJson(), MAP_STRING_TO_OBJECT_TYPE);
+    Map<String, Object> jsonMap = GSON.fromJson(json, MAP_STRING_TO_OBJECT_TYPE);
 
     Map<String, Object> sourceInfoMap = new HashMap<>();
     sourceInfoMap.put(ACCESS_TOKEN, accessToken);
@@ -97,9 +98,8 @@ final class TokenInformationUtil {
   /**
    * @return a Json representation of the data after removing tokens associated to the given source
    */
-  static String removeTokens(TokenInformation existingTokenInformation, String sourceId) {
-    Map<String, Object> jsonMap =
-        GSON.fromJson(existingTokenInformation.getTokenJson(), MAP_STRING_TO_OBJECT_TYPE);
+  static String removeTokens(String json, String sourceId) {
+    Map<String, Object> jsonMap = GSON.fromJson(json, MAP_STRING_TO_OBJECT_TYPE);
     jsonMap.remove(sourceId);
     return GSON.toJson(jsonMap);
   }

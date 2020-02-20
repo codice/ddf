@@ -46,5 +46,6 @@ public class OAuthOutInterceptor extends AbstractPhaseInterceptor<Message> {
     LOGGER.debug("Setting access token to the authorization header.");
     headers.remove(OAUTH);
     headers.put(AUTHORIZATION, authorizationHeader);
+    headers.remove(OAUTH);
   }
 }
