@@ -126,7 +126,7 @@ class Filter extends React.Component {
   }
   getListofSupportedAttributes = () => {
     // if no source is selected and settingsModel is present from parent component we want to present all attributes as available
-    let settingsModel = this.props.settingsModel
+    const settingsModel = this.props.settingsModel
     // if settingsModel is not passed down from another parent Component (other than advanced) return empty list
     if (!settingsModel) {
       return []
