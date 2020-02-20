@@ -103,7 +103,10 @@ Draw.PolygonView = Marionette.View.extend({
 
   modelToPolygon(model) {
     const coords = model.get('polygon')
-    if (coords === undefined || validateGeo('polygon', JSON.stringify(coords)).error) {
+    if (
+      coords === undefined ||
+      validateGeo('polygon', JSON.stringify(coords)).error
+    ) {
       return
     }
     const isMultiPolygon = ShapeUtils.isArray3D(coords)
