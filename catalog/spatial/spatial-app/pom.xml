@@ -100,11 +100,6 @@
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-wfs-v1_0_0-source</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-v1_1_0-converter</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -210,11 +205,6 @@
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-csw-connectedsource</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>spatial-wfs-v1_0_0-connectedsource</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

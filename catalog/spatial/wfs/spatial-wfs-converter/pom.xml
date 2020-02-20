@@ -31,11 +31,6 @@
             <artifactId>xstream</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.jaxb</groupId>
-            <artifactId>spatial-wfs-v1_0_0-schema-bindings</artifactId>
-            <version>${ddf.jaxb.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-api</artifactId>
         </dependency>
