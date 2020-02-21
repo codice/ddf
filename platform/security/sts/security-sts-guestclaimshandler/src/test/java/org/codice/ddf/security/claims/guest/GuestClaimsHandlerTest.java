@@ -35,14 +35,16 @@ public class GuestClaimsHandlerTest {
 
   @Test
   public void testSettingClaimsMapList() throws URISyntaxException {
-    GuestClaimsHandler claimsHandler = new GuestClaimsHandler();
-    claimsHandler.setAttributes(
+    GuestClaimsConfig claimsConfig = new GuestClaimsConfig();
+    claimsConfig.setAttributes(
         Arrays.asList(
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Guest",
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Guest@guest.com",
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Guest"));
+    GuestClaimsHandler claimsHandler = new GuestClaimsHandler();
+    claimsHandler.setGuestClaimsConfig(claimsConfig);
 
-    Map<URI, List<String>> claimsMap = claimsHandler.getClaimsMap();
+    Map<URI, List<String>> claimsMap = claimsConfig.getClaimsMap();
 
     List<String> value =
         claimsMap.get(
@@ -57,10 +59,12 @@ public class GuestClaimsHandlerTest {
     value = claimsMap.get(new URI("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname"));
     assertEquals("Guest", value.get(0));
 
-    claimsHandler = new GuestClaimsHandler();
-    claimsHandler.setAttributes(
+    claimsConfig = new GuestClaimsConfig();
+    claimsConfig.setAttributes(
         Arrays.asList(
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Guest,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Guest@guest.com,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Guest"));
+    claimsHandler = new GuestClaimsHandler();
+    claimsHandler.setGuestClaimsConfig(claimsConfig);
 
     value =
         claimsMap.get(
@@ -78,12 +82,14 @@ public class GuestClaimsHandlerTest {
 
   @Test
   public void testRetrieveClaims() throws URISyntaxException {
-    GuestClaimsHandler claimsHandler = new GuestClaimsHandler();
-    claimsHandler.setAttributes(
+    GuestClaimsConfig claimsConfig = new GuestClaimsConfig();
+    claimsConfig.setAttributes(
         Arrays.asList(
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Guest",
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Guest@guest.com|someguy@somesite.com|somedude@cool.com",
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Guest"));
+    GuestClaimsHandler claimsHandler = new GuestClaimsHandler();
+    claimsHandler.setGuestClaimsConfig(claimsConfig);
 
     ClaimCollection requestClaims = new ClaimCollection();
     Claim requestClaim = new Claim();
@@ -140,12 +146,14 @@ public class GuestClaimsHandlerTest {
 
   @Test
   public void testRetrieveClaimsWithAdditionalPropertyClaim() throws URISyntaxException {
-    GuestClaimsHandler claimsHandler = new GuestClaimsHandler();
-    claimsHandler.setAttributes(
+    GuestClaimsConfig claimsConfig = new GuestClaimsConfig();
+    claimsConfig.setAttributes(
         Arrays.asList(
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=Guest",
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress=Guest@guest.com|someguy@somesite.com|somedude@cool.com",
             "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname=Guest"));
+    GuestClaimsHandler claimsHandler = new GuestClaimsHandler();
+    claimsHandler.setGuestClaimsConfig(claimsConfig);
 
     ClaimCollection requestClaims = new ClaimCollection();
     Claim requestClaim = new Claim();

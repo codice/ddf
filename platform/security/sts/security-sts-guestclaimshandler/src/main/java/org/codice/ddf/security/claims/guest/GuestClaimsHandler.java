@@ -17,8 +17,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -36,55 +34,15 @@ public class GuestClaimsHandler implements ClaimsHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GuestClaimsHandler.class);
 
-  private Map<URI, List<String>> claimsMap = new HashMap<>();
+  private GuestClaimsConfig guestClaimsConfig;
 
   public GuestClaimsHandler() {
     LOGGER.debug("Starting GuestClaimsHandler");
   }
 
-  public void setAttributes(List<String> attributes) {
-    if (attributes != null) {
-      LOGGER.debug("Attribute value list was set.");
-      List<String> attrs = new ArrayList<>(attributes.size());
-      attrs.addAll(attributes);
-      initClaimsMap(attrs);
-    } else {
-      LOGGER.debug("Set attribute value list was null");
-    }
-  }
-
-  public Map<URI, List<String>> getClaimsMap() {
-    return Collections.unmodifiableMap(claimsMap);
-  }
-
-  private void initClaimsMap(List<String> attributes) {
-    for (String attr : attributes) {
-      String[] claimMapping = attr.split("=");
-      if (claimMapping.length == 2) {
-        try {
-          List<String> values = new ArrayList<>();
-          if (claimMapping[1].contains("|")) {
-            String[] valsArr = claimMapping[1].split("\\|");
-            Collections.addAll(values, valsArr);
-          } else {
-            values.add(claimMapping[1]);
-          }
-          claimsMap.put(new URI(claimMapping[0]), values);
-        } catch (URISyntaxException e) {
-          LOGGER.info(
-              "Claims mapping cannot be converted to a URI. This claim will be excluded: {}",
-              attr,
-              e);
-        }
-      } else {
-        LOGGER.warn("Invalid claims mapping entered for guest user: {}", attr);
-      }
-    }
-  }
-
   @Override
   public List<URI> getSupportedClaimTypes() {
-    return new ArrayList<>(claimsMap.keySet());
+    return new ArrayList<>(this.guestClaimsConfig.getClaimsMap().keySet());
   }
 
   @Override
@@ -94,7 +52,7 @@ public class GuestClaimsHandler implements ClaimsHandler {
     Principal principal = parameters.getPrincipal();
     for (Claim claim : claims) {
       URI claimType = claim.getClaimType();
-      List<String> value = claimsMap.get(claimType);
+      List<String> value = this.guestClaimsConfig.getClaimsMap().get(claimType);
       if (value != null) {
         ProcessedClaim c = new ProcessedClaim();
         c.setClaimType(claimType);
@@ -124,5 +82,13 @@ public class GuestClaimsHandler implements ClaimsHandler {
     }
 
     return claimsColl;
+  }
+
+  public GuestClaimsConfig getGuestClaimsConfig() {
+    return this.guestClaimsConfig;
+  }
+
+  public void setGuestClaimsConfig(GuestClaimsConfig guestClaimsConfig) {
+    this.guestClaimsConfig = guestClaimsConfig;
   }
 }

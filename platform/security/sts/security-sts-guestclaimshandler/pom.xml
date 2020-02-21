@@ -53,7 +53,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>httpclient,httpcore</Embed-Dependency>
-                        <Export-Package />
+<!--                        <Export-Package />-->
                     </instructions>
                 </configuration>
             </plugin>
