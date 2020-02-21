@@ -18,8 +18,8 @@ module.exports = Backbone.Model.extend({
     return {
       title: '',
       description: '',
-      createdBy: user.getEmail(),
-      owner: user.getEmail(),
+      createdBy: user.getUserId(),
+      owner: user.getUserId(),
       createdOn: Date.now(),
       type: 'custom',
       id: undefined,

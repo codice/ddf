@@ -811,7 +811,7 @@ public class MetacardApplication implements SparkApplication {
           Attribute attribute = metacard.getAttribute(Core.METACARD_OWNER);
           if (attribute != null
               && attribute.getValue() != null
-              && !attribute.getValue().equals(getSubjectEmail())) {
+              && !attribute.getValue().equals(getSubjectIdentifier())) {
             res.status(401);
             return util.getResponseWrapper(
                 ERROR_RESPONSE_TYPE, "Owner of note metacard is invalid!");
@@ -837,7 +837,7 @@ public class MetacardApplication implements SparkApplication {
           Attribute attribute = metacard.getAttribute(Core.METACARD_OWNER);
           if (attribute != null
               && attribute.getValue() != null
-              && !attribute.getValue().equals(getSubjectEmail())) {
+              && !attribute.getValue().equals(getSubjectIdentifier())) {
             res.status(401);
             return util.getResponseWrapper(
                 ERROR_RESPONSE_TYPE, "Owner of note metacard is invalid!");

@@ -99,8 +99,8 @@ const render = (props: Props) => {
       {!isShareable || isLocal ? null : (
         <MenuAction
           help="Brings up a view of the current
-        sharing settings for this workspace.  From there, you can change what permissions each role has on the workspace,
-         as well as give permissions to individuals by specifying their email."
+        sharing settings for this workspace. From there, you can change what permissions each role has on the workspace,
+         as well as give permissions to individuals by specifying their user ID."
           onClick={(_e, context) => {
             viewSharing()
             context.closeAndRefocus()
