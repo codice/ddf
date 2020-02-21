@@ -78,11 +78,13 @@ public class OAuthSecurityImpl implements OAuthSecurity {
   private static final String REFRESH_TOKEN = "refresh_token";
   private static final String ACCESS_TOKEN = "access_token";
   private static final String GRANT_TYPE = "grant_type";
+  private static final String OPENID_SCOPE = "openid";
   private static final String ID_TOKEN = "id_token";
   private static final String USERNAME = "username";
   private static final String PASSWORD = "password";
   private static final String BEARER = "Bearer ";
   private static final String BASIC = "Basic ";
+  private static final String SCOPE = "scope";
   private static final String EXP = "exp";
   private static final String IAT = "iat";
 
@@ -323,6 +325,7 @@ public class OAuthSecurityImpl implements OAuthSecurity {
     webClient.accept(APPLICATION_JSON);
 
     Form formParam = new Form(GRANT_TYPE, grantType);
+    formParam.param(SCOPE, OPENID_SCOPE);
     queryParameters.forEach(formParam::param);
     javax.ws.rs.core.Response response = webClient.form(formParam);
 

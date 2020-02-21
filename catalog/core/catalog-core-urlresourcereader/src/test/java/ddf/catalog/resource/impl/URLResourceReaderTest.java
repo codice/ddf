@@ -22,8 +22,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.net.HttpHeaders;
 import ddf.catalog.content.data.ContentItem;
@@ -56,6 +59,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.cxf.client.ClientFactoryFactory;
+import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.cxf.client.impl.ClientFactoryFactoryImpl;
 import org.junit.Before;
 import org.junit.Rule;
@@ -820,6 +824,102 @@ public class URLResourceReaderTest {
         "The web client should be created with uri=" + uri,
         resourceReader.capturedWebClientUri,
         equalTo(expectedWebClientUri));
+  }
+
+  @Test
+  public void testGetWebClientWithUsernameAndPassword() {
+    SecureCxfClientFactory<WebClient> cxfClientFactory = mock(SecureCxfClientFactory.class);
+    when(cxfClientFactory.getWebClient()).thenReturn(mock(WebClient.class));
+
+    ClientFactoryFactory clientFactoryFactory = mock(ClientFactoryFactory.class);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            "https://myurl.com",
+            WebClient.class,
+            null,
+            null,
+            false,
+            true,
+            null,
+            null,
+            "myusername",
+            "mypassword"))
+        .thenReturn(cxfClientFactory);
+
+    URLResourceReader urlResourceReader =
+        new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
+
+    Map<String, Serializable> properties =
+        ImmutableMap.of("username", "myusername", "password", "mypassword");
+    urlResourceReader.getWebClient("https://myurl.com", properties);
+
+    verify(clientFactoryFactory, times(1))
+        .getSecureCxfClientFactory(
+            "https://myurl.com",
+            WebClient.class,
+            null,
+            null,
+            false,
+            true,
+            null,
+            null,
+            "myusername",
+            "mypassword");
+  }
+
+  @Test
+  public void testGetWebClientWithOauth() {
+    SecureCxfClientFactory<WebClient> cxfClientFactory = mock(SecureCxfClientFactory.class);
+    when(cxfClientFactory.getWebClient()).thenReturn(mock(WebClient.class));
+
+    ClientFactoryFactory clientFactoryFactory = mock(ClientFactoryFactory.class);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            "https://myurl.com",
+            WebClient.class,
+            null,
+            null,
+            false,
+            true,
+            null,
+            null,
+            "mysource",
+            "https://keycloak:8080/discovery-url",
+            "client-id",
+            "client-secret",
+            "code"))
+        .thenReturn(cxfClientFactory);
+
+    URLResourceReader urlResourceReader =
+        new URLResourceReader(mimeTypeMapper, clientFactoryFactory);
+
+    Map<String, Serializable> properties =
+        ImmutableMap.of(
+            "id",
+            "mysource",
+            "oauthDiscoveryUrl",
+            "https://keycloak:8080/discovery-url",
+            "oauthClientId",
+            "client-id",
+            "oauthClientSecret",
+            "client-secret",
+            "oauthFlow",
+            "code");
+    urlResourceReader.getWebClient("https://myurl.com", properties);
+
+    verify(clientFactoryFactory, times(1))
+        .getSecureCxfClientFactory(
+            "https://myurl.com",
+            WebClient.class,
+            null,
+            null,
+            false,
+            true,
+            null,
+            null,
+            "mysource",
+            "https://keycloak:8080/discovery-url",
+            "client-id",
+            "client-secret",
+            "code");
   }
 
   private class TestURLResourceReader extends URLResourceReader {

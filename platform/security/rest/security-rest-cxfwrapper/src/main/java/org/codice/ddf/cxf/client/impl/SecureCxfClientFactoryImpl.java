@@ -616,6 +616,10 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     return getWebClientForSubject(null);
   }
 
+  public WebClient getWebSystemClient() {
+    return getWebClient(getClientForSystemSubject(null));
+  }
+
   /**
    * Clients produced by this method will be secured with two-way ssl and the provided security
    * subject.

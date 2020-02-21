@@ -946,6 +946,18 @@ public abstract class AbstractCswSource extends MaskableImpl
         requestProperties.put(USERNAME_PROPERTY, username);
         requestProperties.put(PASSWORD_PROPERTY, password);
       }
+
+      if (OAUTH_AUTH_TYPE.equals(cswSourceConfiguration.getAuthenticationType())
+          && StringUtils.isNotBlank(cswSourceConfiguration.getOauthDiscoveryUrl())
+          && StringUtils.isNotBlank(cswSourceConfiguration.getOauthClientId())
+          && StringUtils.isNotBlank(cswSourceConfiguration.getOauthClientSecret())) {
+
+        requestProperties.put(ID_PROPERTY, cswSourceConfiguration.getId());
+        requestProperties.put(OAUTH_DISCOVERY_URL, cswSourceConfiguration.getOauthDiscoveryUrl());
+        requestProperties.put(OAUTH_CLIENT_ID, cswSourceConfiguration.getOauthClientId());
+        requestProperties.put(OAUTH_CLIENT_SECRET, cswSourceConfiguration.getOauthClientSecret());
+        requestProperties.put(OAUTH_FLOW, cswSourceConfiguration.getOauthFlow());
+      }
     }
 
     if (canRetrieveResourceById()) {
