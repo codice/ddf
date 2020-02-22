@@ -51,12 +51,14 @@ const foreground = (props: any) => {
   }
 }
 
-const test = (active : any, disabled: any) => {
-
-return active && !disabled ? after : ''
-
+const test = (active: any, disabled: any) => {
+  return active && !disabled ? after : ''
 }
-const ItemRoot = styled.div<{ active: boolean; disabled: boolean ; selected : boolean }>`
+const ItemRoot = styled.div<{
+  active: boolean
+  disabled: boolean
+  selected: boolean
+}>`
 position: relative;
 padding: 0px ${({ theme }) => theme.minimumSpacing};
 padding-right: ${({ theme }) => theme.minimumButtonSize};
@@ -73,13 +75,13 @@ user-select: none; /* Non-prefixed version, currently supported by Chrome and Op
 white-space: nowrap;
 overflow: hidden;
 text-overflow: ellipsis;
-${({ disabled }) => disabled ? 'pointer-events : none' : ''}
+${({ disabled }) => (disabled ? 'pointer-events : none' : '')}
 ${({ theme, active, disabled }) =>
   active && !disabled
     ? `box-shadow: inset 0px 0px 0px 1px  ${theme.primaryColor};`
     : ''}
 ${({ selected }) => (selected ? 'font-weight: bold;' : '')}
-${({ selected , disabled }) => (test(selected , disabled))}
+${({ selected, disabled }) => test(selected, disabled)}
 background: ${props =>
   props.active && !props.disabled ? background(props) : 'inherit'};
 color: ${props => (props.disabled ? 'lightgrey' : foreground)};
@@ -242,7 +244,16 @@ type MenuItemProps = {
 }
 
 export const MenuItem = (props: MenuItemProps) => {
-  const { value, children, selected,onClick, active, onHover, style , disabled} = props
+  const {
+    value,
+    children,
+    selected,
+    onClick,
+    active,
+    onHover,
+    style,
+    disabled,
+  } = props
   return (
     <ItemRoot
       selected={selected}

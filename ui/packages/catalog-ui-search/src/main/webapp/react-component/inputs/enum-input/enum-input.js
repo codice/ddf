@@ -20,7 +20,6 @@ import TextField from '../../text-field'
 import styled from 'styled-components'
 import { getFilteredSuggestions, inputMatchesSuggestions } from './enumHelper'
 import PropTypes from 'prop-types'
-import { Button } from '../../presentation/button'
 const properties = require('catalog-ui-search/src/main/webapp/js/properties.js')
 const TextWrapper = styled.div`
   padding: ${({ theme }) => theme.minimumSpacing};
@@ -28,45 +27,41 @@ const TextWrapper = styled.div`
 const SOURCES = properties.i18n['sources'] || 'source(s)'
 const EnumMenuItem = props => (
   <span
-  title={
-    isAttributeDisabled(props.settingsModel, props.value)
-      ? `Attribute is unsupported by the ${SOURCES} selected`
-      : '' 
-  }>
+    title={
+      isAttributeDisabled(props.settingsModel, props.value)
+        ? `Attribute is unsupported by the ${SOURCES} selected`
+        : ''
+    }
+  >
     <MenuItem {...props} style={{ paddingLeft: '1.5rem' }} />
   </span>
 )
 
-const StyledEnumButton = styled.button`
-display : flex
-color: ${props => props.theme.primaryColor};
-`
 const UnsupportedAttribute = styled.div`
 border-style: solid
 border-color: red
 `
-
 
 const isAttributeDisabled = (allSupportedAttributes, currValue) => {
   //if the parent component does not pass down the attributes then return false
   if (!allSupportedAttributes) {
     return false
   }
-  console.log(currValue);
   return (
     allSupportedAttributes.length > 0 &&
     allSupportedAttributes.indexOf(currValue.value) == -1
   )
 }
 
-const addDisabledPropToSuggestions = (allSupportedAttributes,filteredSuggestions) => {
-
-      return  filteredSuggestions.map((suggestion) => {
-          let disabledStatus  = isAttributeDisabled(allSupportedAttributes,suggestion);
-          suggestion.disabled = disabledStatus;
-          return suggestion;
-      },allSupportedAttributes);
-
+const addDisabledPropToSuggestions = (
+  allSupportedAttributes,
+  filteredSuggestions
+) => {
+  return filteredSuggestions.map(suggestion => {
+    let disabledStatus = isAttributeDisabled(allSupportedAttributes, suggestion)
+    suggestion.disabled = disabledStatus
+    return suggestion
+  }, allSupportedAttributes)
 }
 
 const EnumInput = ({
@@ -85,9 +80,7 @@ const EnumInput = ({
     matchCase
   )
   const displayInput = !inputMatchesSuggestions(input, suggestions, matchCase)
-  console.log(filteredSuggestions);
-  let test = addDisabledPropToSuggestions(settingsModel,filteredSuggestions);
-  console.log(test)
+  addDisabledPropToSuggestions(settingsModel, filteredSuggestions)
   const attributeDropdown = (
     <Dropdown label={(selected && selected.label) || value}>
       <TextWrapper>
@@ -105,15 +98,14 @@ const EnumInput = ({
           )}
         {filteredSuggestions.map(suggestion => {
           return (
-            
-              <EnumMenuItem
-                key={suggestion.value}
-                value={suggestion.value}
-                settingsModel={settingsModel}
-                disabled={suggestion.disabled}
-              >
-                {suggestion.label}
-              </EnumMenuItem>
+            <EnumMenuItem
+              key={suggestion.value}
+              value={suggestion.value}
+              settingsModel={settingsModel}
+              disabled={suggestion.disabled}
+            >
+              {suggestion.label}
+            </EnumMenuItem>
           )
         })}
       </Menu>
