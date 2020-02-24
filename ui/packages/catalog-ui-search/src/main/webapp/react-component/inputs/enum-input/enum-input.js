@@ -28,7 +28,7 @@ const SOURCES = properties.i18n['sources'] || 'source(s)'
 const EnumMenuItem = props => (
   <span
     title={
-      isAttributeDisabled(props.settingsModel, props.value)
+      isAttributeDisabled(props.supportedAttributes, props.value)
         ? `Attribute is unsupported by the ${SOURCES} selected`
         : ''
     }
@@ -70,7 +70,7 @@ const EnumInput = ({
   onChange,
   suggestions,
   value,
-  settingsModel,
+  supportedAttributes,
 }) => {
   const [input, setInput] = useState('')
   const selected = suggestions.find(suggestion => suggestion.value === value)
@@ -80,7 +80,7 @@ const EnumInput = ({
     matchCase
   )
   const displayInput = !inputMatchesSuggestions(input, suggestions, matchCase)
-  addDisabledPropToSuggestions(settingsModel, filteredSuggestions)
+  addDisabledPropToSuggestions(supportedAttributes, filteredSuggestions)
   const attributeDropdown = (
     <Dropdown label={(selected && selected.label) || value}>
       <TextWrapper>
@@ -101,7 +101,7 @@ const EnumInput = ({
             <EnumMenuItem
               key={suggestion.value}
               value={suggestion.value}
-              settingsModel={settingsModel}
+              supportedAttributes={supportedAttributes}
               disabled={suggestion.disabled}
             >
               {suggestion.label}
@@ -113,7 +113,7 @@ const EnumInput = ({
   )
   return (
     <div>
-      {isAttributeDisabled(settingsModel, selected) ? (
+      {isAttributeDisabled(supportedAttributes, selected) ? (
         <div>
           <UnsupportedAttribute title="Attribute is unsupported by the content store(s) selected">
             {attributeDropdown}

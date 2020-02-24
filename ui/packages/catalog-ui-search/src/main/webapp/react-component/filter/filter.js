@@ -98,7 +98,7 @@ class Filter extends React.Component {
           includedAttributes={this.props.includedAttributes}
           editing={this.props.editing}
           onChange={this.updateAttribute}
-          settingsModel={this.getListofSupportedAttributes()}
+          supportedAttributes={this.getListofSupportedAttributes()}
         />
         <FilterComparator
           comparator={this.state.comparator}
@@ -125,22 +125,14 @@ class Filter extends React.Component {
     this.props.onChange(this.state)
   }
   getListofSupportedAttributes = () => {
-    // if no source is selected and settingsModel is present from parent component we want to present all attributes as available
-    const settingsModel = this.props.settingsModel
-    // if settingsModel is not passed down from another parent Component (other than advanced) return empty list
-    if (!settingsModel) {
+    // if no source is selected and supportedAttributes is present from parent component we want to present all attributes as available
+    const supportedAttributes = this.props.supportedAttributes
+    // if supportedAttributes is not passed down from another parent Component (other than advanced) return empty list
+    if (!supportedAttributes || supportedAttributes.length == 0) {
       return []
     }
-
-    if (settingsModel.length == 0) {
-      return []
-    }
-    if (settingsModel.includes('GIMS_GIN')) {
-      return ['ext.alternate-identifier-qualifier']
-    }
-
     let allSupportedAttributes = sources.models
-      .filter(source => settingsModel.includes(source.id))
+      .filter(source => supportedAttributes.includes(source.id))
       .map(sourceSelected => sourceSelected.attributes.supportedAttributes)
       .flat()
     return allSupportedAttributes

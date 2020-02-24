@@ -50,10 +50,6 @@ const foreground = (props: any) => {
     return readableColor(props.theme.backgroundDropdown)
   }
 }
-
-const test = (active: any, disabled: any) => {
-  return active && !disabled ? after : ''
-}
 const ItemRoot = styled.div<{
   active: boolean
   disabled: boolean
@@ -81,7 +77,7 @@ ${({ theme, active, disabled }) =>
     ? `box-shadow: inset 0px 0px 0px 1px  ${theme.primaryColor};`
     : ''}
 ${({ selected }) => (selected ? 'font-weight: bold;' : '')}
-${({ selected, disabled }) => test(selected, disabled)}
+${({ selected, disabled }) => (selected && !disabled ? after : '')}
 background: ${props =>
   props.active && !props.disabled ? background(props) : 'inherit'};
 color: ${props => (props.disabled ? 'lightgrey' : foreground)};

@@ -28,7 +28,7 @@ const FilterAttributeDropdown = ({
   includedAttributes,
   editing,
   value,
-  settingsModel,
+  supportedAttributes,
 }) => {
   return (
     <Root>
@@ -37,7 +37,7 @@ const FilterAttributeDropdown = ({
           value={value}
           suggestions={getFilteredAttributeList(includedAttributes)}
           onChange={onChange}
-          settingsModel={settingsModel}
+          supportedAttributes={supportedAttributes}
         />
       ) : (
         value
