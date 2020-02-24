@@ -75,16 +75,26 @@ const PointRadiusLatLonDd = props => {
       <ErrorComponent errorState={ddError} />
       <Units
         value={radiusUnits}
-        onChange={value => setState({ ['radiusUnits']: value })}
+        onChange={value => {
+          setState({ ['radiusUnits']: value })
+          setRadiusError(validateGeo('radius', { value: radius, units: value }))
+        }}
       >
         <TextField
           type="number"
           label="Radius"
           value={String(radius)}
           onChange={value => {
-            setRadiusError(validateGeo('radius', value))
             setState({ ['radius']: value })
           }}
+          onBlur={e =>
+            setRadiusError(
+              validateGeo('radius', {
+                value: e.target.value,
+                units: radiusUnits,
+              })
+            )
+          }
         />
       </Units>
       <ErrorComponent errorState={radiusError} />

@@ -22,6 +22,7 @@ const converter = new usngs.Converter()
 const NORTHING_OFFSET = 10000000
 const LATITUDE = 'latitude'
 const LONGITUDE = 'longitude'
+const DistanceUtils = require('../../../js/DistanceUtils')
 
 export function showErrorMessages(errors: any) {
   if (errors.length === 0) {
@@ -171,7 +172,7 @@ function getGeometryErrors(filter: any): Set<string> {
     return errors
   }
   const properties = filter.geojson.properties
-  const bufferWidth = properties.buffer && properties.buffer.width
+  const buffer = properties.buffer
   switch (properties.type) {
     case 'Polygon':
       if (
@@ -200,14 +201,22 @@ function getGeometryErrors(filter: any): Set<string> {
       ) {
         errors.add('Line coordinates must be in the form [[x,y],[x,y], ... ]')
       }
+      const bufferValidation = validateRadiusLineBuffer('lineWidth', {
+        value: buffer.width,
+        units: buffer.unit,
+      })
       // Can't just check !bufferWidth because of the case of the string "0"
-      if (bufferWidth === undefined || Number(bufferWidth) <= 0) {
-        errors.add('Line buffer width must be greater than 0')
+      if (bufferValidation.error) {
+        errors.add(bufferValidation.message)
       }
       break
     case 'Point':
-      if (bufferWidth === undefined || Number(bufferWidth) <= 0) {
-        errors.add('Radius must be greater than 0')
+      const radiusValidation = validateRadiusLineBuffer('radius', {
+        value: buffer.width,
+        units: buffer.unit,
+      })
+      if (radiusValidation.error) {
+        errors.add(radiusValidation.message)
       }
       if (
         geometry.coordinates.some(
@@ -361,12 +370,18 @@ function validateUtmUps(key: string, value: any) {
   return error
 }
 
-function validateRadiusLineBuffer(key: string, value: string) {
+function validateRadiusLineBuffer(key: string, value: any) {
   const label = key === 'lineWidth' ? 'Buffer width ' : 'Radius '
-  if ((value !== undefined && value.length === 0) || Number(value) <= 0) {
+  const buffer = DistanceUtils.getDistanceInMeters(value.value, value.units)
+  if (buffer < 1) {
     return {
       error: true,
-      message: label + 'must be greater than 0',
+      message:
+        label +
+        'must be greater than ' +
+        DistanceUtils.getDistanceFromMeters(1, value.units).toPrecision(2) +
+        ' ' +
+        value.units,
     }
   }
   return { error: false, message: '' }

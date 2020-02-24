@@ -134,6 +134,14 @@ const BaseLine = props => {
             typeof setBufferState === 'function'
               ? setBufferState(unitKey, value)
               : setState({ [unitKey]: value })
+            if (widthKey === 'lineWidth') {
+              setBufferError(
+                validateGeo('lineWidth', {
+                  value: props[widthKey],
+                  units: value,
+                })
+              )
+            }
           }}
         >
           <TextField
@@ -141,12 +149,19 @@ const BaseLine = props => {
             label="Buffer width"
             value={String(props[widthKey])}
             onChange={value => {
-              if (widthKey === 'lineWidth') {
-                setBufferError(validateGeo('lineWidth', value))
-              }
               typeof setBufferState === 'function'
                 ? setBufferState(widthKey, value)
                 : setState({ [widthKey]: value })
+            }}
+            onBlur={e => {
+              if (widthKey === 'lineWidth') {
+                setBufferError(
+                  validateGeo('lineWidth', {
+                    value: e.target.value,
+                    units: props[unitKey],
+                  })
+                )
+              }
             }}
           />
         </Units>
