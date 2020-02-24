@@ -174,16 +174,26 @@ const PointRadiusLatLonDms = props => {
       <ErrorComponent errorState={dmsError} />
       <Units
         value={radiusUnits}
-        onChange={value => setState({ ['radiusUnits']: value })}
+        onChange={value => {
+          setState({ ['radiusUnits']: value })
+          setRadiusError(validateGeo('radius', { value: radius, units: value }))
+        }}
       >
         <TextField
           label="Radius"
           type="number"
           value={String(radius)}
           onChange={value => {
-            setRadiusError(validateGeo('radius', value))
             setState({ ['radius']: value })
           }}
+          onBlur={e =>
+            setRadiusError(
+              validateGeo('radius', {
+                value: e.target.value,
+                units: radiusUnits,
+              })
+            )
+          }
         />
       </Units>
       <ErrorComponent errorState={radiusError} />
@@ -217,7 +227,10 @@ const PointRadiusUsngMgrs = props => {
       <ErrorComponent errorState={usngError} />
       <Units
         value={radiusUnits}
-        onChange={value => setState({ ['radiusUnits']: value })}
+        onChange={value => {
+          setState({ ['radiusUnits']: value })
+          setRadiusError(validateGeo('radius', { value: radius, units: value }))
+        }}
       >
         <TextField
           label="Radius"
@@ -332,16 +345,26 @@ const PointRadiusUtmUps = props => {
       <ErrorComponent errorState={utmError} />
       <Units
         value={radiusUnits}
-        onChange={value => setState({ ['radiusUnits']: value })}
+        onChange={value => {
+          setState({ ['radiusUnits']: value })
+          setRadiusError(validateGeo('radius', { value: radius, units: value }))
+        }}
       >
         <TextField
           label="Radius"
           type="number"
           value={String(radius)}
           onChange={value => {
-            setRadiusError(validateGeo('radius', value))
             setState({ ['radius']: value })
           }}
+          onBlur={e =>
+            setRadiusError(
+              validateGeo('radius', {
+                value: e.target.value,
+                units: radiusUnits,
+              })
+            )
+          }
         />
       </Units>
       <ErrorComponent errorState={radiusError} />
