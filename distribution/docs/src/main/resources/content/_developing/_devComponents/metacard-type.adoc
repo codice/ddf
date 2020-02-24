@@ -5,7 +5,7 @@
 :summary: Creating a custom Metacard Type.
 :order: 01
 
-Create custome Metacard types with Metacard Type definition files.
+Create custom Metacard types with Metacard Type definition files.
 
 ==== Metacard Type Definition File
 

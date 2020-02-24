@@ -436,7 +436,8 @@ public class DefinitionParser {
     for (Map<String, List<MetacardValidatorDefinition>> mvdMap : metacardValidatorDefinitions) {
       for (Entry<String, List<MetacardValidatorDefinition>> row : mvdMap.entrySet()) {
         try {
-          List<MetacardValidator> metacardValidators = getMetacardValidators(row.getValue().get(0));
+          List<MetacardValidator> metacardValidators =
+              getMetacardValidators(row.getKey(), row.getValue().get(0));
           metacardValidators.forEach(
               metacardValidator ->
                   staged.add(
@@ -447,7 +448,6 @@ public class DefinitionParser {
                         changeset.metacardValidatorServices.add(registration);
                         return registration != null;
                       }));
-
         } catch (IllegalStateException ise) {
           LOGGER.error(
               "Could not register metacard validator for definition: {} {}",
@@ -524,7 +524,7 @@ public class DefinitionParser {
   }
 
   private List<MetacardValidator> getMetacardValidators(
-      MetacardValidatorDefinition validatorDefinition) {
+      String metacardTypeName, MetacardValidatorDefinition validatorDefinition) {
 
     if (!REQUIRED_ATTRIBUTE_VALIDATOR_PROPERTY.equals(validatorDefinition.validator)) {
       throw new IllegalStateException(
@@ -538,8 +538,7 @@ public class DefinitionParser {
 
     return ImmutableList.of(
         new RequiredAttributesMetacardValidator(
-            validatorDefinition.validator,
-            ImmutableSet.copyOf(validatorDefinition.requiredattributes)));
+            metacardTypeName, ImmutableSet.copyOf(validatorDefinition.requiredattributes)));
   }
 
   private ValidatorWrapper getValidator(String key, Outer.Validator validator) {

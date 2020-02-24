@@ -1,0 +1,65 @@
+:title: Developing Metacard Validators
+:type: developingComponent
+:status: published
+:link: _developing_metacard_validators
+:summary: Creating a custom metacard validator.
+:order: 02
+
+==== Metacard Validator Definition
+
+Metacard Validator definitions are similar to the Validators definitions. To define Metacard
+Validators, your definition file must have a `metacardvalidators` key in the root object.
+
+[source,json]
+----
+{
+    "metacardvalidators": {...}
+}
+----
+
+The value of `metacardvalidators` is a list of maps, where each map contains a key that is the name
+of the metacard type the corresponding validators will apply to. Its value is a list of maps of the
+validator configuration parameters that specify which validators to configure for the given metacard
+type.
+
+[source,json]
+----
+{
+    "metacardvalidators": [{
+        "metacard.type" : [{
+            "validator": "requiredattributes",
+            "key": "value"
+        }]
+      }]
+}
+----
+
+[IMPORTANT]
+====
+The configuration for the metacard validator must always contain a `validator` key that specifies
+the type of validator to create. Additional key/value pairs may be required to configure the
+validator.
+====
+
+The `validator` key must have a value of one of the following:
+
+- `requiredattributes` (checks that metacards of the specified type contain certain attributes)
+* Must add the key `requiredattributes` whose value is a list of strings naming the required
+attributes
+
+Examples:
+[source, json]
+----
+{
+  "metacardvalidators": [{
+    "fallback.common": [{
+        "validator": "requiredattributes",
+        "requiredattributes": [
+          "id",
+          "title",
+          "attr"
+        ]
+    }]
+  }]
+}
+----

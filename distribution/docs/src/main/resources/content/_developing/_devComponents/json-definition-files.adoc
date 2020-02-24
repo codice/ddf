@@ -11,6 +11,7 @@ The following may be defined in a JSON definition file:
 - <<{developing-prefix}attribute_type_definition_file,Attribute Types>>
 - <<{developing-prefix}metacard_type_definition_file,Metacard Types>>
 - <<{developing-prefix}global_attribute_validators_file,Global Attribute Validators>>
+- <<{developing-prefix}metacard_validator_definition,Metacard Validators>>
 - <<{developing-prefix}default_attribute_values,Default Attribute Values>>
 - <<{developing-prefix}attribute_injection_definition,Attribute Injections>>
 
