@@ -157,7 +157,6 @@ module.exports = plugin(
           model: this._srcDropdownModel,
         })
       )
-
       this.settingsSrc.currentView.turnOffEditing()
     },
     setupSpellcheck() {
