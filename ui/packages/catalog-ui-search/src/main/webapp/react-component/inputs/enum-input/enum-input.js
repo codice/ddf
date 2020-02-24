@@ -28,7 +28,7 @@ const SOURCES = properties.i18n['sources'] || 'source(s)'
 const EnumMenuItem = props => (
   <span
     title={
-      isAttributeDisabled(props.supportedAttributes, props.value)
+      props.disabled
         ? `Attribute is unsupported by the ${SOURCES} selected`
         : ''
     }
