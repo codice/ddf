@@ -42,6 +42,12 @@
             </cm:property>
             <cm:property name="responseType" value="code"/>
             <cm:property name="responseMode" value="form_post"/>
+            <cm:property name="connectTimeout">
+                <value type="java.lang.Integer">5000</value>
+            </cm:property>
+            <cm:property name="readTimeout">
+                <value type="java.lang.Integer">5000</value>
+            </cm:property>
         </cm:default-properties>
     </cm:property-placeholder>
 
@@ -61,6 +67,8 @@
                 </entry>
                 <entry key="responseType" value="${responseType}"/>
                 <entry key="responseMode" value="${responseMode}"/>
+                <entry key="connectTimeout" value="${connectTimeout}"/>
+                <entry key="readTimeout" value="${readTimeout}"/>
             </map>
         </property>
     </bean>

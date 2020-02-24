@@ -61,12 +61,20 @@ public class OidcCredentialsResolver extends OidcAuthenticator {
 
   private OIDCProviderMetadata metadata;
   private ResourceRetriever resourceRetriever;
+  private int connectTimeout;
+  private int readTimeout;
 
   public OidcCredentialsResolver(
-      OidcConfiguration oidcConfiguration, OidcClient oidcClient, OIDCProviderMetadata metadata) {
+      OidcConfiguration oidcConfiguration,
+      OidcClient oidcClient,
+      OIDCProviderMetadata metadata,
+      int connectTimeout,
+      int readTimeout) {
     super(oidcConfiguration, oidcClient);
     this.metadata = metadata;
     this.resourceRetriever = oidcConfiguration.findResourceRetriever();
+    this.connectTimeout = connectTimeout;
+    this.readTimeout = readTimeout;
   }
 
   /* This methods job is to try and get an id token from a
@@ -181,19 +189,38 @@ public class OidcCredentialsResolver extends OidcAuthenticator {
   }
 
   public OIDCTokens getOidcTokens(AuthorizationGrant grant) throws IOException, ParseException {
-    return getOidcTokens(grant, metadata, getClientAuthentication());
+    return getOidcTokens(grant, metadata, getClientAuthentication(), connectTimeout, readTimeout);
   }
 
+  /**
+   * @deprecated Please use {@link #getOidcTokens(AuthorizationGrant, OIDCProviderMetadata,
+   *     ClientAuthentication, int, int)}
+   */
   public static OIDCTokens getOidcTokens(
       AuthorizationGrant grant,
       OIDCProviderMetadata metadata,
       ClientAuthentication clientAuthentication)
       throws IOException, ParseException {
+    return getOidcTokens(
+        grant,
+        metadata,
+        clientAuthentication,
+        HttpConstants.DEFAULT_CONNECT_TIMEOUT,
+        HttpConstants.DEFAULT_READ_TIMEOUT);
+  }
+
+  public static OIDCTokens getOidcTokens(
+      AuthorizationGrant grant,
+      OIDCProviderMetadata metadata,
+      ClientAuthentication clientAuthentication,
+      int connectTimeout,
+      int readTimeout)
+      throws IOException, ParseException {
     final TokenRequest request =
         new TokenRequest(metadata.getTokenEndpointURI(), clientAuthentication, grant);
     HTTPRequest tokenHttpRequest = request.toHTTPRequest();
-    tokenHttpRequest.setConnectTimeout(HttpConstants.DEFAULT_CONNECT_TIMEOUT);
-    tokenHttpRequest.setReadTimeout(HttpConstants.DEFAULT_READ_TIMEOUT);
+    tokenHttpRequest.setConnectTimeout(connectTimeout);
+    tokenHttpRequest.setReadTimeout(readTimeout);
 
     final HTTPResponse httpResponse = tokenHttpRequest.send();
     LOGGER.debug(
