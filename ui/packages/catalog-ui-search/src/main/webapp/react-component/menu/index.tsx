@@ -13,4 +13,4 @@
  *
  **/
 
-export { Menu, MenuItem, MenuItemDisabled } from './menu'
+export { Menu, MenuItem } from './menu'
