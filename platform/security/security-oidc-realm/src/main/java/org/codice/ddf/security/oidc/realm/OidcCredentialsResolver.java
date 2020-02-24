@@ -57,12 +57,20 @@ public class OidcCredentialsResolver extends OidcAuthenticator {
 
   private OidcTokenValidator oidcTokenValidator;
   private OIDCProviderMetadata metadata;
+  private int connectTimeout;
+  private int readTimeout;
 
   public OidcCredentialsResolver(
-      OidcConfiguration oidcConfiguration, OidcClient oidcClient, OIDCProviderMetadata metadata) {
+      OidcConfiguration oidcConfiguration,
+      OidcClient oidcClient,
+      OIDCProviderMetadata metadata,
+      int connectTimeout,
+      int readTimeout) {
     super(oidcConfiguration, oidcClient);
     this.metadata = metadata;
     oidcTokenValidator = new OidcTokenValidator(oidcConfiguration, metadata);
+    this.connectTimeout = connectTimeout;
+    this.readTimeout = readTimeout;
   }
 
   /* This methods job is to try and get an id token from a
@@ -150,8 +158,8 @@ public class OidcCredentialsResolver extends OidcAuthenticator {
     final TokenRequest request =
         new TokenRequest(metadata.getTokenEndpointURI(), getClientAuthentication(), grant);
     HTTPRequest tokenHttpRequest = request.toHTTPRequest();
-    tokenHttpRequest.setConnectTimeout(configuration.getConnectTimeout());
-    tokenHttpRequest.setReadTimeout(configuration.getReadTimeout());
+    tokenHttpRequest.setConnectTimeout(connectTimeout);
+    tokenHttpRequest.setReadTimeout(readTimeout);
 
     final HTTPResponse httpResponse = tokenHttpRequest.send();
     LOGGER.debug(

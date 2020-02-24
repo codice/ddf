@@ -85,9 +85,12 @@ public class OidcRealm extends AuthenticatingRealm {
     OIDCProviderMetadata oidcProviderMetadata = oidcConfiguration.findProviderMetadata();
     WebContext webContext = (WebContext) oidcAuthenticationToken.getContext();
     OidcClient oidcClient = oidcHandlerConfiguration.getOidcClient(webContext.getFullRequestURL());
+    int connectTimeout = oidcHandlerConfiguration.getConnectTimeout();
+    int readTimeout = oidcHandlerConfiguration.getReadTimeout();
 
     OidcCredentialsResolver oidcCredentialsResolver =
-        new OidcCredentialsResolver(oidcConfiguration, oidcClient, oidcProviderMetadata);
+        new OidcCredentialsResolver(
+            oidcConfiguration, oidcClient, oidcProviderMetadata, connectTimeout, readTimeout);
 
     oidcCredentialsResolver.resolveIdToken(credentials, webContext);
 
