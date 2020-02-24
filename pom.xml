@@ -187,7 +187,7 @@
         <commons-validator.version>1.6</commons-validator.version>
         <components-font-awesome.version>4.7.0</components-font-awesome.version>
         <countryconverter.version>0.1.8</countryconverter.version>
-        <cxf.version>3.2.11</cxf.version>
+        <cxf.version>3.2.12</cxf.version>
         <!--
            NOTE: ddf-sdk.version should be removed if itests no longer require the sdk
          -->
