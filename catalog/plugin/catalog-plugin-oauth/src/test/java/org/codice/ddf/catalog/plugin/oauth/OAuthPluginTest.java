@@ -402,10 +402,10 @@ public class OAuthPluginTest {
 
   private Subject getSubject() {
     Session session = mock(Session.class);
-    when(session.getHost()).thenReturn(SESSION);
+    when(session.getId()).thenReturn(SESSION);
 
     Subject subject = mock(Subject.class);
-    when(subject.getSession()).thenReturn(session);
+    when(subject.getSession(false)).thenReturn(session);
     return subject;
   }
 

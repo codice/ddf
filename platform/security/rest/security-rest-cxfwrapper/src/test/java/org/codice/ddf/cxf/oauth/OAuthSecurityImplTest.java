@@ -463,10 +463,10 @@ public class OAuthSecurityImplTest {
 
   private Subject getSubject() {
     Session session = mock(Session.class);
-    when(session.getHost()).thenReturn(SESSION_ID);
+    when(session.getId()).thenReturn(SESSION_ID);
 
     Subject subject = mock(Subject.class);
-    when(subject.getSession()).thenReturn(session);
+    when(subject.getSession(false)).thenReturn(session);
     return subject;
   }
 

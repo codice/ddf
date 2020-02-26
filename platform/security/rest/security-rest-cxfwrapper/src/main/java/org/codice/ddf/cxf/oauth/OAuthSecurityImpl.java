@@ -114,13 +114,13 @@ public class OAuthSecurityImpl implements OAuthSecurity {
       return;
     }
 
-    Session session = subject.getSession();
+    Session session = subject.getSession(false);
     if (session == null) {
       LOGGER.warn("The user's session is not available.");
       return;
     }
 
-    String sessionId = session.getHost();
+    String sessionId = (String) session.getId();
     if (sessionId == null) {
       LOGGER.warn("The user's session ID is not available.");
       return;

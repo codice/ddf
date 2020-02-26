@@ -146,13 +146,13 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
     }
 
     Subject subject = (Subject) securityAssertion;
-    Session session = subject.getSession();
+    Session session = subject.getSession(false);
     if (session == null) {
       LOGGER.warn("The user's session is not available.");
       throw new StopProcessingException("The user's session is not available.");
     }
 
-    String sessionId = session.getHost();
+    String sessionId = (String) session.getId();
     if (sessionId == null) {
       LOGGER.warn("The user's session ID is not available.");
       throw new StopProcessingException("The user's session ID is not available.");
