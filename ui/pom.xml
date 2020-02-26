@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf</groupId>
@@ -372,16 +374,6 @@
                                     <file>packages/catalog-admin-module-sources/target/sources-module.jar</file>
                                     <type>jar</type>
                                     <classifier>sources-module</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>packages/registry-admin-local-ui/target/registry-module.jar</file>
-                                    <type>jar</type>
-                                    <classifier>registry-module</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>packages/registry-admin-remote-ui/target/remote-registries-module.jar</file>
-                                    <type>jar</type>
-                                    <classifier>remote-registries-module</classifier>
                                 </artifact>
                                 <artifact>
                                     <file>packages/resourcemanagement-querymonitor-ui/target/resourcemanagement-querymonitor-ui.jar</file>

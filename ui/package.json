@@ -14,7 +14,7 @@
     "posttest": "ace pom",
     "prebuild": "ace clean --workspaces",
     "build": "yarn format && ace set-env lerna run build",
-    "postbuild": "ace gen-feature --exclude catalog-ui-search-e2e && yarn run build-fonts",
+    "postbuild": "ace gen-feature && yarn run build-fonts",
     "build-fonts": "yarn run clean-fonts && yarn run copy-fonts && npm rebuild node-sass && yarn run build-sass",
     "build-sass": "node-sass src/main/webapp/sass/ --output-style compressed -o src/main/resources/webapp/css/",
     "disable-idp": "ace disable-idp",
@@ -44,10 +44,9 @@
   },
   "workspaces": {
     "packages": [
-      "packages/!(catalog-ui-search-e2e)*"
+      "packages/*"
     ],
     "nohoist": [
-      "**/catalog-ui-search/styled-components",
       "**/imperio"
     ]
   },
