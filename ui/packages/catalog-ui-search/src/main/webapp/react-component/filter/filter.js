@@ -131,11 +131,10 @@ class Filter extends React.Component {
     if (!supportedAttributes || supportedAttributes.length == 0) {
       return []
     }
-    let allSupportedAttributes = sources.models
+    return sources.models
       .filter(source => supportedAttributes.includes(source.id))
       .map(sourceSelected => sourceSelected.attributes.supportedAttributes)
       .flat()
-    return allSupportedAttributes
   }
   updateSuggestions = async () => {
     const { attribute } = this.state

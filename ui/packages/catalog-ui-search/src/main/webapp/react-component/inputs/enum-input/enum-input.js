@@ -25,11 +25,12 @@ const TextWrapper = styled.div`
   padding: ${({ theme }) => theme.minimumSpacing};
 `
 const SOURCES = properties.i18n['sources'] || 'source(s)'
+const UNSUPPORTED_ATTRIBUTE_TITLE = `Attribute is unsupported by the ${SOURCES} selected`;
 const EnumMenuItem = props => (
   <span
     title={
       props.disabled
-        ? `Attribute is unsupported by the ${SOURCES} selected`
+        ? UNSUPPORTED_ATTRIBUTE_TITLE
         : ''
     }
   >
@@ -115,7 +116,7 @@ const EnumInput = ({
     <div>
       {isAttributeDisabled(supportedAttributes, selected) ? (
         <div>
-          <UnsupportedAttribute title="Attribute is unsupported by the content store(s) selected">
+          <UnsupportedAttribute title={UNSUPPORTED_ATTRIBUTE_TITLE}>
             {attributeDropdown}
           </UnsupportedAttribute>
           <div style={{ color: 'red' }}>
