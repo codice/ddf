@@ -94,14 +94,10 @@ const BaseLine = props => {
           : JSON.stringify(props[geometryKey])
       )
       if (props.drawing) {
-        if (
-          geometryKey === 'line' &&
-          (lineWidth === undefined || Number(lineWidth) <= 0)
-        ) {
+        if (lineWidth === undefined || Number(lineWidth) <= 0) {
           setState({ [widthKey]: 1 })
         }
         setBaseLineError(initialErrorState)
-        setBufferError(initialErrorState)
       }
     },
     [props.polygon, props.line]
@@ -134,9 +130,9 @@ const BaseLine = props => {
             typeof setBufferState === 'function'
               ? setBufferState(unitKey, value)
               : setState({ [unitKey]: value })
-            if (widthKey === 'lineWidth') {
+            if (widthKey === 'lineWidth' || 'bufferWidth') {
               setBufferError(
-                validateGeo('lineWidth', {
+                validateGeo(widthKey, {
                   value: props[widthKey],
                   units: value,
                 })
@@ -154,9 +150,9 @@ const BaseLine = props => {
                 : setState({ [widthKey]: value })
             }}
             onBlur={e => {
-              if (widthKey === 'lineWidth') {
+              if (widthKey === 'lineWidth' || 'polygonBufferWidth') {
                 setBufferError(
-                  validateGeo('lineWidth', {
+                  validateGeo(widthKey, {
                     value: e.target.value,
                     units: props[unitKey],
                   })

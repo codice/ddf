@@ -82,6 +82,7 @@ export function validateGeo(key: string, value: any) {
       return validateUtmUps(key, value)
     case 'radius':
     case 'lineWidth':
+    case 'polygonBufferWidth':
       return validateRadiusLineBuffer(key, value)
     case 'line':
     case 'poly':
@@ -191,6 +192,13 @@ function getGeometryErrors(filter: any): Set<string> {
             )
           }
         })
+      }
+      const polyBufferValidation = validateRadiusLineBuffer('bufferWidth', {
+        value: buffer.width,
+        units: buffer.unit,
+      })
+      if (polyBufferValidation.error) {
+        errors.add(polyBufferValidation.message)
       }
       break
     case 'LineString':
@@ -371,8 +379,19 @@ function validateUtmUps(key: string, value: any) {
 }
 
 function validateRadiusLineBuffer(key: string, value: any) {
-  const label = key === 'lineWidth' ? 'Buffer width ' : 'Radius '
+  const label = key === 'radius' ? 'Radius ' : 'Buffer width ' 
   const buffer = DistanceUtils.getDistanceInMeters(value.value, value.units)
+  if (key === 'polygonBufferWidth' && buffer > 0 && buffer < 1) {
+      return {
+        error: true,
+        message:
+          label +
+          'must be greater than ' +
+          DistanceUtils.getDistanceFromMeters(1, value.units).toPrecision(2) +
+          ' ' +
+          value.units,
+      }
+  }
   if (buffer < 1) {
     return {
       error: true,
