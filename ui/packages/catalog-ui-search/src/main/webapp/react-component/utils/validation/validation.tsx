@@ -379,18 +379,18 @@ function validateUtmUps(key: string, value: any) {
 }
 
 function validateRadiusLineBuffer(key: string, value: any) {
-  const label = key === 'radius' ? 'Radius ' : 'Buffer width ' 
+  const label = key === 'radius' ? 'Radius ' : 'Buffer width '
   const buffer = DistanceUtils.getDistanceInMeters(value.value, value.units)
   if (key === 'polygonBufferWidth' && buffer > 0 && buffer < 1) {
-      return {
-        error: true,
-        message:
-          label +
-          'must be greater than ' +
-          DistanceUtils.getDistanceFromMeters(1, value.units).toPrecision(2) +
-          ' ' +
-          value.units,
-      }
+    return {
+      error: true,
+      message:
+        label +
+        'must be greater than ' +
+        DistanceUtils.getDistanceFromMeters(1, value.units).toPrecision(2) +
+        ' ' +
+        value.units,
+    }
   }
   if (buffer < 1) {
     return {
