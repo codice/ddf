@@ -67,7 +67,8 @@
     "sources.available": "All sources are currently up",
     "sources.title": "Sources",
     "sources.polling.error.message": "Unable to query server for list of active sources",
-    "sources.options.all": "All Sources"
+    "sources.options.all": "All Sources",
+    "form.title": "title"
   },
   "queryFeedbackEmailSubjectTemplate": "Query Feedback from {{username}}",
   "customBackgroundModal": "#252529",
