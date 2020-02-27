@@ -64,7 +64,7 @@ const defaultExamples = {
   degrees: `${mtgeo.toLat(exampleLat)} ${mtgeo.toLon(exampleLon)}`,
   decimal: `${exampleLat} ${exampleLon}`,
   mgrs: '4Q FL 23009 12331',
-  utm: '14 1925mE 1513mN',
+  utm: '14N 1925mE 1513mN',
 }
 
 const render = (props: Props) => {
