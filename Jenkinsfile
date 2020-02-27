@@ -27,7 +27,6 @@ pipeline {
     environment {
         DOCS = 'distribution/docs'
         ITESTS = 'distribution/test/itests/test-itests-ddf'
-        POMFIX = 'libs/libs-pomfix,libs/libs-pomfix-run'
         LARGE_MVN_OPTS = '-Xmx4G -Xms1G -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC '
         DISABLE_DOWNLOAD_PROGRESS_OPTS = '-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn '
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
@@ -45,14 +44,11 @@ pipeline {
             }
         }
 
-        // Use the pomfix tool to validate that bundle dependencies are properly declared
-        stage('Validate Poms') {
+        // Checkout the repository
+        stage('Checkout repo') {
             steps {
                 retry(3) {
                     checkout scm
-                }
-                withMaven(maven: 'M3', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LINUX_MVN_RANDOM}') {
-                    sh 'mvn clean install -DskipStatic=true -DskipTests=true -B -pl $POMFIX $DISABLE_DOWNLOAD_PROGRESS_OPTS'
                 }
             }
         }

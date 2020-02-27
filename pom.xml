@@ -426,6 +426,11 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>com.connexta</groupId>
+                    <artifactId>pom-lint</artifactId>
+                    <version>1.0</version>
+                </plugin>
+                <plugin>
                     <!-- mvn versions:display-dependency-updates > versions_upgrade.txt -->
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>versions-maven-plugin</artifactId>
@@ -744,6 +749,18 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>com.connexta</groupId>
+                <artifactId>pom-lint</artifactId>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>lint</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
