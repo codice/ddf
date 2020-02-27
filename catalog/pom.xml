@@ -534,7 +534,6 @@
         <module>ui</module>
         <module>spatial</module>
         <module>resourcemanagement</module>
-        <module>ftp</module>
         <module>validator</module>
         <module>confluence</module>
         <module>migrate</module>
