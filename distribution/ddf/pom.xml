@@ -265,6 +265,13 @@
         <dependency>
             <groupId>ddf</groupId>
             <artifactId>docs</artifactId>
+            <classifier>docs-export</classifier>
+            <type>zip</type>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf</groupId>
+            <artifactId>docs</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
