@@ -70,20 +70,24 @@ function convertMultiWkt(isPolygon, value) {
 }
 
 function getPolygonValue(currentValue, value) {
-    // if current value's 1st coord is different
-    // from value's first coord, then delete value's last coord
-    try {
+  // if current value's 1st coord is different
+  // from value's first coord, then delete value's last coord
+  try {
     const parsedValue = JSON.parse(value)
     const parsedCurrentValue = JSON.parse(currentValue)
-    if (Array.isArray(parsedValue) && Array.isArray(parsedCurrentValue) && !_.isEqual(parsedValue[0], parsedCurrentValue[0])) {
-      parsedValue.splice(-1,1)
+    if (
+      Array.isArray(parsedValue) &&
+      Array.isArray(parsedCurrentValue) &&
+      !_.isEqual(parsedValue[0], parsedCurrentValue[0])
+    ) {
+      parsedValue.splice(-1, 1)
       return JSON.stringify(parsedValue)
     } else {
       return value
     }
-    } catch (e) {
-      return value
-    }
+  } catch (e) {
+    return value
+  }
 }
 
 const BaseLine = props => {
