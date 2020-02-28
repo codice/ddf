@@ -34,6 +34,8 @@ const LayerCollectionController = require('../../../../js/controllers/ol.layerCo
 const user = require('../../../singletons/user-instance.js')
 const User = require('../../../../js/model/User.js')
 const wreqr = require('../../../../js/wreqr.js')
+import { validateGeo } from '../../../../react-component/utils/validation'
+
 
 const defaultColor = '#3c6dd5'
 
@@ -604,7 +606,10 @@ module.exports = function OpenlayersMap(
     showMultiLineShape(locationModel) {
       let lineObject = locationModel
         .get('multiline')
-        .map(line => line.map(coords => convertPointCoordinate(coords)))
+      if (validateGeo('multiline', JSON.stringify(lineObject)).error) {
+        return
+      }
+      lineObject = lineObject.map(line => line.map(coords => convertPointCoordinate(coords)))
 
       let feature = new Openlayers.Feature({
         geometry: new Openlayers.geom.MultiLineString(lineObject),
