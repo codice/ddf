@@ -13,21 +13,18 @@
  *
  **/
 import React, { useState, useEffect } from 'react'
-const { Radio, RadioItem } = require('../radio')
-const TextField = require('../text-field')
 import {
   validateGeo,
   initialErrorState,
   initialErrorStateWithDefault,
   ErrorComponent,
 } from '../utils/validation'
+
+const { Radio, RadioItem } = require('../radio')
+const TextField = require('../text-field')
 const { Units, Zone, Hemisphere, MinimumSpacing } = require('./common')
-const {
-  DmsLatitude,
-  DmsLongitude,
-} = require('../../component/location-new/geo-components/coordinates.js')
-const DirectionInput = require('../../component/location-new/geo-components/direction.js')
-const { Direction } = require('../../component/location-new/utils/dms-utils.js')
+const DirectionInput = require('./direction.js')
+const { Direction, DmsLatitude, DmsLongitude } = require('./dms-utils.js')
 
 const PointRadiusLatLonDd = props => {
   const { lat, lon, radius, radiusUnits, setState } = props

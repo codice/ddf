@@ -14,10 +14,10 @@
  **/
 const React = require('react')
 
-const CustomElements = require('../../../js/CustomElements.js')
+const CustomElements = require('../../js/CustomElements.js')
 const Component = CustomElements.registerReact('direction')
 
-class Direction extends React.Component {
+class DirectionInput extends React.Component {
   getToggledOption() {
     return this.props.value === this.props.options[0]
       ? this.props.options[1]
@@ -44,7 +44,6 @@ class Direction extends React.Component {
       <Component>
         <input
           value={value}
-          className="toggle-input"
           onMouseDown={this.handleMouseDown.bind(this)}
           onKeyPress={this.handleKeyPress.bind(this)}
           onChange={e => e.stopPropagation()}
@@ -54,4 +53,4 @@ class Direction extends React.Component {
   }
 }
 
-module.exports = Direction
+module.exports = DirectionInput

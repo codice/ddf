@@ -13,9 +13,9 @@
  *
  **/
 const React = require('react')
-const Group = require('../../../react-component/group/index.js')
+const Group = require('../group/index.js')
 const MaskedInput = require('react-text-mask').default
-const CustomElements = require('../../../js/CustomElements.js')
+const CustomElements = require('../../js/CustomElements.js')
 const Component = CustomElements.registerReact('text-field')
 
 class MaskedTextField extends React.Component {

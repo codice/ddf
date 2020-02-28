@@ -19,7 +19,14 @@ const Backbone = require('backbone')
 const usngs = require('usng.js')
 const store = require('../../js/store.js')
 const Common = require('../../js/Common.js')
-const dmsUtils = require('../location-new/utils/dms-utils.js')
+const {
+  Direction,
+  ddToDmsCoordinateLat,
+  ddToDmsCoordinateLon,
+  getSecondsPrecision,
+  parseDmsCoordinate,
+  dmsCoordinateToDD,
+} = require('../../react-component/location/dms-utils.js')
 const DistanceUtils = require('../../js/DistanceUtils.js')
 
 const converter = new usngs.Converter()
@@ -30,7 +37,6 @@ const utmUpsBoundaryNorth = 84
 const utmUpsBoundarySouth = -80
 const northingOffset = 10000000
 const usngPrecision = 6
-const Direction = dmsUtils.Direction
 
 function convertToValid(key, model) {
   if (
@@ -784,21 +790,21 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setBboxDmsFromMap() {
-    const dmsNorth = dmsUtils.ddToDmsCoordinateLat(
+    const dmsNorth = ddToDmsCoordinateLat(
       this.get('mapNorth'),
-      dmsUtils.getSecondsPrecision(this.get('dmsNorth'))
+      getSecondsPrecision(this.get('dmsNorth'))
     )
-    const dmsSouth = dmsUtils.ddToDmsCoordinateLat(
+    const dmsSouth = ddToDmsCoordinateLat(
       this.get('mapSouth'),
-      dmsUtils.getSecondsPrecision(this.get('dmsSouth'))
+      getSecondsPrecision(this.get('dmsSouth'))
     )
-    const dmsWest = dmsUtils.ddToDmsCoordinateLon(
+    const dmsWest = ddToDmsCoordinateLon(
       this.get('mapWest'),
-      dmsUtils.getSecondsPrecision(this.get('dmsWest'))
+      getSecondsPrecision(this.get('dmsWest'))
     )
-    const dmsEast = dmsUtils.ddToDmsCoordinateLon(
+    const dmsEast = ddToDmsCoordinateLon(
       this.get('mapEast'),
-      dmsUtils.getSecondsPrecision(this.get('dmsEast'))
+      getSecondsPrecision(this.get('dmsEast'))
     )
     this.set(
       {
@@ -816,13 +822,13 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setRadiusDmsFromMap() {
-    const dmsLat = dmsUtils.ddToDmsCoordinateLat(
+    const dmsLat = ddToDmsCoordinateLat(
       this.get('lat'),
-      dmsUtils.getSecondsPrecision(this.get('dmsLat'))
+      getSecondsPrecision(this.get('dmsLat'))
     )
-    const dmsLon = dmsUtils.ddToDmsCoordinateLon(
+    const dmsLon = ddToDmsCoordinateLon(
       this.get('lon'),
-      dmsUtils.getSecondsPrecision(this.get('dmsLon'))
+      getSecondsPrecision(this.get('dmsLon'))
     )
     this.set(
       {
@@ -847,9 +853,9 @@ module.exports = Backbone.AssociatedModel.extend({
 
     coordinate.direction = this.get(dmsDirectionKey)
 
-    const dmsCoordinate = dmsUtils.parseDmsCoordinate(coordinate)
+    const dmsCoordinate = parseDmsCoordinate(coordinate)
     if (dmsCoordinate) {
-      this.set(latLonKey, dmsUtils.dmsCoordinateToDD(dmsCoordinate))
+      this.set(latLonKey, dmsCoordinateToDD(dmsCoordinate))
     } else {
       this.set(latLonKey, undefined)
     }

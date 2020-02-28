@@ -65,3 +65,28 @@
     margin-top: 10px;
   }
 }
+
+@{reactNamespace}direction {
+  input {
+    height: @minimumButtonSize;
+    width: @minimumButtonSize;
+    cursor: pointer;
+    text-align: center;
+    padding: 0;
+
+    &:focus {
+      outline: 0;
+    }
+  }
+}
+
+@{reactNamespace}text-field {
+  flex: 1;
+  input {
+    display: inline-block;
+    width: 100%;
+    white-space: nowrap;
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+  }
+}

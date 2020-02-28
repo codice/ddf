@@ -19,17 +19,14 @@ import {
   initialErrorState,
   initialErrorStateWithDefault,
 } from '../utils/validation'
+
 const Group = require('../group')
 const Label = require('./label')
 const TextField = require('../text-field')
 const { Radio, RadioItem } = require('../radio')
 const { Zone, Hemisphere, MinimumSpacing } = require('./common')
-const {
-  DmsLatitude,
-  DmsLongitude,
-} = require('../../component/location-new/geo-components/coordinates.js')
-const DirectionInput = require('../../component/location-new/geo-components/direction.js')
-const { Direction } = require('../../component/location-new/utils/dms-utils.js')
+const DirectionInput = require('./direction.js')
+const { Direction, DmsLatitude, DmsLongitude } = require('./dms-utils.js')
 
 const minimumDifference = 0.0001
 

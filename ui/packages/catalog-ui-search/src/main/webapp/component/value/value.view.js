@@ -27,7 +27,6 @@ const InputNumberView = require('../input/number/input-number.view.js')
 const InputBooleanView = require('../input/boolean/input-boolean.view.js')
 const InputRangeView = require('../input/range/input-range.view.js')
 const InputTextareaView = require('../input/textarea/input-textarea.view.js')
-const InputGeometryView = require('../input/geometry/input-geometry.view.js')
 const InputAutocompleteView = require('../input/autocomplete/input-autocomplete.view.js')
 const InputColorView = require('../input/color/input-color.view.js')
 const InputWithParamView = require('../input/with-param/input-with-param.view.js')
@@ -99,13 +98,6 @@ module.exports = Marionette.LayoutView.extend({
         case 'boolean':
           this.input.show(
             new InputBooleanView({
-              model: this.model,
-            })
-          )
-          break
-        case 'geometry':
-          this.input.show(
-            new InputGeometryView({
               model: this.model,
             })
           )

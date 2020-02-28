@@ -53,7 +53,7 @@ const CustomElements = require('../../js/CustomElements.js')
 const LocationOldModel = require('./location-old')
 const CQLUtils = require('../../js/CQLUtils.js')
 const ShapeUtils = require('../../js/ShapeUtils.js')
-const { Direction } = require('../location-new/utils/dms-utils.js')
+const { Direction } = require('../../react-component/location/dms-utils.js')
 import { deserialize } from './location-serialization'
 const wkx = require('wkx')
 
