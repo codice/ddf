@@ -390,11 +390,7 @@ function validateRadiusLineBuffer(key: string, value: any) {
       error: true,
       message:
         label +
-        'must be 0, ' +
-        DistanceUtils.getDistanceFromMeters(1, value.units).toPrecision(2) +
-        ' ' +
-        value.units +
-        ' or greater than ' +
+        'must be 0, or at least ' +
         DistanceUtils.getDistanceFromMeters(1, value.units).toPrecision(2) +
         ' ' +
         value.units,
