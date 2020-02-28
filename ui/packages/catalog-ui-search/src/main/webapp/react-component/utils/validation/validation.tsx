@@ -381,13 +381,21 @@ function validateUtmUps(key: string, value: any) {
 function validateRadiusLineBuffer(key: string, value: any) {
   const label = key === 'radius' ? 'Radius ' : 'Buffer width '
   const buffer = DistanceUtils.getDistanceInMeters(value.value, value.units)
-  if ((key === 'polygonBufferWidth' || key === 'bufferWidth') && buffer > 0 && buffer < 1) {
+  if (
+    (key === 'polygonBufferWidth' || key === 'bufferWidth') &&
+    buffer > 0 &&
+    buffer < 1
+  ) {
     return {
       error: true,
       message:
         label +
-        'must be 0, ' + DistanceUtils.getDistanceFromMeters(1, value.units).toPrecision(2) + ' ' +
-        value.units + ' or greater than ' + DistanceUtils.getDistanceFromMeters(1, value.units).toPrecision(2) +
+        'must be 0, ' +
+        DistanceUtils.getDistanceFromMeters(1, value.units).toPrecision(2) +
+        ' ' +
+        value.units +
+        ' or greater than ' +
+        DistanceUtils.getDistanceFromMeters(1, value.units).toPrecision(2) +
         ' ' +
         value.units,
     }

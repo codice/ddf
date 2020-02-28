@@ -154,8 +154,8 @@ const BaseLine = props => {
                 validateGeo(widthKey, {
                   value: e.target.value,
                   units: props[unitKey],
-                }
-              ))
+                })
+              )
             }}
           />
         </Units>
