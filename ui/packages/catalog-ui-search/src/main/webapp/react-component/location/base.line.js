@@ -150,14 +150,12 @@ const BaseLine = props => {
                 : setState({ [widthKey]: value })
             }}
             onBlur={e => {
-              if (widthKey === 'lineWidth' || 'polygonBufferWidth') {
-                setBufferError(
-                  validateGeo(widthKey, {
-                    value: e.target.value,
-                    units: props[unitKey],
-                  })
-                )
-              }
+              setBufferError(
+                validateGeo(widthKey, {
+                  value: e.target.value,
+                  units: props[unitKey],
+                }
+              ))
             }}
           />
         </Units>
