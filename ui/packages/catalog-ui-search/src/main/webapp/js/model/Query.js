@@ -526,6 +526,9 @@ Query.Model = PartialAssociatedModel.extend({
     this.set('serverPageIndex', serverPageIndex(this.state))
     this.startSearch()
   },
+  getPreviousStartIndexForSource(src) {
+    return currentIndexForSource(this.state.slice(0, -1))[src] || 1
+  },
   // get the starting offset (beginning of the server page) for the given source
   getStartIndexForSource(src) {
     return currentIndexForSource(this.state)[src] || 1

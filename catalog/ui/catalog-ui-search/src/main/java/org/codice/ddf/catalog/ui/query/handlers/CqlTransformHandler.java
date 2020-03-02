@@ -16,9 +16,19 @@ package org.codice.ddf.catalog.ui.query.handlers;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.Result;
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
+import ddf.catalog.util.impl.CollectionResultComparator;
+import ddf.catalog.util.impl.DistanceResultComparator;
+import ddf.catalog.util.impl.RelevanceResultComparator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,6 +36,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.AbstractMap;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +45,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 import javax.ws.rs.core.HttpHeaders;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
@@ -47,6 +59,8 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.gsonsupport.GsonTypeAdapters.DateLongFormatTypeAdapter;
 import org.codice.gsonsupport.GsonTypeAdapters.LongDoubleTypeAdapter;
 import org.eclipse.jetty.http.HttpStatus;
+import org.geotools.filter.text.ecql.ECQL;
+import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -119,21 +133,83 @@ public class CqlTransformHandler implements Route {
     }
   }
 
+  public class CqlTransformRequest {
+    private List<CqlRequestImpl> searches;
+    private int count;
+    private List<CqlRequest.Sort> sorts;
+    private List<String> hiddenResults;
+
+    public CqlTransformRequest() {
+      this.searches = Collections.emptyList();
+      this.count = 0;
+      this.sorts = Collections.emptyList();
+      this.hiddenResults = Collections.emptyList();
+    }
+
+    public void setSearches(List<CqlRequestImpl> searches) {
+      this.searches = searches;
+    }
+
+    public List<CqlRequestImpl> getSearches() {
+      return this.searches;
+    }
+
+    public void setCount(int count) {
+      this.count = count;
+    }
+
+    public int getCount() {
+      return this.count;
+    }
+
+    public void setSorts(List<CqlRequest.Sort> sorts) {
+      this.sorts = sorts;
+    }
+
+    public List<CqlRequest.Sort> getSorts() {
+      return this.sorts;
+    }
+
+    public List<CqlRequestImpl> getCqlRequests() {
+      this.searches.forEach(
+          cqlRequest -> {
+            cqlRequest.setCount(this.count);
+            cqlRequest.setSorts(this.sorts);
+          });
+      return this.searches;
+    }
+
+    public void setHiddenResults(List<String> hiddenResults) {
+      this.hiddenResults = hiddenResults;
+    }
+
+    public List<String> getHiddenResults() {
+      return this.hiddenResults;
+    }
+  }
+
   @Override
   public Object handle(Request request, Response response) throws Exception {
     String transformerId = request.params(":transformerId");
     String body = util.safeGetBody(request);
-    CqlRequest cqlRequest;
+    CqlTransformRequest cqlTransformRequest;
 
     try {
-      cqlRequest = GSON.fromJson(body, CqlRequestImpl.class);
+      cqlTransformRequest = GSON.fromJson(body, CqlTransformRequest.class);
     } catch (IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
       LOGGER.debug("Error fetching cql request");
       response.status(HttpStatus.BAD_REQUEST_400);
       return ImmutableMap.of("message", "Error retrieving cql request");
     }
 
-    if (cqlRequest.getCql() == null) {
+    List<CqlRequest> cqlRequests =
+        cqlTransformRequest
+            .getCqlRequests()
+            .stream()
+            .filter(cqlRequest -> cqlRequest.getCql() != null && cqlRequest.getSrc() != null)
+            .collect(Collectors.toList());
+
+    if (CollectionUtils.isEmpty(cqlRequests)) {
       LOGGER.debug("Cql not found in request");
       return ImmutableMap.of("message", "Cql not found in request");
     }
@@ -158,7 +234,48 @@ public class CqlTransformHandler implements Route {
       return ImmutableMap.of("message", "Service not found");
     }
 
-    CqlQueryResponse cqlQueryResponse = cqlQueryUtil.executeCqlQuery(cqlRequest);
+    List<Result> results =
+        cqlRequests
+            .stream()
+            .map(
+                cqlRequest -> {
+                  CqlQueryResponse cqlQueryResponse = null;
+                  try {
+                    cqlQueryResponse = cqlQueryUtil.executeCqlQuery(cqlRequest);
+                  } catch (Exception e) {
+                    LOGGER.debug("Error fetching cql request for {}", cqlRequest.getSrc());
+                    return null;
+                  }
+                  return cqlQueryResponse.getQueryResponse().getResults();
+                })
+            .filter(cqlResults -> CollectionUtils.isNotEmpty(cqlResults))
+            .flatMap(cqlResults -> cqlResults.stream())
+            .collect(Collectors.toList());
+
+    results.sort(getResultComparators(cqlTransformRequest.getSorts()));
+
+    results =
+        results.size() > cqlTransformRequest.getCount()
+            ? results.subList(0, cqlTransformRequest.getCount())
+            : results;
+
+    results =
+        CollectionUtils.isEmpty(cqlTransformRequest.getHiddenResults())
+            ? results
+            : results
+                .stream()
+                .filter(
+                    result ->
+                        !cqlTransformRequest
+                            .getHiddenResults()
+                            .contains(result.getMetacard().getId()))
+                .collect(Collectors.toList());
+
+    QueryResponse combinedResponse =
+        new QueryResponseImpl(
+            new QueryRequestImpl(new QueryImpl(ECQL.toFilter(cqlRequests.get(0).getCql()))),
+            results,
+            results.size());
 
     Object schema = queryResponseTransformer.getProperty("schema");
 
@@ -173,7 +290,7 @@ public class CqlTransformHandler implements Route {
       arguments = cswTransformArgumentsAdapter();
     }
 
-    attachFileToResponse(request, response, queryResponseTransformer, cqlQueryResponse, arguments);
+    attachFileToResponse(request, response, queryResponseTransformer, combinedResponse, arguments);
 
     return "";
   }
@@ -226,13 +343,11 @@ public class CqlTransformHandler implements Route {
       Request request,
       Response response,
       ServiceReference<QueryResponseTransformer> queryResponseTransformer,
-      CqlQueryResponse cqlQueryResponse,
+      QueryResponse cqlQueryResponse,
       Map<String, Serializable> arguments)
       throws CatalogTransformerException, IOException, MimeTypeException {
     BinaryContent content =
-        bundleContext
-            .getService(queryResponseTransformer)
-            .transform(cqlQueryResponse.getQueryResponse(), arguments);
+        bundleContext.getService(queryResponseTransformer).transform(cqlQueryResponse, arguments);
 
     setHttpHeaders(request, response, content);
 
@@ -252,6 +367,64 @@ public class CqlTransformHandler implements Route {
     LOGGER.trace(
         "Successfully output file using transformer id {}",
         queryResponseTransformer.getProperty("id"));
+  }
+
+  private CollectionResultComparator getResultComparators(List<CqlRequest.Sort> sorts) {
+    CollectionResultComparator resultComparator = new CollectionResultComparator();
+    for (CqlRequest.Sort sort : sorts) {
+      Comparator<Result> comparator;
+
+      String sortType = sort.getAttribute();
+      SortOrder sortOrder =
+          (sort.getDirection() != null && sort.getDirection().equals("descending"))
+              ? SortOrder.DESCENDING
+              : SortOrder.ASCENDING;
+
+      if (Result.RELEVANCE.equals(sortType)) {
+        comparator = new RelevanceResultComparator(sortOrder);
+      } else if (Result.DISTANCE.equals(sortType)) {
+        comparator = new DistanceResultComparator(sortOrder);
+      } else {
+        comparator =
+            Comparator.comparing(
+                r -> getAttributeValue((Result) r, sortType),
+                ((sortOrder == SortOrder.ASCENDING)
+                    ? Comparator.nullsLast(Comparator.<Comparable>naturalOrder())
+                    : Comparator.nullsLast(Comparator.<Comparable>reverseOrder())));
+      }
+      resultComparator.addComparator(comparator);
+    }
+    return resultComparator;
+  }
+
+  private static Comparable getAttributeValue(Result result, String attributeName) {
+    final Attribute attribute = result.getMetacard().getAttribute(attributeName);
+
+    if (attribute == null) {
+      return null;
+    }
+
+    AttributeType.AttributeFormat format =
+        result
+            .getMetacard()
+            .getMetacardType()
+            .getAttributeDescriptor(attributeName)
+            .getType()
+            .getAttributeFormat();
+
+    switch (format.toString()) {
+      case "STRING":
+        return attribute.getValue().toString().toLowerCase();
+      case "DATE":
+      case "BOOLEAN":
+      case "INTEGER":
+      case "FLOAT":
+        return attribute.getValue() instanceof Comparable
+            ? (Comparable) attribute.getValue()
+            : null;
+      default:
+        return "";
+    }
   }
 
   private Map<String, Serializable> cswTransformArgumentsAdapter() {

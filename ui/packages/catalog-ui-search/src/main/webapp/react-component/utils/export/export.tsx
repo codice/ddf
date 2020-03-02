@@ -21,8 +21,13 @@ export enum Transformer {
 
 export type ResultSet = {
   cql: string
-  srcs: string[]
-  count?: number
+  src: string
+  start?: number
+}
+
+export type ExportBody = {
+  searches: ResultSet[]
+  count: number
   sorts?: Object[]
   args?: Object
 }
@@ -85,7 +90,10 @@ export const exportResult = async (
   )
 }
 
-export const exportResultSet = async (transformer: string, body: ResultSet) => {
+export const exportResultSet = async (
+  transformer: string,
+  body: ExportBody
+) => {
   return await fetch(`./internal/cql/transform/${transformer}`, {
     method: 'POST',
     body: JSON.stringify(body),
