@@ -335,6 +335,10 @@
 
         <!--temporary solr download url> -->
         <solr.download.url>https://archive.apache.org/dist</solr.download.url>
+
+        <!-- SonarQube Properties -->
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/${project.report.output.directory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
