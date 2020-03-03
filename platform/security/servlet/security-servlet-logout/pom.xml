@@ -74,6 +74,11 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
         </dependency>
+      <dependency>
+        <groupId>ddf.security.storage</groupId>
+        <artifactId>token-storage-api</artifactId>
+          <version>${project.version}</version>
+      </dependency>
     </dependencies>
     <build>
         <plugins>

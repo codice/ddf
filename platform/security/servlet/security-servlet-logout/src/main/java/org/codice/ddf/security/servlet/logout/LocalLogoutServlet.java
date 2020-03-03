@@ -28,11 +28,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.security.token.storage.api.TokenStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LocalLogoutServlet extends HttpServlet {
   private static final Logger LOGGER = LoggerFactory.getLogger(LocalLogoutServlet.class);
+
+  private TokenStorage tokenStorage;
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -89,6 +92,7 @@ public class LocalLogoutServlet extends HttpServlet {
         }
         savedToken.remove();
       }
+      removeTokens(session.getId());
       session.invalidate();
       deleteJSessionId(response);
     }
@@ -101,5 +105,14 @@ public class LocalLogoutServlet extends HttpServlet {
     cookie.setPath("/");
     cookie.setComment("EXPIRING COOKIE at " + System.currentTimeMillis());
     response.addCookie(cookie);
+  }
+
+  /** Removes OAuth tokens stored for the given session */
+  private void removeTokens(String sessionId) {
+    tokenStorage.delete(sessionId);
+  }
+
+  public void setTokenStorage(TokenStorage tokenStorage) {
+    this.tokenStorage = tokenStorage;
   }
 }
