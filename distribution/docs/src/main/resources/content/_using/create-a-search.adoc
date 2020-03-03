@@ -46,7 +46,7 @@ When searching with wildcards, do not include the punctuation at the beginning o
 *** *Any*: Search without any time restrictions (default).
 *** *After*: Search records after a specified time.
 *** *Before*: Search records before a specified time.
-*** *Between*: Set a beginning and end time to search between.
+*** *Between*: Set an inclusive beginning and an exclusive end time to search between.
 *** *Relative*: Search records relative to the current time.
 +
 ** [[_spatial_search_details]]((*Spatial Search)) Details*
