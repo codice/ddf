@@ -16,8 +16,11 @@ package org.codice.ddf.security.file.token.storage;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.codice.ddf.security.file.token.storage.TokenInformationUtil.GSON;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.ACCESS_TOKEN;
+import static org.codice.ddf.security.token.storage.api.TokenStorage.CLIENT_ID;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.DISCOVERY_URL;
+import static org.codice.ddf.security.token.storage.api.TokenStorage.EXPIRES_AT;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.REFRESH_TOKEN;
+import static org.codice.ddf.security.token.storage.api.TokenStorage.SECRET;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -31,7 +34,12 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import org.codice.ddf.security.token.storage.api.TokenInformation;
 import org.junit.After;
 import org.junit.Before;
@@ -105,7 +113,6 @@ public class FileSystemTokenStorageTest {
     TokenInformation tokenInformation = tokenStorage.read(USERNAME);
     TokenInformation.TokenEntry tokenEntry = tokenInformation.getTokenEntries().get(SOURCE_ID);
     assertEquals(USERNAME_HASH, tokenInformation.getId());
-    assertEquals(USERNAME, tokenInformation.getUserId());
     assertEquals(json, tokenInformation.getTokenJson());
     assertEquals(Collections.singleton(DISCOVERY_URL_VAL), tokenInformation.getDiscoveryUrls());
     assertEquals(ACCESS_TOKEN_VAL, tokenEntry.getAccessToken());
@@ -185,7 +192,68 @@ public class FileSystemTokenStorageTest {
   }
 
   @Test
+  public void testIsAvailable() throws Exception {
+    folder.newFile(USERNAME_HASH);
+    String path = folder.getRoot().getAbsolutePath() + "/" + USERNAME_HASH;
+    Files.write(Paths.get(path), ENCRYPTED.getBytes());
+
+    String json =
+        GSON.toJson(
+            ImmutableMap.of(
+                SOURCE_ID,
+                ImmutableMap.of(
+                    ACCESS_TOKEN,
+                    ACCESS_TOKEN_VAL,
+                    REFRESH_TOKEN,
+                    REFRESH_TOKEN_VAL,
+                    DISCOVERY_URL,
+                    DISCOVERY_URL_VAL)));
+
+    when(crypter.decrypt(any(InputStream.class)))
+        .thenReturn(new ByteArrayInputStream(json.getBytes()));
+
+    boolean available = tokenStorage.isAvailable(USERNAME, SOURCE_ID);
+    assertTrue(available);
+  }
+
+  @Test
   public void testDelete() throws Exception {
+    folder.newFile(USERNAME_HASH);
+    String path = folder.getRoot().getAbsolutePath() + "/" + USERNAME_HASH;
+    Files.write(Paths.get(path), ENCRYPTED.getBytes());
+
+    String json =
+        GSON.toJson(
+            ImmutableMap.of(
+                SOURCE_ID,
+                ImmutableMap.of(
+                    ACCESS_TOKEN,
+                    ACCESS_TOKEN_VAL,
+                    REFRESH_TOKEN,
+                    REFRESH_TOKEN_VAL,
+                    DISCOVERY_URL,
+                    DISCOVERY_URL_VAL),
+                "OpenSearch",
+                ImmutableMap.of(
+                    ACCESS_TOKEN,
+                    ACCESS_TOKEN_VAL,
+                    REFRESH_TOKEN,
+                    REFRESH_TOKEN_VAL,
+                    DISCOVERY_URL,
+                    DISCOVERY_URL_VAL)));
+
+    when(crypter.decrypt(any(InputStream.class)))
+        .thenReturn(new ByteArrayInputStream(json.getBytes()));
+    when(crypter.encrypt(any(InputStream.class)))
+        .thenAnswer(i -> i.getArgumentAt(0, InputStream.class));
+
+    int deleted = tokenStorage.delete(USERNAME);
+    assertEquals(SC_OK, deleted);
+    assertFalse(Files.exists(Paths.get(path)));
+  }
+
+  @Test
+  public void testDeletePerSource() throws Exception {
     folder.newFile(USERNAME_HASH);
     String path = folder.getRoot().getAbsolutePath() + "/" + USERNAME_HASH;
     Files.write(Paths.get(path), ENCRYPTED.getBytes());
@@ -220,5 +288,47 @@ public class FileSystemTokenStorageTest {
     String lines = String.join("", Files.readAllLines(Paths.get(path)));
     assertTrue(lines.contains("OpenSearch"));
     assertFalse(lines.contains(SOURCE_ID));
+  }
+
+  @Test
+  public void testDeleteOneSource() throws Exception {
+    folder.newFile(USERNAME_HASH);
+    String path = folder.getRoot().getAbsolutePath() + "/" + USERNAME_HASH;
+    Files.write(Paths.get(path), ENCRYPTED.getBytes());
+
+    String json =
+        GSON.toJson(
+            ImmutableMap.of(
+                SOURCE_ID,
+                ImmutableMap.of(
+                    ACCESS_TOKEN,
+                    ACCESS_TOKEN_VAL,
+                    REFRESH_TOKEN,
+                    REFRESH_TOKEN_VAL,
+                    DISCOVERY_URL,
+                    DISCOVERY_URL_VAL)));
+
+    when(crypter.decrypt(any(InputStream.class)))
+        .thenReturn(new ByteArrayInputStream(json.getBytes()));
+    when(crypter.encrypt(any(InputStream.class)))
+        .thenAnswer(i -> i.getArgumentAt(0, InputStream.class));
+
+    int deleted = tokenStorage.delete(USERNAME, SOURCE_ID);
+    assertEquals(SC_OK, deleted);
+    assertFalse(Files.exists(Paths.get(path)));
+  }
+
+  @Test
+  public void testGetStateMap() {
+    String state = UUID.randomUUID().toString();
+    Map<String, Object> stateMap = new HashMap<>();
+    stateMap.put(SOURCE_ID, SOURCE_ID);
+    stateMap.put(CLIENT_ID, "ddf-client");
+    stateMap.put(SECRET, "secret");
+    stateMap.put(DISCOVERY_URL, DISCOVERY_URL_VAL);
+    stateMap.put(EXPIRES_AT, Instant.now().minus(3, ChronoUnit.MINUTES).getEpochSecond());
+    tokenStorage.getStateMap().put(state, stateMap);
+
+    assertEquals(0, tokenStorage.getStateMap().size());
   }
 }

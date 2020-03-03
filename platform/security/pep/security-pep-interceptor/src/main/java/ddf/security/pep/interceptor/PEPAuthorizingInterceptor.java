@@ -96,7 +96,7 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
 
         SimplePrincipalCollection principalCollection = new SimplePrincipalCollection();
         principalCollection.add(assertion, "security");
-        SessionToken token = new SessionToken(principalCollection);
+        SessionToken token = new SessionToken(null, principalCollection, "127.0.0.1");
 
         try {
           user = securityManager.getSubject(token);

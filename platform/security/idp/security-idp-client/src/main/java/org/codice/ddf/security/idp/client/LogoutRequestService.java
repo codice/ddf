@@ -271,7 +271,7 @@ public class LogoutRequestService {
         .map(SecurityTokenHolder::getPrincipals)
         .filter(Objects::nonNull)
         .map(PrincipalCollection.class::cast)
-        .map(SessionToken::new)
+        .map(principalCollection -> new SessionToken(null, principalCollection, "127.0.0.1"))
         .map(this::extractSubject)
         .filter(Objects::nonNull)
         .map(SubjectUtils::getName)

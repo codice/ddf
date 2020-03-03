@@ -31,6 +31,7 @@ import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.handler.api.SessionToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,10 +60,17 @@ public class SecurityManagerImpl implements SecurityManager {
   public Subject getSubject(Object token) throws SecurityServiceException {
     AuthenticationToken authenticationToken = null;
     if (token instanceof SessionToken) {
+      SessionToken sessionToken = (SessionToken) token;
+      SimpleSession simpleSession = new SimpleSession(UUID.randomUUID().toString());
+
+      if (sessionToken.getPrincipal() instanceof String) {
+        simpleSession.setId((String) sessionToken.getPrincipal());
+      }
+
       return new SubjectImpl(
-          ((PrincipalCollection) ((SessionToken) token).getCredentials()),
+          ((PrincipalCollection) sessionToken.getCredentials()),
           true,
-          new SimpleSession(UUID.randomUUID().toString()),
+          simpleSession,
           internalManager);
     } else if (token instanceof AuthenticationToken) {
       authenticationToken = (AuthenticationToken) token;
@@ -102,12 +110,15 @@ public class SecurityManagerImpl implements SecurityManager {
         userAuth = true;
       }
     }
+
+    SimpleSession simpleSession = new SimpleSession(UUID.randomUUID().toString());
+
+    if (token instanceof SAMLAuthenticationToken && token.getPrincipal() instanceof String) {
+      simpleSession.setId((String) token.getPrincipal());
+    }
+
     try {
-      return new SubjectImpl(
-          info.getPrincipals(),
-          userAuth,
-          new SimpleSession(UUID.randomUUID().toString()),
-          internalManager);
+      return new SubjectImpl(info.getPrincipals(), userAuth, simpleSession, internalManager);
     } catch (Exception e) {
       throw new SecurityServiceException("Could not create a new subject", e);
     }

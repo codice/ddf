@@ -15,7 +15,10 @@ package org.codice.ddf.security.token.storage.api;
 
 import java.util.Map;
 
-/** Stores a user's access token, refresh token, and the list of sources authorized to query. */
+/**
+ * Stores a user's or client's access token, refresh token, and the list of sources authorized to
+ * query.
+ */
 public interface TokenStorage {
 
   String ACCESS_TOKEN = "access_token";
@@ -25,62 +28,68 @@ public interface TokenStorage {
   String CLIENT_ID = "client_id";
   String SECRET = "client_secret";
   String SOURCE_ID = "source_id";
-  String USER_ID = "user_id";
   String STATE = "state";
 
   /**
-   * @return a map containing state UUIDs with their corresponding user ID, source ID, discovery
-   *     URL, client ID, and secret information.
+   * @return a map containing state UUIDs with their corresponding ID, source ID, discovery URL,
+   *     client ID, and secret information.
    */
   Map<String, Map<String, Object>> getStateMap();
 
   /**
-   * Stores a user's data. If it's a new user, creates a new entry. Otherwise, updates the existing
-   * user's data
+   * Stores a user's or client's access token. If it's a new user or client, creates a new entry.
+   * Otherwise, updates the existing data.
    *
-   * @param userId the user's email address or username if an email address is not available
+   * @param id the ID used to store the tokens
    * @param sourceId the ID of the source the tokens are going to be used against
-   * @param accessToken the user's access token
-   * @param refreshToken the user's refresh token
-   * @param discoveryUrl the metadata url of the Oauth provider protecting the source
+   * @param accessToken the access token
+   * @param refreshToken the refresh token
+   * @param discoveryUrl the metadata url of the OAuth provider protecting the source
    * @return an HTTP status code
    */
   int create(
-      String userId, String sourceId, String accessToken, String refreshToken, String discoveryUrl);
+      String id, String sourceId, String accessToken, String refreshToken, String discoveryUrl);
 
   /**
-   * Reads given user's information
+   * Reads tokens associated with the given ID
    *
-   * @param userId the user's email address or username if an email address is not available
-   * @return a {@link TokenInformation} filled with the user's tokens
+   * @param id the ID used to retrieve tokens
+   * @return a {@link TokenInformation} filled with tokens
    */
-  TokenInformation read(String userId);
+  TokenInformation read(String id);
 
   /**
-   * Reads given user's tokens for the specified source
+   * Reads tokens associated with the given ID for the specified source
    *
-   * @param userId the user's email address or username if an email address is not available
-   * @param sourceId the source id the tokens correspond to
-   * @return a {@link TokenInformation.TokenEntry} filled with the user's tokens
+   * @param id the ID used to retrieve tokens
+   * @param sourceId the source ID the tokens correspond to
+   * @return a {@link TokenInformation.TokenEntry} filled with tokens
    */
-  TokenInformation.TokenEntry read(String userId, String sourceId);
+  TokenInformation.TokenEntry read(String id, String sourceId);
 
   /**
    * Checks if tokens are available
    *
-   * @param userId the user's email address or username if an email address is not available
-   * @param sourceId the source id the tokens correspond to
-   * @return true if the tokens for the given user and source are available and false if they are
-   *     not
+   * @param id the ID used to check if tokens are available
+   * @param sourceId the source ID the tokens correspond to
+   * @return true if the tokens for the given ID and source are available and false if they are not
    */
-  boolean isAvailable(String userId, String sourceId);
+  boolean isAvailable(String id, String sourceId);
 
   /**
-   * Removes an existing user's tokens for the specified source
+   * Removes tokens associated with the given ID
    *
-   * @param userId the user's email address or username if an email address is not available
+   * @param id the ID associated with the tokens
+   * @return an HTTP status code
+   */
+  int delete(String id);
+
+  /**
+   * Removes tokens associated with the given ID for the specified source
+   *
+   * @param id the ID associated with the tokens
    * @param sourceId the ID for the source the tokens are going to be used against
    * @return an HTTP status code
    */
-  int delete(String userId, String sourceId);
+  int delete(String id, String sourceId);
 }

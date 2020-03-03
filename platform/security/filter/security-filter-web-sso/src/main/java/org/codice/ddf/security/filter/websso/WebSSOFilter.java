@@ -217,8 +217,7 @@ public class WebSSOFilter implements SecurityFilter {
             savedToken.getPrincipals().byType(SecurityAssertion.class);
         SessionToken sessionToken = null;
         if (!assertions.isEmpty()) {
-          sessionToken =
-              new SessionToken(savedToken.getPrincipals(), savedToken.getPrincipals(), ip);
+          sessionToken = new SessionToken(session.getId(), savedToken.getPrincipals(), ip);
         }
         if (sessionToken != null) {
           result = new HandlerResult();

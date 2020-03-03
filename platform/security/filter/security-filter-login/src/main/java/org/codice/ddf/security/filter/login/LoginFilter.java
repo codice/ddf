@@ -202,7 +202,9 @@ public class LoginFilter implements SecurityFilter {
       if (securityAssertionSaml != null) {
         SAMLAuthenticationToken authToken =
             new SAMLAuthenticationToken(
-                null, (PrincipalCollection) token.getCredentials(), token.getIpAddress());
+                token.getPrincipal(),
+                (PrincipalCollection) token.getCredentials(),
+                token.getIpAddress());
         authToken.setAllowGuest(token.getAllowGuest());
         return authToken;
       }

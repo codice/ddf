@@ -23,7 +23,6 @@ import static org.codice.ddf.security.token.storage.api.TokenStorage.DISCOVERY_U
 import static org.codice.ddf.security.token.storage.api.TokenStorage.SECRET;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.SOURCE_ID;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.STATE;
-import static org.codice.ddf.security.token.storage.api.TokenStorage.USER_ID;
 import static spark.Spark.get;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -45,7 +44,10 @@ import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import javax.servlet.http.HttpSession;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.oidc.resolver.OidcCredentialsResolver;
 import org.codice.ddf.security.oidc.validator.OidcTokenValidator;
@@ -79,10 +81,10 @@ public class OAuthApplication implements SparkApplication {
   @Override
   public void init() {
     /*
-     Endpoint called with a temporary authorization code when a user signs in to an oauth
-     provider. This endpoint will make a call to the oauth provider's token endpoint to exchange
+     Endpoint called with a temporary authorization code when a user signs in to an OAuth
+     provider. This endpoint will make a call to the OAuth provider's token endpoint to exchange
      the code for tokens and stores the access and refresh tokens in the token storage. Since the
-     login to the oauth provider is done in a new tab, a call to this endpoint will close that
+     login to the OAuth provider is done in a new tab, a call to this endpoint will close that
      tab.
     */
     get(
@@ -104,7 +106,19 @@ public class OAuthApplication implements SparkApplication {
             return closeBrowser(res);
           }
 
-          return processCodeFlow(res, code, stateMap, redirectUri);
+          HttpSession session = req.raw().getSession(false);
+          if (session == null) {
+            LOGGER.error("The user's session is not available.");
+            return closeBrowser(res);
+          }
+
+          String sessionId = session.getId();
+          if (sessionId == null) {
+            LOGGER.error("The user's session ID is not available.");
+            return closeBrowser(res);
+          }
+
+          return processCodeFlow(res, sessionId, code, stateMap, redirectUri);
         });
 
     /*
@@ -116,17 +130,28 @@ public class OAuthApplication implements SparkApplication {
         "/auth",
         (req, res) -> {
           QueryParamsMap paramsMap = req.queryMap();
-          String userId = paramsMap.get(USER_ID).value();
           String sourceId = paramsMap.get(SOURCE_ID).value();
           String redirectUri = paramsMap.get(REDIRECT_URI).value();
           String discoveryUrl = paramsMap.get(DISCOVERY_URL).value();
 
-          if (userId == null || sourceId == null || discoveryUrl == null) {
+          if (sourceId == null || discoveryUrl == null) {
             LOGGER.warn("Unable to process unknown user state.");
-            return closeBrowser(res);
+            return "";
           }
 
-          String accessToken = updateAuthorizedSource(userId, sourceId, discoveryUrl);
+          HttpSession session = req.raw().getSession(false);
+          if (session == null) {
+            LOGGER.warn("The user's session is not available.");
+            return "";
+          }
+
+          String sessionId = session.getId();
+          if (sessionId == null) {
+            LOGGER.warn("The user's session ID is not available.");
+            return "";
+          }
+
+          String accessToken = updateAuthorizedSource(sessionId, sourceId, discoveryUrl);
 
           if (redirectUri != null && accessToken != null) {
             return closeBrowser(res, redirectUri, accessToken);
@@ -139,14 +164,14 @@ public class OAuthApplication implements SparkApplication {
    * Gets tokens from an existing source with the same discovery url and saves it to the given
    * source id
    *
-   * @param userId the user's unique identifier (email or username)
+   * @param sessionId the session ID used to store tokens
    * @param sourceId the source to save the tokens to
    * @param discoveryUrl the metadata url of the OAuth provider
    * @return the corresponding access token
    */
   @VisibleForTesting
-  String updateAuthorizedSource(String userId, String sourceId, String discoveryUrl) {
-    TokenInformation tokenInformation = tokenStorage.read(userId);
+  String updateAuthorizedSource(String sessionId, String sourceId, String discoveryUrl) {
+    TokenInformation tokenInformation = tokenStorage.read(sessionId);
 
     TokenInformation.TokenEntry tokenEntry =
         tokenInformation
@@ -163,7 +188,7 @@ public class OAuthApplication implements SparkApplication {
 
     int status =
         tokenStorage.create(
-            userId,
+            sessionId,
             sourceId,
             tokenEntry.getAccessToken(),
             tokenEntry.getRefreshToken(),
@@ -179,14 +204,15 @@ public class OAuthApplication implements SparkApplication {
    * Processes tokens received through the authorization code flow.
    *
    * @param res - response
+   * @param sessionId - the session ID used to store tokens
    * @param code - authorization code
    * @param state - map containing user and OAuth provider information
    * @param redirectUri - the uri to redirect to
    */
   @VisibleForTesting
-  String processCodeFlow(Response res, String code, Map<String, Object> state, String redirectUri) {
+  String processCodeFlow(
+      Response res, String sessionId, String code, Map<String, Object> state, String redirectUri) {
 
-    String userId = (String) state.get(USER_ID);
     String sourceId = (String) state.get(SOURCE_ID);
     String clientId = (String) state.get(CLIENT_ID);
     String clientSecret = (String) state.get(SECRET);
@@ -227,10 +253,14 @@ public class OAuthApplication implements SparkApplication {
       return closeBrowser(res);
     }
 
+    String refreshTokenValue = null;
+    if (refreshToken != null) {
+      refreshTokenValue = refreshToken.getValue();
+    }
+
     String accessTokenValue = accessToken.getValue();
     int status =
-        tokenStorage.create(
-            userId, sourceId, accessTokenValue, refreshToken.getValue(), discoveryUrl);
+        tokenStorage.create(sessionId, sourceId, accessTokenValue, refreshTokenValue, discoveryUrl);
     if (status != SC_OK) {
       LOGGER.warn("Error storing user token.");
     }
@@ -269,7 +299,12 @@ public class OAuthApplication implements SparkApplication {
 
     String redirect = REDIRECT_URL;
     if (redirectUri != null) {
-      redirect = redirect.concat("?" + REDIRECT_URI + "=" + redirectUri);
+      redirect =
+          redirect.concat(
+              "?"
+                  + REDIRECT_URI
+                  + "="
+                  + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.name()));
     }
 
     AuthorizationGrant grant =
