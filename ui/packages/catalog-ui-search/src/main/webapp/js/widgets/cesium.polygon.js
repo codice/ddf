@@ -17,6 +17,7 @@ const Cesium = require('cesium')
 const ShapeUtils = require('../ShapeUtils.js')
 const Turf = require('@turf/turf')
 const DistanceUtils = require('../DistanceUtils.js')
+import { validateGeo } from '../../react-component/utils/validation'
 
 const { GeometryRenderView, GeometryController } = require('./cesium.base.line')
 
@@ -61,6 +62,9 @@ class PolygonRenderView extends GeometryRenderView {
 
   drawGeometry = model => {
     const json = model.toJSON()
+    if (!Array.isArray(json.polygon)) {
+      return
+    }
     const isMultiPolygon = ShapeUtils.isArray3D(json.polygon)
     const polygons = isMultiPolygon ? json.polygon : [json.polygon]
 
@@ -80,6 +84,9 @@ class PolygonRenderView extends GeometryRenderView {
         polygonPoints[polygonPoints.length - 1].toString()
       ) {
         polygonPoints.push(polygonPoints[0])
+      }
+      if (validateGeo('polygon', JSON.stringify(polygonPoints)).error) {
+        return
       }
       polygonPoints.forEach(point => {
         point[0] = DistanceUtils.coordinateRound(point[0])

@@ -98,7 +98,7 @@ const Point = {
 
     return {
       mode: 'circle',
-      locationType: 'latlon',
+      locationType: 'dd',
       lat,
       lon,
       radius: width,
@@ -106,7 +106,7 @@ const Point = {
     }
   },
   'location->json': location => {
-    const { lat = 0, lon = 0, radius = 1, radiusUnits = 'meters' } = location
+    const { lat = '', lon = '', radius = 1, radiusUnits = 'meters' } = location
 
     return {
       type: 'Feature',

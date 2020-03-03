@@ -101,7 +101,7 @@ describe('serialize/deserialize point', () => {
 
   const deserializedPoint = {
     mode: 'circle',
-    locationType: 'latlon',
+    locationType: 'dd',
     lat: -111.131821,
     lon: 31.964569,
     radius: 140603.222706,

@@ -24,7 +24,6 @@ const DistanceUtils = require('../../js/DistanceUtils.js')
 
 const converter = new usngs.Converter()
 const minimumDifference = 0.0001
-const minimumBuffer = 0.000001
 const utmUpsLocationType = 'utmUps'
 // offset used by utmUps for southern hemisphere
 const utmUpsBoundaryNorth = 84
@@ -66,25 +65,6 @@ function convertToValid(key, model) {
     key.mapEast = Math.max(-180, key.mapEast)
     key.mapEast = Math.min(180, key.mapEast)
   }
-  // Leave the value alone if it is an empty string, otherwise it will be converted to 0
-  if (key.lat) {
-    key.lat = Math.max(-90, key.lat)
-    key.lat = Math.min(90, key.lat)
-  }
-  if (key.lon) {
-    key.lon = Math.max(-180, key.lon)
-    key.lon = Math.min(180, key.lon)
-  }
-  if (key.radius !== undefined) {
-    let tempRadius = Math.max(minimumBuffer, key.radius)
-    key.radius = isNaN(tempRadius) ? model.get('radius') : tempRadius
-  }
-  if (key.lineWidth !== undefined) {
-    key.lineWidth = Math.max(minimumBuffer, key.lineWidth)
-  }
-  if (key.polygonBufferWidth) {
-    key.polygonBufferWidth = Math.max(minimumBuffer, key.polygonBufferWidth)
-  }
 }
 
 module.exports = Backbone.AssociatedModel.extend({
@@ -94,10 +74,10 @@ module.exports = Backbone.AssociatedModel.extend({
     east: undefined,
     south: undefined,
     west: undefined,
-    dmsNorth: '',
-    dmsSouth: '',
-    dmsEast: '',
-    dmsWest: '',
+    dmsNorth: undefined,
+    dmsSouth: undefined,
+    dmsEast: undefined,
+    dmsWest: undefined,
     dmsNorthDirection: Direction.North,
     dmsSouthDirection: Direction.North,
     dmsEastDirection: Direction.East,
@@ -107,13 +87,13 @@ module.exports = Backbone.AssociatedModel.extend({
     mapWest: undefined,
     mapSouth: undefined,
     radiusUnits: 'meters',
-    radius: 1,
-    locationType: 'latlon',
-    prevLocationType: 'latlon',
+    radius: '',
+    locationType: 'dd',
+    prevLocationType: 'dd',
     lat: undefined,
     lon: undefined,
-    dmsLat: '',
-    dmsLon: '',
+    dmsLat: undefined,
+    dmsLon: undefined,
     dmsLatDirection: Direction.North,
     dmsLonDirection: Direction.East,
     bbox: undefined,
@@ -122,10 +102,10 @@ module.exports = Backbone.AssociatedModel.extend({
     color: undefined,
     line: undefined,
     multiline: undefined,
-    lineWidth: 1,
+    lineWidth: '',
     lineUnits: 'meters',
     polygon: undefined,
-    polygonBufferWidth: 0,
+    polygonBufferWidth: '',
     polyType: undefined,
     polygonBufferUnits: 'meters',
     hasKeyword: false,
@@ -234,7 +214,6 @@ module.exports = Backbone.AssociatedModel.extend({
       this.set('prevLocationType', '')
       this.set('locationType', 'utmUps')
     }
-    this.drawing = false
     store.get('content').turnOffDrawing()
   },
 
@@ -242,9 +221,8 @@ module.exports = Backbone.AssociatedModel.extend({
     const locationType = this.get('locationType')
     if (locationType === 'utmUps') {
       this.set('prevLocationType', 'utmUps')
-      this.set('locationType', 'latlon')
+      this.set('locationType', 'dd')
     }
-    this.drawing = true
     store.get('content').turnOnDrawing(this)
   },
 
@@ -328,7 +306,7 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setLatLon() {
-    if (this.get('locationType') === 'latlon') {
+    if (this.get('locationType') === 'dd') {
       let result = {}
       result.north = this.get('mapNorth')
       result.south = this.get('mapSouth')
@@ -423,7 +401,7 @@ module.exports = Backbone.AssociatedModel.extend({
       this.setUtmUpsLowerRight(utmUpsParts, !this.isLocationTypeUtmUps())
     }
 
-    if (this.isLocationTypeUtmUps() && this.drawing) {
+    if (this.isLocationTypeUtmUps() && this.get('drawing')) {
       this.repositionLatLon()
     }
 
@@ -443,7 +421,7 @@ module.exports = Backbone.AssociatedModel.extend({
       silent: this.get('locationType') !== 'usng',
     })
 
-    if (this.get('locationType') === 'usng' && this.drawing) {
+    if (this.get('locationType') === 'usng' && this.get('drawing')) {
       this.repositionLatLon()
     }
   },
@@ -454,7 +432,7 @@ module.exports = Backbone.AssociatedModel.extend({
 
     if (
       (!store.get('content').get('drawing') &&
-        this.get('locationType') !== 'latlon') ||
+        this.get('locationType') !== 'dd') ||
       !this.isLatLonValid(lat, lon)
     ) {
       return
@@ -604,7 +582,7 @@ module.exports = Backbone.AssociatedModel.extend({
         silent:
           (this.get('locationType') === 'usng' ||
             this.isLocationTypeUtmUps()) &&
-          !this.drawing,
+          !this.get('drawing'),
       })
     }
     if (this.get('locationType') !== 'usng' && !this.isLocationTypeUtmUps()) {
@@ -641,8 +619,8 @@ module.exports = Backbone.AssociatedModel.extend({
     } else {
       this.clearUtmUpsPointRadius(true)
       this.set({
-        lat: 0,
-        lon: 0,
+        lat: undefined,
+        lon: undefined,
       })
     }
   },
@@ -682,7 +660,7 @@ module.exports = Backbone.AssociatedModel.extend({
         lat: undefined,
         lon: undefined,
         usng: undefined,
-        radius: 1,
+        radius: '',
       })
       return
     }
@@ -824,13 +802,13 @@ module.exports = Backbone.AssociatedModel.extend({
     )
     this.set(
       {
-        dmsNorth: (dmsNorth && dmsNorth.coordinate) || '',
+        dmsNorth: dmsNorth && dmsNorth.coordinate,
         dmsNorthDirection: (dmsNorth && dmsNorth.direction) || Direction.North,
-        dmsSouth: (dmsSouth && dmsSouth.coordinate) || '',
+        dmsSouth: dmsSouth && dmsSouth.coordinate,
         dmsSouthDirection: (dmsSouth && dmsSouth.direction) || Direction.North,
-        dmsWest: (dmsWest && dmsWest.coordinate) || '',
+        dmsWest: dmsWest && dmsWest.coordinate,
         dmsWestDirection: (dmsWest && dmsWest.direction) || Direction.East,
-        dmsEast: (dmsEast && dmsEast.coordinate) || '',
+        dmsEast: dmsEast && dmsEast.coordinate,
         dmsEastDirection: (dmsEast && dmsEast.direction) || Direction.East,
       },
       { silent: true }
@@ -848,9 +826,9 @@ module.exports = Backbone.AssociatedModel.extend({
     )
     this.set(
       {
-        dmsLat: (dmsLat && dmsLat.coordinate) || '',
+        dmsLat: dmsLat && dmsLat.coordinate,
         dmsLatDirection: (dmsLat && dmsLat.direction) || Direction.North,
-        dmsLon: (dmsLon && dmsLon.coordinate) || '',
+        dmsLon: dmsLon && dmsLon.coordinate,
         dmsLonDirection: (dmsLon && dmsLon.direction) || Direction.East,
       },
       { silent: true }
@@ -878,7 +856,7 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   handleLocationType() {
-    if (this.get('locationType') === 'latlon') {
+    if (this.get('locationType') === 'dd') {
       this.set({
         north: this.get('mapNorth'),
         south: this.get('mapSouth'),

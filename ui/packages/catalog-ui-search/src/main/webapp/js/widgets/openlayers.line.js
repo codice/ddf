@@ -23,6 +23,7 @@ const Turf = require('@turf/turf')
 const DrawingController = require('./drawing.controller')
 const olUtils = require('../OpenLayersGeometryUtils')
 const DistanceUtils = require('../DistanceUtils.js')
+import { validateGeo } from '../../react-component/utils/validation'
 
 function translateFromOpenlayersCoordinates(coords) {
   const coordinates = []
@@ -97,14 +98,17 @@ Draw.LineView = Marionette.View.extend({
   updatePrimitive(model) {
     const polygon = this.modelToPolygon(model)
     // make sure the current model has width and height before drawing
-    if (polygon && !_.isUndefined(polygon)) {
+    if (
+      polygon !== undefined &&
+      !validateGeo('line', JSON.stringify(polygon.getCoordinates())).error
+    ) {
       this.drawBorderedPolygon(polygon)
     }
   },
 
   updateGeometry(model) {
     const rectangle = this.modelToPolygon(model)
-    if (rectangle) {
+    if (rectangle && rectangle[0] !== undefined) {
       this.drawBorderedPolygon(rectangle)
     }
   },

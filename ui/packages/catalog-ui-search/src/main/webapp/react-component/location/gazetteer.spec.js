@@ -13,10 +13,25 @@
  *
  **/
 import { expect } from 'chai'
-const { getLargestBbox } = require('./gazetteer')
+
+import {
+  mock as mockProperties,
+  unmock as unmockProperties,
+} from '../../test/mock-api/mock-properties'
+
+let GetLargestBbox
+
 const testData = require('./gazetteer-france-test-data.json')
 
 describe('getLargestBbox', () => {
+  before(() => {
+    mockProperties()
+    const { getLargestBbox } = require('./gazetteer')
+    GetLargestBbox = getLargestBbox
+  })
+  after(() => {
+    unmockProperties()
+  })
   const expectedAnswer = {
     maxX: 7.8125,
     minX: -5.1953125,
@@ -27,7 +42,7 @@ describe('getLargestBbox', () => {
     'Largest bounding box for France should equal  ' +
       JSON.stringify(expectedAnswer),
     () => {
-      const result = getLargestBbox(testData[0].geojson.coordinates, true)
+      const result = GetLargestBbox(testData[0].geojson.coordinates, true)
       console.log(result)
       expect(result).to.deep.equal(expectedAnswer)
     }

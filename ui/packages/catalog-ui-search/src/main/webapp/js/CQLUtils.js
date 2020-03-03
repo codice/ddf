@@ -75,9 +75,17 @@ function generateAnyGeoFilter(property, model) {
       value: null,
     }
   }
+  const defaultGeoFilter = {
+    type: 'INTERSECTS',
+    property,
+    value: '',
+  }
 
   switch (model.type) {
     case 'LINE':
+      if (!Array.isArray(model.line)) {
+        return defaultGeoFilter
+      }
       return {
         type: 'DWITHIN',
         property,
@@ -90,6 +98,9 @@ function generateAnyGeoFilter(property, model) {
         ),
       }
     case 'POLYGON':
+      if (!Array.isArray(model.polygon)) {
+        return defaultGeoFilter
+      }
       return {
         type: model.polygonBufferWidth > 0 ? 'DWITHIN' : 'INTERSECTS',
         property,
@@ -104,6 +115,9 @@ function generateAnyGeoFilter(property, model) {
         }),
       }
     case 'MULTIPOLYGON':
+      if (!Array.isArray(model.polygon)) {
+        return defaultGeoFilter
+      }
       const poly =
         'MULTIPOLYGON' +
         sanitizeForCql(JSON.stringify(polygonToCQLMultiPolygon(model.polygon)))
@@ -138,11 +152,7 @@ function generateAnyGeoFilter(property, model) {
         ),
       }
     default:
-      return {
-        type: 'INTERSECTS',
-        property,
-        value: '',
-      }
+      return defaultGeoFilter
   }
 }
 

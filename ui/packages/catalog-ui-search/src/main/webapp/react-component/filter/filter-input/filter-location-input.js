@@ -53,8 +53,6 @@ const filterToLocationOldModel = filter => {
   }
 }
 
-const minimumBuffer = 0.000001
-
 class LocationInput extends React.Component {
   locationModel
   constructor(props) {
@@ -162,8 +160,8 @@ class LocationInput extends React.Component {
 
     return Object.assign(modelJSON, {
       type,
-      lineWidth: Math.max(modelJSON.lineWidth, minimumBuffer),
-      radius: Math.max(modelJSON.radius, minimumBuffer),
+      lineWidth: modelJSON.lineWidth,
+      radius: modelJSON.radius,
     })
   }
   onChange = () => {

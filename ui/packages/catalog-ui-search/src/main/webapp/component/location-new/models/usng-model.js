@@ -17,7 +17,7 @@ const usngModel = {
   point: '',
   circle: {
     point: '',
-    radius: 1,
+    radius: '',
     units: 'meters',
   },
   line: {

@@ -21,11 +21,23 @@ const { expect } = require('chai')
 
 Enzyme.configure({ adapter: new Adapter() })
 
-const Keyword = require('./keyword')
+let Keyword
+
+import {
+  mock as mockProperties,
+  unmock as unmockProperties,
+} from '../../test/mock-api/mock-properties'
 
 const { shallow } = Enzyme
 
 describe('<Keyword />', () => {
+  before(() => {
+    mockProperties()
+    Keyword = require('./keyword')
+  })
+  after(() => {
+    unmockProperties()
+  })
   it('should fetch features on select', done => {
     const coordinates = [1, 2, 3]
     const fetch = async url => {

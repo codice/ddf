@@ -269,13 +269,13 @@ describe('CQL Utils', () => {
       )
     })
 
-    it('generates filter with anyGeo property and BBOX type (latlon)', () => {
+    it('generates filter with anyGeo property and BBOX type (dd)', () => {
       const filter = CQLUtils.generateFilter(
         'some type',
         'anyGeo',
         {
           type: 'BBOX',
-          locationType: 'latlon',
+          locationType: 'dd',
           west: -97,
           south: 41,
           east: -90,

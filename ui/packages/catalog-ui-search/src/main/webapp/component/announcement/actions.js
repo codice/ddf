@@ -40,7 +40,7 @@ exports.announce = function(announcement, timeout) {
       .filter(
         a =>
           a.title === announcement.title &&
-          a.message === announcement.message &&
+          JSON.stringify(a.message) === JSON.stringify(announcement.message) &&
           a.type === announcement.type
       )
       .map(a => a.id)
