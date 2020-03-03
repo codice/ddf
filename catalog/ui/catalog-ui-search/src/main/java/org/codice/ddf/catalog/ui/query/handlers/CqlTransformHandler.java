@@ -206,11 +206,16 @@ public class CqlTransformHandler implements Route {
         cqlTransformRequest
             .getCqlRequests()
             .stream()
-            .filter(cqlRequest -> cqlRequest.getCql() != null && cqlRequest.getSrc() != null)
+            .filter(
+                cqlRequest ->
+                    cqlRequest.getCql() != null
+                        && (cqlRequest.getSrc() != null
+                            || CollectionUtils.isNotEmpty(cqlRequest.getSrcs())))
             .collect(Collectors.toList());
 
     if (CollectionUtils.isEmpty(cqlRequests)) {
       LOGGER.debug("Cql not found in request");
+      response.status(HttpStatus.BAD_REQUEST_400);
       return ImmutableMap.of("message", "Cql not found in request");
     }
 

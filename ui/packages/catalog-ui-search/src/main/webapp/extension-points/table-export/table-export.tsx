@@ -53,7 +53,8 @@ export function getStartIndex(
   selectionInterface: any
 ) {
   return exportSize === 'visible'
-    ? selectionInterface.getCurrentQuery().getPreviousStartIndexForSource(src) : 1
+    ? selectionInterface.getCurrentQuery().getPreviousStartIndexForSource(src)
+    : 1
 }
 function getSrcs(selectionInterface: any) {
   const srcs = selectionInterface.getCurrentQuery().get('src')
@@ -79,6 +80,28 @@ function getHiddenResults(exportSize: string): string[] {
         .get('resultBlacklist')
         .map((result: any) => result.get('id'))
     : []
+}
+function getSearches(
+  exportSize: string,
+  srcs: string[],
+  cql: string,
+  selectionInterface: any
+): any {
+  return exportSize === 'visible'
+    ? srcs.map((src: string) => {
+        const start = getStartIndex(src, exportSize, selectionInterface)
+        return {
+          src,
+          cql,
+          start,
+        }
+      })
+    : [
+        {
+          srcs,
+          cql,
+        },
+      ]
 }
 function getHits(sources: Source[]): number {
   return sources
@@ -166,14 +189,7 @@ export const getDownloadBody = (downloadInfo: DownloadInfo) => {
     columnAliasMap: properties.attributeAliases,
   }
 
-  const searches = srcs.map((src: string) => {
-    const start = getStartIndex(src, exportSize, selectionInterface)
-    return {
-      src,
-      cql,
-      start,
-    }
-  })
+  const searches = getSearches(exportSize, srcs, cql, selectionInterface)
 
   return {
     searches,
