@@ -543,6 +543,7 @@ org.ops4j.pax.web.default.realmname=DDF
         <feature>cxf-jaxrs</feature>
         <feature>security-handler-api</feature>
         <feature>security-core</feature>
+        <feature>security-token-storage</feature>
         <bundle>mvn:ddf.security.servlet/security-servlet-logout-service/${project.version}</bundle>
         <bundle>mvn:ddf.security.servlet/security-servlet-default-logout/${project.version}</bundle>
         <bundle>mvn:ddf.security.servlet/security-servlet-logout/${project.version}</bundle>

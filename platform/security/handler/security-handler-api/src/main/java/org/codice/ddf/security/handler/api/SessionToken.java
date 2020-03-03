@@ -15,10 +15,6 @@ package org.codice.ddf.security.handler.api;
 
 public class SessionToken extends BaseAuthenticationToken {
 
-  public SessionToken(Object credentials) {
-    super(credentials, credentials, "127.0.0.1");
-  }
-
   public SessionToken(Object principal, Object credentials, String ip) {
     super(principal, credentials, ip);
   }

@@ -17,22 +17,15 @@ import java.util.Map;
 import java.util.Set;
 
 public class TokenInformationImpl implements TokenInformation {
-  private Map<String, TokenInformation.TokenEntry> tokenEntryList;
+  private Map<String, TokenEntry> tokenEntryMap;
   private Set<String> discoveryUrls;
-  private String userId;
   private String json;
   private String id;
 
   public TokenInformationImpl(
-      String id,
-      String userId,
-      Map<String, TokenInformation.TokenEntry> tokenEntryList,
-      Set<String> discoveryUrls,
-      String json) {
-
+      String id, Map<String, TokenEntry> tokenEntryMap, Set<String> discoveryUrls, String json) {
     this.id = id;
-    this.userId = userId;
-    this.tokenEntryList = tokenEntryList;
+    this.tokenEntryMap = tokenEntryMap;
     this.discoveryUrls = discoveryUrls;
     this.json = json;
   }
@@ -43,13 +36,8 @@ public class TokenInformationImpl implements TokenInformation {
   }
 
   @Override
-  public String getUserId() {
-    return userId;
-  }
-
-  @Override
-  public Map<String, TokenInformation.TokenEntry> getTokenEntries() {
-    return tokenEntryList;
+  public Map<String, TokenEntry> getTokenEntries() {
+    return tokenEntryMap;
   }
 
   @Override

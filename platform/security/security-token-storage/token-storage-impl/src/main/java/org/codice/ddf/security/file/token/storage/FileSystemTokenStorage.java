@@ -31,12 +31,12 @@ import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.security.token.storage.api.TokenInformation;
+import org.codice.ddf.security.token.storage.api.TokenInformation.TokenEntry;
 import org.codice.ddf.security.token.storage.api.TokenStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,13 +59,13 @@ public class FileSystemTokenStorage implements TokenStorage {
 
   @VisibleForTesting
   FileSystemTokenStorage(Crypter crypter) {
-    stateMap = new HashMap<>();
+    stateMap = new ConcurrentHashMap<>();
     this.crypter = crypter;
   }
 
   /**
-   * @return a map containing state UUIDs with their corresponding user ID, source ID, discovery
-   *     URL, client ID, and secret information. Clears out all the expired state information before
+   * @return a map containing state UUIDs with their corresponding ID, source ID, discovery URL,
+   *     client ID, and secret information. Clears out all the expired state information before
    *     returning the map.
    */
   @Override
@@ -81,121 +81,136 @@ public class FileSystemTokenStorage implements TokenStorage {
   }
 
   /**
-   * Stores a user's data. If it's a new user, creates a new entry. Otherwise, updates the existing
-   * user's data
+   * Stores a user's or client's access token. If it's a new user or client, creates a new entry.
+   * Otherwise, updates the existing data.
    *
-   * @param userId the user's email address or username if an email address is not available
+   * @param id the ID used to store the tokens
    * @param sourceId the ID of the source the tokens are going to be used against
-   * @param accessToken the user's access token
-   * @param refreshToken the user's refresh token
-   * @param discoveryUrl the metadata url of the Oauth provider protecting the source
+   * @param accessToken the access token
+   * @param refreshToken the refresh token
+   * @param discoveryUrl the metadata url of the OAuth provider protecting the source
    * @return an HTTP status code
    */
   @Override
   public int create(
-      String userId,
-      String sourceId,
-      String accessToken,
-      String refreshToken,
-      String discoveryUrl) {
+      String id, String sourceId, String accessToken, String refreshToken, String discoveryUrl) {
     LOGGER.trace("Create: Updating a Token Storage entry.");
+    String fileName;
+    String json;
 
-    TokenInformation tokenInformation = read(userId);
+    TokenInformation tokenInformation = read(id);
 
     if (tokenInformation == null) {
       // create new entry
-      String id = createId(userId);
-      String json = TokenInformationUtil.getJson(sourceId, accessToken, refreshToken, discoveryUrl);
-
-      Path contentItemPath = Paths.get(baseDirectory.toAbsolutePath().toString(), id);
-      return writeToFile(contentItemPath, json);
+      fileName = hashId(id);
+      json = TokenInformationUtil.getJson(sourceId, accessToken, refreshToken, discoveryUrl);
+    } else {
+      // update existing
+      fileName = tokenInformation.getId();
+      json =
+          TokenInformationUtil.getJson(
+              tokenInformation.getTokenJson(), sourceId, accessToken, refreshToken, discoveryUrl);
     }
 
-    // update existing
-    String json =
-        TokenInformationUtil.getJson(
-            tokenInformation, sourceId, accessToken, refreshToken, discoveryUrl);
-
-    Path contentItemPath =
-        Paths.get(baseDirectory.toAbsolutePath().toString(), tokenInformation.getId());
-
+    Path contentItemPath = Paths.get(baseDirectory.toAbsolutePath().toString(), fileName);
     return writeToFile(contentItemPath, json);
   }
 
   /**
-   * Reads given user's information
+   * Reads tokens associated with the given ID
    *
-   * @param userId the user's email address or username if an email address is not available
-   * @return a {@link TokenInformation} filled with the user's tokens
+   * @param id the ID used to retrieve tokens
+   * @return a {@link TokenInformation} filled with tokens
    */
   @Override
-  public TokenInformation read(String userId) {
+  public TokenInformation read(String id) {
     LOGGER.trace("Read: Retrieving a Token Storage entry.");
 
-    String id = createId(userId);
-    Path contentItemPath = Paths.get(baseDirectory.toAbsolutePath().toString(), id);
+    String hash = hashId(id);
+    Path contentItemPath = Paths.get(baseDirectory.toAbsolutePath().toString(), hash);
 
     String json = readFromFile(contentItemPath);
     if (json == null) {
       return null;
     }
-    return TokenInformationUtil.fromJson(id, userId, json);
+    return TokenInformationUtil.fromJson(hash, json);
   }
 
   /**
-   * Reads given user's tokens for the specified source
+   * Reads tokens associated with the given ID for the specified source
    *
-   * @param userId the user's email address or username if an email address is not available
-   * @param sourceId the source id the tokens correspond to
-   * @return a {@link TokenInformation.TokenEntry} filled with the user's tokens
+   * @param id the ID used to retrieve tokens
+   * @param sourceId the source ID the tokens correspond to
+   * @return a {@link TokenEntry} filled with tokens
    */
   @Override
-  public TokenInformation.TokenEntry read(String userId, String sourceId) {
-    LOGGER.trace("Read: Retrieving a Token Storage entry.");
-
-    String id = createId(userId);
-    Path contentItemPath = Paths.get(baseDirectory.toAbsolutePath().toString(), id);
-
-    String json = readFromFile(contentItemPath);
-    if (json == null) {
+  public TokenEntry read(String id, String sourceId) {
+    TokenInformation tokenInformation = read(id);
+    if (tokenInformation == null) {
       return null;
     }
 
-    TokenInformation tokenInformation = TokenInformationUtil.fromJson(id, userId, json);
     return tokenInformation.getTokenEntries().get(sourceId);
   }
 
   /**
    * Checks if tokens are available
    *
-   * @param userId the user's email address or username if an email address is not available
-   * @param sourceId the source id the tokens correspond to
-   * @return true if the tokens for the given user and source are available and false if they are
-   *     not
+   * @param id the ID used to check if tokens are available
+   * @param sourceId the source ID the tokens correspond to
+   * @return true if the tokens for the given ID and source are available and false if they are not
    */
   @Override
-  public boolean isAvailable(String userId, String sourceId) {
-    TokenInformation.TokenEntry tokenEntry = read(userId, sourceId);
+  public boolean isAvailable(String id, String sourceId) {
+    TokenEntry tokenEntry = read(id, sourceId);
     return tokenEntry != null && tokenEntry.getAccessToken() != null;
   }
 
   /**
-   * Removes an existing user's tokens for the specified source
+   * Removes tokens associated with the given ID
    *
-   * @param userId the user's email address or username if an email address is not available
-   * @param sourceId the ID for the source the tokens are going to be used against
+   * @param id the ID associated with the tokens
    * @return an HTTP status code
    */
   @Override
-  public int delete(String userId, String sourceId) {
-    LOGGER.trace("Delete: Deleting a Token Storage entry.");
+  public int delete(String id) {
+    LOGGER.trace("Delete: Deleting Token Storage.");
 
-    TokenInformation tokenInformation = read(userId);
+    TokenInformation tokenInformation = read(id);
     if (tokenInformation == null) {
       return SC_OK;
     }
 
-    TokenInformation.TokenEntry tokenEntry = tokenInformation.getTokenEntries().get(sourceId);
+    Path contentItemPath =
+        Paths.get(baseDirectory.toAbsolutePath().toString(), tokenInformation.getId());
+
+    // delete file
+    try {
+      Files.delete(contentItemPath);
+      return SC_OK;
+    } catch (IOException e) {
+      LOGGER.debug("Error deleting token file.", e);
+      return SC_INTERNAL_SERVER_ERROR;
+    }
+  }
+
+  /**
+   * Removes tokens associated with the given ID for the specified source
+   *
+   * @param id the ID associated with the tokens
+   * @param sourceId the ID for the source the tokens are going to be used against
+   * @return an HTTP status code
+   */
+  @Override
+  public int delete(String id, String sourceId) {
+    LOGGER.trace("Delete: Deleting a Token Storage entry.");
+
+    TokenInformation tokenInformation = read(id);
+    if (tokenInformation == null) {
+      return SC_OK;
+    }
+
+    TokenEntry tokenEntry = tokenInformation.getTokenEntries().get(sourceId);
     if (tokenEntry == null) {
       return SC_OK;
     }
@@ -213,7 +228,7 @@ public class FileSystemTokenStorage implements TokenStorage {
       }
     }
 
-    String json = TokenInformationUtil.removeTokens(tokenInformation, sourceId);
+    String json = TokenInformationUtil.removeTokens(tokenInformation.getTokenJson(), sourceId);
     return writeToFile(contentItemPath, json);
   }
 
@@ -247,9 +262,9 @@ public class FileSystemTokenStorage implements TokenStorage {
     return json;
   }
 
-  /** @return a hash of the given user's unique identifier (email or username) */
-  private String createId(String userId) {
-    return Hashing.sha256().hashString(userId, StandardCharsets.UTF_8).toString();
+  /** @return a hash of the given ID */
+  private String hashId(String id) {
+    return Hashing.sha256().hashString(id, StandardCharsets.UTF_8).toString();
   }
 
   public void setBaseDirectory(String baseDirectory) throws IOException {

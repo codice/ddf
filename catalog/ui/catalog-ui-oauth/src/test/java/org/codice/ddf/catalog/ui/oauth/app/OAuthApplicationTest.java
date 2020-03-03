@@ -17,7 +17,6 @@ import static org.codice.ddf.security.token.storage.api.TokenStorage.CLIENT_ID;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.DISCOVERY_URL;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.SECRET;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.SOURCE_ID;
-import static org.codice.ddf.security.token.storage.api.TokenStorage.USER_ID;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -56,17 +55,20 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.security.token.storage.api.TokenInformation;
 import org.codice.ddf.security.token.storage.api.TokenInformationImpl;
 import org.codice.ddf.security.token.storage.api.TokenStorage;
 import org.junit.Before;
 import org.junit.Test;
+import spark.Request;
 import spark.Response;
 
 public class OAuthApplicationTest {
 
-  private static final String USERNAME = "username";
+  private static final String SESSION_ID = "sessionId";
   private static final String CSW_SOURCE = "CSW";
   private static final String ACCESS_TOKEN_VAL = "myAccessToken";
   private static final String REFRESH_TOKEN_VAL = "myRefreshToken";
@@ -80,9 +82,19 @@ public class OAuthApplicationTest {
   private TokenStorage tokenStorage;
   private Algorithm validAlgorithm;
   private Algorithm invalidAlgorithm;
+  private Request request;
 
   @Before
   public void setUp() throws Exception {
+    HttpSession httpSession = mock(HttpSession.class);
+    when(httpSession.getId()).thenReturn(SESSION_ID);
+
+    HttpServletRequest httpRequest = mock(HttpServletRequest.class);
+    when(httpRequest.getSession(false)).thenReturn(httpSession);
+
+    request = mock(Request.class);
+    when(request.raw()).thenReturn(httpRequest);
+
     // Generate the RSA key pair to sign tokens
     KeyPairGenerator gen = KeyPairGenerator.getInstance("RSA");
     gen.initialize(2048);
@@ -133,10 +145,9 @@ public class OAuthApplicationTest {
 
     oauthApplication.processCodeFlow(
         response,
+        SESSION_ID,
         "code",
         ImmutableMap.of(
-            USER_ID,
-            USERNAME,
             SOURCE_ID,
             CSW_SOURCE,
             DISCOVERY_URL,
@@ -147,7 +158,7 @@ public class OAuthApplicationTest {
             DDF_CLIENT_SECRET),
         "https://localhost:8993/services/redirect?where=here");
     verify(tokenStorage, times(1))
-        .create(USERNAME, CSW_SOURCE, accessToken, REFRESH_TOKEN_VAL, METADATA_ENDPOINT);
+        .create(SESSION_ID, CSW_SOURCE, accessToken, REFRESH_TOKEN_VAL, METADATA_ENDPOINT);
   }
 
   @Test
@@ -164,10 +175,9 @@ public class OAuthApplicationTest {
 
     oauthApplication.processCodeFlow(
         response,
+        SESSION_ID,
         "code",
         ImmutableMap.of(
-            USER_ID,
-            USERNAME,
             SOURCE_ID,
             CSW_SOURCE,
             DISCOVERY_URL,
@@ -196,10 +206,10 @@ public class OAuthApplicationTest {
     when(tokenInformation.getTokenEntries())
         .thenReturn(ImmutableMap.of(CSW_SOURCE, tokenEntry, "OpenSearch", tokenEntry2));
 
-    when(tokenStorage.read(USERNAME)).thenReturn(tokenInformation);
-    oauthApplication.updateAuthorizedSource(USERNAME, "MySource", METADATA_ENDPOINT);
+    when(tokenStorage.read(SESSION_ID)).thenReturn(tokenInformation);
+    oauthApplication.updateAuthorizedSource(SESSION_ID, "MySource", METADATA_ENDPOINT);
     verify(tokenStorage, times(1))
-        .create(USERNAME, "MySource", ACCESS_TOKEN_VAL, REFRESH_TOKEN_VAL, METADATA_ENDPOINT);
+        .create(SESSION_ID, "MySource", ACCESS_TOKEN_VAL, REFRESH_TOKEN_VAL, METADATA_ENDPOINT);
   }
 
   @Test
@@ -217,8 +227,8 @@ public class OAuthApplicationTest {
     when(tokenInformation.getTokenEntries())
         .thenReturn(ImmutableMap.of(CSW_SOURCE, tokenEntry, "OpenSearch", tokenEntry2));
 
-    when(tokenStorage.read(USERNAME)).thenReturn(tokenInformation);
-    oauthApplication.updateAuthorizedSource(USERNAME, "MySource", METADATA_ENDPOINT);
+    when(tokenStorage.read(SESSION_ID)).thenReturn(tokenInformation);
+    oauthApplication.updateAuthorizedSource(SESSION_ID, "MySource", METADATA_ENDPOINT);
     verify(tokenStorage, times(0))
         .create(anyString(), anyString(), anyString(), anyString(), anyString());
   }

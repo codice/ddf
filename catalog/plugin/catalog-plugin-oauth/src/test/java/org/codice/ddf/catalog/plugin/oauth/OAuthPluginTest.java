@@ -14,13 +14,11 @@
 package org.codice.ddf.catalog.plugin.oauth;
 
 import static ddf.security.SecurityConstants.SECURITY_SUBJECT;
-import static ddf.security.SubjectUtils.EMAIL_ADDRESS_CLAIM_URI;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.CLIENT_ID;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.DISCOVERY_URL;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.EXPIRES_AT;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.SECRET;
 import static org.codice.ddf.security.token.storage.api.TokenStorage.SOURCE_ID;
-import static org.codice.ddf.security.token.storage.api.TokenStorage.USER_ID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,9 +48,6 @@ import ddf.catalog.plugin.OAuthPluginException;
 import ddf.catalog.source.OAuthFederatedSource;
 import ddf.catalog.source.Source;
 import ddf.security.Subject;
-import ddf.security.assertion.Attribute;
-import ddf.security.assertion.AttributeStatement;
-import ddf.security.assertion.SecurityAssertion;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
@@ -79,7 +74,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.session.Session;
 import org.codice.ddf.security.token.storage.api.TokenInformation;
 import org.codice.ddf.security.token.storage.api.TokenInformationImpl;
 import org.codice.ddf.security.token.storage.api.TokenStorage;
@@ -93,7 +88,7 @@ public class OAuthPluginTest {
   private static final String JWK_ENDPOINT =
       "http://localhost:8080/auth/realms/master/protocol/openid-connect/certs";
 
-  private static final String USER_EMAIL = "username@localhost.com";
+  private static final String SESSION = "example-session";
   private static final String CSW_SOURCE = "CSW";
   private static final String DDF_CLIENT = "ddf-client";
   private static final String DDF_SECRET = "secret";
@@ -151,7 +146,7 @@ public class OAuthPluginTest {
     String accessToken = getAccessTokenBuilder().sign(validAlgorithm);
     TokenInformation.TokenEntry tokenEntry =
         new TokenInformationImpl.TokenEntryImpl(accessToken, "refresh_token", METADATA_ENDPOINT);
-    when(tokenStorage.read(USER_EMAIL, CSW_SOURCE)).thenReturn(tokenEntry);
+    when(tokenStorage.read(SESSION, CSW_SOURCE)).thenReturn(tokenEntry);
 
     QueryRequest output = oauthPlugin.process(source, input);
     assertEquals(input, output);
@@ -171,7 +166,7 @@ public class OAuthPluginTest {
     String refreshToken = getRefreshTokenBuilder().sign(validAlgorithm);
     TokenInformation.TokenEntry tokenEntry =
         new TokenInformationImpl.TokenEntryImpl(accessToken, refreshToken, METADATA_ENDPOINT);
-    when(tokenStorage.read(USER_EMAIL, CSW_SOURCE)).thenReturn(tokenEntry);
+    when(tokenStorage.read(SESSION, CSW_SOURCE)).thenReturn(tokenEntry);
 
     String validAccessToken = getAccessTokenBuilder().sign(validAlgorithm);
     Response response = mock(Response.class);
@@ -197,13 +192,13 @@ public class OAuthPluginTest {
     String accessToken = getAccessTokenBuilder().sign(validAlgorithm);
     TokenInformation.TokenEntry tokenEntry =
         new TokenInformationImpl.TokenEntryImpl(accessToken, "refresh_token", "http://example.com");
-    when(tokenStorage.read(USER_EMAIL, CSW_SOURCE)).thenReturn(tokenEntry);
+    when(tokenStorage.read(SESSION, CSW_SOURCE)).thenReturn(tokenEntry);
     when(tokenStorage.getStateMap()).thenReturn(stateMap);
 
     try {
       oauthPlugin.process(source, input);
     } catch (OAuthPluginException e) {
-      verify(tokenStorage, times(1)).delete(USER_EMAIL, CSW_SOURCE);
+      verify(tokenStorage, times(1)).delete(SESSION, CSW_SOURCE);
       verify(tokenStorage, times(1)).getStateMap();
 
       ArgumentCaptor<Map<String, Object>> captor = ArgumentCaptor.forClass(Map.class);
@@ -232,8 +227,8 @@ public class OAuthPluginTest {
     when(tokenInformation.getDiscoveryUrls()).thenReturn(Collections.singleton(METADATA_ENDPOINT));
     when(tokenInformation.getTokenEntries()).thenReturn(Collections.singletonMap("OS", tokenEntry));
 
-    when(tokenStorage.read(USER_EMAIL, SOURCE_ID)).thenReturn(null);
-    when(tokenStorage.read(USER_EMAIL)).thenReturn(tokenInformation);
+    when(tokenStorage.read(SESSION, SOURCE_ID)).thenReturn(null);
+    when(tokenStorage.read(SESSION)).thenReturn(tokenInformation);
 
     try {
       oauthPlugin.process(source, input);
@@ -246,7 +241,6 @@ public class OAuthPluginTest {
           URLEncodedUtils.parse(new URI(url), StandardCharsets.UTF_8)
               .stream()
               .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
-      assertEquals(urlParams.get(USER_ID), USER_EMAIL);
       assertEquals(urlParams.get(SOURCE_ID), CSW_SOURCE);
       assertEquals(urlParams.get(DISCOVERY_URL), METADATA_ENDPOINT);
       throw e;
@@ -277,8 +271,8 @@ public class OAuthPluginTest {
 
     Map<String, Map<String, Object>> stateMap = mock(Map.class);
     when(tokenStorage.getStateMap()).thenReturn(stateMap);
-    when(tokenStorage.read(USER_EMAIL, SOURCE_ID)).thenReturn(null);
-    when(tokenStorage.read(USER_EMAIL)).thenReturn(tokenInformation);
+    when(tokenStorage.read(SESSION, SOURCE_ID)).thenReturn(null);
+    when(tokenStorage.read(SESSION)).thenReturn(tokenInformation);
     try {
       oauthPlugin.process(source, input);
     } catch (OAuthPluginException e) {
@@ -308,7 +302,7 @@ public class OAuthPluginTest {
     Map<String, Map<String, Object>> stateMap = mock(Map.class);
     TokenInformation.TokenEntry tokenEntry =
         new TokenInformationImpl.TokenEntryImpl(accessToken, refreshToken, METADATA_ENDPOINT);
-    when(tokenStorage.read(USER_EMAIL, CSW_SOURCE)).thenReturn(tokenEntry);
+    when(tokenStorage.read(SESSION, CSW_SOURCE)).thenReturn(tokenEntry);
     when(tokenStorage.getStateMap()).thenReturn(stateMap);
 
     Response response = mock(Response.class);
@@ -343,7 +337,7 @@ public class OAuthPluginTest {
     Map<String, Map<String, Object>> stateMap = mock(Map.class);
     TokenInformation.TokenEntry tokenEntry =
         new TokenInformationImpl.TokenEntryImpl(accessToken, refreshToken, METADATA_ENDPOINT);
-    when(tokenStorage.read(USER_EMAIL, CSW_SOURCE)).thenReturn(tokenEntry);
+    when(tokenStorage.read(SESSION, CSW_SOURCE)).thenReturn(tokenEntry);
     when(tokenStorage.getStateMap()).thenReturn(stateMap);
 
     String invalidAccessToken = getAccessTokenBuilder().sign(invalidAlgorithm);
@@ -392,7 +386,6 @@ public class OAuthPluginTest {
     assertEquals(
         urlParams.get("redirect_uri"), "https://localhost:8993/search/catalog/internal/oauth");
 
-    assertEquals(stateValue.get(USER_ID), USER_EMAIL);
     assertEquals(stateValue.get(SOURCE_ID), CSW_SOURCE);
     assertEquals(stateValue.get(CLIENT_ID), DDF_CLIENT);
     assertEquals(stateValue.get(SECRET), DDF_SECRET);
@@ -408,24 +401,11 @@ public class OAuthPluginTest {
   }
 
   private Subject getSubject() {
-    Attribute attribute = mock(Attribute.class);
-    when(attribute.getName()).thenReturn(EMAIL_ADDRESS_CLAIM_URI);
-    when(attribute.getValues()).thenReturn(Collections.singletonList(USER_EMAIL));
-
-    AttributeStatement attributeStatement = mock(AttributeStatement.class);
-    when(attributeStatement.getAttributes()).thenReturn(Collections.singletonList(attribute));
-
-    SecurityAssertion assertion = mock(SecurityAssertion.class);
-    when(assertion.getWeight()).thenReturn(5);
-    when(assertion.getAttributeStatements())
-        .thenReturn(Collections.singletonList(attributeStatement));
-
-    PrincipalCollection principals = mock(PrincipalCollection.class);
-    when(principals.byType(SecurityAssertion.class))
-        .thenReturn(Collections.singletonList(assertion));
+    Session session = mock(Session.class);
+    when(session.getId()).thenReturn(SESSION);
 
     Subject subject = mock(Subject.class);
-    when(subject.getPrincipals()).thenReturn(principals);
+    when(subject.getSession(false)).thenReturn(session);
     return subject;
   }
 

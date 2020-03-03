@@ -30,8 +30,10 @@ import static org.pac4j.oidc.profile.OidcProfileDefinition.AZP;
 import static org.pac4j.oidc.profile.OidcProfileDefinition.EMAIL_VERIFIED;
 import static org.pac4j.oidc.profile.OidcProfileDefinition.PREFERRED_USERNAME;
 
+import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
@@ -39,30 +41,29 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.util.Resource;
 import com.nimbusds.jose.util.ResourceRetriever;
 import ddf.security.Subject;
-import ddf.security.assertion.SecurityAssertion;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.Principal;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import net.minidev.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.session.Session;
 import org.codice.ddf.security.token.storage.api.TokenInformation;
 import org.codice.ddf.security.token.storage.api.TokenInformationImpl;
 import org.codice.ddf.security.token.storage.api.TokenStorage;
@@ -78,7 +79,7 @@ public class OAuthSecurityImplTest {
 
   private static final String SOURCE_ID = "CSW";
   private static final String SECRET = "secret";
-  private static final String USERNAME = "username";
+  private static final String SESSION_ID = "example_session";
   private static final String DDF_CLIENT = "ddf-client";
   private static final String ENCODED_CRED = "Basic ZGRmLWNsaWVudDpzZWNyZXQ=";
 
@@ -135,7 +136,7 @@ public class OAuthSecurityImplTest {
     String accessToken = getAccessTokenBuilder().sign(validAlgorithm);
     TokenInformation.TokenEntry tokenEntry =
         new TokenInformationImpl.TokenEntryImpl(accessToken, "refresh_token", METADATA_ENDPOINT);
-    when(tokenStorage.read(USERNAME, SOURCE_ID)).thenReturn(tokenEntry);
+    when(tokenStorage.read(SESSION_ID, SOURCE_ID)).thenReturn(tokenEntry);
 
     oauthSecurity.setUserTokenOnClient(client, subject, SOURCE_ID);
     verify(client, times(1)).header(OAUTH, "Bearer " + accessToken);
@@ -180,6 +181,42 @@ public class OAuthSecurityImplTest {
     verify(webClient, times(1)).form(captor.capture());
     Form form = captor.getValue();
     assertTrue(form.asMap().get("grant_type").contains("client_credentials"));
+  }
+
+  @Test
+  public void testSettingSystemTokensOnClientExpiredAccessToken() {
+    Client client = mock(Client.class);
+
+    String expiredAccessToken =
+        getAccessTokenBuilder()
+            .withExpiresAt(Date.from(Instant.now().minus(3, ChronoUnit.MINUTES)))
+            .sign(validAlgorithm);
+    String refreshToken = getRefreshTokenBuilder().sign(validAlgorithm);
+    TokenInformation.TokenEntry tokenEntry =
+        new TokenInformationImpl.TokenEntryImpl(
+            expiredAccessToken, refreshToken, METADATA_ENDPOINT);
+    when(tokenStorage.read(anyString(), anyString())).thenReturn(tokenEntry);
+
+    String accessToken = getAccessTokenBuilder().sign(validAlgorithm);
+    Response response = mock(Response.class);
+    when(response.getStatus()).thenReturn(200);
+    when(response.getEntity())
+        .thenReturn(new ByteArrayInputStream(getResponse(accessToken).getBytes()));
+
+    WebClient webClient = oauthSecurity.webClient;
+    when(webClient.form(any(Form.class))).thenReturn(response);
+
+    ArgumentCaptor<Form> captor = ArgumentCaptor.forClass(Form.class);
+    oauthSecurity.setSystemTokenOnClient(client, DDF_CLIENT, SECRET, METADATA_ENDPOINT);
+
+    verify(webClient, times(1)).form(captor.capture());
+    verify(tokenStorage, times(1))
+        .create(
+            "ZGRmLWNsaWVudDpzZWNyZXQ=",
+            "client_credentials",
+            accessToken,
+            "refreshToken",
+            METADATA_ENDPOINT);
   }
 
   @Test
@@ -295,7 +332,6 @@ public class OAuthSecurityImplTest {
   @Test
   public void testSettingSystemTokensOnClientInvalidAccessTokenPasswordFlow() {
     Client client = mock(Client.class);
-    Subject subject = getSubject();
 
     when(tokenStorage.read(anyString(), anyString())).thenReturn(null);
 
@@ -334,7 +370,6 @@ public class OAuthSecurityImplTest {
   @Test
   public void testSettingSystemTokensOnClientErrorResponsePasswordFlow() {
     Client client = mock(Client.class);
-    Subject subject = getSubject();
 
     when(tokenStorage.read(anyString(), anyString())).thenReturn(null);
 
@@ -391,6 +426,28 @@ public class OAuthSecurityImplTest {
         .withClaim(PREFERRED_USERNAME, "admin");
   }
 
+  private JWTCreator.Builder getRefreshTokenBuilder() {
+    String[] audience = {"master-realm", "account"};
+    JSONObject realmAccess = new JSONObject();
+    realmAccess.put(
+        "roles", ImmutableList.of("create-realm", "offline_access", "admin", "uma_authorization"));
+
+    return JWT.create()
+        .withJWTId(UUID.randomUUID().toString())
+        .withExpiresAt(new Date(Instant.now().plus(Duration.ofDays(3)).toEpochMilli()))
+        .withNotBefore(new Date(0))
+        .withIssuedAt(new Date())
+        .withIssuer("http://localhost:8080/auth/realms/master")
+        .withAudience("http://localhost:8080/auth/realms/master")
+        .withArrayClaim("aud", audience)
+        .withSubject("subject")
+        .withClaim("typ", "Refresh")
+        .withClaim(AZP, DDF_CLIENT)
+        .withClaim("auth_time", 0)
+        .withClaim("realm_access", realmAccess.toString())
+        .withClaim("scope", "openid profile email");
+  }
+
   private String getResponse(String accessToken) {
     return GSON.toJson(
         ImmutableMap.of(
@@ -405,19 +462,11 @@ public class OAuthSecurityImplTest {
   }
 
   private Subject getSubject() {
-    Principal principal = mock(Principal.class);
-    when(principal.getName()).thenReturn(USERNAME);
-
-    SecurityAssertion securityAssertion = mock(SecurityAssertion.class);
-    when(securityAssertion.getWeight()).thenReturn(10);
-    when(securityAssertion.getPrincipal()).thenReturn(principal);
-
-    PrincipalCollection principalCollection = mock(PrincipalCollection.class);
-    when(principalCollection.byType(SecurityAssertion.class))
-        .thenReturn(Collections.singletonList(securityAssertion));
+    Session session = mock(Session.class);
+    when(session.getId()).thenReturn(SESSION_ID);
 
     Subject subject = mock(Subject.class);
-    when(subject.getPrincipals()).thenReturn(principalCollection);
+    when(subject.getSession(false)).thenReturn(session);
     return subject;
   }
 

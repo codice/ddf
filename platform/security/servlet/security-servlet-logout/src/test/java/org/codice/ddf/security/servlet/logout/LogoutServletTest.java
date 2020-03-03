@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.security.token.storage.api.TokenStorage;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,6 +55,9 @@ public class LogoutServletTest {
     request = mock(HttpServletRequest.class);
     response = mock(HttpServletResponse.class);
     printWriter = mock(PrintWriter.class);
+
+    TokenStorage tokenStorage = mock(TokenStorage.class);
+    localLogoutServlet.setTokenStorage(tokenStorage);
 
     httpSession = mock(HttpSession.class);
     when(request.getSession()).thenReturn(httpSession);
