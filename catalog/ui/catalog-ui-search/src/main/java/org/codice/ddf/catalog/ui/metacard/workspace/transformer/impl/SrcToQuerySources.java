@@ -25,6 +25,6 @@ public class SrcToQuerySources extends WorkspaceKeyTransformation {
 
   @Override
   public String getJsonKey() {
-    return "src";
+    return "sources";
   }
 }
