@@ -21,8 +21,10 @@ export enum Transformer {
 
 export type ResultSet = {
   cql: string
-  src: string
+  src?: string
+  srcs?: string[]
   start?: number
+  count: number
 }
 
 export type ExportBody = {

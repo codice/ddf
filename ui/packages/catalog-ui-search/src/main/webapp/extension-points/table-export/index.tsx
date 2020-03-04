@@ -20,4 +20,5 @@ export {
   onDownloadSuccess,
   getDownloadBody,
   getStartIndex,
+  getSrcCount,
 } from './table-export'

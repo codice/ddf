@@ -60,6 +60,17 @@ function getSrcs(selectionInterface: any) {
   const srcs = selectionInterface.getCurrentQuery().get('src')
   return srcs === undefined ? _.pluck(Sources.toJSON(), 'id') : srcs
 }
+export function getSrcCount(
+  start: any,
+  src: any,
+  count: any,
+  exportSize: any,
+  selectionInterface: any
+) {
+  return exportSize === 'visible'
+    ? selectionInterface.getCurrentQuery().getStartIndexForSource(src) - start
+    : count
+}
 function getColumnOrder(): string[] {
   return user
     .get('user')
@@ -85,21 +96,31 @@ function getSearches(
   exportSize: string,
   srcs: string[],
   cql: string,
+  count: any,
   selectionInterface: any
 ): any {
   return exportSize === 'visible'
     ? srcs.map((src: string) => {
         const start = getStartIndex(src, exportSize, selectionInterface)
+        const srcCount = getSrcCount(
+          start,
+          src,
+          count,
+          exportSize,
+          selectionInterface
+        )
         return {
           src,
           cql,
           start,
+          count: srcCount,
         }
       })
     : [
         {
           srcs,
           cql,
+          count,
         },
       ]
 }
@@ -189,7 +210,7 @@ export const getDownloadBody = (downloadInfo: DownloadInfo) => {
     columnAliasMap: properties.attributeAliases,
   }
 
-  const searches = getSearches(exportSize, srcs, cql, selectionInterface)
+  const searches = getSearches(exportSize, srcs, cql, count, selectionInterface)
 
   return {
     searches,

@@ -173,7 +173,6 @@ public class CqlTransformHandler implements Route {
     public List<CqlRequestImpl> getCqlRequests() {
       this.searches.forEach(
           cqlRequest -> {
-            cqlRequest.setCount(this.count);
             cqlRequest.setSorts(this.sorts);
           });
       return this.searches;
