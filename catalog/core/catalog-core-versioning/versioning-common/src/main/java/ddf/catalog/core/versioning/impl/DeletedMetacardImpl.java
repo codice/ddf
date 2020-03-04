@@ -15,16 +15,23 @@ package ddf.catalog.core.versioning.impl;
 
 import com.google.common.collect.ImmutableSet;
 import ddf.catalog.core.versioning.DeletedMetacard;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 /**
@@ -46,6 +53,9 @@ public class DeletedMetacardImpl extends MetacardImpl implements DeletedMetacard
     DESCRIPTORS.add(
         new AttributeDescriptorImpl(
             LAST_VERSION_ID, true, true, false, false, BasicTypes.STRING_TYPE));
+    DESCRIPTORS.add(
+        new AttributeDescriptorImpl(
+            DELETED_METACARD_TAGS, true, true, false, true, BasicTypes.STRING_TYPE));
     METACARD_TYPE = new MetacardTypeImpl(PREFIX, DESCRIPTORS);
   }
 
@@ -63,6 +73,7 @@ public class DeletedMetacardImpl extends MetacardImpl implements DeletedMetacard
             metacardBeingDeleted.getMetacardType().getAttributeDescriptors()));
     this.setDeletionOfId(deletionOfId);
     this.setDeletedBy(deletedBy);
+    this.setDeletedMetacardTags(metacardBeingDeleted.getTags());
     this.setLastVersionId(lastVersionId);
     this.setTags(ImmutableSet.of(DELETED_TAG));
     this.setId(id);
@@ -109,5 +120,25 @@ public class DeletedMetacardImpl extends MetacardImpl implements DeletedMetacard
 
   public String getLastVersionId() {
     return requestString(LAST_VERSION_ID);
+  }
+
+  public void setDeletedMetacardTags(Set<String> tags) {
+    if (tags == null || tags.isEmpty()) {
+      setAttribute(DELETED_METACARD_TAGS, null);
+      return;
+    }
+    setAttribute(
+        new AttributeImpl(
+            DELETED_METACARD_TAGS, (List<Serializable>) new ArrayList<Serializable>(tags)));
+  }
+
+  public Set<String> getDeletedMetacardTags() {
+    Attribute deletedTags = getAttribute(DELETED_METACARD_TAGS);
+    if (deletedTags == null
+        || deletedTags.getValues() == null
+        || deletedTags.getValues().isEmpty()) {
+      return Collections.emptySet();
+    }
+    return deletedTags.getValues().stream().map(String::valueOf).collect(Collectors.toSet());
   }
 }
