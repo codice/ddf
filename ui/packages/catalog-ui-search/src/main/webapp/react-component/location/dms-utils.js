@@ -17,7 +17,7 @@ const MaskedTextField = require('./masked-text-field')
 
 import styled from 'styled-components'
 
-const dmsRegex = new RegExp('^([0-9]*)°([0-9]*)\'([0-9]*\\.?[0-9]*)"$')
+const dmsRegex = new RegExp('^(.*)°(.*)\'(.*\\.?.*)"$')
 const LAT_DEGREES_DIGITS = 2
 const LON_DEGREES_DIGITS = 3
 const DEFAULT_SECONDS_PRECISION = 4
