@@ -61,7 +61,7 @@ module.exports = plugin(
         : this.model
       this.listenTo(
         this.model,
-        'change:sortField change:sortOrder change:src change:federation',
+        'change:sortField change:sortOrder change:sources change:federation',
         Common.safeCallback(this.onBeforeShow)
       )
       this.resultFormCollection = ResultForm.getResultCollection()
@@ -146,7 +146,7 @@ module.exports = plugin(
       )
     },
     setupSrcDropdown() {
-      const sources = this.model.get('src')
+      const sources = this.model.get('sources')
       this._srcDropdownModel = new DropdownModel({
         value: sources ? sources : [],
         federation: this.model.get('federation'),
@@ -243,10 +243,10 @@ module.exports = plugin(
       let federation = this._srcDropdownModel.get('federation')
       const spellcheck = this.model.get('spellcheck')
       const phonetics = this.model.get('phonetics')
-      let src
+      let sources
       if (federation === 'selected') {
-        src = this._srcDropdownModel.get('value')
-        if (src === undefined || src.length === 0) {
+        sources = this._srcDropdownModel.get('value')
+        if (sources === undefined || sources.length === 0) {
           federation = 'local'
         }
       }
@@ -258,7 +258,7 @@ module.exports = plugin(
         detailLevel = undefined
       }
       return {
-        src,
+        sources,
         federation,
         sorts,
         'detail-level': detailLevel,
