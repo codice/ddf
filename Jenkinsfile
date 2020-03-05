@@ -166,7 +166,8 @@ pipeline {
                 SONAR_TOKEN = credentials('sonarqube-token')
             }
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                //catchError trap added here to prevent job failure when SonarCloud analysis upload fails
+                catchError(buildResult: 'SUCCESS', stageResult: 'null', message: 'SonarCloud Analysis upload failed') {
                     // -DskipITs is temporary to skip all the tests that were failing at the time. See https://github.com/codice/ddf/issues/5777
                     withMaven(maven: 'M35', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                         script {
