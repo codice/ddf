@@ -27,7 +27,11 @@ import MetacardQuality from '../../../react-component/metacard-quality'
 import MetacardHistory from '../../../react-component/metacard-history'
 
 const MetacardOverwriteView = Marionette.LayoutView.extend({
-  template: () => <MetacardOverwrite />,
+  template() {
+    return (
+      <MetacardOverwrite selectionInterface={this.options.selectionInterface} />
+    )
+  },
 })
 
 const MetacardArchiveView = Marionette.LayoutView.extend({
