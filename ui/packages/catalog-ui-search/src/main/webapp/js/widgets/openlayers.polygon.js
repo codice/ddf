@@ -102,13 +102,33 @@ Draw.PolygonView = Marionette.View.extend({
   },
 
   modelToPolygon(model) {
-    const coords = model.get('polygon')
+    let coords = model.get('polygon')
     if (
       coords === undefined ||
       validateGeo('polygon', JSON.stringify(coords)).error
     ) {
       return
     }
+    if (model.get('bbox')) {
+      const bbox = model.get('bbox')
+      const south = Number(bbox[0])
+      const north = Number(bbox[1])
+      let west = Number(bbox[2])
+      let east = Number(bbox[3])
+      if (east - west < -180) {
+        east += 360
+      } else if (east - west > 180) {
+        west += 360
+      }
+      coords = [
+        [west, south],
+        [west, north],
+        [east, north],
+        [east, south],
+        [west, south],
+      ]
+    }
+
     const isMultiPolygon = ShapeUtils.isArray3D(coords)
     const multiPolygon = isMultiPolygon ? coords : [coords]
 
