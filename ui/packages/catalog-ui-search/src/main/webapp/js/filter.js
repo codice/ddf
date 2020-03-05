@@ -392,8 +392,14 @@ function matchesFilter(metacard, filter) {
           }
           break
         case 'INTERSECTS':
-          if (matchesPOLYGON(valuesToCheck[i], filter)) {
-            return true
+          if (CQLUtils.isPolygonFilter(filter)) {
+            if (matchesBufferedPOLYGON(valuesToCheck[i], filter)) {
+              return true
+            }
+          } else if (CQLUtils.isLineFilter(filter)) {
+            if (matchesLINESTRING(valuesToCheck[i], filter)) {
+              return true
+            }
           }
           break
         case 'DWITHIN':

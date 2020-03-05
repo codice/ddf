@@ -21,7 +21,7 @@ const LineString = {
       properties: { buffer } = {},
     } = json
 
-    const { width = 1, unit = 'meters' } = buffer
+    const { width = 0, unit = 'meters' } = buffer
 
     return {
       mode: 'line',
@@ -31,7 +31,7 @@ const LineString = {
     }
   },
   'location->json': location => {
-    const { line = [], lineWidth = 1, lineUnits = 'meters' } = location
+    const { line = [], lineWidth = 0, lineUnits = 'meters' } = location
 
     return {
       type: 'Feature',
