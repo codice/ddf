@@ -572,12 +572,7 @@ module.exports = Backbone.AssociatedModel.extend({
     const west = parseFloat(this.get('west'))
     const east = parseFloat(this.get('east'))
 
-    if (
-      north !== undefined &&
-      south !== undefined &&
-      east !== undefined &&
-      west !== undefined
-    ) {
+    if (!isNaN(north) && !isNaN(south) && !isNaN(east) && !isNaN(west)) {
       this.set('bbox', [west, south, east, north].join(','), {
         silent:
           (this.get('locationType') === 'usng' ||
