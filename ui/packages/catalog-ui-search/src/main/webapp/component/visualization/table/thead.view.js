@@ -52,9 +52,9 @@ module.exports = Marionette.LayoutView.extend({
               >
                 {`${label ? `${label} ${id}` : `${id}`}`}
               </span>
-              <span className="fa fa-sort-asc"></span>
-              <span className="fa fa-sort-desc"></span>
-              <div className="resizer"></div>
+              <span className="fa fa-sort-asc" />
+              <span className="fa fa-sort-desc" />
+              <div className="resizer" />
             </th>
           )
         })}

@@ -47,40 +47,21 @@ module.exports = Marionette.LayoutView.extend({
             model={this.model}
           />
         </td>
-        {properties
-          .filter(property => !property.hidden)
-          .map(property => {
-            const alias = HandleBarsHelpers.getAlias(property.property)
-            return (
-              <td
-                data-property={`${property.property}`}
-                className={`${property.class} ${
-                  property.hidden ? 'is-hidden-column' : ''
-                }`}
-                data-value={`${property.value}`}
-              >
-                <div>
-                  {property.value.map(value => {
-                    console.log(value)
-                    return (
-                      <span
-                        data-value={`${value}`}
-                        title={`${alias}: ${value}`}
-                      >
-                        {value.toString().substring(0, 4) === 'http' ? (
-                          <a href={`${value}`} target="_blank">
-                            {HandleBarsHelpers.getAlias(property.property)}
-                          </a>
-                        ) : (
-                          `${value}`
-                        )}
-                      </span>
-                    )
-                  })}
-                </div>
-                <div className="for-bold">
-                  {property.value.map(value => (
-                    <span data-value={`${value}`}>
+        {properties.filter(property => !property.hidden).map(property => {
+          const alias = HandleBarsHelpers.getAlias(property.property)
+          return (
+            <td
+              data-property={`${property.property}`}
+              className={`${property.class} ${
+                property.hidden ? 'is-hidden-column' : ''
+              }`}
+              data-value={`${property.value}`}
+            >
+              <div>
+                {property.value.map(value => {
+                  console.log(value)
+                  return (
+                    <span data-value={`${value}`} title={`${alias}: ${value}`}>
                       {value.toString().substring(0, 4) === 'http' ? (
                         <a href={`${value}`} target="_blank">
                           {HandleBarsHelpers.getAlias(property.property)}
@@ -88,13 +69,27 @@ module.exports = Marionette.LayoutView.extend({
                       ) : (
                         `${value}`
                       )}
-                      :{value}
                     </span>
-                  ))}
-                </div>
-              </td>
-            )
-          })}
+                  )
+                })}
+              </div>
+              <div className="for-bold">
+                {property.value.map(value => (
+                  <span data-value={`${value}`}>
+                    {value.toString().substring(0, 4) === 'http' ? (
+                      <a href={`${value}`} target="_blank">
+                        {HandleBarsHelpers.getAlias(property.property)}
+                      </a>
+                    ) : (
+                      `${value}`
+                    )}
+                    :{value}
+                  </span>
+                ))}
+              </div>
+            </td>
+          )
+        })}
       </React.Fragment>
     )
   },
@@ -209,10 +204,11 @@ module.exports = Marionette.LayoutView.extend({
           if (value && metacardDefinitions.metacardTypes[property]) {
             switch (metacardDefinitions.metacardTypes[property].type) {
               case 'DATE':
-                value = value.map(val =>
-                  val !== undefined && val !== ''
-                    ? user.getUserReadableDateTime(val)
-                    : ''
+                value = value.map(
+                  val =>
+                    val !== undefined && val !== ''
+                      ? user.getUserReadableDateTime(val)
+                      : ''
                 )
                 break
               default:
