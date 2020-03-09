@@ -13,10 +13,13 @@
  */
 package ddf.catalog.operation.impl;
 
+import static org.apache.commons.lang3.Validate.notNull;
+
 import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.SourceProcessingDetails;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl
     implements ProcessingDetails {
@@ -37,7 +40,9 @@ public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl
    * @param exception the exception
    */
   public ProcessingDetailsImpl(String sourceId, Exception exception) {
-    this(sourceId, exception, (List<String>) null);
+    super();
+    this.sourceId = sourceId;
+    this.exception = exception;
   }
 
   /**
@@ -48,7 +53,13 @@ public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl
    * @param warning the warning
    */
   public ProcessingDetailsImpl(String sourceId, Exception exception, String warning) {
-    this(sourceId, exception, toWarningList(warning));
+    this(
+        sourceId,
+        exception,
+        Collections.singletonList(
+            notNull(
+                warning,
+                "the constructor of ProcessingDetailsImpl does not accept a null warning")));
   }
 
   /**
@@ -76,10 +87,19 @@ public class ProcessingDetailsImpl extends SourceProcessingDetailsImpl
     this.sourceId = sourceId;
   }
 
-  private static List<String> toWarningList(String warning) {
-    List<String> warnings = new ArrayList<String>();
-    warnings.add(warning);
-    return warnings;
+  @Override
+  public boolean equals(Object o) {
+    if (!super.equals(o)) {
+      return false;
+    }
+    ProcessingDetailsImpl that = (ProcessingDetailsImpl) o;
+    return Objects.equals(this.sourceId, that.sourceId)
+        && Objects.equals(this.exception, that.exception);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), sourceId, exception);
   }
 
   @Override

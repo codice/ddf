@@ -22,12 +22,14 @@ import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.ProcessingDetails;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
@@ -547,6 +549,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
     }
 
     private SourceResponse cloneResponse(SourceResponse sourceResponse) {
+
       List<Result> clonedResults =
           sourceResponse
               .getResults()
@@ -556,12 +559,20 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
               .map(ResultImpl::new)
               .collect(Collectors.toList());
 
+      Set<ProcessingDetails> processingDetails =
+          sourceResponse
+              .getProcessingDetails()
+              .stream()
+              .map(sourceDetails -> new ProcessingDetailsImpl(sourceDetails, source.getId()))
+              .collect(Collectors.toSet());
+
       return new QueryResponseImpl(
           sourceResponse.getRequest(),
           clonedResults,
           true,
           sourceResponse.getHits(),
-          sourceResponse.getProperties());
+          sourceResponse.getProperties(),
+          processingDetails);
     }
   }
 
