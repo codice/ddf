@@ -116,13 +116,6 @@ const BaseLine = props => {
           : JSON.stringify(props[geometryKey])
       )
       if (props.drawing) {
-        // if (
-        //   geometryKey.includes('line') &&
-        //   (lineWidth === undefined || Number(lineWidth) <= 0)
-        // ) {
-        //   setState({ [widthKey]: 1 })
-        //   setBufferError(initialErrorState)
-        // }
         setBaseLineError(initialErrorState)
       }
     },
