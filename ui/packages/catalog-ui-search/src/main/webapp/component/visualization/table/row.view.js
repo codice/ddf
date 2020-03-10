@@ -63,7 +63,11 @@ module.exports = Marionette.LayoutView.extend({
                   return (
                     <span data-value={`${value}`} title={`${alias}: ${value}`}>
                       {value.toString().substring(0, 4) === 'http' ? (
-                        <a href={`${value}`} target="_blank">
+                        <a
+                          href={`${value}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           {HandleBarsHelpers.getAlias(property.property)}
                         </a>
                       ) : (
@@ -77,7 +81,11 @@ module.exports = Marionette.LayoutView.extend({
                 {property.value.map(value => (
                   <span data-value={`${value}`}>
                     {value.toString().substring(0, 4) === 'http' ? (
-                      <a href={`${value}`} target="_blank">
+                      <a
+                        href={`${value}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         {HandleBarsHelpers.getAlias(property.property)}
                       </a>
                     ) : (
