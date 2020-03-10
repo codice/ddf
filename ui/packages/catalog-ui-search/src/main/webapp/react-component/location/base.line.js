@@ -109,7 +109,7 @@ const BaseLine = props => {
 
   useEffect(
     () => {
-      const { geometryKey, lineWidth } = props
+      const { geometryKey } = props
       setCurrentValue(
         typeof props[geometryKey] === 'string'
           ? props[geometryKey]
