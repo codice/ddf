@@ -82,6 +82,24 @@ Draw.LineView = Marionette.View.extend({
     })
   },
 
+  adjustPoints(coordinates) {
+    // Structure of coordinates is [x, y, x, y, ... ]
+    coordinates.forEach((coord, index) => {
+      if(index + 2 < coordinates.length) {
+        let negative = false
+        const east = Number(coordinates[index + 2])
+        const west = Number(coordinates[index])
+        if(east - west < -180) {
+          negative = true
+          coordinates[index + 2] = east + 360
+        } else if(!negative && east - west > 180) {
+          coordinates[index] = west + 360
+        }
+      }
+    })
+    return coordinates
+  },
+
   modelToPolygon(model) {
     const polygon = model.get('line')
     const setArr = _.uniq(polygon)
@@ -97,7 +115,7 @@ Draw.LineView = Marionette.View.extend({
 
   updatePrimitive(model) {
     const polygon = this.modelToPolygon(model)
-    // make sure the current model has width and height before drawing
+    // Make sure the current model has width and height before drawing
     if (
       polygon !== undefined &&
       !validateGeo('line', JSON.stringify(polygon.getCoordinates())).error
@@ -115,7 +133,7 @@ Draw.LineView = Marionette.View.extend({
 
   drawBorderedPolygon(rectangle) {
     if (!rectangle) {
-      // handles case where model changes to empty vars and we don't want to draw anymore
+      // Handles case where model changes to empty vars and we don't want to draw anymore
       return
     }
     const lineWidth =
@@ -124,6 +142,7 @@ Draw.LineView = Marionette.View.extend({
         this.model.get('lineUnits')
       ) || 1
 
+    rectangle.A = this.adjustPoints(rectangle.A)
     const turfLine = Turf.lineString(
       translateFromOpenlayersCoordinates(rectangle.getCoordinates())
     )
