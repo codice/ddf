@@ -35,6 +35,7 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiLineString;
 import org.opengis.filter.And;
 import org.opengis.filter.Not;
 import org.opengis.filter.Or;
@@ -496,6 +497,9 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
       openSearchFilterVisitorObject.addGeometrySearch(polygon);
     } else if (geometryExpression instanceof LineString) {
       Geometry polygon = ((LineString) geometryExpression);
+      openSearchFilterVisitorObject.addGeometrySearch(polygon);
+    } else if (geometryExpression instanceof MultiLineString) {
+      Geometry polygon = ((MultiLineString) geometryExpression);
       openSearchFilterVisitorObject.addGeometrySearch(polygon);
     } else {
       LOGGER.debug("Unsupported filter constraint");
