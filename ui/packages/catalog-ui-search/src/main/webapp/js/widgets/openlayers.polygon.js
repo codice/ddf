@@ -50,6 +50,19 @@ const translateFromOpenlayersCoordinates = coords => {
     .flatten()
 }
 
+/**
+ * Returns buffer width in meters with the lowest value of 1 meter.
+ */
+const getConstrainedBufferWidth = model => {
+  const bufferWidth =
+    DistanceUtils.getDistanceInMeters(
+      model.get('polygonBufferWidth'),
+      model.get('polygonBufferUnits')
+    ) || 1
+
+  return bufferWidth >= 1 ? bufferWidth : 1
+}
+
 const Draw = {}
 
 Draw.PolygonModel = Backbone.Model.extend({
@@ -150,11 +163,7 @@ Draw.PolygonView = Marionette.View.extend({
       this.map.removeLayer(this.vectorLayer)
     }
 
-    const bufferWidth =
-      DistanceUtils.getDistanceInMeters(
-        this.model.get('polygonBufferWidth'),
-        this.model.get('polygonBufferUnits')
-      ) || 1
+    const bufferWidth = getConstrainedBufferWidth(this.model)
 
     const drawnPolygonSegments = coordinates.map(set => {
       return Turf.multiLineString([translateFromOpenlayersCoordinates(set)])
