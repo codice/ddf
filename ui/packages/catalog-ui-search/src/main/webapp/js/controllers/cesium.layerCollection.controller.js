@@ -49,6 +49,12 @@ const Controller = CommonLayerController.extend({
     this.map.scene.requestRenderMode = true
     this.layerOrder = []
 
+    if (options.cesiumOptions.cameraOptions)
+      Object.entries(options.cesiumOptions.cameraOptions).forEach(
+        entry =>
+          (this.map.scene.screenSpaceCameraController[entry[0]] = entry[1])
+      )
+
     this.collection.forEach(function(model) {
       if (model.get('show')) {
         this.initLayer(model)

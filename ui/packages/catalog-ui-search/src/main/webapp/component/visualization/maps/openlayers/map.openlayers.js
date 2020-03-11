@@ -36,6 +36,8 @@ const User = require('../../../../js/model/User.js')
 const wreqr = require('../../../../js/wreqr.js')
 import { validateGeo } from '../../../../react-component/utils/validation'
 
+const DEFAULT_MAP_CAMERA_OPTIONS = { zoom: 3, minZoom: 1.9 }
+
 const defaultColor = '#3c6dd5'
 
 const OpenLayerCollectionController = LayerCollectionController.extend({
@@ -45,15 +47,17 @@ const OpenLayerCollectionController = LayerCollectionController.extend({
   },
 })
 
-function createMap(insertionElement) {
+function createMap(
+  insertionElement,
+  cameraOptions = DEFAULT_MAP_CAMERA_OPTIONS
+) {
   const layerPrefs = user.get('user>preferences>mapLayers')
   User.updateMapLayers(layerPrefs)
   const layerCollectionController = new OpenLayerCollectionController({
     collection: layerPrefs,
   })
   const map = layerCollectionController.makeMap({
-    zoom: 3,
-    minZoom: 1.9,
+    cameraOptions: cameraOptions,
     element: insertionElement,
   })
 
@@ -95,11 +99,15 @@ module.exports = function OpenlayersMap(
   selectionInterface,
   notificationEl,
   componentElement,
-  mapModel
+  mapModel,
+  cameraOptions
 ) {
   let overlays = {}
   let shapes = []
-  const map = createMap(insertionElement)
+  const map = createMap(
+    insertionElement,
+    cameraOptions && cameraOptions.openlayers
+  )
   listenToResize()
   setupTooltip(map)
   const drawingTools = setupDrawingTools(map)

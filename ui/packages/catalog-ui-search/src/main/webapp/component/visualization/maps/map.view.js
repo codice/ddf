@@ -42,6 +42,8 @@ const Gazetteer = require('../../../react-component/location/gazetteer.js')
 import MapSettings from '../../../react-component/map-settings'
 import MapInfo from '../../../react-component/map-info'
 
+import plugin from 'plugins/map.view'
+
 function findExtreme({ objArray, property, comparator }) {
   if (objArray.length === 0) {
     return undefined
@@ -134,7 +136,7 @@ const defaultHomeBoundingBox = {
   north: 52,
 }
 
-module.exports = Marionette.LayoutView.extend({
+const View = Marionette.LayoutView.extend({
   tagName: CustomElements.register('map'),
   template,
   regions: {
@@ -246,6 +248,10 @@ module.exports = Marionette.LayoutView.extend({
     this.setupRightClickMenu()
     this.setupMapInfo()
   },
+  /**
+   * Returns a map of camera options (such as min/max zoom, etc) for Open layers and Cesium map views
+   */
+  getCameraOptions() {},
   zoomToHome() {
     const home = [
       user
@@ -391,7 +397,8 @@ module.exports = Marionette.LayoutView.extend({
       this.options.selectionInterface,
       this.mapDrawingPopup.el,
       this.el,
-      this.mapModel
+      this.mapModel,
+      this.getCameraOptions()
     )
     this.setupCollections()
     this.setupListeners()
@@ -530,3 +537,5 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
 })
+
+module.exports = plugin(View)
