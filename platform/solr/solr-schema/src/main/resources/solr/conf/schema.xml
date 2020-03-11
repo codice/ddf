@@ -53,7 +53,7 @@
     <dynamicField name="*_tdt" type="pdate" indexed="true" stored="true" multiValued="true" docValues="true"/>
     <dynamicField name="*_bln" type="boolean" indexed="true" stored="true" multiValued="true" docValues="true"/>
 
-    <dynamicField name="*_geo" type="string" indexed="false" stored="true" multiValued="true" docValues="false"/>
+    <dynamicField name="*_geo" type="string" indexed="true" stored="true" multiValued="true" docValues="false"/>
     <dynamicField name="*_geo_index" type="srptgeom" indexed="true" stored="false" multiValued="true"/>
     <dynamicField name="*_geo_sort" type="location" indexed="false" stored="false" multiValued="true" docValues="true"/>
 
