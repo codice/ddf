@@ -393,7 +393,7 @@ function matchesFilter(metacard, filter) {
           break
         case 'INTERSECTS':
           if (CQLUtils.isPolygonFilter(filter)) {
-            if (matchesBufferedPOLYGON(valuesToCheck[i], filter)) {
+            if (matchesPOLYGON(valuesToCheck[i], filter)) {
               return true
             }
           } else if (CQLUtils.isLineFilter(filter)) {
