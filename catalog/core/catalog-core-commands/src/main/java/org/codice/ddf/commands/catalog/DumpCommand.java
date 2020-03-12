@@ -201,9 +201,7 @@ public class DumpCommand extends CqlCommands {
   )
   String zipFileName;
 
-  public DumpCommand() {
-    this.signer = new DigitalSignature(security);
-  }
+  public DumpCommand() {}
 
   public DumpCommand(DigitalSignature signer) {
     this.signer = signer;
@@ -211,6 +209,9 @@ public class DumpCommand extends CqlCommands {
 
   @Override
   protected final Object executeWithSubject() throws Exception {
+    if (signer == null) {
+      signer = new DigitalSignature(security);
+    }
     if (FilenameUtils.getExtension(dirPath).equals("") && !dirPath.endsWith(File.separator)) {
       dirPath += File.separator;
     }

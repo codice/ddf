@@ -178,9 +178,7 @@ public class ExportCommand extends CqlCommands {
   )
   boolean unsafe = false;
 
-  public ExportCommand() {
-    this.signer = new DigitalSignature(security);
-  }
+  public ExportCommand() {}
 
   public ExportCommand(
       FilterBuilder filterBuilder,
@@ -195,6 +193,9 @@ public class ExportCommand extends CqlCommands {
 
   @Override
   protected Object executeWithSubject() throws Exception {
+    if (signer == null) {
+      signer = new DigitalSignature(security);
+    }
     Filter filter = getFilter();
     transformer =
         getServiceByFilter(
