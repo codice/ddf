@@ -53,24 +53,28 @@ module.exports = Marionette.LayoutView.extend({
   },
   setupAttributeSpecific() {
     let excludedList = metacardDefinitions.getMetacardStartingTypes()
+    const allowedValues = _.filter(
+      metacardDefinitions.sortedMetacardTypes,
+      type => !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
+    )
+      .filter(type => !properties.isHidden(type.id))
+      .filter(type => !excludedList.hasOwnProperty(type.id))
+      .map(metacardType => ({
+        label: metacardType.alias || metacardType.id,
+        value: metacardType.id,
+      }))
     this.basicAttributeSpecific.show(
       new PropertyView({
         model: new Property({
           enumFiltering: true,
           showValidationIssues: true,
           enumMulti: true,
-          enum: _.filter(
-            metacardDefinitions.sortedMetacardTypes,
-            type => !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
-          )
-            .filter(type => !properties.isHidden(type.id))
-            .filter(type => !excludedList.hasOwnProperty(type.id))
-            .map(metacardType => ({
-              label: metacardType.alias || metacardType.id,
-              value: metacardType.id,
-            })),
+          enum: allowedValues,
           values: this.model.get('descriptors'),
-          value: [this.model.get('descriptors')],
+          value:
+            [this.model.get('descriptors')].size > 0
+              ? [this.model.get('descriptors')]
+              : [[allowedValues[0] && allowedValues[0].label]],
           id: 'Attributes',
         }),
       })
