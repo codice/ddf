@@ -97,6 +97,7 @@ module.exports = Marionette.LayoutView.extend({
         isFormBuilder: this.options.isFormBuilder || false,
         suggester: this.options.suggester,
         includedAttributes: this.options.includedAttributes,
+        supportedAttributes: this.options.supportedAttributes,
       })
     )
     this.handleEditing()

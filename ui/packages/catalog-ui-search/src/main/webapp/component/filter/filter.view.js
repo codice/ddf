@@ -31,6 +31,7 @@ module.exports = Marionette.LayoutView.extend({
         editing={this.$el.hasClass('is-editing')}
         onRemove={() => this.delete()}
         onChange={state => this.onChange(state)}
+        supportedAttributes={this.options.supportedAttributes}
       />
     )
   },
