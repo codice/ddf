@@ -256,9 +256,7 @@ public class IngestCommand extends CatalogCommands {
 
   private Optional<InputTransformer> transformer = null;
 
-  public IngestCommand() {
-    this.verifier = new DigitalSignature(security);
-  }
+  public IngestCommand() {}
 
   public IngestCommand(DigitalSignature verifier) {
     this.verifier = verifier;
@@ -266,6 +264,9 @@ public class IngestCommand extends CatalogCommands {
 
   @Override
   protected Object executeWithSubject() throws Exception {
+    if (this.verifier == null) {
+      this.verifier = new DigitalSignature(security);
+    }
     if (batchSize * multithreaded > MAX_QUEUE_SIZE) {
       throw new IngestException(
           String.format("batchsize * multithreaded cannot be larger than %d.", MAX_QUEUE_SIZE));
