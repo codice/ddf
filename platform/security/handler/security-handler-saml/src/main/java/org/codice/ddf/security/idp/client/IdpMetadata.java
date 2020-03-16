@@ -14,7 +14,7 @@
 package org.codice.ddf.security.idp.client;
 
 import com.google.common.annotations.VisibleForTesting;
-import ddf.security.samlp.MetadataConfigurationParser;
+import ddf.security.samlp.impl.MetadataConfigurationParser;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;

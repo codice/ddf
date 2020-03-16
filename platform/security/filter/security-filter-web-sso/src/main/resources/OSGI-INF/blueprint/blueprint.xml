@@ -19,7 +19,7 @@
                interface="org.codice.ddf.security.policy.context.ContextPolicyManager"
                availability="optional"/>
 
-    <reference id="sessionFactory" interface="ddf.security.http.SessionFactory" />
+    <reference id="sessionFactory" interface="ddf.security.http.SessionFactory" availability="optional" />
 
     <reference-list id="handlerList"
                     interface="org.codice.ddf.security.handler.api.AuthenticationHandler"

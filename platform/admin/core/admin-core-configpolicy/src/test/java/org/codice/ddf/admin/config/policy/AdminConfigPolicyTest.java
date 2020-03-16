@@ -20,6 +20,8 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.collect.Sets;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.impl.KeyValuePermissionImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,18 +64,18 @@ public class AdminConfigPolicyTest {
     adminConfigPolicy.setServicePolicies(getValidPolicyPermissions());
 
     KeyValueCollectionPermission requestedFeaturePermissions =
-        new KeyValueCollectionPermission(
+        new KeyValueCollectionPermissionImpl(
             AdminConfigPolicy.VIEW_FEATURE_ACTION,
             getMatchOnePermissions(AdminConfigPolicy.FEATURE_NAME)
                 .stream()
-                .toArray(KeyValuePermission[]::new));
+                .toArray(KeyValuePermissionImpl[]::new));
 
     KeyValueCollectionPermission requestedServicePermissions =
-        new KeyValueCollectionPermission(
+        new KeyValueCollectionPermissionImpl(
             AdminConfigPolicy.VIEW_SERVICE_ACTION,
             getMatchOnePermissions(AdminConfigPolicy.SERVICE_PID)
                 .stream()
-                .toArray(KeyValuePermission[]::new));
+                .toArray(KeyValuePermissionImpl[]::new));
 
     assertTrue(
         adminConfigPolicy
@@ -121,33 +123,33 @@ public class AdminConfigPolicyTest {
     List<KeyValuePermission> matchOneFeaturePermissions =
         getMatchOnePermissions(AdminConfigPolicy.FEATURE_NAME);
     matchOneFeaturePermissions.add(
-        new KeyValuePermission(
+        new KeyValuePermissionImpl(
             AdminConfigPolicy.FEATURE_NAME, Sets.newHashSet(TEST_PERMISSION_VALUE + UNAUTHORIZED)));
 
     List<KeyValuePermission> matchOneServicePermissions =
         getMatchOnePermissions(AdminConfigPolicy.SERVICE_PID);
     matchOneServicePermissions.add(
-        new KeyValuePermission(
+        new KeyValuePermissionImpl(
             AdminConfigPolicy.SERVICE_PID, Sets.newHashSet(TEST_PERMISSION_VALUE + UNAUTHORIZED)));
 
     List<KeyValuePermission> matchOneInvalidActionPermission = new ArrayList<>();
     matchOneInvalidActionPermission.add(
-        new KeyValuePermission("UNKNOWN_ACTION", Sets.newHashSet(TEST_PERMISSION_VALUE)));
+        new KeyValuePermissionImpl("UNKNOWN_ACTION", Sets.newHashSet(TEST_PERMISSION_VALUE)));
 
     KeyValueCollectionPermission requestedFeaturePermissions =
-        new KeyValueCollectionPermission(
+        new KeyValueCollectionPermissionImpl(
             AdminConfigPolicy.VIEW_FEATURE_ACTION,
-            matchOneFeaturePermissions.stream().toArray(KeyValuePermission[]::new));
+            matchOneFeaturePermissions.stream().toArray(KeyValuePermissionImpl[]::new));
 
     KeyValueCollectionPermission requestedServicePermissions =
-        new KeyValueCollectionPermission(
+        new KeyValueCollectionPermissionImpl(
             AdminConfigPolicy.VIEW_SERVICE_ACTION,
-            matchOneServicePermissions.stream().toArray(KeyValuePermission[]::new));
+            matchOneServicePermissions.stream().toArray(KeyValuePermissionImpl[]::new));
 
     KeyValueCollectionPermission requestedInvalidActionPermissions =
-        new KeyValueCollectionPermission(
+        new KeyValueCollectionPermissionImpl(
             "UNKNOWN_ACTION",
-            matchOneInvalidActionPermission.stream().toArray(KeyValuePermission[]::new));
+            matchOneInvalidActionPermission.stream().toArray(KeyValuePermissionImpl[]::new));
 
     assertEquals(
         1,
@@ -189,13 +191,13 @@ public class AdminConfigPolicyTest {
     AdminConfigPolicy adminConfigPolicy = new AdminConfigPolicy();
     List<KeyValuePermission> matchOneServicePermissions = new ArrayList<>();
     matchOneServicePermissions.add(
-        new KeyValuePermission(
+        new KeyValuePermissionImpl(
             AdminConfigPolicy.SERVICE_PID, Sets.newHashSet("UNKNOWN_ATTRIBUTE_NAME")));
 
     KeyValueCollectionPermission requestedServicePermissions =
-        new KeyValueCollectionPermission(
+        new KeyValueCollectionPermissionImpl(
             AdminConfigPolicy.VIEW_SERVICE_ACTION,
-            matchOneServicePermissions.stream().toArray(KeyValuePermission[]::new));
+            matchOneServicePermissions.stream().toArray(KeyValuePermissionImpl[]::new));
 
     assertTrue(
         adminConfigPolicy
@@ -223,7 +225,8 @@ public class AdminConfigPolicyTest {
   }
 
   public KeyValueCollectionPermission getSubjectPermissions() {
-    KeyValueCollectionPermission subjectCollectionPermissions = new KeyValueCollectionPermission();
+    KeyValueCollectionPermission subjectCollectionPermissions =
+        new KeyValueCollectionPermissionImpl();
     subjectCollectionPermissions.addAll(
         new HashMap<String, List<String>>() {
           {
@@ -240,7 +243,7 @@ public class AdminConfigPolicyTest {
     List<KeyValuePermission> matchOneServicePermissions = new ArrayList<>();
     for (int i = 0; i < 3; i++) {
       matchOneServicePermissions.add(
-          new KeyValuePermission(permissionKey, Sets.newHashSet(TEST_PERMISSION_VALUE + i)));
+          new KeyValuePermissionImpl(permissionKey, Sets.newHashSet(TEST_PERMISSION_VALUE + i)));
     }
 
     return matchOneServicePermissions;

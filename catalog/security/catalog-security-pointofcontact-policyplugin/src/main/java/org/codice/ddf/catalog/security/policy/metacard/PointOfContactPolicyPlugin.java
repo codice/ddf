@@ -26,7 +26,7 @@ import ddf.catalog.plugin.PolicyPlugin;
 import ddf.catalog.plugin.PolicyResponse;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.plugin.impl.PolicyResponseImpl;
-import ddf.security.permission.Permissions;
+import ddf.security.permission.impl.Permissions;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;

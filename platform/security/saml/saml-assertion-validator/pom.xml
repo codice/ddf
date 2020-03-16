@@ -42,5 +42,9 @@
             <groupId>ddf.security.handler</groupId>
             <artifactId>security-handler-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.handler</groupId>
+            <artifactId>security-handler-impl</artifactId>
+        </dependency>
     </dependencies>
 </project>

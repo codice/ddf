@@ -26,9 +26,9 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
-import ddf.security.liberty.paos.Response;
 import ddf.security.liberty.paos.impl.ResponseBuilder;
-import ddf.security.samlp.SamlProtocol;
+import ddf.security.liberty.paos.impl.ResponseImpl;
+import ddf.security.samlp.impl.SamlProtocol;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -242,7 +242,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
       checkSamlpResponse(idpSoapResponse);
       Element samlpResponseElement =
           SamlProtocol.getDomElement(idpSoapResponse.getEnvelope().getBody().getFirstChild());
-      Response paosResponse = null;
+      XMLObject paosResponse = null;
       if (StringUtils.isNotEmpty(messageId)) {
         paosResponse = getPaosResponse(messageId);
       }
@@ -391,7 +391,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
   }
 
   private String buildSoapMessage(
-      String token, String relayState, Element body, Response paosResponse)
+      String token, String relayState, Element body, XMLObject paosResponse)
       throws WSSecurityException {
     String updatedMessage = soapMessage.replace("{{XmlBody}}", DOM2Writer.nodeToString(body));
     if (token != null) {
@@ -431,9 +431,9 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
     }
   }
 
-  private Response getPaosResponse(String messageId) {
+  private XMLObject getPaosResponse(String messageId) {
     ResponseBuilder responseBuilder = new ResponseBuilder();
-    Response response = responseBuilder.buildObject();
+    ResponseImpl response = responseBuilder.buildObject();
     response.setRefToMessageID(messageId);
     return response;
   }

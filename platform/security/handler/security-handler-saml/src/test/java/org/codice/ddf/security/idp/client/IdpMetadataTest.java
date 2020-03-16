@@ -22,7 +22,7 @@ import static org.hamcrest.core.IsSame.sameInstance;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-import ddf.security.samlp.SamlProtocol;
+import ddf.security.samlp.impl.SamlProtocol;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;

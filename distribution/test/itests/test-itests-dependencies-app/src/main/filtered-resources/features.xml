@@ -28,6 +28,7 @@
     <feature name="ddf-dependencies" version="${project.version}">
         <feature>catalog-core</feature>
         <feature>rest-assured</feature>
+        <feature>security-core-impl</feature>
 
         <bundle>mvn:ddf.test.itests/test-itests-common/${project.version}</bundle>
         <bundle>mvn:ddf.lib/test-common/${project.version}</bundle>

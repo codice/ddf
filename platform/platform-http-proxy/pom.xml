@@ -78,6 +78,10 @@
             <artifactId>security-core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

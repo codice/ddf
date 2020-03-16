@@ -20,6 +20,8 @@ import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.io.UnmarshallingException;
 import org.opensaml.core.xml.schema.XSBooleanValue;
 import org.opensaml.saml.common.AbstractSAMLObjectUnmarshaller;
+import org.opensaml.soap.soap11.ActorBearing;
+import org.opensaml.soap.soap11.MustUnderstandBearing;
 import org.w3c.dom.Attr;
 
 /** Unmarshaller for instances of {@link Response}. */
@@ -29,12 +31,12 @@ public class ResponseUnmarshaller extends AbstractSAMLObjectUnmarshaller {
   @Override
   protected void processAttribute(XMLObject samlObject, Attr attribute)
       throws UnmarshallingException {
-    Response response = (Response) samlObject;
+    ResponseImpl response = (ResponseImpl) samlObject;
 
     QName attrName = QNameSupport.getNodeQName(attribute);
-    if (Response.SOAP11_MUST_UNDERSTAND_ATTR_NAME.equals(attrName)) {
+    if (MustUnderstandBearing.SOAP11_MUST_UNDERSTAND_ATTR_NAME.equals(attrName)) {
       response.setSOAP11MustUnderstand(XSBooleanValue.valueOf(attribute.getValue()));
-    } else if (Response.SOAP11_ACTOR_ATTR_NAME.equals(attrName)) {
+    } else if (ActorBearing.SOAP11_ACTOR_ATTR_NAME.equals(attrName)) {
       response.setSOAP11Actor(attribute.getValue());
     } else if (Response.REF_TO_MESSAGE_ID_ATTRIB_NAME.equals(attribute.getLocalName())) {
       response.setRefToMessageID(attribute.getValue());

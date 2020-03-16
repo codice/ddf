@@ -13,68 +13,23 @@
  */
 package org.codice.ddf.security.handler.api;
 
-import java.util.Objects;
 import org.apache.shiro.authc.AuthenticationToken;
 
-/**
- * Encapsulates the return status for each handler. Consists of the status of any action taken by
- * the handler (successfully retrieved desired tokens, responded to a client in order to obtain
- * missing tokens, or no action taken), as well as the actual tokens retrieved from the header.
- */
-public class HandlerResult {
-  private Status status;
+public interface HandlerResult {
 
-  private String source;
+  Status getStatus();
 
-  private AuthenticationToken token;
+  void setStatus(Status status);
 
-  public HandlerResult() {
-    status = Status.NO_ACTION;
-  }
+  AuthenticationToken getToken();
 
-  public HandlerResult(Status fs, BaseAuthenticationToken t) {
-    this.status = fs;
-    this.token = t;
-  }
+  void setToken(AuthenticationToken token);
 
-  public Status getStatus() {
-    return status;
-  }
+  String getSource();
 
-  public void setStatus(Status status) {
+  void setSource(String src);
 
-    this.status = status;
-  }
-
-  public AuthenticationToken getToken() {
-    return this.token;
-  }
-
-  public void setToken(AuthenticationToken token) {
-    this.token = token;
-  }
-
-  public String getSource() {
-    return source;
-  }
-
-  public void setSource(String src) {
-    this.source = src;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("Status: ");
-    sb.append(status.toString());
-    sb.append("; Source: ");
-    sb.append(source);
-    sb.append("; Token: ");
-    sb.append(Objects.isNull(token) ? "null" : token.toString());
-    return sb.toString();
-  }
-
-  public enum Status {
+  enum Status {
     // completed - auth tokens retrieved ready to move on
     COMPLETED,
 

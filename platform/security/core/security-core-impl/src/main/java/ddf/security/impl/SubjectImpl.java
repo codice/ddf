@@ -14,7 +14,6 @@
 package ddf.security.impl;
 
 import ddf.security.Subject;
-import ddf.security.SubjectUtils;
 import ddf.security.assertion.SecurityAssertion;
 import java.util.ArrayList;
 import java.util.Collection;

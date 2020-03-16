@@ -28,7 +28,7 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
-import ddf.security.SubjectUtils;
+import ddf.security.impl.SubjectUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

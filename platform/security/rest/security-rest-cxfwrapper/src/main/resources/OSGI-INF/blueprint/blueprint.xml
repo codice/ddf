@@ -29,5 +29,5 @@
 
     <service ref="clientFactoryFactory" interface="org.codice.ddf.cxf.client.ClientFactoryFactory"/>
 
-    <reference id="restSecurity" interface="org.codice.ddf.security.jaxrs.RestSecurity" />
+    <reference id="restSecurity" interface="org.codice.ddf.security.jaxrs.RestSecurity" availability="optional" />
 </blueprint>

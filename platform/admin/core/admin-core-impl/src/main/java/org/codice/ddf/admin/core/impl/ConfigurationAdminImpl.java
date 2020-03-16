@@ -18,7 +18,8 @@ import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
 import com.google.common.collect.Sets;
 import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.impl.KeyValuePermissionImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -697,8 +698,9 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
 
   public boolean isPermittedToViewService(String servicePid, Subject subject) {
     KeyValueCollectionPermission serviceToCheck =
-        new KeyValueCollectionPermission(
-            "view-service.pid", new KeyValuePermission("service.pid", Sets.newHashSet(servicePid)));
+        new KeyValueCollectionPermissionImpl(
+            "view-service.pid",
+            new KeyValuePermissionImpl("service.pid", Sets.newHashSet(servicePid)));
     return subject.isPermitted(serviceToCheck);
   }
 

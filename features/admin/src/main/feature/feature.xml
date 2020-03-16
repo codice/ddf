@@ -109,6 +109,7 @@
         <feature>platform-migratable-api</feature>
         <feature>security-handler-api</feature>
         <feature>security-core-impl</feature>
+        <feature>security-core-services</feature>
 
         <bundle>mvn:com.googlecode.json-simple/json-simple/1.1.1</bundle>
         <bundle>mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>

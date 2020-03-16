@@ -17,6 +17,8 @@ import com.google.common.collect.Sets;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.impl.KeyValuePermissionImpl;
 import ddf.security.policy.extension.PolicyExtension;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -115,9 +117,9 @@ public class AdminConfigPolicy implements PolicyExtension {
       }
     }
 
-    return new KeyValueCollectionPermission(
+    return new KeyValueCollectionPermissionImpl(
         matchOneCollection.getAction(),
-        newMatchOneCollectionPermissions.stream().toArray(KeyValuePermission[]::new));
+        newMatchOneCollectionPermissions.stream().toArray(KeyValuePermissionImpl[]::new));
   }
 
   public void setFeaturePolicies(List<String> featurePolicies) {
@@ -155,8 +157,8 @@ public class AdminConfigPolicy implements PolicyExtension {
         String attributeValue = policyAttributeSplit[1];
 
         KeyValueCollectionPermission newPermission =
-            new KeyValueCollectionPermission(
-                null, new KeyValuePermission(attributeName, Sets.newHashSet(attributeValue)));
+            new KeyValueCollectionPermissionImpl(
+                null, new KeyValuePermissionImpl(attributeName, Sets.newHashSet(attributeValue)));
         permissionAttributeMap.add(newPermission);
       }
 

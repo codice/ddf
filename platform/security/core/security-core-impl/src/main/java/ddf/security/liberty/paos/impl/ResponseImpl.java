@@ -20,8 +20,12 @@ import javax.annotation.Nullable;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.schema.XSBooleanValue;
 import org.opensaml.saml.common.AbstractSAMLObject;
+import org.opensaml.saml.common.SAMLObject;
+import org.opensaml.soap.soap11.ActorBearing;
+import org.opensaml.soap.soap11.MustUnderstandBearing;
 
-public class ResponseImpl extends AbstractSAMLObject implements Response {
+public class ResponseImpl extends AbstractSAMLObject
+    implements Response, SAMLObject, MustUnderstandBearing, ActorBearing {
 
   private String refToMessageID;
 

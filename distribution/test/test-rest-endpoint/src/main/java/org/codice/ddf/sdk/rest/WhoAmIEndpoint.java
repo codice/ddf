@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.sdk.rest;
 
-import ddf.security.SubjectUtils;
+import ddf.security.impl.SubjectUtils;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;

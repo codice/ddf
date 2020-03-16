@@ -13,8 +13,8 @@
  */
 package org.codice.ddf.security.claims.attributequery.common;
 
-import ddf.security.samlp.SamlProtocol;
-import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.impl.SamlProtocol;
+import ddf.security.samlp.impl.SimpleSign;
 import java.io.IOException;
 import java.io.StringReader;
 import javax.xml.parsers.DocumentBuilder;
@@ -129,7 +129,7 @@ public class AttributeQueryClient {
 
       // Sign soap message.
       Signer.signObject(attributeQuery.getSignature());
-    } catch (SignatureException | SimpleSign.SignatureException e) {
+    } catch (SignatureException | ddf.security.samlp.SignatureException e) {
       throw new AttributeQueryException("Error occurred during signing of the request.", e);
     }
 

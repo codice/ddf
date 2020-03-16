@@ -137,6 +137,11 @@
             <artifactId>security-core-services</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -231,7 +236,7 @@
                         <configuration>
                             <rules>
                                 <ArtifactSizeEnforcerRule implementation="org.codice.maven.artifactsize.ArtifactSizeEnforcerRule">
-                                    <maxArtifactSize>4_MB</maxArtifactSize>
+                                    <maxArtifactSize>6_MB</maxArtifactSize>
                                 </ArtifactSizeEnforcerRule>
                             </rules>
                         </configuration>

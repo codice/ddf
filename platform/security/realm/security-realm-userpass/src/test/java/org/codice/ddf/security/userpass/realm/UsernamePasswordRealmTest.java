@@ -42,9 +42,9 @@ import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.apache.karaf.jaas.config.JaasRealm;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.codice.ddf.security.handler.api.AuthenticationTokenFactory;
-import org.codice.ddf.security.handler.api.AuthenticationTokenType;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.AuthenticationTokenFactory;
+import org.codice.ddf.security.handler.AuthenticationTokenType;
+import org.codice.ddf.security.handler.BaseAuthenticationToken;
 import org.junit.Before;
 import org.junit.Test;
 

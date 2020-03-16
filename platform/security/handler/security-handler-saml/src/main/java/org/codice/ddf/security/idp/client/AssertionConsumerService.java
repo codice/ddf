@@ -18,11 +18,12 @@ import static ddf.security.SecurityConstants.AUTHENTICATION_TOKEN_KEY;
 import com.google.common.annotations.VisibleForTesting;
 import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
 import ddf.security.http.SessionFactory;
-import ddf.security.samlp.SamlProtocol;
-import ddf.security.samlp.SimpleSign;
-import ddf.security.samlp.SystemCrypto;
-import ddf.security.samlp.ValidationException;
+import ddf.security.samlp.SignatureException;
 import ddf.security.samlp.impl.RelayStates;
+import ddf.security.samlp.impl.SamlProtocol;
+import ddf.security.samlp.impl.SimpleSign;
+import ddf.security.samlp.impl.SystemCrypto;
+import ddf.security.samlp.impl.ValidationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,9 +71,10 @@ import org.codice.ddf.log.sanitizer.LogSanitizer;
 import org.codice.ddf.platform.filter.AuthenticationException;
 import org.codice.ddf.platform.filter.SecurityFilter;
 import org.codice.ddf.platform.util.HttpUtils;
-import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.BaseAuthenticationToken;
+import org.codice.ddf.security.handler.HandlerResultImpl;
+import org.codice.ddf.security.handler.SAMLAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
-import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
 import org.codice.ddf.security.jaxrs.RestSecurity;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
@@ -140,6 +142,10 @@ public class AssertionConsumerService {
   public Response postSamlResponse(
       @FormParam(SAML_RESPONSE) String encodedSamlResponse,
       @FormParam(RELAY_STATE) String relayState) {
+
+    if (restSecurity == null) {
+      return Response.serverError().entity("System cannot decode request.").build();
+    }
 
     return processSamlResponse(restSecurity.base64Decode(encodedSamlResponse), relayState, false);
   }
@@ -221,6 +227,10 @@ public class AssertionConsumerService {
       return Response.serverError().entity("Invalid AuthN response signature.").build();
     }
 
+    if (restSecurity == null) {
+      return Response.serverError().entity("System cannot decode response.").build();
+    }
+
     try {
       return processSamlResponse(
           restSecurity.inflateBase64(deflatedSamlResponse), relayState, signature != null);
@@ -255,7 +265,7 @@ public class AssertionConsumerService {
                   signedMessage,
                   signature,
                   idpMetadata.getSigningCertificate());
-        } catch (SimpleSign.SignatureException | UnsupportedEncodingException e) {
+        } catch (SignatureException | UnsupportedEncodingException e) {
           LOGGER.debug("Failed to validate AuthN response signature.", e);
         }
       }
@@ -362,11 +372,11 @@ public class AssertionConsumerService {
       return false;
     }
     Map<String, Cookie> cookieMap = HttpUtils.getCookieMap(request);
-    if (cookieMap.containsKey("JSESSIONID")) {
+    if (cookieMap.containsKey("JSESSIONID") && sessionFactory != null) {
       sessionFactory.getOrCreateSession(request).invalidate();
     }
 
-    HandlerResult handlerResult = new HandlerResult();
+    HandlerResult handlerResult = new HandlerResultImpl();
     SimplePrincipalCollection simplePrincipalCollection = new SimplePrincipalCollection();
     simplePrincipalCollection.add(
         new SecurityAssertionSaml(samlResponse.getAssertions().get(0).getDOM()), "default");

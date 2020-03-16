@@ -16,9 +16,7 @@ package ddf.security.samlp.impl;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
-import ddf.security.samlp.SamlProtocol;
-import ddf.security.samlp.SimpleSign;
-import ddf.security.samlp.ValidationException;
+import ddf.security.samlp.SignatureException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
@@ -103,7 +101,7 @@ public abstract class SamlValidator {
       try {
         builder.simpleSign.validateSignature(
             samlObject.getSignature(), samlObject.getDOM().getOwnerDocument());
-      } catch (SimpleSign.SignatureException e) {
+      } catch (SignatureException e) {
         throw new ValidationException("Invalid or untrusted signature.");
       }
     }
@@ -129,7 +127,7 @@ public abstract class SamlValidator {
           builder.sigAlgo, signedParts.toString(), builder.signature, builder.signingCertificate)) {
         throw new ValidationException("Signature verification failed for redirect binding.");
       }
-    } catch (SimpleSign.SignatureException | UnsupportedEncodingException e) {
+    } catch (SignatureException | UnsupportedEncodingException e) {
       throw new ValidationException("Signature validation failed.", e);
     }
   }

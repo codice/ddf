@@ -19,7 +19,8 @@ import static org.codice.ddf.admin.configurator.impl.OsgiUtils.getBundleContext;
 
 import com.google.common.collect.Sets;
 import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.impl.KeyValuePermissionImpl;
 import java.util.EnumSet;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeatureState;
@@ -151,9 +152,9 @@ public class FeatureOperation implements Operation<Void> {
 
   private boolean isPermittedToViewFeature(String featureName) {
     KeyValueCollectionPermission serviceToCheck =
-        new KeyValueCollectionPermission(
+        new KeyValueCollectionPermissionImpl(
             "view-feature.name",
-            new KeyValuePermission("feature.name", Sets.newHashSet(featureName)));
+            new KeyValuePermissionImpl("feature.name", Sets.newHashSet(featureName)));
 
     return subject.isPermitted(serviceToCheck);
   }

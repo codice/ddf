@@ -16,8 +16,7 @@ package ddf.security.samlp.impl;
 import static java.util.Objects.nonNull;
 
 import com.google.common.collect.Maps;
-import ddf.security.samlp.MetadataConfigurationParser;
-import ddf.security.samlp.SamlProtocol.Binding;
+import ddf.security.samlp.impl.SamlProtocol.Binding;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;

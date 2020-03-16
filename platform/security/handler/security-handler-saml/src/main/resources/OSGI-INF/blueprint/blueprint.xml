@@ -36,23 +36,23 @@
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
     <reference id="sessionFactory" interface="ddf.security.http.SessionFactory"
-               filter="(id=http)"/>
+               filter="(id=http)" availability="optional"/>
 
     <reference id="httpSessionInvalidator" interface="org.codice.ddf.platform.session.api.HttpSessionInvalidator"/>
 
-    <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
+    <reference id="securityManager" interface="ddf.security.service.SecurityManager" availability="optional"/>
 
     <reference id="contextPolicyManager" interface="org.codice.ddf.security.policy.context.ContextPolicyManager"/>
 
-    <reference id="restSecurity" interface="org.codice.ddf.security.jaxrs.RestSecurity" />
+    <reference id="restSecurity" interface="org.codice.ddf.security.jaxrs.RestSecurity" availability="optional"/>
 
-    <bean id="crypto" class="ddf.security.samlp.SystemCrypto">
+    <bean id="crypto" class="ddf.security.samlp.impl.SystemCrypto">
         <argument value="${ddf.etc}/ws-security/server/encryption.properties"/>
         <argument value="${ddf.etc}/ws-security/server/signature.properties"/>
         <argument ref="encryptionService"/>
     </bean>
 
-    <bean id="simpleSign" class="ddf.security.samlp.SimpleSign">
+    <bean id="simpleSign" class="ddf.security.samlp.impl.SimpleSign">
         <argument ref="crypto" />
     </bean>
 
@@ -104,7 +104,7 @@
         <argument ref="idpMetadata"/>
         <argument ref="relayStates"/>
         <property name="logoutMessage">
-            <reference interface="ddf.security.samlp.LogoutMessage" />
+            <reference interface="ddf.security.samlp.LogoutMessage" availability="optional"/>
         </property>
         <property name="encryptionService" ref="encryptionService"/>
         <property name="sessionFactory" ref="sessionFactory"/>

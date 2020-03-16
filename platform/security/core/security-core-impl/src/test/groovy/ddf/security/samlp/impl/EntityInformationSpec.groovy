@@ -1,6 +1,6 @@
 package ddf.security.samlp.impl
 
-import ddf.security.samlp.MetadataConfigurationParser
+
 import org.apache.wss4j.common.saml.OpenSAMLUtil
 import org.opensaml.saml.saml2.core.AuthnRequest
 import org.opensaml.saml.saml2.metadata.EntityDescriptor
@@ -8,7 +8,7 @@ import spock.lang.Specification
 
 import java.lang.reflect.Field
 
-import static ddf.security.samlp.SamlProtocol.Binding
+import static SamlProtocol.Binding
 
 class EntityInformationSpec extends Specification {
     static final Set<Binding> DEFAULT_BINDINGS =

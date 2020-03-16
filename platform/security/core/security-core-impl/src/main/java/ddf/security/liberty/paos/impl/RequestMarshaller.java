@@ -20,6 +20,8 @@ import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.schema.XSBooleanValue;
 import org.opensaml.core.xml.util.XMLObjectSupport;
 import org.opensaml.saml.common.AbstractSAMLObjectMarshaller;
+import org.opensaml.soap.soap11.ActorBearing;
+import org.opensaml.soap.soap11.MustUnderstandBearing;
 import org.w3c.dom.Element;
 
 public class RequestMarshaller extends AbstractSAMLObjectMarshaller {
@@ -28,7 +30,7 @@ public class RequestMarshaller extends AbstractSAMLObjectMarshaller {
   @Override
   protected void marshallAttributes(XMLObject xmlObject, Element domElement)
       throws MarshallingException {
-    Request request = (Request) xmlObject;
+    RequestImpl request = (RequestImpl) xmlObject;
 
     if (request.getResponseConsumerURL() != null) {
       domElement.setAttributeNS(
@@ -41,7 +43,7 @@ public class RequestMarshaller extends AbstractSAMLObjectMarshaller {
       domElement.setAttributeNS(null, Request.MESSAGE_ID_ATTRIB_NAME, request.getMessageID());
     }
     XMLObjectSupport.marshallAttribute(
-        Request.SOAP11_MUST_UNDERSTAND_ATTR_NAME,
+        MustUnderstandBearing.SOAP11_MUST_UNDERSTAND_ATTR_NAME,
         Optional.ofNullable(request.isSOAP11MustUnderstandXSBoolean())
             .orElse(XSBooleanValue.valueOf("false"))
             .toString(),
@@ -49,7 +51,7 @@ public class RequestMarshaller extends AbstractSAMLObjectMarshaller {
         false);
     if (request.getSOAP11Actor() != null) {
       XMLObjectSupport.marshallAttribute(
-          Request.SOAP11_ACTOR_ATTR_NAME, request.getSOAP11Actor(), domElement, false);
+          ActorBearing.SOAP11_ACTOR_ATTR_NAME, request.getSOAP11Actor(), domElement, false);
     }
   }
 }

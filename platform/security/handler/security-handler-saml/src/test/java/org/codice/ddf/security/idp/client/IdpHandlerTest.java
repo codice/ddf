@@ -27,9 +27,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.security.encryption.EncryptionService;
-import ddf.security.samlp.SimpleSign;
-import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.RelayStates;
+import ddf.security.samlp.impl.SimpleSign;
+import ddf.security.samlp.impl.SystemCrypto;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;

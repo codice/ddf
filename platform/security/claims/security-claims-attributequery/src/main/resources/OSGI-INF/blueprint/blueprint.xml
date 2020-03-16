@@ -22,13 +22,13 @@
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
-    <bean id="crypto" class="ddf.security.samlp.SystemCrypto">
+    <bean id="crypto" class="ddf.security.samlp.impl.SystemCrypto">
         <argument value="${ddf.etc}/ws-security/server/encryption.properties"/>
         <argument value="${ddf.etc}/ws-security/server/signature.properties"/>
         <argument ref="encryptionService"/>
     </bean>
 
-    <bean id="simpleSign" class="ddf.security.samlp.SimpleSign">
+    <bean id="simpleSign" class="ddf.security.samlp.impl.SimpleSign">
         <argument ref="crypto"/>
     </bean>
 

@@ -19,6 +19,8 @@ import ddf.security.assertion.SecurityAssertion;
 import ddf.security.expansion.Expansion;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.impl.KeyValuePermissionImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -139,7 +141,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
     }
 
     for (Map.Entry<String, Set<String>> entry : permissionsMap.entrySet()) {
-      permissions.add(new KeyValuePermission(entry.getKey(), entry.getValue()));
+      permissions.add(new KeyValuePermissionImpl(entry.getKey(), entry.getValue()));
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug(
             "Adding permission: {} : {}", entry.getKey(), StringUtils.join(entry.getValue(), ","));
@@ -213,7 +215,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
                   ((KeyValuePermission) permission).getKey(),
                   new HashSet<>(((KeyValuePermission) permission).getValues()));
           expandedPermissions.add(
-              new KeyValuePermission(((KeyValuePermission) permission).getKey(), expandedSet));
+              new KeyValuePermissionImpl(((KeyValuePermission) permission).getKey(), expandedSet));
         }
       } else if (permission instanceof KeyValueCollectionPermission) {
         List<Permission> keyValuePermissionList =
@@ -223,7 +225,7 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         // the unchecked cast
         List<KeyValuePermission> castedList = castToKeyValueList(expandedCollection);
         expandedPermissions.add(
-            new KeyValueCollectionPermission(
+            new KeyValueCollectionPermissionImpl(
                 ((KeyValueCollectionPermission) permission).getAction(), castedList));
       } else {
         expandedPermissions.add(permission);

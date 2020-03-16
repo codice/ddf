@@ -31,7 +31,7 @@ import org.apache.cxf.transport.http.URLConnectionInfo;
 import org.apache.cxf.transport.http.UntrustedURLConnectionIOException;
 import org.apache.cxf.transport.https.HttpsURLConnectionInfo;
 import org.apache.shiro.authc.AuthenticationToken;
-import org.codice.ddf.security.handler.api.AuthenticationTokenFactory;
+import org.codice.ddf.security.handler.AuthenticationTokenFactory;
 
 /**
  * OutgoingSubjectRetrievalInterceptor provides a implementation of {@link AbstractPhaseInterceptor}

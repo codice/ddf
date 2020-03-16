@@ -22,7 +22,8 @@ import static org.mockito.Mockito.when;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.permission.CollectionPermission;
-import ddf.security.permission.KeyValuePermission;
+import ddf.security.permission.impl.CollectionPermissionImpl;
+import ddf.security.permission.impl.KeyValuePermissionImpl;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -140,8 +141,8 @@ public class AuthorizationFilterTest {
     when(contextPolicy.getAuthenticationMethods()).thenReturn(Collections.singletonList("BASIC"));
     when(contextPolicy.getAllowedAttributePermissions())
         .thenReturn(
-            new CollectionPermission(
-                PATH, new KeyValuePermission(PATH, Collections.singleton("permission"))));
+            new CollectionPermissionImpl(
+                PATH, new KeyValuePermissionImpl(PATH, Collections.singleton("permission"))));
     when(contextPolicy.getContextPath()).thenReturn(PATH);
     return contextPolicy;
   }

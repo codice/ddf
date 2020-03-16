@@ -14,7 +14,7 @@
 package org.codice.ddf.security.servlet.whoami
 
 import ddf.security.Subject
-import ddf.security.SubjectUtils
+import ddf.security.impl.SubjectUtils
 
 class WhoAmISpec extends SubjectSpec {
 

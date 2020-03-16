@@ -74,7 +74,10 @@
         <dependency>
             <groupId>ddf.security.handler</groupId>
             <artifactId>security-handler-api</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.handler</groupId>
+            <artifactId>security-handler-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

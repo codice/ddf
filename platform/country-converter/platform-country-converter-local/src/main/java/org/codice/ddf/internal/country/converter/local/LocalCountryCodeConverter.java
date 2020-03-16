@@ -16,13 +16,13 @@ package org.codice.ddf.internal.country.converter.local;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import ddf.security.PropertiesLoader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.internal.country.converter.api.CountryCodeConverter;
+import org.codice.ddf.platform.util.properties.PropertiesLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +75,8 @@ public class LocalCountryCodeConverter implements CountryCodeConverter {
       fipsToIso3Map = ArrayListMultimap.create();
       iso3ToFipsMap = ArrayListMultimap.create();
       Map<String, String> countryCodesMap =
-          PropertiesLoader.toMap(PropertiesLoader.loadProperties(countryCodeMappingFile));
+          PropertiesLoader.getInstance()
+              .toMap(PropertiesLoader.getInstance().loadProperties(countryCodeMappingFile));
       for (Map.Entry<String, String> countryMappingEntry : countryCodesMap.entrySet()) {
         List<String> mappedCountries = Splitter.on(',').splitToList(countryMappingEntry.getValue());
         for (String isoCountry : mappedCountries) {

@@ -24,7 +24,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.subject.SimplePrincipalCollection;
-import org.codice.ddf.security.handler.api.OidcAuthenticationToken;
+import org.codice.ddf.security.handler.OidcAuthenticationToken;
 import org.codice.ddf.security.handler.api.OidcHandlerConfiguration;
 import org.codice.ddf.security.oidc.resolver.OidcCredentialsResolver;
 import org.pac4j.core.context.WebContext;

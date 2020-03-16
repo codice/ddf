@@ -16,7 +16,7 @@ package ddf.catalog.event.retrievestatus;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.download.DownloadStatus;
 import ddf.catalog.resource.download.ReliableResourceDownloader;
-import ddf.security.SubjectUtils;
+import ddf.security.impl.SubjectUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

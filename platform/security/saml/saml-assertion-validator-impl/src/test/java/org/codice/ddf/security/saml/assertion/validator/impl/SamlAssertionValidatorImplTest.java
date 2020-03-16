@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.security.assertion.saml.impl.SecurityAssertionSaml;
 import ddf.security.encryption.EncryptionService;
-import ddf.security.samlp.SystemCrypto;
+import ddf.security.samlp.impl.SystemCrypto;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -36,7 +36,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.bouncycastle.util.encoders.Base64;
 import org.codice.ddf.platform.filter.AuthenticationFailureException;
-import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
+import org.codice.ddf.security.handler.SAMLAuthenticationToken;
 import org.codice.ddf.security.util.SAMLUtils;
 import org.joda.time.DateTime;
 import org.junit.Before;

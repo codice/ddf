@@ -38,7 +38,7 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
-import ddf.security.permission.Permissions;
+import ddf.security.permission.impl.Permissions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;

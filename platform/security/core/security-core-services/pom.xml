@@ -197,6 +197,25 @@
             <artifactId>jbcrypt</artifactId>
             <version>0.4</version>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client</artifactId>
+            <version>${google-http-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>alerts</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.handler</groupId>
+            <artifactId>security-handler-impl</artifactId>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -244,16 +263,13 @@
                             *
                         </Import-Package>
                         <Embed-Dependency>
+                            google-http-client,
                             httpclient,
                             httpcore,
                             siv-mode,
-                            jbcrypt
+                            jbcrypt,
+                            alerts
                         </Embed-Dependency>
-                        <Export-Package>
-                            ddf.security.service.impl;version=${project.version},
-                            ddf.security.http.impl;version=${project.version},
-                            ddf.security.samlp.impl;version=${project.version}
-                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

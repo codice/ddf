@@ -24,47 +24,16 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-security-xml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.wss4j</groupId>
-            <artifactId>wss4j-ws-security-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>security-filter-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform</groupId>
-            <artifactId>platform-parser-xml</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -104,49 +73,10 @@
                             org.codice.ddf.security.handler.api
                         </Export-Package>
                         <Import-Package>
-                            javax.ws.rs,
-                            org.codice.ddf.parser,
                             *
                         </Import-Package>
                     </instructions>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>default-check</id>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <haltOnFailure>true</haltOnFailure>
-                            <rules>
-                                <rule>
-                                    <element>BUNDLE</element>
-                                    <limits>
-                                        <limit implementation="org.codice.jacoco.LenientLimit">
-                                            <counter>INSTRUCTION</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.25</minimum>
-                                        </limit>
-                                        <limit implementation="org.codice.jacoco.LenientLimit">
-                                            <counter>BRANCH</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.19</minimum>
-                                        </limit>
-                                        <limit implementation="org.codice.jacoco.LenientLimit">
-                                            <counter>COMPLEXITY</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.24</minimum>
-                                        </limit>
-                                    </limits>
-                                </rule>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

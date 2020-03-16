@@ -18,7 +18,7 @@ import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceResponse;
-import ddf.security.SubjectUtils;
+import ddf.security.impl.SubjectUtils;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;

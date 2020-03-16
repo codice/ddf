@@ -48,10 +48,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-services</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.security</groupId>
             <artifactId>security-saml-util</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

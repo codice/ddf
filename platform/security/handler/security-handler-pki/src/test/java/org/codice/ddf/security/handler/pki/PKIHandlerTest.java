@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.codice.ddf.platform.filter.FilterChain;
 import org.codice.ddf.security.OcspService;
-import org.codice.ddf.security.handler.api.AuthenticationTokenFactory;
+import org.codice.ddf.security.handler.AuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.junit.Test;
 

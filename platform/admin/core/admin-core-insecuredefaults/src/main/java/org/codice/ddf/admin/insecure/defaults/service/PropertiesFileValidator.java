@@ -13,12 +13,12 @@
  */
 package org.codice.ddf.admin.insecure.defaults.service;
 
-import ddf.security.PropertiesLoader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.codice.ddf.admin.insecure.defaults.service.Alert.Level;
+import org.codice.ddf.platform.util.properties.PropertiesLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ public abstract class PropertiesFileValidator implements Validator {
       return null;
     }
 
-    Properties properties = PropertiesLoader.loadProperties(path.toString());
+    Properties properties = PropertiesLoader.getInstance().loadProperties(path.toString());
     if (properties.isEmpty()) {
       String msg = String.format(GENERIC_INSECURE_DEFAULTS_MSG, path.toString());
       LOGGER.debug(msg);

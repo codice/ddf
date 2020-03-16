@@ -19,7 +19,10 @@ import ddf.security.pdp.realm.xacml.processor.PdpException;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
-import ddf.security.permission.MatchOneCollectionPermission;
+import ddf.security.permission.impl.CollectionPermissionImpl;
+import ddf.security.permission.impl.KeyValueCollectionPermissionImpl;
+import ddf.security.permission.impl.KeyValuePermissionImpl;
+import ddf.security.permission.impl.MatchOneCollectionPermission;
 import ddf.security.policy.extension.PolicyExtension;
 import ddf.security.service.impl.AbstractAuthorizingRealm;
 import java.util.ArrayList;
@@ -210,7 +213,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
     if (!CollectionUtils.isEmpty(perms)) {
       if (permission instanceof KeyValuePermission) {
         permission =
-            new KeyValueCollectionPermission(
+            new KeyValueCollectionPermissionImpl(
                 CollectionPermission.UNKNOWN_ACTION, (KeyValuePermission) permission);
         LOGGER.debug(
             "Should not execute subject.isPermitted with KeyValuePermission. Instead create a KeyValueCollectionPermission with an action.");
@@ -228,13 +231,13 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
           // user specified this key in the match all list - remap key
           if (matchAllMap.containsKey(metacardKey)) {
             KeyValuePermission kvp =
-                new KeyValuePermission(
+                new KeyValuePermissionImpl(
                     matchAllMap.get(metacardKey), keyValuePermission.getValues());
             matchAllPermissions.add(kvp);
             // user specified this key in the match one list - remap key
           } else if (matchOneMap.containsKey(metacardKey)) {
             KeyValuePermission kvp =
-                new KeyValuePermission(
+                new KeyValuePermissionImpl(
                     matchOneMap.get(metacardKey), keyValuePermission.getValues());
             matchOnePermissions.add(kvp);
             // this key was not specified in either - default to match all with the
@@ -250,13 +253,13 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
         }
 
         CollectionPermission subjectAllCollection =
-            new CollectionPermission(CollectionPermission.UNKNOWN_ACTION, perms);
+            new CollectionPermissionImpl(CollectionPermission.UNKNOWN_ACTION, perms);
         KeyValueCollectionPermission matchAllCollection =
-            new KeyValueCollectionPermission(kvcp.getAction(), matchAllPermissions);
+            new KeyValueCollectionPermissionImpl(kvcp.getAction(), matchAllPermissions);
         KeyValueCollectionPermission matchAllPreXacmlCollection =
-            new KeyValueCollectionPermission(kvcp.getAction(), matchAllPreXacmlPermissions);
+            new KeyValueCollectionPermissionImpl(kvcp.getAction(), matchAllPreXacmlPermissions);
         KeyValueCollectionPermission matchOneCollection =
-            new KeyValueCollectionPermission(kvcp.getAction(), matchOnePermissions);
+            new KeyValueCollectionPermissionImpl(kvcp.getAction(), matchOnePermissions);
 
         matchAllCollection =
             isPermittedByExtensionAll(subjectAllCollection, matchAllCollection, kvcp);
@@ -281,7 +284,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
         // if we weren't able to automatically imply these permissions, call out to XACML
         if (!matchAllXacml) {
           KeyValueCollectionPermission xacmlPermissions =
-              new KeyValueCollectionPermission(kvcp.getAction(), matchAllPreXacmlPermissions);
+              new KeyValueCollectionPermissionImpl(kvcp.getAction(), matchAllPreXacmlPermissions);
           matchAllXacml = xacmlPdp.isPermitted(curUser, authorizationInfo, xacmlPermissions);
           if (!matchAllXacml) {
             SecurityLogger.audit(
@@ -316,7 +319,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
       KeyValueCollectionPermission matchAllCollection,
       KeyValueCollectionPermission allPermissionsCollection) {
     if (!CollectionUtils.isEmpty(policyExtensions)) {
-      KeyValueCollectionPermission resultCollection = new KeyValueCollectionPermission();
+      KeyValueCollectionPermission resultCollection = new KeyValueCollectionPermissionImpl();
       resultCollection.addAll(matchAllCollection.getPermissionList());
       resultCollection.setAction(matchAllCollection.getAction());
       for (PolicyExtension policyExtension : policyExtensions) {
@@ -339,7 +342,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
       KeyValueCollectionPermission matchOneCollection,
       KeyValueCollectionPermission allPermissionsCollection) {
     if (!CollectionUtils.isEmpty(policyExtensions)) {
-      KeyValueCollectionPermission resultCollection = new KeyValueCollectionPermission();
+      KeyValueCollectionPermission resultCollection = new KeyValueCollectionPermissionImpl();
       resultCollection.addAll(matchOneCollection.getPermissionList());
       resultCollection.setAction(matchOneCollection.getAction());
       for (PolicyExtension policyExtension : policyExtensions) {
