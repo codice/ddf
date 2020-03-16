@@ -80,20 +80,18 @@ const GeometryView = Marionette.ItemView.extend({
   },
   adjustPoints(type, coordinates) {
     coordinates.forEach((coord, index) => {
-      if(index + 1 < coordinates.length) {
-        let negative = false
+      if (index + 1 < coordinates.length) {
         const east = Number(coordinates[index + 1][0])
         const west = Number(coordinates[index][0])
-        if(east - west < -180) {
-          negative = true
+        if (east - west < -180) {
           coordinates[index + 1][0] = east + 360
-        } else if(!negative && east - west > 180) {
+        } else if (east - west > 180) {
           coordinates[index][0] = west + 360
         }
       }
     })
     // If the geo is a polygon, ensure that the first and last coordinate are the same
-    if(type.includes('Polygon')) {
+    if (type.includes('Polygon')) {
       coordinates[0][0] = coordinates[coordinates.length - 1][0]
     }
     return coordinates
@@ -108,11 +106,13 @@ const GeometryView = Marionette.ItemView.extend({
           polygon = this.adjustPoints(geometry.type, polygon)
           this.handlePoint(polygon[0])
           this.handleLine(polygon)
-          //this.handlePolygon(polygon);
         })
         break
       case 'LineString':
-        geometry.coordinates = this.adjustPoints(geometry.type, geometry.coordinates)
+        geometry.coordinates = this.adjustPoints(
+          geometry.type,
+          geometry.coordinates
+        )
         this.handlePoint(geometry.coordinates[0])
         this.handleLine(geometry.coordinates)
         break
@@ -134,7 +134,6 @@ const GeometryView = Marionette.ItemView.extend({
             polygon = this.adjustPoints(geometry.type, polygon)
             this.handlePoint(polygon[0])
             this.handleLine(polygon)
-            //this.handlePolygon(polygon);
           })
         })
         break
@@ -162,19 +161,6 @@ const GeometryView = Marionette.ItemView.extend({
   handleLine(line) {
     this.geometry.push(
       this.options.map.addLine(line, {
-        id: this.model.id,
-        color: this.model.get('metacard').get('color'),
-        title: this.model
-          .get('metacard')
-          .get('properties')
-          .get('title'),
-        view: this,
-      })
-    )
-  },
-  handlePolygon(polygon) {
-    this.geometry = this.geometry.concat(
-      this.options.map.addPolygon(polygon, {
         id: this.model.id,
         color: this.model.get('metacard').get('color'),
         title: this.model

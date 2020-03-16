@@ -85,14 +85,12 @@ Draw.LineView = Marionette.View.extend({
   adjustPoints(coordinates) {
     // Structure of coordinates is [x, y, x, y, ... ]
     coordinates.forEach((coord, index) => {
-      if(index + 2 < coordinates.length) {
-        let negative = false
+      if (index + 2 < coordinates.length) {
         const east = Number(coordinates[index + 2])
         const west = Number(coordinates[index])
-        if(east - west < -180) {
-          negative = true
+        if (east - west < -180) {
           coordinates[index + 2] = east + 360
-        } else if(!negative && east - west > 180) {
+        } else if (east - west > 180) {
           coordinates[index] = west + 360
         }
       }
