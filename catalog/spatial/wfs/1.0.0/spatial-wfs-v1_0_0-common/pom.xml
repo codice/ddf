@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.codice.ddf.spatial</groupId>
         <artifactId>wfs-v1.0.0</artifactId>
-        <version>2.19.6-SNAPSHOT</version>
+        <version>2.19.6</version>
     </parent>
     <artifactId>spatial-wfs-v1_0_0-common</artifactId>
     <name>DDF :: Spatial :: WFS :: 1.0.0 :: Common</name>
