@@ -36,6 +36,10 @@ import org.slf4j.LoggerFactory;
 public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
   private static final Logger LOGGER = LoggerFactory.getLogger(OidcHandlerConfigurationImpl.class);
 
+  private static final int DEFAULT_CONNECT_TIMEOUT = 5000;
+
+  private static final int DEFAULT_READ_TIMEOUT = 5000;
+
   public static final String DEFAULT_CALLBACK_URL =
       SystemBaseUrl.EXTERNAL.constructUrl("/search/catalog");
 
@@ -50,6 +54,8 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
   public static final String RESPONSE_TYPE_KEY = "responseType";
   public static final String RESPONSE_MODE_KEY = "responseMode";
   public static final String LOGOUT_URI_KEY = "logoutUri";
+  public static final String CONNECT_TIMEOUT_KEY = "connectTimeout";
+  public static final String READ_TIMEOUT_KEY = "readTimeout";
 
   private String idpType;
   private String clientId;
@@ -62,6 +68,8 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
   private String responseType;
   private String responseMode;
   private String logoutUri;
+  private int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+  private int readTimeout = DEFAULT_READ_TIMEOUT;
 
   private OidcConfiguration oidcConfiguration;
 
@@ -82,6 +90,8 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
     responseType = (String) properties.getOrDefault(RESPONSE_TYPE_KEY, responseType);
     responseMode = (String) properties.getOrDefault(RESPONSE_MODE_KEY, responseMode);
     logoutUri = (String) properties.getOrDefault(LOGOUT_URI_KEY, logoutUri);
+    connectTimeout = (int) properties.getOrDefault(CONNECT_TIMEOUT_KEY, connectTimeout);
+    readTimeout = (int) properties.getOrDefault(READ_TIMEOUT_KEY, readTimeout);
 
     // TODO - Remove if fragment response_mode is supported
     if (IMPLICIT_FLOWS.contains(new ResponseType(responseType))) {
@@ -99,6 +109,8 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
     oidcConfiguration.setUseNonce(useNonce);
     oidcConfiguration.setLogoutUrl(logoutUri);
     oidcConfiguration.setWithState(true);
+    oidcConfiguration.setConnectTimeout(connectTimeout);
+    oidcConfiguration.setReadTimeout(readTimeout);
 
     try {
       testConnection();
@@ -147,6 +159,16 @@ public class OidcHandlerConfigurationImpl implements OidcHandlerConfiguration {
   public void testConnection() {
     getOidcConfiguration();
     getOidcClient(DEFAULT_CALLBACK_URL);
+  }
+
+  @Override
+  public int getConnectTimeout() {
+    return connectTimeout;
+  }
+
+  @Override
+  public int getReadTimeout() {
+    return readTimeout;
   }
 
   @VisibleForTesting
