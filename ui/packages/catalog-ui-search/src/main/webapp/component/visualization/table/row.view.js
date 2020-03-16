@@ -78,7 +78,6 @@ module.exports = Marionette.LayoutView.extend({
     this.$el.toggleClass('is-selected', Boolean(isSelected))
   },
   onRender() {
-    this.checkIfDownloadable()
     this.checkIfLinks()
     this.$el.attr(this.attributes())
     this.handleResultThumbnail()
@@ -109,15 +108,6 @@ module.exports = Marionette.LayoutView.extend({
         )
       }
     }
-  },
-  checkIfDownloadable() {
-    this.$el.toggleClass(
-      'is-downloadable',
-      this.model
-        .get('metacard')
-        .get('properties')
-        .get('resource-download-url') !== undefined
-    )
   },
   checkIfLinks() {
     this.$el.toggleClass(
