@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Version 2.22.0. Copyright (c) Codice Foundation">
+<meta name="author" content="Version 2.23.0. Copyright (c) Codice Foundation">
 <title>DDF Reference Guide</title>
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -520,7 +520,7 @@ table.CodeRay td.code>pre{padding:0}
 <div id="header">
 <h1>DDF Reference Guide</h1>
 <div class="details">
-<span id="author" class="author">Version 2.22.0. Copyright (c) Codice Foundation</span><br>
+<span id="author" class="author">Version 2.23.0. Copyright (c) Codice Foundation</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -539,21 +539,6 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_catalog_application_prerequisites">Catalog Application Prerequisites</a></li>
 <li><a href="#_installing_the_catalog_application">Installing the Catalog Application</a></li>
 <li><a href="#_configuring_the_catalog_application">Configuring the Catalog Application</a></li>
-</ul>
-</li>
-<li><a href="#_geowebcache_application_reference">GeoWebCache Application Reference</a>
-<ul class="sectlevel3">
-<li><a href="#_geowebcache_application_prerequisites">GeoWebCache Application Prerequisites</a></li>
-<li><a href="#_installing_geowebcache">Installing GeoWebCache</a></li>
-<li><a href="#_configuring_geowebcache">Configuring GeoWebCache</a>
-<ul class="sectlevel4">
-<li><a href="#_adding_geowebcache_layers">Adding GeoWebCache Layers</a></li>
-<li><a href="#_editing_geowebcache_layers">Editing GeoWebCache Layers</a></li>
-<li><a href="#_removing_geowebcache_layers">Removing GeoWebCache Layers</a></li>
-<li><a href="#_configuring_gwc_disk_quota">Configuring GWC Disk Quota</a></li>
-</ul>
-</li>
-<li><a href="#_configuring_the_standard_search_ui_for_geowebcache">Configuring the Standard Search UI for GeoWebCache</a></li>
 </ul>
 </li>
 <li><a href="#_platform_application_reference">Platform Application Reference</a>
@@ -617,8 +602,8 @@ table.CodeRay td.code>pre{padding:0}
 </li>
 <li><a href="#_ddf_dependency_list">DDF Dependency List</a>
 <ul class="sectlevel2">
-<li><a href="#_ddf_2_22_0_dependency_list">DDF 2.22.0 Dependency List.</a></li>
-<li><a href="#_ddf_2_22_0_javascript_dependency_list">DDF 2.22.0 Javascript Dependency List.</a></li>
+<li><a href="#_ddf_2_23_0_dependency_list">DDF 2.23.0 Dependency List.</a></li>
+<li><a href="#_ddf_2_23_0_javascript_dependency_list">DDF 2.23.0 Javascript Dependency List.</a></li>
 </ul>
 </li>
 <li><a href="#_hardening_checklist">Hardening Checklist</a></li>
@@ -2770,272 +2755,6 @@ The <code>pollIntervalMinutes</code> should not be set to value a which results 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_geowebcache_application_reference"><a class="anchor" href="#_geowebcache_application_reference"></a><a class="link" href="#_geowebcache_application_reference">GeoWebCache Application Reference</a></h3>
-<div class="paragraph">
-<p>GeoWebCache enables a server providing a map tile cache and tile service aggregation.</p>
-</div>
-<div class="admonitionblock warning">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Warning</div>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>The GeoWebCache application is currently in an EXPERIMENTAL status and should not be installed on a security-hardened installation.</p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>GeoWebCache enables a server providing a tile cache and tile service aggregation.
-See (<a href="http://geowebcache.org">GeoWebCache</a> <span class="image"><a class="image" href="developing.adoc#_url_resource_reader"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gsPFTAUZ5qyewAAAbNJREFUKM9lkj1ok1EUhp97cxtj0FIrOgQtGHUyCFJ/QBFxETsI/oGLiJMgKCrdC0VwFje3VoSCkkWKqGCQCkYaiXSIbWOrVjCR4A8mNslHvtzXoW20+MJZDjyHc973GMnjPVhrWCWFfJwr6ns1YP26OMY6Elu2GgcGa/lfCslnMxQWfpJ7NMT4G5gofJADmMm/1Oj9hwQ2Bq1F3IYkN65f5syFK6a/8Epvn4xBL3jvca3qFw0PHmP/xXvs6dtIvV7HRLvZ1BM3pdmstqUOkZnIcuDBLX41AlgsTevsqRMq1duSxEqVi5MCNP66KEmM3h5WdnpB1MuzOndyQHPfqh2g9D4nQOkXU5JEEDRphSG+7bECpL+3fp2fUmLnPsae5Th9ZLeZmXyum3fSikQiGAuuY8oyVG+EPM5kGTi61wDUftfIv6sQAl0sA8514VwEgGSq3yQB+TbGRlgTW8vmnhgrKVmMqFTKhF6rYjB2aUAYLFKpNTt9F+9NmOMHd+na1UEOp/rUaAYYYxCGWNTyND3C+aGRpVUkjCQa1R+X5j99vhvK8O+DyHui8W52bE+aqDNI4g+PWNi/V5c55QAAAABJRU5ErkJggg==" alt="This link is outside the DDF documentation" title="GeoWebCache Application Reference"></a></span>) for more information.
-This application also provides an administrative plugin for the management of GeoWebCached layers.
-GeoWebCache also provides a user interface for previewing, truncating, or seeding layers at https://{FQDN}:{PORT}/geowebcache/.</p>
-</div>
-<div class="sect3">
-<h4 id="_geowebcache_application_prerequisites"><a class="anchor" href="#_geowebcache_application_prerequisites"></a><a class="link" href="#_geowebcache_application_prerequisites">GeoWebCache Application Prerequisites</a></h4>
-<div class="paragraph">
-<p>None.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_installing_geowebcache"><a class="anchor" href="#_installing_geowebcache"></a><a class="link" href="#_installing_geowebcache">Installing GeoWebCache</a></h4>
-<div class="paragraph">
-<p>Install the GeoWebCache application through the Admin Console.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Navigate to the <strong>Admin Console</strong>.</p>
-</li>
-<li>
-<p>Select the <strong>System</strong> tab.</p>
-</li>
-<li>
-<p>Select the <strong>Features</strong> tab.</p>
-</li>
-<li>
-<p>Install the <code>geowebcache-app</code> feature.</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_configuring_geowebcache"><a class="anchor" href="#_configuring_geowebcache"></a><a class="link" href="#_configuring_geowebcache">Configuring GeoWebCache</a></h4>
-<div class="paragraph">
-<p>GeoWebCache can be configured to cache layers locally, using the following procedures.</p>
-</div>
-<div class="sect4">
-<h5 id="_adding_geowebcache_layers"><a class="anchor" href="#_adding_geowebcache_layers"></a><a class="link" href="#_adding_geowebcache_layers">Adding GeoWebCache Layers</a></h5>
-<div class="paragraph">
-<p>Add layers to the local cache:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Navigate to the Admin Console.</p>
-</li>
-<li>
-<p>Select the GeoWebCache Application.</p>
-</li>
-<li>
-<p>Select the <strong>GeoWebCache Layers</strong> tab.</p>
-</li>
-<li>
-<p>Click the <strong>Add</strong> button.</p>
-</li>
-<li>
-<p>Enter the data in the fields provided.</p>
-</li>
-<li>
-<p>If necessary, click the <strong>Add</strong> button to add additional MIME types.</p>
-</li>
-<li>
-<p>If necessary, click the <strong>Add</strong> button to add additional WMS Layer Names.</p>
-</li>
-</ol>
-</div>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 35. Add Layer</caption>
-<colgroup>
-<col style="width: 16.6666%;">
-<col style="width: 16.6666%;">
-<col style="width: 16.6666%;">
-<col style="width: 33.3333%;">
-<col style="width: 16.6669%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Property</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Name</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Unique name assigned.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Mime Formats</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">List of mime formats used.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URI</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL location of layer to add.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">WMS Layer Name</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The name(s) of WMS layers that exist at the URL specified above. If no WMS Layer names are specified, GeoWebCache will look for the Layer Name specified in the name field.  Otherwise, it will attempt to find all layer names added here and combine them into one layer.</p></td>
-<td class="tableblock halign-left valign-top"></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect4">
-<h5 id="_editing_geowebcache_layers"><a class="anchor" href="#_editing_geowebcache_layers"></a><a class="link" href="#_editing_geowebcache_layers">Editing GeoWebCache Layers</a></h5>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Navigate to the Admin Console.</p>
-</li>
-<li>
-<p>Select the GeoWebCache application.</p>
-</li>
-<li>
-<p>Navigate to the <strong>GeoWebCache Layers</strong> tab.</p>
-</li>
-<li>
-<p>Click the <strong>Name</strong> field of the layer to edit.</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_removing_geowebcache_layers"><a class="anchor" href="#_removing_geowebcache_layers"></a><a class="link" href="#_removing_geowebcache_layers">Removing GeoWebCache Layers</a></h5>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Click the <strong>Delete</strong> icon at the end of the row of the layer to be deleted.</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_configuring_gwc_disk_quota"><a class="anchor" href="#_configuring_gwc_disk_quota"></a><a class="link" href="#_configuring_gwc_disk_quota">Configuring GWC Disk Quota</a></h5>
-<div class="paragraph">
-<p>Storage usage for a GeoWebCache server is managed by a <code>diskquota.xml</code> file with configuration details to prevent image-intensive data from filling the available storage.</p>
-</div>
-<div class="paragraph">
-<p>To view the disk quota XML representative: https://{FQDN}:{PORT}/geowebcache/rest/diskquota.xml</p>
-</div>
-<div class="paragraph">
-<p>To update the disk quota, a client can post a new XML configuration: <code>curl -v -k -XPUT -H "Content-type: text/xml" -d @diskquota.xml "https://{FQDN}:{PORT}/geowebcache/rest/diskquota.xml"</code></p>
-</div>
-<div class="listingblock">
-<div class="title">Example <code>diskquota.xml</code></div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="xml"><table class="CodeRay"><tr>
-  <td class="line-numbers"><pre>1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-</pre></td>
-  <td class="code"><pre><span class="tag">&lt;gwcQuotaConfiguration&gt;</span>
-  <span class="tag">&lt;enabled&gt;</span>true<span class="tag">&lt;/enabled&gt;</span>
-  <span class="tag">&lt;diskBlockSize&gt;</span>2048<span class="tag">&lt;/diskBlockSize&gt;</span>
-  <span class="tag">&lt;cacheCleanUpFrequency&gt;</span>5<span class="tag">&lt;/cacheCleanUpFrequency&gt;</span>
-  <span class="tag">&lt;cacheCleanUpUnits&gt;</span>SECONDS<span class="tag">&lt;/cacheCleanUpUnits&gt;</span>
-  <span class="tag">&lt;maxConcurrentCleanUps&gt;</span>5<span class="tag">&lt;/maxConcurrentCleanUps&gt;</span>
-  <span class="tag">&lt;globalExpirationPolicyName&gt;</span>LFU<span class="tag">&lt;/globalExpirationPolicyName&gt;</span>
-  <span class="tag">&lt;globalQuota&gt;</span>
-    <span class="tag">&lt;value&gt;</span>100<span class="tag">&lt;/value&gt;</span>
-    <span class="tag">&lt;units&gt;</span>GiB<span class="tag">&lt;/units&gt;</span>
-  <span class="tag">&lt;/globalQuota&gt;</span>
-  <span class="tag">&lt;layerQuotas</span><span class="tag">/&gt;</span>
-<span class="tag">&lt;/gwcQuotaConfiguration&gt;</span></pre></td>
-</tr></table></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>See <a href="http://geowebcache.org/docs/current/configuration/diskquotas.html">Disk Quotas</a> for more information on configuration options for disk quota.</p>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_configuring_the_standard_search_ui_for_geowebcache"><a class="anchor" href="#_configuring_the_standard_search_ui_for_geowebcache"></a><a class="link" href="#_configuring_the_standard_search_ui_for_geowebcache">Configuring the Standard Search UI for GeoWebCache</a></h4>
-<div class="paragraph">
-<p>Add a new Imagery Provider in the Admin Console:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Navigate to the <strong>Admin Console</strong>.</p>
-</li>
-<li>
-<p>Select <strong>Configuration</strong> tab.</p>
-</li>
-<li>
-<p>Select <strong>Standard Search UI</strong> configuration.</p>
-</li>
-<li>
-<p>Click the <strong>Add</strong> button next to <strong>Imagery Providers</strong></p>
-</li>
-<li>
-<p>Enter configuration for Imagery Provider in new textbox:</p>
-</li>
-<li>
-<p><code>{"type" "WMS" "url" "https://{FQDN}:{PORT}/geowebcache/service/wms" "layers" ["states"] "parameters" {"FORMAT" "image/png"} "alpha" 0.5}</code></p>
-</li>
-<li>
-<p>Set the Map Projection to <code>EPSG:900913</code> or <code>EPSG:4326</code>. (GeoWebCache supports either of these projections.)</p>
-</li>
-</ol>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-<div class="paragraph">
-<p>Currently, GeoWebCache only supports WMS 1.1.1 and below. If the version number is not specified in the imagery provider, DDF will default to version <code>1.3.0</code>, and OpenLayers will not project the image tiles properly. Thus, the version <code>1.1.1</code> must be specified when using <code>EPSG:4326</code> projections.</p>
-</div>
-<div class="paragraph">
-<p><code>{"type" "WMS" "url" "https://{FQDN}:{PORT}/geowebcache/service/wms" "layers" ["states"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}</code></p>
-</div>
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect2">
 <h3 id="_platform_application_reference"><a class="anchor" href="#_platform_application_reference"></a><a class="link" href="#_platform_application_reference">Platform Application Reference</a></h3>
 <div class="paragraph">
 <p>The Platform application is considered to be a core application of the distribution.
@@ -3105,7 +2824,7 @@ These building blocks include subsets of:</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 36. Platform Available Configurations</caption>
+<caption class="title">Table 35. Platform Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -3162,7 +2881,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 37. <a id="_DDF_Custom_Mime_Type_Resolver"></a>MIME Custom Types</caption>
+<caption class="title">Table 36. <a id="_DDF_Custom_Mime_Type_Resolver"></a>MIME Custom Types</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3209,7 +2928,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 38. <a id="_org.codice.ddf.platform.logging.LoggingService"></a>Logging Service</caption>
+<caption class="title">Table 37. <a id="_org.codice.ddf.platform.logging.LoggingService"></a>Logging Service</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3240,7 +2959,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 39. <a id="_MetricsReporting"></a>Metrics Reporting</caption>
+<caption class="title">Table 38. <a id="_MetricsReporting"></a>Metrics Reporting</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3271,7 +2990,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 40. <a id="_org.codice.ddf.security.response.filter.ResponseHeaderConfig"></a>HTTP Response Security</caption>
+<caption class="title">Table 39. <a id="_org.codice.ddf.security.response.filter.ResponseHeaderConfig"></a>HTTP Response Security</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3318,7 +3037,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 41. <a id="_org.codice.ddf.platform.email.impl.SmtpClientImpl"></a>Email Service</caption>
+<caption class="title">Table 40. <a id="_org.codice.ddf.platform.email.impl.SmtpClientImpl"></a>Email Service</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3373,7 +3092,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 42. <a id="_org.codice.ddf.distribution.landingpage.properties"></a>Landing Page</caption>
+<caption class="title">Table 41. <a id="_org.codice.ddf.distribution.landingpage.properties"></a>Landing Page</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3468,7 +3187,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 43. <a id="_ddf.platform.ui.config"></a>Platform UI Configuration</caption>
+<caption class="title">Table 42. <a id="_ddf.platform.ui.config"></a>Platform UI Configuration</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3563,7 +3282,7 @@ These building blocks include subsets of:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 44. <a id="_ddf.platform.scheduler.Command"></a>Platform Command Scheduler</caption>
+<caption class="title">Table 43. <a id="_ddf.platform.scheduler.Command"></a>Platform Command Scheduler</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3708,7 +3427,7 @@ This application allows an administrator to:</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 45. Resource Management Available Configurations</caption>
+<caption class="title">Table 44. Resource Management Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -3730,7 +3449,7 @@ This application allows an administrator to:</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 46. <a id="_org.codice.ddf.resourcemanagement.usage"></a>Data Usage</caption>
+<caption class="title">Table 45. <a id="_org.codice.ddf.resourcemanagement.usage"></a>Data Usage</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -3842,7 +3561,7 @@ These services comprise both a framework that developers and integrators can ext
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 47. Security Available Configurations</caption>
+<caption class="title">Table 46. Security Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -3934,7 +3653,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 48. <a id="_Claims_Handler_Manager"></a>Security STS LDAP and Roles Claims Handler</caption>
+<caption class="title">Table 47. <a id="_Claims_Handler_Manager"></a>Security STS LDAP and Roles Claims Handler</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4053,7 +3772,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 49. <a id="_org.codice.ddf.security.interceptor.GuestInterceptor"></a>Security SOAP Guest Interceptor</caption>
+<caption class="title">Table 48. <a id="_org.codice.ddf.security.interceptor.GuestInterceptor"></a>Security SOAP Guest Interceptor</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4084,7 +3803,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 50. <a id="_org.codice.ddf.security.idp.client.IdpMetadata"></a>IdP Client</caption>
+<caption class="title">Table 49. <a id="_org.codice.ddf.security.idp.client.IdpMetadata"></a>IdP Client</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4119,7 +3838,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 51. <a id="_org.codice.ddf.security.idp.client.LogoutRequestService"></a>Logout Page</caption>
+<caption class="title">Table 50. <a id="_org.codice.ddf.security.idp.client.LogoutRequestService"></a>Logout Page</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4147,7 +3866,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 52. <a id="_org.codice.ddf.security.handler.oidc.OidcHandler"></a>OIDC Handler</caption>
+<caption class="title">Table 51. <a id="_org.codice.ddf.security.handler.oidc.OidcHandler"></a>OIDC Handler</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4245,7 +3964,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 53. <a id="_org.codice.ddf.security.policy.context.impl.PolicyManager"></a>Web Context Policy Manager</caption>
+<caption class="title">Table 52. <a id="_org.codice.ddf.security.policy.context.impl.PolicyManager"></a>Web Context Policy Manager</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4298,7 +4017,7 @@ These services comprise both a framework that developers and integrators can ext
 <td class="tableblock halign-left valign-top"><p class="tableblock">AUTH3</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">/=SAML,/admin=SAML</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/=,/admin=PKI</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>BASIC</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Required Attributes</p></td>
@@ -4316,7 +4035,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 54. <a id="_org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler"></a>File Based Claims Handler</caption>
+<caption class="title">Table 53. <a id="_org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler"></a>File Based Claims Handler</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4371,7 +4090,7 @@ These services comprise both a framework that developers and integrators can ext
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 55. <a id="_org.codice.ddf.security.filter.login.Session"></a>Session</caption>
+<caption class="title">Table 54. <a id="_org.codice.ddf.security.filter.login.Session"></a>Session</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4404,7 +4123,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 56. <a id="_org.codice.ddf.security.idp.client.IdpHandler"></a>SAML Handler</caption>
+<caption class="title">Table 55. <a id="_org.codice.ddf.security.idp.client.IdpHandler"></a>SAML Handler</caption>
 <colgroup>
 <col style="width: 14.2857%;">
 <col style="width: 14.2857%;">
@@ -4432,7 +4151,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 57. <a id="_ddf.security.pdp.realm.AuthzRealm"></a>Security AuthZ Realm</caption>
+<caption class="title">Table 56. <a id="_ddf.security.pdp.realm.AuthzRealm"></a>Security AuthZ Realm</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4479,7 +4198,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 58. <a id="_ddf.security.service.SecurityManager"></a>SAML NameID Policy</caption>
+<caption class="title">Table 57. <a id="_ddf.security.service.SecurityManager"></a>SAML NameID Policy</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4510,7 +4229,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 59. <a id="_ddf.security.sts"></a>Security STS Server</caption>
+<caption class="title">Table 58. <a id="_ddf.security.sts"></a>Security STS Server</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4565,7 +4284,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 60. <a id="_ddf.security.sts.client.configuration"></a>Security STS Client</caption>
+<caption class="title">Table 59. <a id="_ddf.security.sts.client.configuration"></a>Security STS Client</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4676,7 +4395,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 61. <a id="_ddf.security.guest.realm"></a>Guest Claims Configuration</caption>
+<caption class="title">Table 60. <a id="_ddf.security.guest.realm"></a>Guest Claims Configuration</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4707,7 +4426,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 62. <a id="_org.codice.ddf.security.validator.pki"></a>Security STS PKI Token Validator</caption>
+<caption class="title">Table 61. <a id="_org.codice.ddf.security.validator.pki"></a>Security STS PKI Token Validator</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4785,7 +4504,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 <p>Select the <strong>Features</strong> tab.</p>
 </li>
 <li>
-<p>Install the <code>solr-app</code> feature.</p>
+<p>Install the <code>catalog-solr-app</code> feature.</p>
 </li>
 </ol>
 </div>
@@ -4809,7 +4528,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 63. Solr Catalog Available Configurations</caption>
+<caption class="title">Table 62. Solr Catalog Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -4831,7 +4550,7 @@ This value must be 2 minutes or greater, as users are warned when only 1 minute 
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 64. <a id="_ddf.catalog.solr.provider.SolrCatalogProvider"></a>Solr Catalog Provider</caption>
+<caption class="title">Table 63. <a id="_ddf.catalog.solr.provider.SolrCatalogProvider"></a>Solr Catalog Provider</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -4891,7 +4610,7 @@ This feature enables you to use an offline source of GeoNames data (as an altern
 <p>The <code>gazetteer</code> commands provide the ability to interact with the local GeoNames metacard collection in the core catalog. These GeoNames metacards are used by the <code>offline-gazetteer</code> feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the <code>offline-gazetteer</code> feature is installed.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 65. Gazetteer Command Descriptions</caption>
+<caption class="title">Table 64. Gazetteer Command Descriptions</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 80%;">
@@ -5011,7 +4730,7 @@ index again.</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 66. Spatial Available Configurations</caption>
+<caption class="title">Table 65. Spatial Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -5061,16 +4780,6 @@ index again.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Metacard to WFS Feature Map.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_Wfs_v1_0_0_Connected_Source">WFS 1.0.0 Connected Source</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Wfs_v1_0_0_Connected_Source</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">WFS 1.0.0 Connected Source.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_Wfs_v1_0_0_Federated_Source">WFS v1.0.0 Federated Source</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Wfs_v1_0_0_Federated_Source</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">WFS v1.0.0 Federated Source.</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#_Wfs_v1_1_0_Federated_Source">WFS 1.1.0 Federated Source</a></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Wfs_v1_1_0_Federated_Source</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">WFS 1.1.0 Federated Source.</p></td>
@@ -5093,7 +4802,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 67. <a id="_Csw_Federated_Source"></a>CSW Specification Profile Federated Source</caption>
+<caption class="title">Table 66. <a id="_Csw_Federated_Source"></a>CSW Specification Profile Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5308,7 +5017,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 68. <a id="_Csw_Federation_Profile_Source"></a>CSW Federation Profile Source</caption>
+<caption class="title">Table 67. <a id="_Csw_Federation_Profile_Source"></a>CSW Federation Profile Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5435,7 +5144,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 69. <a id="_Csw_Transactional_Federated_Source"></a>CSW Transactional Profile Federated Source</caption>
+<caption class="title">Table 68. <a id="_Csw_Transactional_Federated_Source"></a>CSW Transactional Profile Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5650,7 +5359,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 70. <a id="_org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin"></a>GeoCoder Plugin</caption>
+<caption class="title">Table 69. <a id="_org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin"></a>GeoCoder Plugin</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5680,7 +5389,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 71. <a id="_Gmd_Csw_Federated_Source"></a>GMD CSW ISO Federated Source</caption>
+<caption class="title">Table 70. <a id="_Gmd_Csw_Federated_Source"></a>GMD CSW ISO Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5879,7 +5588,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 72. <a id="_org.codice.ddf.spatial.kml.endpoint.KmlEndpoint"></a>Spatial KML Endpoint</caption>
+<caption class="title">Table 71. <a id="_org.codice.ddf.spatial.kml.endpoint.KmlEndpoint"></a>Spatial KML Endpoint</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -5958,7 +5667,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 73. <a id="_org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"></a>Metacard to WFS Feature Map</caption>
+<caption class="title">Table 72. <a id="_org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"></a>Metacard to WFS Feature Map</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6093,237 +5802,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 74. <a id="_Wfs_v1_0_0_Connected_Source"></a>WFS v1.0.0 Connected Source</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Source ID</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The unique name of the Source</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">WFS</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">WFS URL</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>wfsUrl</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL to the endpoint implementing the Web Feature Service (WFS) spec</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Disable CN Check</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>disableCnCheck</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Disable CN check for the server certificate. This should only be used when testing.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username for WFS Service. Required if basic authentication type is selected.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password for WFS Service. Required if basic authentication type is selected.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Non Queryable Properties</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>nonQueryableProperties</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Properties listed here will NOT be queryable and any attempt to filter on these properties will result in an exception.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Poll Interval</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pollInterval</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Poll Interval to Check if the Source is available (in minutes - minimum 1).</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Forced Spatial Filter Type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>forceSpatialFilter</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Force only the selected Spatial Filter Type as the only available Spatial Filter.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">NO_FILTER</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Connection Timeout</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>connectionTimeout</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Amount of time to attempt to establish a connection before timing out, in milliseconds.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">30000</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Receive Timeout</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>receiveTimeout</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Amount of time to wait for a response before timing out, in milliseconds.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">60000</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 75. <a id="_Wfs_v1_0_0_Federated_Source"></a>WFS v1.0.0 Federated Source</caption>
-<colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Id</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">Default Value</th>
-<th class="tableblock halign-left valign-top">Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Source ID</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The unique name of the Source</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">WFS_v1_0_0</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">WFS URL</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>wfsUrl</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">URL to the endpoint implementing the Web Feature Service (WFS) spec</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Disable CN Check</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>disableCnCheck</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Disable CN check for the server certificate. This should only be used when testing.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Authentication Type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>authenticationType</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted. Required if OAuth 2.0 authentication type is selected.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">saml</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>username</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Username for WFS Service. Required if basic authentication type is selected.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>password</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password for WFS Service. Required if basic authentication type is selected.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Forced Feature Type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>forcedFeatureType</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Force only a specific FeatureType to be queried instead of all featureTypes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Non Queryable Properties</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>nonQueryableProperties</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Properties listed here will NOT be queryable and any attempt to filter on these properties will result in an exception.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">null</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Poll Interval</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>pollInterval</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Poll Interval to Check if the Source is available (in minutes - minimum 1).</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Forced Spatial Filter Type</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>forceSpatialFilter</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Force only the selected Spatial Filter Type as the only available Spatial Filter.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">NO_FILTER</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Connection Timeout</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>connectionTimeout</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Amount of time to attempt to establish a connection before timing out, in milliseconds.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">30000</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Receive Timeout</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>receiveTimeout</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Amount of time to wait for a response before timing out, in milliseconds.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">60000</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-</tr>
-</tbody>
-</table>
-<table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 76. <a id="_Wfs_v1_1_0_Federated_Source"></a>WFS v1.1.0 Federated Source</caption>
+<caption class="title">Table 73. <a id="_Wfs_v1_1_0_Federated_Source"></a>WFS v1.1.0 Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6458,7 +5937,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 77. <a id="_Wfs_v2_0_0_Connected_Source"></a>WFS 2.0.0 Connected Source</caption>
+<caption class="title">Table 74. <a id="_Wfs_v2_0_0_Connected_Source"></a>WFS 2.0.0 Connected Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6585,7 +6064,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 78. <a id="_Wfs_v2_0_0_Federated_Source"></a>WFS 2.0.0 Federated Source</caption>
+<caption class="title">Table 75. <a id="_Wfs_v2_0_0_Federated_Source"></a>WFS 2.0.0 Federated Source</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6720,7 +6199,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 79. <a id="_org.codice.ddf.spatial.kml.style"></a>Spatial KML Style Map Entry</caption>
+<caption class="title">Table 76. <a id="_org.codice.ddf.spatial.kml.style"></a>Spatial KML Style Map Entry</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6830,7 +6309,7 @@ index again.</p>
 </ol>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 80. Search UI Available Configurations</caption>
+<caption class="title">Table 77. Search UI Available Configurations</caption>
 <colgroup>
 <col style="width: 33.3333%;">
 <col style="width: 33.3333%;">
@@ -6882,7 +6361,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 81. <a id="_org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier"></a>Catalog UI Search Email Notifier</caption>
+<caption class="title">Table 78. <a id="_org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier"></a>Catalog UI Search Email Notifier</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6929,7 +6408,7 @@ index again.</p>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 82. <a id="_org.codice.ddf.catalog.plugin.facetattributeaccess.facetwhitelist"></a>Facet Attribute Whitelist</caption>
+<caption class="title">Table 79. <a id="_org.codice.ddf.catalog.plugin.facetattributeaccess.facetwhitelist"></a>Facet Attribute Whitelist</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6961,7 +6440,7 @@ Caution: Suggestion values are not protected by any security. Only choose attrib
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 83. <a id="_org.codice.ddf.ui.searchui.filter.RedirectServlet"></a>Search UI Redirect</caption>
+<caption class="title">Table 80. <a id="_org.codice.ddf.ui.searchui.filter.RedirectServlet"></a>Search UI Redirect</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -6992,7 +6471,7 @@ Caution: Suggestion values are not protected by any security. Only choose attrib
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 84. <a id="_org.codice.ddf.catalog.ui.transformer.TransformerDescriptors"></a>Catalog UI Search Transformer Blacklists</caption>
+<caption class="title">Table 81. <a id="_org.codice.ddf.catalog.ui.transformer.TransformerDescriptors"></a>Catalog UI Search Transformer Blacklists</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7031,7 +6510,7 @@ Caution: Suggestion values are not protected by any security. Only choose attrib
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 85. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"></a>Catalog UI Search Workspace Query Monitor</caption>
+<caption class="title">Table 82. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService"></a>Catalog UI Search Workspace Query Monitor</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7071,7 +6550,7 @@ Note: This will query for results from the interval to the time the query is sen
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 86. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl"></a>Catalog UI Search Workspace Service</caption>
+<caption class="title">Table 83. <a id="_org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceServiceImpl"></a>Catalog UI Search Workspace Service</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -7102,7 +6581,7 @@ Note: This will query for results from the interval to the time the query is sen
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 87. <a id="_org.codice.ddf.catalog.ui.security"></a>Catalog UI Search Workspace Security</caption>
+<caption class="title">Table 84. <a id="_org.codice.ddf.catalog.ui.security"></a>Catalog UI Search Workspace Security</caption>
 <colgroup>
 <col style="width: 12.5%;">
 <col style="width: 12.5%;">
@@ -8120,7 +7599,7 @@ Note: This will query for results from the interval to the time the query is sen
 <p>This list of DDF dependencies is automatically generated:</p>
 </div>
 <div class="sect2">
-<h3 id="_ddf_2_22_0_dependency_list"><a class="anchor" href="#_ddf_2_22_0_dependency_list"></a><a class="link" href="#_ddf_2_22_0_dependency_list">DDF 2.22.0 Dependency List.</a></h3>
+<h3 id="_ddf_2_23_0_dependency_list"><a class="anchor" href="#_ddf_2_23_0_dependency_list"></a><a class="link" href="#_ddf_2_23_0_dependency_list">DDF 2.23.0 Dependency List.</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -8709,12 +8188,6 @@ Note: This will query for results from the interval to the time the query is sen
 <p>org.codice.countrycode:converter:jar:0.1.8</p>
 </li>
 <li>
-<p>org.codice.geowebcache:geowebcache-server-standalone:war:0.7.0</p>
-</li>
-<li>
-<p>org.codice.geowebcache:geowebcache-server-standalone:xml:geowebcache:0.7.0</p>
-</li>
-<li>
 <p>org.codice.httpproxy:proxy-camel-route:jar:2.21.0-SNAPSHOT</p>
 </li>
 <li>
@@ -8929,9 +8402,6 @@ Note: This will query for results from the interval to the time the query is sen
 </li>
 <li>
 <p>org.jvnet.ogc:wfs-v_1_1_0:jar:2.6.1</p>
-</li>
-<li>
-<p>org.jvnet.ogc:wps-v_2_0:jar:2.6.1</p>
 </li>
 <li>
 <p>org.la4j:la4j:jar:0.6.0</p>
@@ -9153,7 +8623,7 @@ Note: This will query for results from the interval to the time the query is sen
 </div>
 </div>
 <div class="sect2">
-<h3 id="_ddf_2_22_0_javascript_dependency_list"><a class="anchor" href="#_ddf_2_22_0_javascript_dependency_list"></a><a class="link" href="#_ddf_2_22_0_javascript_dependency_list">DDF 2.22.0 Javascript Dependency List.</a></h3>
+<h3 id="_ddf_2_23_0_javascript_dependency_list"><a class="anchor" href="#_ddf_2_23_0_javascript_dependency_list"></a><a class="link" href="#_ddf_2_23_0_javascript_dependency_list">DDF 2.23.0 Javascript Dependency List.</a></h3>
 <div class="ulist">
 <ul>
 <li>
@@ -10801,7 +10271,7 @@ document.onreadystatechange = () => {
 </div>
 <div id="footer">
 <div id="footer-text">
-Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2020-01-31 13:43:55 MST
+Copyright (c) Codice Foundation. This work is licensed under a Creative Commons Attribution 4.0 International License (http://creativecommons.org/licenses/by/4.0). This page last updated: 2020-03-17 19:26:53 UTC
 </div>
 </div>
 </body>
