@@ -497,14 +497,15 @@ module.exports = Marionette.LayoutView.extend({
     }
   },
   handleFilterAsLine(filter, color) {
-    const pointText = filter.value.value.substring(11, filter.value.value.length - 1)
+    const pointText = filter.value.value.substring(
+      11,
+      filter.value.value.length - 1
+    )
     const locationModel = new LocationModel({
       lineWidth: filter.distance || 0,
       line: pointText
         .split(',')
-        .map(coordinate =>
-          coordinate.split(' ').map(value => Number(value))
-        ),
+        .map(coordinate => coordinate.split(' ').map(value => Number(value))),
       color,
     })
     this.map.showLineShape(locationModel)
