@@ -186,9 +186,18 @@ module.exports = Backbone.Model.extend({
     this.set('showRequiredWarning', false)
   },
   isBlank() {
-    return this.getValue().every(
-      value => value == null || value.trim().length === 0
-    )
+    return this.getValue().every(value => {
+      if (value == null) {
+        return true
+      }
+      if (!isNaN(value)) {
+        // A number
+        return true
+      } else {
+        // Not a number, maybe a string?
+        return value.trim().length === 0
+      }
+    })
   },
   onlyEditing() {
     return this.get('onlyEditing')
