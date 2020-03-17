@@ -17,6 +17,7 @@ const React = require('react')
 const { Units } = require('./common')
 const TextField = require('../text-field')
 import styled from 'styled-components'
+import Conversion from './conversion'
 
 const Invalid = styled.div`
   background-color: ${props => props.theme.negativeColor};
@@ -53,6 +54,7 @@ class BaseLine extends React.Component {
     return (
       <React.Fragment>
         <div className="input-location">
+          <Conversion value={this.state.value} isValid={this.state.isValid} />
           <TextField
             label={label}
             value={this.state.value}
