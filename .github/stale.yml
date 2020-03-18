@@ -14,7 +14,7 @@ staleLabel: wontfix
 # Added 7 days to match days until close.
 markComment: >
   This issue has been automatically marked as stale because it has not had
-  recent activity. It will be closed if no further activity occur in 7 days.
+  recent activity. It will be closed if no further activity occurs within 7 days.
   Thank you for your contributions.
 # Comment to post when closing a stale issue. Set to `false` to disable
 closeComment: false
