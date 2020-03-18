@@ -12,11 +12,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-
-const $ = require('jquery')
 const _ = require('underscore')
 const Backbone = require('backbone')
-const wreqr = require('../../js/wreqr.js')
 const Metacard = require('../../js/model/Metacard.js')
 const Query = require('../../js/model/Query.js')
 const Workspace = require('../../js/model/Workspace.js')
@@ -72,16 +69,8 @@ module.exports = Backbone.AssociatedModel.extend({
     editing: true,
     activeSearchResults: [],
     activeSearchResultsAttributes: [],
-    drawing: false,
-    drawingModel: undefined,
   },
   initialize() {
-    this.listenTo(wreqr.vent, 'search:drawline', this.turnOnDrawing)
-    this.listenTo(wreqr.vent, 'search:drawcircle', this.turnOnDrawing)
-    this.listenTo(wreqr.vent, 'search:drawpoly', this.turnOnDrawing)
-    this.listenTo(wreqr.vent, 'search:drawbbox', this.turnOnDrawing)
-    this.listenTo(wreqr.vent, 'search:drawstop', this.turnOffDrawing)
-    this.listenTo(wreqr.vent, 'search:drawend', this.turnOffDrawing)
     this.listenTo(
       this.get('activeSearchResults'),
       'update add remove reset',
@@ -107,15 +96,6 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   getActiveSearchResultsAttributes() {
     return this.get('activeSearchResultsAttributes')
-  },
-  turnOnDrawing(model) {
-    this.set('drawing', true)
-    this.set('drawingModel', model)
-    $('html').toggleClass('is-drawing', true)
-  },
-  turnOffDrawing() {
-    this.set('drawing', false)
-    $('html').toggleClass('is-drawing', false)
   },
   isEditing() {
     return this.get('editing')

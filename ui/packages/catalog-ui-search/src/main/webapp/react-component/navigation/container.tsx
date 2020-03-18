@@ -15,6 +15,7 @@
 import * as React from 'react'
 import Navigation from './presentation'
 import withListenTo, { WithBackboneProps } from '../backbone-container'
+import { Drawing } from '../../component/singletons/drawing'
 
 const store = require('../../js/store.js')
 const wreqr = require('../../js/wreqr.js')
@@ -37,12 +38,8 @@ const hasUnsaved = () => {
   })
 }
 
-const isDrawing = () => {
-  return store.get('content').get('drawing')
-}
-
 const turnOffDrawing = () => {
-  wreqr.vent.trigger('search:drawend', store.get('content').get('drawingModel'))
+  wreqr.vent.trigger('search:drawend', Drawing.getDrawModel())
 }
 
 type Props = {
@@ -64,7 +61,7 @@ class NavigationContainer extends React.Component<Props, State> {
       hasLogo: hasLogo(),
       hasUnavailable: hasUnavailable(),
       hasUnsaved: hasUnsaved(),
-      isDrawing: isDrawing(),
+      isDrawing: Drawing.isDrawing(),
       logo: properties.ui.vendorImage,
     }
   }
@@ -76,7 +73,7 @@ class NavigationContainer extends React.Component<Props, State> {
     )
     this.props.listenTo(sources, 'all', this.handleSources.bind(this))
     this.props.listenTo(
-      store.get('content'),
+      Drawing,
       'change:drawing',
       this.handleDrawing.bind(this)
     )
@@ -93,7 +90,7 @@ class NavigationContainer extends React.Component<Props, State> {
   }
   handleDrawing() {
     this.setState({
-      isDrawing: isDrawing(),
+      isDrawing: Drawing.isDrawing(),
     })
   }
   render() {

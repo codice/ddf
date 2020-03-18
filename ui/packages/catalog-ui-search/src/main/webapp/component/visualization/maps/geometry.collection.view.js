@@ -15,8 +15,8 @@
 
 const Marionette = require('marionette')
 const _ = require('underscore')
-const store = require('../../../js/store.js')
 const GeometryView = require('./geometry.view')
+import { Drawing } from '../../singletons/drawing'
 
 const GeometryCollectionView = Marionette.CollectionView.extend({
   childView: GeometryView,
@@ -36,7 +36,7 @@ const GeometryCollectionView = Marionette.CollectionView.extend({
     if (
       mapEvent.mapTarget &&
       mapEvent.mapTarget !== 'userDrawing' &&
-      !store.get('content').get('drawing')
+      !Drawing.isDrawing()
     ) {
       if (event.shiftKey) {
         this.handleShiftClick(mapEvent.mapTarget)

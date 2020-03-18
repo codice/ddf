@@ -14,6 +14,7 @@
  **/
 
 const React = require('react')
+import { Drawing } from '../singletons/drawing'
 
 const withAdapter = Component =>
   class extends React.Component {
@@ -48,7 +49,6 @@ const LocationView = withAdapter(
 const Marionette = require('marionette')
 const _ = require('underscore')
 const wreqr = require('../../js/wreqr.js')
-const store = require('../../js/store.js')
 const CustomElements = require('../../js/CustomElements.js')
 const LocationOldModel = require('./location-old')
 const CQLUtils = require('../../js/CQLUtils.js')
@@ -119,7 +119,7 @@ module.exports = Marionette.LayoutView.extend({
   updateMap() {
     if (!this.isDestroyed) {
       const mode = this.model.get('mode')
-      if (mode !== undefined && store.get('content').get('drawing') !== true) {
+      if (mode !== undefined && Drawing.isDrawing() !== true) {
         wreqr.vent.trigger('search:' + mode + 'display', this.model)
       }
     }

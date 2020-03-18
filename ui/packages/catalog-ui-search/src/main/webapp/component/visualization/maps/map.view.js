@@ -41,6 +41,7 @@ const Gazetteer = require('../../../react-component/location/gazetteer.js')
 
 import MapSettings from '../../../react-component/map-settings'
 import MapInfo from '../../../react-component/map-info'
+import { Drawing } from '../../singletons/drawing'
 
 function findExtreme({ objArray, property, comparator }) {
   if (objArray.length === 0) {
@@ -157,7 +158,7 @@ module.exports = Marionette.LayoutView.extend({
     }
     this.onMapLoaded = options.onMapLoaded || (() => {})
     this.mapModel = new MapModel()
-    this.listenTo(store.get('content'), 'change:drawing', this.handleDrawing)
+    this.listenTo(Drawing, 'change:drawing', this.handleDrawing)
     this.handleDrawing()
     this.setupMouseLeave()
     this.listenTo(store.get('workspaces'), 'add', this.zoomToHome)
@@ -438,7 +439,7 @@ module.exports = Marionette.LayoutView.extend({
     this.clusterCollectionView.toggleActive()
   },
   handleDrawing() {
-    this.$el.toggleClass('is-drawing', store.get('content').get('drawing'))
+    this.$el.toggleClass('is-drawing', Drawing.isDrawing())
   },
   handleCurrentQuery() {
     this.removePreviousLocations()

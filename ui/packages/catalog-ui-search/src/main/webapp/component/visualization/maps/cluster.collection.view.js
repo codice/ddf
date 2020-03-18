@@ -15,14 +15,13 @@
 
 const Marionette = require('marionette')
 const _ = require('underscore')
-const store = require('../../../js/store.js')
 const ClusterView = require('./cluster.view')
 const Clustering = require('./Clustering')
 const metacardDefinitions = require('../../singletons/metacard-definitions.js')
+import { Drawing } from '../../singletons/drawing'
 
 const ClusterCollectionView = Marionette.CollectionView.extend({
   childView: ClusterView,
-  selectionInterface: store,
   childViewOptions() {
     return {
       map: this.options.map,
@@ -34,8 +33,7 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
     this.isActive = Boolean(options.isActive) || this.isActive
     this.render = _.throttle(this.render, 200)
     this.options.map.onLeftClick = _.debounce(this.options.map.onLeftClick, 30)
-    this.selectionInterface =
-      options.selectionInterface || this.selectionInterface
+    this.selectionInterface = options.selectionInterface
     this.options.map.onLeftClick(this.onMapLeftClick.bind(this))
     this.options.map.onMouseMove(this.handleMapHover.bind(this))
     this.listenForCameraChange()
@@ -53,7 +51,7 @@ const ClusterCollectionView = Marionette.CollectionView.extend({
     if (
       mapEvent.mapTarget &&
       mapEvent.mapTarget !== 'userDrawing' &&
-      !store.get('content').get('drawing')
+      !Drawing.isDrawing()
     ) {
       if (event.shiftKey) {
         this.handleShiftClick(mapEvent.mapTarget)
