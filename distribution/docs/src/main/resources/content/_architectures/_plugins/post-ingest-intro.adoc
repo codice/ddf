@@ -6,31 +6,4 @@
 :plugintypes: postingest
 :order: 05
 
-.Query Plugin Flow
-[ditaa,query-plugin-flow,png]
-....
-/------\
-|Client|
-|cDEF  |
-\------/
-    ^
-    |
-+-------------------------------------------\
-|DDF|                                  cCCC |
-|   v                                       |
-|/--------\   /-----------------\   /------\|
-||Endpoint|<->|Catalog Framework|<->|Source||
-|| cDEF   |   | cDEF            |   | cDEF ||
-|\--------/   \-----------------/   \------/|
-|                     | |                   |
-|          /----------/ \--------\          |
-|          |                     |          |
-|          v                     v          |
-|/------------------\  /-------------------\|
-|| PreQuery Plugins |  | PostQuery Plugins ||
-||  cDEF            |  |  cDEF             ||
-|\------------------/  \-------------------/|
-\-------------------------------------------/
-....
-
 Post-ingest plugins are invoked after data has been created, updated, or deleted in a Catalog Provider.
