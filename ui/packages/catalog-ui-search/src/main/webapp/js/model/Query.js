@@ -90,12 +90,23 @@ const reducer = (state = [{}], action) => {
       return state.slice(0, -1)
     case 'UPDATE_RESULTS':
       const srcs = action.payload.results
-        .map(({ src }) => src)
-        .reduce((counts, src) => {
-          if (counts[src] === undefined) {
-            counts[src] = 0
+        .map(result => {
+          return {
+            src: result.src,
+            srcId: result.metacard.properties['source-id'],
           }
-          counts[src] += 1
+        })
+        .reduce((counts, obj) => {
+          if (counts[obj.src] === undefined) {
+            counts[obj.src] = 0
+          }
+          counts[obj.src] += 1
+          if (obj.src === 'cache') {
+            if (counts[obj.srcId] === undefined) {
+              counts[obj.srcId] = 0
+            }
+            counts[obj.srcId] += 1
+          }
           return counts
         }, {})
 
@@ -525,9 +536,6 @@ Query.Model = PartialAssociatedModel.extend({
     this.dispatch(nextPage())
     this.set('serverPageIndex', serverPageIndex(this.state))
     this.startSearch()
-  },
-  getPreviousStartIndexForSource(src) {
-    return currentIndexForSource(this.state.slice(0, -1))[src] || 1
   },
   // get the starting offset (beginning of the server page) for the given source
   getStartIndexForSource(src) {
