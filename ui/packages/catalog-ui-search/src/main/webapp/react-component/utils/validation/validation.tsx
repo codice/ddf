@@ -381,7 +381,7 @@ function validateUtmUps(key: string, value: any) {
 function validateRadiusLineBuffer(key: string, value: any) {
   const label = key === 'radius' ? 'Radius ' : 'Buffer width '
   const buffer = DistanceUtils.getDistanceInMeters(value.value, value.units)
-  if (key === 'polygonBufferWidth' || key === 'bufferWidth') {
+  if (key.includes('Width')) {
     if (buffer > 0 && buffer < 1) {
       return {
         error: true,

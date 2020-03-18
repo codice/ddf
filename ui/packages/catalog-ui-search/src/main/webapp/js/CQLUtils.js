@@ -87,7 +87,7 @@ function generateAnyGeoFilter(property, model) {
         return defaultGeoFilter
       }
       return {
-        type: 'DWITHIN',
+        type: model.lineWidth > 0 ? 'DWITHIN' : 'INTERSECTS',
         property,
         value:
           'LINESTRING' +
@@ -303,6 +303,10 @@ const isPolygonFilter = filter => {
   return geometryFilterContainsString(filter, 'POLYGON')
 }
 
+const isLineFilter = filter => {
+  return geometryFilterContainsString(filter, 'LINESTRING')
+}
+
 function isPointRadiusFilter(filter) {
   return geometryFilterContainsString(filter, 'POINT')
 }
@@ -389,6 +393,7 @@ module.exports = {
   transformFilterToCQL,
   transformCQLToFilter,
   isPolygonFilter,
+  isLineFilter,
   isPointRadiusFilter,
   buildIntersectCQL,
   arrayFromPolygonWkt,

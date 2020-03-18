@@ -115,7 +115,11 @@ class LocationInput extends React.Component {
         }
         break
       case 'INTERSECTS':
-        wreqr.vent.trigger('search:polydisplay', this.locationModel)
+        if (CQLUtils.isLineFilter(filter)) {
+          wreqr.vent.trigger('search:linedisplay', this.locationModel)
+        } else {
+          wreqr.vent.trigger('search:polydisplay', this.locationModel)
+        }
         break
       // these cases are for when the model matches the location model
       default:
