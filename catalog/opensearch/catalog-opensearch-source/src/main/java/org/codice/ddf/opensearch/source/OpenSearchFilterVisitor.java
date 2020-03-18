@@ -31,6 +31,7 @@ import org.geotools.temporal.object.DefaultInstant;
 import org.geotools.temporal.object.DefaultPeriodDuration;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
@@ -492,6 +493,9 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
       openSearchFilterVisitorObject.addGeometrySearch(polygon);
     } else if (geometryExpression instanceof MultiPolygon) {
       Geometry polygon = ((MultiPolygon) geometryExpression);
+      openSearchFilterVisitorObject.addGeometrySearch(polygon);
+    } else if (geometryExpression instanceof LineString) {
+      Geometry polygon = ((LineString) geometryExpression);
       openSearchFilterVisitorObject.addGeometrySearch(polygon);
     } else {
       LOGGER.debug("Unsupported filter constraint");
