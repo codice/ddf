@@ -26,4 +26,8 @@ public interface OidcHandlerConfiguration {
   OidcLogoutActionBuilder getOidcLogoutActionBuilder();
 
   void testConnection();
+
+  int getConnectTimeout();
+
+  int getReadTimeout();
 }

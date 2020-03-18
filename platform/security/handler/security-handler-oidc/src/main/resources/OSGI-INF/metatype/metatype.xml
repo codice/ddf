@@ -62,6 +62,12 @@
         <Option label="form_post" value="form_post"/>
     </AD>
 
+    <AD name="Network Connect Timeout" id="connectTimeout" type="Integer" default="5000"
+        description="Network connect timeout in milliseconds for connecting to the OIDC token server."/>
+
+    <AD name="Network Read Timeout" id="readTimeout" type="Integer" default="5000"
+        description="Network read timeout in milliseconds for reading from the OIDC token server."/>
+
   </OCD>
 
     <Designate pid="org.codice.ddf.security.handler.api.OidcHandlerConfiguration">
