@@ -44,22 +44,12 @@ function generateCql(bookmarks) {
     return ''
   }
   return cql.write({
-    type: 'AND',
-    filters: [
-      {
-        type: 'OR',
-        filters: bookmarks.map(id => ({
-          type: '=',
-          value: id,
-          property: '"id"',
-        })),
-      },
-      {
-        type: 'ILIKE',
-        value: '*',
-        property: '"metacard-tags"',
-      },
-    ],
+    type: 'OR',
+    filters: bookmarks.map(id => ({
+      type: '=',
+      value: id,
+      property: '"id"',
+    })),
   })
 }
 
