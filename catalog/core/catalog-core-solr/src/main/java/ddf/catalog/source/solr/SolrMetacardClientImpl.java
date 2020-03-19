@@ -260,7 +260,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         addDocsToResults(docs, results);
 
         if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
-          query.set("q", findQueryToResend(query, solrResponse));
+          Collation collation = findQueryToResend(query, solrResponse);
+          query.set("q", collation.getCollationQueryString());
           query.set("spellcheck", false);
           QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
           docs = solrResponseRequery.getResults();
@@ -269,11 +270,18 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             totalHits = docs.getNumFound();
             addDocsToResults(docs, results);
 
-            responseProps.put(
-                DID_YOU_MEAN_KEY, (Serializable) getSearchTermFieldValues(solrResponse));
-            responseProps.put(
-                SHOWING_RESULTS_FOR_KEY,
-                (Serializable) getSearchTermFieldValues(solrResponseRequery));
+            List<String> originals = new ArrayList<>();
+            List<String> corrections = new ArrayList<>();
+            collation
+                .getMisspellingsAndCorrections()
+                .stream()
+                .forEach(
+                    correction -> {
+                      originals.add(correction.getOriginal());
+                      corrections.add(correction.getCorrection());
+                    });
+            responseProps.put(DID_YOU_MEAN_KEY, (Serializable) originals);
+            responseProps.put(SHOWING_RESULTS_FOR_KEY, (Serializable) corrections);
           }
         }
       }
@@ -295,16 +303,6 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     return new SourceResponseImpl(request, responseProps, results, totalHits);
   }
 
-  private List<String> getSearchTermFieldValues(QueryResponse solrResponse) {
-    Set<String> fieldValues = solrResponse.getSpellCheckResponse().getSuggestionMap().keySet();
-    removeResourceFieldValue(fieldValues);
-    return new ArrayList<>(fieldValues);
-  }
-
-  private void removeResourceFieldValue(Set<String> fieldValues) {
-    fieldValues.remove(RESOURCE_ATTRIBUTE);
-  }
-
   private Boolean userSpellcheckIsOn(QueryRequest request) {
     Boolean userSpellcheckChoice = false;
     if (request.getProperties().get("spellcheck") != null) {
@@ -318,16 +316,16 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         && CollectionUtils.isNotEmpty(solrResponse.getSpellCheckResponse().getCollatedResults());
   }
 
-  private String findQueryToResend(SolrQuery query, QueryResponse solrResponse) {
+  private Collation findQueryToResend(SolrQuery query, QueryResponse solrResponse) {
     long maxHits = Integer.MIN_VALUE;
-    String queryToResend = query.get("q");
+    Collation bestCollation = null;
     for (Collation collation : solrResponse.getSpellCheckResponse().getCollatedResults()) {
       if (maxHits < collation.getNumberOfHits()) {
         maxHits = collation.getNumberOfHits();
-        queryToResend = collation.getCollationQueryString();
+        bestCollation = collation;
       }
     }
-    return queryToResend;
+    return bestCollation;
   }
 
   private void addDocsToResults(SolrDocumentList docs, List<Result> results)
