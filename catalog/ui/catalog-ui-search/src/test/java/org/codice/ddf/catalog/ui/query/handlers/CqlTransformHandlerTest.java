@@ -84,7 +84,7 @@ public class CqlTransformHandlerTest {
   private static final String OTHER_RETURN_ID = "xml";
   private static final String MIME_TYPE = "application/vnd.google-earth.kml+xml";
   private static final String SAFE_BODY =
-      "{\"src\":\"ddf.distribution\",\"start\":1,\"count\":250,\"cql\":\"anyText ILIKE '*'\",\"sorts\":[{\"attribute\":\"modified\",\"direction\":\"descending\"}],\"id\":\"7a491439-948e-431b-815e-a04f32fecec9\"}";
+      "{\"searches\":[{\"srcs\":[\"ddf.distribution\"],\"cql\":\"anyText ILIKE '*'\",\"count\":250}],\"count\":250,\"sorts\":[{\"attribute\":\"modified\",\"direction\":\"descending\"}],\"id\":\"7a491439-948e-431b-815e-a04f32fecec9\"}";
   private static final String CONTENT = "test";
   private static final String SERVICE_NOT_FOUND = "\"Service not found\"";
   private static final String SERVICE_SUCCESS = GSON.toJson("");
