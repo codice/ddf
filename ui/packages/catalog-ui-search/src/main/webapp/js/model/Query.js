@@ -90,23 +90,12 @@ const reducer = (state = [{}], action) => {
       return state.slice(0, -1)
     case 'UPDATE_RESULTS':
       const srcs = action.payload.results
-        .map(result => {
-          return {
-            src: result.src,
-            srcId: result.metacard.properties['source-id'],
+        .map(({ src }) => src)
+        .reduce((counts, src) => {
+          if (counts[src] === undefined) {
+            counts[src] = 0
           }
-        })
-        .reduce((counts, obj) => {
-          if (counts[obj.src] === undefined) {
-            counts[obj.src] = 0
-          }
-          counts[obj.src] += 1
-          if (obj.src === 'cache') {
-            if (counts[obj.srcId] === undefined) {
-              counts[obj.srcId] = 0
-            }
-            counts[obj.srcId] += 1
-          }
+          counts[src] += 1
           return counts
         }, {})
 
@@ -233,6 +222,12 @@ Query.Model = PartialAssociatedModel.extend({
     const sync = () => {
       this.dispatch(updateResults(this.get('result').toJSON()))
       this.set('serverPageIndex', serverPageIndex(this.state))
+
+      this.get('result')
+        .get('status')
+        .map(status => {
+          status.set('start', this.getPreviousStartIndexForSource(status.id))
+        })
 
       const totalHits = this.get('result')
         .get('status')

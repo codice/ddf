@@ -53,7 +53,12 @@ export function getStartIndex(
   selectionInterface: any
 ) {
   return exportSize === 'visible'
-    ? selectionInterface.getCurrentQuery().getPreviousStartIndexForSource(src)
+    ? selectionInterface
+        .getCurrentQuery()
+        .get('result')
+        .get('status')
+        .find((status: any) => status.id === src)
+        .get('start')
     : 1
 }
 function getSrcs(selectionInterface: any) {
@@ -61,14 +66,18 @@ function getSrcs(selectionInterface: any) {
   return srcs === undefined ? _.pluck(Sources.toJSON(), 'id') : srcs
 }
 export function getSrcCount(
-  start: any,
   src: any,
   count: any,
   exportSize: any,
   selectionInterface: any
 ) {
   return exportSize === 'visible'
-    ? selectionInterface.getCurrentQuery().getStartIndexForSource(src) - start
+    ? selectionInterface
+        .getCurrentQuery()
+        .get('result')
+        .get('status')
+        .find((status: any) => status.id === src)
+        .get('count')
     : count
 }
 function getColumnOrder(): string[] {
@@ -99,30 +108,25 @@ function getSearches(
   count: any,
   selectionInterface: any
 ): any {
-  return exportSize === 'visible'
-    ? srcs.map((src: string) => {
-        const start = getStartIndex(src, exportSize, selectionInterface)
-        const srcCount = getSrcCount(
-          start,
-          src,
-          count,
-          exportSize,
-          selectionInterface
-        )
-        return {
-          src,
-          cql,
-          start,
-          count: srcCount,
-        }
-      })
-    : [
-        {
-          srcs,
-          cql,
-          count,
-        },
-      ]
+  if (exportSize !== 'visible') {
+    return [
+      {
+        srcs,
+        cql,
+        count,
+      },
+    ]
+  }
+  return srcs.map((src: string) => {
+    const start = getStartIndex(src, exportSize, selectionInterface)
+    const srcCount = getSrcCount(src, count, exportSize, selectionInterface)
+    return {
+      src,
+      cql,
+      start,
+      count: srcCount,
+    }
+  })
 }
 function getHits(sources: Source[]): number {
   return sources
