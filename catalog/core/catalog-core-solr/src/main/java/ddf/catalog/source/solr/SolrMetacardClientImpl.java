@@ -260,7 +260,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         addDocsToResults(docs, results);
 
         if (userSpellcheckIsOn && solrSpellcheckHasResults(solrResponse)) {
-          Collation collation = findQueryToResend(query, solrResponse);
+          Collation collation = getCollationToResend(query, solrResponse);
           query.set("q", collation.getCollationQueryString());
           query.set("spellcheck", false);
           QueryResponse solrResponseRequery = client.query(query, METHOD.POST);
@@ -316,7 +316,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         && CollectionUtils.isNotEmpty(solrResponse.getSpellCheckResponse().getCollatedResults());
   }
 
-  private Collation findQueryToResend(SolrQuery query, QueryResponse solrResponse) {
+  private Collation getCollationToResend(SolrQuery query, QueryResponse solrResponse) {
     long maxHits = Integer.MIN_VALUE;
     Collation bestCollation = null;
     for (Collation collation : solrResponse.getSpellCheckResponse().getCollatedResults()) {
