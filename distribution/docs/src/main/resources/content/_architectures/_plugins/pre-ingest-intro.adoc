@@ -6,33 +6,6 @@
 :plugintypes: preingest
 :order: 04
 
-.Ingest Plugin Flow
-[ditaa,ingest-plugin-flow,png, ${image-width}]
-....
-/------\
-|Client|
-|cDEF  |
-\------/
-    ^
-    |
-+-------------------------------------------\
-|DDF|                                  cCCC |
-|   v                                       |
-|/--------\   /-----------------\   /------\|
-||Endpoint|<->|Catalog Framework|<->|Source||
-|| cDEF   |   | cDEF            |   | cDEF ||
-|\--------/   \-----------------/   \------/|
-|                     | |                   |
-|          /----------/ \--------\          |
-|          |                     |          |
-|          v                     v          |
-|/------------------\  /-------------------\|
-||PreIngest Plugins |  |PostIngest Plugins ||
-|| cDEF             |  | cDEF              ||
-|\------------------/  \-------------------/|
-\-------------------------------------------/
-....
-
 Pre-ingest plugins are invoked before an ingest operation is sent to the catalog.
 They are not run on a query.
 This is an opportunity to take any action on the ingest request, including but not limited to:
