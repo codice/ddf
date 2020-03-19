@@ -20,12 +20,12 @@
                 update-strategy="container-managed"/>
         <property name="createPermissions">
             <array>
-                <value>""</value>
+                <value></value>
             </array>
         </property>
         <property name="updatePermissions">
             <array>
-                <value>""</value>
+                <value></value>
             </array>
         </property>
     </bean>

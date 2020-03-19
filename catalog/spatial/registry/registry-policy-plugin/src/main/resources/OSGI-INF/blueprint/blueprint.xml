@@ -26,22 +26,22 @@
         </property>
         <property name="createAccessPolicyStrings">
             <array>
-                <value>""</value>
+                <value></value>
             </array>
         </property>
         <property name="updateAccessPolicyStrings">
             <array>
-                <value>""</value>
+                <value></value>
             </array>
         </property>
         <property name="deleteAccessPolicyStrings">
             <array>
-                <value>""</value>
+                <value></value>
             </array>
         </property>
         <property name="readAccessPolicyStrings">
             <array>
-                <value>""</value>
+                <value></value>
             </array>
         </property>
     </bean>
