@@ -20,12 +20,12 @@
         <AD description="Allow users to provide a resource URI when creating a metacard"
             name="Permit Resource URI on Creation" id="createPermissions" required="true"
             type="String" cardinality="1000"
-            default=""/>/>
+            default=""/>
 
         <AD description="Allow users to provide a resource URI when updating a metacard"
             name="Permit Resource URI on Update" id="updatePermissions" required="true"
             type="String" cardinality="1000"
-            default=""/>/>
+            default=""/>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.security.ResourceUriPolicy">
