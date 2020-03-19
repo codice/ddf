@@ -18,22 +18,22 @@
                                update-strategy="container-managed" />
         <property name="createPermissions">
             <array>
-                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
+                <value>""</value>
             </array>
         </property>
         <property name="updatePermissions">
             <array>
-                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
+                <value>""</value>
             </array>
         </property>
         <property name="deletePermissions">
             <array>
-                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
+                <value>""</value>
             </array>
         </property>
         <property name="readPermissions">
             <array>
-                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
+                <value>""</value>
             </array>
         </property>
     </bean>

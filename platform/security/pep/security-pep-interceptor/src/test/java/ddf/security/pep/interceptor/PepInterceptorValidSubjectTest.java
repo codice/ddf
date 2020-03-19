@@ -14,6 +14,7 @@
 package ddf.security.pep.interceptor;
 
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -30,6 +31,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
+import org.codice.ddf.security.handler.api.SessionToken;
 import org.junit.Test;
 
 public class PepInterceptorValidSubjectTest {
@@ -44,15 +46,12 @@ public class PepInterceptorValidSubjectTest {
     interceptor.setSecurityManager(mockSecurityManager);
 
     Message messageWithValidSecurityAssertion = mock(Message.class);
-    SecurityToken mockSecurityToken = mock(SecurityToken.class);
+    SessionToken mockSecurityToken = mock(SessionToken.class);
     Subject mockSubject = mock(Subject.class);
     assertNotNull(mockSecurityAssertion);
 
     // SecurityLogger is already stubbed out
-    when(mockSecurityAssertion.getToken()).thenReturn(mockSecurityToken);
-    when(mockSecurityToken.getToken()).thenReturn(null);
-
-    when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);
+    when(mockSecurityManager.getSubject(any())).thenReturn(mockSubject);
 
     QName op = new QName("urn:catalog:query", "search", "ns1");
     QName port = new QName("urn:catalog:query", "query-port", "ns1");

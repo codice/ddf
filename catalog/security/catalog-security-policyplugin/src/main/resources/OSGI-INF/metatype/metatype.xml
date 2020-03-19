@@ -19,19 +19,19 @@
 
         <AD description="Roles/attributes required for the create operations. Example: role=role1,role2"
             name="Create Required Attributes" id="createPermissions" required="true" type="String" cardinality="1000"
-            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"/>
+            default=""/>
 
         <AD description="Roles/attributes required for the update operation. Example: role=role1,role2"
             name="Update Required Attributes" id="updatePermissions" required="true" type="String" cardinality="1000"
-            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"/>
+            default=""/>
 
         <AD description="Roles/attributes required for the delete operation. Example: role=role1,role2"
             name="Delete Required Attributes" id="deletePermissions" required="true" type="String" cardinality="1000"
-            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"/>
+            default=""/>
 
         <AD description="Roles/attributes required for the read operations (query and resource). Example: role=role1,role2"
             name="Read Required Attributes" id="readPermissions" required="true" type="String" cardinality="1000"
-            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"/>
+            default=""/>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.security.CatalogPolicy">
