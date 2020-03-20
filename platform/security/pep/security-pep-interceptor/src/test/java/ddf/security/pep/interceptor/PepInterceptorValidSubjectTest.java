@@ -50,6 +50,7 @@ public class PepInterceptorValidSubjectTest {
     assertNotNull(mockSecurityAssertion);
 
     // SecurityLogger is already stubbed out
+    when(mockSecurityAssertion.getToken()).thenReturn(mockSecurityToken);
     when(mockSecurityManager.getSubject(any())).thenReturn(mockSubject);
 
     QName op = new QName("urn:catalog:query", "search", "ns1");
