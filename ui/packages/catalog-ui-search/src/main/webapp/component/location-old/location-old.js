@@ -21,6 +21,7 @@ const store = require('../../js/store.js')
 const Common = require('../../js/Common.js')
 const dmsUtils = require('../location-new/utils/dms-utils.js')
 const DistanceUtils = require('../../js/DistanceUtils.js')
+import { Drawing } from '../singletons/drawing'
 
 const converter = new usngs.Converter()
 const minimumDifference = 0.0001
@@ -235,7 +236,7 @@ module.exports = Backbone.AssociatedModel.extend({
       this.set('locationType', 'utmUps')
     }
     this.drawing = false
-    store.get('content').turnOffDrawing()
+    Drawing.turnOffDrawing()
   },
 
   drawingOn() {
@@ -245,7 +246,7 @@ module.exports = Backbone.AssociatedModel.extend({
       this.set('locationType', 'latlon')
     }
     this.drawing = true
-    store.get('content').turnOnDrawing(this)
+    Drawing.turnOnDrawing(this)
   },
 
   repositionLatLonUtmUps(isDefined, parse, assign, clear) {
@@ -453,8 +454,7 @@ module.exports = Backbone.AssociatedModel.extend({
       lon = this.get('lon')
 
     if (
-      (!store.get('content').get('drawing') &&
-        this.get('locationType') !== 'latlon') ||
+      (!Drawing.isDrawing() && this.get('locationType') !== 'latlon') ||
       !this.isLatLonValid(lat, lon)
     ) {
       return

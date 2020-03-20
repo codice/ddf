@@ -19,14 +19,11 @@
 */
 const $ = require('jquery')
 const CustomElements = require('../js/CustomElements.js')
-const store = require('../js/store.js')
+import { Drawing } from '../component/singletons/drawing'
 
 module.exports = {
   drawing(event) {
-    return (
-      event.target.constructor === HTMLCanvasElement &&
-      store.get('content').get('drawing')
-    )
+    return event.target.constructor === HTMLCanvasElement && Drawing.isDrawing()
   },
   hasRightRoom(left, element) {
     return left + element.clientWidth < window.innerWidth
