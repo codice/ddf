@@ -24,6 +24,7 @@
                 </value>
             </array>
         </property>
+        <!-- An empty value on access policies so there are no restrictions on who can perform the operations -->
         <property name="createAccessPolicyStrings">
             <array>
                 <value></value>

@@ -18,6 +18,7 @@
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.security.ResourceUriPolicy"
                 update-strategy="container-managed"/>
+        <!-- An empty value on permissions so there are no restrictions on who can perform the operations -->
         <property name="createPermissions">
             <array>
                 <value></value>
