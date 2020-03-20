@@ -15,6 +15,7 @@ package ddf.security.pep.interceptor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -63,9 +64,7 @@ public class PepInterceptorActionsTest {
 
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getToken()).thenReturn(mockSecurityToken);
-    when(mockSecurityToken.getToken()).thenReturn(null);
-
-    when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);
+    when(mockSecurityManager.getSubject(any())).thenReturn(mockSubject);
 
     QName op = new QName("urn:catalog:query", "search", "ns1");
     QName port = new QName("urn:catalog:query", "query-port", "ns1");
@@ -106,9 +105,7 @@ public class PepInterceptorActionsTest {
 
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getToken()).thenReturn(mockSecurityToken);
-    when(mockSecurityToken.getToken()).thenReturn(null);
-
-    when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);
+    when(mockSecurityManager.getSubject(any())).thenReturn(mockSubject);
 
     QName op = new QName("http://catalog/query/", "Search", "ns1");
     QName port = new QName("http://catalog/query/", "QueryPort", "ns1");
@@ -149,9 +146,7 @@ public class PepInterceptorActionsTest {
 
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getToken()).thenReturn(mockSecurityToken);
-    when(mockSecurityToken.getToken()).thenReturn(null);
-
-    when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);
+    when(mockSecurityManager.getSubject(any())).thenReturn(mockSubject);
 
     MessageInfo mockMessageInfo = mock(MessageInfo.class);
     when(messageWithAction.get(MessageInfo.class.getName())).thenReturn(mockMessageInfo);
@@ -187,9 +182,7 @@ public class PepInterceptorActionsTest {
 
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getToken()).thenReturn(mockSecurityToken);
-    when(mockSecurityToken.getToken()).thenReturn(null);
-
-    when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);
+    when(mockSecurityManager.getSubject(any())).thenReturn(mockSubject);
 
     Exchange mockExchange = mock(Exchange.class);
     BindingOperationInfo mockBOI = mock(BindingOperationInfo.class);
@@ -227,9 +220,7 @@ public class PepInterceptorActionsTest {
 
     // SecurityLogger is already stubbed out
     when(mockSecurityAssertion.getToken()).thenReturn(mockSecurityToken);
-    when(mockSecurityToken.getToken()).thenReturn(null);
-
-    when(mockSecurityManager.getSubject(mockSecurityToken)).thenReturn(mockSubject);
+    when(mockSecurityManager.getSubject(any())).thenReturn(mockSubject);
 
     Exchange mockExchange = mock(Exchange.class);
     BindingOperationInfo mockBOI = mock(BindingOperationInfo.class);

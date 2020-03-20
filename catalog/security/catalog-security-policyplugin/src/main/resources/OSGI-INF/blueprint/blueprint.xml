@@ -16,24 +16,25 @@
     <bean id="ingestPlugin" class="org.codice.ddf.catalog.security.CatalogPolicy">
         <cm:managed-properties persistent-id="org.codice.ddf.catalog.security.CatalogPolicy"
                                update-strategy="container-managed" />
+        <!-- An empty value on permissions so there are no restrictions on who can perform the operations -->
         <property name="createPermissions">
             <array>
-                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
+                <value></value>
             </array>
         </property>
         <property name="updatePermissions">
             <array>
-                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
+                <value></value>
             </array>
         </property>
         <property name="deletePermissions">
             <array>
-                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
+                <value></value>
             </array>
         </property>
         <property name="readPermissions">
             <array>
-                <value>http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest</value>
+                <value></value>
             </array>
         </property>
     </bean>

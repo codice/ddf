@@ -36,8 +36,10 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.ws.addressing.JAXWSAConstants;
 import org.apache.cxf.ws.addressing.Names;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.platform.util.XMLUtils;
+import org.codice.ddf.security.handler.api.SessionToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -83,19 +85,21 @@ public class PEPAuthorizingInterceptor extends AbstractPhaseInterceptor<Message>
   @Override
   public void handleMessage(Message message) throws Fault {
     if (message != null) {
-      // grab the SAML assertion associated with this Message from the
-      // token store
+      // grab the SAML assertion associated with this Message from the token store
       SecurityAssertion assertion = assertionRetriever.apply(message);
       boolean isPermitted = false;
 
       if ((assertion != null) && (assertion.getToken() != null)) {
         Subject user = null;
         CollectionPermission action = null;
-
         String actionURI = getActionUri(message);
 
+        SimplePrincipalCollection principalCollection = new SimplePrincipalCollection();
+        principalCollection.add(assertion, "security");
+        SessionToken token = new SessionToken(principalCollection);
+
         try {
-          user = securityManager.getSubject(assertion.getToken());
+          user = securityManager.getSubject(token);
           if (user == null) {
             throw new AccessDeniedException("Unauthorized");
           }
