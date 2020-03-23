@@ -12,4 +12,5 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
+// Invoke the function with null in order to maintain existing functionality
 module.exports = v => v(null)
