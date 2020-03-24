@@ -39,7 +39,6 @@
                             <value>/services/internal/catalog/download/cache.*=GET</value>
                             <value>/services/internal/session.*=GET</value>
                             <value>/services/internal/metrics.*=GET</value>
-                            <value>/services/login[/]?$=POST</value>
                             <value>/services/logout/actions[/]?$=GET</value>
                             <value>/services/logout/local[/]?$=GET</value>
                             <value>/services/platform/config/ui[/]?$=GET</value>

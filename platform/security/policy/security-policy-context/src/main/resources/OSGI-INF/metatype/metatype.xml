@@ -45,7 +45,7 @@
         <AD description="List of contexts that will not use security. Note that sub-contexts to ones listed here will also skip security, unless authentication types are provided for it. For example: if /foo is listed here, then /foo/bar will also not require any sort of authentication. However, if /foo is listed and /foo/bar has authentication types provided in the 'Authentication Types' field, then that more specific policy will be used."
             name="White Listed Contexts" id="whiteListContexts" cardinality="100"
             type="String"
-            default="${org.codice.ddf.system.rootContext}/SecurityTokenService,${org.codice.ddf.system.rootContext}/internal/metrics,/proxy,${org.codice.ddf.system.rootContext}/saml,${org.codice.ddf.system.rootContext}/idp,/idp,${org.codice.ddf.system.rootContext}/platform/config/ui,${org.codice.ddf.system.rootContext}/login,${org.codice.ddf.system.rootContext}/logout,/logout,${org.codice.ddf.system.rootContext}/internal/session,${org.codice.ddf.system.rootContext}/admin/fonts,/favicon.ico,/error,/webjars,/health-check,/readiness-check"/>
+            default="${org.codice.ddf.system.rootContext}/SecurityTokenService,${org.codice.ddf.system.rootContext}/internal/metrics,/proxy,${org.codice.ddf.system.rootContext}/saml,${org.codice.ddf.system.rootContext}/idp,/idp,${org.codice.ddf.system.rootContext}/platform/config/ui,${org.codice.ddf.system.rootContext}/logout,/logout,${org.codice.ddf.system.rootContext}/internal/session,${org.codice.ddf.system.rootContext}/admin/fonts,/favicon.ico,/error,/webjars,/health-check,/readiness-check"/>
 
     </OCD>
 

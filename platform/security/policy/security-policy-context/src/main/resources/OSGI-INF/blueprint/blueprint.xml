@@ -48,7 +48,6 @@
                 <value>${org.codice.ddf.system.rootContext}/idp</value>
                 <value>/idp</value>
                 <value>${org.codice.ddf.system.rootContext}/platform/config/ui</value>
-                <value>${org.codice.ddf.system.rootContext}/login</value>
                 <value>${org.codice.ddf.system.rootContext}/logout</value>
                 <value>/logout</value>
                 <value>${org.codice.ddf.system.rootContext}/internal/session</value>

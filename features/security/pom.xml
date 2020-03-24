@@ -94,21 +94,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.security</groupId>
-            <artifactId>security-rest-authn-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.security</groupId>
-            <artifactId>security-rest-authn-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.security</groupId>
-            <artifactId>security-rest-authn-endpoint</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-rs-security-jose</artifactId>
             <version>${cxf.version}</version>

@@ -53,7 +53,7 @@ public class SecurityPolicyConfigurator {
   private static final String GUEST_AUTH_TYPES = "/=,/admin=basic,/system=basic";
 
   private static final String DEFAULT_WHITELIST =
-      "/services/SecurityTokenService,/services/internal/metrics,/services/saml,/proxy,/services/platform/config/ui,/login";
+      "/services/SecurityTokenService,/services/internal/metrics,/services/saml,/proxy,/services/platform/config/ui";
 
   private ServiceManager services;
 

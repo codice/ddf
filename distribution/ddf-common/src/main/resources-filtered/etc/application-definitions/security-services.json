@@ -2,9 +2,6 @@
   "name": "security-services-app",
   "description": "The Security Application provides Authentication, Authorization, and Auditing services.\nThey comprise both a framework that developers and integrators can extend and also a reference implementation that can be used which meets security requirements.::Security",
   "bundleLocations": [
-    "mvn:ddf.platform.security/security-rest-authn-service/${project.version}",
-    "mvn:ddf.platform.security/security-rest-authn-impl/${project.version}",
-    "mvn:ddf.platform.security/security-rest-authn-endpoint/${project.version}",
     "mvn:ddf.security.core/security-core-impl/${project.version}",
     "mvn:ddf.security.core/security-core-services/${project.version}",
     "mvn:ddf.security.expansion/security-expansion-metacardattr-map/${project.version}",
