@@ -20,10 +20,13 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Result;
+import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.util.impl.CollectionResultComparator;
@@ -134,17 +137,10 @@ public class CqlTransformHandler implements Route {
   }
 
   public class CqlTransformRequest {
-    private List<CqlRequestImpl> searches;
-    private int count;
-    private List<CqlRequest.Sort> sorts;
-    private List<String> hiddenResults;
-
-    public CqlTransformRequest() {
-      this.searches = Collections.emptyList();
-      this.count = 0;
-      this.sorts = Collections.emptyList();
-      this.hiddenResults = Collections.emptyList();
-    }
+    private List<CqlRequestImpl> searches = Collections.emptyList();
+    private int count = 0;
+    private List<CqlRequest.Sort> sorts = Collections.emptyList();
+    private List<String> hiddenResults = Collections.emptyList();
 
     public void setSearches(List<CqlRequestImpl> searches) {
       this.searches = searches;
@@ -168,14 +164,6 @@ public class CqlTransformHandler implements Route {
 
     public List<CqlRequest.Sort> getSorts() {
       return this.sorts;
-    }
-
-    public List<CqlRequestImpl> getCqlRequests() {
-      this.searches.forEach(
-          cqlRequest -> {
-            cqlRequest.setSorts(this.sorts);
-          });
-      return this.searches;
     }
 
     public void setHiddenResults(List<String> hiddenResults) {
@@ -203,7 +191,7 @@ public class CqlTransformHandler implements Route {
 
     List<CqlRequest> cqlRequests =
         cqlTransformRequest
-            .getCqlRequests()
+            .getSearches()
             .stream()
             .filter(
                 cqlRequest ->
@@ -211,6 +199,11 @@ public class CqlTransformHandler implements Route {
                         && (cqlRequest.getSrc() != null
                             || CollectionUtils.isNotEmpty(cqlRequest.getSrcs())))
             .collect(Collectors.toList());
+
+    cqlRequests.forEach(
+        cqlRequest -> {
+          cqlRequest.setSorts(cqlTransformRequest.getSorts());
+        });
 
     if (CollectionUtils.isEmpty(cqlRequests)) {
       LOGGER.debug("Cql not found in request");
@@ -246,7 +239,9 @@ public class CqlTransformHandler implements Route {
                   CqlQueryResponse cqlQueryResponse = null;
                   try {
                     cqlQueryResponse = cqlQueryUtil.executeCqlQuery(cqlRequest);
-                  } catch (Exception e) {
+                  } catch (UnsupportedQueryException
+                      | SourceUnavailableException
+                      | FederationException e) {
                     LOGGER.debug("Error fetching cql request for {}", cqlRequest.getSrc());
                     return null;
                   }
@@ -416,13 +411,13 @@ public class CqlTransformHandler implements Route {
             .getType()
             .getAttributeFormat();
 
-    switch (format.toString()) {
-      case "STRING":
-        return attribute.getValue().toString().toLowerCase();
-      case "DATE":
-      case "BOOLEAN":
-      case "INTEGER":
-      case "FLOAT":
+    switch (format) {
+      case STRING:
+        return attribute.getValue() != null ? attribute.getValue().toString().toLowerCase() : "";
+      case DATE:
+      case BOOLEAN:
+      case INTEGER:
+      case FLOAT:
         return attribute.getValue() instanceof Comparable
             ? (Comparable) attribute.getValue()
             : null;
