@@ -109,13 +109,15 @@ function getSearches(
   selectionInterface: any
 ): any {
   if (exportSize !== 'visible') {
-    return [
-      {
-        srcs,
-        cql,
-        count,
-      },
-    ]
+    return srcs.length > 0
+      ? [
+          {
+            srcs,
+            cql,
+            count,
+          },
+        ]
+      : []
   }
   return srcs.map((src: string) => {
     const start = getStartIndex(src, exportSize, selectionInterface)
