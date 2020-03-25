@@ -151,10 +151,14 @@ public class ConfigurationStore {
 
   public void addAnyTextField(String anyTextField) {
     anyTextFieldsCache.add(anyTextField);
+
+    filterAnyTextFieldCache();
   }
 
   public void removeAnyTextField(String anyTextField) {
     anyTextFieldsCache.remove(anyTextField);
+
+    filterAnyTextFieldCache();
   }
 
   public void clearAnyTextFieldCache() {
