@@ -54,7 +54,7 @@
 
     <OCD name="Solr Cache Provider"
          id="ddf.catalog.solr.provider.SolrCacheProvider">
-        <AD     description="List of Solr fields that an anyText query expands to include (e.g. title, description, ext.extracted.*)"
+        <AD     description="List of Solr fields that an anyText query expands to include (e.g. title, description, ext.extracted.*). NOTE: If a blacklist is also provided, this list becomes a blacklist exception list instead of a pure whitelist."
                 name="AnyText Expansion Field Whitelist" id="anyTextFieldWhitelist"
                 cardinality="100" required="false" type="String"/>
         <AD     description="List of Solr fields that an anyText query will NOT include (e.g. id, checksum, security.*)"

@@ -180,21 +180,7 @@ public class ConfigurationStore {
     ConfigurationStore config = ConfigurationStore.getInstance();
     List<String> anyTextFieldWhitelist = config.getAnyTextFieldWhitelist();
     List<String> anyTextFieldBlacklist = config.getAnyTextFieldBlacklist();
-    if (!anyTextFieldWhitelist.isEmpty()) {
-      for (String whitelistField : anyTextFieldWhitelist) {
-        String whitelist;
-        if (!whitelistField.endsWith(SchemaFields.TEXT_SUFFIX)) {
-          whitelist = whitelistField + SchemaFields.TEXT_SUFFIX;
-        } else {
-          whitelist = whitelistField;
-        }
-        filteredList.addAll(
-            anyTextFieldsCache
-                .stream()
-                .filter(field -> field.matches(whitelist))
-                .collect(Collectors.toList()));
-      }
-    } else if (!anyTextFieldBlacklist.isEmpty()) {
+    if (!anyTextFieldBlacklist.isEmpty()) {
       filteredList.addAll(anyTextFieldsCache);
       for (String blacklistField : anyTextFieldBlacklist) {
         String blacklist;
@@ -209,7 +195,25 @@ public class ConfigurationStore {
                 .filter(field -> field.matches(blacklist))
                 .collect(Collectors.toList()));
       }
-    } else {
+    }
+
+    if (!anyTextFieldWhitelist.isEmpty()) {
+      for (String whitelistField : anyTextFieldWhitelist) {
+        String whitelist;
+        if (!whitelistField.endsWith(SchemaFields.TEXT_SUFFIX)) {
+          whitelist = whitelistField + SchemaFields.TEXT_SUFFIX;
+        } else {
+          whitelist = whitelistField;
+        }
+        filteredList.addAll(
+            anyTextFieldsCache
+                .stream()
+                .filter(field -> field.matches(whitelist))
+                .collect(Collectors.toList()));
+      }
+    }
+
+    if (anyTextFieldBlacklist.isEmpty() && anyTextFieldWhitelist.isEmpty()) {
       filteredList.addAll(anyTextFieldsCache);
     }
 
