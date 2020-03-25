@@ -618,9 +618,13 @@ const OpenlayersMap = extension =>
         shapes.push(line)
       },
       showMultiLineShape(locationModel) {
-        let lineObject = locationModel
-          .get('multiline')
-          .map(line => line.map(coords => convertPointCoordinate(coords)))
+        let lineObject = locationModel.get('multiline')
+        if (validateGeo('multiline', JSON.stringify(lineObject)).error) {
+          return
+        }
+        lineObject = lineObject.map(line =>
+          line.map(coords => convertPointCoordinate(coords))
+        )
 
         let feature = new Openlayers.Feature({
           geometry: new Openlayers.geom.MultiLineString(lineObject),
