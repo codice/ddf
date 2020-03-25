@@ -279,8 +279,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
                       originals.add(correction.getOriginal());
                       corrections.add(correction.getCorrection());
                     });
-            responseProps.put(DID_YOU_MEAN_KEY, (Serializable) originals);
-            responseProps.put(SHOWING_RESULTS_FOR_KEY, (Serializable) corrections);
+            responseProps.put(DID_YOU_MEAN_KEY, new ArrayList<>(originals));
+            responseProps.put(SHOWING_RESULTS_FOR_KEY, new ArrayList<>(corrections));
           }
         }
       }
