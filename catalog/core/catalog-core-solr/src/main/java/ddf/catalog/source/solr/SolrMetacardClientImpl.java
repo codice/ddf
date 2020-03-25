@@ -269,8 +269,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             totalHits = docs.getNumFound();
             addDocsToResults(docs, results);
 
-            List<String> originals = new ArrayList<>();
-            List<String> corrections = new ArrayList<>();
+            Set<String> originals = new HashSet<>();
+            Set<String> corrections = new HashSet<>();
             collation
                 .getMisspellingsAndCorrections()
                 .stream()
