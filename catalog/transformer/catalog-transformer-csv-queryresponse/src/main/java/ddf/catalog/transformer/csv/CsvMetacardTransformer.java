@@ -16,15 +16,18 @@ package ddf.catalog.transformer.csv;
 import static ddf.catalog.transformer.csv.common.CsvTransformer.createResponse;
 import static ddf.catalog.transformer.csv.common.CsvTransformer.writeMetacardsToCsv;
 
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +46,20 @@ public class CsvMetacardTransformer implements MetacardTransformer {
 
     Map<String, String> aliases =
         (Map<String, String>) arguments.getOrDefault("aliases", new HashMap<>());
+    String attributeString = (String) arguments.get("columnOrder");
+    ArrayList<String> attributes =
+        new ArrayList<String>(Arrays.asList((attributeString).split(",")));
 
     Appendable appendable =
         writeMetacardsToCsv(
             Collections.singletonList(metacard),
-            new ArrayList<>(metacard.getMetacardType().getAttributeDescriptors()),
+            new ArrayList<AttributeDescriptor>(
+                metacard
+                    .getMetacardType()
+                    .getAttributeDescriptors()
+                    .stream()
+                    .filter(attr -> attributes.contains(attr.getName()))
+                    .collect(Collectors.toList())),
             aliases);
     return createResponse(appendable);
   }
