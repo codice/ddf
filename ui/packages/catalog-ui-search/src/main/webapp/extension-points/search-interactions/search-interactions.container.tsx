@@ -32,8 +32,15 @@ class SearchInteractions extends React.Component<Props> {
     this.props.listenTo(this.props.model, 'change:type', this.props.onClose)
   }
   triggerQueryForm = (formId: string) => {
+    const querySetting = user.getQuerySettings()
     this.props.model.set('type', formId)
-    user.getQuerySettings().set('type', formId)
+    querySetting.set('type', formId)
+    if (
+      this.props.model.get('template') &&
+      !querySetting.isDefaultTemplate(this.props.model.get('template'))
+    ) {
+      querySetting.set('template', undefined)
+    }
     user.savePreferences()
     this.props.onClose()
   }

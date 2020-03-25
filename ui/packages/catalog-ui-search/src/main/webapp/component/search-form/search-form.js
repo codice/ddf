@@ -32,6 +32,7 @@ module.exports = Backbone.Model.extend({
       accessGroups: [],
       accessAdministrators: [],
       querySettings: {},
+      default: false,
     }
   },
   transformToQueryStructure() {

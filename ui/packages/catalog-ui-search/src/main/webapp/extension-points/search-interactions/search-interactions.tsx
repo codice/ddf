@@ -42,6 +42,7 @@ const SearchInteractions = (props: SearchInteractionProps) => (
                 key={form.id}
                 value={form.id}
                 title={form.title}
+                selected={props.model.get('type') === form.id}
               />
             )
           })}

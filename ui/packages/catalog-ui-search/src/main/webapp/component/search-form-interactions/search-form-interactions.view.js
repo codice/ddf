@@ -105,7 +105,7 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
     this.listenTo(user.getQuerySettings(), 'change', function() {
       this.$el.toggleClass(
         'is-current-template',
-        user.getQuerySettings().isTemplate(this.model)
+        user.getQuerySettings().isDefaultTemplate(this.model)
       )
     })
   },
@@ -113,7 +113,7 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
     this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')))
     this.$el.toggleClass(
       'is-current-template',
-      user.getQuerySettings().isTemplate(this.model)
+      user.getQuerySettings().isDefaultTemplate(this.model)
     )
     this.$el.toggleClass(
       'is-result-form-template',
@@ -201,6 +201,7 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
     this.trigger('doneLoading')
   },
   handleMakeDefault() {
+    this.model.set('default', true)
     user.getQuerySettings().set({
       type: 'custom',
       template: this.model.toJSON(),
@@ -213,6 +214,7 @@ Anyone who has access to this search ${formTitleLowerCase} will subsequently los
     )
   },
   handleClearDefault() {
+    this.model.set('default', false)
     user.getQuerySettings().set({
       template: undefined,
       type: 'text',
