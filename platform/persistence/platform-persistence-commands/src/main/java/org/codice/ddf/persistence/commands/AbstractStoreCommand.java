@@ -15,7 +15,6 @@ package org.codice.ddf.persistence.commands;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
@@ -24,7 +23,6 @@ import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
-import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,16 +62,7 @@ public abstract class AbstractStoreCommand implements Action {
   public Object execute() {
 
     try {
-
-      if (PersistenceType.hasType(type)) {
-        storeCommand();
-      } else {
-        console.println(
-            "Type passed in was not correct. Must be one of "
-                + Arrays.toString(PersistenceType.values())
-                + ".");
-      }
-
+      storeCommand();
     } catch (PersistenceException pe) {
       console.println(
           "Encountered an error when trying to perform the command. Check log for more details.");
