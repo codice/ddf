@@ -49,18 +49,18 @@ public class CsvMetacardTransformer implements MetacardTransformer {
     String attributeString = (String) arguments.get("columnOrder");
     ArrayList<String> attributes =
         new ArrayList<String>(Arrays.asList((attributeString).split(",")));
-
-    Appendable appendable =
-        writeMetacardsToCsv(
-            Collections.singletonList(metacard),
-            new ArrayList<AttributeDescriptor>(
-                metacard
-                    .getMetacardType()
-                    .getAttributeDescriptors()
+    ArrayList<AttributeDescriptor> allAttributes =
+        new ArrayList<AttributeDescriptor>(metacard.getMetacardType().getAttributeDescriptors());
+    ArrayList<AttributeDescriptor> descriptors =
+        new ArrayList<AttributeDescriptor>(
+            attributes == null || attributes.isEmpty()
+                ? allAttributes
+                : allAttributes
                     .stream()
                     .filter(attr -> attributes.contains(attr.getName()))
-                    .collect(Collectors.toList())),
-            aliases);
+                    .collect(Collectors.toList()));
+    Appendable appendable =
+        writeMetacardsToCsv(Collections.singletonList(metacard), descriptors, aliases);
     return createResponse(appendable);
   }
 }
