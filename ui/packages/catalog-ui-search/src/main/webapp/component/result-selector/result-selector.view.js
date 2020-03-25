@@ -28,10 +28,7 @@ const ResultStatusView = require('../result-status/result-status.view.js')
 require('../../behaviors/selection.behavior.js')
 import MarionetteRegionContainer from '../../react-component/marionette-region-container'
 import ResultItemCollection from '../result-item/result-item.collection'
-
-const {
-  SelectAllToggle,
-} = require('../selection-checkbox/selection-checkbox.view.js')
+import { ItemCheckboxAll } from '../selection-checkbox/item-checkbox-all'
 
 function mixinBlackListCQL(originalCQL) {
   const blackListCQL = {
@@ -83,6 +80,9 @@ const ResultSelector = Marionette.LayoutView.extend({
       <React.Fragment>
         <div className="resultSelector-menu">
           <div className="checkbox-container" />
+          <ItemCheckboxAll
+            selectionInterface={this.options.selectionInterface}
+          />
           <div className="resultSelector-menu-action menu-resultFilter" />
           <div className="resultSelector-menu-action menu-resultSort" />
           <div className="resultSelector-menu-action menu-resultDisplay" />
@@ -149,7 +149,6 @@ const ResultSelector = Marionette.LayoutView.extend({
     resultDisplay: '.menu-resultDisplay',
     resultFilter: '.menu-resultFilter',
     resultSort: '.menu-resultSort',
-    checkboxContainer: '.checkbox-container',
   },
   initialize(options) {
     if (!this.model.get('result')) {
@@ -235,7 +234,6 @@ const ResultSelector = Marionette.LayoutView.extend({
     this.showResultDisplayDropdown()
     this.showResultFilterDropdown()
     this.showResultSortDropdown()
-    this.showCheckbox()
     this.handleMerged()
     this.handleStatus()
     let resultCountOnly =
@@ -258,13 +256,6 @@ const ResultSelector = Marionette.LayoutView.extend({
     this.resultSort.show(
       new ResultSortDropdownView({
         model: new DropdownModel(),
-      })
-    )
-  },
-  showCheckbox() {
-    this.checkboxContainer.show(
-      new SelectAllToggle({
-        selectionInterface: this.options.selectionInterface,
       })
     )
   },

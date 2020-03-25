@@ -38,10 +38,8 @@ require('../../behaviors/button.behavior.js')
 require('../../behaviors/dropdown.behavior.js')
 const HandleBarsHelpers = require('../../js/HandlebarsHelpers.js')
 const ResultLinkView = require('../result-link/result-link.view.js')
-const {
-  SelectItemToggle,
-} = require('../selection-checkbox/selection-checkbox.view.js')
 const plugin = require('plugins/result-item')
+import { ItemCheckbox } from '../selection-checkbox/item-checkbox'
 
 const LIST_DISPLAY_TYPE = 'List'
 const GRID_DISPLAY_TYPE = 'Grid'
@@ -208,7 +206,10 @@ const ResultItemView = Marionette.LayoutView.extend({
             {this.getExtensions()}
             <Divider />
             <Footer className="content-footer">
-              <div className="checkbox-container" />
+              <ItemCheckbox
+                selectionInterface={this.options.selectionInterface}
+                model={this.model}
+              />
               <div className="result-validation">
                 {data.hasError ? (
                   <span
@@ -257,14 +258,6 @@ const ResultItemView = Marionette.LayoutView.extend({
       </React.Fragment>
     )
   },
-  onRender() {
-    this.checkbox.show(
-      new SelectItemToggle({
-        model: this.model,
-        selectionInterface: this.options.selectionInterface,
-      })
-    )
-  },
   getExtensions() {
     return null
   },
@@ -283,7 +276,6 @@ const ResultItemView = Marionette.LayoutView.extend({
   },
   regions: {
     resultAdd: '.result-add',
-    checkbox: '.checkbox-container',
   },
   behaviors() {
     return {
