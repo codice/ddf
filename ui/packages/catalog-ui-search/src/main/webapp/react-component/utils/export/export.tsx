@@ -86,7 +86,6 @@ export const exportResult = async (
 ) => {
   return await fetch(
     `/services/catalog/sources/${source}/${id}?transform=${transformer}&columnOrder=${attributes}`
-    // `/services/catalog/sources/${source}/${id}?transform=${transformer}`
   )
 }
 
