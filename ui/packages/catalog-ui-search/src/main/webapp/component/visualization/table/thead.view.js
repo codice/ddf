@@ -28,7 +28,6 @@ const {
 
 module.exports = Marionette.LayoutView.extend({
   template({ headers }) {
-    console.log(headers)
     return (
       <React.Fragment>
         <th className="checkbox-th">

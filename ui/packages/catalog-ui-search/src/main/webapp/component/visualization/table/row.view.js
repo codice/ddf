@@ -59,7 +59,6 @@ module.exports = Marionette.LayoutView.extend({
             >
               <div>
                 {property.value.map(value => {
-                  console.log(value)
                   return (
                     <span data-value={`${value}`} title={`${alias}: ${value}`}>
                       {value.toString().substring(0, 4) === 'http' ? (
