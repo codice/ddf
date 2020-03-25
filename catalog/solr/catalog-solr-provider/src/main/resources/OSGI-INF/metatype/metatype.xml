@@ -25,6 +25,12 @@
                 description="Disables the ability to make Text Path queries by disabling the Text Path index. Disabling Text Path indexing typically increases ingest performance."
                 name="Disable Text Path indexing" id="disableTextPath" required="true"
                 type="Boolean" default="false"/>
+        <AD     description="List of Solr fields that an anyText query expands to include (e.g. title, description, ext.extracted.*)"
+                name="AnyText Expansion Field Whitelist" id="anyTextFieldWhitelist"
+                cardinality="100" required="false" type="String"/>
+        <AD     description="List of Solr fields that an anyText query will NOT include (e.g. id, checksum, security.*)"
+                name="AnyText Expansion Field Blacklist" id="anyTextFieldBlacklist"
+                cardinality="100" required="false" type="String"/>
     </OCD>
 
     <Designate pid="ddf.catalog.solr.provider.SolrCatalogProvider">

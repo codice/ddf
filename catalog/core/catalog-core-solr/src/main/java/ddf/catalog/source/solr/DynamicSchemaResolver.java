@@ -163,8 +163,6 @@ public class DynamicSchemaResolver {
 
   Set<String> fieldsCache = new HashSet<>();
 
-  private Set<String> anyTextFieldsCache = new HashSet<>();
-
   private SchemaFields schemaFields;
 
   private Cache<String, MetacardType> metacardTypesCache =
@@ -174,6 +172,8 @@ public class DynamicSchemaResolver {
       CacheBuilder.newBuilder().maximumSize(4096).initialCapacity(64).build();
 
   private Processor processor = new Processor(new Config());
+
+  private ConfigurationStore configuration = ConfigurationStore.getInstance();
 
   public DynamicSchemaResolver(
       List<String> additionalFields, Function<TinyTree, TinyBinary> tinyBinaryFunction) {
@@ -191,7 +191,7 @@ public class DynamicSchemaResolver {
         Metacard.ID + SchemaFields.TEXT_SUFFIX + SchemaFields.TOKENIZED + SchemaFields.HAS_CASE);
     fieldsCache.add(Metacard.TAGS + SchemaFields.TEXT_SUFFIX);
 
-    anyTextFieldsCache.add(Metacard.METADATA + SchemaFields.TEXT_SUFFIX);
+    configuration.addAnyTextField(Metacard.METADATA + SchemaFields.TEXT_SUFFIX);
 
     fieldsCache.add(Validation.VALIDATION_ERRORS + SchemaFields.TEXT_SUFFIX);
     fieldsCache.add(Validation.VALIDATION_WARNINGS + SchemaFields.TEXT_SUFFIX);
@@ -223,7 +223,7 @@ public class DynamicSchemaResolver {
         .stream()
         .filter(descriptor -> BasicTypes.STRING_TYPE.equals(descriptor.getType()))
         .map(stringDescriptor -> stringDescriptor.getName() + SchemaFields.TEXT_SUFFIX)
-        .forEach(fieldName -> anyTextFieldsCache.add(fieldName));
+        .forEach(fieldName -> configuration.addAnyTextField(fieldName));
   }
 
   /**
@@ -271,7 +271,7 @@ public class DynamicSchemaResolver {
       String key = e.getKey();
       fieldsCache.add(key);
       if (key.endsWith(SchemaFields.TEXT_SUFFIX)) {
-        anyTextFieldsCache.add(key);
+        configuration.addAnyTextField(key);
       }
     }
   }
@@ -743,7 +743,7 @@ public class DynamicSchemaResolver {
               + SchemaFields.HAS_CASE);
       fieldsCache.add(
           descriptor.getName() + schemaFields.getFieldSuffix(format) + SchemaFields.PHONETICS);
-      anyTextFieldsCache.add(descriptor.getName() + schemaFields.getFieldSuffix(format));
+      configuration.addAnyTextField(descriptor.getName() + schemaFields.getFieldSuffix(format));
     }
 
     if (format.equals(AttributeFormat.XML)) {
@@ -889,7 +889,7 @@ public class DynamicSchemaResolver {
   }
 
   Stream<String> anyTextFields() {
-    return anyTextFieldsCache.stream();
+    return configuration.getFilteredAnyTextFields().stream();
   }
 
   /**
