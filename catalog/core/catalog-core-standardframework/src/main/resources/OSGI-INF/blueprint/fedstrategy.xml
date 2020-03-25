@@ -45,6 +45,8 @@
           depends-on="cachePutSortedList"
           class="ddf.catalog.cache.solr.impl.SolrCache"
           destroy-method="shutdown">
+        <cm:managed-properties persistent-id="ddf.catalog.solr.provider.SolrCacheProvider"
+                               update-strategy="container-managed"/>
         <argument ref="filterAdapter"/>
         <argument ref="solrClientFactory"/>
         <argument>

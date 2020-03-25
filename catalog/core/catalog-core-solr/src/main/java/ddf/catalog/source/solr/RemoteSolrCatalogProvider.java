@@ -30,6 +30,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.MaskableImpl;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -106,6 +107,24 @@ public abstract class RemoteSolrCatalogProvider extends MaskableImpl implements 
    */
   public void setDisableTextPath(boolean disableTextPath) {
     ConfigurationStore.getInstance().setDisableTextPath(disableTextPath);
+  }
+
+  /**
+   * Sets the fields that may be used for anyText expansion.
+   *
+   * @param anyTextFieldWhitelist
+   */
+  public void setAnyTextFieldWhitelist(List<String> anyTextFieldWhitelist) {
+    ConfigurationStore.getInstance().setAnyTextFieldWhitelist(anyTextFieldWhitelist);
+  }
+
+  /**
+   * Sets the fields that may NOT be used for anyText expansion.
+   *
+   * @param anyTextFieldBlacklist
+   */
+  public void setAnyTextFieldBlacklist(List<String> anyTextFieldBlacklist) {
+    ConfigurationStore.getInstance().setAnyTextFieldBlacklist(anyTextFieldBlacklist);
   }
 
   @Override
