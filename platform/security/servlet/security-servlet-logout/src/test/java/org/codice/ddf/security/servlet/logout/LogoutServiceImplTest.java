@@ -14,6 +14,7 @@
 package org.codice.ddf.security.servlet.logout;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,8 +29,8 @@ import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
@@ -50,7 +51,7 @@ public class LogoutServiceImplTest {
     SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
     sm = mock(SecurityManager.class);
 
-    when(sessionFactory.getOrCreateSession(null)).thenReturn(httpSession);
+    when(sessionFactory.getOrCreateSession(any())).thenReturn(httpSession);
     when(httpSession.getAttribute(SecurityConstants.SECURITY_TOKEN_KEY))
         .thenReturn(securityTokenHolder);
     when(securityTokenHolder.getPrincipals()).thenReturn(new SimplePrincipalCollection());
@@ -66,15 +67,19 @@ public class LogoutServiceImplTest {
     logoutServiceImpl.setSecurityManager(sm);
     logoutServiceImpl.setLogoutActionProviders(ImmutableList.of(mockLogoutActionProvider));
 
-    String responseMessage = logoutServiceImpl.getActionProviders(null, null);
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    when(request.getHeader("Referer"))
+        .thenReturn("http://foo.bar?prevurl=https://localhost:8993/admin");
 
-    JSONArray actionProperties = (JSONArray) new JSONParser().parse(responseMessage);
-    assertEquals(1, actionProperties.size());
-    JSONObject defaultActionProperty = ((JSONObject) actionProperties.get(0));
+    String responseMessage = logoutServiceImpl.getActionProviders(request, null);
+
+    JSONObject defaultActionProperty = (JSONObject) new JSONParser().parse(responseMessage);
 
     assertEquals(defaultActionProperty.get("description"), defaultLogoutAction.getDescription());
     assertEquals(defaultActionProperty.get("title"), defaultLogoutAction.getTitle());
-    assertEquals(defaultActionProperty.get("url"), defaultLogoutAction.getUrl().toString());
+    assertEquals(
+        defaultActionProperty.get("url"),
+        defaultLogoutAction.getUrl().toString() + "?prevurl=https://localhost:8993/admin");
   }
 
   public class MockLogoutAction implements ActionProvider {

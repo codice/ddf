@@ -44,6 +44,8 @@ public class GuestRealm extends AuthenticatingRealm {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GuestRealm.class);
 
+  private static final String GUEST_TOKEN_TYPE = "guest";
+
   private Map<URI, List<String>> claimsMap = new HashMap<>();
 
   /** Determine if the supplied token is supported by this realm. */
@@ -103,7 +105,7 @@ public class GuestRealm extends AuthenticatingRealm {
     // We don't really care how long it is "valid" for
     defaultSecurityAssertionBuilder.notOnOrAfter(new Date(new Date().getTime() + 14400000L));
     defaultSecurityAssertionBuilder.token(token);
-    defaultSecurityAssertionBuilder.tokenType("guest");
+    defaultSecurityAssertionBuilder.tokenType(GUEST_TOKEN_TYPE);
     SecurityAssertion securityAssertion = defaultSecurityAssertionBuilder.build();
 
     Principal principal = securityAssertion.getPrincipal();

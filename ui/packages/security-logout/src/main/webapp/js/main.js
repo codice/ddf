@@ -31,56 +31,29 @@
   })
 
   $.get('../services/logout/actions', function(data) {
-    var actions = JSON.parse(data)
-    logout(actions).catch(error => {
+    var action = JSON.parse(data)
+    logout(action).catch(error => {
       console.log(error.message)
       $('#error-msg').show()
     })
   })
 })()
 
-async function logout(actions) {
-  let localLogoutAction
-  let externalLogoutActions = false
-  for (const action of actions) {
-    if (action.title === 'Local Logout') {
-      localLogoutAction = action
-    } else {
-      externalLogoutActions = true
-      // Certain protocols, e.g. SAML with the POST binding, use redirects that can't be followed
-      // with an AJAX request. For logout to work, we need to load the url in an iframe.
-      const iframe = document.createElement('iframe')
-      iframe.style.display = 'none'
-      iframe.src = action.url
-      document.body.appendChild(iframe)
-    }
-  }
-
-  // Wait 3 seconds for iframe logout
-  if (externalLogoutActions) {
-    await new Promise(r => setTimeout(r, 3000))
-  }
-
-  if (localLogoutAction) {
-    const response = await $.ajax(localLogoutAction.url)
-    if (response.mustCloseBrowser === true) {
-      $('#close-browser-msg').show()
-      return
-    }
-  }
-
+function logout(action) {
+  let url = action.url
   const queryParams = parseQueryParams()
+
   if (queryParams && queryParams['service']) {
-    $('#link').attr('href', queryParams['service'])
+    url = url.concat('?prevurl=').concat(queryParams['service'])
   } else if (queryParams && queryParams['prevurl']) {
-    $('#link').attr(
-      'href',
-      window.location.href.replace(/\/logout\/.*/, queryParams['prevurl'])
-    )
-  } else {
-    $('#link').attr('href', window.location.href.replace(/logout\/.*/, ''))
+    url = url
+      .concat('?prevurl=')
+      .concat(
+        window.location.href.replace(/\/logout\/.*/, queryParams['prevurl'])
+      )
   }
-  $('#standard-msg').show()
+
+  window.location.href = url
 }
 
 function parseQueryParams() {

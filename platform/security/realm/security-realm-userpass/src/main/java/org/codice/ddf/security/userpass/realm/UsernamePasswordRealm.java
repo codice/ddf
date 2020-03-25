@@ -61,6 +61,8 @@ public class UsernamePasswordRealm extends AuthenticatingRealm {
 
   public static final Logger LOGGER = LoggerFactory.getLogger(UsernamePasswordRealm.class);
 
+  private static final String USER_PASS_TOKEN_TYPE = "userpass";
+
   protected final List<JaasRealm> realmList = new CopyOnWriteArrayList<>();
 
   private List<ClaimsHandler> claimsHandlers = new ArrayList<>();
@@ -163,6 +165,7 @@ public class UsernamePasswordRealm extends AuthenticatingRealm {
       assertionBuilder.addPrincipal(principal);
     }
 
+    assertionBuilder.tokenType(USER_PASS_TOKEN_TYPE);
     SecurityAssertion assertion = assertionBuilder.build();
 
     principals.add(assertion, "UP");

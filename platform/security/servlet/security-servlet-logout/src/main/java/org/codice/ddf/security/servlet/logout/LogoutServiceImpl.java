@@ -23,13 +23,13 @@ import ddf.security.http.SessionFactory;
 import ddf.security.impl.SubjectUtils;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.security.handler.SessionToken;
 import org.codice.ddf.security.logout.service.LogoutService;
@@ -65,10 +65,9 @@ public class LogoutServiceImpl implements LogoutService {
     subjectMap.put("http_response", response);
     subjectMap.put(SecurityConstants.SECURITY_SUBJECT, subject);
 
-    List<Map<String, String>> actionPropertiesList = new ArrayList<>();
+    Map<String, String> actionProperties = new HashMap<>();
 
     for (ActionProvider actionProvider : logoutActionProviders) {
-      Map<String, String> actionProperties = new HashMap<>();
       Action action = actionProvider.getAction(subjectMap);
 
       if (action != null) {
@@ -76,12 +75,22 @@ public class LogoutServiceImpl implements LogoutService {
         actionProperties.put("title", action.getTitle());
         actionProperties.put("auth", displayName);
         actionProperties.put("description", action.getDescription());
-        actionProperties.put("url", action.getUrl().toString());
-        actionPropertiesList.add(actionProperties);
+
+        StringBuilder urlBuilder = new StringBuilder(action.getUrl().toString());
+        String referer = request.getHeader("Referer");
+        if (!StringUtils.isEmpty(referer)) {
+          String[] parts = referer.split("\\?prevurl=");
+          if (parts.length > 1) {
+            String previousUrl = parts[1];
+            urlBuilder.append("?prevurl=");
+            urlBuilder.append(previousUrl);
+          }
+        }
+        actionProperties.put("url", urlBuilder.toString());
       }
     }
 
-    return GSON.toJson(actionPropertiesList);
+    return GSON.toJson(actionProperties);
   }
 
   public void setHttpSessionFactory(SessionFactory httpSessionFactory) {

@@ -358,6 +358,7 @@ org.ops4j.pax.web.default.realmname=DDF
 
     <feature name="security-handler-oidc" version="${project.version}"
              description="OIDC Authentication Handler for web applications.">
+        <feature>cxf-jaxrs</feature>
         <feature>oidc-dependencies</feature>
         <feature>action-core-impl</feature>
         <feature>security-core-impl</feature>

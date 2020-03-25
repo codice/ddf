@@ -955,14 +955,7 @@ public class TestOidc extends AbstractIntegrationTest {
 
     // Get and verify the logout url from body
     String body = initialLogoutResponse.getBody().prettyPrint();
-    List<Map<String, String>> responseJson = GSON.fromJson(body, List.class);
-    Map<String, String> oidcLogoutProperties =
-        responseJson
-            .stream()
-            .filter(entry -> ((String) ((Map) entry).get("title")).contains("OIDC"))
-            .findFirst()
-            .get();
-
+    Map<String, String> oidcLogoutProperties = GSON.fromJson(body, Map.class);
     assertThat(oidcLogoutProperties.get("auth"), is(ADMIN));
 
     URI logoutUri = new URI(oidcLogoutProperties.get("url"));
@@ -1070,6 +1063,8 @@ public class TestOidc extends AbstractIntegrationTest {
    * @param jsessionidValue - {@code JSESSIONID} value returned during login
    */
   public void logout(String jsessionidValue) {
+    whenHttp(server).match(get(LOGOUT_URL_PATH)).then(ok());
+
     given()
         .cookie(JSESSIONID, jsessionidValue)
         .header(USER_AGENT, BROWSER_USER_AGENT)

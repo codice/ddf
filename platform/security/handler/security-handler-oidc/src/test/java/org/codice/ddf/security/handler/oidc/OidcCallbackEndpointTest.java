@@ -16,6 +16,7 @@ package org.codice.ddf.security.handler.oidc;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,9 +36,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OidcCallbackEndpointTest {
-  private static final int HTTP_REDIRECT = Status.TEMPORARY_REDIRECT.getStatusCode();
+  private static final int HTTP_REDIRECT = Status.SEE_OTHER.getStatusCode();
 
-  private static OidcCallbackEndpoint callbackEndpoint;
+  private static OidcCallbackEndpointWithMockClient callbackEndpoint;
 
   @Mock private HttpServletRequest mockRequest;
   @Mock private HttpServletResponse mockResponse;
@@ -46,7 +48,8 @@ public class OidcCallbackEndpointTest {
 
   @BeforeClass
   public static void setupClass() {
-    callbackEndpoint = new OidcCallbackEndpoint();
+    callbackEndpoint = new OidcCallbackEndpointWithMockClient();
+    callbackEndpoint.setRedirectUri("/logout");
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -69,11 +72,25 @@ public class OidcCallbackEndpointTest {
   public void logout() throws Exception {
     when(mockRequest.getSession()).thenReturn(mockSession);
     when(mockRequest.getSession(any(Boolean.class))).thenReturn(mockSession);
+
+    Response r = mock(Response.class);
+    when(r.getStatus()).thenReturn(302);
+    when(callbackEndpoint.webClient.get()).thenReturn(r);
+
     response = callbackEndpoint.logout(mockRequest, mockResponse);
 
     verify(mockSession, times(1)).invalidate();
     assertThat(response.getStatus(), is(HTTP_REDIRECT));
     assertThat(
         response.getHeaderString("Location"), is(SystemBaseUrl.EXTERNAL.constructUrl("/logout")));
+  }
+
+  static class OidcCallbackEndpointWithMockClient extends OidcCallbackEndpoint {
+    WebClient webClient = mock(WebClient.class);
+
+    @Override
+    WebClient getWebClient(String logoutUrlString) {
+      return webClient;
+    }
   }
 }
