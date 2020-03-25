@@ -214,6 +214,10 @@ public class DynamicSchemaResolver {
         .forEach(field -> dynamicSchemaResolver.fieldsCache.add(field));
   }
 
+  public void addAdditionalFields(List<AttributeDescriptor> additionalFields) {
+    additionalFields.stream().forEach(this::addToFieldsCache);
+  }
+
   @SuppressWarnings("WeakerAccess" /* access needed by blueprint */)
   public void addMetacardType(MetacardType metacardType) {
     metacardType.getAttributeDescriptors().forEach(this::addToFieldsCache);

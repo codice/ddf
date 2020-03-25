@@ -56,6 +56,11 @@
             <artifactId>Saxon-HE</artifactId>
             <version>${lux.saxon.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>${osgi.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
